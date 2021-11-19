@@ -38,7 +38,7 @@ namespace System
             encoders,
             analog,
             leds,
-            display,
+            i2c,
             touchscreen,
             AMOUNT
         };
@@ -109,10 +109,9 @@ namespace System
                 AMOUNT
             };
 
-            enum class display_t : uint8_t
+            enum class i2c_t : uint8_t
             {
-                features,
-                setting,
+                display,
                 AMOUNT
             };
 

@@ -375,18 +375,17 @@ TEST_CASE(DatabaseInitialValues)
         for (size_t i = 0; i < IO::LEDs::Collection::size(); i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(1, MIDIHelper::readFromBoard(System::Section::leds_t::midiChannel, i));
 
-#ifdef DISPLAY_SUPPORTED
-        // display block
+#ifdef I2C_SUPPORTED
+        // i2c block
         //----------------------------------
-        // feature section
-        TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::display_t::features, static_cast<size_t>(IO::Display::feature_t::enable)));
-        TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::display_t::features, static_cast<size_t>(IO::Display::feature_t::welcomeMsg)));
-        TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::display_t::features, static_cast<size_t>(IO::Display::feature_t::vInfoMsg)));
-        TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::display_t::features, static_cast<size_t>(IO::Display::feature_t::MIDInotesAlternate)));
-
-        // setting section
-        TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::display_t::setting, static_cast<size_t>(IO::Display::setting_t::MIDIeventTime)));
-        TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::display_t::setting, static_cast<size_t>(IO::Display::setting_t::octaveNormalization)));
+        // display section
+        TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::i2c_t::display, static_cast<size_t>(IO::Display::setting_t::enable)));
+        TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::i2c_t::display, static_cast<size_t>(IO::Display::setting_t::deviceInfoMsg)));
+        TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::i2c_t::display, static_cast<size_t>(IO::Display::setting_t::controller)));
+        TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::i2c_t::display, static_cast<size_t>(IO::Display::setting_t::resolution)));
+        TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::i2c_t::display, static_cast<size_t>(IO::Display::setting_t::MIDIeventTime)));
+        TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::i2c_t::display, static_cast<size_t>(IO::Display::setting_t::MIDInotesAlternate)));
+        TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::i2c_t::display, static_cast<size_t>(IO::Display::setting_t::octaveNormalization)));
 #endif
 
 #ifdef TOUCHSCREEN_SUPPORTED

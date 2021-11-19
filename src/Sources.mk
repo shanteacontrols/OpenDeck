@@ -175,8 +175,8 @@ ifeq (,$(findstring gen,$(TYPE)))
                 SOURCES += $(shell $(FIND) ./application/io/touchscreen/model -type f -name "*.cpp")
             endif
 
-            ifneq (,$(findstring DISPLAY_SUPPORTED,$(DEFINES)))
-                SOURCES += $(shell $(FIND) ./application/io/display -type f -name "*.cpp")
+            ifneq (,$(findstring I2C_SUPPORTED,$(DEFINES)))
+                SOURCES += $(shell $(FIND) ./application/io/i2c -type f -name "*.cpp")
                 SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/comm/i2c -type f -name "*.cpp")
 
                 #u8x8 sources

@@ -33,7 +33,7 @@ namespace Util
         Database::Section::encoder_t     sys2DBsection(System::Config::Section::encoder_t section);
         Database::Section::analog_t      sys2DBsection(System::Config::Section::analog_t section);
         Database::Section::leds_t        sys2DBsection(System::Config::Section::leds_t section);
-        Database::Section::display_t     sys2DBsection(System::Config::Section::display_t section);
+        Database::Section::i2c_t         sys2DBsection(System::Config::Section::i2c_t section);
         Database::Section::touchscreen_t sys2DBsection(System::Config::Section::touchscreen_t section);
     }    // namespace Conversion
 }    // namespace Util

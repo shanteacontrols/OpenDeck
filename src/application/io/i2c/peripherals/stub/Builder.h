@@ -18,25 +18,15 @@ limitations under the License.
 
 #pragma once
 
-#include <inttypes.h>
+#include "io/i2c/I2C.h"
+#include "database/Database.h"
 
 namespace IO
 {
-    enum class ioComponent_t : uint8_t
-    {
-        buttons,
-        encoders,
-        analog,
-        leds,
-        i2c,
-        touchscreen,
-        AMOUNT
-    };
-
-    class Base
+    class I2CPeripheralBuilder
     {
         public:
-        virtual bool init()                            = 0;
-        virtual void update(bool forceRefresh = false) = 0;
+        I2CPeripheralBuilder(I2C::HWA& hwa, Database& database)
+        {}
     };
 }    // namespace IO

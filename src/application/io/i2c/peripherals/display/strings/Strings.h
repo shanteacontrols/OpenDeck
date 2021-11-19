@@ -19,24 +19,14 @@ limitations under the License.
 #pragma once
 
 #include <inttypes.h>
+#include "midi/src/MIDI.h"
 
-namespace IO
+class Strings
 {
-    enum class ioComponent_t : uint8_t
-    {
-        buttons,
-        encoders,
-        analog,
-        leds,
-        i2c,
-        touchscreen,
-        AMOUNT
-    };
+    public:
+    Strings() = default;
 
-    class Base
-    {
-        public:
-        virtual bool init()                            = 0;
-        virtual void update(bool forceRefresh = false) = 0;
-    };
-}    // namespace IO
+    static const char* board();
+    static const char* midiMessage(MIDI::messageType_t message);
+    static const char* note(MIDI::note_t note);
+};

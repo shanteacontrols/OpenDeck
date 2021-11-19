@@ -24,6 +24,67 @@ limitations under the License.
 
 #define I2C_TRANSFER_TIMEOUT_MS 10
 
+// note: on AVR, only 1 I2C channel is supported with the index 0
+
+namespace
+{
+    uint32_t _currentTime;
+
+#define TIMEOUT_CHECK(register, bit)                                                         \
+    do                                                                                       \
+    {                                                                                        \
+        _currentTime = core::timing::currentRunTimeMs();                                     \
+        while (!BIT_READ(register, bit))                                                     \
+        {                                                                                    \
+            if ((core::timing::currentRunTimeMs() - _currentTime) > I2C_TRANSFER_TIMEOUT_MS) \
+            {                                                                                \
+                TWCR = 0;                                                                    \
+                TWDR = 0;                                                                    \
+                return false;                                                                \
+            }                                                                                \
+        }                                                                                    \
+    } while (0)
+
+    inline bool startTransfer(uint8_t address)
+    {
+        // enable interrupt flag
+        // enable start bit (set to master)
+        TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN);
+
+        // wait for interrupt flag to be cleared
+        TIMEOUT_CHECK(TWCR, TWINT);
+
+        // check the value of TWI status register
+        uint8_t status = TW_STATUS & 0xF8;
+
+        if ((status != TW_START) && (status != TW_REP_START))
+            return false;
+
+        // send device address
+        TWDR = address << 1;
+        TWCR = (1 << TWINT) | (1 << TWEN);
+
+        TIMEOUT_CHECK(TWCR, TWINT);
+
+        status = TW_STATUS & 0xF8;
+
+        if ((status != TW_MT_SLA_ACK) && (status != TW_MR_SLA_ACK))
+            return false;
+
+        return true;
+    }
+
+    inline bool endTransfer()
+    {
+        // wait until all ongoing transmissions are stopped
+        TWCR |= (1 << TWSTO);
+
+        TIMEOUT_CHECK(TWCR, TWSTO);
+
+        return true;
+    }
+}    // namespace
+
 namespace Board
 {
     namespace I2C
@@ -38,9 +99,6 @@ namespace Board
 
             // use formula as per datasheet
             TWBR = ((F_CPU / static_cast<uint32_t>(speed)) - 16) / 2;
-
-            // enable i2c interface
-            TWCR = (1 << TWEN);
 
             return true;
         }
@@ -59,43 +117,7 @@ namespace Board
             if (channel >= MAX_I2C_INTERFACES)
                 return false;
 
-            // enable interrupt flag
-            // enable start bit (set to master)
-            TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN);
-
-            // wait for interrupt flag to be cleared
-            uint32_t currentTime = core::timing::currentRunTimeMs();
-
-            currentTime = core::timing::currentRunTimeMs();
-
-            while (!BIT_READ(TWCR, TWINT))
-            {
-                if ((core::timing::currentRunTimeMs() - currentTime) > I2C_TRANSFER_TIMEOUT_MS)
-                    return false;
-            }
-
-            // check the value of TWI status register
-            uint8_t status = TW_STATUS & 0xF8;
-
-            if ((status != TW_START) && (status != TW_REP_START))
-                return false;
-
-            // send device address
-            TWDR = address;
-            TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTA);
-
-            // wait for interrupt flag to be cleared
-            currentTime = core::timing::currentRunTimeMs();
-
-            while (!BIT_READ(TWCR, TWINT))
-            {
-                if ((core::timing::currentRunTimeMs() - currentTime) > I2C_TRANSFER_TIMEOUT_MS)
-                    return false;
-            }
-
-            status = TW_STATUS & 0xF8;
-
-            if ((status != TW_MT_SLA_ACK) && (status != TW_MR_SLA_ACK))
+            if (!startTransfer(address))
                 return false;
 
             for (size_t i = 0; i < size; i++)
@@ -104,33 +126,31 @@ namespace Board
                 TWCR = (1 << TWINT) | (1 << TWEN);
 
                 // wait for interrupt flag to be cleared
-                while (!BIT_READ(TWCR, TWINT))
-                    ;
-
-                currentTime = core::timing::currentRunTimeMs();
-
-                while (!BIT_READ(TWCR, TWINT))
-                {
-                    if ((core::timing::currentRunTimeMs() - currentTime) > I2C_TRANSFER_TIMEOUT_MS)
-                        return false;
-                }
+                TIMEOUT_CHECK(TWCR, TWINT);
 
                 if ((TW_STATUS & 0xF8) != TW_MT_DATA_ACK)
                     return false;
             }
 
-            // wait until all ongoing transmissions are stopped
-            TWCR |= (1 << TWSTO);
+            return endTransfer();
+        }
 
-            currentTime = core::timing::currentRunTimeMs();
+        bool deviceAvailable(uint8_t channel, uint8_t address)
+        {
+            if (channel >= MAX_I2C_INTERFACES)
+                return false;
 
-            while (!BIT_READ(TWCR, TWSTO))
+            bool found = false;
+
+            if (startTransfer(address))
             {
-                if ((core::timing::currentRunTimeMs() - currentTime) > I2C_TRANSFER_TIMEOUT_MS)
-                    return false;
+                found = true;
             }
 
-            return true;
+            if (!endTransfer())
+                return false;
+
+            return found;
         }
     }    // namespace I2C
 }    // namespace Board

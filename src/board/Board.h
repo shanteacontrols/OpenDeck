@@ -231,6 +231,12 @@ namespace Board
         /// param [in]: size        Amount of bytes in provided buffer.
         /// returns: True on success, false otherwise.
         bool write(uint8_t channel, uint8_t address, uint8_t* buffer, size_t size);
+
+        /// Verifies if device with specified address is present on the bus.
+        /// param [in]: channel     I2C interface channel on MCU.
+        /// param [in]: address     7-bit slave address without R/W bit.
+        /// returns: True if device is present, false otherwise.
+        bool deviceAvailable(uint8_t channel, uint8_t address);
     }    // namespace I2C
 
     namespace io

@@ -23,7 +23,7 @@ limitations under the License.
 #include "io/encoders/Encoders.h"
 #include "io/analog/Analog.h"
 #include "io/leds/LEDs.h"
-#include "io/display/Display.h"
+#include "io/i2c/peripherals/display/Display.h"
 #include "io/touchscreen/Touchscreen.h"
 #include "protocol/dmx/DMX.h"
 #include "protocol/midi/MIDI.h"
@@ -365,18 +365,8 @@ namespace
         }
     };
 
-    LESSDB::section_t displaySections[static_cast<uint8_t>(Database::Section::display_t::AMOUNT)] = {
-        // features section
-        {
-            .numberOfParameters     = static_cast<uint8_t>(IO::Display::feature_t::AMOUNT),
-            .parameterType          = LESSDB::sectionParameterType_t::bit,
-            .preserveOnPartialReset = false,
-            .defaultValue           = 0,
-            .autoIncrement          = false,
-            .address                = 0,
-        },
-
-        // setting section
+    LESSDB::section_t i2cSections[static_cast<uint8_t>(Database::Section::i2c_t::AMOUNT)] = {
+        // display section
         {
             .numberOfParameters     = static_cast<uint8_t>(IO::Display::setting_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::byte,
@@ -384,7 +374,7 @@ namespace
             .defaultValue           = 0,
             .autoIncrement          = false,
             .address                = 0,
-        }
+        },
     };
 
     LESSDB::section_t touchscreenSections[static_cast<uint8_t>(Database::Section::touchscreen_t::AMOUNT)] = {
@@ -594,8 +584,8 @@ namespace
 
         // display block
         {
-            .numberOfSections = static_cast<uint8_t>(Database::Section::display_t::AMOUNT),
-            .section          = displaySections,
+            .numberOfSections = static_cast<uint8_t>(Database::Section::i2c_t::AMOUNT),
+            .section          = i2cSections,
             .address          = 0,
         },
 

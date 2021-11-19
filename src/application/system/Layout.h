@@ -24,7 +24,7 @@
 #include "io/encoders/Encoders.h"
 #include "io/analog/Analog.h"
 #include "io/leds/LEDs.h"
-#include "io/display/Display.h"
+#include "io/i2c/peripherals/display/Display.h"
 #include "io/touchscreen/Touchscreen.h"
 #include "protocol/dmx/DMX.h"
 #include "protocol/midi/MIDI.h"
@@ -293,20 +293,13 @@ namespace
         }
     };
 
-    std::vector<SysExConf::Section> displaySections = {
-        // features section
-        {
-            static_cast<uint16_t>(IO::Display::feature_t::AMOUNT),
-            0,
-            1,
-        },
-
-        // settings section
+    std::vector<SysExConf::Section> i2cSections = {
+        // display section
         {
             static_cast<uint16_t>(IO::Display::setting_t::AMOUNT),
             0,
             0,
-        }
+        },
     };
 
     std::vector<SysExConf::Section> touchscreenSections = {
@@ -451,7 +444,7 @@ namespace
 
         // display block
         {
-            .section = displaySections,
+            .section = i2cSections,
         },
 
         // touchscreen block

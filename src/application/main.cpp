@@ -800,39 +800,34 @@ class HWACDCPassthroughStub : public System::Builder::HWA::IO::CDCPassthrough
 } _hwaCDCPassthrough;
 #endif
 
-#ifdef DISPLAY_SUPPORTED
-class Display : public System::Builder::HWA::IO::Display
+#ifdef I2C_SUPPORTED
+class HWAI2C : public System::Builder::HWA::IO::I2C
 {
     public:
-    Display() {}
+    HWAI2C() = default;
 
     bool init() override
     {
-        return Board::I2C::init(I2C_CHANNEL_DISPLAY, Board::I2C::clockSpeed_t::_1kHz);
-    }
-
-    bool deInit() override
-    {
-        return Board::I2C::deInit(I2C_CHANNEL_DISPLAY);
+        return Board::I2C::init(I2C_CHANNEL, Board::I2C::clockSpeed_t::_1kHz);
     }
 
     bool write(uint8_t address, uint8_t* buffer, size_t size) override
     {
-        return Board::I2C::write(I2C_CHANNEL_DISPLAY, address, buffer, size);
+        return Board::I2C::write(I2C_CHANNEL, address, buffer, size);
     }
-} _hwaDisplay;
+
+    bool deviceAvailable(uint8_t address) override
+    {
+        return Board::I2C::deviceAvailable(I2C_CHANNEL, address);
+    }
+} _hwaI2C;
 #else
-class DisplayStub : public System::Builder::HWA::IO::Display
+class HWAI2CStub : public System::Builder::HWA::IO::I2C
 {
     public:
-    DisplayStub() = default;
+    HWAI2CStub() = default;
 
     bool init() override
-    {
-        return false;
-    }
-
-    bool deInit() override
     {
         return false;
     }
@@ -841,7 +836,12 @@ class DisplayStub : public System::Builder::HWA::IO::Display
     {
         return false;
     }
-} _hwaDisplay;
+
+    bool deviceAvailable(uint8_t address) override
+    {
+        return false;
+    }
+} _hwaI2C;
 #endif
 
 class HWASystem : public System::Builder::HWA::System
@@ -958,9 +958,9 @@ class HWABuilder : public ::System::Builder::HWA
             return _hwaCDCPassthrough;
         }
 
-        ::System::Builder::HWA::IO::Display& display() override
+        ::System::Builder::HWA::IO::I2C& i2c() override
         {
-            return _hwaDisplay;
+            return _hwaI2C;
         }
     } _hwaIO;
 

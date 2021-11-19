@@ -247,11 +247,11 @@ void Instance::checkComponents()
 
     case ioComponent_t::leds:
     {
-        componentCheck = ioComponent_t::display;
+        componentCheck = ioComponent_t::i2c;
     }
     break;
 
-    case ioComponent_t::display:
+    case ioComponent_t::i2c:
     {
         componentCheck = ioComponent_t::touchscreen;
     }

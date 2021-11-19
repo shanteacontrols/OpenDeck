@@ -10,7 +10,7 @@
 #include "io/analog/Analog.h"
 #include "io/analog/Filter.h"
 #include "io/leds/LEDs.h"
-#include "io/display/Display.h"
+#include "io/i2c/peripherals/display/Display.h"
 #include "io/touchscreen/Touchscreen.h"
 #include "protocol/dmx/DMX.h"
 #include "protocol/midi/MIDI.h"
@@ -185,18 +185,17 @@ TEST_CASE(ReadInitialValues)
         for (int i = 0; i < IO::LEDs::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::leds_t::midiChannel, i));
 
-#ifdef DISPLAY_SUPPORTED
-        // display block
+#ifdef I2C_SUPPORTED
+        // i2c block
         //----------------------------------
-        // feature section
-        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::display_t::features, IO::Display::feature_t::enable));
-        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::display_t::features, IO::Display::feature_t::welcomeMsg));
-        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::display_t::features, IO::Display::feature_t::vInfoMsg));
-        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::display_t::features, IO::Display::feature_t::MIDInotesAlternate));
-
-        // setting section
-        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::display_t::setting, IO::Display::setting_t::MIDIeventTime));
-        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::display_t::setting, IO::Display::setting_t::octaveNormalization));
+        // display section
+        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::i2c_t::display, IO::Display::setting_t::enable));
+        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::i2c_t::display, IO::Display::setting_t::deviceInfoMsg));
+        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::i2c_t::display, IO::Display::setting_t::controller));
+        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::i2c_t::display, IO::Display::setting_t::resolution));
+        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::i2c_t::display, IO::Display::setting_t::MIDIeventTime));
+        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::i2c_t::display, IO::Display::setting_t::MIDInotesAlternate));
+        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::i2c_t::display, IO::Display::setting_t::octaveNormalization));
 #endif
 
 #ifdef TOUCHSCREEN_SUPPORTED
@@ -344,10 +343,10 @@ TEST_CASE(FactoryReset)
     TEST_ASSERT(database.update(Database::Section::encoder_t::midiChannel, 0, 11) == true);
 #endif
 
-#ifdef DISPLAY_SUPPORTED
-    TEST_ASSERT(database.update(Database::Section::display_t::setting,
+#ifdef I2C_SUPPORTED
+    TEST_ASSERT(database.update(Database::Section::i2c_t::display,
                                 IO::Display::setting_t::controller,
-                                IO::U8X8::displayController_t::ssd1306) == true);
+                                IO::Display::displayController_t::ssd1306) == true);
 #endif
 
     database.setPresetPreserveState(true);
@@ -363,9 +362,9 @@ TEST_CASE(FactoryReset)
     TEST_ASSERT(database.read(Database::Section::encoder_t::midiChannel, 0) == 0);
 #endif
 
-#ifdef DISPLAY_SUPPORTED
-    TEST_ASSERT(database.read(Database::Section::display_t::setting,
-                              IO::Display::setting_t::controller) == static_cast<int32_t>(IO::U8X8::displayController_t::invalid));
+#ifdef I2C_SUPPORTED
+    TEST_ASSERT(database.read(Database::Section::i2c_t::display,
+                              IO::Display::setting_t::controller) == static_cast<int32_t>(IO::Display::displayController_t::invalid));
 #endif
 
     TEST_ASSERT(database.getPresetPreserveState() == false);

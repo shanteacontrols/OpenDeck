@@ -26,7 +26,8 @@ limitations under the License.
 #include "io/analog/Analog.h"
 #include "io/analog/Filter.h"
 #include "io/leds/LEDs.h"
-#include "io/display/Display.h"
+#include "io/i2c/I2C.h"
+#include "io/i2c/peripherals/Builder.h"
 #include "io/touchscreen/Touchscreen.h"
 #include "io/touchscreen/model/Builder.h"
 #include "protocol/dmx/DMX.h"
@@ -47,7 +48,7 @@ namespace System
                 using Analog         = ::IO::Analog::HWA;
                 using Buttons        = ::IO::Buttons::HWA;
                 using CDCPassthrough = ::IO::Touchscreen::CDCPassthrough;
-                using Display        = ::IO::U8X8::HWAI2C;
+                using I2C            = ::IO::I2C::HWA;
                 using Encoders       = ::IO::Encoders::HWA;
                 using LEDs           = ::IO::LEDs::HWA;
                 using Touchscreen    = ::IO::Touchscreen::HWA;
@@ -55,7 +56,7 @@ namespace System
                 virtual Analog&         analog()         = 0;
                 virtual Buttons&        buttons()        = 0;
                 virtual CDCPassthrough& cdcPassthrough() = 0;
-                virtual Display&        display()        = 0;
+                virtual I2C&            i2c()            = 0;
                 virtual Encoders&       encoders()       = 0;
                 virtual LEDs&           leds()           = 0;
                 virtual Touchscreen&    touchscreen()    = 0;
@@ -88,7 +89,7 @@ namespace System
             _io.at(static_cast<size_t>(::IO::ioComponent_t::encoders))    = &_encoders;
             _io.at(static_cast<size_t>(::IO::ioComponent_t::analog))      = &_analog;
             _io.at(static_cast<size_t>(::IO::ioComponent_t::leds))        = &_leds;
-            _io.at(static_cast<size_t>(::IO::ioComponent_t::display))     = &_display;
+            _io.at(static_cast<size_t>(::IO::ioComponent_t::i2c))         = &_i2c;
             _io.at(static_cast<size_t>(::IO::ioComponent_t::touchscreen)) = &_touchscreen;
 
             _protocol.at(static_cast<size_t>(::Protocol::protocol_t::midi)) = &_midi;
@@ -115,10 +116,10 @@ namespace System
         IO::Buttons                                                                    _buttons           = IO::Buttons(_hwa.io().buttons(), _buttonsFilter, _database);
         IO::LEDs                                                                       _leds              = IO::LEDs(_hwa.io().leds(), _database);
         IO::Encoders                                                                   _encoders          = IO::Encoders(_hwa.io().encoders(), _encodersFilter, _database, 1);
-        IO::TouchscreenModelBuilder                                                    _touchscreenModels = IO::TouchscreenModelBuilder(_hwa.io().touchscreen());
         IO::Touchscreen                                                                _touchscreen       = IO::Touchscreen(_hwa.io().touchscreen(), _database, _hwa.io().cdcPassthrough(), static_cast<uint16_t>(IO::AnalogFilter::ADC_RESOLUTION));
-        IO::U8X8                                                                       _u8x8              = IO::U8X8(_hwa.io().display());
-        IO::Display                                                                    _display           = IO::Display(_u8x8, _database);
+        IO::TouchscreenModelBuilder                                                    _touchscreenModels = IO::TouchscreenModelBuilder(_hwa.io().touchscreen());
+        IO::I2C                                                                        _i2c               = IO::I2C(_hwa.io().i2c());
+        IO::I2CPeripheralBuilder                                                       _i2cPeripherals    = IO::I2CPeripheralBuilder(_hwa.io().i2c(), _database);
         Protocol::MIDI                                                                 _midi              = Protocol::MIDI(_hwa.protocol().midi(), _database);
         Protocol::DMX                                                                  _dmx               = Protocol::DMX(_hwa.protocol().dmx(), _database);
         std::array<IO::Base*, static_cast<size_t>(IO::ioComponent_t::AMOUNT)>          _io                = {};

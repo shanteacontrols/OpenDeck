@@ -163,11 +163,11 @@ then
     } >> "$OUT_FILE_MAKEFILE_DEFINES"
 fi
 
-if [[ "$($YAML_PARSER "$TARGET_DEF_FILE" display)" != "null" ]]
+if [[ "$($YAML_PARSER "$TARGET_DEF_FILE" i2c)" != "null" ]]
 then
     {
-        printf "%s\n" "DEFINES += DISPLAY_SUPPORTED"
-        printf "%s\n" "DEFINES += I2C_CHANNEL_DISPLAY=$($YAML_PARSER "$TARGET_DEF_FILE" display.i2cChannel)"
+        printf "%s\n" "DEFINES += I2C_SUPPORTED"
+        printf "%s\n" "DEFINES += I2C_CHANNEL=$($YAML_PARSER "$TARGET_DEF_FILE" i2c.channel)"
     } >> "$OUT_FILE_MAKEFILE_DEFINES"
 fi
 

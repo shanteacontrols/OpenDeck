@@ -441,9 +441,9 @@ class MIDIHelper
         return System::Config::block_t::leds;
     }
 
-    static System::Config::block_t block(System::Config::Section::display_t section)
+    static System::Config::block_t block(System::Config::Section::i2c_t section)
     {
-        return System::Config::block_t::display;
+        return System::Config::block_t::i2c;
     }
 
     static System::Config::block_t block(System::Config::Section::touchscreen_t section)

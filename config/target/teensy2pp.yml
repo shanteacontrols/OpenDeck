@@ -3,8 +3,8 @@
   usb: true
   dinMIDI:
     uartChannel: 0
-  display:
-    i2cChannel: 0
+  i2c:
+    channel: 0
   dmx:
     uartChannel: 0
   buttons:

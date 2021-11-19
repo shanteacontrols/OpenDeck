@@ -23,7 +23,7 @@ limitations under the License.
 #include <MCU.h>
 
 #define I2C_TRANSFER_TIMEOUT_MS 10
-
+#define I2C_SCAN_RETRIES        3
 namespace
 {
     I2C_HandleTypeDef _i2cHandler[MAX_I2C_INTERFACES];
@@ -68,7 +68,15 @@ namespace Board
             if (channel >= MAX_I2C_INTERFACES)
                 return false;
 
-            return HAL_I2C_Master_Transmit(&_i2cHandler[channel], address, buffer, size, I2C_TRANSFER_TIMEOUT_MS) == HAL_OK;
+            return HAL_I2C_Master_Transmit(&_i2cHandler[channel], address << 1, buffer, size, I2C_TRANSFER_TIMEOUT_MS) == HAL_OK;
+        }
+
+        bool deviceAvailable(uint8_t channel, uint8_t address)
+        {
+            if (channel >= MAX_I2C_INTERFACES)
+                return false;
+
+            return HAL_I2C_IsDeviceReady(&_i2cHandler[channel], address << 1, I2C_SCAN_RETRIES, I2C_TRANSFER_TIMEOUT_MS) == HAL_OK;
         }
     }    // namespace I2C
 }    // namespace Board

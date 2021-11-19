@@ -71,9 +71,8 @@ namespace
         Database::Section::leds_t::midiChannel,
     };
 
-    const Database::Section::display_t _sysEx2DB_display[static_cast<uint8_t>(System::Config::Section::display_t::AMOUNT)] = {
-        Database::Section::display_t::features,
-        Database::Section::display_t::setting,
+    const Database::Section::i2c_t _sysEx2DB_i2c[static_cast<uint8_t>(System::Config::Section::i2c_t::AMOUNT)] = {
+        Database::Section::i2c_t::display,
     };
 
     const Database::Section::touchscreen_t _sysEx2DB_touchscreen[static_cast<uint8_t>(System::Config::Section::touchscreen_t::AMOUNT)] = {
@@ -125,9 +124,9 @@ namespace Util
             return _sysEx2DB_leds[static_cast<uint8_t>(section)];
         }
 
-        Database::Section::display_t sys2DBsection(System::Config::Section::display_t section)
+        Database::Section::i2c_t sys2DBsection(System::Config::Section::i2c_t section)
         {
-            return _sysEx2DB_display[static_cast<uint8_t>(section)];
+            return _sysEx2DB_i2c[static_cast<uint8_t>(section)];
         }
 
         Database::Section::touchscreen_t sys2DBsection(System::Config::Section::touchscreen_t section)

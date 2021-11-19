@@ -4,8 +4,8 @@
   usb: true
   dinMIDI:
     uartChannel: 3
-  display:
-    i2cChannel: 0
+  i2c:
+    channel: 0
   touchscreen:
     uartChannel: 4
     components: 64

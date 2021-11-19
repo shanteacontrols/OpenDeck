@@ -156,17 +156,12 @@ namespace
         }
     } _hwaCDCPassthrough;
 
-    class HWADisplay : public System::Builder::HWA::IO::Display
+    class HWAI2C : public System::Builder::HWA::IO::I2C
     {
         public:
-        HWADisplay() {}
+        HWAI2C() = default;
 
         bool init() override
-        {
-            return true;
-        }
-
-        bool deInit() override
         {
             return true;
         }
@@ -175,7 +170,12 @@ namespace
         {
             return true;
         }
-    } _hwaDisplay;
+
+        bool deviceAvailable(uint8_t address) override
+        {
+            return true;
+        }
+    } _hwaI2C;
 
     class HWAMIDI : public System::Builder::HWA::Protocol::MIDI
     {
@@ -387,9 +387,9 @@ namespace
                 return _hwaCDCPassthrough;
             }
 
-            ::System::Builder::HWA::IO::Display& display() override
+            ::System::Builder::HWA::IO::I2C& i2c() override
             {
-                return _hwaDisplay;
+                return _hwaI2C;
             }
         } _hwaIO;
 

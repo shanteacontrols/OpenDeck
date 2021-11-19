@@ -18,27 +18,18 @@ limitations under the License.
 
 #pragma once
 
-#include "U8X8/U8X8.h"
+#include "u8g2/csrc/u8x8.h"
 #include "core/src/general/StringBuilder.h"
 #include "database/Database.h"
 #include "util/messaging/Messaging.h"
 #include "system/Config.h"
-#include "io/IOBase.h"
-
-#ifdef DISPLAY_SUPPORTED
+#include "io/i2c/I2C.h"
 
 namespace IO
 {
-    class Display : public IO::Base
+    class Display : public IO::I2C::Peripheral
     {
         public:
-        /// List of all possible text types on display.
-        enum class lcdTextType_t : uint8_t
-        {
-            still,
-            temp
-        };
-
         /// List of all possible text scrolling directions.
         enum class scrollDirection_t : uint8_t
         {
@@ -63,52 +54,62 @@ namespace IO
 
         enum class setting_t : uint8_t
         {
+            deviceInfoMsg,
             controller,
             resolution,
             MIDIeventTime,
-            octaveNormalization,
-            i2cAddress,
-            AMOUNT
-        };
-
-        enum class feature_t : uint8_t
-        {
-            enable,
-            welcomeMsg,
-            vInfoMsg,
             MIDInotesAlternate,
+            octaveNormalization,
+            enable,
             AMOUNT
         };
 
-        Display(IO::U8X8& u8x8,
+        enum class displayController_t : uint8_t
+        {
+            invalid,
+            ssd1306,
+            AMOUNT
+        };
+
+        enum displayResolution_t : uint8_t
+        {
+            invalid,
+            _128x64,
+            _128x32,
+            AMOUNT
+        };
+
+        Display(I2C::HWA& hwa,
                 Database& database);
 
-        bool init() override;
-        void update(bool forceRefresh = false) override;
+        bool           init(uint8_t address) override;
+        void           update() override;
+        const uint8_t* addresses(size_t& amount) override;
 
         private:
+        bool                   initU8X8(uint8_t i2cAddress, displayController_t controller, displayResolution_t resolution);
         bool                   deInit();
         void                   setAlternateNoteDisplay(bool state);
-        void                   setOctaveNormalization(int8_t value);
         void                   setRetentionTime(uint32_t time);
-        void                   setPreset(uint8_t preset);
         void                   displayMIDIevent(eventType_t type, const Util::MessageDispatcher::message_t& dispatchMessage);
         void                   displayWelcomeMessage();
-        void                   displayVinfo(bool newFw);
-        void                   setDirectWriteState(bool state);
-        lcdTextType_t          getActiveTextType();
-        void                   updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex);
+        void                   updateText(uint8_t row, uint8_t startIndex);
         uint8_t                getTextCenter(uint8_t textSize);
         int8_t                 normalizeOctave(uint8_t octave, int8_t normalization);
         void                   buildString(const char* text, ...);
         void                   updateScrollStatus(uint8_t row);
-        void                   updateTempTextStatus();
         void                   clearMIDIevent(eventType_t type);
-        std::optional<uint8_t> sysConfigGet(System::Config::Section::display_t section, size_t index, uint16_t& value);
-        std::optional<uint8_t> sysConfigSet(System::Config::Section::display_t section, size_t index, uint16_t value);
+        std::optional<uint8_t> sysConfigGet(System::Config::Section::i2c_t section, size_t index, uint16_t& value);
+        std::optional<uint8_t> sysConfigSet(System::Config::Section::i2c_t section, size_t index, uint16_t value);
 
-        IO::U8X8& _u8x8;
-        Database& _database;
+        Database&        _database;
+        u8x8_t           _u8x8;
+        static I2C::HWA* _hwa;
+
+        static constexpr uint8_t _i2cAddress[2] = {
+            0x3C,
+            0x3D
+        };
 
         /// Size of buffer used to build text string on display in bytes.
         static constexpr uint8_t LCD_STRING_BUFFER_SIZE = 40;
@@ -152,15 +153,8 @@ namespace IO
         /// LCD isn't updated in real-time but after defined amount of time (see LCD_REFRESH_TIME).
         uint32_t _lastLCDupdateTime = 0;
 
-        /// Holds active text type on display.
-        /// Enumerated type (see lcdTextType_t enumeration).
-        lcdTextType_t _activeTextType = lcdTextType_t::still;
-
-        /// Array holding still LCD text for each LCD row.
-        char _lcdRowStillText[LCD_HEIGHT_MAX][LCD_STRING_BUFFER_SIZE] = {};
-
-        /// Array holding temp LCD text for each LCD row.
-        char _lcdRowTempText[LCD_HEIGHT_MAX][LCD_STRING_BUFFER_SIZE] = {};
+        /// Array holding LCD text for each LCD row.
+        char _lcdRowText[LCD_HEIGHT_MAX][LCD_STRING_BUFFER_SIZE] = {};
 
         /// Array holding true of false value representing the change of character at specific location on LCD row.
         /// \warning This variables assume there can be no more than 32 characters per LCD row.
@@ -175,15 +169,8 @@ namespace IO
         /// Holds value by which actual octave is being subtracted when showing octave on display.
         int8_t _octaveNormalization = 0;
 
-        /// If set to true, note number will be shown on display (0-127), otherwise, note and octave
-        /// will be displayed (i.e. C#4).
-        bool _alternateNoteDisplay = true;
-
-        /// Holds true if direct LCD writing is enabled, false otherwise.
-        bool _directWriteState = false;
-
         /// Holds resolution of configured screen.
-        U8X8::displayResolution_t _resolution = U8X8::displayResolution_t::AMOUNT;
+        displayResolution_t _resolution = displayResolution_t::AMOUNT;
 
         /// Holds true if display has been initialized.
         bool _initialized = false;
@@ -194,7 +181,7 @@ namespace IO
         /// Array holding remapped values of LCD rows.
         /// Used to increase readability.
         /// Matched with displayResolution_t enum.
-        const uint8_t _rowMap[static_cast<uint8_t>(U8X8::displayResolution_t::AMOUNT)][LCD_HEIGHT_MAX] = {
+        const uint8_t _rowMap[static_cast<uint8_t>(displayResolution_t::AMOUNT)][LCD_HEIGHT_MAX] = {
             // 128x32
             {
                 0,
@@ -211,14 +198,10 @@ namespace IO
             }
         };
 
-        U8X8::displayController_t _lastController   = U8X8::displayController_t::invalid;
-        U8X8::displayResolution_t _lastResolution   = U8X8::displayResolution_t::invalid;
-        uint8_t                   _lastAddress      = 0;
-        uint8_t                   _activePreset     = 0;
-        bool                      _startupInfoShown = false;
+        uint8_t _activePreset       = 0;
+        bool    _startupInfoShown   = false;
+        uint8_t _selectedI2Caddress = 0;
+        size_t  _rows               = 0;
+        size_t  _columns            = 0;
     };
 }    // namespace IO
-
-#else
-#include "stub/Display.h"
-#endif

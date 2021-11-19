@@ -45,7 +45,7 @@ class Database : public LESSDB
         encoders,
         analog,
         leds,
-        display,
+        i2c,
         touchscreen,
         AMOUNT
     };
@@ -109,10 +109,9 @@ class Database : public LESSDB
             AMOUNT
         };
 
-        enum class display_t : uint8_t
+        enum class i2c_t : uint8_t
         {
-            features,
-            setting,
+            display,
             AMOUNT
         };
 
@@ -206,9 +205,9 @@ class Database : public LESSDB
         return block_t::leds;
     }
 
-    block_t block(Section::display_t section)
+    block_t block(Section::i2c_t section)
     {
-        return block_t::display;
+        return block_t::i2c;
     }
 
     block_t block(Section::touchscreen_t section)

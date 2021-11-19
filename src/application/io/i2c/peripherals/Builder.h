@@ -18,16 +18,25 @@ limitations under the License.
 
 #pragma once
 
-#include <inttypes.h>
-#include "io/display/Display.h"
-#include "midi/src/MIDI.h"
+#include "io/i2c/I2C.h"
+#include "database/Database.h"
 
-class Strings
+#ifdef I2C_SUPPORTED
+
+#include "display/Display.h"
+
+namespace IO
 {
-    public:
-    Strings() = default;
+    class I2CPeripheralBuilder
+    {
+        public:
+        I2CPeripheralBuilder(I2C::HWA& hwa, Database& database);
 
-    static const char* board();
-    static const char* midiMessage(MIDI::messageType_t message);
-    static const char* note(MIDI::note_t note);
-};
+        private:
+        Display _display;
+    };
+}    // namespace IO
+
+#else
+#include "stub/Builder.h"
+#endif
