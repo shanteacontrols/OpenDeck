@@ -227,7 +227,7 @@ namespace
 int main()
 {
     Board::init();
-    fwSelector.init();
+    fwSelector.select();
 
     // everything beyond this point means bootloader is active
     // otherwise jump to other firmware would have already been made

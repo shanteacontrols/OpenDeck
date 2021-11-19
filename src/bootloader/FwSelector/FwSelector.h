@@ -47,7 +47,7 @@ class FwSelector
         : _hwa(hwa)
     {}
 
-    void init();
+    void select();
 
     private:
     /// List of all possible bootloader triggers.

@@ -19,7 +19,7 @@ limitations under the License.
 #include "FwSelector.h"
 #include "core/src/general/CRC.h"
 
-void FwSelector::init()
+void FwSelector::select()
 {
     auto fwType = fwType_t::application;
 
