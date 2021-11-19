@@ -51,8 +51,8 @@ ifneq (,$(findstring USB_LINK_MCU,$(DEFINES)))
             DEFINES += UART_TX_BUFFER_SIZE=32
             DEFINES += UART_RX_BUFFER_SIZE=32
         else ifeq ($(TYPE),app)
-            DEFINES += UART_TX_BUFFER_SIZE=96
-            DEFINES += UART_RX_BUFFER_SIZE=96
+            DEFINES += UART_TX_BUFFER_SIZE=64
+            DEFINES += UART_RX_BUFFER_SIZE=64
         endif
     endif
 else

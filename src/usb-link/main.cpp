@@ -26,8 +26,9 @@ limitations under the License.
 
 namespace
 {
-    uint8_t                             readBuffer[USB_OVER_SERIAL_BUFFER_SIZE];
-    Board::USBOverSerial::USBReadPacket readPacket(readBuffer, USB_OVER_SERIAL_BUFFER_SIZE);
+    uint8_t                             uartReadBuffer[USB_OVER_SERIAL_BUFFER_SIZE];
+    uint8_t                             cdcReadBuffer[USB_OVER_SERIAL_BUFFER_SIZE];
+    Board::USBOverSerial::USBReadPacket readPacket(uartReadBuffer, USB_OVER_SERIAL_BUFFER_SIZE);
     MIDI::USBMIDIpacket_t               USBMIDIpacket;
     size_t                              cdcPacketSize;
 
@@ -134,10 +135,10 @@ int main(void)
         }
 
         // USB CDC -> UART
-        if (Board::USB::readCDC(readBuffer, cdcPacketSize, USB_OVER_SERIAL_BUFFER_SIZE))
+        if (Board::USB::readCDC(cdcReadBuffer, cdcPacketSize, USB_OVER_SERIAL_BUFFER_SIZE))
         {
             Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::cdc,
-                                                        readBuffer,
+                                                        cdcReadBuffer,
                                                         cdcPacketSize,
                                                         USB_OVER_SERIAL_BUFFER_SIZE);
 
