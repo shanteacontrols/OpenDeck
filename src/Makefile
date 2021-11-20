@@ -107,6 +107,12 @@ ifeq (,$(findstring gen,$(TYPE)))
         -mrelax \
         -mmcu=$(MCU)
 
+        ifeq ($(DEBUG), 1)
+            COMMON_FLAGS += -g -gdwarf-2
+            LDFLAGS += -g -gdwarf-2
+            OPT := -Og
+        endif
+
         ifeq ($(MCU), atmega16u2)
             LDFLAGS += -flto
         endif
@@ -136,7 +142,7 @@ ifeq (,$(findstring gen,$(TYPE)))
             LDFLAGS += -g -gdwarf-2
             OPT := -Og
         endif
-    
+
         ifneq ($(FPU),)
             COMMON_FLAGS += -mfpu=$(FPU)
             LDFLAGS += -mfpu=$(FPU)
