@@ -77,6 +77,14 @@ namespace std
         while (1)
             ;
     }
+
+    void __throw_length_error(char const* arg)
+    {
+        Board::detail::errorHandler();
+
+        while (1)
+            ;
+    }
 }    // namespace std
 
 namespace Board
