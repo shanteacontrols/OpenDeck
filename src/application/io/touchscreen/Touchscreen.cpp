@@ -514,8 +514,6 @@ std::optional<uint8_t> Touchscreen::sysConfigGet(System::Config::Section::touchs
         value = readValue;
         return result;
     }
-
-    return System::Config::status_t::serialPeripheralAllocatedError;
 }
 
 std::optional<uint8_t> Touchscreen::sysConfigSet(System::Config::Section::touchscreen_t section, size_t index, uint16_t value)
@@ -606,6 +604,4 @@ std::optional<uint8_t> Touchscreen::sysConfigSet(System::Config::Section::touchs
             return System::Config::status_t::errorWrite;
         }
     }
-
-    return 0;
 }
