@@ -5,6 +5,8 @@
   touchscreen:
     uartChannel: 0
     components: 64
+  dmx:
+    uartChannel: 1
   buttons:
     type: "native"
     extPullups: true
