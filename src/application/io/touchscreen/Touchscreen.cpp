@@ -562,6 +562,13 @@ std::optional<uint8_t> Touchscreen::sysConfigSet(System::Config::Section::touchs
             }
             break;
 
+            case static_cast<size_t>(setting_t::initialScreen):
+            {
+                if (isInitialized())
+                    setScreen(value);
+            }
+            break;
+
             case static_cast<size_t>(IO::Touchscreen::setting_t::cdcPassthrough):
             {
                 if (_cdcPassthrough.allocated(IO::Common::interface_t::cdc))
