@@ -34,12 +34,12 @@ class CDCLocker
 
     static void lock()
     {
-        _locked = false;
+        _locked = true;
     }
 
     static void unlock()
     {
-        _locked = true;
+        _locked = false;
     }
 
     private:
