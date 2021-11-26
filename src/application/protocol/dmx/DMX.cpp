@@ -89,17 +89,16 @@ std::optional<uint8_t> Protocol::DMX::sysConfigGet(System::Config::Section::glob
     {
         bool dmxEnabled = _database.read(Util::Conversion::sys2DBsection(section), setting_t::enable);
 
-        if (!dmxEnabled && _hwa.allocated(IO::Common::interface_t::uart))
+        if (!dmxEnabled)
         {
-            return System::Config::status_t::serialPeripheralAllocatedError;
+            if (_hwa.allocated(IO::Common::interface_t::uart))
+                return System::Config::status_t::serialPeripheralAllocatedError;
+
+            if (_hwa.allocated(IO::Common::interface_t::cdc))
+                return System::Config::status_t::cdcAllocatedError;
         }
         else
         {
-            if (_hwa.allocated(IO::Common::interface_t::cdc))
-            {
-                return System::Config::status_t::cdcAllocatedError;
-            }
-
             result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ack : System::Config::status_t::errorRead;
         }
     }
@@ -124,17 +123,16 @@ std::optional<uint8_t> Protocol::DMX::sysConfigSet(System::Config::Section::glob
     {
         bool dmxEnabled = _database.read(Util::Conversion::sys2DBsection(section), setting_t::enable);
 
-        if (!dmxEnabled && _hwa.allocated(IO::Common::interface_t::uart))
+        if (!dmxEnabled)
         {
-            result = System::Config::status_t::serialPeripheralAllocatedError;
+            if (_hwa.allocated(IO::Common::interface_t::uart))
+                return System::Config::status_t::serialPeripheralAllocatedError;
+
+            if (_hwa.allocated(IO::Common::interface_t::cdc))
+                return System::Config::status_t::cdcAllocatedError;
         }
         else
         {
-            if (_hwa.allocated(IO::Common::interface_t::cdc))
-            {
-                return System::Config::status_t::cdcAllocatedError;
-            }
-
             dmxInitAction = value ? Common::initAction_t::init : Common::initAction_t::deInit;
             result        = System::Config::status_t::ack;
         }
