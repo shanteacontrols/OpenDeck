@@ -38,7 +38,7 @@ namespace Protocol
 
         using uniqueID_t = std::array<uint8_t, UID_BITS / 8>;
 
-        class HWA : public DMXUSBWidget::HWA, public IO::Common::Allocatable
+        class HWA : public IO::Common::Allocatable, public DMXUSBWidget::HWA
         {
             public:
             virtual bool uniqueID(uniqueID_t& uniqueID) = 0;

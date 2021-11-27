@@ -97,10 +97,8 @@ std::optional<uint8_t> Protocol::DMX::sysConfigGet(System::Config::Section::glob
             if (_hwa.allocated(IO::Common::interface_t::cdc))
                 return System::Config::status_t::cdcAllocatedError;
         }
-        else
-        {
-            result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ack : System::Config::status_t::errorRead;
-        }
+
+        result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ack : System::Config::status_t::errorRead;
     }
     break;
 
@@ -131,11 +129,9 @@ std::optional<uint8_t> Protocol::DMX::sysConfigSet(System::Config::Section::glob
             if (_hwa.allocated(IO::Common::interface_t::cdc))
                 return System::Config::status_t::cdcAllocatedError;
         }
-        else
-        {
-            dmxInitAction = value ? Common::initAction_t::init : Common::initAction_t::deInit;
-            result        = System::Config::status_t::ack;
-        }
+
+        dmxInitAction = value ? Common::initAction_t::init : Common::initAction_t::deInit;
+        result        = System::Config::status_t::ack;
     }
     break;
 
