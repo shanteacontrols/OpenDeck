@@ -100,7 +100,3 @@
       -
         port: "C"
         index: 15
-  bootloader:
-    button:
-      port: "A"
-      index: 0

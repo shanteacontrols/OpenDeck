@@ -209,7 +209,3 @@
   usbLink:
     type: "device"
     uartChannel: 0
-  bootloader:
-    button:
-      port: "B"
-      index: 2
