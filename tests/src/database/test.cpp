@@ -128,7 +128,7 @@ TEST_CASE(ReadInitialValues)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::analog_t::invert, i));
 
         // midi id section
-        // incremental values - first value should be set to 0, each successive value should be incremented by 1
+        // incremental values - first value should be 0, each successive value should be incremented by 1 for each group
         for (size_t group = 0; group < IO::Analog::Collection::groups(); group++)
         {
             for (size_t i = 0; i < IO::Analog::Collection::size(group); i++)
@@ -158,7 +158,7 @@ TEST_CASE(ReadInitialValues)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::leds_t::global, i));
 
         // activation id section
-        // incremental values - first value should be set to 0, each successive value should be incremented by 1 for each group
+        // incremental values - first value should be 0, each successive value should be incremented by 1 for each group
         for (size_t group = 0; group < IO::LEDs::Collection::groups(); group++)
         {
             for (size_t i = 0; i < IO::LEDs::Collection::size(group); i++)
