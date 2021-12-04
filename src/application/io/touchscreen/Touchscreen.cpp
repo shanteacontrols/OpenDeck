@@ -600,11 +600,11 @@ std::optional<uint8_t> Touchscreen::sysConfigSet(System::Config::Section::touchs
         if (result)
         {
             if (initAction == Common::initAction_t::init)
-                result = init(mode);
+                init(mode);
             else if (initAction == Common::initAction_t::deInit)
-                result = deInit(mode);
+                deInit(mode);
 
-            return result ? System::Config::status_t::ack : System::Config::status_t::errorWrite;
+            return System::Config::status_t::ack;
         }
         else
         {
