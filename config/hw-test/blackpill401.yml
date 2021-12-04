@@ -1,0 +1,25 @@
+---
+flash:
+  args: "FLASH_TOOL=stlink STLINK_SERIAL=530047001400004150514E4E"
+dinMidi:
+  in: "ESI M4U eX MIDI 1"
+  out: "ESI M4U eX MIDI 2"
+io:
+  switches-pins:
+  - 4
+  - 5
+  switches-id:
+  - 0
+  - 7
+  analog-pins:
+  - 10
+  - 17
+  analog-id:
+  - 0
+  - 8
+  led-pins:
+  - 6
+  - 7
+  led-id:
+  - 0
+  - 8

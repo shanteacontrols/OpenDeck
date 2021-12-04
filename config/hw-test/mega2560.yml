@@ -1,4 +1,24 @@
 ---
-ports:
-  flash: "isp_2560"
+flash:
+  args: "FLASH_TOOL=arduino PORT=isp_2560"
+dinMidi:
+  in: "ESI M4U eX MIDI 3"
+  out: "ESI M4U eX MIDI 4"
 usbLinkTarget: "mega16u2"
+io:
+  switches-pins:
+  - 2
+  switches-id:
+  - 31
+  analog-pins:
+  - 11
+  - 12
+  analog-id:
+  - 0
+  - 15
+  led-pins:
+  - 1
+  - 0
+  led-id:
+  - 0
+  - 13

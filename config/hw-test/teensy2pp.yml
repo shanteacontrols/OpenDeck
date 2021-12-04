@@ -1,0 +1,25 @@
+---
+flash:
+  args: "FLASH_TOOL=arduino PORT=isp_t2pp"
+dinMidi:
+  in: "ESI M4U eX MIDI 5"
+  out: "ESI M4U eX MIDI 6"
+io:
+  switches-pins:
+  - 3
+  - 2
+  switches-id:
+  - 0
+  - 8
+  analog-pins:
+  - 8
+  - 9
+  analog-id:
+  - 0
+  - 7
+  led-pins:
+  - 3
+  - 2
+  led-id:
+  - 0
+  - 14

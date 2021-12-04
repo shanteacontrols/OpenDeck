@@ -1,3 +1,3 @@
 ---
-ports:
-  flash: "isp_16u2"
+flash:
+  args: "FLASH_TOOL=arduino PORT=isp_16u2"

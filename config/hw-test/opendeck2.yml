@@ -1,4 +1,19 @@
 ---
-ports:
-  flash: "ttyBmpGdb"
-  dinMidi: "ESI MIDIMATE eX MIDI 1"
+flash:
+  args: "FLASH_TOOL=stlink STLINK_SERIAL=1A4814002B135937334D4E00"
+dinMidi:
+  in: "ESI M4U eX MIDI 7"
+  out: "ESI M4U eX MIDI 8"
+io:
+  analog-pins:
+  - 15
+  - 16
+  analog-id:
+  - 0
+  - 31
+  led-pins:
+  - 4
+  - 5
+  led-id:
+  - 0
+  - 47

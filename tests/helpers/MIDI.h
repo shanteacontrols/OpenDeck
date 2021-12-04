@@ -197,7 +197,7 @@ class MIDIHelper
 
 #ifdef HW_TESTING
     template<typename T>
-    static uint16_t readFromBoard(T section, size_t index)
+    static uint16_t readFromDevice(T section, size_t index)
     {
         std::vector<uint8_t> requestUint8;
         generateSysExGetReq(section, index, requestUint8);
@@ -205,15 +205,15 @@ class MIDIHelper
         return sendRequest(requestUint8, SysExConf::wish_t::get);
     }
 
-    template<typename T>
-    static bool setSingleSysExReq(T section, size_t index, uint16_t value)
+    template<typename S, typename I, typename V>
+    static bool setSingleSysExReq(S section, I index, V value)
     {
         auto             blockIndex = block(section);
         MIDI::Split14bit indexSplit;
         MIDI::Split14bit valueSplit;
 
-        indexSplit.split(index);
-        valueSplit.split(value);
+        indexSplit.split(static_cast<uint16_t>(index));
+        valueSplit.split(static_cast<uint16_t>(value));
 
         const std::vector<uint8_t> requestUint8 = {
             0xF0,
@@ -238,18 +238,16 @@ class MIDIHelper
 
     static void flush()
     {
-        LOG(INFO) << "Flushing all incoming data from the board";
+        LOG(INFO) << "Flushing all incoming data from the OpenDeck device";
         std::string cmdResponse;
 
-        std::string deviceNameSearch = "$(amidi -l | grep \"OpenDeck | " + std::string(BOARD_STRING) + "\"";
-
-        std::string cmd = std::string("stdbuf -i0 -o0 -e0 amidi -p ") + deviceNameSearch + std::string(" | grep -Eo 'hw:\\S*') -d -t 3");
+        std::string cmd = std::string("amidi -p ") + amidiPort(OPENDECK_MIDI_DEVICE_NAME) + std::string(" -d -t 3");
         test::wsystem(cmd, cmdResponse);
 
 // do the same for din interface if present
-#ifdef TEST_DIN_MIDI_PORT
-        LOG(INFO) << "Flushing all incoming data from the DIN MIDI interface";
-        cmd = std::string("amidi -p $(amidi -l | grep -E '") + std::string(DIN_MIDI_PORT) + std::string("' | grep -Eo 'hw:\\S*') -d -t 3");
+#ifdef TEST_DIN_MIDI
+        LOG(INFO) << "Flushing all incoming data from the DIN MIDI interface on device";
+        cmd = std::string("amidi -p ") + amidiPort(OUT_DIN_MIDI_PORT) + std::string(" -d -t 3");
         test::wsystem(cmd, cmdResponse);
 #endif
     }
@@ -262,8 +260,7 @@ class MIDIHelper
         test::wsystem("rm -f " + lastResponseFileLocation, cmdResponse);
         LOG(INFO) << "req: " << req;
 
-        std::string deviceNameSearch = "$(amidi -l | grep \"OpenDeck | " + std::string(BOARD_STRING) + "\"";
-        std::string cmd              = std::string("stdbuf -i0 -o0 -e0 amidi -p ") + deviceNameSearch + std::string(" | grep -Eo 'hw:\\S*') -S '") + req + "' -d | stdbuf -i0 -o0 -e0 tr -d '\\n' > " + lastResponseFileLocation + " &";
+        std::string cmd = std::string("stdbuf -i0 -o0 -e0 amidi -p ") + amidiPort(OPENDECK_MIDI_DEVICE_NAME) + std::string(" -S '") + req + "' -d | stdbuf -i0 -o0 -e0 tr -d '\\n' > " + lastResponseFileLocation + " &";
         test::wsystem(cmd, cmdResponse);
 
         if (test::wordsInString(req) < SysExConf::SPECIAL_REQ_MSG_SIZE)
@@ -334,35 +331,44 @@ class MIDIHelper
         }
     }
 
+    // check for opendeck device only here
     static bool devicePresent(bool bootloader = false)
     {
-        std::string port = amidiPort(bootloader);
-        std::string cmdResponse;
+        LOG(INFO) << "Checking if OpenDeck MIDI device is available";
 
-        if (port == "")
-            return false;
-
-        return (test::wsystem("amidi -l | grep \"" + amidiPort(bootloader) + "\"", cmdResponse) == 0);
-    }
-
-    static std::string amidiPort(bool bootloader = false)
-    {
-        std::string cmd;
-        std::string cmdResponse;
+        std::string port;
 
         if (bootloader)
+            port = amidiPort(OPENDECK_DFU_MIDI_DEVICE_NAME);
+        else
+            port = amidiPort(OPENDECK_MIDI_DEVICE_NAME);
+
+        if (port == "")
         {
-            std::string baseString = "amidi -l | grep \"OpenDeck DFU | ";
-            cmd                    = baseString + "\"" + std::string("| grep ") + std::string(BOARD_STRING) + std::string(" | grep -Eo 'hw:\\S*'");
+            LOG(ERROR) << "OpenDeck MIDI device not available";
+            return false;
+        }
+
+        std::string cmdResponse;
+
+        if (test::wsystem("amidi -l | grep \"" + port + "\"", cmdResponse) == 0)
+        {
+            LOG(INFO) << "Device found";
+            return true;
         }
         else
         {
-            std::string baseString = "amidi -l | grep \"OpenDeck | ";
-            cmd                    = baseString + std::string(BOARD_STRING) + "\"" + std::string(" | grep -Eo 'hw:\\S*'");
+            LOG(ERROR) << "Device not found";
+            return false;
         }
+    }
+
+    static std::string amidiPort(std::string midiDevice)
+    {
+        std::string cmd = "amidi -l | grep \"" + midiDevice + "\" | grep -Eo 'hw:\\S*'";
+        std::string cmdResponse;
 
         test::wsystem(cmd, cmdResponse);
-
         return test::trimNewline(cmdResponse);
     }
 #endif
