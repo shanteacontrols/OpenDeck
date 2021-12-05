@@ -315,7 +315,7 @@ endif
 	-ex 'kill' \
 	$(FLASH_BINARY_DIR)/$(TARGET).hex
 else ifeq ($(FLASH_TOOL), stlink)
-	@st-flash write $(FLASH_BINARY_DIR)/$(TARGET).hex $(BOOT_START_ADDR)
+	@STM32_Programmer_CLI -c port=SWD sn=$(STLINK_SERIAL) -w $(FLASH_BINARY_DIR)/$(TARGET).hex -rst
 else ifeq ($(FLASH_TOOL), dfu)
 	@sudo dfu-util -d 0483:df11 -a 0 -i 0 -s 0x8000000:leave -D $(FLASH_BINARY_DIR)/$(TARGET).bin
 else
