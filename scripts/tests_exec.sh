@@ -39,9 +39,9 @@ $find "$BIN_DIR" -type f -name "*.profraw" -exec rm {} \;
 
 if [ "$HW_TESTING" = "1" ]
 then
-    BINARIES=$($find "$BIN_DIR" -type f -name "*.out" -path "*hw*")
+    BINARIES=$($find "$BIN_DIR" -type f -name "*.out" -path "*hw*" | sort)
 else
-    BINARIES=$($find "$BIN_DIR" -type f -name "*.out" -not -path "*hw*")
+    BINARIES=$($find "$BIN_DIR" -type f -name "*.out" -not -path "*hw*" | sort)
 fi
 
 declare -i RESULT=0
