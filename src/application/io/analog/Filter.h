@@ -70,18 +70,11 @@ namespace IO
         AnalogFilter()
             : _adcConfig(ADC_RESOLUTION == adcType_t::adc10bit ? adc10bit : adc12bit)
             , _stepDiff7Bit(static_cast<uint16_t>(ADC_RESOLUTION) / 128)
-        {
-            _adcMinValueOffset = _adcConfig.adcMinValue;
-            _adcMaxValueOffset = _adcConfig.adcMaxValue;
-        }
+        {}
 
         bool isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) override
         {
-            // use offset adc values for adc values only, not for touchscreen
-            const uint32_t minValue = index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) ? _adcMinValueOffset : _adcConfig.adcMinValue;
-            const uint32_t maxValue = index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) ? _adcMaxValueOffset : _adcConfig.adcMaxValue;
-
-            value = CONSTRAIN(value, minValue, maxValue);
+            value = CONSTRAIN(value, _adcConfig.adcMinValue, _adcConfig.adcMaxValue);
 
             // avoid filtering in this case for faster response
             if (type == Analog::type_t::button)
@@ -114,7 +107,7 @@ namespace IO
             const bool     use14bit     = (type == Analog::type_t::nrpn14bit) || (type == Analog::type_t::pitchBend) || (type == Analog::type_t::controlChange14bit);
             const uint16_t maxLimit     = use14bit ? MIDI::MIDI_14_BIT_VALUE_MAX : MIDI::MIDI_7_BIT_VALUE_MAX;
             const bool     direction    = value >= _lastStableValue[index];
-            const auto     oldMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(_lastStableValue[index]), static_cast<uint32_t>(minValue), static_cast<uint32_t>(maxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
+            const auto     oldMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(_lastStableValue[index]), static_cast<uint32_t>(_adcConfig.adcMinValue), static_cast<uint32_t>(_adcConfig.adcMaxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
             uint16_t       stepDiff     = 0;
 
             if (((direction != _lastStableDirection[index]) || !fastFilter) && ((oldMIDIvalue != 0) && (oldMIDIvalue != maxLimit)))
@@ -173,7 +166,7 @@ namespace IO
             filteredValue         = value;
 #endif
 
-            const auto midiValue = core::misc::mapRange(static_cast<uint32_t>(filteredValue), static_cast<uint32_t>(minValue), static_cast<uint32_t>(maxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
+            const auto midiValue = core::misc::mapRange(static_cast<uint32_t>(filteredValue), static_cast<uint32_t>(_adcConfig.adcMinValue), static_cast<uint32_t>(_adcConfig.adcMaxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
 
             if (midiValue == oldMIDIvalue)
                 return false;
@@ -254,8 +247,6 @@ namespace IO
 
         adcConfig_t&              _adcConfig;
         const uint16_t            _stepDiff7Bit;
-        uint32_t                  _adcMinValueOffset          = 0;
-        uint32_t                  _adcMaxValueOffset          = 0;
         static constexpr uint32_t FAST_FILTER_ENABLE_AFTER_MS = 50;
 
 // some filtering is needed for adc only
