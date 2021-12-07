@@ -224,7 +224,7 @@ namespace IO
         };
 
         adcConfig_t adc10bit = {
-            .adcMinValue              = 0,
+            .adcMinValue              = 10,
             .adcMaxValue              = 1000,
             .stepDiff14Bit            = 1,
             .fsrMinValue              = 40,
@@ -235,7 +235,7 @@ namespace IO
         };
 
         adcConfig_t adc12bit = {
-            .adcMinValue              = 0,
+            .adcMinValue              = 10,
             .adcMaxValue              = 4000,
             .stepDiff14Bit            = 2,
             .fsrMinValue              = 160,
