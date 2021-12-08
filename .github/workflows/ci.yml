@@ -25,3 +25,19 @@ jobs:
           cd tests/
           ../scripts/build_targets.sh
           make exec
+  hw-tests:
+    name: Run tests on physical boards
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: true
+      - name: Run tests on hardware
+        run: |
+          git reset --hard
+          git clean -dxf
+          git fetch --tags
+          cd tests
+          ../scripts/build_targets.sh --hw
+          make exec HW_TESTING=1
