@@ -18,7 +18,8 @@ fi
 
 #find all directories containing test source
 #to do so, only take into account directories which contain Makefile
-tests=$($find ./src -type f -name Makefile | rev | cut -d / -f 2 | rev | tr "\n" " ")
+#also ignore directories containing .testignore
+tests=$($find ./src -type d '!' -exec test -e "{}/.testignore" ';' -exec test -e "{}/Makefile" ';' -print | rev | cut -d/ -f1 | rev | tr "\n" " ")
 
 {
     printf '%s ' "TESTS := ${tests}" > Objects.mk
