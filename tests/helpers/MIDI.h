@@ -165,15 +165,15 @@ class MIDIHelper
         };
     }
 
-    template<typename T>
-    static void generateSysExSetReq(T section, size_t index, int16_t value, std::vector<uint8_t>& request)
+    template<typename S, typename I, typename V>
+    static void generateSysExSetReq(S section, I index, V value, std::vector<uint8_t>& request)
     {
         auto             blockIndex = block(section);
         MIDI::Split14bit splitIndex;
         MIDI::Split14bit splitValue;
 
-        splitIndex.split(index);
-        splitValue.split(value);
+        splitIndex.split(static_cast<uint16_t>(index));
+        splitValue.split(static_cast<uint16_t>(value));
         request.clear();
 
         request = {

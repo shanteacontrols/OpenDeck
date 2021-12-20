@@ -545,7 +545,7 @@ TEST_CASE(ForcedResendOnPresetChange)
     _hwaMIDI.reset();
 
     std::vector<uint8_t> generatedSysExReq;
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, static_cast<size_t>(Database::presetSetting_t::activePreset), 1, generatedSysExReq);
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, 1, generatedSysExReq);
 
     sendAndVerifySysExRequest(generatedSysExReq,
                               { 0xF0,
@@ -625,7 +625,7 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
 
     // configure the first LED to indicate current preset
     // its activation ID is 0 so it should be on only in first preset
-    MIDIHelper::generateSysExSetReq(System::Config::Section::leds_t::controlType, 0, static_cast<size_t>(IO::LEDs::controlType_t::preset), generatedSysExReq);
+    MIDIHelper::generateSysExSetReq(System::Config::Section::leds_t::controlType, 0, IO::LEDs::controlType_t::preset, generatedSysExReq);
 
     sendAndVerifySysExRequest(generatedSysExReq,
                               { 0xF0,
@@ -645,7 +645,7 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
                                 0xF7 });
 
     // switch to preset 1
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, static_cast<size_t>(Database::presetSetting_t::activePreset), 1, generatedSysExReq);
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, 1, generatedSysExReq);
 
     sendAndVerifySysExRequest(generatedSysExReq,
                               { 0xF0,
@@ -690,7 +690,7 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
                                 0xF7 });
 
     // now switch to preset 0 and expect the LED 0 to be on
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, static_cast<size_t>(Database::presetSetting_t::activePreset), 0, generatedSysExReq);
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, 0, generatedSysExReq);
 
     sendAndVerifySysExRequest(generatedSysExReq,
                               { 0xF0,
@@ -753,7 +753,7 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
                                 0xF7 });
 
     // switch back to preset 1 and verify that the led is turned off
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, static_cast<size_t>(Database::presetSetting_t::activePreset), 1, generatedSysExReq);
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, 1, generatedSysExReq);
 
     sendAndVerifySysExRequest(generatedSysExReq,
                               { 0xF0,
@@ -907,7 +907,7 @@ TEST_CASE(ProgramIndicatedOnStartup)
 
     // configure the first LED to indicate program change
     // its activation ID is 0 so it should be on only for program 0
-    MIDIHelper::generateSysExSetReq(System::Config::Section::leds_t::controlType, 0, static_cast<size_t>(IO::LEDs::controlType_t::pcSingleVal), generatedSysExReq);
+    MIDIHelper::generateSysExSetReq(System::Config::Section::leds_t::controlType, 0, IO::LEDs::controlType_t::pcSingleVal, generatedSysExReq);
 
     sendAndVerifySysExRequest(generatedSysExReq,
                               { 0xF0,
