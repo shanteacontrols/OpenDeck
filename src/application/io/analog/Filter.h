@@ -69,7 +69,7 @@ namespace IO
 
         AnalogFilter()
             : _adcConfig(ADC_RESOLUTION == adcType_t::adc10bit ? adc10bit : adc12bit)
-            , _stepDiff7Bit(static_cast<uint16_t>(ADC_RESOLUTION) / 128)
+            , _stepDiff7Bit((_adcConfig.adcMaxValue - _adcConfig.adcMinValue) / 128)
         {}
 
         bool isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) override
@@ -108,15 +108,11 @@ namespace IO
             const uint16_t maxLimit     = use14bit ? MIDI::MIDI_14_BIT_VALUE_MAX : MIDI::MIDI_7_BIT_VALUE_MAX;
             const bool     direction    = value >= _lastStableValue[index];
             const auto     oldMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(_lastStableValue[index]), static_cast<uint32_t>(_adcConfig.adcMinValue), static_cast<uint32_t>(_adcConfig.adcMaxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
-            uint16_t       stepDiff     = 0;
+            uint16_t       stepDiff     = 1;
 
             if (((direction != _lastStableDirection[index]) || !fastFilter) && ((oldMIDIvalue != 0) && (oldMIDIvalue != maxLimit)))
             {
                 stepDiff = _stepDiff7Bit * 2;
-            }
-            else
-            {
-                stepDiff = !use14bit || fastFilter ? _stepDiff7Bit : _adcConfig.stepDiff14Bit;
             }
 
             if (abs(value - _lastStableValue[index]) < stepDiff)
@@ -215,7 +211,6 @@ namespace IO
         {
             const uint16_t adcMinValue;                 ///< Minimum raw ADC value.
             const uint16_t adcMaxValue;                 ///< Maxmimum raw ADC value.
-            const uint16_t stepDiff14Bit;               ///< Minimum difference between two raw ADC readings to consider that value has been changed for 14-bit MIDI values.
             const uint16_t fsrMinValue;                 ///< Minimum raw ADC reading for FSR sensors.
             const uint16_t fsrMaxValue;                 ///< Maximum raw ADC reading for FSR sensors.
             const uint16_t aftertouchMaxValue;          ///< Maxmimum raw ADC reading for aftertouch on FSR sensors.
@@ -226,7 +221,6 @@ namespace IO
         adcConfig_t adc10bit = {
             .adcMinValue              = 10,
             .adcMaxValue              = 1000,
-            .stepDiff14Bit            = 1,
             .fsrMinValue              = 40,
             .fsrMaxValue              = 340,
             .aftertouchMaxValue       = 600,
@@ -237,7 +231,6 @@ namespace IO
         adcConfig_t adc12bit = {
             .adcMinValue              = 10,
             .adcMaxValue              = 4000,
-            .stepDiff14Bit            = 2,
             .fsrMinValue              = 160,
             .fsrMaxValue              = 1360,
             .aftertouchMaxValue       = 2400,
