@@ -73,6 +73,7 @@ namespace Protocol
              Database& database);
 
         bool init() override;
+        bool deInit() override;
         void read() override;
 
         private:

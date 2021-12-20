@@ -77,6 +77,13 @@ Protocol::MIDI::MIDI(HWA& hwa, Database& database)
                           }
                       });
 
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::preset,
+                      Util::MessageDispatcher::listenType_t::all,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          if (!::MIDI::init(MIDI::interface_t::din))
+                              ::MIDI::deInit(MIDI::interface_t::din);
+                      });
+
     ConfigHandler.registerConfig(
         System::Config::block_t::global,
         // read
@@ -99,17 +106,23 @@ bool Protocol::MIDI::init()
     ::MIDI::setNoteOffMode(isFeatureEnabled(feature_t::standardNoteOff) ? MIDI::noteOffType_t::standardNoteOff : MIDI::noteOffType_t::noteOnZeroVel);
     ::MIDI::setRunningStatusState(isFeatureEnabled(feature_t::runningStatus));
     ::MIDI::setChannelSendZeroStart(true);
+    ::MIDI::useRecursiveParsing(true);
 
     if (isFeatureEnabled(feature_t::dinEnabled))
-    {
         ::MIDI::init(MIDI::interface_t::din);
-        ::MIDI::useRecursiveParsing(true);
-    }
     else
-    {
         ::MIDI::deInit(MIDI::interface_t::din);
-        ::MIDI::useRecursiveParsing(false);
-    }
+
+    return true;
+}
+
+bool Protocol::MIDI::deInit()
+{
+    if (!::MIDI::deInit(MIDI::interface_t::din))
+        return false;
+
+    if (!::MIDI::deInit(MIDI::interface_t::usb))
+        return false;
 
     return true;
 }
@@ -364,35 +377,36 @@ bool Protocol::MIDI::HWAInternal::init(MIDI::interface_t interface)
     if (interface == ::MIDI::interface_t::usb)
         return _midi._hwa.init(interface);
 
-    // DIN
-
-    auto mergeType    = static_cast<MIDI::mergeType_t>(_midi._database.read(Database::Section::global_t::midiMerge, MIDI::mergeSetting_t::mergeType));
-    bool mergeEnabled = _midi._database.read(Database::Section::global_t::midiFeatures, MIDI::feature_t::mergeEnabled);
-
-    bool loopback = mergeType == MIDI::mergeType_t::DINtoDIN && mergeEnabled;
-
-    if (_dinMIDIenabled && (loopback == _dinMIDIloopbackEnabled))
-        return true;    // nothing do do
-
-    if (!_dinMIDIenabled)
+    if (_midi.isFeatureEnabled(feature_t::dinEnabled))
     {
-        if (_midi._hwa.init(interface))
-        {
-            _midi._hwa.setDINLoopback(loopback);
-            _dinMIDIenabled         = true;
-            _dinMIDIloopbackEnabled = loopback;
+        auto mergeType    = static_cast<MIDI::mergeType_t>(_midi._database.read(Database::Section::global_t::midiMerge, MIDI::mergeSetting_t::mergeType));
+        bool mergeEnabled = _midi._database.read(Database::Section::global_t::midiFeatures, MIDI::feature_t::mergeEnabled);
 
-            return true;
+        bool loopback = mergeType == MIDI::mergeType_t::DINtoDIN && mergeEnabled;
+
+        if (_dinMIDIenabled && (loopback == _dinMIDIloopbackEnabled))
+            return true;    // nothing do do
+
+        if (!_dinMIDIenabled)
+        {
+            if (_midi._hwa.init(interface))
+            {
+                _midi._hwa.setDINLoopback(loopback);
+                _dinMIDIenabled         = true;
+                _dinMIDIloopbackEnabled = loopback;
+
+                return true;
+            }
         }
-    }
-    else
-    {
-        if (loopback != _dinMIDIloopbackEnabled)
+        else
         {
-            // only the loopback parameter has changed
-            _dinMIDIloopbackEnabled = loopback;
-            _midi._hwa.setDINLoopback(loopback);
-            return true;
+            if (loopback != _dinMIDIloopbackEnabled)
+            {
+                // only the loopback parameter has changed
+                _dinMIDIloopbackEnabled = loopback;
+                _midi._hwa.setDINLoopback(loopback);
+                return true;
+            }
         }
     }
 

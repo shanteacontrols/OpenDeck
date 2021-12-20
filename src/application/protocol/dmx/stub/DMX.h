@@ -46,6 +46,11 @@ namespace Protocol
             return false;
         }
 
+        bool deInit() override
+        {
+            return false;
+        }
+
         void read() override
         {}
     };

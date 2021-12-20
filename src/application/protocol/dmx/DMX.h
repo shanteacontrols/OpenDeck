@@ -47,11 +47,14 @@ namespace Protocol
         DMX(HWA& hwa, Database& database);
 
         bool init() override;
+        bool deInit() override;
         void read() override;
 
         private:
         HWA&      _hwa;
         Database& _database;
+
+        bool _enabled = false;
 
         std::optional<uint8_t> sysConfigGet(System::Config::Section::global_t section, size_t index, uint16_t& value);
         std::optional<uint8_t> sysConfigSet(System::Config::Section::global_t section, size_t index, uint16_t value);

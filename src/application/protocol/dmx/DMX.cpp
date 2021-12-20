@@ -24,6 +24,7 @@ limitations under the License.
 #include "io/common/Common.h"
 #include "util/conversion/Conversion.h"
 #include "util/configurable/Configurable.h"
+#include "util/messaging/Messaging.h"
 
 using namespace IO;
 
@@ -32,6 +33,13 @@ Protocol::DMX::DMX(HWA& hwa, Database& database)
     , _hwa(hwa)
     , _database(database)
 {
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::preset,
+                      Util::MessageDispatcher::listenType_t::all,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          if (!init())
+                              deInit();
+                      });
+
     ConfigHandler.registerConfig(
         System::Config::block_t::global,
         // read
@@ -67,9 +75,40 @@ bool Protocol::DMX::init()
                     BOARD_STRING });
 
     if (_database.read(Database::Section::global_t::dmx, setting_t::enable))
-        return ::DMXUSBWidget::init();
+    {
+        if (_enabled)
+            return true;    // nothing to do
 
-    return true;
+        if (::DMXUSBWidget::init())
+        {
+            _enabled = true;
+            return true;
+        }
+        else
+        {
+            _enabled = false;
+            return false;
+        }
+    }
+    else
+    {
+        _enabled = false;
+        return false;
+    }
+}
+
+bool Protocol::DMX::deInit()
+{
+    if (!_enabled)
+        return true;    // nothing to do
+
+    if (::DMXUSBWidget::deInit())
+    {
+        _enabled = false;
+        return true;
+    }
+
+    return false;
 }
 
 void Protocol::DMX::read()
@@ -147,13 +186,13 @@ std::optional<uint8_t> Protocol::DMX::sysConfigSet(System::Config::Section::glob
         {
         case Common::initAction_t::init:
         {
-            ::DMXUSBWidget::init();
+            init();
         }
         break;
 
         case Common::initAction_t::deInit:
         {
-            ::DMXUSBWidget::deInit();
+            deInit();
         }
         break;
 

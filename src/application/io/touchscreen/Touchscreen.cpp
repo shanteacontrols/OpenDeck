@@ -41,6 +41,13 @@ Touchscreen::Touchscreen(HWA&            hwa,
                           setIconState(dispatchMessage.componentIndex, dispatchMessage.midiValue);
                       });
 
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::preset,
+                      Util::MessageDispatcher::listenType_t::all,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          if (!init(mode_t::normal))
+                              deInit(mode_t::normal);
+                      });
+
     ConfigHandler.registerConfig(
         System::Config::block_t::touchscreen,
         // read
@@ -140,7 +147,7 @@ bool Touchscreen::deInit(mode_t mode)
     case mode_t::normal:
     {
         if (!_initialized)
-            return false;
+            return true;    // nothing to do
 
         if (_cdcPassthrough.deInit())
         {
