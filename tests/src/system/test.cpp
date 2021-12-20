@@ -258,6 +258,53 @@ namespace
             _loopbackEnabled = false;
         }
 
+        size_t totalChannelMessages(::MIDI::interface_t interface)
+        {
+            size_t cnt = 0;
+
+            switch (interface)
+            {
+            case ::MIDI::interface_t::usb:
+            {
+                for (size_t i = 0; i < usbWritePackets.size(); i++)
+                {
+                    auto messageType = MIDI::getTypeFromStatusByte(usbWritePackets.at(i).Data1);
+
+                    if (MIDI::isChannelMessage(messageType))
+                        cnt++;
+                }
+            }
+            break;
+
+            case ::MIDI::interface_t::din:
+            {
+                auto packetsToParse = dinWritePackets;
+
+                MIDI _parseDinMIDI(*this);
+                // init will call reset()
+                _parseDinMIDI.init(::MIDI::interface_t::din);
+                _parseDinMIDI.setInputChannel(::MIDI::MIDI_CHANNEL_OMNI);
+                // now restore packets
+                dinReadPackets = packetsToParse;
+
+                while (dinReadPackets.size())
+                {
+                    if (_parseDinMIDI.read(::MIDI::interface_t::din))
+                    {
+                        if (MIDI::isChannelMessage(_parseDinMIDI.getType(::MIDI::interface_t::din)))
+                            cnt++;
+                    }
+                }
+            }
+            break;
+
+            default:
+                break;
+            }
+
+            return cnt;
+        }
+
         std::vector<::MIDI::USBMIDIpacket_t> usbReadPackets   = {};
         std::vector<::MIDI::USBMIDIpacket_t> usbWritePackets  = {};
         std::vector<uint8_t>                 dinReadPackets   = {};
@@ -427,7 +474,11 @@ namespace
 
         bool responseVerified = false;
 
-        // std::cout << "expected / received:" << std::endl;
+        // std::cout << "request / expected / received:" << std::endl;
+
+        // for (size_t i = 0; i < request.size(); i++)
+        //     std::cout << static_cast<int>(request.at(i)) << " ";
+        // std::cout << std::endl;
 
         // for (size_t i = 0; i < expectedResponse.size(); i++)
         //     std::cout << static_cast<int>(expectedResponse.at(i)) << " ";
@@ -564,26 +615,112 @@ TEST_CASE(ForcedResendOnPresetChange)
                                 0x01,
                                 0xF7 });
 
+#ifdef DIN_MIDI_SUPPORTED
+    // enable DIN midi as well - same data needs to be sent there
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::midiFeatures, Protocol::MIDI::feature_t::dinEnabled, 1, generatedSysExReq);
+
+    sendAndVerifySysExRequest(generatedSysExReq,
+                              { 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x01,
+                                0x00,
+                                0x01,    // set
+                                0x00,    // single
+                                0x00,    // block 0 (global)
+                                0x00,    // section 0 (midi)
+                                0x00,    // din enabled
+                                0x03,
+                                0x00,    // din is enabled
+                                0x01,
+                                0xF7 });
+#endif
+
     // values will be forcefully resent after a timeout
     // fake the passage of time here first
     core::timing::detail::rTime_ms += System::Instance::PRESET_CHANGE_NOTIFY_DELAY;
     _hwaMIDI.usbWritePackets.clear();
     systemStub.run();
 
-    size_t channelMessages = 0;
-
-    for (size_t i = 0; i < _hwaMIDI.usbWritePackets.size(); i++)
-    {
-        auto messageType = MIDI::getTypeFromStatusByte(_hwaMIDI.usbWritePackets.at(i).Data1);
-
-        if (MIDI::isChannelMessage(messageType))
-            channelMessages++;
-    }
-
     // the preset has been changed several times successively, but only one notification of that event is reported in in PRESET_CHANGE_NOTIFY_DELAYms
     // all buttons should resend their state
     // all enabled analog components should be sent as well if analog components are supported (only 1 in this case)
-    TEST_ASSERT_EQUAL_UINT32((IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + ENABLED_ANALOG_COMPONENTS), channelMessages);
+
+    TEST_ASSERT_EQUAL_UINT32((IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + ENABLED_ANALOG_COMPONENTS), _hwaMIDI.totalChannelMessages(::MIDI::interface_t::usb));
+
+#ifdef DIN_MIDI_SUPPORTED
+    TEST_ASSERT_EQUAL_UINT32((IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + ENABLED_ANALOG_COMPONENTS), _hwaMIDI.totalChannelMessages(::MIDI::interface_t::din));
+#endif
+
+    // now switch preset again - on usb same amount of messages should be received
+    // nothing should be received on din
+
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, 0, generatedSysExReq);
+
+    sendAndVerifySysExRequest(generatedSysExReq,
+                              { 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x01,
+                                0x00,
+                                0x01,    // set
+                                0x00,    // single
+                                0x00,    // block 0 (global)
+                                0x02,    // section 2 (presets)
+                                0x00,    // active preset
+                                0x00,
+                                0x00,    // preset 0
+                                0x00,
+                                0xF7 });
+
+    core::timing::detail::rTime_ms += System::Instance::PRESET_CHANGE_NOTIFY_DELAY;
+    _hwaMIDI.usbWritePackets.clear();
+    _hwaMIDI.dinWritePackets.clear();
+    systemStub.run();
+
+    TEST_ASSERT_EQUAL_UINT32((IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + ENABLED_ANALOG_COMPONENTS), _hwaMIDI.totalChannelMessages(::MIDI::interface_t::usb));
+
+#ifdef DIN_MIDI_SUPPORTED
+    TEST_ASSERT_EQUAL_UINT32(0, _hwaMIDI.totalChannelMessages(::MIDI::interface_t::din));
+#endif
+
+    // and finally, back to the preset in which din midi is enabled
+    // this will verify that din is properly enabled again
+
+    _hwaMIDI.usbWritePackets.clear();
+    _hwaMIDI.dinWritePackets.clear();
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, 1, generatedSysExReq);
+
+    sendAndVerifySysExRequest(generatedSysExReq,
+                              { 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x01,
+                                0x00,
+                                0x01,    // set
+                                0x00,    // single
+                                0x00,    // block 0 (global)
+                                0x02,    // section 2 (presets)
+                                0x00,    // active preset
+                                0x00,
+                                0x00,    // preset 1
+                                0x01,
+                                0xF7 });
+
+    core::timing::detail::rTime_ms += System::Instance::PRESET_CHANGE_NOTIFY_DELAY;
+    _hwaMIDI.usbWritePackets.clear();
+    _hwaMIDI.dinWritePackets.clear();
+    systemStub.run();
+
+    TEST_ASSERT_EQUAL_UINT32((IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + ENABLED_ANALOG_COMPONENTS), _hwaMIDI.totalChannelMessages(::MIDI::interface_t::usb));
+
+#ifdef DIN_MIDI_SUPPORTED
+    TEST_ASSERT_EQUAL_UINT32((IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + ENABLED_ANALOG_COMPONENTS), _hwaMIDI.totalChannelMessages(::MIDI::interface_t::din));
+
+#endif
 }
 
 #ifdef LEDS_SUPPORTED
@@ -948,47 +1085,47 @@ TEST_CASE(ProgramIndicatedOnStartup)
                                 0x00,    // LED state - off
                                 0xF7 });
 
-    // TEST_ASSERT(systemStub.init() == true);
+    TEST_ASSERT(systemStub.init() == true);
 
-    // // handshake
-    // sendAndVerifySysExRequest({ 0xF0,
-    //                             0x00,
-    //                             0x53,
-    //                             0x43,
-    //                             0x00,
-    //                             0x00,
-    //                             0x01,
-    //                             0xF7 },
-    //                           { 0xF0,
-    //                             0x00,
-    //                             0x53,
-    //                             0x43,
-    //                             0x01,
-    //                             0x00,
-    //                             0x01,
-    //                             0xF7 });
+    // handshake
+    sendAndVerifySysExRequest({ 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x00,
+                                0x00,
+                                0x01,
+                                0xF7 },
+                              { 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x01,
+                                0x00,
+                                0x01,
+                                0xF7 });
 
-    // // verify that the led is turned on on startup since initially, program for all channels is 0
-    // MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::testColor, 0, generatedSysExReq);
+    // verify that the led is turned on on startup since initially, program for all channels is 0
+    MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::testColor, 0, generatedSysExReq);
 
-    // sendAndVerifySysExRequest(generatedSysExReq,
-    //                           { 0xF0,
-    //                             0x00,
-    //                             0x53,
-    //                             0x43,
-    //                             0x01,
-    //                             0x00,
-    //                             0x00,    // get
-    //                             0x00,    // single
-    //                             static_cast<uint8_t>(System::Config::block_t::leds),
-    //                             static_cast<uint8_t>(System::Config::Section::leds_t::testColor),
-    //                             0x00,    // LED 0
-    //                             0x00,
-    //                             0x00,    // new value / blank
-    //                             0x00,    // new value / blank
-    //                             0x00,
-    //                             0x01,    // LED state - on
-    //                             0xF7 });
+    sendAndVerifySysExRequest(generatedSysExReq,
+                              { 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x01,
+                                0x00,
+                                0x00,    // get
+                                0x00,    // single
+                                static_cast<uint8_t>(System::Config::block_t::leds),
+                                static_cast<uint8_t>(System::Config::Section::leds_t::testColor),
+                                0x00,    // LED 0
+                                0x00,
+                                0x00,    // new value / blank
+                                0x00,    // new value / blank
+                                0x00,
+                                0x01,    // LED state - on
+                                0xF7 });
 }
 #endif
 
