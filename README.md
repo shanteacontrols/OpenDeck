@@ -1,14 +1,23 @@
 # OpenDeck MIDI Platform
 
-OpenDeck is a platform suited both for prototyping and developing custom MIDI controllers with easy to use web configurator. Platform uses class-compliant USB MIDI which makes it compatible with any MIDI software on any OS. Main part of the platform is board on which various components used to build a MIDI controller can be connected. The platform also supports DMX output so it can be used as DMX interface through `usbserial` plugin in [Open Lighting Architecture](https://www.openlighting.org/).
+OpenDeck is a platform for building MIDI controllers. It is a firmware running on various boards which transforms them into class-compliant USB MIDI devices, making them compatible with any MIDI software on any operating system. OpenDeck is designed to solve two problems when building a MIDI controller:
 
-  * [Features](#features)
-  * [Web configurator](#web-configurator)
-  * [Supported boards](#supported-boards)
-  * [Documentation](#documentation)
-  * [Discussion](#discussion)
-  * [Credits](#credits)
-  * [Licence](#licence)
+* Coding - there is no need to code anything in order to make changes to the controller or to make it work
+* Making the controller behave the way you want it to - the firmware supports huge number of configurable parameters, all configurable in a Web browser
+
+Solving this two goals means you can forget about implementation details and focus on having your custom controller built as fast as possible.
+
+The platform also supports DMX output so it can be used as DMX interface through `usbserial` plugin in [Open Lighting Architecture](https://www.openlighting.org/).
+
+*Click the image below for a demo video of the [OpenDeck configurator](https://config.shanteacontrols.com)*
+
+[![Watch the video](https://img.youtube.com/vi/7X2LC0JMfAU/maxresdefault.jpg)](https://youtu.be/7X2LC0JMfAU)
+
+Configurator is available either [online](https://config.shanteacontrols.com) or [offline](https://github.com/shanteacontrols/OpenDeckUI/releases).
+
+*Some of the controllers built with OpenDeck*
+
+![](bin/img/readme/gallery.png)
 
 ## Features
 
@@ -22,24 +31,13 @@ The following components are supported:
 * LCD/OLED displays
 * Touchscreen displays (Nextion and Viewtech/Stone)
 
-OpenDeck supports sending of both 7-bit and 14-bit Non-Registered Part Numbers (NRPN), latching messages on buttons, various encoding modes for quadrature encoders, LED control using MIDI In, configurable MIDI channels for each component individually etc. Full list of supported features can be found [here](https://github.com/shanteacontrols/OpenDeck/wiki/Configurable-features).
+OpenDeck supports sending of both 7-bit and 14-bit Non-Registered Part Numbers (NRPN), latching messages on buttons, various encoding modes for quadrature encoders, LED control using MIDI In, configurable MIDI channels for each component individually, DMX output etc. Full list of supported features can be found [here](https://github.com/shanteacontrols/OpenDeck/wiki/Configurable-features).
 
 If the feature you want isn't supported yet, don't feel discouraged. Open up a [discussion thread](https://github.com/shanteacontrols/OpenDeck/discussions) and let's talk about it.
 
-
-## Web configurator
-
-Click the image to watch the video
-
-[![Watch the video](https://img.youtube.com/vi/7X2LC0JMfAU/maxresdefault.jpg)](https://youtu.be/7X2LC0JMfAU)
-
-Source code for OpenDeck web configurator is located in [OpenDeckUI repository](https://github.com/shanteacontrols/OpenDeckUI). It's written by [wyrd-code](https://github.com/wyrd-code/). Web configurator can run in any browser which supports WebMIDI specification (Chromium based browsers only). Utility needs access to MIDI devices so that it can communicate with OpenDeck boards. All communication is done with custom SysEx protocol explained in detail in [Wiki section](https://github.com/shanteacontrols/OpenDeck/wiki/SysEx-Configuration).
-
-Latest stable version of the UI is always available on [this link](https://config.shanteacontrols.com).
-
 ## Supported boards
 
-OpenDeck firmware is compatible with [official OpenDeck board](https://www.tindie.com/products/paradajz/opendeck-diy-midi-platform/), as well as various other boards:
+OpenDeck firmware is compatible with [official OpenDeck board](https://www.tindie.com/products/paradajz/opendeck-diy-midi-platform/), as well as various other boards, from small to large:
 
 * [Arduino Mega2560](https://store.arduino.cc/products/arduino-mega-2560-rev3)
 * [Arduino Mega2560 Pro Mini / Meduino](http://wiki.epalsite.com/index.php?title=Mega2560_Pro_Mini)
@@ -54,7 +52,11 @@ OpenDeck firmware is compatible with [official OpenDeck board](https://www.tindi
 * [STM32F4VE](https://stm32-base.org/boards/STM32F407VET6-STM32-F4VE-V2.0) ([eBay](https://www.ebay.com/itm/401956886691?hash=item5d967f58a3:g:fFcAAOSw4fhdy2rk))
 * [TPyBoard (PyBoard clone)](http://www.chinalctech.com/m/view.php?aid=338) ([eBay](https://www.ebay.com/itm/183887614794?hash=item2ad08e534a:g:bmsAAOSwrSpdLtFM))
 
-For more details on supported boards, check the dedicated [wiki page](https://github.com/shanteacontrols/OpenDeck/wiki/Connecting-components-to-OpenDeck). Support for custom boards can be easily added using [YAML descriptors](https://github.com/shanteacontrols/OpenDeck/wiki/Creating-custom-board-variant).
+*Some of the supported boards*
+
+![](https://github.com/shanteacontrols/OpenDeck/wiki/img/boards.jpg)
+
+For more details on supported boards, check the dedicated [wiki page](https://github.com/shanteacontrols/OpenDeck/wiki/Connecting-components-to-OpenDeck). A page with [instructions on how to flash OpenDeck firmware](https://github.com/shanteacontrols/OpenDeck/wiki/Flashing-the-OpenDeck-firmware) to supported boards is also available. Support for custom boards can be easily added using [YAML descriptors](https://github.com/shanteacontrols/OpenDeck/wiki/Creating-custom-board-variant).
 
 ## Documentation
 
