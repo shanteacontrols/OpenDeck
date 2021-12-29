@@ -20,25 +20,25 @@
       index: 0
     -
       port: "B"
-      index: 2
+      index: 0
     -
       port: "B"
       index: 10
     -
-      port: "B"
-      index: 12
+      port: "A"
+      index: 8
     -
       port: "B"
-      index: 13
+      index: 15
     -
       port: "B"
       index: 14
     -
       port: "B"
-      index: 15
+      index: 13
     -
-      port: "A"
-      index: 8
+      port: "B"
+      index: 12
   analog:
     type: "native"
     pins:
@@ -63,9 +63,6 @@
     -
       port: "A"
       index: 7
-    -
-      port: "B"
-      index: 0
     -
       port: "B"
       index: 1

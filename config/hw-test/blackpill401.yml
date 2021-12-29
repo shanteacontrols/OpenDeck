@@ -10,13 +10,13 @@ io:
   - 5
   switches-id:
   - 0
-  - 7
+  - 3
   analog-pins:
   - 10
   - 17
   analog-id:
   - 0
-  - 8
+  - 7
   led-pins:
   - 6
   - 7
