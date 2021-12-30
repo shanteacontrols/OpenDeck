@@ -1,6 +1,7 @@
 ---
   arch: "avr"
   mcuFamily: "avr8"
+  vendor: "atmel"
   define-symbol: "__AVR_AT90USB1286__"
   flash:
     app-start: 0x00

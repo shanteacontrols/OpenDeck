@@ -1,6 +1,7 @@
 ---
-  arch: "stm32"
+  arch: "arm"
   mcuFamily: "f4"
+  vendor: "st"
   cpu: "cortex-m4"
   fpu: "fpv4-sp-d16"
   float-abi: "hard"

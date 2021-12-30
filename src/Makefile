@@ -116,7 +116,7 @@ ifeq (,$(findstring gen,$(TYPE)))
         ifeq ($(MCU), atmega16u2)
             LDFLAGS += -flto
         endif
-    else ifeq ($(ARCH),stm32)
+    else ifeq ($(ARCH),arm)
         SIZE_TOOL := size
         CC := $(C_COMPILER_ARM)
         CXX := $(CPP_COMPILER_ARM)
@@ -255,7 +255,7 @@ $(TOUCHSCREEN_GEN_BASE_DIR)/$(TARGET).cpp: $(TOUCHSCREEN_DEF_FILE)
 	@echo Generating touchscreen coordinate file...
 	@$(SCRIPTS_DIR)/gen_touchscreen.sh $< $(TOUCHSCREEN_GEN_BASE_DIR)
 
-ifeq ($(ARCH),stm32)
+ifeq ($(ARCH),arm)
 $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin: $(TARGET_DEF_FILE) $(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/application/database/Database.cpp.o $(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/application/database/CustomInit.cpp.o
 	@echo Generating factory flash configuration...
 	@./$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/$(TARGET).elf $@

@@ -34,7 +34,6 @@ SW_VERSION_MINOR=$(SW_VERSION_MINOR) \
 SW_VERSION_REVISION=$(SW_VERSION_REVISION) \
 COMMAND_FW_UPDATE_START=$(COMMAND_FW_UPDATE_START) \
 COMMAND_FW_UPDATE_END=$(COMMAND_FW_UPDATE_END) \
-EMUEEPROM_INCLUDE_CONFIG \
 ESTA_ID=$(ESTA_ID)
 
 ifeq ($(DEBUG), 1)
@@ -61,52 +60,50 @@ else
     DEFINES += MIDI_SYSEX_ARRAY_SIZE=100
 endif
 
-ifneq (,$(findstring gen,$(TYPE)))
-    #needed only for compilation, unused otherwise for *gen targets
-    DEFINES += UID_BITS=96
-else
-    ifeq ($(ARCH),avr)
-        #common for all avr targets
-        DEFINES += \
-        ARCH=ARCH_AVR8 \
-        __AVR__ \
-        F_CPU=16000000UL \
-        F_USB=16000000UL \
-        BOARD=BOARD_NONE \
-        USE_STATIC_OPTIONS=0 \
-        USB_DEVICE_ONLY \
-        INTERRUPT_CONTROL_ENDPOINT \
-        ADC_10_BIT \
-        ORDERED_EP_CONFIG \
-        UID_BITS=80 \
-        MEDIAN_SAMPLE_COUNT=3 \
-        MEDIAN_MIDDLE_VALUE=1
+ifeq ($(ARCH),avr)
+    #common for all avr targets
+    DEFINES += \
+    ARCH=ARCH_AVR8 \
+    __AVR__ \
+    F_CPU=16000000UL \
+    F_USB=16000000UL \
+    BOARD=BOARD_NONE \
+    USE_STATIC_OPTIONS=0 \
+    USB_DEVICE_ONLY \
+    INTERRUPT_CONTROL_ENDPOINT \
+    ADC_10_BIT \
+    ORDERED_EP_CONFIG \
+    UID_BITS=80 \
+    MEDIAN_SAMPLE_COUNT=3 \
+    MEDIAN_MIDDLE_VALUE=1
 
-        #flash type specific
-        ifeq ($(TYPE),boot)
-            DEFINES += \
-            NO_SOF_EVENTS \
-            DEVICE_STATE_AS_GPIOR \
-            NO_DEVICE_REMOTE_WAKEUP \
-            NO_DEVICE_SELF_POWER \
-            USE_RAM_DESCRIPTORS
-        else ifeq ($(TYPE),app)
-            DEFINES += \
-            USE_FLASH_DESCRIPTORS
-        endif
-    else
-        ifeq ($(ARCH),stm32)
+    #flash type specific
+    ifeq ($(TYPE),boot)
         DEFINES += \
-        __ARM__ \
-        __STM32__ \
-        USE_HAL_DRIVER \
-        UID_BITS=96 \
-        USE_USB_FS \
-        DEVICE_FS=0 \
-        DEVICE_HS=1 \
-        ADC_12_BIT
-        endif
+        NO_SOF_EVENTS \
+        DEVICE_STATE_AS_GPIOR \
+        NO_DEVICE_REMOTE_WAKEUP \
+        NO_DEVICE_SELF_POWER \
+        USE_RAM_DESCRIPTORS
+    else ifeq ($(TYPE),app)
+        DEFINES += \
+        USE_FLASH_DESCRIPTORS
     endif
+else ifeq ($(ARCH),arm)
+    DEFINES += \
+    __ARM__ \
+    EMUEEPROM_INCLUDE_CONFIG
+endif
+
+ifeq ($(VENDOR),st)
+    DEFINES += \
+    __STM32__ \
+    USE_HAL_DRIVER \
+    UID_BITS=96 \
+    USE_USB_FS \
+    DEVICE_FS=0 \
+    DEVICE_HS=1 \
+    ADC_12_BIT
 endif
 
 ifeq ($(CPU),cortex-m4)

@@ -1,6 +1,7 @@
 ---
   arch: "avr"
   mcuFamily: "avr8"
+  vendor: "atmel"
   define-symbol: "__AVR_ATmega2560__"
   flash:
     app-start: 0x00

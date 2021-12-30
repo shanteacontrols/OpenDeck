@@ -12,6 +12,7 @@ mkdir -p "$GEN_DIR"
 mcu=$(basename "$MCU_DEF_FILE" .yml)
 arch=$($YAML_PARSER "$MCU_DEF_FILE" arch)
 mcu_family=$($YAML_PARSER "$MCU_DEF_FILE" mcuFamily)
+vendor=$($YAML_PARSER "$MCU_DEF_FILE" vendor)
 cpu=$($YAML_PARSER "$MCU_DEF_FILE" cpu)
 fpu=$($YAML_PARSER "$MCU_DEF_FILE" fpu)
 float_abi=$($YAML_PARSER "$MCU_DEF_FILE" float-abi)
@@ -38,10 +39,11 @@ metadata_start_address=$($YAML_PARSER "$MCU_DEF_FILE" flash.metadata-start)
 {
     printf "%s\n" "ARCH := $arch"
     printf "%s\n" "MCU_FAMILY := $mcu_family"
+    printf "%s\n" "VENDOR := $vendor"
     #base mcu without the variant-specific letters at the end
     printf "%s\n" "MCU_BASE := $(echo "$mcu" | rev | cut -c3- | rev)"
     printf "%s\n" "MCU := $mcu"
-    printf "%s\n" "MCU_DIR := board/arch/$arch/variants/$mcu_family/$mcu"
+    printf "%s\n" "MCU_DIR := board/arch/$arch/$vendor/variants/$mcu_family/$mcu"
     printf "%s\n" "CPU := $cpu"
     printf "%s\n" "FPU := $fpu"
     printf "%s\n" "FLOAT-ABI := $float_abi"

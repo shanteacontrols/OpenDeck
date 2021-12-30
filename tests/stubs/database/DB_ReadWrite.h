@@ -5,7 +5,7 @@
 #include <array>
 #include "dbms/src/LESSDB.h"
 #include <MCU.h>
-#ifdef STM32_EMU_EEPROM
+#ifdef EMUEEPROM_INCLUDE_CONFIG
 #include "EmuEEPROM/src/EmuEEPROM.h"
 #endif
 #include "board/Board.h"
@@ -18,7 +18,7 @@ class DBstorageMock : public LESSDB::StorageAccess
 
     bool init() override
     {
-#ifdef STM32_EMU_EEPROM
+#ifdef EMUEEPROM_INCLUDE_CONFIG
         emuEEPROM.init();
 #endif
         return true;
@@ -31,7 +31,7 @@ class DBstorageMock : public LESSDB::StorageAccess
     bool     write(uint32_t address, int32_t value, LESSDB::sectionParameterType_t type) override;
 
     private:
-#ifdef STM32_EMU_EEPROM
+#ifdef EMUEEPROM_INCLUDE_CONFIG
     class EmuEEPROMStorageAccess : public EmuEEPROM::StorageAccess
     {
         public:

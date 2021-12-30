@@ -3,7 +3,7 @@
 
 uint32_t DBstorageMock::size()
 {
-#ifdef STM32_EMU_EEPROM
+#ifdef EMUEEPROM_INCLUDE_CONFIG
     // first 4 bytes are reserved for page status
     return EMU_EEPROM_PAGE_SIZE - 4;
 #else
@@ -13,7 +13,7 @@ uint32_t DBstorageMock::size()
 
 size_t DBstorageMock::paramUsage(LESSDB::sectionParameterType_t type)
 {
-#ifndef STM32_EMU_EEPROM
+#ifndef EMUEEPROM_INCLUDE_CONFIG
     switch (type)
     {
     case LESSDB::sectionParameterType_t::word:
@@ -46,7 +46,7 @@ size_t DBstorageMock::paramUsage(LESSDB::sectionParameterType_t type)
 
 bool DBstorageMock::read(uint32_t address, int32_t& value, LESSDB::sectionParameterType_t type)
 {
-#ifndef STM32_EMU_EEPROM
+#ifndef EMUEEPROM_INCLUDE_CONFIG
     switch (type)
     {
     case LESSDB::sectionParameterType_t::bit:
@@ -118,7 +118,7 @@ bool DBstorageMock::read(uint32_t address, int32_t& value, LESSDB::sectionParame
 
 bool DBstorageMock::write(uint32_t address, int32_t value, LESSDB::sectionParameterType_t type)
 {
-#ifndef STM32_EMU_EEPROM
+#ifndef EMUEEPROM_INCLUDE_CONFIG
     switch (type)
     {
     case LESSDB::sectionParameterType_t::bit:
@@ -175,7 +175,7 @@ bool DBstorageMock::write(uint32_t address, int32_t value, LESSDB::sectionParame
 
 bool DBstorageMock::clear()
 {
-#ifndef STM32_EMU_EEPROM
+#ifndef EMUEEPROM_INCLUDE_CONFIG
     std::fill(memoryArray.begin(), memoryArray.end(), 0x00);
     return true;
 #else
@@ -183,7 +183,7 @@ bool DBstorageMock::clear()
 #endif
 }
 
-#ifdef STM32_EMU_EEPROM
+#ifdef EMUEEPROM_INCLUDE_CONFIG
 DBstorageMock::EmuEEPROMStorageAccess::EmuEEPROMStorageAccess()
 {
     pageArray.resize(EMU_EEPROM_PAGE_SIZE * 2, 0xFF);
