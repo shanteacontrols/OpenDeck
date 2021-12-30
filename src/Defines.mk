@@ -94,8 +94,10 @@ else
             DEFINES += \
             USE_FLASH_DESCRIPTORS
         endif
-    else ifeq ($(ARCH),stm32)
+    else
+        ifeq ($(ARCH),stm32)
         DEFINES += \
+        __ARM__ \
         __STM32__ \
         USE_HAL_DRIVER \
         UID_BITS=96 \
@@ -103,7 +105,13 @@ else
         DEVICE_FS=0 \
         DEVICE_HS=1 \
         ADC_12_BIT
+        endif
     endif
+endif
+
+ifeq ($(CPU),cortex-m4)
+    DEFINES += \
+    CORE_ARM_M4
 endif
 
 ifeq ($(TYPE),boot)

@@ -22,3 +22,4 @@ endif
 #filter out arch symbols to avoid pulling MCU-specific headers
 DEFINES := $(filter-out __AVR__,$(DEFINES))
 DEFINES := $(filter-out __STM32__,$(DEFINES))
+DEFINES := $(filter-out __ARM__,$(DEFINES))
