@@ -18,45 +18,26 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "core/src/general/Interrupt.h"
-#include "core/src/general/Timing.h"
 #include "board/common/io/Helpers.h"
+#include "core/src/general/Timing.h"
 #include <Pins.h>
 
 namespace Board
 {
-    void uniqueID(uniqueID_t& uid)
-    {
-        uint32_t id[3];
-
-        id[0] = HAL_GetUIDw0();
-        id[1] = HAL_GetUIDw1();
-        id[2] = HAL_GetUIDw2();
-
-        for (int i = 0; i < 3; i++)
-        {
-            for (int j = 0; j < 4; j++)
-                uid[(i * 4) + j] = id[i] >> ((3 - j) * 8) & 0xFF;
-        }
-    }
-
     namespace detail
     {
         namespace setup
         {
             void bootloader()
             {
-                HAL_Init();
-
+                detail::setup::halInit();
                 detail::setup::clocks();
                 detail::setup::io();
             }
 
             void application()
             {
-                // Reset of all peripherals, Initializes the Flash interface and the Systick
-                HAL_Init();
-
+                detail::setup::halInit();
                 detail::setup::clocks();
 
                 // add some delay for clocks to stabilize

@@ -89,25 +89,6 @@ namespace std
 
 namespace Board
 {
-#ifdef USB_SUPPORTED
-    void uniqueID(uniqueID_t& uid)
-    {
-        ATOMIC_SECTION
-        {
-            uint8_t address = INTERNAL_SERIAL_START_ADDRESS;
-
-            for (uint8_t i = 0; i < (UID_BITS / 8); i++)
-            {
-                uid[i] = boot_signature_byte_get(address++);
-
-                // LUFA sends unique ID with nibbles swaped
-                // to match with LUFA, invert them here
-                uid[i] = (uid[i] << 4) | ((uid[i] >> 4) & 0x0F);
-            }
-        }
-    }
-#endif
-
     namespace detail
     {
         namespace setup

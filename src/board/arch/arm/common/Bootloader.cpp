@@ -56,9 +56,7 @@ namespace Board
         void runApplication()
         {
             detail::io::ledFlashStartup();
-
-            HAL_RCC_DeInit();
-            HAL_DeInit();
+            detail::setup::halDeinit();
 
             auto appEntry = (appEntry_t) * (volatile uint32_t*)(APP_START_ADDR + 4);
             appEntry();

@@ -40,6 +40,12 @@ namespace Board
 
         namespace setup
         {
+            /// Initializes low-level layer needed for HAL API.
+            void halInit();
+
+            /// Deinitializes low-level layer needed for HAL API.
+            void halDeinit();
+
             /// Prepares MCU to run application.
             void application();
 

@@ -62,6 +62,8 @@ ifeq (,$(findstring gen,$(TYPE)))
             modules/lufa/LUFA/Drivers/USB/Class/Device/MIDIClassDevice.c \
             modules/lufa/LUFA/Drivers/USB/Class/Device/CDCClassDevice.c
         endif
+    else ifeq ($(ARCH),arm)
+        SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
     endif
 
     #vendor specific
@@ -70,29 +72,18 @@ ifeq (,$(findstring gen,$(TYPE)))
         SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/$(VENDOR)/gen/$(MCU_FAMILY)/common -regex '.*\.\(s\|c\)')
         SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/$(VENDOR)/gen/$(MCU_FAMILY)/$(MCU_BASE) -regex '.*\.\(s\|c\)')
         SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY) -maxdepth 1 -name "*.cpp")
-        SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
     endif
 
     SOURCES += $(shell $(FIND) ./board/common -maxdepth 1 -type f -name "*.cpp")
     SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/common/ -type f -name "*.cpp")
+    SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/$(VENDOR)/common/ -type f -name "*.cpp")
     SOURCES += $(shell $(FIND) ./$(MCU_DIR) -maxdepth 1 -type f -regex '.*\.\(s\|c\|cpp\)')
     SOURCES += board/common/io/Stubs.cpp
 
     ifeq ($(TYPE),boot)
         #bootloader sources
         #common
-        SOURCES += \
-        board/common/bootloader/Bootloader.cpp \
-        board/common/io/Indicators.cpp \
-        board/arch/$(ARCH)/$(VENDOR)/common/Bootloader.cpp \
-        board/arch/$(ARCH)/$(VENDOR)/common/Init.cpp \
-        board/arch/$(ARCH)/$(VENDOR)/common/ShiftRegistersWait.cpp \
-        board/arch/$(ARCH)/$(VENDOR)/common/ISR.cpp
-
-        ifeq ($(ARCH),avr)
-            SOURCES += board/arch/$(ARCH)/$(VENDOR)/common/Flash.cpp
-        endif
-
+        SOURCES += board/common/io/Indicators.cpp
         SOURCES += $(shell find ./bootloader -type f -name "*.cpp")
 
         ifneq (,$(findstring USB_SUPPORTED,$(DEFINES)))
@@ -116,7 +107,6 @@ ifeq (,$(findstring gen,$(TYPE)))
     else ifeq ($(TYPE),app)
         #application sources
         #common for all targets
-        SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/$(VENDOR)/common -type f -name "*.cpp")
         SOURCES += $(shell $(FIND) ./board/common/comm/USBOverSerial -type f -name "*.cpp")
 
         ifneq (,$(findstring USB_SUPPORTED,$(DEFINES)))
