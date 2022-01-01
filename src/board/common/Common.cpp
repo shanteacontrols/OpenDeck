@@ -26,6 +26,8 @@ limitations under the License.
 #include "usb-link/Commands.h"
 #endif
 
+#include <MCU.h>
+
 // holds total flash size - inserted in the binary by build process
 // address where this variable is stored contains total firmware length
 // after the last firmware address, crc of firmware is stored
@@ -92,14 +94,45 @@ namespace Board
 
         namespace isrHandling
         {
-            void mainTimer()
+            void timer(uint8_t channel)
             {
-                core::timing::detail::rTime_ms++;
-                Board::detail::io::checkIndicators();
+                switch (channel)
+                {
+                case TIMER_CHANNEL_MAIN:
+                {
+                    core::timing::detail::rTime_ms++;
+                    Board::detail::io::checkIndicators();
 
 #ifdef FW_APP
-                Board::detail::io::checkDigitalInputs();
+#ifndef USB_LINK_MCU
+                    Board::detail::io::checkDigitalInputs();
+#ifndef TIMER_CHANNEL_PWM
+#if NR_OF_DIGITAL_OUTPUTS > 0
+                    Board::detail::io::checkDigitalOutputs();
 #endif
+#endif
+#endif
+#endif
+                }
+                break;
+
+#ifdef TIMER_CHANNEL_PWM
+                case TIMER_CHANNEL_PWM:
+                {
+#ifdef FW_APP
+#ifndef USB_LINK_MCU
+#if NR_OF_DIGITAL_OUTPUTS > 0
+                    Board::detail::io::checkDigitalOutputs();
+#endif
+#endif
+#endif
+                }
+                break;
+#endif
+
+                default:
+                    break;
+                }
             }
         }    // namespace isrHandling
     }        // namespace detail

@@ -22,13 +22,15 @@ limitations under the License.
 
 // stm32f4 specific setup
 
+// 42 constant based on 84MHz system clock and specific prescaler values used here
+#define TIMER_US_TO_TICKS(us) (((42 * us) - 1))
+
 namespace
 {
-    TIM_HandleTypeDef _mainTimerHandler;
-
 #ifdef ADC_SUPPORTED
     ADC_HandleTypeDef _adcHandler;
 #endif
+}    // namespace
 
 #ifdef FW_APP
 #ifndef USB_LINK_MCU
@@ -80,33 +82,38 @@ namespace Board
 
             void timers()
             {
-                _mainTimerHandler.Instance               = MAIN_TIMER_INSTANCE;
-                _mainTimerHandler.Init.Prescaler         = 1;
-                _mainTimerHandler.Init.CounterMode       = TIM_COUNTERMODE_UP;
-                _mainTimerHandler.Init.Period            = 41999;    // 1ms
-                _mainTimerHandler.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
-                _mainTimerHandler.Init.RepetitionCounter = 0;
-                _mainTimerHandler.Init.AutoReloadPreload = 0;
+                TIM_HandleTypeDef       mainTimerHandler  = {};
+                TIM_ClockConfigTypeDef  timerClockConfig  = {};
+                TIM_MasterConfigTypeDef timerMasterConfig = {};
+                TIM_OC_InitTypeDef      timerOCConfig     = {};
+                timerOCConfig.OCMode                      = TIM_OCMODE_ACTIVE;
+                timerOCConfig.OCPolarity                  = TIM_OCPOLARITY_HIGH;
+                timerOCConfig.OCFastMode                  = TIM_OCFAST_DISABLE;
 
-                HAL_TIM_Base_Init(&_mainTimerHandler);
-                HAL_TIM_Base_Start_IT(&_mainTimerHandler);
+                mainTimerHandler.Instance               = TIM4;
+                mainTimerHandler.Init.Prescaler         = 1;
+                mainTimerHandler.Init.CounterMode       = TIM_COUNTERMODE_UP;
+                mainTimerHandler.Init.Period            = 0xFFFF;
+                mainTimerHandler.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+                mainTimerHandler.Init.RepetitionCounter = 0;
+                mainTimerHandler.Init.AutoReloadPreload = 0;
+                HAL_TIM_Base_Init(&mainTimerHandler);
 
-#ifdef FW_APP
-#ifndef USB_LINK_MCU
-#if NR_OF_DIGITAL_OUTPUTS > 0
-                pwmTimerHandle.Instance               = PWM_TIMER_INSTANCE;
-                pwmTimerHandle.Init.Prescaler         = 1;
-                pwmTimerHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
-                pwmTimerHandle.Init.Period            = 8399;    // 200us
-                pwmTimerHandle.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
-                pwmTimerHandle.Init.RepetitionCounter = 0;
-                pwmTimerHandle.Init.AutoReloadPreload = 0;
+                timerClockConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+                HAL_TIM_ConfigClockSource(&mainTimerHandler, &timerClockConfig);
 
-                HAL_TIM_Base_Init(&pwmTimerHandle);
-                HAL_TIM_Base_Start_IT(&pwmTimerHandle);
-#endif
-#endif
-#endif
+                timerMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+                timerMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
+                HAL_TIMEx_MasterConfigSynchronization(&mainTimerHandler, &timerMasterConfig);
+
+                timerOCConfig.Pulse = TIMER_US_TO_TICKS(TIMER_PERIOD_MAIN);
+                HAL_TIM_OC_ConfigChannel(&mainTimerHandler, &timerOCConfig, TIM_CHANNEL_1);
+
+                timerOCConfig.Pulse = TIMER_US_TO_TICKS(TIMER_PERIOD_PWM);
+                HAL_TIM_OC_ConfigChannel(&mainTimerHandler, &timerOCConfig, TIM_CHANNEL_2);
+
+                HAL_TIM_OC_Start_IT(&mainTimerHandler, TIM_CHANNEL_1);
+                HAL_TIM_OC_Start_IT(&mainTimerHandler, TIM_CHANNEL_2);
             }
 
 #ifdef ADC_SUPPORTED

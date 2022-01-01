@@ -284,8 +284,9 @@ namespace Board
             /// param [in]: adcValue    Retrieved ADC value.
             void adc(uint16_t adcValue);
 
-            /// Global ISR handler for main timer.
-            void mainTimer();
+            // Global ISR handler for timer event on all channels.
+            /// param [in]: channel    Channel on timer instance which caused interrupt.
+            void timer(uint8_t channel);
         }    // namespace isrHandling
 
         namespace flash

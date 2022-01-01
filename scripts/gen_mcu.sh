@@ -293,3 +293,40 @@ number_of_i2c_interfaces=$($YAML_PARSER "$MCU_DEF_FILE" interfaces.i2c)
     printf "%s\n" "#define MAX_UART_INTERFACES  $number_of_uart_interfaces"
     printf "%s\n" "#define MAX_I2C_INTERFACES   $number_of_i2c_interfaces"
 } >> "$OUT_FILE_HEADER"
+
+if [[ $($YAML_PARSER "$MCU_DEF_FILE" timers) != "null" ]]
+then
+    timer_period_main=$($YAML_PARSER "$MCU_DEF_FILE" timers.main.period)
+    timer_channel_main=$($YAML_PARSER "$MCU_DEF_FILE" timers.main.channel)
+
+    if [[ $timer_period_main == "null" ]]
+    then
+        echo "Main timer period is not optional"
+        exit 1
+    fi
+
+    if [[ $timer_channel_main == "null" ]]
+    then
+        echo "Main timer channel is not optional"
+        exit 1
+    fi
+
+    {
+        printf "%s\n" "#define TIMER_PERIOD_MAIN    $timer_period_main"
+        printf "%s\n" "#define TIMER_CHANNEL_MAIN   $timer_channel_main"
+    } >> "$OUT_FILE_HEADER"
+
+    timer_period_pwm=$($YAML_PARSER "$MCU_DEF_FILE" timers.pwm.period)
+    timer_channel_pwm=$($YAML_PARSER "$MCU_DEF_FILE" timers.pwm.channel)
+
+    if [[ ($timer_period_pwm != "null") && ($timer_channel_pwm != "null") ]]
+    then
+        {
+            printf "%s\n" "#define TIMER_PERIOD_PWM     $timer_period_pwm"
+            printf "%s\n" "#define TIMER_CHANNEL_PWM    $timer_channel_pwm"
+        } >> "$OUT_FILE_HEADER"
+    fi
+else
+    echo "Timer periods undefined"
+    exit 1
+fi

@@ -20,3 +20,8 @@
     ext: 0xFC
     high: 0xD0
     low: 0xFF
+  timers:
+    #periods in us
+    main:
+      period: 1000
+      channel: 0

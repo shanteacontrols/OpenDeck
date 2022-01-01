@@ -31,11 +31,15 @@ limitations under the License.
 #include "core/src/general/Interrupt.h"
 #include "core/src/general/Timing.h"
 #include <Pins.h>
+#include <MCU.h>
 
 // serial numbers are available only on AVR MCUs with USB
 #ifdef USB_SUPPORTED
 #include "LUFA/Drivers/USB/USB.h"
 #endif
+
+// 4 constant based on prescaler 64
+#define TIMER_US_TO_TICKS(us) (((us / 4) - 1))
 
 extern "C" void __cxa_pure_virtual()
 {
@@ -211,32 +215,13 @@ namespace Board
 
             void timers()
             {
-                // set timer0 to ctc, used for millis/led matrix
-                // clear timer0 conf
                 TCCR0A = 0;
                 TCCR0B = 0;
                 TIMSK0 = 0;
                 TCCR0A |= (1 << WGM01);                 // CTC mode
                 TCCR0B |= (1 << CS01) | (1 << CS00);    // prescaler 64
-                OCR0A = 249;                            // 1ms
-                TIMSK0 |= (1 << OCIE0A);                // compare match interrupt
-
-#ifdef FW_APP
-#ifndef USB_LINK_MCU
-#if NR_OF_DIGITAL_OUTPUTS > 0
-                // use timer1 for soft pwm
-                TCCR1A = 0;
-                TCCR1B = 0;
-                TCCR1C = 0;
-
-                TIMSK1 = 0;
-                TCCR1B |= (1 << WGM12);                 // CTC mode
-                TCCR1B |= (1 << CS11) | (1 << CS10);    // prescaler 64
-                OCR1A = 124;                            // 500us
-                TIMSK1 |= (1 << OCIE1A);                // compare match interrupt
-#endif
-#endif
-#endif
+                OCR0A = TIMER_US_TO_TICKS(TIMER_PERIOD_MAIN);
+                TIMSK0 |= (1 << OCIE0A);    // compare match interrupt
             }
 
             void io()

@@ -87,3 +87,11 @@
   interfaces:
     uart: 3
     i2c: 3
+  timers:
+    #periods in us
+    main:
+      period: 1000
+      channel: 0
+    pwm:
+      period: 200
+      channel: 1

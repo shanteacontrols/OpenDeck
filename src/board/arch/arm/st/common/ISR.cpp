@@ -131,68 +131,35 @@ extern "C" void ADC_IRQHandler(void)
 #endif
 #endif
 
-#ifdef TIM4
 extern "C" void TIM4_IRQHandler(void)
 {
-    TIM4->SR = ~TIM_IT_UPDATE;
+    // To avoid having global variables or adding more internal APIs,
+    // store channel count in static variables the first time
+    // interrupt for specific channel is triggered.
+    // Needed since CCRx register needs to be updated on each compare
+    // match.
 
-    if (TIM4 == MAIN_TIMER_INSTANCE)
+    static int32_t ch1Cnt = -1;
+    static int32_t ch2Cnt = -1;
+
+    if ((TIM4->SR & TIM_IT_CC1) != RESET)
     {
-        Board::detail::isrHandling::mainTimer();
+        if (ch1Cnt == -1)
+            ch1Cnt = TIM4->CCR1;
+
+        Board::detail::isrHandling::timer(0);
+
+        TIM4->CCR1 += ch1Cnt;
+        TIM4->SR &= ~TIM_IT_CC1;
     }
-    else if (TIM4 == PWM_TIMER_INSTANCE)
+    else if ((TIM4->SR & TIM_IT_CC2) != RESET)
     {
-#ifdef FW_APP
-#ifndef USB_LINK_MCU
-#if NR_OF_DIGITAL_OUTPUTS > 0
-        Board::detail::io::checkDigitalOutputs();
-#endif
-#endif
-#endif
+        if (ch2Cnt == -1)
+            ch2Cnt = TIM4->CCR2;
+
+        Board::detail::isrHandling::timer(1);
+
+        TIM4->CCR2 += ch2Cnt;
+        TIM4->SR &= ~TIM_IT_CC2;
     }
 }
-#endif
-
-#ifdef TIM5
-extern "C" void TIM5_IRQHandler(void)
-{
-    TIM5->SR = ~TIM_IT_UPDATE;
-
-    if (TIM5 == MAIN_TIMER_INSTANCE)
-    {
-        Board::detail::isrHandling::mainTimer();
-    }
-    else if (TIM5 == PWM_TIMER_INSTANCE)
-    {
-#ifdef FW_APP
-#ifndef USB_LINK_MCU
-#if NR_OF_DIGITAL_OUTPUTS > 0
-        Board::detail::io::checkDigitalOutputs();
-#endif
-#endif
-#endif
-    }
-}
-#endif
-
-#ifdef TIM7
-extern "C" void TIM7_IRQHandler(void)
-{
-    TIM7->SR = ~TIM_IT_UPDATE;
-
-    if (TIM7 == MAIN_TIMER_INSTANCE)
-    {
-        Board::detail::isrHandling::mainTimer();
-    }
-    else if (TIM7 == PWM_TIMER_INSTANCE)
-    {
-#ifdef FW_APP
-#ifndef USB_LINK_MCU
-#if NR_OF_DIGITAL_OUTPUTS > 0
-        Board::detail::io::checkDigitalOutputs();
-#endif
-#endif
-#endif
-    }
-}
-#endif

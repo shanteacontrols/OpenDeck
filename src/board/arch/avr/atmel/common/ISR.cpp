@@ -30,21 +30,7 @@ ISR(ADC_vect)
 #endif
 #endif
 
-/// Main interrupt service routine.
-/// Used to control I/O on board and to update current run time.
 ISR(TIMER0_COMPA_vect)
 {
-    Board::detail::isrHandling::mainTimer();
-}
-
-// PWM ISR
-ISR(TIMER1_COMPA_vect)
-{
-#ifdef FW_APP
-#ifndef USB_LINK_MCU
-#if NR_OF_DIGITAL_OUTPUTS > 0
-    Board::detail::io::checkDigitalOutputs();
-#endif
-#endif
-#endif
+    Board::detail::isrHandling::timer(0);
 }
