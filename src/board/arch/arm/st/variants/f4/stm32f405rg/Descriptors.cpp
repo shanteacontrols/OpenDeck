@@ -118,8 +118,8 @@ namespace
         std::vector<core::io::mcuPin_t> _pins = {
             // rx
             {
-                .port      = GPIOD,
-                .index     = GPIO_PIN_6,
+                .port      = GPIOA,
+                .index     = GPIO_PIN_3,
                 .mode      = core::io::pinMode_t::alternatePP,
                 .pull      = core::io::pullMode_t::none,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
@@ -128,8 +128,8 @@ namespace
 
             // tx
             {
-                .port      = GPIOD,
-                .index     = GPIO_PIN_5,
+                .port      = GPIOA,
+                .index     = GPIO_PIN_2,
                 .mode      = core::io::pinMode_t::alternatePP,
                 .pull      = core::io::pullMode_t::none,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
@@ -230,8 +230,8 @@ namespace
         std::vector<core::io::mcuPin_t> _pins = {
             // rx
             {
-                .port      = GPIOC,
-                .index     = GPIO_PIN_11,
+                .port      = GPIOA,
+                .index     = GPIO_PIN_1,
                 .mode      = core::io::pinMode_t::alternatePP,
                 .pull      = core::io::pullMode_t::none,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
@@ -240,8 +240,8 @@ namespace
 
             // tx
             {
-                .port      = GPIOC,
-                .index     = GPIO_PIN_10,
+                .port      = GPIOA,
+                .index     = GPIO_PIN_0,
                 .mode      = core::io::pinMode_t::alternatePP,
                 .pull      = core::io::pullMode_t::none,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
@@ -454,8 +454,8 @@ namespace
         std::vector<core::io::mcuPin_t> _pins = {
             // sda
             {
-                .port      = GPIOF,
-                .index     = GPIO_PIN_0,
+                .port      = GPIOB,
+                .index     = GPIO_PIN_11,
                 .mode      = core::io::pinMode_t::alternateOD,
                 .pull      = core::io::pullMode_t::up,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
@@ -464,8 +464,8 @@ namespace
 
             // scl
             {
-                .port      = GPIOF,
-                .index     = GPIO_PIN_1,
+                .port      = GPIOB,
+                .index     = GPIO_PIN_10,
                 .mode      = core::io::pinMode_t::alternateOD,
                 .pull      = core::io::pullMode_t::up,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
@@ -510,8 +510,8 @@ namespace
         std::vector<core::io::mcuPin_t> _pins = {
             // sda
             {
-                .port      = GPIOH,
-                .index     = GPIO_PIN_8,
+                .port      = GPIOC,
+                .index     = GPIO_PIN_9,
                 .mode      = core::io::pinMode_t::alternateOD,
                 .pull      = core::io::pullMode_t::up,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
@@ -520,8 +520,8 @@ namespace
 
             // scl
             {
-                .port      = GPIOH,
-                .index     = GPIO_PIN_7,
+                .port      = GPIOA,
+                .index     = GPIO_PIN_8,
                 .mode      = core::io::pinMode_t::alternateOD,
                 .pull      = core::io::pullMode_t::up,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
@@ -548,87 +548,4 @@ namespace
     };
 }    // namespace
 
-namespace Board
-{
-    namespace detail
-    {
-        namespace map
-        {
-            bool uartChannel(USART_TypeDef* interface, uint8_t& channel)
-            {
-                for (int i = 0; i < MAX_UART_INTERFACES; i++)
-                {
-                    if (static_cast<USART_TypeDef*>(_uartDescriptor[i]->interface()) == interface)
-                    {
-                        channel = i;
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-
-            STMPeripheral* uartDescriptor(uint8_t channel)
-            {
-                if (channel >= MAX_UART_INTERFACES)
-                    return nullptr;
-
-                return _uartDescriptor[channel];
-            }
-
-            bool i2cChannel(I2C_TypeDef* interface, uint8_t& channel)
-            {
-                for (int i = 0; i < MAX_I2C_INTERFACES; i++)
-                {
-                    if (static_cast<I2C_TypeDef*>(_i2cDescriptor[i]->interface()) == interface)
-                    {
-                        channel = i;
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-
-            STMPeripheral* i2cDescriptor(uint8_t channel)
-            {
-                if (channel >= MAX_I2C_INTERFACES)
-                    return nullptr;
-
-                return _i2cDescriptor[channel];
-            }
-
-            uint32_t adcChannel(const core::io::mcuPin_t& pin)
-            {
-                uint8_t index = core::misc::maskToIndex(pin.index);
-
-                if (pin.port == GPIOA)
-                {
-                    if (index < 8)
-                        return index;
-                }
-                else if (pin.port == GPIOB)
-                {
-                    switch (index)
-                    {
-                    case 0:
-                        return 8;
-
-                    case 1:
-                        return 9;
-
-                    default:
-                        return 0xFF;
-                    }
-                }
-                else if (pin.port == GPIOC)
-                {
-                    if (index < 6)
-                        return 10 + index;
-                }
-
-                return 0xFF;
-            }
-        }    // namespace map
-    }        // namespace detail
-}    // namespace Board
+#include "STM32F4Descriptors.cpp.include"

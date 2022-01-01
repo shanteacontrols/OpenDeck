@@ -415,7 +415,6 @@ namespace
                 .speed     = core::io::gpioSpeed_t::veryHigh,
                 .alternate = GPIO_AF4_I2C1,
             },
-
         };
 
         const IRQn_Type _irqn = static_cast<IRQn_Type>(0);
@@ -549,87 +548,4 @@ namespace
     };
 }    // namespace
 
-namespace Board
-{
-    namespace detail
-    {
-        namespace map
-        {
-            bool uartChannel(USART_TypeDef* interface, uint8_t& channel)
-            {
-                for (int i = 0; i < MAX_UART_INTERFACES; i++)
-                {
-                    if (static_cast<USART_TypeDef*>(_uartDescriptor[i]->interface()) == interface)
-                    {
-                        channel = i;
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-
-            STMPeripheral* uartDescriptor(uint8_t channel)
-            {
-                if (channel >= MAX_UART_INTERFACES)
-                    return nullptr;
-
-                return _uartDescriptor[channel];
-            }
-
-            bool i2cChannel(I2C_TypeDef* interface, uint8_t& channel)
-            {
-                for (int i = 0; i < MAX_I2C_INTERFACES; i++)
-                {
-                    if (static_cast<I2C_TypeDef*>(_i2cDescriptor[i]->interface()) == interface)
-                    {
-                        channel = i;
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-
-            STMPeripheral* i2cDescriptor(uint8_t channel)
-            {
-                if (channel >= MAX_I2C_INTERFACES)
-                    return nullptr;
-
-                return _i2cDescriptor[channel];
-            }
-
-            uint32_t adcChannel(const core::io::mcuPin_t& pin)
-            {
-                uint8_t index = core::misc::maskToIndex(pin.index);
-
-                if (pin.port == GPIOA)
-                {
-                    if (index < 8)
-                        return index;
-                }
-                else if (pin.port == GPIOB)
-                {
-                    switch (index)
-                    {
-                    case 0:
-                        return 8;
-
-                    case 1:
-                        return 9;
-
-                    default:
-                        return 0xFF;
-                    }
-                }
-                else if (pin.port == GPIOC)
-                {
-                    if (index < 6)
-                        return 10 + index;
-                }
-
-                return 0xFF;
-            }
-        }    // namespace map
-    }        // namespace detail
-}    // namespace Board
+#include "STM32F4Descriptors.cpp.include"
