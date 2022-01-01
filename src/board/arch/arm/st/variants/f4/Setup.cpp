@@ -25,21 +25,35 @@ limitations under the License.
 // 42 constant based on 84MHz system clock and specific prescaler values used here
 #define TIMER_US_TO_TICKS(us) (((42 * us) - 1))
 
-namespace
+namespace core
 {
 #ifdef ADC_SUPPORTED
-    ADC_HandleTypeDef _adcHandler;
-#endif
-}    // namespace
+    namespace adc
+    {
+        void startConversion()
+        {
+            /* Clear regular group conversion flag and overrun flag */
+            /* (To ensure of no unknown state from potential previous ADC operations) */
+            ADC1->SR = ~(ADC_FLAG_EOC | ADC_FLAG_OVR);
 
-#ifdef FW_APP
-#ifndef USB_LINK_MCU
-#if NR_OF_DIGITAL_OUTPUTS > 0
-    TIM_HandleTypeDef pwmTimerHandle;
+            /* Enable end of conversion interrupt for regular group */
+            ADC1->CR1 |= (ADC_IT_EOC | ADC_IT_OVR);
+
+            /* Enable the selected ADC software conversion for regular group */
+            ADC1->CR2 |= (uint32_t)ADC_CR2_SWSTART;
+        }
+
+        void setChannel(uint32_t adcChannel)
+        {
+            /* Clear the old SQx bits for the selected rank */
+            ADC1->SQR3 &= ~ADC_SQR3_RK(ADC_SQR3_SQ1, 1);
+
+            /* Set the SQx bits for the selected rank */
+            ADC1->SQR3 |= ADC_SQR3_RK(adcChannel, 1);
+        }
+    }    // namespace adc
 #endif
-#endif
-#endif
-}    // namespace
+}    // namespace core
 
 namespace Board
 {
@@ -119,34 +133,35 @@ namespace Board
 #ifdef ADC_SUPPORTED
             void adc()
             {
-                ADC_ChannelConfTypeDef sConfig = { 0 };
+                ADC_HandleTypeDef      adcHandler = {};
+                ADC_ChannelConfTypeDef sConfig    = {};
 
-                _adcHandler.Instance                   = ADC_INSTANCE;
-                _adcHandler.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV4;
-                _adcHandler.Init.Resolution            = ADC_RESOLUTION_12B;
-                _adcHandler.Init.ScanConvMode          = DISABLE;
-                _adcHandler.Init.ContinuousConvMode    = DISABLE;
-                _adcHandler.Init.DiscontinuousConvMode = DISABLE;
-                _adcHandler.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
-                _adcHandler.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
-                _adcHandler.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-                _adcHandler.Init.NbrOfConversion       = 1;
-                _adcHandler.Init.DMAContinuousRequests = DISABLE;
-                _adcHandler.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
-                HAL_ADC_Init(&_adcHandler);
+                adcHandler.Instance                   = ADC1;
+                adcHandler.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV4;
+                adcHandler.Init.Resolution            = ADC_RESOLUTION_12B;
+                adcHandler.Init.ScanConvMode          = DISABLE;
+                adcHandler.Init.ContinuousConvMode    = DISABLE;
+                adcHandler.Init.DiscontinuousConvMode = DISABLE;
+                adcHandler.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
+                adcHandler.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
+                adcHandler.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+                adcHandler.Init.NbrOfConversion       = 1;
+                adcHandler.Init.DMAContinuousRequests = DISABLE;
+                adcHandler.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
+                HAL_ADC_Init(&adcHandler);
 
                 for (int i = 0; i < MAX_ADC_CHANNELS; i++)
                 {
                     sConfig.Channel      = map::adcChannel(i);
                     sConfig.Rank         = 1;
                     sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
-                    HAL_ADC_ConfigChannel(&_adcHandler, &sConfig);
+                    HAL_ADC_ConfigChannel(&adcHandler, &sConfig);
                 }
 
                 // set first channel
                 core::adc::setChannel(map::adcChannel(0));
 
-                HAL_ADC_Start_IT(&_adcHandler);
+                HAL_ADC_Start_IT(&adcHandler);
             }
 #endif
         }    // namespace setup

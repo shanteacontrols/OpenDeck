@@ -60,46 +60,41 @@
       factory-flash-page: 5
       eeprom-flash-page1: 6
       eeprom-flash-page2: 7
-  hal:
-    adc: "ADC1"
-    timers:
-      main: "TIM7"
-      pwm: "TIM5"
-    #PLL values for 84MHz clock
-    clocks:
-        hse8MHz:
-          pllm: 4
-          plln: 168
-          pllq: 7
-          pllp: "RCC_PLLP_DIV2"
-          ahb_clk_div : "RCC_SYSCLK_DIV2"
-          apb1_clk_div: "RCC_HCLK_DIV2"
-          apb2_clk_div: "RCC_HCLK_DIV1"
-        hse12MHz:
-          pllm: 6
-          plln: 168
-          pllq: 7
-          pllp: "RCC_PLLP_DIV2"
-          ahb_clk_div : "RCC_SYSCLK_DIV2"
-          apb1_clk_div: "RCC_HCLK_DIV2"
-          apb2_clk_div: "RCC_HCLK_DIV1"
-        hse16MHz:
-          pllm: 8
-          plln: 168
-          pllq: 7
-          pllp: "RCC_PLLP_DIV2"
-          ahb_clk_div : "RCC_SYSCLK_DIV2"
-          apb1_clk_div: "RCC_SYSCLK_DIV2"
-          apb2_clk_div: "RCC_SYSCLK_DIV1"
-        hse25MHz:
-          pllm: 25
-          plln: 336
-          pllq: 7
-          pllp: "RCC_PLLP_DIV2"
-          ahb_clk_div : "RCC_SYSCLK_DIV2"
-          apb1_clk_div: "RCC_SYSCLK_DIV2"
-          apb2_clk_div: "RCC_SYSCLK_DIV1"
-        voltage_scale: "PWR_REGULATOR_VOLTAGE_SCALE1"
+  #PLL values for 84MHz clock
+  clocks:
+      hse8MHz:
+        pllm: 4
+        plln: 168
+        pllq: 7
+        pllp: "RCC_PLLP_DIV2"
+        ahb_clk_div : "RCC_SYSCLK_DIV2"
+        apb1_clk_div: "RCC_HCLK_DIV2"
+        apb2_clk_div: "RCC_HCLK_DIV1"
+      hse12MHz:
+        pllm: 6
+        plln: 168
+        pllq: 7
+        pllp: "RCC_PLLP_DIV2"
+        ahb_clk_div : "RCC_SYSCLK_DIV2"
+        apb1_clk_div: "RCC_HCLK_DIV2"
+        apb2_clk_div: "RCC_HCLK_DIV1"
+      hse16MHz:
+        pllm: 8
+        plln: 168
+        pllq: 7
+        pllp: "RCC_PLLP_DIV2"
+        ahb_clk_div : "RCC_SYSCLK_DIV2"
+        apb1_clk_div: "RCC_SYSCLK_DIV2"
+        apb2_clk_div: "RCC_SYSCLK_DIV1"
+      hse25MHz:
+        pllm: 25
+        plln: 336
+        pllq: 7
+        pllp: "RCC_PLLP_DIV2"
+        ahb_clk_div : "RCC_SYSCLK_DIV2"
+        apb1_clk_div: "RCC_SYSCLK_DIV2"
+        apb2_clk_div: "RCC_SYSCLK_DIV1"
+  voltage_scale: "PWR_REGULATOR_VOLTAGE_SCALE1"
   interfaces:
     uart: 6
     i2c: 3

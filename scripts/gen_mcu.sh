@@ -183,51 +183,39 @@ then
     fi
 fi
 
-if [[ $($YAML_PARSER "$MCU_DEF_FILE" hal) != "null" ]]
+if [[ $($YAML_PARSER "$MCU_DEF_FILE" clocks) != "null" ]]
 then
-    adc_instance=$($YAML_PARSER "$MCU_DEF_FILE" hal.adc)
-    main_timer_instance=$($YAML_PARSER "$MCU_DEF_FILE" hal.timers.main)
-    pwm_timer_instance=$($YAML_PARSER "$MCU_DEF_FILE" hal.timers.pwm)
+    pllm_8mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse8MHz.pllm)
+    plln_8mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse8MHz.plln)
+    pllq_8mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse8MHz.pllq)
+    pllp_8mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse8MHz.pllp)
+    ahb_clk_div_8mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse8MHz.ahb_clk_div)
+    apb1_clk_div_8mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse8MHz.apb1_clk_div)
+    apb2_clk_div_8mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse8MHz.apb2_clk_div)
 
-    {
-        printf "%s\n" "#define ADC_INSTANCE         $adc_instance"
-        printf "%s\n" "#define MAIN_TIMER_INSTANCE  $main_timer_instance"
-        printf "%s\n" "#define PWM_TIMER_INSTANCE   $pwm_timer_instance"
-    } >> "$OUT_FILE_HEADER"
+    pllm_12mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse12MHz.pllm)
+    plln_12mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse12MHz.plln)
+    pllq_12mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse12MHz.pllq)
+    pllp_12mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse12MHz.pllp)
+    ahb_clk_div_12mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse12MHz.ahb_clk_div)
+    apb1_clk_div_12mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse12MHz.apb1_clk_div)
+    apb2_clk_div_12mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse12MHz.apb2_clk_div)
 
-    pllm_8mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse8MHz.pllm)
-    plln_8mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse8MHz.plln)
-    pllq_8mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse8MHz.pllq)
-    pllp_8mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse8MHz.pllp)
-    ahb_clk_div_8mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse8MHz.ahb_clk_div)
-    apb1_clk_div_8mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse8MHz.apb1_clk_div)
-    apb2_clk_div_8mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse8MHz.apb2_clk_div)
+    pllm_16mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse16MHz.pllm)
+    plln_16mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse16MHz.plln)
+    pllq_16mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse16MHz.pllq)
+    pllp_16mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse16MHz.pllp)
+    ahb_clk_div_16mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse16MHz.ahb_clk_div)
+    apb1_clk_div_16mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse16MHz.apb1_clk_div)
+    apb2_clk_div_16mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse16MHz.apb2_clk_div)
 
-    pllm_12mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse12MHz.pllm)
-    plln_12mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse12MHz.plln)
-    pllq_12mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse12MHz.pllq)
-    pllp_12mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse12MHz.pllp)
-    ahb_clk_div_12mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse12MHz.ahb_clk_div)
-    apb1_clk_div_12mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse12MHz.apb1_clk_div)
-    apb2_clk_div_12mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse12MHz.apb2_clk_div)
-
-    pllm_16mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse16MHz.pllm)
-    plln_16mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse16MHz.plln)
-    pllq_16mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse16MHz.pllq)
-    pllp_16mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse16MHz.pllp)
-    ahb_clk_div_16mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse16MHz.ahb_clk_div)
-    apb1_clk_div_16mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse16MHz.apb1_clk_div)
-    apb2_clk_div_16mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse16MHz.apb2_clk_div)
-
-    pllm_25mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse25MHz.pllm)
-    plln_25mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse25MHz.plln)
-    pllq_25mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse25MHz.pllq)
-    pllp_25mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse25MHz.pllp)
-    ahb_clk_div_25mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse25MHz.ahb_clk_div)
-    apb1_clk_div_25mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse25MHz.apb1_clk_div)
-    apb2_clk_div_25mhz=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.hse25MHz.apb2_clk_div)
-
-    vreg_scale=$($YAML_PARSER "$MCU_DEF_FILE" hal.clocks.voltage_scale)
+    pllm_25mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse25MHz.pllm)
+    plln_25mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse25MHz.plln)
+    pllq_25mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse25MHz.pllq)
+    pllp_25mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse25MHz.pllp)
+    ahb_clk_div_25mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse25MHz.ahb_clk_div)
+    apb1_clk_div_25mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse25MHz.apb1_clk_div)
+    apb2_clk_div_25mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse25MHz.apb2_clk_div)
 
     {
         printf "%s\n" "#if (HSE_VALUE == 8000000)"
@@ -265,8 +253,13 @@ then
         printf "%s\n" "#else"
         printf "%s\n" "#error Invalid clock value"
         printf "%s\n\n" "#endif"
-        printf "%s\n\n" "#define PWR_REGULATOR_VOLTAGE_SCALE $vreg_scale"
     } >> "$OUT_FILE_HEADER"
+fi
+
+if [[ $($YAML_PARSER "$MCU_DEF_FILE" voltage_scale) != "null" ]]
+then
+    vreg_scale=$($YAML_PARSER "$MCU_DEF_FILE" voltage_scale)
+    printf "%s\n\n" "#define PWR_REGULATOR_VOLTAGE_SCALE $vreg_scale" >> "$OUT_FILE_HEADER"
 fi
 
 if [[ $($YAML_PARSER "$MCU_DEF_FILE" fuses) != "null" ]]
