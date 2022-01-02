@@ -1,6 +1,6 @@
 /*
 
-Copyright 2015-2021 Igor Petrovic
+Copyright 2015-2022 Igor Petrovic
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ limitations under the License.
 
 #pragma once
 
-//use blank file which only includes stm32f4xx_hal so that stack from ST can compile
-//this is used to avoid having generated file in repository
+// use blank file which only includes stm32f4xx_hal so that stack from ST can compile
+// this is used to avoid having generated file in repository
 
 #include "stm32f4xx_hal.h"

@@ -24,7 +24,7 @@
 
 /*
 
-Copyright 2015-2021 Igor Petrovic
+Copyright 2015-2022 Igor Petrovic
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
