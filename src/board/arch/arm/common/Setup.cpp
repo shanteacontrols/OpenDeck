@@ -55,6 +55,7 @@ namespace Board
 
             void io()
             {
+#ifdef DIGITAL_INPUTS_SUPPORTED
 #ifdef NUMBER_OF_IN_SR
                 CORE_IO_CONFIG({ SR_IN_DATA_PORT, SR_IN_DATA_PIN, core::io::pinMode_t::input, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
                 CORE_IO_CONFIG({ SR_IN_CLK_PORT, SR_IN_CLK_PIN, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
@@ -88,7 +89,9 @@ namespace Board
                 CORE_IO_SET_LOW(DEC_BM_PORT_A1, DEC_BM_PIN_A1);
                 CORE_IO_SET_LOW(DEC_BM_PORT_A2, DEC_BM_PIN_A2);
 #endif
+#endif
 
+#ifdef DIGITAL_OUTPUTS_SUPPORTED
 #ifdef NUMBER_OF_OUT_SR
                 CORE_IO_CONFIG({ SR_OUT_DATA_PORT, SR_OUT_DATA_PIN, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
                 CORE_IO_CONFIG({ SR_OUT_CLK_PORT, SR_OUT_CLK_PIN, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
