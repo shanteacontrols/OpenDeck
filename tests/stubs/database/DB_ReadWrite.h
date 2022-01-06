@@ -3,6 +3,7 @@
 #include <inttypes.h>
 #include <string.h>
 #include <array>
+#include <vector>
 #include "dbms/src/LESSDB.h"
 #include <MCU.h>
 #ifdef EMUEEPROM_INCLUDE_CONFIG
