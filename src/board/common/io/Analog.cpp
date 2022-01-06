@@ -89,8 +89,7 @@ namespace Board
             void adc(uint16_t adcValue)
             {
                 static bool firstReading = false;
-
-                firstReading = !firstReading;
+                firstReading             = !firstReading;
 
                 if (!firstReading)
                 {
@@ -98,8 +97,7 @@ namespace Board
                     detail::io::dischargeMux();
 #endif
 
-                    _analogBuffer[_analogIndex] = adcValue;
-                    _analogBuffer[_analogIndex] |= NEW_READING_FLAG;
+                    _analogBuffer[_analogIndex] = adcValue | NEW_READING_FLAG;
                     _analogIndex++;
 #ifdef NUMBER_OF_MUX
                     _activeMuxInput++;
