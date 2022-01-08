@@ -110,8 +110,7 @@ namespace Board
 
         uint32_t size()
         {
-            // first 4 bytes are reserved for page status
-            return EMU_EEPROM_PAGE_SIZE - 4;
+            return _emuEEPROM.maxAddress();
         }
 
         bool read(uint32_t address, int32_t& value, parameterType_t type)
@@ -187,18 +186,6 @@ namespace Board
 
             // ignore start/end markers on stm32 for now
             return result;
-        }
-
-        size_t paramUsage(parameterType_t type)
-        {
-            switch (type)
-            {
-            case parameterType_t::dword:
-                return 8;
-
-            default:
-                return 4;    // 2 bytes for address, 2 bytes for data
-            }
         }
     }    // namespace NVM
 }    // namespace Board

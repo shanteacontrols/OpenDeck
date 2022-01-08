@@ -78,11 +78,6 @@ class StorageAccess : public System::Builder::HWA::Database
         return Board::NVM::write(address, value, boardParamType(type));
     }
 
-    size_t paramUsage(Database::sectionParameterType_t type) override
-    {
-        return Board::NVM::paramUsage(boardParamType(type));
-    }
-
     private:
     Board::NVM::parameterType_t boardParamType(Database::sectionParameterType_t type)
     {

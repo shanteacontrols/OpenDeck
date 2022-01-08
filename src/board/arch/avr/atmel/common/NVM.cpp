@@ -95,20 +95,5 @@ namespace Board
 
             return true;
         }
-
-        size_t paramUsage(parameterType_t type)
-        {
-            switch (type)
-            {
-            case parameterType_t::word:
-                return 2;
-
-            case parameterType_t::dword:
-                return 4;
-
-            default:
-                return 1;
-            }
-        }
     }    // namespace NVM
 }    // namespace Board

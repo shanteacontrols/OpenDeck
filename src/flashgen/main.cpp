@@ -213,8 +213,7 @@ namespace
 
         uint32_t size() override
         {
-            // first 4 bytes are reserved for page status
-            return EMU_EEPROM_PAGE_SIZE - 4;
+            return emuEEPROM.maxAddress();
         }
 
         bool clear() override
@@ -275,18 +274,6 @@ namespace
 
             default:
                 return false;
-            }
-        }
-
-        size_t paramUsage(LESSDB::sectionParameterType_t type) override
-        {
-            switch (type)
-            {
-            case LESSDB::sectionParameterType_t::dword:
-                return 8;
-
-            default:
-                return 4;    // 2 bytes for address, 2 bytes for data
             }
         }
     } storageAccess;

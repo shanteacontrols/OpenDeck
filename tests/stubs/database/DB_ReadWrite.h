@@ -26,7 +26,6 @@ class DBstorageMock : public LESSDB::StorageAccess
     }
 
     uint32_t size() override;
-    size_t   paramUsage(LESSDB::sectionParameterType_t type) override;
     bool     clear() override;
     bool     read(uint32_t address, int32_t& value, LESSDB::sectionParameterType_t type) override;
     bool     write(uint32_t address, int32_t value, LESSDB::sectionParameterType_t type) override;

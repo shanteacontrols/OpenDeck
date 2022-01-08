@@ -352,9 +352,6 @@ namespace Board
         /// param [in]: end     Last address to erase.
         bool clear(uint32_t start, uint32_t end);
 
-        /// Returns amount of actual memory it takes to store provided parameter type.
-        size_t paramUsage(parameterType_t type);
-
         /// Used to read contents of memory provided by specific board,
         /// param [in]: address Memory address from which to read from.
         /// param [in]: value   Reference to variable in which read value is being stored.

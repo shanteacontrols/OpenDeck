@@ -4,43 +4,9 @@
 uint32_t DBstorageMock::size()
 {
 #ifdef EMUEEPROM_INCLUDE_CONFIG
-    // first 4 bytes are reserved for page status
-    return EMU_EEPROM_PAGE_SIZE - 4;
+    return emuEEPROM.maxAddress();
 #else
     return memoryArray.size();
-#endif
-}
-
-size_t DBstorageMock::paramUsage(LESSDB::sectionParameterType_t type)
-{
-#ifndef EMUEEPROM_INCLUDE_CONFIG
-    switch (type)
-    {
-    case LESSDB::sectionParameterType_t::word:
-        return 2;
-
-    case LESSDB::sectionParameterType_t::dword:
-        return 4;
-
-    case LESSDB::sectionParameterType_t::bit:
-    case LESSDB::sectionParameterType_t::halfByte:
-    case LESSDB::sectionParameterType_t::byte:
-    default:
-        return 1;
-    }
-#else
-    switch (type)
-    {
-    case LESSDB::sectionParameterType_t::dword:
-        return 8;
-
-    case LESSDB::sectionParameterType_t::bit:
-    case LESSDB::sectionParameterType_t::halfByte:
-    case LESSDB::sectionParameterType_t::byte:
-    case LESSDB::sectionParameterType_t::word:
-    default:
-        return 4;    // 2 bytes for address, 2 bytes for data
-    }
 #endif
 }
 
