@@ -1,0 +1,83 @@
+---
+  arch: "arm"
+  mcuFamily: "f4"
+  vendor: "st"
+  cpu: "cortex-m4"
+  fpu: "fpv4-sp-d16"
+  float-abi: "hard"
+  define-symbol: "STM32F401xC"
+  flash:
+    app-start: 0x8020000
+    boot-start: 0x8000000
+    metadata-start: 0x8020190
+    pages:
+    -
+      address: 0x8000000
+      size: 16384
+    -
+      address: 0x8004000
+      size: 16384
+    -
+      address: 0x8008000
+      size: 16384
+    -
+      address: 0x800C000
+      size: 16384
+    -
+      address: 0x8010000
+      size: 65536
+      app-size: 16384
+    -
+      address: 0x8020000
+      size: 131072
+  eeprom:
+    emulated:
+      factory-flash-page: 2
+      eeprom-flash-page1: 3
+      eeprom-flash-page2: 4
+  #PLL values for 84MHz clock
+  clocks:
+      hse8MHz:
+        pllm: 4
+        plln: 168
+        pllq: 7
+        pllp: "RCC_PLLP_DIV4"
+        ahb_clk_div : "RCC_SYSCLK_DIV1"
+        apb1_clk_div: "RCC_SYSCLK_DIV2"
+        apb2_clk_div: "RCC_SYSCLK_DIV1"
+      hse12MHz:
+        pllm: 6
+        plln: 168
+        pllq: 7
+        pllp: "RCC_PLLP_DIV4"
+        ahb_clk_div : "RCC_SYSCLK_DIV1"
+        apb1_clk_div: "RCC_SYSCLK_DIV2"
+        apb2_clk_div: "RCC_SYSCLK_DIV1"
+      hse16MHz:
+        pllm: 8
+        plln: 168
+        pllq: 7
+        pllp: "RCC_PLLP_DIV4"
+        ahb_clk_div : "RCC_SYSCLK_DIV1"
+        apb1_clk_div: "RCC_SYSCLK_DIV2"
+        apb2_clk_div: "RCC_SYSCLK_DIV1"
+      hse25MHz:
+        pllm: 25
+        plln: 336
+        pllq: 7
+        pllp: "RCC_PLLP_DIV4"
+        ahb_clk_div : "RCC_SYSCLK_DIV1"
+        apb1_clk_div: "RCC_SYSCLK_DIV2"
+        apb2_clk_div: "RCC_SYSCLK_DIV1"
+  voltage_scale: "PWR_REGULATOR_VOLTAGE_SCALE2"
+  interfaces:
+    uart: 3
+    i2c: 3
+  timers:
+    #periods in us
+    main:
+      period: 1000
+      channel: 0
+    pwm:
+      period: 200
+      channel: 1
