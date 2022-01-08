@@ -27,7 +27,7 @@ tests=$($find ./src -type d '!' -exec test -e "{}/.testignore" ';' -exec test -e
 }
 
 {
-    printf '%s\n' 'OBJECTS_COMMON := $(addprefix $(BUILD_DIR_BASE)/,$(SOURCES_COMMON))'
+    printf '%s\n' 'OBJECTS_COMMON := $(addprefix $(BUILD_DIR)/,$(SOURCES_COMMON))'
     printf '%s\n\n' 'OBJECTS_COMMON := $(addsuffix .o,$(OBJECTS_COMMON))'
 } >> Objects.mk
 
