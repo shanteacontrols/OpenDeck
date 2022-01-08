@@ -78,15 +78,8 @@ bool Database::init()
 
     _lastPresetAddress = LESSDB::nextParameterAddress() - _userDataStartAddress;
 
-    // limit the address space to max 14-bit MIDI value
-    const uint32_t maxAddress = 16383;
-    uint16_t       maxPresets = maxAddress / (LESSDB::lastParameterAddress() - _userDataStartAddress);
-
     // get theoretical maximum of presets
     _supportedPresets = (LESSDB::dbSize() - systemBlockUsage) / (LESSDB::currentDBsize() - systemBlockUsage);
-
-    // limit by address space
-    _supportedPresets = CONSTRAIN(_supportedPresets, 0, maxPresets);
 
     // limit by hardcoded limit
     _supportedPresets = CONSTRAIN(_supportedPresets, 0, MAX_PRESETS);
