@@ -78,8 +78,8 @@ namespace IO
 
         Encoders(HWA&      hwa,
                  Filter&   filter,
-                 uint32_t  timeDiffTimeout,
-                 Database& database)
+                 Database& database,
+                 uint32_t  timeDiffTimeout)
         {}
 
         bool init() override
