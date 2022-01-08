@@ -29,37 +29,29 @@
     -
       address: 0x8020000
       size: 131072
-      app-size: 65536
-      app-offset: 0x10000
     -
       address: 0x8040000
       size: 131072
-      app-size: 65536
     -
       address: 0x8060000
       size: 131072
-      app-size: 65536
     -
       address: 0x8080000
       size: 131072
-      app-size: 65536
     -
       address: 0x80A0000
       size: 131072
-      app-size: 65536
     -
       address: 0x80C0000
       size: 131072
-      app-size: 65536
     -
       address: 0x80E0000
       size: 131072
-      app-size: 65536
   eeprom:
     emulated:
-      factory-flash-page: 5
-      eeprom-flash-page1: 6
-      eeprom-flash-page2: 7
+      factory-flash-page: 6
+      eeprom-flash-page1: 7
+      eeprom-flash-page2: 8
   #PLL values for 84MHz clock
   clocks:
       hse8MHz:
