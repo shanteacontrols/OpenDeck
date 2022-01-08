@@ -739,6 +739,9 @@ TEST_CASE(LocalLEDcontrol)
 
 TEST_CASE(PresetChange)
 {
+    if (_database.getSupportedPresets() <= 1)
+        return;
+
     if (IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS))
     {
         using namespace IO;

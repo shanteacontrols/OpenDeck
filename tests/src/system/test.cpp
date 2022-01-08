@@ -541,6 +541,9 @@ TEST_CASE(SystemInit)
 
 TEST_CASE(ForcedResendOnPresetChange)
 {
+    if (_database.getSupportedPresets() <= 1)
+        return;
+
     _database.factoryReset();
     TEST_ASSERT(systemStub.init() == true);
 
@@ -726,6 +729,9 @@ TEST_CASE(ForcedResendOnPresetChange)
 #ifdef LEDS_SUPPORTED
 TEST_CASE(PresetChangeIndicatedOnLEDs)
 {
+    if (_database.getSupportedPresets() <= 1)
+        return;
+
     auto fakeTime = []() {
         // preset change will be reported after PRESET_CHANGE_NOTIFY_DELAY ms
         // fake the passage of time here
