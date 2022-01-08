@@ -1,7 +1,7 @@
 #include "unity/Framework.h"
 #include "core/src/general/RingBuffer.h"
 
-#define BUFFER_SIZE 5
+#define BUFFER_SIZE 8
 
 namespace
 {
@@ -14,7 +14,7 @@ TEST_CASE(Init)
 
     TEST_ASSERT(buffer.isEmpty() == true);
     TEST_ASSERT(buffer.isFull() == false);
-    TEST_ASSERT(0 == buffer.count());
+    TEST_ASSERT_EQUAL_UINT32(0, buffer.count());
 }
 
 TEST_CASE(Insertion)
@@ -25,14 +25,14 @@ TEST_CASE(Insertion)
 
     TEST_ASSERT(buffer.isEmpty() == false);
     TEST_ASSERT(buffer.isFull() == false);
-    TEST_ASSERT(1 == buffer.count());
+    TEST_ASSERT_EQUAL_UINT32(1, buffer.count());
 
     uint8_t value;
 
     TEST_ASSERT(buffer.remove(value) == true);
-    TEST_ASSERT(10 == value);
+    TEST_ASSERT_EQUAL_UINT32(10, value);
 
-    TEST_ASSERT(0 == buffer.count());
+    TEST_ASSERT_EQUAL_UINT32(0, buffer.count());
     TEST_ASSERT(buffer.isEmpty() == true);
     TEST_ASSERT(buffer.isFull() == false);
 
@@ -43,49 +43,32 @@ TEST_CASE(Insertion)
     TEST_ASSERT(buffer.remove(value) == false);
 
     // verify that the value hasn't changed
-    TEST_ASSERT(147 == value);
+    TEST_ASSERT_EQUAL_UINT32(147, value);
 
     // fill the entire buffer
-    TEST_ASSERT(true == buffer.insert(10));
-    TEST_ASSERT(true == buffer.insert(11));
-    TEST_ASSERT(true == buffer.insert(12));
-    TEST_ASSERT(true == buffer.insert(13));
-    TEST_ASSERT(true == buffer.insert(14));
+    // buffer has room for one less element than specified
+    for (size_t i = 0; i < BUFFER_SIZE - 1; i++)
+        TEST_ASSERT(buffer.insert(10 + i) == true);
 
     TEST_ASSERT(buffer.isEmpty() == false);
     TEST_ASSERT(buffer.isFull() == true);
-    TEST_ASSERT(BUFFER_SIZE == buffer.count());
+    TEST_ASSERT_EQUAL_UINT32(BUFFER_SIZE - 1, buffer.count());
 
-    TEST_ASSERT(buffer.remove(value) == true);
-    TEST_ASSERT(10 == value);
-    TEST_ASSERT(BUFFER_SIZE - 1 == buffer.count());
-
-    TEST_ASSERT(buffer.remove(value) == true);
-    TEST_ASSERT(11 == value);
-    TEST_ASSERT(BUFFER_SIZE - 2 == buffer.count());
-
-    TEST_ASSERT(buffer.remove(value) == true);
-    TEST_ASSERT(12 == value);
-    TEST_ASSERT(BUFFER_SIZE - 3 == buffer.count());
-
-    TEST_ASSERT(buffer.remove(value) == true);
-    TEST_ASSERT(13 == value);
-    TEST_ASSERT(BUFFER_SIZE - 4 == buffer.count());
-
-    TEST_ASSERT(buffer.remove(value) == true);
-    TEST_ASSERT(14 == value);
-    TEST_ASSERT(BUFFER_SIZE - 5 == buffer.count());
+    for (size_t i = 0; i < BUFFER_SIZE - 1; i++)
+    {
+        TEST_ASSERT(buffer.remove(value) == true);
+        TEST_ASSERT_EQUAL_UINT32(10 + i, value);
+        TEST_ASSERT_EQUAL_UINT32(BUFFER_SIZE - 2 - i, buffer.count());
+    }
 
     TEST_ASSERT(buffer.isEmpty() == true);
     TEST_ASSERT(buffer.isFull() == false);
 
     // verify that overwriting isn't possible
-    TEST_ASSERT(true == buffer.insert(10));
-    TEST_ASSERT(true == buffer.insert(11));
-    TEST_ASSERT(true == buffer.insert(12));
-    TEST_ASSERT(true == buffer.insert(13));
-    TEST_ASSERT(true == buffer.insert(14));
-    TEST_ASSERT(buffer.insert(15) == false);
+    for (size_t i = 0; i < BUFFER_SIZE - 1; i++)
+        TEST_ASSERT(buffer.insert(10 + i) == true);
+
+    TEST_ASSERT(buffer.insert(10) == false);
 
     TEST_ASSERT(buffer.isEmpty() == false);
     TEST_ASSERT(buffer.isFull() == true);
@@ -94,12 +77,12 @@ TEST_CASE(Insertion)
 
     TEST_ASSERT(buffer.isEmpty() == true);
     TEST_ASSERT(buffer.isFull() == false);
-    TEST_ASSERT(0 == buffer.count());
+    TEST_ASSERT_EQUAL_UINT32(0, buffer.count());
 
     TEST_ASSERT(buffer.insert(12) == true);
     TEST_ASSERT(buffer.isEmpty() == false);
     TEST_ASSERT(buffer.isFull() == false);
-    TEST_ASSERT(1 == buffer.count());
+    TEST_ASSERT_EQUAL_UINT32(1, buffer.count());
     TEST_ASSERT(buffer.remove(value) == true);
-    TEST_ASSERT(12 == value);
+    TEST_ASSERT_EQUAL_UINT32(12, value);
 }
