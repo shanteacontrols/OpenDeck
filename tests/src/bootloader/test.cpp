@@ -13,6 +13,7 @@
 #include <iterator>
 #include <string>
 #include <cstddef>
+#include <Target.h>
 
 namespace
 {

@@ -22,14 +22,19 @@ limitations under the License.
 #include "board/Internal.h"
 #include "core/src/general/Helpers.h"
 #include "core/src/general/Atomic.h"
-#include <Pins.h>
+#include <Target.h>
 
 #define NR_OF_RGB_LEDS (NR_OF_DIGITAL_OUTPUTS / 3)
 
 namespace
 {
-    uint8_t          _pwmCounter;
+    uint8_t _pwmCounter;
+
+#ifdef NATIVE_LED_OUTPUTS
+    portWidth_t _portState[NR_OF_DIGITAL_OUTPUT_PORTS][static_cast<uint8_t>(Board::io::ledBrightness_t::b100)];
+#else
     volatile uint8_t _ledState[(NR_OF_DIGITAL_OUTPUTS / 8) + 1][static_cast<uint8_t>(Board::io::ledBrightness_t::b100)];
+#endif
 
 #ifdef NUMBER_OF_LED_COLUMNS
     enum class switchState_t : uint8_t
@@ -48,13 +53,13 @@ namespace
     inline void ledRowOff(uint8_t row)
     {
         core::io::mcuPin_t pin = Board::detail::map::ledPin(row);
-        EXT_LED_OFF(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
+        EXT_LED_OFF(CORE_IO_MCU_PIN_VAR_PORT_GET(pin), CORE_IO_MCU_PIN_VAR_PIN_GET(pin));
     }
 
     inline void ledRowOn(uint8_t row)
     {
         core::io::mcuPin_t pin = Board::detail::map::ledPin(row);
-        EXT_LED_ON(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
+        EXT_LED_ON(CORE_IO_MCU_PIN_VAR_PORT_GET(pin), CORE_IO_MCU_PIN_VAR_PIN_GET(pin));
     }
 #endif
 }    // namespace
@@ -70,6 +75,7 @@ namespace Board
 
             ledID = detail::map::ledIndex(ledID);
 
+#ifndef NATIVE_LED_OUTPUTS
             ATOMIC_SECTION
             {
                 for (int i = 0; i < static_cast<int>(ledBrightness_t::b100); i++)
@@ -80,6 +86,28 @@ namespace Board
                     BIT_WRITE(_ledState[arrayIndex][i], ledBit, i < static_cast<int>(ledBrightness) ? 1 : 0);
                 }
             }
+#else
+            ATOMIC_SECTION
+            {
+                for (int i = 0; i < static_cast<int>(ledBrightness_t::b100); i++)
+                {
+                    BIT_WRITE(_portState[detail::map::ledPortIndex(ledID)][i], detail::map::ledPinIndex(ledID), i < static_cast<int>(ledBrightness) ?
+#ifndef LED_EXT_INVERT
+                                                                                                                                                    1
+#else
+                                                                                                                                                    0
+#endif
+                                                                                                                                                    :
+#ifndef LED_EXT_INVERT
+                                                                                                                                                    0
+#else
+                                                                                                                                                    1
+#endif
+
+                    );
+                }
+            }
+#endif
         }
 
         size_t rgbSignalIndex(size_t rgbID, Board::io::rgbIndex_t index)
@@ -217,13 +245,12 @@ namespace Board
 #else
             void checkDigitalOutputs()
             {
-                for (size_t ledID = 0; ledID < NR_OF_DIGITAL_OUTPUTS; ledID++)
+                for (size_t port = 0; port < NR_OF_DIGITAL_OUTPUT_PORTS; port++)
                 {
-                    uint8_t arrayIndex = ledID / 8;
-                    uint8_t ledBit     = ledID - 8 * arrayIndex;
-
-                    core::io::mcuPin_t pin = Board::detail::map::ledPin(ledID);
-                    BIT_READ(_ledState[arrayIndex][_pwmCounter], ledBit) ? EXT_LED_ON(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin)) : EXT_LED_OFF(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
+                    portWidth_t updatedPortState = CORE_IO_READ_PORT(CORE_IO_PIN_PORT_VAR_GET(detail::map::digitalOutPort(port)));
+                    updatedPortState &= detail::map::digitalOutPortClearMask(port);
+                    updatedPortState |= _portState[port][_pwmCounter];
+                    CORE_IO_SET_PORT_STATE(CORE_IO_PIN_PORT_VAR_GET(detail::map::digitalOutPort(port)), updatedPortState);
                 }
 
                 if (++_pwmCounter >= static_cast<uint8_t>(Board::io::ledBrightness_t::b100))

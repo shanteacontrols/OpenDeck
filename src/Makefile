@@ -245,9 +245,9 @@ endif
 	@hexdump -v -e '/1 "%02x "' $(BUILD_DIR)/$(TARGET).sysex.syx | sed 's/f7/f7\n/g' | sed 's/^ *//' | tr a-z A-Z > $(BUILD_DIR)/$(TARGET).sysex
 	@echo SysEx file created: $(BUILD_DIR)/$(TARGET).sysex
 
-pre-build: $(TARGET_GEN_SOURCE) $(TSCREEN_GEN_SOURCE)
+pre-build: $(TARGET_GEN_HEADER) $(TSCREEN_GEN_SOURCE)
 
-$(BOARD_TARGET_DIR)/$(TARGET).cpp: $(TARGET_DEF_FILE)
+$(BOARD_TARGET_DIR)/Target.h: $(TARGET_DEF_FILE)
 	@echo Generating target definitions...
 	@$(SCRIPTS_DIR)/gen_target.sh $(TARGET_DEF_FILE) $(BOARD_TARGET_DIR)
 

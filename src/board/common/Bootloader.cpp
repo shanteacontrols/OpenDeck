@@ -22,8 +22,7 @@ limitations under the License.
 #include "core/src/general/Timing.h"
 #include "core/src/general/Reset.h"
 #include "core/src/general/CRC.h"
-#include <Pins.h>
-#include <MCU.h>
+#include <Target.h>
 
 namespace Board
 {

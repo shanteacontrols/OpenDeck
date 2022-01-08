@@ -20,6 +20,7 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
+#include "board/arch/arm/st/Internal.h"
 #include "core/src/general/Atomic.h"
 #include <MCU.h>
 
@@ -33,18 +34,18 @@ namespace
     uint8_t*                                 _dmxBuffer;
 }    // namespace
 
-#define DMX_SET_BREAK_BAUDRATE(channel)                                                                        \
-    do                                                                                                         \
-    {                                                                                                          \
-        auto instance                              = Board::detail::map::uartDescriptor(channel)->interface(); \
-        static_cast<USART_TypeDef*>(instance)->BRR = _dmxBreakBRR;                                             \
+#define DMX_SET_BREAK_BAUDRATE(channel)                                                                       \
+    do                                                                                                        \
+    {                                                                                                         \
+        auto instance                              = Board::detail::st::uartDescriptor(channel)->interface(); \
+        static_cast<USART_TypeDef*>(instance)->BRR = _dmxBreakBRR;                                            \
     } while (0)
 
-#define DMX_SET_DATA_BAUDRATE(channel)                                                                         \
-    do                                                                                                         \
-    {                                                                                                          \
-        auto instance                              = Board::detail::map::uartDescriptor(channel)->interface(); \
-        static_cast<USART_TypeDef*>(instance)->BRR = _dmxDataBRR;                                              \
+#define DMX_SET_DATA_BAUDRATE(channel)                                                                        \
+    do                                                                                                        \
+    {                                                                                                         \
+        auto instance                              = Board::detail::st::uartDescriptor(channel)->interface(); \
+        static_cast<USART_TypeDef*>(instance)->BRR = _dmxDataBRR;                                             \
     } while (0)
 
 namespace Board
@@ -79,7 +80,7 @@ namespace Board
                     if (!deInit(channel))
                         return false;
 
-                    _uartHandler[channel].Instance        = static_cast<USART_TypeDef*>(Board::detail::map::uartDescriptor(channel)->interface());
+                    _uartHandler[channel].Instance        = static_cast<USART_TypeDef*>(Board::detail::st::uartDescriptor(channel)->interface());
                     _uartHandler[channel].Init.BaudRate   = config.dmxMode ? static_cast<uint32_t>(dmxBaudRate_t::brBreak) : config.baudRate;
                     _uartHandler[channel].Init.WordLength = UART_WORDLENGTH_8B;
                     _uartHandler[channel].Init.StopBits   = config.stopBits == Board::UART::stopBits_t::one ? UART_STOPBITS_1 : UART_STOPBITS_2;

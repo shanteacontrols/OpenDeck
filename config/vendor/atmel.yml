@@ -1,0 +1,12 @@
+---
+  symbols:
+    common:
+      - "IO_REG_WIDTH=8"
+    app:
+      - "USE_FLASH_DESCRIPTORS"
+    boot:
+      - "NO_SOF_EVENTS"
+      - "DEVICE_STATE_AS_GPIOR"
+      - "NO_DEVICE_REMOTE_WAKEUP"
+      - "NO_DEVICE_SELF_POWER"
+      - "USE_RAM_DESCRIPTORS"

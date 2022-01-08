@@ -17,8 +17,9 @@ limitations under the License.
 */
 
 #include "board/Internal.h"
+#include "board/arch/arm/st/Internal.h"
 #include "core/src/general/ADC.h"
-#include <MCU.h>
+#include <Target.h>
 
 // stm32f4 specific setup
 
@@ -284,9 +285,9 @@ extern "C" void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 {
     uint8_t channel = 0;
 
-    if (Board::detail::map::uartChannel(huart->Instance, channel))
+    if (Board::detail::st::uartChannel(huart->Instance, channel))
     {
-        auto descriptor = Board::detail::map::uartDescriptor(channel);
+        auto descriptor = Board::detail::st::uartDescriptor(channel);
 
         descriptor->enableClock();
 
@@ -305,9 +306,9 @@ extern "C" void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 {
     uint8_t channel = 0;
 
-    if (Board::detail::map::uartChannel(huart->Instance, channel))
+    if (Board::detail::st::uartChannel(huart->Instance, channel))
     {
-        auto descriptor = Board::detail::map::uartDescriptor(channel);
+        auto descriptor = Board::detail::st::uartDescriptor(channel);
 
         descriptor->disableClock();
 
@@ -322,9 +323,9 @@ extern "C" void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
 {
     uint8_t channel = 0;
 
-    if (Board::detail::map::i2cChannel(hi2c->Instance, channel))
+    if (Board::detail::st::i2cChannel(hi2c->Instance, channel))
     {
-        auto descriptor = Board::detail::map::i2cDescriptor(channel);
+        auto descriptor = Board::detail::st::i2cDescriptor(channel);
 
         descriptor->enableClock();
 
@@ -343,9 +344,9 @@ extern "C" void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
 {
     uint8_t channel = 0;
 
-    if (Board::detail::map::i2cChannel(hi2c->Instance, channel))
+    if (Board::detail::st::i2cChannel(hi2c->Instance, channel))
     {
-        auto descriptor = Board::detail::map::i2cDescriptor(channel);
+        auto descriptor = Board::detail::st::i2cDescriptor(channel);
 
         descriptor->disableClock();
 

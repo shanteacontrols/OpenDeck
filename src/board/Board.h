@@ -265,12 +265,12 @@ namespace Board
 
         /// Structure containing digital input readings for a given input.
         /// Count represents total amount of readings stored in readings variable.
-        /// Readings variable contains up to last 32 readings where LSB bit is the
+        /// Readings variable contains up to 16 last readings where LSB bit is the
         /// newest reading, and MSB bit is the last.
         typedef struct
         {
             uint8_t  count;
-            uint32_t readings;
+            uint16_t readings;
         } dInReadings_t;
 
         enum class dataSource_t : uint8_t

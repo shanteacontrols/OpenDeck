@@ -18,12 +18,14 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
+#include "board/arch/arm/st/Internal.h"
 #include "core/src/general/Helpers.h"
 #include "core/src/general/Timing.h"
 #include <MCU.h>
 
 #define I2C_TRANSFER_TIMEOUT_MS 10
 #define I2C_SCAN_RETRIES        3
+
 namespace
 {
     I2C_HandleTypeDef _i2cHandler[MAX_I2C_INTERFACES];
@@ -38,7 +40,7 @@ namespace Board
             if (channel >= MAX_I2C_INTERFACES)
                 return false;
 
-            _i2cHandler[channel].Instance             = static_cast<I2C_TypeDef*>(Board::detail::map::i2cDescriptor(channel)->interface());
+            _i2cHandler[channel].Instance             = static_cast<I2C_TypeDef*>(Board::detail::st::i2cDescriptor(channel)->interface());
             _i2cHandler[channel].Init.ClockSpeed      = 100000;
             _i2cHandler[channel].Init.DutyCycle       = I2C_DUTYCYCLE_2;
             _i2cHandler[channel].Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;

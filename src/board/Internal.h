@@ -25,10 +25,6 @@ limitations under the License.
 #include "board/Board.h"
 #include "usb-link/Commands.h"
 
-#ifndef __AVR__
-#include <vector>
-#endif
-
 // for internal board usage only - do not include/call in application directly
 
 namespace Board
@@ -190,90 +186,6 @@ namespace Board
             } unusedIO_t;
         }    // namespace io
 
-        namespace map
-        {
-            typedef struct
-            {
-                core::io::mcuPin_t miso;
-                core::io::mcuPin_t mosi;
-                core::io::mcuPin_t sck;
-            } SPIpins_t;
-
-            typedef struct
-            {
-                core::io::mcuPin_t sda;
-                core::io::mcuPin_t sdl;
-            } I2Cpins_t;
-
-            typedef struct
-            {
-                uint32_t address;
-                uint32_t size;
-            } flashPage_t;
-
-            /// Used to retrieve physical ADC channel for a given MCU pin.
-            uint32_t adcChannel(const core::io::mcuPin_t& pin);
-
-            /// Used to retrieve physical ADC channel for a given ADC channel index.
-            uint32_t adcChannel(uint8_t index);
-
-            /// Used to retrieve ADC port and pin for a given ADC channel index.
-            const core::io::mcuPin_t& adcPin(uint8_t index);
-
-            /// Used to retrieve physical analog component index for a given user-specified index.
-            uint8_t adcIndex(uint8_t index);
-
-            /// Used to retrieve button port and pin for a given button index.
-            const core::io::mcuPin_t& buttonPin(uint8_t index);
-
-            /// Used to retrieve physical button component index for a given user-specified index.
-            uint8_t buttonIndex(uint8_t index);
-
-            /// Used to retrieve LED port and pin for a given LED index.
-            const core::io::mcuPin_t& ledPin(uint8_t index);
-
-            /// Used to physical LED component index for a given user-specified index.
-            uint8_t ledIndex(uint8_t index);
-
-            /// Used to retrieve unused port and pin for a given index.
-            const Board::detail::io::unusedIO_t& unusedPin(uint8_t index);
-
-            /// Retrieves flash page descriptor containing page address and size.
-            /// param [in]: pageIndex Index of flash sector for which to retrieve address and size.
-            /// returns: Reference to flash page descriptor for specified page index.
-            flashPage_t& flashPageDescriptor(size_t pageIndex);
-
-#ifdef __STM32__
-            class STMPeripheral
-            {
-                public:
-                STMPeripheral() = default;
-
-                virtual std::vector<core::io::mcuPin_t> pins()         = 0;
-                virtual void*                           interface()    = 0;
-                virtual IRQn_Type                       irqn()         = 0;
-                virtual void                            enableClock()  = 0;
-                virtual void                            disableClock() = 0;
-            };
-
-            /// Used to retrieve physical UART interface used on MCU for a given UART channel index as well
-            /// as pins on which the interface is connected.
-            STMPeripheral* uartDescriptor(uint8_t channel);
-
-            /// Used to retrieve physical I2C interface used on MCU for a given I2C channel index as well
-            /// as pins on which the interface is connected.
-            STMPeripheral* i2cDescriptor(uint8_t channel);
-
-            /// Used to retrieve UART channel on board for a specified UART interface.
-            /// If no channels are mapped to the provided interface, return false.
-            bool uartChannel(USART_TypeDef* interface, uint8_t& channel);
-
-            /// Used to retrieve I2C channel on board for a specified UART interface.
-            /// If no channels are mapped to the provided interface, return false.
-            bool i2cChannel(I2C_TypeDef* interface, uint8_t& channel);
-#endif
-        }    // namespace map
-
         namespace isrHandling
         {
             /// Global ISR handler for all UART events.
@@ -291,6 +203,12 @@ namespace Board
 
         namespace flash
         {
+            typedef struct
+            {
+                uint32_t address;
+                uint32_t size;
+            } flashPage_t;
+
             /// Checks whether the specified flash address is valid / in range for the current MCU.
             bool isInRange(uint32_t address);
 

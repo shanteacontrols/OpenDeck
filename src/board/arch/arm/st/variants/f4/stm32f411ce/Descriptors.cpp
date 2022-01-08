@@ -18,17 +18,18 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
+#include "board/arch/arm/st/Internal.h"
 #include "board/common/io/Helpers.h"
 #include "core/src/general/IO.h"
 #include "core/src/general/Atomic.h"
 #include "core/src/general/ADC.h"
 #include "core/src/general/Timing.h"
 #include "core/src/general/Helpers.h"
-#include <MCU.h>
+#include <Target.h>
 
 namespace
 {
-    class UARTdescriptor0 : public Board::detail::map::STMPeripheral
+    class UARTdescriptor0 : public Board::detail::st::Peripheral
     {
         public:
         UARTdescriptor0() = default;
@@ -84,7 +85,7 @@ namespace
         const IRQn_Type _irqn = USART1_IRQn;
     } _uartDescriptor0;
 
-    class UARTdescriptor1 : public Board::detail::map::STMPeripheral
+    class UARTdescriptor1 : public Board::detail::st::Peripheral
     {
         public:
         UARTdescriptor1() = default;
@@ -140,7 +141,7 @@ namespace
         const IRQn_Type _irqn = USART2_IRQn;
     } _uartDescriptor1;
 
-    class UARTdescriptor2 : public Board::detail::map::STMPeripheral
+    class UARTdescriptor2 : public Board::detail::st::Peripheral
     {
         public:
         UARTdescriptor2() = default;
@@ -196,7 +197,7 @@ namespace
         const IRQn_Type _irqn = USART6_IRQn;
     } _uartDescriptor2;
 
-    class I2Cdescriptor0 : public Board::detail::map::STMPeripheral
+    class I2Cdescriptor0 : public Board::detail::st::Peripheral
     {
         public:
         I2Cdescriptor0() = default;
@@ -252,7 +253,7 @@ namespace
         const IRQn_Type _irqn = static_cast<IRQn_Type>(0);
     } _i2cDescriptor0;
 
-    class I2Cdescriptor1 : public Board::detail::map::STMPeripheral
+    class I2Cdescriptor1 : public Board::detail::st::Peripheral
     {
         public:
         I2Cdescriptor1() = default;
@@ -308,7 +309,7 @@ namespace
         const IRQn_Type _irqn = static_cast<IRQn_Type>(0);
     } _i2cDescriptor1;
 
-    class I2Cdescriptor2 : public Board::detail::map::STMPeripheral
+    class I2Cdescriptor2 : public Board::detail::st::Peripheral
     {
         public:
         I2Cdescriptor2() = default;
@@ -364,13 +365,13 @@ namespace
         const IRQn_Type _irqn = static_cast<IRQn_Type>(0);
     } _i2cDescriptor2;
 
-    Board::detail::map::STMPeripheral* _uartDescriptor[MAX_UART_INTERFACES] = {
+    Board::detail::st::Peripheral* _uartDescriptor[MAX_UART_INTERFACES] = {
         &_uartDescriptor0,
         &_uartDescriptor1,
         &_uartDescriptor2,
     };
 
-    Board::detail::map::STMPeripheral* _i2cDescriptor[MAX_I2C_INTERFACES] = {
+    Board::detail::st::Peripheral* _i2cDescriptor[MAX_I2C_INTERFACES] = {
         &_i2cDescriptor0,
         &_i2cDescriptor1,
         &_i2cDescriptor2

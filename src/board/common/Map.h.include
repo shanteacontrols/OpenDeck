@@ -1,0 +1,155 @@
+/*
+
+Copyright 2015-2022 Igor Petrovic
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+*/
+
+#pragma once
+
+namespace Board
+{
+    namespace detail
+    {
+        namespace map
+        {
+#ifdef ADC_SUPPORTED
+            constexpr uint32_t adcChannel(uint8_t index)
+            {
+                return detail::map::adcChannel(aInPins[index]);
+            }
+
+            constexpr const core::io::mcuPin_t& adcPin(uint8_t index)
+            {
+                return aInPins[index];
+            }
+
+            constexpr uint8_t adcIndex(uint8_t index)
+            {
+#ifndef ANALOG_INDEXING
+                return index;
+#else
+                return analogIndexes[index];
+#endif
+            }
+#endif
+
+#if defined(NATIVE_BUTTON_INPUTS) || (defined(NUMBER_OF_BUTTON_ROWS) && !defined(NUMBER_OF_IN_SR))
+            constexpr const core::io::mcuPin_t& buttonPin(uint8_t index)
+            {
+                return dInPins[index];
+            }
+#endif
+
+#if defined(NATIVE_BUTTON_INPUTS)
+            constexpr const core::io::pinPort_t digitalInPort(uint8_t index)
+            {
+                return dInPorts[index];
+            }
+
+            constexpr const uint8_t buttonPortIndex(uint8_t index)
+            {
+                return buttonIndexToUniquePortIndex[index];
+            }
+
+            constexpr const uint8_t buttonPinIndex(uint8_t index)
+            {
+                return buttonIndexToPinIndex[index];
+            }
+#endif
+
+            constexpr uint8_t buttonIndex(uint8_t index)
+            {
+#ifndef BUTTON_INDEXING
+                return index;
+#else
+                return buttonIndexes[index];
+#endif
+            }
+
+#if defined(NATIVE_LED_OUTPUTS) || defined(NUMBER_OF_LED_ROWS)
+            constexpr const core::io::mcuPin_t& ledPin(uint8_t index)
+            {
+                return dOutPins[index];
+            }
+#endif
+
+#if defined(NATIVE_LED_OUTPUTS)
+            constexpr const core::io::pinPort_t digitalOutPort(uint8_t index)
+            {
+                return dOutPorts[index];
+            }
+
+            constexpr const portWidth_t digitalOutPortClearMask(uint8_t index)
+            {
+                return dOutPortsClearMask[index];
+            }
+
+            constexpr const uint8_t ledPortIndex(uint8_t index)
+            {
+                return ledIndexToUniquePortIndex[index];
+            }
+
+            constexpr const uint8_t ledPinIndex(uint8_t index)
+            {
+                return ledIndexToPinIndex[index];
+            }
+#endif
+
+            constexpr uint8_t ledIndex(uint8_t index)
+            {
+#ifndef LED_INDEXING
+                return index;
+#else
+                return ledIndexes[index];
+#endif
+            }
+
+#ifdef TOTAL_UNUSED_IO
+            constexpr const Board::detail::io::unusedIO_t& unusedPin(uint8_t index)
+            {
+                return unusedPins[index];
+            }
+#endif
+
+#ifndef FLASH_PAGE_SIZE_COMMON
+            constexpr const Board::detail::flash::flashPage_t& flashPageDescriptor(size_t pageIndex)
+#else
+            constexpr Board::detail::flash::flashPage_t flashPageDescriptor(size_t pageIndex)
+#endif
+            {
+#ifdef FLASH_PAGE_SIZE_COMMON
+                // calculate address only
+
+                Board::detail::flash::flashPage_t descriptor = {};
+
+                uint32_t address = pageIndex * FLASH_PAGE_SIZE_COMMON;
+                descriptor.size  = FLASH_PAGE_SIZE_COMMON;
+
+                if (address > FLASH_END)
+                    descriptor.address = 0;
+                else
+                    descriptor.address = address;
+
+                return descriptor;
+#else
+                if (pageIndex >= TOTAL_FLASH_PAGES)
+                    return pageDescriptor[TOTAL_FLASH_PAGES - 1];
+
+                return pageDescriptor[pageIndex];
+#endif
+            }
+        }    // namespace map
+    }        // namespace detail
+}    // namespace Board

@@ -1,10 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 MCU_DEF_FILE=$1
 GEN_DIR=$2
 YAML_PARSER="dasel -n -p yaml --plain -f"
 OUT_FILE_HEADER="$GEN_DIR"/MCU.h
-OUT_FILE_SOURCE="$GEN_DIR"/MCU.cpp.include
 OUT_FILE_MAKEFILE="$GEN_DIR"/MCU.mk
 
 mkdir -p "$GEN_DIR"
@@ -21,22 +20,58 @@ app_start_address=$($YAML_PARSER "$MCU_DEF_FILE" flash.app-start)
 boot_start_address=$($YAML_PARSER "$MCU_DEF_FILE" flash.boot-start)
 metadata_start_address=$($YAML_PARSER "$MCU_DEF_FILE" flash.metadata-start)
 
+#process arch and vendor first
+ARCH_GEN_DIR=$(dirname "$2")/../arch/$arch
+ARCH_DEF_FILE=$(dirname "$MCU_DEF_FILE")/../arch/$arch.yml
+VENDOR_GEN_DIR=$(dirname "$2")/../vendor/$vendor
+VENDOR_DEF_FILE=$(dirname "$MCU_DEF_FILE")/../vendor/$vendor.yml
+
+if [[ ! -f $ARCH_DEF_FILE ]]
+then
+    echo "$ARCH_DEF_FILE doesn't exist"
+    exit 1
+fi
+
+if [[ ! -f $VENDOR_DEF_FILE ]]
+then
+    echo "$VENDOR_DEF_FILE doesn't exist"
+    exit 1
+fi
+
+if [[ ! -d $ARCH_GEN_DIR ]]
+then
+    echo "Generating arch definitions..."
+
+    if ! ../scripts/gen_arch.sh "$ARCH_DEF_FILE" "$ARCH_GEN_DIR"
+    then
+        exit 1
+    fi
+fi
+
+if [[ ! -d $VENDOR_GEN_DIR ]]
+then
+    echo "Generating vendor definitions..."
+
+    if ! ../scripts/gen_vendor.sh "$VENDOR_DEF_FILE" "$VENDOR_GEN_DIR"
+    then
+        exit 1
+    fi
+fi
+
 {
     printf "%s\n\n" "#pragma once"
-
     if [[ $mcu == *"stm32"* ]]
     then
-        printf "%s\n\n" "#include \"stm32f4xx_hal.h\""
+        printf "%s\n" "#include \"stm32f4xx_hal.h\""
     fi
+
+    printf "%s\n" "#include \"board/Board.h\""
+    printf "%s\n\n" "#include \"board/Internal.h\""
 } > "$OUT_FILE_HEADER"
 
 {
-    printf "%s\n" "#include \"MCU.h\""
-    printf "%s\n" "#include \"board/Board.h\""
-    printf "%s\n\n" "#include \"board/Internal.h\""
-} > "$OUT_FILE_SOURCE"
-
-{
+    printf "%s%s\n" '-include $(MAKEFILE_INCLUDE_PREFIX)$(BOARD_ARCH_BASE_DIR)/' "$arch/Arch.mk"
+    printf "%s%s\n" '-include $(MAKEFILE_INCLUDE_PREFIX)$(BOARD_VENDOR_BASE_DIR)/' "$vendor/Vendor.mk"
     printf "%s\n" "ARCH := $arch"
     printf "%s\n" "MCU_FAMILY := $mcu_family"
     printf "%s\n" "VENDOR := $vendor"
@@ -55,18 +90,13 @@ metadata_start_address=$($YAML_PARSER "$MCU_DEF_FILE" flash.metadata-start)
 
 if [[ $($YAML_PARSER "$MCU_DEF_FILE" flash) != "null" ]]
 then
-    printf "%s\n\n" "namespace {" >> "$OUT_FILE_SOURCE"
-
     declare -i number_of_flash_pages
 
     if [[ $($YAML_PARSER "$MCU_DEF_FILE" flash.pages) != "null" ]]
     then
         number_of_flash_pages=$($YAML_PARSER "$MCU_DEF_FILE" flash.pages --length)
-        printf "%s\n\n" "#define TOTAL_FLASH_PAGES $number_of_flash_pages" >> "$OUT_FILE_HEADER"
 
-        {
-            printf "%s\n" "Board::detail::map::flashPage_t pageDescriptor[TOTAL_FLASH_PAGES] = {"
-        } >> "$OUT_FILE_SOURCE"
+        printf "%s\n\n" "#define TOTAL_FLASH_PAGES $number_of_flash_pages" >> "$OUT_FILE_HEADER"
 
         for ((i=0; i<number_of_flash_pages; i++))
         do
@@ -102,19 +132,27 @@ then
                 printf "%s\n" "#define FLASH_PAGE_SIZE_${i} $app_size"
                 printf "%s\n" "#endif"
             } >> "$OUT_FILE_HEADER"
+        done
 
+        {
+            printf "%s\n" "namespace {"
+            printf "%s\n" "constexpr inline Board::detail::flash::flashPage_t pageDescriptor[TOTAL_FLASH_PAGES] = {"
+        } >> "$OUT_FILE_HEADER"
+
+        for ((i=0; i<number_of_flash_pages; i++))
+        do
             {
                 printf "%s\n" "{"
-                printf "%s\n" "#ifdef FW_BOOT"
-                printf "%s\n" ".address = $addressStart",
-                printf "%s\n" ".size = $page_size",
-                printf "%s\n" "#else"
-                printf "%s\n" ".address = (($addressStart+$app_offset))",
-                printf "%s\n" ".size = $app_size",
-                printf "%s\n" "#endif"
+                printf "%s\n" ".address = FLASH_PAGE_ADDRESS_${i}",
+                printf "%s\n" ".size = FLASH_PAGE_SIZE_${i}",
                 printf "%s\n" "},"
-            } >> "$OUT_FILE_SOURCE"
+            } >> "$OUT_FILE_HEADER"
         done
+
+        {
+            printf "%s\n" "};"
+            printf "%s\n" "}"
+        } >> "$OUT_FILE_HEADER"
     else
         page_size=$($YAML_PARSER "$MCU_DEF_FILE" flash.page-size)
         flash_size=$($YAML_PARSER "$MCU_DEF_FILE" flash.size)
@@ -132,11 +170,6 @@ then
         do
             addressEnd=$((addressStart+page_size-1))
 
-            {
-                printf "%s\n" "#define FLASH_PAGE_ADDRESS_${i} $addressStart"
-                printf "%s\n" "#define FLASH_PAGE_SIZE_${i} $page_size"
-            } >> "$OUT_FILE_HEADER"
-
             if [[ ($addressStart -le $app_start_address) && ($app_start_address -le $addressEnd) ]]
             then
                 printf "%s\n" "#define FLASH_PAGE_APP_START $i" >> "$OUT_FILE_HEADER"
@@ -144,18 +177,7 @@ then
 
             ((addressStart+=page_size))
         done
-
-        {
-            printf "%s\n" "Board::detail::map::flashPage_t pageDescriptor = {"
-            printf "%s\n" ".address = 0,"
-            printf "%s\n" ".size = FLASH_PAGE_SIZE_COMMON,"
-        } >> "$OUT_FILE_SOURCE"
     fi
-
-    {
-        printf "%s\n" "};"
-        printf "%s\n\n" "}"
-    } >> "$OUT_FILE_SOURCE"
 fi
 
 if [[ $($YAML_PARSER "$MCU_DEF_FILE" eeprom) != "null" ]]
@@ -252,14 +274,14 @@ then
         printf "%s\n" "#define APB2_CLK_DIV $apb2_clk_div_25mhz"
         printf "%s\n" "#else"
         printf "%s\n" "#error Invalid clock value"
-        printf "%s\n\n" "#endif"
+        printf "%s\n" "#endif"
     } >> "$OUT_FILE_HEADER"
 fi
 
 if [[ $($YAML_PARSER "$MCU_DEF_FILE" voltage_scale) != "null" ]]
 then
     vreg_scale=$($YAML_PARSER "$MCU_DEF_FILE" voltage_scale)
-    printf "%s\n\n" "#define PWR_REGULATOR_VOLTAGE_SCALE $vreg_scale" >> "$OUT_FILE_HEADER"
+    printf "%s\n" "#define PWR_REGULATOR_VOLTAGE_SCALE $vreg_scale" >> "$OUT_FILE_HEADER"
 fi
 
 if [[ $($YAML_PARSER "$MCU_DEF_FILE" fuses) != "null" ]]
@@ -322,4 +344,17 @@ then
 else
     echo "Timer periods undefined"
     exit 1
+fi
+
+common_mcu_family_include="board/arch/$arch/$vendor/variants/$mcu_family/Map.h.include"
+common_mcu_include="board/arch/$arch/$vendor/variants/$mcu_family/$mcu/Map.h.include"
+
+if [[ -f $common_mcu_family_include ]]
+then
+    printf "%s\n" "#include \"$common_mcu_family_include\"" >> "$OUT_FILE_HEADER"
+fi
+
+if [[ -f $common_mcu_include ]]
+then
+    printf "%s\n" "#include \"$common_mcu_include\"" >> "$OUT_FILE_HEADER"
 fi

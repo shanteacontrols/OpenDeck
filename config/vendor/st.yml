@@ -1,0 +1,11 @@
+---
+  symbols:
+    common:
+      - "IO_REG_WIDTH=16"
+      - "__STM32__"
+      - "USE_HAL_DRIVER"
+      - "UID_BITS=96"
+      - "USE_USB_FS"
+      - "DEVICE_FS=0"
+      - "DEVICE_HS=1"
+      - "ADC_12_BIT"

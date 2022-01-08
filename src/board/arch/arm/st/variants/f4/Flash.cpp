@@ -18,7 +18,7 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "stm32f4xx.h"
+#include <Target.h>
 
 #define _RAM __attribute__((section(".data#"), noinline))
 

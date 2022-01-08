@@ -30,16 +30,14 @@ ifeq (,$(findstring gen,$(TYPE)))
     endif
 endif
 
-LINKER_FILE := $(MCU_DIR)/$(MCU).ld
-
-TARGET_GEN_SOURCE := $(BOARD_TARGET_DIR)/$(TARGET).cpp
+LINKER_FILE       := $(MCU_DIR)/$(MCU).ld
+TARGET_GEN_HEADER := $(BOARD_TARGET_DIR)/Target.h
 
 ifneq (,$(wildcard $(TOUCHSCREEN_DEF_FILE)))
     TSCREEN_GEN_SOURCE += $(TOUCHSCREEN_GEN_BASE_DIR)/$(TARGET).cpp
 endif
 
 ifeq (,$(findstring gen,$(TYPE)))
-    SOURCES += $(TARGET_GEN_SOURCE)
     SOURCES += $(TSCREEN_GEN_SOURCE)
 
     #arch specific

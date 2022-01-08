@@ -16,21 +16,16 @@ limitations under the License.
 
 */
 
-#include "board/Board.h"
-#include "board/Internal.h"
-
 namespace Board
 {
     namespace detail
     {
         namespace map
         {
-            uint32_t adcChannel(const core::io::mcuPin_t& pin)
+            constexpr uint32_t adcChannel(const core::io::mcuPin_t& pin)
             {
-                if (pin.port == &PORTF)
+                if (pin.port == CORE_IO_PIN_PORT_VAR(CORE_IO_PIN_PORT_DEF(F)))
                     return pin.index;
-                else if (pin.port == &PORTK)
-                    return pin.index + 8;
 
                 return 0xFF;
             }

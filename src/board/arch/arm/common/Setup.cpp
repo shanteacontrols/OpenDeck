@@ -20,7 +20,7 @@ limitations under the License.
 #include "board/Internal.h"
 #include "board/common/io/Helpers.h"
 #include "core/src/general/Timing.h"
-#include <Pins.h>
+#include <Target.h>
 
 namespace Board
 {
@@ -73,9 +73,9 @@ namespace Board
                     core::io::mcuPin_t pin = detail::map::buttonPin(i);
 
 #ifndef BUTTONS_EXT_PULLUPS
-                    CORE_IO_CONFIG({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::input, core::io::pullMode_t::up, core::io::gpioSpeed_t::medium, 0x00 });
+                    CORE_IO_CONFIG({ CORE_IO_MCU_PIN_VAR_PORT_GET(pin), CORE_IO_MCU_PIN_VAR_PIN_GET(pin), core::io::pinMode_t::input, core::io::pullMode_t::up, core::io::gpioSpeed_t::medium, 0x00 });
 #else
-                    CORE_IO_CONFIG({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::input, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+                    CORE_IO_CONFIG({ CORE_IO_MCU_PIN_VAR_PORT_GET(pin), CORE_IO_MCU_PIN_VAR_PIN_GET(pin), core::io::pinMode_t::input, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
 #endif
                 }
 #endif
@@ -135,20 +135,21 @@ namespace Board
 
 #ifdef NUMBER_OF_LED_ROWS
                     // when rows are used from native outputs, use open-drain configuration
-                    CORE_IO_CONFIG({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::outputOD, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+                    CORE_IO_CONFIG({ CORE_IO_MCU_PIN_VAR_PORT_GET(pin), CORE_IO_MCU_PIN_VAR_PIN_GET(pin), core::io::pinMode_t::outputOD, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
 #else
-                    CORE_IO_CONFIG({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+                    CORE_IO_CONFIG({ CORE_IO_MCU_PIN_VAR_PORT_GET(pin), CORE_IO_MCU_PIN_VAR_PIN_GET(pin), core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
 #endif
-                    EXT_LED_OFF(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
+                    EXT_LED_OFF(CORE_IO_MCU_PIN_VAR_PORT_GET(pin), CORE_IO_MCU_PIN_VAR_PIN_GET(pin));
                 }
+#endif
 #endif
 
 #if MAX_ADC_CHANNELS > 0
                 for (int i = 0; i < MAX_ADC_CHANNELS; i++)
                 {
                     core::io::mcuPin_t pin = detail::map::adcPin(i);
-                    CORE_IO_CONFIG({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::analog });
-                    CORE_IO_SET_LOW(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
+                    CORE_IO_CONFIG({ CORE_IO_MCU_PIN_VAR_PORT_GET(pin), CORE_IO_MCU_PIN_VAR_PIN_GET(pin), core::io::pinMode_t::analog });
+                    CORE_IO_SET_LOW(CORE_IO_MCU_PIN_VAR_PORT_GET(pin), CORE_IO_MCU_PIN_VAR_PIN_GET(pin));
                 }
 #endif
 
@@ -178,7 +179,7 @@ namespace Board
 
                     // for input mode, pull up is activated so no need to set state via CORE_IO_SET_STATE
                     if (unusedPin.pin.mode == core::io::pinMode_t::outputPP)
-                        CORE_IO_SET_STATE(CORE_IO_MCU_PIN_PORT(unusedPin.pin), CORE_IO_MCU_PIN_INDEX(unusedPin.pin), unusedPin.state);
+                        CORE_IO_SET_STATE(CORE_IO_MCU_PIN_VAR_PORT_GET(unusedPin.pin), CORE_IO_MCU_PIN_VAR_PIN_GET(unusedPin.pin), unusedPin.state);
                 }
 #endif
 

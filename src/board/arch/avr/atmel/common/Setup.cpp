@@ -30,8 +30,7 @@ limitations under the License.
 #include "core/src/general/IO.h"
 #include "core/src/general/Interrupt.h"
 #include "core/src/general/Timing.h"
-#include <Pins.h>
-#include <MCU.h>
+#include <Target.h>
 
 // serial numbers are available only on AVR MCUs with USB
 #ifdef USB_SUPPORTED
@@ -243,10 +242,10 @@ namespace Board
                 {
                     core::io::mcuPin_t pin = detail::map::buttonPin(i);
 
-                    CORE_IO_CONFIG(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::input);
+                    CORE_IO_CONFIG(CORE_IO_MCU_PIN_VAR_PORT_GET(pin), CORE_IO_MCU_PIN_VAR_PIN_GET(pin), core::io::pinMode_t::input);
 
 #ifndef BUTTONS_EXT_PULLUPS
-                    CORE_IO_SET_HIGH(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
+                    CORE_IO_SET_HIGH(CORE_IO_MCU_PIN_VAR_PORT_GET(pin), CORE_IO_MCU_PIN_VAR_PIN_GET(pin));
 #endif
                 }
 #endif
@@ -304,8 +303,8 @@ namespace Board
                 {
                     core::io::mcuPin_t pin = detail::map::ledPin(i);
 
-                    CORE_IO_CONFIG(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::output);
-                    EXT_LED_OFF(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
+                    CORE_IO_CONFIG(CORE_IO_MCU_PIN_VAR_PORT_GET(pin), CORE_IO_MCU_PIN_VAR_PIN_GET(pin), core::io::pinMode_t::output);
+                    EXT_LED_OFF(CORE_IO_MCU_PIN_VAR_PORT_GET(pin), CORE_IO_MCU_PIN_VAR_PIN_GET(pin));
                 }
 #endif
 #endif
@@ -315,8 +314,8 @@ namespace Board
                 {
                     core::io::mcuPin_t pin = detail::map::adcPin(i);
 
-                    CORE_IO_CONFIG(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::input);
-                    CORE_IO_SET_LOW(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
+                    CORE_IO_CONFIG(CORE_IO_MCU_PIN_VAR_PORT_GET(pin), CORE_IO_MCU_PIN_VAR_PIN_GET(pin), core::io::pinMode_t::input);
+                    CORE_IO_SET_LOW(CORE_IO_MCU_PIN_VAR_PORT_GET(pin), CORE_IO_MCU_PIN_VAR_PIN_GET(pin));
                 }
 #endif
 
@@ -341,8 +340,8 @@ namespace Board
                 {
                     Board::detail::io::unusedIO_t unusedPin = detail::map::unusedPin(i);
 
-                    CORE_IO_CONFIG(CORE_IO_MCU_PIN_PORT(unusedPin.pin), CORE_IO_MCU_PIN_INDEX(unusedPin.pin), unusedPin.pin.mode);
-                    CORE_IO_SET_STATE(CORE_IO_MCU_PIN_PORT(unusedPin.pin), CORE_IO_MCU_PIN_INDEX(unusedPin.pin), unusedPin.state);
+                    CORE_IO_CONFIG(CORE_IO_MCU_PIN_VAR_PORT_GET(unusedPin.pin), CORE_IO_MCU_PIN_VAR_PIN_GET(unusedPin.pin), unusedPin.pin.mode);
+                    CORE_IO_SET_STATE(CORE_IO_MCU_PIN_VAR_PORT_GET(unusedPin.pin), CORE_IO_MCU_PIN_VAR_PIN_GET(unusedPin.pin), unusedPin.state);
                 }
 #endif
 

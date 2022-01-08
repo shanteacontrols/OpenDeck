@@ -24,11 +24,17 @@ limitations under the License.
 #include "board/common/constants/IO.h"
 #include "core/src/general/Helpers.h"
 #include "core/src/general/Atomic.h"
-#include <Pins.h>
+#include "core/src/general/RingBuffer.h"
+#include <Target.h>
+
+#define MAX_READING_COUNT (8 * sizeof(((Board::io::dInReadings_t*)0)->readings))
 
 namespace
 {
     volatile Board::io::dInReadings_t _digitalInBuffer[NR_OF_DIGITAL_INPUTS];
+#ifdef NATIVE_BUTTON_INPUTS
+    core::RingBuffer<portWidth_t, MAX_READING_COUNT> _portBuffer[NR_OF_DIGITAL_INPUT_PORTS];
+#endif
 
 #ifdef NUMBER_OF_BUTTON_COLUMNS
     volatile uint8_t _activeInColumn;
@@ -55,8 +61,8 @@ namespace
                 _digitalInBuffer[buttonIndex].readings <<= 1;
                 _digitalInBuffer[buttonIndex].readings |= !CORE_IO_READ(SR_IN_DATA_PORT, SR_IN_DATA_PIN);
 
-                if (++_digitalInBuffer[buttonIndex].count > 32)
-                    _digitalInBuffer[buttonIndex].count = 32;
+                if (++_digitalInBuffer[buttonIndex].count > MAX_READING_COUNT)
+                    _digitalInBuffer[buttonIndex].count = MAX_READING_COUNT;
 
                 CORE_IO_SET_HIGH(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
             }
@@ -99,8 +105,8 @@ namespace
                 _digitalInBuffer[buttonIndex].readings <<= 1;
                 _digitalInBuffer[buttonIndex].readings |= !CORE_IO_READ(SR_IN_DATA_PORT, SR_IN_DATA_PIN);
 
-                if (++_digitalInBuffer[buttonIndex].count > 32)
-                    _digitalInBuffer[buttonIndex].count = 32;
+                if (++_digitalInBuffer[buttonIndex].count > MAX_READING_COUNT)
+                    _digitalInBuffer[buttonIndex].count = MAX_READING_COUNT;
 
                 CORE_IO_SET_HIGH(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
             }
@@ -113,28 +119,45 @@ namespace
                 pin                = Board::detail::map::buttonPin(row);
 
                 _digitalInBuffer[buttonIndex].readings <<= 1;
-                _digitalInBuffer[buttonIndex].readings |= !CORE_IO_READ(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
+                _digitalInBuffer[buttonIndex].readings |= !CORE_IO_READ(CORE_IO_MCU_PIN_VAR_PORT_GET(pin), CORE_IO_MCU_PIN_VAR_PIN_GET(pin));
 
-                if (++_digitalInBuffer[buttonIndex].count > 32)
-                    _digitalInBuffer[buttonIndex].count = 32;
+                if (++_digitalInBuffer[buttonIndex].count > MAX_READING_COUNT)
+                    _digitalInBuffer[buttonIndex].count = MAX_READING_COUNT;
             }
 #endif
         }
     }
 #else
-    core::io::mcuPin_t _pin;
-
     inline void storeDigitalIn()
     {
-        for (int buttonIndex = 0; buttonIndex < NR_OF_DIGITAL_INPUTS; buttonIndex++)
+        // read all input ports instead of reading pin by pin to reduce the time spent in ISR
+        for (int portIndex = 0; portIndex < NR_OF_DIGITAL_INPUT_PORTS; portIndex++)
         {
-            _pin = Board::detail::map::buttonPin(buttonIndex);
+            _portBuffer[portIndex].insert(CORE_IO_READ_PORT(CORE_IO_PIN_PORT_VAR_GET(Board::detail::map::digitalInPort(portIndex))));
+        }
+    }
 
-            _digitalInBuffer[buttonIndex].readings <<= 1;
-            _digitalInBuffer[buttonIndex].readings |= !CORE_IO_READ(CORE_IO_MCU_PIN_PORT(_pin), CORE_IO_MCU_PIN_INDEX(_pin));
+    inline void fillBuffer(size_t digitalInIndex)
+    {
+        // for provided button index, retrieve its port index
+        // upon reading update all buttons located on that port
 
-            if (++_digitalInBuffer[buttonIndex].count > 32)
-                _digitalInBuffer[buttonIndex].count = 32;
+        auto        portIndex = Board::detail::map::buttonPortIndex(digitalInIndex);
+        portWidth_t portValue = 0;
+
+        while (_portBuffer[portIndex].remove(portValue))
+        {
+            for (int i = 0; i < NR_OF_DIGITAL_INPUTS; i++)
+            {
+                if (Board::detail::map::buttonPortIndex(i) == portIndex)
+                {
+                    _digitalInBuffer[i].readings <<= 1;
+                    _digitalInBuffer[i].readings |= !BIT_READ(portValue, Board::detail::map::buttonPinIndex(i));
+
+                    if (++_digitalInBuffer[i].count > MAX_READING_COUNT)
+                        _digitalInBuffer[i].count = MAX_READING_COUNT;
+                }
+            }
         }
     }
 #endif
@@ -149,9 +172,15 @@ namespace Board
             if (digitalInIndex >= NR_OF_DIGITAL_INPUTS)
                 return false;
 
+#ifdef NATIVE_BUTTON_INPUTS
+            fillBuffer(digitalInIndex);
+#endif
+
             digitalInIndex = detail::map::buttonIndex(digitalInIndex);
 
+#ifndef NATIVE_BUTTON_INPUTS
             ATOMIC_SECTION
+#endif
             {
                 dInReadings.count                      = _digitalInBuffer[digitalInIndex].count;
                 dInReadings.readings                   = _digitalInBuffer[digitalInIndex].readings;

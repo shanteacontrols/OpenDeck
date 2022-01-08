@@ -20,7 +20,7 @@ namespace Board
 {
     namespace detail
     {
-        namespace map
+        namespace st
         {
             bool uartChannel(USART_TypeDef* interface, uint8_t& channel)
             {
@@ -36,7 +36,7 @@ namespace Board
                 return false;
             }
 
-            STMPeripheral* uartDescriptor(uint8_t channel)
+            Peripheral* uartDescriptor(uint8_t channel)
             {
                 if (channel >= MAX_UART_INTERFACES)
                     return nullptr;
@@ -58,44 +58,12 @@ namespace Board
                 return false;
             }
 
-            STMPeripheral* i2cDescriptor(uint8_t channel)
+            Peripheral* i2cDescriptor(uint8_t channel)
             {
                 if (channel >= MAX_I2C_INTERFACES)
                     return nullptr;
 
                 return _i2cDescriptor[channel];
-            }
-
-            uint32_t adcChannel(const core::io::mcuPin_t& pin)
-            {
-                uint8_t index = core::misc::maskToIndex(pin.index);
-
-                if (pin.port == GPIOA)
-                {
-                    if (index < 8)
-                        return index;
-                }
-                else if (pin.port == GPIOB)
-                {
-                    switch (index)
-                    {
-                    case 0:
-                        return 8;
-
-                    case 1:
-                        return 9;
-
-                    default:
-                        return 0xFF;
-                    }
-                }
-                else if (pin.port == GPIOC)
-                {
-                    if (index < 6)
-                        return 10 + index;
-                }
-
-                return 0xFF;
             }
         }    // namespace map
     }        // namespace detail

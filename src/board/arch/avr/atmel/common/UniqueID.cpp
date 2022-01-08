@@ -30,7 +30,7 @@ limitations under the License.
 #include "core/src/general/IO.h"
 #include "core/src/general/Interrupt.h"
 #include "core/src/general/Timing.h"
-#include <Pins.h>
+#include <Target.h>
 
 // serial numbers are available only on AVR MCUs with USB
 #ifdef USB_SUPPORTED

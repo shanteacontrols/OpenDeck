@@ -1,0 +1,4 @@
+---
+  symbols:
+    - "__ARM__"
+    - "EMUEEPROM_INCLUDE_CONFIG"

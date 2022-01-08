@@ -23,7 +23,7 @@ limitations under the License.
 #include "core/src/general/Helpers.h"
 #include "core/src/general/Atomic.h"
 #include "core/src/general/Timing.h"
-#include <Pins.h>
+#include <Target.h>
 
 #if defined(LED_INDICATORS) && defined(LED_INDICATORS_CTL)
 

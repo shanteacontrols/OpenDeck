@@ -1,6 +1,8 @@
 BOARD_GEN_BASE_DIR          := board/gen
-BOARD_MCU_BASE_DIR          := $(BOARD_GEN_BASE_DIR)/mcu
 BOARD_TARGET_BASE_DIR       := $(BOARD_GEN_BASE_DIR)/target
+BOARD_MCU_BASE_DIR          := $(BOARD_GEN_BASE_DIR)/mcu
+BOARD_VENDOR_BASE_DIR       := $(BOARD_GEN_BASE_DIR)/vendor
+BOARD_ARCH_BASE_DIR         := $(BOARD_GEN_BASE_DIR)/arch
 BOARD_TARGET_DIR            := $(BOARD_TARGET_BASE_DIR)/$(TARGET)
 TOUCHSCREEN_GEN_BASE_DIR    := application/io/touchscreen/gen
 COMMAND_FW_UPDATE_START     := 0x4F70456E6E45704F
@@ -60,52 +62,6 @@ else
     DEFINES += MIDI_SYSEX_ARRAY_SIZE=100
 endif
 
-ifeq ($(ARCH),avr)
-    #common for all avr targets
-    DEFINES += \
-    ARCH=ARCH_AVR8 \
-    __AVR__ \
-    F_CPU=16000000UL \
-    F_USB=16000000UL \
-    BOARD=BOARD_NONE \
-    USE_STATIC_OPTIONS=0 \
-    USB_DEVICE_ONLY \
-    INTERRUPT_CONTROL_ENDPOINT \
-    ADC_10_BIT \
-    ORDERED_EP_CONFIG \
-    UID_BITS=80 \
-    MEDIAN_SAMPLE_COUNT=3 \
-    MEDIAN_MIDDLE_VALUE=1
-
-    #flash type specific
-    ifeq ($(TYPE),boot)
-        DEFINES += \
-        NO_SOF_EVENTS \
-        DEVICE_STATE_AS_GPIOR \
-        NO_DEVICE_REMOTE_WAKEUP \
-        NO_DEVICE_SELF_POWER \
-        USE_RAM_DESCRIPTORS
-    else ifeq ($(TYPE),app)
-        DEFINES += \
-        USE_FLASH_DESCRIPTORS
-    endif
-else ifeq ($(ARCH),arm)
-    DEFINES += \
-    __ARM__ \
-    EMUEEPROM_INCLUDE_CONFIG
-endif
-
-ifeq ($(VENDOR),st)
-    DEFINES += \
-    __STM32__ \
-    USE_HAL_DRIVER \
-    UID_BITS=96 \
-    USE_USB_FS \
-    DEVICE_FS=0 \
-    DEVICE_HS=1 \
-    ADC_12_BIT
-endif
-
 ifeq ($(CPU),cortex-m4)
     DEFINES += \
     CORE_ARM_M4
@@ -121,6 +77,7 @@ else ifeq ($(TYPE),flashgen)
     #same as app
     DEFINES += FW_APP
     FLASH_START_ADDR := $(APP_START_ADDR)
+    DEFINES := $(filter-out __STM32__,$(DEFINES))
 else ifeq ($(TYPE),sysexgen)
     #nothing to do
 else
