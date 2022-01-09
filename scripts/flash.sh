@@ -25,7 +25,7 @@ read -r port
 
 echo "Please select AVR MCU you want to flash and then press enter:"
 
-boards=$(find src/board/arch/avr/variants/avr8 -mindepth 1 -type d | awk -F/ '{ print $NF }')
+boards=$(find src/board/arch/avr/atmel/variants/avr8 -mindepth 1 -type d | awk -F/ '{ print $NF }')
 echo "$boards" | cut -d . -f1 | cat -n
 
 echo -n "Board number: "
