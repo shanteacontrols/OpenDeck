@@ -110,7 +110,7 @@ namespace IO
             const auto     oldMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(_lastStableValue[index]), static_cast<uint32_t>(_adcConfig.adcMinValue), static_cast<uint32_t>(_adcConfig.adcMaxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
             uint16_t       stepDiff     = 1;
 
-            if (((direction != _lastStableDirection[index]) || !fastFilter) && ((oldMIDIvalue != 0) && (oldMIDIvalue != maxLimit)))
+            if (((direction != lastStableDirection(index)) || !fastFilter) && ((oldMIDIvalue != 0) && (oldMIDIvalue != maxLimit)))
             {
                 stepDiff = _stepDiff7Bit * 2;
             }
@@ -167,8 +167,8 @@ namespace IO
             if (midiValue == oldMIDIvalue)
                 return false;
 
-            _lastStableDirection[index] = direction;
-            _lastStableValue[index]     = filteredValue;
+            setLastStableDirection(index, direction);
+            _lastStableValue[index] = filteredValue;
 
 #ifdef ADC_SUPPORTED
             if (index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
@@ -218,6 +218,22 @@ namespace IO
             const uint16_t digitalValueThresholdOff;    ///< Value below which button connected to analog input is considered released.
         };
 
+        void setLastStableDirection(size_t index, bool state)
+        {
+            uint8_t arrayIndex  = index / 8;
+            uint8_t analogIndex = index - 8 * arrayIndex;
+
+            BIT_WRITE(_lastStableDirection[arrayIndex], analogIndex, state);
+        }
+
+        bool lastStableDirection(size_t index)
+        {
+            uint8_t arrayIndex  = index / 8;
+            uint8_t analogIndex = index - 8 * arrayIndex;
+
+            return BIT_READ(_lastStableDirection[arrayIndex], analogIndex);
+        }
+
         adcConfig_t adc10bit = {
             .adcMinValue              = 10,
             .adcMaxValue              = 1000,
@@ -246,12 +262,12 @@ namespace IO
 #ifdef ADC_SUPPORTED
         EMA      _emaFilter[IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS)];
         uint16_t _analogSample[IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS)][MEDIAN_SAMPLE_COUNT] = {};
-        size_t   _medianSampleCounter[IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS)]               = {};
+        uint8_t  _medianSampleCounter[IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS)]               = {};
         uint32_t _lastStableMovementTime[IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS)]            = {};
 #endif
 
-        bool     _lastStableDirection[IO::Analog::Collection::size()] = {};
-        uint16_t _lastStableValue[IO::Analog::Collection::size()]     = {};
+        uint8_t  _lastStableDirection[IO::Analog::Collection::size() / 8 + 1] = {};
+        uint16_t _lastStableValue[IO::Analog::Collection::size()]             = {};
     };    // namespace IO
 }    // namespace IO
 
