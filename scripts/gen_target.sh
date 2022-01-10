@@ -910,6 +910,20 @@ then
         printf "%s\n" "DEFINES += ADC_EXT_REF" >> "$OUT_FILE_MAKEFILE_DEFINES"
     fi
 
+    analog_filter_median=$($YAML_PARSER "$TARGET_DEF_FILE" analog.filter.median)
+    analog_filter_ema=$($YAML_PARSER "$TARGET_DEF_FILE" analog.filter.ema)
+
+    # use filters by default if not specified
+    if [[ $analog_filter_median != "false" ]]
+    then
+        printf "%s\n" "DEFINES += ANALOG_USE_MEDIAN_FILTER" >> "$OUT_FILE_MAKEFILE_DEFINES"
+    fi
+
+    if [[ $analog_filter_ema != "false" ]]
+    then
+        printf "%s\n" "DEFINES += ANALOG_USE_EMA_FILTER" >> "$OUT_FILE_MAKEFILE_DEFINES"
+    fi
+
     analog_in_type=$($YAML_PARSER "$TARGET_DEF_FILE" analog.type)
 
     declare -i nr_of_analog_inputs

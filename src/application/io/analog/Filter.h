@@ -26,11 +26,8 @@ limitations under the License.
 #include "io/analog/Analog.h"
 #include "core/src/general/Helpers.h"
 
-#ifndef MEDIAN_SAMPLE_COUNT
+#ifdef ANALOG_USE_MEDIAN_FILTER
 #define MEDIAN_SAMPLE_COUNT 3
-#endif
-
-#ifndef MEDIAN_MIDDLE_VALUE
 #define MEDIAN_MIDDLE_VALUE 1
 #endif
 
@@ -90,6 +87,7 @@ namespace IO
             }
 
 #ifdef ADC_SUPPORTED
+#ifdef ANALOG_USE_MEDIAN_FILTER
             auto compare = [](const void* a, const void* b) {
                 if (*(uint16_t*)a < *(uint16_t*)b)
                     return -1;
@@ -98,6 +96,7 @@ namespace IO
 
                 return 0;
             };
+#endif
 
             const bool fastFilter = (index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS)) ? (core::timing::currentRunTimeMs() - _lastStableMovementTime[index]) < FAST_FILTER_ENABLE_AFTER_MS : true;
 #else
@@ -118,8 +117,10 @@ namespace IO
             if (abs(value - _lastStableValue[index]) < stepDiff)
             {
 #ifdef ADC_SUPPORTED
+#ifdef ANALOG_USE_MEDIAN_FILTER
                 if (index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
                     _medianSampleCounter[index] = 0;
+#endif
 #endif
 
                 return false;
@@ -130,6 +131,7 @@ namespace IO
             {
                 // don't filter the readings for touchscreen data
 
+#ifdef ANALOG_USE_MEDIAN_FILTER
                 if (!fastFilter)
                 {
                     _analogSample[index][_medianSampleCounter[index]++] = value;
@@ -147,12 +149,15 @@ namespace IO
                     }
                 }
                 else
+#endif
                 {
                     filteredValue = value;
                 }
 
+#ifdef ANALOG_USE_EMA_FILTER
                 if (index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
                     filteredValue = _emaFilter[index].value(filteredValue);
+#endif
             }
             else
             {
@@ -198,7 +203,9 @@ namespace IO
 #ifdef ADC_SUPPORTED
             if (index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
             {
-                _medianSampleCounter[index]    = 0;
+#ifdef ANALOG_USE_MEDIAN_FILTER
+                _medianSampleCounter[index] = 0;
+#endif
                 _lastStableMovementTime[index] = 0;
             }
 #endif
@@ -260,10 +267,17 @@ namespace IO
 
 // some filtering is needed for adc only
 #ifdef ADC_SUPPORTED
-        EMA      _emaFilter[IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS)];
+#ifdef ANALOG_USE_EMA_FILTER
+        EMA _emaFilter[IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS)];
+#endif
+
+#ifdef ANALOG_USE_MEDIAN_FILTER
         uint16_t _analogSample[IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS)][MEDIAN_SAMPLE_COUNT] = {};
         uint8_t  _medianSampleCounter[IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS)]               = {};
-        uint32_t _lastStableMovementTime[IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS)]            = {};
+#else
+        uint16_t _analogSample[IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS)] = {};
+#endif
+        uint32_t _lastStableMovementTime[IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS)] = {};
 #endif
 
         uint8_t  _lastStableDirection[IO::Analog::Collection::size() / 8 + 1] = {};
