@@ -910,20 +910,6 @@ then
         printf "%s\n" "DEFINES += ADC_EXT_REF" >> "$OUT_FILE_MAKEFILE_DEFINES"
     fi
 
-    declare -i offset_lower
-    declare -i offset_upper
-
-    offset_lower=0
-    offset_upper=0
-
-    offset_lower=$($YAML_PARSER "$TARGET_DEF_FILE" analog.offset.lower)
-    offset_upper=$($YAML_PARSER "$TARGET_DEF_FILE" analog.offset.upper)
-
-    {
-        printf "%s\n" "DEFINES += ADC_LOWER_OFFSET_PERCENTAGE=$offset_lower"
-        printf "%s\n" "DEFINES += ADC_UPPER_OFFSET_PERCENTAGE=$offset_upper"
-    } >> "$OUT_FILE_MAKEFILE_DEFINES"
-
     analog_in_type=$($YAML_PARSER "$TARGET_DEF_FILE" analog.type)
 
     declare -i nr_of_analog_inputs
