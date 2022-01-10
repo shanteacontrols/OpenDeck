@@ -11,5 +11,3 @@
     - "ADC_10_BIT"
     - "ORDERED_EP_CONFIG"
     - "UID_BITS=80"
-    - "MEDIAN_SAMPLE_COUNT=3"
-    - "MEDIAN_MIDDLE_VALUE=1"
