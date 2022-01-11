@@ -1,5 +1,5 @@
 #ifndef USB_LINK_MCU
-#ifdef HW_TESTING
+#ifdef HW_TESTS_SUPPORTED
 
 #include "unity/Framework.h"
 #include <string>

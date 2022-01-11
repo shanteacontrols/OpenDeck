@@ -10,8 +10,11 @@
 #include "sysex/src/SysExConf.h"
 #include "system/System.h"
 #include "Misc.h"
-#include <HWTestDefines.h>
 #include <glog/logging.h>
+
+#ifdef HW_TESTS_SUPPORTED
+#include <HWTestDefines.h>
+#endif
 
 class MIDIHelper
 {
@@ -195,7 +198,7 @@ class MIDIHelper
         };
     }
 
-#ifdef HW_TESTING
+#ifdef HW_TESTS_SUPPORTED
     template<typename T>
     static uint16_t readFromDevice(T section, size_t index)
     {
@@ -374,7 +377,7 @@ class MIDIHelper
 #endif
 
     private:
-#ifdef HW_TESTING
+#ifdef HW_TESTS_SUPPORTED
     static uint16_t sendRequest(const std::vector<uint8_t>& requestUint8, SysExConf::wish_t wish)
     {
         // convert uint8_t vector to string so it can be passed as command line argument

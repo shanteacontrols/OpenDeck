@@ -97,11 +97,11 @@ do
             #binaries, sysex files and defines are needed for tests, compile that as well
 
             make -C ../src TARGET="${targets[$i]}" DEBUG=0
-            make TARGET="${targets[$i]}" DEBUG=0 HW_TESTING=1 TESTS=hw
+            make TARGET="${targets[$i]}" DEBUG=0 TESTS=hw
         else
             #only defines are needed here
             make -C ../src TARGET="${targets[$i]}" DEBUG=0 pre-build
-            make TARGET="${targets[$i]}" DEBUG=0 HW_TESTING=0
+            make TARGET="${targets[$i]}" DEBUG=0
         fi
     fi
 done

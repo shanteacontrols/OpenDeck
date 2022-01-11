@@ -37,132 +37,21 @@ then
     fi
 fi
 
-printf "%s\n\n" "#pragma once" > "$HW_TEST_HEADER_CONSTANTS"
-
 if [[ -f $HW_TEST_DEF_FILE ]]
 then
-    echo "Generating HW test config..."
-
-    {
-        printf "%s\n" "std::string OPENDECK_MIDI_DEVICE_NAME=\"OpenDeck | $TARGET_NAME\";"
-        printf "%s\n" "std::string OPENDECK_DFU_MIDI_DEVICE_NAME=\"OpenDeck DFU | $TARGET_NAME\";"
-    } >> "$HW_TEST_HEADER_CONSTANTS"
-
-    if [[ $($YAML_PARSER "$HW_TEST_DEF_FILE" flash) != "null" ]]
+    #hw config files go into the same dir as target ones
+    if ! ../scripts/gen_hwconfig.sh "$HW_TEST_DEF_FILE" "$GEN_DIR"
     then
-        flash_args=$($YAML_PARSER "$HW_TEST_DEF_FILE" flash.args)
-
-        {
-            printf "%s\n" "#define TEST_FLASHING"
-            printf "%s\n" "std::string FLASH_ARGS=\"$flash_args\";"
-        } >> "$HW_TEST_HEADER_CONSTANTS"
-    fi
-
-    if [[ $($YAML_PARSER "$HW_TEST_DEF_FILE" dinMidi) != "null" ]]
-    then
-        in_din_midi_port=$($YAML_PARSER "$HW_TEST_DEF_FILE" dinMidi.in)
-        out_din_midi_port=$($YAML_PARSER "$HW_TEST_DEF_FILE" dinMidi.out)
-
-        {
-            printf "%s\n" "#define TEST_DIN_MIDI"
-            printf "%s\n" "std::string IN_DIN_MIDI_PORT=\"$in_din_midi_port\";"
-            printf "%s\n" "std::string OUT_DIN_MIDI_PORT=\"$out_din_midi_port\";"
-        } >> "$HW_TEST_HEADER_CONSTANTS"
-    fi
-
-    usb_link_target=$($YAML_PARSER "$HW_TEST_DEF_FILE" usbLinkTarget)
-
-    if [[ $usb_link_target != "null" ]]
-    then
-        USB_LINK_HW_TEST_DEF_FILE=$(dirname "$HW_TEST_DEF_FILE")/$usb_link_target.yml
-        usb_link_flash_args=$($YAML_PARSER "$USB_LINK_HW_TEST_DEF_FILE" flash.args)
-
-        {
-            printf "%s\n" "std::string FLASH_ARGS_USB_LINK=\"$usb_link_flash_args\";"
-            printf "%s\n" "std::string USB_LINK_TARGET=\"$usb_link_target\";"
-        } >> "$HW_TEST_HEADER_CONSTANTS"
-    fi
-
-    if [[ $($YAML_PARSER "$HW_TEST_DEF_FILE" io) != "null" ]]
-    then
-        printf "%s\n" "#define TEST_IO" >> "$HW_TEST_HEADER_CONSTANTS"
-
-        declare -i nr_of_switches
-        declare -i nr_of_analog
-        declare -i nr_of_leds
-
-        nr_of_switches=$($YAML_PARSER "$HW_TEST_DEF_FILE" io.switches-pins --length)
-        nr_of_analog=$($YAML_PARSER "$HW_TEST_DEF_FILE" io.analog-pins --length)
-        nr_of_leds=$($YAML_PARSER "$HW_TEST_DEF_FILE" io.led-pins --length)
-
-        printf "%s\n" "using hwTestDescriptor_t = struct { int pin; int index; };" >> "$HW_TEST_HEADER_CONSTANTS"
-
-        if [[ $nr_of_switches -ne 0 ]]
-        then
-            {
-                printf "%s\n" "#define TEST_IO_SWITCHES"
-                printf "%s\n" "std::vector<hwTestDescriptor_t> hwTestSwDescriptor = {"
-            } >> "$HW_TEST_HEADER_CONSTANTS"
-
-            for ((i=0; i<nr_of_switches; i++))
-            do
-                {
-                    printf "%s" "{ "
-                    printf "%s" "$($YAML_PARSER "$HW_TEST_DEF_FILE" io.switches-pins.["$i"]),"
-                    printf "%s" "$($YAML_PARSER "$HW_TEST_DEF_FILE" io.switches-id.["$i"])"
-                    printf "%s\n" "},"
-                } >> "$HW_TEST_HEADER_CONSTANTS"
-            done
-
-            printf "%s\n" "};" >> "$HW_TEST_HEADER_CONSTANTS"
-        fi
-
-        if [[ $nr_of_analog -ne 0 ]]
-        then
-            {
-                printf "%s\n" "#define TEST_IO_ANALOG"
-                printf "%s\n" "std::vector<hwTestDescriptor_t> hwTestAnalogDescriptor = {"
-            } >> "$HW_TEST_HEADER_CONSTANTS"
-
-            for ((i=0; i<nr_of_analog; i++))
-            do
-                {
-                    printf "%s" "{ "
-                    printf "%s" "$($YAML_PARSER "$HW_TEST_DEF_FILE" io.analog-pins.["$i"]),"
-                    printf "%s" "$($YAML_PARSER "$HW_TEST_DEF_FILE" io.analog-id.["$i"])"
-                    printf "%s\n" "},"
-                } >> "$HW_TEST_HEADER_CONSTANTS"
-            done
-
-            printf "%s\n" "};" >> "$HW_TEST_HEADER_CONSTANTS"
-        fi
-
-        if [[ $nr_of_leds -ne 0 ]]
-        then
-            {
-                printf "%s\n" "#define TEST_IO_LEDS"
-                printf "%s\n" "std::vector<hwTestDescriptor_t> hwTestLEDDescriptor = {"
-            } >> "$HW_TEST_HEADER_CONSTANTS"
-
-            for ((i=0; i<nr_of_leds; i++))
-            do
-                {
-                    printf "%s" "{ "
-                    printf "%s" "$($YAML_PARSER "$HW_TEST_DEF_FILE" io.led-pins.["$i"]),"
-                    printf "%s" "$($YAML_PARSER "$HW_TEST_DEF_FILE" io.led-id.["$i"])"
-                    printf "%s\n" "},"
-                } >> "$HW_TEST_HEADER_CONSTANTS"
-            done
-
-            printf "%s\n" "};" >> "$HW_TEST_HEADER_CONSTANTS"
-        fi
+        exit 1
+    else
+        printf "%s\n" "DEFINES += HW_TESTS_SUPPORTED" >> "$OUT_MAKEFILE"
     fi
 fi
 
 {
     printf "%s%s\n" '-include $(MAKEFILE_INCLUDE_PREFIX)$(BOARD_MCU_BASE_DIR)/' "$mcu/MCU.mk"
     printf "%s\n" "DEFINES += FW_UID=$(../scripts/fw_uid_gen.sh "$TARGET_NAME")"
-} > "$OUT_FILE_MAKEFILE_DEFINES"
+} >> "$OUT_MAKEFILE"
 
 hse_val=$($YAML_PARSER "$TARGET_DEF_FILE" extClockMhz)
 

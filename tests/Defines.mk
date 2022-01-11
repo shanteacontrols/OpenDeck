@@ -5,10 +5,6 @@ UNITY_INCLUDE_CONFIG_H
 TEST_DEFINES := 1
 DEFINES += TEST
 
-ifeq ($(HW_TESTING), 1)
-    DEFINES += HW_TESTING
-endif
-
 #override root path for includes in Makefiles located in src directory
 MAKEFILE_INCLUDE_PREFIX := ../src/
 
