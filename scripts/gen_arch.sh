@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
 
-ARCH_DEF_FILE=$1
+YAML_FILE=$1
 GEN_DIR=$2
 YAML_PARSER="dasel -n -p yaml --plain -f"
-OUT_FILE_MAKEFILE="$GEN_DIR"/Arch.mk
+OUT_MAKEFILE="$GEN_DIR"/Arch.mk
+
+echo "Generating arch definitions..."
 
 mkdir -p "$GEN_DIR"
+echo "" > "$OUT_MAKEFILE"
 
-echo "" > "$OUT_FILE_MAKEFILE"
-total_symbols=$($YAML_PARSER "$ARCH_DEF_FILE" symbols --length)
+total_symbols=$($YAML_PARSER "$YAML_FILE" symbols --length)
 
 for ((i=0; i<total_symbols; i++))
 do
-    symbol=$($YAML_PARSER "$ARCH_DEF_FILE" symbols.["$i"])
-    printf "%s\n" "DEFINES += $symbol" >> "$OUT_FILE_MAKEFILE"
+    symbol=$($YAML_PARSER "$YAML_FILE" symbols.["$i"])
+    printf "%s\n" "DEFINES += $symbol" >> "$OUT_MAKEFILE"
 done

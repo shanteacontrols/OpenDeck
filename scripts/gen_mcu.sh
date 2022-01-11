@@ -1,48 +1,50 @@
 #!/usr/bin/env bash
 
-MCU_DEF_FILE=$1
+YAML_FILE=$1
 GEN_DIR=$2
 YAML_PARSER="dasel -n -p yaml --plain -f"
-OUT_FILE_HEADER="$GEN_DIR"/MCU.h
-OUT_FILE_MAKEFILE="$GEN_DIR"/MCU.mk
+OUT_HEADER="$GEN_DIR"/MCU.h
+OUT_MAKEFILE="$GEN_DIR"/MCU.mk
+
+echo "Generating MCU definitions..."
 
 mkdir -p "$GEN_DIR"
+echo "" > "$OUT_HEADER"
+echo "" > "$OUT_MAKEFILE"
 
-mcu=$(basename "$MCU_DEF_FILE" .yml)
-arch=$($YAML_PARSER "$MCU_DEF_FILE" arch)
-mcu_family=$($YAML_PARSER "$MCU_DEF_FILE" mcuFamily)
-vendor=$($YAML_PARSER "$MCU_DEF_FILE" vendor)
-cpu=$($YAML_PARSER "$MCU_DEF_FILE" cpu)
-fpu=$($YAML_PARSER "$MCU_DEF_FILE" fpu)
-float_abi=$($YAML_PARSER "$MCU_DEF_FILE" float-abi)
-define_symbol=$($YAML_PARSER "$MCU_DEF_FILE" define-symbol)
-app_start_address=$($YAML_PARSER "$MCU_DEF_FILE" flash.app-start)
-boot_start_address=$($YAML_PARSER "$MCU_DEF_FILE" flash.boot-start)
-metadata_start_address=$($YAML_PARSER "$MCU_DEF_FILE" flash.metadata-start)
+mcu=$(basename "$YAML_FILE" .yml)
+arch=$($YAML_PARSER "$YAML_FILE" arch)
+mcu_family=$($YAML_PARSER "$YAML_FILE" mcuFamily)
+vendor=$($YAML_PARSER "$YAML_FILE" vendor)
+cpu=$($YAML_PARSER "$YAML_FILE" cpu)
+fpu=$($YAML_PARSER "$YAML_FILE" fpu)
+float_abi=$($YAML_PARSER "$YAML_FILE" float-abi)
+define_symbol=$($YAML_PARSER "$YAML_FILE" define-symbol)
+app_start_address=$($YAML_PARSER "$YAML_FILE" flash.app-start)
+boot_start_address=$($YAML_PARSER "$YAML_FILE" flash.boot-start)
+metadata_start_address=$($YAML_PARSER "$YAML_FILE" flash.metadata-start)
 
 #process arch and vendor first
 ARCH_GEN_DIR=$(dirname "$2")/../arch/$arch
-ARCH_DEF_FILE=$(dirname "$MCU_DEF_FILE")/../arch/$arch.yml
+ARCH_YAML_FILE=$(dirname "$YAML_FILE")/../arch/$arch.yml
 VENDOR_GEN_DIR=$(dirname "$2")/../vendor/$vendor
-VENDOR_DEF_FILE=$(dirname "$MCU_DEF_FILE")/../vendor/$vendor.yml
+VENDOR_YAML_FILE=$(dirname "$YAML_FILE")/../vendor/$vendor.yml
 
-if [[ ! -f $ARCH_DEF_FILE ]]
+if [[ ! -f $ARCH_YAML_FILE ]]
 then
-    echo "$ARCH_DEF_FILE doesn't exist"
+    echo "$ARCH_YAML_FILE doesn't exist"
     exit 1
 fi
 
-if [[ ! -f $VENDOR_DEF_FILE ]]
+if [[ ! -f $VENDOR_YAML_FILE ]]
 then
-    echo "$VENDOR_DEF_FILE doesn't exist"
+    echo "$VENDOR_YAML_FILE doesn't exist"
     exit 1
 fi
 
 if [[ ! -d $ARCH_GEN_DIR ]]
 then
-    echo "Generating arch definitions..."
-
-    if ! ../scripts/gen_arch.sh "$ARCH_DEF_FILE" "$ARCH_GEN_DIR"
+    if ! ../scripts/gen_arch.sh "$ARCH_YAML_FILE" "$ARCH_GEN_DIR"
     then
         exit 1
     fi
@@ -50,9 +52,7 @@ fi
 
 if [[ ! -d $VENDOR_GEN_DIR ]]
 then
-    echo "Generating vendor definitions..."
-
-    if ! ../scripts/gen_vendor.sh "$VENDOR_DEF_FILE" "$VENDOR_GEN_DIR"
+    if ! ../scripts/gen_vendor.sh "$VENDOR_YAML_FILE" "$VENDOR_GEN_DIR"
     then
         exit 1
     fi
@@ -60,6 +60,7 @@ fi
 
 {
     printf "%s\n\n" "#pragma once"
+
     if [[ $mcu == *"stm32"* ]]
     then
         printf "%s\n" "#include \"stm32f4xx_hal.h\""
@@ -67,7 +68,7 @@ fi
 
     printf "%s\n" "#include \"board/Board.h\""
     printf "%s\n\n" "#include \"board/Internal.h\""
-} > "$OUT_FILE_HEADER"
+} >> "$OUT_HEADER"
 
 {
     printf "%s%s\n" '-include $(MAKEFILE_INCLUDE_PREFIX)$(BOARD_ARCH_BASE_DIR)/' "$arch/Arch.mk"
@@ -86,31 +87,31 @@ fi
     printf "%s%x\n" "APP_START_ADDR := 0x" "$app_start_address"
     printf "%s%x\n" "BOOT_START_ADDR := 0x" "$boot_start_address"
     printf "%s%x\n" "FW_METADATA_LOCATION := 0x" "$metadata_start_address"
-} >> "$OUT_FILE_MAKEFILE"
+} >> "$OUT_MAKEFILE"
 
-if [[ $($YAML_PARSER "$MCU_DEF_FILE" flash) != "null" ]]
+if [[ $($YAML_PARSER "$YAML_FILE" flash) != "null" ]]
 then
     declare -i number_of_flash_pages
 
-    if [[ $($YAML_PARSER "$MCU_DEF_FILE" flash.pages) != "null" ]]
+    if [[ $($YAML_PARSER "$YAML_FILE" flash.pages) != "null" ]]
     then
-        number_of_flash_pages=$($YAML_PARSER "$MCU_DEF_FILE" flash.pages --length)
+        number_of_flash_pages=$($YAML_PARSER "$YAML_FILE" flash.pages --length)
 
-        printf "%s\n\n" "#define TOTAL_FLASH_PAGES $number_of_flash_pages" >> "$OUT_FILE_HEADER"
+        printf "%s\n\n" "#define TOTAL_FLASH_PAGES $number_of_flash_pages" >> "$OUT_HEADER"
 
         for ((i=0; i<number_of_flash_pages; i++))
         do
-            addressStart=$($YAML_PARSER "$MCU_DEF_FILE" flash.pages.["$i"].address)
-            page_size=$($YAML_PARSER "$MCU_DEF_FILE" flash.pages.["$i"].size)
+            addressStart=$($YAML_PARSER "$YAML_FILE" flash.pages.["$i"].address)
+            page_size=$($YAML_PARSER "$YAML_FILE" flash.pages.["$i"].size)
             addressEnd=$((addressStart+page_size-1))
-            app_offset=$($YAML_PARSER "$MCU_DEF_FILE" flash.pages.["$i"].app-offset)
-            app_size=$($YAML_PARSER "$MCU_DEF_FILE" flash.pages.["$i"].app-size)
+            app_offset=$($YAML_PARSER "$YAML_FILE" flash.pages.["$i"].app-offset)
+            app_size=$($YAML_PARSER "$YAML_FILE" flash.pages.["$i"].app-size)
 
             #based on provided app start page address, find its index and create a new symbol in header
             #this could be done in application as well, but it's done here to avoid extra processing and flash usage
             if [[ ($addressStart -le $app_start_address) && ($app_start_address -le $addressEnd) ]]
             then
-                printf "%s\n" "#define FLASH_PAGE_APP_START $i" >> "$OUT_FILE_HEADER"
+                printf "%s\n" "#define FLASH_PAGE_APP_START $i" >> "$OUT_HEADER"
             fi
 
             if [[ $app_offset == "null" ]]
@@ -131,13 +132,13 @@ then
                 printf "%s\n" "#define FLASH_PAGE_ADDRESS_${i} (($addressStart+$app_offset))"
                 printf "%s\n" "#define FLASH_PAGE_SIZE_${i} $app_size"
                 printf "%s\n" "#endif"
-            } >> "$OUT_FILE_HEADER"
+            } >> "$OUT_HEADER"
         done
 
         {
             printf "%s\n" "namespace {"
             printf "%s\n" "constexpr inline Board::detail::flash::flashPage_t pageDescriptor[TOTAL_FLASH_PAGES] = {"
-        } >> "$OUT_FILE_HEADER"
+        } >> "$OUT_HEADER"
 
         for ((i=0; i<number_of_flash_pages; i++))
         do
@@ -146,23 +147,23 @@ then
                 printf "%s\n" ".address = FLASH_PAGE_ADDRESS_${i}",
                 printf "%s\n" ".size = FLASH_PAGE_SIZE_${i}",
                 printf "%s\n" "},"
-            } >> "$OUT_FILE_HEADER"
+            } >> "$OUT_HEADER"
         done
 
         {
             printf "%s\n" "};"
             printf "%s\n" "}"
-        } >> "$OUT_FILE_HEADER"
+        } >> "$OUT_HEADER"
     else
-        page_size=$($YAML_PARSER "$MCU_DEF_FILE" flash.page-size)
-        flash_size=$($YAML_PARSER "$MCU_DEF_FILE" flash.size)
+        page_size=$($YAML_PARSER "$YAML_FILE" flash.page-size)
+        flash_size=$($YAML_PARSER "$YAML_FILE" flash.size)
         number_of_flash_pages=$((flash_size/page_size))
 
         {
             printf "%s\n" "#define TOTAL_FLASH_PAGES $number_of_flash_pages"
             printf "%s\n" "#define FLASH_PAGE_SIZE_COMMON $page_size"
             printf "%s\n" "#define FLASH_END $((flash_size-1))"
-        } >> "$OUT_FILE_HEADER"
+        } >> "$OUT_HEADER"
 
         addressStart=0
 
@@ -172,7 +173,7 @@ then
 
             if [[ ($addressStart -le $app_start_address) && ($app_start_address -le $addressEnd) ]]
             then
-                printf "%s\n" "#define FLASH_PAGE_APP_START $i" >> "$OUT_FILE_HEADER"
+                printf "%s\n" "#define FLASH_PAGE_APP_START $i" >> "$OUT_HEADER"
             fi
 
             ((addressStart+=page_size))
@@ -180,13 +181,13 @@ then
     fi
 fi
 
-if [[ $($YAML_PARSER "$MCU_DEF_FILE" eeprom) != "null" ]]
+if [[ $($YAML_PARSER "$YAML_FILE" eeprom) != "null" ]]
 then
-    if [[ $($YAML_PARSER "$MCU_DEF_FILE" eeprom.emulated) != "null" ]]
+    if [[ $($YAML_PARSER "$YAML_FILE" eeprom.emulated) != "null" ]]
     then
-        factory_flash_page=$($YAML_PARSER "$MCU_DEF_FILE"  eeprom.emulated.factory-flash-page)
-        eeprom_flash_page_1=$($YAML_PARSER "$MCU_DEF_FILE" eeprom.emulated.eeprom-flash-page1)
-        eeprom_flash_page_2=$($YAML_PARSER "$MCU_DEF_FILE" eeprom.emulated.eeprom-flash-page2)
+        factory_flash_page=$($YAML_PARSER "$YAML_FILE"  eeprom.emulated.factory-flash-page)
+        eeprom_flash_page_1=$($YAML_PARSER "$YAML_FILE" eeprom.emulated.eeprom-flash-page1)
+        eeprom_flash_page_2=$($YAML_PARSER "$YAML_FILE" eeprom.emulated.eeprom-flash-page2)
 
         {
             printf "%s\n" "#define FLASH_PAGE_FACTORY   $factory_flash_page"
@@ -198,46 +199,46 @@ then
 
             printf "%s\n" "#define _FLASH_PAGE_SIZE_GEN(x) FLASH_PAGE_SIZE_##x"
             printf "%s\n" "#define FLASH_PAGE_SIZE(x)      _FLASH_PAGE_SIZE_GEN(x)"
-        } >> "$OUT_FILE_HEADER"
+        } >> "$OUT_HEADER"
     else
-        eeprom_size=$($YAML_PARSER "$MCU_DEF_FILE" eeprom.size)
-        printf "%s\n" "#define EEPROM_END $((eeprom_size-1))" >> "$OUT_FILE_HEADER"
+        eeprom_size=$($YAML_PARSER "$YAML_FILE" eeprom.size)
+        printf "%s\n" "#define EEPROM_END $((eeprom_size-1))" >> "$OUT_HEADER"
     fi
 fi
 
-if [[ $($YAML_PARSER "$MCU_DEF_FILE" clocks) != "null" ]]
+if [[ $($YAML_PARSER "$YAML_FILE" clocks) != "null" ]]
 then
-    pllm_8mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse8MHz.pllm)
-    plln_8mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse8MHz.plln)
-    pllq_8mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse8MHz.pllq)
-    pllp_8mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse8MHz.pllp)
-    ahb_clk_div_8mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse8MHz.ahb_clk_div)
-    apb1_clk_div_8mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse8MHz.apb1_clk_div)
-    apb2_clk_div_8mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse8MHz.apb2_clk_div)
+    pllm_8mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse8MHz.pllm)
+    plln_8mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse8MHz.plln)
+    pllq_8mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse8MHz.pllq)
+    pllp_8mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse8MHz.pllp)
+    ahb_clk_div_8mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse8MHz.ahb_clk_div)
+    apb1_clk_div_8mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse8MHz.apb1_clk_div)
+    apb2_clk_div_8mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse8MHz.apb2_clk_div)
 
-    pllm_12mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse12MHz.pllm)
-    plln_12mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse12MHz.plln)
-    pllq_12mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse12MHz.pllq)
-    pllp_12mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse12MHz.pllp)
-    ahb_clk_div_12mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse12MHz.ahb_clk_div)
-    apb1_clk_div_12mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse12MHz.apb1_clk_div)
-    apb2_clk_div_12mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse12MHz.apb2_clk_div)
+    pllm_12mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse12MHz.pllm)
+    plln_12mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse12MHz.plln)
+    pllq_12mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse12MHz.pllq)
+    pllp_12mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse12MHz.pllp)
+    ahb_clk_div_12mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse12MHz.ahb_clk_div)
+    apb1_clk_div_12mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse12MHz.apb1_clk_div)
+    apb2_clk_div_12mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse12MHz.apb2_clk_div)
 
-    pllm_16mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse16MHz.pllm)
-    plln_16mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse16MHz.plln)
-    pllq_16mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse16MHz.pllq)
-    pllp_16mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse16MHz.pllp)
-    ahb_clk_div_16mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse16MHz.ahb_clk_div)
-    apb1_clk_div_16mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse16MHz.apb1_clk_div)
-    apb2_clk_div_16mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse16MHz.apb2_clk_div)
+    pllm_16mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse16MHz.pllm)
+    plln_16mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse16MHz.plln)
+    pllq_16mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse16MHz.pllq)
+    pllp_16mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse16MHz.pllp)
+    ahb_clk_div_16mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse16MHz.ahb_clk_div)
+    apb1_clk_div_16mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse16MHz.apb1_clk_div)
+    apb2_clk_div_16mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse16MHz.apb2_clk_div)
 
-    pllm_25mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse25MHz.pllm)
-    plln_25mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse25MHz.plln)
-    pllq_25mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse25MHz.pllq)
-    pllp_25mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse25MHz.pllp)
-    ahb_clk_div_25mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse25MHz.ahb_clk_div)
-    apb1_clk_div_25mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse25MHz.apb1_clk_div)
-    apb2_clk_div_25mhz=$($YAML_PARSER "$MCU_DEF_FILE" clocks.hse25MHz.apb2_clk_div)
+    pllm_25mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse25MHz.pllm)
+    plln_25mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse25MHz.plln)
+    pllq_25mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse25MHz.pllq)
+    pllp_25mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse25MHz.pllp)
+    ahb_clk_div_25mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse25MHz.ahb_clk_div)
+    apb1_clk_div_25mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse25MHz.apb1_clk_div)
+    apb2_clk_div_25mhz=$($YAML_PARSER "$YAML_FILE" clocks.hse25MHz.apb2_clk_div)
 
     {
         printf "%s\n" "#if (HSE_VALUE == 8000000)"
@@ -275,22 +276,22 @@ then
         printf "%s\n" "#else"
         printf "%s\n" "#error Invalid clock value"
         printf "%s\n" "#endif"
-    } >> "$OUT_FILE_HEADER"
+    } >> "$OUT_HEADER"
 fi
 
-if [[ $($YAML_PARSER "$MCU_DEF_FILE" voltage_scale) != "null" ]]
+if [[ $($YAML_PARSER "$YAML_FILE" voltage_scale) != "null" ]]
 then
-    vreg_scale=$($YAML_PARSER "$MCU_DEF_FILE" voltage_scale)
-    printf "%s\n" "#define PWR_REGULATOR_VOLTAGE_SCALE $vreg_scale" >> "$OUT_FILE_HEADER"
+    vreg_scale=$($YAML_PARSER "$YAML_FILE" voltage_scale)
+    printf "%s\n" "#define PWR_REGULATOR_VOLTAGE_SCALE $vreg_scale" >> "$OUT_HEADER"
 fi
 
-if [[ $($YAML_PARSER "$MCU_DEF_FILE" fuses) != "null" ]]
+if [[ $($YAML_PARSER "$YAML_FILE" fuses) != "null" ]]
 then
-    fuse_unlock=$($YAML_PARSER "$MCU_DEF_FILE" fuses.unlock)
-    fuse_lock=$($YAML_PARSER "$MCU_DEF_FILE" fuses.lock)
-    fuse_ext=$($YAML_PARSER "$MCU_DEF_FILE" fuses.ext)
-    fuse_high=$($YAML_PARSER "$MCU_DEF_FILE" fuses.high)
-    fuse_low=$($YAML_PARSER "$MCU_DEF_FILE" fuses.low)
+    fuse_unlock=$($YAML_PARSER "$YAML_FILE" fuses.unlock)
+    fuse_lock=$($YAML_PARSER "$YAML_FILE" fuses.lock)
+    fuse_ext=$($YAML_PARSER "$YAML_FILE" fuses.ext)
+    fuse_high=$($YAML_PARSER "$YAML_FILE" fuses.high)
+    fuse_low=$($YAML_PARSER "$YAML_FILE" fuses.low)
 
     {
         printf "%s\n" "FUSE_UNLOCK := $fuse_unlock"
@@ -298,21 +299,21 @@ then
         printf "%s\n" "FUSE_EXT := $fuse_ext"
         printf "%s\n" "FUSE_HIGH := $fuse_high"
         printf "%s\n" "FUSE_LOW := $fuse_low"
-    } >> "$OUT_FILE_MAKEFILE"
+    } >> "$OUT_MAKEFILE"
 fi
 
-number_of_uart_interfaces=$($YAML_PARSER "$MCU_DEF_FILE" interfaces.uart)
-number_of_i2c_interfaces=$($YAML_PARSER "$MCU_DEF_FILE" interfaces.i2c)
+number_of_uart_interfaces=$($YAML_PARSER "$YAML_FILE" interfaces.uart)
+number_of_i2c_interfaces=$($YAML_PARSER "$YAML_FILE" interfaces.i2c)
 
 {
     printf "%s\n" "#define MAX_UART_INTERFACES  $number_of_uart_interfaces"
     printf "%s\n" "#define MAX_I2C_INTERFACES   $number_of_i2c_interfaces"
-} >> "$OUT_FILE_HEADER"
+} >> "$OUT_HEADER"
 
-if [[ $($YAML_PARSER "$MCU_DEF_FILE" timers) != "null" ]]
+if [[ $($YAML_PARSER "$YAML_FILE" timers) != "null" ]]
 then
-    timer_period_main=$($YAML_PARSER "$MCU_DEF_FILE" timers.main.period)
-    timer_channel_main=$($YAML_PARSER "$MCU_DEF_FILE" timers.main.channel)
+    timer_period_main=$($YAML_PARSER "$YAML_FILE" timers.main.period)
+    timer_channel_main=$($YAML_PARSER "$YAML_FILE" timers.main.channel)
 
     if [[ $timer_period_main == "null" ]]
     then
@@ -329,17 +330,17 @@ then
     {
         printf "%s\n" "#define TIMER_PERIOD_MAIN    $timer_period_main"
         printf "%s\n" "#define TIMER_CHANNEL_MAIN   $timer_channel_main"
-    } >> "$OUT_FILE_HEADER"
+    } >> "$OUT_HEADER"
 
-    timer_period_pwm=$($YAML_PARSER "$MCU_DEF_FILE" timers.pwm.period)
-    timer_channel_pwm=$($YAML_PARSER "$MCU_DEF_FILE" timers.pwm.channel)
+    timer_period_pwm=$($YAML_PARSER "$YAML_FILE" timers.pwm.period)
+    timer_channel_pwm=$($YAML_PARSER "$YAML_FILE" timers.pwm.channel)
 
     if [[ ($timer_period_pwm != "null") && ($timer_channel_pwm != "null") ]]
     then
         {
             printf "%s\n" "#define TIMER_PERIOD_PWM     $timer_period_pwm"
             printf "%s\n" "#define TIMER_CHANNEL_PWM    $timer_channel_pwm"
-        } >> "$OUT_FILE_HEADER"
+        } >> "$OUT_HEADER"
     fi
 else
     echo "Timer periods undefined"
@@ -351,10 +352,10 @@ common_mcu_include="board/arch/$arch/$vendor/variants/$mcu_family/$mcu/Map.h.inc
 
 if [[ -f $common_mcu_family_include ]]
 then
-    printf "%s\n" "#include \"$common_mcu_family_include\"" >> "$OUT_FILE_HEADER"
+    printf "%s\n" "#include \"$common_mcu_family_include\"" >> "$OUT_HEADER"
 fi
 
 if [[ -f $common_mcu_include ]]
 then
-    printf "%s\n" "#include \"$common_mcu_include\"" >> "$OUT_FILE_HEADER"
+    printf "%s\n" "#include \"$common_mcu_include\"" >> "$OUT_HEADER"
 fi

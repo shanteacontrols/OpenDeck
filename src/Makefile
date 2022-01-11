@@ -248,16 +248,13 @@ endif
 pre-build: $(TARGET_GEN_HEADER) $(TSCREEN_GEN_SOURCE)
 
 $(BOARD_TARGET_DIR)/Target.h: $(TARGET_DEF_FILE)
-	@echo Generating target definitions...
 	@$(SCRIPTS_DIR)/gen_target.sh $(TARGET_DEF_FILE) $(BOARD_TARGET_DIR)
 
 $(TOUCHSCREEN_GEN_BASE_DIR)/$(TARGET).cpp: $(TOUCHSCREEN_DEF_FILE)
-	@echo Generating touchscreen coordinate file...
 	@$(SCRIPTS_DIR)/gen_touchscreen.sh $< $(TOUCHSCREEN_GEN_BASE_DIR)
 
 ifeq ($(ARCH),arm)
 $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin: $(TARGET_DEF_FILE) $(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/application/database/Database.cpp.o $(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/application/database/CustomInit.cpp.o
-	@echo Generating factory flash configuration...
 	@./$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/$(TARGET).elf $@
 else
 $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin:
