@@ -81,13 +81,11 @@ OPT := -Os
 
 ifeq (,$(findstring gen,$(TYPE)))
     ifeq ($(ARCH),avr)
-        SIZE_TOOL := avr-size -C --mcu=$(MCU)
-        LDFLAGS += -Wl,--section-start=.text=$(FLASH_START_ADDR)
-
-        CC := $(C_COMPILER_AVR)
-        CXX := $(CPP_COMPILER_AVR)
-        LINKER := $(LINKER_AVR)
+        CC         := $(C_COMPILER_AVR)
+        CXX        := $(CPP_COMPILER_AVR)
+        LINKER     := $(LINKER_AVR)
         FLASH_TOOL := $(FLASH_TOOL_AVR)
+        SIZE_TOOL  := avr-size -C --mcu=$(MCU)
 
         C_FLAGS += \
         -fpack-struct
@@ -104,6 +102,7 @@ ifeq (,$(findstring gen,$(TYPE)))
         endif
 
         LDFLAGS += \
+        -Wl,--section-start=.text=$(FLASH_START_ADDR) \
         -mrelax \
         -mmcu=$(MCU)
 
@@ -117,12 +116,12 @@ ifeq (,$(findstring gen,$(TYPE)))
             LDFLAGS += -flto
         endif
     else ifeq ($(ARCH),arm)
-        SIZE_TOOL := size
-        CC := $(C_COMPILER_ARM)
-        CXX := $(CPP_COMPILER_ARM)
-        LINKER := $(LINKER_ARM)
-        ASSEMBLER := $(C_COMPILER_ARM)
+        CC         := $(C_COMPILER_ARM)
+        CXX        := $(CPP_COMPILER_ARM)
+        LINKER     := $(LINKER_ARM)
+        ASSEMBLER  := $(C_COMPILER_ARM)
         FLASH_TOOL := $(FLASH_TOOL_ARM)
+        SIZE_TOOL  := size
 
         COMMON_FLAGS += \
         -mcpu=$(CPU) \
@@ -154,11 +153,12 @@ ifeq (,$(findstring gen,$(TYPE)))
         endif
     endif
 else
-    CC := $(C_COMPILER_NATIVE)
-    CXX := $(CPP_COMPILER_NATIVE)
-    LINKER := $(LINKER_NATIVE)
-    LDFLAGS :=
+    CC        := $(C_COMPILER_NATIVE)
+    CXX       := $(CPP_COMPILER_NATIVE)
+    LINKER    := $(LINKER_NATIVE)
     SIZE_TOOL := size
+
+    LDFLAGS :=
 
     ifeq ($(DEBUG), 1)
         COMMON_FLAGS += -g -gdwarf-2
