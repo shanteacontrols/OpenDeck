@@ -17,11 +17,13 @@ jobs:
           submodules: true
       - name: Build targets
         run: |
+          export MAKEFLAGS=-j$(nproc)
           git fetch --tags
           cd src/
           ../scripts/build_targets.sh
       - name: Test targets
         run: |
+          export MAKEFLAGS=-j$(nproc)
           cd tests/
           ../scripts/build_targets.sh
           make exec
