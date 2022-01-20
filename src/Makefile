@@ -128,6 +128,10 @@ ifeq (,$(findstring gen,$(TYPE)))
         -mthumb \
         -mno-unaligned-access
 
+        ifneq (,$(findstring clang,$(C_COMPILER_ARM)))
+            COMMON_FLAGS += -target arm-none-eabi
+        endif
+
         LDFLAGS += \
         -mcpu=$(CPU) \
         -mthumb \
