@@ -68,7 +68,9 @@ namespace
         uint32_t count = ((PCD_HandleTypeDef*)pdev->pData)->OUT_ep[epnum].xfer_count;
 
         for (uint32_t i = 0; i < count; i++)
+        {
             _midiRxBufferRing.insert(_midiRxBuffer[i]);
+        }
 
         return USBD_LL_PrepareReceive(pdev, MIDI_STREAM_OUT_EPADDR, (uint8_t*)(_midiRxBuffer), MIDI_IN_OUT_EPSIZE);
     }
@@ -162,18 +164,15 @@ namespace
 
 namespace Board
 {
-    namespace detail
+    namespace detail::setup
     {
-        namespace setup
+        void usb()
         {
-            void usb()
-            {
-                USBD_Init(&_usbHandler, &DeviceDescriptor, DEVICE_FS);
-                USBD_RegisterClass(&_usbHandler, &USB_MIDI);
-                USBD_Start(&_usbHandler);
-            }
-        }    // namespace setup
-    }        // namespace detail
+            USBD_Init(&_usbHandler, &DeviceDescriptor, DEVICE_FS);
+            USBD_RegisterClass(&_usbHandler, &USB_MIDI);
+            USBD_Start(&_usbHandler);
+        }
+    }    // namespace detail::setup
 
     namespace USB
     {
@@ -202,7 +201,9 @@ namespace Board
         bool writeMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
         {
             if (!isUSBconnected())
+            {
                 return false;
+            }
 
             if (_txStateMIDI != Board::detail::USB::txState_t::done)
             {
@@ -210,18 +211,20 @@ namespace Board
                 {
                     return false;
                 }
-                else
+
+                uint32_t currentTime = core::timing::currentRunTimeMs();
+
+                while ((core::timing::currentRunTimeMs() - currentTime) < USB_TX_TIMEOUT_MS)
                 {
-                    uint32_t currentTime = core::timing::currentRunTimeMs();
-
-                    while ((core::timing::currentRunTimeMs() - currentTime) < USB_TX_TIMEOUT_MS)
+                    if (_txStateMIDI == Board::detail::USB::txState_t::done)
                     {
-                        if (_txStateMIDI == Board::detail::USB::txState_t::done)
-                            break;
+                        break;
                     }
+                }
 
-                    if (_txStateMIDI != Board::detail::USB::txState_t::done)
-                        _txStateMIDI = Board::detail::USB::txState_t::waiting;
+                if (_txStateMIDI != Board::detail::USB::txState_t::done)
+                {
+                    _txStateMIDI = Board::detail::USB::txState_t::waiting;
                 }
             }
 

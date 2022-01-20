@@ -91,7 +91,9 @@ Buttons::Buttons(HWA&      hwa,
 bool Buttons::init()
 {
     for (size_t i = 0; i < Collection::size(); i++)
+    {
         reset(i);
+    }
 
     return true;
 }
@@ -110,13 +112,17 @@ void Buttons::update(bool forceRefresh)
         if (!forceRefresh)
         {
             if (!state(i, numberOfReadings, states))
+            {
                 continue;
+            }
 
             // this filter will return amount of stable changed readings
             // and the states of those readings
             // latest reading is index 0
             if (!_filter.isFiltered(i, numberOfReadings, states))
+            {
                 continue;
+            }
 
             for (uint8_t reading = 0; reading < numberOfReadings; reading++)
             {
@@ -131,9 +137,13 @@ void Buttons::update(bool forceRefresh)
         else
         {
             if (descriptor.type == type_t::latching)
+            {
                 sendMessage(i, latchingState(i), descriptor);
+            }
             else
+            {
                 sendMessage(i, state(i), descriptor);
+            }
         }
     }
 }
@@ -145,7 +155,9 @@ void Buttons::processButton(size_t index, bool reading, buttonDescriptor_t& desc
 {
     // act on change of state only
     if (reading == state(index))
+    {
         return;
+    }
 
     setState(index, reading);
 
@@ -191,7 +203,9 @@ void Buttons::processButton(size_t index, bool reading, buttonDescriptor_t& desc
             }
 
             if (sendMIDI)
+            {
                 sendMessage(index, reading, descriptor);
+            }
         }
     }
 }
@@ -234,12 +248,16 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
                 if (descriptor.messageType == messageType_t::programChangeInc)
                 {
                     if (!Common::pcIncrement(descriptor.dispatchMessage.midiChannel))
+                    {
                         send = false;
+                    }
                 }
                 else
                 {
                     if (!Common::pcDecrement(descriptor.dispatchMessage.midiChannel))
+                    {
                         send = false;
+                    }
                 }
 
                 descriptor.dispatchMessage.midiIndex = Common::program(descriptor.dispatchMessage.midiChannel);
@@ -255,9 +273,13 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
             if (currentValue != value)
             {
                 if (!value)
+                {
                     descriptor.dispatchMessage.message = MIDI::messageType_t::noteOff;
+                }
                 else
+                {
                     descriptor.dispatchMessage.message = MIDI::messageType_t::noteOn;
+                }
 
                 descriptor.dispatchMessage.midiValue = currentValue;
             }
@@ -276,9 +298,13 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
             if (currentValue != value)
             {
                 if (!value)
+                {
                     descriptor.dispatchMessage.message = MIDI::messageType_t::noteOff;
+                }
                 else
+                {
                     descriptor.dispatchMessage.message = MIDI::messageType_t::noteOn;
+                }
 
                 descriptor.dispatchMessage.midiValue = currentValue;
             }
@@ -295,9 +321,13 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
             uint8_t value        = Common::valueInc(index, descriptor.dispatchMessage.midiValue, Common::incDecType_t::reset);
 
             if (currentValue != value)
+            {
                 descriptor.dispatchMessage.midiValue = currentValue;
+            }
             else
+            {
                 send = false;
+            }
         }
         break;
 
@@ -307,9 +337,13 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
             uint8_t value        = Common::valueIncDec(index, descriptor.dispatchMessage.midiValue);
 
             if (currentValue != value)
+            {
                 descriptor.dispatchMessage.midiValue = currentValue;
+            }
             else
+            {
                 send = false;
+            }
         }
         break;
 
@@ -474,7 +508,9 @@ bool Buttons::state(size_t index, uint8_t& numberOfReadings, uint32_t& states)
 {
     // if encoder under this index is enabled, just return false state each time
     if (_database.read(Database::Section::encoder_t::enable, _hwa.buttonToEncoderIndex(index)))
+    {
         return false;
+    }
 
     return _hwa.state(index, numberOfReadings, states);
 }
@@ -486,7 +522,9 @@ std::optional<uint8_t> Buttons::sysConfigGet(System::Config::Section::button_t s
 
     // channels start from 0 in db, start from 1 in sysex
     if ((section == System::Config::Section::button_t::midiChannel) && (result == System::Config::status_t::ack))
+    {
         readValue++;
+    }
 
     value = readValue;
 
@@ -497,7 +535,9 @@ std::optional<uint8_t> Buttons::sysConfigSet(System::Config::Section::button_t s
 {
     // channels start from 0 in db, start from 1 in sysex
     if (section == System::Config::Section::button_t::midiChannel)
+    {
         value--;
+    }
 
     uint8_t result = _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ack : System::Config::status_t::errorWrite;
 
@@ -506,7 +546,9 @@ std::optional<uint8_t> Buttons::sysConfigSet(System::Config::Section::button_t s
         if (
             (section == System::Config::Section::button_t::type) ||
             (section == System::Config::Section::button_t::midiMessage))
+        {
             reset(index);
+        }
     }
 
     return result;

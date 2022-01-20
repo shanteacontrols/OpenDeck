@@ -34,7 +34,9 @@ void MessageDispatcher::notify(messageSource_t source, message_t const& message,
             if (_listener[i].callback != nullptr)
             {
                 if ((_listener[i].listenType == listenType) || (_listener[i].listenType == listenType_t::all))
+                {
                     _listener[i].callback(message);
+                }
             }
         }
     }

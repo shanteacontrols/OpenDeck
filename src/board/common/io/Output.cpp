@@ -71,7 +71,9 @@ namespace Board
         void writeLEDstate(size_t ledID, io::ledBrightness_t ledBrightness)
         {
             if (ledID >= NR_OF_DIGITAL_OUTPUTS)
+            {
                 return;
+            }
 
             ledID = detail::map::ledIndex(ledID);
 
@@ -155,17 +157,17 @@ namespace Board
             uint8_t result = ledID / 3;
 
             if (result >= NR_OF_RGB_LEDS)
+            {
                 return NR_OF_RGB_LEDS - 1;
-            else
-                return result;
+            }
+
+            return result;
 #endif
         }
     }    // namespace io
 
-    namespace detail
+    namespace detail::io
     {
-        namespace io
-        {
 #ifdef NUMBER_OF_LED_COLUMNS
             void checkDigitalOutputs()
             {
@@ -254,9 +256,10 @@ namespace Board
                 }
 
                 if (++_pwmCounter >= static_cast<uint8_t>(Board::io::ledBrightness_t::b100))
+                {
                     _pwmCounter = 0;
+                }
             }
 #endif
-        }    // namespace io
-    }        // namespace detail
+    }    // namespace detail::io
 }    // namespace Board

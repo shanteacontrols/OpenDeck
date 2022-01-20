@@ -22,23 +22,17 @@ limitations under the License.
 
 // assuming 84MHz clock config
 
-namespace Board
+namespace Board::detail::io
 {
-    namespace detail
+    void sr595wait()
     {
-        namespace io
-        {
-            void sr595wait()
-            {
-                for (int i = 0; i < 12; i++)
-                    CORE_NOP();
-            }
+        for (int i = 0; i < 12; i++)
+            CORE_NOP();
+    }
 
-            void sr165wait()
-            {
-                for (int i = 0; i < 6; i++)
-                    CORE_NOP();
-            }
-        }    // namespace io
-    }        // namespace detail
-}    // namespace Board
+    void sr165wait()
+    {
+        for (int i = 0; i < 6; i++)
+            CORE_NOP();
+    }
+}    // namespace Board::detail::io

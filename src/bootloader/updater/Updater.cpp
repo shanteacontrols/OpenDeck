@@ -58,7 +58,9 @@ void Updater::feed(uint8_t data)
 
         // also reset again if it fails again - it cannot possibly return complete status since that requires 8 bytes
         if ((this->*processHandler[_currentStage])(data) == processStatus_t::invalid)
+        {
             reset();
+        }
     }
 }
 
@@ -86,14 +88,20 @@ Updater::processStatus_t Updater::processFwMetadata(uint8_t data)
     // metadata consists of 4 bytes for firmware length and 4 bytes for UID
 
     if (_stageBytesReceived < 4)
+    {
         _fwSize |= (static_cast<uint32_t>(data) << (8 * _stageBytesReceived));
+    }
     else
+    {
         _receivedUID |= (static_cast<uint32_t>(data) << (8 * (_stageBytesReceived - 4)));
+    }
 
     if (++_stageBytesReceived == 8)
     {
         if (_receivedUID != _uid)
+        {
             return processStatus_t::invalid;
+        }
 
         return processStatus_t::complete;
     }
@@ -106,10 +114,14 @@ Updater::processStatus_t Updater::processFwChunk(uint8_t data)
     _receivedWord |= (data << (8 * _stageBytesReceived));
 
     if (++_stageBytesReceived != 2)
+    {
         return processStatus_t::incomplete;
+    }
 
     if (!_fwPageBytesReceived)
+    {
         _writer.erasePage(_currentFwPage);
+    }
 
     _writer.fillPage(_currentFwPage, _fwPageBytesReceived, _receivedWord);
 
@@ -133,7 +145,9 @@ Updater::processStatus_t Updater::processFwChunk(uint8_t data)
     {
         // make sure page is written even if entire page range wasn't received
         if (!pageWritten)
+        {
             _writer.writePage(_currentFwPage);
+        }
 
         _stageBytesReceived = 0;
 
@@ -141,7 +155,9 @@ Updater::processStatus_t Updater::processFwChunk(uint8_t data)
     }
 
     if (pageWritten)
+    {
         _currentFwPage++;
+    }
 
     return processStatus_t::incomplete;
 }

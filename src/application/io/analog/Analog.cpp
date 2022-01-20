@@ -74,7 +74,9 @@ Analog::Analog(HWA&      hwa,
 bool Analog::init()
 {
     for (size_t i = 0; i < Collection::size(); i++)
+    {
         reset(i);
+    }
 
     return true;
 }
@@ -89,7 +91,9 @@ void Analog::update(bool forceRefresh)
             uint16_t value;
 
             if (!_hwa.value(i, value))
+            {
                 continue;
+            }
 
             processReading(i, value);
         }
@@ -110,13 +114,17 @@ void Analog::processReading(size_t index, uint16_t value)
 {
     // don't process component if it's not enabled
     if (!_database.read(Database::Section::analog_t::enable, index))
+    {
         return;
+    }
 
     analogDescriptor_t descriptor;
     fillAnalogDescriptor(index, descriptor);
 
     if (!_filter.isFiltered(index, descriptor.type, value, value))
+    {
         return;
+    }
 
     descriptor.dispatchMessage.midiValue = value;
 
@@ -134,14 +142,18 @@ void Analog::processReading(size_t index, uint16_t value)
         case type_t::controlChange14bit:
         {
             if (checkPotentiometerValue(index, descriptor))
+            {
                 send = true;
+            }
         }
         break;
 
         case type_t::fsr:
         {
             if (checkFSRvalue(index, descriptor))
+            {
                 send = true;
+            }
         }
         break;
 
@@ -188,7 +200,9 @@ bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descripto
     }
 
     if (descriptor.dispatchMessage.midiValue > maxLimit)
+    {
         return false;
+    }
 
     uint32_t scaledMIDIvalue;
 
@@ -197,18 +211,24 @@ bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descripto
         scaledMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(descriptor.dispatchMessage.midiValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(descriptor.upperLimit), static_cast<uint32_t>(descriptor.lowerLimit));
 
         if (!descriptor.inverted)
+        {
             scaledMIDIvalue = descriptor.upperLimit - (scaledMIDIvalue - descriptor.lowerLimit);
+        }
     }
     else
     {
         scaledMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(descriptor.dispatchMessage.midiValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(descriptor.lowerLimit), static_cast<uint32_t>(descriptor.upperLimit));
 
         if (descriptor.inverted)
+        {
             scaledMIDIvalue = descriptor.upperLimit - (scaledMIDIvalue - descriptor.lowerLimit);
+        }
     }
 
     if (scaledMIDIvalue == _lastValue[index])
+    {
         return false;
+    }
 
     descriptor.dispatchMessage.midiValue = scaledMIDIvalue;
 
@@ -219,7 +239,9 @@ bool Analog::checkFSRvalue(size_t index, analogDescriptor_t& descriptor)
 {
     // don't allow touchscreen components to be processed as FSR
     if (index >= Collection::size(GROUP_ANALOG_INPUTS))
+    {
         return false;
+    }
 
     if (descriptor.dispatchMessage.midiValue > 0)
     {
@@ -347,7 +369,9 @@ std::optional<uint8_t> Analog::sysConfigGet(System::Config::Section::analog_t se
     {
         // channels start from 0 in db, start from 1 in sysex
         if (result == System::Config::status_t::ack)
+        {
             readValue++;
+        }
     }
     break;
 
@@ -379,7 +403,9 @@ std::optional<uint8_t> Analog::sysConfigSet(System::Config::Section::analog_t se
     {
         // channels start from 0 in db, start from 1 in sysex
         if (section == System::Config::Section::analog_t::midiChannel)
+        {
             value--;
+        }
     }
     break;
     }

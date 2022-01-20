@@ -48,42 +48,46 @@ namespace
         static_cast<USART_TypeDef*>(instance)->BRR = _dmxDataBRR;                                             \
     } while (0)
 
-namespace Board
+namespace Board::detail
 {
-    namespace detail
+    namespace UART::ll
     {
-        namespace UART
+        void enableDataEmptyInt(uint8_t channel)
         {
-            namespace ll
+            if (channel >= MAX_UART_INTERFACES)
             {
-                void enableDataEmptyInt(uint8_t channel)
-                {
-                    if (channel >= MAX_UART_INTERFACES)
-                        return;
+                return;
+            }
 
-                    __HAL_UART_ENABLE_IT(&_uartHandler[channel], UART_IT_TXE);
-                }
+            __HAL_UART_ENABLE_IT(&_uartHandler[channel], UART_IT_TXE);
+        }
 
-                bool deInit(uint8_t channel)
-                {
-                    if (channel >= MAX_UART_INTERFACES)
-                        return false;
+        bool deInit(uint8_t channel)
+        {
+            if (channel >= MAX_UART_INTERFACES)
+            {
+                return false;
+            }
 
-                    return HAL_UART_DeInit(&_uartHandler[channel]) == HAL_OK;
-                }
+            return HAL_UART_DeInit(&_uartHandler[channel]) == HAL_OK;
+        }
 
-                bool init(uint8_t channel, Board::UART::config_t& config)
-                {
-                    if (channel >= MAX_UART_INTERFACES)
-                        return false;
+        bool init(uint8_t channel, Board::UART::config_t& config)
+        {
+            if (channel >= MAX_UART_INTERFACES)
+            {
+                return false;
+            }
 
-                    if (!deInit(channel))
-                        return false;
+            if (!deInit(channel))
+            {
+                return false;
+            }
 
-                    _uartHandler[channel].Instance        = static_cast<USART_TypeDef*>(Board::detail::st::uartDescriptor(channel)->interface());
-                    _uartHandler[channel].Init.BaudRate   = config.dmxMode ? static_cast<uint32_t>(dmxBaudRate_t::brBreak) : config.baudRate;
-                    _uartHandler[channel].Init.WordLength = UART_WORDLENGTH_8B;
-                    _uartHandler[channel].Init.StopBits   = config.stopBits == Board::UART::stopBits_t::one ? UART_STOPBITS_1 : UART_STOPBITS_2;
+            _uartHandler[channel].Instance        = static_cast<USART_TypeDef*>(Board::detail::st::uartDescriptor(channel)->interface());
+            _uartHandler[channel].Init.BaudRate   = config.dmxMode ? static_cast<uint32_t>(dmxBaudRate_t::brBreak) : config.baudRate;
+            _uartHandler[channel].Init.WordLength = UART_WORDLENGTH_8B;
+            _uartHandler[channel].Init.StopBits   = config.stopBits == Board::UART::stopBits_t::one ? UART_STOPBITS_1 : UART_STOPBITS_2;
 
 #ifdef DMX_SUPPORTED
                     _dmxState[channel] = config.dmxMode ? dmxState_t::idle : dmxState_t::disabled;
@@ -117,24 +121,38 @@ namespace Board
                     _dmxDataBRR  = UART_BRR_SAMPLING16(pclk, static_cast<uint32_t>(dmxBaudRate_t::brData));
 #endif
                     if (config.parity == Board::UART::parity_t::no)
+                    {
                         _uartHandler[channel].Init.Parity = UART_PARITY_NONE;
+                    }
                     else if (config.parity == Board::UART::parity_t::even)
+                    {
                         _uartHandler[channel].Init.Parity = UART_PARITY_EVEN;
+                    }
                     else if (config.parity == Board::UART::parity_t::odd)
+                    {
                         _uartHandler[channel].Init.Parity = UART_PARITY_ODD;
+                    }
 
                     if (config.type == Board::UART::type_t::rxTx)
+                    {
                         _uartHandler[channel].Init.Mode = UART_MODE_TX_RX;
+                    }
                     else if (config.type == Board::UART::type_t::rx)
+                    {
                         _uartHandler[channel].Init.Mode = UART_MODE_RX;
+                    }
                     else if (config.type == Board::UART::type_t::tx)
+                    {
                         _uartHandler[channel].Init.Mode = UART_MODE_TX;
+                    }
 
                     _uartHandler[channel].Init.HwFlowCtl    = UART_HWCONTROL_NONE;
                     _uartHandler[channel].Init.OverSampling = UART_OVERSAMPLING_16;
 
                     if (HAL_UART_Init(&_uartHandler[channel]) != HAL_OK)
+                    {
                         return false;
+                    }
 
                     if ((config.type == Board::UART::type_t::rxTx) || (config.type == Board::UART::type_t::rx))
                     {
@@ -143,12 +161,13 @@ namespace Board
                     }
 
                     if (config.dmxMode)
+                    {
                         enableDataEmptyInt(channel);
+                    }
 
                     return true;
                 }
-            }    // namespace ll
-        }        // namespace UART
+    }    // namespace UART::ll
 
         namespace isrHandling
         {
@@ -262,7 +281,6 @@ namespace Board
                 }
             }
         }    // namespace isrHandling
-    }        // namespace detail
-}    // namespace Board
+}    // namespace Board::detail
 
 #endif

@@ -45,46 +45,51 @@ namespace
 
 namespace Board
 {
-    namespace detail
+    namespace detail::io
     {
-        namespace io
+        void checkIndicators()
         {
-            void checkIndicators()
+            if (_midiInDINtimeout)
             {
-                if (_midiInDINtimeout)
+                _midiInDINtimeout--;
+
+                if (!_midiInDINtimeout)
                 {
-                    _midiInDINtimeout--;
-
-                    if (!_midiInDINtimeout)
-                        INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
-                }
-
-                if (_midiOutDINtimeout)
-                {
-                    _midiOutDINtimeout--;
-
-                    if (!_midiOutDINtimeout)
-                        INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
-                }
-
-                if (_midiInUSBtimeout)
-                {
-                    _midiInUSBtimeout--;
-
-                    if (!_midiInUSBtimeout)
-                        INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
-                }
-
-                if (_midiOutUSBtimeout)
-                {
-                    _midiOutUSBtimeout--;
-
-                    if (!_midiOutUSBtimeout)
-                        INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
+                    INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
                 }
             }
-        }    // namespace io
-    }        // namespace detail
+
+            if (_midiOutDINtimeout)
+            {
+                _midiOutDINtimeout--;
+
+                if (!_midiOutDINtimeout)
+                {
+                    INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+                }
+            }
+
+            if (_midiInUSBtimeout)
+            {
+                _midiInUSBtimeout--;
+
+                if (!_midiInUSBtimeout)
+                {
+                    INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
+                }
+            }
+
+            if (_midiOutUSBtimeout)
+            {
+                _midiOutUSBtimeout--;
+
+                if (!_midiOutUSBtimeout)
+                {
+                    INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
+                }
+            }
+        }
+    }    // namespace detail::io
 
     namespace io
     {
@@ -130,35 +135,29 @@ namespace Board
 
 #ifdef LED_INDICATORS
 
-namespace Board
+namespace Board::detail::io
 {
-    namespace detail
+    void ledFlashStartup()
     {
-        namespace io
+        for (int i = 0; i < 3; i++)
         {
-            void ledFlashStartup()
-            {
-                for (int i = 0; i < 3; i++)
-                {
-                    INT_LED_ON(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
-                    INT_LED_ON(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
-                    INT_LED_ON(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
-                    INT_LED_ON(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
-                    core::timing::waitMs(LED_INDICATOR_STARTUP_DELAY);
-                    INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
-                    INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
-                    INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
-                    INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
-                    core::timing::waitMs(LED_INDICATOR_STARTUP_DELAY);
-                }
+            INT_LED_ON(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+            INT_LED_ON(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
+            INT_LED_ON(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
+            INT_LED_ON(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
+            core::timing::waitMs(LED_INDICATOR_STARTUP_DELAY);
+            INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+            INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
+            INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
+            INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
+            core::timing::waitMs(LED_INDICATOR_STARTUP_DELAY);
+        }
 
-                INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
-                INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
-                INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
-                INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
-            }
-        }    // namespace io
-    }        // namespace detail
-}    // namespace Board
+        INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+        INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
+        INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
+        INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
+    }
+}    // namespace Board::detail::io
 
 #endif

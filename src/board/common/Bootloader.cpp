@@ -24,20 +24,18 @@ limitations under the License.
 #include "core/src/general/CRC.h"
 #include <Target.h>
 
-namespace Board
+namespace Board::bootloader
 {
-    namespace bootloader
+    void appAddrBoundary(uint32_t& first, uint32_t& last)
     {
-        void appAddrBoundary(uint32_t& first, uint32_t& last)
-        {
-            first = APP_START_ADDR;
-            detail::flash::read32(FW_METADATA_LOCATION, last);
-        }
+        first = APP_START_ADDR;
+        detail::flash::read32(FW_METADATA_LOCATION, last);
+    }
 
-        bool isHWtriggerActive()
-        {
-            // add some delay before reading the pins to avoid incorrect state detection
-            core::timing::waitMs(100);
+    bool isHWtriggerActive()
+    {
+        // add some delay before reading the pins to avoid incorrect state detection
+        core::timing::waitMs(100);
 
 #if defined(BTLDR_BUTTON_PORT)
 #ifdef BTLDR_BUTTON_AH
@@ -76,9 +74,10 @@ namespace Board
             uint8_t data = 0;
 
             if (!detail::flash::read8(address, data))
+            {
                 data = 0;
+            }
 
             return data;
         }
-    }    // namespace bootloader
-}    // namespace Board
+}    // namespace Board::bootloader

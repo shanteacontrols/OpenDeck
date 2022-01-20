@@ -62,7 +62,9 @@ namespace Board
         bool analogValue(size_t analogID, uint16_t& value)
         {
             if (analogID >= NR_OF_ANALOG_INPUTS)
+            {
                 return false;
+            }
 
             analogID = detail::map::adcIndex(analogID);
 
@@ -82,17 +84,15 @@ namespace Board
         }
     }    // namespace io
 
-    namespace detail
+    namespace detail::isrHandling
     {
-        namespace isrHandling
+        void adc(uint16_t adcValue)
         {
-            void adc(uint16_t adcValue)
-            {
-                static bool firstReading = false;
-                firstReading             = !firstReading;
+            static bool firstReading = false;
+            firstReading             = !firstReading;
 
-                if (!firstReading)
-                {
+            if (!firstReading)
+            {
 #ifdef NUMBER_OF_MUX
                     detail::io::dischargeMux();
 #endif
@@ -142,6 +142,5 @@ namespace Board
 
                 core::adc::startConversion();
             }
-        }    // namespace isrHandling
-    }        // namespace detail
+    }    // namespace detail::isrHandling
 }    // namespace Board

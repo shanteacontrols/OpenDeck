@@ -67,7 +67,9 @@ bool Scheduler::registerTask(task_t&& task)
     }
 
     if (index >= MAX_TASKS)
+    {
         return false;
+    }
 
     _tasks[index].function = std::move(task.function);
     _tasks[index].timeout  = core::timing::currentRunTimeMs() + task.timeout;

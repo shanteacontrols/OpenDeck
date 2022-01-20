@@ -34,17 +34,11 @@ limitations under the License.
 // this is used by the bootloader to verify the crc of application
 uint32_t _flashSize __attribute__((section(".fwMetadata"))) __attribute__((used)) = 0;
 
-namespace core
+namespace core::timing::detail
 {
-    namespace timing
-    {
-        namespace detail
-        {
-            /// Implementation of core variable used to keep track of run time in milliseconds.
-            volatile uint32_t rTime_ms;
-        }    // namespace detail
-    }        // namespace timing
-}    // namespace core
+    /// Implementation of core variable used to keep track of run time in milliseconds.
+    volatile uint32_t rTime_ms;
+}    // namespace core::timing::detail
 
 namespace Board
 {

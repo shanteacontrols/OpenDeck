@@ -33,12 +33,12 @@ limitations under the License.
 
 namespace
 {
-    typedef struct
+    struct cdcData_t
     {
         uint32_t data[CDC_NOTIFICATION_EPSIZE / 4U]; /* Force 32bits alignment */
         uint8_t  cmdOpCode;
         uint8_t  cmdLength;
-    } cdcData_t;
+    };
 
     USBD_HandleTypeDef                             _usbHandler;
     cdcData_t                                      _cdcData;
@@ -241,11 +241,9 @@ namespace
                 // send ZLP (zero length packet)
                 return USBD_LL_Transmit(pdev, epnum, NULL, 0U);
             }
-            else
-            {
-                _txStateCDC = Board::detail::USB::txState_t::done;
-                return USBD_OK;
-            }
+
+            _txStateCDC = Board::detail::USB::txState_t::done;
+            return USBD_OK;
         }
 
         uint8_t dataOutCallback(USBD_HandleTypeDef* pdev, uint8_t epnum)
@@ -253,7 +251,9 @@ namespace
             uint32_t length = USBD_LL_GetRxDataSize(pdev, epnum);
 
             for (uint32_t i = 0; i < length; i++)
+            {
                 _cdcRxBufferRing.insert(_cdcRxBuffer[i]);
+            }
 
             // make sure the data is removed from buffer by application before declaring endpoint ready
 
@@ -262,10 +262,8 @@ namespace
                 _cdcBufferWait = false;
                 return USBD_LL_PrepareReceive(pdev, CDC_OUT_EPADDR, (uint8_t*)_cdcRxBuffer, CDC_IN_OUT_EPSIZE);
             }
-            else
-            {
-                _cdcBufferWait = true;
-            }
+
+            _cdcBufferWait = true;
 
             return USBD_OK;
         }
@@ -304,7 +302,9 @@ namespace
             uint32_t count = ((PCD_HandleTypeDef*)pdev->pData)->OUT_ep[epnum].xfer_count;
 
             for (uint32_t i = 0; i < count; i++)
+            {
                 _midiRxBufferRing.insert(_midiRxBuffer[i]);
+            }
 
             return USBD_LL_PrepareReceive(pdev, MIDI_STREAM_OUT_EPADDR, (uint8_t*)(_midiRxBuffer), MIDI_IN_OUT_EPSIZE);
         }
@@ -315,7 +315,9 @@ namespace
         uint8_t returnValue = cdc::initCallback(pdev, cfgidx);
 
         if (returnValue == USBD_OK)
+        {
             returnValue = midi::initCallback(pdev, cfgidx);
+        }
 
         return returnValue;
     }
@@ -325,7 +327,9 @@ namespace
         uint8_t returnValue = cdc::deInitCallback(pdev, cfgidx);
 
         if (returnValue == USBD_OK)
+        {
             returnValue = midi::deInitCallback(pdev, cfgidx);
+        }
 
         return returnValue;
     }
@@ -350,17 +354,21 @@ namespace
     uint8_t dataInCallback(USBD_HandleTypeDef* pdev, uint8_t epnum)
     {
         if ((USB_ENDPOINT_DIR_IN | epnum) == CDC_IN_EPADDR)
+        {
             return cdc::dataInCallback(pdev, epnum);
-        else
-            return midi::dataInCallback(pdev, epnum);
+        }
+
+        return midi::dataInCallback(pdev, epnum);
     }
 
     uint8_t dataOutCallback(USBD_HandleTypeDef* pdev, uint8_t epnum)
     {
         if ((USB_ENDPOINT_DIR_OUT | epnum) == CDC_OUT_EPADDR)
+        {
             return cdc::dataOutCallback(pdev, epnum);
-        else
-            return midi::dataOutCallback(pdev, epnum);
+        }
+
+        return midi::dataOutCallback(pdev, epnum);
     }
 
     uint8_t* getDeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t* length)
@@ -462,7 +470,9 @@ namespace
             hpcd_USB_OTG_FS.Init.use_dedicated_ep1   = DISABLE;
 
             if (HAL_PCD_Init(&hpcd_USB_OTG_FS) != HAL_OK)
+            {
                 Board::detail::errorHandler();
+            }
 
             // sizes are given in words (one word = 4 bytes)
             // keep the default for rx fifo
@@ -483,14 +493,18 @@ namespace
                                   uint8_t                  id)
     {
         if (pdev == NULL)
+        {
             return USBD_FAIL;
+        }
 
         pdev->pClass    = NULL;
         pdev->pUserData = NULL;
         pdev->pConfDesc = NULL;
 
         if (pdesc != NULL)
+        {
             pdev->pDesc = pdesc;
+        }
 
         pdev->dev_state = USBD_STATE_DEFAULT;
         pdev->id        = id;
@@ -501,22 +515,23 @@ namespace
 
 namespace Board
 {
-    namespace detail
+    namespace detail::setup
     {
-        namespace setup
+        void usb()
         {
-            void usb()
+            if (_USBD_Init(&_usbHandler, &DeviceDescriptor, DEVICE_FS) != USBD_OK)
             {
-                if (_USBD_Init(&_usbHandler, &DeviceDescriptor, DEVICE_FS) != USBD_OK)
-                    Board::detail::errorHandler();
-
-                if (USBD_RegisterClass(&_usbHandler, &USB_MIDI_CDC_Class) != USBD_OK)
-                    Board::detail::errorHandler();
-
-                USBD_Start(&_usbHandler);
+                Board::detail::errorHandler();
             }
-        }    // namespace setup
-    }        // namespace detail
+
+            if (USBD_RegisterClass(&_usbHandler, &USB_MIDI_CDC_Class) != USBD_OK)
+            {
+                Board::detail::errorHandler();
+            }
+
+            USBD_Start(&_usbHandler);
+        }
+    }    // namespace detail::setup
 
     namespace USB
     {
@@ -545,7 +560,9 @@ namespace Board
         bool writeMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
         {
             if (!isUSBconnected())
+            {
                 return false;
+            }
 
             if (_txStateMIDI != Board::detail::USB::txState_t::done)
             {
@@ -553,18 +570,20 @@ namespace Board
                 {
                     return false;
                 }
-                else
+
+                uint32_t currentTime = core::timing::currentRunTimeMs();
+
+                while ((core::timing::currentRunTimeMs() - currentTime) < USB_TX_TIMEOUT_MS)
                 {
-                    uint32_t currentTime = core::timing::currentRunTimeMs();
-
-                    while ((core::timing::currentRunTimeMs() - currentTime) < USB_TX_TIMEOUT_MS)
+                    if (_txStateMIDI == Board::detail::USB::txState_t::done)
                     {
-                        if (_txStateMIDI == Board::detail::USB::txState_t::done)
-                            break;
+                        break;
                     }
+                }
 
-                    if (_txStateMIDI != Board::detail::USB::txState_t::done)
-                        _txStateMIDI = Board::detail::USB::txState_t::waiting;
+                if (_txStateMIDI != Board::detail::USB::txState_t::done)
+                {
+                    _txStateMIDI = Board::detail::USB::txState_t::waiting;
                 }
             }
 
@@ -580,7 +599,9 @@ namespace Board
         bool readCDC(uint8_t* buffer, size_t& size, const size_t maxSize)
         {
             if (_cdcRxBufferRing.isEmpty())
+            {
                 return false;
+            }
 
             size = 0;
 
@@ -620,10 +641,14 @@ namespace Board
         bool writeCDC(uint8_t* buffer, size_t size)
         {
             if (!isUSBconnected())
+            {
                 return false;
+            }
 
             if (!size)
+            {
                 return false;
+            }
 
             if (_txStateCDC != Board::detail::USB::txState_t::done)
             {
@@ -631,18 +656,20 @@ namespace Board
                 {
                     return false;
                 }
-                else
+
+                uint32_t currentTime = core::timing::currentRunTimeMs();
+
+                while ((core::timing::currentRunTimeMs() - currentTime) < USB_TX_TIMEOUT_MS)
                 {
-                    uint32_t currentTime = core::timing::currentRunTimeMs();
-
-                    while ((core::timing::currentRunTimeMs() - currentTime) < USB_TX_TIMEOUT_MS)
+                    if (_txStateCDC == Board::detail::USB::txState_t::done)
                     {
-                        if (_txStateCDC == Board::detail::USB::txState_t::done)
-                            break;
+                        break;
                     }
+                }
 
-                    if (_txStateCDC != Board::detail::USB::txState_t::done)
-                        _txStateCDC = Board::detail::USB::txState_t::waiting;
+                if (_txStateCDC != Board::detail::USB::txState_t::done)
+                {
+                    _txStateCDC = Board::detail::USB::txState_t::waiting;
                 }
             }
 

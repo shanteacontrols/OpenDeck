@@ -336,6 +336,9 @@ ifeq ($(CF_FAIL_ON_DIFF), 1)
 	git diff -s --exit-code
 endif
 
+tidy:
+	@run-clang-tidy -fix -format -style=file
+
 clean:
 	@echo Cleaning up.
 	@rm -rf $(BUILD_DIR_BASE)/ $(BOARD_GEN_BASE_DIR) $(TOUCHSCREEN_GEN_BASE_DIR)

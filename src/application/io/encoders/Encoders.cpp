@@ -46,16 +46,24 @@ Encoders::Encoders(HWA&      hwa,
                               for (size_t i = 0; i < Collection::size(); i++)
                               {
                                   if (!_database.read(Database::Section::encoder_t::remoteSync, i))
+                                  {
                                       continue;
+                                  }
 
                                   if (_database.read(Database::Section::encoder_t::mode, i) != static_cast<int32_t>(IO::Encoders::type_t::controlChange))
+                                  {
                                       continue;
+                                  }
 
                                   if (_database.read(Database::Section::encoder_t::midiChannel, i) != dispatchMessage.midiChannel)
+                                  {
                                       continue;
+                                  }
 
                                   if (_database.read(Database::Section::encoder_t::midiID, i) != dispatchMessage.midiIndex)
+                                  {
                                       continue;
+                                  }
 
                                   setValue(i, dispatchMessage.midiValue);
                               }
@@ -83,7 +91,9 @@ Encoders::Encoders(HWA&      hwa,
 bool Encoders::init()
 {
     for (size_t i = 0; i < Collection::size(); i++)
+    {
         reset(i);
+    }
 
     return true;
 }
@@ -94,13 +104,17 @@ void Encoders::update(bool forceRefresh)
     for (size_t i = 0; i < Collection::size(); i++)
     {
         if (!_database.read(Database::Section::encoder_t::enable, i))
+        {
             continue;
+        }
 
         uint8_t  numberOfReadings = 0;
         uint32_t states           = 0;
 
         if (!_hwa.state(i, numberOfReadings, states))
+        {
             continue;
+        }
 
         uint32_t currentTime = core::timing::currentRunTimeMs();
 
@@ -133,9 +147,13 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
             if (_database.read(Database::Section::encoder_t::invert, index))
             {
                 if (encoderState == position_t::ccw)
+                {
                     encoderState = position_t::cw;
+                }
                 else
+                {
                     encoderState = position_t::ccw;
+                }
             }
 
             uint8_t encAcceleration = _database.read(Database::Section::encoder_t::acceleration, index);
@@ -145,9 +163,13 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
                 // when time difference between two movements is smaller than ENCODERS_SPEED_TIMEOUT,
                 // start accelerating
                 if ((sampleTime - _filter.lastMovementTime(index)) < ENCODERS_SPEED_TIMEOUT)
+                {
                     _encoderSpeed[index] = CONSTRAIN(_encoderSpeed[index] + _encoderSpeedChange[encAcceleration], 0, _encoderMaxAccSpeed[encAcceleration]);
+                }
                 else
+                {
                     _encoderSpeed[index] = 0;
+                }
             }
 
             encoderDescriptor_t descriptor;
@@ -170,12 +192,16 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
                 if (encoderState == position_t::ccw)
                 {
                     if (!Common::pcIncrement(descriptor.dispatchMessage.midiChannel))
+                    {
                         send = false;    // edge value reached, nothing more to send
+                    }
                 }
                 else
                 {
                     if (!Common::pcDecrement(descriptor.dispatchMessage.midiChannel))
+                    {
                         send = false;    // edge value reached, nothing more to send
+                    }
                 }
 
                 descriptor.dispatchMessage.midiValue = Common::program(descriptor.dispatchMessage.midiChannel);
@@ -192,14 +218,18 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
                     ((descriptor.type == type_t::pitchBend) || (descriptor.type == type_t::nrpn14bit) || (descriptor.type == type_t::controlChange14bit));
 
                 if (use14bit && (steps > 1))
+                {
                     steps <<= 2;
+                }
 
                 if (encoderState == position_t::ccw)
                 {
                     _midiValue[index] -= steps;
 
                     if (_midiValue[index] < 0)
+                    {
                         _midiValue[index] = 0;
+                    }
                 }
                 else
                 {
@@ -208,7 +238,9 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
                     _midiValue[index] += steps;
 
                     if (_midiValue[index] > limit)
+                    {
                         _midiValue[index] = limit;
+                    }
                 }
 
                 descriptor.dispatchMessage.midiValue = _midiValue[index];
@@ -233,7 +265,9 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
             }
 
             if (send)
+            {
                 sendMessage(index, descriptor);
+            }
         }
     }
 }
@@ -283,9 +317,13 @@ void Encoders::sendMessage(size_t index, encoderDescriptor_t& descriptor)
 void Encoders::reset(size_t index)
 {
     if (_database.read(Database::Section::encoder_t::mode, index) == static_cast<int32_t>(type_t::pitchBend))
+    {
         _midiValue[index] = 8192;
+    }
     else
+    {
         _midiValue[index] = 0;
+    }
 
     _filter.reset(index);
     _encoderSpeed[index]  = 0;
@@ -313,14 +351,18 @@ Encoders::position_t Encoders::read(size_t index, uint8_t pairState)
 
     // only process the data from encoder if there is a previous reading stored
     if (!BIT_READ(_encoderData[index], 7))
+    {
         process = false;
+    }
 
     _encoderData[index] <<= 2;
     _encoderData[index] |= pairState;
     _encoderData[index] |= 0x80;
 
     if (!process)
+    {
         return returnValue;
+    }
 
     _encoderPulses[index] += _encoderLookUpTable[_encoderData[index] & 0x0F];
 
@@ -353,7 +395,9 @@ std::optional<uint8_t> Encoders::sysConfigGet(System::Config::Section::encoder_t
     if (result == System::Config::status_t::ack)
     {
         if (section == System::Config::Section::encoder_t::midiID_MSB)
+        {
             return System::Config::status_t::errorNotSupported;
+        }
 
         if (section == System::Config::Section::encoder_t::midiChannel)
         {
@@ -378,7 +422,9 @@ std::optional<uint8_t> Encoders::sysConfigSet(System::Config::Section::encoder_t
     {
         // channels start from 0 in db, start from 1 in sysex
         if (section == System::Config::Section::encoder_t::midiChannel)
+        {
             value--;
+        }
     }
     break;
     }
@@ -386,7 +432,9 @@ std::optional<uint8_t> Encoders::sysConfigSet(System::Config::Section::encoder_t
     auto result = _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ack : System::Config::status_t::errorWrite;
 
     if (result == System::Config::status_t::ack)
+    {
         reset(index);
+    }
 
     return result;
 }

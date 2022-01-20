@@ -326,9 +326,13 @@ const USB_Descriptor_UID_String_t* USBgetSerialIDString(uint16_t* size, uint8_t*
         uint8_t uidByte = uid[uidIndex];
 
         if (i & 0x01)
+        {
             uidIndex++;
+        }
         else
+        {
             uidByte >>= 4;
+        }
 
         uidByte &= 0x0F;
 

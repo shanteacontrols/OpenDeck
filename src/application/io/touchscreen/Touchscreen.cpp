@@ -45,7 +45,9 @@ Touchscreen::Touchscreen(HWA&            hwa,
                       Util::MessageDispatcher::listenType_t::all,
                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
                           if (!init(mode_t::normal))
+                          {
                               deInit(mode_t::normal);
+                          }
                       });
 
     ConfigHandler.registerConfig(
@@ -83,10 +85,10 @@ bool Touchscreen::init(mode_t mode)
                     // nothing to do, same model already _initialized
                     return true;
                 }
-                else
+
+                if (!deInit(mode))
                 {
-                    if (!deInit(mode))
-                        return false;
+                    return false;
                 }
             }
 
@@ -96,7 +98,9 @@ bool Touchscreen::init(mode_t mode)
                 auto instance = modelInstance(_activeModel);
 
                 if (instance != nullptr)
+                {
                     _initialized = instance->init();
+                }
 
                 if (_initialized)
                 {
@@ -110,15 +114,11 @@ bool Touchscreen::init(mode_t mode)
 
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
-            }
-            else
-            {
+
                 return false;
             }
+
+            return false;
         }
     }
     break;
@@ -147,7 +147,9 @@ bool Touchscreen::deInit(mode_t mode)
     case mode_t::normal:
     {
         if (!_initialized)
+        {
             return true;    // nothing to do
+        }
 
         if (_cdcPassthrough.deInit())
         {
@@ -256,7 +258,9 @@ void Touchscreen::registerModel(model_t model, Model* instance)
 void Touchscreen::setScreen(size_t screenID)
 {
     if (!isInitialized(mode_t::normal))
+    {
         return;
+    }
 
     modelInstance(_activeModel)->setScreen(screenID);
     _activeScreenID = screenID;
@@ -273,10 +277,14 @@ size_t Touchscreen::activeScreen()
 void Touchscreen::setIconState(size_t index, bool state)
 {
     if (!isInitialized(mode_t::normal))
+    {
         return;
+    }
 
     if (index >= Collection::size())
+    {
         return;
+    }
 
     icon_t icon;
 
@@ -284,10 +292,14 @@ void Touchscreen::setIconState(size_t index, bool state)
     icon.offScreen = _database.read(Database::Section::touchscreen_t::offScreen, index);
 
     if (icon.onScreen == icon.offScreen)
+    {
         return;    // invalid screen indexes
+    }
 
     if ((_activeScreenID != icon.onScreen) && (_activeScreenID != icon.offScreen))
+    {
         return;    // don't allow setting icon on wrong screen
+    }
 
     icon.xPos   = _database.read(Database::Section::touchscreen_t::xPos, index);
     icon.yPos   = _database.read(Database::Section::touchscreen_t::yPos, index);
@@ -322,7 +334,9 @@ void Touchscreen::processButton(const size_t buttonID, const bool state)
 bool Touchscreen::setBrightness(brightness_t brightness)
 {
     if (!isInitialized(mode_t::normal))
+    {
         return false;
+    }
 
     return modelInstance(_activeModel)->setBrightness(brightness);
 }
@@ -351,16 +365,21 @@ void Touchscreen::processCoordinate(pressType_t pressType, uint16_t xPos, uint16
                 {
                     // y coordinate can be ignored once the touchscreen is pressed, verify and constrain x range only
                     if (value > endXCoordinate)
+                    {
                         value = endXCoordinate;
+                    }
                     else if (value < startXCoordinate)
+                    {
                         value = startXCoordinate;
+                    }
                 }
                 else if (pressType == pressType_t::initial)
                 {
                     if (((value < startXCoordinate) || (value > endXCoordinate)) || ((yPos < startYCoordinate) || (yPos > endYCoordinate)))
+                    {
                         continue;
-                    else
-                        _analogActive[i] = true;
+                    }
+                    _analogActive[i] = true;
                 }
                 else
                 {
@@ -379,16 +398,21 @@ void Touchscreen::processCoordinate(pressType_t pressType, uint16_t xPos, uint16
                 {
                     // x coordinate can be ignored once the touchscreen is pressed, verify and constrain x range only
                     if (value > endYCoordinate)
+                    {
                         value = endYCoordinate;
+                    }
                     else if (value < startYCoordinate)
+                    {
                         value = startYCoordinate;
+                    }
                 }
                 else if (pressType == pressType_t::initial)
                 {
                     if (((xPos < startXCoordinate) || (xPos > endXCoordinate)) || ((value < startYCoordinate) || (value > endYCoordinate)))
+                    {
                         continue;
-                    else
-                        _analogActive[i] = true;
+                    }
+                    _analogActive[i] = true;
                 }
                 else
                 {
@@ -488,25 +512,18 @@ std::optional<uint8_t> Touchscreen::sysConfigGet(System::Config::Section::touchs
     {
         return System::Config::status_t::serialPeripheralAllocatedError;
     }
-    else
-    {
-        switch (section)
-        {
-        case System::Config::Section::touchscreen_t::setting:
-        {
-            switch (index)
-            {
-            case static_cast<size_t>(setting_t::cdcPassthrough):
-            {
-                if (_cdcPassthrough.allocated(IO::Common::interface_t::cdc))
-                {
-                    return System::Config::status_t::cdcAllocatedError;
-                }
-            }
-            break;
 
-            default:
-                break;
+    switch (section)
+    {
+    case System::Config::Section::touchscreen_t::setting:
+    {
+        switch (index)
+        {
+        case static_cast<size_t>(setting_t::cdcPassthrough):
+        {
+            if (_cdcPassthrough.allocated(IO::Common::interface_t::cdc))
+            {
+                return System::Config::status_t::cdcAllocatedError;
             }
         }
         break;
@@ -514,13 +531,18 @@ std::optional<uint8_t> Touchscreen::sysConfigGet(System::Config::Section::touchs
         default:
             break;
         }
-
-        int32_t readValue;
-        auto    result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ack : System::Config::status_t::errorRead;
-
-        value = readValue;
-        return result;
     }
+    break;
+
+    default:
+        break;
+    }
+
+    int32_t readValue;
+    auto    result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ack : System::Config::status_t::errorRead;
+
+    value = readValue;
+    return result;
 }
 
 std::optional<uint8_t> Touchscreen::sysConfigSet(System::Config::Section::touchscreen_t section, size_t index, uint16_t value)
@@ -529,93 +551,105 @@ std::optional<uint8_t> Touchscreen::sysConfigSet(System::Config::Section::touchs
     {
         return System::Config::status_t::serialPeripheralAllocatedError;
     }
-    else
+
+    auto initAction = Common::initAction_t::asIs;
+    auto mode       = mode_t::normal;
+    bool writeToDb  = true;
+
+    switch (section)
     {
-        auto initAction = Common::initAction_t::asIs;
-        auto mode       = mode_t::normal;
-        bool writeToDb  = true;
-
-        switch (section)
+    case System::Config::Section::touchscreen_t::setting:
+    {
+        switch (index)
         {
-        case System::Config::Section::touchscreen_t::setting:
+        case static_cast<size_t>(setting_t::enable):
         {
-            switch (index)
+            if (value)
             {
-            case static_cast<size_t>(setting_t::enable):
-            {
-                if (value)
-                    initAction = Common::initAction_t::init;
-                else
-                    initAction = Common::initAction_t::deInit;
-            }
-            break;
-
-            case static_cast<size_t>(setting_t::model):
-            {
-                if (value >= static_cast<size_t>(model_t::AMOUNT))
-                    return System::Config::status_t::errorNewValue;
-
                 initAction = Common::initAction_t::init;
             }
-            break;
-
-            case static_cast<size_t>(setting_t::brightness):
+            else
             {
-                if (isInitialized())
+                initAction = Common::initAction_t::deInit;
+            }
+        }
+        break;
+
+        case static_cast<size_t>(setting_t::model):
+        {
+            if (value >= static_cast<size_t>(model_t::AMOUNT))
+            {
+                return System::Config::status_t::errorNewValue;
+            }
+
+            initAction = Common::initAction_t::init;
+        }
+        break;
+
+        case static_cast<size_t>(setting_t::brightness):
+        {
+            if (isInitialized())
+            {
+                if (!setBrightness(static_cast<brightness_t>(value)))
                 {
-                    if (!setBrightness(static_cast<brightness_t>(value)))
-                        return System::Config::status_t::errorWrite;
+                    return System::Config::status_t::errorWrite;
                 }
             }
-            break;
+        }
+        break;
 
-            case static_cast<size_t>(setting_t::initialScreen):
+        case static_cast<size_t>(setting_t::initialScreen):
+        {
+            if (isInitialized())
             {
-                if (isInitialized())
-                    setScreen(value);
+                setScreen(value);
             }
-            break;
+        }
+        break;
 
-            case static_cast<size_t>(IO::Touchscreen::setting_t::cdcPassthrough):
+        case static_cast<size_t>(IO::Touchscreen::setting_t::cdcPassthrough):
+        {
+            if (_cdcPassthrough.allocated(IO::Common::interface_t::cdc))
             {
-                if (_cdcPassthrough.allocated(IO::Common::interface_t::cdc))
-                {
-                    return System::Config::status_t::cdcAllocatedError;
-                }
-
-                mode       = mode_t::cdcPassthrough;
-                initAction = value ? Common::initAction_t::init : Common::initAction_t::deInit;
-                writeToDb  = false;
+                return System::Config::status_t::cdcAllocatedError;
             }
-            break;
 
-            default:
-                break;
-            }
+            mode       = mode_t::cdcPassthrough;
+            initAction = value ? Common::initAction_t::init : Common::initAction_t::deInit;
+            writeToDb  = false;
         }
         break;
 
         default:
             break;
         }
-
-        bool result = true;
-
-        if (writeToDb)
-            result = _database.update(Util::Conversion::sys2DBsection(section), index, value);
-
-        if (result)
-        {
-            if (initAction == Common::initAction_t::init)
-                init(mode);
-            else if (initAction == Common::initAction_t::deInit)
-                deInit(mode);
-
-            return System::Config::status_t::ack;
-        }
-        else
-        {
-            return System::Config::status_t::errorWrite;
-        }
     }
+    break;
+
+    default:
+        break;
+    }
+
+    bool result = true;
+
+    if (writeToDb)
+    {
+        result = _database.update(Util::Conversion::sys2DBsection(section), index, value);
+    }
+
+    if (result)
+    {
+        if (initAction == Common::initAction_t::init)
+        {
+            init(mode);
+        }
+        else if (initAction == Common::initAction_t::deInit)
+        {
+            deInit(mode);
+        }
+
+        return System::Config::status_t::ack;
+    }
+
+    return System::Config::status_t::errorWrite;
 }

@@ -57,7 +57,9 @@ bool Database::init(Handlers& handlers)
 bool Database::init()
 {
     if (!LESSDB::init())
+    {
         return false;
+    }
 
     uint32_t systemBlockUsage = 0;
 
@@ -66,14 +68,14 @@ bool Database::init()
     {
         return false;
     }
-    else
-    {
-        systemBlockUsage      = LESSDB::currentDBsize();
-        _userDataStartAddress = LESSDB::nextParameterAddress();
 
-        // now set the entire layout
-        if (!LESSDB::setLayout(dbLayout, static_cast<uint8_t>(block_t::AMOUNT) + 1, 0))
-            return false;
+    systemBlockUsage      = LESSDB::currentDBsize();
+    _userDataStartAddress = LESSDB::nextParameterAddress();
+
+    // now set the entire layout
+    if (!LESSDB::setLayout(dbLayout, static_cast<uint8_t>(block_t::AMOUNT) + 1, 0))
+    {
+        return false;
     }
 
     _lastPresetAddress = LESSDB::nextParameterAddress() - _userDataStartAddress;
@@ -122,7 +124,9 @@ bool Database::init()
         _initialized = true;
 
         if (_handlers != nullptr)
+        {
             _handlers->initialized();
+        }
     }
 
     return returnValue;
@@ -137,27 +141,39 @@ bool Database::isInitialized()
 bool Database::factoryReset()
 {
     if (_handlers != nullptr)
+    {
         _handlers->factoryResetStart();
+    }
 
     if (!clear())
+    {
         return false;
+    }
 
     if (_initializeData)
     {
         // init system block first
         if (!LESSDB::setLayout(dbLayout, 1, 0))
+        {
             return false;
+        }
 
         if (!initData(LESSDB::factoryResetType_t::full))
+        {
             return false;
+        }
 
         for (int i = _supportedPresets - 1; i >= 0; i--)
         {
             if (!setPresetInternal(i))
+            {
                 return false;
+            }
 
             if (!initData(LESSDB::factoryResetType_t::full))
+            {
                 return false;
+            }
 
             // perform custom init as well
             customInitGlobal();
@@ -170,19 +186,27 @@ bool Database::factoryReset()
         }
 
         if (!setPresetPreserveState(false))
+        {
             return false;
+        }
 
         if (!setDbUID(getDbUID()))
+        {
             return false;
+        }
     }
     else
     {
         if (!setPresetInternal(0))
+        {
             return false;
+        }
     }
 
     if (_handlers != nullptr)
+    {
         _handlers->factoryResetDone();
+    }
 
     return true;
 }
@@ -193,7 +217,9 @@ bool Database::factoryReset()
 bool Database::setPreset(uint8_t preset)
 {
     if (preset >= _supportedPresets)
+    {
         return false;
+    }
 
     _activePreset = preset;
 
@@ -208,7 +234,9 @@ bool Database::setPreset(uint8_t preset)
     if (returnValue)
     {
         if (_handlers != nullptr)
+        {
             _handlers->presetChange(preset);
+        }
     }
 
     return returnValue;
@@ -221,7 +249,9 @@ bool Database::setPreset(uint8_t preset)
 bool Database::setPresetInternal(uint8_t preset)
 {
     if (preset >= _supportedPresets)
+    {
         return false;
+    }
 
     _activePreset = preset;
     LESSDB::setLayout(&dbLayout[1], static_cast<uint8_t>(block_t::AMOUNT), _userDataStartAddress + (_lastPresetAddress * _activePreset));

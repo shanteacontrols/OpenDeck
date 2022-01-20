@@ -31,54 +31,59 @@ namespace
     I2C_HandleTypeDef _i2cHandler[MAX_I2C_INTERFACES];
 }    // namespace
 
-namespace Board
+namespace Board::I2C
 {
-    namespace I2C
+    bool init(uint8_t channel, clockSpeed_t speed)
     {
-        bool init(uint8_t channel, clockSpeed_t speed)
+        if (channel >= MAX_I2C_INTERFACES)
         {
-            if (channel >= MAX_I2C_INTERFACES)
-                return false;
-
-            _i2cHandler[channel].Instance             = static_cast<I2C_TypeDef*>(Board::detail::st::i2cDescriptor(channel)->interface());
-            _i2cHandler[channel].Init.ClockSpeed      = 100000;
-            _i2cHandler[channel].Init.DutyCycle       = I2C_DUTYCYCLE_2;
-            _i2cHandler[channel].Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
-            _i2cHandler[channel].Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-            _i2cHandler[channel].Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-            _i2cHandler[channel].Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
-
-            if (HAL_I2C_Init(&_i2cHandler[channel]) != HAL_OK)
-            {
-                Board::detail::errorHandler();
-                return false;
-            }
-
-            return true;
+            return false;
         }
 
-        bool deInit(uint8_t channel)
-        {
-            if (channel >= MAX_I2C_INTERFACES)
-                return false;
+        _i2cHandler[channel].Instance             = static_cast<I2C_TypeDef*>(Board::detail::st::i2cDescriptor(channel)->interface());
+        _i2cHandler[channel].Init.ClockSpeed      = 100000;
+        _i2cHandler[channel].Init.DutyCycle       = I2C_DUTYCYCLE_2;
+        _i2cHandler[channel].Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
+        _i2cHandler[channel].Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+        _i2cHandler[channel].Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+        _i2cHandler[channel].Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
 
-            return HAL_I2C_DeInit(&_i2cHandler[channel]) == HAL_OK;
+        if (HAL_I2C_Init(&_i2cHandler[channel]) != HAL_OK)
+        {
+            Board::detail::errorHandler();
+            return false;
         }
 
-        bool write(uint8_t channel, uint8_t address, uint8_t* buffer, size_t size)
-        {
-            if (channel >= MAX_I2C_INTERFACES)
-                return false;
+        return true;
+    }
 
-            return HAL_I2C_Master_Transmit(&_i2cHandler[channel], address << 1, buffer, size, I2C_TRANSFER_TIMEOUT_MS) == HAL_OK;
+    bool deInit(uint8_t channel)
+    {
+        if (channel >= MAX_I2C_INTERFACES)
+        {
+            return false;
         }
 
-        bool deviceAvailable(uint8_t channel, uint8_t address)
-        {
-            if (channel >= MAX_I2C_INTERFACES)
-                return false;
+        return HAL_I2C_DeInit(&_i2cHandler[channel]) == HAL_OK;
+    }
 
-            return HAL_I2C_IsDeviceReady(&_i2cHandler[channel], address << 1, I2C_SCAN_RETRIES, I2C_TRANSFER_TIMEOUT_MS) == HAL_OK;
+    bool write(uint8_t channel, uint8_t address, uint8_t* buffer, size_t size)
+    {
+        if (channel >= MAX_I2C_INTERFACES)
+        {
+            return false;
         }
-    }    // namespace I2C
-}    // namespace Board
+
+        return HAL_I2C_Master_Transmit(&_i2cHandler[channel], address << 1, buffer, size, I2C_TRANSFER_TIMEOUT_MS) == HAL_OK;
+    }
+
+    bool deviceAvailable(uint8_t channel, uint8_t address)
+    {
+        if (channel >= MAX_I2C_INTERFACES)
+        {
+            return false;
+        }
+
+        return HAL_I2C_IsDeviceReady(&_i2cHandler[channel], address << 1, I2C_SCAN_RETRIES, I2C_TRANSFER_TIMEOUT_MS) == HAL_OK;
+    }
+}    // namespace Board::I2C

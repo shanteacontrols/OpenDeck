@@ -34,10 +34,14 @@ LEDs::LEDs(HWA&      hwa,
     , _database(database)
 {
     for (size_t i = 0; i < TOTAL_BLINK_SPEEDS; i++)
+    {
         _blinkState[i] = true;
+    }
 
     for (size_t i = 0; i < Collection::size(); i++)
+    {
         _brightness[i] = brightness_t::bOff;
+    }
 
     Dispatcher.listen(Util::MessageDispatcher::messageSource_t::midiIn,
                       Util::MessageDispatcher::listenType_t::nonFwd,
@@ -151,7 +155,9 @@ bool LEDs::init()
     setAllOff();
 
     if (_database.read(Database::Section::leds_t::global, setting_t::useStartupAnimation))
+    {
         startUpAnimation();
+    }
 
     setBlinkType(static_cast<blinkType_t>(_database.read(Database::Section::leds_t::global, setting_t::blinkWithMIDIclock)));
 
@@ -161,14 +167,18 @@ bool LEDs::init()
 void LEDs::update(bool forceRefresh)
 {
     if (_blinkResetArrayPtr == nullptr)
+    {
         return;
+    }
 
     switch (_ledBlinkType)
     {
     case blinkType_t::timer:
     {
         if ((core::timing::currentRunTimeMs() - _lastLEDblinkUpdateTime) < LED_BLINK_TIMER_TYPE_CHECK_TIME)
+        {
             return;
+        }
 
         _lastLEDblinkUpdateTime = core::timing::currentRunTimeMs();
     }
@@ -177,7 +187,9 @@ void LEDs::update(bool forceRefresh)
     case blinkType_t::midiClock:
     {
         if (!forceRefresh)
+        {
             return;
+        }
     }
     break;
 
@@ -189,7 +201,9 @@ void LEDs::update(bool forceRefresh)
     for (size_t i = 0; i < TOTAL_BLINK_SPEEDS; i++)
     {
         if (++_blinkCounter[i] < _blinkResetArrayPtr[i])
+        {
             continue;
+        }
 
         _blinkState[i]   = !_blinkState[i];
         _blinkCounter[i] = 0;
@@ -198,10 +212,14 @@ void LEDs::update(bool forceRefresh)
         for (size_t j = 0; j < Collection::size(); j++)
         {
             if (!bit(j, ledBit_t::blinkOn))
+            {
                 continue;
+            }
 
             if (_blinkTimer[j] != i)
+            {
                 continue;
+            }
 
             updateBit(j, ledBit_t::state, _blinkState[i]);
             setState(j, bit(j, ledBit_t::state) ? _brightness[j] : brightness_t::bOff);
@@ -247,7 +265,9 @@ LEDs::color_t LEDs::valueToColor(uint8_t value)
 LEDs::blinkSpeed_t LEDs::valueToBlinkSpeed(uint8_t value)
 {
     if (value < 16)
+    {
         return blinkSpeed_t::noBlink;
+    }
 
     // there are 4 total blink speeds
     return static_cast<blinkSpeed_t>(value % 16 / TOTAL_BLINK_SPEEDS);
@@ -256,7 +276,9 @@ LEDs::blinkSpeed_t LEDs::valueToBlinkSpeed(uint8_t value)
 LEDs::brightness_t LEDs::valueToBrightness(uint8_t value)
 {
     if (value < 16)
+    {
         return brightness_t::bOff;
+    }
 
     return static_cast<brightness_t>((value % 16 % TOTAL_BRIGHTNESS_VALUES) + 1);
 }
@@ -269,11 +291,15 @@ void LEDs::midiToState(Util::MessageDispatcher::message_t message, Util::Message
 
         // match received midi message with the assigned LED control type
         if (!isControlTypeMatched(message.message, controlType))
+        {
             continue;
+        }
 
         // no point in checking if channel doesn't match
         if (_database.read(Database::Section::leds_t::midiChannel, i) != message.midiChannel)
+        {
             continue;
+        }
 
         bool setState = false;
         bool setBlink = false;
@@ -287,21 +313,27 @@ void LEDs::midiToState(Util::MessageDispatcher::message_t message, Util::Message
             case controlType_t::localNoteSingleVal:
             {
                 if ((message.message == MIDI::messageType_t::noteOn) || (message.message == MIDI::messageType_t::noteOff))
+                {
                     setState = true;
+                }
             }
             break;
 
             case controlType_t::localCCSingleVal:
             {
                 if (message.message == MIDI::messageType_t::controlChange)
+                {
                     setState = true;
+                }
             }
             break;
 
             case controlType_t::pcSingleVal:
             {
                 if (message.message == MIDI::messageType_t::programChange)
+                {
                     setState = true;
+                }
             }
             break;
 
@@ -309,7 +341,9 @@ void LEDs::midiToState(Util::MessageDispatcher::message_t message, Util::Message
             {
                 // it is expected for MIDI message to be set to program change when changing preset
                 if (message.message == MIDI::messageType_t::programChange)
+                {
                     setState = true;
+                }
             }
             break;
 
@@ -344,21 +378,27 @@ void LEDs::midiToState(Util::MessageDispatcher::message_t message, Util::Message
             case controlType_t::midiInNoteSingleVal:
             {
                 if ((message.message == MIDI::messageType_t::noteOn) || (message.message == MIDI::messageType_t::noteOff))
+                {
                     setState = true;
+                }
             }
             break;
 
             case controlType_t::midiInCCSingleVal:
             {
                 if (message.message == MIDI::messageType_t::controlChange)
+                {
                     setState = true;
+                }
             }
             break;
 
             case controlType_t::pcSingleVal:
             {
                 if (message.message == MIDI::messageType_t::programChange)
+                {
                     setState = true;
+                }
             }
             break;
 
@@ -439,7 +479,9 @@ void LEDs::midiToState(Util::MessageDispatcher::message_t message, Util::Message
             {
                 // match activation ID with received ID
                 if (activationID == message.midiIndex)
+                {
                     setBlinkSpeed(i, valueToBlinkSpeed(message.midiValue));
+                }
             }
         }
     }
@@ -490,20 +532,26 @@ void LEDs::setAllOn()
 {
     // turn on all LEDs
     for (size_t i = 0; i < Collection::size(); i++)
+    {
         setColor(i, color_t::red, brightness_t::b100);
+    }
 }
 
 void LEDs::setAllOff()
 {
     // turn off all LEDs
     for (size_t i = 0; i < Collection::size(); i++)
+    {
         resetState(i);
+    }
 }
 
 void LEDs::refresh()
 {
     for (size_t i = 0; i < Collection::size(); i++)
+    {
         setState(i, _brightness[i]);
+    }
 }
 
 void LEDs::setColor(uint8_t ledID, color_t color, brightness_t brightness)
@@ -639,28 +687,24 @@ LEDs::color_t LEDs::color(uint8_t ledID)
     {
         return color_t::off;
     }
-    else
+
+    if (!bit(ledID, ledBit_t::rgb))
     {
-        if (!bit(ledID, ledBit_t::rgb))
-        {
-            // single color led
-            return color_t::red;
-        }
-        else
-        {
-            // rgb led
-            uint8_t rgbIndex = _hwa.rgbIndex(ledID);
-
-            uint8_t color = 0;
-            color |= bit(_hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::b), ledBit_t::rgb_b);
-            color <<= 1;
-            color |= bit(_hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::g), ledBit_t::rgb_g);
-            color <<= 1;
-            color |= bit(_hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::r), ledBit_t::rgb_r);
-
-            return static_cast<color_t>(color);
-        }
+        // single color led
+        return color_t::red;
     }
+
+    // rgb led
+    uint8_t rgbIndex = _hwa.rgbIndex(ledID);
+
+    uint8_t color = 0;
+    color |= bit(_hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::b), ledBit_t::rgb_b);
+    color <<= 1;
+    color |= bit(_hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::g), ledBit_t::rgb_g);
+    color <<= 1;
+    color |= bit(_hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::r), ledBit_t::rgb_r);
+
+    return static_cast<color_t>(color);
 }
 
 void LEDs::resetState(uint8_t index)
@@ -674,7 +718,9 @@ bool LEDs::isControlTypeMatched(MIDI::messageType_t midiMessage, controlType_t c
 {
     // match note off as well - only noteOn is present in the array
     if (midiMessage == MIDI::messageType_t::noteOff)
+    {
         midiMessage = MIDI::messageType_t::noteOn;
+    }
 
     return controlTypeToMIDImessage[static_cast<uint8_t>(controlType)] == midiMessage;
 }
@@ -719,7 +765,9 @@ std::optional<uint8_t> LEDs::sysConfigGet(System::Config::Section::leds_t sectio
 
         // channels start from 0 in db, start from 1 in sysex
         if (result == System::Config::status_t::ack)
+        {
             readValue++;
+        }
     }
     break;
 
@@ -777,7 +825,9 @@ std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t sectio
         case setting_t::useStartupAnimation:
         {
             if ((value <= 1) && (value >= 0))
+            {
                 result = System::Config::status_t::ack;
+            }
         }
         break;
 
@@ -793,7 +843,9 @@ std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t sectio
 
         // write to db if success is true and writing should take place
         if ((result == System::Config::status_t::ack) && writeToDb)
+        {
             result = _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ack : System::Config::status_t::errorWrite;
+        }
     }
     break;
 
@@ -820,7 +872,9 @@ std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t sectio
                              : System::Config::status_t::errorWrite;
 
                 if (result != System::Config::status_t::ack)
+                {
                     break;
+                }
 
                 result = _database.update(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::controlType),
                                           rgbSignalIndex(rgbIndex(index), static_cast<rgbIndex_t>(i)),
@@ -829,7 +883,9 @@ std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t sectio
                              : System::Config::status_t::errorWrite;
 
                 if (result != System::Config::status_t::ack)
+                {
                     break;
+                }
 
                 result = _database.update(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::midiChannel),
                                           rgbSignalIndex(rgbIndex(index), static_cast<rgbIndex_t>(i)),
@@ -838,7 +894,9 @@ std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t sectio
                              : System::Config::status_t::errorWrite;
 
                 if (result != System::Config::status_t::ack)
+                {
                     break;
+                }
             }
         }
     }
@@ -850,7 +908,9 @@ std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t sectio
     {
         // channels start from 0 in db, start from 1 in sysex
         if (section == System::Config::Section::leds_t::midiChannel)
+        {
             value--;
+        }
 
         // first, find out if RGB led is enabled for this led index
         if (_database.read(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::rgbEnable), rgbIndex(index)))
@@ -865,7 +925,9 @@ std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t sectio
                              : System::Config::status_t::errorWrite;
 
                 if (result != System::Config::status_t::ack)
+                {
                     break;
+                }
             }
         }
         else

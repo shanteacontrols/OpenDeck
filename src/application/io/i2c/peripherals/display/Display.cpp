@@ -71,7 +71,9 @@ Display::Display(I2C::HWA& hwa,
                       Util::MessageDispatcher::listenType_t::nonFwd,
                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
                           if (dispatchMessage.message != ::MIDI::messageType_t::systemExclusive)
+                          {
                               displayMIDIevent(Display::eventType_t::in, dispatchMessage);
+                          }
                       });
 
     ConfigHandler.registerConfig(
@@ -106,7 +108,9 @@ bool Display::init(uint8_t address)
             for (int i = 0; i < LCD_HEIGHT_MAX; i++)
             {
                 for (int j = 0; j < LCD_STRING_BUFFER_SIZE - 2; j++)
+                {
                     _lcdRowText[i][j] = ' ';
+                }
 
                 _lcdRowText[i][LCD_STRING_BUFFER_SIZE - 1] = '\0';
 
@@ -121,7 +125,9 @@ bool Display::init(uint8_t address)
             if (!_startupInfoShown)
             {
                 if (_database.read(Database::Section::i2c_t::display, setting_t::deviceInfoMsg) && !_startupInfoShown)
+                {
                     displayWelcomeMessage();
+                }
             }
 
             setRetentionTime(_database.read(Database::Section::i2c_t::display, setting_t::MIDIeventTime) * 1000);
@@ -229,7 +235,9 @@ bool Display::initU8X8(uint8_t i2cAddress, displayController_t controller, displ
 bool Display::deInit()
 {
     if (!_initialized)
+    {
         return false;    // nothing to do
+    }
 
     u8x8_SetupDefaults(&_u8x8);
 
@@ -250,10 +258,14 @@ const uint8_t* Display::addresses(size_t& amount)
 void Display::update()
 {
     if (!_initialized)
+    {
         return;
+    }
 
     if ((core::timing::currentRunTimeMs() - _lastLCDupdateTime) < LCD_REFRESH_TIME)
+    {
         return;    // we don't need to update lcd in real time
+    }
 
     // use char pointer to point to line we're going to print
     char* charPointer;
@@ -264,19 +276,25 @@ void Display::update()
         charPointer = _lcdRowText[i];
 
         if (!_charChange[i])
+        {
             continue;
+        }
 
         int8_t string_len = strlen(charPointer) > LCD_WIDTH_MAX ? LCD_WIDTH_MAX : strlen(charPointer);
 
         for (int j = 0; j < string_len; j++)
         {
             if (BIT_READ(_charChange[i], j))
+            {
                 u8x8_DrawGlyph(&_u8x8, j, _rowMap[_resolution][i], charPointer[j + _scrollEvent[i].currentIndex]);
+            }
         }
 
         // now fill remaining columns with spaces
         for (uint16_t j = string_len; j < LCD_WIDTH_MAX; j++)
+        {
             u8x8_DrawGlyph(&_u8x8, j, _rowMap[_resolution][i], ' ');
+        }
 
         _charChange[i] = 0;
     }
@@ -290,7 +308,9 @@ void Display::update()
         {
             // 0 = in, 1 = out
             if ((core::timing::currentRunTimeMs() - _lastMIDIMessageDisplayTime[i] > _MIDImessageRetentionTime) && _midiMessageDisplayed[i])
+            {
                 clearMIDIevent(static_cast<eventType_t>(i));
+            }
         }
     }
 }
@@ -303,14 +323,18 @@ void Display::update()
 void Display::updateText(uint8_t row, uint8_t startIndex)
 {
     if (!_initialized)
+    {
         return;
+    }
 
     const char* string     = _stringBuilder.string();
     uint8_t     size       = strlen(string);
     uint8_t     scrollSize = 0;
 
     if (size + startIndex >= LCD_STRING_BUFFER_SIZE - 2)
+    {
         size = LCD_STRING_BUFFER_SIZE - 2 - startIndex;    // trim string
+    }
 
     bool scrollingEnabled = false;
 
@@ -361,10 +385,14 @@ uint8_t Display::getTextCenter(uint8_t textSize)
 void Display::updateScrollStatus(uint8_t row)
 {
     if (!_scrollEvent[row].size)
+    {
         return;
+    }
 
     if ((core::timing::currentRunTimeMs() - _lastScrollTime) < LCD_SCROLL_TIME)
+    {
         return;
+    }
 
     switch (_scrollEvent[row].direction)
     {
@@ -399,7 +427,9 @@ void Display::updateScrollStatus(uint8_t row)
     }
 
     for (uint16_t i = _scrollEvent[row].startIndex; i < LCD_WIDTH_MAX; i++)
+    {
         BIT_WRITE(_charChange[row], i, 1);
+    }
 
     _lastScrollTime = core::timing::currentRunTimeMs();
 }
@@ -434,7 +464,9 @@ int8_t Display::normalizeOctave(uint8_t octave, int8_t normalization)
 void Display::displayWelcomeMessage()
 {
     if (!_initialized)
+    {
         return;
+    }
 
     uint8_t startRow;
     bool    showBoard = false;
@@ -488,7 +520,9 @@ void Display::displayWelcomeMessage()
 void Display::displayMIDIevent(eventType_t type, const Util::MessageDispatcher::message_t& dispatchMessage)
 {
     if (!_initialized)
+    {
         return;
+    }
 
     uint8_t startRow    = (type == Display::eventType_t::in) ? ROW_START_MIDI_IN_MESSAGE : ROW_START_MIDI_OUT_MESSAGE;
     uint8_t startColumn = (type == Display::eventType_t::in) ? COLUMN_START_MIDI_IN_MESSAGE : COLUMN_START_MIDI_OUT_MESSAGE;
@@ -503,9 +537,13 @@ void Display::displayMIDIevent(eventType_t type, const Util::MessageDispatcher::
     case MIDI::messageType_t::noteOn:
     {
         if (!_database.read(Database::Section::i2c_t::display, setting_t::MIDInotesAlternate))
+        {
             _stringBuilder.overwrite("%d", dispatchMessage.midiIndex);
+        }
         else
+        {
             _stringBuilder.overwrite("%s%d", Strings::note(MIDI::getTonicFromNote(dispatchMessage.midiIndex)), normalizeOctave(MIDI::getOctaveFromNote(dispatchMessage.midiValue), _octaveNormalization));
+        }
 
         _stringBuilder.append(" v%d CH%d", dispatchMessage.midiValue, dispatchMessage.midiChannel + 1);
         _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
@@ -569,7 +607,9 @@ void Display::displayMIDIevent(eventType_t type, const Util::MessageDispatcher::
 void Display::clearMIDIevent(eventType_t type)
 {
     if (!_initialized)
+    {
         return;
+    }
 
     switch (type)
     {
@@ -609,7 +649,9 @@ void Display::clearMIDIevent(eventType_t type)
 std::optional<uint8_t> Display::sysConfigGet(System::Config::Section::i2c_t section, size_t index, uint16_t& value)
 {
     if (section != System::Config::Section::i2c_t::display)
+    {
         return std::nullopt;
+    }
 
     int32_t readValue;
     auto    result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ack : System::Config::status_t::errorRead;
@@ -622,7 +664,9 @@ std::optional<uint8_t> Display::sysConfigGet(System::Config::Section::i2c_t sect
 std::optional<uint8_t> Display::sysConfigSet(System::Config::Section::i2c_t section, size_t index, uint16_t value)
 {
     if (section != System::Config::Section::i2c_t::display)
+    {
         return std::nullopt;
+    }
 
     auto initAction = Common::initAction_t::asIs;
 
@@ -679,9 +723,13 @@ std::optional<uint8_t> Display::sysConfigSet(System::Config::Section::i2c_t sect
     if (result == System::Config::status_t::ack)
     {
         if (initAction == Common::initAction_t::init)
+        {
             init(_selectedI2Caddress);
+        }
         else if (initAction == Common::initAction_t::deInit)
+        {
             deInit();
+        }
     }
 
     return result;

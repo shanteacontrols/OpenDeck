@@ -19,23 +19,17 @@ limitations under the License.
 #include "board/Board.h"
 #include "board/Internal.h"
 
-namespace Board
+namespace Board::detail::setup
 {
-    namespace detail
+    void halInit()
     {
-        namespace setup
-        {
-            void halInit()
-            {
-                // Reset of all peripherals, Initializes the Flash interface and the Systick
-                HAL_Init();
-            }
+        // Reset of all peripherals, Initializes the Flash interface and the Systick
+        HAL_Init();
+    }
 
-            void halDeinit()
-            {
-                HAL_RCC_DeInit();
-                HAL_DeInit();
-            }
-        }    // namespace setup
-    }        // namespace detail
-}    // namespace Board
+    void halDeinit()
+    {
+        HAL_RCC_DeInit();
+        HAL_DeInit();
+    }
+}    // namespace Board::detail::setup

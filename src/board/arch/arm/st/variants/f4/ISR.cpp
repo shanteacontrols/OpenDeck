@@ -82,7 +82,9 @@ extern "C" void TIM4_IRQHandler(void)
     if ((TIM4->SR & TIM_IT_CC1) != RESET)
     {
         if (ch1Cnt == -1)
+        {
             ch1Cnt = TIM4->CCR1;
+        }
 
         Board::detail::isrHandling::timer(0);
 
@@ -92,7 +94,9 @@ extern "C" void TIM4_IRQHandler(void)
     else if ((TIM4->SR & TIM_IT_CC2) != RESET)
     {
         if (ch2Cnt == -1)
+        {
             ch2Cnt = TIM4->CCR2;
+        }
 
         Board::detail::isrHandling::timer(1);
 

@@ -35,7 +35,9 @@ uint8_t Configurable::get(System::Config::block_t block, uint8_t section, size_t
             auto result = _getters.at(i).handler(section, index, value);
 
             if (result != std::nullopt)
+            {
                 return *result;
+            }
         }
     }
 
@@ -51,7 +53,9 @@ uint8_t Configurable::set(System::Config::block_t block, uint8_t section, size_t
             auto result = _setters.at(i).handler(section, index, value);
 
             if (result != std::nullopt)
+            {
                 return *result;
+            }
         }
     }
 

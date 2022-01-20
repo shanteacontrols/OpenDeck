@@ -31,7 +31,9 @@ namespace IO
     bool Common::pcIncrement(uint8_t channel)
     {
         if (channel >= 16)
+        {
             return false;
+        }
 
         if (pcValue[channel] < 127)
         {
@@ -45,7 +47,9 @@ namespace IO
     bool Common::pcDecrement(uint8_t channel)
     {
         if (channel >= 16)
+        {
             return false;
+        }
 
         if (pcValue[channel] > 0)
         {
@@ -59,7 +63,9 @@ namespace IO
     uint8_t Common::program(uint8_t channel)
     {
         if (channel >= 16)
+        {
             return false;
+        }
 
         return pcValue[channel];
     }
@@ -67,10 +73,14 @@ namespace IO
     bool Common::setProgram(uint8_t channel, uint8_t program)
     {
         if (channel >= 16)
+        {
             return false;
+        }
 
         if (program > 127)
+        {
             return false;
+        }
 
         pcValue[channel] = program;
         return true;
@@ -79,7 +89,9 @@ namespace IO
     uint8_t Common::valueInc(size_t index, uint8_t step, incDecType_t type)
     {
         if (index >= IO::Buttons::Collection::size())
+        {
             return 0xFF;
+        }
 
         step &= 0x7F;    // safety
         uint8_t newValue    = (midiValue[index] & 0x7F) + step;
@@ -92,7 +104,9 @@ namespace IO
             // just make sure the value isn't larger than 127
 
             if (newValue > 127)
+            {
                 newValue = 127;
+            }
         }
         break;
 
@@ -116,7 +130,9 @@ namespace IO
         midiValue[index] &= 0x80;
 
         if (setNewValue)
+        {
             midiValue[index] |= newValue;
+        }
 
         return newValue;
     }
@@ -124,7 +140,9 @@ namespace IO
     uint8_t Common::valueIncDec(size_t index, uint8_t step)
     {
         if (index >= IO::Buttons::Collection::size())
+        {
             return 0xFF;
+        }
 
         uint8_t newValue = 0xFF;
 
@@ -133,13 +151,19 @@ namespace IO
         if (BIT_READ(midiValue[index], 7))
         {
             if ((midiValue[index] & 0x7F) <= step)
+            {
                 newValue = 0;
+            }
             else
+            {
                 newValue = (midiValue[index] & 0x7F) - step;
+            }
 
             // value 0 is reached, go back to incrementing next time
             if (!newValue)
+            {
                 BIT_CLEAR(midiValue[index], 7);
+            }
         }
         else
         {
@@ -162,7 +186,9 @@ namespace IO
     uint8_t Common::currentValue(size_t index)
     {
         if (index >= IO::Buttons::Collection::size())
+        {
             return 0xFF;
+        }
 
         return midiValue[index] & 0x7F;
     }

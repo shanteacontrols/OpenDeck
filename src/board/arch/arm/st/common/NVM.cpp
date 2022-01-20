@@ -91,86 +91,86 @@ namespace
     EmuEEPROM     _emuEEPROM(_stm32EEPROM, true);
 }    // namespace
 
-namespace Board
+namespace Board::NVM
 {
-    namespace NVM
+    bool init()
     {
-        bool init()
+        bool result;
+
+        // disable all interrupts during init to avoid ISRs messing up the flash page formatting/setup
+        ATOMIC_SECTION
         {
-            bool result;
-
-            // disable all interrupts during init to avoid ISRs messing up the flash page formatting/setup
-            ATOMIC_SECTION
-            {
-                result = _emuEEPROM.init();
-            }
-
-            return result;
+            result = _emuEEPROM.init();
         }
 
-        uint32_t size()
+        return result;
+    }
+
+    uint32_t size()
+    {
+        return _emuEEPROM.maxAddress();
+    }
+
+    bool read(uint32_t address, int32_t& value, parameterType_t type)
+    {
+        uint16_t tempData;
+
+        switch (type)
         {
-            return _emuEEPROM.maxAddress();
+        case parameterType_t::byte:
+        case parameterType_t::word:
+        {
+            auto readStatus = _emuEEPROM.readCached(address, tempData);
+            value           = tempData;
+
+            if (readStatus == EmuEEPROM::readStatus_t::ok)
+            {
+                value = tempData;
+            }
+            else if (readStatus == EmuEEPROM::readStatus_t::noVar)
+            {
+                // variable with this address doesn't exist yet - set value to 0
+                value = 0;
+            }
+        }
+        break;
+
+        default:
+            return false;
         }
 
-        bool read(uint32_t address, int32_t& value, parameterType_t type)
+        return true;
+    }
+
+    bool write(uint32_t address, int32_t value, parameterType_t type)
+    {
+        uint16_t tempData;
+
+        switch (type)
         {
-            uint16_t tempData;
+        case parameterType_t::byte:
+        case parameterType_t::word:
+        {
+            tempData = value;
 
-            switch (type)
+            if (_emuEEPROM.write(address, tempData) != EmuEEPROM::writeStatus_t::ok)
             {
-            case parameterType_t::byte:
-            case parameterType_t::word:
-            {
-                auto readStatus = _emuEEPROM.readCached(address, tempData);
-                value           = tempData;
-
-                if (readStatus == EmuEEPROM::readStatus_t::ok)
-                {
-                    value = tempData;
-                }
-                else if (readStatus == EmuEEPROM::readStatus_t::noVar)
-                {
-                    // variable with this address doesn't exist yet - set value to 0
-                    value = 0;
-                }
-            }
-            break;
-
-            default:
                 return false;
             }
-
-            return true;
         }
 
-        bool write(uint32_t address, int32_t value, parameterType_t type)
-        {
-            uint16_t tempData;
+        break;
 
-            switch (type)
-            {
-            case parameterType_t::byte:
-            case parameterType_t::word:
-            {
-                tempData = value;
-
-                if (_emuEEPROM.write(address, tempData) != EmuEEPROM::writeStatus_t::ok)
-                    return false;
-            }
-
-            break;
-
-            default:
-                return false;
-            }
-
-            return true;
+        default:
+            return false;
         }
 
-        bool clear(uint32_t start, uint32_t end)
-        {
-            bool result;
+        return true;
+    }
+
+    bool clear(uint32_t start, uint32_t end)
+    {
+        bool result;
 
 #ifdef LED_INDICATORS
             // clearing is usually called in runtime so it's possible that LED
@@ -187,5 +187,4 @@ namespace Board
             // ignore start/end markers on stm32 for now
             return result;
         }
-    }    // namespace NVM
-}    // namespace Board
+}    // namespace Board::NVM

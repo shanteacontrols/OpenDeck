@@ -63,7 +63,9 @@ namespace
     void uartTransmitStart(uint8_t channel)
     {
         if (channel >= MAX_UART_INTERFACES)
+        {
             return;
+        }
 
         _txDone[channel] = false;
 
@@ -78,7 +80,9 @@ namespace Board
         void setLoopbackState(uint8_t channel, bool state)
         {
             if (channel >= MAX_UART_INTERFACES)
+            {
                 return;
+            }
 
             _loopbackEnabled[channel] = state;
         }
@@ -86,7 +90,9 @@ namespace Board
         bool deInit(uint8_t channel)
         {
             if (channel >= MAX_UART_INTERFACES)
+            {
                 return false;
+            }
 
             if (Board::detail::UART::ll::deInit(channel))
             {
@@ -107,10 +113,14 @@ namespace Board
         initStatus_t init(uint8_t channel, config_t& config, bool force)
         {
             if (channel >= MAX_UART_INTERFACES)
+            {
                 return initStatus_t::error;
+            }
 
             if (isInitialized(channel) && !force)
+            {
                 return initStatus_t::alreadyInit;    // interface already initialized
+            }
 
             if (deInit(channel))
             {
@@ -134,12 +144,16 @@ namespace Board
             size = 0;
 
             if (channel >= MAX_UART_INTERFACES)
+            {
                 return false;
+            }
 
             while (_rxBuffer[channel].remove(buffer[size++]))
             {
                 if (size >= maxSize)
+                {
                     break;
+                }
             }
 
             return size > 0;
@@ -150,7 +164,9 @@ namespace Board
             value = 0;
 
             if (channel >= MAX_UART_INTERFACES)
+            {
                 return false;
+            }
 
             return _rxBuffer[channel].remove(value);
         }
@@ -158,12 +174,16 @@ namespace Board
         bool write(uint8_t channel, uint8_t* buffer, size_t size)
         {
             if (channel >= MAX_UART_INTERFACES)
+            {
                 return false;
+            }
 
             for (size_t i = 0; i < size; i++)
             {
                 while (!_txBuffer[channel].insert(buffer[i]))
+                {
                     ;
+                }
 
                 uartTransmitStart(channel);
             }
@@ -174,10 +194,14 @@ namespace Board
         bool write(uint8_t channel, uint8_t value)
         {
             if (channel >= MAX_UART_INTERFACES)
+            {
                 return false;
+            }
 
             while (!_txBuffer[channel].insert(value))
+            {
                 ;
+            }
 
             uartTransmitStart(channel);
 
@@ -187,7 +211,9 @@ namespace Board
         bool isTxEmpty(uint8_t channel)
         {
             if (channel >= MAX_UART_INTERFACES)
+            {
                 return false;
+            }
 
             return _txDone[channel];
         }
@@ -198,58 +224,56 @@ namespace Board
             ATOMIC_SECTION
             {
                 if (channel < 513)
+                {
                     _dmxBuffer[channel] = value;
+                }
             }
         }
 #endif
     }    // namespace UART
 
-    namespace detail
+    namespace detail::UART
     {
-        namespace UART
+        void storeIncomingData(uint8_t channel, uint8_t data)
         {
-            void storeIncomingData(uint8_t channel, uint8_t data)
+            if (!_loopbackEnabled[channel])
             {
-                if (!_loopbackEnabled[channel])
+                _rxBuffer[channel].insert(data);
+            }
+            else
+            {
+                if (_txBuffer[channel].insert(data))
                 {
-                    _rxBuffer[channel].insert(data);
-                }
-                else
-                {
-                    if (_txBuffer[channel].insert(data))
-                    {
-                        Board::detail::UART::ll::enableDataEmptyInt(channel);
+                    Board::detail::UART::ll::enableDataEmptyInt(channel);
 
-                        // indicate loopback here since it's run inside interrupt, ie. not visible to the user application
-                        Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::outgoing);
-                        Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::incoming);
-                    }
+                    // indicate loopback here since it's run inside interrupt, ie. not visible to the user application
+                    Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::outgoing);
+                    Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::incoming);
                 }
             }
+        }
 
-            bool getNextByteToSend(uint8_t channel, uint8_t& data, size_t& remainingBytes)
+        bool getNextByteToSend(uint8_t channel, uint8_t& data, size_t& remainingBytes)
+        {
+            if (_txBuffer[channel].remove(data))
             {
-                if (_txBuffer[channel].remove(data))
-                {
-                    remainingBytes = _txBuffer[channel].count();
-                    return true;
-                }
-                else
-                {
-                    remainingBytes = 0;
-                    return false;
-                }
+                remainingBytes = _txBuffer[channel].count();
+                return true;
             }
 
-            bool bytesToSendAvailable(uint8_t channel)
-            {
-                return _txBuffer[channel].count();
-            }
+            remainingBytes = 0;
+            return false;
+        }
 
-            void indicateTxComplete(uint8_t channel)
-            {
-                _txDone[channel] = true;
-            }
+        bool bytesToSendAvailable(uint8_t channel)
+        {
+            return _txBuffer[channel].count();
+        }
+
+        void indicateTxComplete(uint8_t channel)
+        {
+            _txDone[channel] = true;
+        }
 
 #ifdef DMX_SUPPORTED
             uint8_t* dmxBuffer()
@@ -257,8 +281,7 @@ namespace Board
                 return _dmxBuffer;
             }
 #endif
-        }    // namespace UART
-    }        // namespace detail
+    }    // namespace detail::UART
 
 #ifndef USB_SUPPORTED
     namespace

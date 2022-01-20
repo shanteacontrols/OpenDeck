@@ -63,7 +63,9 @@ void ComponentInfo::send(Database::block_t block, size_t index)
     if ((core::timing::currentRunTimeMs() - _lastCinfoMsgTime[static_cast<size_t>(block)]) > COMPONENT_INFO_TIMEOUT)
     {
         if (_handler != nullptr)
+        {
             _handler(static_cast<size_t>(block), index);
+        }
 
         _lastCinfoMsgTime[static_cast<size_t>(block)] = core::timing::currentRunTimeMs();
     }

@@ -148,7 +148,9 @@ int main(int argc, char* argv[])
     }
 
     if (!lastByteSet)
+    {
         output.push_back(0xF7);
+    }
 
     appendCommand(COMMAND_FW_UPDATE_END, 2, output);
 

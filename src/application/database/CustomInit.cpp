@@ -28,7 +28,9 @@ void Database::customInitButtons()
     for (size_t group = 0; group < IO::Buttons::Collection::groups(); group++)
     {
         for (size_t i = 0; i < IO::Buttons::Collection::size(group); i++)
+        {
             update(Database::Section::button_t::midiID, i + IO::Buttons::Collection::startIndex(group), i);
+        }
     }
 }
 
@@ -37,7 +39,9 @@ void Database::customInitAnalog()
     for (size_t group = 0; group < IO::Analog::Collection::groups(); group++)
     {
         for (size_t i = 0; i < IO::Analog::Collection::size(group); i++)
+        {
             update(Database::Section::analog_t::midiID, i + IO::Analog::Collection::startIndex(group), i);
+        }
     }
 }
 

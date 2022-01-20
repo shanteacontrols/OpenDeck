@@ -75,7 +75,9 @@ Touchscreen::tsEvent_t Nextion::update(Touchscreen::tsData_t& data)
         else
         {
             if (_endCounter)
+            {
                 _endCounter = 0;
+            }
         }
 
         if (_endCounter == 3)
@@ -100,10 +102,14 @@ void Nextion::setIconState(Touchscreen::icon_t& icon, bool state)
 {
     // ignore width/height zero - set either intentionally to avoid display or incorrectly
     if (!icon.width)
+    {
         return;
+    }
 
     if (!icon.height)
+    {
         return;
+    }
 
     writeCommand("picq %u,%u,%u,%u,%u", icon.xPos, icon.yPos, icon.width, icon.height, state ? icon.onScreen : icon.offScreen);
 }
@@ -118,12 +124,16 @@ bool Nextion::writeCommand(const char* line, ...)
     va_end(args);
 
     if (retVal < 0)
+    {
         return false;
+    }
 
     for (size_t i = 0; i < strlen(_commandBuffer); i++)
     {
         if (!_hwa.write(_commandBuffer[i]))
+        {
             return false;
+        }
     }
 
     return endCommand();
@@ -134,7 +144,9 @@ bool Nextion::endCommand()
     for (int i = 0; i < 3; i++)
     {
         if (!_hwa.write(0xFF))
+        {
             return false;
+        }
     }
 
     return true;
@@ -238,10 +250,8 @@ Touchscreen::tsEvent_t Nextion::response(Touchscreen::tsData_t& data)
                 data.pressType = Touchscreen::pressType_t::hold;
                 return Touchscreen::tsEvent_t::coordinate;
             }
-            else
-            {
-                return Touchscreen::tsEvent_t::none;
-            }
+
+            return Touchscreen::tsEvent_t::none;
         }
         break;
 
@@ -258,7 +268,9 @@ void Nextion::pollXY()
     static uint32_t lastPollTime = 0;
 
     if (!_screenPressed)
+    {
         return;
+    }
 
     if ((core::timing::currentRunTimeMs() - lastPollTime) > XY_POLL_TIME_MS)
     {

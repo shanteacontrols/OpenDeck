@@ -69,7 +69,9 @@ bool FwSelector::isAppValid()
 
     // sanity checks
     if (!lastFwAddr || (firstFwAddr == lastFwAddr) || (firstFwAddr > lastFwAddr))
+    {
         return false;
+    }
 
     volatile uint16_t crcActual = _hwa.readFlash(lastFwAddr + 1);
     crcActual <<= 8;

@@ -21,7 +21,9 @@ limitations under the License.
 bool SysExParser::isValidMessage(MIDI::USBMIDIpacket_t& packet)
 {
     if (parse(packet))
+    {
         return verify();
+    }
 
     return false;
 }
@@ -50,7 +52,9 @@ bool SysExParser::parse(MIDI::USBMIDIpacket_t& packet)
     case static_cast<uint8_t>(usbMIDIsystemCin_t::sysExStartCin):
     {
         if (packet.Data1 == 0xF0)
+        {
             _sysExArrayLength = 0;    // this is a new sysex message, reset length
+        }
 
         _sysExArray[_sysExArrayLength] = packet.Data1;
         _sysExArrayLength++;
@@ -75,7 +79,9 @@ bool SysExParser::parse(MIDI::USBMIDIpacket_t& packet)
     case static_cast<uint8_t>(usbMIDIsystemCin_t::sysExStop3byteCin):
     {
         if (packet.Data1 == 0xF0)
+        {
             _sysExArrayLength = 0;    // sysex message with 1 byte of payload
+        }
 
         _sysExArray[_sysExArrayLength] = packet.Data1;
         _sysExArrayLength++;
@@ -97,7 +103,9 @@ bool SysExParser::parse(MIDI::USBMIDIpacket_t& packet)
 size_t SysExParser::dataBytes()
 {
     if (!verify())
+    {
         return 0;
+    }
 
     return (_sysExArrayLength - 2 - 3) / 2;
 }
@@ -107,7 +115,9 @@ bool SysExParser::value(size_t index, uint8_t& data)
     size_t arrayIndex = DATA_START_BYTE + index * 2;
 
     if ((arrayIndex + 1) >= _sysExArrayLength)
+    {
         return false;
+    }
 
     uint16_t value16;
 
@@ -121,13 +131,19 @@ bool SysExParser::value(size_t index, uint8_t& data)
 bool SysExParser::verify()
 {
     if (_sysExArray[1] != SYSEX_MANUFACTURER_ID_0)
+    {
         return false;
+    }
 
     if (_sysExArray[2] != SYSEX_MANUFACTURER_ID_1)
+    {
         return false;
+    }
 
     if (_sysExArray[3] != SYSEX_MANUFACTURER_ID_2)
+    {
         return false;
+    }
 
     // firmware sysex message should contain at least:
     // start byte
@@ -135,7 +151,9 @@ bool SysExParser::verify()
     // two data bytes
     // stop byte
     if (_sysExArrayLength < 7)
+    {
         return false;
+    }
 
     return true;
 }
@@ -147,9 +165,13 @@ bool SysExParser::verify()
 void SysExParser::mergeTo14bit(uint16_t& value, uint8_t high, uint8_t low)
 {
     if (high & 0x01)
+    {
         low |= (1 << 7);
+    }
     else
+    {
         low &= ~(1 << 7);
+    }
 
     high >>= 1;
 

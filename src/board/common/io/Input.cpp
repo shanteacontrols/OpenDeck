@@ -155,7 +155,9 @@ namespace
                     _digitalInBuffer[i].readings |= !BIT_READ(portValue, Board::detail::map::buttonPinIndex(i));
 
                     if (++_digitalInBuffer[i].count > MAX_READING_COUNT)
+                    {
                         _digitalInBuffer[i].count = MAX_READING_COUNT;
+                    }
                 }
             }
         }
@@ -170,7 +172,9 @@ namespace Board
         bool digitalInState(size_t digitalInIndex, dInReadings_t& dInReadings)
         {
             if (digitalInIndex >= NR_OF_DIGITAL_INPUTS)
+            {
                 return false;
+            }
 
 #ifdef NATIVE_BUTTON_INPUTS
             fillBuffer(digitalInIndex);
@@ -221,30 +225,32 @@ namespace Board
             uint8_t buttonID = encoderID * 2;
 
             if (index == encoderIndex_t::a)
+            {
                 return buttonID;
-            else
-                return buttonID + 1;
+            }
+
+            return buttonID + 1;
+
 #endif
         }
     }    // namespace io
 
-    namespace detail
+    namespace detail::io
     {
-        namespace io
+        void checkDigitalInputs()
         {
-            void checkDigitalInputs()
-            {
-                storeDigitalIn();
-            }
+            storeDigitalIn();
+        }
 
-            void flushInputReadings()
+        void flushInputReadings()
+        {
+            ATOMIC_SECTION
             {
-                ATOMIC_SECTION
+                for (size_t i = 0; i < NR_OF_DIGITAL_INPUTS; i++)
                 {
-                    for (size_t i = 0; i < NR_OF_DIGITAL_INPUTS; i++)
-                        _digitalInBuffer[i].count = 0;
+                    _digitalInBuffer[i].count = 0;
                 }
             }
-        }    // namespace io
-    }        // namespace detail
+        }
+    }    // namespace detail::io
 }    // namespace Board

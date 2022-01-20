@@ -28,22 +28,20 @@ namespace
     uint32_t _fwEntryType __attribute__((section(".noinit"))) __attribute__((used));
 }    // namespace
 
-namespace Board
+namespace Board::bootloader
 {
-    namespace bootloader
+    uint8_t magicBootValue()
     {
-        uint8_t magicBootValue()
-        {
-            return _fwEntryType;
-        }
+        return _fwEntryType;
+    }
 
-        void setMagicBootValue(uint8_t value)
-        {
-            _fwEntryType = static_cast<uint32_t>(value);
-        }
+    void setMagicBootValue(uint8_t value)
+    {
+        _fwEntryType = static_cast<uint32_t>(value);
+    }
 
-        void runBootloader()
-        {
+    void runBootloader()
+    {
 #if defined(LED_INDICATORS) && defined(LED_INDICATORS_CTL)
             // the only reason to run this in bootloader is to control led indicators through data event timeouts
             // if this feature is unavailable, don't configure the timer
@@ -62,7 +60,8 @@ namespace Board
             appEntry();
 
             while (true)
+            {
                 ;
+            }
         }
-    }    // namespace bootloader
-}    // namespace Board
+}    // namespace Board::bootloader

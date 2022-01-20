@@ -81,7 +81,9 @@ Protocol::MIDI::MIDI(HWA& hwa, Database& database)
                       Util::MessageDispatcher::listenType_t::all,
                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
                           if (!::MIDI::init(MIDI::interface_t::din))
+                          {
                               ::MIDI::deInit(MIDI::interface_t::din);
+                          }
                       });
 
     ConfigHandler.registerConfig(
@@ -100,7 +102,9 @@ Protocol::MIDI::MIDI(HWA& hwa, Database& database)
 bool Protocol::MIDI::init()
 {
     if (!::MIDI::init(MIDI::interface_t::usb))
+    {
         return false;
+    }
 
     ::MIDI::setInputChannel(::MIDI::MIDI_CHANNEL_OMNI);
     ::MIDI::setNoteOffMode(isFeatureEnabled(feature_t::standardNoteOff) ? MIDI::noteOffType_t::standardNoteOff : MIDI::noteOffType_t::noteOnZeroVel);
@@ -109,9 +113,13 @@ bool Protocol::MIDI::init()
     ::MIDI::useRecursiveParsing(true);
 
     if (isFeatureEnabled(feature_t::dinEnabled))
+    {
         ::MIDI::init(MIDI::interface_t::din);
+    }
     else
+    {
         ::MIDI::deInit(MIDI::interface_t::din);
+    }
 
     return true;
 }
@@ -119,10 +127,14 @@ bool Protocol::MIDI::init()
 bool Protocol::MIDI::deInit()
 {
     if (!::MIDI::deInit(MIDI::interface_t::din))
+    {
         return false;
+    }
 
     if (!::MIDI::deInit(MIDI::interface_t::usb))
+    {
         return false;
+    }
 
     return true;
 }
@@ -179,12 +191,16 @@ void Protocol::MIDI::read()
     {
         // pass the message to din
         while (::MIDI::read(MIDI::interface_t::usb, MIDI::filterMode_t::fullDIN))
+        {
             processMessage(MIDI::interface_t::usb);
+        }
     }
     else
     {
         while (::MIDI::read(MIDI::interface_t::usb))
+        {
             processMessage(MIDI::interface_t::usb);
+        }
     }
 
     if (isFeatureEnabled(feature_t::dinEnabled))
@@ -197,7 +213,9 @@ void Protocol::MIDI::read()
             {
                 // dump everything from DIN MIDI in to USB MIDI out
                 while (::MIDI::read(MIDI::interface_t::din, MIDI::filterMode_t::fullUSB))
+                {
                     ;
+                }
             }
             break;
 
@@ -212,7 +230,9 @@ void Protocol::MIDI::read()
         else
         {
             while (::MIDI::read(MIDI::interface_t::din))
+            {
                 processMessage(MIDI::interface_t::din);
+            }
         }
     }
 }
@@ -230,9 +250,13 @@ void Protocol::MIDI::sendMIDI(const Util::MessageDispatcher::message_t& message)
     case ::MIDI::messageType_t::noteOn:
     {
         if (!message.midiValue && (getNoteOffMode() == ::MIDI::noteOffType_t::standardNoteOff))
+        {
             sendNoteOff(message.midiIndex, message.midiValue, message.midiChannel);
+        }
         else
+        {
             sendNoteOn(message.midiIndex, message.midiValue, message.midiChannel);
+        }
     }
     break;
 
@@ -375,7 +399,9 @@ Protocol::MIDI::mergeType_t Protocol::MIDI::mergeType()
 bool Protocol::MIDI::HWAInternal::init(MIDI::interface_t interface)
 {
     if (interface == ::MIDI::interface_t::usb)
+    {
         return _midi._hwa.init(interface);
+    }
 
     if (_midi.isFeatureEnabled(feature_t::dinEnabled))
     {
@@ -385,7 +411,9 @@ bool Protocol::MIDI::HWAInternal::init(MIDI::interface_t interface)
         bool loopback = mergeType == MIDI::mergeType_t::DINtoDIN && mergeEnabled;
 
         if (_dinMIDIenabled && (loopback == _dinMIDIloopbackEnabled))
+        {
             return true;    // nothing do do
+        }
 
         if (!_dinMIDIenabled)
         {
@@ -418,7 +446,9 @@ bool Protocol::MIDI::HWAInternal::deInit(MIDI::interface_t interface)
     if (interface == MIDI::interface_t::din)
     {
         if (!_dinMIDIenabled)
+        {
             return true;    // nothing to do
+        }
 
         if (_midi._hwa.deInit(interface))
         {
@@ -476,10 +506,8 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigGet(System::Config::Section::glo
                 {
                     return System::Config::status_t::serialPeripheralAllocatedError;
                 }
-                else
-                {
-                    result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ack : System::Config::status_t::errorRead;
-                }
+
+                result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ack : System::Config::status_t::errorRead;
             }
             else
             {
@@ -497,10 +525,8 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigGet(System::Config::Section::glo
             {
                 return System::Config::status_t::serialPeripheralAllocatedError;
             }
-            else
-            {
-                result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ack : System::Config::status_t::errorRead;
-            }
+
+            result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ack : System::Config::status_t::errorRead;
         }
         else
         {
@@ -555,9 +581,13 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
         case feature_t::standardNoteOff:
         {
             if (value)
+            {
                 setNoteOffMode(::MIDI::noteOffType_t::standardNoteOff);
+            }
             else
+            {
                 setNoteOffMode(::MIDI::noteOffType_t::noteOnZeroVel);
+            }
 
             result = System::Config::status_t::ack;
         }
@@ -574,9 +604,13 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
                 else
                 {
                     if (value)
+                    {
                         dinMIDIinitAction = Common::initAction_t::init;
+                    }
                     else
+                    {
                         dinMIDIinitAction = Common::initAction_t::deInit;
+                    }
 
                     result = System::Config::status_t::ack;
                 }
@@ -601,7 +635,9 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
                     result = System::Config::status_t::ack;
 
                     if (isFeatureEnabled(feature_t::dinEnabled))
+                    {
                         dinMIDIinitAction = Common::initAction_t::init;
+                    }
                 }
             }
             else
@@ -641,7 +677,9 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
                         result = System::Config::status_t::ack;
 
                         if (isFeatureEnabled(feature_t::dinEnabled))
+                        {
                             dinMIDIinitAction = Common::initAction_t::init;
+                        }
                     }
                     else
                     {

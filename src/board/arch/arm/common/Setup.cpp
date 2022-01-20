@@ -22,39 +22,35 @@ limitations under the License.
 #include "core/src/general/Timing.h"
 #include <Target.h>
 
-namespace Board
+namespace Board::detail::setup
 {
-    namespace detail
+    void bootloader()
     {
-        namespace setup
-        {
-            void bootloader()
-            {
-                detail::setup::halInit();
-                detail::setup::clocks();
-                detail::setup::io();
-            }
+        detail::setup::halInit();
+        detail::setup::clocks();
+        detail::setup::io();
+    }
 
-            void application()
-            {
-                detail::setup::halInit();
-                detail::setup::clocks();
+    void application()
+    {
+        detail::setup::halInit();
+        detail::setup::clocks();
 
-                // add some delay for clocks to stabilize
-                core::timing::waitMs(10);
+        // add some delay for clocks to stabilize
+        core::timing::waitMs(10);
 
-                detail::setup::io();
-                detail::setup::adc();
-                detail::setup::timers();
+        detail::setup::io();
+        detail::setup::adc();
+        detail::setup::timers();
 
-                // add some delay and remove initial readout of digital inputs
-                core::timing::waitMs(10);
-                detail::io::flushInputReadings();
-                detail::setup::usb();
-            }
+        // add some delay and remove initial readout of digital inputs
+        core::timing::waitMs(10);
+        detail::io::flushInputReadings();
+        detail::setup::usb();
+    }
 
-            void io()
-            {
+    void io()
+    {
 #ifdef DIGITAL_INPUTS_SUPPORTED
 #ifdef NUMBER_OF_IN_SR
                 CORE_IO_CONFIG({ SR_IN_DATA_PORT, SR_IN_DATA_PIN, core::io::pinMode_t::input, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
@@ -195,6 +191,4 @@ namespace Board
                 INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
 #endif
             }
-        }    // namespace setup
-    }        // namespace detail
-}    // namespace Board
+}    // namespace Board::detail::setup

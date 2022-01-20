@@ -226,7 +226,9 @@ class HWADigitalIn
     bool buttonState(size_t index, uint8_t& numberOfReadings, uint32_t& states)
     {
         if (!Board::io::digitalInState(index, dInReadA))
+        {
             return false;
+        }
 
         numberOfReadings = dInReadA.count;
         states           = dInReadA.readings;
@@ -239,10 +241,14 @@ class HWADigitalIn
     bool encoderState(size_t index, uint8_t& numberOfReadings, uint32_t& states)
     {
         if (!Board::io::digitalInState(Board::io::encoderSignalIndex(index, Board::io::encoderIndex_t::a), dInReadA))
+        {
             return false;
+        }
 
         if (!Board::io::digitalInState(Board::io::encoderSignalIndex(index, Board::io::encoderIndex_t::b), dInReadB))
+        {
             return false;
+        }
 
         numberOfReadings = dInReadA.count > dInReadB.count ? dInReadA.count : dInReadB.count;
 
@@ -346,7 +352,9 @@ class HWAMIDI : public System::Builder::HWA::Protocol::MIDI
     bool init(::MIDI::interface_t interface) override
     {
         if (interface == ::MIDI::interface_t::usb)
+        {
             return true;    // already initialized
+        }
 
 #ifdef DIN_MIDI_SUPPORTED
         Board::UART::config_t config(UART_BAUDRATE_MIDI_STD,
@@ -364,7 +372,9 @@ class HWAMIDI : public System::Builder::HWA::Protocol::MIDI
     bool deInit(::MIDI::interface_t interface) override
     {
         if (interface == ::MIDI::interface_t::usb)
+        {
             return true;    // never deinit usb interface, just pretend here
+        }
 
 #ifdef DIN_MIDI_SUPPORTED
         Board::UART::deInit(UART_CHANNEL_DIN);
@@ -374,7 +384,7 @@ class HWAMIDI : public System::Builder::HWA::Protocol::MIDI
 #endif
     }
 
-    bool setDINLoopback(bool state)
+    bool setDINLoopback(bool state) override
     {
 #ifdef DIN_MIDI_SUPPORTED
         Board::UART::setLoopbackState(UART_CHANNEL_DIN, state);
@@ -597,7 +607,7 @@ class HWADMXStub : public System::Builder::HWA::Protocol::DMX
 class HWATouchscreen : public System::Builder::HWA::IO::Touchscreen
 {
     public:
-    HWATouchscreen() {}
+    HWATouchscreen() = default;
 
     bool init() override
     {
@@ -642,7 +652,9 @@ class HWACDCPassthrough : public System::Builder::HWA::IO::CDCPassthrough
     bool init() override
     {
         if (CDCLocker::locked())
+        {
             return false;
+        }
 
         _passThroughState = true;
         CDCLocker::lock();
@@ -864,7 +876,9 @@ class HWASystem : public System::Builder::HWA::System
                 if (!lastConnectionState)
                 {
                     if (_usbConnectionHandler != nullptr)
+                    {
                         _usbConnectionHandler();
+                    }
                 }
             }
 
@@ -877,7 +891,9 @@ class HWASystem : public System::Builder::HWA::System
             // nobody is using CDC, read it here to avoid lockups but ignore the data
             uint8_t dummy;
             while (Board::USB::readCDC(dummy))
+            {
                 ;
+            }
         }
     }
 
@@ -975,16 +991,13 @@ class HWABuilder : public ::System::Builder::HWA
 } _hwa;
 
 #ifdef TOUCHSCREEN_SUPPORTED
-namespace Board
+namespace Board::USB
 {
-    namespace USB
+    void onCDCsetLineEncoding(uint32_t baudRate)
     {
-        void onCDCsetLineEncoding(uint32_t baudRate)
-        {
-            _hwaCDCPassthrough.onCDCsetLineEncoding(baudRate);
-        }
-    }    // namespace USB
-}    // namespace Board
+        _hwaCDCPassthrough.onCDCsetLineEncoding(baudRate);
+    }
+}    // namespace Board::USB
 #endif
 
 Database _database(_hwaDatabase,

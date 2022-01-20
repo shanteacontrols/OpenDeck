@@ -138,7 +138,9 @@ namespace
                 if (
                     (data == static_cast<uint32_t>(EmuEEPROM::pageStatus_t::receiving)) ||
                     (data == static_cast<uint32_t>(EmuEEPROM::pageStatus_t::valid)))
+                {
                     _activePageWrite = page;
+                }
             }
 
             _flashVector.at(page).at(address + 0) = data >> 0 & static_cast<uint16_t>(0xFF);
@@ -288,10 +290,8 @@ int main(int argc, char* argv[])
         std::cout << argv[0] << "ERROR: Filename for generated flash not provided" << std::endl;
         return -1;
     }
-    else
-    {
-        emuEEPROMstorage.setFilename(argv[1]);
-    }
+
+    emuEEPROMstorage.setFilename(argv[1]);
 
     if (database.init())
     {

@@ -30,7 +30,9 @@ I2C::I2C(HWA& hwa)
 bool I2C::init()
 {
     if (!_hwa.init())
+    {
         return false;
+    }
 
     // Get I2C addresses for each peripheral.
     // Once one of the provided addresses is found on I2C bus,
@@ -62,14 +64,18 @@ void I2C::update(bool forceRefresh)
     for (size_t i = 0; i < _peripherals.size(); i++)
     {
         if (_peripherals.at(i) != nullptr)
+        {
             _peripherals.at(i)->update();
+        }
     }
 }
 
 void I2C::registerPeripheral(Peripheral* instance)
 {
     if (_peripheralCounter >= MAX_PERIPHERALS)
+    {
         return;
+    }
 
     _peripherals[_peripheralCounter++] = instance;
 }

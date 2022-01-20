@@ -47,7 +47,9 @@ Instance::Instance(HWA&        hwa,
                               _sysExConf.handleMessage(dispatchMessage.sysEx, dispatchMessage.sysExLength);
 
                               if (_backupRestoreState == backupRestoreState_t::backup)
+                              {
                                   backup();
+                              }
                           }
                       });
 }
@@ -83,17 +85,23 @@ bool Instance::init()
     });
 
     if (!_hwa.init())
+    {
         return false;
+    }
 
     if (!_components.database().init(_dbHandlers))
+    {
         return false;
+    }
 
     for (size_t i = 0; i < _components.io().size(); i++)
     {
         auto component = _components.io().at(i);
 
         if (component != nullptr)
+        {
             component->init();
+        }
     }
 
     _sysExConf.setLayout(sysExLayout);
@@ -104,7 +112,9 @@ bool Instance::init()
         auto component = _components.protocol().at(i);
 
         if (component != nullptr)
+        {
             component->init();
+        }
     }
 
     // on startup, indicate current program for all channels (if any leds have program change assigned as control mode)
@@ -197,7 +207,9 @@ void Instance::backup()
                     (block == static_cast<uint8_t>(System::Config::block_t::leds)) &&
                     ((section == static_cast<uint8_t>(System::Config::Section::leds_t::testColor)) ||
                      (section == static_cast<uint8_t>(System::Config::Section::leds_t::testBlink))))
+                {
                     continue;    // testing sections, skip
+                }
 
                 backupRequest[backupRequestSectionIndex] = section;
                 _sysExConf.handleMessage(backupRequest, sizeof(backupRequest));
@@ -268,7 +280,9 @@ void Instance::checkComponents()
     auto component = _components.io().at(static_cast<size_t>(componentCheck));
 
     if (component != nullptr)
+    {
         component->update();
+    }
 }
 
 void Instance::checkProtocols()
@@ -278,7 +292,9 @@ void Instance::checkProtocols()
         auto component = _components.protocol().at(i);
 
         if (component != nullptr)
+        {
             component->read();
+        }
     }
 }
 
@@ -351,7 +367,9 @@ uint8_t Instance::SysExDataHandler::customRequest(uint16_t request, CustomRespon
     case SYSEX_CR_FACTORY_RESET:
     {
         if (!_system._components.database().factoryReset())
+        {
             result = static_cast<uint8_t>(SysExConf::status_t::errorWrite);
+        }
     }
     break;
 
@@ -471,5 +489,7 @@ void Instance::DBhandlers::factoryResetDone()
     // Don't run this if database isn't fully initialized yet
     // to avoid MCU reset if factory reset is needed on first run.
     if (_system._components.database().isInitialized())
+    {
         _system._hwa.reboot(FwSelector::fwType_t::application);
+    }
 }

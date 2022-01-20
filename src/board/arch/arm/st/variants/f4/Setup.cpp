@@ -26,110 +26,105 @@ limitations under the License.
 // 42 constant based on 84MHz system clock and specific prescaler values used here
 #define TIMER_US_TO_TICKS(us) (((42 * us) - 1))
 
-namespace core
+namespace core::adc
 {
-#ifdef ADC_SUPPORTED
-    namespace adc
+    void startConversion()
     {
-        void startConversion()
+        /* Clear regular group conversion flag and overrun flag */
+        /* (To ensure of no unknown state from potential previous ADC operations) */
+        ADC1->SR = ~(ADC_FLAG_EOC | ADC_FLAG_OVR);
+
+        /* Enable end of conversion interrupt for regular group */
+        ADC1->CR1 |= (ADC_IT_EOC | ADC_IT_OVR);
+
+        /* Enable the selected ADC software conversion for regular group */
+        ADC1->CR2 |= (uint32_t)ADC_CR2_SWSTART;
+    }
+
+    void setChannel(uint32_t adcChannel)
+    {
+        /* Clear the old SQx bits for the selected rank */
+        ADC1->SQR3 &= ~ADC_SQR3_RK(ADC_SQR3_SQ1, 1);
+
+        /* Set the SQx bits for the selected rank */
+        ADC1->SQR3 |= ADC_SQR3_RK(adcChannel, 1);
+    }
+}    // namespace core::adc
+
+namespace Board::detail::setup
+{
+    void clocks()
+    {
+        RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
+        RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
+
+        /* Configure the main internal regulator output voltage */
+        __HAL_RCC_PWR_CLK_ENABLE();
+        __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE);
+
+        /* Initializes the CPU, AHB and APB busses clocks */
+        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+        RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+        RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
+        RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
+        RCC_OscInitStruct.PLL.PLLM       = HSE_PLLM;
+        RCC_OscInitStruct.PLL.PLLN       = HSE_PLLN;
+        RCC_OscInitStruct.PLL.PLLP       = HSE_PLLP;
+        RCC_OscInitStruct.PLL.PLLQ       = HSE_PLLQ;
+
+        if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
         {
-            /* Clear regular group conversion flag and overrun flag */
-            /* (To ensure of no unknown state from potential previous ADC operations) */
-            ADC1->SR = ~(ADC_FLAG_EOC | ADC_FLAG_OVR);
-
-            /* Enable end of conversion interrupt for regular group */
-            ADC1->CR1 |= (ADC_IT_EOC | ADC_IT_OVR);
-
-            /* Enable the selected ADC software conversion for regular group */
-            ADC1->CR2 |= (uint32_t)ADC_CR2_SWSTART;
+            Board::detail::errorHandler();
         }
 
-        void setChannel(uint32_t adcChannel)
-        {
-            /* Clear the old SQx bits for the selected rank */
-            ADC1->SQR3 &= ~ADC_SQR3_RK(ADC_SQR3_SQ1, 1);
+        /* Initializes the CPU, AHB and APB busses clocks */
+        RCC_ClkInitStruct.ClockType      = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+        RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
+        RCC_ClkInitStruct.AHBCLKDivider  = AHB_CLK_DIV;
+        RCC_ClkInitStruct.APB1CLKDivider = APB1_CLK_DIV;
+        RCC_ClkInitStruct.APB2CLKDivider = APB2_CLK_DIV;
 
-            /* Set the SQx bits for the selected rank */
-            ADC1->SQR3 |= ADC_SQR3_RK(adcChannel, 1);
+        if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+        {
+            Board::detail::errorHandler();
         }
-    }    // namespace adc
-#endif
-}    // namespace core
+    }
 
-namespace Board
-{
-    namespace detail
+    void timers()
     {
-        namespace setup
-        {
-            void clocks()
-            {
-                RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
-                RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
+        TIM_HandleTypeDef       mainTimerHandler  = {};
+        TIM_ClockConfigTypeDef  timerClockConfig  = {};
+        TIM_MasterConfigTypeDef timerMasterConfig = {};
+        TIM_OC_InitTypeDef      timerOCConfig     = {};
+        timerOCConfig.OCMode                      = TIM_OCMODE_ACTIVE;
+        timerOCConfig.OCPolarity                  = TIM_OCPOLARITY_HIGH;
+        timerOCConfig.OCFastMode                  = TIM_OCFAST_DISABLE;
 
-                /* Configure the main internal regulator output voltage */
-                __HAL_RCC_PWR_CLK_ENABLE();
-                __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE);
+        mainTimerHandler.Instance               = TIM4;
+        mainTimerHandler.Init.Prescaler         = 1;
+        mainTimerHandler.Init.CounterMode       = TIM_COUNTERMODE_UP;
+        mainTimerHandler.Init.Period            = 0xFFFF;
+        mainTimerHandler.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+        mainTimerHandler.Init.RepetitionCounter = 0;
+        mainTimerHandler.Init.AutoReloadPreload = 0;
+        HAL_TIM_Base_Init(&mainTimerHandler);
 
-                /* Initializes the CPU, AHB and APB busses clocks */
-                RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-                RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
-                RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
-                RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
-                RCC_OscInitStruct.PLL.PLLM       = HSE_PLLM;
-                RCC_OscInitStruct.PLL.PLLN       = HSE_PLLN;
-                RCC_OscInitStruct.PLL.PLLP       = HSE_PLLP;
-                RCC_OscInitStruct.PLL.PLLQ       = HSE_PLLQ;
+        timerClockConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+        HAL_TIM_ConfigClockSource(&mainTimerHandler, &timerClockConfig);
 
-                if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-                    Board::detail::errorHandler();
+        timerMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+        timerMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
+        HAL_TIMEx_MasterConfigSynchronization(&mainTimerHandler, &timerMasterConfig);
 
-                /* Initializes the CPU, AHB and APB busses clocks */
-                RCC_ClkInitStruct.ClockType      = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
-                RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
-                RCC_ClkInitStruct.AHBCLKDivider  = AHB_CLK_DIV;
-                RCC_ClkInitStruct.APB1CLKDivider = APB1_CLK_DIV;
-                RCC_ClkInitStruct.APB2CLKDivider = APB2_CLK_DIV;
+        timerOCConfig.Pulse = TIMER_US_TO_TICKS(TIMER_PERIOD_MAIN);
+        HAL_TIM_OC_ConfigChannel(&mainTimerHandler, &timerOCConfig, TIM_CHANNEL_1);
 
-                if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
-                    Board::detail::errorHandler();
-            }
+        timerOCConfig.Pulse = TIMER_US_TO_TICKS(TIMER_PERIOD_PWM);
+        HAL_TIM_OC_ConfigChannel(&mainTimerHandler, &timerOCConfig, TIM_CHANNEL_2);
 
-            void timers()
-            {
-                TIM_HandleTypeDef       mainTimerHandler  = {};
-                TIM_ClockConfigTypeDef  timerClockConfig  = {};
-                TIM_MasterConfigTypeDef timerMasterConfig = {};
-                TIM_OC_InitTypeDef      timerOCConfig     = {};
-                timerOCConfig.OCMode                      = TIM_OCMODE_ACTIVE;
-                timerOCConfig.OCPolarity                  = TIM_OCPOLARITY_HIGH;
-                timerOCConfig.OCFastMode                  = TIM_OCFAST_DISABLE;
-
-                mainTimerHandler.Instance               = TIM4;
-                mainTimerHandler.Init.Prescaler         = 1;
-                mainTimerHandler.Init.CounterMode       = TIM_COUNTERMODE_UP;
-                mainTimerHandler.Init.Period            = 0xFFFF;
-                mainTimerHandler.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
-                mainTimerHandler.Init.RepetitionCounter = 0;
-                mainTimerHandler.Init.AutoReloadPreload = 0;
-                HAL_TIM_Base_Init(&mainTimerHandler);
-
-                timerClockConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-                HAL_TIM_ConfigClockSource(&mainTimerHandler, &timerClockConfig);
-
-                timerMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-                timerMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
-                HAL_TIMEx_MasterConfigSynchronization(&mainTimerHandler, &timerMasterConfig);
-
-                timerOCConfig.Pulse = TIMER_US_TO_TICKS(TIMER_PERIOD_MAIN);
-                HAL_TIM_OC_ConfigChannel(&mainTimerHandler, &timerOCConfig, TIM_CHANNEL_1);
-
-                timerOCConfig.Pulse = TIMER_US_TO_TICKS(TIMER_PERIOD_PWM);
-                HAL_TIM_OC_ConfigChannel(&mainTimerHandler, &timerOCConfig, TIM_CHANNEL_2);
-
-                HAL_TIM_OC_Start_IT(&mainTimerHandler, TIM_CHANNEL_1);
-                HAL_TIM_OC_Start_IT(&mainTimerHandler, TIM_CHANNEL_2);
-            }
+        HAL_TIM_OC_Start_IT(&mainTimerHandler, TIM_CHANNEL_1);
+        HAL_TIM_OC_Start_IT(&mainTimerHandler, TIM_CHANNEL_2);
+    }
 
 #ifdef ADC_SUPPORTED
             void adc()
@@ -165,9 +160,7 @@ namespace Board
                 HAL_ADC_Start_IT(&adcHandler);
             }
 #endif
-        }    // namespace setup
-    }        // namespace detail
-}    // namespace Board
+}    // namespace Board::detail::setup
 
 extern "C" void HAL_MspInit(void)
 {
@@ -292,7 +285,9 @@ extern "C" void HAL_UART_MspInit(UART_HandleTypeDef* huart)
         descriptor->enableClock();
 
         for (size_t i = 0; i < descriptor->pins().size(); i++)
+        {
             CORE_IO_CONFIG(descriptor->pins().at(i));
+        }
 
         if (descriptor->irqn() != 0)
         {
@@ -313,7 +308,9 @@ extern "C" void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
         descriptor->disableClock();
 
         for (size_t i = 0; i < descriptor->pins().size(); i++)
+        {
             HAL_GPIO_DeInit(descriptor->pins().at(i).port, descriptor->pins().at(i).index);
+        }
 
         HAL_NVIC_DisableIRQ(descriptor->irqn());
     }
@@ -330,7 +327,9 @@ extern "C" void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
         descriptor->enableClock();
 
         for (size_t i = 0; i < descriptor->pins().size(); i++)
+        {
             CORE_IO_CONFIG(descriptor->pins().at(i));
+        }
 
         if (descriptor->irqn() != 0)
         {
@@ -351,7 +350,9 @@ extern "C" void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
         descriptor->disableClock();
 
         for (size_t i = 0; i < descriptor->pins().size(); i++)
+        {
             HAL_GPIO_DeInit(descriptor->pins().at(i).port, descriptor->pins().at(i).index);
+        }
 
         HAL_NVIC_DisableIRQ(descriptor->irqn());
     }

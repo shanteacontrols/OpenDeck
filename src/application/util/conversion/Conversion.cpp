@@ -95,43 +95,40 @@ namespace
     };
 }    // namespace
 
-namespace Util
+namespace Util::Conversion
 {
-    namespace Conversion
+    Database::Section::global_t sys2DBsection(System::Config::Section::global_t section)
     {
-        Database::Section::global_t sys2DBsection(System::Config::Section::global_t section)
-        {
-            return _sysEx2DB_global[static_cast<uint8_t>(section)];
-        }
+        return _sysEx2DB_global[static_cast<uint8_t>(section)];
+    }
 
-        Database::Section::button_t sys2DBsection(System::Config::Section::button_t section)
-        {
-            return _sysEx2DB_button[static_cast<uint8_t>(section)];
-        }
+    Database::Section::button_t sys2DBsection(System::Config::Section::button_t section)
+    {
+        return _sysEx2DB_button[static_cast<uint8_t>(section)];
+    }
 
-        Database::Section::encoder_t sys2DBsection(System::Config::Section::encoder_t section)
-        {
-            return _sysEx2DB_encoder[static_cast<uint8_t>(section)];
-        }
+    Database::Section::encoder_t sys2DBsection(System::Config::Section::encoder_t section)
+    {
+        return _sysEx2DB_encoder[static_cast<uint8_t>(section)];
+    }
 
-        Database::Section::analog_t sys2DBsection(System::Config::Section::analog_t section)
-        {
-            return _sysEx2DB_analog[static_cast<uint8_t>(section)];
-        }
+    Database::Section::analog_t sys2DBsection(System::Config::Section::analog_t section)
+    {
+        return _sysEx2DB_analog[static_cast<uint8_t>(section)];
+    }
 
-        Database::Section::leds_t sys2DBsection(System::Config::Section::leds_t section)
-        {
-            return _sysEx2DB_leds[static_cast<uint8_t>(section)];
-        }
+    Database::Section::leds_t sys2DBsection(System::Config::Section::leds_t section)
+    {
+        return _sysEx2DB_leds[static_cast<uint8_t>(section)];
+    }
 
-        Database::Section::i2c_t sys2DBsection(System::Config::Section::i2c_t section)
-        {
-            return _sysEx2DB_i2c[static_cast<uint8_t>(section)];
-        }
+    Database::Section::i2c_t sys2DBsection(System::Config::Section::i2c_t section)
+    {
+        return _sysEx2DB_i2c[static_cast<uint8_t>(section)];
+    }
 
-        Database::Section::touchscreen_t sys2DBsection(System::Config::Section::touchscreen_t section)
-        {
-            return _sysEx2DB_touchscreen[static_cast<uint8_t>(section)];
-        }
-    }    // namespace Conversion
-}    // namespace Util
+    Database::Section::touchscreen_t sys2DBsection(System::Config::Section::touchscreen_t section)
+    {
+        return _sysEx2DB_touchscreen[static_cast<uint8_t>(section)];
+    }
+}    // namespace Util::Conversion

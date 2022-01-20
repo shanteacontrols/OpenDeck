@@ -90,7 +90,7 @@ namespace IO
         bool                   initU8X8(uint8_t i2cAddress, displayController_t controller, displayResolution_t resolution);
         bool                   deInit();
         void                   setAlternateNoteDisplay(bool state);
-        void                   setRetentionTime(uint32_t time);
+        void                   setRetentionTime(uint32_t retentionTime);
         void                   displayMIDIevent(eventType_t type, const Util::MessageDispatcher::message_t& dispatchMessage);
         void                   displayWelcomeMessage();
         void                   updateText(uint8_t row, uint8_t startIndex);
