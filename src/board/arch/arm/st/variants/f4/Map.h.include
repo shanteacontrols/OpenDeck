@@ -28,12 +28,12 @@ namespace Board
             {
                 uint8_t index = core::misc::maskToIndex(pin.index);
 
-                if (pin.port == CORE_IO_PIN_PORT_VAR(CORE_IO_PIN_PORT_DEF(A)))
+                if (pin.port == CORE_IO_PIN_PORT_DEF(A))
                 {
                     if (index < 8)
                         return index;
                 }
-                else if (pin.port == CORE_IO_PIN_PORT_VAR(CORE_IO_PIN_PORT_DEF(B)))
+                else if (pin.port == CORE_IO_PIN_PORT_DEF(B))
                 {
                     switch (index)
                     {
@@ -47,7 +47,7 @@ namespace Board
                         return 0xFF;
                     }
                 }
-                else if (pin.port == CORE_IO_PIN_PORT_VAR(CORE_IO_PIN_PORT_DEF(C)))
+                else if (pin.port == CORE_IO_PIN_PORT_DEF(C))
                 {
                     if (index < 6)
                         return 10 + index;

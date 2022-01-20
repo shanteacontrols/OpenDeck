@@ -91,7 +91,7 @@ namespace Board
                 return dOutPorts[index];
             }
 
-            constexpr const portWidth_t digitalOutPortClearMask(uint8_t index)
+            constexpr const core::io::portWidth_t digitalOutPortClearMask(uint8_t index)
             {
                 return dOutPortsClearMask[index];
             }

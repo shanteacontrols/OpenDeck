@@ -80,9 +80,6 @@ printf "%s\n" "DEFINES += BOARD_STRING=\\\"$board_name\\\"" >> "$OUT_MAKEFILE"
     printf "%s\n" "#include \"core/src/general/IO.h\""
     printf "%s\n" "#include \"board/Internal.h\""
     printf "%s\n\n" "#include <MCU.h>"
-    printf "%s\n" "#define _MAKE_IO_WIDTH_TYPE(width) uint ## width ## _t"
-    printf "%s\n\n" "#define MAKE_IO_WIDTH_TYPE(width) _MAKE_IO_WIDTH_TYPE(width)"
-    printf "%s\n\n" "using portWidth_t = MAKE_IO_WIDTH_TYPE(IO_REG_WIDTH);"
 } >> "$OUT_HEADER"
 
 #################################################### PERIPHERALS ####################################################
@@ -284,7 +281,7 @@ then
         for ((i=0; i<${#port_array_unique[@]}; i++))
         do
             {
-                printf "%s\n" "CORE_IO_PIN_PORT_VAR(CORE_IO_PIN_PORT_DEF(${port_array_unique[$i]})),"
+                printf "%s\n" "CORE_IO_PIN_PORT_DEF(${port_array_unique[$i]}),"
             } >> "$OUT_HEADER"
         done
 
@@ -548,13 +545,13 @@ then
         for ((i=0; i<${#port_array_unique[@]}; i++))
         do
             {
-                printf "%s\n" "CORE_IO_PIN_PORT_VAR(CORE_IO_PIN_PORT_DEF(${port_array_unique[$i]})),"
+                printf "%s\n" "CORE_IO_PIN_PORT_DEF(${port_array_unique[$i]}),"
             } >> "$OUT_HEADER"
         done
 
         {
             printf "%s\n" "};"
-            printf "%s\n" "constexpr inline portWidth_t dOutPortsClearMask[NR_OF_DIGITAL_OUTPUT_PORTS] = {"
+            printf "%s\n" "constexpr inline core::io::portWidth_t dOutPortsClearMask[NR_OF_DIGITAL_OUTPUT_PORTS] = {"
         } >> "$OUT_HEADER"
 
         for ((port=0; port<${#port_array_unique[@]}; port++))
@@ -571,7 +568,7 @@ then
                 fi
             done
 
-            printf "%s\n" "static_cast<portWidth_t>($mask)," >> "$OUT_HEADER"
+            printf "%s\n" "static_cast<core::io::portWidth_t>($mask)," >> "$OUT_HEADER"
         done
 
         {
@@ -1019,7 +1016,7 @@ then
         case $mode in
             "in-pull")
                 {
-                    printf "%s\n" "{ .pin = { .port= CORE_IO_PIN_PORT_VAR(UNUSED_PORT_${i}), .index = CORE_IO_PIN_INDEX_VAR(UNUSED_PIN_${i})",
+                    printf "%s\n" "{ .pin = { .port = UNUSED_PORT_${i}, .index = UNUSED_PIN_${i}",
                     printf "\n%s\n" "#ifdef __AVR__"
                     printf "%s\n" ".mode = core::io::pinMode_t::input, },"
                     printf "%s\n" "#else"
@@ -1031,7 +1028,7 @@ then
 
             "out-low")
                 {
-                    printf "%s\n" "{ .pin = { .port= CORE_IO_PIN_PORT_VAR(UNUSED_PORT_${i}), .index = CORE_IO_PIN_INDEX_VAR(UNUSED_PIN_${i})",
+                    printf "%s\n" "{ .pin = { .port = UNUSED_PORT_${i}, .index = UNUSED_PIN_${i}",
                     printf "\n%s\n" "#ifdef __AVR__"
                     printf "%s\n" ".mode = core::io::pinMode_t::output, },"
                     printf "%s\n" "#else"
@@ -1043,7 +1040,7 @@ then
 
             "out-high")
                 {
-                    printf "%s\n" "{ .pin = { .port= CORE_IO_PIN_PORT_VAR(UNUSED_PORT_${i}), .index = CORE_IO_PIN_INDEX_VAR(UNUSED_PIN_${i})",
+                    printf "%s\n" "{ .pin = { .port = UNUSED_PORT_${i}, .index = UNUSED_PIN_${i}",
                     printf "\n%s\n" "#ifdef __AVR__"
                     printf "%s\n" ".mode = core::io::pinMode_t::output, },"
                     printf "%s\n" "#else"

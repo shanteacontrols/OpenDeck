@@ -63,8 +63,8 @@ namespace
         std::vector<core::io::mcuPin_t> _pins = {
             // rx
             {
-                .port      = GPIOA,
-                .index     = GPIO_PIN_10,
+                .port      = CORE_IO_PIN_PORT_DEF(A),
+                .index     = CORE_IO_PIN_INDEX_DEF(10),
                 .mode      = core::io::pinMode_t::alternatePP,
                 .pull      = core::io::pullMode_t::none,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
@@ -73,8 +73,8 @@ namespace
 
             // tx
             {
-                .port      = GPIOA,
-                .index     = GPIO_PIN_9,
+                .port      = CORE_IO_PIN_PORT_DEF(A),
+                .index     = CORE_IO_PIN_INDEX_DEF(9),
                 .mode      = core::io::pinMode_t::alternatePP,
                 .pull      = core::io::pullMode_t::none,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
@@ -119,8 +119,8 @@ namespace
         std::vector<core::io::mcuPin_t> _pins = {
             // rx
             {
-                .port      = GPIOA,
-                .index     = GPIO_PIN_3,
+                .port      = CORE_IO_PIN_PORT_DEF(A),
+                .index     = CORE_IO_PIN_INDEX_DEF(3),
                 .mode      = core::io::pinMode_t::alternatePP,
                 .pull      = core::io::pullMode_t::none,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
@@ -129,8 +129,8 @@ namespace
 
             // tx
             {
-                .port      = GPIOA,
-                .index     = GPIO_PIN_2,
+                .port      = CORE_IO_PIN_PORT_DEF(A),
+                .index     = CORE_IO_PIN_INDEX_DEF(2),
                 .mode      = core::io::pinMode_t::alternatePP,
                 .pull      = core::io::pullMode_t::none,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
@@ -175,8 +175,8 @@ namespace
         std::vector<core::io::mcuPin_t> _pins = {
             // rx
             {
-                .port      = GPIOA,
-                .index     = GPIO_PIN_12,
+                .port      = CORE_IO_PIN_PORT_DEF(A),
+                .index     = CORE_IO_PIN_INDEX_DEF(12),
                 .mode      = core::io::pinMode_t::alternatePP,
                 .pull      = core::io::pullMode_t::none,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
@@ -185,8 +185,8 @@ namespace
 
             // tx
             {
-                .port      = GPIOA,
-                .index     = GPIO_PIN_11,
+                .port      = CORE_IO_PIN_PORT_DEF(A),
+                .index     = CORE_IO_PIN_INDEX_DEF(11),
                 .mode      = core::io::pinMode_t::alternatePP,
                 .pull      = core::io::pullMode_t::none,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
@@ -231,8 +231,8 @@ namespace
         std::vector<core::io::mcuPin_t> _pins = {
             // sda
             {
-                .port      = GPIOB,
-                .index     = GPIO_PIN_7,
+                .port      = CORE_IO_PIN_PORT_DEF(B),
+                .index     = CORE_IO_PIN_INDEX_DEF(7),
                 .mode      = core::io::pinMode_t::alternateOD,
                 .pull      = core::io::pullMode_t::up,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
@@ -241,8 +241,8 @@ namespace
 
             // scl
             {
-                .port      = GPIOB,
-                .index     = GPIO_PIN_6,
+                .port      = CORE_IO_PIN_PORT_DEF(B),
+                .index     = CORE_IO_PIN_INDEX_DEF(6),
                 .mode      = core::io::pinMode_t::alternateOD,
                 .pull      = core::io::pullMode_t::up,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
@@ -287,8 +287,8 @@ namespace
         std::vector<core::io::mcuPin_t> _pins = {
             // sda
             {
-                .port      = GPIOB,
-                .index     = GPIO_PIN_3,
+                .port      = CORE_IO_PIN_PORT_DEF(B),
+                .index     = CORE_IO_PIN_INDEX_DEF(3),
                 .mode      = core::io::pinMode_t::alternateOD,
                 .pull      = core::io::pullMode_t::up,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
@@ -297,8 +297,8 @@ namespace
 
             // scl
             {
-                .port      = GPIOB,
-                .index     = GPIO_PIN_10,
+                .port      = CORE_IO_PIN_PORT_DEF(B),
+                .index     = CORE_IO_PIN_INDEX_DEF(10),
                 .mode      = core::io::pinMode_t::alternateOD,
                 .pull      = core::io::pullMode_t::up,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
@@ -343,8 +343,8 @@ namespace
         std::vector<core::io::mcuPin_t> _pins = {
             // sda
             {
-                .port      = GPIOB,
-                .index     = GPIO_PIN_4,
+                .port      = CORE_IO_PIN_PORT_DEF(B),
+                .index     = CORE_IO_PIN_INDEX_DEF(4),
                 .mode      = core::io::pinMode_t::alternateOD,
                 .pull      = core::io::pullMode_t::up,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
@@ -353,8 +353,8 @@ namespace
 
             // scl
             {
-                .port      = GPIOA,
-                .index     = GPIO_PIN_8,
+                .port      = CORE_IO_PIN_PORT_DEF(A),
+                .index     = CORE_IO_PIN_INDEX_DEF(8),
                 .mode      = core::io::pinMode_t::alternateOD,
                 .pull      = core::io::pullMode_t::up,
                 .speed     = core::io::gpioSpeed_t::veryHigh,

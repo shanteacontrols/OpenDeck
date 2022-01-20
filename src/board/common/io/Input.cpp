@@ -33,7 +33,7 @@ namespace
 {
     volatile Board::io::dInReadings_t _digitalInBuffer[NR_OF_DIGITAL_INPUTS];
 #ifdef NATIVE_BUTTON_INPUTS
-    core::RingBuffer<portWidth_t, MAX_READING_COUNT> _portBuffer[NR_OF_DIGITAL_INPUT_PORTS];
+    core::RingBuffer<core::io::portWidth_t, MAX_READING_COUNT> _portBuffer[NR_OF_DIGITAL_INPUT_PORTS];
 #endif
 
 #ifdef NUMBER_OF_BUTTON_COLUMNS
@@ -76,7 +76,9 @@ namespace
         BIT_READ(_activeInColumn, 2) ? CORE_IO_SET_HIGH(DEC_BM_PORT_A2, DEC_BM_PIN_A2) : CORE_IO_SET_LOW(DEC_BM_PORT_A2, DEC_BM_PIN_A2);
 
         if (++_activeInColumn == NUMBER_OF_BUTTON_COLUMNS)
+        {
             _activeInColumn = 0;
+        }
     }
 
     /// Acquires data for all buttons connected in currently active button matrix column by
@@ -119,10 +121,12 @@ namespace
                 pin                = Board::detail::map::buttonPin(row);
 
                 _digitalInBuffer[buttonIndex].readings <<= 1;
-                _digitalInBuffer[buttonIndex].readings |= !CORE_IO_READ(CORE_IO_MCU_PIN_VAR_PORT_GET(pin), CORE_IO_MCU_PIN_VAR_PIN_GET(pin));
+                _digitalInBuffer[buttonIndex].readings |= !CORE_IO_READ(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
 
                 if (++_digitalInBuffer[buttonIndex].count > MAX_READING_COUNT)
+                {
                     _digitalInBuffer[buttonIndex].count = MAX_READING_COUNT;
+                }
             }
 #endif
         }
@@ -133,7 +137,7 @@ namespace
         // read all input ports instead of reading pin by pin to reduce the time spent in ISR
         for (int portIndex = 0; portIndex < NR_OF_DIGITAL_INPUT_PORTS; portIndex++)
         {
-            _portBuffer[portIndex].insert(CORE_IO_READ_PORT(CORE_IO_PIN_PORT_VAR_GET(Board::detail::map::digitalInPort(portIndex))));
+            _portBuffer[portIndex].insert(CORE_IO_READ_PORT(Board::detail::map::digitalInPort(portIndex)));
         }
     }
 
@@ -142,8 +146,8 @@ namespace
         // for provided button index, retrieve its port index
         // upon reading update all buttons located on that port
 
-        auto        portIndex = Board::detail::map::buttonPortIndex(digitalInIndex);
-        portWidth_t portValue = 0;
+        auto                  portIndex = Board::detail::map::buttonPortIndex(digitalInIndex);
+        core::io::portWidth_t portValue = 0;
 
         while (_portBuffer[portIndex].remove(portValue))
         {
@@ -201,7 +205,9 @@ namespace Board
             uint8_t column = buttonID % NUMBER_OF_BUTTON_COLUMNS;
 
             if (row % 2)
+            {
                 row -= 1;    // uneven row, get info from previous (even) row
+            }
 
             return (row * NUMBER_OF_BUTTON_COLUMNS) / 2 + column;
 #else
@@ -218,9 +224,11 @@ namespace Board
             uint8_t buttonID = row * NUMBER_OF_BUTTON_COLUMNS + column;
 
             if (index == encoderIndex_t::a)
+            {
                 return buttonID;
-            else
-                return buttonID + NUMBER_OF_BUTTON_COLUMNS;
+            }
+
+            return buttonID + NUMBER_OF_BUTTON_COLUMNS;
 #else
             uint8_t buttonID = encoderID * 2;
 

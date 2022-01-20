@@ -127,38 +127,38 @@ namespace Board::detail::setup
     }
 
 #ifdef ADC_SUPPORTED
-            void adc()
-            {
-                ADC_HandleTypeDef      adcHandler = {};
-                ADC_ChannelConfTypeDef sConfig    = {};
+    void adc()
+    {
+        ADC_HandleTypeDef      adcHandler = {};
+        ADC_ChannelConfTypeDef sConfig    = {};
 
-                adcHandler.Instance                   = ADC1;
-                adcHandler.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV4;
-                adcHandler.Init.Resolution            = ADC_RESOLUTION_12B;
-                adcHandler.Init.ScanConvMode          = DISABLE;
-                adcHandler.Init.ContinuousConvMode    = DISABLE;
-                adcHandler.Init.DiscontinuousConvMode = DISABLE;
-                adcHandler.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
-                adcHandler.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
-                adcHandler.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-                adcHandler.Init.NbrOfConversion       = 1;
-                adcHandler.Init.DMAContinuousRequests = DISABLE;
-                adcHandler.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
-                HAL_ADC_Init(&adcHandler);
+        adcHandler.Instance                   = ADC1;
+        adcHandler.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV4;
+        adcHandler.Init.Resolution            = ADC_RESOLUTION_12B;
+        adcHandler.Init.ScanConvMode          = DISABLE;
+        adcHandler.Init.ContinuousConvMode    = DISABLE;
+        adcHandler.Init.DiscontinuousConvMode = DISABLE;
+        adcHandler.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
+        adcHandler.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
+        adcHandler.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+        adcHandler.Init.NbrOfConversion       = 1;
+        adcHandler.Init.DMAContinuousRequests = DISABLE;
+        adcHandler.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
+        HAL_ADC_Init(&adcHandler);
 
-                for (int i = 0; i < MAX_ADC_CHANNELS; i++)
-                {
-                    sConfig.Channel      = map::adcChannel(i);
-                    sConfig.Rank         = 1;
-                    sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
-                    HAL_ADC_ConfigChannel(&adcHandler, &sConfig);
-                }
+        for (int i = 0; i < MAX_ADC_CHANNELS; i++)
+        {
+            sConfig.Channel      = map::adcChannel(i);
+            sConfig.Rank         = 1;
+            sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
+            HAL_ADC_ConfigChannel(&adcHandler, &sConfig);
+        }
 
-                // set first channel
-                core::adc::setChannel(map::adcChannel(0));
+        // set first channel
+        core::adc::setChannel(map::adcChannel(0));
 
-                HAL_ADC_Start_IT(&adcHandler);
-            }
+        HAL_ADC_Start_IT(&adcHandler);
+    }
 #endif
 }    // namespace Board::detail::setup
 
@@ -286,7 +286,7 @@ extern "C" void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 
         for (size_t i = 0; i < descriptor->pins().size(); i++)
         {
-            CORE_IO_CONFIG(descriptor->pins().at(i));
+            CORE_IO_INIT(descriptor->pins().at(i));
         }
 
         if (descriptor->irqn() != 0)
@@ -309,7 +309,7 @@ extern "C" void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 
         for (size_t i = 0; i < descriptor->pins().size(); i++)
         {
-            HAL_GPIO_DeInit(descriptor->pins().at(i).port, descriptor->pins().at(i).index);
+            CORE_IO_DEINIT(descriptor->pins().at(i));
         }
 
         HAL_NVIC_DisableIRQ(descriptor->irqn());
@@ -328,7 +328,7 @@ extern "C" void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
 
         for (size_t i = 0; i < descriptor->pins().size(); i++)
         {
-            CORE_IO_CONFIG(descriptor->pins().at(i));
+            CORE_IO_INIT(descriptor->pins().at(i));
         }
 
         if (descriptor->irqn() != 0)
@@ -351,7 +351,7 @@ extern "C" void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
 
         for (size_t i = 0; i < descriptor->pins().size(); i++)
         {
-            HAL_GPIO_DeInit(descriptor->pins().at(i).port, descriptor->pins().at(i).index);
+            CORE_IO_DEINIT(descriptor->pins().at(i));
         }
 
         HAL_NVIC_DisableIRQ(descriptor->irqn());
