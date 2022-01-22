@@ -20,15 +20,20 @@ limitations under the License.
 #include "board/Board.h"
 #include "core/src/general/Helpers.h"
 #include "core/src/general/Timing.h"
+#include "core/src/general/RingBuffer.h"
 #include <MCU.h>
 
 #define I2C_TRANSFER_TIMEOUT_MS 10
+#define TWCR_CLR_MASK           0x0F
 
 // note: on AVR, only 1 I2C channel is supported with the index 0
 
 namespace
 {
-    uint32_t _currentTime;
+    uint32_t                                      _currentTime;
+    core::RingBuffer<uint8_t, I2C_TX_BUFFER_SIZE> _txBuffer;
+    uint8_t                                       _address;
+    volatile bool                                 _txBusy;
 
 #define TIMEOUT_CHECK(register, bit)                                                         \
     do                                                                                       \
@@ -83,6 +88,26 @@ namespace
 
         return true;
     }
+
+    inline void sendByteInt(uint8_t data)
+    {
+        TWDR = data;
+        TWCR &= TWCR_CLR_MASK;
+        TWCR |= (1 << TWINT);
+    }
+
+    inline void sendStartInt()
+    {
+        _txBusy = true;
+        TWCR &= TWCR_CLR_MASK;
+        TWCR |= (1 << TWINT) | (1 << TWSTA) | (1 << TWIE);
+    }
+
+    inline void sendStopInt()
+    {
+        TWCR &= TWCR_CLR_MASK;
+        TWCR |= (1 << TWINT) | (1 << TWEA) | (1 << TWSTO);
+    }
 }    // namespace
 
 namespace Board
@@ -117,22 +142,25 @@ namespace Board
             if (channel >= MAX_I2C_INTERFACES)
                 return false;
 
-            if (!startTransfer(address))
+            if (size >= I2C_TX_BUFFER_SIZE)
                 return false;
+
+            // wait for interface to be ready
+            address <<= 1;
+            _address = address;
+
+            while (_txBusy)
+                ;
 
             for (size_t i = 0; i < size; i++)
             {
-                TWDR = buffer[i];
-                TWCR = (1 << TWINT) | (1 << TWEN);
-
-                // wait for interrupt flag to be cleared
-                TIMEOUT_CHECK(TWCR, TWINT);
-
-                if ((TW_STATUS & 0xF8) != TW_MT_DATA_ACK)
+                if (!_txBuffer.insert(buffer[i]))
                     return false;
             }
 
-            return endTransfer();
+            sendStartInt();
+
+            return true;
         }
 
         bool deviceAvailable(uint8_t channel, uint8_t address)
@@ -154,3 +182,76 @@ namespace Board
         }
     }    // namespace I2C
 }    // namespace Board
+
+ISR(TWI_vect)
+{
+    switch (TW_STATUS)
+    {
+    case TW_START:
+    case TW_REP_START:
+    {
+        // send device address
+        sendByteInt(_address);
+    }
+    break;
+
+    // slave address acknowledged
+    // data acknowledged
+    case TW_MT_SLA_ACK:
+    case TW_MT_DATA_ACK:
+    {
+        uint8_t data;
+
+        if (!_txBuffer.remove(data))
+        {
+            // transmit stop condition, enable SLA ACK
+            sendStopInt();
+            _txBusy = false;
+        }
+        else
+        {
+            sendByteInt(data);
+        }
+    }
+    break;
+
+    // slave address not acknowledged
+    // data not acknowledged
+    case TW_MR_SLA_NACK:
+    case TW_MT_SLA_NACK:
+    case TW_MT_DATA_NACK:
+    {
+        // transmit stop condition, enable SLA ACK
+        sendStopInt();
+        _txBusy = false;
+    }
+    break;
+
+    // bus arbitration lost
+    case TW_MT_ARB_LOST:
+    {
+        // release bus
+        TWCR &= TWCR_CLR_MASK;
+        TWCR |= (1 << TWINT);
+        _txBusy = false;
+    }
+    break;
+
+    // bus error due to illegal start or stop condition
+    case TW_BUS_ERROR:
+    {
+        // reset internal hardware and release bus
+        TWCR &= TWCR_CLR_MASK;
+        TWCR |= (1 << TWINT) | (1 << TWSTO) | (1 << TWEA);
+        _txBusy = false;
+    }
+    break;
+
+    case TW_NO_INFO:
+    default:
+    {
+        // nothing to do
+    }
+    break;
+    }
+}
