@@ -41,7 +41,7 @@ namespace Board::I2C
         }
 
         _i2cHandler[channel].Instance             = static_cast<I2C_TypeDef*>(Board::detail::st::i2cDescriptor(channel)->interface());
-        _i2cHandler[channel].Init.ClockSpeed      = 100000;
+        _i2cHandler[channel].Init.ClockSpeed      = static_cast<uint32_t>(speed);
         _i2cHandler[channel].Init.DutyCycle       = I2C_DUTYCYCLE_2;
         _i2cHandler[channel].Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
         _i2cHandler[channel].Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
