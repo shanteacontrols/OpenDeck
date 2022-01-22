@@ -118,7 +118,7 @@ namespace IO
         static constexpr uint16_t LCD_MESSAGE_DURATION = 1500;
 
         /// Time in milliseconds after text on display is being refreshed.
-        static constexpr uint16_t LCD_REFRESH_TIME = 10;
+        static constexpr uint16_t LCD_REFRESH_TIME = 30;
 
         /// Time in milliseconds after which scrolling text moves on display.
         static constexpr uint16_t LCD_SCROLL_TIME = 1000;
