@@ -210,7 +210,8 @@ namespace Board
     {
         enum class clockSpeed_t : uint32_t
         {
-            _1kHz = 100000
+            _100k = 100000,
+            _400k = 400000
         };
 
         /// Initializes I2C peripheral on the MCU.
