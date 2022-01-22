@@ -815,7 +815,7 @@ class HWAI2C : public System::Builder::HWA::IO::I2C
 
     bool init() override
     {
-        return Board::I2C::init(I2C_CHANNEL, Board::I2C::clockSpeed_t::_1kHz);
+        return Board::I2C::init(I2C_CHANNEL, Board::I2C::clockSpeed_t::_400k);
     }
 
     bool write(uint8_t address, uint8_t* buffer, size_t size) override
