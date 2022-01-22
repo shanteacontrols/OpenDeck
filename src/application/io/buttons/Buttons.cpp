@@ -101,13 +101,12 @@ bool Buttons::init()
 /// Continuously reads inputs from buttons and acts if necessary.
 void Buttons::update(bool forceRefresh)
 {
+    buttonDescriptor_t descriptor;
+
     for (size_t i = 0; i < Collection::size(GROUP_DIGITAL_INPUTS); i++)
     {
         uint8_t  numberOfReadings = 0;
         uint32_t states           = 0;
-
-        buttonDescriptor_t descriptor;
-        fillButtonDescriptor(i, descriptor);
 
         if (!forceRefresh)
         {
@@ -124,6 +123,8 @@ void Buttons::update(bool forceRefresh)
                 continue;
             }
 
+            fillButtonDescriptor(i, descriptor);
+
             for (uint8_t reading = 0; reading < numberOfReadings; reading++)
             {
                 // when processing, newest sample has index 0
@@ -136,6 +137,8 @@ void Buttons::update(bool forceRefresh)
         }
         else
         {
+            fillButtonDescriptor(i, descriptor);
+
             if (descriptor.type == type_t::latching)
             {
                 sendMessage(i, latchingState(i), descriptor);
