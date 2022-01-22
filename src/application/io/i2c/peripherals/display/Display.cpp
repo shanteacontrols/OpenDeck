@@ -28,6 +28,15 @@ limitations under the License.
 
 using namespace IO;
 
+// u8x8 lib doesn't send packets larger than 32 bytes
+#define U8X8_BUFFER_SIZE 32
+
+namespace
+{
+    uint8_t u8x8Buffer[U8X8_BUFFER_SIZE];
+    size_t  u8x8Counter;
+}    // namespace
+
 // hwa needs to be static since it is used in callback for C library
 I2C::HWA* Display::_hwa;
 
@@ -163,16 +172,12 @@ bool Display::initU8X8(uint8_t i2cAddress, displayController_t controller, displ
     auto i2cHWA = [](u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_ptr) -> uint8_t {
         auto* array = (uint8_t*)arg_ptr;
 
-        // u8x8 lib doesn't send packets larger than 32 bytes
-        static uint8_t buffer[32];
-        static size_t  counter = 0;
-
         switch (msg)
         {
         case U8X8_MSG_BYTE_SEND:
         {
-            memcpy(&buffer[counter], array, arg_int);
-            counter += arg_int;
+            memcpy(&u8x8Buffer[u8x8Counter], array, arg_int);
+            u8x8Counter += arg_int;
         }
         break;
 
@@ -181,12 +186,12 @@ bool Display::initU8X8(uint8_t i2cAddress, displayController_t controller, displ
 
         case U8X8_MSG_BYTE_START_TRANSFER:
         {
-            counter = 0;
+            u8x8Counter = 0;
         }
         break;
 
         case U8X8_MSG_BYTE_END_TRANSFER:
-            return _hwa->write(u8x8_GetI2CAddress(u8x8), buffer, counter);
+            return _hwa->write(u8x8_GetI2CAddress(u8x8), u8x8Buffer, u8x8Counter);
 
         default:
             return 0;
