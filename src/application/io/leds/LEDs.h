@@ -125,7 +125,9 @@ namespace IO
              Database& database);
 
         bool         init() override;
-        void         update(bool forceRefresh = false) override;
+        void         updateSingle(size_t index, bool forceRefresh = false) override;
+        void         updateAll(bool forceRefresh = false) override;
+        size_t       maxComponentUpdateIndex() override;
         color_t      color(uint8_t ledID);
         void         setColor(uint8_t ledID, color_t color, brightness_t brightness);
         blinkSpeed_t blinkSpeed(uint8_t ledID);

@@ -90,13 +90,17 @@ namespace IO
             return false;
         }
 
-        void update(bool forceRefresh = false) override
+        void updateSingle(size_t index, bool forceRefresh = false) override
         {
         }
 
-        bool state(size_t index)
+        void updateAll(bool forceRefresh = false) override
         {
-            return false;
+        }
+
+        size_t maxComponentUpdateIndex() override
+        {
+            return 0;
         }
 
         void reset(size_t index)

@@ -47,7 +47,7 @@ namespace
         for (int i = 0; i < IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS); i++)
             _hwaButtons._state[i] = state;
 
-        _buttons.update();
+        _buttons.updateAll();
     }
 }    // namespace
 

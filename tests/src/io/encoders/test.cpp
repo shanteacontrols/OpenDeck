@@ -78,7 +78,7 @@ TEST_CASE(StateDecoding)
 
     auto setState = [](uint8_t state) {
         _hwaEncoders._state = state;
-        _encoders.update();
+        _encoders.updateAll();
     };
 
     auto verifyValue = [](MIDI::messageType_t message, uint16_t value) {

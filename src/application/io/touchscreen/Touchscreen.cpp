@@ -181,7 +181,13 @@ bool Touchscreen::deInit(mode_t mode)
     return false;
 }
 
-void Touchscreen::update(bool forceRefresh)
+void Touchscreen::updateSingle(size_t index, bool forceRefresh)
+{
+    // ignore index here - not applicable
+    updateAll(forceRefresh);
+}
+
+void Touchscreen::updateAll(bool forceRefresh)
 {
     if (isInitialized(mode_t::normal))
     {
@@ -246,6 +252,11 @@ void Touchscreen::update(bool forceRefresh)
         touchscreenToUSB();
         usbToTouchscreen();
     }
+}
+
+size_t Touchscreen::maxComponentUpdateIndex()
+{
+    return 0;
 }
 
 void Touchscreen::registerModel(model_t model, Model* instance)

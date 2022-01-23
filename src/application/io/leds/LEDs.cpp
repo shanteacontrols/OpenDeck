@@ -59,14 +59,14 @@ LEDs::LEDs(HWA&      hwa,
 
                           case MIDI::messageType_t::sysRealTimeClock:
                           {
-                              update(true);
+                              updateAll(true);
                           }
                           break;
 
                           case MIDI::messageType_t::sysRealTimeStart:
                           {
                               resetBlinking();
-                              update(true);
+                              updateAll(true);
                           }
                           break;
 
@@ -164,7 +164,13 @@ bool LEDs::init()
     return true;
 }
 
-void LEDs::update(bool forceRefresh)
+void LEDs::updateSingle(size_t index, bool forceRefresh)
+{
+    // ignore index here - not applicable
+    updateAll(forceRefresh);
+}
+
+void LEDs::updateAll(bool forceRefresh)
 {
     if (_blinkResetArrayPtr == nullptr)
     {
@@ -225,6 +231,11 @@ void LEDs::update(bool forceRefresh)
             setState(j, bit(j, ledBit_t::state) ? _brightness[j] : brightness_t::bOff);
         }
     }
+}
+
+size_t LEDs::maxComponentUpdateIndex()
+{
+    return 0;
 }
 
 __attribute__((weak)) void LEDs::startUpAnimation()

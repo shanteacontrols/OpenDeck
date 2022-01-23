@@ -66,7 +66,7 @@ Buttons::Buttons(HWA&      hwa,
                           {
                           case static_cast<uint8_t>(Util::MessageDispatcher::systemMessages_t::forceIOrefresh):
                           {
-                              update(true);
+                              updateAll(true);
                           }
                           break;
 
@@ -98,57 +98,71 @@ bool Buttons::init()
     return true;
 }
 
-/// Continuously reads inputs from buttons and acts if necessary.
-void Buttons::update(bool forceRefresh)
+void Buttons::updateSingle(size_t index, bool forceRefresh)
 {
+    if (index >= maxComponentUpdateIndex())
+    {
+        return;
+    }
+
     buttonDescriptor_t descriptor;
 
-    for (size_t i = 0; i < Collection::size(GROUP_DIGITAL_INPUTS); i++)
+    uint8_t  numberOfReadings = 0;
+    uint32_t states           = 0;
+
+    if (!forceRefresh)
     {
-        uint8_t  numberOfReadings = 0;
-        uint32_t states           = 0;
-
-        if (!forceRefresh)
+        if (!state(index, numberOfReadings, states))
         {
-            if (!state(i, numberOfReadings, states))
-            {
-                continue;
-            }
+            return;
+        }
 
-            // this filter will return amount of stable changed readings
-            // and the states of those readings
-            // latest reading is index 0
-            if (!_filter.isFiltered(i, numberOfReadings, states))
-            {
-                continue;
-            }
+        // this filter will return amount of stable changed readings
+        // and the states of those readings
+        // latest reading is index 0
+        if (!_filter.isFiltered(index, numberOfReadings, states))
+        {
+            return;
+        }
 
-            fillButtonDescriptor(i, descriptor);
+        fillButtonDescriptor(index, descriptor);
 
-            for (uint8_t reading = 0; reading < numberOfReadings; reading++)
-            {
-                // when processing, newest sample has index 0
-                // start from oldest reading which is in upper bits
-                uint8_t processIndex = numberOfReadings - 1 - reading;
-                bool    state        = (states >> processIndex) & 0x01;
+        for (uint8_t reading = 0; reading < numberOfReadings; reading++)
+        {
+            // when processing, newest sample has index 0
+            // start from oldest reading which is in upper bits
+            uint8_t processIndex = numberOfReadings - 1 - reading;
+            bool    state        = (states >> processIndex) & 0x01;
 
-                processButton(i, state, descriptor);
-            }
+            processButton(index, state, descriptor);
+        }
+    }
+    else
+    {
+        fillButtonDescriptor(index, descriptor);
+
+        if (descriptor.type == type_t::latching)
+        {
+            sendMessage(index, latchingState(index), descriptor);
         }
         else
         {
-            fillButtonDescriptor(i, descriptor);
-
-            if (descriptor.type == type_t::latching)
-            {
-                sendMessage(i, latchingState(i), descriptor);
-            }
-            else
-            {
-                sendMessage(i, state(i), descriptor);
-            }
+            sendMessage(index, state(index), descriptor);
         }
     }
+}
+
+void Buttons::updateAll(bool forceRefresh)
+{
+    for (size_t i = 0; i < Collection::size(GROUP_DIGITAL_INPUTS); i++)
+    {
+        updateSingle(i, forceRefresh);
+    }
+}
+
+size_t Buttons::maxComponentUpdateIndex()
+{
+    return Collection::size(GROUP_DIGITAL_INPUTS);
 }
 
 /// Handles changes in button states.

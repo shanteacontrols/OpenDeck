@@ -87,8 +87,17 @@ namespace IO
             return false;
         }
 
-        void update(bool forceRefresh = false) override
+        void updateSingle(size_t index, bool forceRefresh = false) override
         {
+        }
+
+        void updateAll(bool forceRefresh = false) override
+        {
+        }
+
+        size_t maxComponentUpdateIndex() override
+        {
+            return 0;
         }
     };
 }    // namespace IO

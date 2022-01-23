@@ -59,15 +59,30 @@ bool I2C::init()
     return true;
 }
 
-void I2C::update(bool forceRefresh)
+void I2C::updateSingle(size_t index, bool forceRefresh)
+{
+    if (index >= maxComponentUpdateIndex())
+    {
+        return;
+    }
+
+    if (_peripherals.at(index) != nullptr)
+    {
+        _peripherals.at(index)->update();
+    }
+}
+
+void I2C::updateAll(bool forceRefresh)
 {
     for (size_t i = 0; i < _peripherals.size(); i++)
     {
-        if (_peripherals.at(i) != nullptr)
-        {
-            _peripherals.at(i)->update();
-        }
+        updateSingle(i, forceRefresh);
     }
+}
+
+size_t I2C::maxComponentUpdateIndex()
+{
+    return _peripherals.size();
 }
 
 void I2C::registerPeripheral(Peripheral* instance)

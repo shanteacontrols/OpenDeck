@@ -93,9 +93,11 @@ namespace IO
                  Database& database,
                  uint32_t  timeDiffTimeout);
 
-        bool init() override;
-        void update(bool forceRefresh = false) override;
-        void reset(size_t index);
+        bool   init() override;
+        void   updateSingle(size_t index, bool forceRefresh = false) override;
+        void   updateAll(bool forceRefresh = false) override;
+        size_t maxComponentUpdateIndex() override;
+        void   reset(size_t index);
 
         private:
         struct encoderDescriptor_t

@@ -49,7 +49,7 @@ Analog::Analog(HWA&      hwa,
                           {
                           case static_cast<uint8_t>(Util::MessageDispatcher::systemMessages_t::forceIOrefresh):
                           {
-                              update(true);
+                              updateAll(true);
                           }
                           break;
 
@@ -81,33 +81,48 @@ bool Analog::init()
     return true;
 }
 
-void Analog::update(bool forceRefresh)
+void Analog::updateSingle(size_t index, bool forceRefresh)
+{
+    if (index >= maxComponentUpdateIndex())
+    {
+        return;
+    }
+
+    if (!forceRefresh)
+    {
+        uint16_t value;
+
+        if (!_hwa.value(index, value))
+        {
+            return;
+        }
+
+        processReading(index, value);
+    }
+    else
+    {
+        if (_database.read(Database::Section::analog_t::enable, index))
+        {
+            analogDescriptor_t descriptor;
+            fillAnalogDescriptor(index, descriptor);
+            descriptor.dispatchMessage.midiValue = _lastValue[index];
+            sendMessage(index, descriptor);
+        }
+    }
+}
+
+void Analog::updateAll(bool forceRefresh)
 {
     // check values
     for (size_t i = 0; i < Collection::size(GROUP_ANALOG_INPUTS); i++)
     {
-        if (!forceRefresh)
-        {
-            uint16_t value;
-
-            if (!_hwa.value(i, value))
-            {
-                continue;
-            }
-
-            processReading(i, value);
-        }
-        else
-        {
-            if (_database.read(Database::Section::analog_t::enable, i))
-            {
-                analogDescriptor_t descriptor;
-                fillAnalogDescriptor(i, descriptor);
-                descriptor.dispatchMessage.midiValue = _lastValue[i];
-                sendMessage(i, descriptor);
-            }
-        }
+        updateSingle(i, forceRefresh);
     }
+}
+
+size_t Analog::maxComponentUpdateIndex()
+{
+    return Collection::size(GROUP_ANALOG_INPUTS);
 }
 
 void Analog::processReading(size_t index, uint16_t value)

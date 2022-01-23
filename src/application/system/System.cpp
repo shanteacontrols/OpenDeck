@@ -235,53 +235,70 @@ void Instance::backup()
 
 void Instance::checkComponents()
 {
-    static ioComponent_t componentCheck = ioComponent_t::buttons;
+    static ioComponent_t    componentIndex                                                    = ioComponent_t::buttons;
+    static size_t           componentUpdateIndex[static_cast<uint8_t>(ioComponent_t::AMOUNT)] = {};
+    static constexpr size_t MAX_UPDATES_PER_CHECK                                             = 16;
 
-    switch (componentCheck)
+    switch (componentIndex)
     {
     case ioComponent_t::buttons:
     {
-        componentCheck = ioComponent_t::encoders;
+        componentIndex = ioComponent_t::encoders;
     }
     break;
 
     case ioComponent_t::encoders:
     {
-        componentCheck = ioComponent_t::analog;
+        componentIndex = ioComponent_t::analog;
     }
     break;
 
     case ioComponent_t::analog:
     {
-        componentCheck = ioComponent_t::leds;
+        componentIndex = ioComponent_t::leds;
     }
     break;
 
     case ioComponent_t::leds:
     {
-        componentCheck = ioComponent_t::i2c;
+        componentIndex = ioComponent_t::i2c;
     }
     break;
 
     case ioComponent_t::i2c:
     {
-        componentCheck = ioComponent_t::touchscreen;
+        componentIndex = ioComponent_t::touchscreen;
     }
     break;
 
     case ioComponent_t::touchscreen:
     default:
     {
-        componentCheck = ioComponent_t::buttons;
+        componentIndex = ioComponent_t::buttons;
     }
     break;
     }
 
-    auto component = _components.io().at(static_cast<size_t>(componentCheck));
+    // For each component, allow up to MAX_UPDATES_PER_CHECK updates:
+    // This is done so that no single component update takes too long, and
+    // thus making other things wait.
+
+    auto component         = _components.io().at(static_cast<size_t>(componentIndex));
+    auto maxComponentIndex = component->maxComponentUpdateIndex();
+    auto loopIterations    = maxComponentIndex >= MAX_UPDATES_PER_CHECK ? MAX_UPDATES_PER_CHECK : !maxComponentIndex ? 1
+                                                                                                                     : maxComponentIndex;
 
     if (component != nullptr)
     {
-        component->update();
+        for (size_t i = 0; i < loopIterations; i++)
+        {
+            component->updateSingle(componentUpdateIndex[static_cast<size_t>(componentIndex)]);
+
+            if (++componentUpdateIndex[static_cast<size_t>(componentIndex)] >= maxComponentIndex)
+            {
+                componentUpdateIndex[static_cast<size_t>(componentIndex)] = 0;
+            }
+        }
     }
 }
 

@@ -98,42 +98,56 @@ bool Encoders::init()
     return true;
 }
 
-/// Continuously checks state of all encoders.
-void Encoders::update(bool forceRefresh)
+void Encoders::updateSingle(size_t index, bool forceRefresh)
+{
+    if (index >= maxComponentUpdateIndex())
+    {
+        return;
+    }
+
+    if (!_database.read(Database::Section::encoder_t::enable, index))
+    {
+        return;
+    }
+
+    uint8_t  numberOfReadings = 0;
+    uint32_t states           = 0;
+
+    if (!_hwa.state(index, numberOfReadings, states))
+    {
+        return;
+    }
+
+    uint32_t currentTime = core::timing::currentRunTimeMs();
+
+    for (uint8_t reading = 0; reading < numberOfReadings; reading++)
+    {
+        // take into account that there is a 1ms difference between readouts
+        // when processing, newest sample has index 0
+        // start from oldest reading which is in upper bits
+        uint8_t  processIndex = numberOfReadings - 1 - reading;
+        uint32_t sampleTime   = currentTime - (TIME_DIFF_READOUT * processIndex);
+
+        // there are two readings per encoder
+        uint8_t pairState = states >> (processIndex * 2);
+        pairState &= 0x03;
+
+        // when processing, newest sample has index 0
+        processReading(index, pairState, sampleTime);
+    }
+}
+
+void Encoders::updateAll(bool forceRefresh)
 {
     for (size_t i = 0; i < Collection::size(); i++)
     {
-        if (!_database.read(Database::Section::encoder_t::enable, i))
-        {
-            continue;
-        }
-
-        uint8_t  numberOfReadings = 0;
-        uint32_t states           = 0;
-
-        if (!_hwa.state(i, numberOfReadings, states))
-        {
-            continue;
-        }
-
-        uint32_t currentTime = core::timing::currentRunTimeMs();
-
-        for (uint8_t reading = 0; reading < numberOfReadings; reading++)
-        {
-            // take into account that there is a 1ms difference between readouts
-            // when processing, newest sample has index 0
-            // start from oldest reading which is in upper bits
-            uint8_t  processIndex = numberOfReadings - 1 - reading;
-            uint32_t sampleTime   = currentTime - (TIME_DIFF_READOUT * processIndex);
-
-            // there are two readings per encoder
-            uint8_t pairState = states >> (processIndex * 2);
-            pairState &= 0x03;
-
-            // when processing, newest sample has index 0
-            processReading(i, pairState, sampleTime);
-        }
+        updateSingle(i, forceRefresh);
     }
+}
+
+size_t Encoders::maxComponentUpdateIndex()
+{
+    return Collection::size();
 }
 
 void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTime)

@@ -149,7 +149,9 @@ namespace IO
                     uint16_t        adcResolution);
 
         bool        init() override;
-        void        update(bool forceRefresh = false) override;
+        void        updateSingle(size_t index, bool forceRefresh = false) override;
+        void        updateAll(bool forceRefresh = false) override;
+        size_t      maxComponentUpdateIndex() override;
         static void registerModel(model_t model, Model* instance);
 
         private:

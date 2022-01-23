@@ -112,7 +112,7 @@ TEST_CASE(CCtest)
     for (int i = 0; i <= 127; i++)
     {
         _hwaAnalog.adcReturnValue = i;
-        _analog.update();
+        _analog.updateAll();
     }
 
     TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128), _listener._dispatchMessage.size());
@@ -141,7 +141,7 @@ TEST_CASE(CCtest)
     for (int i = 127; i >= 0; i--)
     {
         _hwaAnalog.adcReturnValue = i;
-        _analog.update();
+        _analog.updateAll();
     }
 
     // expect one message less since the last one was 127
@@ -165,7 +165,7 @@ TEST_CASE(CCtest)
     // try to feed value larger than 127
     // no response should be received
     _hwaAnalog.adcReturnValue = 10000;
-    _analog.update();
+    _analog.updateAll();
 
     TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
 }
@@ -199,7 +199,7 @@ TEST_CASE(PitchBendTest)
     for (int i = 0; i <= 16383; i++)
     {
         _hwaAnalog.adcReturnValue = i;
-        _analog.update();
+        _analog.updateAll();
     }
 
     TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 16384), _listener._dispatchMessage.size());
@@ -227,7 +227,7 @@ TEST_CASE(PitchBendTest)
     for (int i = 16383; i >= 0; i--)
     {
         _hwaAnalog.adcReturnValue = i;
-        _analog.update();
+        _analog.updateAll();
     }
 
     // one message less
@@ -280,7 +280,7 @@ TEST_CASE(Inversion)
     for (int i = 0; i <= 127; i++)
     {
         _hwaAnalog.adcReturnValue = i;
-        _analog.update();
+        _analog.updateAll();
     }
 
     TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128), _listener._dispatchMessage.size());
@@ -318,7 +318,7 @@ TEST_CASE(Inversion)
     for (int i = 0; i <= 127; i++)
     {
         _hwaAnalog.adcReturnValue = i;
-        _analog.update();
+        _analog.updateAll();
     }
 
     TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128), _listener._dispatchMessage.size());
@@ -351,7 +351,7 @@ TEST_CASE(Inversion)
     for (int i = 0; i <= 127; i++)
     {
         _hwaAnalog.adcReturnValue = i;
-        _analog.update();
+        _analog.updateAll();
     }
 
     TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128), _listener._dispatchMessage.size());
@@ -404,7 +404,7 @@ TEST_CASE(Scaling)
         for (int i = 0; i <= 127; i++)
         {
             _hwaAnalog.adcReturnValue = i;
-            _analog.update();
+            _analog.updateAll();
         }
 
         // since the values are scaled, verify that all the messages aren't received
@@ -427,7 +427,7 @@ TEST_CASE(Scaling)
         for (int i = 0; i <= 127; i++)
         {
             _hwaAnalog.adcReturnValue = i;
-            _analog.update();
+            _analog.updateAll();
         }
 
         TEST_ASSERT((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128) > _listener._dispatchMessage.size());
@@ -450,7 +450,7 @@ TEST_CASE(Scaling)
         for (int i = 0; i <= 127; i++)
         {
             _hwaAnalog.adcReturnValue = i;
-            _analog.update();
+            _analog.updateAll();
         }
 
         for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
@@ -515,7 +515,7 @@ TEST_CASE(ButtonForwarding)
                           });
 
         _hwaAnalog.adcReturnValue = 0xFFFF;
-        _analog.update();
+        _analog.updateAll();
 
         // analog class should just forward the message with the original component index
         // the rest of the message doesn't matter
@@ -535,7 +535,7 @@ TEST_CASE(ButtonForwarding)
         TEST_ASSERT_EQUAL_UINT32(2, dispatchMessageButtons.at(0).midiChannel);
 
         _hwaAnalog.adcReturnValue = 0;
-        _analog.update();
+        _analog.updateAll();
 
         // since the button was configured in controlChangeReset reset mode, another message should be sent from buttons
         TEST_ASSERT_EQUAL_UINT32(2, dispatchMessageAnalogFwd.size());
@@ -549,7 +549,7 @@ TEST_CASE(ButtonForwarding)
 
         // repeat the update - analog class sends forwarding message again since it's not in charge of filtering it
         // buttons class shouldn't send anything new since the state of the button hasn't changed
-        _analog.update();
+        _analog.updateAll();
 
         TEST_ASSERT_EQUAL_UINT32(3, dispatchMessageAnalogFwd.size());
         TEST_ASSERT_EQUAL_UINT32(2, dispatchMessageButtons.size());
@@ -561,7 +561,7 @@ TEST_CASE(ButtonForwarding)
         TEST_ASSERT(_database.update(Database::Section::button_t::midiMessage, IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + index, Buttons::messageType_t::controlChange) == true);
 
         _hwaAnalog.adcReturnValue = 0xFFFF;
-        _analog.update();
+        _analog.updateAll();
 
         TEST_ASSERT_EQUAL_UINT32(1, dispatchMessageAnalogFwd.size());
         TEST_ASSERT_EQUAL_UINT32(index, dispatchMessageAnalogFwd.at(0).componentIndex);
@@ -573,7 +573,7 @@ TEST_CASE(ButtonForwarding)
         TEST_ASSERT_EQUAL_UINT32(2, dispatchMessageButtons.at(0).midiChannel);
 
         _hwaAnalog.adcReturnValue = 0;
-        _analog.update();
+        _analog.updateAll();
 
         // this time buttons shouldn't send anything new since standard CC is a latching message
         TEST_ASSERT_EQUAL_UINT32(2, dispatchMessageAnalogFwd.size());

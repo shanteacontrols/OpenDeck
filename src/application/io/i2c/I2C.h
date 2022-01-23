@@ -49,7 +49,9 @@ namespace IO
         I2C(HWA& hwa);
 
         bool        init() override;
-        void        update(bool forceRefresh = false) override;
+        void        updateSingle(size_t index, bool forceRefresh = false) override;
+        void        updateAll(bool forceRefresh = false) override;
+        size_t      maxComponentUpdateIndex() override;
         static void registerPeripheral(Peripheral* instance);
 
         private:
