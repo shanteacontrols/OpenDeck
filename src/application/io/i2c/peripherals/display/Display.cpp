@@ -326,18 +326,22 @@ void Display::updateText(uint8_t row, uint8_t startIndex)
         return;
     }
 
-    const char* string = _stringBuilder.string();
-    uint8_t     size   = strlen(string);
+    auto string = _stringBuilder.string();
+    auto size   = strlen(string);
 
-    if (size + startIndex >= LCD_STRING_BUFFER_SIZE - 2)
+    if ((size + startIndex) >= (LCD_STRING_BUFFER_SIZE - 2))
     {
         size = LCD_STRING_BUFFER_SIZE - 2 - startIndex;    // trim string
     }
 
-    for (int i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++)
     {
+        if (_lcdRowText[row][startIndex + i] != string[i])
+        {
+            BIT_SET(_charChange[row], startIndex + i);
+        }
+
         _lcdRowText[row][startIndex + i] = string[i];
-        BIT_WRITE(_charChange[row], startIndex + i, 1);
     }
 }
 
