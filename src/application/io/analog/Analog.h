@@ -80,8 +80,9 @@ namespace IO
                 adc12bit = 4095
             };
 
-            virtual bool isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) = 0;
-            virtual void reset(size_t index)                                                                    = 0;
+            virtual bool     isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) = 0;
+            virtual uint16_t lastValue(size_t index)                                                                = 0;
+            virtual void     reset(size_t index)                                                                    = 0;
         };
 
         Analog(HWA&      hwa,
@@ -120,8 +121,7 @@ namespace IO
         Filter&   _filter;
         Database& _database;
 
-        uint8_t  _fsrPressed[Collection::size() / 8 + 1] = {};
-        uint16_t _lastValue[Collection::size()]          = {};
+        uint8_t _fsrPressed[Collection::size() / 8 + 1] = {};
 
         const MIDI::messageType_t _internalMsgToMIDIType[static_cast<uint8_t>(type_t::AMOUNT)] = {
             MIDI::messageType_t::controlChange,

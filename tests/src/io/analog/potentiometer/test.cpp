@@ -51,6 +51,12 @@ namespace
     ButtonsFilterStub _buttonsFilter;
     IO::Analog        _analog(_hwaAnalog, _analogFilter, _database);
     IO::Buttons       _buttons(_hwaButtons, _buttonsFilter, _database);
+
+    void updateLastValue(uint16_t value)
+    {
+        for (size_t i = 0; i < IO::Analog::Collection::size(); i++)
+            _analogFilter.updateLastValue(i, value);
+    }
 }    // namespace
 
 TEST_SETUP()
@@ -113,6 +119,7 @@ TEST_CASE(CCtest)
     {
         _hwaAnalog.adcReturnValue = i;
         _analog.updateAll();
+        updateLastValue(_hwaAnalog.adcReturnValue);
     }
 
     TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128), _listener._dispatchMessage.size());
@@ -142,6 +149,7 @@ TEST_CASE(CCtest)
     {
         _hwaAnalog.adcReturnValue = i;
         _analog.updateAll();
+        updateLastValue(_hwaAnalog.adcReturnValue);
     }
 
     // expect one message less since the last one was 127
@@ -200,6 +208,7 @@ TEST_CASE(PitchBendTest)
     {
         _hwaAnalog.adcReturnValue = i;
         _analog.updateAll();
+        updateLastValue(_hwaAnalog.adcReturnValue);
     }
 
     TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 16384), _listener._dispatchMessage.size());
@@ -228,6 +237,7 @@ TEST_CASE(PitchBendTest)
     {
         _hwaAnalog.adcReturnValue = i;
         _analog.updateAll();
+        updateLastValue(_hwaAnalog.adcReturnValue);
     }
 
     // one message less
@@ -281,6 +291,7 @@ TEST_CASE(Inversion)
     {
         _hwaAnalog.adcReturnValue = i;
         _analog.updateAll();
+        updateLastValue(_hwaAnalog.adcReturnValue);
     }
 
     TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128), _listener._dispatchMessage.size());
@@ -311,6 +322,7 @@ TEST_CASE(Inversion)
         TEST_ASSERT(_database.update(Database::Section::analog_t::invert, i, 1) == true);
         TEST_ASSERT(_database.update(Database::Section::analog_t::lowerLimit, i, 127) == true);
         TEST_ASSERT(_database.update(Database::Section::analog_t::upperLimit, i, 0) == true);
+
         _analog.reset(i);
     }
 
@@ -319,6 +331,7 @@ TEST_CASE(Inversion)
     {
         _hwaAnalog.adcReturnValue = i;
         _analog.updateAll();
+        updateLastValue(_hwaAnalog.adcReturnValue);
     }
 
     TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128), _listener._dispatchMessage.size());
@@ -352,6 +365,7 @@ TEST_CASE(Inversion)
     {
         _hwaAnalog.adcReturnValue = i;
         _analog.updateAll();
+        updateLastValue(_hwaAnalog.adcReturnValue);
     }
 
     TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128), _listener._dispatchMessage.size());
@@ -405,6 +419,7 @@ TEST_CASE(Scaling)
         {
             _hwaAnalog.adcReturnValue = i;
             _analog.updateAll();
+            updateLastValue(_hwaAnalog.adcReturnValue);
         }
 
         // since the values are scaled, verify that all the messages aren't received
@@ -428,6 +443,7 @@ TEST_CASE(Scaling)
         {
             _hwaAnalog.adcReturnValue = i;
             _analog.updateAll();
+            updateLastValue(_hwaAnalog.adcReturnValue);
         }
 
         TEST_ASSERT((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128) > _listener._dispatchMessage.size());
@@ -451,6 +467,7 @@ TEST_CASE(Scaling)
         {
             _hwaAnalog.adcReturnValue = i;
             _analog.updateAll();
+            updateLastValue(_hwaAnalog.adcReturnValue);
         }
 
         for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
@@ -516,6 +533,7 @@ TEST_CASE(ButtonForwarding)
 
         _hwaAnalog.adcReturnValue = 0xFFFF;
         _analog.updateAll();
+        updateLastValue(_hwaAnalog.adcReturnValue);
 
         // analog class should just forward the message with the original component index
         // the rest of the message doesn't matter
@@ -536,8 +554,10 @@ TEST_CASE(ButtonForwarding)
 
         _hwaAnalog.adcReturnValue = 0;
         _analog.updateAll();
+        updateLastValue(_hwaAnalog.adcReturnValue);
 
-        // since the button was configured in controlChangeReset reset mode, another message should be sent from buttons
+        // since the button was configured in controlChangeReset reset mode,
+        // another message should be sent from buttons
         TEST_ASSERT_EQUAL_UINT32(2, dispatchMessageAnalogFwd.size());
         TEST_ASSERT_EQUAL_UINT32(index, dispatchMessageAnalogFwd.at(1).componentIndex);
         TEST_ASSERT_EQUAL_UINT32(2, dispatchMessageButtons.size());
@@ -562,6 +582,7 @@ TEST_CASE(ButtonForwarding)
 
         _hwaAnalog.adcReturnValue = 0xFFFF;
         _analog.updateAll();
+        updateLastValue(_hwaAnalog.adcReturnValue);
 
         TEST_ASSERT_EQUAL_UINT32(1, dispatchMessageAnalogFwd.size());
         TEST_ASSERT_EQUAL_UINT32(index, dispatchMessageAnalogFwd.at(0).componentIndex);

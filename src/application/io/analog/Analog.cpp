@@ -105,7 +105,7 @@ void Analog::updateSingle(size_t index, bool forceRefresh)
         {
             analogDescriptor_t descriptor;
             fillAnalogDescriptor(index, descriptor);
-            descriptor.dispatchMessage.midiValue = _lastValue[index];
+            descriptor.dispatchMessage.midiValue = _filter.lastValue(index);
             sendMessage(index, descriptor);
         }
     }
@@ -184,7 +184,6 @@ void Analog::processReading(size_t index, uint16_t value)
     if (send)
     {
         sendMessage(index, descriptor);
-        _lastValue[index] = descriptor.dispatchMessage.midiValue;
     }
 }
 
@@ -219,33 +218,40 @@ bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descripto
         return false;
     }
 
-    uint32_t scaledMIDIvalue;
+    auto scale = [&](uint16_t value) {
+        uint32_t scaled = 0;
 
-    if (descriptor.lowerLimit > descriptor.upperLimit)
-    {
-        scaledMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(descriptor.dispatchMessage.midiValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(descriptor.upperLimit), static_cast<uint32_t>(descriptor.lowerLimit));
-
-        if (!descriptor.inverted)
+        if (descriptor.lowerLimit > descriptor.upperLimit)
         {
-            scaledMIDIvalue = descriptor.upperLimit - (scaledMIDIvalue - descriptor.lowerLimit);
-        }
-    }
-    else
-    {
-        scaledMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(descriptor.dispatchMessage.midiValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(descriptor.lowerLimit), static_cast<uint32_t>(descriptor.upperLimit));
+            scaled = core::misc::mapRange(static_cast<uint32_t>(value), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(descriptor.upperLimit), static_cast<uint32_t>(descriptor.lowerLimit));
 
-        if (descriptor.inverted)
+            if (!descriptor.inverted)
+            {
+                scaled = descriptor.upperLimit - (scaled - descriptor.lowerLimit);
+            }
+        }
+        else
         {
-            scaledMIDIvalue = descriptor.upperLimit - (scaledMIDIvalue - descriptor.lowerLimit);
-        }
-    }
+            scaled = core::misc::mapRange(static_cast<uint32_t>(value), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(descriptor.lowerLimit), static_cast<uint32_t>(descriptor.upperLimit));
 
-    if (scaledMIDIvalue == _lastValue[index])
+            if (descriptor.inverted)
+            {
+                scaled = descriptor.upperLimit - (scaled - descriptor.lowerLimit);
+            }
+        }
+
+        return scaled;
+    };
+
+    auto scaledNew = scale(descriptor.dispatchMessage.midiValue);
+    auto scaledOld = scale(_filter.lastValue(index));
+
+    if (scaledNew == scaledOld)
     {
         return false;
     }
 
-    descriptor.dispatchMessage.midiValue = scaledMIDIvalue;
+    descriptor.dispatchMessage.midiValue = scaledNew;
 
     return true;
 }
@@ -336,7 +342,6 @@ void Analog::sendMessage(size_t index, analogDescriptor_t& descriptor)
 void Analog::reset(size_t index)
 {
     setFSRstate(index, false);
-    _lastValue[index] = 0xFFFF;
     _filter.reset(index);
 }
 

@@ -67,7 +67,10 @@ namespace IO
         AnalogFilter()
             : _adcConfig(ADC_RESOLUTION == adcType_t::adc10bit ? adc10bit : adc12bit)
             , _stepDiff7Bit((_adcConfig.adcMaxValue - _adcConfig.adcMinValue) / 128)
-        {}
+        {
+            for (size_t i = 0; i < IO::Analog::Collection::size(); i++)
+                _lastStableValue[i] = 0xFFFF;
+        }
 
         bool isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) override
         {
@@ -198,6 +201,14 @@ namespace IO
             return true;
         }
 
+        uint16_t lastValue(size_t index) override
+        {
+            if (index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
+                return _lastStableValue[index];
+
+            return 0;
+        }
+
         void reset(size_t index) override
         {
 #ifdef ADC_SUPPORTED
@@ -210,7 +221,7 @@ namespace IO
             }
 #endif
 
-            _lastStableValue[index] = 0;
+            _lastStableValue[index] = 0xFFFF;
         }
 
         private:
