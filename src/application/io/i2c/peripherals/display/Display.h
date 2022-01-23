@@ -30,22 +30,6 @@ namespace IO
     class Display : public IO::I2C::Peripheral
     {
         public:
-        /// List of all possible text scrolling directions.
-        enum class scrollDirection_t : uint8_t
-        {
-            leftToRight,
-            rightToLeft
-        };
-
-        /// Structure holding data for scrolling event on display for single row.
-        typedef struct
-        {
-            uint8_t           size;
-            uint8_t           startIndex;
-            int8_t            currentIndex;
-            scrollDirection_t direction;
-        } scrollEvent_t;
-
         enum eventType_t : uint8_t
         {
             in,
@@ -97,7 +81,6 @@ namespace IO
         uint8_t                getTextCenter(uint8_t textSize);
         int8_t                 normalizeOctave(uint8_t octave, int8_t normalization);
         void                   buildString(const char* text, ...);
-        void                   updateScrollStatus(uint8_t row);
         void                   clearMIDIevent(eventType_t type);
         std::optional<uint8_t> sysConfigGet(System::Config::Section::i2c_t section, size_t index, uint16_t& value);
         std::optional<uint8_t> sysConfigSet(System::Config::Section::i2c_t section, size_t index, uint16_t value);
@@ -119,9 +102,6 @@ namespace IO
 
         /// Time in milliseconds after text on display is being refreshed.
         static constexpr uint16_t LCD_REFRESH_TIME = 30;
-
-        /// Time in milliseconds after which scrolling text moves on display.
-        static constexpr uint16_t LCD_SCROLL_TIME = 1000;
 
         /// Maximum amount of characters displayed in single LCD row.
         /// Real width is determined later based on display type.
@@ -159,12 +139,6 @@ namespace IO
         /// Array holding true of false value representing the change of character at specific location on LCD row.
         /// \warning This variables assume there can be no more than 32 characters per LCD row.
         uint32_t _charChange[LCD_HEIGHT_MAX] = {};
-
-        /// Structure array holding scrolling information for all LCD rows.
-        scrollEvent_t _scrollEvent[LCD_HEIGHT_MAX] = {};
-
-        /// Holds last time text has been scrolled on display.
-        uint32_t _lastScrollTime = 0;
 
         /// Holds value by which actual octave is being subtracted when showing octave on display.
         int8_t _octaveNormalization = 0;

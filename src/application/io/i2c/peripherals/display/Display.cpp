@@ -122,11 +122,6 @@ bool Display::init(uint8_t address)
                 }
 
                 _lcdRowText[i][LCD_STRING_BUFFER_SIZE - 1] = '\0';
-
-                _scrollEvent[i].size         = 0;
-                _scrollEvent[i].startIndex   = 0;
-                _scrollEvent[i].currentIndex = 0;
-                _scrollEvent[i].direction    = scrollDirection_t::leftToRight;
             }
 
             _initialized = true;
@@ -277,7 +272,6 @@ void Display::update()
 
     for (int i = 0; i < LCD_HEIGHT_MAX; i++)
     {
-        updateScrollStatus(i);
         charPointer = _lcdRowText[i];
 
         if (!_charChange[i])
@@ -291,7 +285,7 @@ void Display::update()
         {
             if (BIT_READ(_charChange[i], j))
             {
-                u8x8_DrawGlyph(&_u8x8, j, _rowMap[_resolution][i], charPointer[j + _scrollEvent[i].currentIndex]);
+                u8x8_DrawGlyph(&_u8x8, j, _rowMap[_resolution][i], charPointer[j]);
             }
         }
 
@@ -332,48 +326,18 @@ void Display::updateText(uint8_t row, uint8_t startIndex)
         return;
     }
 
-    const char* string     = _stringBuilder.string();
-    uint8_t     size       = strlen(string);
-    uint8_t     scrollSize = 0;
+    const char* string = _stringBuilder.string();
+    uint8_t     size   = strlen(string);
 
     if (size + startIndex >= LCD_STRING_BUFFER_SIZE - 2)
     {
         size = LCD_STRING_BUFFER_SIZE - 2 - startIndex;    // trim string
     }
 
-    bool scrollingEnabled = false;
-
     for (int i = 0; i < size; i++)
     {
         _lcdRowText[row][startIndex + i] = string[i];
         BIT_WRITE(_charChange[row], startIndex + i, 1);
-    }
-
-    // scrolling is enabled only if some characters are found after LCD_WIDTH_MAX-1 index
-    for (int i = LCD_WIDTH_MAX; i < LCD_STRING_BUFFER_SIZE - 1; i++)
-    {
-        if ((_lcdRowText[row][i] != ' ') && (_lcdRowText[row][i] != '\0'))
-        {
-            scrollingEnabled = true;
-            scrollSize++;
-        }
-    }
-
-    if (scrollingEnabled && !_scrollEvent[row].size)
-    {
-        // enable scrolling
-        _scrollEvent[row].size         = scrollSize;
-        _scrollEvent[row].startIndex   = startIndex;
-        _scrollEvent[row].currentIndex = 0;
-        _scrollEvent[row].direction    = scrollDirection_t::leftToRight;
-        _lastScrollTime                = core::timing::currentRunTimeMs();
-    }
-    else if (!scrollingEnabled && _scrollEvent[row].size)
-    {
-        _scrollEvent[row].size         = 0;
-        _scrollEvent[row].startIndex   = 0;
-        _scrollEvent[row].currentIndex = 0;
-        _scrollEvent[row].direction    = scrollDirection_t::leftToRight;
     }
 }
 
@@ -383,60 +347,6 @@ void Display::updateText(uint8_t row, uint8_t startIndex)
 uint8_t Display::getTextCenter(uint8_t textSize)
 {
     return _columns / 2 - (textSize / 2);
-}
-
-/// Updates status of scrolling text on display.
-/// param [in]: row     Row which is being checked.
-void Display::updateScrollStatus(uint8_t row)
-{
-    if (!_scrollEvent[row].size)
-    {
-        return;
-    }
-
-    if ((core::timing::currentRunTimeMs() - _lastScrollTime) < LCD_SCROLL_TIME)
-    {
-        return;
-    }
-
-    switch (_scrollEvent[row].direction)
-    {
-    case scrollDirection_t::leftToRight:
-    {
-        // left to right
-        _scrollEvent[row].currentIndex++;
-
-        if (_scrollEvent[row].currentIndex == _scrollEvent[row].size)
-        {
-            // switch direction
-            _scrollEvent[row].direction = scrollDirection_t::rightToLeft;
-        }
-    }
-    break;
-
-    case scrollDirection_t::rightToLeft:
-    {
-        // right to left
-        _scrollEvent[row].currentIndex--;
-
-        if (_scrollEvent[row].currentIndex == 0)
-        {
-            // switch direction
-            _scrollEvent[row].direction = scrollDirection_t::leftToRight;
-        }
-    }
-    break;
-
-    default:
-        break;
-    }
-
-    for (uint16_t i = _scrollEvent[row].startIndex; i < LCD_WIDTH_MAX; i++)
-    {
-        BIT_WRITE(_charChange[row], i, 1);
-    }
-
-    _lastScrollTime = core::timing::currentRunTimeMs();
 }
 
 /// Sets new message retention time.
