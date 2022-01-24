@@ -34,7 +34,7 @@ jobs:
       - name: Install required packages
         run: |
           cd
-          brew install bash srecord git git-lfs dasel gdb binutils findutils coreutils unzip wget dfu-util imagemagick || true
+          brew install bash srecord git git-lfs dasel gdb binutils findutils coreutils unzip wget dfu-util imagemagick ccache || true
           wget -q --show-progress --progress=bar:force:noscroll https://downloads.arduino.cc/arduino-1.8.19-macosx.zip -O arduino.zip
           unzip -q arduino.zip
           rm arduino.zip
