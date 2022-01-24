@@ -23,6 +23,7 @@ ca-certificates \
 sudo \
 bash-completion \
 libgoogle-glog-dev \
+ccache \
 && rm -rf /var/lib/apt/lists/*
 
 RUN \
