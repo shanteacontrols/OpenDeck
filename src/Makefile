@@ -259,7 +259,7 @@ $(TOUCHSCREEN_GEN_BASE_DIR)/$(TARGET).cpp: $(TOUCHSCREEN_DEF_FILE)
 
 ifeq ($(ARCH),arm)
 $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin: $(TARGET_DEF_FILE) $(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/application/database/Database.cpp.o $(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/application/database/CustomInit.cpp.o
-	@./$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/$(TARGET).elf $@
+	@$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/$(TARGET).elf $@
 else
 $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin:
 #just create dummy binary
