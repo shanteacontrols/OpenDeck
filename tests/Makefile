@@ -11,8 +11,8 @@ TEST_BINARIES   := $(addprefix -object ,$(shell $(FIND) $(BUILD_DIR_BASE) -name 
 FW_ROOT_DIR     := ../src
 SCRIPTS_DIR     := ../scripts
 
-C_COMPILER      := clang
-CPP_COMPILER    := clang++
+CC              := clang
+CXX             := clang++
 LLVM_PROFDATA   := llvm-profdata
 LLVM_COV        := llvm-cov
 CLANG_FORMAT    := clang-format
@@ -22,7 +22,7 @@ include Sources.mk
 -include Objects.mk
 
 #passed to both c and c++ compiler
-COMMON_FLAGS := \
+CPPFLAGS := \
 -fprofile-instr-generate \
 -fcoverage-mapping \
 -O0 \
@@ -30,11 +30,11 @@ COMMON_FLAGS := \
 -Wall
 
 #c++ compiler only
-CPP_FLAGS := \
+CXXFLAGS := \
 -std=c++17
 
 #c compiler only
-C_FLAGS := \
+CFLAGS := \
 -std=c11
 
 #linker
@@ -43,16 +43,16 @@ LDFLAGS := -lglog
 $(BUILD_DIR)/%.c.o $(BUILD_DIR_BASE)/%.c.o: %.c
 	@mkdir -p $(@D)
 	@echo Building: $<
-	@ccache $(C_COMPILER) $(COMMON_FLAGS) $(C_FLAGS) $(addprefix -D,$(DEFINES)) $(INCLUDE_DIRS_COMMON) $(INCLUDE_FILES_COMMON) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	@ccache $(CC) $(CPPFLAGS) $(CFLAGS) $(addprefix -D,$(DEFINES)) $(INCLUDE_DIRS_COMMON) $(INCLUDE_FILES_COMMON) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
 $(BUILD_DIR)/%.cpp.o $(BUILD_DIR_BASE)/%.cpp.o: %.cpp
 	@mkdir -p $(@D)
 	@echo Building: $<
-	@ccache $(CPP_COMPILER) $(COMMON_FLAGS) $(CPP_FLAGS) $(addprefix -D,$(DEFINES)) $(INCLUDE_DIRS_COMMON) $(INCLUDE_FILES_COMMON) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	@ccache $(CXX) $(CPPFLAGS) $(CXXFLAGS) $(addprefix -D,$(DEFINES)) $(INCLUDE_DIRS_COMMON) $(INCLUDE_FILES_COMMON) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
 define LINK_OBJECTS
 	@echo Creating executable: $@
-	@$(CPP_COMPILER) $(LDFLAGS) $(COMMON_FLAGS) $(CPP_FLAGS) $^ -o $@
+	@$(CXX) $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 endef
 
 pre-build:

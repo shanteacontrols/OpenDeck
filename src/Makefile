@@ -44,7 +44,7 @@ include Sources.mk
 CF_FAIL_ON_DIFF := 0
 
 #passed to both c and c++ compiler
-COMMON_FLAGS := \
+CPPFLAGS := \
 -Wall \
 -fdata-sections \
 -ffunction-sections \
@@ -53,7 +53,7 @@ COMMON_FLAGS := \
 -fshort-enums
 
 #c++ compiler only
-CPP_FLAGS := \
+CXXFLAGS := \
 -std=c++17 \
 -fno-rtti \
 -fno-exceptions \
@@ -61,13 +61,13 @@ CPP_FLAGS := \
 -fno-threadsafe-statics
 
 #c compiler only
-C_FLAGS := \
+CFLAGS := \
 -std=c11 \
 -Wno-parentheses-equality \
 -Wno-unused-value
 
 #assembler only
-ASM_FLAGS := \
+ASFLAGS := \
  -x assembler-with-cpp
 
 #common linker flags
@@ -81,16 +81,16 @@ OPT := -Os
 
 ifeq (,$(findstring gen,$(TYPE)))
     ifeq ($(ARCH),avr)
-        CC         := $(C_COMPILER_AVR)
-        CXX        := $(CPP_COMPILER_AVR)
-        LINKER     := $(LINKER_AVR)
+        CC         := $(CC_AVR)
+        CXX        := $(CXX_AVR)
+        LD         := $(LD_AVR)
         FLASH_TOOL := $(FLASH_TOOL_AVR)
         SIZE_TOOL  := avr-size -C --mcu=$(MCU)
 
-        C_FLAGS += \
+        CFLAGS += \
         -fpack-struct
 
-        COMMON_FLAGS += \
+        CPPFLAGS += \
         -mrelax \
         -mmcu=$(MCU) \
         -funsigned-char \
@@ -98,7 +98,7 @@ ifeq (,$(findstring gen,$(TYPE)))
         -fno-jump-tables
 
         ifeq ($(MCU), atmega16u2)
-            COMMON_FLAGS += -flto
+            CPPFLAGS += -flto
         endif
 
         LDFLAGS += \
@@ -107,29 +107,29 @@ ifeq (,$(findstring gen,$(TYPE)))
         -mmcu=$(MCU)
 
         ifeq ($(DEBUG), 1)
-            COMMON_FLAGS += -g -gdwarf-2
-            LDFLAGS += -g -gdwarf-2
-            OPT := -Og
+            CPPFLAGS += -g -gdwarf-2
+            LDFLAGS  += -g -gdwarf-2
+            OPT      := -Og
         endif
 
         ifeq ($(MCU), atmega16u2)
             LDFLAGS += -flto
         endif
     else ifeq ($(ARCH),arm)
-        CC         := $(C_COMPILER_ARM)
-        CXX        := $(CPP_COMPILER_ARM)
-        LINKER     := $(LINKER_ARM)
-        ASSEMBLER  := $(C_COMPILER_ARM)
+        CC         := $(CC_ARM)
+        CXX        := $(CXX_ARM)
+        LD         := $(LD_ARM)
+        AS         := $(CC_ARM)
         FLASH_TOOL := $(FLASH_TOOL_ARM)
         SIZE_TOOL  := size
 
-        COMMON_FLAGS += \
+        CPPFLAGS += \
         -mcpu=$(CPU) \
         -mthumb \
         -mno-unaligned-access
 
-        ifneq (,$(findstring clang,$(C_COMPILER_ARM)))
-            COMMON_FLAGS += -target arm-none-eabi
+        ifneq (,$(findstring clang,$(CC_ARM)))
+            CPPFLAGS += -target arm-none-eabi
         endif
 
         LDFLAGS += \
@@ -141,32 +141,32 @@ ifeq (,$(findstring gen,$(TYPE)))
         LDFLAGS += -Xlinker --defsym=FLASH_START=$(FLASH_START_ADDR)
 
         ifeq ($(DEBUG), 1)
-            COMMON_FLAGS += -g -gdwarf-2
-            LDFLAGS += -g -gdwarf-2
-            OPT := -Og
+            CPPFLAGS += -g -gdwarf-2
+            LDFLAGS  += -g -gdwarf-2
+            OPT      := -Og
         endif
 
         ifneq ($(FPU),)
-            COMMON_FLAGS += -mfpu=$(FPU)
-            LDFLAGS += -mfpu=$(FPU)
+            CPPFLAGS += -mfpu=$(FPU)
+            LDFLAGS  += -mfpu=$(FPU)
         endif
 
         ifneq ($(FLOAT-ABI),)
-            COMMON_FLAGS += -mfloat-abi=$(FLOAT-ABI)
-            LDFLAGS += -mfloat-abi=$(FLOAT-ABI)
+            CPPFLAGS += -mfloat-abi=$(FLOAT-ABI)
+            LDFLAGS  += -mfloat-abi=$(FLOAT-ABI)
         endif
     endif
 else
-    CC        := $(C_COMPILER_NATIVE)
-    CXX       := $(CPP_COMPILER_NATIVE)
-    LINKER    := $(LINKER_NATIVE)
+    CC        := $(CC_NATIVE)
+    CXX       := $(CXX_NATIVE)
+    LD        := $(LD_NATIVE)
     SIZE_TOOL := size
 
     LDFLAGS :=
 
     ifeq ($(DEBUG), 1)
-        COMMON_FLAGS += -g -gdwarf-2
-        OPT := -O0
+        CPPFLAGS += -g -gdwarf-2
+        OPT      := -O0
     else
         OPT := -O3
     endif
@@ -178,7 +178,7 @@ $(OUTPUT).elf: $(OBJECTS)
 #perform the linking only if sources have been defined
 ifneq ($(OBJECTS),)
 	@echo Creating executable: $@
-	@$(LINKER) -o$(OUTPUT).elf $(OBJECTS) $(LDFLAGS)
+	@$(LD) -o$(OUTPUT).elf $(OBJECTS) $(LDFLAGS)
 ifeq (,$(findstring gen,$(TYPE)))
 	@objcopy --gap-fill 0xFF -O ihex $(OUTPUT).elf $(OUTPUT).hex
 endif
@@ -270,17 +270,17 @@ endif
 $(BUILD_DIR)/%.c.o: %.c
 	@mkdir -p $(@D)
 	@echo Building: $<
-	@ccache $(CC) $(COMMON_FLAGS) $(C_FLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	@ccache $(CC) $(CPPFLAGS) $(CFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
 $(BUILD_DIR)/%.cpp.o: %.cpp
 	@mkdir -p $(@D)
 	@echo Building: $<
-	@ccache $(CXX) $(COMMON_FLAGS) $(CPP_FLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	@ccache $(CXX) $(CPPFLAGS) $(CXXFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
 $(BUILD_DIR)/%.s.o: %.s
 	@mkdir -p $(@D)
 	@echo Building: $<
-	@ccache $(ASSEMBLER) $(COMMON_FLAGS) $(C_FLAGS) $(ASM_FLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	@ccache $(AS) $(CPPFLAGS) $(CFLAGS) $(ASFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
 flash:
 ifeq ($(ARCH), avr)

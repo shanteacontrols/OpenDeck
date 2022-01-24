@@ -10,31 +10,30 @@ else
     $(error Unsupported platform)
 endif
 
-C_COMPILER_AVR := avr-gcc
-CPP_COMPILER_AVR := avr-g++
-LINKER_AVR := avr-g++
-FLASH_TOOL_AVR := arduino
-C_COMPILER_ARM := arm-none-eabi-gcc
-CPP_COMPILER_ARM := arm-none-eabi-g++
-LINKER_ARM := arm-none-eabi-g++
-FLASH_TOOL_ARM := bmp
-C_COMPILER_NATIVE := gcc
-CPP_COMPILER_NATIVE := g++
-LINKER_NATIVE := g++
-
-CLANG_FORMAT := clang-format
-YAML_PARSER := dasel
+CC_AVR          := avr-gcc
+CXX_AVR         := avr-g++
+LD_AVR          := avr-g++
+FLASH_TOOL_AVR  := arduino
+CC_ARM          := arm-none-eabi-gcc
+CXX_ARM         := arm-none-eabi-g++
+LD_ARM          := arm-none-eabi-g++
+FLASH_TOOL_ARM  := bmp
+CC_NATIVE       := gcc
+CXX_NATIVE      := g++
+LD_NATIVE       := g++
+CLANG_FORMAT    := clang-format
+YAML_PARSER     := dasel
 
 REQ_PACKAGES := \
 git \
 $(FIND) \
 srec_cat \
-$(C_COMPILER_AVR) \
-$(CPP_COMPILER_AVR) \
-$(C_COMPILER_ARM) \
-$(CPP_COMPILER_ARM) \
-$(C_COMPILER_NATIVE) \
-$(CPP_COMPILER_NATIVE) \
+$(CC_AVR) \
+$(CXX_AVR) \
+$(CC_ARM) \
+$(CXX_ARM) \
+$(CC_NATIVE) \
+$(CXX_NATIVE) \
 objcopy \
 $(YAML_PARSER) \
 $(SHA256SUM) \
