@@ -50,6 +50,3 @@ endif
 #avoid find errors
 #defined here to avoid verify target parsing "2>/dev/null" as an package causing it to fail
 FIND := $(FIND) 2>/dev/null
-
-#add flags here to avoid manual typing everywhere
-YAML_PARSER := $(YAML_PARSER) -n -p yaml --plain -f
