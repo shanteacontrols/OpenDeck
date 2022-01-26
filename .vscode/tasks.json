@@ -191,7 +191,7 @@
         },
         {
             "label": "[Flashgen] Build",
-            "command": "cd ./src && make pre-build TARGET=${input:target} && make TARGET=${input:target} TYPE=flashgen DEBUG=1 binary && cp ./build/flashgen/${input:target}/debug/${input:target}.elf ./build/flashgen/flashgen.elf",
+            "command": "cd ./src && make pre-build TARGET=${input:target} && make TARGET=${input:target} TYPE=flashgen DEBUG=1 binary && cp ./build/${input:target}/debug/flashgen/${input:target}.elf ./build/flashgen.elf",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"

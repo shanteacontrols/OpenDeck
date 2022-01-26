@@ -48,7 +48,7 @@ namespace
         bool                 updated      = false;
     };
 
-    const std::string fw_build_dir         = "../src/build/merged/";
+    const std::string fw_build_dir         = "../src/build/";
     const std::string fw_build_type_subdir = "release/";
 
     SysExParser _sysExParser;
@@ -110,8 +110,8 @@ namespace
 
 TEST_CASE(Bootloader)
 {
-    std::string syxPath    = fw_build_dir + BOARD_STRING + "/" + fw_build_type_subdir + BOARD_STRING + ".sysex.syx";
-    std::string binaryPath = fw_build_dir + BOARD_STRING + "/" + fw_build_type_subdir + BOARD_STRING + "_sysex.bin";
+    std::string syxPath    = fw_build_dir + BOARD_STRING + "/" + fw_build_type_subdir + "merged/" + BOARD_STRING + ".sysex.syx";
+    std::string binaryPath = fw_build_dir + BOARD_STRING + "/" + fw_build_type_subdir + "merged/" + BOARD_STRING + "_sysex.bin";
 
     std::ifstream        sysExStream(syxPath, std::ios::in | std::ios::binary);
     std::vector<uint8_t> sysExVector((std::istreambuf_iterator<char>(sysExStream)), std::istreambuf_iterator<char>());

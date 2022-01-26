@@ -4,8 +4,8 @@ vpath modules/%.c ../
 #common include dirs
 INCLUDE_DIRS := \
 -I"../modules/" \
--I"$(BOARD_MCU_BASE_DIR)/$(MCU)" \
--I"$(BOARD_TARGET_DIR)/" \
+-I"$(GEN_DIR_MCU_BASE)/$(MCU)" \
+-I"$(GEN_DIR_TARGET)/" \
 -I"application/" \
 -I"board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)" \
 -I"board/arch/$(ARCH)/$(VENDOR)" \
@@ -31,10 +31,10 @@ ifeq (,$(findstring gen,$(TYPE)))
 endif
 
 LINKER_FILE       := $(MCU_DIR)/$(MCU).ld
-TARGET_GEN_HEADER := $(BOARD_TARGET_DIR)/Target.h
+TARGET_GEN_HEADER := $(GEN_DIR_TARGET)/Target.h
 
-ifneq (,$(wildcard $(TOUCHSCREEN_DEF_FILE)))
-    TSCREEN_GEN_SOURCE += $(TOUCHSCREEN_GEN_BASE_DIR)/$(TARGET).cpp
+ifneq (,$(wildcard $(DEF_FILE_TSCREEN)))
+    TSCREEN_GEN_SOURCE += $(GEN_DIR_TSCREEN_BASE)/$(TARGET).cpp
 endif
 
 ifeq (,$(findstring gen,$(TYPE)))

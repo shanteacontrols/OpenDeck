@@ -2,22 +2,14 @@ include Toolchain.mk
 
 BUILD_DIR_BASE       := ./build
 TARGET               := discovery
-TARGET_DEF_FILE      := ../config/target/$(TARGET).yml
-TOUCHSCREEN_DEF_FILE := ../config/touchscreen/$(TARGET).json
+DEF_FILE_TARGET      := ../config/target/$(TARGET).yml
+DEF_FILE_TSCREEN     := ../config/touchscreen/$(TARGET).json
 TYPE                 := app
 SCRIPTS_DIR          := ../scripts
 
-ifeq (,$(wildcard $(TARGET_DEF_FILE)))
+ifeq (,$(wildcard $(DEF_FILE_TARGET)))
     $(error Target doesn't exist)
 endif
-
-ifneq (,$(filter $(MAKECMDGOALS),concat))
-    BUILD_DIR := $(BUILD_DIR_BASE)/merged
-else
-    BUILD_DIR := $(BUILD_DIR_BASE)/$(TYPE)
-endif
-
-BUILD_DIR := $(BUILD_DIR)/$(TARGET)
 
 ifeq ($(DEBUG),1)
     BUILD_TYPE := debug
@@ -25,11 +17,18 @@ else
     BUILD_TYPE := release
 endif
 
-BUILD_DIR        := $(BUILD_DIR)/$(BUILD_TYPE)
+BUILD_DIR := $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)
+
+ifneq (,$(filter $(MAKECMDGOALS),concat))
+    BUILD_DIR := $(BUILD_DIR)/merged
+else
+    BUILD_DIR := $(BUILD_DIR)/$(TYPE)
+endif
+
 OUTPUT           := $(BUILD_DIR)/$(TARGET)
 BUILD_TIME_FILE  := $(BUILD_DIR_BASE)/lastbuild
 LAST_BUILD_TIME  := $(shell cat $(BUILD_TIME_FILE) 2>/dev/null | awk '{print$$1}END{if(NR==0)print 0}')
-FLASH_BINARY_DIR := $(BUILD_DIR_BASE)/merged/$(TARGET)/$(BUILD_TYPE)
+FLASH_BINARY_DIR := $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/merged
 
 SYSEX_BINARY_SUFFIX := _sysex
 
@@ -212,30 +211,30 @@ merged:
 	$(MAKE) --no-print-directory TARGET=$(TARGET) DEBUG=$(DEBUG) concat; \
 	fi
 
-concat: $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin
+concat: $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin
 	@mkdir -p $(BUILD_DIR)
 ifeq ($(ARCH), avr)
 	@srec_cat \
-	$(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
-	$(BUILD_DIR_BASE)/boot/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
+	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/$(TARGET).hex -Intel \
+	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/boot/$(TARGET).hex -Intel \
 	-o $(BUILD_DIR)/$(TARGET).hex -Intel
 	@srec_cat \
-	$(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
+	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/$(TARGET).hex -Intel \
 	-o $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex
 else
 #define FACTORY_IMAGE_START_ADDR variable as shell variable instead of make variable:
 #when this recipe is started, generated_flash.bin_offset doesn't exist yet, so make will
 #complain that it cannot find it if it were defined like this: $(shell cat $(BUILD_DIR_BASE)/flashgen/$(TARGET)/release/generated_flash.bin_offset)
-	@FACTORY_IMAGE_START_ADDR=$$(cat $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin_offset) && \
+	@FACTORY_IMAGE_START_ADDR=$$(cat $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin_offset) && \
 	srec_cat \
-	$(BUILD_DIR_BASE)/boot/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
-	$(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
-	$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
+	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/boot/$(TARGET).hex -Intel \
+	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/$(TARGET).hex -Intel \
+	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
 	-o $(BUILD_DIR)/$(TARGET).hex -Intel
-	@FACTORY_IMAGE_START_ADDR=$$(cat $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin_offset) && \
+	@FACTORY_IMAGE_START_ADDR=$$(cat $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin_offset) && \
 	srec_cat \
-	$(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
-	$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
+	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/$(TARGET).hex -Intel \
+	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
 	-o $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex
 endif
 	@objcopy -I ihex "$(BUILD_DIR)/$(TARGET).hex" --gap-fill 0xFF -O binary "$(BUILD_DIR)/$(TARGET).bin"
@@ -244,24 +243,24 @@ endif
 	@echo Merged binary created: $(BUILD_DIR)/$(TARGET).hex
 	@echo Creating SysEx file...
 #raw syx file for use with amidi
-	@$(BUILD_DIR_BASE)/sysexgen/$(TARGET)/$(BUILD_TYPE)/$(TARGET).elf $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).bin $(BUILD_DIR)/$(TARGET).sysex.syx
+	@$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/sysexgen/$(TARGET).elf $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).bin $(BUILD_DIR)/$(TARGET).sysex.syx
 #ascii sysex file for use with web configurator
 	@hexdump -v -e '/1 "%02x "' $(BUILD_DIR)/$(TARGET).sysex.syx | sed 's/f7/f7\n/g' | sed 's/^ *//' | tr a-z A-Z > $(BUILD_DIR)/$(TARGET).sysex
 	@echo SysEx file created: $(BUILD_DIR)/$(TARGET).sysex
 
 pre-build: $(TARGET_GEN_HEADER) $(TSCREEN_GEN_SOURCE)
 
-$(BOARD_TARGET_DIR)/Target.h: $(TARGET_DEF_FILE)
-	@$(SCRIPTS_DIR)/gen_target.sh $(TARGET_DEF_FILE) $(BOARD_TARGET_DIR)
+$(GEN_DIR_TARGET)/Target.h: $(DEF_FILE_TARGET)
+	@$(SCRIPTS_DIR)/gen_target.sh $(DEF_FILE_TARGET) $(GEN_DIR_TARGET)
 
-$(TOUCHSCREEN_GEN_BASE_DIR)/$(TARGET).cpp: $(TOUCHSCREEN_DEF_FILE)
-	@$(SCRIPTS_DIR)/gen_touchscreen.sh $< $(TOUCHSCREEN_GEN_BASE_DIR)
+$(GEN_DIR_TSCREEN_BASE)/$(TARGET).cpp: $(DEF_FILE_TSCREEN)
+	@$(SCRIPTS_DIR)/gen_touchscreen.sh $< $(GEN_DIR_TSCREEN_BASE)
 
 ifeq ($(ARCH),arm)
-$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin: $(TARGET_DEF_FILE) $(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/application/database/Database.cpp.o $(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/application/database/CustomInit.cpp.o
-	@$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/$(TARGET).elf $@
+$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin: $(DEF_FILE_TARGET) $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/application/database/Database.cpp.o $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/application/database/CustomInit.cpp.o
+	@$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/$(TARGET).elf $@
 else
-$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin:
+$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin:
 #just create dummy binary
 	@mkdir -p $(@D)
 	@touch $@
@@ -345,7 +344,7 @@ tidy:
 
 clean:
 	@echo Cleaning up.
-	@rm -rf $(BUILD_DIR_BASE)/ $(BOARD_GEN_BASE_DIR) $(TOUCHSCREEN_GEN_BASE_DIR)
+	@rm -rf $(BUILD_DIR_BASE) $(GEN_DIR_BASE) $(GEN_DIR_TSCREEN_BASE)
 
 #debugging
 print-%:

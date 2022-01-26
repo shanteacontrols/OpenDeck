@@ -53,7 +53,7 @@ then
 fi
 
 {
-    printf "%s%s\n" '-include $(MAKEFILE_INCLUDE_PREFIX)$(BOARD_MCU_BASE_DIR)/' "$mcu/MCU.mk"
+    printf "%s%s\n" '-include $(MAKEFILE_INCLUDE_PREFIX)$(GEN_DIR_MCU_BASE)/' "$mcu/MCU.mk"
     printf "%s\n" "DEFINES += FW_UID=$(../scripts/gen_fw_uid.sh "$TARGET_NAME")"
 } >> "$OUT_MAKEFILE"
 

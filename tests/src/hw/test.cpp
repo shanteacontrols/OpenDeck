@@ -32,7 +32,7 @@ namespace
     const std::string usb_power_on_cmd         = "echo write_low 1 > /dev/actl";
     const std::string sysex_fw_update_delay_ms = "5";
     const uint32_t    startup_delay_ms         = 10000;
-    const std::string fw_build_dir             = "../src/build/merged/";
+    const std::string fw_build_dir             = "../src/build/";
     const std::string fw_build_type_subdir     = "release/";
     const std::string temp_midi_data_location  = "/tmp/temp_midi_data";
     const std::string backup_file_location     = "/tmp/backup.txt";
@@ -558,7 +558,7 @@ TEST_CASE(DatabaseInitialValues)
 
 TEST_CASE(FwUpdate)
 {
-    std::string syxPath = fw_build_dir + BOARD_STRING + "/" + fw_build_type_subdir + BOARD_STRING + ".sysex.syx";
+    std::string syxPath = fw_build_dir + BOARD_STRING + "/" + fw_build_type_subdir + "merged/" + BOARD_STRING + ".sysex.syx";
 
     if (!std::filesystem::exists(syxPath))
     {

@@ -1,10 +1,10 @@
-BOARD_GEN_BASE_DIR          := board/gen
-BOARD_TARGET_BASE_DIR       := $(BOARD_GEN_BASE_DIR)/target
-BOARD_MCU_BASE_DIR          := $(BOARD_GEN_BASE_DIR)/mcu
-BOARD_VENDOR_BASE_DIR       := $(BOARD_GEN_BASE_DIR)/vendor
-BOARD_ARCH_BASE_DIR         := $(BOARD_GEN_BASE_DIR)/arch
-BOARD_TARGET_DIR            := $(BOARD_TARGET_BASE_DIR)/$(TARGET)
-TOUCHSCREEN_GEN_BASE_DIR    := application/io/touchscreen/gen
+GEN_DIR_BASE                := board/gen
+GEN_DIR_TARGET_BASE         := $(GEN_DIR_BASE)/target
+GEN_DIR_MCU_BASE            := $(GEN_DIR_BASE)/mcu
+GEN_DIR_VENDOR_BASE         := $(GEN_DIR_BASE)/vendor
+GEN_DIR_ARCH_BASE           := $(GEN_DIR_BASE)/arch
+GEN_DIR_TARGET              := $(GEN_DIR_TARGET_BASE)/$(TARGET)
+GEN_DIR_TSCREEN_BASE        := application/io/touchscreen/gen
 COMMAND_FW_UPDATE_START     := 0x4F70456E6E45704F
 COMMAND_FW_UPDATE_END       := 0x4465436B
 SYSEX_MANUFACTURER_ID_0     := 0x00
@@ -44,7 +44,7 @@ ifeq ($(DEBUG), 1)
     DEFINES += DEBUG
 endif
 
--include $(MAKEFILE_INCLUDE_PREFIX)$(BOARD_TARGET_DIR)/Defines.mk
+-include $(MAKEFILE_INCLUDE_PREFIX)$(GEN_DIR_TARGET)/Defines.mk
 
 ifneq (,$(findstring USB_LINK_MCU,$(DEFINES)))
     ifeq ($(MCU), atmega16u2)

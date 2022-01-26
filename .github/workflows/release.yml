@@ -27,6 +27,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           tag_name="${GITHUB_REF##*/}"
-          hub release edit $(find ./src/build/merged -type f -name "*.sysex" -not -name "*mega16u2*" -printf "-a %p ") -m "" "$tag_name"
-          hub release edit $(find ./src/build/merged -type f -name "*.hex" -printf "-a %p ") -m "" "$tag_name"
-          hub release edit $(find ./src/build/merged -type f -not -name "*_sysex.bin" -name "*.bin" -printf "-a %p ") -m "" "$tag_name"
+          hub release edit $(find ./src/build -type f -path "*merged*" -name "*.sysex" -not -name "*mega16u2*" -printf "-a %p ") -m "" "$tag_name"
+          hub release edit $(find ./src/build -type f -path "*merged*" -name "*.hex" -printf "-a %p ") -m "" "$tag_name"
+          hub release edit $(find ./src/build -type f -path "*merged*" -not -name "*_sysex.bin" -name "*.bin" -printf "-a %p ") -m "" "$tag_name"

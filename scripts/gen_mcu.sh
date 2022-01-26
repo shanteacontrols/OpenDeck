@@ -71,8 +71,8 @@ fi
 } >> "$OUT_HEADER"
 
 {
-    printf "%s%s\n" '-include $(MAKEFILE_INCLUDE_PREFIX)$(BOARD_ARCH_BASE_DIR)/' "$arch/Arch.mk"
-    printf "%s%s\n" '-include $(MAKEFILE_INCLUDE_PREFIX)$(BOARD_VENDOR_BASE_DIR)/' "$vendor/Vendor.mk"
+    printf "%s%s\n" '-include $(MAKEFILE_INCLUDE_PREFIX)$(GEN_DIR_ARCH_BASE)/' "$arch/Arch.mk"
+    printf "%s%s\n" '-include $(MAKEFILE_INCLUDE_PREFIX)$(GEN_DIR_VENDOR_BASE)/' "$vendor/Vendor.mk"
     printf "%s\n" "ARCH := $arch"
     printf "%s\n" "MCU_FAMILY := $mcu_family"
     printf "%s\n" "VENDOR := $vendor"
