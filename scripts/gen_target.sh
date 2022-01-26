@@ -1065,6 +1065,12 @@ then
     printf "%s\n" "DEFINES += TOTAL_UNUSED_IO=$unused_pins" >> "$OUT_MAKEFILE"
 fi
 
+{
+    printf "%s\n" 'ifneq (,$(findstring UART_CHANNEL,$(DEFINES)))'
+    printf "%s\n" 'DEFINES += USE_UART'
+    printf "%s\n" 'endif'
+} >> "$OUT_MAKEFILE"
+
 ########################################################################################################
 
 printf "\n%s" "#include \"board/common/Map.h.include\"" >> "$OUT_HEADER"
