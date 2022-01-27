@@ -5,7 +5,7 @@ GEN_DIR=$2
 YAML_PARSER="dasel -n -p yaml --plain -f"
 TARGET_NAME=$(basename "$YAML_FILE" .yml)
 OUT_HEADER="$GEN_DIR"/Target.h
-OUT_MAKEFILE="$GEN_DIR"/Defines.mk
+OUT_MAKEFILE="$GEN_DIR"/Makefile
 
 #generated header contains cpp code
 #generate USB names in dedicated header since this one is included in .c files

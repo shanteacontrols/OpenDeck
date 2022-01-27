@@ -1,3 +1,7 @@
+SW_VERSION_MAJOR            := $(shell git describe --tags --abbrev=0 | cut -c 2- | cut -d. -f1)
+SW_VERSION_MINOR            := $(shell git describe --tags --abbrev=0 | cut -c 2- | cut -d. -f2)
+SW_VERSION_REVISION         := $(shell git describe --tags --abbrev=0 | cut -c 2- | cut -d. -f3)
+
 GEN_DIR_BASE                := board/gen
 GEN_DIR_TARGET_BASE         := $(GEN_DIR_BASE)/target
 GEN_DIR_MCU_BASE            := $(GEN_DIR_BASE)/mcu
@@ -5,6 +9,16 @@ GEN_DIR_VENDOR_BASE         := $(GEN_DIR_BASE)/vendor
 GEN_DIR_ARCH_BASE           := $(GEN_DIR_BASE)/arch
 GEN_DIR_TARGET              := $(GEN_DIR_TARGET_BASE)/$(TARGET)
 GEN_DIR_TSCREEN_BASE        := application/io/touchscreen/gen
+
+-include $(MAKEFILE_INCLUDE_PREFIX)$(GEN_DIR_TARGET)/Makefile
+
+#these makefiles are specific only to firmware, which is why they don't have MAKEFILE_INCLUDE_PREFIX
+#the prefix is used to specify the directory of main, target makefile
+#needed for tests since they are outside of src/
+-include board/arch/$(ARCH)/$(VENDOR)/Makefile
+-include board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)/$(MCU)/Makefile
+-include board/arch/$(ARCH)/Makefile
+
 COMMAND_FW_UPDATE_START     := 0x4F70456E6E45704F
 COMMAND_FW_UPDATE_END       := 0x4465436B
 SYSEX_MANUFACTURER_ID_0     := 0x00
@@ -14,13 +28,14 @@ FW_METADATA_SIZE            := 4
 UART_BAUDRATE_MIDI_STD      := 31250
 UART_BAUDRATE_USB           := 38400
 UART_BAUDRATE_TOUCHSCREEN   := 38400
-USB_OVER_SERIAL_BUFFER_SIZE := 16
-I2C_TX_BUFFER_SIZE          := 64
 ESTA_ID                     := 0x6555
 
-SW_VERSION_MAJOR    := $(shell git describe --tags --abbrev=0 | cut -c 2- | cut -d. -f1)
-SW_VERSION_MINOR    := $(shell git describe --tags --abbrev=0 | cut -c 2- | cut -d. -f2)
-SW_VERSION_REVISION := $(shell git describe --tags --abbrev=0 | cut -c 2- | cut -d. -f3)
+#these can be overriden by target/vendor/arch/mcu etc.
+USB_OVER_SERIAL_BUFFER_SIZE ?= 16
+I2C_TX_BUFFER_SIZE          ?= 64
+UART_TX_BUFFER_SIZE         ?= 128
+UART_RX_BUFFER_SIZE         ?= 128
+MIDI_SYSEX_ARRAY_SIZE       ?= 100
 
 DEFINES += \
 UART_BAUDRATE_MIDI_STD=$(UART_BAUDRATE_MIDI_STD) \
@@ -29,6 +44,7 @@ UART_BAUDRATE_TOUCHSCREEN=$(UART_BAUDRATE_TOUCHSCREEN) \
 USB_OVER_SERIAL_BUFFER_SIZE=$(USB_OVER_SERIAL_BUFFER_SIZE) \
 TSCREEN_CDC_PASSTHROUGH_BUFFER_SIZE=$(USB_OVER_SERIAL_BUFFER_SIZE) \
 I2C_TX_BUFFER_SIZE=$(I2C_TX_BUFFER_SIZE) \
+MIDI_SYSEX_ARRAY_SIZE=$(MIDI_SYSEX_ARRAY_SIZE) \
 FIXED_NUM_CONFIGURATIONS=1 \
 SYSEX_MANUFACTURER_ID_0=$(SYSEX_MANUFACTURER_ID_0) \
 SYSEX_MANUFACTURER_ID_1=$(SYSEX_MANUFACTURER_ID_1) \
@@ -44,30 +60,8 @@ ifeq ($(DEBUG), 1)
     DEFINES += DEBUG
 endif
 
--include $(MAKEFILE_INCLUDE_PREFIX)$(GEN_DIR_TARGET)/Defines.mk
-
-ifneq (,$(findstring USB_LINK_MCU,$(DEFINES)))
-    ifeq ($(MCU), atmega16u2)
-        ifeq ($(TYPE),boot)
-            #save flash - this feature doesn't fit into 4k
-            DEFINES := $(filter-out LED_INDICATORS_CTL,$(DEFINES))
-            DEFINES += UART_TX_BUFFER_SIZE=32
-            DEFINES += UART_RX_BUFFER_SIZE=32
-        else ifeq ($(TYPE),app)
-            DEFINES += UART_TX_BUFFER_SIZE=64
-            DEFINES += UART_RX_BUFFER_SIZE=64
-        endif
-    endif
-else
-    DEFINES += UART_TX_BUFFER_SIZE=128
-    DEFINES += UART_RX_BUFFER_SIZE=128
-    DEFINES += MIDI_SYSEX_ARRAY_SIZE=100
-endif
-
-ifeq ($(CPU),cortex-m4)
-    DEFINES += \
-    CORE_ARM_M4
-endif
+DEFINES += UART_TX_BUFFER_SIZE=$(UART_TX_BUFFER_SIZE)
+DEFINES += UART_RX_BUFFER_SIZE=$(UART_RX_BUFFER_SIZE)
 
 ifeq ($(TYPE),boot)
     DEFINES += FW_BOOT

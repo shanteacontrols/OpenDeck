@@ -2,33 +2,16 @@ vpath modules/%.cpp ../
 vpath modules/%.c ../
 
 #common include dirs
-INCLUDE_DIRS := \
+INCLUDE_DIRS += \
 -I"../modules/" \
 -I"$(GEN_DIR_MCU_BASE)/$(MCU)" \
 -I"$(GEN_DIR_TARGET)/" \
 -I"application/" \
+-I"bootloader/" \
 -I"board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)" \
 -I"board/arch/$(ARCH)/$(VENDOR)" \
 -I"board/common" \
 -I"./"
-
-ifeq (,$(findstring gen,$(TYPE)))
-    ifeq ($(VENDOR), atmel)
-        INCLUDE_DIRS += \
-        -I"../modules/lufa/" \
-        -I"../modules/avr-libstdcpp/include"
-    else ifeq ($(VENDOR),st)
-        INCLUDE_DIRS += \
-        $(addprefix -I,$(shell $(FIND) ./board/arch/$(ARCH)/$(VENDOR)/gen/common -type d -not -path "*Src*")) \
-        $(addprefix -I,$(shell $(FIND) ./board/arch/$(ARCH)/$(VENDOR)/gen/$(MCU_FAMILY)/common -type d -not -path "*Src*")) \
-        $(addprefix -I,$(shell $(FIND) ./board/arch/$(ARCH)/$(VENDOR)/gen/$(MCU_FAMILY)/$(MCU_BASE)/Drivers -type d -not -path "*Src*"))
-    endif
-
-    ifeq ($(TYPE),boot)
-        INCLUDE_DIRS += \
-        -I"bootloader/"
-    endif
-endif
 
 LINKER_FILE       := $(MCU_DIR)/$(MCU).ld
 TARGET_GEN_HEADER := $(GEN_DIR_TARGET)/Target.h
@@ -39,52 +22,6 @@ endif
 
 ifeq (,$(findstring gen,$(TYPE)))
     SOURCES += $(TSCREEN_GEN_SOURCE)
-
-    #arch specific
-    ifeq ($(ARCH),avr)
-        ifneq (,$(findstring USB_SUPPORTED,$(DEFINES)))
-            #common for bootloader and application
-            SOURCES += \
-            modules/lufa/LUFA/Drivers/USB/Core/AVR8/Device_AVR8.c \
-            modules/lufa/LUFA/Drivers/USB/Core/AVR8/EndpointStream_AVR8.c \
-            modules/lufa/LUFA/Drivers/USB/Core/AVR8/Endpoint_AVR8.c \
-            modules/lufa/LUFA/Drivers/USB/Core/AVR8/PipeStream_AVR8.c \
-            modules/lufa/LUFA/Drivers/USB/Core/AVR8/Pipe_AVR8.c \
-            modules/lufa/LUFA/Drivers/USB/Core/AVR8/USBController_AVR8.c \
-            modules/lufa/LUFA/Drivers/USB/Core/AVR8/USBInterrupt_AVR8.c \
-            modules/lufa/LUFA/Drivers/USB/Core/ConfigDescriptors.c \
-            modules/lufa/LUFA/Drivers/USB/Core/DeviceStandardReq.c \
-            modules/lufa/LUFA/Drivers/USB/Core/Events.c \
-            modules/lufa/LUFA/Drivers/USB/Core/USBTask.c \
-            modules/lufa/LUFA/Drivers/USB/Class/Device/AudioClassDevice.c \
-            modules/lufa/LUFA/Drivers/USB/Class/Device/MIDIClassDevice.c \
-            modules/lufa/LUFA/Drivers/USB/Class/Device/CDCClassDevice.c
-        endif
-    else ifeq ($(ARCH),arm)
-        SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
-
-        #clang-specific defines
-        ifneq (,$(findstring clang,$(CC_ARM)))
-            TOOLCHAIN_DIR := $(shell dirname $(shell which arm-none-eabi-gcc) | rev | cut -c5- | rev)
-            CPP_VER := $(shell $(FIND) $(TOOLCHAIN_DIR)/arm-none-eabi/include/c++ -mindepth 1 -maxdepth 1 | rev | cut -d/ -f 1 | rev)
-
-            INCLUDE_DIRS += \
-            -isystem"$(TOOLCHAIN_DIR)/lib/gcc/arm-none-eabi/$(CPP_VER)/include" \
-            -isystem"$(TOOLCHAIN_DIR)/lib/gcc/arm-none-eabi/$(CPP_VER)/include-fixed" \
-            -isystem"$(TOOLCHAIN_DIR)/arm-none-eabi/include/c++/$(CPP_VER)" \
-            -isystem"$(TOOLCHAIN_DIR)/arm-none-eabi/include/c++/$(CPP_VER)/arm-none-eabi" \
-            -isystem"$(TOOLCHAIN_DIR)/arm-none-eabi/include/c++/$(CPP_VER)/backward" \
-            -isystem"$(TOOLCHAIN_DIR)/arm-none-eabi/include"
-        endif
-    endif
-
-    #vendor specific
-    ifeq ($(VENDOR),st)
-        SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/$(VENDOR)/gen/common -regex '.*\.\(s\|c\)')
-        SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/$(VENDOR)/gen/$(MCU_FAMILY)/common -regex '.*\.\(s\|c\)')
-        SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/$(VENDOR)/gen/$(MCU_FAMILY)/$(MCU_BASE) -regex '.*\.\(s\|c\)')
-        SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY) -maxdepth 1 -name "*.cpp")
-    endif
 
     SOURCES += $(shell $(FIND) ./board/common -maxdepth 1 -type f -name "*.cpp")
     SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/common/ -type f -name "*.cpp")
