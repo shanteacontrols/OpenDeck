@@ -21,6 +21,7 @@ jobs:
         run: |
           git fetch --tags
           cd src/
+          export MAKEFLAGS=-j$(nproc)
           ../scripts/build_targets.sh
       - name: Upload
         env:
