@@ -90,273 +90,267 @@ namespace std
     }
 }    // namespace std
 
-namespace Board
+namespace Board::detail::setup
 {
-    namespace detail
+    void bootloader()
     {
-        namespace setup
-        {
-            void bootloader()
-            {
-                DISABLE_INTERRUPTS();
+        DISABLE_INTERRUPTS();
 
-                // clear reset source
-                MCUSR &= ~(1 << EXTRF);
+        // clear reset source
+        MCUSR &= ~(1 << EXTRF);
 
-                // disable watchdog
-                MCUSR &= ~(1 << WDRF);
-                wdt_disable();
+        // disable watchdog
+        MCUSR &= ~(1 << WDRF);
+        wdt_disable();
 
-                // disable clock division
-                clock_prescale_set(clock_div_1);
+        // disable clock division
+        clock_prescale_set(clock_div_1);
 
-                detail::setup::io();
+        detail::setup::io();
 
-                // relocate the interrupt vector table to the bootloader section
-                MCUCR = (1 << IVCE);
-                MCUCR = (1 << IVSEL);
+        // relocate the interrupt vector table to the bootloader section
+        MCUCR = (1 << IVCE);
+        MCUCR = (1 << IVSEL);
 
-                ENABLE_INTERRUPTS();
+        ENABLE_INTERRUPTS();
 
 #if defined(USB_LINK_MCU) || !defined(USB_SUPPORTED)
-                Board::UART::config_t config(UART_BAUDRATE_USB,
-                                             Board::UART::parity_t::no,
-                                             Board::UART::stopBits_t::one,
-                                             Board::UART::type_t::rxTx);
+        Board::UART::config_t config(UART_BAUDRATE_USB,
+                                     Board::UART::parity_t::no,
+                                     Board::UART::stopBits_t::one,
+                                     Board::UART::type_t::rxTx);
 
-                Board::UART::init(UART_CHANNEL_USB_LINK, config);
+        Board::UART::init(UART_CHANNEL_USB_LINK, config);
 #endif
-            }
+    }
 
-            void application()
-            {
-                DISABLE_INTERRUPTS();
+    void application()
+    {
+        DISABLE_INTERRUPTS();
 
-                // relocate the interrupt vector table to the application section
-                MCUCR = (1 << IVCE);
-                MCUCR = (0 << IVSEL);
+        // relocate the interrupt vector table to the application section
+        MCUCR = (1 << IVCE);
+        MCUCR = (0 << IVSEL);
 
-                // clear reset source
-                MCUSR &= ~(1 << EXTRF);
+        // clear reset source
+        MCUSR &= ~(1 << EXTRF);
 
-                // disable watchdog
-                MCUSR &= ~(1 << WDRF);
-                wdt_disable();
+        // disable watchdog
+        MCUSR &= ~(1 << WDRF);
+        wdt_disable();
 
-                // disable clock division
-                clock_prescale_set(clock_div_1);
+        // disable clock division
+        clock_prescale_set(clock_div_1);
 
-                detail::setup::io();
-                detail::setup::adc();
+        detail::setup::io();
+        detail::setup::adc();
 
 #if defined(USB_LINK_MCU) || !defined(USB_SUPPORTED)
-                Board::UART::config_t config(UART_BAUDRATE_USB,
-                                             Board::UART::parity_t::no,
-                                             Board::UART::stopBits_t::one,
-                                             Board::UART::type_t::rxTx);
+        Board::UART::config_t config(UART_BAUDRATE_USB,
+                                     Board::UART::parity_t::no,
+                                     Board::UART::stopBits_t::one,
+                                     Board::UART::type_t::rxTx);
 
-                Board::UART::init(UART_CHANNEL_USB_LINK, config);
+        Board::UART::init(UART_CHANNEL_USB_LINK, config);
 #endif
 
-                detail::setup::usb();
-                detail::setup::timers();
+        detail::setup::usb();
+        detail::setup::timers();
 
-                ENABLE_INTERRUPTS();
+        ENABLE_INTERRUPTS();
 
 #ifndef USB_LINK_MCU
-                // add some delay and remove initial readout of digital inputs
-                core::timing::waitMs(10);
-                detail::io::flushInputReadings();
+        // add some delay and remove initial readout of digital inputs
+        core::timing::waitMs(10);
+        detail::io::flushInputReadings();
 
 #ifndef USB_SUPPORTED
-                // wait for unique id from usb host
-                // this is to make sure host and the device share the same unique id
-                USBLink::internalCMD_t cmd;
+        // wait for unique id from usb host
+        // this is to make sure host and the device share the same unique id
+        USBLink::internalCMD_t cmd;
 
-                while (1)
-                {
-                    while (!Board::detail::USB::readInternal(cmd))
-                        ;
+        while (1)
+        {
+            while (!Board::detail::USB::readInternal(cmd))
+                ;
 
-                    if (cmd == USBLink::internalCMD_t::uniqueID)
-                        break;
-                }
+            if (cmd == USBLink::internalCMD_t::uniqueID)
+                break;
+        }
 #endif
 #endif
-            }
+    }
 
 #ifdef ADC_SUPPORTED
-            void adc()
-            {
-                core::adc::conf_t adcConfiguration;
+    void adc()
+    {
+        core::adc::conf_t adcConfiguration;
 
-                adcConfiguration.prescaler = core::adc::prescaler_t::p128;
+        adcConfiguration.prescaler = core::adc::prescaler_t::p128;
 
 #ifdef ADC_EXT_REF
-                adcConfiguration.vref = core::adc::vRef_t::aref;
+        adcConfiguration.vref = core::adc::vRef_t::aref;
 #else
-                adcConfiguration.vref = core::adc::vRef_t::avcc;
+        adcConfiguration.vref = core::adc::vRef_t::avcc;
 #endif
 
-                for (int i = 0; i < MAX_ADC_CHANNELS; i++)
-                    core::adc::disconnectDigitalIn(Board::detail::map::adcChannel(i));
+        for (int i = 0; i < MAX_ADC_CHANNELS; i++)
+            core::adc::disconnectDigitalIn(Board::detail::map::adcChannel(i));
 
-                core::adc::setup(adcConfiguration);
-                core::adc::setChannel(Board::detail::map::adcChannel(0));
+        core::adc::setup(adcConfiguration);
+        core::adc::setChannel(Board::detail::map::adcChannel(0));
 
-                for (int i = 0; i < 3; i++)
-                    core::adc::read();    // few dummy reads to init ADC
+        for (int i = 0; i < 3; i++)
+            core::adc::read();    // few dummy reads to init ADC
 
-                core::adc::enableInterrupt();
-                core::adc::startConversion();
-            }
+        core::adc::enableInterrupt();
+        core::adc::startConversion();
+    }
 #endif
 
-            void timers()
-            {
-                TCCR0A = 0;
-                TCCR0B = 0;
-                TIMSK0 = 0;
-                TCCR0A |= (1 << WGM01);                 // CTC mode
-                TCCR0B |= (1 << CS01) | (1 << CS00);    // prescaler 64
-                OCR0A = TIMER_US_TO_TICKS(TIMER_PERIOD_MAIN);
-                TIMSK0 |= (1 << OCIE0A);    // compare match interrupt
-            }
+    void timers()
+    {
+        TCCR0A = 0;
+        TCCR0B = 0;
+        TIMSK0 = 0;
+        TCCR0A |= (1 << WGM01);                 // CTC mode
+        TCCR0B |= (1 << CS01) | (1 << CS00);    // prescaler 64
+        OCR0A = TIMER_US_TO_TICKS(TIMER_PERIOD_MAIN);
+        TIMSK0 |= (1 << OCIE0A);    // compare match interrupt
+    }
 
-            void io()
-            {
+    void io()
+    {
 #ifdef DIGITAL_INPUTS_SUPPORTED
 #ifdef NUMBER_OF_IN_SR
-                CORE_IO_INIT(SR_IN_DATA_PORT, SR_IN_DATA_PIN, core::io::pinMode_t::input);
-                CORE_IO_INIT(SR_IN_CLK_PORT, SR_IN_CLK_PIN, core::io::pinMode_t::output);
-                CORE_IO_INIT(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN, core::io::pinMode_t::output);
+        CORE_IO_INIT(SR_IN_DATA_PORT, SR_IN_DATA_PIN, core::io::pinMode_t::input);
+        CORE_IO_INIT(SR_IN_CLK_PORT, SR_IN_CLK_PIN, core::io::pinMode_t::output);
+        CORE_IO_INIT(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN, core::io::pinMode_t::output);
 
-                CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
-                CORE_IO_SET_HIGH(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
+        CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
+        CORE_IO_SET_HIGH(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
 #else
 #ifdef NUMBER_OF_BUTTON_ROWS
-                for (int i = 0; i < NUMBER_OF_BUTTON_ROWS; i++)
+        for (int i = 0; i < NUMBER_OF_BUTTON_ROWS; i++)
 #else
-                for (int i = 0; i < NR_OF_DIGITAL_INPUTS; i++)
+        for (int i = 0; i < NR_OF_DIGITAL_INPUTS; i++)
 #endif
-                {
-                    core::io::mcuPin_t pin = detail::map::buttonPin(i);
+        {
+            core::io::mcuPin_t pin = detail::map::buttonPin(i);
 
-                    CORE_IO_INIT(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::input);
+            CORE_IO_INIT(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::input);
 
 #ifndef BUTTONS_EXT_PULLUPS
-                    CORE_IO_SET_HIGH(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
+            CORE_IO_SET_HIGH(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
 #endif
-                }
+        }
 #endif
 
 #ifdef NUMBER_OF_BUTTON_COLUMNS
-                CORE_IO_INIT(DEC_BM_PORT_A0, DEC_BM_PIN_A0, core::io::pinMode_t::output);
-                CORE_IO_INIT(DEC_BM_PORT_A1, DEC_BM_PIN_A1, core::io::pinMode_t::output);
-                CORE_IO_INIT(DEC_BM_PORT_A2, DEC_BM_PIN_A2, core::io::pinMode_t::output);
+        CORE_IO_INIT(DEC_BM_PORT_A0, DEC_BM_PIN_A0, core::io::pinMode_t::output);
+        CORE_IO_INIT(DEC_BM_PORT_A1, DEC_BM_PIN_A1, core::io::pinMode_t::output);
+        CORE_IO_INIT(DEC_BM_PORT_A2, DEC_BM_PIN_A2, core::io::pinMode_t::output);
 
-                CORE_IO_SET_LOW(DEC_BM_PORT_A0, DEC_BM_PIN_A0);
-                CORE_IO_SET_LOW(DEC_BM_PORT_A1, DEC_BM_PIN_A1);
-                CORE_IO_SET_LOW(DEC_BM_PORT_A2, DEC_BM_PIN_A2);
+        CORE_IO_SET_LOW(DEC_BM_PORT_A0, DEC_BM_PIN_A0);
+        CORE_IO_SET_LOW(DEC_BM_PORT_A1, DEC_BM_PIN_A1);
+        CORE_IO_SET_LOW(DEC_BM_PORT_A2, DEC_BM_PIN_A2);
 #endif
 #endif
 
 #ifdef DIGITAL_OUTPUTS_SUPPORTED
 #ifdef NUMBER_OF_OUT_SR
-                CORE_IO_INIT(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN, core::io::pinMode_t::output);
-                CORE_IO_INIT(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN, core::io::pinMode_t::output);
-                CORE_IO_INIT(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN, core::io::pinMode_t::output);
+        CORE_IO_INIT(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN, core::io::pinMode_t::output);
+        CORE_IO_INIT(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN, core::io::pinMode_t::output);
+        CORE_IO_INIT(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN, core::io::pinMode_t::output);
 
 #ifdef SR_OUT_OE_PORT
-                CORE_IO_INIT(SR_OUT_OE_PORT, SR_OUT_OE_PIN, core::io::pinMode_t::output);
+        CORE_IO_INIT(SR_OUT_OE_PORT, SR_OUT_OE_PIN, core::io::pinMode_t::output);
 #endif
 
-                // init all outputs on shift register
-                CORE_IO_SET_LOW(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+        // init all outputs on shift register
+        CORE_IO_SET_LOW(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
 
-                for (int i = 0; i < NR_OF_DIGITAL_OUTPUTS; i++)
-                {
-                    EXT_LED_OFF(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
-                    CORE_IO_SET_HIGH(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
-                    detail::io::sr595wait();
-                    CORE_IO_SET_LOW(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
-                }
+        for (int i = 0; i < NR_OF_DIGITAL_OUTPUTS; i++)
+        {
+            EXT_LED_OFF(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
+            CORE_IO_SET_HIGH(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+            detail::io::sr595wait();
+            CORE_IO_SET_LOW(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+        }
 
-                CORE_IO_SET_HIGH(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+        CORE_IO_SET_HIGH(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
 #ifdef SR_OUT_OE_PORT
-                CORE_IO_SET_LOW(SR_OUT_OE_PORT, SR_OUT_OE_PIN);
+        CORE_IO_SET_LOW(SR_OUT_OE_PORT, SR_OUT_OE_PIN);
 #endif
 #else
 #ifdef NUMBER_OF_LED_ROWS
-                CORE_IO_INIT(DEC_LM_PORT_A0, DEC_LM_PIN_A0, core::io::pinMode_t::output);
-                CORE_IO_INIT(DEC_LM_PORT_A1, DEC_LM_PIN_A1, core::io::pinMode_t::output);
-                CORE_IO_INIT(DEC_LM_PORT_A2, DEC_LM_PIN_A2, core::io::pinMode_t::output);
+        CORE_IO_INIT(DEC_LM_PORT_A0, DEC_LM_PIN_A0, core::io::pinMode_t::output);
+        CORE_IO_INIT(DEC_LM_PORT_A1, DEC_LM_PIN_A1, core::io::pinMode_t::output);
+        CORE_IO_INIT(DEC_LM_PORT_A2, DEC_LM_PIN_A2, core::io::pinMode_t::output);
 
-                CORE_IO_SET_LOW(DEC_LM_PORT_A0, DEC_LM_PIN_A0);
-                CORE_IO_SET_LOW(DEC_LM_PORT_A1, DEC_LM_PIN_A1);
-                CORE_IO_SET_LOW(DEC_LM_PORT_A2, DEC_LM_PIN_A2);
+        CORE_IO_SET_LOW(DEC_LM_PORT_A0, DEC_LM_PIN_A0);
+        CORE_IO_SET_LOW(DEC_LM_PORT_A1, DEC_LM_PIN_A1);
+        CORE_IO_SET_LOW(DEC_LM_PORT_A2, DEC_LM_PIN_A2);
 
-                for (int i = 0; i < NUMBER_OF_LED_ROWS; i++)
+        for (int i = 0; i < NUMBER_OF_LED_ROWS; i++)
 #else
-                for (int i = 0; i < NR_OF_DIGITAL_OUTPUTS; i++)
+        for (int i = 0; i < NR_OF_DIGITAL_OUTPUTS; i++)
 #endif
-                {
-                    core::io::mcuPin_t pin = detail::map::ledPin(i);
+        {
+            core::io::mcuPin_t pin = detail::map::ledPin(i);
 
-                    CORE_IO_INIT(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::output);
-                    EXT_LED_OFF(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
-                }
+            CORE_IO_INIT(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::output);
+            EXT_LED_OFF(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
+        }
 #endif
 #endif
 
 #if MAX_ADC_CHANNELS > 0
-                for (int i = 0; i < MAX_ADC_CHANNELS; i++)
-                {
-                    core::io::mcuPin_t pin = detail::map::adcPin(i);
+        for (int i = 0; i < MAX_ADC_CHANNELS; i++)
+        {
+            core::io::mcuPin_t pin = detail::map::adcPin(i);
 
-                    CORE_IO_INIT(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::input);
-                    CORE_IO_SET_LOW(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
-                }
+            CORE_IO_INIT(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::input);
+            CORE_IO_SET_LOW(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
+        }
 #endif
 
 #ifdef NUMBER_OF_MUX
-                CORE_IO_INIT(MUX_PORT_S0, MUX_PIN_S0, core::io::pinMode_t::output);
-                CORE_IO_INIT(MUX_PORT_S1, MUX_PIN_S1, core::io::pinMode_t::output);
-                CORE_IO_INIT(MUX_PORT_S2, MUX_PIN_S2, core::io::pinMode_t::output);
+        CORE_IO_INIT(MUX_PORT_S0, MUX_PIN_S0, core::io::pinMode_t::output);
+        CORE_IO_INIT(MUX_PORT_S1, MUX_PIN_S1, core::io::pinMode_t::output);
+        CORE_IO_INIT(MUX_PORT_S2, MUX_PIN_S2, core::io::pinMode_t::output);
 #ifdef MUX_PORT_S3
-                CORE_IO_INIT(MUX_PORT_S3, MUX_PIN_S3, core::io::pinMode_t::output);
+        CORE_IO_INIT(MUX_PORT_S3, MUX_PIN_S3, core::io::pinMode_t::output);
 #endif
 #endif
 
 #ifdef BTLDR_BUTTON_PORT
-                CORE_IO_INIT(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN, core::io::pinMode_t::input);
+        CORE_IO_INIT(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN, core::io::pinMode_t::input);
 #ifndef BTLDR_BUTTON_AH
-                CORE_IO_SET_HIGH(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
+        CORE_IO_SET_HIGH(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
 #endif
 #endif
 
 #ifdef TOTAL_UNUSED_IO
-                for (int i = 0; i < TOTAL_UNUSED_IO; i++)
-                {
-                    Board::detail::io::unusedIO_t unusedPin = detail::map::unusedPin(i);
+        for (int i = 0; i < TOTAL_UNUSED_IO; i++)
+        {
+            Board::detail::io::unusedIO_t unusedPin = detail::map::unusedPin(i);
 
-                    CORE_IO_INIT(CORE_IO_MCU_PIN_PORT(unusedPin.pin), CORE_IO_MCU_PIN_INDEX(unusedPin.pin), unusedPin.pin.mode);
-                    CORE_IO_SET_STATE(CORE_IO_MCU_PIN_PORT(unusedPin.pin), CORE_IO_MCU_PIN_INDEX(unusedPin.pin), unusedPin.state);
-                }
+            CORE_IO_INIT(CORE_IO_MCU_PIN_PORT(unusedPin.pin), CORE_IO_MCU_PIN_INDEX(unusedPin.pin), unusedPin.pin.mode);
+            CORE_IO_SET_STATE(CORE_IO_MCU_PIN_PORT(unusedPin.pin), CORE_IO_MCU_PIN_INDEX(unusedPin.pin), unusedPin.state);
+        }
 #endif
 
 #ifdef LED_INDICATORS
-                CORE_IO_INIT(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN, core::io::pinMode_t::output);
-                CORE_IO_INIT(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN, core::io::pinMode_t::output);
-                CORE_IO_INIT(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN, core::io::pinMode_t::output);
-                CORE_IO_INIT(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN, core::io::pinMode_t::output);
+        CORE_IO_INIT(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN, core::io::pinMode_t::output);
+        CORE_IO_INIT(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN, core::io::pinMode_t::output);
+        CORE_IO_INIT(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN, core::io::pinMode_t::output);
+        CORE_IO_INIT(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN, core::io::pinMode_t::output);
 
-                INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
-                INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
-                INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
-                INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
+        INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
+        INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+        INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
+        INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
 #endif
-            }
-        }    // namespace setup
-    }        // namespace detail
-}    // namespace Board
+    }
+}    // namespace Board::detail::setup
