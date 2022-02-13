@@ -33,3 +33,6 @@
 [submodule "modules/dmxusb"]
 	path = modules/dmxusb
 	url = https://github.com/shanteacontrols/DMXUSB.git
+[submodule "modules/tinyusb"]
+	path = modules/tinyusb
+	url = https://github.com/hathach/tinyusb.git
