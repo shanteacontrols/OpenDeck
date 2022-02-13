@@ -138,8 +138,10 @@ void Analog::processReading(size_t index, uint16_t value)
 
     fillAnalogDescriptor(index, analogDescriptor);
 
-    filterDescriptor.type  = analogDescriptor.type;
-    filterDescriptor.value = value;
+    filterDescriptor.type        = analogDescriptor.type;
+    filterDescriptor.value       = value;
+    filterDescriptor.lowerOffset = analogDescriptor.lowerOffset;
+    filterDescriptor.upperOffset = analogDescriptor.upperOffset;
 
     if (!_filter.isFiltered(index, filterDescriptor))
     {
@@ -372,6 +374,8 @@ void Analog::fillAnalogDescriptor(size_t index, analogDescriptor_t& descriptor)
     descriptor.inverted                       = _database.read(Database::Section::analog_t::invert, index);
     descriptor.lowerLimit                     = _database.read(Database::Section::analog_t::lowerLimit, index);
     descriptor.upperLimit                     = _database.read(Database::Section::analog_t::upperLimit, index);
+    descriptor.lowerOffset                    = _database.read(Database::Section::analog_t::lowerOffset, index);
+    descriptor.upperOffset                    = _database.read(Database::Section::analog_t::upperOffset, index);
     descriptor.dispatchMessage.componentIndex = index;
     descriptor.dispatchMessage.midiChannel    = _database.read(Database::Section::analog_t::midiChannel, index);
     descriptor.dispatchMessage.midiIndex      = _database.read(Database::Section::analog_t::midiID, index);

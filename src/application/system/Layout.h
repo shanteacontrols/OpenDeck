@@ -199,28 +199,28 @@ namespace
             127,
         },
 
-        // lower cc limit, lsb
+        // lower value limit, lsb
         {
             IO::Analog::Collection::size(),
             0,
             16383,
         },
 
-        // lower cc limit, msb
+        // lower value limit, msb
         {
             IO::Analog::Collection::size(),
             0,
             127,
         },
 
-        // upper cc limit, lsb
+        // upper value limit, lsb
         {
             IO::Analog::Collection::size(),
             0,
             16383,
         },
 
-        // upper cc limit, msb
+        // upper value limit, msb
         {
             IO::Analog::Collection::size(),
             0,
@@ -232,7 +232,21 @@ namespace
             IO::Analog::Collection::size(),
             1,
             16,
-        }
+        },
+
+        // lower adc percentage offset
+        {
+            IO::Analog::Collection::size(),
+            0,
+            100,
+        },
+
+        // upper adc percentage offset
+        {
+            IO::Analog::Collection::size(),
+            0,
+            100,
+        },
     };
 
     std::vector<SysExConf::Section> ledSections = {

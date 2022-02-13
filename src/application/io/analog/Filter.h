@@ -74,7 +74,10 @@ namespace IO
 
         bool isFiltered(size_t index, descriptor_t& descriptor) override
         {
-            descriptor.value = CONSTRAIN(descriptor.value, _adcConfig.adcMinValue, _adcConfig.adcMaxValue);
+            const uint32_t adcMinValue = lowerOffsetRaw(descriptor.lowerOffset);
+            const uint32_t adcMaxValue = upperOffsetRaw(descriptor.upperOffset);
+
+            descriptor.value = CONSTRAIN(descriptor.value, adcMinValue, adcMaxValue);
 
             // avoid filtering in this case for faster response
             if (descriptor.type == Analog::type_t::button)
@@ -109,7 +112,7 @@ namespace IO
             const bool     use14bit     = (descriptor.type == Analog::type_t::nrpn14bit) || (descriptor.type == Analog::type_t::pitchBend) || (descriptor.type == Analog::type_t::controlChange14bit);
             const uint16_t maxLimit     = use14bit ? MIDI::MIDI_14_BIT_VALUE_MAX : MIDI::MIDI_7_BIT_VALUE_MAX;
             const bool     direction    = descriptor.value >= _lastStableValue[index];
-            const auto     oldMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(_lastStableValue[index]), static_cast<uint32_t>(_adcConfig.adcMinValue), static_cast<uint32_t>(_adcConfig.adcMaxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
+            const auto     oldMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(_lastStableValue[index]), adcMinValue, adcMaxValue, static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
             uint16_t       stepDiff     = 1;
 
             if (((direction != lastStableDirection(index)) || !fastFilter) && ((oldMIDIvalue != 0) && (oldMIDIvalue != maxLimit)))
@@ -160,7 +163,7 @@ namespace IO
             }
 #endif
 
-            const auto midiValue = core::misc::mapRange(static_cast<uint32_t>(descriptor.value), static_cast<uint32_t>(_adcConfig.adcMinValue), static_cast<uint32_t>(_adcConfig.adcMaxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
+            const auto midiValue = core::misc::mapRange(static_cast<uint32_t>(descriptor.value), adcMinValue, adcMaxValue, static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
 
             if (midiValue == oldMIDIvalue)
                 return false;
@@ -240,6 +243,34 @@ namespace IO
             uint8_t analogIndex = index - 8 * arrayIndex;
 
             return BIT_READ(_lastStableDirection[arrayIndex], analogIndex);
+        }
+
+        uint32_t lowerOffsetRaw(uint8_t percentage)
+        {
+            // calculate raw adc value based on percentage
+
+            if (percentage != 0)
+            {
+                return static_cast<double>(_adcConfig.adcMaxValue) * static_cast<double>(percentage / 100.0);
+            }
+            else
+            {
+                return _adcConfig.adcMinValue;
+            }
+        }
+
+        uint32_t upperOffsetRaw(uint8_t percentage)
+        {
+            // calculate raw adc value based on percentage
+
+            if (percentage != 0)
+            {
+                return static_cast<double>(_adcConfig.adcMaxValue) - static_cast<double>(_adcConfig.adcMaxValue * static_cast<double>(percentage / 100.0));
+            }
+            else
+            {
+                return _adcConfig.adcMaxValue;
+            }
         }
 
         adcConfig_t adc10bit = {

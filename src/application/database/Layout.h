@@ -272,7 +272,7 @@ namespace
             .address                = 0,
         },
 
-        // lower cc limit
+        // lower value limit
         {
             .numberOfParameters     = IO::Analog::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::word,
@@ -282,7 +282,7 @@ namespace
             .address                = 0,
         },
 
-        // upper cc limit
+        // upper value limit
         {
             .numberOfParameters     = IO::Analog::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::word,
@@ -300,7 +300,27 @@ namespace
             .defaultValue           = 0,
             .autoIncrement          = false,
             .address                = 0,
-        }
+        },
+
+        // lower adc percentage offset
+        {
+            .numberOfParameters     = IO::Analog::Collection::size(),
+            .parameterType          = LESSDB::sectionParameterType_t::byte,
+            .preserveOnPartialReset = false,
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
+
+        // upper adc percentage offset
+        {
+            .numberOfParameters     = IO::Analog::Collection::size(),
+            .parameterType          = LESSDB::sectionParameterType_t::byte,
+            .preserveOnPartialReset = false,
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
     };
 
     LESSDB::section_t ledSections[static_cast<uint8_t>(Database::Section::leds_t::AMOUNT)] = {

@@ -95,6 +95,8 @@ class Database : public LESSDB
             lowerLimit,
             upperLimit,
             midiChannel,
+            lowerOffset,
+            upperOffset,
             AMOUNT
         };
 

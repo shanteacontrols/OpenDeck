@@ -83,8 +83,10 @@ namespace IO
 
             struct descriptor_t
             {
-                Analog::type_t type  = Analog::type_t::potentiometerControlChange;
-                uint16_t       value = 0;
+                Analog::type_t type        = Analog::type_t::potentiometerControlChange;
+                uint16_t       value       = 0;
+                uint16_t       lowerOffset = 0;
+                uint16_t       upperOffset = 0;
             };
 
             virtual bool     isFiltered(size_t index, descriptor_t& descriptor) = 0;

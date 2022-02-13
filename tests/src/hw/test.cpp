@@ -421,6 +421,16 @@ TEST_CASE(DatabaseInitialValues)
         for (size_t i = 0; i < IO::Analog::Collection::size(); i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(1, MIDIHelper::readFromDevice(System::Config::Section::analog_t::midiChannel, i));
 
+        // lower offset section
+        // all values should be set to 0
+        for (int i = 0; i < IO::Analog::Collection::size(); i += PARAM_SKIP)
+            TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromDevice(System::Config::Section::analog_t::lowerOffset, i));
+
+        // upper offset section
+        // all values should be set to 0
+        for (int i = 0; i < IO::Analog::Collection::size(); i += PARAM_SKIP)
+            TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromDevice(System::Config::Section::analog_t::upperOffset, i));
+
         // LED block
         //----------------------------------
         // global section

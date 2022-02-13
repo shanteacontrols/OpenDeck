@@ -57,7 +57,9 @@ namespace
         Database::Section::analog_t::lowerLimit,
         Database::Section::analog_t::upperLimit,
         Database::Section::analog_t::upperLimit,
-        Database::Section::analog_t::midiChannel
+        Database::Section::analog_t::midiChannel,
+        Database::Section::analog_t::lowerOffset,
+        Database::Section::analog_t::upperOffset,
     };
 
     const Database::Section::leds_t _sysEx2DB_leds[static_cast<uint8_t>(System::Config::Section::leds_t::AMOUNT)] = {

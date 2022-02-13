@@ -93,6 +93,8 @@ namespace System
                 upperLimit,
                 upperLimit_MSB,
                 midiChannel,
+                lowerOffset,
+                upperOffset,
                 AMOUNT
             };
 
