@@ -16,6 +16,7 @@ GEN_DIR_TSCREEN_BASE        := application/io/touchscreen/gen
 #the prefix is used to specify the directory of main, target makefile
 #needed for tests since they are outside of src/
 -include board/arch/$(ARCH)/$(VENDOR)/Makefile
+-include board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)/Makefile
 -include board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)/$(MCU)/Makefile
 -include board/arch/$(ARCH)/Makefile
 
