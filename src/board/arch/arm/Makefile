@@ -1,4 +1,7 @@
 ifeq (,$(findstring gen,$(TYPE)))
+    INCLUDE_DIRS += \
+    -I"board/arch/arm/common/CMSIS"
+
     SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
 
     #clang-specific defines
