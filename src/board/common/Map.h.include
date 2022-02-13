@@ -134,8 +134,8 @@ namespace Board
 
                 Board::detail::flash::flashPage_t descriptor = {};
 
-                uint32_t address = pageIndex * FLASH_PAGE_SIZE_COMMON;
-                descriptor.size  = FLASH_PAGE_SIZE_COMMON;
+                auto address    = FLASH_PAGE_ADDRESS(pageIndex);
+                descriptor.size = FLASH_PAGE_SIZE_COMMON;
 
                 if (address > FLASH_END)
                     descriptor.address = 0;

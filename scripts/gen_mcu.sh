@@ -154,7 +154,17 @@ then
             printf "%s\n" "};"
             printf "%s\n" "}"
         } >> "$OUT_HEADER"
+
+        {
+            printf "%s\n" "#define _FLASH_PAGE_ADDRESS_GEN(x) FLASH_PAGE_ADDRESS_##x"
+            printf "%s\n" "#define FLASH_PAGE_ADDRESS(x)      _FLASH_PAGE_ADDRESS_GEN(x)"
+
+            printf "%s\n" "#define _FLASH_PAGE_SIZE_GEN(x) FLASH_PAGE_SIZE_##x"
+            printf "%s\n" "#define FLASH_PAGE_SIZE(x)      _FLASH_PAGE_SIZE_GEN(x)"
+        } >> "$OUT_HEADER"
     else
+        #all flash pages have common size
+
         page_size=$($YAML_PARSER "$YAML_FILE" flash.page-size)
         flash_size=$($YAML_PARSER "$YAML_FILE" flash.size)
         number_of_flash_pages=$((flash_size/page_size))
@@ -178,6 +188,14 @@ then
 
             ((addressStart+=page_size))
         done
+
+        {
+            printf "%s\n" "constexpr uint32_t FLASH_PAGE_SIZE(size_t page) {"
+            printf "%s\n" "return FLASH_PAGE_SIZE_COMMON; }"
+
+            printf "%s\n" "constexpr uint32_t FLASH_PAGE_ADDRESS(size_t page) {"
+            printf "%s\n" "return FLASH_PAGE_SIZE_COMMON * page; }"
+        } >> "$OUT_HEADER"
     fi
 fi
 
@@ -193,12 +211,6 @@ then
             printf "%s\n" "#define FLASH_PAGE_FACTORY   $factory_flash_page"
             printf "%s\n" "#define FLASH_PAGE_EEPROM_1  $eeprom_flash_page_1"
             printf "%s\n" "#define FLASH_PAGE_EEPROM_2  $eeprom_flash_page_2"
-
-            printf "%s\n" "#define _FLASH_PAGE_ADDRESS_GEN(x) FLASH_PAGE_ADDRESS_##x"
-            printf "%s\n" "#define FLASH_PAGE_ADDRESS(x)      _FLASH_PAGE_ADDRESS_GEN(x)"
-
-            printf "%s\n" "#define _FLASH_PAGE_SIZE_GEN(x) FLASH_PAGE_SIZE_##x"
-            printf "%s\n" "#define FLASH_PAGE_SIZE(x)      _FLASH_PAGE_SIZE_GEN(x)"
         } >> "$OUT_HEADER"
     else
         eeprom_size=$($YAML_PARSER "$YAML_FILE" eeprom.size)
