@@ -26,31 +26,6 @@ limitations under the License.
 // 42 constant based on 84MHz system clock and specific prescaler values used here
 #define TIMER_US_TO_TICKS(us) (((42 * us) - 1))
 
-namespace core::adc
-{
-    void startConversion()
-    {
-        /* Clear regular group conversion flag and overrun flag */
-        /* (To ensure of no unknown state from potential previous ADC operations) */
-        ADC1->SR = ~(ADC_FLAG_EOC | ADC_FLAG_OVR);
-
-        /* Enable end of conversion interrupt for regular group */
-        ADC1->CR1 |= (ADC_IT_EOC | ADC_IT_OVR);
-
-        /* Enable the selected ADC software conversion for regular group */
-        ADC1->CR2 |= (uint32_t)ADC_CR2_SWSTART;
-    }
-
-    void setChannel(uint32_t adcChannel)
-    {
-        /* Clear the old SQx bits for the selected rank */
-        ADC1->SQR3 &= ~ADC_SQR3_RK(ADC_SQR3_SQ1, 1);
-
-        /* Set the SQx bits for the selected rank */
-        ADC1->SQR3 |= ADC_SQR3_RK(adcChannel, 1);
-    }
-}    // namespace core::adc
-
 namespace Board::detail::setup
 {
     void clocks()

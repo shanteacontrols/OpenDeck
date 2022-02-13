@@ -18,7 +18,7 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "core/src/general/Timing.h"
+#include <avr/interrupt.h>
 
 #ifdef FW_APP
 #ifdef ADC_SUPPORTED
@@ -29,8 +29,3 @@ ISR(ADC_vect)
 }
 #endif
 #endif
-
-ISR(TIMER0_COMPA_vect)
-{
-    Board::detail::isrHandling::timer(0);
-}
