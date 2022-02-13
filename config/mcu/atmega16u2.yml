@@ -4,6 +4,7 @@
   vendor: "atmel"
   define-symbol: "__AVR_ATmega16U2__"
   flash:
+    flash-start: 0x00
     app-start: 0x00
     boot-start: 0x3000
     metadata-start: 0x74

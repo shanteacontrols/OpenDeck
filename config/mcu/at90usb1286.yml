@@ -4,6 +4,7 @@
   vendor: "atmel"
   define-symbol: "__AVR_AT90USB1286__"
   flash:
+    flash-start: 0x00
     app-start: 0x00
     boot-start: 0x1E000
     metadata-start: 0x98

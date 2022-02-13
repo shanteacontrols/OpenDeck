@@ -7,6 +7,7 @@
   float-abi: "hard"
   define-symbol: "STM32F411xE"
   flash:
+    flash-start: 0x8000000
     app-start: 0x8008000
     boot-start: 0x8000000
     metadata-start: 0x8008190

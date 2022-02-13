@@ -165,7 +165,7 @@ then
             printf "%s\n" "#define FLASH_END $((flash_size-1))"
         } >> "$OUT_HEADER"
 
-        addressStart=0
+        addressStart=$($YAML_PARSER "$YAML_FILE" flash.flash-start)
 
         for ((i=0; i<number_of_flash_pages; i++))
         do

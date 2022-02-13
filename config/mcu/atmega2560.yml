@@ -4,6 +4,7 @@
   vendor: "atmel"
   define-symbol: "__AVR_ATmega2560__"
   flash:
+    flash-start: 0x00
     app-start: 0x00
     boot-start: 0x3E000
     metadata-start: 0xE4
