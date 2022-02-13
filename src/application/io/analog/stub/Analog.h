@@ -81,9 +81,15 @@ namespace IO
                 adc12bit = 4095
             };
 
-            virtual bool     isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) = 0;
-            virtual uint16_t lastValue(size_t index)                                                                = 0;
-            virtual void     reset(size_t index)                                                                    = 0;
+            struct descriptor_t
+            {
+                Analog::type_t type  = Analog::type_t::potentiometerControlChange;
+                uint16_t       value = 0;
+            };
+
+            virtual bool     isFiltered(size_t index, descriptor_t& descriptor) = 0;
+            virtual uint16_t lastValue(size_t index)                            = 0;
+            virtual void     reset(size_t index)                                = 0;
         };
 
         using buttonHandler_t = std::function<void(size_t index, bool state)>;

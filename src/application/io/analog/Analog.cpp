@@ -133,21 +133,26 @@ void Analog::processReading(size_t index, uint16_t value)
         return;
     }
 
-    analogDescriptor_t descriptor;
-    fillAnalogDescriptor(index, descriptor);
+    analogDescriptor_t   analogDescriptor;
+    Filter::descriptor_t filterDescriptor;
 
-    if (!_filter.isFiltered(index, descriptor.type, value, value))
+    fillAnalogDescriptor(index, analogDescriptor);
+
+    filterDescriptor.type  = analogDescriptor.type;
+    filterDescriptor.value = value;
+
+    if (!_filter.isFiltered(index, filterDescriptor))
     {
         return;
     }
 
-    descriptor.dispatchMessage.midiValue = value;
+    analogDescriptor.dispatchMessage.midiValue = filterDescriptor.value;
 
     bool send = false;
 
-    if (descriptor.type != type_t::button)
+    if (analogDescriptor.type != type_t::button)
     {
-        switch (descriptor.type)
+        switch (analogDescriptor.type)
         {
         case type_t::potentiometerControlChange:
         case type_t::potentiometerNote:
@@ -156,7 +161,7 @@ void Analog::processReading(size_t index, uint16_t value)
         case type_t::pitchBend:
         case type_t::controlChange14bit:
         {
-            if (checkPotentiometerValue(index, descriptor))
+            if (checkPotentiometerValue(index, analogDescriptor))
             {
                 send = true;
             }
@@ -165,7 +170,7 @@ void Analog::processReading(size_t index, uint16_t value)
 
         case type_t::fsr:
         {
-            if (checkFSRvalue(index, descriptor))
+            if (checkFSRvalue(index, analogDescriptor))
             {
                 send = true;
             }
@@ -183,7 +188,7 @@ void Analog::processReading(size_t index, uint16_t value)
 
     if (send)
     {
-        sendMessage(index, descriptor);
+        sendMessage(index, analogDescriptor);
     }
 }
 

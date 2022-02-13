@@ -72,19 +72,19 @@ namespace IO
                 _lastStableValue[i] = 0xFFFF;
         }
 
-        bool isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) override
+        bool isFiltered(size_t index, descriptor_t& descriptor) override
         {
-            value = CONSTRAIN(value, _adcConfig.adcMinValue, _adcConfig.adcMaxValue);
+            descriptor.value = CONSTRAIN(descriptor.value, _adcConfig.adcMinValue, _adcConfig.adcMaxValue);
 
             // avoid filtering in this case for faster response
-            if (type == Analog::type_t::button)
+            if (descriptor.type == Analog::type_t::button)
             {
-                if (value < _adcConfig.digitalValueThresholdOff)
-                    filteredValue = 1;
-                else if (value > _adcConfig.digitalValueThresholdOn)
-                    filteredValue = 0;
+                if (descriptor.value < _adcConfig.digitalValueThresholdOff)
+                    descriptor.value = 1;
+                else if (descriptor.value > _adcConfig.digitalValueThresholdOn)
+                    descriptor.value = 0;
                 else
-                    filteredValue = 0;
+                    descriptor.value = 0;
 
                 return true;
             }
@@ -106,9 +106,9 @@ namespace IO
             const bool fastFilter = true;
 #endif
 
-            const bool     use14bit     = (type == Analog::type_t::nrpn14bit) || (type == Analog::type_t::pitchBend) || (type == Analog::type_t::controlChange14bit);
+            const bool     use14bit     = (descriptor.type == Analog::type_t::nrpn14bit) || (descriptor.type == Analog::type_t::pitchBend) || (descriptor.type == Analog::type_t::controlChange14bit);
             const uint16_t maxLimit     = use14bit ? MIDI::MIDI_14_BIT_VALUE_MAX : MIDI::MIDI_7_BIT_VALUE_MAX;
-            const bool     direction    = value >= _lastStableValue[index];
+            const bool     direction    = descriptor.value >= _lastStableValue[index];
             const auto     oldMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(_lastStableValue[index]), static_cast<uint32_t>(_adcConfig.adcMinValue), static_cast<uint32_t>(_adcConfig.adcMaxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
             uint16_t       stepDiff     = 1;
 
@@ -117,7 +117,7 @@ namespace IO
                 stepDiff = _stepDiff7Bit * 2;
             }
 
-            if (abs(value - _lastStableValue[index]) < stepDiff)
+            if (abs(descriptor.value - _lastStableValue[index]) < stepDiff)
             {
 #ifdef ADC_SUPPORTED
 #ifdef ANALOG_USE_MEDIAN_FILTER
@@ -137,46 +137,36 @@ namespace IO
 #ifdef ANALOG_USE_MEDIAN_FILTER
                 if (!fastFilter)
                 {
-                    _analogSample[index][_medianSampleCounter[index]++] = value;
+                    _analogSample[index][_medianSampleCounter[index]++] = descriptor.value;
 
                     // take the median value to avoid using outliers
                     if (_medianSampleCounter[index] == MEDIAN_SAMPLE_COUNT)
                     {
                         qsort(_analogSample[index], MEDIAN_SAMPLE_COUNT, sizeof(uint16_t), compare);
                         _medianSampleCounter[index] = 0;
-                        filteredValue               = _analogSample[index][MEDIAN_MIDDLE_VALUE];
+                        descriptor.value            = _analogSample[index][MEDIAN_MIDDLE_VALUE];
                     }
                     else
                     {
                         return false;
                     }
                 }
-                else
 #endif
-                {
-                    filteredValue = value;
-                }
 
 #ifdef ANALOG_USE_EMA_FILTER
                 if (index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
-                    filteredValue = _emaFilter[index].value(filteredValue);
+                    descriptor.value = _emaFilter[index].value(descriptor.value);
 #endif
             }
-            else
-            {
-                filteredValue = value;
-            }
-#else
-            filteredValue         = value;
 #endif
 
-            const auto midiValue = core::misc::mapRange(static_cast<uint32_t>(filteredValue), static_cast<uint32_t>(_adcConfig.adcMinValue), static_cast<uint32_t>(_adcConfig.adcMaxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
+            const auto midiValue = core::misc::mapRange(static_cast<uint32_t>(descriptor.value), static_cast<uint32_t>(_adcConfig.adcMinValue), static_cast<uint32_t>(_adcConfig.adcMaxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
 
             if (midiValue == oldMIDIvalue)
                 return false;
 
             setLastStableDirection(index, direction);
-            _lastStableValue[index] = filteredValue;
+            _lastStableValue[index] = descriptor.value;
 
 #ifdef ADC_SUPPORTED
             if (index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
@@ -189,13 +179,13 @@ namespace IO
             }
 #endif
 
-            if (type == Analog::type_t::fsr)
+            if (descriptor.type == Analog::type_t::fsr)
             {
-                filteredValue = core::misc::mapRange(CONSTRAIN(filteredValue, static_cast<uint32_t>(_adcConfig.fsrMinValue), static_cast<uint32_t>(_adcConfig.fsrMaxValue)), static_cast<uint32_t>(_adcConfig.fsrMinValue), static_cast<uint32_t>(_adcConfig.fsrMaxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI::MIDI_7_BIT_VALUE_MAX));
+                descriptor.value = core::misc::mapRange(CONSTRAIN(descriptor.value, static_cast<uint32_t>(_adcConfig.fsrMinValue), static_cast<uint32_t>(_adcConfig.fsrMaxValue)), static_cast<uint32_t>(_adcConfig.fsrMinValue), static_cast<uint32_t>(_adcConfig.fsrMaxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI::MIDI_7_BIT_VALUE_MAX));
             }
             else
             {
-                filteredValue = midiValue;
+                descriptor.value = midiValue;
             }
 
             return true;

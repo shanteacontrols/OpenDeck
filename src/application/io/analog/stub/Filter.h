@@ -29,10 +29,9 @@ namespace IO
         public:
         static constexpr adcType_t ADC_RESOLUTION = adcType_t::adc10bit;
 
-        AnalogFilter()
-        {}
+        AnalogFilter() = default;
 
-        bool isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) override
+        bool isFiltered(size_t index, descriptor_t& descriptor) override
         {
             return false;
         }
