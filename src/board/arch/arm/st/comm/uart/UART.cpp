@@ -90,197 +90,197 @@ namespace Board::detail
             _uartHandler[channel].Init.StopBits   = config.stopBits == Board::UART::stopBits_t::one ? UART_STOPBITS_1 : UART_STOPBITS_2;
 
 #ifdef DMX_SUPPORTED
-                    _dmxState[channel] = config.dmxMode ? dmxState_t::idle : dmxState_t::disabled;
-                    _dmxByteCounter    = 0;
-                    _dmxBuffer         = Board::detail::UART::dmxBuffer();
+            _dmxState[channel] = config.dmxMode ? dmxState_t::idle : dmxState_t::disabled;
+            _dmxByteCounter    = 0;
+            _dmxBuffer         = Board::detail::UART::dmxBuffer();
 
-                    uint32_t pclk;
+            uint32_t pclk;
 
 #if defined(USART6) && defined(UART9) && defined(UART10)
-                    if ((_uartHandler[channel].Instance == USART1) || (_uartHandler[channel].Instance == USART6) || (_uartHandler[channel].Instance == UART9) || (_uartHandler[channel].Instance == UART10))
-                    {
-                        pclk = HAL_RCC_GetPCLK2Freq();
-                    }
+            if ((_uartHandler[channel].Instance == USART1) || (_uartHandler[channel].Instance == USART6) || (_uartHandler[channel].Instance == UART9) || (_uartHandler[channel].Instance == UART10))
+            {
+                pclk = HAL_RCC_GetPCLK2Freq();
+            }
 #elif defined(USART6)
-                    if ((_uartHandler[channel].Instance == USART1) || (_uartHandler[channel].Instance == USART6))
-                    {
-                        pclk = HAL_RCC_GetPCLK2Freq();
-                    }
+            if ((_uartHandler[channel].Instance == USART1) || (_uartHandler[channel].Instance == USART6))
+            {
+                pclk = HAL_RCC_GetPCLK2Freq();
+            }
 #else
-                    if (_uartHandler[channel].Instance == USART1)
-                    {
-                        pclk = HAL_RCC_GetPCLK2Freq();
-                    }
+            if (_uartHandler[channel].Instance == USART1)
+            {
+                pclk = HAL_RCC_GetPCLK2Freq();
+            }
 #endif
-                    else
-                    {
-                        pclk = HAL_RCC_GetPCLK1Freq();
-                    }
+            else
+            {
+                pclk = HAL_RCC_GetPCLK1Freq();
+            }
 
-                    _dmxBreakBRR = UART_BRR_SAMPLING16(pclk, static_cast<uint32_t>(dmxBaudRate_t::brBreak));
-                    _dmxDataBRR  = UART_BRR_SAMPLING16(pclk, static_cast<uint32_t>(dmxBaudRate_t::brData));
+            _dmxBreakBRR = UART_BRR_SAMPLING16(pclk, static_cast<uint32_t>(dmxBaudRate_t::brBreak));
+            _dmxDataBRR  = UART_BRR_SAMPLING16(pclk, static_cast<uint32_t>(dmxBaudRate_t::brData));
 #endif
-                    if (config.parity == Board::UART::parity_t::no)
-                    {
-                        _uartHandler[channel].Init.Parity = UART_PARITY_NONE;
-                    }
-                    else if (config.parity == Board::UART::parity_t::even)
-                    {
-                        _uartHandler[channel].Init.Parity = UART_PARITY_EVEN;
-                    }
-                    else if (config.parity == Board::UART::parity_t::odd)
-                    {
-                        _uartHandler[channel].Init.Parity = UART_PARITY_ODD;
-                    }
+            if (config.parity == Board::UART::parity_t::no)
+            {
+                _uartHandler[channel].Init.Parity = UART_PARITY_NONE;
+            }
+            else if (config.parity == Board::UART::parity_t::even)
+            {
+                _uartHandler[channel].Init.Parity = UART_PARITY_EVEN;
+            }
+            else if (config.parity == Board::UART::parity_t::odd)
+            {
+                _uartHandler[channel].Init.Parity = UART_PARITY_ODD;
+            }
 
-                    if (config.type == Board::UART::type_t::rxTx)
-                    {
-                        _uartHandler[channel].Init.Mode = UART_MODE_TX_RX;
-                    }
-                    else if (config.type == Board::UART::type_t::rx)
-                    {
-                        _uartHandler[channel].Init.Mode = UART_MODE_RX;
-                    }
-                    else if (config.type == Board::UART::type_t::tx)
-                    {
-                        _uartHandler[channel].Init.Mode = UART_MODE_TX;
-                    }
+            if (config.type == Board::UART::type_t::rxTx)
+            {
+                _uartHandler[channel].Init.Mode = UART_MODE_TX_RX;
+            }
+            else if (config.type == Board::UART::type_t::rx)
+            {
+                _uartHandler[channel].Init.Mode = UART_MODE_RX;
+            }
+            else if (config.type == Board::UART::type_t::tx)
+            {
+                _uartHandler[channel].Init.Mode = UART_MODE_TX;
+            }
 
-                    _uartHandler[channel].Init.HwFlowCtl    = UART_HWCONTROL_NONE;
-                    _uartHandler[channel].Init.OverSampling = UART_OVERSAMPLING_16;
+            _uartHandler[channel].Init.HwFlowCtl    = UART_HWCONTROL_NONE;
+            _uartHandler[channel].Init.OverSampling = UART_OVERSAMPLING_16;
 
-                    if (HAL_UART_Init(&_uartHandler[channel]) != HAL_OK)
-                    {
-                        return false;
-                    }
+            if (HAL_UART_Init(&_uartHandler[channel]) != HAL_OK)
+            {
+                return false;
+            }
 
-                    if ((config.type == Board::UART::type_t::rxTx) || (config.type == Board::UART::type_t::rx))
-                    {
-                        // enable rx interrupt
-                        __HAL_UART_ENABLE_IT(&_uartHandler[channel], UART_IT_RXNE);
-                    }
+            if ((config.type == Board::UART::type_t::rxTx) || (config.type == Board::UART::type_t::rx))
+            {
+                // enable rx interrupt
+                __HAL_UART_ENABLE_IT(&_uartHandler[channel], UART_IT_RXNE);
+            }
 
-                    if (config.dmxMode)
-                    {
-                        enableDataEmptyInt(channel);
-                    }
+            if (config.dmxMode)
+            {
+                enableDataEmptyInt(channel);
+            }
 
-                    return true;
-                }
+            return true;
+        }
     }    // namespace UART::ll
 
-        namespace isrHandling
+    namespace isrHandling
+    {
+        void uart(uint8_t channel)
         {
-            void uart(uint8_t channel)
+            uint32_t isrflags = _uartHandler[channel].Instance->SR;
+            uint32_t cr1its   = _uartHandler[channel].Instance->CR1;
+            uint8_t  data     = _uartHandler[channel].Instance->DR;
+
+            bool receiving = (((isrflags & USART_SR_RXNE) != RESET) && ((cr1its & USART_CR1_RXNEIE) != RESET)) ||
+                             (((isrflags & USART_SR_ORE) != RESET) && ((cr1its & USART_CR1_RXNEIE) != RESET));
+
+            bool txComplete = ((isrflags & USART_SR_TC) != RESET) && ((cr1its & USART_CR1_TCIE) != RESET);
+            bool txEmpty    = ((isrflags & USART_SR_TXE) != RESET) && ((cr1its & USART_CR1_TXEIE) != RESET);
+
+            if (receiving)
             {
-                uint32_t isrflags = _uartHandler[channel].Instance->SR;
-                uint32_t cr1its   = _uartHandler[channel].Instance->CR1;
-                uint8_t  data     = _uartHandler[channel].Instance->DR;
-
-                bool receiving = (((isrflags & USART_SR_RXNE) != RESET) && ((cr1its & USART_CR1_RXNEIE) != RESET)) ||
-                                 (((isrflags & USART_SR_ORE) != RESET) && ((cr1its & USART_CR1_RXNEIE) != RESET));
-
-                bool txComplete = ((isrflags & USART_SR_TC) != RESET) && ((cr1its & USART_CR1_TCIE) != RESET);
-                bool txEmpty    = ((isrflags & USART_SR_TXE) != RESET) && ((cr1its & USART_CR1_TXEIE) != RESET);
-
-                if (receiving)
+                Board::detail::UART::storeIncomingData(channel, data);
+            }
+            else if (txEmpty || txComplete)
+            {
+                switch (_dmxState[channel])
                 {
-                    Board::detail::UART::storeIncomingData(channel, data);
-                }
-                else if (txEmpty || txComplete)
+                case Board::detail::UART::dmxState_t::disabled:
                 {
-                    switch (_dmxState[channel])
+                    size_t  remainingBytes;
+                    uint8_t value;
+
+                    if (Board::detail::UART::getNextByteToSend(channel, value, remainingBytes))
                     {
-                    case Board::detail::UART::dmxState_t::disabled:
-                    {
-                        size_t  remainingBytes;
-                        uint8_t value;
+                        _uartHandler[channel].Instance->DR = value;
 
-                        if (Board::detail::UART::getNextByteToSend(channel, value, remainingBytes))
-                        {
-                            _uartHandler[channel].Instance->DR = value;
-
-                            if (!remainingBytes)
-                            {
-                                __HAL_UART_ENABLE_IT(&_uartHandler[channel], UART_IT_TC);
-                                __HAL_UART_DISABLE_IT(&_uartHandler[channel], UART_IT_TXE);
-                            }
-                        }
-                        else
-                        {
-                            if (txComplete)
-                            {
-                                __HAL_UART_DISABLE_IT(&_uartHandler[channel], UART_IT_TC);
-                                Board::detail::UART::indicateTxComplete(channel);
-                            }
-                        }
-                    }
-                    break;
-
-                    case Board::detail::UART::dmxState_t::waitingTXComplete:
-                    {
-                        if (txComplete)
-                        {
-                            // Once TXC interrupt is received while in this state,
-                            // change baudrate, enable TX empty isr and exit. The
-                            // next time ISR runs, it will check the idle state and
-                            // if there is nothing to send, will turn off all TX
-                            // interrupts.
-                            // Note: switching the baudrate seems to have effect only
-                            // the next time ISR runs after switching, which is why a
-                            // fall-through to idle state isn't used here. TX empty will
-                            // trigger this ISR immediately after exit.
-
-                            DMX_SET_BREAK_BAUDRATE(channel);
-                            __HAL_UART_DISABLE_IT(&_uartHandler[channel], UART_IT_TC);
-                            __HAL_UART_ENABLE_IT(&_uartHandler[channel], UART_IT_TXE);
-                            _dmxState[channel] = Board::detail::UART::dmxState_t::idle;
-                        }
-                    }
-                    break;
-
-                    case Board::detail::UART::dmxState_t::idle:
-                    {
-                        __HAL_UART_DISABLE_IT(&_uartHandler[channel], UART_IT_TXE);
-                        __HAL_UART_ENABLE_IT(&_uartHandler[channel], UART_IT_TC);
-
-                        _dmxState[channel]                 = Board::detail::UART::dmxState_t::breakChar;
-                        _uartHandler[channel].Instance->DR = 0x00;
-                    }
-                    break;
-
-                    case Board::detail::UART::dmxState_t::breakChar:
-                    {
-                        if (txComplete)
-                        {
-                            DMX_SET_DATA_BAUDRATE(channel);
-                            __HAL_UART_DISABLE_IT(&_uartHandler[channel], UART_IT_TC);
-                            __HAL_UART_ENABLE_IT(&_uartHandler[channel], UART_IT_TXE);
-                            _dmxState[channel] = Board::detail::UART::dmxState_t::data;
-                        }
-                    }
-                    break;
-
-                    case Board::detail::UART::dmxState_t::data:
-                    {
-                        _uartHandler[channel].Instance->DR = _dmxBuffer[_dmxByteCounter++];
-
-                        if (_dmxByteCounter == 513)
+                        if (!remainingBytes)
                         {
                             __HAL_UART_ENABLE_IT(&_uartHandler[channel], UART_IT_TC);
                             __HAL_UART_DISABLE_IT(&_uartHandler[channel], UART_IT_TXE);
-                            _dmxByteCounter    = 0;
-                            _dmxState[channel] = Board::detail::UART::dmxState_t::waitingTXComplete;
                         }
                     }
-                    break;
-
-                    default:
-                        break;
+                    else
+                    {
+                        if (txComplete)
+                        {
+                            __HAL_UART_DISABLE_IT(&_uartHandler[channel], UART_IT_TC);
+                            Board::detail::UART::indicateTxComplete(channel);
+                        }
                     }
                 }
+                break;
+
+                case Board::detail::UART::dmxState_t::waitingTXComplete:
+                {
+                    if (txComplete)
+                    {
+                        // Once TXC interrupt is received while in this state,
+                        // change baudrate, enable TX empty isr and exit. The
+                        // next time ISR runs, it will check the idle state and
+                        // if there is nothing to send, will turn off all TX
+                        // interrupts.
+                        // Note: switching the baudrate seems to have effect only
+                        // the next time ISR runs after switching, which is why a
+                        // fall-through to idle state isn't used here. TX empty will
+                        // trigger this ISR immediately after exit.
+
+                        DMX_SET_BREAK_BAUDRATE(channel);
+                        __HAL_UART_DISABLE_IT(&_uartHandler[channel], UART_IT_TC);
+                        __HAL_UART_ENABLE_IT(&_uartHandler[channel], UART_IT_TXE);
+                        _dmxState[channel] = Board::detail::UART::dmxState_t::idle;
+                    }
+                }
+                break;
+
+                case Board::detail::UART::dmxState_t::idle:
+                {
+                    __HAL_UART_DISABLE_IT(&_uartHandler[channel], UART_IT_TXE);
+                    __HAL_UART_ENABLE_IT(&_uartHandler[channel], UART_IT_TC);
+
+                    _dmxState[channel]                 = Board::detail::UART::dmxState_t::breakChar;
+                    _uartHandler[channel].Instance->DR = 0x00;
+                }
+                break;
+
+                case Board::detail::UART::dmxState_t::breakChar:
+                {
+                    if (txComplete)
+                    {
+                        DMX_SET_DATA_BAUDRATE(channel);
+                        __HAL_UART_DISABLE_IT(&_uartHandler[channel], UART_IT_TC);
+                        __HAL_UART_ENABLE_IT(&_uartHandler[channel], UART_IT_TXE);
+                        _dmxState[channel] = Board::detail::UART::dmxState_t::data;
+                    }
+                }
+                break;
+
+                case Board::detail::UART::dmxState_t::data:
+                {
+                    _uartHandler[channel].Instance->DR = _dmxBuffer[_dmxByteCounter++];
+
+                    if (_dmxByteCounter == 513)
+                    {
+                        __HAL_UART_ENABLE_IT(&_uartHandler[channel], UART_IT_TC);
+                        __HAL_UART_DISABLE_IT(&_uartHandler[channel], UART_IT_TXE);
+                        _dmxByteCounter    = 0;
+                        _dmxState[channel] = Board::detail::UART::dmxState_t::waitingTXComplete;
+                    }
+                }
+                break;
+
+                default:
+                    break;
+                }
             }
-        }    // namespace isrHandling
+        }
+    }    // namespace isrHandling
 }    // namespace Board::detail
 
 #endif

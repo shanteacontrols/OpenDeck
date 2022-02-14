@@ -94,53 +94,53 @@ namespace Board
             if (!firstReading)
             {
 #ifdef NUMBER_OF_MUX
-                    detail::io::dischargeMux();
+                detail::io::dischargeMux();
 #endif
 
-                    _analogBuffer[_analogIndex] = adcValue | NEW_READING_FLAG;
-                    _analogIndex++;
+                _analogBuffer[_analogIndex] = adcValue | NEW_READING_FLAG;
+                _analogIndex++;
 #ifdef NUMBER_OF_MUX
-                    _activeMuxInput++;
+                _activeMuxInput++;
 
-                    bool switchMux = (_activeMuxInput == NUMBER_OF_MUX_INPUTS);
+                bool switchMux = (_activeMuxInput == NUMBER_OF_MUX_INPUTS);
 
-                    if (switchMux)
+                if (switchMux)
 #else
-                    if (_analogIndex == NR_OF_ANALOG_INPUTS)
+                if (_analogIndex == NR_OF_ANALOG_INPUTS)
 #endif
+                {
+#ifdef NUMBER_OF_MUX
+                    _activeMuxInput = 0;
+                    _activeMux++;
+
+                    if (_activeMux == NUMBER_OF_MUX)
                     {
-#ifdef NUMBER_OF_MUX
-                        _activeMuxInput = 0;
-                        _activeMux++;
-
-                        if (_activeMux == NUMBER_OF_MUX)
-                        {
-                            _activeMux = 0;
+                        _activeMux = 0;
 #endif
-                            _analogIndex = 0;
+                        _analogIndex = 0;
 #ifdef NUMBER_OF_MUX
-                        }
-#endif
-
-#ifdef NUMBER_OF_MUX
-                        // switch to next mux once all mux inputs are read
-                        core::adc::setChannel(Board::detail::map::adcChannel(_activeMux));
-#endif
                     }
+#endif
 
-// always switch to next read pin
 #ifdef NUMBER_OF_MUX
-                    setMuxInput();
-#else
-                    core::adc::setChannel(Board::detail::map::adcChannel(_analogIndex));
+                    // switch to next mux once all mux inputs are read
+                    core::adc::setChannel(Board::detail::map::adcChannel(_activeMux));
 #endif
                 }
 
+// always switch to next read pin
 #ifdef NUMBER_OF_MUX
-                detail::io::restoreMux(_activeMux);
+                setMuxInput();
+#else
+                core::adc::setChannel(Board::detail::map::adcChannel(_analogIndex));
+#endif
+            }
+
+#ifdef NUMBER_OF_MUX
+            detail::io::restoreMux(_activeMux);
 #endif
 
-                core::adc::startConversion();
-            }
+            core::adc::startConversion();
+        }
     }    // namespace detail::isrHandling
 }    // namespace Board

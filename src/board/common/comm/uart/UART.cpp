@@ -276,10 +276,10 @@ namespace Board
         }
 
 #ifdef DMX_SUPPORTED
-            uint8_t* dmxBuffer()
-            {
-                return _dmxBuffer;
-            }
+        uint8_t* dmxBuffer()
+        {
+            return _dmxBuffer;
+        }
 #endif
     }    // namespace detail::UART
 

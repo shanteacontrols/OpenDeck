@@ -43,25 +43,25 @@ namespace Board::bootloader
     void runBootloader()
     {
 #if defined(LED_INDICATORS) && defined(LED_INDICATORS_CTL)
-            // the only reason to run this in bootloader is to control led indicators through data event timeouts
-            // if this feature is unavailable, don't configure the timer
-            detail::setup::timers();
+        // the only reason to run this in bootloader is to control led indicators through data event timeouts
+        // if this feature is unavailable, don't configure the timer
+        detail::setup::timers();
 #endif
 
-            detail::setup::usb();
-        }
+        detail::setup::usb();
+    }
 
-        void runApplication()
+    void runApplication()
+    {
+        detail::io::ledFlashStartup();
+        detail::setup::halDeinit();
+
+        auto appEntry = (appEntry_t) * (volatile uint32_t*)(APP_START_ADDR + 4);
+        appEntry();
+
+        while (true)
         {
-            detail::io::ledFlashStartup();
-            detail::setup::halDeinit();
-
-            auto appEntry = (appEntry_t) * (volatile uint32_t*)(APP_START_ADDR + 4);
-            appEntry();
-
-            while (true)
-            {
-                ;
-            }
+            ;
         }
+    }
 }    // namespace Board::bootloader

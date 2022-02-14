@@ -39,45 +39,45 @@ namespace Board::bootloader
 
 #if defined(BTLDR_BUTTON_PORT)
 #ifdef BTLDR_BUTTON_AH
-            return CORE_IO_READ(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
+        return CORE_IO_READ(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
 #else
-            return !CORE_IO_READ(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
+        return !CORE_IO_READ(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
 #endif
 #else
-            // no hardware entry possible in this case
-            return false;
+        // no hardware entry possible in this case
+        return false;
 #endif
-        }
+    }
 
-        uint32_t pageSize(size_t index)
+    uint32_t pageSize(size_t index)
+    {
+        return detail::flash::pageSize(index + FLASH_PAGE_APP_START);
+    }
+
+    void erasePage(size_t index)
+    {
+        detail::flash::erasePage(index + FLASH_PAGE_APP_START);
+    }
+
+    void fillPage(size_t index, uint32_t address, uint16_t value)
+    {
+        detail::flash::write16(detail::map::flashPageDescriptor(index + FLASH_PAGE_APP_START).address + address, value);
+    }
+
+    void writePage(size_t index)
+    {
+        detail::flash::writePage(index + FLASH_PAGE_APP_START);
+    }
+
+    uint8_t readFlash(uint32_t address)
+    {
+        uint8_t data = 0;
+
+        if (!detail::flash::read8(address, data))
         {
-            return detail::flash::pageSize(index + FLASH_PAGE_APP_START);
+            data = 0;
         }
 
-        void erasePage(size_t index)
-        {
-            detail::flash::erasePage(index + FLASH_PAGE_APP_START);
-        }
-
-        void fillPage(size_t index, uint32_t address, uint16_t value)
-        {
-            detail::flash::write16(detail::map::flashPageDescriptor(index + FLASH_PAGE_APP_START).address + address, value);
-        }
-
-        void writePage(size_t index)
-        {
-            detail::flash::writePage(index + FLASH_PAGE_APP_START);
-        }
-
-        uint8_t readFlash(uint32_t address)
-        {
-            uint8_t data = 0;
-
-            if (!detail::flash::read8(address, data))
-            {
-                data = 0;
-            }
-
-            return data;
-        }
+        return data;
+    }
 }    // namespace Board::bootloader
