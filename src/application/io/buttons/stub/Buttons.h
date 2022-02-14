@@ -71,7 +71,8 @@ namespace IO
         class HWA
         {
             public:
-            virtual bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
+            virtual bool   state(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
+            virtual size_t buttonToEncoderIndex(size_t index)                               = 0;
         };
 
         class Filter
