@@ -9,3 +9,13 @@ ifeq (,$(findstring gen,$(TYPE)))
     SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/$(VENDOR)/gen/$(MCU_FAMILY)/$(MCU_BASE) -regex '.*\.\(s\|c\)')
     SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY) -maxdepth 1 -name "*.cpp")
 endif
+
+DEFINES += \
+__STM32__ \
+IO_REG_WIDTH=16 \
+USE_HAL_DRIVER \
+UID_BITS=96 \
+USE_USB_FS \
+DEVICE_FS=0 \
+DEVICE_HS=1 \
+ADC_12_BIT

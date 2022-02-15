@@ -19,6 +19,10 @@ ifeq (,$(findstring gen,$(TYPE)))
     endif
 endif
 
+DEFINES += \
+__ARM__ \
+EMUEEPROM_INCLUDE_CONFIG
+
 ifeq ($(CPU),cortex-m4)
     DEFINES += \
     CORE_ARM_M4

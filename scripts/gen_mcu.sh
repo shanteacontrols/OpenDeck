@@ -24,40 +24,6 @@ app_start_address=$($YAML_PARSER "$YAML_FILE" flash.app-start)
 boot_start_address=$($YAML_PARSER "$YAML_FILE" flash.boot-start)
 metadata_start_address=$($YAML_PARSER "$YAML_FILE" flash.metadata-start)
 
-#process arch and vendor first
-ARCH_GEN_DIR=$(dirname "$2")/../arch/$arch
-ARCH_YAML_FILE=$(dirname "$YAML_FILE")/../arch/$arch.yml
-VENDOR_GEN_DIR=$(dirname "$2")/../vendor/$vendor
-VENDOR_YAML_FILE=$(dirname "$YAML_FILE")/../vendor/$vendor.yml
-
-if [[ ! -f $ARCH_YAML_FILE ]]
-then
-    echo "$ARCH_YAML_FILE doesn't exist"
-    exit 1
-fi
-
-if [[ ! -f $VENDOR_YAML_FILE ]]
-then
-    echo "$VENDOR_YAML_FILE doesn't exist"
-    exit 1
-fi
-
-if [[ ! -d $ARCH_GEN_DIR ]]
-then
-    if ! ../scripts/gen_arch.sh "$ARCH_YAML_FILE" "$ARCH_GEN_DIR"
-    then
-        exit 1
-    fi
-fi
-
-if [[ ! -d $VENDOR_GEN_DIR ]]
-then
-    if ! ../scripts/gen_vendor.sh "$VENDOR_YAML_FILE" "$VENDOR_GEN_DIR"
-    then
-        exit 1
-    fi
-fi
-
 {
     printf "%s\n\n" "#pragma once"
 

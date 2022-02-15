@@ -22,3 +22,29 @@ ifeq (,$(findstring gen,$(TYPE)))
         modules/lufa/LUFA/Drivers/USB/Class/Device/CDCClassDevice.c
     endif
 endif
+
+DEFINES += \
+__AVR__ \
+ARCH=ARCH_AVR8 \
+IO_REG_WIDTH=8 \
+F_CPU=16000000UL \
+F_USB=16000000UL \
+BOARD=BOARD_NONE \
+USE_STATIC_OPTIONS=0 \
+USB_DEVICE_ONLY \
+INTERRUPT_CONTROL_ENDPOINT \
+ADC_10_BIT \
+ORDERED_EP_CONFIG \
+UID_BITS=80
+
+ifeq ($(TYPE),boot)
+    DEFINES += \
+    NO_SOF_EVENTS \
+    DEVICE_STATE_AS_GPIOR \
+    NO_DEVICE_REMOTE_WAKEUP \
+    NO_DEVICE_SELF_POWER \
+    USE_RAM_DESCRIPTORS
+else ifeq ($(TYPE),app)
+    DEFINES += \
+    USE_FLASH_DESCRIPTORS
+endif
