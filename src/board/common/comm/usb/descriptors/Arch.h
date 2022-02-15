@@ -20,7 +20,7 @@ limitations under the License.
 
 #include "types/Helpers.h"
 
-#ifdef __AVR__
+#ifdef CORE_ARCH_AVR
 #include <avr/pgmspace.h>
 #include "LUFA/Drivers/USB/USB.h"
 

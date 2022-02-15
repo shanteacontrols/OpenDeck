@@ -1001,7 +1001,7 @@ namespace Board::USB
 #endif
 
 Database _database(_hwaDatabase,
-#ifdef __AVR__
+#ifdef CORE_ARCH_AVR
                    true
 #else
                    false

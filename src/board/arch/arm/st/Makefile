@@ -11,7 +11,7 @@ ifeq (,$(findstring gen,$(TYPE)))
 endif
 
 DEFINES += \
-__STM32__ \
+CORE_VENDOR_ST \
 IO_REG_WIDTH=16 \
 USE_HAL_DRIVER \
 UID_BITS=96 \

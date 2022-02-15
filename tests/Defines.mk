@@ -12,6 +12,5 @@ include $(MAKEFILE_INCLUDE_PREFIX)Defines.mk
 -include $(MAKEFILE_INCLUDE_PREFIX)$(GEN_DIR_TARGET)/HWTestDefines.mk
 
 #filter out arch symbols to avoid pulling MCU-specific headers
-DEFINES := $(filter-out __AVR__,$(DEFINES))
-DEFINES := $(filter-out __STM32__,$(DEFINES))
-DEFINES := $(filter-out __ARM__,$(DEFINES))
+DEFINES := $(filter-out CORE_ARCH_%,$(DEFINES))
+DEFINES := $(filter-out CORE_VENDOR_%,$(DEFINES))

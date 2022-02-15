@@ -10,15 +10,13 @@ GEN_DIR_ARCH_BASE           := $(GEN_DIR_BASE)/arch
 GEN_DIR_TARGET              := $(GEN_DIR_TARGET_BASE)/$(TARGET)
 GEN_DIR_TSCREEN_BASE        := application/io/touchscreen/gen
 
--include $(MAKEFILE_INCLUDE_PREFIX)$(GEN_DIR_TARGET)/Makefile
-
-#these makefiles are specific only to firmware, which is why they don't have MAKEFILE_INCLUDE_PREFIX
-#the prefix is used to specify the directory of main, target makefile
+#the MAKEFILE_INCLUDE_PREFIX prefix is used to specify the start directory makefiles
 #needed for tests since they are outside of src/
--include board/arch/$(ARCH)/$(VENDOR)/Makefile
--include board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)/Makefile
--include board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)/$(MCU)/Makefile
--include board/arch/$(ARCH)/Makefile
+-include $(MAKEFILE_INCLUDE_PREFIX)$(GEN_DIR_TARGET)/Makefile
+-include $(MAKEFILE_INCLUDE_PREFIX)board/arch/$(ARCH)/$(VENDOR)/Makefile
+-include $(MAKEFILE_INCLUDE_PREFIX)board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)/Makefile
+-include $(MAKEFILE_INCLUDE_PREFIX)board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)/$(MCU)/Makefile
+-include $(MAKEFILE_INCLUDE_PREFIX)board/arch/$(ARCH)/Makefile
 
 COMMAND_FW_UPDATE_START     := 0x4F70456E6E45704F
 COMMAND_FW_UPDATE_END       := 0x4465436B
@@ -74,7 +72,8 @@ else ifeq ($(TYPE),flashgen)
     #same as app
     DEFINES += FW_APP
     FLASH_START_ADDR := $(APP_START_ADDR)
-    DEFINES := $(filter-out __STM32__,$(DEFINES))
+    DEFINES := $(filter-out CORE_ARCH_%,$(DEFINES))
+    DEFINES := $(filter-out CORE_VENDOR_%,$(DEFINES))
 else ifeq ($(TYPE),sysexgen)
     #nothing to do
 else

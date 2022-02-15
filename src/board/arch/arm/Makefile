@@ -20,7 +20,7 @@ ifeq (,$(findstring gen,$(TYPE)))
 endif
 
 DEFINES += \
-__ARM__ \
+CORE_ARCH_ARM \
 EMUEEPROM_INCLUDE_CONFIG
 
 ifeq ($(CPU),cortex-m4)

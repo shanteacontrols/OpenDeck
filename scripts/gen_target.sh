@@ -1017,7 +1017,7 @@ then
             "in-pull")
                 {
                     printf "%s\n" "{ .pin = { .port = UNUSED_PORT_${i}, .index = UNUSED_PIN_${i}",
-                    printf "\n%s\n" "#ifdef __AVR__"
+                    printf "\n%s\n" "#ifdef CORE_ARCH_AVR"
                     printf "%s\n" ".mode = core::io::pinMode_t::input, },"
                     printf "%s\n" "#else"
                     printf "%s\n" ".mode = core::io::pinMode_t::input, .pull = core::io::pullMode_t::up, },"
@@ -1029,7 +1029,7 @@ then
             "out-low")
                 {
                     printf "%s\n" "{ .pin = { .port = UNUSED_PORT_${i}, .index = UNUSED_PIN_${i}",
-                    printf "\n%s\n" "#ifdef __AVR__"
+                    printf "\n%s\n" "#ifdef CORE_ARCH_AVR"
                     printf "%s\n" ".mode = core::io::pinMode_t::output, },"
                     printf "%s\n" "#else"
                     printf "%s\n" ".mode = core::io::pinMode_t::outputPP, .pull = core::io::pullMode_t::none, },"
@@ -1041,7 +1041,7 @@ then
             "out-high")
                 {
                     printf "%s\n" "{ .pin = { .port = UNUSED_PORT_${i}, .index = UNUSED_PIN_${i}",
-                    printf "\n%s\n" "#ifdef __AVR__"
+                    printf "\n%s\n" "#ifdef CORE_ARCH_AVR"
                     printf "%s\n" ".mode = core::io::pinMode_t::output, },"
                     printf "%s\n" "#else"
                     printf "%s\n" ".mode = core::io::pinMode_t::outputPP, .pull = core::io::pullMode_t::none, }," >> "$OUT_HEADER"

@@ -24,7 +24,7 @@ ifeq (,$(findstring gen,$(TYPE)))
 endif
 
 DEFINES += \
-__AVR__ \
+CORE_ARCH_AVR \
 ARCH=ARCH_AVR8 \
 IO_REG_WIDTH=8 \
 F_CPU=16000000UL \
