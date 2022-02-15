@@ -1,0 +1,164 @@
+---
+  mcu: "nrf52840"
+  usb: true
+  uart:
+    dinMIDI:
+      pins:
+        rx:
+          port: "0"
+          index: 8
+        tx:
+          port: "0"
+          index: 6
+    touchscreen:
+      pins:
+        rx:
+          port: "0"
+          index: 8
+        tx:
+          port: "0"
+          index: 6
+      components: 64
+    dmx:
+      pins:
+        rx:
+          port: "0"
+          index: 8
+        tx:
+          port: "0"
+          index: 6
+  i2c:
+    pins:
+      sda:
+        port: "0"
+        index: 26
+      scl:
+        port: "0"
+        index: 27
+  buttons:
+    type: "native"
+    extPullups: false
+    pins:
+    -
+      port: "0"
+      index: 11
+    -
+      port: "0"
+      index: 12
+    -
+      port: "0"
+      index: 24
+    -
+      port: "0"
+      index: 25
+    -
+      port: "1"
+      index: 1
+    -
+      port: "1"
+      index: 2
+    -
+      port: "1"
+      index: 3
+    -
+      port: "1"
+      index: 4
+    -
+      port: "1"
+      index: 5
+    -
+      port: "1"
+      index: 6
+  analog:
+    type: "native"
+    pins:
+    -
+      port: "0"
+      index: 3
+    -
+      port: "0"
+      index: 4
+    -
+      port: "0"
+      index: 28
+    -
+      port: "0"
+      index: 29
+    -
+      port: "0"
+      index: 30
+    -
+      port: "0"
+      index: 31
+    -
+      port: "0"
+      index: 5
+    -
+      port: "0"
+      index: 2
+  leds:
+    internal:
+      invert: true
+      pins:
+        din:
+          rx:
+            port: "0"
+            index: 13
+          tx:
+            port: "0"
+            index: 14
+        usb:
+          rx:
+            port: "0"
+            index: 15
+          tx:
+            port: "0"
+            index: 16
+    external:
+      type: "native"
+      pins:
+      -
+        port: "0"
+        index: 17
+      -
+        port: "0"
+        index: 19
+      -
+        port: "0"
+        index: 20
+      -
+        port: "0"
+        index: 21
+      -
+        port: "0"
+        index: 22
+      -
+        port: "0"
+        index: 23
+      -
+        port: "1"
+        index: 7
+      -
+        port: "1"
+        index: 8
+      -
+        port: "1"
+        index: 9
+      -
+        port: "1"
+        index: 10
+      -
+        port: "1"
+        index: 11
+      -
+        port: "1"
+        index: 12
+      -
+        port: "1"
+        index: 13
+      -
+        port: "1"
+        index: 14
+      -
+        port: "1"
+        index: 15

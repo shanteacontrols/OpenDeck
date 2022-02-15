@@ -1,0 +1,32 @@
+---
+  arch: "arm"
+  vendor: "nordic"
+  mcuFamily: "nrf52"
+  cpu: "cortex-m4"
+  fpu: "fpv4-sp-d16"
+  float-abi: "hard"
+  define-symbol: "NRF52840_XXAA"
+  flash:
+    flash-start: 0x00
+    boot-start: 0x27000
+    app-start: 0x2F000
+    app-metadata-offset: 0x200
+    page-size: 0x1000
+    size: 0x100000
+  eeprom:
+    emulated:
+      factory-flash-page: 72
+      eeprom-flash-page1: 88
+      eeprom-flash-page2: 104
+  peripherals:
+    custom-pins: true
+    uart: 1
+    i2c: 1
+  timers:
+    #periods in us
+    main:
+      period: 1000
+      channel: 0
+    pwm:
+      period: 200
+      channel: 1

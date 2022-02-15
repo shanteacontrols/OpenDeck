@@ -52,6 +52,7 @@ OpenDeck firmware is compatible with [official OpenDeck board](https://www.tindi
 * [Waveshare Core407I](https://www.waveshare.com/core407i.htm)
 * [STM32F4VE](https://stm32-base.org/boards/STM32F407VET6-STM32-F4VE-V2.0) ([eBay](https://www.ebay.com/itm/401956886691?hash=item5d967f58a3:g:fFcAAOSw4fhdy2rk))
 * [TPyBoard (PyBoard clone)](http://www.chinalctech.com/m/view.php?aid=338) ([eBay](https://www.ebay.com/itm/183887614794?hash=item2ad08e534a:g:bmsAAOSwrSpdLtFM))
+* [nRF52840 DK](https://www.nordicsemi.com/Products/Development-hardware/nrf52840-dk)
 
 *Some of the supported boards*
 

@@ -144,6 +144,30 @@
                 }
             ],
             "preLaunchTask": "[Flashgen] Build"
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "jlink",
+            "cwd": "${workspaceRoot}",
+            "executable": "${workspaceRoot}/src/build/nrf52840dk/debug/merged/nrf52840dk.hex",
+            "serverpath": "/usr/bin/JLinkGDBServerCLExe",
+            "name": "[NRF] Debug/Launch",
+            "device": "nrf52840_xxaa",
+            "runToEntryPoint": "main",
+            "preLaunchCommands": [
+                "add-symbol-file ${workspaceRoot}/src/build/nrf52840dk/debug/app/nrf52840dk.elf",
+            ]
+        },
+        {
+            "type": "cortex-debug",
+            "request": "attach",
+            "servertype": "jlink",
+            "cwd": "${workspaceRoot}",
+            "executable": "${workspaceRoot}/src/build/nrf52840dk/debug/app/nrf52840dk.elf",
+            "serverpath": "/usr/bin/JLinkGDBServerCLExe",
+            "name": "[NRF] Debug/Attach",
+            "device": "nrf52840_xxaa",
         }
     ]
 }
