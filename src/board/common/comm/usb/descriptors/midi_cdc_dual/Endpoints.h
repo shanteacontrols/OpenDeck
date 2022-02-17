@@ -20,8 +20,17 @@ limitations under the License.
 
 #include "board/common/comm/usb/types/Helpers.h"
 
-#define MIDI_STREAM_IN_EPADDR  (USB_ENDPOINT_DIR_IN | 1)
-#define MIDI_STREAM_OUT_EPADDR (USB_ENDPOINT_DIR_OUT | 2)
+#ifdef USE_CUSTOM_USB_ENDPOINTS
+#include <comm/usb/midi_cdc_dual/Endpoints.h>
+#else
+#define CDC_IN_EPADDR           (USB_ENDPOINT_DIR_IN | 1)
+#define MIDI_STREAM_IN_EPADDR   (USB_ENDPOINT_DIR_IN | 2)
+#define CDC_NOTIFICATION_EPADDR (USB_ENDPOINT_DIR_IN | 3)
+#define CDC_OUT_EPADDR          (USB_ENDPOINT_DIR_OUT | 1)
+#define MIDI_STREAM_OUT_EPADDR  (USB_ENDPOINT_DIR_OUT | 2)
 
-#define CONTROL_EPSIZE     8
-#define MIDI_IN_OUT_EPSIZE 32
+#define CONTROL_EPSIZE          64
+#define CDC_NOTIFICATION_EPSIZE 8
+#define CDC_IN_OUT_EPSIZE       32
+#define MIDI_IN_OUT_EPSIZE      32
+#endif

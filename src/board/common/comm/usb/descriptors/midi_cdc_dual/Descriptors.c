@@ -50,7 +50,7 @@ limitations under the License.
 #include <stdio.h>
 #include "Descriptors.h"
 #include "board/common/comm/usb/USB.h"
-#include "board/common/comm/usb/descriptors/Constants.h"
+#include "board/common/comm/usb/Constants.h"
 #include "core/src/general/Helpers.h"
 #include <USBnames.h>
 

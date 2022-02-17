@@ -76,7 +76,6 @@ Need help? Want to show off your OpenDeck based builds? Head over to [Discussion
 
 Most of the code is available under Apache Licence v2.0, with the following exceptions:
 
-* `src/board/arch/stm32/gen`: Code licenced by ST. Depending on the source file, the licence is mostly BSD 3-Clause or ST Ultimate Liberty license. Check individual files for details.
 * `modules`:
   * `avr-libstdcpp`: GNU GPL v3 or later with GCC Runtime Library Exception 3.1
   * `core`: MIT
@@ -88,3 +87,4 @@ Most of the code is available under Apache Licence v2.0, with the following exce
   * `sysex`: MIT
   * `u8g2`: Two-clause BSD
   * `unity`: MIT
+  * `tinyusb`: MIT, but many modules it uses are individually licenced, check for more details

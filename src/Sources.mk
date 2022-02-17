@@ -13,6 +13,10 @@ INCLUDE_DIRS += \
 -I"board/common" \
 -I"./"
 
+ifneq (,$(findstring USE_TINYUSB,$(DEFINES)))
+    INCLUDE_DIRS += -I"board/common/comm/usb/tinyusb"
+endif
+
 LINKER_FILE       := $(MCU_DIR)/$(MCU).ld
 TARGET_GEN_HEADER := $(GEN_DIR_TARGET)/Target.h
 
@@ -40,6 +44,11 @@ ifeq (,$(findstring gen,$(TYPE)))
             SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/midi -type f -name "*.c")
             SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/$(VENDOR)/comm/usb/midi -type f -name "*.cpp")
 
+            ifneq (,$(findstring USE_TINYUSB,$(DEFINES)))
+                SOURCES += board/common/comm/usb/tinyusb/Common.cpp
+                SOURCES += board/common/comm/usb/tinyusb/MIDI.cpp
+            endif
+
             ifneq (,$(findstring USB_LINK_MCU,$(DEFINES)))
                 #for USB link MCUs, compile UART as well - needed to communicate with main MCU
                 SOURCES += \
@@ -62,6 +71,12 @@ ifeq (,$(findstring gen,$(TYPE)))
             SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/$(VENDOR)/comm/usb/midi_cdc_dual -type f -name "*.cpp")
             SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/midi_cdc_dual -type f -name "*.cpp")
             SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/midi_cdc_dual -type f -name "*.c")
+
+            ifneq (,$(findstring USE_TINYUSB,$(DEFINES)))
+                SOURCES += board/common/comm/usb/tinyusb/Common.cpp
+                SOURCES += board/common/comm/usb/tinyusb/CDC.cpp
+                SOURCES += board/common/comm/usb/tinyusb/MIDI.cpp
+            endif
         endif
 
         ifneq (,$(findstring USE_UART,$(DEFINES)))

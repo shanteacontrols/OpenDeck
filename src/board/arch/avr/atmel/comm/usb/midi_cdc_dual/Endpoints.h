@@ -18,7 +18,7 @@ limitations under the License.
 
 #pragma once
 
-#include "board/common/comm/usb/descriptors/types/Helpers.h"
+#include "board/common/comm/usb/types/Helpers.h"
 
 #define CDC_IN_EPADDR           (USB_ENDPOINT_DIR_IN | 1)
 #define CDC_OUT_EPADDR          (USB_ENDPOINT_DIR_OUT | 2)

@@ -19,6 +19,9 @@ limitations under the License.
 #include "board/Internal.h"
 #include "board/arch/arm/st/Internal.h"
 #include "core/src/general/ADC.h"
+#ifdef USB_SUPPORTED
+#include "tusb.h"
+#endif
 #include <Target.h>
 
 // stm32f4 specific setup
@@ -133,6 +136,32 @@ namespace Board::detail::setup
         core::adc::setChannel(map::adcChannel(0));
 
         HAL_ADC_Start_IT(&adcHandler);
+    }
+#endif
+
+#ifdef USB_SUPPORTED
+    void usb()
+    {
+        __HAL_RCC_GPIOA_CLK_ENABLE();
+
+        GPIO_InitTypeDef GPIO_InitStruct;
+
+        // configure USB D+ D- Pins
+        GPIO_InitStruct.Pin       = GPIO_PIN_11 | GPIO_PIN_12;
+        GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
+        GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull      = GPIO_NOPULL;
+        GPIO_InitStruct.Alternate = GPIO_AF10_OTG_FS;
+        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+        // Enable USB OTG clock
+        __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
+
+        // disable VBUS sensing
+        USB_OTG_FS->GCCFG |= USB_OTG_GCCFG_NOVBUSSENS;
+
+        tusb_init();
+        detail::registerUpdateHook(&tud_task);
     }
 #endif
 }    // namespace Board::detail::setup

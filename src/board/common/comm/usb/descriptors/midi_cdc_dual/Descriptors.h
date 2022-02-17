@@ -30,8 +30,8 @@
 
 #pragma once
 
-#include "board/common/comm/usb/descriptors/Arch.h"
-#include <comm/usb/midi_cdc_dual/Endpoints.h>
+#include "board/common/comm/usb/Arch.h"
+#include "Endpoints.h"
 
 #define CDC_POLLING_TIME  5
 #define USB_TX_TIMEOUT_MS 2000

@@ -20,15 +20,8 @@ limitations under the License.
 #include "board/Internal.h"
 #include "core/src/general/Timing.h"
 #include <MCU.h>
-#include <comm/usb/USB.h>
 
 // STM32 common ISRs
-
-// This function handles USB On The Go FS global interrupt.
-extern "C" void OTG_FS_IRQHandler(void)
-{
-    HAL_PCD_IRQHandler(&hpcd_USB_OTG_FS);
-}
 
 // This function handles Non maskable interrupt.
 extern "C" void NMI_Handler(void)

@@ -18,10 +18,4 @@ limitations under the License.
 
 #pragma once
 
-#include "board/common/comm/usb/types/Helpers.h"
-
-#define MIDI_STREAM_IN_EPADDR  (USB_ENDPOINT_DIR_IN | 1)
-#define MIDI_STREAM_OUT_EPADDR (USB_ENDPOINT_DIR_OUT | 2)
-
-#define CONTROL_EPSIZE     8
-#define MIDI_IN_OUT_EPSIZE 32
+#define TINY_USB_ISR_HANDLER OTG_FS_IRQHandler

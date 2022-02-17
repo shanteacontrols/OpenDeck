@@ -20,8 +20,12 @@ limitations under the License.
 
 #include "board/common/comm/usb/types/Helpers.h"
 
+#ifdef USE_CUSTOM_USB_ENDPOINTS
+#include <comm/usb/midi/Endpoints.h>
+#else
 #define MIDI_STREAM_IN_EPADDR  (USB_ENDPOINT_DIR_IN | 1)
 #define MIDI_STREAM_OUT_EPADDR (USB_ENDPOINT_DIR_OUT | 2)
 
-#define CONTROL_EPSIZE     8
+#define CONTROL_EPSIZE     64
 #define MIDI_IN_OUT_EPSIZE 32
+#endif
