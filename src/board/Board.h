@@ -37,6 +37,9 @@ namespace Board
     /// Performs software MCU reboot.
     void reboot();
 
+    /// Used to continuously perform board-specific tasks if needed.
+    void update();
+
     namespace USB
     {
         /// Checks if USB has been enumerated on host machine.

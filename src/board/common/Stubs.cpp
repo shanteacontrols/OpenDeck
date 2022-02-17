@@ -24,6 +24,10 @@ limitations under the License.
 
 namespace Board
 {
+    __attribute__((weak)) void update()
+    {
+    }
+
     namespace io
     {
         __attribute__((weak)) bool digitalInState(size_t digitalInIndex, dInReadings_t& dInReadings)

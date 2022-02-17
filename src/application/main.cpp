@@ -864,6 +864,8 @@ class HWASystem : public System::Builder::HWA::System
 
     void update() override
     {
+        Board::update();
+
         static uint32_t lastCheckTime       = 0;
         static bool     lastConnectionState = false;
 

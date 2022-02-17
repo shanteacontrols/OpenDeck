@@ -16,6 +16,9 @@ limitations under the License.
 
 */
 
+#ifdef BOARD_USE_UPDATE_HOOKS
+#include <vector>
+#endif
 #include "board/Board.h"
 #include "board/Internal.h"
 #include "core/src/general/Reset.h"
@@ -34,6 +37,13 @@ limitations under the License.
 // this is used by the bootloader to verify the crc of application
 uint32_t _flashSize __attribute__((section(".fwMetadata"))) __attribute__((used)) = 0;
 
+namespace
+{
+#ifdef BOARD_USE_UPDATE_HOOKS
+    std::vector<Board::detail::updateHook_t> updateHooks;
+#endif
+}    // namespace
+
 namespace core::timing::detail
 {
     /// Implementation of core variable used to keep track of run time in milliseconds.
@@ -50,6 +60,16 @@ namespace Board
         detail::setup::bootloader();
 #endif
     }
+
+#ifdef BOARD_USE_UPDATE_HOOKS
+    void update()
+    {
+        for (size_t i = 0; i < updateHooks.size(); i++)
+        {
+            updateHooks[i]();
+        }
+    }
+#endif
 
     void reboot()
     {
@@ -79,6 +99,13 @@ namespace Board
 
     namespace detail
     {
+#ifdef BOARD_USE_UPDATE_HOOKS
+        void registerUpdateHook(updateHook_t hook)
+        {
+            updateHooks.push_back(hook);
+        }
+#endif
+
         void errorHandler()
         {
             while (true)

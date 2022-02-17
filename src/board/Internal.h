@@ -31,6 +31,14 @@ namespace Board
 {
     namespace detail
     {
+#ifdef BOARD_USE_UPDATE_HOOKS
+        // some boards/SDKs might require periodic calls to certain APIs:
+        // enable only if needed
+        using updateHook_t = void (*)();
+
+        void registerUpdateHook(updateHook_t hook);
+#endif
+
         /// Default error handler.
         void errorHandler();
 
