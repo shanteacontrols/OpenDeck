@@ -306,7 +306,7 @@ typedef struct
                                *   array of ASCII characters on little endian devices with
                                *   UTF-16-LE \c wchar_t encoding.
                                */
-} __attribute__((packed)) USB_Descriptor_String_t;
+} USB_Descriptor_String_t;
 
 /** Enum for the possible standard descriptor types, as given in each descriptor's header. */
 enum USB_DescriptorTypes_t
