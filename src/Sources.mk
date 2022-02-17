@@ -27,7 +27,7 @@ ifeq (,$(findstring gen,$(TYPE)))
     SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/common/ -type f -name "*.cpp")
     SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/$(VENDOR)/common/ -type f -name "*.cpp")
     SOURCES += $(shell $(FIND) ./$(MCU_DIR) -maxdepth 1 -type f -regex '.*\.\(s\|c\|cpp\)')
-    SOURCES += board/common/io/Stubs.cpp
+    SOURCES += board/common/Stubs.cpp
 
     ifeq ($(TYPE),boot)
         #bootloader sources
