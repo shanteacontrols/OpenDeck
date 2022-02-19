@@ -6,8 +6,8 @@
   flash:
     flash-start: 0x00
     app-start: 0x00
+    app-metadata-offset: 0x74
     boot-start: 0x3000
-    metadata-start: 0x74
     page-size: 0x80
     size: 0x4000
   eeprom:

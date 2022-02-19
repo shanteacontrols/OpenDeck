@@ -22,7 +22,7 @@ float_abi=$($YAML_PARSER "$YAML_FILE" float-abi)
 define_symbol=$($YAML_PARSER "$YAML_FILE" define-symbol)
 app_start_address=$($YAML_PARSER "$YAML_FILE" flash.app-start)
 boot_start_address=$($YAML_PARSER "$YAML_FILE" flash.boot-start)
-metadata_start_address=$($YAML_PARSER "$YAML_FILE" flash.metadata-start)
+app_metadata_offset=$($YAML_PARSER "$YAML_FILE" flash.app-metadata-offset)
 
 {
     printf "%s\n\n" "#pragma once"
@@ -52,7 +52,7 @@ metadata_start_address=$($YAML_PARSER "$YAML_FILE" flash.metadata-start)
     printf "%s\n" "DEFINES += $define_symbol"
     printf "%s%x\n" "APP_START_ADDR := 0x" "$app_start_address"
     printf "%s%x\n" "BOOT_START_ADDR := 0x" "$boot_start_address"
-    printf "%s%x\n" "FW_METADATA_LOCATION := 0x" "$metadata_start_address"
+    printf "%s%x\n" "FW_METADATA_LOCATION := 0x" "$((app_start_address+app_metadata_offset))"
 } >> "$OUT_MAKEFILE"
 
 if [[ $($YAML_PARSER "$YAML_FILE" flash) != "null" ]]

@@ -8,9 +8,9 @@
   define-symbol: "STM32F407xx"
   flash:
     flash-start: 0x8000000
-    app-start: 0x8008000
     boot-start: 0x8000000
-    metadata-start: 0x8008190
+    app-start: 0x8008000
+    app-metadata-offset: 0x190
     pages:
     -
       address: 0x8000000
