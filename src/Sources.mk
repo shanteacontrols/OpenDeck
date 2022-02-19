@@ -24,6 +24,10 @@ ifneq (,$(wildcard $(DEF_FILE_TSCREEN)))
     TSCREEN_GEN_SOURCE += $(GEN_DIR_TSCREEN_BASE)/$(TARGET).cpp
 endif
 
+PRE_BUILD_FILES += \
+$(TARGET_GEN_HEADER) \
+$(TSCREEN_GEN_SOURCE)
+
 ifeq (,$(findstring gen,$(TYPE)))
     SOURCES += $(TSCREEN_GEN_SOURCE)
 
