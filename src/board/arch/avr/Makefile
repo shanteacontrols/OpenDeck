@@ -23,6 +23,8 @@ ifeq (,$(findstring gen,$(TYPE)))
     endif
 endif
 
+FLASH_TOOL := arduino
+
 DEFINES += \
 CORE_ARCH_AVR \
 ARCH=ARCH_AVR8 \

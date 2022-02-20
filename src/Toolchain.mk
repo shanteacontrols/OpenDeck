@@ -13,11 +13,9 @@ endif
 CC_AVR          := avr-gcc
 CXX_AVR         := avr-g++
 LD_AVR          := avr-g++
-FLASH_TOOL_AVR  := arduino
 CC_ARM          := arm-none-eabi-gcc
 CXX_ARM         := arm-none-eabi-g++
 LD_ARM          := arm-none-eabi-g++
-FLASH_TOOL_ARM  := bmp
 CC_NATIVE       := gcc
 CXX_NATIVE      := g++
 LD_NATIVE       := g++
@@ -37,7 +35,6 @@ $(CXX_NATIVE) \
 objcopy \
 $(YAML_PARSER) \
 $(SHA256SUM) \
-avrdude \
 ccache
 
 #don't allow running make at all if required packages don't exist on the system

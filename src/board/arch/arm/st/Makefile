@@ -45,6 +45,8 @@ ifeq (,$(findstring gen,$(TYPE)))
     SOURCES := $(filter-out %_template.c,$(SOURCES))
 endif
 
+FLASH_TOOL := stlink
+
 DEFINES += \
 CORE_VENDOR_ST \
 IO_REG_WIDTH=16 \

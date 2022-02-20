@@ -36,6 +36,7 @@ SYSEX_BINARY_SUFFIX := _sysex
 #important - do not change the order of inclusion!
 include Defines.mk
 include Sources.mk
+-include flashing/$(FLASH_TOOL).mk
 
 .DEFAULT_GOAL := merged
 
@@ -83,7 +84,6 @@ ifeq (,$(findstring gen,$(TYPE)))
         CC         := $(CC_AVR)
         CXX        := $(CXX_AVR)
         LD         := $(LD_AVR)
-        FLASH_TOOL := $(FLASH_TOOL_AVR)
         SIZE_TOOL  := avr-size -C --mcu=$(MCU)
 
         CFLAGS += \
@@ -119,7 +119,6 @@ ifeq (,$(findstring gen,$(TYPE)))
         CXX        := $(CXX_ARM)
         LD         := $(LD_ARM)
         AS         := $(CC_ARM)
-        FLASH_TOOL := $(FLASH_TOOL_ARM)
         SIZE_TOOL  := size
 
         CPPFLAGS += \
@@ -282,48 +281,6 @@ $(BUILD_DIR)/%.s.o: %.s
 	@mkdir -p $(@D)
 	@echo Building: $<
 	@ccache $(AS) $(CPPFLAGS) $(CFLAGS) $(ASFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
-
-flash:
-ifeq ($(ARCH), avr)
-ifeq ($(FLASH_TOOL), arduino)
-ifeq ($(PORT),)
-	$(error Serial port for ArduinoISP not specified (eg. PORT=ttyACM0))
-endif
-	@avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -C /etc/avrdude.conf -e -V -u -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
-	@avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -C /etc/avrdude.conf -U flash:w:$(FLASH_BINARY_DIR)/$(TARGET).hex
-	@avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -C /etc/avrdude.conf -V -u -U lock:w:$(FUSE_LOCK):m
-else ifeq ($(FLASH_TOOL), avrispmkII)
-	@avrdude -p $(MCU) -P usb -c avrispmkII -C /etc/avrdude.conf -e -V -u -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
-	@avrdude -p $(MCU) -P usb -c avrispmkII -C /etc/avrdude.conf -U flash:w:$(FLASH_BINARY_DIR)/$(TARGET).hex
-	@avrdude -p $(MCU) -P usb -c avrispmkII -C /etc/avrdude.conf -V -u -U lock:w:$(FUSE_LOCK):m
-else ifeq ($(FLASH_TOOL), usbasp)
-	@avrdude -p $(MCU) -P usb -c usbasp -C /etc/avrdude.conf -e -V -u -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
-	@avrdude -p $(MCU) -P usb -c usbasp -C /etc/avrdude.conf -U flash:w:$(FLASH_BINARY_DIR)/$(TARGET).hex
-	@avrdude -p $(MCU) -P usb -c usbasp -C /etc/avrdude.conf -V -u -U lock:w:$(FUSE_LOCK):m
-else
-	$(error Unsupported flash tool specified)
-endif
-else
-ifeq ($(FLASH_TOOL), bmp)
-ifeq ($(PORT),)
-	$(error Serial port for BMP not specified (eg. PORT=ttyACM0))
-endif
-	@timeout 30 arm-none-eabi-gdb -nx --batch \
-	-ex 'target extended-remote /dev/$(PORT)' \
-	-ex 'monitor swdp_scan' \
-	-ex 'attach 1' \
-	-ex 'load' \
-	-ex 'compare-sections' \
-	-ex 'kill' \
-	$(FLASH_BINARY_DIR)/$(TARGET).hex
-else ifeq ($(FLASH_TOOL), stlink)
-	@STM32_Programmer_CLI -c port=SWD sn=$(STLINK_SERIAL) -w $(FLASH_BINARY_DIR)/$(TARGET).hex -rst
-else ifeq ($(FLASH_TOOL), dfu)
-	@sudo dfu-util -d 0483:df11 -a 0 -i 0 -s 0x8000000:leave -D $(FLASH_BINARY_DIR)/$(TARGET).bin
-else
-	$(error Unsupported flash tool specified)
-endif
-endif
 
 ifeq ($(ARCH), avr)
 flashread:
