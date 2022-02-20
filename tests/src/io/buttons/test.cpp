@@ -530,6 +530,7 @@ TEST_CASE(NoMessages)
     }
 }
 
+#ifdef LEDS_SUPPORTED
 TEST_CASE(LocalLEDcontrol)
 {
     if (IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS))
@@ -736,6 +737,7 @@ TEST_CASE(LocalLEDcontrol)
         }
     }
 }
+#endif
 
 TEST_CASE(PresetChange)
 {
