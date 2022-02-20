@@ -255,7 +255,7 @@ namespace Board
         {
             for (size_t port = 0; port < NR_OF_DIGITAL_OUTPUT_PORTS; port++)
             {
-                core::io::portWidth_t updatedPortState = CORE_IO_READ_PORT(detail::map::digitalOutPort(port));
+                core::io::portWidth_t updatedPortState = CORE_IO_READ_OUT_PORT(detail::map::digitalOutPort(port));
                 updatedPortState &= detail::map::digitalOutPortClearMask(port);
                 updatedPortState |= _portState[port][_pwmCounter];
                 CORE_IO_SET_PORT_STATE(detail::map::digitalOutPort(port), updatedPortState);

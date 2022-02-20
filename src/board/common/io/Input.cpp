@@ -137,7 +137,7 @@ namespace
         // read all input ports instead of reading pin by pin to reduce the time spent in ISR
         for (int portIndex = 0; portIndex < NR_OF_DIGITAL_INPUT_PORTS; portIndex++)
         {
-            _portBuffer[portIndex].insert(CORE_IO_READ_PORT(Board::detail::map::digitalInPort(portIndex)));
+            _portBuffer[portIndex].insert(CORE_IO_READ_IN_PORT(Board::detail::map::digitalInPort(portIndex)));
         }
     }
 
