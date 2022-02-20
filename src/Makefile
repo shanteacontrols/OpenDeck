@@ -209,6 +209,7 @@ merged:
 	echo Merged binary up to date; \
 	else \
 	$(MAKE) --no-print-directory TARGET=$(TARGET) DEBUG=$(DEBUG) concat; \
+	$(MAKE) --no-print-directory TARGET=$(TARGET) DEBUG=$(DEBUG) post-build; \
 	fi
 
 concat: $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin
@@ -249,6 +250,7 @@ endif
 	@echo SysEx file created: $(BUILD_DIR)/$(TARGET).sysex
 
 pre-build: $(PRE_BUILD_FILES)
+post-build::
 
 $(GEN_DIR_TARGET)/Target.h: $(DEF_FILE_TARGET)
 	@$(SCRIPTS_DIR)/gen_target.sh $(DEF_FILE_TARGET) $(GEN_DIR_TARGET)
