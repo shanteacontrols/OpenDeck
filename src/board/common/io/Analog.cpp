@@ -33,6 +33,14 @@ limitations under the License.
 /// Used to indicate that the new reading has been made.
 #define NEW_READING_FLAG 0x8000
 
+#ifdef ADC_10_BIT
+#define ADC_MAX_READING 1023
+#elif defined(ADC_12_BIT)
+#define ADC_MAX_READING 4095
+#else
+#error Unsupported ADC resolution
+#endif
+
 namespace
 {
     uint8_t           _analogIndex;
@@ -91,7 +99,7 @@ namespace Board
             static bool firstReading = false;
             firstReading             = !firstReading;
 
-            if (!firstReading)
+            if (!firstReading && (adcValue <= ADC_MAX_READING))
             {
 #ifdef NUMBER_OF_MUX
                 detail::io::dischargeMux();
