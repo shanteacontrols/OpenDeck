@@ -1,13 +1,14 @@
 ---
   mcu: "at90usb1286"
   usb: true
-  dinMIDI:
-    uartChannel: 0
-  touchscreen:
-    uartChannel: 0
-    components: 32
-  dmx:
-    uartChannel: 0
+  uart:
+    dinMIDI:
+      channel: 0
+    touchscreen:
+      channel: 0
+      components: 32
+    dmx:
+      channel: 0
   buttons:
     type: "shiftRegister"
     shiftRegisters: 2

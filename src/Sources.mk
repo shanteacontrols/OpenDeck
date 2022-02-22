@@ -83,7 +83,7 @@ ifeq (,$(findstring gen,$(TYPE)))
             endif
         endif
 
-        ifneq (,$(findstring USE_UART,$(DEFINES)))
+        ifneq (,$(findstring UART_SUPPORTED,$(DEFINES)))
             SOURCES += \
             board/arch/$(ARCH)/$(VENDOR)/comm/uart/UART.cpp \
             board/common/comm/uart/UART.cpp

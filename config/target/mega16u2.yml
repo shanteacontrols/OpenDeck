@@ -2,6 +2,10 @@
   mcu: "atmega16u2"
   boardNameOverride: "mega2560"
   usb: true
+  uart:
+    usbLink:
+      channel: 0
+      type: "host"
   leds:
     internal:
       invert: true
@@ -20,6 +24,3 @@
           tx:
             port: "D"
             index: 5
-  usbLink:
-    type: "host"
-    uartChannel: 0

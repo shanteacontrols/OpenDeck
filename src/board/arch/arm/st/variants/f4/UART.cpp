@@ -22,7 +22,7 @@ limitations under the License.
 
 #if defined(FW_APP)
 // not needed in bootloader
-#ifdef USE_UART
+#ifdef UART_SUPPORTED
 extern "C" void USART1_IRQHandler(void)
 {
     Board::detail::isrHandling::uart(0);

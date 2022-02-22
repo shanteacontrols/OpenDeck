@@ -76,9 +76,3 @@ then
 
     printf "%s\n" "DEFINES += TOTAL_UNUSED_IO=$unused_pins" >> "$out_makefile"
 fi
-
-{
-    printf "%s\n" 'ifneq (,$(findstring UART_CHANNEL,$(DEFINES)))'
-    printf "%s\n" 'DEFINES += USE_UART'
-    printf "%s\n" 'endif'
-} >> "$out_makefile"

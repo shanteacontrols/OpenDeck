@@ -2,15 +2,16 @@
   mcu: "stm32f405rg"
   extClockMhz: 12
   usb: true
-  dinMIDI:
-    uartChannel: 5
-  dmx:
-    uartChannel: 5
+  uart:
+    dinMIDI:
+      channel: 5
+    touchscreen:
+      channel: 5
+      components: 64
+    dmx:
+      channel: 5
   i2c:
     channel: 0
-  touchscreen:
-    uartChannel: 5
-    components: 64
   buttons:
     type: "native"
     extPullups: false

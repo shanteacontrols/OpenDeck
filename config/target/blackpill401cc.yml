@@ -2,15 +2,16 @@
   mcu: "stm32f401cc"
   extClockMhz: 25
   usb: true
-  dinMIDI:
-    uartChannel: 0
+  uart:
+    dinMIDI:
+      channel: 0
+    touchscreen:
+      channel: 0
+      components: 64
+    dmx:
+      channel: 0
   i2c:
     channel: 0
-  touchscreen:
-    uartChannel: 0
-    components: 64
-  dmx:
-    uartChannel: 0
   buttons:
     type: "native"
     extPullups: false

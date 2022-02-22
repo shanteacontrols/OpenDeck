@@ -1,13 +1,17 @@
 ---
   mcu: "atmega2560"
   usb: false
-  dinMIDI:
-    uartChannel: 1
+  uart:
+    usbLink:
+      channel: 0
+      type: "device"
+    dinMIDI:
+      channel: 1
+    touchscreen:
+      channel: 1
+      components: 32
   i2c:
     channel: 0
-  touchscreen:
-    uartChannel: 1
-    components: 32
   buttons:
     type: "native"
     pins:
@@ -204,6 +208,3 @@
       -
         port: "B"
         index: 7
-  usbLink:
-    type: "device"
-    uartChannel: 0

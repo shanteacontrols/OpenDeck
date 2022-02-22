@@ -1,12 +1,13 @@
 ---
   mcu: "at90usb1286"
   usb: true
-  dinMIDI:
-    uartChannel: 0
+  uart:
+    dinMIDI:
+      channel: 0
+    dmx:
+      channel: 0
   i2c:
     channel: 0
-  dmx:
-    uartChannel: 0
   buttons:
     type: "native"
     pins:

@@ -2,15 +2,16 @@
   mcu: "stm32f407vg"
   extClockMhz: 8
   usb: true
-  dinMIDI:
-    uartChannel: 2
+  uart:
+    dinMIDI:
+      channel: 2
+    touchscreen:
+      channel: 2
+      components: 64
+    dmx:
+      channel: 2
   i2c:
     channel: 2
-  touchscreen:
-    uartChannel: 2
-    components: 64
-  dmx:
-    uartChannel: 2
   buttons:
     type: "native"
     pins:

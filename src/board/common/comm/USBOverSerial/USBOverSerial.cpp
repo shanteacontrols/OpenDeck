@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef USE_UART
+#ifdef UART_SUPPORTED
 
 #include "USBOverSerial.h"
 #include "board/Board.h"

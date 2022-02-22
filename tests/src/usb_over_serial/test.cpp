@@ -1,4 +1,4 @@
-#ifdef USE_UART
+#ifdef UART_SUPPORTED
 
 #include "unity/Framework.h"
 #include "board/Board.h"

@@ -2,11 +2,12 @@
   mcu: "stm32f405rg"
   extClockMhz: 16
   usb: true
-  touchscreen:
-    uartChannel: 0
-    components: 64
-  dmx:
-    uartChannel: 1
+  uart:
+    touchscreen:
+      channel: 0
+      components: 64
+    dmx:
+      channel: 1
   buttons:
     type: "native"
     extPullups: true
