@@ -1,18 +1,19 @@
 #!/usr/bin/env bash
 
-# first argument to the script should be path to the directory where all compiled binares are located
-# if second argument is set to 1, run only hardware tests
+run_dir="OpenDeck/tests"
 
-BIN_DIR=$1
-HW_TESTING=$2
-
-run_dir="tests"
-
-if [[ $(basename "$(pwd)") != "$run_dir" ]]
+if [[ $(pwd) != *"$run_dir" ]]
 then
     echo This script must be run from $run_dir directory!
     exit 1
 fi
+
+# First argument to the script should be path to the directory where all compiled binares are located.
+# If second argument is set to 1, run only hardware tests.
+
+bin_dir=$1
+hw_testing=$2
+
 
 if [[ "${1}" == "" ]]
 then
@@ -20,9 +21,9 @@ then
     exit 1
 fi
 
-if [[ ! -d "$BIN_DIR" ]]
+if [[ ! -d "$bin_dir" ]]
 then
-    echo "Directory $BIN_DIR doesn't exist"
+    echo "Directory $bin_dir doesn't exist"
     exit 1
 fi
 
@@ -35,22 +36,22 @@ then
 fi
 
 # clean up all temporary profraw files
-$find "$BIN_DIR" -type f -name "*.profraw" -exec rm {} \;
+$find "$bin_dir" -type f -name "*.profraw" -exec rm {} \;
 
-if [ "$HW_TESTING" = "1" ]
+if [ "$hw_testing" = "1" ]
 then
-    BINARIES=$($find "$BIN_DIR" -type f -name "*.out" -path "*hw*" | sort)
+    binaries=$($find "$bin_dir" -type f -name "*.out" -path "*hw*" | sort)
 else
-    BINARIES=$($find "$BIN_DIR" -type f -name "*.out" -not -path "*hw*" | sort)
+    binaries=$($find "$bin_dir" -type f -name "*.out" -not -path "*hw*" | sort)
 fi
 
-declare -i RESULT=0
+declare -i result=0
 
-export LLVM_PROFILE_FILE="$BIN_DIR/test-%p.profraw"
+export LLVM_PROFILE_FILE="$bin_dir/test-%p.profraw"
 
-for test in $BINARIES
+for test in $binaries
 do
-    if [ "$HW_TESTING" == "1" ]
+    if [ "$hw_testing" == "1" ]
     then
         board=$(echo "$test" | cut -d/ -f3)
 
@@ -58,12 +59,12 @@ do
         then
             echo "Running tests on $board board"
             $test
-            RESULT+=$?
+            result+=$?
         fi
     else
         $test
-        RESULT+=$?
+        result+=$?
     fi
 done
 
-exit $RESULT
+exit $result

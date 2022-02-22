@@ -22,6 +22,16 @@ function usage
     Displays script usage"
 }
 
+run_dir_src="OpenDeck/src"
+run_dir_tests="OpenDeck/tests"
+
+if [[ $(pwd) != *"$run_dir_src" && $(pwd) != *"$run_dir_tests" ]]
+then
+    echo "ERROR: Script must be run either from src or tests directory!"
+    usage
+    exit 1
+fi
+
 if [[ ("$*" == "--help") ]]
 then
     usage
@@ -31,11 +41,11 @@ fi
 for i in "$@"; do
     case "$i" in
         --hw)
-            HW=1
+            hw=1
             ;;
 
         --clean)
-            CLEAN=1
+            clean=1
             ;;
     esac
 done
@@ -44,33 +54,31 @@ run_dir=$(basename "$(pwd)")
 
 case $run_dir in
   src)
-    TYPE="fw"
+    type="fw"
     ;;
 
   tests)
-    TYPE="tests"
+    type="tests"
     ;;
 
   *)
-    echo "ERROR: Script must be run either from src or tests directory!"
-    usage
     exit 1
     ;;
 esac
 
-if [[ -n "$CLEAN" ]]
+if [[ -n "$clean" ]]
 then
     make clean
 fi
 
 targets=()
 
-if [[ "$TYPE" == "tests" ]]
+if [[ "$type" == "tests" ]]
 then
     make pre-build
 fi
 
-if [[ "$TYPE" == "tests" && -n "$HW" ]]
+if [[ "$type" == "tests" && -n "$hw" ]]
 then
     for target in ../config/hw-test/*.yml;
     do
@@ -87,20 +95,17 @@ len_targets=${#targets[@]}
 
 for (( i=0; i<len_targets; i++ ))
 do
-    if [[ "$TYPE" != "tests" ]]
+    if [[ "$type" != "tests" ]]
     then
         make TARGET="${targets[$i]}" DEBUG=0
     else
+        # binaries, sysex files and defines are needed for tests, compile that as well
+        make --no-print-directory -C ../src TARGET="${targets[$i]}" DEBUG=0
 
-        if [[ -n "$HW" ]]
+        if [[ -n "$hw" ]]
         then
-            #binaries, sysex files and defines are needed for tests, compile that as well
-
-            make -C ../src TARGET="${targets[$i]}" DEBUG=0
             make TARGET="${targets[$i]}" DEBUG=0 TESTS=hw
         else
-            #only defines are needed here
-            make -C ../src TARGET="${targets[$i]}" DEBUG=0 pre-build
             make TARGET="${targets[$i]}" DEBUG=0
         fi
     fi

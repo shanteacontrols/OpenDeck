@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-run_dir="tests"
+run_dir="OpenDeck/tests"
 
-if [[ $(basename "$(pwd)") != "$run_dir" ]]
+if [[ $(pwd) != *"$run_dir" ]]
 then
     echo This script must be run from $run_dir directory!
     exit 1
@@ -16,9 +16,10 @@ then
     find="find"
 fi
 
-#find all directories containing test source
-#to do so, only take into account directories which contain Makefile
-#also ignore directories containing .testignore
+# Find all directories containing test sources.
+# To do so, only take into account directories which contain Makefile,
+# but also ignore directories containing .testignore.
+
 tests=$($find ./src -type d '!' -exec test -e "{}/.testignore" ';' -exec test -e "{}/Makefile" ';' -print | rev | cut -d/ -f1 | rev | tr "\n" " ")
 
 {
@@ -34,7 +35,6 @@ tests=$($find ./src -type d '!' -exec test -e "{}/.testignore" ';' -exec test -e
 for test in $tests
 do
     test_dir=$($find src -type d -name "*${test}")
-    # echo "test dir is $test_dir"
 
     {
         printf '%s\n' '-include '${test_dir}'/Makefile'

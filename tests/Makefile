@@ -56,7 +56,7 @@ define LINK_OBJECTS
 endef
 
 pre-build:
-	@$(SCRIPTS_DIR)/gen_test_targets.sh
+	@$(SCRIPTS_DIR)/gen/gen_test_targets.sh
 
 exec:
 	@echo Running all compiled tests.

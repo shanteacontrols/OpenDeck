@@ -252,10 +252,10 @@ pre-build: $(PRE_BUILD_FILES)
 post-build::
 
 $(GEN_DIR_TARGET)/Target.h: $(DEF_FILE_TARGET)
-	@$(SCRIPTS_DIR)/gen_target.sh $(DEF_FILE_TARGET) $(GEN_DIR_TARGET)
+	@$(SCRIPTS_DIR)/gen/gen_target.sh $(DEF_FILE_TARGET) $(GEN_DIR_TARGET)
 
 $(GEN_DIR_TSCREEN_BASE)/$(TARGET).cpp: $(DEF_FILE_TSCREEN)
-	@$(SCRIPTS_DIR)/gen_touchscreen.sh $< $(GEN_DIR_TSCREEN_BASE)
+	@$(SCRIPTS_DIR)/gen/gen_touchscreen.sh $< $(GEN_DIR_TSCREEN_BASE)
 
 ifeq ($(ARCH),arm)
 $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin: $(DEF_FILE_TARGET) $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/application/database/Database.cpp.o $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/application/database/CustomInit.cpp.o

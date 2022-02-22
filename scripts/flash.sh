@@ -2,7 +2,7 @@
 
 run_dir="OpenDeck"
 
-if [[ $(basename "$(pwd)") != "$run_dir"* ]]
+if [[ $(pwd) != *"$run_dir" ]]
 then
     echo This script must be run from $run_dir directory!
     exit 1
@@ -37,7 +37,7 @@ Please wait...
 
 mcu=$(echo "$boards" | head -n "$board_nr" | tail -n 1)
 
-#don't use yaml parser (dasel) here so that this script can be run without any external tools
+# don't use yaml parser (dasel) here so that this script can be run without any external tools
 unlock_fuse=$(< config/mcu/"$mcu".yml awk '{$1=$1};1' | grep ^unlock | cut -d: -f2 | xargs)
 lock_fuse=$(< config/mcu/"$mcu".yml awk '{$1=$1};1' | grep ^lock | cut -d: -f2 | xargs)
 ext_fuse=$(< config/mcu/"$mcu".yml awk '{$1=$1};1' | grep ^ext | cut -d: -f2 | xargs)
@@ -54,7 +54,7 @@ Path: "
 
 read -r path
 
-#remove single quotes if present
+# remove single quotes if present
 path=${path//\'/}
 
 echo "Connect programmer to programming header on the board and then press enter."
