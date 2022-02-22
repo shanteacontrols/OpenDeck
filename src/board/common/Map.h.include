@@ -150,6 +150,22 @@ namespace Board
                 return pageDescriptor[pageIndex];
 #endif
             }
+
+#ifdef CUSTOM_PERIPHERAL_PINS
+#ifdef UART_SUPPORTED
+            constexpr const Board::detail::UART::uartPins_t& uartPins(size_t channel)
+            {
+                return _uartPins[channel];
+            }
+#endif
+
+#ifdef I2C_SUPPORTED
+            constexpr const Board::detail::I2C::i2cPins_t& i2cPins(size_t channel)
+            {
+                return _i2cPins[channel];
+            }
+#endif
+#endif
         }    // namespace map
     }        // namespace detail
 }    // namespace Board

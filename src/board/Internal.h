@@ -112,6 +112,12 @@ namespace Board
                 brData  = 250000
             };
 
+            typedef struct
+            {
+                core::io::mcuPin_t rx;
+                core::io::mcuPin_t tx;
+            } uartPins_t;
+
             namespace ll
             {
                 // low-level UART API, MCU specific
@@ -155,6 +161,15 @@ namespace Board
             /// Retrieves pointer to internal DMX buffer array.
             uint8_t* dmxBuffer();
         }    // namespace UART
+
+        namespace I2C
+        {
+            typedef struct
+            {
+                core::io::mcuPin_t sda;
+                core::io::mcuPin_t scl;
+            } i2cPins_t;
+        }    // namespace I2C
 
         namespace io
         {

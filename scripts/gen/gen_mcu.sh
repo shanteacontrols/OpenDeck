@@ -282,6 +282,11 @@ fi
 number_of_uart_interfaces=$($yaml_parser "$yaml_file" peripherals.uart)
 number_of_i2c_interfaces=$($yaml_parser "$yaml_file" peripherals.i2c)
 
+if [[ $($yaml_parser "$yaml_file" peripherals.custom-pins) == "true" ]]
+then
+    printf "%s\n" "DEFINES += CUSTOM_PERIPHERAL_PINS" >> "$out_makefile"
+fi
+
 {
     printf "%s\n" "#define MAX_UART_INTERFACES  $number_of_uart_interfaces"
     printf "%s\n" "#define MAX_I2C_INTERFACES   $number_of_i2c_interfaces"
