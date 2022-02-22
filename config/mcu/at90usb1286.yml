@@ -12,7 +12,7 @@
     size: 0x20000
   eeprom:
     size: 0x1000
-  interfaces:
+  peripherals:
     uart: 1
     i2c: 1
   fuses:

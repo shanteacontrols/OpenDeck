@@ -279,8 +279,8 @@ then
     } >> "$out_makefile"
 fi
 
-number_of_uart_interfaces=$($yaml_parser "$yaml_file" interfaces.uart)
-number_of_i2c_interfaces=$($yaml_parser "$yaml_file" interfaces.i2c)
+number_of_uart_interfaces=$($yaml_parser "$yaml_file" peripherals.uart)
+number_of_i2c_interfaces=$($yaml_parser "$yaml_file" peripherals.i2c)
 
 {
     printf "%s\n" "#define MAX_UART_INTERFACES  $number_of_uart_interfaces"

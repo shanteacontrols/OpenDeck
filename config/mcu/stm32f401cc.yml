@@ -71,7 +71,7 @@
         apb1_clk_div: "RCC_SYSCLK_DIV2"
         apb2_clk_div: "RCC_SYSCLK_DIV1"
   voltage_scale: "PWR_REGULATOR_VOLTAGE_SCALE2"
-  interfaces:
+  peripherals:
     uart: 3
     i2c: 3
   timers:
