@@ -163,9 +163,6 @@ namespace Board
             {
                 void enableDataEmptyInt(uint8_t channel)
                 {
-                    if (channel >= MAX_UART_INTERFACES)
-                        return;
-
                     switch (channel)
                     {
                     case 0:
@@ -197,9 +194,6 @@ namespace Board
 
                 bool deInit(uint8_t channel)
                 {
-                    if (channel >= MAX_UART_INTERFACES)
-                        return false;
-
                     ATOMIC_SECTION
                     {
                         switch (channel)
@@ -245,9 +239,6 @@ namespace Board
 
                 bool init(uint8_t channel, Board::UART::config_t& config)
                 {
-                    if (channel >= MAX_UART_INTERFACES)
-                        return false;
-
                     if (!deInit(channel))
                         return false;
 

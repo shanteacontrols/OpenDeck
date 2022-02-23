@@ -54,31 +54,16 @@ namespace Board::detail
     {
         void enableDataEmptyInt(uint8_t channel)
         {
-            if (channel >= MAX_UART_INTERFACES)
-            {
-                return;
-            }
-
             __HAL_UART_ENABLE_IT(&_uartHandler[channel], UART_IT_TXE);
         }
 
         bool deInit(uint8_t channel)
         {
-            if (channel >= MAX_UART_INTERFACES)
-            {
-                return false;
-            }
-
             return HAL_UART_DeInit(&_uartHandler[channel]) == HAL_OK;
         }
 
         bool init(uint8_t channel, Board::UART::config_t& config)
         {
-            if (channel >= MAX_UART_INTERFACES)
-            {
-                return false;
-            }
-
             if (!deInit(channel))
             {
                 return false;

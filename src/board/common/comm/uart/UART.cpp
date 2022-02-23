@@ -62,13 +62,7 @@ namespace
     /// param [in]: channel     UART channel on MCU.
     void uartTransmitStart(uint8_t channel)
     {
-        if (channel >= MAX_UART_INTERFACES)
-        {
-            return;
-        }
-
         _txDone[channel] = false;
-
         Board::detail::UART::ll::enableDataEmptyInt(channel);
     }
 }    // namespace
@@ -136,6 +130,11 @@ namespace Board
 
         bool isInitialized(uint8_t channel)
         {
+            if (channel >= MAX_UART_INTERFACES)
+            {
+                return false;
+            }
+
             return _initialized[channel];
         }
 
@@ -185,7 +184,8 @@ namespace Board
                     ;
                 }
 
-                uartTransmitStart(channel);
+                if (_txDone)
+                    uartTransmitStart(channel);
             }
 
             return true;
@@ -193,19 +193,7 @@ namespace Board
 
         bool write(uint8_t channel, uint8_t value)
         {
-            if (channel >= MAX_UART_INTERFACES)
-            {
-                return false;
-            }
-
-            while (!_txBuffer[channel].insert(value))
-            {
-                ;
-            }
-
-            uartTransmitStart(channel);
-
-            return true;
+            return write(channel, &value, 1);
         }
 
         bool isTxEmpty(uint8_t channel)
