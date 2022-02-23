@@ -28,14 +28,6 @@ extern "C" void NMI_Handler(void)
 {
 }
 
-// This function handles Hard fault interrupt.
-extern "C" void HardFault_Handler(void)
-{
-    while (true)
-    {
-    }
-}
-
 // This function handles Memory management fault.
 extern "C" void MemManage_Handler(void)
 {
