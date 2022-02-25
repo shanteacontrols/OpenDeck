@@ -176,6 +176,14 @@ then
             printf "%s\n" "#define FLASH_PAGE_FACTORY   $factory_flash_page"
             printf "%s\n" "#define FLASH_PAGE_EEPROM_1  $eeprom_flash_page_1"
             printf "%s\n" "#define FLASH_PAGE_EEPROM_2  $eeprom_flash_page_2"
+
+            printf "%s\n" "constexpr uint32_t FLASH_PAGE_SIZE_EEPROM() {"
+            printf "%s\n" "#ifdef FLASH_PAGE_SIZE_COMMON"
+            printf "%s\n" "return (FLASH_PAGE_EEPROM_2 - FLASH_PAGE_EEPROM_1) * FLASH_PAGE_SIZE_COMMON;"
+            printf "%s\n" "#else"
+            printf "%s\n" "return FLASH_PAGE_SIZE(FLASH_PAGE_EEPROM_1);"
+            printf "%s\n" "#endif"
+            printf "%s\n" "}"
         } >> "$out_header"
     else
         eeprom_size=$($yaml_parser "$yaml_file" eeprom.size)
