@@ -277,10 +277,17 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 	@echo Building: $<
 	@ccache $(CXX) $(CPPFLAGS) $(CXXFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
-$(BUILD_DIR)/%.s.o: %.s
+define COMPILE_ASM
 	@mkdir -p $(@D)
 	@echo Building: $<
 	@ccache $(AS) $(CPPFLAGS) $(CFLAGS) $(ASFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+endef
+
+$(BUILD_DIR)/%.s.o: %.s
+	$(COMPILE_ASM)
+
+$(BUILD_DIR)/%.S.o: %.S
+	$(COMPILE_ASM)
 
 ifeq ($(ARCH), avr)
 flashread:

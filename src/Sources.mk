@@ -1,5 +1,7 @@
 vpath modules/%.cpp ../
 vpath modules/%.c ../
+vpath modules/%.s ../
+vpath modules/%.S ../
 
 #common include dirs
 INCLUDE_DIRS += \
