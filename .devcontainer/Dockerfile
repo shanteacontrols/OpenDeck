@@ -24,6 +24,7 @@ sudo \
 bash-completion \
 libgoogle-glog-dev \
 ccache \
+unzip \
 && rm -rf /var/lib/apt/lists/*
 
 RUN \
