@@ -46,7 +46,7 @@ then
         {
             printf "%s\n" "#define NR_OF_DIGITAL_OUTPUT_PORTS ${#port_array_unique[@]}"
             printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline core::io::pinPort_t dOutPorts[NR_OF_DIGITAL_OUTPUT_PORTS] = {"
+            printf "%s\n" "constexpr inline core::io::pinPort_t _dOutPorts[NR_OF_DIGITAL_OUTPUT_PORTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<${#port_array_unique[@]}; i++))
@@ -58,7 +58,7 @@ then
 
         {
             printf "%s\n" "};"
-            printf "%s\n" "constexpr inline core::io::portWidth_t dOutPortsClearMask[NR_OF_DIGITAL_OUTPUT_PORTS] = {"
+            printf "%s\n" "constexpr inline core::io::portWidth_t _dOutPortsClearMask[NR_OF_DIGITAL_OUTPUT_PORTS] = {"
         } >> "$out_header"
 
         for ((port=0; port<${#port_array_unique[@]}; port++))
@@ -80,7 +80,7 @@ then
 
         {
             printf "%s\n" "};"
-            printf "%s\n" "constexpr inline core::io::mcuPin_t dOutPins[NR_OF_DIGITAL_OUTPUTS] = {"
+            printf "%s\n" "constexpr inline core::io::mcuPin_t _dOutPins[NR_OF_DIGITAL_OUTPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_outputs; i++))
@@ -90,7 +90,7 @@ then
 
         {
             printf "%s\n" "};" >> "$out_header"
-            printf "%s\n" "constexpr inline uint8_t ledIndexToUniquePortIndex[NR_OF_DIGITAL_OUTPUTS] = {"
+            printf "%s\n" "constexpr inline uint8_t _ledIndexToUniquePortIndex[NR_OF_DIGITAL_OUTPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_outputs; i++))
@@ -106,7 +106,7 @@ then
 
         {
             printf "%s\n" "};" >> "$out_header"
-            printf "%s\n" "constexpr inline uint8_t ledIndexToPinIndex[NR_OF_DIGITAL_OUTPUTS] = {"
+            printf "%s\n" "constexpr inline uint8_t _ledIndexToPinIndex[NR_OF_DIGITAL_OUTPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_outputs; i++))
@@ -187,7 +187,7 @@ then
 
         {
             printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline core::io::mcuPin_t dOutPins[NUMBER_OF_LED_ROWS] = {"
+            printf "%s\n" "constexpr inline core::io::mcuPin_t _dOutPins[NUMBER_OF_LED_ROWS] = {"
         } >> "$out_header"
 
         for ((i=0; i<"$number_of_led_rows"; i++))
@@ -214,7 +214,7 @@ then
 
         {
             printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline uint8_t ledIndexes[NR_OF_DIGITAL_OUTPUTS] = {"
+            printf "%s\n" "constexpr inline uint8_t _ledIndexes[NR_OF_DIGITAL_OUTPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_outputs; i++))

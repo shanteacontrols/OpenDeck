@@ -27,12 +27,12 @@ namespace Board
 #ifdef ADC_SUPPORTED
             constexpr uint32_t adcChannel(uint8_t index)
             {
-                return detail::map::adcChannel(aInPins[index]);
+                return detail::map::adcChannel(_aInPins[index]);
             }
 
             constexpr const core::io::mcuPin_t& adcPin(uint8_t index)
             {
-                return aInPins[index];
+                return _aInPins[index];
             }
 
             constexpr uint8_t adcIndex(uint8_t index)
@@ -40,7 +40,7 @@ namespace Board
 #ifndef ANALOG_INDEXING
                 return index;
 #else
-                return analogIndexes[index];
+                return _analogIndexes[index];
 #endif
             }
 #endif
@@ -48,24 +48,24 @@ namespace Board
 #if defined(NATIVE_BUTTON_INPUTS) || (defined(NUMBER_OF_BUTTON_ROWS) && !defined(NUMBER_OF_IN_SR))
             constexpr const core::io::mcuPin_t& buttonPin(uint8_t index)
             {
-                return dInPins[index];
+                return _dInPins[index];
             }
 #endif
 
 #if defined(NATIVE_BUTTON_INPUTS)
             constexpr const core::io::pinPort_t digitalInPort(uint8_t index)
             {
-                return dInPorts[index];
+                return _dInPorts[index];
             }
 
             constexpr const uint8_t buttonPortIndex(uint8_t index)
             {
-                return buttonIndexToUniquePortIndex[index];
+                return _buttonIndexToUniquePortIndex[index];
             }
 
             constexpr const uint8_t buttonPinIndex(uint8_t index)
             {
-                return buttonIndexToPinIndex[index];
+                return _buttonIndexToPinIndex[index];
             }
 #endif
 
@@ -74,36 +74,36 @@ namespace Board
 #ifndef BUTTON_INDEXING
                 return index;
 #else
-                return buttonIndexes[index];
+                return _buttonIndexes[index];
 #endif
             }
 
 #if defined(NATIVE_LED_OUTPUTS) || defined(NUMBER_OF_LED_ROWS)
             constexpr const core::io::mcuPin_t& ledPin(uint8_t index)
             {
-                return dOutPins[index];
+                return _dOutPins[index];
             }
 #endif
 
 #if defined(NATIVE_LED_OUTPUTS)
             constexpr const core::io::pinPort_t digitalOutPort(uint8_t index)
             {
-                return dOutPorts[index];
+                return _dOutPorts[index];
             }
 
             constexpr const core::io::portWidth_t digitalOutPortClearMask(uint8_t index)
             {
-                return dOutPortsClearMask[index];
+                return _dOutPortsClearMask[index];
             }
 
             constexpr const uint8_t ledPortIndex(uint8_t index)
             {
-                return ledIndexToUniquePortIndex[index];
+                return _ledIndexToUniquePortIndex[index];
             }
 
             constexpr const uint8_t ledPinIndex(uint8_t index)
             {
-                return ledIndexToPinIndex[index];
+                return _ledIndexToPinIndex[index];
             }
 #endif
 
@@ -112,14 +112,14 @@ namespace Board
 #ifndef LED_INDEXING
                 return index;
 #else
-                return ledIndexes[index];
+                return _ledIndexes[index];
 #endif
             }
 
 #ifdef TOTAL_UNUSED_IO
             constexpr const Board::detail::io::unusedIO_t& unusedPin(uint8_t index)
             {
-                return unusedPins[index];
+                return _unusedPins[index];
             }
 #endif
 
@@ -145,9 +145,9 @@ namespace Board
                 return descriptor;
 #else
                 if (pageIndex >= TOTAL_FLASH_PAGES)
-                    return pageDescriptor[TOTAL_FLASH_PAGES - 1];
+                    return _pageDescriptor[TOTAL_FLASH_PAGES - 1];
 
-                return pageDescriptor[pageIndex];
+                return _pageDescriptor[pageIndex];
 #endif
             }
 

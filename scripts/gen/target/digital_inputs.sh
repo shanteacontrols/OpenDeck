@@ -47,7 +47,7 @@ then
 
         {
             printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline core::io::pinPort_t dInPorts[NR_OF_DIGITAL_INPUT_PORTS] = {"
+            printf "%s\n" "constexpr inline core::io::pinPort_t _dInPorts[NR_OF_DIGITAL_INPUT_PORTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<${#port_array_unique[@]}; i++))
@@ -59,7 +59,7 @@ then
 
         {
             printf "%s\n" "};"
-            printf "%s\n" "constexpr inline core::io::mcuPin_t dInPins[NR_OF_DIGITAL_INPUTS] = {"
+            printf "%s\n" "constexpr inline core::io::mcuPin_t _dInPins[NR_OF_DIGITAL_INPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_inputs; i++))
@@ -72,7 +72,7 @@ then
         } >> "$out_header"
 
         {
-            printf "%s\n" "constexpr inline uint8_t buttonIndexToUniquePortIndex[NR_OF_DIGITAL_INPUTS] = {"
+            printf "%s\n" "constexpr inline uint8_t _buttonIndexToUniquePortIndex[NR_OF_DIGITAL_INPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_inputs; i++))
@@ -88,7 +88,7 @@ then
 
         {
             printf "%s\n" "};" >> "$out_header"
-            printf "%s\n" "constexpr inline uint8_t buttonIndexToPinIndex[NR_OF_DIGITAL_INPUTS] = {"
+            printf "%s\n" "constexpr inline uint8_t _buttonIndexToPinIndex[NR_OF_DIGITAL_INPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_inputs; i++))
@@ -187,7 +187,7 @@ then
 
             {
                 printf "%s\n" "namespace {"
-                printf "%s\n" "constexpr inline core::io::mcuPin_t dInPins[NUMBER_OF_BUTTON_ROWS] = {"
+                printf "%s\n" "constexpr inline core::io::mcuPin_t _dInPins[NUMBER_OF_BUTTON_ROWS] = {"
             } >> "$out_header"
 
             for ((i=0; i<number_of_rows; i++))
@@ -237,7 +237,7 @@ then
 
         {
             printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline uint8_t buttonIndexes[NR_OF_DIGITAL_INPUTS] = {" 
+            printf "%s\n" "constexpr inline uint8_t _buttonIndexes[NR_OF_DIGITAL_INPUTS] = {" 
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_inputs; i++))
