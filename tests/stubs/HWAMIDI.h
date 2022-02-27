@@ -27,16 +27,16 @@ class HWAMIDIStub : public MIDI::HWA
         return false;
     }
 
-    bool usbRead(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
+    bool usbRead(MIDI::usbMIDIPacket_t& packet) override
     {
         return false;
     }
 
-    bool usbWrite(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
+    bool usbWrite(MIDI::usbMIDIPacket_t& packet) override
     {
-        midiPacket.push_back(USBMIDIpacket);
+        usbPacket.push_back(packet);
         return true;
     }
 
-    std::vector<MIDI::USBMIDIpacket_t> midiPacket;
+    std::vector<MIDI::usbMIDIPacket_t> usbPacket;
 };

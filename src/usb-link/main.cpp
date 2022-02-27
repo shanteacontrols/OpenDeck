@@ -20,6 +20,7 @@ limitations under the License.
 #include "board/common/comm/USBOverSerial/USBOverSerial.h"
 #include "Commands.h"
 #include "core/src/general/Timing.h"
+#include "midi/src/MIDI.h"
 
 /// Time in milliseconds after which USB connection state should be checked
 #define USB_CONN_CHECK_TIME 2000
@@ -29,7 +30,7 @@ namespace
     uint8_t                             uartReadBuffer[USB_OVER_SERIAL_BUFFER_SIZE];
     uint8_t                             cdcReadBuffer[USB_OVER_SERIAL_BUFFER_SIZE];
     Board::USBOverSerial::USBReadPacket readPacket(uartReadBuffer, USB_OVER_SERIAL_BUFFER_SIZE);
-    MIDI::USBMIDIpacket_t               USBMIDIpacket;
+    MIDI::usbMIDIPacket_t               usbMIDIPacket;
     size_t                              cdcPacketSize;
 
     void checkUSBconnection()
@@ -122,11 +123,10 @@ int main(void)
     while (1)
     {
         // USB MIDI -> UART
-        if (Board::USB::readMIDI(USBMIDIpacket))
+        if (Board::USB::readMIDI(usbMIDIPacket))
         {
-            uint8_t                              data[4] = { USBMIDIpacket.Event, USBMIDIpacket.Data1, USBMIDIpacket.Data2, USBMIDIpacket.Data3 };
             Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::midi,
-                                                        data,
+                                                        &usbMIDIPacket[0],
                                                         4,
                                                         USB_OVER_SERIAL_BUFFER_SIZE);
 
@@ -151,12 +151,12 @@ int main(void)
         {
             if (readPacket.type() == Board::USBOverSerial::packetType_t::midi)
             {
-                USBMIDIpacket.Event = readPacket[0];
-                USBMIDIpacket.Data1 = readPacket[1];
-                USBMIDIpacket.Data2 = readPacket[2];
-                USBMIDIpacket.Data3 = readPacket[3];
+                for (size_t i = 0; i < sizeof(usbMIDIPacket); i++)
+                {
+                    usbMIDIPacket[i] = readPacket[i];
+                }
 
-                if (Board::USB::writeMIDI(USBMIDIpacket))
+                if (Board::USB::writeMIDI(usbMIDIPacket))
                     Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::outgoing);
             }
             else if (readPacket.type() == Board::USBOverSerial::packetType_t::internal)

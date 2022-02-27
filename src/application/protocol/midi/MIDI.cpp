@@ -486,14 +486,14 @@ bool Protocol::MIDI::HWAInternal::dinWrite(uint8_t value)
     return _midi._hwa.dinWrite(value);
 }
 
-bool Protocol::MIDI::HWAInternal::usbRead(MIDI::USBMIDIpacket_t& USBMIDIpacket)
+bool Protocol::MIDI::HWAInternal::usbRead(MIDI::usbMIDIPacket_t& packet)
 {
-    return _midi._hwa.usbRead(USBMIDIpacket);
+    return _midi._hwa.usbRead(packet);
 }
 
-bool Protocol::MIDI::HWAInternal::usbWrite(MIDI::USBMIDIpacket_t& USBMIDIpacket)
+bool Protocol::MIDI::HWAInternal::usbWrite(MIDI::usbMIDIPacket_t& packet)
 {
-    return _midi._hwa.usbWrite(USBMIDIpacket);
+    return _midi._hwa.usbWrite(packet);
 }
 
 std::optional<uint8_t> Protocol::MIDI::sysConfigGet(System::Config::Section::global_t section, size_t index, uint16_t& value)

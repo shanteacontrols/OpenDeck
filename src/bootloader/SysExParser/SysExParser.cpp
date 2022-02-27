@@ -18,7 +18,7 @@ limitations under the License.
 
 #include "SysExParser.h"
 
-bool SysExParser::isValidMessage(MIDI::USBMIDIpacket_t& packet)
+bool SysExParser::isValidMessage(MIDI::usbMIDIPacket_t& packet)
 {
     if (parse(packet))
     {
@@ -28,21 +28,22 @@ bool SysExParser::isValidMessage(MIDI::USBMIDIpacket_t& packet)
     return false;
 }
 
-bool SysExParser::parse(MIDI::USBMIDIpacket_t& packet)
+bool SysExParser::parse(MIDI::usbMIDIPacket_t& packet)
 {
-    // MIDIEvent.Event is CIN, see midi10.pdf
+    // see midi10.pdf
     // shift cin four bytes left to get message type
-    uint8_t midiMessage = packet.Event << 4;
+
+    uint8_t midiMessage = packet[MIDI::USB_EVENT] << 4;
 
     switch (midiMessage)
     {
     case static_cast<uint8_t>(usbMIDIsystemCin_t::sysCommon1byteCin):
     case static_cast<uint8_t>(usbMIDIsystemCin_t::singleByte):
     {
-        if (packet.Data1 == 0xF7)
+        if (packet[MIDI::USB_DATA1] == 0xF7)
         {
             // end of sysex
-            _sysExArray[_sysExArrayLength] = packet.Data1;
+            _sysExArray[_sysExArrayLength] = packet[MIDI::USB_DATA1];
             _sysExArrayLength++;
             return true;
         }
@@ -51,16 +52,16 @@ bool SysExParser::parse(MIDI::USBMIDIpacket_t& packet)
 
     case static_cast<uint8_t>(usbMIDIsystemCin_t::sysExStartCin):
     {
-        if (packet.Data1 == 0xF0)
+        if (packet[MIDI::USB_DATA1] == 0xF0)
         {
             _sysExArrayLength = 0;    // this is a new sysex message, reset length
         }
 
-        _sysExArray[_sysExArrayLength] = packet.Data1;
+        _sysExArray[_sysExArrayLength] = packet[MIDI::USB_DATA1];
         _sysExArrayLength++;
-        _sysExArray[_sysExArrayLength] = packet.Data2;
+        _sysExArray[_sysExArrayLength] = packet[MIDI::USB_DATA2];
         _sysExArrayLength++;
-        _sysExArray[_sysExArrayLength] = packet.Data3;
+        _sysExArray[_sysExArrayLength] = packet[MIDI::USB_DATA3];
         _sysExArrayLength++;
         return false;
     }
@@ -68,9 +69,9 @@ bool SysExParser::parse(MIDI::USBMIDIpacket_t& packet)
 
     case static_cast<uint8_t>(usbMIDIsystemCin_t::sysExStop2byteCin):
     {
-        _sysExArray[_sysExArrayLength] = packet.Data1;
+        _sysExArray[_sysExArrayLength] = packet[MIDI::USB_DATA1];
         _sysExArrayLength++;
-        _sysExArray[_sysExArrayLength] = packet.Data2;
+        _sysExArray[_sysExArrayLength] = packet[MIDI::USB_DATA2];
         _sysExArrayLength++;
         return true;
     }
@@ -78,16 +79,16 @@ bool SysExParser::parse(MIDI::USBMIDIpacket_t& packet)
 
     case static_cast<uint8_t>(usbMIDIsystemCin_t::sysExStop3byteCin):
     {
-        if (packet.Data1 == 0xF0)
+        if (packet[MIDI::USB_DATA1] == 0xF0)
         {
             _sysExArrayLength = 0;    // sysex message with 1 byte of payload
         }
 
-        _sysExArray[_sysExArrayLength] = packet.Data1;
+        _sysExArray[_sysExArrayLength] = packet[MIDI::USB_DATA1];
         _sysExArrayLength++;
-        _sysExArray[_sysExArrayLength] = packet.Data2;
+        _sysExArray[_sysExArrayLength] = packet[MIDI::USB_DATA2];
         _sysExArrayLength++;
-        _sysExArray[_sysExArrayLength] = packet.Data3;
+        _sysExArray[_sysExArrayLength] = packet[MIDI::USB_DATA3];
         _sysExArrayLength++;
         return true;
     }

@@ -21,7 +21,6 @@ limitations under the License.
 #include <stddef.h>
 #include <inttypes.h>
 #include <array>
-#include "midi/src/MIDI.h"
 
 namespace Board
 {
@@ -42,18 +41,20 @@ namespace Board
 
     namespace USB
     {
+        using midiPacket_t = std::array<uint8_t, 4>;
+
         /// Checks if USB has been enumerated on host machine.
         bool isUSBconnected();
 
         /// Used to read MIDI data from USB interface.
-        /// param [in]: USBMIDIpacket   Reference to structure in which read data will be stored if available.
+        /// param [in]: packet   Reference to structure in which read data will be stored if available.
         /// returns: True if data is available, false otherwise.
-        bool readMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket);
+        bool readMIDI(midiPacket_t& packet);
 
         /// Used to write MIDI data to USB interface.
-        /// param [in]: USBMIDIpacket   Reference to structure holding data to write.
+        /// param [in]: packet   Reference to structure holding data to write.
         /// returns: True if transfer has succeded, false otherwise.
-        bool writeMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket);
+        bool writeMIDI(midiPacket_t& packet);
 
         /// Used to read CDC data from USB interface.
         /// param [in]: buffer  Pointer to array in which read data will be stored if available.

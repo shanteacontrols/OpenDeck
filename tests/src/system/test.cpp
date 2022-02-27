@@ -226,20 +226,20 @@ namespace
             return true;
         }
 
-        bool usbRead(::MIDI::USBMIDIpacket_t& USBMIDIpacket) override
+        bool usbRead(::MIDI::usbMIDIPacket_t& packet) override
         {
             if (!usbReadPackets.size())
                 return false;
 
-            USBMIDIpacket = usbReadPackets.at(0);
+            packet = usbReadPackets.at(0);
             usbReadPackets.erase(usbReadPackets.begin());
 
             return true;
         }
 
-        bool usbWrite(::MIDI::USBMIDIpacket_t& USBMIDIpacket) override
+        bool usbWrite(::MIDI::usbMIDIPacket_t& packet) override
         {
-            usbWritePackets.push_back(USBMIDIpacket);
+            usbWritePackets.push_back(packet);
             return true;
         }
 
@@ -268,7 +268,7 @@ namespace
             {
                 for (size_t i = 0; i < usbWritePackets.size(); i++)
                 {
-                    auto messageType = MIDI::getTypeFromStatusByte(usbWritePackets.at(i).Data1);
+                    auto messageType = MIDI::getTypeFromStatusByte(usbWritePackets.at(i)[MIDI::USB_DATA1]);
 
                     if (MIDI::isChannelMessage(messageType))
                         cnt++;
@@ -305,8 +305,8 @@ namespace
             return cnt;
         }
 
-        std::vector<::MIDI::USBMIDIpacket_t> usbReadPackets   = {};
-        std::vector<::MIDI::USBMIDIpacket_t> usbWritePackets  = {};
+        std::vector<::MIDI::usbMIDIPacket_t> usbReadPackets   = {};
+        std::vector<::MIDI::usbMIDIPacket_t> usbWritePackets  = {};
         std::vector<uint8_t>                 dinReadPackets   = {};
         std::vector<uint8_t>                 dinWritePackets  = {};
         bool                                 _loopbackEnabled = false;
@@ -569,10 +569,10 @@ TEST_CASE(ForcedResendOnPresetChange)
         TEST_ASSERT_EQUAL_UINT32(1, _hwaMIDI.usbWritePackets.size());
 
         // verify the content of the message
-        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _hwaMIDI.usbWritePackets.at(0).Event << 4);
-        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _hwaMIDI.usbWritePackets.at(0).Data1);
-        TEST_ASSERT_EQUAL_UINT32(0, _hwaMIDI.usbWritePackets.at(0).Data2);
-        TEST_ASSERT(_hwaMIDI.usbWritePackets.at(0).Data3 > 0);    // due to filtering it is not certain what the value will be
+        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _hwaMIDI.usbWritePackets.at(0)[MIDI::USB_EVENT] << 4);
+        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _hwaMIDI.usbWritePackets.at(0)[MIDI::USB_DATA1]);
+        TEST_ASSERT_EQUAL_UINT32(0, _hwaMIDI.usbWritePackets.at(0)[MIDI::USB_DATA2]);
+        TEST_ASSERT(_hwaMIDI.usbWritePackets.at(0)[MIDI::USB_DATA3] > 0);    // due to filtering it is not certain what the value will be
 
         // now change preset and verify that the same midi message is repeated
         _hwaMIDI.reset();

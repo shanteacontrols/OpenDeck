@@ -27,7 +27,7 @@ class SysExParser
     public:
     SysExParser() {}
 
-    bool   isValidMessage(MIDI::USBMIDIpacket_t& packet);
+    bool   isValidMessage(MIDI::usbMIDIPacket_t& packet);
     size_t dataBytes();
     bool   value(size_t index, uint8_t& data);
 
@@ -47,7 +47,7 @@ class SysExParser
         sysExStop3byteCin = 0x70
     };
 
-    bool        parse(MIDI::USBMIDIpacket_t& packet);
+    bool        parse(MIDI::usbMIDIPacket_t& packet);
     bool        verify();
     static void mergeTo14bit(uint16_t& value, uint8_t high, uint8_t low);
 

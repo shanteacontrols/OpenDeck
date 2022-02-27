@@ -25,7 +25,7 @@ namespace Board
 {
     namespace USB
     {
-        bool readMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
+        bool readMIDI(midiPacket_t& packet)
         {
             tud_task();
 
@@ -34,14 +34,14 @@ namespace Board
                 return false;
             }
 
-            tud_midi_packet_read(reinterpret_cast<uint8_t*>(&USBMIDIpacket));
+            tud_midi_packet_read(&packet[0]);
 
             return true;
         }
 
-        bool writeMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
+        bool writeMIDI(midiPacket_t& packet)
         {
-            if (!tud_midi_packet_write((uint8_t*)&USBMIDIpacket))
+            if (!tud_midi_packet_write(&packet[0]))
             {
                 return false;
             }

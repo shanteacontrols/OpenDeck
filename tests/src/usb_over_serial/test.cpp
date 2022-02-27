@@ -4,6 +4,7 @@
 #include "board/Board.h"
 #include "board/common/comm/USBOverSerial/USBOverSerial.h"
 #include "core/src/general/RingBuffer.h"
+#include "midi/src/MIDI.h"
 
 #define TEST_MIDI_CHANNEL 0
 #define BUFFER_SIZE       64

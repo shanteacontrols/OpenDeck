@@ -424,9 +424,9 @@ class HWAMIDI : public System::Builder::HWA::Protocol::MIDI
 #endif
     }
 
-    bool usbRead(::MIDI::USBMIDIpacket_t& USBMIDIpacket) override
+    bool usbRead(::MIDI::usbMIDIPacket_t& packet) override
     {
-        if (Board::USB::readMIDI(USBMIDIpacket))
+        if (Board::USB::readMIDI(packet))
         {
             Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::incoming);
             return true;
@@ -435,9 +435,9 @@ class HWAMIDI : public System::Builder::HWA::Protocol::MIDI
         return false;
     }
 
-    bool usbWrite(::MIDI::USBMIDIpacket_t& USBMIDIpacket) override
+    bool usbWrite(::MIDI::usbMIDIPacket_t& packet) override
     {
-        if (Board::USB::writeMIDI(USBMIDIpacket))
+        if (Board::USB::writeMIDI(packet))
         {
             Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::outgoing);
             return true;

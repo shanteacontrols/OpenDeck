@@ -288,24 +288,17 @@ namespace Board
             return _usbConnectionState;
         }
 
-        bool writeMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
+        bool writeMIDI(midiPacket_t& packet)
         {
-            uint8_t dataArray[4] = {
-                USBMIDIpacket.Event,
-                USBMIDIpacket.Data1,
-                USBMIDIpacket.Data2,
-                USBMIDIpacket.Data3
-            };
+            USBOverSerial::USBWritePacket writePacket(USBOverSerial::packetType_t::midi,
+                                                      &packet[0],
+                                                      sizeof(packet),
+                                                      USB_OVER_SERIAL_BUFFER_SIZE);
 
-            USBOverSerial::USBWritePacket packet(USBOverSerial::packetType_t::midi,
-                                                 dataArray,
-                                                 4,
-                                                 USB_OVER_SERIAL_BUFFER_SIZE);
-
-            return USBOverSerial::write(UART_CHANNEL_USB_LINK, packet);
+            return USBOverSerial::write(UART_CHANNEL_USB_LINK, writePacket);
         }
 
-        bool readMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
+        bool readMIDI(midiPacket_t& packet)
         {
             bool returnValue = false;
 
@@ -313,10 +306,10 @@ namespace Board
             {
                 if (_readPacket.type() == USBOverSerial::packetType_t::midi)
                 {
-                    USBMIDIpacket.Event = _readPacket[0];
-                    USBMIDIpacket.Data1 = _readPacket[1];
-                    USBMIDIpacket.Data2 = _readPacket[2];
-                    USBMIDIpacket.Data3 = _readPacket[3];
+                    for (size_t i = 0; i < sizeof(packet); i++)
+                    {
+                        packet[i] = _readPacket[i];
+                    }
 
                     _readPacket.reset();
                     returnValue = true;

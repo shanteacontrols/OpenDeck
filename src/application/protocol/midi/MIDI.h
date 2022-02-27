@@ -87,8 +87,8 @@ namespace Protocol
             bool deInit(MIDI::interface_t interface) override;
             bool dinRead(uint8_t& value) override;
             bool dinWrite(uint8_t value) override;
-            bool usbRead(MIDI::USBMIDIpacket_t& USBMIDIpacket) override;
-            bool usbWrite(MIDI::USBMIDIpacket_t& USBMIDIpacket) override;
+            bool usbRead(MIDI::usbMIDIPacket_t& packet) override;
+            bool usbWrite(MIDI::usbMIDIPacket_t& packet) override;
 
             private:
             Protocol::MIDI& _midi;

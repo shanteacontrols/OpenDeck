@@ -160,7 +160,7 @@ namespace Board
             return USB_DeviceState == DEVICE_STATE_Configured;
         }
 
-        bool readMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
+        bool readMIDI(midiPacket_t& packet)
         {
             // device must be connected and configured for the task to run
             if (!isUSBconnected())
@@ -173,7 +173,7 @@ namespace Board
             if (Endpoint_IsOUTReceived())
             {
                 // read the MIDI event packet from the endpoint
-                Endpoint_Read_Stream_LE(&USBMIDIpacket, sizeof(USBMIDIpacket), NULL);
+                Endpoint_Read_Stream_LE(&packet[0], sizeof(packet), NULL);
 
                 // if the endpoint is now empty, clear the bank
                 if (!(Endpoint_BytesInEndpoint()))
@@ -187,7 +187,7 @@ namespace Board
             }
         }
 
-        bool writeMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
+        bool writeMIDI(midiPacket_t& packet)
         {
             static uint32_t timeout = 0;
 
@@ -210,7 +210,7 @@ namespace Board
 
             _txStateMIDI = Board::detail::USB::txState_t::sending;
 
-            if ((ErrorCode = Endpoint_Write_Stream_LE(&USBMIDIpacket, sizeof(MIDI::USBMIDIpacket_t), NULL)) != ENDPOINT_RWSTREAM_NoError)
+            if ((ErrorCode = Endpoint_Write_Stream_LE(&packet[0], sizeof(packet), NULL)) != ENDPOINT_RWSTREAM_NoError)
             {
                 _txStateMIDI = Board::detail::USB::txState_t::waiting;
                 return false;

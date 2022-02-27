@@ -55,12 +55,12 @@ namespace
     BTLDRWriter _btldrWriter;
     Updater     _updater = Updater(_btldrWriter, COMMAND_FW_UPDATE_START, COMMAND_FW_UPDATE_END, FW_UID);
 
-    void sysExToUSBMidi(std::vector<uint8_t> sysex, std::vector<MIDI::USBMIDIpacket_t>& packets)
+    void sysExToUSBMidi(std::vector<uint8_t> sysex, std::vector<MIDI::usbMIDIPacket_t>& packets)
     {
         class HWAMIDI : public MIDI::HWA
         {
             public:
-            HWAMIDI(std::vector<MIDI::USBMIDIpacket_t>& packets)
+            HWAMIDI(std::vector<MIDI::usbMIDIPacket_t>& packets)
                 : _packets(packets)
             {}
 
@@ -84,19 +84,19 @@ namespace
                 return false;
             }
 
-            bool usbRead(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
+            bool usbRead(MIDI::usbMIDIPacket_t& packet) override
             {
                 return false;
             }
 
-            bool usbWrite(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
+            bool usbWrite(MIDI::usbMIDIPacket_t& packet) override
             {
-                _packets.push_back(USBMIDIpacket);
+                _packets.push_back(packet);
                 return true;
             }
 
             private:
-            std::vector<MIDI::USBMIDIpacket_t>& _packets;
+            std::vector<MIDI::usbMIDIPacket_t>& _packets;
         };
 
         HWAMIDI hwaMIDI(packets);
@@ -119,7 +119,7 @@ TEST_CASE(Bootloader)
     std::vector<uint8_t> binaryVector((std::istreambuf_iterator<char>(binaryStream)), std::istreambuf_iterator<char>());
 
     std::vector<uint8_t>               singleSysExMsg = {};
-    std::vector<MIDI::USBMIDIpacket_t> packets        = {};
+    std::vector<MIDI::usbMIDIPacket_t> packets        = {};
 
     // go over the entire .sysex file
     // upon reaching the end of single sysex message, convert it

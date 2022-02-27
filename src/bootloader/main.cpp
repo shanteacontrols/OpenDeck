@@ -212,7 +212,7 @@ class Reader
 #endif
 
 #ifdef USB_SUPPORTED
-    MIDI::USBMIDIpacket_t _usbMIDIpacket = {};
+    MIDI::usbMIDIPacket_t _usbMIDIpacket = {};
     SysExParser           _sysExParser;
 #endif
 };
