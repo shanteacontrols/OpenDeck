@@ -42,7 +42,7 @@ namespace
 
     void stateChangeRegister(bool state)
     {
-        _listener._dispatchMessage.clear();
+        _listener._event.clear();
 
         for (int i = 0; i < IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS); i++)
             _hwaButtons._state[i] = state;
@@ -63,17 +63,17 @@ TEST_SETUP()
 
     if (!listenerActive)
     {
-        Dispatcher.listen(Util::MessageDispatcher::messageSource_t::buttons,
-                          Util::MessageDispatcher::listenType_t::nonFwd,
-                          [](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                              _listener.messageListener(dispatchMessage);
-                          });
+        MIDIDispatcher.listen(Messaging::eventSource_t::buttons,
+                              Messaging::listenType_t::nonFwd,
+                              [](const Messaging::event_t& dispatchMessage) {
+                                  _listener.messageListener(dispatchMessage);
+                              });
 
         listenerActive = true;
         _leds.init();
     }
 
-    _listener._dispatchMessage.clear();
+    _listener._event.clear();
 }
 
 TEST_CASE(Note)
@@ -105,30 +105,30 @@ TEST_CASE(Note)
                 {
                     if (state)
                     {
-                        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::noteOn, _listener._dispatchMessage.at(i).message);
+                        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::noteOn, _listener._event.at(i).message);
                     }
                     else
                     {
-                        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::noteOff, _listener._dispatchMessage.at(i).message);
+                        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::noteOff, _listener._event.at(i).message);
                     }
 
-                    TEST_ASSERT_EQUAL_UINT32(state ? velocityValue : 0, _listener._dispatchMessage.at(i).midiValue);
-                    TEST_ASSERT_EQUAL_UINT32(channel, _listener._dispatchMessage.at(i).midiChannel);
+                    TEST_ASSERT_EQUAL_UINT32(state ? velocityValue : 0, _listener._event.at(i).midiValue);
+                    TEST_ASSERT_EQUAL_UINT32(channel, _listener._event.at(i).midiChannel);
 
                     // also verify MIDI ID
                     // it should be equal to button ID by default
-                    TEST_ASSERT_EQUAL_UINT32(i, _listener._dispatchMessage.at(i).midiIndex);
+                    TEST_ASSERT_EQUAL_UINT32(i, _listener._event.at(i).midiIndex);
                 }
             };
 
             // simulate button press
             stateChangeRegister(true);
-            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
             verifyValue(true);
 
             // simulate button release
             stateChangeRegister(false);
-            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
             verifyValue(false);
 
             // try with the latching mode
@@ -136,12 +136,12 @@ TEST_CASE(Note)
                 TEST_ASSERT(_database.update(Database::Section::button_t::type, i, Buttons::type_t::latching) == true);
 
             stateChangeRegister(true);
-            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
             verifyValue(true);
 
             // nothing should happen on release
             stateChangeRegister(false);
-            TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
 
             // press again, new messages should arrive
             stateChangeRegister(true);
@@ -185,28 +185,28 @@ TEST_CASE(ProgramChange)
                 // verify all received messages are program change
                 for (int i = 0; i < IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS); i++)
                 {
-                    TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::programChange, _listener._dispatchMessage.at(i).message);
+                    TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::programChange, _listener._event.at(i).message);
 
                     // program change value should always be set to 0
-                    TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.at(i).midiValue);
+                    TEST_ASSERT_EQUAL_UINT32(0, _listener._event.at(i).midiValue);
 
                     // verify channel
-                    TEST_ASSERT_EQUAL_UINT32(channel, _listener._dispatchMessage.at(i).midiChannel);
+                    TEST_ASSERT_EQUAL_UINT32(channel, _listener._event.at(i).midiChannel);
 
                     // also verify MIDI ID/program
                     // it should be equal to button ID by default
-                    TEST_ASSERT_EQUAL_UINT32(i, _listener._dispatchMessage.at(i).midiIndex);
+                    TEST_ASSERT_EQUAL_UINT32(i, _listener._event.at(i).midiIndex);
                 }
             };
 
             // simulate button press
             stateChangeRegister(true);
-            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
             verifyMessage();
 
             // program change shouldn't be sent on release
             stateChangeRegister(false);
-            TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
 
             // repeat the entire test again, but with buttons configured as latching types
             // behaviour should be the same
@@ -214,11 +214,11 @@ TEST_CASE(ProgramChange)
                 TEST_ASSERT(_database.update(Database::Section::button_t::type, i, Buttons::type_t::latching) == true);
 
             stateChangeRegister(true);
-            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
             verifyMessage();
 
             stateChangeRegister(false);
-            TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
         };
 
         // test for all channels
@@ -239,15 +239,15 @@ TEST_CASE(ProgramChange)
         };
 
         auto verifyProgramChange = [&](size_t index, uint8_t channel, uint8_t program) {
-            TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::programChange, _listener._dispatchMessage.at(index).message);
+            TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::programChange, _listener._event.at(index).message);
 
             // program change value should always be set to 0
-            TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.at(index).midiValue);
+            TEST_ASSERT_EQUAL_UINT32(0, _listener._event.at(index).midiValue);
 
             // verify channel
-            TEST_ASSERT_EQUAL_UINT32(channel, _listener._dispatchMessage.at(index).midiChannel);
+            TEST_ASSERT_EQUAL_UINT32(channel, _listener._event.at(index).midiChannel);
 
-            TEST_ASSERT_EQUAL_UINT32(program, _listener._dispatchMessage.at(index).midiIndex);
+            TEST_ASSERT_EQUAL_UINT32(program, _listener._event.at(index).midiIndex);
         };
 
         configurePCbutton(0, 0, true);
@@ -345,7 +345,7 @@ TEST_CASE(ProgramChange)
             stateChangeRegister(false);
 
             // reset all received messages first
-            _listener._dispatchMessage.clear();
+            _listener._event.clear();
 
             // only two program change messages should be sent
             // program change value is 0 after the second button decreases it
@@ -360,9 +360,9 @@ TEST_CASE(ProgramChange)
             // verify that only two program change messages have been received
             uint8_t pcCounter = 0;
 
-            for (int i = 0; i < _listener._dispatchMessage.size(); i++)
+            for (int i = 0; i < _listener._event.size(); i++)
             {
-                if (_listener._dispatchMessage.at(i).message == MIDI::messageType_t::programChange)
+                if (_listener._event.at(i).message == MIDI::messageType_t::programChange)
                     pcCounter++;
             }
 
@@ -409,22 +409,22 @@ TEST_CASE(ControlChange)
                 // verify all received messages are control change
                 for (int i = 0; i < IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS); i++)
                 {
-                    TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _listener._dispatchMessage.at(i).message);
-                    TEST_ASSERT_EQUAL_UINT32(midiValue, _listener._dispatchMessage.at(i).midiValue);
-                    TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.at(i).midiChannel);
-                    TEST_ASSERT_EQUAL_UINT32(i, _listener._dispatchMessage.at(i).midiIndex);
+                    TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _listener._event.at(i).message);
+                    TEST_ASSERT_EQUAL_UINT32(midiValue, _listener._event.at(i).midiValue);
+                    TEST_ASSERT_EQUAL_UINT32(0, _listener._event.at(i).midiChannel);
+                    TEST_ASSERT_EQUAL_UINT32(i, _listener._event.at(i).midiIndex);
                 }
             };
 
             // simulate button press
             stateChangeRegister(true);
-            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
             verifyMessage(controlValue);
 
             // no messages should be sent on release
             stateChangeRegister(false);
-            TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
 
             // change to latching type
             // behaviour should be the same
@@ -433,12 +433,12 @@ TEST_CASE(ControlChange)
                 TEST_ASSERT(_database.update(Database::Section::button_t::type, i, Buttons::type_t::latching) == true);
 
             stateChangeRegister(true);
-            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
             verifyMessage(controlValue);
 
             stateChangeRegister(false);
-            TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
 
             // change type to control change with 0 on reset, momentary mode
             // this means CC value 0 should be sent on release
@@ -450,12 +450,12 @@ TEST_CASE(ControlChange)
                 TEST_ASSERT(_database.update(Database::Section::button_t::midiMessage, i, Buttons::messageType_t::controlChangeReset) == true);
 
             stateChangeRegister(true);
-            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
             verifyMessage(controlValue);
 
             stateChangeRegister(false);
-            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
             verifyMessage(0);
 
@@ -468,15 +468,15 @@ TEST_CASE(ControlChange)
                 TEST_ASSERT(_database.update(Database::Section::button_t::type, i, Buttons::type_t::latching) == true);
 
             stateChangeRegister(true);
-            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
             verifyMessage(controlValue);
 
             stateChangeRegister(false);
-            TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
 
             stateChangeRegister(true);
-            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
             verifyMessage(0);
         };
@@ -508,25 +508,25 @@ TEST_CASE(NoMessages)
         }
 
         stateChangeRegister(true);
-        TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
+        TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
 
         stateChangeRegister(false);
-        TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
+        TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
 
         for (int i = 0; i < IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS); i++)
             TEST_ASSERT(_database.update(Database::Section::button_t::type, i, Buttons::type_t::latching) == true);
 
         stateChangeRegister(true);
-        TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
+        TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
 
         stateChangeRegister(false);
-        TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
+        TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
 
         stateChangeRegister(true);
-        TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
+        TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
 
         stateChangeRegister(false);
-        TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
+        TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
     }
 }
 
@@ -565,7 +565,7 @@ TEST_CASE(LocalLEDcontrol)
             // simulate the press of all buttons
             // since led 0 is configured in local control mode, it should be on now
             stateChangeRegister(true);
-            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
             TEST_ASSERT(_leds.color(0) != LEDs::color_t::off);
 
@@ -575,7 +575,7 @@ TEST_CASE(LocalLEDcontrol)
 
             // now release the button and verify that the led is off again
             stateChangeRegister(false);
-            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
             for (int i = 0; i < IO::LEDs::Collection::size(IO::LEDs::GROUP_DIGITAL_OUTPUTS); i++)
                 TEST_ASSERT(_leds.color(i) == LEDs::color_t::off);
@@ -585,18 +585,18 @@ TEST_CASE(LocalLEDcontrol)
                 TEST_ASSERT(_database.update(Database::Section::button_t::type, i, Buttons::type_t::latching) == true);
 
             stateChangeRegister(true);
-            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
             TEST_ASSERT(_leds.color(0) != LEDs::color_t::off);
 
             stateChangeRegister(false);
-            TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
 
             // led should remain on
             TEST_ASSERT(_leds.color(0) != LEDs::color_t::off);
 
             stateChangeRegister(true);
-            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
             TEST_ASSERT(_leds.color(0) == LEDs::color_t::off);
 
@@ -613,7 +613,7 @@ TEST_CASE(LocalLEDcontrol)
             }
 
             stateChangeRegister(true);
-            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
             // led should be off since it's configure to react on note messages and not on control change
             TEST_ASSERT(_leds.color(0) == LEDs::color_t::off);
@@ -622,19 +622,19 @@ TEST_CASE(LocalLEDcontrol)
 
             // no messages being sent on release in CC mode
             stateChangeRegister(false);
-            TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
 
             // nothing should happen on release yet
             TEST_ASSERT(_leds.color(0) == LEDs::color_t::off);
 
             stateChangeRegister(true);
-            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
             // led should be on now
             TEST_ASSERT(_leds.color(0) != LEDs::color_t::off);
 
             stateChangeRegister(false);
-            TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
 
             // no messages sent - led must remain on
             TEST_ASSERT(_leds.color(0) != LEDs::color_t::off);
@@ -643,7 +643,7 @@ TEST_CASE(LocalLEDcontrol)
             TEST_ASSERT(_database.update(Database::Section::button_t::velocity, 0, 126) == true);
 
             stateChangeRegister(true);
-            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
             // led should be off now - it has received velocity 126 differing from activating one which is 127
             TEST_ASSERT(_leds.color(0) == LEDs::color_t::off);
@@ -663,12 +663,12 @@ TEST_CASE(LocalLEDcontrol)
             }
 
             stateChangeRegister(true);
-            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
             TEST_ASSERT(_leds.color(0) != LEDs::color_t::off);
 
             stateChangeRegister(false);
-            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._dispatchMessage.size());
+            TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
             // regression test
             // configure LED 0 in midiInNoteMultiVal mode, activation value to 127, activation ID to 0

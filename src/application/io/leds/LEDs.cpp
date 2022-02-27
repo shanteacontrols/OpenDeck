@@ -17,7 +17,7 @@ limitations under the License.
 */
 
 #include "LEDs.h"
-#include "util/messaging/Messaging.h"
+#include "messaging/Messaging.h"
 
 #ifdef LEDS_SUPPORTED
 
@@ -43,99 +43,99 @@ LEDs::LEDs(HWA&      hwa,
         _brightness[i] = brightness_t::bOff;
     }
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::midiIn,
-                      Util::MessageDispatcher::listenType_t::nonFwd,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          switch (dispatchMessage.message)
-                          {
-                          case MIDI::messageType_t::noteOn:
-                          case MIDI::messageType_t::noteOff:
-                          case MIDI::messageType_t::controlChange:
-                          case MIDI::messageType_t::programChange:
-                          {
-                              midiToState(dispatchMessage, Util::MessageDispatcher::messageSource_t::midiIn);
-                          }
-                          break;
-
-                          case MIDI::messageType_t::sysRealTimeClock:
-                          {
-                              updateAll(true);
-                          }
-                          break;
-
-                          case MIDI::messageType_t::sysRealTimeStart:
-                          {
-                              resetBlinking();
-                              updateAll(true);
-                          }
-                          break;
-
-                          default:
+    MIDIDispatcher.listen(Messaging::eventSource_t::midiIn,
+                          Messaging::listenType_t::nonFwd,
+                          [this](const Messaging::event_t& event) {
+                              switch (event.message)
+                              {
+                              case MIDI::messageType_t::noteOn:
+                              case MIDI::messageType_t::noteOff:
+                              case MIDI::messageType_t::controlChange:
+                              case MIDI::messageType_t::programChange:
+                              {
+                                  midiToState(event, Messaging::eventSource_t::midiIn);
+                              }
                               break;
-                          }
-                      });
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::buttons,
-                      Util::MessageDispatcher::listenType_t::nonFwd,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          switch (dispatchMessage.message)
-                          {
-                          case MIDI::messageType_t::noteOn:
-                          case MIDI::messageType_t::noteOff:
-                          case MIDI::messageType_t::controlChange:
-                          case MIDI::messageType_t::programChange:
-                          {
-                              midiToState(dispatchMessage, Util::MessageDispatcher::messageSource_t::buttons);
-                          }
-                          break;
-
-                          default:
+                              case MIDI::messageType_t::sysRealTimeClock:
+                              {
+                                  updateAll(true);
+                              }
                               break;
-                          }
-                      });
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
-                      Util::MessageDispatcher::listenType_t::nonFwd,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          switch (dispatchMessage.message)
-                          {
-                          case MIDI::messageType_t::noteOn:
-                          case MIDI::messageType_t::noteOff:
-                          case MIDI::messageType_t::controlChange:
-                          case MIDI::messageType_t::programChange:
-                          {
-                              midiToState(dispatchMessage, Util::MessageDispatcher::messageSource_t::analog);
-                          }
-                          break;
-
-                          default:
+                              case MIDI::messageType_t::sysRealTimeStart:
+                              {
+                                  resetBlinking();
+                                  updateAll(true);
+                              }
                               break;
-                          }
-                      });
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::preset,
-                      Util::MessageDispatcher::listenType_t::all,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          setAllOff();
-                          midiToState(dispatchMessage, Util::MessageDispatcher::messageSource_t::preset);
-                      });
+                              default:
+                                  break;
+                              }
+                          });
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenScreen,
-                      Util::MessageDispatcher::listenType_t::all,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          refresh();
-                      });
+    MIDIDispatcher.listen(Messaging::eventSource_t::buttons,
+                          Messaging::listenType_t::nonFwd,
+                          [this](const Messaging::event_t& event) {
+                              switch (event.message)
+                              {
+                              case MIDI::messageType_t::noteOn:
+                              case MIDI::messageType_t::noteOff:
+                              case MIDI::messageType_t::controlChange:
+                              case MIDI::messageType_t::programChange:
+                              {
+                                  midiToState(event, Messaging::eventSource_t::buttons);
+                              }
+                              break;
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::system,
-                      Util::MessageDispatcher::listenType_t::all,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          if (dispatchMessage.componentIndex == static_cast<uint8_t>(Util::MessageDispatcher::systemMessages_t::midiProgramIndication))
-                          {
-                              // pretend this is midi in message - source isn't important here as
-                              // both midi in and local control for program change are synced
-                              midiToState(dispatchMessage, Util::MessageDispatcher::messageSource_t::midiIn);
-                          }
-                      });
+                              default:
+                                  break;
+                              }
+                          });
+
+    MIDIDispatcher.listen(Messaging::eventSource_t::analog,
+                          Messaging::listenType_t::nonFwd,
+                          [this](const Messaging::event_t& event) {
+                              switch (event.message)
+                              {
+                              case MIDI::messageType_t::noteOn:
+                              case MIDI::messageType_t::noteOff:
+                              case MIDI::messageType_t::controlChange:
+                              case MIDI::messageType_t::programChange:
+                              {
+                                  midiToState(event, Messaging::eventSource_t::analog);
+                              }
+                              break;
+
+                              default:
+                                  break;
+                              }
+                          });
+
+    MIDIDispatcher.listen(Messaging::eventSource_t::preset,
+                          Messaging::listenType_t::all,
+                          [this](const Messaging::event_t& event) {
+                              setAllOff();
+                              midiToState(event, Messaging::eventSource_t::preset);
+                          });
+
+    MIDIDispatcher.listen(Messaging::eventSource_t::touchscreenScreen,
+                          Messaging::listenType_t::all,
+                          [this](const Messaging::event_t& event) {
+                              refresh();
+                          });
+
+    MIDIDispatcher.listen(Messaging::eventSource_t::system,
+                          Messaging::listenType_t::all,
+                          [this](const Messaging::event_t& event) {
+                              if (event.componentIndex == static_cast<uint8_t>(Messaging::systemMessage_t::midiProgramIndication))
+                              {
+                                  // pretend this is midi in message - source isn't important here as
+                                  // both midi in and local control for program change are synced
+                                  midiToState(event, Messaging::eventSource_t::midiIn);
+                              }
+                          });
 
     ConfigHandler.registerConfig(
         System::Config::block_t::leds,
@@ -294,7 +294,7 @@ LEDs::brightness_t LEDs::valueToBrightness(uint8_t value)
     return static_cast<brightness_t>((value % 16 % TOTAL_BRIGHTNESS_VALUES) + 1);
 }
 
-void LEDs::midiToState(Util::MessageDispatcher::message_t message, Util::MessageDispatcher::messageSource_t source)
+void LEDs::midiToState(Messaging::event_t message, Messaging::eventSource_t source)
 {
     for (size_t i = 0; i < Collection::size(); i++)
     {
@@ -317,7 +317,7 @@ void LEDs::midiToState(Util::MessageDispatcher::message_t message, Util::Message
 
         // determine whether led state or blink state should be changed
         // received MIDI message must match with defined control type
-        if (source != Util::MessageDispatcher::messageSource_t::midiIn)
+        if (source != Messaging::eventSource_t::midiIn)
         {
             switch (controlType)
             {
@@ -743,13 +743,13 @@ void LEDs::setState(size_t index, brightness_t brightness)
         // specified hwa interface only writes to physical leds
         // for touchscreen and other destinations, notify via dispatcher
 
-        Util::MessageDispatcher::message_t message;
+        Messaging::event_t message;
         message.componentIndex = index - Collection::startIndex(GROUP_TOUCHSCREEN_COMPONENTS);
         message.midiValue      = static_cast<uint16_t>(brightness);
 
-        Dispatcher.notify(Util::MessageDispatcher::messageSource_t::leds,
-                          message,
-                          Util::MessageDispatcher::listenType_t::fwd);
+        MIDIDispatcher.notify(Messaging::eventSource_t::leds,
+                              message,
+                              Messaging::listenType_t::fwd);
     }
     else
     {

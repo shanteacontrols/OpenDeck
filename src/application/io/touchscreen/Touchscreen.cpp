@@ -35,20 +35,20 @@ Touchscreen::Touchscreen(HWA&            hwa,
     , _cdcPassthrough(cdcPassthrough)
     , ADC_RESOLUTION(adcResolution)
 {
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::leds,
-                      Util::MessageDispatcher::listenType_t::fwd,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          setIconState(dispatchMessage.componentIndex, dispatchMessage.midiValue);
-                      });
+    MIDIDispatcher.listen(Messaging::eventSource_t::leds,
+                          Messaging::listenType_t::fwd,
+                          [this](const Messaging::event_t& event) {
+                              setIconState(event.componentIndex, event.midiValue);
+                          });
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::preset,
-                      Util::MessageDispatcher::listenType_t::all,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          if (!init(mode_t::normal))
-                          {
-                              deInit(mode_t::normal);
-                          }
-                      });
+    MIDIDispatcher.listen(Messaging::eventSource_t::preset,
+                          Messaging::listenType_t::all,
+                          [this](const Messaging::event_t& event) {
+                              if (!init(mode_t::normal))
+                              {
+                                  deInit(mode_t::normal);
+                              }
+                          });
 
     ConfigHandler.registerConfig(
         System::Config::block_t::touchscreen,
@@ -477,44 +477,44 @@ Touchscreen::Model* Touchscreen::modelInstance(model_t model)
 
 void Touchscreen::buttonHandler(size_t index, bool state)
 {
-    Util::MessageDispatcher::message_t dispatchMessage;
+    Messaging::event_t event;
 
-    dispatchMessage.componentIndex = index;
-    dispatchMessage.midiValue      = state;
+    event.componentIndex = index;
+    event.midiValue      = state;
 
     // mark this as forwarding message type - further action/processing is required
-    Dispatcher.notify(Util::MessageDispatcher::messageSource_t::touchscreenButton,
-                      dispatchMessage,
-                      Util::MessageDispatcher::listenType_t::fwd);
+    MIDIDispatcher.notify(Messaging::eventSource_t::touchscreenButton,
+                          event,
+                          Messaging::listenType_t::fwd);
 }
 
 void Touchscreen::analogHandler(size_t index, uint16_t value, uint16_t min, uint16_t max)
 {
-    Util::MessageDispatcher::message_t dispatchMessage;
+    Messaging::event_t event;
 
-    dispatchMessage.componentIndex = index;
-    dispatchMessage.midiValue      = core::misc::mapRange(static_cast<uint32_t>(value),
-                                                     static_cast<uint32_t>(min),
-                                                     static_cast<uint32_t>(max),
-                                                     static_cast<uint32_t>(0),
-                                                     static_cast<uint32_t>(ADC_RESOLUTION));
+    event.componentIndex = index;
+    event.midiValue      = core::misc::mapRange(static_cast<uint32_t>(value),
+                                           static_cast<uint32_t>(min),
+                                           static_cast<uint32_t>(max),
+                                           static_cast<uint32_t>(0),
+                                           static_cast<uint32_t>(ADC_RESOLUTION));
 
     // mark this as forwarding message type - further action/processing is required
-    Dispatcher.notify(Util::MessageDispatcher::messageSource_t::touchscreenAnalog,
-                      dispatchMessage,
-                      Util::MessageDispatcher::listenType_t::fwd);
+    MIDIDispatcher.notify(Messaging::eventSource_t::touchscreenAnalog,
+                          event,
+                          Messaging::listenType_t::fwd);
 }
 
 void Touchscreen::screenChangeHandler(size_t screenID)
 {
-    Util::MessageDispatcher::message_t dispatchMessage;
+    Messaging::event_t event;
 
-    dispatchMessage.componentIndex = screenID;
+    event.componentIndex = screenID;
 
     // mark this as forwarding message type - further action/processing is required
-    Dispatcher.notify(Util::MessageDispatcher::messageSource_t::touchscreenScreen,
-                      dispatchMessage,
-                      Util::MessageDispatcher::listenType_t::fwd);
+    MIDIDispatcher.notify(Messaging::eventSource_t::touchscreenScreen,
+                          event,
+                          Messaging::listenType_t::fwd);
 }
 
 std::optional<uint8_t> Touchscreen::sysConfigGet(System::Config::Section::touchscreen_t section, size_t index, uint16_t& value)

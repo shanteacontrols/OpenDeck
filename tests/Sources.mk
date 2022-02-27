@@ -25,7 +25,6 @@ ifeq (,$(findstring USB_LINK_MCU,$(DEFINES)))
     modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c \
     stubs/Core.cpp \
     application/util/configurable/Configurable.cpp \
-    application/util/messaging/Messaging.cpp \
     application/util/scheduler/Scheduler.cpp \
     application/util/conversion/Conversion.cpp
 endif

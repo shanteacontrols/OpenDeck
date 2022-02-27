@@ -36,44 +36,44 @@ Buttons::Buttons(HWA&      hwa,
     , _filter(filter)
     , _database(database)
 {
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
-                      Util::MessageDispatcher::listenType_t::fwd,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          size_t             index = dispatchMessage.componentIndex + Collection::startIndex(GROUP_ANALOG_INPUTS);
-                          buttonDescriptor_t descriptor;
-                          fillButtonDescriptor(index, descriptor);
+    MIDIDispatcher.listen(Messaging::eventSource_t::analog,
+                          Messaging::listenType_t::fwd,
+                          [this](const Messaging::event_t& event) {
+                              size_t             index = event.componentIndex + Collection::startIndex(GROUP_ANALOG_INPUTS);
+                              buttonDescriptor_t descriptor;
+                              fillButtonDescriptor(index, descriptor);
 
-                          // dispatchMessage.midiValue in this case contains state information only
-                          processButton(index, dispatchMessage.midiValue, descriptor);
-                      });
+                              // event.midiValue in this case contains state information only
+                              processButton(index, event.midiValue, descriptor);
+                          });
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenButton,
-                      Util::MessageDispatcher::listenType_t::fwd,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          size_t index = dispatchMessage.componentIndex + Collection::startIndex(GROUP_TOUCHSCREEN_COMPONENTS);
+    MIDIDispatcher.listen(Messaging::eventSource_t::touchscreenButton,
+                          Messaging::listenType_t::fwd,
+                          [this](const Messaging::event_t& event) {
+                              size_t index = event.componentIndex + Collection::startIndex(GROUP_TOUCHSCREEN_COMPONENTS);
 
-                          buttonDescriptor_t descriptor;
-                          fillButtonDescriptor(index, descriptor);
+                              buttonDescriptor_t descriptor;
+                              fillButtonDescriptor(index, descriptor);
 
-                          // dispatchMessage.midiValue in this case contains state information only
-                          processButton(index, dispatchMessage.midiValue, descriptor);
-                      });
+                              // event.midiValue in this case contains state information only
+                              processButton(index, event.midiValue, descriptor);
+                          });
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::system,
-                      Util::MessageDispatcher::listenType_t::all,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          switch (dispatchMessage.componentIndex)
-                          {
-                          case static_cast<uint8_t>(Util::MessageDispatcher::systemMessages_t::forceIOrefresh):
-                          {
-                              updateAll(true);
-                          }
-                          break;
-
-                          default:
+    MIDIDispatcher.listen(Messaging::eventSource_t::system,
+                          Messaging::listenType_t::all,
+                          [this](const Messaging::event_t& event) {
+                              switch (event.componentIndex)
+                              {
+                              case static_cast<uint8_t>(Messaging::systemMessage_t::forceIOrefresh):
+                              {
+                                  updateAll(true);
+                              }
                               break;
-                          }
-                      });
+
+                              default:
+                                  break;
+                              }
+                          });
 
     ConfigHandler.registerConfig(
         System::Config::block_t::buttons,
@@ -189,7 +189,7 @@ void Buttons::processButton(size_t index, bool reading, buttonDescriptor_t& desc
                 // don't send off message once the preset is switched (in case this button has standard message type in switched preset)
                 // pretend the button is already released
                 setState(index, false);
-                _database.setPreset(descriptor.dispatchMessage.midiIndex);
+                _database.setPreset(descriptor.event.midiIndex);
             }
         }
         else
@@ -258,26 +258,26 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
         case messageType_t::programChangeInc:
         case messageType_t::programChangeDec:
         {
-            descriptor.dispatchMessage.midiValue = 0;
+            descriptor.event.midiValue = 0;
 
             if (descriptor.messageType != messageType_t::programChange)
             {
                 if (descriptor.messageType == messageType_t::programChangeInc)
                 {
-                    if (!Common::pcIncrement(descriptor.dispatchMessage.midiChannel))
+                    if (!Common::pcIncrement(descriptor.event.midiChannel))
                     {
                         send = false;
                     }
                 }
                 else
                 {
-                    if (!Common::pcDecrement(descriptor.dispatchMessage.midiChannel))
+                    if (!Common::pcDecrement(descriptor.event.midiChannel))
                     {
                         send = false;
                     }
                 }
 
-                descriptor.dispatchMessage.midiIndex = Common::program(descriptor.dispatchMessage.midiChannel);
+                descriptor.event.midiIndex = Common::program(descriptor.event.midiChannel);
             }
         }
         break;
@@ -285,20 +285,20 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
         case messageType_t::multiValIncResetNote:
         {
             uint8_t currentValue = Common::currentValue(index);
-            uint8_t value        = Common::valueInc(index, descriptor.dispatchMessage.midiValue, Common::incDecType_t::reset);
+            uint8_t value        = Common::valueInc(index, descriptor.event.midiValue, Common::incDecType_t::reset);
 
             if (currentValue != value)
             {
                 if (!value)
                 {
-                    descriptor.dispatchMessage.message = MIDI::messageType_t::noteOff;
+                    descriptor.event.message = MIDI::messageType_t::noteOff;
                 }
                 else
                 {
-                    descriptor.dispatchMessage.message = MIDI::messageType_t::noteOn;
+                    descriptor.event.message = MIDI::messageType_t::noteOn;
                 }
 
-                descriptor.dispatchMessage.midiValue = currentValue;
+                descriptor.event.midiValue = currentValue;
             }
             else
             {
@@ -310,20 +310,20 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
         case messageType_t::multiValIncDecNote:
         {
             uint8_t currentValue = Common::currentValue(index);
-            uint8_t value        = Common::valueIncDec(index, descriptor.dispatchMessage.midiValue);
+            uint8_t value        = Common::valueIncDec(index, descriptor.event.midiValue);
 
             if (currentValue != value)
             {
                 if (!value)
                 {
-                    descriptor.dispatchMessage.message = MIDI::messageType_t::noteOff;
+                    descriptor.event.message = MIDI::messageType_t::noteOff;
                 }
                 else
                 {
-                    descriptor.dispatchMessage.message = MIDI::messageType_t::noteOn;
+                    descriptor.event.message = MIDI::messageType_t::noteOn;
                 }
 
-                descriptor.dispatchMessage.midiValue = currentValue;
+                descriptor.event.midiValue = currentValue;
             }
             else
             {
@@ -335,11 +335,11 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
         case messageType_t::multiValIncResetCC:
         {
             uint8_t currentValue = Common::currentValue(index);
-            uint8_t value        = Common::valueInc(index, descriptor.dispatchMessage.midiValue, Common::incDecType_t::reset);
+            uint8_t value        = Common::valueInc(index, descriptor.event.midiValue, Common::incDecType_t::reset);
 
             if (currentValue != value)
             {
-                descriptor.dispatchMessage.midiValue = currentValue;
+                descriptor.event.midiValue = currentValue;
             }
             else
             {
@@ -351,11 +351,11 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
         case messageType_t::multiValIncDecCC:
         {
             uint8_t currentValue = Common::currentValue(index);
-            uint8_t value        = Common::valueIncDec(index, descriptor.dispatchMessage.midiValue);
+            uint8_t value        = Common::valueIncDec(index, descriptor.event.midiValue);
 
             if (currentValue != value)
             {
-                descriptor.dispatchMessage.midiValue = currentValue;
+                descriptor.event.midiValue = currentValue;
             }
             else
             {
@@ -377,20 +377,20 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
         {
         case messageType_t::note:
         {
-            descriptor.dispatchMessage.midiValue = 0;
-            descriptor.dispatchMessage.message   = MIDI::messageType_t::noteOff;
+            descriptor.event.midiValue = 0;
+            descriptor.event.message   = MIDI::messageType_t::noteOff;
         }
         break;
 
         case messageType_t::controlChangeReset:
         {
-            descriptor.dispatchMessage.midiValue = 0;
+            descriptor.event.midiValue = 0;
         }
         break;
 
         case messageType_t::mmcRecord:
         {
-            descriptor.dispatchMessage.message = MIDI::messageType_t::mmcRecordStop;
+            descriptor.event.message = MIDI::messageType_t::mmcRecordStop;
         }
         break;
 
@@ -404,9 +404,9 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
 
     if (send)
     {
-        Dispatcher.notify(Util::MessageDispatcher::messageSource_t::buttons,
-                          descriptor.dispatchMessage,
-                          Util::MessageDispatcher::listenType_t::nonFwd);
+        MIDIDispatcher.notify(Messaging::eventSource_t::buttons,
+                              descriptor.event,
+                              Messaging::listenType_t::nonFwd);
     }
 }
 
@@ -470,12 +470,12 @@ void Buttons::reset(size_t index)
 
 void Buttons::fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor)
 {
-    descriptor.type                           = static_cast<type_t>(_database.read(Database::Section::button_t::type, index));
-    descriptor.messageType                    = static_cast<messageType_t>(_database.read(Database::Section::button_t::midiMessage, index));
-    descriptor.dispatchMessage.componentIndex = index;
-    descriptor.dispatchMessage.midiChannel    = _database.read(Database::Section::button_t::midiChannel, index);
-    descriptor.dispatchMessage.midiIndex      = _database.read(Database::Section::button_t::midiID, index);
-    descriptor.dispatchMessage.midiValue      = _database.read(Database::Section::button_t::velocity, index);
+    descriptor.type                 = static_cast<type_t>(_database.read(Database::Section::button_t::type, index));
+    descriptor.messageType          = static_cast<messageType_t>(_database.read(Database::Section::button_t::midiMessage, index));
+    descriptor.event.componentIndex = index;
+    descriptor.event.midiChannel    = _database.read(Database::Section::button_t::midiChannel, index);
+    descriptor.event.midiIndex      = _database.read(Database::Section::button_t::midiID, index);
+    descriptor.event.midiValue      = _database.read(Database::Section::button_t::velocity, index);
 
     // overwrite type under certain conditions
     switch (descriptor.messageType)
@@ -518,7 +518,7 @@ void Buttons::fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor)
         break;
     }
 
-    descriptor.dispatchMessage.message = _internalMsgToMIDIType[static_cast<uint8_t>(descriptor.messageType)];
+    descriptor.event.message = _internalMsgToMIDIType[static_cast<uint8_t>(descriptor.messageType)];
 }
 
 bool Buttons::state(size_t index, uint8_t& numberOfReadings, uint32_t& states)

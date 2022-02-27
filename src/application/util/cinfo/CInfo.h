@@ -19,7 +19,6 @@ limitations under the License.
 #pragma once
 
 #include <functional>
-#include "util/messaging/Messaging.h"
 #include "core/src/general/Timing.h"
 #include "database/Database.h"
 

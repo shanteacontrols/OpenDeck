@@ -19,7 +19,7 @@ limitations under the License.
 #pragma once
 
 #include "database/Database.h"
-#include "util/messaging/Messaging.h"
+#include "messaging/Messaging.h"
 #include "io/common/Common.h"
 #include "system/Config.h"
 #include "io/IOBase.h"
@@ -106,13 +106,13 @@ namespace IO
         private:
         struct analogDescriptor_t
         {
-            type_t                             type        = type_t::potentiometerControlChange;
-            bool                               inverted    = false;
-            uint16_t                           lowerLimit  = 0;
-            uint16_t                           upperLimit  = 0;
-            uint8_t                            lowerOffset = 0;
-            uint8_t                            upperOffset = 0;
-            Util::MessageDispatcher::message_t dispatchMessage;
+            type_t             type        = type_t::potentiometerControlChange;
+            bool               inverted    = false;
+            uint16_t           lowerLimit  = 0;
+            uint16_t           upperLimit  = 0;
+            uint8_t            lowerOffset = 0;
+            uint8_t            upperOffset = 0;
+            Messaging::event_t event;
 
             analogDescriptor_t() = default;
         };

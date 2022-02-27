@@ -17,40 +17,41 @@ limitations under the License.
 */
 
 #include "CInfo.h"
+#include "messaging/Messaging.h"
 
 using namespace Util;
 
 ComponentInfo::ComponentInfo()
 {
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
-                      Util::MessageDispatcher::listenType_t::all,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          send(Database::block_t::analog, dispatchMessage.componentIndex);
-                      });
+    MIDIDispatcher.listen(Messaging::eventSource_t::analog,
+                          Messaging::listenType_t::all,
+                          [this](const Messaging::event_t& event) {
+                              send(Database::block_t::analog, event.componentIndex);
+                          });
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::buttons,
-                      Util::MessageDispatcher::listenType_t::all,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          send(Database::block_t::buttons, dispatchMessage.componentIndex);
-                      });
+    MIDIDispatcher.listen(Messaging::eventSource_t::buttons,
+                          Messaging::listenType_t::all,
+                          [this](const Messaging::event_t& event) {
+                              send(Database::block_t::buttons, event.componentIndex);
+                          });
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::encoders,
-                      Util::MessageDispatcher::listenType_t::all,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          send(Database::block_t::encoders, dispatchMessage.componentIndex);
-                      });
+    MIDIDispatcher.listen(Messaging::eventSource_t::encoders,
+                          Messaging::listenType_t::all,
+                          [this](const Messaging::event_t& event) {
+                              send(Database::block_t::encoders, event.componentIndex);
+                          });
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenButton,
-                      Util::MessageDispatcher::listenType_t::all,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          send(Database::block_t::touchscreen, dispatchMessage.componentIndex);
-                      });
+    MIDIDispatcher.listen(Messaging::eventSource_t::touchscreenButton,
+                          Messaging::listenType_t::all,
+                          [this](const Messaging::event_t& event) {
+                              send(Database::block_t::touchscreen, event.componentIndex);
+                          });
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenAnalog,
-                      Util::MessageDispatcher::listenType_t::all,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          send(Database::block_t::touchscreen, dispatchMessage.componentIndex);
-                      });
+    MIDIDispatcher.listen(Messaging::eventSource_t::touchscreenAnalog,
+                          Messaging::listenType_t::all,
+                          [this](const Messaging::event_t& event) {
+                              send(Database::block_t::touchscreen, event.componentIndex);
+                          });
 }
 
 void ComponentInfo::registerHandler(cinfoHandler_t&& handler)

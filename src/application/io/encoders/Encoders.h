@@ -20,7 +20,7 @@ limitations under the License.
 
 #include "database/Database.h"
 #include "io/IOBase.h"
-#include "util/messaging/Messaging.h"
+#include "messaging/Messaging.h"
 #include "io/common/Common.h"
 #include "system/Config.h"
 #include "io/IOBase.h"
@@ -102,9 +102,9 @@ namespace IO
         private:
         struct encoderDescriptor_t
         {
-            type_t                             type          = type_t::controlChange7Fh01h;
-            uint8_t                            pulsesPerStep = 0;
-            Util::MessageDispatcher::message_t dispatchMessage;
+            type_t             type          = type_t::controlChange7Fh01h;
+            uint8_t            pulsesPerStep = 0;
+            Messaging::event_t event;
 
             encoderDescriptor_t() = default;
         };

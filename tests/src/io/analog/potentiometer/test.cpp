@@ -72,16 +72,16 @@ TEST_SETUP()
 
     if (!listenerActive)
     {
-        Dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
-                          Util::MessageDispatcher::listenType_t::nonFwd,
-                          [](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                              _listener.messageListener(dispatchMessage);
-                          });
+        MIDIDispatcher.listen(Messaging::eventSource_t::analog,
+                              Messaging::listenType_t::nonFwd,
+                              [](const Messaging::event_t& dispatchMessage) {
+                                  _listener.messageListener(dispatchMessage);
+                              });
 
         listenerActive = true;
     }
 
-    _listener._dispatchMessage.clear();
+    _listener._event.clear();
 }
 
 TEST_CASE(CCtest)
@@ -122,20 +122,20 @@ TEST_CASE(CCtest)
         updateLastValue(_hwaAnalog.adcReturnValue);
     }
 
-    TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128), _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128), _listener._event.size());
 
     // all received messages should be control change
-    for (int i = 0; i < _listener._dispatchMessage.size(); i++)
-        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _listener._dispatchMessage.at(i).message);
+    for (int i = 0; i < _listener._event.size(); i++)
+        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _listener._event.at(i).message);
 
     uint8_t expectedMIDIvalue = 0;
 
-    for (int i = 0; i < _listener._dispatchMessage.size(); i += IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
+    for (int i = 0; i < _listener._event.size(); i += IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
     {
         for (int j = 0; j < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
-            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._dispatchMessage.at(index).midiValue);
+            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._event.at(index).midiValue);
         }
 
         expectedMIDIvalue++;
@@ -143,7 +143,7 @@ TEST_CASE(CCtest)
 
     // now go backward
 
-    _listener._dispatchMessage.clear();
+    _listener._event.clear();
 
     for (int i = 127; i >= 0; i--)
     {
@@ -153,29 +153,29 @@ TEST_CASE(CCtest)
     }
 
     // expect one message less since the last one was 127
-    TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 127), _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 127), _listener._event.size());
 
     expectedMIDIvalue = 126;
 
-    for (int i = 0; i < _listener._dispatchMessage.size(); i += IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
+    for (int i = 0; i < _listener._event.size(); i += IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
     {
         for (int j = 0; j < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
-            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._dispatchMessage.at(index).midiValue);
+            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._event.at(index).midiValue);
         }
 
         expectedMIDIvalue--;
     }
 
-    _listener._dispatchMessage.clear();
+    _listener._event.clear();
 
     // try to feed value larger than 127
     // no response should be received
     _hwaAnalog.adcReturnValue = 10000;
     _analog.updateAll();
 
-    TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
 }
 
 TEST_CASE(PitchBendTest)
@@ -211,27 +211,27 @@ TEST_CASE(PitchBendTest)
         updateLastValue(_hwaAnalog.adcReturnValue);
     }
 
-    TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 16384), _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 16384), _listener._event.size());
 
     // //all received messages should be pitch bend
-    for (int i = 0; i < _listener._dispatchMessage.size(); i++)
-        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::pitchBend, _listener._dispatchMessage.at(i).message);
+    for (int i = 0; i < _listener._event.size(); i++)
+        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::pitchBend, _listener._event.at(i).message);
 
     uint16_t expectedMIDIvalue = 0;
 
-    for (int i = 0; i < _listener._dispatchMessage.size(); i += IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
+    for (int i = 0; i < _listener._event.size(); i += IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
     {
         for (int j = 0; j < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
-            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._dispatchMessage.at(index).midiValue);
+            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._event.at(index).midiValue);
         }
 
         expectedMIDIvalue++;
     }
 
     // now go backward
-    _listener._dispatchMessage.clear();
+    _listener._event.clear();
 
     for (int i = 16383; i >= 0; i--)
     {
@@ -241,16 +241,16 @@ TEST_CASE(PitchBendTest)
     }
 
     // one message less
-    TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 16383), _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 16383), _listener._event.size());
 
     expectedMIDIvalue = 16382;
 
-    for (int i = 0; i < _listener._dispatchMessage.size(); i += IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
+    for (int i = 0; i < _listener._event.size(); i += IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
     {
         for (int j = 0; j < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
-            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._dispatchMessage.at(index).midiValue);
+            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._event.at(index).midiValue);
         }
 
         expectedMIDIvalue--;
@@ -294,25 +294,25 @@ TEST_CASE(Inversion)
         updateLastValue(_hwaAnalog.adcReturnValue);
     }
 
-    TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128), _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128), _listener._event.size());
 
     // first value should be 127
     // last value should be 0
 
     uint16_t expectedMIDIvalue = 127;
 
-    for (int i = 0; i < _listener._dispatchMessage.size(); i += IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
+    for (int i = 0; i < _listener._event.size(); i += IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
     {
         for (int j = 0; j < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
-            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._dispatchMessage.at(index).midiValue);
+            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._event.at(index).midiValue);
         }
 
         expectedMIDIvalue--;
     }
 
-    _listener._dispatchMessage.clear();
+    _listener._event.clear();
 
     // funky setup: set lower limit to 127, upper to 0 while inversion is enabled
     // result should be the same as when default setup is used (no inversion / 0 as lower limit, 127 as upper limit)
@@ -334,25 +334,25 @@ TEST_CASE(Inversion)
         updateLastValue(_hwaAnalog.adcReturnValue);
     }
 
-    TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128), _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128), _listener._event.size());
 
     expectedMIDIvalue = 0;
 
-    for (int i = 0; i < _listener._dispatchMessage.size(); i += IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
+    for (int i = 0; i < _listener._event.size(); i += IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
     {
         for (int j = 0; j < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
-            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._dispatchMessage.at(index).midiValue);
+            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._event.at(index).midiValue);
         }
 
         expectedMIDIvalue++;
     }
 
-    _listener._dispatchMessage.clear();
+    _listener._event.clear();
 
     // now disable inversion
-    _listener._dispatchMessage.clear();
+    _listener._event.clear();
 
     for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
     {
@@ -368,16 +368,16 @@ TEST_CASE(Inversion)
         updateLastValue(_hwaAnalog.adcReturnValue);
     }
 
-    TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128), _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128), _listener._event.size());
 
     expectedMIDIvalue = 127;
 
-    for (int i = 0; i < _listener._dispatchMessage.size(); i += IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
+    for (int i = 0; i < _listener._event.size(); i += IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
     {
         for (int j = 0; j < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
-            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._dispatchMessage.at(index).midiValue);
+            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._event.at(index).midiValue);
         }
 
         expectedMIDIvalue--;
@@ -423,21 +423,21 @@ TEST_CASE(Scaling)
         }
 
         // since the values are scaled, verify that all the messages aren't received
-        TEST_ASSERT((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128) > _listener._dispatchMessage.size());
+        TEST_ASSERT((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128) > _listener._event.size());
 
         // first value should be 0
         // last value should match the configured scaled value (scaledUpper)
         for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
         {
-            TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.at(i).midiValue);
-            TEST_ASSERT_EQUAL_UINT32(scaledUpper, _listener._dispatchMessage.at(_listener._dispatchMessage.size() - IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) + i).midiValue);
+            TEST_ASSERT_EQUAL_UINT32(0, _listener._event.at(i).midiValue);
+            TEST_ASSERT_EQUAL_UINT32(scaledUpper, _listener._event.at(_listener._event.size() - IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) + i).midiValue);
         }
 
         // now scale minimum value as well
         for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
             TEST_ASSERT(_database.update(Database::Section::analog_t::lowerLimit, i, scaledLower) == true);
 
-        _listener._dispatchMessage.clear();
+        _listener._event.clear();
 
         for (int i = 0; i <= 127; i++)
         {
@@ -446,12 +446,12 @@ TEST_CASE(Scaling)
             updateLastValue(_hwaAnalog.adcReturnValue);
         }
 
-        TEST_ASSERT((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128) > _listener._dispatchMessage.size());
+        TEST_ASSERT((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128) > _listener._event.size());
 
         for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
         {
-            TEST_ASSERT(_listener._dispatchMessage.at(i).midiValue >= scaledLower);
-            TEST_ASSERT(_listener._dispatchMessage.at(_listener._dispatchMessage.size() - IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) + i).midiValue <= scaledUpper);
+            TEST_ASSERT(_listener._event.at(i).midiValue >= scaledLower);
+            TEST_ASSERT(_listener._event.at(_listener._event.size() - IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) + i).midiValue <= scaledUpper);
         }
 
         // now enable inversion
@@ -461,7 +461,7 @@ TEST_CASE(Scaling)
             _analog.reset(i);
         }
 
-        _listener._dispatchMessage.clear();
+        _listener._event.clear();
 
         for (int i = 0; i <= 127; i++)
         {
@@ -472,8 +472,8 @@ TEST_CASE(Scaling)
 
         for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
         {
-            TEST_ASSERT(_listener._dispatchMessage.at(i).midiValue >= scaledUpper);
-            TEST_ASSERT(_listener._dispatchMessage.at(_listener._dispatchMessage.size() - IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) + i).midiValue <= scaledLower);
+            TEST_ASSERT(_listener._event.at(i).midiValue >= scaledUpper);
+            TEST_ASSERT(_listener._event.at(_listener._event.size() - IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) + i).midiValue <= scaledLower);
         }
     }
 }
@@ -516,20 +516,20 @@ TEST_CASE(ButtonForwarding)
         TEST_ASSERT(_database.update(Database::Section::button_t::midiMessage, IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + index, Buttons::messageType_t::controlChangeReset) == true);
         TEST_ASSERT(_database.update(Database::Section::button_t::velocity, IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + index, 100) == true);
 
-        std::vector<Util::MessageDispatcher::message_t> dispatchMessageAnalogFwd;
-        std::vector<Util::MessageDispatcher::message_t> dispatchMessageButtons;
+        std::vector<Messaging::event_t> dispatchMessageAnalogFwd;
+        std::vector<Messaging::event_t> dispatchMessageButtons;
 
-        Dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
-                          Util::MessageDispatcher::listenType_t::fwd,
-                          [&](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                              dispatchMessageAnalogFwd.push_back(dispatchMessage);
-                          });
+        MIDIDispatcher.listen(Messaging::eventSource_t::analog,
+                              Messaging::listenType_t::fwd,
+                              [&](const Messaging::event_t& dispatchMessage) {
+                                  dispatchMessageAnalogFwd.push_back(dispatchMessage);
+                              });
 
-        Dispatcher.listen(Util::MessageDispatcher::messageSource_t::buttons,
-                          Util::MessageDispatcher::listenType_t::nonFwd,
-                          [&](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                              dispatchMessageButtons.push_back(dispatchMessage);
-                          });
+        MIDIDispatcher.listen(Messaging::eventSource_t::buttons,
+                              Messaging::listenType_t::nonFwd,
+                              [&](const Messaging::event_t& dispatchMessage) {
+                                  dispatchMessageButtons.push_back(dispatchMessage);
+                              });
 
         _hwaAnalog.adcReturnValue = 0xFFFF;
         _analog.updateAll();

@@ -36,44 +36,44 @@ Encoders::Encoders(HWA&      hwa,
     , _database(database)
     , TIME_DIFF_READOUT(timeDiffTimeout)
 {
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::midiIn,
-                      Util::MessageDispatcher::listenType_t::nonFwd,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          switch (dispatchMessage.message)
-                          {
-                          case MIDI::messageType_t::controlChange:
-                          {
-                              for (size_t i = 0; i < Collection::size(); i++)
+    MIDIDispatcher.listen(Messaging::eventSource_t::midiIn,
+                          Messaging::listenType_t::nonFwd,
+                          [this](const Messaging::event_t& event) {
+                              switch (event.message)
                               {
-                                  if (!_database.read(Database::Section::encoder_t::remoteSync, i))
+                              case MIDI::messageType_t::controlChange:
+                              {
+                                  for (size_t i = 0; i < Collection::size(); i++)
                                   {
-                                      continue;
-                                  }
+                                      if (!_database.read(Database::Section::encoder_t::remoteSync, i))
+                                      {
+                                          continue;
+                                      }
 
-                                  if (_database.read(Database::Section::encoder_t::mode, i) != static_cast<int32_t>(IO::Encoders::type_t::controlChange))
-                                  {
-                                      continue;
-                                  }
+                                      if (_database.read(Database::Section::encoder_t::mode, i) != static_cast<int32_t>(IO::Encoders::type_t::controlChange))
+                                      {
+                                          continue;
+                                      }
 
-                                  if (_database.read(Database::Section::encoder_t::midiChannel, i) != dispatchMessage.midiChannel)
-                                  {
-                                      continue;
-                                  }
+                                      if (_database.read(Database::Section::encoder_t::midiChannel, i) != event.midiChannel)
+                                      {
+                                          continue;
+                                      }
 
-                                  if (_database.read(Database::Section::encoder_t::midiID, i) != dispatchMessage.midiIndex)
-                                  {
-                                      continue;
-                                  }
+                                      if (_database.read(Database::Section::encoder_t::midiID, i) != event.midiIndex)
+                                      {
+                                          continue;
+                                      }
 
-                                  setValue(i, dispatchMessage.midiValue);
+                                      setValue(i, event.midiValue);
+                                  }
                               }
-                          }
-                          break;
-
-                          default:
                               break;
-                          }
-                      });
+
+                              default:
+                                  break;
+                              }
+                          });
 
     ConfigHandler.registerConfig(
         System::Config::block_t::encoders,
@@ -197,7 +197,7 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
             case type_t::controlChange7Fh01h:
             case type_t::controlChange3Fh41h:
             {
-                descriptor.dispatchMessage.midiValue = _encValue[static_cast<uint8_t>(descriptor.type)][static_cast<uint8_t>(encoderState)];
+                descriptor.event.midiValue = _encValue[static_cast<uint8_t>(descriptor.type)][static_cast<uint8_t>(encoderState)];
             }
             break;
 
@@ -205,20 +205,20 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
             {
                 if (encoderState == position_t::ccw)
                 {
-                    if (!Common::pcIncrement(descriptor.dispatchMessage.midiChannel))
+                    if (!Common::pcIncrement(descriptor.event.midiChannel))
                     {
                         send = false;    // edge value reached, nothing more to send
                     }
                 }
                 else
                 {
-                    if (!Common::pcDecrement(descriptor.dispatchMessage.midiChannel))
+                    if (!Common::pcDecrement(descriptor.event.midiChannel))
                     {
                         send = false;    // edge value reached, nothing more to send
                     }
                 }
 
-                descriptor.dispatchMessage.midiValue = Common::program(descriptor.dispatchMessage.midiChannel);
+                descriptor.event.midiValue = Common::program(descriptor.event.midiChannel);
             }
             break;
 
@@ -257,7 +257,7 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
                     }
                 }
 
-                descriptor.dispatchMessage.midiValue = _midiValue[index];
+                descriptor.event.midiValue = _midiValue[index];
             }
             break;
 
@@ -303,7 +303,7 @@ void Encoders::sendMessage(size_t index, encoderDescriptor_t& descriptor)
 
     case type_t::controlChange14bit:
     {
-        if (descriptor.dispatchMessage.midiIndex >= 96)
+        if (descriptor.event.midiIndex >= 96)
         {
             // not allowed
             send = false;
@@ -321,9 +321,9 @@ void Encoders::sendMessage(size_t index, encoderDescriptor_t& descriptor)
 
     if (send)
     {
-        Dispatcher.notify(Util::MessageDispatcher::messageSource_t::encoders,
-                          descriptor.dispatchMessage,
-                          Util::MessageDispatcher::listenType_t::nonFwd);
+        MIDIDispatcher.notify(Messaging::eventSource_t::encoders,
+                              descriptor.event,
+                              Messaging::listenType_t::nonFwd);
     }
 }
 
@@ -395,10 +395,10 @@ void Encoders::fillEncoderDescriptor(size_t index, encoderDescriptor_t& descript
     descriptor.type          = static_cast<type_t>(_database.read(Database::Section::encoder_t::mode, index));
     descriptor.pulsesPerStep = _database.read(Database::Section::encoder_t::pulsesPerStep, index);
 
-    descriptor.dispatchMessage.componentIndex = index;
-    descriptor.dispatchMessage.midiChannel    = _database.read(Database::Section::encoder_t::midiChannel, index);
-    descriptor.dispatchMessage.midiIndex      = _database.read(Database::Section::encoder_t::midiID, index);
-    descriptor.dispatchMessage.message        = _internalMsgToMIDIType[static_cast<uint8_t>(descriptor.type)];
+    descriptor.event.componentIndex = index;
+    descriptor.event.midiChannel    = _database.read(Database::Section::encoder_t::midiChannel, index);
+    descriptor.event.midiIndex      = _database.read(Database::Section::encoder_t::midiID, index);
+    descriptor.event.message        = _internalMsgToMIDIType[static_cast<uint8_t>(descriptor.type)];
 }
 
 std::optional<uint8_t> Encoders::sysConfigGet(System::Config::Section::encoder_t section, size_t index, uint16_t& value)

@@ -19,7 +19,7 @@ limitations under the License.
 #pragma once
 
 #include "database/Database.h"
-#include "util/messaging/Messaging.h"
+#include "messaging/Messaging.h"
 #include "io/common/Common.h"
 #include "system/Config.h"
 #include "io/IOBase.h"
@@ -110,9 +110,9 @@ namespace IO
         private:
         struct buttonDescriptor_t
         {
-            type_t                             type        = type_t::momentary;
-            messageType_t                      messageType = messageType_t::note;
-            Util::MessageDispatcher::message_t dispatchMessage;
+            type_t             type        = type_t::momentary;
+            messageType_t      messageType = messageType_t::note;
+            Messaging::event_t event;
 
             buttonDescriptor_t() = default;
         };

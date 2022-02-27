@@ -20,10 +20,165 @@ limitations under the License.
 #include "io/common/Common.h"
 #include "system/Config.h"
 #include "util/conversion/Conversion.h"
-#include "util/messaging/Messaging.h"
+#include "messaging/Messaging.h"
 #include "util/configurable/Configurable.h"
 
 using namespace IO;
+
+namespace
+{
+    template<class T>
+    void sendMIDI(T& instance, const Messaging::event_t& event)
+    {
+        using namespace Protocol;
+
+        switch (event.message)
+        {
+        case ::MIDI::messageType_t::noteOff:
+        {
+            instance.sendNoteOff(event.midiIndex, event.midiValue, event.midiChannel);
+        }
+        break;
+
+        case ::MIDI::messageType_t::noteOn:
+        {
+            if (!event.midiValue && (instance.getNoteOffMode() == ::MIDI::noteOffType_t::standardNoteOff))
+            {
+                instance.sendNoteOff(event.midiIndex, event.midiValue, event.midiChannel);
+            }
+            else
+            {
+                instance.sendNoteOn(event.midiIndex, event.midiValue, event.midiChannel);
+            }
+        }
+        break;
+
+        case ::MIDI::messageType_t::controlChange:
+        {
+            instance.sendControlChange(event.midiIndex, event.midiValue, event.midiChannel);
+        }
+        break;
+
+        case ::MIDI::messageType_t::programChange:
+        {
+            instance.sendProgramChange(event.midiIndex, event.midiChannel);
+        }
+        break;
+
+        case ::MIDI::messageType_t::afterTouchChannel:
+        {
+            instance.sendAfterTouch(event.midiValue, event.midiChannel);
+        }
+        break;
+
+        case ::MIDI::messageType_t::afterTouchPoly:
+        {
+            instance.sendAfterTouch(event.midiValue, event.midiChannel, event.midiIndex);
+        }
+        break;
+
+        case ::MIDI::messageType_t::pitchBend:
+        {
+            instance.sendPitchBend(event.midiValue, event.midiChannel);
+        }
+        break;
+
+        case ::MIDI::messageType_t::sysRealTimeClock:
+        {
+            instance.sendRealTime(event.message);
+        }
+        break;
+
+        case ::MIDI::messageType_t::sysRealTimeStart:
+        {
+            instance.sendRealTime(event.message);
+        }
+        break;
+
+        case ::MIDI::messageType_t::sysRealTimeContinue:
+        {
+            instance.sendRealTime(event.message);
+        }
+        break;
+
+        case ::MIDI::messageType_t::sysRealTimeStop:
+        {
+            instance.sendRealTime(event.message);
+        }
+        break;
+
+        case ::MIDI::messageType_t::sysRealTimeActiveSensing:
+        {
+            instance.sendRealTime(event.message);
+        }
+        break;
+
+        case ::MIDI::messageType_t::sysRealTimeSystemReset:
+        {
+            instance.sendRealTime(event.message);
+        }
+        break;
+
+        case ::MIDI::messageType_t::mmcPlay:
+        {
+            instance.sendMMC(event.midiIndex, event.message);
+        }
+        break;
+
+        case ::MIDI::messageType_t::mmcStop:
+        {
+            instance.sendMMC(event.midiIndex, event.message);
+        }
+        break;
+
+        case ::MIDI::messageType_t::mmcPause:
+        {
+            instance.sendMMC(event.midiIndex, event.message);
+        }
+        break;
+
+        case ::MIDI::messageType_t::mmcRecordStart:
+        {
+            instance.sendMMC(event.midiIndex, event.message);
+        }
+        break;
+
+        case ::MIDI::messageType_t::mmcRecordStop:
+        {
+            instance.sendMMC(event.midiIndex, event.message);
+        }
+        break;
+
+        case ::MIDI::messageType_t::nrpn7bit:
+        {
+            instance.sendNRPN(event.midiIndex, event.midiValue, event.midiChannel, false);
+        }
+        break;
+
+        case ::MIDI::messageType_t::nrpn14bit:
+        {
+            instance.sendNRPN(event.midiIndex, event.midiValue, event.midiChannel, true);
+        }
+        break;
+
+        case ::MIDI::messageType_t::controlChange14bit:
+        {
+            instance.sendControlChange14bit(event.midiIndex, event.midiValue, event.midiChannel);
+        }
+        break;
+
+        case ::MIDI::messageType_t::systemExclusive:
+        {
+            // never send system sysex through DIN MIDI
+            instance.sendSysEx(event.sysExLength, event.sysEx, true, ::MIDI::interface_t::usb);
+        }
+        break;
+
+        default:
+            break;
+        }
+    }
+}    // namespace
 
 Protocol::MIDI::MIDI(HWA& hwa, Database& database)
     : ::MIDI(_hwaInternal)
@@ -31,60 +186,65 @@ Protocol::MIDI::MIDI(HWA& hwa, Database& database)
     , _hwaInternal(*this)
     , _database(database)
 {
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
-                      Util::MessageDispatcher::listenType_t::nonFwd,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          sendMIDI(dispatchMessage);
-                      });
+    MIDIDispatcher.listen(Messaging::eventSource_t::analog,
+                          Messaging::listenType_t::nonFwd,
+                          [this](const Messaging::event_t& event) {
+                              sendMIDI<::MIDI>(*this, event);
+                          });
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::buttons,
-                      Util::MessageDispatcher::listenType_t::nonFwd,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          sendMIDI(dispatchMessage);
-                      });
+    MIDIDispatcher.listen(Messaging::eventSource_t::buttons,
+                          Messaging::listenType_t::nonFwd,
+                          [this](const Messaging::event_t& event) {
+                              sendMIDI<::MIDI>(*this, event);
+                              ;
+                          });
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::encoders,
-                      Util::MessageDispatcher::listenType_t::nonFwd,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          sendMIDI(dispatchMessage);
-                      });
+    MIDIDispatcher.listen(Messaging::eventSource_t::encoders,
+                          Messaging::listenType_t::nonFwd,
+                          [this](const Messaging::event_t& event) {
+                              sendMIDI<::MIDI>(*this, event);
+                              ;
+                          });
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenButton,
-                      Util::MessageDispatcher::listenType_t::nonFwd,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          sendMIDI(dispatchMessage);
-                      });
+    MIDIDispatcher.listen(Messaging::eventSource_t::touchscreenButton,
+                          Messaging::listenType_t::nonFwd,
+                          [this](const Messaging::event_t& event) {
+                              sendMIDI<::MIDI>(*this, event);
+                              ;
+                          });
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenAnalog,
-                      Util::MessageDispatcher::listenType_t::nonFwd,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          sendMIDI(dispatchMessage);
-                      });
+    MIDIDispatcher.listen(Messaging::eventSource_t::touchscreenAnalog,
+                          Messaging::listenType_t::nonFwd,
+                          [this](const Messaging::event_t& event) {
+                              sendMIDI<::MIDI>(*this, event);
+                              ;
+                          });
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::system,
-                      Util::MessageDispatcher::listenType_t::nonFwd,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          switch (dispatchMessage.componentIndex)
-                          {
-                          case static_cast<uint16_t>(Util::MessageDispatcher::systemMessages_t::sysExResponse):
-                          {
-                              sendMIDI(dispatchMessage);
-                          }
-                          break;
-
-                          default:
+    MIDIDispatcher.listen(Messaging::eventSource_t::system,
+                          Messaging::listenType_t::nonFwd,
+                          [this](const Messaging::event_t& event) {
+                              switch (event.componentIndex)
+                              {
+                              case static_cast<uint16_t>(Messaging::systemMessage_t::sysExResponse):
+                              {
+                                  sendMIDI<::MIDI>(*this, event);
+                                  ;
+                              }
                               break;
-                          }
-                      });
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::preset,
-                      Util::MessageDispatcher::listenType_t::all,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          if (!::MIDI::init(MIDI::interface_t::din))
-                          {
-                              ::MIDI::deInit(MIDI::interface_t::din);
-                          }
-                      });
+                              default:
+                                  break;
+                              }
+                          });
+
+    MIDIDispatcher.listen(Messaging::eventSource_t::preset,
+                          Messaging::listenType_t::all,
+                          [this](const Messaging::event_t& event) {
+                              if (!::MIDI::init(MIDI::interface_t::din))
+                              {
+                                  ::MIDI::deInit(MIDI::interface_t::din);
+                              }
+                          });
 
     ConfigHandler.registerConfig(
         System::Config::block_t::global,
@@ -142,37 +302,37 @@ bool Protocol::MIDI::deInit()
 void Protocol::MIDI::read()
 {
     auto processMessage = [&](MIDI::interface_t interface) {
-        Util::MessageDispatcher::message_t dispatchMessage;
+        Messaging::event_t event;
 
-        dispatchMessage.componentIndex = 0;
-        dispatchMessage.midiChannel    = getChannel(interface);
-        dispatchMessage.midiIndex      = getData1(interface);
-        dispatchMessage.midiValue      = getData2(interface);
-        dispatchMessage.message        = getType(interface);
+        event.componentIndex = 0;
+        event.midiChannel    = getChannel(interface);
+        event.midiIndex      = getData1(interface);
+        event.midiValue      = getData2(interface);
+        event.message        = getType(interface);
 
-        switch (dispatchMessage.message)
+        switch (event.message)
         {
         case MIDI::messageType_t::systemExclusive:
         {
             // process sysex messages only from usb interface
             if (interface == MIDI::interface_t::usb)
             {
-                dispatchMessage.sysEx       = getSysExArray(interface);
-                dispatchMessage.sysExLength = getSysExArrayLength(interface);
+                event.sysEx       = getSysExArray(interface);
+                event.sysExLength = getSysExArrayLength(interface);
             }
         }
         break;
 
         case MIDI::messageType_t::programChange:
         {
-            Common::setProgram(dispatchMessage.midiChannel, dispatchMessage.midiIndex);
-            _database.setPreset(dispatchMessage.midiIndex);
+            Common::setProgram(event.midiChannel, event.midiIndex);
+            _database.setPreset(event.midiIndex);
         }
         break;
 
         case MIDI::messageType_t::noteOff:
         {
-            dispatchMessage.midiValue = 0;
+            event.midiValue = 0;
         }
         break;
 
@@ -180,9 +340,9 @@ void Protocol::MIDI::read()
             break;
         }
 
-        Dispatcher.notify(Util::MessageDispatcher::messageSource_t::midiIn,
-                          dispatchMessage,
-                          Util::MessageDispatcher::listenType_t::nonFwd);
+        MIDIDispatcher.notify(Messaging::eventSource_t::midiIn,
+                              event,
+                              Messaging::listenType_t::nonFwd);
     };
 
     if (
@@ -234,155 +394,6 @@ void Protocol::MIDI::read()
                 processMessage(MIDI::interface_t::din);
             }
         }
-    }
-}
-
-void Protocol::MIDI::sendMIDI(const Util::MessageDispatcher::message_t& message)
-{
-    switch (message.message)
-    {
-    case ::MIDI::messageType_t::noteOff:
-    {
-        sendNoteOff(message.midiIndex, message.midiValue, message.midiChannel);
-    }
-    break;
-
-    case ::MIDI::messageType_t::noteOn:
-    {
-        if (!message.midiValue && (getNoteOffMode() == ::MIDI::noteOffType_t::standardNoteOff))
-        {
-            sendNoteOff(message.midiIndex, message.midiValue, message.midiChannel);
-        }
-        else
-        {
-            sendNoteOn(message.midiIndex, message.midiValue, message.midiChannel);
-        }
-    }
-    break;
-
-    case ::MIDI::messageType_t::controlChange:
-    {
-        sendControlChange(message.midiIndex, message.midiValue, message.midiChannel);
-    }
-    break;
-
-    case ::MIDI::messageType_t::programChange:
-    {
-        sendProgramChange(message.midiIndex, message.midiChannel);
-    }
-    break;
-
-    case ::MIDI::messageType_t::afterTouchChannel:
-    {
-        sendAfterTouch(message.midiValue, message.midiChannel);
-    }
-    break;
-
-    case ::MIDI::messageType_t::afterTouchPoly:
-    {
-        sendAfterTouch(message.midiValue, message.midiChannel, message.midiIndex);
-    }
-    break;
-
-    case ::MIDI::messageType_t::pitchBend:
-    {
-        sendPitchBend(message.midiValue, message.midiChannel);
-    }
-    break;
-
-    case ::MIDI::messageType_t::sysRealTimeClock:
-    {
-        sendRealTime(message.message);
-    }
-    break;
-
-    case ::MIDI::messageType_t::sysRealTimeStart:
-    {
-        sendRealTime(message.message);
-    }
-    break;
-
-    case ::MIDI::messageType_t::sysRealTimeContinue:
-    {
-        sendRealTime(message.message);
-    }
-    break;
-
-    case ::MIDI::messageType_t::sysRealTimeStop:
-    {
-        sendRealTime(message.message);
-    }
-    break;
-
-    case ::MIDI::messageType_t::sysRealTimeActiveSensing:
-    {
-        sendRealTime(message.message);
-    }
-    break;
-
-    case ::MIDI::messageType_t::sysRealTimeSystemReset:
-    {
-        sendRealTime(message.message);
-    }
-    break;
-
-    case ::MIDI::messageType_t::mmcPlay:
-    {
-        sendMMC(message.midiIndex, message.message);
-    }
-    break;
-
-    case ::MIDI::messageType_t::mmcStop:
-    {
-        sendMMC(message.midiIndex, message.message);
-    }
-    break;
-
-    case ::MIDI::messageType_t::mmcPause:
-    {
-        sendMMC(message.midiIndex, message.message);
-    }
-    break;
-
-    case ::MIDI::messageType_t::mmcRecordStart:
-    {
-        sendMMC(message.midiIndex, message.message);
-    }
-    break;
-
-    case ::MIDI::messageType_t::mmcRecordStop:
-    {
-        sendMMC(message.midiIndex, message.message);
-    }
-    break;
-
-    case ::MIDI::messageType_t::nrpn7bit:
-    {
-        sendNRPN(message.midiIndex, message.midiValue, message.midiChannel, false);
-    }
-    break;
-
-    case ::MIDI::messageType_t::nrpn14bit:
-    {
-        sendNRPN(message.midiIndex, message.midiValue, message.midiChannel, true);
-    }
-    break;
-
-    case ::MIDI::messageType_t::controlChange14bit:
-    {
-        sendControlChange14bit(message.midiIndex, message.midiValue, message.midiChannel);
-    }
-    break;
-
-    case ::MIDI::messageType_t::systemExclusive:
-    {
-        // never send system sysex through DIN MIDI
-        sendSysEx(message.sysExLength, message.sysEx, true, MIDI::interface_t::usb);
-    }
-    break;
-
-    default:
-        break;
     }
 }
 

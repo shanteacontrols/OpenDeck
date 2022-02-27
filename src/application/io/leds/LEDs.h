@@ -19,7 +19,7 @@ limitations under the License.
 #pragma once
 
 #include "database/Database.h"
-#include "util/messaging/Messaging.h"
+#include "messaging/Messaging.h"
 #include "io/common/Common.h"
 #include "system/Config.h"
 #include "io/IOBase.h"
@@ -160,7 +160,7 @@ namespace IO
         brightness_t           valueToBrightness(uint8_t value);
         void                   startUpAnimation();
         bool                   isControlTypeMatched(MIDI::messageType_t midiMessage, controlType_t controlType);
-        void                   midiToState(Util::MessageDispatcher::message_t message, Util::MessageDispatcher::messageSource_t source);
+        void                   midiToState(Messaging::event_t message, Messaging::eventSource_t source);
         void                   setState(size_t index, brightness_t brightness);
         std::optional<uint8_t> sysConfigGet(System::Config::Section::leds_t section, size_t index, uint16_t& value);
         std::optional<uint8_t> sysConfigSet(System::Config::Section::leds_t section, size_t index, uint16_t value);

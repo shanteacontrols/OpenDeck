@@ -22,7 +22,7 @@ limitations under the License.
 #include "core/src/general/Timing.h"
 #include "core/src/general/Helpers.h"
 #include "system/Config.h"
-#include "util/messaging/Messaging.h"
+#include "messaging/Messaging.h"
 #include "util/configurable/Configurable.h"
 #include "io/common/Common.h"
 
@@ -39,19 +39,19 @@ Instance::Instance(HWA&        hwa,
           _sysExDataHandler,
           _sysExMID)
 {
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::midiIn,
-                      Util::MessageDispatcher::listenType_t::all,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          if (dispatchMessage.message == MIDI::messageType_t::systemExclusive)
-                          {
-                              _sysExConf.handleMessage(dispatchMessage.sysEx, dispatchMessage.sysExLength);
-
-                              if (_backupRestoreState == backupRestoreState_t::backup)
+    MIDIDispatcher.listen(Messaging::eventSource_t::midiIn,
+                          Messaging::listenType_t::all,
+                          [this](const Messaging::event_t& event) {
+                              if (event.message == MIDI::messageType_t::systemExclusive)
                               {
-                                  backup();
+                                  _sysExConf.handleMessage(event.sysEx, event.sysExLength);
+
+                                  if (_backupRestoreState == backupRestoreState_t::backup)
+                                  {
+                                      backup();
+                                  }
                               }
-                          }
-                      });
+                          });
 }
 
 bool Instance::init()
@@ -120,17 +120,17 @@ bool Instance::init()
     // on startup, indicate current program for all channels (if any leds have program change assigned as control mode)
     for (int i = 0; i < 16; i++)
     {
-        Util::MessageDispatcher::message_t dispatchMessage;
+        Messaging::event_t event;
 
-        dispatchMessage.componentIndex = static_cast<uint8_t>(Util::MessageDispatcher::systemMessages_t::midiProgramIndication);
-        dispatchMessage.midiChannel    = i;
-        dispatchMessage.midiIndex      = Common::program(i);
-        dispatchMessage.midiValue      = 0;
-        dispatchMessage.message        = MIDI::messageType_t::programChange;
+        event.componentIndex = static_cast<uint8_t>(Messaging::systemMessage_t::midiProgramIndication);
+        event.midiChannel    = i;
+        event.midiIndex      = Common::program(i);
+        event.midiValue      = 0;
+        event.message        = ::MIDI::messageType_t::programChange;
 
-        Dispatcher.notify(Util::MessageDispatcher::messageSource_t::system,
-                          dispatchMessage,
-                          Util::MessageDispatcher::listenType_t::nonFwd);
+        MIDIDispatcher.notify(Messaging::eventSource_t::system,
+                              event,
+                              Messaging::listenType_t::nonFwd);
     }
 
     return true;
@@ -321,26 +321,26 @@ void Instance::forceComponentRefresh()
     // in that case this would get called
     if (_backupRestoreState == backupRestoreState_t::none)
     {
-        Util::MessageDispatcher::message_t dispatchMessage;
-        dispatchMessage.componentIndex = static_cast<uint8_t>(Util::MessageDispatcher::systemMessages_t::forceIOrefresh);
+        Messaging::event_t event;
+        event.componentIndex = static_cast<uint8_t>(Messaging::systemMessage_t::forceIOrefresh);
 
-        Dispatcher.notify(Util::MessageDispatcher::messageSource_t::system,
-                          dispatchMessage,
-                          Util::MessageDispatcher::listenType_t::all);
+        MIDIDispatcher.notify(Messaging::eventSource_t::system,
+                              event,
+                              Messaging::listenType_t::all);
     }
 }
 
 void Instance::SysExDataHandler::sendResponse(uint8_t* array, uint16_t size)
 {
-    Util::MessageDispatcher::message_t dispatchMessage;
-    dispatchMessage.componentIndex = static_cast<uint16_t>(Util::MessageDispatcher::systemMessages_t::sysExResponse);
-    dispatchMessage.message        = MIDI::messageType_t::systemExclusive;
-    dispatchMessage.sysEx          = array;
-    dispatchMessage.sysExLength    = size;
+    Messaging::event_t event;
+    event.componentIndex = static_cast<uint16_t>(Messaging::systemMessage_t::sysExResponse);
+    event.message        = MIDI::messageType_t::systemExclusive;
+    event.sysEx          = array;
+    event.sysExLength    = size;
 
-    Dispatcher.notify(Util::MessageDispatcher::messageSource_t::system,
-                      dispatchMessage,
-                      Util::MessageDispatcher::listenType_t::nonFwd);
+    MIDIDispatcher.notify(Messaging::eventSource_t::system,
+                          event,
+                          Messaging::listenType_t::nonFwd);
 }
 
 uint8_t Instance::SysExDataHandler::customRequest(uint16_t request, CustomResponse& customResponse)
@@ -476,16 +476,16 @@ void Instance::DBhandlers::presetChange(uint8_t preset)
         _system._scheduler.registerTask({ SCHEDULED_TASK_PRESET,
                                           PRESET_CHANGE_NOTIFY_DELAY,
                                           [&]() {
-        Util::MessageDispatcher::message_t dispatchMessage;
-        dispatchMessage.componentIndex = 0;
-        dispatchMessage.midiChannel    = 0;
-        dispatchMessage.midiIndex      = preset;
-        dispatchMessage.midiValue      = 0;
-        dispatchMessage.message        = MIDI::messageType_t::programChange;
+        Messaging::event_t event;
+        event.componentIndex = 0;
+        event.midiChannel    = 0;
+        event.midiIndex      = preset;
+        event.midiValue      = 0;
+        event.message        = MIDI::messageType_t::programChange;
 
-        Dispatcher.notify(Util::MessageDispatcher::messageSource_t::preset,
-                          dispatchMessage,
-                          Util::MessageDispatcher::listenType_t::nonFwd);
+        MIDIDispatcher.notify(Messaging::eventSource_t::preset,
+                          event,
+                          Messaging::listenType_t::nonFwd);
 
         _system.forceComponentRefresh(); } });
     }

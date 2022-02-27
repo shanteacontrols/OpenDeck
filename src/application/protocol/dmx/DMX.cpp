@@ -24,7 +24,7 @@ limitations under the License.
 #include "io/common/Common.h"
 #include "util/conversion/Conversion.h"
 #include "util/configurable/Configurable.h"
-#include "util/messaging/Messaging.h"
+#include "messaging/Messaging.h"
 
 using namespace IO;
 
@@ -33,14 +33,14 @@ Protocol::DMX::DMX(HWA& hwa, Database& database)
     , _hwa(hwa)
     , _database(database)
 {
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::preset,
-                      Util::MessageDispatcher::listenType_t::all,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          if (!init())
-                          {
-                              deInit();
-                          }
-                      });
+    MIDIDispatcher.listen(Messaging::eventSource_t::preset,
+                          Messaging::listenType_t::all,
+                          [this](const Messaging::event_t& event) {
+                              if (!init())
+                              {
+                                  deInit();
+                              }
+                          });
 
     ConfigHandler.registerConfig(
         System::Config::block_t::global,

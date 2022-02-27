@@ -1,16 +1,16 @@
 #pragma once
 
-#include "util/messaging/Messaging.h"
+#include "messaging/Messaging.h"
 
 class Listener
 {
     public:
     Listener() = default;
 
-    void messageListener(const Util::MessageDispatcher::message_t& dispatchMessage)
+    void messageListener(const Messaging::event_t& event)
     {
-        _dispatchMessage.push_back(dispatchMessage);
+        _event.push_back(event);
     }
 
-    std::vector<Util::MessageDispatcher::message_t> _dispatchMessage = {};
+    std::vector<Messaging::event_t> _event = {};
 };

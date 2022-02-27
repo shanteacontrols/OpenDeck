@@ -21,7 +21,6 @@ limitations under the License.
 #include "io/common/Common.h"
 #include "midi/src/MIDI.h"
 #include "protocol/ProtocolBase.h"
-#include "util/messaging/Messaging.h"
 #include "database/Database.h"
 #include "system/Config.h"
 #include "protocol/ProtocolBase.h"
@@ -97,7 +96,6 @@ namespace Protocol
             bool            _dinMIDIloopbackEnabled = false;
         };
 
-        void                   sendMIDI(const Util::MessageDispatcher::message_t& message);
         bool                   isFeatureEnabled(feature_t feature);
         mergeType_t            mergeType();
         std::optional<uint8_t> sysConfigGet(System::Config::Section::global_t section, size_t index, uint16_t& value);

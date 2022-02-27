@@ -24,7 +24,7 @@ limitations under the License.
 #include "database/Database.h"
 #include "io/common/Common.h"
 #include "system/Config.h"
-#include "util/messaging/Messaging.h"
+#include "messaging/Messaging.h"
 #include "io/IOBase.h"
 
 #ifdef TOUCHSCREEN_SUPPORTED

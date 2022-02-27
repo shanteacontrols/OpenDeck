@@ -21,7 +21,7 @@ limitations under the License.
 #include "u8g2/csrc/u8x8.h"
 #include "core/src/general/StringBuilder.h"
 #include "database/Database.h"
-#include "util/messaging/Messaging.h"
+#include "messaging/Messaging.h"
 #include "system/Config.h"
 #include "io/i2c/I2C.h"
 
@@ -75,7 +75,7 @@ namespace IO
         bool                   deInit();
         void                   setAlternateNoteDisplay(bool state);
         void                   setRetentionTime(uint32_t retentionTime);
-        void                   displayMIDIevent(eventType_t type, const Util::MessageDispatcher::message_t& dispatchMessage);
+        void                   displayMIDIevent(eventType_t type, const Messaging::event_t& event);
         void                   displayWelcomeMessage();
         void                   updateText(uint8_t row, uint8_t startIndex);
         uint8_t                getTextCenter(uint8_t textSize);

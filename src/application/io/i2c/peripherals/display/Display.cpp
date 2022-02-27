@@ -46,44 +46,44 @@ Display::Display(I2C::HWA& hwa,
 {
     _hwa = &hwa;
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
-                      Util::MessageDispatcher::listenType_t::nonFwd,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          displayMIDIevent(Display::eventType_t::out, dispatchMessage);
-                      });
+    MIDIDispatcher.listen(Messaging::eventSource_t::analog,
+                          Messaging::listenType_t::nonFwd,
+                          [this](const Messaging::event_t& event) {
+                              displayMIDIevent(Display::eventType_t::out, event);
+                          });
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::buttons,
-                      Util::MessageDispatcher::listenType_t::nonFwd,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          displayMIDIevent(Display::eventType_t::out, dispatchMessage);
-                      });
+    MIDIDispatcher.listen(Messaging::eventSource_t::buttons,
+                          Messaging::listenType_t::nonFwd,
+                          [this](const Messaging::event_t& event) {
+                              displayMIDIevent(Display::eventType_t::out, event);
+                          });
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::encoders,
-                      Util::MessageDispatcher::listenType_t::nonFwd,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          displayMIDIevent(Display::eventType_t::out, dispatchMessage);
-                      });
+    MIDIDispatcher.listen(Messaging::eventSource_t::encoders,
+                          Messaging::listenType_t::nonFwd,
+                          [this](const Messaging::event_t& event) {
+                              displayMIDIevent(Display::eventType_t::out, event);
+                          });
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenButton,
-                      Util::MessageDispatcher::listenType_t::nonFwd,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          displayMIDIevent(Display::eventType_t::out, dispatchMessage);
-                      });
+    MIDIDispatcher.listen(Messaging::eventSource_t::touchscreenButton,
+                          Messaging::listenType_t::nonFwd,
+                          [this](const Messaging::event_t& event) {
+                              displayMIDIevent(Display::eventType_t::out, event);
+                          });
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenAnalog,
-                      Util::MessageDispatcher::listenType_t::nonFwd,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          displayMIDIevent(Display::eventType_t::out, dispatchMessage);
-                      });
+    MIDIDispatcher.listen(Messaging::eventSource_t::touchscreenAnalog,
+                          Messaging::listenType_t::nonFwd,
+                          [this](const Messaging::event_t& event) {
+                              displayMIDIevent(Display::eventType_t::out, event);
+                          });
 
-    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::midiIn,
-                      Util::MessageDispatcher::listenType_t::nonFwd,
-                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          if (dispatchMessage.message != ::MIDI::messageType_t::systemExclusive)
-                          {
-                              displayMIDIevent(Display::eventType_t::in, dispatchMessage);
-                          }
-                      });
+    MIDIDispatcher.listen(Messaging::eventSource_t::midiIn,
+                          Messaging::listenType_t::nonFwd,
+                          [this](const Messaging::event_t& event) {
+                              if (event.message != ::MIDI::messageType_t::systemExclusive)
+                              {
+                                  displayMIDIevent(Display::eventType_t::in, event);
+                              }
+                          });
 
     ConfigHandler.registerConfig(
         System::Config::block_t::i2c,
@@ -436,7 +436,7 @@ void Display::displayWelcomeMessage()
     core::timing::waitMs(2000);
 }
 
-void Display::displayMIDIevent(eventType_t type, const Util::MessageDispatcher::message_t& dispatchMessage)
+void Display::displayMIDIevent(eventType_t type, const Messaging::event_t& event)
 {
     if (!_initialized)
     {
@@ -446,25 +446,25 @@ void Display::displayMIDIevent(eventType_t type, const Util::MessageDispatcher::
     uint8_t startRow    = (type == Display::eventType_t::in) ? ROW_START_MIDI_IN_MESSAGE : ROW_START_MIDI_OUT_MESSAGE;
     uint8_t startColumn = (type == Display::eventType_t::in) ? COLUMN_START_MIDI_IN_MESSAGE : COLUMN_START_MIDI_OUT_MESSAGE;
 
-    _stringBuilder.overwrite("%s", Strings::midiMessage(dispatchMessage.message));
+    _stringBuilder.overwrite("%s", Strings::midiMessage(event.message));
     _stringBuilder.fillUntil(_columns - startColumn - strlen(_stringBuilder.string()));
     updateText(startRow, startColumn);
 
-    switch (dispatchMessage.message)
+    switch (event.message)
     {
     case MIDI::messageType_t::noteOff:
     case MIDI::messageType_t::noteOn:
     {
         if (!_database.read(Database::Section::i2c_t::display, setting_t::MIDInotesAlternate))
         {
-            _stringBuilder.overwrite("%d", dispatchMessage.midiIndex);
+            _stringBuilder.overwrite("%d", event.midiIndex);
         }
         else
         {
-            _stringBuilder.overwrite("%s%d", Strings::note(MIDI::getTonicFromNote(dispatchMessage.midiIndex)), normalizeOctave(MIDI::getOctaveFromNote(dispatchMessage.midiValue), _octaveNormalization));
+            _stringBuilder.overwrite("%s%d", Strings::note(MIDI::getTonicFromNote(event.midiIndex)), normalizeOctave(MIDI::getOctaveFromNote(event.midiValue), _octaveNormalization));
         }
 
-        _stringBuilder.append(" v%d CH%d", dispatchMessage.midiValue, dispatchMessage.midiChannel + 1);
+        _stringBuilder.append(" v%d CH%d", event.midiValue, event.midiChannel + 1);
         _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
         updateText(startRow + 1, 0);
     }
@@ -472,7 +472,7 @@ void Display::displayMIDIevent(eventType_t type, const Util::MessageDispatcher::
 
     case MIDI::messageType_t::programChange:
     {
-        _stringBuilder.overwrite("%d CH%d", dispatchMessage.midiIndex, dispatchMessage.midiChannel + 1);
+        _stringBuilder.overwrite("%d CH%d", event.midiIndex, event.midiChannel + 1);
         _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
         updateText(startRow + 1, 0);
     }
@@ -483,7 +483,7 @@ void Display::displayMIDIevent(eventType_t type, const Util::MessageDispatcher::
     case MIDI::messageType_t::nrpn7bit:
     case MIDI::messageType_t::nrpn14bit:
     {
-        _stringBuilder.overwrite("%d %d CH%d", dispatchMessage.midiIndex, dispatchMessage.midiValue, dispatchMessage.midiChannel + 1);
+        _stringBuilder.overwrite("%d %d CH%d", event.midiIndex, event.midiValue, event.midiChannel + 1);
         _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
         updateText(startRow + 1, 0);
     }
@@ -495,7 +495,7 @@ void Display::displayMIDIevent(eventType_t type, const Util::MessageDispatcher::
     case MIDI::messageType_t::mmcRecordStop:
     case MIDI::messageType_t::mmcPause:
     {
-        _stringBuilder.overwrite("CH%d", dispatchMessage.midiIndex);
+        _stringBuilder.overwrite("CH%d", event.midiIndex);
         _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
         updateText(startRow + 1, 0);
     }
