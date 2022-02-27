@@ -8,6 +8,7 @@
 #include <fstream>
 #include "midi/src/MIDI.h"
 #include "sysex/src/SysExConf.h"
+#include "util/conversion/Conversion.h"
 #include "system/System.h"
 #include "Misc.h"
 #include <glog/logging.h>
@@ -143,10 +144,9 @@ class MIDIHelper
     template<typename T>
     static void generateSysExGetReq(T section, size_t index, std::vector<uint8_t>& request)
     {
-        auto             blockIndex = block(section);
-        MIDI::Split14bit splitIndex;
+        auto blockIndex = block(section);
+        auto split      = Util::Conversion::Split14bit(index);
 
-        splitIndex.split(index);
         request.clear();
 
         request = {
@@ -160,8 +160,8 @@ class MIDIHelper
             static_cast<uint8_t>(SysExConf::amount_t::single),     // amount
             static_cast<uint8_t>(blockIndex),                      // block
             static_cast<uint8_t>(section),                         // section
-            splitIndex.high(),                                     // index high byte
-            splitIndex.low(),                                      // index low byte
+            split.high(),                                          // index high byte
+            split.low(),                                           // index low byte
             0x00,                                                  // new value high byte
             0x00,                                                  // new value low byte
             0xF7

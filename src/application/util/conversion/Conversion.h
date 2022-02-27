@@ -20,6 +20,7 @@ limitations under the License.
 
 #include "database/Database.h"
 #include "system/Config.h"
+#include "sysex/src/SysExConf.h"
 
 namespace Util
 {
@@ -35,5 +36,9 @@ namespace Util
         Database::Section::leds_t        sys2DBsection(System::Config::Section::leds_t section);
         Database::Section::i2c_t         sys2DBsection(System::Config::Section::i2c_t section);
         Database::Section::touchscreen_t sys2DBsection(System::Config::Section::touchscreen_t section);
+
+        // alias split/merge classes from sysexconf to be globally available through this namespace
+        using Split14bit = SysExConf::Split14bit;
+        using Merge14bit = SysExConf::Merge14bit;
     }    // namespace Conversion
 }    // namespace Util

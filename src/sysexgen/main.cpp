@@ -23,7 +23,7 @@ limitations under the License.
 #include <iterator>
 #include <string>
 #include <cstddef>
-#include "midi/src/MIDI.h"
+#include "util/conversion/Conversion.h"
 
 #define BYTES_PER_FW_MESSAGE 32
 
@@ -62,11 +62,10 @@ void appendCommand(uint64_t command, size_t bytes, std::vector<uint8_t>& output)
 
         for (size_t i = 0; i < commandArray.size(); i++)
         {
-            MIDI::Split14bit split14bit;
-            split14bit.split(commandArray.at(i));
+            auto split = Util::Conversion::Split14bit(commandArray.at(i));
 
-            output.push_back(split14bit.high());
-            output.push_back(split14bit.low());
+            output.push_back(split.high());
+            output.push_back(split.low());
         }
 
         output.push_back(0xF7);
@@ -99,20 +98,18 @@ int main(int argc, char* argv[])
 
     for (size_t i = 0; i < 4; i++)
     {
-        MIDI::Split14bit split14bit;
-        split14bit.split(contents.size() >> (8 * i) & 0xFF);
+        auto split = Util::Conversion::Split14bit(contents.size() >> (8 * i) & 0xFF);
 
-        output.push_back(split14bit.high());
-        output.push_back(split14bit.low());
+        output.push_back(split.high());
+        output.push_back(split.low());
     }
 
     for (size_t i = 0; i < 4; i++)
     {
-        MIDI::Split14bit split14bit;
-        split14bit.split(FW_UID >> (8 * i) & 0xFF);
+        auto split = Util::Conversion::Split14bit(FW_UID >> (8 * i) & 0xFF);
 
-        output.push_back(split14bit.high());
-        output.push_back(split14bit.low());
+        output.push_back(split.high());
+        output.push_back(split.low());
     }
 
     output.push_back(0xF7);
@@ -131,11 +128,10 @@ int main(int argc, char* argv[])
             lastByteSet = 0;
         }
 
-        MIDI::Split14bit split14bit;
-        split14bit.split(contents.at(i));
+        auto split = Util::Conversion::Split14bit(contents.at(i));
 
-        output.push_back(split14bit.high());
-        output.push_back(split14bit.low());
+        output.push_back(split.high());
+        output.push_back(split.low());
 
         byteCounter++;
 

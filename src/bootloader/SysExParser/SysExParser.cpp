@@ -17,6 +17,7 @@ limitations under the License.
 */
 
 #include "SysExParser.h"
+#include "util/conversion/Conversion.h"
 
 bool SysExParser::isValidMessage(MIDI::usbMIDIPacket_t& packet)
 {
@@ -120,11 +121,8 @@ bool SysExParser::value(size_t index, uint8_t& data)
         return false;
     }
 
-    uint16_t value16;
-
-    mergeTo14bit(value16, _sysExArray[arrayIndex], _sysExArray[arrayIndex + 1]);
-
-    data = value16 & 0xFF;
+    auto merged = Util::Conversion::Merge14bit(_sysExArray[arrayIndex], _sysExArray[arrayIndex + 1]);
+    data        = merged.value() & 0xFF;
 
     return true;
 }
@@ -157,30 +155,4 @@ bool SysExParser::verify()
     }
 
     return true;
-}
-
-/// Convert 7-bit high and low bytes to single 14-bit value.
-/// param [in,out]: value   Resulting 14-bit value.
-/// param [in,out]: high    Higher 7 bits.
-/// param [in,out]: low     Lower 7 bits.
-void SysExParser::mergeTo14bit(uint16_t& value, uint8_t high, uint8_t low)
-{
-    if (high & 0x01)
-    {
-        low |= (1 << 7);
-    }
-    else
-    {
-        low &= ~(1 << 7);
-    }
-
-    high >>= 1;
-
-    uint16_t joined;
-
-    joined = high;
-    joined <<= 8;
-    joined |= low;
-
-    value = joined;
 }

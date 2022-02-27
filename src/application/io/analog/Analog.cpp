@@ -207,17 +207,15 @@ bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descripto
     {
         maxLimit = MIDI::MIDI_7_BIT_VALUE_MAX;
 
-        MIDI::Split14bit split14bit;
-
         // use 7-bit MIDI ID and limits
-        split14bit.split(descriptor.event.midiIndex);
-        descriptor.event.midiIndex = split14bit.low();
+        auto splitIndex            = Util::Conversion::Split14bit(descriptor.event.midiIndex);
+        descriptor.event.midiIndex = splitIndex.low();
 
-        split14bit.split(descriptor.lowerLimit);
-        descriptor.lowerLimit = split14bit.low();
+        auto splitLowerLimit  = Util::Conversion::Split14bit(descriptor.lowerLimit);
+        descriptor.lowerLimit = splitLowerLimit.low();
 
-        split14bit.split(descriptor.upperLimit);
-        descriptor.upperLimit = split14bit.low();
+        auto splitUpperLimit  = Util::Conversion::Split14bit(descriptor.upperLimit);
+        descriptor.upperLimit = splitUpperLimit.low();
     }
 
     if (descriptor.event.midiValue > maxLimit)

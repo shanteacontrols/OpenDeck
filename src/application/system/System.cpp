@@ -24,6 +24,7 @@ limitations under the License.
 #include "system/Config.h"
 #include "messaging/Messaging.h"
 #include "util/configurable/Configurable.h"
+#include "util/conversion/Conversion.h"
 #include "io/common/Common.h"
 
 using namespace IO;
@@ -68,11 +69,10 @@ bool Instance::init()
                 0
             };
 
-            uint8_t high, low;
-            SysExConf::split14bit(index, high, low);
+            auto split = Util::Conversion::Split14bit(index);
 
-            cInfoMessage[2] = high;
-            cInfoMessage[3] = low;
+            cInfoMessage[2] = split.high();
+            cInfoMessage[3] = split.low();
 
             _sysExConf.sendCustomMessage(cInfoMessage, 4);
         }

@@ -47,9 +47,8 @@ class SysExParser
         sysExStop3byteCin = 0x70
     };
 
-    bool        parse(MIDI::usbMIDIPacket_t& packet);
-    bool        verify();
-    static void mergeTo14bit(uint16_t& value, uint8_t high, uint8_t low);
+    bool parse(MIDI::usbMIDIPacket_t& packet);
+    bool verify();
 
     /// Maximum size of SysEx message carrying firmware data.
     /// Two bytes for start/stop bytes
