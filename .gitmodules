@@ -1,27 +1,27 @@
-[submodule "src/Firmware/midi"]
+[submodule "modules/midi"]
 	path = modules/midi
 	url = https://github.com/shanteacontrols/midi-lib.git
 	branch = master
-[submodule "src/Firmware/dbms"]
+[submodule "modules/dbms"]
 	path = modules/dbms
 	url = https://github.com/paradajz/LESS-DB.git
 	branch = master
-[submodule "src/Firmware/sysex"]
+[submodule "modules/sysex"]
 	path = modules/sysex
 	url = https://github.com/shanteacontrols/sysex-conf.git
 	branch = master
-[submodule "src/Firmware/lufa"]
+[submodule "modules/lufa"]
 	path = modules/lufa
 	url = https://github.com/abcminiuser/lufa.git
 	branch = master
-[submodule "src/modules/u8g2"]
+[submodule "modules/u8g2"]
 	path = modules/u8g2
 	url = https://github.com/olikraus/u8g2.git
 	branch = master
-[submodule "src/modules/core"]
+[submodule "modules/core"]
 	path = modules/core
 	url = https://github.com/paradajz/core.git
-[submodule "src/modules/unity"]
+[submodule "modules/unity"]
 	path = modules/unity
 	url = https://github.com/ThrowTheSwitch/Unity.git
 [submodule "modules/EmuEEPROM"]
