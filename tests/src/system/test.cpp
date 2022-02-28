@@ -177,12 +177,76 @@ namespace
         }
     } _hwaI2C;
 
-    class HWAMIDI : public System::Builder::HWA::Protocol::MIDI
+    class HWAMIDIUSB : public System::Builder::HWA::Protocol::MIDI::USB
     {
         public:
-        HWAMIDI() = default;
+        HWAMIDIUSB() = default;
 
-        bool dinSupported() override
+        bool supported() override
+        {
+            return true;
+        }
+
+        bool init() override
+        {
+            reset();
+            return true;
+        }
+
+        bool deInit() override
+        {
+            reset();
+            return true;
+        }
+
+        bool read(::MIDI::usbMIDIPacket_t& packet) override
+        {
+            if (!_readPackets.size())
+                return false;
+
+            packet = _readPackets.at(0);
+            _readPackets.erase(_readPackets.begin());
+
+            return true;
+        }
+
+        bool write(::MIDI::usbMIDIPacket_t& packet) override
+        {
+            _writePackets.push_back(packet);
+            return true;
+        }
+
+        void reset()
+        {
+            _readPackets.clear();
+            _writePackets.clear();
+        }
+
+        size_t totalWrittenChannelMessages()
+        {
+            size_t cnt = 0;
+
+            for (size_t i = 0; i < _writePackets.size(); i++)
+            {
+                auto messageType = MIDI::getTypeFromStatusByte(_writePackets.at(i)[MIDI::USB_DATA1]);
+
+                if (MIDI::isChannelMessage(messageType))
+                    cnt++;
+            }
+
+            return cnt;
+        }
+
+        std::vector<::MIDI::usbMIDIPacket_t> _readPackets  = {};
+        std::vector<::MIDI::usbMIDIPacket_t> _writePackets = {};
+    } _hwaMIDIUSB;
+
+    class HWAMIDIDIN : public System::Builder::HWA::Protocol::MIDI::DIN, ::MIDI::HWA
+    {
+        public:
+        HWAMIDIDIN() = default;
+
+        bool supported() override
         {
 #ifdef DIN_MIDI_SUPPORTED
             return true;
@@ -191,55 +255,70 @@ namespace
 #endif
         }
 
+        // overrides for ::MIDI::HWA
         bool init(::MIDI::interface_t interface) override
         {
-            reset();
             return true;
         }
 
         bool deInit(::MIDI::interface_t interface) override
         {
+            return true;
+        }
+
+        bool usbRead(::MIDI::usbMIDIPacket_t& USBMIDIpacket) override
+        {
+            return false;
+        }
+
+        bool usbWrite(::MIDI::usbMIDIPacket_t& USBMIDIpacket) override
+        {
+            return false;
+        }
+
+        bool dinRead(uint8_t& data) override
+        {
+            return read(data);
+        }
+
+        bool dinWrite(uint8_t data) override
+        {
+            return write(data);
+        }
+        //
+
+        bool init() override
+        {
             reset();
             return true;
         }
 
-        bool setDINLoopback(bool state) override
+        bool deInit() override
+        {
+            reset();
+            return true;
+        }
+
+        bool setLoopback(bool state) override
         {
             _loopbackEnabled = state;
             return true;
         }
 
-        bool dinRead(uint8_t& data) override
+        bool read(uint8_t& data) override
         {
-            if (!dinReadPackets.size())
+            if (!_readPackets.size())
                 return false;
 
-            data = dinReadPackets.at(0);
-            dinReadPackets.erase(dinReadPackets.begin());
+            data = _readPackets.at(0);
+            _readPackets.erase(_readPackets.begin());
 
             return true;
         }
 
-        bool dinWrite(uint8_t data) override
+        bool write(uint8_t data) override
         {
-            dinWritePackets.push_back(data);
-            return true;
-        }
-
-        bool usbRead(::MIDI::usbMIDIPacket_t& packet) override
-        {
-            if (!usbReadPackets.size())
-                return false;
-
-            packet = usbReadPackets.at(0);
-            usbReadPackets.erase(usbReadPackets.begin());
-
-            return true;
-        }
-
-        bool usbWrite(::MIDI::usbMIDIPacket_t& packet) override
-        {
-            usbWritePackets.push_back(packet);
+            _writePackets.push_back(data);
             return true;
         }
 
@@ -250,67 +329,40 @@ namespace
 
         void reset()
         {
-            usbReadPackets.clear();
-            usbWritePackets.clear();
-            dinReadPackets.clear();
-            dinWritePackets.clear();
+            _readPackets.clear();
+            _writePackets.clear();
 
             _loopbackEnabled = false;
         }
 
-        size_t totalChannelMessages(::MIDI::interface_t interface)
+        size_t totalWrittenChannelMessages()
         {
             size_t cnt = 0;
 
-            switch (interface)
-            {
-            case ::MIDI::interface_t::usb:
-            {
-                for (size_t i = 0; i < usbWritePackets.size(); i++)
-                {
-                    auto messageType = MIDI::getTypeFromStatusByte(usbWritePackets.at(i)[MIDI::USB_DATA1]);
+            ::MIDI _parseDinMIDI(*this);
+            _parseDinMIDI.init(::MIDI::interface_t::din);
+            _parseDinMIDI.setInputChannel(::MIDI::MIDI_CHANNEL_OMNI);
 
-                    if (MIDI::isChannelMessage(messageType))
+            // In order for new midi object to parse written packets
+            // assign written packets to _readPackets.
+            _readPackets = _writePackets;
+
+            while (_readPackets.size())
+            {
+                if (_parseDinMIDI.read(::MIDI::interface_t::din))
+                {
+                    if (MIDI::isChannelMessage(_parseDinMIDI.getType(::MIDI::interface_t::din)))
                         cnt++;
                 }
-            }
-            break;
-
-            case ::MIDI::interface_t::din:
-            {
-                auto packetsToParse = dinWritePackets;
-
-                MIDI _parseDinMIDI(*this);
-                // init will call reset()
-                _parseDinMIDI.init(::MIDI::interface_t::din);
-                _parseDinMIDI.setInputChannel(::MIDI::MIDI_CHANNEL_OMNI);
-                // now restore packets
-                dinReadPackets = packetsToParse;
-
-                while (dinReadPackets.size())
-                {
-                    if (_parseDinMIDI.read(::MIDI::interface_t::din))
-                    {
-                        if (MIDI::isChannelMessage(_parseDinMIDI.getType(::MIDI::interface_t::din)))
-                            cnt++;
-                    }
-                }
-            }
-            break;
-
-            default:
-                break;
             }
 
             return cnt;
         }
 
-        std::vector<::MIDI::usbMIDIPacket_t> usbReadPackets   = {};
-        std::vector<::MIDI::usbMIDIPacket_t> usbWritePackets  = {};
-        std::vector<uint8_t>                 dinReadPackets   = {};
-        std::vector<uint8_t>                 dinWritePackets  = {};
-        bool                                 _loopbackEnabled = false;
-    } _hwaMIDI;
+        std::vector<uint8_t> _readPackets     = {};
+        std::vector<uint8_t> _writePackets    = {};
+        bool                 _loopbackEnabled = false;
+    } _hwaMIDIDIN;
 
     class HWADMX : public System::Builder::HWA::Protocol::DMX
     {
@@ -452,6 +504,21 @@ namespace
             {
                 return _hwaDMX;
             }
+
+            private:
+            class HWAProtocolMIDI : public ::System::Builder::HWA::Protocol::MIDI
+            {
+                public:
+                ::System::Builder::HWA::Protocol::MIDI::USB& usb() override
+                {
+                    return _hwaMIDIUSB;
+                }
+
+                ::System::Builder::HWA::Protocol::MIDI::DIN& din() override
+                {
+                    return _hwaMIDIDIN;
+                }
+            } _hwaMIDI;
         } _hwaProtocol;
     } _hwa;
 
@@ -460,17 +527,17 @@ namespace
 
     void sendAndVerifySysExRequest(const std::vector<uint8_t> request, const std::vector<uint8_t> expectedResponse)
     {
-        _hwaMIDI.usbReadPackets = MIDIHelper::rawSysExToUSBPackets(request);
+        _hwaMIDIUSB._readPackets = MIDIHelper::rawSysExToUSBPackets(request);
         // store this in a variable since every midi.read call will decrement the size of buffer
-        auto packetSize = _hwaMIDI.usbReadPackets.size();
+        auto packetSize = _hwaMIDIUSB._readPackets.size();
 
         // now just call system which will call midi.read which in turn will read the filled packets
         for (size_t i = 0; i < packetSize; i++)
             systemStub.run();
 
-        // response is now in _hwaMIDI.usbWritePackets (board has sent this to host)
+        // response is now in _hwaMIDIUSB._writePackets (board has sent this to host)
         // convert it to raw bytes for easier parsing
-        auto rawBytes = MIDIHelper::usbSysExToRawBytes(_hwaMIDI.usbWritePackets);
+        auto rawBytes = MIDIHelper::usbSysExToRawBytes(_hwaMIDIUSB._writePackets);
 
         bool responseVerified = false;
 
@@ -507,7 +574,8 @@ namespace
 
 TEST_SETUP()
 {
-    _hwaMIDI.reset();
+    _hwaMIDIUSB.reset();
+    _hwaMIDIDIN.reset();
 }
 
 TEST_CASE(SystemInit)
@@ -525,7 +593,7 @@ TEST_CASE(SystemInit)
     TEST_ASSERT(_database.read(Database::Section::global_t::midiFeatures, Protocol::MIDI::feature_t::dinEnabled) == true);
 #endif
 
-    TEST_ASSERT(_hwaMIDI._loopbackEnabled == false);
+    TEST_ASSERT(_hwaMIDIDIN._loopbackEnabled == false);
 
     // now enable din to din merge, init system again and verify that both din midi and loopback are enabled
 #ifdef DIN_MIDI_SUPPORTED
@@ -535,7 +603,7 @@ TEST_CASE(SystemInit)
     TEST_ASSERT(systemStub.init() == true);
 
     TEST_ASSERT(_database.read(Database::Section::global_t::midiFeatures, Protocol::MIDI::feature_t::dinEnabled) == true);
-    TEST_ASSERT(_hwaMIDI._loopbackEnabled == true);
+    TEST_ASSERT(_hwaMIDIDIN._loopbackEnabled == true);
 #endif
 }
 
@@ -558,7 +626,8 @@ TEST_CASE(ForcedResendOnPresetChange)
         TEST_ASSERT(_database.setPreset(0) == true);
         TEST_ASSERT(_database.update(Database::Section::analog_t::enable, 0, 1) == true);
 
-        _hwaMIDI.reset();
+        _hwaMIDIDIN.reset();
+        _hwaMIDIUSB.reset();
 
         _hwaAnalog.adcReturnValue = 0xFFFF;
 
@@ -566,16 +635,17 @@ TEST_CASE(ForcedResendOnPresetChange)
         systemStub.run();    // encoders
         systemStub.run();    // analog
 
-        TEST_ASSERT_EQUAL_UINT32(1, _hwaMIDI.usbWritePackets.size());
+        TEST_ASSERT_EQUAL_UINT32(1, _hwaMIDIUSB._writePackets.size());
 
         // verify the content of the message
-        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _hwaMIDI.usbWritePackets.at(0)[MIDI::USB_EVENT] << 4);
-        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _hwaMIDI.usbWritePackets.at(0)[MIDI::USB_DATA1]);
-        TEST_ASSERT_EQUAL_UINT32(0, _hwaMIDI.usbWritePackets.at(0)[MIDI::USB_DATA2]);
-        TEST_ASSERT(_hwaMIDI.usbWritePackets.at(0)[MIDI::USB_DATA3] > 0);    // due to filtering it is not certain what the value will be
+        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _hwaMIDIUSB._writePackets.at(0)[MIDI::USB_EVENT] << 4);
+        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _hwaMIDIUSB._writePackets.at(0)[MIDI::USB_DATA1]);
+        TEST_ASSERT_EQUAL_UINT32(0, _hwaMIDIUSB._writePackets.at(0)[MIDI::USB_DATA2]);
+        TEST_ASSERT(_hwaMIDIUSB._writePackets.at(0)[MIDI::USB_DATA3] > 0);    // due to filtering it is not certain what the value will be
 
         // now change preset and verify that the same midi message is repeated
-        _hwaMIDI.reset();
+        _hwaMIDIDIN.reset();
+        _hwaMIDIUSB.reset();
     }
 
     // handshake
@@ -596,7 +666,8 @@ TEST_CASE(ForcedResendOnPresetChange)
                                 0x01,
                                 0xF7 });
 
-    _hwaMIDI.reset();
+    _hwaMIDIDIN.reset();
+    _hwaMIDIUSB.reset();
 
     std::vector<uint8_t> generatedSysExReq;
     MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, 1, generatedSysExReq);
@@ -643,17 +714,17 @@ TEST_CASE(ForcedResendOnPresetChange)
     // values will be forcefully resent after a timeout
     // fake the passage of time here first
     core::timing::detail::rTime_ms += System::Instance::PRESET_CHANGE_NOTIFY_DELAY;
-    _hwaMIDI.usbWritePackets.clear();
+    _hwaMIDIUSB._writePackets.clear();
     systemStub.run();
 
     // the preset has been changed several times successively, but only one notification of that event is reported in in PRESET_CHANGE_NOTIFY_DELAYms
     // all buttons should resend their state
     // all enabled analog components should be sent as well if analog components are supported (only 1 in this case)
 
-    TEST_ASSERT_EQUAL_UINT32((IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + ENABLED_ANALOG_COMPONENTS), _hwaMIDI.totalChannelMessages(::MIDI::interface_t::usb));
+    TEST_ASSERT_EQUAL_UINT32((IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + ENABLED_ANALOG_COMPONENTS), _hwaMIDIUSB.totalWrittenChannelMessages());
 
 #ifdef DIN_MIDI_SUPPORTED
-    TEST_ASSERT_EQUAL_UINT32((IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + ENABLED_ANALOG_COMPONENTS), _hwaMIDI.totalChannelMessages(::MIDI::interface_t::din));
+    TEST_ASSERT_EQUAL_UINT32((IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + ENABLED_ANALOG_COMPONENTS), _hwaMIDIDIN.totalWrittenChannelMessages());
 #endif
 
     // now switch preset again - on usb same amount of messages should be received
@@ -679,21 +750,21 @@ TEST_CASE(ForcedResendOnPresetChange)
                                 0xF7 });
 
     core::timing::detail::rTime_ms += System::Instance::PRESET_CHANGE_NOTIFY_DELAY;
-    _hwaMIDI.usbWritePackets.clear();
-    _hwaMIDI.dinWritePackets.clear();
+    _hwaMIDIUSB._writePackets.clear();
+    _hwaMIDIDIN._writePackets.clear();
     systemStub.run();
 
-    TEST_ASSERT_EQUAL_UINT32((IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + ENABLED_ANALOG_COMPONENTS), _hwaMIDI.totalChannelMessages(::MIDI::interface_t::usb));
+    TEST_ASSERT_EQUAL_UINT32((IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + ENABLED_ANALOG_COMPONENTS), _hwaMIDIUSB.totalWrittenChannelMessages());
 
 #ifdef DIN_MIDI_SUPPORTED
-    TEST_ASSERT_EQUAL_UINT32(0, _hwaMIDI.totalChannelMessages(::MIDI::interface_t::din));
+    TEST_ASSERT_EQUAL_UINT32(0, _hwaMIDIDIN.totalWrittenChannelMessages());
 #endif
 
     // and finally, back to the preset in which din midi is enabled
     // this will verify that din is properly enabled again
 
-    _hwaMIDI.usbWritePackets.clear();
-    _hwaMIDI.dinWritePackets.clear();
+    _hwaMIDIUSB._writePackets.clear();
+    _hwaMIDIDIN._writePackets.clear();
     MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, 1, generatedSysExReq);
 
     sendAndVerifySysExRequest(generatedSysExReq,
@@ -714,15 +785,14 @@ TEST_CASE(ForcedResendOnPresetChange)
                                 0xF7 });
 
     core::timing::detail::rTime_ms += System::Instance::PRESET_CHANGE_NOTIFY_DELAY;
-    _hwaMIDI.usbWritePackets.clear();
-    _hwaMIDI.dinWritePackets.clear();
+    _hwaMIDIUSB._writePackets.clear();
+    _hwaMIDIDIN._writePackets.clear();
     systemStub.run();
 
-    TEST_ASSERT_EQUAL_UINT32((IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + ENABLED_ANALOG_COMPONENTS), _hwaMIDI.totalChannelMessages(::MIDI::interface_t::usb));
+    TEST_ASSERT_EQUAL_UINT32((IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + ENABLED_ANALOG_COMPONENTS), _hwaMIDIUSB.totalWrittenChannelMessages());
 
 #ifdef DIN_MIDI_SUPPORTED
-    TEST_ASSERT_EQUAL_UINT32((IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + ENABLED_ANALOG_COMPONENTS), _hwaMIDI.totalChannelMessages(::MIDI::interface_t::din));
-
+    TEST_ASSERT_EQUAL_UINT32((IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + ENABLED_ANALOG_COMPONENTS), _hwaMIDIDIN.totalWrittenChannelMessages());
 #endif
 }
 
@@ -740,7 +810,7 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
 
         // after running the system also clear out everything that is possibly sent out to avoid
         // missdetection of sysex responses
-        _hwaMIDI.usbWritePackets.clear();
+        _hwaMIDIUSB._writePackets.clear();
     };
 
     _database.factoryReset();

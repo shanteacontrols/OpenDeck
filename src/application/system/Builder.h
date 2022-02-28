@@ -65,8 +65,17 @@ namespace System
             class Protocol
             {
                 public:
-                using MIDI = ::Protocol::MIDI::HWA;
-                using DMX  = ::Protocol::DMX::HWA;
+                class MIDI
+                {
+                    public:
+                    using USB = ::Protocol::MIDI::HWAUSB;
+                    using DIN = ::Protocol::MIDI::HWADIN;
+
+                    virtual USB& usb() = 0;
+                    virtual DIN& din() = 0;
+                };
+
+                using DMX = ::Protocol::DMX::HWA;
 
                 virtual MIDI& midi() = 0;
                 virtual DMX&  dmx()  = 0;
@@ -120,7 +129,7 @@ namespace System
         IO::TouchscreenModelBuilder                                                    _touchscreenModels = IO::TouchscreenModelBuilder(_hwa.io().touchscreen());
         IO::I2C                                                                        _i2c               = IO::I2C(_hwa.io().i2c());
         IO::I2CPeripheralBuilder                                                       _i2cPeripherals    = IO::I2CPeripheralBuilder(_hwa.io().i2c(), _database);
-        Protocol::MIDI                                                                 _midi              = Protocol::MIDI(_hwa.protocol().midi(), _database);
+        Protocol::MIDI                                                                 _midi              = Protocol::MIDI(_hwa.protocol().midi().usb(), _hwa.protocol().midi().din(), _database);
         Protocol::DMX                                                                  _dmx               = Protocol::DMX(_hwa.protocol().dmx(), _database);
         std::array<IO::Base*, static_cast<size_t>(IO::ioComponent_t::AMOUNT)>          _io                = {};
         std::array<Protocol::Base*, static_cast<size_t>(Protocol::protocol_t::AMOUNT)> _protocol          = {};

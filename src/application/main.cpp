@@ -335,96 +335,27 @@ class HWAEncodersStub : public System::Builder::HWA::IO::Encoders
 } _hwaEncoders;
 #endif
 
-class HWAMIDI : public System::Builder::HWA::Protocol::MIDI
+class HWAMIDIUSB : public System::Builder::HWA::Protocol::MIDI::USB
 {
     public:
-    HWAMIDI() = default;
+    HWAMIDIUSB() = default;
 
-    bool dinSupported() override
+    bool supported() override
     {
-#ifdef DIN_MIDI_SUPPORTED
         return true;
-#else
-        return false;
-#endif
     }
 
-    bool init(::MIDI::interface_t interface) override
+    bool init() override
     {
-        if (interface == ::MIDI::interface_t::usb)
-        {
-            return true;    // already initialized
-        }
-
-#ifdef DIN_MIDI_SUPPORTED
-        Board::UART::config_t config(UART_BAUDRATE_MIDI_STD,
-                                     Board::UART::parity_t::no,
-                                     Board::UART::stopBits_t::one,
-                                     Board::UART::type_t::rxTx);
-
-        return Board::UART::init(UART_CHANNEL_DIN, config) == Board::UART::initStatus_t::ok;
-
-#else
-        return false;
-#endif
+        return true;    // already initialized
     }
 
-    bool deInit(::MIDI::interface_t interface) override
+    bool deInit() override
     {
-        if (interface == ::MIDI::interface_t::usb)
-        {
-            return true;    // never deinit usb interface, just pretend here
-        }
-
-#ifdef DIN_MIDI_SUPPORTED
-        Board::UART::deInit(UART_CHANNEL_DIN);
-        return true;
-#else
-        return false;
-#endif
+        return true;    // never deinit usb interface, just pretend here
     }
 
-    bool setDINLoopback(bool state) override
-    {
-#ifdef DIN_MIDI_SUPPORTED
-        Board::UART::setLoopbackState(UART_CHANNEL_DIN, state);
-        return true;
-#else
-        return true;
-#endif
-    }
-
-    bool dinRead(uint8_t& value) override
-    {
-#ifdef DIN_MIDI_SUPPORTED
-        if (Board::UART::read(UART_CHANNEL_DIN, value))
-        {
-            Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::incoming);
-            return true;
-        }
-
-        return false;
-#else
-        return false;
-#endif
-    }
-
-    bool dinWrite(uint8_t value) override
-    {
-#ifdef DIN_MIDI_SUPPORTED
-        if (Board::UART::write(UART_CHANNEL_DIN, value))
-        {
-            Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::outgoing);
-            return true;
-        }
-
-        return false;
-#else
-        return false;
-#endif
-    }
-
-    bool usbRead(::MIDI::usbMIDIPacket_t& packet) override
+    bool read(::MIDI::usbMIDIPacket_t& packet) override
     {
         if (Board::USB::readMIDI(packet))
         {
@@ -435,11 +366,67 @@ class HWAMIDI : public System::Builder::HWA::Protocol::MIDI
         return false;
     }
 
-    bool usbWrite(::MIDI::usbMIDIPacket_t& packet) override
+    bool write(::MIDI::usbMIDIPacket_t& packet) override
     {
         if (Board::USB::writeMIDI(packet))
         {
             Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::outgoing);
+            return true;
+        }
+
+        return false;
+    }
+} _hwaMIDIUSB;
+
+#ifdef DIN_MIDI_SUPPORTED
+class HWAMIDIDIN : public System::Builder::HWA::Protocol::MIDI::DIN
+{
+    public:
+    HWAMIDIDIN() = default;
+
+    bool supported() override
+    {
+        return true;
+    }
+
+    bool init() override
+    {
+        Board::UART::config_t config(UART_BAUDRATE_MIDI_STD,
+                                     Board::UART::parity_t::no,
+                                     Board::UART::stopBits_t::one,
+                                     Board::UART::type_t::rxTx);
+
+        return Board::UART::init(UART_CHANNEL_DIN, config) == Board::UART::initStatus_t::ok;
+    }
+
+    bool deInit() override
+    {
+        Board::UART::deInit(UART_CHANNEL_DIN);
+        return true;
+    }
+
+    bool setLoopback(bool state) override
+    {
+        Board::UART::setLoopbackState(UART_CHANNEL_DIN, state);
+        return true;
+    }
+
+    bool read(uint8_t& value) override
+    {
+        if (Board::UART::read(UART_CHANNEL_DIN, value))
+        {
+            Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::incoming);
+            return true;
+        }
+
+        return false;
+    }
+
+    bool write(uint8_t value) override
+    {
+        if (Board::UART::write(UART_CHANNEL_DIN, value))
+        {
+            Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::outgoing);
             return true;
         }
 
@@ -450,18 +437,54 @@ class HWAMIDI : public System::Builder::HWA::Protocol::MIDI
     {
         if (interface == IO::Common::interface_t::uart)
         {
-#ifdef UART_CHANNEL_DIN
             return Board::UART::isInitialized(UART_CHANNEL_DIN);
-#else
-            return false;
-#endif
         }
-        else
-        {
-            return false;
-        }
+
+        return false;
     }
-} _hwaMIDI;
+} _hwaMIDIDIN;
+#else
+class HWAMIDIDINStub : public System::Builder::HWA::Protocol::MIDI::DIN
+{
+    public:
+    HWAMIDIDINStub() = default;
+
+    bool supported() override
+    {
+        return false;
+    }
+
+    bool init() override
+    {
+        return false;
+    }
+
+    bool deInit() override
+    {
+        return false;
+    }
+
+    bool setLoopback(bool state) override
+    {
+        return false;
+    }
+
+    bool read(uint8_t& value) override
+    {
+        return false;
+    }
+
+    bool write(uint8_t value) override
+    {
+        return false;
+    }
+
+    bool allocated(IO::Common::interface_t interface) override
+    {
+        return false;
+    }
+} _hwaMIDIDIN;
+#endif
 
 #ifdef DMX_SUPPORTED
 class HWADMX : public System::Builder::HWA::Protocol::DMX
@@ -980,15 +1003,30 @@ class HWABuilder : public ::System::Builder::HWA
     class HWAProtocol : public ::System::Builder::HWA::Protocol
     {
         public:
-        ::System::Builder::HWA::Protocol::MIDI& midi()
+        ::System::Builder::HWA::Protocol::MIDI& midi() override
         {
             return _hwaMIDI;
         }
 
-        ::System::Builder::HWA::Protocol::DMX& dmx()
+        ::System::Builder::HWA::Protocol::DMX& dmx() override
         {
             return _hwaDMX;
         }
+
+        private:
+        class HWAMIDI : public ::System::Builder::HWA::Protocol::MIDI
+        {
+            public:
+            ::System::Builder::HWA::Protocol::MIDI::USB& usb() override
+            {
+                return _hwaMIDIUSB;
+            }
+
+            ::System::Builder::HWA::Protocol::MIDI::DIN& din() override
+            {
+                return _hwaMIDIDIN;
+            }
+        } _hwaMIDI;
     } _hwaProtocol;
 } _hwa;
 

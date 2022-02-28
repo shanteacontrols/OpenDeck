@@ -180,9 +180,12 @@ namespace
     }
 }    // namespace
 
-Protocol::MIDI::MIDI(HWA& hwa, Database& database)
+Protocol::MIDI::MIDI(HWAUSB&   hwaUSB,
+                     HWADIN&   hwaDIN,
+                     Database& database)
     : ::MIDI(_hwaInternal)
-    , _hwa(hwa)
+    , _hwaUSB(hwaUSB)
+    , _hwaDIN(hwaDIN)
     , _hwaInternal(*this)
     , _database(database)
 {
@@ -411,7 +414,7 @@ bool Protocol::MIDI::HWAInternal::init(MIDI::interface_t interface)
 {
     if (interface == ::MIDI::interface_t::usb)
     {
-        return _midi._hwa.init(interface);
+        return _midi._hwaUSB.init();
     }
 
     if (_midi.isFeatureEnabled(feature_t::dinEnabled))
@@ -428,9 +431,9 @@ bool Protocol::MIDI::HWAInternal::init(MIDI::interface_t interface)
 
         if (!_dinMIDIenabled)
         {
-            if (_midi._hwa.init(interface))
+            if (_midi._hwaDIN.init())
             {
-                _midi._hwa.setDINLoopback(loopback);
+                _midi._hwaDIN.setLoopback(loopback);
                 _dinMIDIenabled         = true;
                 _dinMIDIloopbackEnabled = loopback;
 
@@ -443,7 +446,7 @@ bool Protocol::MIDI::HWAInternal::init(MIDI::interface_t interface)
             {
                 // only the loopback parameter has changed
                 _dinMIDIloopbackEnabled = loopback;
-                _midi._hwa.setDINLoopback(loopback);
+                _midi._hwaDIN.setLoopback(loopback);
                 return true;
             }
         }
@@ -461,7 +464,7 @@ bool Protocol::MIDI::HWAInternal::deInit(MIDI::interface_t interface)
             return true;    // nothing to do
         }
 
-        if (_midi._hwa.deInit(interface))
+        if (_midi._hwaDIN.deInit())
         {
             _dinMIDIenabled         = false;
             _dinMIDIloopbackEnabled = false;
@@ -470,7 +473,7 @@ bool Protocol::MIDI::HWAInternal::deInit(MIDI::interface_t interface)
     }
     else
     {
-        return _midi._hwa.deInit(interface);
+        return _midi._hwaUSB.deInit();
     }
 
     return false;
@@ -478,22 +481,22 @@ bool Protocol::MIDI::HWAInternal::deInit(MIDI::interface_t interface)
 
 bool Protocol::MIDI::HWAInternal::dinRead(uint8_t& value)
 {
-    return _midi._hwa.dinRead(value);
+    return _midi._hwaDIN.read(value);
 }
 
 bool Protocol::MIDI::HWAInternal::dinWrite(uint8_t value)
 {
-    return _midi._hwa.dinWrite(value);
+    return _midi._hwaDIN.write(value);
 }
 
 bool Protocol::MIDI::HWAInternal::usbRead(MIDI::usbMIDIPacket_t& packet)
 {
-    return _midi._hwa.usbRead(packet);
+    return _midi._hwaUSB.read(packet);
 }
 
 bool Protocol::MIDI::HWAInternal::usbWrite(MIDI::usbMIDIPacket_t& packet)
 {
-    return _midi._hwa.usbWrite(packet);
+    return _midi._hwaUSB.write(packet);
 }
 
 std::optional<uint8_t> Protocol::MIDI::sysConfigGet(System::Config::Section::global_t section, size_t index, uint16_t& value)
@@ -511,9 +514,9 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigGet(System::Config::Section::glo
         }
         else
         {
-            if (_hwa.dinSupported())
+            if (_hwaDIN.supported())
             {
-                if (!isFeatureEnabled(feature_t::dinEnabled) && _hwa.allocated(IO::Common::interface_t::uart))
+                if (!isFeatureEnabled(feature_t::dinEnabled) && _hwaDIN.allocated(IO::Common::interface_t::uart))
                 {
                     return System::Config::status_t::serialPeripheralAllocatedError;
                 }
@@ -530,9 +533,9 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigGet(System::Config::Section::glo
 
     case System::Config::Section::global_t::midiMerge:
     {
-        if (_hwa.dinSupported())
+        if (_hwaDIN.supported())
         {
-            if (!isFeatureEnabled(feature_t::dinEnabled) && _hwa.allocated(IO::Common::interface_t::uart))
+            if (!isFeatureEnabled(feature_t::dinEnabled) && _hwaDIN.allocated(IO::Common::interface_t::uart))
             {
                 return System::Config::status_t::serialPeripheralAllocatedError;
             }
@@ -570,9 +573,9 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
         {
         case feature_t::runningStatus:
         {
-            if (_hwa.dinSupported())
+            if (_hwaDIN.supported())
             {
-                if (!isFeatureEnabled(feature_t::dinEnabled) && _hwa.allocated(IO::Common::interface_t::uart))
+                if (!isFeatureEnabled(feature_t::dinEnabled) && _hwaDIN.allocated(IO::Common::interface_t::uart))
                 {
                     result = System::Config::status_t::serialPeripheralAllocatedError;
                 }
@@ -606,9 +609,9 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
 
         case feature_t::dinEnabled:
         {
-            if (_hwa.dinSupported())
+            if (_hwaDIN.supported())
             {
-                if (!isFeatureEnabled(feature_t::dinEnabled) && _hwa.allocated(IO::Common::interface_t::uart))
+                if (!isFeatureEnabled(feature_t::dinEnabled) && _hwaDIN.allocated(IO::Common::interface_t::uart))
                 {
                     result = System::Config::status_t::serialPeripheralAllocatedError;
                 }
@@ -635,9 +638,9 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
 
         case feature_t::mergeEnabled:
         {
-            if (_hwa.dinSupported())
+            if (_hwaDIN.supported())
             {
-                if (!isFeatureEnabled(feature_t::dinEnabled) && _hwa.allocated(IO::Common::interface_t::uart))
+                if (!isFeatureEnabled(feature_t::dinEnabled) && _hwaDIN.allocated(IO::Common::interface_t::uart))
                 {
                     result = System::Config::status_t::serialPeripheralAllocatedError;
                 }
@@ -669,9 +672,9 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
 
     case System::Config::Section::global_t::midiMerge:
     {
-        if (_hwa.dinSupported())
+        if (_hwaDIN.supported())
         {
-            if (!isFeatureEnabled(feature_t::dinEnabled) && _hwa.allocated(IO::Common::interface_t::uart))
+            if (!isFeatureEnabled(feature_t::dinEnabled) && _hwaDIN.allocated(IO::Common::interface_t::uart))
             {
                 result = System::Config::status_t::serialPeripheralAllocatedError;
             }

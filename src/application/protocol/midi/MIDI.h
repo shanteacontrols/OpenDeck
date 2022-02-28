@@ -55,20 +55,33 @@ namespace Protocol
             AMOUNT
         };
 
-        // More functionality from HWA MIDI class is required than what's specified there.
-        // A level of indirection is used to work-around this:
-        // * Protocol::MIDI::HWA interface is expected to construct Protocol::MIDI class
-        // * ::MIDI::HWA is implemented internally which uses extended API calls from this interface
-        class HWA : public IO::Common::Allocatable, public ::MIDI::HWA
+        class HWAUSB
         {
             public:
-            HWA() = default;
+            HWAUSB() = default;
 
-            virtual bool dinSupported()             = 0;
-            virtual bool setDINLoopback(bool state) = 0;
+            virtual bool supported()                                   = 0;
+            virtual bool init()                                        = 0;
+            virtual bool deInit()                                      = 0;
+            virtual bool read(::MIDI::usbMIDIPacket_t& USBMIDIpacket)  = 0;
+            virtual bool write(::MIDI::usbMIDIPacket_t& USBMIDIpacket) = 0;
         };
 
-        MIDI(HWA&      hwa,
+        class HWADIN : public IO::Common::Allocatable
+        {
+            public:
+            HWADIN() = default;
+
+            virtual bool supported()             = 0;
+            virtual bool init()                  = 0;
+            virtual bool deInit()                = 0;
+            virtual bool read(uint8_t& data)     = 0;
+            virtual bool write(uint8_t data)     = 0;
+            virtual bool setLoopback(bool state) = 0;
+        };
+
+        MIDI(HWAUSB&   hwaUSB,
+             HWADIN&   hwaDIN,
              Database& database);
 
         bool init() override;
@@ -83,12 +96,12 @@ namespace Protocol
                 : _midi(midi)
             {}
 
-            bool init(MIDI::interface_t interface) override;
-            bool deInit(MIDI::interface_t interface) override;
+            bool init(::MIDI::interface_t interface) override;
+            bool deInit(::MIDI::interface_t interface) override;
             bool dinRead(uint8_t& value) override;
             bool dinWrite(uint8_t value) override;
-            bool usbRead(MIDI::usbMIDIPacket_t& packet) override;
-            bool usbWrite(MIDI::usbMIDIPacket_t& packet) override;
+            bool usbRead(::MIDI::usbMIDIPacket_t& packet) override;
+            bool usbWrite(::MIDI::usbMIDIPacket_t& packet) override;
 
             private:
             Protocol::MIDI& _midi;
@@ -101,7 +114,8 @@ namespace Protocol
         std::optional<uint8_t> sysConfigGet(System::Config::Section::global_t section, size_t index, uint16_t& value);
         std::optional<uint8_t> sysConfigSet(System::Config::Section::global_t section, size_t index, uint16_t value);
 
-        HWA&        _hwa;
+        HWAUSB&     _hwaUSB;
+        HWADIN&     _hwaDIN;
         HWAInternal _hwaInternal;
         Database&   _database;
     };
