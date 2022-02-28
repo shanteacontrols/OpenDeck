@@ -4,7 +4,7 @@ include ../src/Toolchain.mk
 
 BUILD_DIR_BASE  := ./build
 TARGET          := discovery
-TARGET_DEF_FILE := ../targets/$(TARGET).yml
+DEF_FILE_TARGET := ../config/target/$(TARGET).yml
 TYPE            := app
 BUILD_DIR       := $(BUILD_DIR_BASE)/$(TARGET)
 TEST_BINARIES   := $(addprefix -object ,$(shell $(FIND) $(BUILD_DIR_BASE) -name "*.out" 2>/dev/null))
@@ -16,6 +16,10 @@ CXX             := clang++
 LLVM_PROFDATA   := llvm-profdata
 LLVM_COV        := llvm-cov
 CLANG_FORMAT    := clang-format
+
+ifeq (,$(wildcard $(DEF_FILE_TARGET)))
+    $(error Target doesn't exist)
+endif
 
 include Defines.mk
 include Sources.mk
