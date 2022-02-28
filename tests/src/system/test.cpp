@@ -199,7 +199,7 @@ namespace
             return true;
         }
 
-        bool read(::MIDI::usbMIDIPacket_t& packet) override
+        bool read(MIDI::usbMIDIPacket_t& packet) override
         {
             if (!_readPackets.size())
                 return false;
@@ -210,7 +210,7 @@ namespace
             return true;
         }
 
-        bool write(::MIDI::usbMIDIPacket_t& packet) override
+        bool write(MIDI::usbMIDIPacket_t& packet) override
         {
             _writePackets.push_back(packet);
             return true;
@@ -228,20 +228,20 @@ namespace
 
             for (size_t i = 0; i < _writePackets.size(); i++)
             {
-                auto messageType = MIDI::getTypeFromStatusByte(_writePackets.at(i)[MIDI::USB_DATA1]);
+                auto messageType = MIDIlib::Base::typeFromStatusByte(_writePackets.at(i)[MIDI::USB_DATA1]);
 
-                if (MIDI::isChannelMessage(messageType))
+                if (MIDIlib::Base::isChannelMessage(messageType))
                     cnt++;
             }
 
             return cnt;
         }
 
-        std::vector<::MIDI::usbMIDIPacket_t> _readPackets  = {};
-        std::vector<::MIDI::usbMIDIPacket_t> _writePackets = {};
+        std::vector<MIDI::usbMIDIPacket_t> _readPackets  = {};
+        std::vector<MIDI::usbMIDIPacket_t> _writePackets = {};
     } _hwaMIDIUSB;
 
-    class HWAMIDIDIN : public System::Builder::HWA::Protocol::MIDI::DIN, ::MIDI::HWA
+    class HWAMIDIDIN : public System::Builder::HWA::Protocol::MIDI::DIN
     {
         public:
         HWAMIDIDIN() = default;
@@ -254,38 +254,6 @@ namespace
             return false;
 #endif
         }
-
-        // overrides for ::MIDI::HWA
-        bool init(::MIDI::interface_t interface) override
-        {
-            return true;
-        }
-
-        bool deInit(::MIDI::interface_t interface) override
-        {
-            return true;
-        }
-
-        bool usbRead(::MIDI::usbMIDIPacket_t& USBMIDIpacket) override
-        {
-            return false;
-        }
-
-        bool usbWrite(::MIDI::usbMIDIPacket_t& USBMIDIpacket) override
-        {
-            return false;
-        }
-
-        bool dinRead(uint8_t& data) override
-        {
-            return read(data);
-        }
-
-        bool dinWrite(uint8_t data) override
-        {
-            return write(data);
-        }
-        //
 
         bool init() override
         {
@@ -339,20 +307,58 @@ namespace
         {
             size_t cnt = 0;
 
-            ::MIDI _parseDinMIDI(*this);
-            _parseDinMIDI.init(::MIDI::interface_t::din);
-            _parseDinMIDI.setInputChannel(::MIDI::MIDI_CHANNEL_OMNI);
-
-            // In order for new midi object to parse written packets
-            // assign written packets to _readPackets.
-            _readPackets = _writePackets;
-
-            while (_readPackets.size())
+            class HWASerialMIDI : public MIDIlib::SerialMIDI::HWA
             {
-                if (_parseDinMIDI.read(::MIDI::interface_t::din))
+                public:
+                HWASerialMIDI(std::vector<uint8_t>& packetsToParse)
+                    : _packetsToParse(packetsToParse)
+                {}
+
+                bool init()
                 {
-                    if (MIDI::isChannelMessage(_parseDinMIDI.getType(::MIDI::interface_t::din)))
+                    return true;
+                }
+
+                bool deInit()
+                {
+                    return true;
+                }
+
+                bool write(uint8_t data)
+                {
+                    return true;
+                }
+
+                bool read(uint8_t& data)
+                {
+                    if (_packetsToParse.empty())
+                    {
+                        return false;
+                    }
+
+                    data = _packetsToParse.at(0);
+                    _packetsToParse.erase(_packetsToParse.begin());
+
+                    return true;
+                }
+
+                private:
+                std::vector<uint8_t>& _packetsToParse;
+            };
+
+            // create new MIDI object which will read all written data
+            HWASerialMIDI       _hwaSerialMIDI(_writePackets);
+            MIDIlib::SerialMIDI _parseDinMIDI(_hwaSerialMIDI);
+            _parseDinMIDI.init();
+
+            while (_writePackets.size())
+            {
+                if (_parseDinMIDI.read())
+                {
+                    if (_parseDinMIDI.isChannelMessage(_parseDinMIDI.type()))
+                    {
                         cnt++;
+                    }
                 }
             }
 
@@ -528,12 +534,12 @@ namespace
     void sendAndVerifySysExRequest(const std::vector<uint8_t> request, const std::vector<uint8_t> expectedResponse)
     {
         _hwaMIDIUSB._readPackets = MIDIHelper::rawSysExToUSBPackets(request);
-        // store this in a variable since every midi.read call will decrement the size of buffer
-        auto packetSize = _hwaMIDIUSB._readPackets.size();
 
         // now just call system which will call midi.read which in turn will read the filled packets
-        for (size_t i = 0; i < packetSize; i++)
+        while (_hwaMIDIUSB._readPackets.size())
+        {
             systemStub.run();
+        }
 
         // response is now in _hwaMIDIUSB._writePackets (board has sent this to host)
         // convert it to raw bytes for easier parsing
@@ -561,13 +567,25 @@ namespace
             if (rawBytes.at(i) != expectedResponse.at(0))
                 continue;
 
-            // once F0 is found, however, it should be expected response
-            for (size_t sysExByte = 0; sysExByte < rawBytes.size() - i; sysExByte++)
-                TEST_ASSERT_EQUAL_UINT32(expectedResponse.at(sysExByte), rawBytes.at(sysExByte + i));
-
             responseVerified = true;
+
+            // once F0 is found, however, it should be expected response
+            for (size_t byte = 0; byte < expectedResponse.size(); byte++)
+            {
+                if (expectedResponse.at(byte) != rawBytes.at(byte + i))
+                {
+                    responseVerified = false;
+                    break;
+                }
+            }
+
+            if (responseVerified)
+            {
+                break;
+            }
         }
 
+        _hwaMIDIUSB._writePackets.clear();
         TEST_ASSERT(responseVerified == true);
     }
 }    // namespace
@@ -595,13 +613,10 @@ TEST_CASE(SystemInit)
 
     TEST_ASSERT(_hwaMIDIDIN._loopbackEnabled == false);
 
-    // now enable din to din merge, init system again and verify that both din midi and loopback are enabled
+    // now enable din to din thru, init system again and verify that both din midi and loopback are enabled
 #ifdef DIN_MIDI_SUPPORTED
-    TEST_ASSERT(_database.update(Database::Section::global_t::midiFeatures, Protocol::MIDI::feature_t::mergeEnabled, 1) == true);
-    TEST_ASSERT(_database.update(Database::Section::global_t::midiMerge, Protocol::MIDI::mergeSetting_t::mergeType, Protocol::MIDI::mergeType_t::DINtoDIN) == true);
-
+    TEST_ASSERT(_database.update(Database::Section::global_t::midiFeatures, Protocol::MIDI::feature_t::dinThruDin, 1) == true);
     TEST_ASSERT(systemStub.init() == true);
-
     TEST_ASSERT(_database.read(Database::Section::global_t::midiFeatures, Protocol::MIDI::feature_t::dinEnabled) == true);
     TEST_ASSERT(_hwaMIDIDIN._loopbackEnabled == true);
 #endif
@@ -670,23 +685,24 @@ TEST_CASE(ForcedResendOnPresetChange)
     _hwaMIDIUSB.reset();
 
     std::vector<uint8_t> generatedSysExReq;
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, 1, generatedSysExReq);
+    uint8_t              newPreset = 1;
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, newPreset, generatedSysExReq);
 
     sendAndVerifySysExRequest(generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
                                 0x43,
-                                0x01,
-                                0x00,
-                                0x01,    // set
-                                0x00,    // single
-                                0x00,    // block 0 (global)
-                                0x02,    // section 2 (presets)
-                                0x00,    // active preset
-                                0x00,
-                                0x00,    // preset 1
-                                0x01,
+                                0x01,                                                                // ack
+                                0x00,                                                                // msg part
+                                0x01,                                                                // set
+                                0x00,                                                                // single
+                                static_cast<uint8_t>(System::Config::block_t::global),               // global block
+                                static_cast<uint8_t>(System::Config::Section::global_t::presets),    // preset section
+                                0x00,                                                                // MSB index (active preset)
+                                static_cast<uint8_t>(Database::presetSetting_t::activePreset),       // LSB index (active preset)
+                                0x00,                                                                // MSB new value
+                                newPreset,                                                           // LSB new value
                                 0xF7 });
 
 #ifdef DIN_MIDI_SUPPORTED
@@ -700,14 +716,14 @@ TEST_CASE(ForcedResendOnPresetChange)
                                 0x43,
                                 0x01,
                                 0x00,
-                                0x01,    // set
-                                0x00,    // single
-                                0x00,    // block 0 (global)
-                                0x00,    // section 0 (midi)
-                                0x00,    // din enabled
-                                0x03,
-                                0x00,    // din is enabled
-                                0x01,
+                                0x01,                                                                     // set
+                                0x00,                                                                     // single
+                                static_cast<uint8_t>(System::Config::block_t::global),                    // global block
+                                static_cast<uint8_t>(System::Config::Section::global_t::midiFeatures),    // midi section
+                                0x00,                                                                     // MSB index (DIN enabled)
+                                static_cast<uint8_t>(MIDI::feature_t::dinEnabled),                        // LSB index (DIN enabled)
+                                0x00,                                                                     // MSB new value (DIN enabled)
+                                0x01,                                                                     // LSB new value (DIN enabled)
                                 0xF7 });
 #endif
 
@@ -730,7 +746,8 @@ TEST_CASE(ForcedResendOnPresetChange)
     // now switch preset again - on usb same amount of messages should be received
     // nothing should be received on din
 
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, 0, generatedSysExReq);
+    newPreset = 0;
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, newPreset, generatedSysExReq);
 
     sendAndVerifySysExRequest(generatedSysExReq,
                               { 0xF0,
@@ -739,14 +756,14 @@ TEST_CASE(ForcedResendOnPresetChange)
                                 0x43,
                                 0x01,
                                 0x00,
-                                0x01,    // set
-                                0x00,    // single
-                                0x00,    // block 0 (global)
-                                0x02,    // section 2 (presets)
-                                0x00,    // active preset
-                                0x00,
-                                0x00,    // preset 0
-                                0x00,
+                                0x01,                                                                // set
+                                0x00,                                                                // single
+                                static_cast<uint8_t>(System::Config::block_t::global),               // global block
+                                static_cast<uint8_t>(System::Config::Section::global_t::presets),    // preset section
+                                0x00,                                                                // MSB index (active preset)
+                                static_cast<uint8_t>(Database::presetSetting_t::activePreset),       // LSB index (active preset)
+                                0x00,                                                                // MSB new value
+                                newPreset,                                                           // LSB new value
                                 0xF7 });
 
     core::timing::detail::rTime_ms += System::Instance::PRESET_CHANGE_NOTIFY_DELAY;
@@ -765,23 +782,24 @@ TEST_CASE(ForcedResendOnPresetChange)
 
     _hwaMIDIUSB._writePackets.clear();
     _hwaMIDIDIN._writePackets.clear();
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, 1, generatedSysExReq);
+    newPreset = 1;
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, newPreset, generatedSysExReq);
 
     sendAndVerifySysExRequest(generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
                                 0x43,
-                                0x01,
-                                0x00,
-                                0x01,    // set
-                                0x00,    // single
-                                0x00,    // block 0 (global)
-                                0x02,    // section 2 (presets)
-                                0x00,    // active preset
-                                0x00,
-                                0x00,    // preset 1
-                                0x01,
+                                0x01,                                                                // ack
+                                0x00,                                                                // msg part
+                                0x01,                                                                // set
+                                0x00,                                                                // single
+                                static_cast<uint8_t>(System::Config::block_t::global),               // global block
+                                static_cast<uint8_t>(System::Config::Section::global_t::presets),    // preset section
+                                0x00,                                                                // MSB index (active preset)
+                                static_cast<uint8_t>(Database::presetSetting_t::activePreset),       // LSB index (active preset)
+                                0x00,                                                                // MSB new value
+                                newPreset,                                                           // LSB new value
                                 0xF7 });
 
     core::timing::detail::rTime_ms += System::Instance::PRESET_CHANGE_NOTIFY_DELAY;
@@ -857,24 +875,25 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
                                 static_cast<uint8_t>(IO::LEDs::controlType_t::preset),
                                 0xF7 });
 
-    // switch to preset 1
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, 1, generatedSysExReq);
+    // switch preset
+    uint8_t newPreset = 1;
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, newPreset, generatedSysExReq);
 
     sendAndVerifySysExRequest(generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
                                 0x43,
-                                0x01,
-                                0x00,
-                                0x01,    // set
-                                0x00,    // single
-                                0x00,    // block 0 (global)
-                                0x02,    // section 2 (presets)
-                                0x00,    // active preset
-                                0x00,
-                                0x00,    // preset 1
-                                0x01,
+                                0x01,                                                                // ack
+                                0x00,                                                                // msg part
+                                0x01,                                                                // set
+                                0x00,                                                                // single
+                                static_cast<uint8_t>(System::Config::block_t::global),               // global block
+                                static_cast<uint8_t>(System::Config::Section::global_t::presets),    // preset section
+                                0x00,                                                                // MSB index (active preset)
+                                static_cast<uint8_t>(Database::presetSetting_t::activePreset),       // LSB index (active preset)
+                                0x00,                                                                // MSB new value
+                                newPreset,                                                           // LSB new value
                                 0xF7 });
 
     // fake the passage of time after each preset change
@@ -903,28 +922,29 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
                                 0xF7 });
 
     // now switch to preset 0 and expect the LED 0 to be on
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, 0, generatedSysExReq);
+    newPreset = 0;
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, newPreset, generatedSysExReq);
 
     sendAndVerifySysExRequest(generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
                                 0x43,
-                                0x01,
-                                0x00,
-                                0x01,    // set
-                                0x00,    // single
-                                0x00,    // block 0 (global)
-                                0x02,    // section 2 (presets)
-                                0x00,    // active preset
-                                0x00,
-                                0x00,    // preset 0
-                                0x00,
+                                0x01,                                                                // ack
+                                0x00,                                                                // msg part
+                                0x01,                                                                // set
+                                0x00,                                                                // single
+                                static_cast<uint8_t>(System::Config::block_t::global),               // global block
+                                static_cast<uint8_t>(System::Config::Section::global_t::presets),    // preset section
+                                0x00,                                                                // MSB index (active preset)
+                                static_cast<uint8_t>(Database::presetSetting_t::activePreset),       // LSB index (active preset)
+                                0x00,                                                                // MSB new value
+                                newPreset,                                                           // LSB new value
                                 0xF7 });
 
     MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::testColor, 0, generatedSysExReq);
 
-    // verify first that the led is still of if timeout hasn't passed
+    // verify first that the led is still off if timeout hasn't passed
     sendAndVerifySysExRequest(generatedSysExReq,
                               { 0xF0,
                                 0x00,
@@ -946,6 +966,7 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
 
     fakeTime();
 
+    // should be on by now
     sendAndVerifySysExRequest(generatedSysExReq,
                               { 0xF0,
                                 0x00,
@@ -966,23 +987,24 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
                                 0xF7 });
 
     // switch back to preset 1 and verify that the led is turned off
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, 1, generatedSysExReq);
+    newPreset = 1;
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, newPreset, generatedSysExReq);
 
     sendAndVerifySysExRequest(generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
                                 0x43,
-                                0x01,
-                                0x00,
-                                0x01,    // set
-                                0x00,    // single
-                                0x00,    // block 0 (global)
-                                0x02,    // section 2 (presets)
-                                0x00,    // active preset
-                                0x00,
-                                0x00,    // preset 1
-                                0x01,
+                                0x01,                                                                // ack
+                                0x00,                                                                // msg part
+                                0x01,                                                                // set
+                                0x00,                                                                // single
+                                static_cast<uint8_t>(System::Config::block_t::global),               // global block
+                                static_cast<uint8_t>(System::Config::Section::global_t::presets),    // preset section
+                                0x00,                                                                // MSB index (active preset)
+                                static_cast<uint8_t>(Database::presetSetting_t::activePreset),       // LSB index (active preset)
+                                0x00,                                                                // MSB new value
+                                newPreset,                                                           // LSB new value
                                 0xF7 });
 
     MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::testColor, 0, generatedSysExReq);
@@ -1202,6 +1224,84 @@ TEST_CASE(ProgramIndicatedOnStartup)
                                 0x00,
                                 0x01,    // LED state - on
                                 0xF7 });
+}
+#endif
+
+#ifdef DIN_MIDI_SUPPORTED
+TEST_CASE(UsbThruDin)
+{
+    _database.factoryReset();
+    TEST_ASSERT(systemStub.init() == true);
+
+    // handshake
+    sendAndVerifySysExRequest({ 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x00,
+                                0x00,
+                                0x01,
+                                0xF7 },
+                              { 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x01,
+                                0x00,
+                                0x01,
+                                0xF7 });
+
+    std::vector<uint8_t> generatedSysExReq;
+
+    // enable both din midi and usb to din thru
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::midiFeatures, Protocol::MIDI::feature_t::dinEnabled, 1, generatedSysExReq);
+
+    sendAndVerifySysExRequest(generatedSysExReq,
+                              { 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x01,
+                                0x00,
+                                0x01,    // set
+                                0x00,    // single
+                                static_cast<uint8_t>(System::Config::block_t::global),
+                                static_cast<uint8_t>(System::Config::Section::global_t::midiFeatures),
+                                0x00,                                                           // MSB index (dinEnabled)
+                                static_cast<uint8_t>(Protocol::MIDI::feature_t::dinEnabled),    // LSB index (dinEnabled)
+                                0x00,                                                           // MSB new value
+                                1,                                                              // LSB new value
+                                0xF7 });
+
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::midiFeatures, Protocol::MIDI::feature_t::usbThruDin, 1, generatedSysExReq);
+
+    sendAndVerifySysExRequest(generatedSysExReq,
+                              { 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x01,
+                                0x00,
+                                0x01,    // set
+                                0x00,    // single
+                                static_cast<uint8_t>(System::Config::block_t::global),
+                                static_cast<uint8_t>(System::Config::Section::global_t::midiFeatures),
+                                0x00,                                                           // MSB index (dinThruUsb)
+                                static_cast<uint8_t>(Protocol::MIDI::feature_t::usbThruDin),    // LSB index (dinThruUsb)
+                                0x00,                                                           // MSB new value
+                                1,                                                              // LSB new value
+                                0xF7 });
+
+    // generate incoming note on USB message
+    _hwaMIDIUSB._readPackets = MIDIHelper::noteOnToUsbPacket(10, 127, 1);
+
+    // now just call system which will call midi.read which in turn will read the filled packets
+    while (_hwaMIDIUSB._readPackets.size())
+    {
+        systemStub.run();
+    }
+
+    TEST_ASSERT_EQUAL_UINT32(1, _hwaMIDIDIN.totalWrittenChannelMessages());
 }
 #endif
 

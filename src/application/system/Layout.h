@@ -39,11 +39,11 @@ namespace
             1,
         },
 
-        // midi merge section
+        // blank for compatibility
         {
-            static_cast<uint16_t>(Protocol::MIDI::mergeSetting_t::AMOUNT),
+            1,
             0,
-            0,
+            1,
         },
 
         // preset section

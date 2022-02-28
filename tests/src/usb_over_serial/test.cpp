@@ -4,7 +4,9 @@
 #include "board/Board.h"
 #include "board/common/comm/USBOverSerial/USBOverSerial.h"
 #include "core/src/general/RingBuffer.h"
-#include "midi/src/MIDI.h"
+#include "protocol/midi/MIDI.h"
+
+using namespace Protocol;
 
 #define TEST_MIDI_CHANNEL 0
 #define BUFFER_SIZE       64
@@ -36,7 +38,7 @@ TEST_SETUP()
     buffer.reset();
 }
 
-TEST_CASE(MIDI)
+TEST_CASE(MIDIData)
 {
     using namespace Board;
 

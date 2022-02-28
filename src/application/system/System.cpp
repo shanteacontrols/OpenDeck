@@ -126,7 +126,7 @@ bool Instance::init()
         event.midiChannel    = i;
         event.midiIndex      = Common::program(i);
         event.midiValue      = 0;
-        event.message        = ::MIDI::messageType_t::programChange;
+        event.message        = MIDI::messageType_t::programChange;
 
         MIDIDispatcher.notify(Messaging::eventSource_t::system,
                               event,

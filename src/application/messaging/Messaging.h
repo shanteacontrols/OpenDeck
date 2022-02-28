@@ -19,7 +19,7 @@ limitations under the License.
 #pragma once
 
 #include "util/dispatcher/Dispatcher.h"
-#include "protocol/midi/MIDI.h"
+#include "midi/src/MIDI.h"
 
 namespace Messaging
 {
@@ -49,13 +49,13 @@ namespace Messaging
 
     struct event_t
     {
-        size_t                        componentIndex = 0;
-        uint8_t                       midiChannel    = 0;
-        uint16_t                      midiIndex      = 0;
-        uint16_t                      midiValue      = 0;
-        uint8_t*                      sysEx          = nullptr;
-        size_t                        sysExLength    = 0;
-        Protocol::MIDI::messageType_t message        = Protocol::MIDI::messageType_t::invalid;
+        size_t                       componentIndex = 0;
+        uint8_t                      midiChannel    = 0;
+        uint16_t                     midiIndex      = 0;
+        uint16_t                     midiValue      = 0;
+        uint8_t*                     sysEx          = nullptr;
+        size_t                       sysExLength    = 0;
+        MIDIlib::Base::messageType_t message        = MIDIlib::Base::messageType_t::invalid;
 
         event_t() = default;
     };

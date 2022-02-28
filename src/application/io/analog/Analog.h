@@ -23,6 +23,9 @@ limitations under the License.
 #include "io/common/Common.h"
 #include "system/Config.h"
 #include "io/IOBase.h"
+#include "protocol/midi/MIDI.h"
+
+using namespace Protocol;
 
 #if defined(ADC_SUPPORTED) || defined(TOUCHSCREEN_SUPPORTED)
 #define ANALOG_SUPPORTED

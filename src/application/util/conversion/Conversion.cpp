@@ -22,7 +22,7 @@ namespace
 {
     const Database::Section::global_t _sysEx2DB_global[static_cast<uint8_t>(System::Config::Section::global_t::AMOUNT)] = {
         Database::Section::global_t::midiFeatures,
-        Database::Section::global_t::midiMerge,
+        Database::Section::global_t::AMOUNT,    // blank/reserved
         Database::Section::global_t::AMOUNT,    // unused
         Database::Section::global_t::dmx,
     };

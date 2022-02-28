@@ -5,6 +5,7 @@
 #include "updater/Updater.h"
 #include "board/Board.h"
 #include "board/Internal.h"
+#include "helpers/MIDI.h"
 
 #include <iostream>
 #include <fstream>
@@ -54,58 +55,6 @@ namespace
     SysExParser _sysExParser;
     BTLDRWriter _btldrWriter;
     Updater     _updater = Updater(_btldrWriter, COMMAND_FW_UPDATE_START, COMMAND_FW_UPDATE_END, FW_UID);
-
-    void sysExToUSBMidi(std::vector<uint8_t> sysex, std::vector<MIDI::usbMIDIPacket_t>& packets)
-    {
-        class HWAMIDI : public MIDI::HWA
-        {
-            public:
-            HWAMIDI(std::vector<MIDI::usbMIDIPacket_t>& packets)
-                : _packets(packets)
-            {}
-
-            bool init(MIDI::interface_t interface) override
-            {
-                return true;
-            }
-
-            bool deInit(MIDI::interface_t interface) override
-            {
-                return true;
-            }
-
-            bool dinRead(uint8_t& data) override
-            {
-                return false;
-            }
-
-            bool dinWrite(uint8_t data) override
-            {
-                return false;
-            }
-
-            bool usbRead(MIDI::usbMIDIPacket_t& packet) override
-            {
-                return false;
-            }
-
-            bool usbWrite(MIDI::usbMIDIPacket_t& packet) override
-            {
-                _packets.push_back(packet);
-                return true;
-            }
-
-            private:
-            std::vector<MIDI::usbMIDIPacket_t>& _packets;
-        };
-
-        HWAMIDI hwaMIDI(packets);
-        MIDI    midi(hwaMIDI);
-
-        midi.init(MIDI::interface_t::usb);
-        midi.sendSysEx(sysex.size(), &sysex[0], true);
-    }
-
 }    // namespace
 
 TEST_CASE(Bootloader)
@@ -130,7 +79,8 @@ TEST_CASE(Bootloader)
 
         if (sysExVector.at(i) == 0xF7)
         {
-            sysExToUSBMidi(singleSysExMsg, packets);
+            auto converted = MIDIHelper::rawSysExToUSBPackets(singleSysExMsg);
+            packets.insert(std::end(packets), std::begin(converted), std::end(converted));
             singleSysExMsg.clear();
         }
     }

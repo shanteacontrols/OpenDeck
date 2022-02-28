@@ -70,7 +70,7 @@ Need help? Want to show off your OpenDeck based builds? Head over to [Discussion
 
 ## Credits
 
-* Hardware MIDI source code based on [Arduino MIDI library v4.2](https://github.com/FortySevenEffects/arduino_midi_library/releases/tag/4.2) by Francois Best.
+* Hardware MIDI source code based on [Arduino MIDI library v5.0.2](https://github.com/FortySevenEffects/arduino_midi_library/releases/tag/5.0.2) by Francois Best.
 * USB MIDI source code based on [LUFA USB framework](http://www.fourwalledcubicle.com/LUFA.php) by Dean Camera.
 
 ## Licence

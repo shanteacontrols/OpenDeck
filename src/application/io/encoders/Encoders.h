@@ -24,6 +24,9 @@ limitations under the License.
 #include "io/common/Common.h"
 #include "system/Config.h"
 #include "io/IOBase.h"
+#include "protocol/midi/MIDI.h"
+
+using namespace Protocol;
 
 #if defined(DIGITAL_INPUTS_SUPPORTED) && (NR_OF_DIGITAL_INPUTS > 1)
 #define ENCODERS_SUPPORTED

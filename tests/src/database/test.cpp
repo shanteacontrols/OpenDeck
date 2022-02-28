@@ -37,12 +37,6 @@ TEST_CASE(ReadInitialValues)
         for (int i = 0; i < static_cast<uint8_t>(Protocol::MIDI::feature_t::AMOUNT); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiFeatures, i));
 
-        // MIDI merge section
-        // all values should be set to 0
-        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiMerge, Protocol::MIDI::mergeSetting_t::mergeType));
-        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiMerge, Protocol::MIDI::mergeSetting_t::mergeUSBchannel));
-        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiMerge, Protocol::MIDI::mergeSetting_t::mergeDINchannel));
-
 #ifdef DMX_SUPPORTED
         // DMX section
         // all values should be set to 0

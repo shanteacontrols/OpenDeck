@@ -19,10 +19,12 @@ limitations under the License.
 #pragma once
 
 #include "database/Database.h"
-#include "messaging/Messaging.h"
+#include "protocol/midi/MIDI.h"
 #include "io/common/Common.h"
 #include "system/Config.h"
 #include "io/IOBase.h"
+
+using namespace Protocol;
 
 #if defined(DIGITAL_OUTPUTS_SUPPORTED) || defined(TOUCHSCREEN_SUPPORTED)
 #define LEDS_SUPPORTED

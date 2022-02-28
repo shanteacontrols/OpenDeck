@@ -19,64 +19,67 @@ limitations under the License.
 #pragma once
 
 #include "io/common/Common.h"
-#include "midi/src/MIDI.h"
+#include "midi/src/transport/usb/USB.h"
+#include "midi/src/transport/serial/Serial.h"
 #include "protocol/ProtocolBase.h"
 #include "database/Database.h"
 #include "system/Config.h"
 #include "protocol/ProtocolBase.h"
+#include "messaging/Messaging.h"
 
 namespace Protocol
 {
-    class MIDI : public ::MIDI, public Protocol::Base
+    class MIDI : public Protocol::Base
     {
         public:
+        // alias some types and functions from base midi class for easier access
+        using messageType_t                            = MIDIlib::Base::messageType_t;
+        using usbMIDIPacket_t                          = MIDIlib::USBMIDI::usbMIDIPacket_t;
+        using noteOffType_t                            = MIDIlib::Base::noteOffType_t;
+        using note_t                                   = MIDIlib::Base::note_t;
+        using message_t                                = MIDIlib::Base::message_t;
+        static constexpr auto&   MIDI_7_BIT_VALUE_MAX  = MIDIlib::Base::MIDI_7_BIT_VALUE_MAX;
+        static constexpr auto&   MIDI_14_BIT_VALUE_MAX = MIDIlib::Base::MIDI_14_BIT_VALUE_MAX;
+        static constexpr auto&   noteToTonic           = MIDIlib::Base::noteToTonic;
+        static constexpr auto&   noteToOctave          = MIDIlib::Base::noteToOctave;
+        static constexpr uint8_t USB_EVENT             = MIDIlib::USBMIDI::USB_EVENT;
+        static constexpr uint8_t USB_DATA1             = MIDIlib::USBMIDI::USB_DATA1;
+        static constexpr uint8_t USB_DATA2             = MIDIlib::USBMIDI::USB_DATA2;
+        static constexpr uint8_t USB_DATA3             = MIDIlib::USBMIDI::USB_DATA3;
+
+        // convulted order to keep compatibility with older firmware
         enum class feature_t : uint8_t
         {
             standardNoteOff,
             runningStatus,
-            mergeEnabled,
+            dinThruUsb,
             dinEnabled,
-            passToDIN,
+            usbThruDin,
+            usbThruUsb,
+            usbThruBle,
+            dinThruDin,
+            dinThruBle,
+            bleEnabled,
+            bleThruDin,
+            bleThruUsb,
+            bleThruBle,
             AMOUNT
         };
 
-        enum class mergeSetting_t : uint8_t
-        {
-            mergeType,
-            mergeUSBchannel,
-            mergeDINchannel,
-            AMOUNT
-        };
-
-        enum class mergeType_t : uint8_t
-        {
-            DINtoUSB,
-            DINtoDIN,
-            AMOUNT
-        };
-
-        class HWAUSB
+        class HWAUSB : public MIDIlib::USBMIDI::HWA
         {
             public:
             HWAUSB() = default;
 
-            virtual bool supported()                                   = 0;
-            virtual bool init()                                        = 0;
-            virtual bool deInit()                                      = 0;
-            virtual bool read(::MIDI::usbMIDIPacket_t& USBMIDIpacket)  = 0;
-            virtual bool write(::MIDI::usbMIDIPacket_t& USBMIDIpacket) = 0;
+            virtual bool supported() = 0;
         };
 
-        class HWADIN : public IO::Common::Allocatable
+        class HWADIN : public IO::Common::Allocatable, public MIDIlib::SerialMIDI::HWA
         {
             public:
             HWADIN() = default;
 
             virtual bool supported()             = 0;
-            virtual bool init()                  = 0;
-            virtual bool deInit()                = 0;
-            virtual bool read(uint8_t& data)     = 0;
-            virtual bool write(uint8_t data)     = 0;
             virtual bool setLoopback(bool state) = 0;
         };
 
@@ -89,34 +92,28 @@ namespace Protocol
         void read() override;
 
         private:
-        class HWAInternal : public ::MIDI::HWA
+        enum interface_t
         {
-            public:
-            HWAInternal(Protocol::MIDI& midi)
-                : _midi(midi)
-            {}
-
-            bool init(::MIDI::interface_t interface) override;
-            bool deInit(::MIDI::interface_t interface) override;
-            bool dinRead(uint8_t& value) override;
-            bool dinWrite(uint8_t value) override;
-            bool usbRead(::MIDI::usbMIDIPacket_t& packet) override;
-            bool usbWrite(::MIDI::usbMIDIPacket_t& packet) override;
-
-            private:
-            Protocol::MIDI& _midi;
-            bool            _dinMIDIenabled         = false;
-            bool            _dinMIDIloopbackEnabled = false;
+            INTERFACE_USB,
+            INTERFACE_DIN,
+            INTERFACE_AMOUNT
         };
 
         bool                   isFeatureEnabled(feature_t feature);
-        mergeType_t            mergeType();
+        bool                   isDinLoopbackRequired();
         std::optional<uint8_t> sysConfigGet(System::Config::Section::global_t section, size_t index, uint16_t& value);
         std::optional<uint8_t> sysConfigSet(System::Config::Section::global_t section, size_t index, uint16_t value);
+        void                   sendMIDI(Messaging::eventSource_t source, const Messaging::event_t& event);
+        void                   setNoteOffMode(noteOffType_t type);
+        bool                   setupUSBMIDI();
+        bool                   setupDINMIDI();
+        bool                   setupThru();
 
-        HWAUSB&     _hwaUSB;
-        HWADIN&     _hwaDIN;
-        HWAInternal _hwaInternal;
-        Database&   _database;
+        HWAUSB&                                      _hwaUSB;
+        HWADIN&                                      _hwaDIN;
+        MIDIlib::USBMIDI                             _usbMIDI = MIDIlib::USBMIDI(_hwaUSB);
+        MIDIlib::SerialMIDI                          _dinMIDI = MIDIlib::SerialMIDI(_hwaDIN);
+        Database&                                    _database;
+        std::array<MIDIlib::Base*, INTERFACE_AMOUNT> _midiInterface;
     };
 }    // namespace Protocol

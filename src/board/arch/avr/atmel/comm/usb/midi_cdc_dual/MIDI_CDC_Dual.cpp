@@ -17,7 +17,6 @@ limitations under the License.
 */
 
 #include "board/common/comm/usb/USB.h"
-#include "midi/src/MIDI.h"
 #include "board/Board.h"
 #include "board/Internal.h"
 #include "core/src/general/Timing.h"

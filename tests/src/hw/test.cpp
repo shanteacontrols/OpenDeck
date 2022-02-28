@@ -311,12 +311,6 @@ TEST_CASE(DatabaseInitialValues)
         for (size_t i = 0; i < static_cast<uint8_t>(Protocol::MIDI::feature_t::AMOUNT); i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromDevice(System::Config::Section::global_t::midiFeatures, i));
 
-        // merge section
-        // all values should be set to 0
-        TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromDevice(System::Config::Section::global_t::midiMerge, static_cast<size_t>(Protocol::MIDI::mergeSetting_t::mergeType)));
-        TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromDevice(System::Config::Section::global_t::midiMerge, static_cast<size_t>(Protocol::MIDI::mergeSetting_t::mergeUSBchannel)));
-        TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromDevice(System::Config::Section::global_t::midiMerge, static_cast<size_t>(Protocol::MIDI::mergeSetting_t::mergeDINchannel)));
-
         // button block
         //----------------------------------
         // type section
@@ -750,11 +744,8 @@ TEST_CASE(MIDIData)
     TEST_ASSERT_EQUAL_INT(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), receivedMessages);
 
     // enable DIN MIDI passthrough, send data to DIN MIDI in to device and expect the same message passed to output port
-    LOG(INFO) << "Enabling DIN MIDI merge";
-    TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Config::Section::global_t::midiFeatures, Protocol::MIDI::feature_t::mergeEnabled, 1) == true);
-
-    LOG(INFO) << "Enabling DIN to DIN passthrough";
-    TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Config::Section::global_t::midiMerge, Protocol::MIDI::mergeSetting_t::mergeType, Protocol::MIDI::mergeType_t::DINtoDIN) == true);
+    LOG(INFO) << "Enabling DIN to DIN thru";
+    TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Config::Section::global_t::midiFeatures, Protocol::MIDI::feature_t::dinThruDin, 1) == true);
 
     monitor();
     std::string msg = "90 00 7F";
@@ -774,7 +765,7 @@ TEST_CASE(MIDIData)
 }
 
 #ifdef DMX_SUPPORTED
-TEST_CASE(DMX)
+TEST_CASE(DMXTest)
 {
     LOG(INFO) << "Starting OLA daemon";
     test::wsystem("olad -f --no-http");

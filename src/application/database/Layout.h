@@ -76,16 +76,6 @@ namespace
             .address                = 0,
         },
 
-        // midi merge section
-        {
-            .numberOfParameters     = static_cast<uint8_t>(Protocol::MIDI::mergeSetting_t::AMOUNT),
-            .parameterType          = LESSDB::sectionParameterType_t::halfByte,
-            .preserveOnPartialReset = false,
-            .defaultValue           = 0,
-            .autoIncrement          = false,
-            .address                = 0,
-        },
-
         // dmx section
         {
             .numberOfParameters     = static_cast<uint8_t>(Protocol::DMX::setting_t::AMOUNT),

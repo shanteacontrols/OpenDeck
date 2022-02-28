@@ -6,7 +6,7 @@
 #include <iomanip>
 #include <iostream>
 #include <fstream>
-#include "midi/src/MIDI.h"
+#include "protocol/midi/MIDI.h"
 #include "sysex/src/SysExConf.h"
 #include "util/conversion/Conversion.h"
 #include "system/System.h"
@@ -17,6 +17,8 @@
 #include <HWTestDefines.h>
 #endif
 
+using namespace Protocol;
+
 class MIDIHelper
 {
     public:
@@ -24,39 +26,29 @@ class MIDIHelper
 
     static std::vector<MIDI::usbMIDIPacket_t> rawSysExToUSBPackets(const std::vector<uint8_t>& raw)
     {
-        class HWAFillMIDI : public MIDI::HWA
+        class HWAWriteToUSB : public MIDIlib::USBMIDI::HWA
         {
             public:
-            HWAFillMIDI(std::vector<MIDI::usbMIDIPacket_t>& buffer)
+            HWAWriteToUSB(std::vector<MIDI::usbMIDIPacket_t>& buffer)
                 : _buffer(buffer)
             {}
 
-            bool init(MIDI::interface_t interface) override
+            bool init() override
             {
                 return true;
             }
 
-            bool deInit(MIDI::interface_t interface) override
+            bool deInit() override
             {
                 return true;
             }
 
-            bool dinRead(uint8_t& data) override
+            bool read(MIDI::usbMIDIPacket_t& packet) override
             {
                 return false;
             }
 
-            bool dinWrite(uint8_t data) override
-            {
-                return false;
-            }
-
-            bool usbRead(MIDI::usbMIDIPacket_t& packet) override
-            {
-                return false;
-            }
-
-            bool usbWrite(MIDI::usbMIDIPacket_t& packet) override
+            bool write(MIDI::usbMIDIPacket_t packet) override
             {
                 _buffer.push_back(packet);
                 return true;
@@ -68,46 +60,35 @@ class MIDIHelper
         // create temp midi object whose purpose is to convert provided raw sysex array into
         // a series of USB MIDI packets
         std::vector<MIDI::usbMIDIPacket_t> usbPackets;
-        HWAFillMIDI                        hwaFillMIDI(usbPackets);
-        MIDI                               fillMIDI(hwaFillMIDI);
+        HWAWriteToUSB                      hwaWriteToUSB(usbPackets);
+        MIDIlib::USBMIDI                   writeToUSB(hwaWriteToUSB);
 
-        fillMIDI.init(MIDI::interface_t::usb);
-        fillMIDI.sendSysEx(raw.size(), &raw[0], true);
+        writeToUSB.init();
+        writeToUSB.sendSysEx(raw.size(), &raw[0], true);
 
         return usbPackets;
     }
 
     static std::vector<uint8_t> usbSysExToRawBytes(std::vector<MIDI::usbMIDIPacket_t>& raw)
     {
-        class HWAParseMIDI : public MIDI::HWA
+        class HWAReadFromUSB : public MIDIlib::USBMIDI::HWA
         {
             public:
-            HWAParseMIDI(std::vector<MIDI::usbMIDIPacket_t>& buffer)
+            HWAReadFromUSB(std::vector<MIDI::usbMIDIPacket_t>& buffer)
                 : _buffer(buffer)
             {}
 
-            bool init(MIDI::interface_t interface) override
+            bool init() override
             {
                 return true;
             }
 
-            bool deInit(MIDI::interface_t interface) override
+            bool deInit() override
             {
                 return true;
             }
 
-            bool dinRead(uint8_t& data) override
-            {
-                return false;
-            }
-
-            bool dinWrite(uint8_t data) override
-            {
-                _parsed.push_back(data);
-                return true;
-            }
-
-            bool usbRead(MIDI::usbMIDIPacket_t& packet) override
+            bool read(MIDI::usbMIDIPacket_t& packet) override
             {
                 if (!_buffer.size())
                     return false;
@@ -118,27 +99,100 @@ class MIDIHelper
                 return true;
             }
 
-            bool usbWrite(MIDI::usbMIDIPacket_t& packet) override
+            bool write(MIDI::usbMIDIPacket_t packet) override
             {
                 return true;
             }
 
             std::vector<MIDI::usbMIDIPacket_t>& _buffer;
-            std::vector<uint8_t>                _parsed;
         };
 
-        HWAParseMIDI hwaParseMIDI(raw);
-        MIDI         parseMIDI(hwaParseMIDI);
+        class HWAWriteToSerial : public MIDIlib::SerialMIDI::HWA
+        {
+            public:
+            HWAWriteToSerial() = default;
 
-        parseMIDI.init(MIDI::interface_t::all);
-        parseMIDI.setInputChannel(MIDI::MIDI_CHANNEL_OMNI);
+            bool init() override
+            {
+                return true;
+            }
+
+            bool deInit() override
+            {
+                return true;
+            }
+
+            bool read(uint8_t& data) override
+            {
+                return false;
+            }
+
+            bool write(uint8_t data) override
+            {
+                _parsed.push_back(data);
+                return true;
+            }
+
+            std::vector<uint8_t> _parsed;
+        };
+
+        // create temp midi object whose purpose is to convert provided usb sysex packets into
+        // a raw byte array
+        HWAReadFromUSB      hwaReadFromUSB(raw);
+        HWAWriteToSerial    hwaWriteToSerial;
+        MIDIlib::USBMIDI    readFromUSB(hwaReadFromUSB);
+        MIDIlib::SerialMIDI writeToSerial(hwaWriteToSerial);
+
+        readFromUSB.init();
+        writeToSerial.init();
+        readFromUSB.registerThruInterface(writeToSerial.transport());
 
         auto packetSize = raw.size();
 
         for (size_t i = 0; i < packetSize; i++)
-            parseMIDI.read(MIDI::interface_t::usb, MIDI::filterMode_t::fullDIN);
+        {
+            readFromUSB.read();
+        }
 
-        return hwaParseMIDI._parsed;
+        return hwaWriteToSerial._parsed;
+    }
+
+    static std::vector<MIDI::usbMIDIPacket_t> noteOnToUsbPacket(uint8_t inNoteNumber, uint8_t inVelocity, uint8_t inChannel)
+    {
+        class HWAWriteToUSB : public MIDIlib::USBMIDI::HWA
+        {
+            public:
+            HWAWriteToUSB() = default;
+
+            bool init() override
+            {
+                return true;
+            }
+
+            bool deInit() override
+            {
+                return true;
+            }
+
+            bool read(MIDI::usbMIDIPacket_t& packet) override
+            {
+                return false;
+            }
+
+            bool write(MIDI::usbMIDIPacket_t packet) override
+            {
+                _buffer.push_back(packet);
+                return true;
+            }
+
+            std::vector<MIDI::usbMIDIPacket_t> _buffer;
+        } _hwaWriteToUSB;
+
+        MIDIlib::USBMIDI writeToUsb(_hwaWriteToUSB);
+        writeToUsb.init();
+        writeToUsb.sendNoteOn(inNoteNumber, inVelocity, inChannel);
+
+        return _hwaWriteToUSB._buffer;
     }
 
     template<typename T>
@@ -171,12 +225,10 @@ class MIDIHelper
     template<typename S, typename I, typename V>
     static void generateSysExSetReq(S section, I index, V value, std::vector<uint8_t>& request)
     {
-        auto             blockIndex = block(section);
-        MIDI::Split14bit splitIndex;
-        MIDI::Split14bit splitValue;
+        auto blockIndex = block(section);
+        auto splitIndex = Util::Conversion::Split14bit(static_cast<uint16_t>(index));
+        auto splitValue = Util::Conversion::Split14bit(static_cast<uint16_t>(value));
 
-        splitIndex.split(static_cast<uint16_t>(index));
-        splitValue.split(static_cast<uint16_t>(value));
         request.clear();
 
         request = {
@@ -211,12 +263,9 @@ class MIDIHelper
     template<typename S, typename I, typename V>
     static bool setSingleSysExReq(S section, I index, V value)
     {
-        auto             blockIndex = block(section);
-        MIDI::Split14bit indexSplit;
-        MIDI::Split14bit valueSplit;
-
-        indexSplit.split(static_cast<uint16_t>(index));
-        valueSplit.split(static_cast<uint16_t>(value));
+        auto blockIndex = block(section);
+        auto indexSplit = Util::Conversion::Split14bit(static_cast<uint16_t>(index));
+        auto valueSplit = Util::Conversion::Split14bit(static_cast<uint16_t>(value));
 
         const std::vector<uint8_t> requestUint8 = {
             0xF0,
@@ -413,9 +462,8 @@ class MIDIHelper
         if (wish == SysExConf::wish_t::get)
         {
             // last two bytes are result
-            MIDI::Merge14bit merge14bit;
-            merge14bit.merge(responseUint8.at(responseUint8.size() - 3), responseUint8.at(responseUint8.size() - 2));
-            return merge14bit.value();
+            auto merged = Util::Conversion::Merge14bit(responseUint8.at(responseUint8.size() - 3), responseUint8.at(responseUint8.size() - 2));
+            return merged.value();
         }
         else
         {

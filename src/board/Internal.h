@@ -20,7 +20,6 @@ limitations under the License.
 
 #include <stddef.h>
 #include <inttypes.h>
-#include "midi/src/MIDI.h"
 #include "core/src/general/IO.h"
 #include "board/Board.h"
 #include "usb-link/Commands.h"

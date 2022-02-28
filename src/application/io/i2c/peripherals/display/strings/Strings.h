@@ -19,7 +19,9 @@ limitations under the License.
 #pragma once
 
 #include <inttypes.h>
-#include "midi/src/MIDI.h"
+#include "protocol/midi/MIDI.h"
+
+using namespace Protocol;
 
 class Strings
 {

@@ -20,7 +20,9 @@ limitations under the License.
 
 #include <stddef.h>
 #include <inttypes.h>
-#include "midi/src/MIDI.h"
+#include "protocol/midi/MIDI.h"
+
+using namespace Protocol;
 
 class SysExParser
 {

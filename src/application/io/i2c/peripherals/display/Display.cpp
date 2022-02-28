@@ -19,7 +19,7 @@ limitations under the License.
 #include <string.h>
 #include "Display.h"
 #include "strings/Strings.h"
-#include "midi/src/MIDI.h"
+#include "protocol/midi/MIDI.h"
 #include "core/src/general/Timing.h"
 #include "core/src/general/Helpers.h"
 #include "io/common/Common.h"
@@ -27,6 +27,7 @@ limitations under the License.
 #include "util/configurable/Configurable.h"
 
 using namespace IO;
+using namespace Protocol;
 
 // u8x8 lib doesn't send packets larger than 32 bytes
 #define U8X8_BUFFER_SIZE 32
@@ -79,7 +80,7 @@ Display::Display(I2C::HWA& hwa,
     MIDIDispatcher.listen(Messaging::eventSource_t::midiIn,
                           Messaging::listenType_t::nonFwd,
                           [this](const Messaging::event_t& event) {
-                              if (event.message != ::MIDI::messageType_t::systemExclusive)
+                              if (event.message != MIDI::messageType_t::systemExclusive)
                               {
                                   displayMIDIevent(Display::eventType_t::in, event);
                               }
@@ -461,7 +462,7 @@ void Display::displayMIDIevent(eventType_t type, const Messaging::event_t& event
         }
         else
         {
-            _stringBuilder.overwrite("%s%d", Strings::note(MIDI::getTonicFromNote(event.midiIndex)), normalizeOctave(MIDI::getOctaveFromNote(event.midiValue), _octaveNormalization));
+            _stringBuilder.overwrite("%s%d", Strings::note(MIDI::noteToTonic(event.midiIndex)), normalizeOctave(MIDI::noteToOctave(event.midiValue), _octaveNormalization));
         }
 
         _stringBuilder.append(" v%d CH%d", event.midiValue, event.midiChannel + 1);

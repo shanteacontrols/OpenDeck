@@ -58,7 +58,6 @@ class Database : public LESSDB
         enum class global_t : uint8_t
         {
             midiFeatures,
-            midiMerge,
             dmx,
             AMOUNT
         };

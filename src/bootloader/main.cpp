@@ -19,7 +19,6 @@ limitations under the License.
 #include "board/Board.h"
 #include "updater/Updater.h"
 #include "SysExParser/SysExParser.h"
-#include "midi/src/MIDI.h"
 #include "FwSelector/FwSelector.h"
 #include "core/src/general/Timing.h"
 

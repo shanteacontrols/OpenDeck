@@ -20,7 +20,9 @@ limitations under the License.
 #include "board/common/comm/USBOverSerial/USBOverSerial.h"
 #include "Commands.h"
 #include "core/src/general/Timing.h"
-#include "midi/src/MIDI.h"
+#include "protocol/midi/MIDI.h"
+
+using namespace Protocol;
 
 /// Time in milliseconds after which USB connection state should be checked
 #define USB_CONN_CHECK_TIME 2000

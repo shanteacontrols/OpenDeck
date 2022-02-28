@@ -16,7 +16,6 @@ limitations under the License.
 
 */
 
-#include "midi/src/MIDI.h"
 #include "board/Board.h"
 #include "tusb.h"
 #include <comm/usb/TinyUSB.h>

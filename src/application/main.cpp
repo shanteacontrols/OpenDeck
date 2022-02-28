@@ -355,7 +355,7 @@ class HWAMIDIUSB : public System::Builder::HWA::Protocol::MIDI::USB
         return true;    // never deinit usb interface, just pretend here
     }
 
-    bool read(::MIDI::usbMIDIPacket_t& packet) override
+    bool read(MIDI::usbMIDIPacket_t& packet) override
     {
         if (Board::USB::readMIDI(packet))
         {
@@ -366,7 +366,7 @@ class HWAMIDIUSB : public System::Builder::HWA::Protocol::MIDI::USB
         return false;
     }
 
-    bool write(::MIDI::usbMIDIPacket_t& packet) override
+    bool write(MIDI::usbMIDIPacket_t packet) override
     {
         if (Board::USB::writeMIDI(packet))
         {
