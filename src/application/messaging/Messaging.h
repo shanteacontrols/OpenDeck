@@ -33,6 +33,7 @@ namespace Messaging
         touchscreenScreen,
         midiIn,
         preset,
+        program,
         system,
         leds
     };
@@ -43,8 +44,7 @@ namespace Messaging
     enum class systemMessage_t : uint8_t
     {
         forceIOrefresh,
-        sysExResponse,
-        midiProgramIndication
+        sysExResponse
     };
 
     struct event_t

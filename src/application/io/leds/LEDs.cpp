@@ -126,15 +126,10 @@ LEDs::LEDs(HWA&      hwa,
                               refresh();
                           });
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::system,
+    MIDIDispatcher.listen(Messaging::eventSource_t::program,
                           Messaging::listenType_t::all,
                           [this](const Messaging::event_t& event) {
-                              if (event.componentIndex == static_cast<uint8_t>(Messaging::systemMessage_t::midiProgramIndication))
-                              {
-                                  // pretend this is midi in message - source isn't important here as
-                                  // both midi in and local control for program change are synced
-                                  midiToState(event, Messaging::eventSource_t::midiIn);
-                              }
+                              midiToState(event, Messaging::eventSource_t::program);
                           });
 
     ConfigHandler.registerConfig(
@@ -306,14 +301,9 @@ void LEDs::midiToState(Messaging::event_t message, Messaging::eventSource_t sour
             continue;
         }
 
-        // no point in checking if channel doesn't match
-        if (_database.read(Database::Section::leds_t::midiChannel, i) != message.midiChannel)
-        {
-            continue;
-        }
-
-        bool setState = false;
-        bool setBlink = false;
+        bool setState     = false;
+        bool setBlink     = false;
+        bool checkChannel = true;
 
         // determine whether led state or blink state should be changed
         // received MIDI message must match with defined control type
@@ -341,7 +331,8 @@ void LEDs::midiToState(Messaging::event_t message, Messaging::eventSource_t sour
 
             case controlType_t::pcSingleVal:
             {
-                if (message.message == MIDI::messageType_t::programChange)
+                // source must be verified here, otherwise no difference between program and preset source is detected
+                if ((message.message == MIDI::messageType_t::programChange) && (source != Messaging::eventSource_t::preset))
                 {
                     setState = true;
                 }
@@ -351,10 +342,13 @@ void LEDs::midiToState(Messaging::event_t message, Messaging::eventSource_t sour
             case controlType_t::preset:
             {
                 // it is expected for MIDI message to be set to program change when changing preset
-                if (message.message == MIDI::messageType_t::programChange)
+                // source must be verified here, otherwise no difference between program and preset source is detected
+                if ((message.message == MIDI::messageType_t::programChange) && (source != Messaging::eventSource_t::program))
                 {
                     setState = true;
                 }
+
+                checkChannel = false;
             }
             break;
 
@@ -435,6 +429,15 @@ void LEDs::midiToState(Messaging::event_t message, Messaging::eventSource_t sour
 
             default:
                 break;
+            }
+        }
+
+        if (checkChannel)
+        {
+            // no point in further checking if channel doesn't match
+            if (_database.read(Database::Section::leds_t::midiChannel, i) != event.midiChannel)
+            {
+                continue;
             }
         }
 

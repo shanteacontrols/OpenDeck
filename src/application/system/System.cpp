@@ -122,13 +122,13 @@ bool Instance::init()
     {
         Messaging::event_t event;
 
-        event.componentIndex = static_cast<uint8_t>(Messaging::systemMessage_t::midiProgramIndication);
+        event.componentIndex = 0;
         event.midiChannel    = i;
         event.midiIndex      = Common::program(i);
         event.midiValue      = 0;
         event.message        = MIDI::messageType_t::programChange;
 
-        MIDIDispatcher.notify(Messaging::eventSource_t::system,
+        MIDIDispatcher.notify(Messaging::eventSource_t::program,
                               event,
                               Messaging::listenType_t::nonFwd);
     }
