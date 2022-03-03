@@ -325,7 +325,9 @@ TEST_CASE(VerifyBrightnessAndBlinkSpeed)
         //----------------------------------
 
         for (int i = 0; i < IO::LEDs::Collection::size(); i++)
+        {
             TEST_ASSERT(_database.update(Database::Section::leds_t::controlType, i, IO::LEDs::controlType_t::midiInNoteMultiVal) == true);
+        }
 
         // push messages to dispatcher
         // leds class listens to midi in message source

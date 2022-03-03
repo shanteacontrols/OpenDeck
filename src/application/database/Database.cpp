@@ -322,7 +322,7 @@ bool Database::isSignatureValid()
 uint16_t Database::getDbUID()
 {
     /// Magic value with which calculated signature is XORed.
-    const uint16_t uidBase = 0x1701;
+    static constexpr uint16_t UID_BASE = 0x1701;
 
     uint16_t signature = 0;
 
@@ -337,8 +337,9 @@ uint16_t Database::getDbUID()
     }
 
     signature += _supportedPresets;
+    signature ^= UID_BASE;
 
-    return signature ^ uidBase;
+    return signature;
 }
 
 /// Updates unique database UID.

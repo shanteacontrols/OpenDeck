@@ -70,9 +70,9 @@ TEST_CASE(Bootloader)
     std::vector<uint8_t>               singleSysExMsg = {};
     std::vector<MIDI::usbMIDIPacket_t> packets        = {};
 
-    // go over the entire .sysex file
-    // upon reaching the end of single sysex message, convert it
-    // into series of USB MIDI packets
+    // Go over the entire .syx file.
+    // Upon reaching the end of single sysex message, convert it
+    // into series of USB MIDI packets.
     for (size_t i = 0; i < sysExVector.size(); i++)
     {
         singleSysExMsg.push_back(sysExVector.at(i));
@@ -85,8 +85,8 @@ TEST_CASE(Bootloader)
         }
     }
 
-    // now we have the entire file in form of USB MIDI packets
-    // parse each message and once parsing passes, feed the parsed data into fw updater
+    // Now we have the entire file in form of USB MIDI packets.
+    // Parse each message and once parsing passes, feed the parsed data into FW updater.
     for (size_t packet = 0; packet < packets.size(); packet++)
     {
         if (_sysExParser.isValidMessage(packets.at(packet)))

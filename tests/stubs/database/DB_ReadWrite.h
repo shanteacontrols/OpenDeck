@@ -15,7 +15,7 @@
 class DBstorageMock : public LESSDB::StorageAccess
 {
     public:
-    DBstorageMock() {}
+    DBstorageMock() = default;
 
     bool init() override
     {

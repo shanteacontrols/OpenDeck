@@ -5,7 +5,7 @@
 class HWAI2CStub : public IO::I2C::HWA
 {
     public:
-    HWAI2CStub() {}
+    HWAI2CStub() = default;
 
     bool init() override
     {

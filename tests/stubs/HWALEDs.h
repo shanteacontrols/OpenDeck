@@ -5,7 +5,7 @@
 class HWALEDsStub : public IO::LEDs::HWA
 {
     public:
-    HWALEDsStub() {}
+    HWALEDsStub() = default;
 
     void setState(size_t index, IO::LEDs::brightness_t brightness) override
     {

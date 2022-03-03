@@ -117,7 +117,6 @@ namespace IO
         class HWA
         {
             public:
-            HWA() {}
             virtual void   setState(size_t index, brightness_t brightness)                = 0;
             virtual size_t rgbIndex(size_t singleLEDindex)                                = 0;
             virtual size_t rgbSignalIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent) = 0;

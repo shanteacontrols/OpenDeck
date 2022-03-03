@@ -27,7 +27,6 @@ class Database : public LESSDB
     class Handlers
     {
         public:
-        Handlers()                                = default;
         virtual void presetChange(uint8_t preset) = 0;
         virtual void factoryResetStart()          = 0;
         virtual void factoryResetDone()           = 0;
@@ -53,7 +52,7 @@ class Database : public LESSDB
     class Section
     {
         public:
-        Section() {}
+        Section() = default;
 
         enum class global_t : uint8_t
         {

@@ -167,7 +167,7 @@ class HWALEDs : public System::Builder::HWA::IO::LEDs
 class HWALEDsStub : public System::Builder::HWA::IO::LEDs
 {
     public:
-    HWALEDsStub() {}
+    HWALEDsStub() = default;
 
     void setState(size_t index, IO::LEDs::brightness_t brightness) override
     {
@@ -205,7 +205,7 @@ class HWAAnalog : public System::Builder::HWA::IO::Analog
 class HWAAnalogStub : public System::Builder::HWA::IO::Analog
 {
     public:
-    HWAAnalogStub() {}
+    HWAAnalogStub() = default;
 
     bool value(size_t index, uint16_t& value) override
     {
@@ -296,7 +296,7 @@ class HWAButtons : public System::Builder::HWA::IO::Buttons
 class HWAButtonsStub : public System::Builder::HWA::IO::Buttons
 {
     public:
-    HWAButtonsStub() {}
+    HWAButtonsStub() = default;
 
     bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
     {
@@ -326,7 +326,7 @@ class HWAEncoders : public System::Builder::HWA::IO::Encoders
 class HWAEncodersStub : public System::Builder::HWA::IO::Encoders
 {
     public:
-    HWAEncodersStub() {}
+    HWAEncodersStub() = default;
 
     bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
     {
@@ -760,7 +760,7 @@ class HWACDCPassthrough : public System::Builder::HWA::IO::CDCPassthrough
 class HWATouchscreenStub : public System::Builder::HWA::IO::Touchscreen
 {
     public:
-    HWATouchscreenStub() {}
+    HWATouchscreenStub() = default;
 
     bool init() override
     {

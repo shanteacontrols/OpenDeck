@@ -15,7 +15,7 @@ namespace
     class HWAButtons : public IO::Buttons::HWA
     {
         public:
-        HWAButtons() {}
+        HWAButtons() = default;
 
         bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
         {
@@ -45,7 +45,9 @@ namespace
         _listener._event.clear();
 
         for (int i = 0; i < IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS); i++)
+        {
             _hwaButtons._state[i] = state;
+        }
 
         _buttons.updateAll();
     }
@@ -133,7 +135,9 @@ TEST_CASE(Note)
 
             // try with the latching mode
             for (int i = 0; i < IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS); i++)
+            {
                 TEST_ASSERT(_database.update(Database::Section::button_t::type, i, Buttons::type_t::latching) == true);
+            }
 
             stateChangeRegister(true);
             TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
@@ -211,7 +215,9 @@ TEST_CASE(ProgramChange)
             // repeat the entire test again, but with buttons configured as latching types
             // behaviour should be the same
             for (int i = 0; i < IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS); i++)
+            {
                 TEST_ASSERT(_database.update(Database::Section::button_t::type, i, Buttons::type_t::latching) == true);
+            }
 
             stateChangeRegister(true);
             TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
@@ -223,7 +229,9 @@ TEST_CASE(ProgramChange)
 
         // test for all channels
         for (int i = 1; i <= 16; i++)
+        {
             tesprogramChange(i);
+        }
 
         // test programChangeInc/programChangeDec
         _database.factoryReset();
@@ -235,7 +243,9 @@ TEST_CASE(ProgramChange)
             TEST_ASSERT(_database.update(Database::Section::button_t::midiChannel, index, channel) == true);
 
             for (int i = 0; i < IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS); i++)
+            {
                 _buttons.reset(i);
+            }
         };
 
         auto verifyProgramChange = [&](size_t index, uint8_t channel, uint8_t program) {
@@ -365,7 +375,9 @@ TEST_CASE(ProgramChange)
             for (int i = 0; i < _listener._event.size(); i++)
             {
                 if (_listener._event.at(i).message == MIDI::messageType_t::programChange)
+                {
                     pcCounter++;
+                }
             }
 
             TEST_ASSERT(pcCounter == 2);
@@ -432,7 +444,9 @@ TEST_CASE(ControlChange)
             // behaviour should be the same
 
             for (int i = 0; i < IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS); i++)
+            {
                 TEST_ASSERT(_database.update(Database::Section::button_t::type, i, Buttons::type_t::latching) == true);
+            }
 
             stateChangeRegister(true);
             TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
@@ -467,7 +481,9 @@ TEST_CASE(ControlChange)
             // on second press reset should be sent (CC with value 0)
 
             for (int i = 0; i < IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS); i++)
+            {
                 TEST_ASSERT(_database.update(Database::Section::button_t::type, i, Buttons::type_t::latching) == true);
+            }
 
             stateChangeRegister(true);
             TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
@@ -486,7 +502,9 @@ TEST_CASE(ControlChange)
         // verify with all control values
         // value 0 is normally blocked to configure for users (via sysex)
         for (int i = 1; i < 128; i++)
+        {
             controlChangeTest(i);
+        }
     }
 }
 
@@ -516,7 +534,9 @@ TEST_CASE(NoMessages)
         TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
 
         for (int i = 0; i < IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS); i++)
+        {
             TEST_ASSERT(_database.update(Database::Section::button_t::type, i, Buttons::type_t::latching) == true);
+        }
 
         stateChangeRegister(true);
         TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
@@ -562,7 +582,9 @@ TEST_CASE(LocalLEDcontrol)
 
             // all leds should be off initially
             for (int i = 0; i < IO::LEDs::Collection::size(IO::LEDs::GROUP_DIGITAL_OUTPUTS); i++)
+            {
                 TEST_ASSERT(_leds.color(i) == LEDs::color_t::off);
+            }
 
             // simulate the press of all buttons
             // since led 0 is configured in local control mode, it should be on now
@@ -573,18 +595,24 @@ TEST_CASE(LocalLEDcontrol)
 
             // all other leds should remain off
             for (int i = 1; i < IO::LEDs::Collection::size(IO::LEDs::GROUP_DIGITAL_OUTPUTS); i++)
+            {
                 TEST_ASSERT(_leds.color(i) == LEDs::color_t::off);
+            }
 
             // now release the button and verify that the led is off again
             stateChangeRegister(false);
             TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
             for (int i = 0; i < IO::LEDs::Collection::size(IO::LEDs::GROUP_DIGITAL_OUTPUTS); i++)
+            {
                 TEST_ASSERT(_leds.color(i) == LEDs::color_t::off);
+            }
 
             // test again in latching mode
             for (int i = 0; i < IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS); i++)
+            {
                 TEST_ASSERT(_database.update(Database::Section::button_t::type, i, Buttons::type_t::latching) == true);
+            }
 
             stateChangeRegister(true);
             TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
@@ -705,7 +733,9 @@ TEST_CASE(LocalLEDcontrol)
             if (IO::LEDs::Collection::size() > 1)
             {
                 for (int i = 0; i < IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS); i++)
+                {
                     _buttons.reset(i);
+                }
 
                 // test program change
                 TEST_ASSERT(_database.update(Database::Section::leds_t::controlType, 0, LEDs::controlType_t::pcSingleVal) == true);
@@ -714,7 +744,9 @@ TEST_CASE(LocalLEDcontrol)
                 TEST_ASSERT(_leds.color(0) == LEDs::color_t::off);
 
                 for (int i = 0; i < IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS); i++)
+                {
                     _buttons.reset(i);
+                }
 
                 // configure button in program change mode - this should trigger on state for LED 0
                 TEST_ASSERT(_database.update(Database::Section::button_t::midiMessage, 0, Buttons::messageType_t::programChange) == true);
@@ -722,7 +754,9 @@ TEST_CASE(LocalLEDcontrol)
                 TEST_ASSERT(_leds.color(0) == LEDs::color_t::red);
 
                 for (int i = 0; i < IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS); i++)
+                {
                     _buttons.reset(i);
+                }
 
                 // configure second LED and button in program change mode
                 TEST_ASSERT(_database.update(Database::Section::leds_t::controlType, 1, LEDs::controlType_t::pcSingleVal) == true);

@@ -32,8 +32,6 @@ namespace Board
             class Peripheral
             {
                 public:
-                Peripheral() = default;
-
                 virtual std::vector<core::io::mcuPin_t> pins()         = 0;
                 virtual void*                           interface()    = 0;
                 virtual IRQn_Type                       irqn()         = 0;

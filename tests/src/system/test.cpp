@@ -25,7 +25,7 @@ namespace
     class HWALEDs : public System::Builder::HWA::IO::LEDs
     {
         public:
-        HWALEDs() {}
+        HWALEDs() = default;
 
         void setState(size_t index, IO::LEDs::brightness_t brightness) override
         {
@@ -59,7 +59,7 @@ namespace
     class HWAButtons : public System::Builder::HWA::IO::Buttons
     {
         public:
-        HWAButtons() {}
+        HWAButtons() = default;
 
         bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
         {
@@ -75,8 +75,7 @@ namespace
     class HWAEncoders : public System::Builder::HWA::IO::Encoders
     {
         public:
-        HWAEncoders()
-        {}
+        HWAEncoders() = default;
 
         bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
         {
@@ -441,7 +440,7 @@ namespace
     class HWABuilder : public ::System::Builder::HWA
     {
         public:
-        HWABuilder() {}
+        HWABuilder() = default;
 
         ::System::Builder::HWA::IO& io() override
         {

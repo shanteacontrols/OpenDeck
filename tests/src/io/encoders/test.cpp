@@ -13,8 +13,7 @@ namespace
     class HWAEncoders : public IO::Encoders::HWA
     {
         public:
-        HWAEncoders()
-        {}
+        HWAEncoders() = default;
 
         bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
         {

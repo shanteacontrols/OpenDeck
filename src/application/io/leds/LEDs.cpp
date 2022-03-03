@@ -289,14 +289,14 @@ LEDs::brightness_t LEDs::valueToBrightness(uint8_t value)
     return static_cast<brightness_t>((value % 16 % TOTAL_BRIGHTNESS_VALUES) + 1);
 }
 
-void LEDs::midiToState(Messaging::event_t message, Messaging::eventSource_t source)
+void LEDs::midiToState(Messaging::event_t event, Messaging::eventSource_t source)
 {
     for (size_t i = 0; i < Collection::size(); i++)
     {
         auto controlType = static_cast<controlType_t>(_database.read(Database::Section::leds_t::controlType, i));
 
         // match received midi message with the assigned LED control type
-        if (!isControlTypeMatched(message.message, controlType))
+        if (!isControlTypeMatched(event.message, controlType))
         {
             continue;
         }
@@ -313,7 +313,7 @@ void LEDs::midiToState(Messaging::event_t message, Messaging::eventSource_t sour
             {
             case controlType_t::localNoteSingleVal:
             {
-                if ((message.message == MIDI::messageType_t::noteOn) || (message.message == MIDI::messageType_t::noteOff))
+                if ((event.message == MIDI::messageType_t::noteOn) || (event.message == MIDI::messageType_t::noteOff))
                 {
                     setState = true;
                 }
@@ -322,7 +322,7 @@ void LEDs::midiToState(Messaging::event_t message, Messaging::eventSource_t sour
 
             case controlType_t::localCCSingleVal:
             {
-                if (message.message == MIDI::messageType_t::controlChange)
+                if (event.message == MIDI::messageType_t::controlChange)
                 {
                     setState = true;
                 }
@@ -332,7 +332,7 @@ void LEDs::midiToState(Messaging::event_t message, Messaging::eventSource_t sour
             case controlType_t::pcSingleVal:
             {
                 // source must be verified here, otherwise no difference between program and preset source is detected
-                if ((message.message == MIDI::messageType_t::programChange) && (source != Messaging::eventSource_t::preset))
+                if ((event.message == MIDI::messageType_t::programChange) && (source != Messaging::eventSource_t::preset))
                 {
                     setState = true;
                 }
@@ -343,7 +343,7 @@ void LEDs::midiToState(Messaging::event_t message, Messaging::eventSource_t sour
             {
                 // it is expected for MIDI message to be set to program change when changing preset
                 // source must be verified here, otherwise no difference between program and preset source is detected
-                if ((message.message == MIDI::messageType_t::programChange) && (source != Messaging::eventSource_t::program))
+                if ((event.message == MIDI::messageType_t::programChange) && (source != Messaging::eventSource_t::program))
                 {
                     setState = true;
                 }
@@ -354,7 +354,7 @@ void LEDs::midiToState(Messaging::event_t message, Messaging::eventSource_t sour
 
             case controlType_t::localNoteMultiVal:
             {
-                if ((message.message == MIDI::messageType_t::noteOn) || (message.message == MIDI::messageType_t::noteOff))
+                if ((event.message == MIDI::messageType_t::noteOn) || (event.message == MIDI::messageType_t::noteOff))
                 {
                     setState = true;
                     setBlink = true;
@@ -364,7 +364,7 @@ void LEDs::midiToState(Messaging::event_t message, Messaging::eventSource_t sour
 
             case controlType_t::localCCMultiVal:
             {
-                if (message.message == MIDI::messageType_t::controlChange)
+                if (event.message == MIDI::messageType_t::controlChange)
                 {
                     setState = true;
                     setBlink = true;
@@ -382,7 +382,7 @@ void LEDs::midiToState(Messaging::event_t message, Messaging::eventSource_t sour
             {
             case controlType_t::midiInNoteSingleVal:
             {
-                if ((message.message == MIDI::messageType_t::noteOn) || (message.message == MIDI::messageType_t::noteOff))
+                if ((event.message == MIDI::messageType_t::noteOn) || (event.message == MIDI::messageType_t::noteOff))
                 {
                     setState = true;
                 }
@@ -391,7 +391,7 @@ void LEDs::midiToState(Messaging::event_t message, Messaging::eventSource_t sour
 
             case controlType_t::midiInCCSingleVal:
             {
-                if (message.message == MIDI::messageType_t::controlChange)
+                if (event.message == MIDI::messageType_t::controlChange)
                 {
                     setState = true;
                 }
@@ -400,7 +400,7 @@ void LEDs::midiToState(Messaging::event_t message, Messaging::eventSource_t sour
 
             case controlType_t::pcSingleVal:
             {
-                if (message.message == MIDI::messageType_t::programChange)
+                if (event.message == MIDI::messageType_t::programChange)
                 {
                     setState = true;
                 }
@@ -409,7 +409,7 @@ void LEDs::midiToState(Messaging::event_t message, Messaging::eventSource_t sour
 
             case controlType_t::midiInNoteMultiVal:
             {
-                if ((message.message == MIDI::messageType_t::noteOn) || (message.message == MIDI::messageType_t::noteOff))
+                if ((event.message == MIDI::messageType_t::noteOn) || (event.message == MIDI::messageType_t::noteOff))
                 {
                     setState = true;
                     setBlink = true;
@@ -419,7 +419,7 @@ void LEDs::midiToState(Messaging::event_t message, Messaging::eventSource_t sour
 
             case controlType_t::midiInCCMultiVal:
             {
-                if (message.message == MIDI::messageType_t::controlChange)
+                if (event.message == MIDI::messageType_t::controlChange)
                 {
                     setState = true;
                     setBlink = true;
@@ -454,9 +454,9 @@ void LEDs::midiToState(Messaging::event_t message, Messaging::eventSource_t sour
             if (setState)
             {
                 // match activation ID with received ID
-                if (activationID == message.midiIndex)
+                if (activationID == event.midiIndex)
                 {
-                    if (message.message == MIDI::messageType_t::programChange)
+                    if (event.message == MIDI::messageType_t::programChange)
                     {
                         // byte2 doesn't exist on program change message
                         color      = color_t::red;
@@ -467,13 +467,13 @@ void LEDs::midiToState(Messaging::event_t message, Messaging::eventSource_t sour
                         // when note/cc are used to control both state and blinking ignore activation velocity
                         if (setState && setBlink)
                         {
-                            color      = valueToColor(message.midiValue);
-                            brightness = valueToBrightness(message.midiValue);
+                            color      = valueToColor(event.midiValue);
+                            brightness = valueToBrightness(event.midiValue);
                         }
                         else
                         {
                             // this has side effect that it will always set RGB LED to red color since no color information is available
-                            color      = (_database.read(Database::Section::leds_t::activationValue, i) == message.midiValue) ? color_t::red : color_t::off;
+                            color      = (_database.read(Database::Section::leds_t::activationValue, i) == event.midiValue) ? color_t::red : color_t::off;
                             brightness = brightness_t::b100;
                         }
                     }
@@ -482,7 +482,7 @@ void LEDs::midiToState(Messaging::event_t message, Messaging::eventSource_t sour
                 }
                 else
                 {
-                    if (message.message == MIDI::messageType_t::programChange)
+                    if (event.message == MIDI::messageType_t::programChange)
                     {
                         setColor(i, color_t::off, brightness_t::bOff);
                     }
@@ -492,9 +492,9 @@ void LEDs::midiToState(Messaging::event_t message, Messaging::eventSource_t sour
             if (setBlink)
             {
                 // match activation ID with received ID
-                if (activationID == message.midiIndex)
+                if (activationID == event.midiIndex)
                 {
-                    setBlinkSpeed(i, valueToBlinkSpeed(message.midiValue));
+                    setBlinkSpeed(i, valueToBlinkSpeed(event.midiValue));
                 }
             }
         }
@@ -746,12 +746,12 @@ void LEDs::setState(size_t index, brightness_t brightness)
         // specified hwa interface only writes to physical leds
         // for touchscreen and other destinations, notify via dispatcher
 
-        Messaging::event_t message;
-        message.componentIndex = index - Collection::startIndex(GROUP_TOUCHSCREEN_COMPONENTS);
-        message.midiValue      = static_cast<uint16_t>(brightness);
+        Messaging::event_t event;
+        event.componentIndex = index - Collection::startIndex(GROUP_TOUCHSCREEN_COMPONENTS);
+        event.midiValue      = static_cast<uint16_t>(brightness);
 
         MIDIDispatcher.notify(Messaging::eventSource_t::leds,
-                              message,
+                              event,
                               Messaging::listenType_t::fwd);
     }
     else

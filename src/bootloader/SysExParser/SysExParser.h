@@ -27,7 +27,7 @@ using namespace Protocol;
 class SysExParser
 {
     public:
-    SysExParser() {}
+    SysExParser() = default;
 
     bool   isValidMessage(MIDI::usbMIDIPacket_t& packet);
     size_t dataBytes();

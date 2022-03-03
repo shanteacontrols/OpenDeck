@@ -69,16 +69,12 @@ namespace Protocol
         class HWAUSB : public MIDIlib::USBMIDI::HWA
         {
             public:
-            HWAUSB() = default;
-
             virtual bool supported() = 0;
         };
 
         class HWADIN : public IO::Common::Allocatable, public MIDIlib::SerialMIDI::HWA
         {
             public:
-            HWADIN() = default;
-
             virtual bool supported()             = 0;
             virtual bool setLoopback(bool state) = 0;
         };

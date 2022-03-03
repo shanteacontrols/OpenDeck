@@ -25,7 +25,7 @@ namespace IO
     class EncodersFilter : public IO::Encoders::Filter
     {
         public:
-        EncodersFilter() {}
+        EncodersFilter() = default;
 
         bool isFiltered(size_t                    index,
                         IO::Encoders::position_t  position,

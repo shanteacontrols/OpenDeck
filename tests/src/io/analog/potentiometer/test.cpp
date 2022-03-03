@@ -13,7 +13,7 @@ namespace
     class HWAAnalog : public IO::Analog::HWA
     {
         public:
-        HWAAnalog() {}
+        HWAAnalog() = default;
 
         bool value(size_t index, uint16_t& value) override
         {
@@ -27,7 +27,7 @@ namespace
     class HWAButtons : public IO::Buttons::HWA
     {
         public:
-        HWAButtons() {}
+        HWAButtons() = default;
 
         bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
         {
@@ -55,7 +55,9 @@ namespace
     void updateLastValue(uint16_t value)
     {
         for (size_t i = 0; i < IO::Analog::Collection::size(); i++)
+        {
             _analogFilter.updateLastValue(i, value);
+        }
     }
 }    // namespace
 
@@ -66,7 +68,9 @@ TEST_SETUP()
     TEST_ASSERT(_database.factoryReset() == true);
 
     for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
+    {
         _analog.reset(i);
+    }
 
     static bool listenerActive = false;
 
@@ -126,7 +130,9 @@ TEST_CASE(CCtest)
 
     // all received messages should be control change
     for (int i = 0; i < _listener._event.size(); i++)
+    {
         TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _listener._event.at(i).message);
+    }
 
     uint8_t expectedMIDIvalue = 0;
 
@@ -215,7 +221,9 @@ TEST_CASE(PitchBendTest)
 
     // //all received messages should be pitch bend
     for (int i = 0; i < _listener._event.size(); i++)
+    {
         TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::pitchBend, _listener._event.at(i).message);
+    }
 
     uint16_t expectedMIDIvalue = 0;
 
@@ -285,7 +293,9 @@ TEST_CASE(Inversion)
 
     // enable inversion
     for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
+    {
         TEST_ASSERT(_database.update(Database::Section::analog_t::invert, i, 1) == true);
+    }
 
     for (int i = 0; i <= 127; i++)
     {
@@ -435,7 +445,9 @@ TEST_CASE(Scaling)
 
         // now scale minimum value as well
         for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
+        {
             TEST_ASSERT(_database.update(Database::Section::analog_t::lowerLimit, i, scaledLower) == true);
+        }
 
         _listener._event.clear();
 
