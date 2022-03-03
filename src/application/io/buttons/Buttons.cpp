@@ -536,27 +536,14 @@ std::optional<uint8_t> Buttons::sysConfigGet(System::Config::Section::button_t s
 {
     int32_t readValue;
     auto    result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ack : System::Config::status_t::errorRead;
-
-    // channels start from 0 in db, start from 1 in sysex
-    if ((section == System::Config::Section::button_t::midiChannel) && (result == System::Config::status_t::ack))
-    {
-        readValue++;
-    }
-
-    value = readValue;
+    value          = readValue;
 
     return result;
 }
 
 std::optional<uint8_t> Buttons::sysConfigSet(System::Config::Section::button_t section, size_t index, uint16_t value)
 {
-    // channels start from 0 in db, start from 1 in sysex
-    if (section == System::Config::Section::button_t::midiChannel)
-    {
-        value--;
-    }
-
-    uint8_t result = _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ack : System::Config::status_t::errorWrite;
+    auto result = _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ack : System::Config::status_t::errorWrite;
 
     if (result == System::Config::status_t::ack)
     {

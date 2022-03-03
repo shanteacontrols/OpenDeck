@@ -392,16 +392,6 @@ std::optional<uint8_t> Analog::sysConfigGet(System::Config::Section::analog_t se
     case System::Config::Section::analog_t::upperLimit_MSB:
         return System::Config::status_t::errorNotSupported;
 
-    case System::Config::Section::analog_t::midiChannel:
-    {
-        // channels start from 0 in db, start from 1 in sysex
-        if (result == System::Config::status_t::ack)
-        {
-            readValue++;
-        }
-    }
-    break;
-
     default:
         break;
     }
@@ -427,14 +417,7 @@ std::optional<uint8_t> Analog::sysConfigSet(System::Config::Section::analog_t se
     break;
 
     default:
-    {
-        // channels start from 0 in db, start from 1 in sysex
-        if (section == System::Config::Section::analog_t::midiChannel)
-        {
-            value--;
-        }
-    }
-    break;
+        break;
     }
 
     return _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ack : System::Config::status_t::errorWrite;

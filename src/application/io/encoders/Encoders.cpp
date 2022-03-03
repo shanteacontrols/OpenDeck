@@ -412,12 +412,6 @@ std::optional<uint8_t> Encoders::sysConfigGet(System::Config::Section::encoder_t
         {
             return System::Config::status_t::errorNotSupported;
         }
-
-        if (section == System::Config::Section::encoder_t::midiChannel)
-        {
-            // channels start from 0 in db, start from 1 in sysex
-            readValue++;
-        }
     }
 
     value = readValue;
@@ -433,14 +427,7 @@ std::optional<uint8_t> Encoders::sysConfigSet(System::Config::Section::encoder_t
         return System::Config::status_t::errorNotSupported;
 
     default:
-    {
-        // channels start from 0 in db, start from 1 in sysex
-        if (section == System::Config::Section::encoder_t::midiChannel)
-        {
-            value--;
-        }
-    }
-    break;
+        break;
     }
 
     auto result = _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ack : System::Config::status_t::errorWrite;

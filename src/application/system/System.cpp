@@ -117,8 +117,8 @@ bool Instance::init()
         }
     }
 
-    // on startup, indicate current program for all channels (if any leds have program change assigned as control mode)
-    for (int i = 0; i < 16; i++)
+    // on startup, indicate current program for all channels
+    for (int i = 1; i <= 16; i++)
     {
         Messaging::event_t event;
 

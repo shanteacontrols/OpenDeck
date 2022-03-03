@@ -773,12 +773,6 @@ std::optional<uint8_t> LEDs::sysConfigGet(System::Config::Section::leds_t sectio
     case System::Config::Section::leds_t::midiChannel:
     {
         result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ack : System::Config::status_t::errorRead;
-
-        // channels start from 0 in db, start from 1 in sysex
-        if (result == System::Config::status_t::ack)
-        {
-            readValue++;
-        }
     }
     break;
 
@@ -917,12 +911,6 @@ std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t sectio
     case System::Config::Section::leds_t::controlType:
     case System::Config::Section::leds_t::midiChannel:
     {
-        // channels start from 0 in db, start from 1 in sysex
-        if (section == System::Config::Section::leds_t::midiChannel)
-        {
-            value--;
-        }
-
         // first, find out if RGB led is enabled for this led index
         if (_database.read(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::rgbEnable), rgbIndex(index)))
         {

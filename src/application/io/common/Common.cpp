@@ -22,7 +22,7 @@ limitations under the License.
 
 namespace
 {
-    uint8_t pcValue[16];
+    uint8_t pcValue[17];    // channels use 1-16 range
     uint8_t midiValue[IO::Buttons::Collection::size()];
 }    // namespace
 
@@ -30,7 +30,7 @@ namespace IO
 {
     bool Common::pcIncrement(uint8_t channel)
     {
-        if (channel >= 16)
+        if (channel > 16)
         {
             return false;
         }
@@ -46,7 +46,7 @@ namespace IO
 
     bool Common::pcDecrement(uint8_t channel)
     {
-        if (channel >= 16)
+        if (channel > 16)
         {
             return false;
         }
@@ -62,7 +62,7 @@ namespace IO
 
     uint8_t Common::program(uint8_t channel)
     {
-        if (channel >= 16)
+        if (channel > 16)
         {
             return false;
         }
@@ -72,7 +72,7 @@ namespace IO
 
     bool Common::setProgram(uint8_t channel, uint8_t program)
     {
-        if (channel >= 16)
+        if (channel > 16)
         {
             return false;
         }

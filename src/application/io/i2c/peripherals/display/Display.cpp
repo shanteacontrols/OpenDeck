@@ -465,7 +465,7 @@ void Display::displayMIDIevent(eventType_t type, const Messaging::event_t& event
             _stringBuilder.overwrite("%s%d", Strings::note(MIDI::noteToTonic(event.midiIndex)), normalizeOctave(MIDI::noteToOctave(event.midiValue), _octaveNormalization));
         }
 
-        _stringBuilder.append(" v%d CH%d", event.midiValue, event.midiChannel + 1);
+        _stringBuilder.append(" v%d CH%d", event.midiValue, event.midiChannel);
         _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
         updateText(startRow + 1, 0);
     }
@@ -473,7 +473,7 @@ void Display::displayMIDIevent(eventType_t type, const Messaging::event_t& event
 
     case MIDI::messageType_t::programChange:
     {
-        _stringBuilder.overwrite("%d CH%d", event.midiIndex, event.midiChannel + 1);
+        _stringBuilder.overwrite("%d CH%d", event.midiIndex, event.midiChannel);
         _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
         updateText(startRow + 1, 0);
     }
@@ -484,7 +484,7 @@ void Display::displayMIDIevent(eventType_t type, const Messaging::event_t& event
     case MIDI::messageType_t::nrpn7bit:
     case MIDI::messageType_t::nrpn14bit:
     {
-        _stringBuilder.overwrite("%d %d CH%d", event.midiIndex, event.midiValue, event.midiChannel + 1);
+        _stringBuilder.overwrite("%d %d CH%d", event.midiIndex, event.midiValue, event.midiChannel);
         _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
         updateText(startRow + 1, 0);
     }

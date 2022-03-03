@@ -149,7 +149,7 @@ TEST_CASE(Note)
         };
 
         // test for all velocity/channel values
-        for (int channel = 0; channel < 16; channel++)
+        for (int channel = 1; channel <= 16; channel++)
         {
             for (int velocity = 1; velocity <= 127; velocity++)
             {
@@ -222,7 +222,7 @@ TEST_CASE(ProgramChange)
         };
 
         // test for all channels
-        for (int i = 0; i < 16; i++)
+        for (int i = 1; i <= 16; i++)
             tesprogramChange(i);
 
         // test programChangeInc/programChangeDec
@@ -250,21 +250,23 @@ TEST_CASE(ProgramChange)
             TEST_ASSERT_EQUAL_UINT32(program, _listener._event.at(index).midiIndex);
         };
 
-        configurePCbutton(0, 0, true);
+        const uint8_t CHANNEL = 1;
+
+        configurePCbutton(0, CHANNEL, true);
 
         // verify that the received program change was 1 for button 0
         stateChangeRegister(true);
-        verifyProgramChange(0, 0, 1);
+        verifyProgramChange(0, CHANNEL, 1);
         stateChangeRegister(false);
 
         // after this, verify that the received program change was 2 for button 0
         stateChangeRegister(true);
-        verifyProgramChange(0, 0, 2);
+        verifyProgramChange(0, CHANNEL, 2);
         stateChangeRegister(false);
 
         // after this, verify that the received program change was 3 for button 0
         stateChangeRegister(true);
-        verifyProgramChange(0, 0, 3);
+        verifyProgramChange(0, CHANNEL, 3);
         stateChangeRegister(false);
 
         // now, revert all buttons back to default
@@ -273,25 +275,25 @@ TEST_CASE(ProgramChange)
         if (IO::Buttons::Collection::size() > 1)
         {
             // configure some other button to programChangeInc
-            configurePCbutton(4, 0, true);
+            configurePCbutton(4, CHANNEL, true);
 
             // verify that the program change is continuing to increase
             stateChangeRegister(true);
-            verifyProgramChange(4, 0, 4);
+            verifyProgramChange(4, CHANNEL, 4);
             stateChangeRegister(false);
 
             stateChangeRegister(true);
-            verifyProgramChange(4, 0, 5);
+            verifyProgramChange(4, CHANNEL, 5);
             stateChangeRegister(false);
 
             // now configure two buttons to send program change/inc
-            configurePCbutton(0, 0, true);
+            configurePCbutton(0, CHANNEL, true);
 
             stateChangeRegister(true);
             // program change should be increased by 1, first by button 0
-            verifyProgramChange(0, 0, 6);
+            verifyProgramChange(0, CHANNEL, 6);
             // then by button 4
-            verifyProgramChange(4, 0, 7);
+            verifyProgramChange(4, CHANNEL, 7);
             stateChangeRegister(false);
 
             // configure another button to programChangeInc, but on other channel
@@ -299,9 +301,9 @@ TEST_CASE(ProgramChange)
 
             stateChangeRegister(true);
             // program change should be increased by 1, first by button 0
-            verifyProgramChange(0, 0, 8);
+            verifyProgramChange(0, CHANNEL, 8);
             // then by button 4
-            verifyProgramChange(4, 0, 9);
+            verifyProgramChange(4, CHANNEL, 9);
             // program change should be sent on channel 4 by button 1
             verifyProgramChange(1, 4, 1);
             stateChangeRegister(false);
@@ -310,38 +312,38 @@ TEST_CASE(ProgramChange)
             _database.factoryReset();
 
             // now configure button 0 for programChangeDec
-            configurePCbutton(0, 0, false);
+            configurePCbutton(0, CHANNEL, false);
 
             stateChangeRegister(true);
             // program change should decrease by 1
-            verifyProgramChange(0, 0, 8);
+            verifyProgramChange(0, CHANNEL, 8);
             stateChangeRegister(false);
 
             stateChangeRegister(true);
             // program change should decrease by 1 again
-            verifyProgramChange(0, 0, 7);
+            verifyProgramChange(0, CHANNEL, 7);
             stateChangeRegister(false);
 
             // configure another button for programChangeDec
-            configurePCbutton(1, 0, false);
+            configurePCbutton(1, CHANNEL, false);
 
             stateChangeRegister(true);
             // button 0 should decrease the value by 1
-            verifyProgramChange(0, 0, 6);
+            verifyProgramChange(0, CHANNEL, 6);
             // button 1 should decrease it again
-            verifyProgramChange(1, 0, 5);
+            verifyProgramChange(1, CHANNEL, 5);
             stateChangeRegister(false);
 
             // configure another button for programChangeDec
-            configurePCbutton(2, 0, false);
+            configurePCbutton(2, CHANNEL, false);
 
             stateChangeRegister(true);
             // button 0 should decrease the value by 1
-            verifyProgramChange(0, 0, 4);
+            verifyProgramChange(0, CHANNEL, 4);
             // button 1 should decrease it again
-            verifyProgramChange(1, 0, 3);
+            verifyProgramChange(1, CHANNEL, 3);
             // button 2 should decrease it again
-            verifyProgramChange(2, 0, 2);
+            verifyProgramChange(2, CHANNEL, 2);
             stateChangeRegister(false);
 
             // reset all received messages first
@@ -353,9 +355,9 @@ TEST_CASE(ProgramChange)
 
             stateChangeRegister(true);
             // button 0 should decrease the value by 1
-            verifyProgramChange(0, 0, 1);
+            verifyProgramChange(0, CHANNEL, 1);
             // button 1 should decrease it again
-            verifyProgramChange(1, 0, 0);
+            verifyProgramChange(1, CHANNEL, 0);
 
             // verify that only two program change messages have been received
             uint8_t pcCounter = 0;
@@ -373,11 +375,11 @@ TEST_CASE(ProgramChange)
             // revert all buttons to default
             _database.factoryReset();
 
-            configurePCbutton(0, 0, true);
+            configurePCbutton(0, CHANNEL, true);
 
             stateChangeRegister(true);
             // button 0 should increase the last value by 1
-            verifyProgramChange(0, 0, 1);
+            verifyProgramChange(0, CHANNEL, 1);
             stateChangeRegister(false);
         }
     }
@@ -411,7 +413,7 @@ TEST_CASE(ControlChange)
                 {
                     TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _listener._event.at(i).message);
                     TEST_ASSERT_EQUAL_UINT32(midiValue, _listener._event.at(i).midiValue);
-                    TEST_ASSERT_EQUAL_UINT32(0, _listener._event.at(i).midiChannel);
+                    TEST_ASSERT_EQUAL_UINT32(1, _listener._event.at(i).midiChannel);
                     TEST_ASSERT_EQUAL_UINT32(i, _listener._event.at(i).midiIndex);
                 }
             };

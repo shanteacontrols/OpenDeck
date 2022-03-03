@@ -68,9 +68,9 @@ TEST_CASE(ReadInitialValues)
             TEST_ASSERT_EQUAL_UINT32(127, database.read(Database::Section::button_t::velocity, i));
 
         // midi channel section
-        // all values should be set to 0
+        // all values should be set to 1
         for (int i = 0; i < IO::Buttons::Collection::size(); i++)
-            TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::button_t::midiChannel, i));
+            TEST_ASSERT_EQUAL_UINT32(1, database.read(Database::Section::button_t::midiChannel, i));
 
         // encoders block
         //----------------------------------
@@ -95,9 +95,9 @@ TEST_CASE(ReadInitialValues)
             TEST_ASSERT_EQUAL_UINT32(i, database.read(Database::Section::encoder_t::midiID, i));
 
         // midi channel section
-        // all values should be set to 0
+        // all values should be set to 1
         for (int i = 0; i < IO::Encoders::Collection::size(); i++)
-            TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::encoder_t::midiChannel, i));
+            TEST_ASSERT_EQUAL_UINT32(1, database.read(Database::Section::encoder_t::midiChannel, i));
 
         // pulses per step section
         // all values should be set to 4
@@ -140,9 +140,9 @@ TEST_CASE(ReadInitialValues)
             TEST_ASSERT_EQUAL_UINT32(16383, database.read(Database::Section::analog_t::upperLimit, i));
 
         // midi channel section
-        // all values should be set to 0
+        // all values should be set to 1
         for (int i = 0; i < IO::Analog::Collection::size(); i++)
-            TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::analog_t::midiChannel, i));
+            TEST_ASSERT_EQUAL_UINT32(1, database.read(Database::Section::analog_t::midiChannel, i));
 
         // lower offset section
         // all values should be set to 0
@@ -185,9 +185,9 @@ TEST_CASE(ReadInitialValues)
             TEST_ASSERT_EQUAL_UINT32(127, database.read(Database::Section::leds_t::activationValue, i));
 
         // midi channel section
-        // all values should be set to 0
+        // all values should be set to 1
         for (int i = 0; i < IO::LEDs::Collection::size(); i++)
-            TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::leds_t::midiChannel, i));
+            TEST_ASSERT_EQUAL_UINT32(1, database.read(Database::Section::leds_t::midiChannel, i));
 
 #ifdef I2C_SUPPORTED
         // i2c block
@@ -363,7 +363,7 @@ TEST_CASE(FactoryReset)
 #endif
 
 #ifdef ENCODERS_SUPPORTED
-    TEST_ASSERT(database.read(Database::Section::encoder_t::midiChannel, 0) == 0);
+    TEST_ASSERT(database.read(Database::Section::encoder_t::midiChannel, 0) == 1);
 #endif
 
 #ifdef I2C_SUPPORTED

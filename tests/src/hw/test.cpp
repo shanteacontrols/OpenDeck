@@ -337,8 +337,7 @@ TEST_CASE(DatabaseInitialValues)
             TEST_ASSERT_EQUAL_UINT32(127, MIDIHelper::readFromDevice(System::Config::Section::button_t::velocity, i));
 
         // midi channel section
-        // all values should be set to 0
-        // note: midi channels are in range 1-16 via sysex and written in range 0-15 in db
+        // all values should be set to 1
         for (size_t i = 0; i < IO::Buttons::Collection::size(); i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(1, MIDIHelper::readFromDevice(System::Config::Section::button_t::midiChannel, i));
 
@@ -364,8 +363,7 @@ TEST_CASE(DatabaseInitialValues)
             TEST_ASSERT_EQUAL_UINT32(i, MIDIHelper::readFromDevice(System::Config::Section::encoder_t::midiID, i));
 
         // midi channel section
-        // all values should be set to 0
-        // note: midi channels are in range 1-16 via sysex and written in range 0-15 in db
+        // all values should be set to 1
         for (size_t i = 0; i < IO::Encoders::Collection::size(); i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(1, MIDIHelper::readFromDevice(System::Config::Section::encoder_t::midiChannel, i));
 
@@ -410,8 +408,7 @@ TEST_CASE(DatabaseInitialValues)
             TEST_ASSERT_EQUAL_UINT32(16383, MIDIHelper::readFromDevice(System::Config::Section::analog_t::upperLimit, i));
 
         // midi channel section
-        // all values should be set to 0
-        // note: midi channels are in range 1-16 via sysex and written in range 0-15 in db
+        // all values should be set to 1
         for (size_t i = 0; i < IO::Analog::Collection::size(); i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(1, MIDIHelper::readFromDevice(System::Config::Section::analog_t::midiChannel, i));
 
@@ -456,8 +453,7 @@ TEST_CASE(DatabaseInitialValues)
             TEST_ASSERT_EQUAL_UINT32(127, MIDIHelper::readFromDevice(System::Config::Section::leds_t::activationValue, i));
 
         // midi channel section
-        // all values should be set to 0
-        // note: midi channels are in range 1-16 via sysex and written in range 0-15 in db
+        // all values should be set to 1
         for (size_t i = 0; i < IO::LEDs::Collection::size(); i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(1, MIDIHelper::readFromDevice(System::Config::Section::leds_t::midiChannel, i));
 
