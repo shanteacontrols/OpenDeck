@@ -194,6 +194,7 @@ endif
 endif
 
 merged:
+	@echo Starting build for $(TARGET)
 	@echo Building application...
 	@$(MAKE) --no-print-directory TYPE=app TARGET=$(TARGET) DEBUG=$(DEBUG) pre-build
 	@$(MAKE) --no-print-directory TYPE=app TARGET=$(TARGET) DEBUG=$(DEBUG) binary
