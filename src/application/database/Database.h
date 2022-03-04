@@ -339,8 +339,7 @@ class Database : public LESSDB
     void                   customInitDisplay();
     void                   customInitTouchscreen();
     bool                   isSignatureValid();
-    uint16_t               getDbUID();
-    bool                   setDbUID(uint16_t uid);
+    bool                   setUID();
     bool                   setPresetInternal(uint8_t preset);
     std::optional<uint8_t> sysConfigGet(System::Config::Section::global_t section, size_t index, uint16_t& value);
     std::optional<uint8_t> sysConfigSet(System::Config::Section::global_t section, size_t index, uint16_t value);
@@ -362,6 +361,8 @@ class Database : public LESSDB
 
     /// Holds currently active preset.
     uint8_t _activePreset = 0;
+
+    uint16_t _uid = 0;
 
     bool _initialized = false;
 };

@@ -86,6 +86,8 @@ bool Database::init()
     // limit by hardcoded limit
     _supportedPresets = CONSTRAIN(_supportedPresets, 0, MAX_PRESETS);
 
+    _uid = layoutUID(dbLayout, static_cast<uint8_t>(block_t::AMOUNT) + 1, _supportedPresets);
+
     bool returnValue = true;
 
     if (!isSignatureValid())
@@ -190,7 +192,7 @@ bool Database::factoryReset()
             return false;
         }
 
-        if (!setDbUID(getDbUID()))
+        if (!setUID())
         {
             return false;
         }
@@ -313,44 +315,17 @@ bool Database::isSignatureValid()
                          static_cast<uint8_t>(SectionPrivate::system_t::uid),
                          0);)
 
-    return getDbUID() == signature;
-}
-
-/// Calculates unique database ID.
-/// UID is calculated by appending number of parameters and their types for all
-/// sections and all blocks.
-uint16_t Database::getDbUID()
-{
-    /// Magic value with which calculated signature is XORed.
-    static constexpr uint16_t UID_BASE = 0x1701;
-
-    uint16_t signature = 0;
-
-    // get unique database signature based on its blocks/sections
-    for (int i = 0; i < static_cast<uint8_t>(block_t::AMOUNT) + 1; i++)
-    {
-        for (int j = 0; j < dbLayout[i].numberOfSections; j++)
-        {
-            signature += static_cast<uint16_t>(dbLayout[i].section[j].numberOfParameters);
-            signature += static_cast<uint16_t>(dbLayout[i].section[j].parameterType);
-        }
-    }
-
-    signature += _supportedPresets;
-    signature ^= UID_BASE;
-
-    return signature;
+    return _uid == signature;
 }
 
 /// Updates unique database UID.
 /// UID is written to first two database locations.
-/// param [in]: uid Database UID to set.
-bool Database::setDbUID(uint16_t uid)
+bool Database::setUID()
 {
     bool returnValue;
 
     SYSTEM_BLOCK_ENTER(
-        returnValue = update(0, static_cast<uint8_t>(SectionPrivate::system_t::uid), 0, uid);)
+        returnValue = update(0, static_cast<uint8_t>(SectionPrivate::system_t::uid), 0, _uid);)
 
     return returnValue;
 }
