@@ -7,9 +7,6 @@
       type: "device"
     dinMIDI:
       channel: 1
-    touchscreen:
-      channel: 1
-      components: 32
   i2c:
     channel: 0
   buttons:
