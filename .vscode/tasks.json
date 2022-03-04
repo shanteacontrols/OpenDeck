@@ -206,7 +206,7 @@
             "description": "Select target for which to build:",
             "options": [
                 "bergamot",
-                "blackpill401",
+                "blackpill401ce",
                 "blackpill401cc",
                 "blackpill411",
                 "cardamom",
