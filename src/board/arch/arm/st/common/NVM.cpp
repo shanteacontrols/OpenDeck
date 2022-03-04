@@ -55,14 +55,14 @@ namespace
         {
             switch (page)
             {
-            case EmuEEPROM::page_t::pageFactory:
-                return Board::detail::flash::erasePage(FLASH_PAGE_FACTORY);
-
             case EmuEEPROM::page_t::page2:
                 return Board::detail::flash::erasePage(FLASH_PAGE_EEPROM_2);
 
-            default:
+            case EmuEEPROM::page_t::page1:
                 return Board::detail::flash::erasePage(FLASH_PAGE_EEPROM_1);
+
+            default:
+                return false;
             }
         }
 
