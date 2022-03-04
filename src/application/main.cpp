@@ -21,6 +21,9 @@ limitations under the License.
 #include "io/common/Common.h"
 #include "system/System.h"
 #include "system/Builder.h"
+#ifdef USE_LOGGER
+#include "logger/Logger.h"
+#endif
 
 class CDCLocker
 {
@@ -1038,6 +1041,20 @@ namespace Board::USB
         _hwaCDCPassthrough.onCDCsetLineEncoding(baudRate);
     }
 }    // namespace Board::USB
+#endif
+
+#ifdef USE_LOGGER
+class LoggerWriter : public Logger::StreamWriter
+{
+    public:
+    LoggerWriter() = default;
+
+    bool write(const char* message) override
+    {
+        return Board::USB::writeCDC((uint8_t*)&message[0], strlen(message));
+    }
+} _loggerWriter;
+Logger logger = Logger(_loggerWriter, Logger::lineEnding_t::crlf);
 #endif
 
 Database _database(_hwaDatabase,

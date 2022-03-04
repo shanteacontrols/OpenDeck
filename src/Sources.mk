@@ -112,6 +112,10 @@ ifeq (,$(findstring gen,$(TYPE)))
             SOURCES += $(shell $(FIND) ./application/io/encoders -maxdepth 1 -type f -name "*.cpp")
             SOURCES += $(shell $(FIND) ./application/io/leds -maxdepth 1 -type f -name "*.cpp")
 
+            ifneq (,$(findstring USE_LOGGER,$(DEFINES)))
+                SOURCES += $(shell $(FIND) ./application/logger -maxdepth 1 -type f -name "*.cpp")
+            endif
+
             ifneq (,$(findstring ADC_SUPPORTED,$(DEFINES)))
                 SOURCES += board/common/io/Analog.cpp
             endif

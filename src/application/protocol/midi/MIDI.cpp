@@ -22,6 +22,7 @@ limitations under the License.
 #include "util/conversion/Conversion.h"
 #include "messaging/Messaging.h"
 #include "util/configurable/Configurable.h"
+#include "logger/Logger.h"
 
 using namespace IO;
 
@@ -218,6 +219,8 @@ void Protocol::MIDI::read()
 
         while (interfaceInstance->read())
         {
+            LOG_INFO("Received MIDI message on interface index %d", static_cast<int>(i));
+
             Messaging::event_t event;
 
             event.componentIndex = 0;
@@ -288,6 +291,8 @@ void Protocol::MIDI::sendMIDI(Messaging::eventSource_t source, const Messaging::
         {
             continue;
         }
+
+        LOG_INFO("Sending MIDI message in interface index %d", static_cast<int>(i));
 
         switch (event.message)
         {
