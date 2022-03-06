@@ -94,7 +94,7 @@ namespace IO
         Encoders(HWA&      hwa,
                  Filter&   filter,
                  Database& database,
-                 uint32_t  timeDiffTimeout);
+                 uint32_t  timeDiffTimeout = 1);
 
         bool   init() override;
         void   updateSingle(size_t index, bool forceRefresh = false) override;
