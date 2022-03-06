@@ -64,6 +64,11 @@ namespace Util
             }
         }
 
+        void clear()
+        {
+            _listener.clear();
+        }
+
         private:
         Dispatcher() = default;
 
