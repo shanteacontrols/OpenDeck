@@ -104,8 +104,8 @@ bool Instance::init()
         }
     }
 
-    _sysExConf.setLayout(sysExLayout);
-    _sysExConf.setupCustomRequests(customRequests);
+    _sysExConf.setLayout(_layout.layout());
+    _sysExConf.setupCustomRequests(_layout.customRequests());
 
     for (size_t i = 0; i < _components.protocol().size(); i++)
     {

@@ -30,6 +30,7 @@ limitations under the License.
 #include "io/IOBase.h"
 #include "bootloader/FwSelector/FwSelector.h"
 #include "Config.h"
+#include "Layout.h"
 
 namespace System
 {
@@ -129,6 +130,7 @@ namespace System
         SysExConf           _sysExConf;
         Util::Scheduler     _scheduler;
         Util::ComponentInfo _cInfo;
+        Layout              _layout;
 
         const SysExConf::manufacturerID_t _sysExMID = {
             SYSEX_MANUFACTURER_ID_0,
