@@ -75,8 +75,8 @@ namespace System
         Instance(HWA&        hwa,
                  Components& components);
 
-        bool init();
-        void run();
+        bool              init();
+        IO::ioComponent_t run();
 
         private:
         class SysExDataHandler : public SysExConf::DataHandler
@@ -117,10 +117,10 @@ namespace System
             SCHEDULED_TASK_FORCED_REFRESH,
         };
 
-        void checkComponents();
-        void checkProtocols();
-        void backup();
-        void forceComponentRefresh();
+        IO::ioComponent_t checkComponents();
+        void              checkProtocols();
+        void              backup();
+        void              forceComponentRefresh();
 
         HWA&                _hwa;
         Components&         _components;

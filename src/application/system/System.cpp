@@ -136,12 +136,18 @@ bool Instance::init()
     return true;
 }
 
-void Instance::run()
+// Return the last processed IO component:
+// components aren't checked all at once, but
+// rather a single one for each run() call. This is
+// done to reduce the amount of spent time inside checkComponents.
+ioComponent_t Instance::run()
 {
     _hwa.update();
-    checkComponents();
+    auto ret = checkComponents();
     checkProtocols();
     _scheduler.update();
+
+    return ret;
 }
 
 void Instance::backup()
@@ -233,7 +239,7 @@ void Instance::backup()
     _backupRestoreState = backupRestoreState_t::none;
 }
 
-void Instance::checkComponents()
+ioComponent_t Instance::checkComponents()
 {
     static ioComponent_t componentIndex                                                    = ioComponent_t::buttons;
     static size_t        componentUpdateIndex[static_cast<uint8_t>(ioComponent_t::AMOUNT)] = {};
@@ -299,6 +305,9 @@ void Instance::checkComponents()
             }
         }
     }
+
+    // return the last processed io component
+    return componentIndex;
 }
 
 void Instance::checkProtocols()
