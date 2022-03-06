@@ -433,40 +433,40 @@ namespace System
             },
         };
 
-        std::vector<SysExConf::block_t> _layout = {
+        std::vector<SysExConf::Block> _layout = {
             // global block
             {
-                .section = _globalSections,
+                _globalSections,
             },
 
             // buttons block
             {
-                .section = _buttonSections,
+                _buttonSections,
             },
 
             // encoder block
             {
-                .section = _encoderSections,
+                _encoderSections,
             },
 
             // analog block
             {
-                .section = _analogSections,
+                _analogSections,
             },
 
             // led block
             {
-                .section = _ledSections,
+                _ledSections,
             },
 
             // display block
             {
-                .section = _i2cSections,
+                _i2cSections,
             },
 
             // touchscreen block
             {
-                .section = _touchscreenSections,
+                _touchscreenSections,
             }
         };
 
@@ -535,7 +535,7 @@ namespace System
         public:
         Layout() = default;
 
-        std::vector<SysExConf::block_t>& layout()
+        std::vector<SysExConf::Block>& layout()
         {
             return _layout;
         }
