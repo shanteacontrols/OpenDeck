@@ -519,8 +519,6 @@ void LEDs::setBlinkSpeed(uint8_t ledID, blinkSpeed_t state, bool updateState)
     else
     {
         ledArray[0] = ledID;
-        ledArray[1] = ledID;
-        ledArray[2] = ledID;
 
         leds = 1;
     }
