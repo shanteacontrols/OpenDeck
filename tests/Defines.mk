@@ -1,9 +1,9 @@
 #common defines
 DEFINES += \
-UNITY_INCLUDE_CONFIG_H
+TEST \
+USE_LOGGER
 
 TEST_DEFINES := 1
-DEFINES += TEST
 
 #override root path for includes in Makefiles located in src directory
 MAKEFILE_INCLUDE_PREFIX := ../src/

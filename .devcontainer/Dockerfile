@@ -25,6 +25,7 @@ bash-completion \
 libgoogle-glog-dev \
 ccache \
 unzip \
+cmake \
 && rm -rf /var/lib/apt/lists/*
 
 RUN \
@@ -72,6 +73,19 @@ cp hub-linux-amd64-2.14.2/bin/hub /usr/bin/hub && \
 rm -rf hub-linux-amd64-2.14.2
 
 ENV PATH="/opendeck-deps/arduino-1.8.19/hardware/tools/avr/bin:/opendeck-deps/gcc-arm-none-eabi-10.3-2021.10/bin:$PATH"
+
+#setup gtest/gmock
+RUN \
+cd /opendeck-deps && \
+git clone https://github.com/google/googletest.git -b release-1.11.0 && \
+cd googletest && \
+mkdir build && \
+cd build && \
+cmake .. && \
+make && \
+make install && \
+cd ../../ && \
+rm -rf googletest
 
 #don't run as root!
 RUN adduser --disabled-password --gecos '' $user

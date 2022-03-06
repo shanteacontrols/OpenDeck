@@ -18,7 +18,9 @@ namespace test
         FILE* fpipe = popen(in.c_str(), "r");
 
         if (fpipe == NULL)
+        {
             throw std::runtime_error(std::string("Can't run ") + in);
+        }
 
         out = "";
 

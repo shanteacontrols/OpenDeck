@@ -21,9 +21,6 @@
 [submodule "modules/core"]
 	path = modules/core
 	url = https://github.com/paradajz/core.git
-[submodule "modules/unity"]
-	path = modules/unity
-	url = https://github.com/ThrowTheSwitch/Unity.git
 [submodule "modules/EmuEEPROM"]
 	path = modules/EmuEEPROM
 	url = https://github.com/paradajz/EmuEEPROM.git

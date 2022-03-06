@@ -1,6 +1,6 @@
 #ifndef USB_LINK_MCU
 
-#include "unity/Framework.h"
+#include "framework/Framework.h"
 #include "SysExParser/SysExParser.h"
 #include "updater/Updater.h"
 #include "board/Board.h"
@@ -57,10 +57,10 @@ namespace
     Updater     _updater = Updater(_btldrWriter, COMMAND_FW_UPDATE_START, COMMAND_FW_UPDATE_END, FW_UID);
 }    // namespace
 
-TEST_CASE(Bootloader)
+TEST(Bootloader, FwUpdate)
 {
-    std::string syxPath    = fw_build_dir + BOARD_STRING + "/" + fw_build_type_subdir + "merged/" + BOARD_STRING + ".sysex.syx";
-    std::string binaryPath = fw_build_dir + BOARD_STRING + "/" + fw_build_type_subdir + "merged/" + BOARD_STRING + "_sysex.bin";
+    const std::string syxPath    = fw_build_dir + BOARD_STRING + "/" + fw_build_type_subdir + "merged/" + BOARD_STRING + ".sysex.syx";
+    const std::string binaryPath = fw_build_dir + BOARD_STRING + "/" + fw_build_type_subdir + "merged/" + BOARD_STRING + "_sysex.bin";
 
     std::ifstream        sysExStream(syxPath, std::ios::in | std::ios::binary);
     std::vector<uint8_t> sysExVector((std::istreambuf_iterator<char>(sysExStream)), std::istreambuf_iterator<char>());
@@ -108,10 +108,10 @@ TEST_CASE(Bootloader)
     }
 
     // once all data has been fed into updater, firmware update procedure should be complete
-    TEST_ASSERT(_btldrWriter.updated == true);
+    ASSERT_TRUE(_btldrWriter.updated);
 
     // written content should also match the original binary file from which .syx file has been created
-    TEST_ASSERT(_btldrWriter.writtenBytes == binaryVector);
+    ASSERT_TRUE(_btldrWriter.writtenBytes == binaryVector);
 }
 
 #endif

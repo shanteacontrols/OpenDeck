@@ -1,90 +1,68 @@
-#include "unity/Framework.h"
-#include "io/encoders/Encoders.h"
-#include "core/src/general/Timing.h"
-#include "database/Database.h"
-#include "stubs/database/DB_ReadWrite.h"
-#include "stubs/EncodersFilter.h"
+#include "framework/Framework.h"
+#include "stubs/Encoders.h"
 #include "stubs/Listener.h"
 
 #ifdef ENCODERS_SUPPORTED
 
+using namespace IO;
+
 namespace
 {
-    class HWAEncoders : public IO::Encoders::HWA
+    class EncodersTest : public ::testing::Test
     {
-        public:
-        HWAEncoders() = default;
-
-        bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
+        protected:
+        void SetUp() override
         {
-            numberOfReadings = 1;
-            states           = _state;
+            ASSERT_TRUE(_encoders._database.init());
+            ASSERT_TRUE(_encoders._database.factoryReset());
+            ASSERT_EQ(0, _encoders._database.getPreset());
 
-            return true;
+            // set known state
+            for (int i = 0; i < Encoders::Collection::size(); i++)
+            {
+                ASSERT_TRUE(_encoders._database.update(Database::Config::Section::encoder_t::enable, i, 1));
+                ASSERT_TRUE(_encoders._database.update(Database::Config::Section::encoder_t::invert, i, 0));
+                ASSERT_TRUE(_encoders._database.update(Database::Config::Section::encoder_t::mode, i, Encoders::type_t::controlChange7Fh01h));
+                ASSERT_TRUE(_encoders._database.update(Database::Config::Section::encoder_t::pulsesPerStep, i, 1));
+            }
+
+            MIDIDispatcher.listen(Messaging::eventSource_t::encoders,
+                                  Messaging::listenType_t::nonFwd,
+                                  [this](const Messaging::event_t& dispatchMessage) {
+                                      _listener.messageListener(dispatchMessage);
+                                  });
         }
 
-        // use the same state for all encoders
-        uint32_t _state = 0;
-    } _hwaEncoders;
+        void TearDown() override
+        {
+            MIDIDispatcher.clear();
+            _listener._event.clear();
+        }
 
-    Listener           _listener;
-    DBstorageMock      _dbStorageMock;
-    Database           _database = Database(_dbStorageMock, true);
-    EncodersFilterStub _encodersFilter;
-    IO::Encoders       _encoders = IO::Encoders(_hwaEncoders, _encodersFilter, _database, 1);
+        void stateChangeRegister(uint8_t state)
+        {
+            _listener._event.clear();
+
+            EXPECT_CALL(_encoders._hwa, state(_, _, _))
+                .WillRepeatedly(DoAll(SetArgReferee<1>(1),
+                                      SetArgReferee<2>(state),
+                                      Return(true)));
+
+            _encoders._instance.updateAll();
+        }
+
+        Listener     _listener;
+        TestEncoders _encoders;
+    };
 }    // namespace
 
-TEST_SETUP()
+TEST_F(EncodersTest, StateDecoding)
 {
-    // init checks - no point in running further tests if these conditions fail
-    TEST_ASSERT(_database.init() == true);
-
-    static bool listenerActive = false;
-
-    if (!listenerActive)
-    {
-        MIDIDispatcher.listen(Messaging::eventSource_t::encoders,
-                              Messaging::listenType_t::nonFwd,
-                              [](const Messaging::event_t& dispatchMessage) {
-                                  _listener.messageListener(dispatchMessage);
-                              });
-
-        listenerActive = true;
-    }
-
-    _listener._event.clear();
-}
-
-TEST_CASE(StateDecoding)
-{
-    using namespace IO;
-
-    // set known state
-    for (int i = 0; i < IO::Encoders::Collection::size(); i++)
-    {
-        // enable all encoders
-        TEST_ASSERT(_database.update(Database::Section::encoder_t::enable, i, 1) == true);
-
-        // disable invert state
-        TEST_ASSERT(_database.update(Database::Section::encoder_t::invert, i, 0) == true);
-
-        // set type of message to Encoders::type_t::controlChange7Fh01h
-        TEST_ASSERT(_database.update(Database::Section::encoder_t::mode, i, Encoders::type_t::controlChange7Fh01h) == true);
-
-        // set single pulse per step
-        TEST_ASSERT(_database.update(Database::Section::encoder_t::pulsesPerStep, i, 1) == true);
-    }
-
-    auto setState = [](uint8_t state) {
-        _hwaEncoders._state = state;
-        _encoders.updateAll();
-    };
-
-    auto verifyValue = [](MIDI::messageType_t message, uint16_t value) {
-        for (int i = 0; i < IO::Encoders::Collection::size(); i++)
+    auto verifyValue = [&](MIDI::messageType_t message, uint16_t value) {
+        for (int i = 0; i < Encoders::Collection::size(); i++)
         {
-            TEST_ASSERT_EQUAL_UINT32(message, _listener._event.at(i).message);
-            TEST_ASSERT_EQUAL_UINT32(value, _listener._event.at(i).midiValue);
+            ASSERT_EQ(message, _listener._event.at(i).message);
+            ASSERT_EQ(value, _listener._event.at(i).midiValue);
         }
     };
 
@@ -92,225 +70,191 @@ TEST_CASE(StateDecoding)
 
     // clockwise: 00, 10, 11, 01
 
-    setState(0b00);
-    TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
-    _listener._event.clear();
+    stateChangeRegister(0b00);
+    ASSERT_EQ(0, _listener._event.size());
 
-    setState(0b10);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b10);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
-    _listener._event.clear();
 
-    setState(0b11);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b11);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
-    _listener._event.clear();
 
-    setState(0b01);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b01);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
-    _listener._event.clear();
 
-    setState(0b10);
-    TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
-    _listener._event.clear();
+    stateChangeRegister(0b10);
+    ASSERT_EQ(0, _listener._event.size());
 
-    setState(0b11);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b11);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
-    _listener._event.clear();
 
-    setState(0b01);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b01);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
-    _listener._event.clear();
 
-    setState(0b00);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b00);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
-    _listener._event.clear();
 
-    setState(0b11);
-    TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
-    _listener._event.clear();
+    stateChangeRegister(0b11);
+    ASSERT_EQ(0, _listener._event.size());
 
-    setState(0b01);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b01);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
-    _listener._event.clear();
 
-    setState(0b00);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b00);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
-    _listener._event.clear();
 
-    setState(0b10);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b10);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
-    _listener._event.clear();
 
-    setState(0b01);
-    TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
-    _listener._event.clear();
+    stateChangeRegister(0b01);
+    ASSERT_EQ(0, _listener._event.size());
 
-    setState(0b00);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b00);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
-    _listener._event.clear();
 
-    setState(0b10);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b10);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
-    _listener._event.clear();
 
-    setState(0b11);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b11);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
-    _listener._event.clear();
 
     // counter-clockwise: 00, 01, 11, 10
 
-    setState(0b00);
-    TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
-    _listener._event.clear();
+    stateChangeRegister(0b00);
+    ASSERT_EQ(0, _listener._event.size());
 
-    setState(0b01);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b01);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
-    _listener._event.clear();
 
-    setState(0b11);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b11);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
-    _listener._event.clear();
 
-    setState(0b10);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b10);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
-    _listener._event.clear();
 
-    setState(0b01);
-    TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
-    _listener._event.clear();
+    stateChangeRegister(0b01);
+    ASSERT_EQ(0, _listener._event.size());
 
-    setState(0b11);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b11);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
-    _listener._event.clear();
 
-    setState(0b10);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b10);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
-    _listener._event.clear();
 
-    setState(0b00);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b00);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
-    _listener._event.clear();
 
-    setState(0b11);
-    TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
-    _listener._event.clear();
+    stateChangeRegister(0b11);
+    ASSERT_EQ(0, _listener._event.size());
 
-    setState(0b10);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b10);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
-    _listener._event.clear();
 
-    setState(0b00);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b00);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
-    _listener._event.clear();
 
-    setState(0b01);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b01);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
-    _listener._event.clear();
 
-    setState(0b10);
-    TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
-    _listener._event.clear();
+    stateChangeRegister(0b10);
+    ASSERT_EQ(0, _listener._event.size());
 
-    setState(0b00);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b00);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
-    _listener._event.clear();
 
-    setState(0b01);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b01);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
-    _listener._event.clear();
 
-    setState(0b11);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b11);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
-    _listener._event.clear();
 
     // this time configure 4 pulses per step
-    for (int i = 0; i < IO::Encoders::Collection::size(); i++)
+    for (int i = 0; i < Encoders::Collection::size(); i++)
     {
-        TEST_ASSERT(_database.update(Database::Section::encoder_t::pulsesPerStep, i, 4) == true);
-        _encoders.reset(i);
+        ASSERT_TRUE(_encoders._database.update(Database::Config::Section::encoder_t::pulsesPerStep, i, 4));
+        _encoders._instance.reset(i);
     }
 
     // clockwise: 00, 10, 11, 01
 
     // initial state doesn't count as pulse, 4 more needed
-    setState(0b00);
-    TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
+    stateChangeRegister(0b00);
+    ASSERT_EQ(0, _listener._event.size());
 
     // 1
-    setState(0b10);
-    TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
+    stateChangeRegister(0b10);
+    ASSERT_EQ(0, _listener._event.size());
 
     // 2
-    setState(0b11);
-    TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
+    stateChangeRegister(0b11);
+    ASSERT_EQ(0, _listener._event.size());
 
     // 3
-    setState(0b01);
-    TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
+    stateChangeRegister(0b01);
+    ASSERT_EQ(0, _listener._event.size());
 
     // 4
     // pulse should be registered
-    setState(0b00);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b00);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
-    _listener._event.clear();
 
     // 1
-    setState(0b10);
-    TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
+    stateChangeRegister(0b10);
+    ASSERT_EQ(0, _listener._event.size());
 
     // 2
-    setState(0b11);
-    TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
+    stateChangeRegister(0b11);
+    ASSERT_EQ(0, _listener._event.size());
 
     // 3
-    setState(0b01);
-    TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
+    stateChangeRegister(0b01);
+    ASSERT_EQ(0, _listener._event.size());
 
     // 4
-    setState(0b00);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b00);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
-    _listener._event.clear();
 
     // now move to opposite direction
     // don't start from 0b00 state again
     // counter-clockwise: 01, 11, 10, 00
 
-    setState(0b01);
-    TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
+    stateChangeRegister(0b01);
+    ASSERT_EQ(0, _listener._event.size());
 
-    setState(0b11);
-    TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
+    stateChangeRegister(0b11);
+    ASSERT_EQ(0, _listener._event.size());
 
-    setState(0b10);
-    TEST_ASSERT_EQUAL_UINT32(0, _listener._event.size());
+    stateChangeRegister(0b10);
+    ASSERT_EQ(0, _listener._event.size());
 
-    setState(0b00);
-    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._event.size());
+    stateChangeRegister(0b00);
+    ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
 }
 

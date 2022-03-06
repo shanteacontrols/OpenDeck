@@ -1,6 +1,6 @@
 #ifdef UART_SUPPORTED
 
-#include "unity/Framework.h"
+#include "framework/Framework.h"
 #include "board/Board.h"
 #include "board/common/comm/USBOverSerial/USBOverSerial.h"
 #include "core/src/general/RingBuffer.h"
@@ -8,12 +8,20 @@
 
 using namespace Protocol;
 
-#define TEST_MIDI_CHANNEL 0
-#define BUFFER_SIZE       64
-
 namespace
 {
+    static constexpr size_t                BUFFER_SIZE       = 64;
+    static constexpr size_t                TEST_MIDI_CHANNEL = 0;
     core::RingBuffer<uint8_t, BUFFER_SIZE> buffer;
+
+    class USBOverSerialTest : public ::testing::Test
+    {
+        protected:
+        void SetUp() override
+        {
+            buffer.reset();
+        }
+    };
 }    // namespace
 
 namespace Board
@@ -27,18 +35,13 @@ namespace Board
 
         bool write(uint8_t channel, uint8_t data)
         {
-            TEST_ASSERT(buffer.insert(data) == true);
+            EXPECT_TRUE(buffer.insert(data));
             return true;
         }
     }    // namespace UART
 }    // namespace Board
 
-TEST_SETUP()
-{
-    buffer.reset();
-}
-
-TEST_CASE(MIDIData)
+TEST_F(USBOverSerialTest, MIDIData)
 {
     using namespace Board;
 
@@ -53,59 +56,59 @@ TEST_CASE(MIDIData)
     USBOverSerial::USBWritePacket sending(USBOverSerial::packetType_t::midi, &dataBufSend[0], dataBufSend.size(), dataBufSend.size());
     USBOverSerial::USBReadPacket  receiving(&dataBufRecv[0], dataBufRecv.size());
 
-    TEST_ASSERT(USBOverSerial::write(TEST_MIDI_CHANNEL, sending) == true);
-    TEST_ASSERT(USBOverSerial::read(TEST_MIDI_CHANNEL, receiving) == true);
+    ASSERT_TRUE(USBOverSerial::write(TEST_MIDI_CHANNEL, sending));
+    ASSERT_TRUE(USBOverSerial::read(TEST_MIDI_CHANNEL, receiving));
 
-    TEST_ASSERT(receiving.type() == USBOverSerial::packetType_t::midi);
+    ASSERT_TRUE(receiving.type() == USBOverSerial::packetType_t::midi);
 
-    TEST_ASSERT_EQUAL_UINT32(static_cast<uint8_t>(MIDI::messageType_t::noteOn), receiving[0]);
-    TEST_ASSERT_EQUAL_UINT32(0x10, receiving[1]);
-    TEST_ASSERT_EQUAL_UINT32(0x7D, receiving[2]);
-    TEST_ASSERT_EQUAL_UINT32(0x30, receiving[3]);
+    ASSERT_EQ(static_cast<uint8_t>(MIDI::messageType_t::noteOn), receiving[0]);
+    ASSERT_EQ(0x10, receiving[1]);
+    ASSERT_EQ(0x7D, receiving[2]);
+    ASSERT_EQ(0x30, receiving[3]);
 
     // packet is done - read should return true and not cause any changes in the data until
     //.reset() is called
-    TEST_ASSERT(USBOverSerial::read(TEST_MIDI_CHANNEL, receiving) == true);
-    TEST_ASSERT_EQUAL_UINT32(static_cast<uint8_t>(MIDI::messageType_t::noteOn), receiving[0]);
-    TEST_ASSERT_EQUAL_UINT32(0x10, receiving[1]);
-    TEST_ASSERT_EQUAL_UINT32(0x7D, receiving[2]);
-    TEST_ASSERT_EQUAL_UINT32(0x30, receiving[3]);
+    ASSERT_TRUE(USBOverSerial::read(TEST_MIDI_CHANNEL, receiving));
+    ASSERT_EQ(static_cast<uint8_t>(MIDI::messageType_t::noteOn), receiving[0]);
+    ASSERT_EQ(0x10, receiving[1]);
+    ASSERT_EQ(0x7D, receiving[2]);
+    ASSERT_EQ(0x30, receiving[3]);
 
     // now do the same, but this time add some bytes of junk before writing the actual packet
     // verify that this doesn't cause any issues and that the packet is read again correctly
-    TEST_ASSERT(buffer.insert(0x7E) == true);
-    TEST_ASSERT(buffer.insert(0x7D) == true);
-    TEST_ASSERT(buffer.insert(0x7D) == true);
-    TEST_ASSERT(buffer.insert(0x7D) == true);
-    TEST_ASSERT(buffer.insert(0x7D) == true);
-    TEST_ASSERT(buffer.insert(0x7E) == true);
+    ASSERT_TRUE(buffer.insert(0x7E));
+    ASSERT_TRUE(buffer.insert(0x7D));
+    ASSERT_TRUE(buffer.insert(0x7D));
+    ASSERT_TRUE(buffer.insert(0x7D));
+    ASSERT_TRUE(buffer.insert(0x7D));
+    ASSERT_TRUE(buffer.insert(0x7E));
 
     receiving.reset();
 
-    TEST_ASSERT(USBOverSerial::write(TEST_MIDI_CHANNEL, sending) == true);
-    TEST_ASSERT(USBOverSerial::read(TEST_MIDI_CHANNEL, receiving) == true);
+    ASSERT_TRUE(USBOverSerial::write(TEST_MIDI_CHANNEL, sending));
+    ASSERT_TRUE(USBOverSerial::read(TEST_MIDI_CHANNEL, receiving));
 
-    TEST_ASSERT(receiving.type() == USBOverSerial::packetType_t::midi);
-    TEST_ASSERT_EQUAL_UINT32(static_cast<uint8_t>(MIDI::messageType_t::noteOn), receiving[0]);
-    TEST_ASSERT_EQUAL_UINT32(0x10, receiving[1]);
-    TEST_ASSERT_EQUAL_UINT32(0x7D, receiving[2]);
-    TEST_ASSERT_EQUAL_UINT32(0x30, receiving[3]);
+    ASSERT_EQ(receiving.type(), USBOverSerial::packetType_t::midi);
+    ASSERT_EQ(static_cast<uint8_t>(MIDI::messageType_t::noteOn), receiving[0]);
+    ASSERT_EQ(0x10, receiving[1]);
+    ASSERT_EQ(0x7D, receiving[2]);
+    ASSERT_EQ(0x30, receiving[3]);
 
     receiving.reset();
     buffer.reset();
 
     // actual case: send boundary, command type and then restart the packet again
-    TEST_ASSERT(buffer.insert(0x7E) == true);
-    TEST_ASSERT(buffer.insert(static_cast<uint8_t>(USBOverSerial::packetType_t::midi)) == true);
-    TEST_ASSERT(buffer.insert(0x7E) == true);
-    TEST_ASSERT(buffer.insert(static_cast<uint8_t>(USBOverSerial::packetType_t::midi)) == true);
-    TEST_ASSERT(buffer.insert(0x01) == true);
-    TEST_ASSERT(buffer.insert(0x01) == true);
+    ASSERT_TRUE(buffer.insert(0x7E));
+    ASSERT_TRUE(buffer.insert(static_cast<uint8_t>(USBOverSerial::packetType_t::midi)));
+    ASSERT_TRUE(buffer.insert(0x7E));
+    ASSERT_TRUE(buffer.insert(static_cast<uint8_t>(USBOverSerial::packetType_t::midi)));
+    ASSERT_TRUE(buffer.insert(0x01));
+    ASSERT_TRUE(buffer.insert(0x01));
 
-    TEST_ASSERT(USBOverSerial::read(TEST_MIDI_CHANNEL, receiving) == true);
+    ASSERT_TRUE(USBOverSerial::read(TEST_MIDI_CHANNEL, receiving));
 }
 
-TEST_CASE(InternalCMD)
+TEST_F(USBOverSerialTest, InternalCMD)
 {
     using namespace Board;
 
@@ -120,79 +123,81 @@ TEST_CASE(InternalCMD)
     USBOverSerial::USBWritePacket sending(USBOverSerial::packetType_t::internal, &dataBufSend[0], dataBufSend.size(), dataBufSend.size());
     USBOverSerial::USBReadPacket  receiving(&dataBufRecv[0], dataBufRecv.size());
 
-    TEST_ASSERT(USBOverSerial::write(TEST_MIDI_CHANNEL, sending) == true);
-    TEST_ASSERT(Board::USBOverSerial::read(TEST_MIDI_CHANNEL, receiving) == true);
+    ASSERT_TRUE(USBOverSerial::write(TEST_MIDI_CHANNEL, sending));
+    ASSERT_TRUE(Board::USBOverSerial::read(TEST_MIDI_CHANNEL, receiving));
 
-    TEST_ASSERT(receiving.type() == USBOverSerial::packetType_t::internal);
+    ASSERT_EQ(receiving.type(), USBOverSerial::packetType_t::internal);
 
-    TEST_ASSERT_EQUAL_UINT32(0x7D, receiving[0]);
-    TEST_ASSERT_EQUAL_UINT32(0x7E, receiving[1]);
-    TEST_ASSERT_EQUAL_UINT32(0x7E, receiving[2]);
-    TEST_ASSERT_EQUAL_UINT32(0x30, receiving[3]);
+    ASSERT_EQ(0x7D, receiving[0]);
+    ASSERT_EQ(0x7E, receiving[1]);
+    ASSERT_EQ(0x7E, receiving[2]);
+    ASSERT_EQ(0x30, receiving[3]);
 
     // packet is done - read should return true and not cause any changes in the data until
     //.reset() is called
-    TEST_ASSERT(USBOverSerial::read(TEST_MIDI_CHANNEL, receiving) == true);
-    TEST_ASSERT_EQUAL_UINT32(0x7D, receiving[0]);
-    TEST_ASSERT_EQUAL_UINT32(0x7E, receiving[1]);
-    TEST_ASSERT_EQUAL_UINT32(0x7E, receiving[2]);
-    TEST_ASSERT_EQUAL_UINT32(0x30, receiving[3]);
+    ASSERT_TRUE(USBOverSerial::read(TEST_MIDI_CHANNEL, receiving));
+    ASSERT_EQ(0x7D, receiving[0]);
+    ASSERT_EQ(0x7E, receiving[1]);
+    ASSERT_EQ(0x7E, receiving[2]);
+    ASSERT_EQ(0x30, receiving[3]);
 }
 
-TEST_CASE(LargePacket)
+TEST_F(USBOverSerialTest, LargePacket)
 {
     using namespace Board;
 
-    constexpr size_t               maxSize   = 5;
-    constexpr size_t               totalSize = 13;
-    std::array<uint8_t, totalSize> dataBufRecv;
-    std::vector<uint8_t>           dataBufSend;
+    constexpr size_t                MAX_SIZE   = 5;
+    constexpr size_t                TOTAL_SIZE = 13;
+    std::array<uint8_t, TOTAL_SIZE> dataBufRecv;
+    std::vector<uint8_t>            dataBufSend;
 
-    for (size_t i = 0; i < totalSize; i++)
-        dataBufSend.push_back(i);
-
-    USBOverSerial::USBWritePacket sending(USBOverSerial::packetType_t::cdc, &dataBufSend[0], dataBufSend.size(), maxSize);
-    USBOverSerial::USBReadPacket  receiving(&dataBufRecv[0], maxSize);
-
-    TEST_ASSERT(USBOverSerial::write(TEST_MIDI_CHANNEL, sending) == true);
-    TEST_ASSERT(Board::USBOverSerial::read(TEST_MIDI_CHANNEL, receiving) == true);
-    TEST_ASSERT(receiving.type() == USBOverSerial::packetType_t::cdc);
-    TEST_ASSERT_EQUAL_UINT32(maxSize, receiving.size());
-
-    for (size_t i = 0; i < maxSize; i++)
+    for (size_t i = 0; i < TOTAL_SIZE; i++)
     {
-        TEST_ASSERT_EQUAL_UINT32(dataBufSend[i], receiving[i]);
+        dataBufSend.push_back(i);
+    }
+
+    USBOverSerial::USBWritePacket sending(USBOverSerial::packetType_t::cdc, &dataBufSend[0], dataBufSend.size(), MAX_SIZE);
+    USBOverSerial::USBReadPacket  receiving(&dataBufRecv[0], MAX_SIZE);
+
+    ASSERT_TRUE(USBOverSerial::write(TEST_MIDI_CHANNEL, sending));
+    ASSERT_TRUE(Board::USBOverSerial::read(TEST_MIDI_CHANNEL, receiving));
+    ASSERT_EQ(receiving.type(), USBOverSerial::packetType_t::cdc);
+    ASSERT_EQ(MAX_SIZE, receiving.size());
+
+    for (size_t i = 0; i < MAX_SIZE; i++)
+    {
+        ASSERT_EQ(dataBufSend[i], receiving[i]);
     }
 
     receiving.reset();
 
     // second part
-    TEST_ASSERT(Board::USBOverSerial::read(TEST_MIDI_CHANNEL, receiving) == true);
-    TEST_ASSERT(receiving.type() == USBOverSerial::packetType_t::cdc);
-    TEST_ASSERT_EQUAL_UINT32(maxSize, receiving.size());
+    ASSERT_TRUE(Board::USBOverSerial::read(TEST_MIDI_CHANNEL, receiving));
+    ASSERT_EQ(receiving.type(), USBOverSerial::packetType_t::cdc);
+    ASSERT_EQ(MAX_SIZE, receiving.size());
 
-    for (size_t i = 0; i < maxSize; i++)
+    for (size_t i = 0; i < MAX_SIZE; i++)
     {
-        TEST_ASSERT_EQUAL_UINT32(dataBufSend[i + maxSize], receiving[i]);
+        ASSERT_EQ(dataBufSend[i + MAX_SIZE], receiving[i]);
     }
 
     receiving.reset();
 
     // third part
-    TEST_ASSERT(Board::USBOverSerial::read(TEST_MIDI_CHANNEL, receiving) == true);
-    TEST_ASSERT(receiving.type() == USBOverSerial::packetType_t::cdc);
-    TEST_ASSERT_EQUAL_UINT32(totalSize % maxSize, receiving.size());
+    ASSERT_TRUE(Board::USBOverSerial::read(TEST_MIDI_CHANNEL, receiving));
+    ASSERT_EQ(receiving.type(), USBOverSerial::packetType_t::cdc);
+    ASSERT_EQ(TOTAL_SIZE % MAX_SIZE, receiving.size());
 
-    for (size_t i = 0; i < totalSize % maxSize; i++)
+    for (size_t i = 0; i < TOTAL_SIZE % MAX_SIZE; i++)
     {
-        TEST_ASSERT_EQUAL_UINT32(dataBufSend[i + (maxSize * 2)], receiving[i]);
+        ASSERT_EQ(dataBufSend[i + (MAX_SIZE * 2)], receiving[i]);
     }
 
     receiving.reset();
-    TEST_ASSERT(Board::USBOverSerial::read(TEST_MIDI_CHANNEL, receiving) == false);
+    ASSERT_FALSE(Board::USBOverSerial::read(TEST_MIDI_CHANNEL, receiving));
 }
 
-TEST_CASE(CDC)
+TEST_F(USBOverSerialTest, CDC)
 {
     using namespace Board;
 
@@ -209,15 +214,15 @@ TEST_CASE(CDC)
     USBOverSerial::USBWritePacket sending(USBOverSerial::packetType_t::cdc, &dataBufSend[0], dataBufSend.size(), dataBufSend.size());
     USBOverSerial::USBReadPacket  receiving(&dataBufRecv[0], dataBufRecv.size());
 
-    TEST_ASSERT(USBOverSerial::write(TEST_MIDI_CHANNEL, sending) == true);
-    TEST_ASSERT(Board::USBOverSerial::read(TEST_MIDI_CHANNEL, receiving) == true);
-    TEST_ASSERT(receiving.type() == USBOverSerial::packetType_t::cdc);
+    ASSERT_TRUE(USBOverSerial::write(TEST_MIDI_CHANNEL, sending));
+    ASSERT_TRUE(Board::USBOverSerial::read(TEST_MIDI_CHANNEL, receiving));
+    ASSERT_EQ(receiving.type(), USBOverSerial::packetType_t::cdc);
 
-    TEST_ASSERT_EQUAL_UINT32(0x7E, receiving[0]);
-    TEST_ASSERT_EQUAL_UINT32(0x0A, receiving[1]);
-    TEST_ASSERT_EQUAL_UINT32(0x00, receiving[2]);
-    TEST_ASSERT_EQUAL_UINT32(0x00, receiving[3]);
-    TEST_ASSERT_EQUAL_UINT32(0xE7, receiving[4]);
+    ASSERT_EQ(0x7E, receiving[0]);
+    ASSERT_EQ(0x0A, receiving[1]);
+    ASSERT_EQ(0x00, receiving[2]);
+    ASSERT_EQ(0x00, receiving[3]);
+    ASSERT_EQ(0xE7, receiving[4]);
 }
 
 #endif

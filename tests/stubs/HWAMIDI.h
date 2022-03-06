@@ -1,42 +1,206 @@
 #pragma once
 
-#include "midi/src/MIDI.h"
+#include "protocol/midi/MIDI.h"
 
-class HWAMIDIStub : public MIDI::HWA
+using namespace Protocol;
+
+template<class Inherit, typename T>
+class WriteParserHWA : public Inherit
 {
     public:
-    HWAMIDIStub() = default;
+    WriteParserHWA() = default;
 
-    bool init(MIDI::interface_t interface) override
+    bool init() override
     {
         return true;
     }
 
-    bool deInit(MIDI::interface_t interface) override
+    bool deInit() override
     {
         return true;
     }
 
-    bool dinRead(uint8_t& data) override
+    bool write(T data) override
     {
         return false;
     }
 
-    bool dinWrite(uint8_t data) override
+    bool read(T& data) override
     {
+        if (_toDecode.size())
+        {
+            data = _toDecode.at(0);
+            _toDecode.erase(_toDecode.begin());
+
+            return true;
+        }
+
         return false;
     }
 
-    bool usbRead(MIDI::usbMIDIPacket_t& packet) override
+    std::vector<T>               _toDecode;
+    std::vector<MIDI::message_t> _decoded;
+};
+
+template<typename Inherit, typename T>
+class WriteParser
+{
+    public:
+    WriteParser()
     {
-        return false;
+        _base.init();
     }
 
-    bool usbWrite(MIDI::usbMIDIPacket_t& packet) override
+    void feed(T data)
     {
-        usbPacket.push_back(packet);
+        _writeParserHWA._toDecode.push_back(data);
+
+        while (_base.read())
+        {
+            _writeParserHWA._decoded.push_back(_base.message());
+        }
+    }
+
+    std::vector<MIDI::message_t>& writtenMessages()
+    {
+        return _writeParserHWA._decoded;
+    }
+
+    size_t totalWrittenChannelMessages()
+    {
+        size_t cnt = 0;
+
+        LOG(INFO) << "Checking for total amount of written channel messages";
+        LOG(INFO) << "Total amount of packets written: " << _writeParserHWA._decoded.size();
+
+        for (size_t i = 0; i < _writeParserHWA._decoded.size(); i++)
+        {
+            if (MIDIlib::Base::isChannelMessage(_writeParserHWA._decoded.at(i).type))
+            {
+                cnt++;
+            }
+        }
+
+        return cnt;
+    }
+
+    void clear()
+    {
+        _writeParserHWA._toDecode.clear();
+        _writeParserHWA._decoded.clear();
+    }
+
+    private:
+    WriteParserHWA<typename Inherit::HWA, T> _writeParserHWA;
+    Inherit                                  _base = Inherit(_writeParserHWA);
+};
+
+class HWAMIDIUSB : public Protocol::MIDI::HWAUSB
+{
+    public:
+    HWAMIDIUSB() = default;
+
+    bool supported() override
+    {
         return true;
     }
 
-    std::vector<MIDI::usbMIDIPacket_t> usbPacket;
+    bool init() override
+    {
+        clear();
+        return true;
+    }
+
+    bool deInit() override
+    {
+        clear();
+        return true;
+    }
+
+    bool read(MIDI::usbMIDIPacket_t& packet) override
+    {
+        if (!_readPackets.size())
+            return false;
+
+        packet = _readPackets.at(0);
+        _readPackets.erase(_readPackets.begin());
+
+        return true;
+    }
+
+    bool write(MIDI::usbMIDIPacket_t packet) override
+    {
+        _writePackets.push_back(packet);
+        _writeParser.feed(packet);
+
+        return true;
+    }
+
+    void clear()
+    {
+        _readPackets.clear();
+        _writePackets.clear();
+        _writeParser.clear();
+    }
+
+    std::vector<MIDI::usbMIDIPacket_t>                   _readPackets  = {};
+    std::vector<MIDI::usbMIDIPacket_t>                   _writePackets = {};
+    WriteParser<MIDIlib::USBMIDI, MIDI::usbMIDIPacket_t> _writeParser;
+};
+
+class HWAMIDIDIN : public Protocol::MIDI::HWADIN
+{
+    public:
+    HWAMIDIDIN() = default;
+
+    bool supported() override
+    {
+#ifdef DIN_MIDI_SUPPORTED
+        return true;
+#else
+        return false;
+#endif
+    }
+
+    MOCK_METHOD0(init, bool());
+    MOCK_METHOD0(deInit, bool());
+    MOCK_METHOD1(setLoopback, bool(bool state));
+
+    bool read(uint8_t& data) override
+    {
+        if (!_readPackets.size())
+            return false;
+
+        data = _readPackets.at(0);
+        _readPackets.erase(_readPackets.begin());
+
+        return true;
+    }
+
+    bool write(uint8_t data) override
+    {
+        _writePackets.push_back(data);
+        _writeParser.feed(data);
+
+        return true;
+    }
+
+    bool allocated(IO::Common::interface_t interface) override
+    {
+        return false;
+    }
+
+    void clear()
+    {
+        _readPackets.clear();
+        _writePackets.clear();
+        _writeParser.clear();
+
+        _loopbackEnabled = false;
+    }
+
+    std::vector<uint8_t>                      _readPackets     = {};
+    std::vector<uint8_t>                      _writePackets    = {};
+    bool                                      _loopbackEnabled = false;
+    WriteParser<MIDIlib::SerialMIDI, uint8_t> _writeParser;
 };

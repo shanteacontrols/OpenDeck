@@ -1,88 +1,96 @@
-#include "unity/Framework.h"
+#include "framework/Framework.h"
 #include "core/src/general/RingBuffer.h"
-
-#define BUFFER_SIZE 8
 
 namespace
 {
-    core::RingBuffer<uint8_t, BUFFER_SIZE> buffer;
+    class RingBufferTest : public ::testing::Test
+    {
+        protected:
+        void SetUp() override
+        {
+            buffer.reset();
+        }
+
+        static constexpr size_t                BUFFER_SIZE = 8;
+        core::RingBuffer<uint8_t, BUFFER_SIZE> buffer;
+    };
+}    // namespace
+
+TEST_F(RingBufferTest, Init)
+{
+    ASSERT_TRUE(buffer.isEmpty());
+    ASSERT_FALSE(buffer.isFull());
+    ASSERT_EQ(0, buffer.count());
 }
 
-TEST_CASE(Init)
+TEST_F(RingBufferTest, Insertion)
 {
-    buffer.reset();
+    ASSERT_TRUE(buffer.insert(10));
 
-    TEST_ASSERT(buffer.isEmpty() == true);
-    TEST_ASSERT(buffer.isFull() == false);
-    TEST_ASSERT_EQUAL_UINT32(0, buffer.count());
-}
-
-TEST_CASE(Insertion)
-{
-    buffer.reset();
-
-    TEST_ASSERT(buffer.insert(10) == true);
-
-    TEST_ASSERT(buffer.isEmpty() == false);
-    TEST_ASSERT(buffer.isFull() == false);
-    TEST_ASSERT_EQUAL_UINT32(1, buffer.count());
+    ASSERT_FALSE(buffer.isEmpty());
+    ASSERT_FALSE(buffer.isFull());
+    ASSERT_EQ(1, buffer.count());
 
     uint8_t value;
 
-    TEST_ASSERT(buffer.remove(value) == true);
-    TEST_ASSERT_EQUAL_UINT32(10, value);
+    ASSERT_TRUE(buffer.remove(value));
+    ASSERT_EQ(10, value);
 
-    TEST_ASSERT_EQUAL_UINT32(0, buffer.count());
-    TEST_ASSERT(buffer.isEmpty() == true);
-    TEST_ASSERT(buffer.isFull() == false);
+    ASSERT_EQ(0, buffer.count());
+    ASSERT_TRUE(buffer.isEmpty());
+    ASSERT_FALSE(buffer.isFull());
 
     // assign random value
     value = 147;
 
     // try to remove again
-    TEST_ASSERT(buffer.remove(value) == false);
+    ASSERT_FALSE(buffer.remove(value));
 
     // verify that the value hasn't changed
-    TEST_ASSERT_EQUAL_UINT32(147, value);
+    ASSERT_EQ(147, value);
 
     // fill the entire buffer
     // buffer has room for one less element than specified
     for (size_t i = 0; i < BUFFER_SIZE - 1; i++)
-        TEST_ASSERT(buffer.insert(10 + i) == true);
+    {
+        ASSERT_TRUE(buffer.insert(10 + i));
+    }
 
-    TEST_ASSERT(buffer.isEmpty() == false);
-    TEST_ASSERT(buffer.isFull() == true);
-    TEST_ASSERT_EQUAL_UINT32(BUFFER_SIZE - 1, buffer.count());
+    ASSERT_FALSE(buffer.isEmpty());
+    ASSERT_TRUE(buffer.isFull());
+    ASSERT_EQ(BUFFER_SIZE - 1, buffer.count());
 
     for (size_t i = 0; i < BUFFER_SIZE - 1; i++)
     {
-        TEST_ASSERT(buffer.remove(value) == true);
-        TEST_ASSERT_EQUAL_UINT32(10 + i, value);
-        TEST_ASSERT_EQUAL_UINT32(BUFFER_SIZE - 2 - i, buffer.count());
+        ASSERT_TRUE(buffer.remove(value));
+        ASSERT_EQ(10 + i, value);
+        ASSERT_EQ(BUFFER_SIZE - 2 - i, buffer.count());
     }
 
-    TEST_ASSERT(buffer.isEmpty() == true);
-    TEST_ASSERT(buffer.isFull() == false);
+    ASSERT_TRUE(buffer.isEmpty());
+    ASSERT_FALSE(buffer.isFull());
 
     // verify that overwriting isn't possible
     for (size_t i = 0; i < BUFFER_SIZE - 1; i++)
-        TEST_ASSERT(buffer.insert(10 + i) == true);
+    {
+        ASSERT_TRUE(buffer.insert(10 + i));
+    }
 
-    TEST_ASSERT(buffer.insert(10) == false);
+    ASSERT_FALSE(buffer.insert(10));
 
-    TEST_ASSERT(buffer.isEmpty() == false);
-    TEST_ASSERT(buffer.isFull() == true);
+    ASSERT_FALSE(buffer.isEmpty());
+    ASSERT_TRUE(buffer.isFull());
 
     buffer.reset();
 
-    TEST_ASSERT(buffer.isEmpty() == true);
-    TEST_ASSERT(buffer.isFull() == false);
-    TEST_ASSERT_EQUAL_UINT32(0, buffer.count());
+    ASSERT_TRUE(buffer.isEmpty());
+    ASSERT_FALSE(buffer.isFull());
+    ASSERT_EQ(0, buffer.count());
 
-    TEST_ASSERT(buffer.insert(12) == true);
-    TEST_ASSERT(buffer.isEmpty() == false);
-    TEST_ASSERT(buffer.isFull() == false);
-    TEST_ASSERT_EQUAL_UINT32(1, buffer.count());
-    TEST_ASSERT(buffer.remove(value) == true);
-    TEST_ASSERT_EQUAL_UINT32(12, value);
+    ASSERT_TRUE(buffer.insert(12));
+    ASSERT_FALSE(buffer.isEmpty());
+    ASSERT_FALSE(buffer.isFull());
+    ASSERT_EQ(1, buffer.count());
+    ASSERT_TRUE(buffer.remove(value));
+    ASSERT_EQ(12, value);
 }

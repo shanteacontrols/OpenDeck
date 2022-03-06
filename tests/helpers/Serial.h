@@ -18,7 +18,9 @@ class SerialHelper
         std::cout << "[cdc] req: ";
 
         for (uint8_t i : req)
+        {
             std::cout << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(i) << ' ';
+        }
 
         std::cout << std::endl;
 
@@ -63,7 +65,9 @@ class SerialHelper
         for (size_t i = 0; cmdResponse[i] != '\0'; i++)
         {
             if (cmdResponse[i] == ' ' || cmdResponse[i] == '\n')
+            {
                 continue;
+            }
 
             uint8_t number = HexCharToInt(cmdResponse[i]);
             number <<= 4;

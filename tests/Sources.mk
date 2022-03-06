@@ -3,8 +3,7 @@ vpath common/%.cpp ../src
 vpath modules/%.cpp ../
 vpath modules/%.c ../
 
-SOURCES_COMMON := \
-modules/unity/src/unity.c
+SOURCES_COMMON := 
 
 #common for all targets
 ifeq (,$(findstring USB_LINK_MCU,$(DEFINES)))
@@ -28,7 +27,8 @@ ifeq (,$(findstring USB_LINK_MCU,$(DEFINES)))
     stubs/Core.cpp \
     application/util/configurable/Configurable.cpp \
     application/util/scheduler/Scheduler.cpp \
-    application/util/conversion/Conversion.cpp
+    application/util/conversion/Conversion.cpp \
+    application/logger/Logger.cpp
 endif
 
 ifeq ($(ARCH),arm)
@@ -39,7 +39,6 @@ endif
 INCLUDE_DIRS_COMMON := \
 -I"./" \
 -I"./stubs" \
--I"./unity" \
 -I"../modules/" \
 -I"../src/" \
 -I"../src/bootloader/" \

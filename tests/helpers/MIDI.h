@@ -24,140 +24,17 @@ class MIDIHelper
     public:
     MIDIHelper() = default;
 
-    static std::vector<MIDI::usbMIDIPacket_t> rawSysExToUSBPackets(const std::vector<uint8_t>& raw)
+    static std::vector<MIDI::usbMIDIPacket_t> rawSysExToUSBPackets(std::vector<uint8_t>& raw)
     {
-        class HWAWriteToUSB : public MIDIlib::USBMIDI::HWA
-        {
-            public:
-            HWAWriteToUSB(std::vector<MIDI::usbMIDIPacket_t>& buffer)
-                : _buffer(buffer)
-            {}
+        Messaging::event_t event;
+        event.sysEx       = &raw[0];
+        event.sysExLength = raw.size();
+        event.message     = MIDI::messageType_t::systemExclusive;
 
-            bool init() override
-            {
-                return true;
-            }
-
-            bool deInit() override
-            {
-                return true;
-            }
-
-            bool read(MIDI::usbMIDIPacket_t& packet) override
-            {
-                return false;
-            }
-
-            bool write(MIDI::usbMIDIPacket_t packet) override
-            {
-                _buffer.push_back(packet);
-                return true;
-            }
-
-            std::vector<MIDI::usbMIDIPacket_t>& _buffer;
-        };
-
-        // create temp midi object whose purpose is to convert provided raw sysex array into
-        // a series of USB MIDI packets
-        std::vector<MIDI::usbMIDIPacket_t> usbPackets;
-        HWAWriteToUSB                      hwaWriteToUSB(usbPackets);
-        MIDIlib::USBMIDI                   writeToUSB(hwaWriteToUSB);
-
-        writeToUSB.init();
-        writeToUSB.sendSysEx(raw.size(), &raw[0], true);
-
-        return usbPackets;
+        return MIDIHelper::midiToUsbPackets(event);
     }
 
-    static std::vector<uint8_t> usbSysExToRawBytes(std::vector<MIDI::usbMIDIPacket_t>& raw)
-    {
-        class HWAReadFromUSB : public MIDIlib::USBMIDI::HWA
-        {
-            public:
-            HWAReadFromUSB(std::vector<MIDI::usbMIDIPacket_t>& buffer)
-                : _buffer(buffer)
-            {}
-
-            bool init() override
-            {
-                return true;
-            }
-
-            bool deInit() override
-            {
-                return true;
-            }
-
-            bool read(MIDI::usbMIDIPacket_t& packet) override
-            {
-                if (!_buffer.size())
-                    return false;
-
-                packet = _buffer.at(0);
-                _buffer.erase(_buffer.begin());
-
-                return true;
-            }
-
-            bool write(MIDI::usbMIDIPacket_t packet) override
-            {
-                return true;
-            }
-
-            std::vector<MIDI::usbMIDIPacket_t>& _buffer;
-        };
-
-        class HWAWriteToSerial : public MIDIlib::SerialMIDI::HWA
-        {
-            public:
-            HWAWriteToSerial() = default;
-
-            bool init() override
-            {
-                return true;
-            }
-
-            bool deInit() override
-            {
-                return true;
-            }
-
-            bool read(uint8_t& data) override
-            {
-                return false;
-            }
-
-            bool write(uint8_t data) override
-            {
-                _parsed.push_back(data);
-                return true;
-            }
-
-            std::vector<uint8_t> _parsed;
-        };
-
-        // create temp midi object whose purpose is to convert provided usb sysex packets into
-        // a raw byte array
-        HWAReadFromUSB      hwaReadFromUSB(raw);
-        HWAWriteToSerial    hwaWriteToSerial;
-        MIDIlib::USBMIDI    readFromUSB(hwaReadFromUSB);
-        MIDIlib::SerialMIDI writeToSerial(hwaWriteToSerial);
-
-        readFromUSB.init();
-        writeToSerial.init();
-        readFromUSB.registerThruInterface(writeToSerial.transport());
-
-        auto packetSize = raw.size();
-
-        for (size_t i = 0; i < packetSize; i++)
-        {
-            readFromUSB.read();
-        }
-
-        return hwaWriteToSerial._parsed;
-    }
-
-    static std::vector<MIDI::usbMIDIPacket_t> noteOnToUsbPacket(uint8_t inNoteNumber, uint8_t inVelocity, uint8_t inChannel)
+    static std::vector<MIDI::usbMIDIPacket_t> midiToUsbPackets(Messaging::event_t event)
     {
         class HWAWriteToUSB : public MIDIlib::USBMIDI::HWA
         {
@@ -188,9 +65,146 @@ class MIDIHelper
             std::vector<MIDI::usbMIDIPacket_t> _buffer;
         } _hwaWriteToUSB;
 
-        MIDIlib::USBMIDI writeToUsb(_hwaWriteToUSB);
-        writeToUsb.init();
-        writeToUsb.sendNoteOn(inNoteNumber, inVelocity, inChannel);
+        MIDIlib::USBMIDI _writeToUsb(_hwaWriteToUSB);
+        _writeToUsb.init();
+
+        switch (event.message)
+        {
+        case MIDI::messageType_t::noteOff:
+        {
+            _writeToUsb.sendNoteOff(event.midiIndex, event.midiValue, event.midiChannel);
+        }
+        break;
+
+        case MIDI::messageType_t::noteOn:
+        {
+            _writeToUsb.sendNoteOff(event.midiIndex, event.midiValue, event.midiChannel);
+        }
+        break;
+
+        case MIDI::messageType_t::controlChange:
+        {
+            _writeToUsb.sendControlChange(event.midiIndex, event.midiValue, event.midiChannel);
+        }
+        break;
+
+        case MIDI::messageType_t::programChange:
+        {
+            _writeToUsb.sendProgramChange(event.midiIndex, event.midiChannel);
+        }
+        break;
+
+        case MIDI::messageType_t::afterTouchChannel:
+        {
+            _writeToUsb.sendAfterTouch(event.midiValue, event.midiChannel);
+        }
+        break;
+
+        case MIDI::messageType_t::afterTouchPoly:
+        {
+            _writeToUsb.sendAfterTouch(event.midiValue, event.midiChannel, event.midiIndex);
+        }
+        break;
+
+        case MIDI::messageType_t::pitchBend:
+        {
+            _writeToUsb.sendPitchBend(event.midiValue, event.midiChannel);
+        }
+        break;
+
+        case MIDI::messageType_t::sysRealTimeClock:
+        {
+            _writeToUsb.sendRealTime(event.message);
+        }
+        break;
+
+        case MIDI::messageType_t::sysRealTimeStart:
+        {
+            _writeToUsb.sendRealTime(event.message);
+        }
+        break;
+
+        case MIDI::messageType_t::sysRealTimeContinue:
+        {
+            _writeToUsb.sendRealTime(event.message);
+        }
+        break;
+
+        case MIDI::messageType_t::sysRealTimeStop:
+        {
+            _writeToUsb.sendRealTime(event.message);
+        }
+        break;
+
+        case MIDI::messageType_t::sysRealTimeActiveSensing:
+        {
+            _writeToUsb.sendRealTime(event.message);
+        }
+        break;
+
+        case MIDI::messageType_t::sysRealTimeSystemReset:
+        {
+            _writeToUsb.sendRealTime(event.message);
+        }
+        break;
+
+        case MIDI::messageType_t::mmcPlay:
+        {
+            _writeToUsb.sendMMC(event.midiIndex, event.message);
+        }
+        break;
+
+        case MIDI::messageType_t::mmcStop:
+        {
+            _writeToUsb.sendMMC(event.midiIndex, event.message);
+        }
+        break;
+
+        case MIDI::messageType_t::mmcPause:
+        {
+            _writeToUsb.sendMMC(event.midiIndex, event.message);
+        }
+        break;
+
+        case MIDI::messageType_t::mmcRecordStart:
+        {
+            _writeToUsb.sendMMC(event.midiIndex, event.message);
+        }
+        break;
+
+        case MIDI::messageType_t::mmcRecordStop:
+        {
+            _writeToUsb.sendMMC(event.midiIndex, event.message);
+        }
+        break;
+
+        case MIDI::messageType_t::nrpn7bit:
+        {
+            _writeToUsb.sendNRPN(event.midiIndex, event.midiValue, event.midiChannel, false);
+        }
+        break;
+
+        case MIDI::messageType_t::nrpn14bit:
+        {
+            _writeToUsb.sendNRPN(event.midiIndex, event.midiValue, event.midiChannel, true);
+        }
+        break;
+
+        case MIDI::messageType_t::controlChange14bit:
+        {
+            _writeToUsb.sendControlChange14bit(event.midiIndex, event.midiValue, event.midiChannel);
+        }
+        break;
+
+        case MIDI::messageType_t::systemExclusive:
+        {
+            _writeToUsb.sendSysEx(event.sysExLength, event.sysEx, true);
+        }
+        break;
+
+        default:
+            break;
+        }
 
         return _hwaWriteToUSB._buffer;
     }

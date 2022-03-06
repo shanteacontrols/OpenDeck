@@ -1,665 +1,175 @@
 #ifndef USB_LINK_MCU
 
-#include "unity/Framework.h"
-#include "system/System.h"
-#include "system/Builder.h"
-#include "database/Database.h"
-#include "core/src/general/Timing.h"
-#include "core/src/general/Helpers.h"
-#include "stubs/database/DB_ReadWrite.h"
+#include "framework/Framework.h"
+#include "stubs/System.h"
+#include "stubs/Listener.h"
 #include "helpers/MIDI.h"
+
+using namespace IO;
 
 namespace
 {
-    typedef struct
+    class SystemTest : public ::testing::Test
     {
-        uint8_t             channel;    ///< MIDI channel on which the message was received (1-16)
-        MIDI::messageType_t type;       ///< The type of the message
-        uint8_t             data1;      ///< First data byte (0-127)
-        uint8_t             data2;      ///< Second data byte (0-127, 0 if message length is 2 bytes)
-    } channelMIDImessage_t;
-
-    DBstorageMock _dbStorageMock;
-    Database      _database(_dbStorageMock, true);
-
-    class HWALEDs : public System::Builder::HWA::IO::LEDs
-    {
-        public:
-        HWALEDs() = default;
-
-        void setState(size_t index, IO::LEDs::brightness_t brightness) override
+        protected:
+        void SetUp() override
         {
         }
 
-        size_t rgbSignalIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
+        void TearDown() override
         {
-            return 0;
+            MIDIDispatcher.clear();
+            _listener._event.clear();
         }
 
-        size_t rgbIndex(size_t singleLEDindex) override
+        void processIncoming(Messaging::event_t event)
         {
-            return 0;
-        }
-    } _hwaLEDs;
+            _system._hwaMIDIUSB.clear();
+            _system._hwaMIDIDIN.clear();
 
-    class HWAAnalog : public System::Builder::HWA::IO::Analog
-    {
-        public:
-        HWAAnalog() {}
+            _system._hwaMIDIUSB._readPackets = MIDIHelper::midiToUsbPackets(event);
 
-        bool value(size_t index, uint16_t& value) override
-        {
-            value = adcReturnValue;
-            return true;
-        }
+            // don't care about hwa calls here
+            EXPECT_CALL(_system._hwaButtons, state(_, _, _))
+                .Times(AnyNumber());
 
-        uint32_t adcReturnValue;
-    } _hwaAnalog;
+            EXPECT_CALL(_system._hwaAnalog, value(_, _))
+                .Times(AnyNumber());
 
-    class HWAButtons : public System::Builder::HWA::IO::Buttons
-    {
-        public:
-        HWAButtons() = default;
-
-        bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
-        {
-            return false;
-        }
-
-        size_t buttonToEncoderIndex(size_t index) override
-        {
-            return 0;
-        }
-    } _hwaButtons;
-
-    class HWAEncoders : public System::Builder::HWA::IO::Encoders
-    {
-        public:
-        HWAEncoders() = default;
-
-        bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
-        {
-            return false;
-        }
-    } _hwaEncoders;
-
-    class HWATouchscreen : public System::Builder::HWA::IO::Touchscreen
-    {
-        public:
-        HWATouchscreen() = default;
-
-        bool init() override
-        {
-            return false;
-        }
-
-        bool deInit() override
-        {
-            return false;
-        }
-
-        bool write(uint8_t value) override
-        {
-            return false;
-        }
-
-        bool read(uint8_t& value) override
-        {
-            return false;
-        }
-
-        bool allocated(IO::Common::interface_t interface) override
-        {
-            return false;
-        }
-    } _hwaTouchscreen;
-
-    class HWATouchscreenCDCPassthrough : public System::Builder::HWA::IO::CDCPassthrough
-    {
-        public:
-        HWATouchscreenCDCPassthrough() = default;
-
-        bool init() override
-        {
-            return false;
-        }
-
-        bool deInit() override
-        {
-            return false;
-        }
-
-        bool uartRead(uint8_t& value) override
-        {
-            return false;
-        }
-
-        bool uartWrite(uint8_t value) override
-        {
-            return false;
-        }
-
-        bool cdcRead(uint8_t* buffer, size_t& size, const size_t maxSize) override
-        {
-            return false;
-        }
-
-        bool cdcWrite(uint8_t* buffer, size_t size) override
-        {
-            return false;
-        }
-
-        bool allocated(IO::Common::interface_t interface) override
-        {
-            return false;
-        }
-    } _hwaCDCPassthrough;
-
-    class HWAI2C : public System::Builder::HWA::IO::I2C
-    {
-        public:
-        HWAI2C() = default;
-
-        bool init() override
-        {
-            return true;
-        }
-
-        bool write(uint8_t address, uint8_t* buffer, size_t size) override
-        {
-            return true;
-        }
-
-        bool deviceAvailable(uint8_t address) override
-        {
-            return true;
-        }
-    } _hwaI2C;
-
-    class HWAMIDIUSB : public System::Builder::HWA::Protocol::MIDI::USB
-    {
-        public:
-        HWAMIDIUSB() = default;
-
-        bool supported() override
-        {
-            return true;
-        }
-
-        bool init() override
-        {
-            reset();
-            return true;
-        }
-
-        bool deInit() override
-        {
-            reset();
-            return true;
-        }
-
-        bool read(MIDI::usbMIDIPacket_t& packet) override
-        {
-            if (!_readPackets.size())
-                return false;
-
-            packet = _readPackets.at(0);
-            _readPackets.erase(_readPackets.begin());
-
-            return true;
-        }
-
-        bool write(MIDI::usbMIDIPacket_t& packet) override
-        {
-            _writePackets.push_back(packet);
-            return true;
-        }
-
-        void reset()
-        {
-            _readPackets.clear();
-            _writePackets.clear();
-        }
-
-        size_t totalWrittenChannelMessages()
-        {
-            size_t cnt = 0;
-
-            for (size_t i = 0; i < _writePackets.size(); i++)
+            // now just call system which will call midi.read which in turn will read the filled packets
+            while (_system._hwaMIDIUSB._readPackets.size())
             {
-                auto messageType = MIDIlib::Base::typeFromStatusByte(_writePackets.at(i)[MIDI::USB_DATA1]);
-
-                if (MIDIlib::Base::isChannelMessage(messageType))
-                    cnt++;
+                _system._instance.run();
             }
-
-            return cnt;
         }
 
-        std::vector<MIDI::usbMIDIPacket_t> _readPackets  = {};
-        std::vector<MIDI::usbMIDIPacket_t> _writePackets = {};
-    } _hwaMIDIUSB;
-
-    class HWAMIDIDIN : public System::Builder::HWA::Protocol::MIDI::DIN
-    {
-        public:
-        HWAMIDIDIN() = default;
-
-        bool supported() override
+        void sendAndVerifySysExRequest(std::vector<uint8_t> request, const std::vector<uint8_t> expectedResponse)
         {
-#ifdef DIN_MIDI_SUPPORTED
-            return true;
-#else
-            return false;
-#endif
-        }
+            Messaging::event_t event;
+            event.sysEx       = &request[0];
+            event.sysExLength = request.size();
+            event.message     = MIDI::messageType_t::systemExclusive;
 
-        bool init() override
-        {
-            reset();
-            return true;
-        }
+            processIncoming(event);
 
-        bool deInit() override
-        {
-            reset();
-            return true;
-        }
+            bool responseVerified = false;
 
-        bool setLoopback(bool state) override
-        {
-            _loopbackEnabled = state;
-            return true;
-        }
+            // std::cout << "request / expected / received:" << std::endl;
 
-        bool read(uint8_t& data) override
-        {
-            if (!_readPackets.size())
-                return false;
+            // for (size_t i = 0; i < request.size(); i++)
+            //     std::cout << static_cast<int>(request.at(i)) << " ";
+            // std::cout << std::endl;
 
-            data = _readPackets.at(0);
-            _readPackets.erase(_readPackets.begin());
+            // for (size_t i = 0; i < expectedResponse.size(); i++)
+            //     std::cout << static_cast<int>(expectedResponse.at(i)) << " ";
+            // std::cout << std::endl;
 
-            return true;
-        }
+            // for (size_t i = 0; i < rawBytes.size(); i++)
+            //     std::cout << static_cast<int>(rawBytes.at(i)) << " ";
+            // std::cout << std::endl;
 
-        bool write(uint8_t data) override
-        {
-            _writePackets.push_back(data);
-            return true;
-        }
-
-        bool allocated(IO::Common::interface_t interface) override
-        {
-            return false;
-        }
-
-        void reset()
-        {
-            _readPackets.clear();
-            _writePackets.clear();
-
-            _loopbackEnabled = false;
-        }
-
-        size_t totalWrittenChannelMessages()
-        {
-            size_t cnt = 0;
-
-            class HWASerialMIDI : public MIDIlib::SerialMIDI::HWA
+            for (size_t i = 0; i < _system._hwaMIDIUSB._writeParser.writtenMessages().size(); i++)
             {
-                public:
-                HWASerialMIDI(std::vector<uint8_t>& packetsToParse)
-                    : _packetsToParse(packetsToParse)
-                {}
-
-                bool init()
+                // it's possible that the first response isn't sysex but some component message
+                if (_system._hwaMIDIUSB._writeParser.writtenMessages().at(0).sysexArray[0] != expectedResponse.at(0))
                 {
-                    return true;
+                    continue;
                 }
 
-                bool deInit()
-                {
-                    return true;
-                }
+                responseVerified = true;
 
-                bool write(uint8_t data)
+                // once F0 is found, however, it should be expected response
+                for (size_t byte = 0; byte < expectedResponse.size(); byte++)
                 {
-                    return true;
-                }
-
-                bool read(uint8_t& data)
-                {
-                    if (_packetsToParse.empty())
+                    if (expectedResponse.at(byte) != _system._hwaMIDIUSB._writeParser.writtenMessages().at(i).sysexArray[byte])
                     {
-                        return false;
-                    }
-
-                    data = _packetsToParse.at(0);
-                    _packetsToParse.erase(_packetsToParse.begin());
-
-                    return true;
-                }
-
-                private:
-                std::vector<uint8_t>& _packetsToParse;
-            };
-
-            // create new MIDI object which will read all written data
-            HWASerialMIDI       _hwaSerialMIDI(_writePackets);
-            MIDIlib::SerialMIDI _parseDinMIDI(_hwaSerialMIDI);
-            _parseDinMIDI.init();
-
-            while (_writePackets.size())
-            {
-                if (_parseDinMIDI.read())
-                {
-                    if (_parseDinMIDI.isChannelMessage(_parseDinMIDI.type()))
-                    {
-                        cnt++;
+                        responseVerified = false;
+                        break;
                     }
                 }
-            }
 
-            return cnt;
-        }
-
-        std::vector<uint8_t> _readPackets     = {};
-        std::vector<uint8_t> _writePackets    = {};
-        bool                 _loopbackEnabled = false;
-    } _hwaMIDIDIN;
-
-    class HWADMX : public System::Builder::HWA::Protocol::DMX
-    {
-        public:
-        HWADMX() = default;
-
-        bool init() override
-        {
-            return false;
-        }
-
-        bool deInit() override
-        {
-            return false;
-        }
-
-        bool readUSB(uint8_t* buffer, size_t& size, const size_t maxSize) override
-        {
-            return false;
-        }
-
-        bool writeUSB(uint8_t* buffer, size_t size) override
-        {
-            return false;
-        }
-
-        bool updateChannel(uint16_t channel, uint8_t value) override
-        {
-            return false;
-        }
-
-        void packetComplete() override
-        {
-        }
-
-        bool uniqueID(Protocol::DMX::uniqueID_t& uniqueID) override
-        {
-            return false;
-        }
-
-        bool allocated(IO::Common::interface_t interface) override
-        {
-            return false;
-        }
-    } _hwaDMX;
-
-    class HWASystem : public System::Builder::HWA::System
-    {
-        public:
-        HWASystem() = default;
-
-        bool init() override
-        {
-            return true;
-        }
-
-        void update() override
-        {
-        }
-
-        void reboot(FwSelector::fwType_t type) override
-        {
-        }
-
-        void registerOnUSBconnectionHandler(System::Instance::usbConnectionHandler_t&& usbConnectionHandler) override
-        {
-        }
-    } _hwaSystem;
-
-    class HWABuilder : public ::System::Builder::HWA
-    {
-        public:
-        HWABuilder() = default;
-
-        ::System::Builder::HWA::IO& io() override
-        {
-            return _hwaIO;
-        }
-
-        ::System::Builder::HWA::Protocol& protocol() override
-        {
-            return _hwaProtocol;
-        }
-
-        ::System::Builder::HWA::System& system() override
-        {
-            return _hwaSystem;
-        }
-
-        private:
-        class HWAIO : public ::System::Builder::HWA::IO
-        {
-            public:
-            ::System::Builder::HWA::IO::LEDs& leds() override
-            {
-                return _hwaLEDs;
-            }
-
-            ::System::Builder::HWA::IO::Analog& analog() override
-            {
-                return _hwaAnalog;
-            }
-
-            ::System::Builder::HWA::IO::Buttons& buttons() override
-            {
-                return _hwaButtons;
-            }
-
-            ::System::Builder::HWA::IO::Encoders& encoders() override
-            {
-                return _hwaEncoders;
-            }
-
-            ::System::Builder::HWA::IO::Touchscreen& touchscreen() override
-            {
-                return _hwaTouchscreen;
-            }
-
-            ::System::Builder::HWA::IO::CDCPassthrough& cdcPassthrough() override
-            {
-                return _hwaCDCPassthrough;
-            }
-
-            ::System::Builder::HWA::IO::I2C& i2c() override
-            {
-                return _hwaI2C;
-            }
-        } _hwaIO;
-
-        class HWAProtocol : public ::System::Builder::HWA::Protocol
-        {
-            public:
-            ::System::Builder::HWA::Protocol::MIDI& midi()
-            {
-                return _hwaMIDI;
-            }
-
-            ::System::Builder::HWA::Protocol::DMX& dmx()
-            {
-                return _hwaDMX;
-            }
-
-            private:
-            class HWAProtocolMIDI : public ::System::Builder::HWA::Protocol::MIDI
-            {
-                public:
-                ::System::Builder::HWA::Protocol::MIDI::USB& usb() override
+                if (responseVerified)
                 {
-                    return _hwaMIDIUSB;
-                }
-
-                ::System::Builder::HWA::Protocol::MIDI::DIN& din() override
-                {
-                    return _hwaMIDIDIN;
-                }
-            } _hwaMIDI;
-        } _hwaProtocol;
-    } _hwa;
-
-    System::Builder  _builder(_hwa, _database);
-    System::Instance systemStub(_builder.hwa(), _builder.components());
-
-    void sendAndVerifySysExRequest(const std::vector<uint8_t> request, const std::vector<uint8_t> expectedResponse)
-    {
-        _hwaMIDIUSB._readPackets = MIDIHelper::rawSysExToUSBPackets(request);
-
-        // now just call system which will call midi.read which in turn will read the filled packets
-        while (_hwaMIDIUSB._readPackets.size())
-        {
-            systemStub.run();
-        }
-
-        // response is now in _hwaMIDIUSB._writePackets (board has sent this to host)
-        // convert it to raw bytes for easier parsing
-        auto rawBytes = MIDIHelper::usbSysExToRawBytes(_hwaMIDIUSB._writePackets);
-
-        bool responseVerified = false;
-
-        // std::cout << "request / expected / received:" << std::endl;
-
-        // for (size_t i = 0; i < request.size(); i++)
-        //     std::cout << static_cast<int>(request.at(i)) << " ";
-        // std::cout << std::endl;
-
-        // for (size_t i = 0; i < expectedResponse.size(); i++)
-        //     std::cout << static_cast<int>(expectedResponse.at(i)) << " ";
-        // std::cout << std::endl;
-
-        // for (size_t i = 0; i < rawBytes.size(); i++)
-        //     std::cout << static_cast<int>(rawBytes.at(i)) << " ";
-        // std::cout << std::endl;
-
-        for (size_t i = 0; i < rawBytes.size(); i++)
-        {
-            // it's possible that the first response isn't sysex but some component message
-            if (rawBytes.at(i) != expectedResponse.at(0))
-                continue;
-
-            responseVerified = true;
-
-            // once F0 is found, however, it should be expected response
-            for (size_t byte = 0; byte < expectedResponse.size(); byte++)
-            {
-                if (expectedResponse.at(byte) != rawBytes.at(byte + i))
-                {
-                    responseVerified = false;
                     break;
                 }
             }
 
-            if (responseVerified)
+            _system._hwaMIDIUSB._writePackets.clear();
+            ASSERT_TRUE(responseVerified);
+        }
+
+        uint16_t readFromDevice(std::vector<uint8_t> request, bool customReq = false)
+        {
+            Messaging::event_t event;
+            event.sysEx       = &request[0];
+            event.sysExLength = request.size();
+            event.message     = MIDI::messageType_t::systemExclusive;
+
+            processIncoming(event);
+
+            auto response     = _system._hwaMIDIUSB._writeParser.writtenMessages().at(0).sysexArray;
+            auto responseSize = _system._hwaMIDIUSB._writeParser.writtenMessages().at(0).length;
+
+            if (customReq)
             {
-                break;
+                return response[8];
+            }
+            else
+            {
+                // last two bytes are result
+                auto merged = Util::Conversion::Merge14bit(response[responseSize - 3], response[responseSize - 2]);
+                return merged.value();
             }
         }
 
-        _hwaMIDIUSB._writePackets.clear();
-        TEST_ASSERT(responseVerified == true);
-    }
+        void fakeTimeAndRunSystem()
+        {
+            // preset change will be reported after PRESET_CHANGE_NOTIFY_DELAY ms
+            // fake the passage of time here
+            core::timing::detail::rTime_ms += System::Instance::PRESET_CHANGE_NOTIFY_DELAY;
+
+            // clear out everything before running to parse with clean state
+            _system._hwaMIDIUSB.clear();
+            _system._hwaMIDIDIN.clear();
+            _listener._event.clear();
+            _system._instance.run();
+        }
+
+        std::vector<uint8_t> _generatedSysExReq;
+        Listener             _listener;
+        TestSystem           _system;
+    };
+
 }    // namespace
 
-TEST_SETUP()
+TEST_F(SystemTest, ForcedResendOnPresetChange)
 {
-    _hwaMIDIUSB.reset();
-    _hwaMIDIDIN.reset();
-}
+    MIDIDispatcher.listen(Messaging::eventSource_t::leds,
+                          Messaging::listenType_t::fwd,
+                          [this](const Messaging::event_t& dispatchMessage) {
+                              _listener.messageListener(dispatchMessage);
+                          });
 
-TEST_CASE(SystemInit)
-{
-    // on init, factory reset is performed so everything is in its default state
-    TEST_ASSERT(systemStub.init() == true);
+    // on init, all LEDs are turned off by calling hwa interface - irrelevant here
+    EXPECT_CALL(_system._hwaLEDs, setState(_, LEDs::brightness_t::bOff))
+        .Times(LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS));
 
-    // enable din midi via write in database
-#ifdef DIN_MIDI_SUPPORTED
-    TEST_ASSERT(_database.update(Database::Section::global_t::midiFeatures, Protocol::MIDI::feature_t::dinEnabled, 1) == true);
+    // Loopback state will be set regardless of whether DIN is enabled or not.
+    // Since it is not, it should be called with false argument.
+    EXPECT_CALL(_system._hwaMIDIDIN, setLoopback(false))
+        .WillOnce(Return(true));
 
-    // init system again and verify that din midi is enabled
-    TEST_ASSERT(systemStub.init() == true);
+    ASSERT_TRUE(_system._instance.init());
 
-    TEST_ASSERT(_database.read(Database::Section::global_t::midiFeatures, Protocol::MIDI::feature_t::dinEnabled) == true);
-#endif
+    // for touchscreen, events are reported through dispatcher
+    ASSERT_EQ(LEDs::Collection::size(LEDs::GROUP_TOUCHSCREEN_COMPONENTS), _listener._event.size());
 
-    TEST_ASSERT(_hwaMIDIDIN._loopbackEnabled == false);
-
-    // now enable din to din thru, init system again and verify that both din midi and loopback are enabled
-#ifdef DIN_MIDI_SUPPORTED
-    TEST_ASSERT(_database.update(Database::Section::global_t::midiFeatures, Protocol::MIDI::feature_t::dinThruDin, 1) == true);
-    TEST_ASSERT(systemStub.init() == true);
-    TEST_ASSERT(_database.read(Database::Section::global_t::midiFeatures, Protocol::MIDI::feature_t::dinEnabled) == true);
-    TEST_ASSERT(_hwaMIDIDIN._loopbackEnabled == true);
-#endif
-}
-
-TEST_CASE(ForcedResendOnPresetChange)
-{
-    if (_database.getSupportedPresets() <= 1)
-        return;
-
-    _database.factoryReset();
-    TEST_ASSERT(systemStub.init() == true);
-
-    const size_t ENABLED_ANALOG_COMPONENTS = IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) ? 1 : 0;
-
-    if (ENABLED_ANALOG_COMPONENTS)
+    for (size_t i = 0; i < LEDs::Collection::size(LEDs::GROUP_TOUCHSCREEN_COMPONENTS); i++)
     {
-        // enable first analog component in first two presets
-        TEST_ASSERT(_database.setPreset(1) == true);
-        TEST_ASSERT(_database.update(Database::Section::analog_t::enable, 0, 1) == true);
+        ASSERT_EQ(static_cast<uint16_t>(LEDs::brightness_t::bOff), _listener._event.at(i).midiValue);
+        ASSERT_EQ(i, _listener._event.at(i).componentIndex);
 
-        TEST_ASSERT(_database.setPreset(0) == true);
-        TEST_ASSERT(_database.update(Database::Section::analog_t::enable, 0, 1) == true);
-
-        _hwaMIDIDIN.reset();
-        _hwaMIDIUSB.reset();
-
-        _hwaAnalog.adcReturnValue = 0xFFFF;
-
-        systemStub.run();    // buttons
-        systemStub.run();    // encoders
-        systemStub.run();    // analog
-
-        TEST_ASSERT_EQUAL_UINT32(1, _hwaMIDIUSB._writePackets.size());
-
-        // verify the content of the message
-        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _hwaMIDIUSB._writePackets.at(0)[MIDI::USB_EVENT] << 4);
-        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _hwaMIDIUSB._writePackets.at(0)[MIDI::USB_DATA1]);
-        TEST_ASSERT_EQUAL_UINT32(0, _hwaMIDIUSB._writePackets.at(0)[MIDI::USB_DATA2]);
-        TEST_ASSERT(_hwaMIDIUSB._writePackets.at(0)[MIDI::USB_DATA3] > 0);    // due to filtering it is not certain what the value will be
-
-        // now change preset and verify that the same midi message is repeated
-        _hwaMIDIDIN.reset();
-        _hwaMIDIUSB.reset();
+        // rest of the values are irrelevant
     }
 
     // handshake
@@ -680,35 +190,95 @@ TEST_CASE(ForcedResendOnPresetChange)
                                 0x01,
                                 0xF7 });
 
-    _hwaMIDIDIN.reset();
-    _hwaMIDIUSB.reset();
+    static constexpr size_t ANALOG_INDEX              = 0;
+    static constexpr size_t ENABLED_ANALOG_COMPONENTS = IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) ? 1 : 0;
 
-    std::vector<uint8_t> generatedSysExReq;
-    uint8_t              newPreset = 1;
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, newPreset, generatedSysExReq);
+    auto enableAnalog = [&]() {
+        if (ENABLED_ANALOG_COMPONENTS)
+        {
+            MIDIHelper::generateSysExSetReq(System::Config::Section::analog_t::enable,
+                                            ANALOG_INDEX,
+                                            1,
+                                            _generatedSysExReq);
 
-    sendAndVerifySysExRequest(generatedSysExReq,
+            sendAndVerifySysExRequest(_generatedSysExReq,
+                                      { 0xF0,
+                                        0x00,
+                                        0x53,
+                                        0x43,
+                                        0x01,                                                               // ack
+                                        0x00,                                                               // msg part
+                                        0x01,                                                               // set
+                                        0x00,                                                               // single
+                                        static_cast<uint8_t>(System::Config::block_t::analog),              // block
+                                        static_cast<uint8_t>(System::Config::Section::analog_t::enable),    // section
+                                        0x00,                                                               // MSB index
+                                        static_cast<uint8_t>(ANALOG_INDEX),                                 // LSB index
+                                        0x00,                                                               // MSB new value
+                                        1,                                                                  // LSB new value
+                                        0xF7 });
+        }
+    };
+
+    enableAnalog();
+
+    auto supportedPresets = readFromDevice(
+        { 0xF0,
+          0x00,
+          0x53,
+          0x43,
+          0x00,
+          0x00,
+          SYSEX_CR_SUPPORTED_PRESETS,
+          0xF7 },
+        true);
+
+    LOG(INFO) << "Supported presets: " << static_cast<int>(supportedPresets);
+
+    if (supportedPresets < 2)
+    {
+        LOG(INFO) << "Not enough supported presets for further tests, exiting";
+        return;
+    }
+
+    uint8_t newPreset = 1;
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets,
+                                    Database::Config::presetSetting_t::activePreset,
+                                    newPreset,
+                                    _generatedSysExReq);
+
+    sendAndVerifySysExRequest(_generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
                                 0x43,
-                                0x01,                                                                // ack
-                                0x00,                                                                // msg part
-                                0x01,                                                                // set
-                                0x00,                                                                // single
-                                static_cast<uint8_t>(System::Config::block_t::global),               // global block
-                                static_cast<uint8_t>(System::Config::Section::global_t::presets),    // preset section
-                                0x00,                                                                // MSB index (active preset)
-                                static_cast<uint8_t>(Database::presetSetting_t::activePreset),       // LSB index (active preset)
-                                0x00,                                                                // MSB new value
-                                newPreset,                                                           // LSB new value
+                                0x01,                                                                     // ack
+                                0x00,                                                                     // msg part
+                                0x01,                                                                     // set
+                                0x00,                                                                     // single
+                                static_cast<uint8_t>(System::Config::block_t::global),                    // global block
+                                static_cast<uint8_t>(System::Config::Section::global_t::presets),         // preset section
+                                0x00,                                                                     // MSB index (active preset)
+                                static_cast<uint8_t>(Database::Config::presetSetting_t::activePreset),    // LSB index (active preset)
+                                0x00,                                                                     // MSB new value
+                                newPreset,                                                                // LSB new value
                                 0xF7 });
+
+    enableAnalog();
 
 #ifdef DIN_MIDI_SUPPORTED
     // enable DIN midi as well - same data needs to be sent there
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::midiFeatures, Protocol::MIDI::feature_t::dinEnabled, 1, generatedSysExReq);
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::midiFeatures,
+                                    Protocol::MIDI::feature_t::dinEnabled,
+                                    1,
+                                    _generatedSysExReq);
 
-    sendAndVerifySysExRequest(generatedSysExReq,
+    EXPECT_CALL(_system._hwaMIDIDIN, init())
+        .WillOnce(Return(true));
+
+    // loopback shouldn't be changed
+
+    sendAndVerifySysExRequest(_generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
@@ -726,112 +296,191 @@ TEST_CASE(ForcedResendOnPresetChange)
                                 0xF7 });
 #endif
 
+    EXPECT_CALL(_system._hwaLEDs, setState(_, _))
+        .Times(LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS));
+
+    // only loopback setting will be called since DIN is already initialized
+    EXPECT_CALL(_system._hwaMIDIDIN, setLoopback(false))
+        .WillOnce(Return(true));
+
     // values will be forcefully resent after a timeout
-    // fake the passage of time here first
-    core::timing::detail::rTime_ms += System::Instance::PRESET_CHANGE_NOTIFY_DELAY;
-    _hwaMIDIUSB._writePackets.clear();
-    systemStub.run();
+    // midi will also be re-initialized
+    fakeTimeAndRunSystem();
 
-    // the preset has been changed several times successively, but only one notification of that event is reported in in PRESET_CHANGE_NOTIFY_DELAYms
-    // all buttons should resend their state
-    // all enabled analog components should be sent as well if analog components are supported (only 1 in this case)
+    // for touchscreen, events are reported through dispatcher
+    ASSERT_EQ(LEDs::Collection::size(LEDs::GROUP_TOUCHSCREEN_COMPONENTS), _listener._event.size());
 
-    TEST_ASSERT_EQUAL_UINT32((IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + ENABLED_ANALOG_COMPONENTS), _hwaMIDIUSB.totalWrittenChannelMessages());
+    for (size_t i = 0; i < LEDs::Collection::size(LEDs::GROUP_TOUCHSCREEN_COMPONENTS); i++)
+    {
+        ASSERT_EQ(static_cast<uint16_t>(LEDs::brightness_t::bOff), _listener._event.at(i).midiValue);
+        ASSERT_EQ(i, _listener._event.at(i).componentIndex);
+
+        // rest of the values are irrelevant
+    }
+
+    // The preset has been changed several times successively, but only one notification of that event is reported in PRESET_CHANGE_NOTIFY_DELAY ms.
+    // All buttons and enabled analog components should resend their state.
+
+    ASSERT_EQ((Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS)) + ENABLED_ANALOG_COMPONENTS,
+              _system._hwaMIDIUSB._writeParser.totalWrittenChannelMessages());
 
 #ifdef DIN_MIDI_SUPPORTED
-    TEST_ASSERT_EQUAL_UINT32((IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + ENABLED_ANALOG_COMPONENTS), _hwaMIDIDIN.totalWrittenChannelMessages());
+    ASSERT_EQ((Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS)) + ENABLED_ANALOG_COMPONENTS,
+              _system._hwaMIDIDIN._writeParser.totalWrittenChannelMessages());
 #endif
 
-    // now switch preset again - on usb same amount of messages should be received
-    // nothing should be received on din
+    // Now switch preset again - on USB same amount of messages should be received.
+    // Nothing should be received on DIN.
 
     newPreset = 0;
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, newPreset, generatedSysExReq);
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets,
+                                    Database::Config::presetSetting_t::activePreset,
+                                    newPreset,
+                                    _generatedSysExReq);
 
-    sendAndVerifySysExRequest(generatedSysExReq,
+    sendAndVerifySysExRequest(_generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
                                 0x43,
                                 0x01,
                                 0x00,
-                                0x01,                                                                // set
-                                0x00,                                                                // single
-                                static_cast<uint8_t>(System::Config::block_t::global),               // global block
-                                static_cast<uint8_t>(System::Config::Section::global_t::presets),    // preset section
-                                0x00,                                                                // MSB index (active preset)
-                                static_cast<uint8_t>(Database::presetSetting_t::activePreset),       // LSB index (active preset)
-                                0x00,                                                                // MSB new value
-                                newPreset,                                                           // LSB new value
+                                0x01,                                                                     // set
+                                0x00,                                                                     // single
+                                static_cast<uint8_t>(System::Config::block_t::global),                    // global block
+                                static_cast<uint8_t>(System::Config::Section::global_t::presets),         // preset section
+                                0x00,                                                                     // MSB index (active preset)
+                                static_cast<uint8_t>(Database::Config::presetSetting_t::activePreset),    // LSB index (active preset)
+                                0x00,                                                                     // MSB new value
+                                newPreset,                                                                // LSB new value
                                 0xF7 });
 
-    core::timing::detail::rTime_ms += System::Instance::PRESET_CHANGE_NOTIFY_DELAY;
-    _hwaMIDIUSB._writePackets.clear();
-    _hwaMIDIDIN._writePackets.clear();
-    systemStub.run();
+    // LEDs will be refreshed - they are all off
+    EXPECT_CALL(_system._hwaLEDs, setState(_, LEDs::brightness_t::bOff))
+        .Times(LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS));
 
-    TEST_ASSERT_EQUAL_UINT32((IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + ENABLED_ANALOG_COMPONENTS), _hwaMIDIUSB.totalWrittenChannelMessages());
+    // loopback will be set again - on preset change, MIDI is reinitialized
+    EXPECT_CALL(_system._hwaMIDIDIN, setLoopback(false))
+        .WillOnce(Return(true));
 
 #ifdef DIN_MIDI_SUPPORTED
-    TEST_ASSERT_EQUAL_UINT32(0, _hwaMIDIDIN.totalWrittenChannelMessages());
+    // din midi isn't enabled in first preset so it will be disabled
+    EXPECT_CALL(_system._hwaMIDIDIN, deInit())
+        .WillOnce(Return(true));
+#endif
+
+    fakeTimeAndRunSystem();
+
+    // for touchscreen, events are reported through dispatcher
+    ASSERT_EQ(LEDs::Collection::size(LEDs::GROUP_TOUCHSCREEN_COMPONENTS), _listener._event.size());
+
+    for (size_t i = 0; i < LEDs::Collection::size(LEDs::GROUP_TOUCHSCREEN_COMPONENTS); i++)
+    {
+        ASSERT_EQ(static_cast<uint16_t>(LEDs::brightness_t::bOff), _listener._event.at(i).midiValue);
+        ASSERT_EQ(i, _listener._event.at(i).componentIndex);
+
+        // rest of the values are irrelevant
+    }
+
+    ASSERT_EQ((Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS)) + ENABLED_ANALOG_COMPONENTS,
+              _system._hwaMIDIUSB._writeParser.totalWrittenChannelMessages());
+
+#ifdef DIN_MIDI_SUPPORTED
+    ASSERT_EQ(0, _system._hwaMIDIDIN._writeParser.totalWrittenChannelMessages());
 #endif
 
     // and finally, back to the preset in which din midi is enabled
     // this will verify that din is properly enabled again
 
-    _hwaMIDIUSB._writePackets.clear();
-    _hwaMIDIDIN._writePackets.clear();
     newPreset = 1;
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, newPreset, generatedSysExReq);
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets,
+                                    Database::Config::presetSetting_t::activePreset,
+                                    newPreset,
+                                    _generatedSysExReq);
 
-    sendAndVerifySysExRequest(generatedSysExReq,
+    sendAndVerifySysExRequest(_generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
                                 0x43,
-                                0x01,                                                                // ack
-                                0x00,                                                                // msg part
-                                0x01,                                                                // set
-                                0x00,                                                                // single
-                                static_cast<uint8_t>(System::Config::block_t::global),               // global block
-                                static_cast<uint8_t>(System::Config::Section::global_t::presets),    // preset section
-                                0x00,                                                                // MSB index (active preset)
-                                static_cast<uint8_t>(Database::presetSetting_t::activePreset),       // LSB index (active preset)
-                                0x00,                                                                // MSB new value
-                                newPreset,                                                           // LSB new value
+                                0x01,                                                                     // ack
+                                0x00,                                                                     // msg part
+                                0x01,                                                                     // set
+                                0x00,                                                                     // single
+                                static_cast<uint8_t>(System::Config::block_t::global),                    // global block
+                                static_cast<uint8_t>(System::Config::Section::global_t::presets),         // preset section
+                                0x00,                                                                     // MSB index (active preset)
+                                static_cast<uint8_t>(Database::Config::presetSetting_t::activePreset),    // LSB index (active preset)
+                                0x00,                                                                     // MSB new value
+                                newPreset,                                                                // LSB new value
                                 0xF7 });
 
-    core::timing::detail::rTime_ms += System::Instance::PRESET_CHANGE_NOTIFY_DELAY;
-    _hwaMIDIUSB._writePackets.clear();
-    _hwaMIDIDIN._writePackets.clear();
-    systemStub.run();
+    // LEDs will be refreshed - they are all off
+    EXPECT_CALL(_system._hwaLEDs, setState(_, LEDs::brightness_t::bOff))
+        .Times(LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS));
 
-    TEST_ASSERT_EQUAL_UINT32((IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + ENABLED_ANALOG_COMPONENTS), _hwaMIDIUSB.totalWrittenChannelMessages());
+    // loopback will be set again - on preset change, MIDI is reinitialized
+    EXPECT_CALL(_system._hwaMIDIDIN, setLoopback(false))
+        .WillOnce(Return(true));
 
 #ifdef DIN_MIDI_SUPPORTED
-    TEST_ASSERT_EQUAL_UINT32((IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + ENABLED_ANALOG_COMPONENTS), _hwaMIDIDIN.totalWrittenChannelMessages());
+    // din midi is enabled now
+    EXPECT_CALL(_system._hwaMIDIDIN, init())
+        .WillOnce(Return(true));
+#endif
+
+    fakeTimeAndRunSystem();
+
+    // for touchscreen, events are reported through dispatcher
+    ASSERT_EQ(LEDs::Collection::size(LEDs::GROUP_TOUCHSCREEN_COMPONENTS), _listener._event.size());
+
+    for (size_t i = 0; i < LEDs::Collection::size(LEDs::GROUP_TOUCHSCREEN_COMPONENTS); i++)
+    {
+        ASSERT_EQ(static_cast<uint16_t>(LEDs::brightness_t::bOff), _listener._event.at(i).midiValue);
+        ASSERT_EQ(i, _listener._event.at(i).componentIndex);
+
+        // rest of the values are irrelevant
+    }
+
+    ASSERT_EQ((Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS)) + ENABLED_ANALOG_COMPONENTS,
+              _system._hwaMIDIUSB._writeParser.totalWrittenChannelMessages());
+
+#ifdef DIN_MIDI_SUPPORTED
+    ASSERT_EQ((Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS)) + ENABLED_ANALOG_COMPONENTS,
+              _system._hwaMIDIDIN._writeParser.totalWrittenChannelMessages());
 #endif
 }
 
 #ifdef LEDS_SUPPORTED
-TEST_CASE(PresetChangeIndicatedOnLEDs)
+TEST_F(SystemTest, PresetChangeIndicatedOnLEDs)
 {
-    if (_database.getSupportedPresets() <= 1)
-        return;
+    MIDIDispatcher.listen(Messaging::eventSource_t::leds,
+                          Messaging::listenType_t::fwd,
+                          [this](const Messaging::event_t& dispatchMessage) {
+                              _listener.messageListener(dispatchMessage);
+                          });
 
-    auto fakeTime = []() {
-        // preset change will be reported after PRESET_CHANGE_NOTIFY_DELAY ms
-        // fake the passage of time here
-        core::timing::detail::rTime_ms += System::Instance::PRESET_CHANGE_NOTIFY_DELAY;
-        systemStub.run();
+    // on init, all LEDs are turned off by calling hwa interface - irrelevant here
+    EXPECT_CALL(_system._hwaLEDs, setState(_, LEDs::brightness_t::bOff))
+        .Times(LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS));
 
-        // after running the system also clear out everything that is possibly sent out to avoid
-        // missdetection of sysex responses
-        _hwaMIDIUSB._writePackets.clear();
-    };
+    // Loopback state will be set regardless of whether DIN is enabled or not.
+    // Since it is not, it should be called with false argument.
+    EXPECT_CALL(_system._hwaMIDIDIN, setLoopback(false))
+        .WillOnce(Return(true));
 
-    _database.factoryReset();
-    TEST_ASSERT(systemStub.init() == true);
+    ASSERT_TRUE(_system._instance.init());
+
+    // for touchscreen, events are reported through dispatcher
+    ASSERT_EQ(LEDs::Collection::size(LEDs::GROUP_TOUCHSCREEN_COMPONENTS), _listener._event.size());
+
+    for (size_t i = 0; i < LEDs::Collection::size(LEDs::GROUP_TOUCHSCREEN_COMPONENTS); i++)
+    {
+        ASSERT_EQ(static_cast<uint16_t>(LEDs::brightness_t::bOff), _listener._event.at(i).midiValue);
+        ASSERT_EQ(i, _listener._event.at(i).componentIndex);
+
+        // rest of the values are irrelevant
+    }
 
     // handshake
     sendAndVerifySysExRequest({ 0xF0,
@@ -851,13 +500,35 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
                                 0x01,
                                 0xF7 });
 
-    std::vector<uint8_t> generatedSysExReq;
+    auto supportedPresets = readFromDevice(
+        { 0xF0,
+          0x00,
+          0x53,
+          0x43,
+          0x00,
+          0x00,
+          SYSEX_CR_SUPPORTED_PRESETS,
+          0xF7 },
+        true);
 
-    // configure the first LED to indicate current preset
-    // its activation ID is 0 so it should be on only in first preset
-    MIDIHelper::generateSysExSetReq(System::Config::Section::leds_t::controlType, 0, IO::LEDs::controlType_t::preset, generatedSysExReq);
+    LOG(INFO) << "Supported presets: " << static_cast<int>(supportedPresets);
 
-    sendAndVerifySysExRequest(generatedSysExReq,
+    if (supportedPresets < 2)
+    {
+        LOG(INFO) << "Not enough supported presets for further tests, exiting";
+        return;
+    }
+
+    static constexpr size_t LED_INDEX = 0;
+
+    // Configure the first LED to indicate current preset.
+    // Its activation ID is 0 so it should be on only in first preset.
+    MIDIHelper::generateSysExSetReq(System::Config::Section::leds_t::controlType,
+                                    LED_INDEX,
+                                    LEDs::controlType_t::preset,
+                                    _generatedSysExReq);
+
+    sendAndVerifySysExRequest(_generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
@@ -869,39 +540,49 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
                                 static_cast<uint8_t>(System::Config::block_t::leds),
                                 static_cast<uint8_t>(System::Config::Section::leds_t::controlType),
                                 0x00,    // LED 0
+                                LED_INDEX,
                                 0x00,
-                                0x00,
-                                static_cast<uint8_t>(IO::LEDs::controlType_t::preset),
+                                static_cast<uint8_t>(LEDs::controlType_t::preset),
                                 0xF7 });
 
     // switch preset
     uint8_t newPreset = 1;
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, newPreset, generatedSysExReq);
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets,
+                                    Database::Config::presetSetting_t::activePreset,
+                                    newPreset,
+                                    _generatedSysExReq);
 
-    sendAndVerifySysExRequest(generatedSysExReq,
+    sendAndVerifySysExRequest(_generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
                                 0x43,
-                                0x01,                                                                // ack
-                                0x00,                                                                // msg part
-                                0x01,                                                                // set
-                                0x00,                                                                // single
-                                static_cast<uint8_t>(System::Config::block_t::global),               // global block
-                                static_cast<uint8_t>(System::Config::Section::global_t::presets),    // preset section
-                                0x00,                                                                // MSB index (active preset)
-                                static_cast<uint8_t>(Database::presetSetting_t::activePreset),       // LSB index (active preset)
-                                0x00,                                                                // MSB new value
-                                newPreset,                                                           // LSB new value
+                                0x01,                                                                     // ack
+                                0x00,                                                                     // msg part
+                                0x01,                                                                     // set
+                                0x00,                                                                     // single
+                                static_cast<uint8_t>(System::Config::block_t::global),                    // global block
+                                static_cast<uint8_t>(System::Config::Section::global_t::presets),         // preset section
+                                0x00,                                                                     // MSB index (active preset)
+                                static_cast<uint8_t>(Database::Config::presetSetting_t::activePreset),    // LSB index (active preset)
+                                0x00,                                                                     // MSB new value
+                                newPreset,                                                                // LSB new value
                                 0xF7 });
 
-    // fake the passage of time after each preset change
-    fakeTime();
+    // all leds should be off in new preset
+    EXPECT_CALL(_system._hwaLEDs, setState(_, LEDs::brightness_t::bOff))
+        .Times(LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS));
+
+    // loopback will be set again - on preset change, MIDI is reinitialized
+    EXPECT_CALL(_system._hwaMIDIDIN, setLoopback(false))
+        .WillOnce(Return(true));
+
+    fakeTimeAndRunSystem();
 
     // verify the led is off
-    MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::testColor, 0, generatedSysExReq);
+    MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::testColor, LED_INDEX, _generatedSysExReq);
 
-    sendAndVerifySysExRequest(generatedSysExReq,
+    sendAndVerifySysExRequest(_generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
@@ -913,7 +594,7 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
                                 static_cast<uint8_t>(System::Config::block_t::leds),
                                 static_cast<uint8_t>(System::Config::Section::leds_t::testColor),
                                 0x00,    // LED 0
-                                0x00,
+                                LED_INDEX,
                                 0x00,    // new value / blank
                                 0x00,    // new value / blank
                                 0x00,
@@ -922,29 +603,32 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
 
     // now switch to preset 0 and expect the LED 0 to be on
     newPreset = 0;
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, newPreset, generatedSysExReq);
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets,
+                                    Database::Config::presetSetting_t::activePreset,
+                                    newPreset,
+                                    _generatedSysExReq);
 
-    sendAndVerifySysExRequest(generatedSysExReq,
+    sendAndVerifySysExRequest(_generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
                                 0x43,
-                                0x01,                                                                // ack
-                                0x00,                                                                // msg part
-                                0x01,                                                                // set
-                                0x00,                                                                // single
-                                static_cast<uint8_t>(System::Config::block_t::global),               // global block
-                                static_cast<uint8_t>(System::Config::Section::global_t::presets),    // preset section
-                                0x00,                                                                // MSB index (active preset)
-                                static_cast<uint8_t>(Database::presetSetting_t::activePreset),       // LSB index (active preset)
-                                0x00,                                                                // MSB new value
-                                newPreset,                                                           // LSB new value
+                                0x01,                                                                     // ack
+                                0x00,                                                                     // msg part
+                                0x01,                                                                     // set
+                                0x00,                                                                     // single
+                                static_cast<uint8_t>(System::Config::block_t::global),                    // global block
+                                static_cast<uint8_t>(System::Config::Section::global_t::presets),         // preset section
+                                0x00,                                                                     // MSB index (active preset)
+                                static_cast<uint8_t>(Database::Config::presetSetting_t::activePreset),    // LSB index (active preset)
+                                0x00,                                                                     // MSB new value
+                                newPreset,                                                                // LSB new value
                                 0xF7 });
 
-    MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::testColor, 0, generatedSysExReq);
+    MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::testColor, LED_INDEX, _generatedSysExReq);
 
     // verify first that the led is still off if timeout hasn't passed
-    sendAndVerifySysExRequest(generatedSysExReq,
+    sendAndVerifySysExRequest(_generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
@@ -956,17 +640,62 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
                                 static_cast<uint8_t>(System::Config::block_t::leds),
                                 static_cast<uint8_t>(System::Config::Section::leds_t::testColor),
                                 0x00,    // LED 0
-                                0x00,
+                                LED_INDEX,
                                 0x00,    // new value / blank
                                 0x00,    // new value / blank
                                 0x00,
                                 0x00,    // LED state - off
                                 0xF7 });
 
-    fakeTime();
+#ifdef DIGITAL_OUTPUTS_SUPPORTED
+    {
+        InSequence s;
 
-    // should be on by now
-    sendAndVerifySysExRequest(generatedSysExReq,
+        // On preset change, all LEDs are first turned off.
+        EXPECT_CALL(_system._hwaLEDs, setState(_, LEDs::brightness_t::bOff))
+            .Times(LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS));
+
+        // After that, checks are run again and only the LEDs which match
+        // criteria will be turned on. In this case, the first LED should
+        // be turned on since it is configured to be on in first preset.
+        EXPECT_CALL(_system._hwaLEDs, setState(LED_INDEX, LEDs::brightness_t::b100))
+            .Times(1);
+    }
+#endif
+
+    // loopback will be set again - on preset change, MIDI is reinitialized
+    EXPECT_CALL(_system._hwaMIDIDIN, setLoopback(false))
+        .WillOnce(Return(true));
+
+    fakeTimeAndRunSystem();
+
+    // for touchscreen, events are reported through dispatcher
+    if (LED_INDEX >= LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS))
+    {
+        // check if specified LED is in touchscreen group - if true, one more event should be reported
+        ASSERT_EQ(LEDs::Collection::size(LEDs::GROUP_TOUCHSCREEN_COMPONENTS) + 1, _listener._event.size());
+    }
+    else
+    {
+        ASSERT_EQ(LEDs::Collection::size(LEDs::GROUP_TOUCHSCREEN_COMPONENTS), _listener._event.size());
+    }
+
+    for (size_t i = 0; i < LEDs::Collection::size(LEDs::GROUP_TOUCHSCREEN_COMPONENTS); i++)
+    {
+        ASSERT_EQ(static_cast<uint16_t>(LEDs::brightness_t::bOff), _listener._event.at(i).midiValue);
+        ASSERT_EQ(i, _listener._event.at(i).componentIndex);
+
+        // rest of the values are irrelevant
+    }
+
+    if (LED_INDEX >= LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS))
+    {
+        ASSERT_EQ(static_cast<uint16_t>(LEDs::brightness_t::b100), _listener._event.at(_listener._event.size() - 1).midiValue);
+        ASSERT_EQ(LED_INDEX, _listener._event.at(_listener._event.size() - 1).componentIndex);
+    }
+
+    // also verify through sysex
+    sendAndVerifySysExRequest(_generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
@@ -978,7 +707,7 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
                                 static_cast<uint8_t>(System::Config::block_t::leds),
                                 static_cast<uint8_t>(System::Config::Section::leds_t::testColor),
                                 0x00,    // LED 0
-                                0x00,
+                                LED_INDEX,
                                 0x00,    // new value / blank
                                 0x00,    // new value / blank
                                 0x00,
@@ -987,29 +716,32 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
 
     // switch back to preset 1 and verify that the led is turned off
     newPreset = 1;
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets, Database::presetSetting_t::activePreset, newPreset, generatedSysExReq);
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::presets,
+                                    Database::Config::presetSetting_t::activePreset,
+                                    newPreset,
+                                    _generatedSysExReq);
 
-    sendAndVerifySysExRequest(generatedSysExReq,
+    sendAndVerifySysExRequest(_generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
                                 0x43,
-                                0x01,                                                                // ack
-                                0x00,                                                                // msg part
-                                0x01,                                                                // set
-                                0x00,                                                                // single
-                                static_cast<uint8_t>(System::Config::block_t::global),               // global block
-                                static_cast<uint8_t>(System::Config::Section::global_t::presets),    // preset section
-                                0x00,                                                                // MSB index (active preset)
-                                static_cast<uint8_t>(Database::presetSetting_t::activePreset),       // LSB index (active preset)
-                                0x00,                                                                // MSB new value
-                                newPreset,                                                           // LSB new value
+                                0x01,                                                                     // ack
+                                0x00,                                                                     // msg part
+                                0x01,                                                                     // set
+                                0x00,                                                                     // single
+                                static_cast<uint8_t>(System::Config::block_t::global),                    // global block
+                                static_cast<uint8_t>(System::Config::Section::global_t::presets),         // preset section
+                                0x00,                                                                     // MSB index (active preset)
+                                static_cast<uint8_t>(Database::Config::presetSetting_t::activePreset),    // LSB index (active preset)
+                                0x00,                                                                     // MSB new value
+                                newPreset,                                                                // LSB new value
                                 0xF7 });
 
-    MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::testColor, 0, generatedSysExReq);
+    MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::testColor, 0, _generatedSysExReq);
 
     // should be still on - timeout hasn't occured
-    sendAndVerifySysExRequest(generatedSysExReq,
+    sendAndVerifySysExRequest(_generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
@@ -1021,16 +753,24 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
                                 static_cast<uint8_t>(System::Config::block_t::leds),
                                 static_cast<uint8_t>(System::Config::Section::leds_t::testColor),
                                 0x00,    // LED 0
-                                0x00,
+                                LED_INDEX,
                                 0x00,    // new value / blank
                                 0x00,    // new value / blank
                                 0x00,
                                 0x01,    // LED state - on
                                 0xF7 });
 
-    fakeTime();
+    // all leds should be off in new preset
+    EXPECT_CALL(_system._hwaLEDs, setState(_, LEDs::brightness_t::bOff))
+        .Times(LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS));
 
-    sendAndVerifySysExRequest(generatedSysExReq,
+    // loopback will be set again - on preset change, MIDI is reinitialized
+    EXPECT_CALL(_system._hwaMIDIDIN, setLoopback(false))
+        .WillOnce(Return(true));
+
+    fakeTimeAndRunSystem();
+
+    sendAndVerifySysExRequest(_generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
@@ -1042,15 +782,23 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
                                 static_cast<uint8_t>(System::Config::block_t::leds),
                                 static_cast<uint8_t>(System::Config::Section::leds_t::testColor),
                                 0x00,    // LED 0
-                                0x00,
+                                LED_INDEX,
                                 0x00,    // new value / blank
                                 0x00,    // new value / blank
                                 0x00,
                                 0x00,    // LED state - off
                                 0xF7 });
 
-    // re-init the system - verify that the led 0 is on on startup to indicate current preset
-    TEST_ASSERT(systemStub.init() == true);
+    // re-init the system - verify that the led 0 is on on startup after timeout to indicate current preset
+    EXPECT_CALL(_system._hwaLEDs, setState(_, LEDs::brightness_t::bOff))
+        .Times(LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS));
+
+    // Loopback state will be set regardless of whether DIN is enabled or not.
+    // Since it is not, it should be called with false argument.
+    EXPECT_CALL(_system._hwaMIDIDIN, setLoopback(false))
+        .WillOnce(Return(true));
+
+    ASSERT_TRUE(_system._instance.init());
 
     // handshake
     sendAndVerifySysExRequest({ 0xF0,
@@ -1070,10 +818,10 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
                                 0x01,
                                 0xF7 });
 
-    MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::testColor, 0, generatedSysExReq);
+    MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::testColor, LED_INDEX, _generatedSysExReq);
 
     // initially the state should be off
-    sendAndVerifySysExRequest(generatedSysExReq,
+    sendAndVerifySysExRequest(_generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
@@ -1092,9 +840,28 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
                                 0x00,    // LED state - off
                                 0xF7 });
 
-    fakeTime();
+#ifdef DIGITAL_OUTPUTS_SUPPORTED
+    {
+        InSequence s;
 
-    sendAndVerifySysExRequest(generatedSysExReq,
+        // first all off
+        EXPECT_CALL(_system._hwaLEDs, setState(_, LEDs::brightness_t::bOff))
+            .Times(LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS));
+
+        // then on what's needed
+        EXPECT_CALL(_system._hwaLEDs, setState(LED_INDEX, LEDs::brightness_t::b100))
+            .Times(1);
+    }
+#endif
+
+    // loopback will be set again - on preset change, MIDI is reinitialized
+    EXPECT_CALL(_system._hwaMIDIDIN, setLoopback(false))
+        .WillOnce(Return(true));
+
+    fakeTimeAndRunSystem();
+
+    // verify with sysex
+    sendAndVerifySysExRequest(_generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
@@ -1106,7 +873,7 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
                                 static_cast<uint8_t>(System::Config::block_t::leds),
                                 static_cast<uint8_t>(System::Config::Section::leds_t::testColor),
                                 0x00,    // LED 0
-                                0x00,
+                                LED_INDEX,
                                 0x00,    // new value / blank
                                 0x00,    // new value / blank
                                 0x00,
@@ -1114,10 +881,18 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
                                 0xF7 });
 }
 
-TEST_CASE(ProgramIndicatedOnStartup)
+TEST_F(SystemTest, ProgramIndicatedOnStartup)
 {
-    _database.factoryReset();
-    TEST_ASSERT(systemStub.init() == true);
+    // on init, all LEDs are turned off by calling hwa interface - irrelevant here
+    EXPECT_CALL(_system._hwaLEDs, setState(_, LEDs::brightness_t::bOff))
+        .Times(LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS));
+
+    // Loopback state will be set regardless of whether DIN is enabled or not.
+    // Since it is not, it should be called with false argument.
+    EXPECT_CALL(_system._hwaMIDIDIN, setLoopback(false))
+        .WillOnce(Return(true));
+
+    ASSERT_TRUE(_system._instance.init());
 
     // handshake
     sendAndVerifySysExRequest({ 0xF0,
@@ -1137,13 +912,16 @@ TEST_CASE(ProgramIndicatedOnStartup)
                                 0x01,
                                 0xF7 });
 
-    std::vector<uint8_t> generatedSysExReq;
+    static constexpr size_t LED_INDEX = 0;
 
     // configure the first LED to indicate program change
     // its activation ID is 0 so it should be on only for program 0
-    MIDIHelper::generateSysExSetReq(System::Config::Section::leds_t::controlType, 0, IO::LEDs::controlType_t::pcSingleVal, generatedSysExReq);
+    MIDIHelper::generateSysExSetReq(System::Config::Section::leds_t::controlType,
+                                    LED_INDEX,
+                                    LEDs::controlType_t::pcSingleVal,
+                                    _generatedSysExReq);
 
-    sendAndVerifySysExRequest(generatedSysExReq,
+    sendAndVerifySysExRequest(_generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
@@ -1154,16 +932,16 @@ TEST_CASE(ProgramIndicatedOnStartup)
                                 0x00,    // single
                                 static_cast<uint8_t>(System::Config::block_t::leds),
                                 static_cast<uint8_t>(System::Config::Section::leds_t::controlType),
-                                0x00,    // LED 0
+                                0x00,    // LED index
+                                LED_INDEX,
                                 0x00,
-                                0x00,
-                                static_cast<uint8_t>(IO::LEDs::controlType_t::pcSingleVal),
+                                static_cast<uint8_t>(LEDs::controlType_t::pcSingleVal),
                                 0xF7 });
 
     // led should be off for now
-    MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::testColor, 0, generatedSysExReq);
+    MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::testColor, 0, _generatedSysExReq);
 
-    sendAndVerifySysExRequest(generatedSysExReq,
+    sendAndVerifySysExRequest(_generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
@@ -1175,14 +953,33 @@ TEST_CASE(ProgramIndicatedOnStartup)
                                 static_cast<uint8_t>(System::Config::block_t::leds),
                                 static_cast<uint8_t>(System::Config::Section::leds_t::testColor),
                                 0x00,    // LED 0
-                                0x00,
+                                LED_INDEX,
                                 0x00,    // new value / blank
                                 0x00,    // new value / blank
                                 0x00,
                                 0x00,    // LED state - off
                                 0xF7 });
 
-    TEST_ASSERT(systemStub.init() == true);
+    // reinit the system again
+
+#ifdef DIGITAL_OUTPUTS_SUPPORTED
+    {
+        InSequence s;
+
+        EXPECT_CALL(_system._hwaLEDs, setState(_, LEDs::brightness_t::bOff))
+            .Times(LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS));
+
+        EXPECT_CALL(_system._hwaLEDs, setState(LED_INDEX, LEDs::brightness_t::b100))
+            .Times(1);
+    }
+#endif
+
+    // Loopback state will be set regardless of whether DIN is enabled or not.
+    // Since it is not, it should be called with false argument.
+    EXPECT_CALL(_system._hwaMIDIDIN, setLoopback(false))
+        .WillOnce(Return(true));
+
+    ASSERT_TRUE(_system._instance.init());
 
     // handshake
     sendAndVerifySysExRequest({ 0xF0,
@@ -1202,10 +999,12 @@ TEST_CASE(ProgramIndicatedOnStartup)
                                 0x01,
                                 0xF7 });
 
-    // verify that the led is turned on on startup since initially, program for all channels is 0
-    MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::testColor, 0, generatedSysExReq);
+    // also verify with sysex
+    MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::testColor,
+                                    LED_INDEX,
+                                    _generatedSysExReq);
 
-    sendAndVerifySysExRequest(generatedSysExReq,
+    sendAndVerifySysExRequest(_generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
@@ -1217,7 +1016,7 @@ TEST_CASE(ProgramIndicatedOnStartup)
                                 static_cast<uint8_t>(System::Config::block_t::leds),
                                 static_cast<uint8_t>(System::Config::Section::leds_t::testColor),
                                 0x00,    // LED 0
-                                0x00,
+                                LED_INDEX,
                                 0x00,    // new value / blank
                                 0x00,    // new value / blank
                                 0x00,
@@ -1227,10 +1026,18 @@ TEST_CASE(ProgramIndicatedOnStartup)
 #endif
 
 #ifdef DIN_MIDI_SUPPORTED
-TEST_CASE(UsbThruDin)
+TEST_F(SystemTest, UsbThruDin)
 {
-    _database.factoryReset();
-    TEST_ASSERT(systemStub.init() == true);
+    // on init, all LEDs are turned off by calling hwa interface - irrelevant here
+    EXPECT_CALL(_system._hwaLEDs, setState(_, LEDs::brightness_t::bOff))
+        .Times(LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS));
+
+    // Loopback state will be set regardless of whether DIN is enabled or not.
+    // Since it is not, it should be called with false argument.
+    EXPECT_CALL(_system._hwaMIDIDIN, setLoopback(false))
+        .WillOnce(Return(true));
+
+    ASSERT_TRUE(_system._instance.init());
 
     // handshake
     sendAndVerifySysExRequest({ 0xF0,
@@ -1250,12 +1057,16 @@ TEST_CASE(UsbThruDin)
                                 0x01,
                                 0xF7 });
 
-    std::vector<uint8_t> generatedSysExReq;
-
     // enable both din midi and usb to din thru
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::midiFeatures, Protocol::MIDI::feature_t::dinEnabled, 1, generatedSysExReq);
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::midiFeatures,
+                                    Protocol::MIDI::feature_t::dinEnabled,
+                                    1,
+                                    _generatedSysExReq);
 
-    sendAndVerifySysExRequest(generatedSysExReq,
+    EXPECT_CALL(_system._hwaMIDIDIN, init())
+        .WillOnce(Return(true));
+
+    sendAndVerifySysExRequest(_generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
@@ -1272,9 +1083,12 @@ TEST_CASE(UsbThruDin)
                                 1,                                                              // LSB new value
                                 0xF7 });
 
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::midiFeatures, Protocol::MIDI::feature_t::usbThruDin, 1, generatedSysExReq);
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::midiFeatures,
+                                    Protocol::MIDI::feature_t::usbThruDin,
+                                    1,
+                                    _generatedSysExReq);
 
-    sendAndVerifySysExRequest(generatedSysExReq,
+    sendAndVerifySysExRequest(_generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
@@ -1291,16 +1105,30 @@ TEST_CASE(UsbThruDin)
                                 1,                                                              // LSB new value
                                 0xF7 });
 
-    // generate incoming note on USB message
-    _hwaMIDIUSB._readPackets = MIDIHelper::noteOnToUsbPacket(10, 127, 1);
+    // generate incoming USB message
 
-    // now just call system which will call midi.read which in turn will read the filled packets
-    while (_hwaMIDIUSB._readPackets.size())
-    {
-        systemStub.run();
-    }
+    Messaging::event_t event;
 
-    TEST_ASSERT_EQUAL_UINT32(1, _hwaMIDIDIN.totalWrittenChannelMessages());
+    event.midiChannel = 1;
+    event.midiIndex   = 0;
+    event.midiValue   = 127;
+    event.message     = MIDI::messageType_t::controlChange;
+
+    processIncoming(event);
+
+    ASSERT_EQ(1, _system._hwaMIDIDIN._writeParser.totalWrittenChannelMessages());
+
+    // again with note on - one of the LEDs should turn on as well
+    event.message = MIDI::messageType_t::noteOn;
+
+#ifdef DIGITAL_OUTPUTS_SUPPORTED
+    EXPECT_CALL(_system._hwaLEDs, setState(event.midiIndex, LEDs::brightness_t::b100))
+        .Times(1);
+#endif
+
+    processIncoming(event);
+
+    ASSERT_EQ(1, _system._hwaMIDIDIN._writeParser.totalWrittenChannelMessages());
 }
 #endif
 

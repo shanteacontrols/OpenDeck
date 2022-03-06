@@ -39,7 +39,7 @@ do
     {
         printf '%s\n' '-include '${test_dir}'/Makefile'
         printf '%s\n' 'TEST_DIR_'${test}' := '${test_dir}''
-        printf '%s\n' 'SOURCES_'${test}' += unity/Framework.cpp'
+        printf '%s\n' 'SOURCES_'${test}' += framework/Framework.cpp'
         printf '%s\n' 'SOURCES_'${test}' += $(shell $(FIND) '${test_dir}' -type f -maxdepth 1 -name "*.cpp")'
         printf '%s\n' 'OBJECTS_'${test}' := $(addprefix $(BUILD_DIR)/$(TEST_DIR_'${test}')/,$(SOURCES_'${test}'))'
         printf '%s\n' 'OBJECTS_'${test}' := $(addsuffix .o,$(OBJECTS_'${test}'))'

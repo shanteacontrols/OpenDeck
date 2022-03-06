@@ -8,7 +8,9 @@ class AnalogFilterStub : public IO::Analog::Filter
     AnalogFilterStub()
     {
         for (size_t i = 0; i < IO::Analog::Collection::size(); i++)
+        {
             _lastStableValue[i] = 0xFFFF;
+        }
     }
 
     static constexpr adcType_t ADC_RESOLUTION = adcType_t::adc10bit;
@@ -21,7 +23,9 @@ class AnalogFilterStub : public IO::Analog::Filter
     uint16_t lastValue(size_t index) override
     {
         if (index < IO::Analog::Collection::size())
+        {
             return _lastStableValue[index];
+        }
 
         return 0;
     }
@@ -29,13 +33,17 @@ class AnalogFilterStub : public IO::Analog::Filter
     void reset(size_t index) override
     {
         if (index < IO::Analog::Collection::size())
+        {
             _lastStableValue[index] = 0xFFFF;
+        }
     }
 
     void updateLastValue(size_t index, uint16_t value)
     {
         if (index < IO::Analog::Collection::size())
+        {
             _lastStableValue[index] = value;
+        }
     }
 
     private:
