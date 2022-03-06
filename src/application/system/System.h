@@ -143,6 +143,8 @@ namespace System
             restore
         };
 
-        backupRestoreState_t _backupRestoreState = backupRestoreState_t::none;
+        backupRestoreState_t _backupRestoreState                                                   = backupRestoreState_t::none;
+        IO::ioComponent_t    componentIndex                                                        = IO::ioComponent_t::AMOUNT;
+        size_t               componentUpdateIndex[static_cast<uint8_t>(IO::ioComponent_t::AMOUNT)] = {};
     };
 }    // namespace System

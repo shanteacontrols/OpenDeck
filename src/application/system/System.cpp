@@ -241,9 +241,6 @@ void Instance::backup()
 
 ioComponent_t Instance::checkComponents()
 {
-    static ioComponent_t componentIndex                                                    = ioComponent_t::buttons;
-    static size_t        componentUpdateIndex[static_cast<uint8_t>(ioComponent_t::AMOUNT)] = {};
-
     switch (componentIndex)
     {
     case ioComponent_t::buttons:
