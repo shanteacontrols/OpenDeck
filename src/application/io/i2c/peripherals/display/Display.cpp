@@ -41,8 +41,8 @@ namespace
 // hwa needs to be static since it is used in callback for C library
 I2C::HWA* Display::_hwa;
 
-Display::Display(I2C::HWA& hwa,
-                 Database& database)
+Display::Display(I2C::HWA&           hwa,
+                 Database::Instance& database)
     : _database(database)
 {
     _hwa = &hwa;
@@ -105,10 +105,10 @@ bool Display::init(uint8_t address)
 {
     _selectedI2Caddress = address;
 
-    if (_database.read(Database::Section::i2c_t::display, setting_t::enable))
+    if (_database.read(Database::Config::Section::i2c_t::display, setting_t::enable))
     {
-        auto controller = static_cast<displayController_t>(_database.read(Database::Section::i2c_t::display, setting_t::controller));
-        auto resolution = static_cast<displayResolution_t>(_database.read(Database::Section::i2c_t::display, setting_t::resolution));
+        auto controller = static_cast<displayController_t>(_database.read(Database::Config::Section::i2c_t::display, setting_t::controller));
+        auto resolution = static_cast<displayResolution_t>(_database.read(Database::Config::Section::i2c_t::display, setting_t::resolution));
 
         if (initU8X8(address, controller, resolution))
         {
@@ -129,13 +129,13 @@ bool Display::init(uint8_t address)
 
             if (!_startupInfoShown)
             {
-                if (_database.read(Database::Section::i2c_t::display, setting_t::deviceInfoMsg) && !_startupInfoShown)
+                if (_database.read(Database::Config::Section::i2c_t::display, setting_t::deviceInfoMsg) && !_startupInfoShown)
                 {
                     displayWelcomeMessage();
                 }
             }
 
-            setRetentionTime(_database.read(Database::Section::i2c_t::display, setting_t::MIDIeventTime) * 1000);
+            setRetentionTime(_database.read(Database::Config::Section::i2c_t::display, setting_t::MIDIeventTime) * 1000);
 
             clearMIDIevent(eventType_t::in);
             clearMIDIevent(eventType_t::out);
@@ -456,7 +456,7 @@ void Display::displayMIDIevent(eventType_t type, const Messaging::event_t& event
     case MIDI::messageType_t::noteOff:
     case MIDI::messageType_t::noteOn:
     {
-        if (!_database.read(Database::Section::i2c_t::display, setting_t::MIDInotesAlternate))
+        if (!_database.read(Database::Config::Section::i2c_t::display, setting_t::MIDInotesAlternate))
         {
             _stringBuilder.overwrite("%d", event.midiIndex);
         }

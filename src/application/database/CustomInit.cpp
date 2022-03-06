@@ -23,36 +23,36 @@ limitations under the License.
 
 // each new group of components should have their IDs start from 0
 
-void Database::customInitButtons()
+void Database::Instance::customInitButtons()
 {
     for (size_t group = 0; group < IO::Buttons::Collection::groups(); group++)
     {
         for (size_t i = 0; i < IO::Buttons::Collection::size(group); i++)
         {
-            update(Database::Section::button_t::midiID, i + IO::Buttons::Collection::startIndex(group), i);
+            update(Database::Config::Section::button_t::midiID, i + IO::Buttons::Collection::startIndex(group), i);
         }
     }
 }
 
-void Database::customInitAnalog()
+void Database::Instance::customInitAnalog()
 {
     for (size_t group = 0; group < IO::Analog::Collection::groups(); group++)
     {
         for (size_t i = 0; i < IO::Analog::Collection::size(group); i++)
         {
-            update(Database::Section::analog_t::midiID, i + IO::Analog::Collection::startIndex(group), i);
+            update(Database::Config::Section::analog_t::midiID, i + IO::Analog::Collection::startIndex(group), i);
         }
     }
 }
 
-void Database::customInitLEDs()
+void Database::Instance::customInitLEDs()
 {
     for (size_t group = 0; group < IO::LEDs::Collection::groups(); group++)
     {
         for (size_t i = 0; i < IO::LEDs::Collection::size(group); i++)
         {
-            update(Database::Section::leds_t::activationID, i + IO::LEDs::Collection::startIndex(group), i);
-            update(Database::Section::leds_t::controlType, i + IO::LEDs::Collection::startIndex(group), IO::LEDs::controlType_t::midiInNoteMultiVal);
+            update(Database::Config::Section::leds_t::activationID, i + IO::LEDs::Collection::startIndex(group), i);
+            update(Database::Config::Section::leds_t::controlType, i + IO::LEDs::Collection::startIndex(group), IO::LEDs::controlType_t::midiInNoteMultiVal);
         }
     }
 }

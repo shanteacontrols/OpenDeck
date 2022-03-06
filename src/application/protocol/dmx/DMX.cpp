@@ -28,7 +28,7 @@ limitations under the License.
 
 using namespace IO;
 
-Protocol::DMX::DMX(HWA& hwa, Database& database)
+Protocol::DMX::DMX(HWA& hwa, Database::Instance& database)
     : DMXUSBWidget(hwa)
     , _hwa(hwa)
     , _database(database)
@@ -76,7 +76,7 @@ bool Protocol::DMX::init()
                     "Shantea Controls",
                     BOARD_STRING });
 
-    if (_database.read(Database::Section::global_t::dmx, setting_t::enable))
+    if (_database.read(Database::Config::Section::global_t::dmx, setting_t::enable))
     {
         if (_enabled)
         {
@@ -115,7 +115,7 @@ bool Protocol::DMX::deInit()
 
 void Protocol::DMX::read()
 {
-    if (_database.read(Database::Section::global_t::dmx, setting_t::enable))
+    if (_database.read(Database::Config::Section::global_t::dmx, setting_t::enable))
     {
         ::DMXUSBWidget::read();
     }

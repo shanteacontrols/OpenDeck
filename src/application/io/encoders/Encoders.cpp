@@ -27,10 +27,10 @@ limitations under the License.
 
 using namespace IO;
 
-Encoders::Encoders(HWA&      hwa,
-                   Filter&   filter,
-                   Database& database,
-                   uint32_t  timeDiffTimeout)
+Encoders::Encoders(HWA&                hwa,
+                   Filter&             filter,
+                   Database::Instance& database,
+                   uint32_t            timeDiffTimeout)
     : _hwa(hwa)
     , _filter(filter)
     , _database(database)
@@ -45,22 +45,22 @@ Encoders::Encoders(HWA&      hwa,
                               {
                                   for (size_t i = 0; i < Collection::size(); i++)
                                   {
-                                      if (!_database.read(Database::Section::encoder_t::remoteSync, i))
+                                      if (!_database.read(Database::Config::Section::encoder_t::remoteSync, i))
                                       {
                                           continue;
                                       }
 
-                                      if (_database.read(Database::Section::encoder_t::mode, i) != static_cast<int32_t>(IO::Encoders::type_t::controlChange))
+                                      if (_database.read(Database::Config::Section::encoder_t::mode, i) != static_cast<int32_t>(IO::Encoders::type_t::controlChange))
                                       {
                                           continue;
                                       }
 
-                                      if (_database.read(Database::Section::encoder_t::midiChannel, i) != event.midiChannel)
+                                      if (_database.read(Database::Config::Section::encoder_t::midiChannel, i) != event.midiChannel)
                                       {
                                           continue;
                                       }
 
-                                      if (_database.read(Database::Section::encoder_t::midiID, i) != event.midiIndex)
+                                      if (_database.read(Database::Config::Section::encoder_t::midiID, i) != event.midiIndex)
                                       {
                                           continue;
                                       }
@@ -105,7 +105,7 @@ void Encoders::updateSingle(size_t index, bool forceRefresh)
         return;
     }
 
-    if (!_database.read(Database::Section::encoder_t::enable, index))
+    if (!_database.read(Database::Config::Section::encoder_t::enable, index))
     {
         return;
     }
@@ -158,7 +158,7 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
     {
         if (encoderState != position_t::stopped)
         {
-            if (_database.read(Database::Section::encoder_t::invert, index))
+            if (_database.read(Database::Config::Section::encoder_t::invert, index))
             {
                 if (encoderState == position_t::ccw)
                 {
@@ -170,7 +170,7 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
                 }
             }
 
-            uint8_t encAcceleration = _database.read(Database::Section::encoder_t::acceleration, index);
+            uint8_t encAcceleration = _database.read(Database::Config::Section::encoder_t::acceleration, index);
 
             if (encAcceleration)
             {
@@ -330,7 +330,7 @@ void Encoders::sendMessage(size_t index, encoderDescriptor_t& descriptor)
 /// Sets the MIDI value of specified encoder to default.
 void Encoders::reset(size_t index)
 {
-    if (_database.read(Database::Section::encoder_t::mode, index) == static_cast<int32_t>(type_t::pitchBend))
+    if (_database.read(Database::Config::Section::encoder_t::mode, index) == static_cast<int32_t>(type_t::pitchBend))
     {
         _midiValue[index] = 8192;
     }
@@ -380,7 +380,7 @@ Encoders::position_t Encoders::read(size_t index, uint8_t pairState)
 
     _encoderPulses[index] += _encoderLookUpTable[_encoderData[index] & 0x0F];
 
-    if (abs(_encoderPulses[index]) >= _database.read(Database::Section::encoder_t::pulsesPerStep, index))
+    if (abs(_encoderPulses[index]) >= _database.read(Database::Config::Section::encoder_t::pulsesPerStep, index))
     {
         returnValue = (_encoderPulses[index] > 0) ? position_t::ccw : position_t::cw;
         // reset count
@@ -392,12 +392,12 @@ Encoders::position_t Encoders::read(size_t index, uint8_t pairState)
 
 void Encoders::fillEncoderDescriptor(size_t index, encoderDescriptor_t& descriptor)
 {
-    descriptor.type          = static_cast<type_t>(_database.read(Database::Section::encoder_t::mode, index));
-    descriptor.pulsesPerStep = _database.read(Database::Section::encoder_t::pulsesPerStep, index);
+    descriptor.type          = static_cast<type_t>(_database.read(Database::Config::Section::encoder_t::mode, index));
+    descriptor.pulsesPerStep = _database.read(Database::Config::Section::encoder_t::pulsesPerStep, index);
 
     descriptor.event.componentIndex = index;
-    descriptor.event.midiChannel    = _database.read(Database::Section::encoder_t::midiChannel, index);
-    descriptor.event.midiIndex      = _database.read(Database::Section::encoder_t::midiID, index);
+    descriptor.event.midiChannel    = _database.read(Database::Config::Section::encoder_t::midiChannel, index);
+    descriptor.event.midiIndex      = _database.read(Database::Config::Section::encoder_t::midiID, index);
     descriptor.event.message        = _internalMsgToMIDIType[static_cast<uint8_t>(descriptor.type)];
 }
 

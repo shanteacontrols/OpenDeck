@@ -44,15 +44,15 @@ namespace Protocol
             virtual bool uniqueID(uniqueID_t& uniqueID) = 0;
         };
 
-        DMX(HWA& hwa, Database& database);
+        DMX(HWA& hwa, Database::Instance& database);
 
         bool init() override;
         bool deInit() override;
         void read() override;
 
         private:
-        HWA&      _hwa;
-        Database& _database;
+        HWA&                _hwa;
+        Database::Instance& _database;
 
         bool _enabled = false;
 

@@ -51,7 +51,7 @@ namespace System
 
             // preset section
             {
-                static_cast<uint16_t>(Database::presetSetting_t::AMOUNT),
+                static_cast<uint16_t>(Database::Config::presetSetting_t::AMOUNT),
                 0,
                 0,
             },

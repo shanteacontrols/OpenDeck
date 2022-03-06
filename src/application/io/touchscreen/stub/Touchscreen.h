@@ -127,10 +127,10 @@ namespace IO
             virtual bool      setBrightness(brightness_t brightness) = 0;
         };
 
-        Touchscreen(HWA&            hwa,
-                    Database&       database,
-                    CDCPassthrough& cdcPassthrough,
-                    uint16_t        adcResolution)
+        Touchscreen(HWA&                hwa,
+                    Database::Instance& database,
+                    CDCPassthrough&     cdcPassthrough,
+                    uint16_t            adcResolution)
         {}
 
         bool init() override

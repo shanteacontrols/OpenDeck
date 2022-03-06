@@ -96,9 +96,9 @@ namespace IO
 
         using buttonHandler_t = std::function<void(size_t index, bool state)>;
 
-        Analog(HWA&      hwa,
-               Filter&   filter,
-               Database& database)
+        Analog(HWA&                hwa,
+               Filter&             filter,
+               Database::Instance& database)
         {}
 
         bool init() override

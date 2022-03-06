@@ -28,8 +28,8 @@ limitations under the License.
 
 using namespace IO;
 
-LEDs::LEDs(HWA&      hwa,
-           Database& database)
+LEDs::LEDs(HWA&                hwa,
+           Database::Instance& database)
     : _hwa(hwa)
     , _database(database)
 {
@@ -149,12 +149,12 @@ bool LEDs::init()
 {
     setAllOff();
 
-    if (_database.read(Database::Section::leds_t::global, setting_t::useStartupAnimation))
+    if (_database.read(Database::Config::Section::leds_t::global, setting_t::useStartupAnimation))
     {
         startUpAnimation();
     }
 
-    setBlinkType(static_cast<blinkType_t>(_database.read(Database::Section::leds_t::global, setting_t::blinkWithMIDIclock)));
+    setBlinkType(static_cast<blinkType_t>(_database.read(Database::Config::Section::leds_t::global, setting_t::blinkWithMIDIclock)));
 
     return true;
 }
@@ -293,7 +293,7 @@ void LEDs::midiToState(Messaging::event_t event, Messaging::eventSource_t source
 {
     for (size_t i = 0; i < Collection::size(); i++)
     {
-        auto controlType = static_cast<controlType_t>(_database.read(Database::Section::leds_t::controlType, i));
+        auto controlType = static_cast<controlType_t>(_database.read(Database::Config::Section::leds_t::controlType, i));
 
         // match received midi message with the assigned LED control type
         if (!isControlTypeMatched(event.message, controlType))
@@ -435,7 +435,7 @@ void LEDs::midiToState(Messaging::event_t event, Messaging::eventSource_t source
         if (checkChannel)
         {
             // no point in further checking if channel doesn't match
-            if (_database.read(Database::Section::leds_t::midiChannel, i) != event.midiChannel)
+            if (_database.read(Database::Config::Section::leds_t::midiChannel, i) != event.midiChannel)
             {
                 continue;
             }
@@ -449,7 +449,7 @@ void LEDs::midiToState(Messaging::event_t event, Messaging::eventSource_t source
             // in single value modes, brightness and blink speed cannot be controlled since we're dealing
             // with one value only
 
-            uint8_t activationID = _database.read(Database::Section::leds_t::activationID, i);
+            uint8_t activationID = _database.read(Database::Config::Section::leds_t::activationID, i);
 
             if (setState)
             {
@@ -473,7 +473,7 @@ void LEDs::midiToState(Messaging::event_t event, Messaging::eventSource_t source
                         else
                         {
                             // this has side effect that it will always set RGB LED to red color since no color information is available
-                            color      = (_database.read(Database::Section::leds_t::activationValue, i) == event.midiValue) ? color_t::red : color_t::off;
+                            color      = (_database.read(Database::Config::Section::leds_t::activationValue, i) == event.midiValue) ? color_t::red : color_t::off;
                             brightness = brightness_t::b100;
                         }
                     }
@@ -508,7 +508,7 @@ void LEDs::setBlinkSpeed(uint8_t ledID, blinkSpeed_t state, bool updateState)
     uint8_t leds        = 0;
     uint8_t rgbIndex    = _hwa.rgbIndex(ledID);
 
-    if (_database.read(Database::Section::leds_t::rgbEnable, rgbIndex))
+    if (_database.read(Database::Config::Section::leds_t::rgbEnable, rgbIndex))
     {
         ledArray[0] = _hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::r);
         ledArray[1] = _hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::g);
@@ -621,7 +621,7 @@ void LEDs::setColor(uint8_t ledID, color_t color, brightness_t brightness)
         }
     };
 
-    if (_database.read(Database::Section::leds_t::rgbEnable, rgbIndex))
+    if (_database.read(Database::Config::Section::leds_t::rgbEnable, rgbIndex))
     {
         // rgb led is composed of three standard LEDs
         // get indexes of individual LEDs first

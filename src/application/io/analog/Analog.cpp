@@ -28,9 +28,9 @@ limitations under the License.
 
 using namespace IO;
 
-Analog::Analog(HWA&      hwa,
-               Filter&   filter,
-               Database& database)
+Analog::Analog(HWA&                hwa,
+               Filter&             filter,
+               Database::Instance& database)
     : _hwa(hwa)
     , _filter(filter)
     , _database(database)
@@ -101,7 +101,7 @@ void Analog::updateSingle(size_t index, bool forceRefresh)
     }
     else
     {
-        if (_database.read(Database::Section::analog_t::enable, index))
+        if (_database.read(Database::Config::Section::analog_t::enable, index))
         {
             analogDescriptor_t descriptor;
             fillAnalogDescriptor(index, descriptor);
@@ -128,7 +128,7 @@ size_t Analog::maxComponentUpdateIndex()
 void Analog::processReading(size_t index, uint16_t value)
 {
     // don't process component if it's not enabled
-    if (!_database.read(Database::Section::analog_t::enable, index))
+    if (!_database.read(Database::Config::Section::analog_t::enable, index))
     {
         return;
     }
@@ -368,15 +368,15 @@ bool Analog::fsrState(size_t index)
 
 void Analog::fillAnalogDescriptor(size_t index, analogDescriptor_t& descriptor)
 {
-    descriptor.type                 = static_cast<type_t>(_database.read(Database::Section::analog_t::type, index));
-    descriptor.inverted             = _database.read(Database::Section::analog_t::invert, index);
-    descriptor.lowerLimit           = _database.read(Database::Section::analog_t::lowerLimit, index);
-    descriptor.upperLimit           = _database.read(Database::Section::analog_t::upperLimit, index);
-    descriptor.lowerOffset          = _database.read(Database::Section::analog_t::lowerOffset, index);
-    descriptor.upperOffset          = _database.read(Database::Section::analog_t::upperOffset, index);
+    descriptor.type                 = static_cast<type_t>(_database.read(Database::Config::Section::analog_t::type, index));
+    descriptor.inverted             = _database.read(Database::Config::Section::analog_t::invert, index);
+    descriptor.lowerLimit           = _database.read(Database::Config::Section::analog_t::lowerLimit, index);
+    descriptor.upperLimit           = _database.read(Database::Config::Section::analog_t::upperLimit, index);
+    descriptor.lowerOffset          = _database.read(Database::Config::Section::analog_t::lowerOffset, index);
+    descriptor.upperOffset          = _database.read(Database::Config::Section::analog_t::upperOffset, index);
     descriptor.event.componentIndex = index;
-    descriptor.event.midiChannel    = _database.read(Database::Section::analog_t::midiChannel, index);
-    descriptor.event.midiIndex      = _database.read(Database::Section::analog_t::midiID, index);
+    descriptor.event.midiChannel    = _database.read(Database::Config::Section::analog_t::midiChannel, index);
+    descriptor.event.midiIndex      = _database.read(Database::Config::Section::analog_t::midiID, index);
     descriptor.event.message        = _internalMsgToMIDIType[static_cast<uint8_t>(descriptor.type)];
 }
 

@@ -63,8 +63,8 @@ namespace IO
             AMOUNT
         };
 
-        Display(I2C::HWA& hwa,
-                Database& database);
+        Display(I2C::HWA&           hwa,
+                Database::Instance& database);
 
         bool           init(uint8_t address) override;
         void           update() override;
@@ -85,9 +85,9 @@ namespace IO
         std::optional<uint8_t> sysConfigGet(System::Config::Section::i2c_t section, size_t index, uint16_t& value);
         std::optional<uint8_t> sysConfigSet(System::Config::Section::i2c_t section, size_t index, uint16_t value);
 
-        Database&        _database;
-        u8x8_t           _u8x8;
-        static I2C::HWA* _hwa;
+        Database::Instance& _database;
+        u8x8_t              _u8x8;
+        static I2C::HWA*    _hwa;
 
         static constexpr uint8_t _i2cAddress[2] = {
             0x3C,

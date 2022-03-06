@@ -26,9 +26,9 @@ limitations under the License.
 
 using namespace IO;
 
-Protocol::MIDI::MIDI(HWAUSB&   hwaUSB,
-                     HWADIN&   hwaDIN,
-                     Database& database)
+Protocol::MIDI::MIDI(HWAUSB&             hwaUSB,
+                     HWADIN&             hwaDIN,
+                     Database::Instance& database)
     : _hwaUSB(hwaUSB)
     , _hwaDIN(hwaDIN)
     , _database(database)
@@ -268,7 +268,7 @@ void Protocol::MIDI::read()
 
 bool Protocol::MIDI::isFeatureEnabled(feature_t feature)
 {
-    return _database.read(Database::Section::global_t::midiFeatures, feature);
+    return _database.read(Database::Config::Section::global_t::midiFeatures, feature);
 }
 
 bool Protocol::MIDI::isDinLoopbackRequired()

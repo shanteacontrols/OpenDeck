@@ -32,7 +32,7 @@ total_components=$($json_parser "$json_file" components --length)
 
 {
     printf "%s\n\n" "#include \"database/Database.h\""
-    printf "%s\n" "void Database::customInitTouchscreen()"
+    printf "%s\n" "void Database::Instance::customInitTouchscreen()"
     printf "%s\n" "{"
 } > "$out_file"
 
@@ -53,16 +53,16 @@ do
         {
             if [[ $address != "null" ]]
             then
-                printf "    %s\n" "update(Database::Section::touchscreen_t::xPos, $i, $address);"
+                printf "    %s\n" "update(Database::Config::Section::touchscreen_t::xPos, $i, $address);"
             else
-                printf "    %s\n" "update(Database::Section::touchscreen_t::xPos, $i, $xPos);"
-                printf "    %s\n" "update(Database::Section::touchscreen_t::yPos, $i, $yPos);"
-                printf "    %s\n" "update(Database::Section::touchscreen_t::width, $i, $width);"
-                printf "    %s\n" "update(Database::Section::touchscreen_t::height, $i, $height);"
+                printf "    %s\n" "update(Database::Config::Section::touchscreen_t::xPos, $i, $xPos);"
+                printf "    %s\n" "update(Database::Config::Section::touchscreen_t::yPos, $i, $yPos);"
+                printf "    %s\n" "update(Database::Config::Section::touchscreen_t::width, $i, $width);"
+                printf "    %s\n" "update(Database::Config::Section::touchscreen_t::height, $i, $height);"
             fi
 
-            printf "    %s\n" "update(Database::Section::touchscreen_t::onScreen, $i, $onScreen);"
-            printf "    %s\n\n" "update(Database::Section::touchscreen_t::offScreen, $i, $offScreen);"
+            printf "    %s\n" "update(Database::Config::Section::touchscreen_t::onScreen, $i, $onScreen);"
+            printf "    %s\n\n" "update(Database::Config::Section::touchscreen_t::offScreen, $i, $offScreen);"
         } >> "$out_file"
 
         convert "$input_dir"/"$onScreen".bmp -crop "$width"x"$height"+"$xPos"+"$yPos" "$gen_dir"/"$i".ico
@@ -76,8 +76,8 @@ do
         screenIndex=$($json_parser "$json_file" components.[${i}].button.screenToSwitch)
 
         {
-            printf "    %s\n" "update(Database::Section::touchscreen_t::pageSwitchEnabled, $i, $switchesScreen);"
-            printf "    %s\n\n" "update(Database::Section::touchscreen_t::pageSwitchIndex, $i, $screenIndex);"
+            printf "    %s\n" "update(Database::Config::Section::touchscreen_t::pageSwitchEnabled, $i, $switchesScreen);"
+            printf "    %s\n\n" "update(Database::Config::Section::touchscreen_t::pageSwitchIndex, $i, $screenIndex);"
         } >> "$out_file"
     fi
 
@@ -99,13 +99,13 @@ do
         resetOnRelease=$($json_parser "$json_file" components.[${i}].analog.resetOnRelease)
 
         {
-            printf "    %s\n" "update(Database::Section::touchscreen_t::analogPage, $i, $screen);"
-            printf "    %s\n" "update(Database::Section::touchscreen_t::analogStartXCoordinate, $i, $startXCoordinate);"
-            printf "    %s\n" "update(Database::Section::touchscreen_t::analogEndXCoordinate, $i, $endXCoordinate);"
-            printf "    %s\n" "update(Database::Section::touchscreen_t::analogStartYCoordinate, $i, $startYCoordinate);"
-            printf "    %s\n" "update(Database::Section::touchscreen_t::analogEndYCoordinate, $i, $endYCoordinate);"
-            printf "    %s\n" "update(Database::Section::touchscreen_t::analogType, $i, $type);"
-            printf "    %s\n\n" "update(Database::Section::touchscreen_t::analogResetOnRelease, $i, $resetOnRelease);"
+            printf "    %s\n" "update(Database::Config::Section::touchscreen_t::analogPage, $i, $screen);"
+            printf "    %s\n" "update(Database::Config::Section::touchscreen_t::analogStartXCoordinate, $i, $startXCoordinate);"
+            printf "    %s\n" "update(Database::Config::Section::touchscreen_t::analogEndXCoordinate, $i, $endXCoordinate);"
+            printf "    %s\n" "update(Database::Config::Section::touchscreen_t::analogStartYCoordinate, $i, $startYCoordinate);"
+            printf "    %s\n" "update(Database::Config::Section::touchscreen_t::analogEndYCoordinate, $i, $endYCoordinate);"
+            printf "    %s\n" "update(Database::Config::Section::touchscreen_t::analogType, $i, $type);"
+            printf "    %s\n\n" "update(Database::Config::Section::touchscreen_t::analogResetOnRelease, $i, $resetOnRelease);"
         } >> "$out_file"
     fi
 done

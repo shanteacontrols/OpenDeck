@@ -79,9 +79,9 @@ namespace Protocol
             virtual bool setLoopback(bool state) = 0;
         };
 
-        MIDI(HWAUSB&   hwaUSB,
-             HWADIN&   hwaDIN,
-             Database& database);
+        MIDI(HWAUSB&             hwaUSB,
+             HWADIN&             hwaDIN,
+             Database::Instance& database);
 
         bool init() override;
         bool deInit() override;
@@ -109,7 +109,7 @@ namespace Protocol
         HWADIN&                                      _hwaDIN;
         MIDIlib::USBMIDI                             _usbMIDI = MIDIlib::USBMIDI(_hwaUSB);
         MIDIlib::SerialMIDI                          _dinMIDI = MIDIlib::SerialMIDI(_hwaDIN);
-        Database&                                    _database;
+        Database::Instance&                          _database;
         std::array<MIDIlib::Base*, INTERFACE_AMOUNT> _midiInterface;
     };
 }    // namespace Protocol

@@ -91,10 +91,10 @@ namespace IO
             virtual uint32_t lastMovementTime(size_t index) = 0;
         };
 
-        Encoders(HWA&      hwa,
-                 Filter&   filter,
-                 Database& database,
-                 uint32_t  timeDiffTimeout = 1);
+        Encoders(HWA&                hwa,
+                 Filter&             filter,
+                 Database::Instance& database,
+                 uint32_t            timeDiffTimeout = 1);
 
         bool   init() override;
         void   updateSingle(size_t index, bool forceRefresh = false) override;
@@ -120,9 +120,9 @@ namespace IO
         std::optional<uint8_t> sysConfigGet(System::Config::Section::encoder_t section, size_t index, uint16_t& value);
         std::optional<uint8_t> sysConfigSet(System::Config::Section::encoder_t section, size_t index, uint16_t value);
 
-        HWA&      _hwa;
-        Filter&   _filter;
-        Database& _database;
+        HWA&                _hwa;
+        Filter&             _filter;
+        Database::Instance& _database;
 
         /// Time difference betweeen multiple encoder readouts in milliseconds.
         const uint32_t TIME_DIFF_READOUT;

@@ -32,6 +32,7 @@ limitations under the License.
 #include "io/touchscreen/model/Builder.h"
 #include "protocol/dmx/DMX.h"
 #include "protocol/midi/MIDI.h"
+#include "database/Layout.h"
 
 namespace System
 {
@@ -81,17 +82,17 @@ namespace System
                 virtual DMX&  dmx()  = 0;
             };
 
-            using Database = ::Database::StorageAccess;
+            using Database = ::Database::Instance::StorageAccess;
             using System   = ::System::Instance::HWA;
 
             virtual IO&       io()       = 0;
             virtual Protocol& protocol() = 0;
             virtual System&   system()   = 0;
+            virtual Database& database() = 0;
         };
 
-        Builder(HWA& hwa, Database& database)
+        Builder(HWA& hwa)
             : _hwa(hwa)
-            , _database(database)
             , _components(*this)
         {
             _io.at(static_cast<size_t>(::IO::ioComponent_t::buttons))     = &_buttons;
@@ -117,7 +118,8 @@ namespace System
 
         private:
         HWA&                                                                           _hwa;
-        Database&                                                                      _database;
+        Database::AppLayout                                                            _dbLayout;
+        Database::Instance                                                             _database = Database::Instance(_hwa.database(), _dbLayout, INIT_DB_DATA);
         IO::EncodersFilter                                                             _encodersFilter;
         IO::ButtonsFilter                                                              _buttonsFilter;
         IO::AnalogFilter                                                               _analogFilter;
@@ -151,7 +153,7 @@ namespace System
                 return _builder._protocol;
             }
 
-            Database& database() override
+            Database::Instance& database() override
             {
                 return _builder._database;
             }

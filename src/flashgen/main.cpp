@@ -23,6 +23,7 @@ limitations under the License.
 #include <iterator>
 #include <string>
 #include "database/Database.h"
+#include "database/Layout.h"
 #include "EmuEEPROM/src/EmuEEPROM.h"
 
 namespace
@@ -280,7 +281,8 @@ namespace
         }
     } storageAccess;
 
-    Database database(storageAccess, true);
+    Database::AppLayout layout;
+    Database::Instance  database(storageAccess, layout, true);
 }    // namespace
 
 int main(int argc, char* argv[])

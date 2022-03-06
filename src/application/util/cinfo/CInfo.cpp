@@ -26,31 +26,31 @@ ComponentInfo::ComponentInfo()
     MIDIDispatcher.listen(Messaging::eventSource_t::analog,
                           Messaging::listenType_t::all,
                           [this](const Messaging::event_t& event) {
-                              send(Database::block_t::analog, event.componentIndex);
+                              send(Database::Config::block_t::analog, event.componentIndex);
                           });
 
     MIDIDispatcher.listen(Messaging::eventSource_t::buttons,
                           Messaging::listenType_t::all,
                           [this](const Messaging::event_t& event) {
-                              send(Database::block_t::buttons, event.componentIndex);
+                              send(Database::Config::block_t::buttons, event.componentIndex);
                           });
 
     MIDIDispatcher.listen(Messaging::eventSource_t::encoders,
                           Messaging::listenType_t::all,
                           [this](const Messaging::event_t& event) {
-                              send(Database::block_t::encoders, event.componentIndex);
+                              send(Database::Config::block_t::encoders, event.componentIndex);
                           });
 
     MIDIDispatcher.listen(Messaging::eventSource_t::touchscreenButton,
                           Messaging::listenType_t::all,
                           [this](const Messaging::event_t& event) {
-                              send(Database::block_t::touchscreen, event.componentIndex);
+                              send(Database::Config::block_t::touchscreen, event.componentIndex);
                           });
 
     MIDIDispatcher.listen(Messaging::eventSource_t::touchscreenAnalog,
                           Messaging::listenType_t::all,
                           [this](const Messaging::event_t& event) {
-                              send(Database::block_t::touchscreen, event.componentIndex);
+                              send(Database::Config::block_t::touchscreen, event.componentIndex);
                           });
 }
 
@@ -59,7 +59,7 @@ void ComponentInfo::registerHandler(cinfoHandler_t&& handler)
     _handler = std::move(handler);
 }
 
-void ComponentInfo::send(Database::block_t block, size_t index)
+void ComponentInfo::send(Database::Config::block_t block, size_t index)
 {
     if ((core::timing::currentRunTimeMs() - _lastCinfoMsgTime[static_cast<size_t>(block)]) > COMPONENT_INFO_TIMEOUT)
     {

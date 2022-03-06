@@ -29,9 +29,9 @@ limitations under the License.
 
 using namespace IO;
 
-Buttons::Buttons(HWA&      hwa,
-                 Filter&   filter,
-                 Database& database)
+Buttons::Buttons(HWA&                hwa,
+                 Filter&             filter,
+                 Database::Instance& database)
     : _hwa(hwa)
     , _filter(filter)
     , _database(database)
@@ -470,12 +470,12 @@ void Buttons::reset(size_t index)
 
 void Buttons::fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor)
 {
-    descriptor.type                 = static_cast<type_t>(_database.read(Database::Section::button_t::type, index));
-    descriptor.messageType          = static_cast<messageType_t>(_database.read(Database::Section::button_t::midiMessage, index));
+    descriptor.type                 = static_cast<type_t>(_database.read(Database::Config::Section::button_t::type, index));
+    descriptor.messageType          = static_cast<messageType_t>(_database.read(Database::Config::Section::button_t::midiMessage, index));
     descriptor.event.componentIndex = index;
-    descriptor.event.midiChannel    = _database.read(Database::Section::button_t::midiChannel, index);
-    descriptor.event.midiIndex      = _database.read(Database::Section::button_t::midiID, index);
-    descriptor.event.midiValue      = _database.read(Database::Section::button_t::velocity, index);
+    descriptor.event.midiChannel    = _database.read(Database::Config::Section::button_t::midiChannel, index);
+    descriptor.event.midiIndex      = _database.read(Database::Config::Section::button_t::midiID, index);
+    descriptor.event.midiValue      = _database.read(Database::Config::Section::button_t::velocity, index);
 
     // overwrite type under certain conditions
     switch (descriptor.messageType)
@@ -524,7 +524,7 @@ void Buttons::fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor)
 bool Buttons::state(size_t index, uint8_t& numberOfReadings, uint32_t& states)
 {
     // if encoder under this index is enabled, just return false state each time
-    if (_database.read(Database::Section::encoder_t::enable, _hwa.buttonToEncoderIndex(index)))
+    if (_database.read(Database::Config::Section::encoder_t::enable, _hwa.buttonToEncoderIndex(index)))
     {
         return false;
     }

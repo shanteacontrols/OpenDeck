@@ -38,7 +38,7 @@ namespace Protocol
             virtual bool uniqueID(uniqueID_t& uniqueID) = 0;
         };
 
-        DMX(HWA& hwa, Database& database)
+        DMX(HWA& hwa, Database::Instance& database)
         {}
 
         bool init() override

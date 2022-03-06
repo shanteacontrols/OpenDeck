@@ -29,13 +29,13 @@ namespace Util
         // Various helper functions used to convert between system config sections to
         // database sections.
 
-        Database::Section::global_t      sys2DBsection(System::Config::Section::global_t section);
-        Database::Section::button_t      sys2DBsection(System::Config::Section::button_t section);
-        Database::Section::encoder_t     sys2DBsection(System::Config::Section::encoder_t section);
-        Database::Section::analog_t      sys2DBsection(System::Config::Section::analog_t section);
-        Database::Section::leds_t        sys2DBsection(System::Config::Section::leds_t section);
-        Database::Section::i2c_t         sys2DBsection(System::Config::Section::i2c_t section);
-        Database::Section::touchscreen_t sys2DBsection(System::Config::Section::touchscreen_t section);
+        Database::Config::Section::global_t      sys2DBsection(System::Config::Section::global_t section);
+        Database::Config::Section::button_t      sys2DBsection(System::Config::Section::button_t section);
+        Database::Config::Section::encoder_t     sys2DBsection(System::Config::Section::encoder_t section);
+        Database::Config::Section::analog_t      sys2DBsection(System::Config::Section::analog_t section);
+        Database::Config::Section::leds_t        sys2DBsection(System::Config::Section::leds_t section);
+        Database::Config::Section::i2c_t         sys2DBsection(System::Config::Section::i2c_t section);
+        Database::Config::Section::touchscreen_t sys2DBsection(System::Config::Section::touchscreen_t section);
 
         // alias split/merge classes from sysexconf to be globally available through this namespace
         using Split14bit = SysExConf::Split14bit;

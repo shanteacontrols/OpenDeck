@@ -185,9 +185,15 @@ then
             printf "%s\n" "#endif"
             printf "%s\n" "}"
         } >> "$out_header"
+
+        # When emulated EEPROM is used, one of the pages is factory page with
+        # default settings. Database shouldn't be formatted in this case.
+        # The values from factory page should be used as initial ones.
+        printf "%s\n" "DEFINES += INIT_DB_DATA=0" >> "$out_makefile"
     else
         eeprom_size=$($yaml_parser "$yaml_file" eeprom.size)
         printf "%s\n" "#define EEPROM_END $((eeprom_size-1))" >> "$out_header"
+        printf "%s\n" "DEFINES += INIT_DB_DATA=1" >> "$out_makefile"
     fi
 fi
 

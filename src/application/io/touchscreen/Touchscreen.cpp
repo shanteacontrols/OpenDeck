@@ -26,10 +26,10 @@ using namespace IO;
 
 std::array<Touchscreen::Model*, static_cast<size_t>(Touchscreen::model_t::AMOUNT)> Touchscreen::_models;
 
-Touchscreen::Touchscreen(HWA&            hwa,
-                         Database&       database,
-                         CDCPassthrough& cdcPassthrough,
-                         uint16_t        adcResolution)
+Touchscreen::Touchscreen(HWA&                hwa,
+                         Database::Instance& database,
+                         CDCPassthrough&     cdcPassthrough,
+                         uint16_t            adcResolution)
     : _hwa(hwa)
     , _database(database)
     , _cdcPassthrough(cdcPassthrough)
@@ -74,9 +74,9 @@ bool Touchscreen::init(mode_t mode)
     {
     case mode_t::normal:
     {
-        if (_database.read(Database::Section::touchscreen_t::setting, Touchscreen::setting_t::enable))
+        if (_database.read(Database::Config::Section::touchscreen_t::setting, Touchscreen::setting_t::enable))
         {
-            auto dbModel = static_cast<model_t>(_database.read(Database::Section::touchscreen_t::setting, Touchscreen::setting_t::model));
+            auto dbModel = static_cast<model_t>(_database.read(Database::Config::Section::touchscreen_t::setting, Touchscreen::setting_t::model));
 
             if (_initialized)
             {
@@ -107,8 +107,8 @@ bool Touchscreen::init(mode_t mode)
                     // add slight delay before display becomes ready on power on
                     core::timing::waitMs(1000);
 
-                    setScreen(_database.read(Database::Section::touchscreen_t::setting, Touchscreen::setting_t::initialScreen));
-                    setBrightness(static_cast<brightness_t>(_database.read(Database::Section::touchscreen_t::setting, Touchscreen::setting_t::brightness)));
+                    setScreen(_database.read(Database::Config::Section::touchscreen_t::setting, Touchscreen::setting_t::initialScreen));
+                    setBrightness(static_cast<brightness_t>(_database.read(Database::Config::Section::touchscreen_t::setting, Touchscreen::setting_t::brightness)));
 
                     _mode = mode;
 
@@ -299,8 +299,8 @@ void Touchscreen::setIconState(size_t index, bool state)
 
     icon_t icon;
 
-    icon.onScreen  = _database.read(Database::Section::touchscreen_t::onScreen, index);
-    icon.offScreen = _database.read(Database::Section::touchscreen_t::offScreen, index);
+    icon.onScreen  = _database.read(Database::Config::Section::touchscreen_t::onScreen, index);
+    icon.offScreen = _database.read(Database::Config::Section::touchscreen_t::offScreen, index);
 
     if (icon.onScreen == icon.offScreen)
     {
@@ -312,10 +312,10 @@ void Touchscreen::setIconState(size_t index, bool state)
         return;    // don't allow setting icon on wrong screen
     }
 
-    icon.xPos   = _database.read(Database::Section::touchscreen_t::xPos, index);
-    icon.yPos   = _database.read(Database::Section::touchscreen_t::yPos, index);
-    icon.width  = _database.read(Database::Section::touchscreen_t::width, index);
-    icon.height = _database.read(Database::Section::touchscreen_t::height, index);
+    icon.xPos   = _database.read(Database::Config::Section::touchscreen_t::xPos, index);
+    icon.yPos   = _database.read(Database::Config::Section::touchscreen_t::yPos, index);
+    icon.width  = _database.read(Database::Config::Section::touchscreen_t::width, index);
+    icon.height = _database.read(Database::Config::Section::touchscreen_t::height, index);
 
     modelInstance(_activeModel)->setIconState(icon, state);
 }
@@ -325,10 +325,10 @@ void Touchscreen::processButton(const size_t buttonID, const bool state)
     bool   changeScreen = false;
     size_t newScreen    = 0;
 
-    if (_database.read(Database::Section::touchscreen_t::pageSwitchEnabled, buttonID))
+    if (_database.read(Database::Config::Section::touchscreen_t::pageSwitchEnabled, buttonID))
     {
         changeScreen = true;
-        newScreen    = _database.read(Database::Section::touchscreen_t::pageSwitchIndex, buttonID);
+        newScreen    = _database.read(Database::Config::Section::touchscreen_t::pageSwitchIndex, buttonID);
     }
 
     buttonHandler(buttonID, state);
@@ -356,19 +356,19 @@ void Touchscreen::processCoordinate(pressType_t pressType, uint16_t xPos, uint16
 {
     for (size_t i = 0; i < Collection::size(); i++)
     {
-        if (_database.read(Database::Section::touchscreen_t::analogPage, i) == static_cast<int32_t>(activeScreen()))
+        if (_database.read(Database::Config::Section::touchscreen_t::analogPage, i) == static_cast<int32_t>(activeScreen()))
         {
-            uint16_t startXCoordinate = _database.read(Database::Section::touchscreen_t::analogStartXCoordinate, i);
-            uint16_t endXCoordinate   = _database.read(Database::Section::touchscreen_t::analogEndXCoordinate, i);
-            uint16_t startYCoordinate = _database.read(Database::Section::touchscreen_t::analogStartYCoordinate, i);
-            uint16_t endYCoordinate   = _database.read(Database::Section::touchscreen_t::analogEndYCoordinate, i);
+            uint16_t startXCoordinate = _database.read(Database::Config::Section::touchscreen_t::analogStartXCoordinate, i);
+            uint16_t endXCoordinate   = _database.read(Database::Config::Section::touchscreen_t::analogEndXCoordinate, i);
+            uint16_t startYCoordinate = _database.read(Database::Config::Section::touchscreen_t::analogStartYCoordinate, i);
+            uint16_t endYCoordinate   = _database.read(Database::Config::Section::touchscreen_t::analogEndYCoordinate, i);
 
             uint16_t startCoordinate;
             uint16_t endCoordinate;
             uint16_t value;
 
             // x
-            if (_database.read(Database::Section::touchscreen_t::analogType, i) == static_cast<int32_t>(Touchscreen::analogType_t::horizontal))
+            if (_database.read(Database::Config::Section::touchscreen_t::analogType, i) == static_cast<int32_t>(Touchscreen::analogType_t::horizontal))
             {
                 value = xPos;
 
@@ -441,7 +441,7 @@ void Touchscreen::processCoordinate(pressType_t pressType, uint16_t xPos, uint16
             }
             else
             {
-                if (_database.read(Database::Section::touchscreen_t::analogResetOnRelease, i))
+                if (_database.read(Database::Config::Section::touchscreen_t::analogResetOnRelease, i))
                 {
                     analogHandler(i, 0, startCoordinate, endCoordinate);
                 }

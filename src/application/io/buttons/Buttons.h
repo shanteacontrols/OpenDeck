@@ -99,9 +99,9 @@ namespace IO
             virtual bool isFiltered(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
         };
 
-        Buttons(HWA&      hwa,
-                Filter&   filter,
-                Database& database);
+        Buttons(HWA&                hwa,
+                Filter&             filter,
+                Database::Instance& database);
 
         bool   init() override;
         void   updateSingle(size_t index, bool forceRefresh = false) override;
@@ -130,9 +130,9 @@ namespace IO
         std::optional<uint8_t> sysConfigGet(System::Config::Section::button_t section, size_t index, uint16_t& value);
         std::optional<uint8_t> sysConfigSet(System::Config::Section::button_t section, size_t index, uint16_t value);
 
-        HWA&      _hwa;
-        Filter&   _filter;
-        Database& _database;
+        HWA&                _hwa;
+        Filter&             _filter;
+        Database::Instance& _database;
 
         uint8_t _buttonPressed[Collection::size() / 8 + 1]     = {};
         uint8_t _lastLatchingState[Collection::size() / 8 + 1] = {};

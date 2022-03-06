@@ -70,7 +70,7 @@ namespace System
             public:
             virtual std::array<::IO::Base*, static_cast<size_t>(::IO::ioComponent_t::AMOUNT)>&          io()       = 0;
             virtual std::array<::Protocol::Base*, static_cast<size_t>(::Protocol::protocol_t::AMOUNT)>& protocol() = 0;
-            virtual Database&                                                                           database() = 0;
+            virtual Database::Instance&                                                                 database() = 0;
         };
 
         Instance(HWA&        hwa,
@@ -96,7 +96,7 @@ namespace System
             Instance& _system;
         };
 
-        class DBhandlers : public Database::Handlers
+        class DBhandlers : public Database::Instance::Handlers
         {
             public:
             DBhandlers(Instance& system)

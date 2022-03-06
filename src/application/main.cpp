@@ -51,10 +51,10 @@ class CDCLocker
 
 bool CDCLocker::_locked = false;
 
-class StorageAccess : public System::Builder::HWA::Database
+class HWADatabase : public System::Builder::HWA::Database
 {
     public:
-    StorageAccess() = default;
+    HWADatabase() = default;
 
     bool init() override
     {
@@ -71,25 +71,25 @@ class StorageAccess : public System::Builder::HWA::Database
         return Board::NVM::clear(0, Board::NVM::size());
     }
 
-    bool read(uint32_t address, int32_t& value, Database::sectionParameterType_t type) override
+    bool read(uint32_t address, int32_t& value, Database::Instance::sectionParameterType_t type) override
     {
         return Board::NVM::read(address, value, boardParamType(type));
     }
 
-    bool write(uint32_t address, int32_t value, Database::sectionParameterType_t type) override
+    bool write(uint32_t address, int32_t value, Database::Instance::sectionParameterType_t type) override
     {
         return Board::NVM::write(address, value, boardParamType(type));
     }
 
     private:
-    Board::NVM::parameterType_t boardParamType(Database::sectionParameterType_t type)
+    Board::NVM::parameterType_t boardParamType(Database::Instance::sectionParameterType_t type)
     {
         switch (type)
         {
-        case Database::sectionParameterType_t::word:
+        case Database::Instance::sectionParameterType_t::word:
             return Board::NVM::parameterType_t::word;
 
-        case Database::sectionParameterType_t::dword:
+        case Database::Instance::sectionParameterType_t::dword:
             return Board::NVM::parameterType_t::dword;
 
         default:
@@ -963,6 +963,11 @@ class HWABuilder : public ::System::Builder::HWA
         return _hwaSystem;
     }
 
+    ::System::Builder::HWA::Database& database() override
+    {
+        return _hwaDatabase;
+    }
+
     private:
     class HWAIO : public ::System::Builder::HWA::IO
     {
@@ -1057,15 +1062,7 @@ class LoggerWriter : public Logger::StreamWriter
 Logger logger = Logger(_loggerWriter, Logger::lineEnding_t::crlf);
 #endif
 
-Database _database(_hwaDatabase,
-#ifdef CORE_ARCH_AVR
-                   true
-#else
-                   false
-#endif
-);
-
-System::Builder  _builder(_hwa, _database);
+System::Builder  _builder(_hwa);
 System::Instance _sys(_builder.hwa(), _builder.components());
 
 int main()

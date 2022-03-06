@@ -76,10 +76,10 @@ namespace IO
             virtual uint32_t lastMovementTime(size_t index) = 0;
         };
 
-        Encoders(HWA&      hwa,
-                 Filter&   filter,
-                 Database& database,
-                 uint32_t  timeDiffTimeout = 1)
+        Encoders(HWA&                hwa,
+                 Filter&             filter,
+                 Database::Instance& database,
+                 uint32_t            timeDiffTimeout = 1)
         {}
 
         bool init() override

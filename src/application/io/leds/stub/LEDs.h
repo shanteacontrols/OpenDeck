@@ -122,8 +122,8 @@ namespace IO
             virtual size_t rgbSignalIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent) = 0;
         };
 
-        LEDs(HWA&      hwa,
-             Database& database)
+        LEDs(HWA&                hwa,
+             Database::Instance& database)
         {}
 
         bool init() override
