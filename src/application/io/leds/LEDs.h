@@ -147,7 +147,7 @@ namespace IO
 
         void                   setAllOn();
         void                   refresh();
-        void                   setBlinkSpeed(uint8_t ledID, blinkSpeed_t state);
+        void                   setBlinkSpeed(uint8_t ledID, blinkSpeed_t state, bool updateState = true);
         size_t                 rgbSignalIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent);
         size_t                 rgbIndex(size_t singleLEDindex);
         void                   setBlinkType(blinkType_t blinkType);

@@ -494,14 +494,15 @@ void LEDs::midiToState(Messaging::event_t event, Messaging::eventSource_t source
                 // match activation ID with received ID
                 if (activationID == event.midiIndex)
                 {
-                    setBlinkSpeed(i, valueToBlinkSpeed(event.midiValue));
+                    // if both state and blink speed should be set, then don't update the state again in setBlinkSpeed
+                    setBlinkSpeed(i, valueToBlinkSpeed(event.midiValue), !(setState && setBlink));
                 }
             }
         }
     }
 }
 
-void LEDs::setBlinkSpeed(uint8_t ledID, blinkSpeed_t state)
+void LEDs::setBlinkSpeed(uint8_t ledID, blinkSpeed_t state, bool updateState)
 {
     uint8_t ledArray[3] = {};
     uint8_t leds        = 0;
@@ -537,8 +538,12 @@ void LEDs::setBlinkSpeed(uint8_t ledID, blinkSpeed_t state)
             updateBit(ledArray[i], ledBit_t::state, bit(ledArray[i], ledBit_t::active));
         }
 
-        setState(ledArray[i], _brightness[ledArray[i]]);
         _blinkTimer[ledID] = static_cast<uint8_t>(state);
+
+        if (updateState)
+        {
+            setState(ledArray[i], _brightness[ledArray[i]]);
+        }
     }
 }
 
