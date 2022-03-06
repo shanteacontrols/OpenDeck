@@ -235,9 +235,8 @@ void Instance::backup()
 
 void Instance::checkComponents()
 {
-    static ioComponent_t    componentIndex                                                    = ioComponent_t::buttons;
-    static size_t           componentUpdateIndex[static_cast<uint8_t>(ioComponent_t::AMOUNT)] = {};
-    static constexpr size_t MAX_UPDATES_PER_CHECK                                             = 16;
+    static ioComponent_t componentIndex                                                    = ioComponent_t::buttons;
+    static size_t        componentUpdateIndex[static_cast<uint8_t>(ioComponent_t::AMOUNT)] = {};
 
     switch (componentIndex)
     {
@@ -279,14 +278,14 @@ void Instance::checkComponents()
     break;
     }
 
-    // For each component, allow up to MAX_UPDATES_PER_CHECK updates:
+    // For each component, allow up to MAX_UPDATES_PER_RUN updates:
     // This is done so that no single component update takes too long, and
     // thus making other things wait.
 
     auto component         = _components.io().at(static_cast<size_t>(componentIndex));
     auto maxComponentIndex = component->maxComponentUpdateIndex();
-    auto loopIterations    = maxComponentIndex >= MAX_UPDATES_PER_CHECK ? MAX_UPDATES_PER_CHECK : !maxComponentIndex ? 1
-                                                                                                                     : maxComponentIndex;
+    auto loopIterations    = maxComponentIndex >= MAX_UPDATES_PER_RUN ? MAX_UPDATES_PER_RUN : !maxComponentIndex ? 1
+                                                                                                                 : maxComponentIndex;
 
     if (component != nullptr)
     {

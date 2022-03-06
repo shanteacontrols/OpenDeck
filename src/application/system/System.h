@@ -51,6 +51,10 @@ namespace System
         // MIDI software no time to react.
         static constexpr uint32_t USB_CHANGE_FORCED_REFRESH_DELAY = 1000;
 
+        // Maximum amount of component indexes which will be checked per single run() call. All indexes aren't
+        // processed in order to reduce the amount of time spent in a single run() call.
+        static constexpr size_t MAX_UPDATES_PER_RUN = 16;
+
         class HWA
         {
             public:
