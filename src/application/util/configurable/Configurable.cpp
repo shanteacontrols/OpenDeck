@@ -17,6 +17,7 @@ limitations under the License.
 */
 
 #include "Configurable.h"
+#include <cstddef>
 
 using namespace Util;
 
@@ -30,13 +31,16 @@ uint8_t Configurable::get(System::Config::block_t block, uint8_t section, size_t
 {
     for (size_t i = 0; i < _getters.size(); i++)
     {
-        if (_getters.at(i).block == block)
+        if (_getters.at(i).handler != nullptr)
         {
-            auto result = _getters.at(i).handler(section, index, value);
-
-            if (result != std::nullopt)
+            if (_getters.at(i).block == block)
             {
-                return *result;
+                auto result = _getters.at(i).handler(section, index, value);
+
+                if (result != std::nullopt)
+                {
+                    return *result;
+                }
             }
         }
     }
@@ -48,13 +52,16 @@ uint8_t Configurable::set(System::Config::block_t block, uint8_t section, size_t
 {
     for (size_t i = 0; i < _setters.size(); i++)
     {
-        if (_setters.at(i).block == block)
+        if (_setters.at(i).handler != nullptr)
         {
-            auto result = _setters.at(i).handler(section, index, value);
-
-            if (result != std::nullopt)
+            if (_setters.at(i).block == block)
             {
-                return *result;
+                auto result = _setters.at(i).handler(section, index, value);
+
+                if (result != std::nullopt)
+                {
+                    return *result;
+                }
             }
         }
     }
