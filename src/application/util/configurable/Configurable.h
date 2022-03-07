@@ -47,18 +47,18 @@ namespace Util
 
         struct getHandlerInternal_t
         {
-            System::Config::block_t block;
-            getHandler_t            handler;
+            System::Config::block_t block   = System::Config::block_t::global;
+            getHandler_t            handler = nullptr;
         };
 
         struct setHandlerInternal_t
         {
-            System::Config::block_t block;
-            setHandler_t            handler;
+            System::Config::block_t block   = System::Config::block_t::global;
+            setHandler_t            handler = nullptr;
         };
 
-        std::vector<getHandlerInternal_t> _getters;
-        std::vector<setHandlerInternal_t> _setters;
+        std::vector<getHandlerInternal_t> _getters = {};
+        std::vector<setHandlerInternal_t> _setters = {};
     };
 }    // namespace Util
 
