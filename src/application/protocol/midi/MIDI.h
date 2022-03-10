@@ -50,7 +50,7 @@ namespace Protocol
         static constexpr uint8_t MIDI_CHANNEL_OMNI = 17;
 
         // convulted order to keep compatibility with older firmware
-        enum class feature_t : uint8_t
+        enum class setting_t : uint8_t
         {
             standardNoteOff,
             runningStatus,
@@ -97,7 +97,7 @@ namespace Protocol
             INTERFACE_AMOUNT
         };
 
-        bool                   isFeatureEnabled(feature_t feature);
+        bool                   isSettingEnabled(setting_t feature);
         bool                   isDinLoopbackRequired();
         std::optional<uint8_t> sysConfigGet(System::Config::Section::global_t section, size_t index, uint16_t& value);
         std::optional<uint8_t> sysConfigSet(System::Config::Section::global_t section, size_t index, uint16_t value);

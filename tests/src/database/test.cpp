@@ -54,11 +54,11 @@ TEST_F(DatabaseTest, ReadInitialValues)
 
         // global block
         //----------------------------------
-        // MIDI feature section
+        // MIDI settings section
         // all values should be set to 0
-        for (int i = 0; i < static_cast<uint8_t>(Protocol::MIDI::feature_t::AMOUNT); i++)
+        for (int i = 0; i < static_cast<uint8_t>(Protocol::MIDI::setting_t::AMOUNT); i++)
         {
-            DB_READ_VERIFY(0, Database::Config::Section::global_t::midiFeatures, i);
+            DB_READ_VERIFY(0, Database::Config::Section::global_t::midiSettings, i);
         }
 
 #ifdef DMX_SUPPORTED

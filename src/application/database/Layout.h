@@ -70,9 +70,9 @@ namespace Database
         };
 
         std::vector<LESSDB::Section> _globalSections = {
-            // midi feature section
+            // midi settings section
             {
-                static_cast<uint8_t>(Protocol::MIDI::feature_t::AMOUNT),
+                static_cast<uint8_t>(Protocol::MIDI::setting_t::AMOUNT),
                 LESSDB::sectionParameterType_t::bit,
                 LESSDB::preserveSetting_t::disable,
                 LESSDB::autoIncrementSetting_t::disable,

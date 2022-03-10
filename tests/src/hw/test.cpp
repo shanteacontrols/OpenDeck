@@ -315,11 +315,11 @@ TEST_F(HWTest, DatabaseInitialValues)
 
         // MIDI block
         //----------------------------------
-        // feature section
+        // settings section
         // all values should be set to 0
-        for (size_t i = 0; i < static_cast<uint8_t>(Protocol::MIDI::feature_t::AMOUNT); i += PARAM_SKIP)
+        for (size_t i = 0; i < static_cast<uint8_t>(Protocol::MIDI::setting_t::AMOUNT); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::global_t::midiFeatures, i));
+            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::global_t::midiSettings, i));
         }
 
         // button block
@@ -816,7 +816,7 @@ TEST_F(HWTest, DINMIDIData)
     ASSERT_EQ(0, receivedMessages);
 
     LOG(INFO) << "Enabling DIN MIDI";
-    ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::global_t::midiFeatures, Protocol::MIDI::feature_t::dinEnabled, 1));
+    ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::global_t::midiSettings, Protocol::MIDI::setting_t::dinEnabled, 1));
     monitor();
     changePreset();
     stopMonitoring();
@@ -827,7 +827,7 @@ TEST_F(HWTest, DINMIDIData)
 
     // enable DIN MIDI passthrough, send data to DIN MIDI in to device and expect the same message passed to output port
     LOG(INFO) << "Enabling DIN to DIN thru";
-    ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::global_t::midiFeatures, Protocol::MIDI::feature_t::dinThruDin, 1));
+    ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::global_t::midiSettings, Protocol::MIDI::setting_t::dinThruDin, 1));
 
     monitor();
     std::string msg = "90 00 7F";

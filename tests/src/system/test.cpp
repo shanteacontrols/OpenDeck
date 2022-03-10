@@ -268,8 +268,8 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
 
 #ifdef DIN_MIDI_SUPPORTED
     // enable DIN midi as well - same data needs to be sent there
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::midiFeatures,
-                                    Protocol::MIDI::feature_t::dinEnabled,
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::midiSettings,
+                                    Protocol::MIDI::setting_t::dinEnabled,
                                     1,
                                     _generatedSysExReq);
 
@@ -288,9 +288,9 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
                                 0x01,                                                                     // set
                                 0x00,                                                                     // single
                                 static_cast<uint8_t>(System::Config::block_t::global),                    // global block
-                                static_cast<uint8_t>(System::Config::Section::global_t::midiFeatures),    // midi section
+                                static_cast<uint8_t>(System::Config::Section::global_t::midiSettings),    // midi section
                                 0x00,                                                                     // MSB index (DIN enabled)
-                                static_cast<uint8_t>(MIDI::feature_t::dinEnabled),                        // LSB index (DIN enabled)
+                                static_cast<uint8_t>(MIDI::setting_t::dinEnabled),                        // LSB index (DIN enabled)
                                 0x00,                                                                     // MSB new value (DIN enabled)
                                 0x01,                                                                     // LSB new value (DIN enabled)
                                 0xF7 });
@@ -1058,8 +1058,8 @@ TEST_F(SystemTest, UsbThruDin)
                                 0xF7 });
 
     // enable both din midi and usb to din thru
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::midiFeatures,
-                                    Protocol::MIDI::feature_t::dinEnabled,
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::midiSettings,
+                                    Protocol::MIDI::setting_t::dinEnabled,
                                     1,
                                     _generatedSysExReq);
 
@@ -1076,15 +1076,15 @@ TEST_F(SystemTest, UsbThruDin)
                                 0x01,    // set
                                 0x00,    // single
                                 static_cast<uint8_t>(System::Config::block_t::global),
-                                static_cast<uint8_t>(System::Config::Section::global_t::midiFeatures),
+                                static_cast<uint8_t>(System::Config::Section::global_t::midiSettings),
                                 0x00,                                                           // MSB index (dinEnabled)
-                                static_cast<uint8_t>(Protocol::MIDI::feature_t::dinEnabled),    // LSB index (dinEnabled)
+                                static_cast<uint8_t>(Protocol::MIDI::setting_t::dinEnabled),    // LSB index (dinEnabled)
                                 0x00,                                                           // MSB new value
                                 1,                                                              // LSB new value
                                 0xF7 });
 
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::midiFeatures,
-                                    Protocol::MIDI::feature_t::usbThruDin,
+    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::midiSettings,
+                                    Protocol::MIDI::setting_t::usbThruDin,
                                     1,
                                     _generatedSysExReq);
 
@@ -1098,9 +1098,9 @@ TEST_F(SystemTest, UsbThruDin)
                                 0x01,    // set
                                 0x00,    // single
                                 static_cast<uint8_t>(System::Config::block_t::global),
-                                static_cast<uint8_t>(System::Config::Section::global_t::midiFeatures),
+                                static_cast<uint8_t>(System::Config::Section::global_t::midiSettings),
                                 0x00,                                                           // MSB index (dinThruUsb)
-                                static_cast<uint8_t>(Protocol::MIDI::feature_t::usbThruDin),    // LSB index (dinThruUsb)
+                                static_cast<uint8_t>(Protocol::MIDI::setting_t::usbThruDin),    // LSB index (dinThruUsb)
                                 0x00,                                                           // MSB new value
                                 1,                                                              // LSB new value
                                 0xF7 });

@@ -144,13 +144,13 @@ bool Protocol::MIDI::setupUSBMIDI()
         return false;
     }
 
-    _usbMIDI.setNoteOffMode(isFeatureEnabled(feature_t::standardNoteOff) ? noteOffType_t::standardNoteOff : noteOffType_t::noteOnZeroVel);
+    _usbMIDI.setNoteOffMode(isSettingEnabled(setting_t::standardNoteOff) ? noteOffType_t::standardNoteOff : noteOffType_t::noteOnZeroVel);
     return true;
 }
 
 bool Protocol::MIDI::setupDINMIDI()
 {
-    if (isFeatureEnabled(feature_t::dinEnabled))
+    if (isSettingEnabled(setting_t::dinEnabled))
     {
         _dinMIDI.init();
     }
@@ -159,7 +159,7 @@ bool Protocol::MIDI::setupDINMIDI()
         _dinMIDI.deInit();
     }
 
-    _dinMIDI.setNoteOffMode(isFeatureEnabled(feature_t::standardNoteOff) ? noteOffType_t::standardNoteOff : noteOffType_t::noteOnZeroVel);
+    _dinMIDI.setNoteOffMode(isSettingEnabled(setting_t::standardNoteOff) ? noteOffType_t::standardNoteOff : noteOffType_t::noteOnZeroVel);
     _hwaDIN.setLoopback(isDinLoopbackRequired());
 
     return true;
@@ -167,7 +167,7 @@ bool Protocol::MIDI::setupDINMIDI()
 
 bool Protocol::MIDI::setupThru()
 {
-    if (isFeatureEnabled(feature_t::dinThruDin))
+    if (isSettingEnabled(setting_t::dinThruDin))
     {
         _dinMIDI.registerThruInterface(_dinMIDI.transport());
     }
@@ -176,7 +176,7 @@ bool Protocol::MIDI::setupThru()
         _dinMIDI.unregisterThruInterface(_dinMIDI.transport());
     }
 
-    if (isFeatureEnabled(feature_t::dinThruUsb))
+    if (isSettingEnabled(setting_t::dinThruUsb))
     {
         _dinMIDI.registerThruInterface(_usbMIDI.transport());
     }
@@ -185,7 +185,7 @@ bool Protocol::MIDI::setupThru()
         _dinMIDI.unregisterThruInterface(_usbMIDI.transport());
     }
 
-    if (isFeatureEnabled(feature_t::usbThruDin))
+    if (isSettingEnabled(setting_t::usbThruDin))
     {
         _usbMIDI.registerThruInterface(_dinMIDI.transport());
     }
@@ -194,7 +194,7 @@ bool Protocol::MIDI::setupThru()
         _usbMIDI.unregisterThruInterface(_dinMIDI.transport());
     }
 
-    if (isFeatureEnabled(feature_t::usbThruUsb))
+    if (isSettingEnabled(setting_t::usbThruUsb))
     {
         _usbMIDI.registerThruInterface(_usbMIDI.transport());
     }
@@ -266,17 +266,17 @@ void Protocol::MIDI::read()
     }
 }
 
-bool Protocol::MIDI::isFeatureEnabled(feature_t feature)
+bool Protocol::MIDI::isSettingEnabled(setting_t feature)
 {
-    return _database.read(Database::Config::Section::global_t::midiFeatures, feature);
+    return _database.read(Database::Config::Section::global_t::midiSettings, feature);
 }
 
 bool Protocol::MIDI::isDinLoopbackRequired()
 {
-    return (isFeatureEnabled(feature_t::dinEnabled) &&
-            isFeatureEnabled(feature_t::dinThruDin) &&
-            !isFeatureEnabled(feature_t::dinThruUsb) &&
-            !isFeatureEnabled(feature_t::dinThruBle));
+    return (isSettingEnabled(setting_t::dinEnabled) &&
+            isSettingEnabled(setting_t::dinThruDin) &&
+            !isSettingEnabled(setting_t::dinThruUsb) &&
+            !isSettingEnabled(setting_t::dinThruBle));
 }
 
 void Protocol::MIDI::sendMIDI(Messaging::eventSource_t source, const Messaging::event_t& event)
@@ -562,27 +562,27 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigGet(System::Config::Section::glo
 
     switch (section)
     {
-    case System::Config::Section::global_t::midiFeatures:
+    case System::Config::Section::global_t::midiSettings:
     {
-        auto feature = static_cast<feature_t>(index);
+        auto feature = static_cast<setting_t>(index);
 
         switch (feature)
         {
-        case feature_t::standardNoteOff:
+        case setting_t::standardNoteOff:
         {
             result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ack : System::Config::status_t::errorRead;
         }
         break;
 
-        case feature_t::runningStatus:
-        case feature_t::dinEnabled:
-        case feature_t::dinThruDin:
-        case feature_t::dinThruUsb:
-        case feature_t::usbThruDin:
+        case setting_t::runningStatus:
+        case setting_t::dinEnabled:
+        case setting_t::dinThruDin:
+        case setting_t::dinThruUsb:
+        case setting_t::usbThruDin:
         {
             if (_hwaDIN.supported())
             {
-                if (!isFeatureEnabled(feature_t::dinEnabled) && _hwaDIN.allocated(IO::Common::interface_t::uart))
+                if (!isSettingEnabled(setting_t::dinEnabled) && _hwaDIN.allocated(IO::Common::interface_t::uart))
                 {
                     result = System::Config::status_t::serialPeripheralAllocatedError;
                 }
@@ -624,18 +624,18 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
 
     switch (section)
     {
-    case System::Config::Section::global_t::midiFeatures:
+    case System::Config::Section::global_t::midiSettings:
     {
-        auto feature = static_cast<feature_t>(index);
+        auto setting = static_cast<setting_t>(index);
 
-        switch (feature)
+        switch (setting)
         {
-        case feature_t::runningStatus:
+        case setting_t::runningStatus:
         {
             // this setting applies to din midi only
             if (_hwaDIN.supported())
             {
-                if (!isFeatureEnabled(feature_t::dinEnabled) && _hwaDIN.allocated(IO::Common::interface_t::uart))
+                if (!isSettingEnabled(setting_t::dinEnabled) && _hwaDIN.allocated(IO::Common::interface_t::uart))
                 {
                     result = System::Config::status_t::serialPeripheralAllocatedError;
                 }
@@ -652,18 +652,18 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
         }
         break;
 
-        case feature_t::standardNoteOff:
+        case setting_t::standardNoteOff:
         {
             setNoteOffMode(value ? noteOffType_t::standardNoteOff : noteOffType_t::noteOnZeroVel);
             result = System::Config::status_t::ack;
         }
         break;
 
-        case feature_t::dinEnabled:
+        case setting_t::dinEnabled:
         {
             if (_hwaDIN.supported())
             {
-                if (!isFeatureEnabled(feature_t::dinEnabled) && _hwaDIN.allocated(IO::Common::interface_t::uart))
+                if (!isSettingEnabled(setting_t::dinEnabled) && _hwaDIN.allocated(IO::Common::interface_t::uart))
                 {
                     result = System::Config::status_t::serialPeripheralAllocatedError;
                 }
@@ -688,7 +688,7 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
         }
         break;
 
-        case feature_t::dinThruDin:
+        case setting_t::dinThruDin:
         {
             if (value)
             {
@@ -704,7 +704,7 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
         }
         break;
 
-        case feature_t::dinThruUsb:
+        case setting_t::dinThruUsb:
         {
             if (value)
             {
@@ -720,7 +720,7 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
         }
         break;
 
-        case feature_t::usbThruDin:
+        case setting_t::usbThruDin:
         {
             if (value)
             {
@@ -735,7 +735,7 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
         }
         break;
 
-        case feature_t::usbThruUsb:
+        case setting_t::usbThruUsb:
         {
             if (value)
             {

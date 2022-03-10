@@ -35,11 +35,11 @@ namespace System
     {
         private:
         std::vector<SysExConf::Section> _globalSections = {
-            // midi feature section
+            // midi settings section
             {
-                static_cast<uint16_t>(Protocol::MIDI::feature_t::AMOUNT),
+                static_cast<uint16_t>(Protocol::MIDI::setting_t::AMOUNT),
                 0,
-                1,
+                0,
             },
 
             // blank for compatibility

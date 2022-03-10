@@ -50,7 +50,7 @@ namespace System
 
             enum class global_t : uint8_t
             {
-                midiFeatures,
+                midiSettings,
                 reserved,    // compatibility
                 presets,
                 dmx,
