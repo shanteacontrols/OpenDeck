@@ -291,7 +291,13 @@ LEDs::brightness_t LEDs::valueToBrightness(uint8_t value)
 
 void LEDs::midiToState(Messaging::event_t event, Messaging::eventSource_t source)
 {
-    const bool useOmni = event.midiChannel == MIDI::MIDI_CHANNEL_OMNI ? true : false;
+    const uint8_t globalChannel = _database.read(Database::Config::Section::global_t::midiSettings, MIDI::setting_t::globalChannel);
+    const uint8_t channel       = _database.read(Database::Config::Section::global_t::midiSettings,
+                                           MIDI::setting_t::useGlobalChannel)
+                                      ? globalChannel
+                                      : event.midiChannel;
+
+    const bool useOmni = channel == MIDI::MIDI_CHANNEL_OMNI ? true : false;
 
     for (size_t i = 0; i < Collection::size(); i++)
     {
@@ -437,7 +443,7 @@ void LEDs::midiToState(Messaging::event_t event, Messaging::eventSource_t source
         if (checkChannel && !useOmni)
         {
             // no point in further checking if channel doesn't match
-            if (_database.read(Database::Config::Section::leds_t::midiChannel, i) != event.midiChannel)
+            if (_database.read(Database::Config::Section::leds_t::midiChannel, i) != channel)
             {
                 continue;
             }

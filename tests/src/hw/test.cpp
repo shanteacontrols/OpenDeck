@@ -316,10 +316,17 @@ TEST_F(HWTest, DatabaseInitialValues)
         // MIDI block
         //----------------------------------
         // settings section
-        // all values should be set to 0
+        // all values should be set to 0 except for the global channel which should be 1
         for (size_t i = 0; i < static_cast<uint8_t>(Protocol::MIDI::setting_t::AMOUNT); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::global_t::midiSettings, i));
+            if (i == static_cast<int>(Protocol::MIDI::setting_t::globalChannel))
+            {
+                ASSERT_EQ(1, MIDIHelper::readFromDevice(System::Config::Section::global_t::midiSettings, i));
+            }
+            else
+            {
+                ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::global_t::midiSettings, i));
+            }
         }
 
         // button block

@@ -284,7 +284,13 @@ void Protocol::MIDI::sendMIDI(Messaging::eventSource_t source, const Messaging::
     using namespace Protocol;
 
     // if omni channel is defined, send the message on each midi channel
-    const bool useOmni = event.midiChannel == MIDI_CHANNEL_OMNI ? true : false;
+    const uint8_t globalChannel = _database.read(Database::Config::Section::global_t::midiSettings, setting_t::globalChannel);
+    const uint8_t channel       = _database.read(Database::Config::Section::global_t::midiSettings,
+                                           setting_t::useGlobalChannel)
+                                      ? globalChannel
+                                      : event.midiChannel;
+
+    const bool useOmni = channel == MIDI_CHANNEL_OMNI ? true : false;
 
     for (size_t i = 0; i < _midiInterface.size(); i++)
     {
@@ -310,7 +316,7 @@ void Protocol::MIDI::sendMIDI(Messaging::eventSource_t source, const Messaging::
             }
             else
             {
-                interfaceInstance->sendNoteOff(event.midiIndex, event.midiValue, event.midiChannel);
+                interfaceInstance->sendNoteOff(event.midiIndex, event.midiValue, channel);
             }
         }
         break;
@@ -326,7 +332,7 @@ void Protocol::MIDI::sendMIDI(Messaging::eventSource_t source, const Messaging::
             }
             else
             {
-                interfaceInstance->sendNoteOn(event.midiIndex, event.midiValue, event.midiChannel);
+                interfaceInstance->sendNoteOn(event.midiIndex, event.midiValue, channel);
             }
         }
         break;
@@ -342,7 +348,7 @@ void Protocol::MIDI::sendMIDI(Messaging::eventSource_t source, const Messaging::
             }
             else
             {
-                interfaceInstance->sendControlChange(event.midiIndex, event.midiValue, event.midiChannel);
+                interfaceInstance->sendControlChange(event.midiIndex, event.midiValue, channel);
             }
         }
         break;
@@ -358,7 +364,7 @@ void Protocol::MIDI::sendMIDI(Messaging::eventSource_t source, const Messaging::
             }
             else
             {
-                interfaceInstance->sendProgramChange(event.midiIndex, event.midiChannel);
+                interfaceInstance->sendProgramChange(event.midiIndex, channel);
             }
         }
         break;
@@ -374,7 +380,7 @@ void Protocol::MIDI::sendMIDI(Messaging::eventSource_t source, const Messaging::
             }
             else
             {
-                interfaceInstance->sendAfterTouch(event.midiValue, event.midiChannel);
+                interfaceInstance->sendAfterTouch(event.midiValue, channel);
             }
         }
         break;
@@ -390,7 +396,7 @@ void Protocol::MIDI::sendMIDI(Messaging::eventSource_t source, const Messaging::
             }
             else
             {
-                interfaceInstance->sendAfterTouch(event.midiValue, event.midiChannel, event.midiIndex);
+                interfaceInstance->sendAfterTouch(event.midiValue, channel, event.midiIndex);
             }
         }
         break;
@@ -406,7 +412,7 @@ void Protocol::MIDI::sendMIDI(Messaging::eventSource_t source, const Messaging::
             }
             else
             {
-                interfaceInstance->sendPitchBend(event.midiValue, event.midiChannel);
+                interfaceInstance->sendPitchBend(event.midiValue, channel);
             }
         }
         break;
@@ -488,7 +494,7 @@ void Protocol::MIDI::sendMIDI(Messaging::eventSource_t source, const Messaging::
             }
             else
             {
-                interfaceInstance->sendNRPN(event.midiIndex, event.midiValue, event.midiChannel, false);
+                interfaceInstance->sendNRPN(event.midiIndex, event.midiValue, channel, false);
             }
         }
         break;
@@ -504,7 +510,7 @@ void Protocol::MIDI::sendMIDI(Messaging::eventSource_t source, const Messaging::
             }
             else
             {
-                interfaceInstance->sendNRPN(event.midiIndex, event.midiValue, event.midiChannel, true);
+                interfaceInstance->sendNRPN(event.midiIndex, event.midiValue, channel, true);
             }
         }
         break;
@@ -520,7 +526,7 @@ void Protocol::MIDI::sendMIDI(Messaging::eventSource_t source, const Messaging::
             }
             else
             {
-                interfaceInstance->sendControlChange14bit(event.midiIndex, event.midiValue, event.midiChannel);
+                interfaceInstance->sendControlChange14bit(event.midiIndex, event.midiValue, channel);
             }
         }
         break;
@@ -744,6 +750,19 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
             else
             {
                 _usbMIDI.unregisterThruInterface(_usbMIDI.transport());
+            }
+
+            result = System::Config::status_t::ack;
+        }
+        break;
+
+        case setting_t::globalChannel:
+        {
+            if ((value < 1) || (value > MIDI_CHANNEL_OMNI))
+            {
+                // invalid channel
+                result = System::Config::status_t::errorNewValue;
+                break;
             }
 
             result = System::Config::status_t::ack;

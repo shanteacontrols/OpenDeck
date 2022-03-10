@@ -55,10 +55,17 @@ TEST_F(DatabaseTest, ReadInitialValues)
         // global block
         //----------------------------------
         // MIDI settings section
-        // all values should be set to 0
+        // all values should be set to 0 except for the global channel which should be 1
         for (int i = 0; i < static_cast<uint8_t>(Protocol::MIDI::setting_t::AMOUNT); i++)
         {
-            DB_READ_VERIFY(0, Database::Config::Section::global_t::midiSettings, i);
+            if (i == static_cast<int>(Protocol::MIDI::setting_t::globalChannel))
+            {
+                DB_READ_VERIFY(1, Database::Config::Section::global_t::midiSettings, i);
+            }
+            else
+            {
+                DB_READ_VERIFY(0, Database::Config::Section::global_t::midiSettings, i);
+            }
         }
 
 #ifdef DMX_SUPPORTED

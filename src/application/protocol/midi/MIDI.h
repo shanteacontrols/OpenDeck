@@ -65,6 +65,8 @@ namespace Protocol
             bleThruDin,
             bleThruUsb,
             bleThruBle,
+            useGlobalChannel,
+            globalChannel,
             AMOUNT
         };
 
