@@ -240,7 +240,8 @@
                 "system",
                 "leds",
                 "hw",
-                "bootloader"
+                "bootloader",
+                "midi"
             ]
         },
         {
