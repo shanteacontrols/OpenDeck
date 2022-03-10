@@ -82,6 +82,8 @@ namespace IO
             multiValIncDecNote,
             multiValIncResetCC,
             multiValIncDecCC,
+            noteOffOnly,
+            controlChange0Only,
             AMOUNT
         };
 
@@ -159,6 +161,8 @@ namespace IO
             MIDI::messageType_t::noteOn,
             MIDI::messageType_t::noteOn,
             MIDI::messageType_t::controlChange,
+            MIDI::messageType_t::controlChange,
+            MIDI::messageType_t::noteOn,
             MIDI::messageType_t::controlChange,
         };
     };

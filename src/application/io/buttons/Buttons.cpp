@@ -364,6 +364,19 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
         }
         break;
 
+        case messageType_t::noteOffOnly:
+        {
+            descriptor.event.midiValue = 0;
+            descriptor.event.message   = MIDI::messageType_t::noteOff;
+        }
+        break;
+
+        case messageType_t::controlChange0Only:
+        {
+            descriptor.event.midiValue = 0;
+        }
+        break;
+
         default:
         {
             send = false;
@@ -376,6 +389,7 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
         switch (descriptor.messageType)
         {
         case messageType_t::note:
+        case messageType_t::noteOffOnly:
         {
             descriptor.event.midiValue = 0;
             descriptor.event.message   = MIDI::messageType_t::noteOff;
@@ -383,6 +397,7 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
         break;
 
         case messageType_t::controlChangeReset:
+        case messageType_t::controlChange0Only:
         {
             descriptor.event.midiValue = 0;
         }
@@ -503,6 +518,8 @@ void Buttons::fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor)
     break;
 
     case messageType_t::mmcRecord:
+    case messageType_t::noteOffOnly:
+    case messageType_t::controlChange0Only:
     {
         descriptor.type = type_t::latching;
     }
