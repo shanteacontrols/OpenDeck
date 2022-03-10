@@ -268,6 +268,19 @@ namespace
             cyclePower(powerCycleType_t::standardWithDeviceCheck);
         }
 
+        size_t cleanupMIDIResponse(std::string& response)
+        {
+            // drop empty lines, remove sysex, place each new channel midi message in new line
+            std::string cleanupFile = "clean_response";
+            test::wsystem("cat " + temp_midi_data_location + " | xargs | sed 's/F7 /F7\\n/g' | sed 's/F0/\\nF0/g' | grep -v '^F0' | xargs | sed 's/ /&\\n/3;P;D' > " + cleanupFile, response);
+            test::wsystem("grep -c . " + cleanupFile, response);
+            const auto receivedMessages = stoi(response);
+            test::wsystem("cat " + cleanupFile, response);
+            test::wsystem("rm " + cleanupFile + " " + temp_midi_data_location);
+
+            return receivedMessages;
+        };
+
         TestDatabase _database;
 
         const std::string handshake_req            = "F0 00 53 43 00 00 01 F7";
@@ -753,46 +766,37 @@ TEST_F(HWTest, BackupAndRestore)
     }
 }
 
-TEST_F(HWTest, MIDIData)
+TEST_F(HWTest, USBMIDIData)
 {
     std::string cmd;
     std::string response;
 
-    auto changePreset = [&](bool redirect) {
+    auto changePreset = [&]() {
         LOG(INFO) << "Switching preset";
-
-        if (redirect)
-            cmd = std::string("amidi -p ") + MIDIHelper::amidiPort(OPENDECK_MIDI_DEVICE_NAME) + " -S \"F0 00 53 43 00 00 01 00 00 02 00 00 00 00 F7\" -d -t 3 > " + temp_midi_data_location;
-        else
-            cmd = std::string("amidi -p ") + MIDIHelper::amidiPort(OPENDECK_MIDI_DEVICE_NAME) + " -S \"F0 00 53 43 00 00 01 00 00 02 00 00 00 00 F7\" -d -t 3";
-
+        cmd = std::string("amidi -p ") + MIDIHelper::amidiPort(OPENDECK_MIDI_DEVICE_NAME) + " -S \"F0 00 53 43 00 00 01 00 00 02 00 00 00 00 F7\" -d -t 3 > " + temp_midi_data_location;
         ASSERT_EQ(0, test::wsystem(cmd, response));
     };
 
-    auto cleanupResponse = [&]() {
-        // drop empty lines, remove sysex, place each new channel midi message in new line
-        std::string cleanupFile = "clean_response";
-        test::wsystem("cat " + temp_midi_data_location + " | xargs | sed 's/F7 /F7\\n/g' | sed 's/F0/\\nF0/g' | grep -v '^F0' | xargs | sed 's/ /&\\n/3;P;D' > " + cleanupFile, response);
-        test::wsystem("grep -c . " + cleanupFile, response);
-        const auto receivedMessages = stoi(response);
-        test::wsystem("cat " + cleanupFile, response);
-        test::wsystem("rm " + cleanupFile + " " + temp_midi_data_location);
-
-        return receivedMessages;
-    };
-
-    changePreset(true);
-    size_t receivedMessages = cleanupResponse();
+    changePreset();
+    auto receivedMessages = cleanupMIDIResponse(response);
     LOG(INFO) << "Received " << receivedMessages << " USB messages after preset change:\n"
               << response;
     ASSERT_EQ(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), receivedMessages);
-
-    // run the same test for DIN MIDI
-
-    reboot();
+}
 
 #ifdef DIN_MIDI_SUPPORTED
 #ifdef TEST_DIN_MIDI
+TEST_F(HWTest, DINMIDIData)
+{
+    std::string cmd;
+    std::string response;
+
+    auto changePreset = [&]() {
+        LOG(INFO) << "Switching preset";
+        cmd = std::string("amidi -p ") + MIDIHelper::amidiPort(OPENDECK_MIDI_DEVICE_NAME) + " -S \"F0 00 53 43 00 00 01 00 00 02 00 00 00 00 F7\" -d -t 3";
+        ASSERT_EQ(0, test::wsystem(cmd, response));
+    };
+
     auto monitor = [&]() {
         LOG(INFO) << "Monitoring DIN MIDI interface " << OUT_DIN_MIDI_PORT;
         cmd = std::string("amidi -p ") + MIDIHelper::amidiPort(OUT_DIN_MIDI_PORT) + " -d > " + temp_midi_data_location + " &";
@@ -804,9 +808,9 @@ TEST_F(HWTest, MIDIData)
     };
 
     monitor();
-    changePreset(false);
+    changePreset();
     stopMonitoring();
-    receivedMessages = cleanupResponse();
+    auto receivedMessages = cleanupMIDIResponse(response);
 
     LOG(INFO) << "Verifying that no data reached DIN MIDI interface due to the DIN MIDI being disabled";
     ASSERT_EQ(0, receivedMessages);
@@ -814,9 +818,9 @@ TEST_F(HWTest, MIDIData)
     LOG(INFO) << "Enabling DIN MIDI";
     ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::global_t::midiFeatures, Protocol::MIDI::feature_t::dinEnabled, 1));
     monitor();
-    changePreset(false);
+    changePreset();
     stopMonitoring();
-    receivedMessages = cleanupResponse();
+    receivedMessages = cleanupMIDIResponse(response);
     LOG(INFO) << "Received " << receivedMessages << " DIN MIDI messages after preset change:\n"
               << response;
     ASSERT_EQ(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), receivedMessages);
@@ -833,14 +837,14 @@ TEST_F(HWTest, MIDIData)
     ASSERT_EQ(0, test::wsystem(cmd));
     test::sleepMs(1000);
     stopMonitoring();
-    receivedMessages = cleanupResponse();
+    receivedMessages = cleanupMIDIResponse(response);
     LOG(INFO) << "Received " << receivedMessages << " DIN MIDI messages on passthrough interface:\n"
               << response;
     ASSERT_EQ(1, receivedMessages);
     ASSERT_NE(response.find(msg), std::string::npos);
-#endif
-#endif
 }
+#endif
+#endif
 
 #ifdef DMX_SUPPORTED
 TEST_F(HWTest, DMXTest)
