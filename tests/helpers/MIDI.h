@@ -24,6 +24,12 @@ class MIDIHelper
     public:
     MIDIHelper() = default;
 
+    enum class deviceCheckType_t : uint8_t
+    {
+        app,
+        boot
+    };
+
     static std::vector<MIDI::usbMIDIPacket_t> rawSysExToUSBPackets(std::vector<uint8_t>& raw)
     {
         Messaging::event_t event;
@@ -398,20 +404,31 @@ class MIDIHelper
     }
 
     // check for opendeck device only here
-    static bool devicePresent(bool bootloader = false)
+    static bool devicePresent(deviceCheckType_t type, bool silent = false)
     {
-        LOG(INFO) << "Checking if OpenDeck MIDI device is available";
+        if (!silent)
+        {
+            LOG(INFO) << "Checking if OpenDeck MIDI device is available";
+        }
 
         std::string port;
 
-        if (bootloader)
+        if (type == deviceCheckType_t::boot)
+        {
             port = amidiPort(OPENDECK_DFU_MIDI_DEVICE_NAME);
+        }
         else
+        {
             port = amidiPort(OPENDECK_MIDI_DEVICE_NAME);
+        }
 
         if (port == "")
         {
-            LOG(ERROR) << "OpenDeck MIDI device not available";
+            if (!silent)
+            {
+                LOG(ERROR) << "OpenDeck MIDI device not available";
+            }
+
             return false;
         }
 
@@ -419,12 +436,20 @@ class MIDIHelper
 
         if (test::wsystem("amidi -l | grep \"" + port + "\"", cmdResponse) == 0)
         {
-            LOG(INFO) << "Device found";
+            if (!silent)
+            {
+                LOG(INFO) << "Device found";
+            }
+
             return true;
         }
         else
         {
-            LOG(ERROR) << "Device not found";
+            if (!silent)
+            {
+                LOG(ERROR) << "Device not found";
+            }
+
             return false;
         }
     }

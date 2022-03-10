@@ -82,6 +82,12 @@ namespace
             standardWithDeviceCheck
         };
 
+        enum class softRebootType_t : uint8_t
+        {
+            standard,
+            factoryReset
+        };
+
         void powerOn()
         {
             // Send newline to arduino controller to make sure on/off commands
@@ -146,7 +152,7 @@ namespace
                 do
                 {
                     cycle();
-                } while (!MIDIHelper::devicePresent());
+                } while (!MIDIHelper::devicePresent(MIDIHelper::deviceCheckType_t::app));
             }
         }
 
@@ -159,7 +165,7 @@ namespace
                 LOG(ERROR) << "OpenDeck device not responding to handshake, attempting power cycle";
                 cyclePower(powerCycleType_t::standardWithDeviceCheck);
 
-                if (!MIDIHelper::devicePresent())
+                if (!MIDIHelper::devicePresent(MIDIHelper::deviceCheckType_t::app))
                 {
                     LOG(ERROR) << "OpenDeck device not found after power cycle";
                     FAIL();
@@ -175,31 +181,43 @@ namespace
             }
         }
 
-        void reboot()
+        void reboot(softRebootType_t type = softRebootType_t::standard)
         {
             handshake();
 
-            LOG(INFO) << "Reboting the device";
-            ASSERT_EQ(std::string(""), MIDIHelper::sendRawSysEx(reboot_req, false));
+            LOG(INFO) << "Sending " << std::string(type == softRebootType_t::standard ? "reboot" : "factory reset") << " request to the device";
+            const auto& cmd = type == softRebootType_t::standard ? reboot_req : factory_reset_req;
 
-            LOG(INFO) << "Waiting " << startup_delay_ms << " ms";
-            test::sleepMs(startup_delay_ms);
+            ASSERT_EQ(std::string(""), MIDIHelper::sendRawSysEx(cmd, false));
 
-            if (!MIDIHelper::devicePresent())
+            auto startTime = test::millis();
+
+            LOG(INFO) << "Request sent. Waiting for the device to disconnect.";
+
+            while (MIDIHelper::devicePresent(MIDIHelper::deviceCheckType_t::app, true))
             {
-                LOG(ERROR) << "OpenDeck device not found after reboot, attempting power cycle";
-                cyclePower(powerCycleType_t::standardWithDeviceCheck);
-
-                if (!MIDIHelper::devicePresent())
+                if ((test::millis() - startTime) > (startup_delay_ms * 2))
                 {
-                    LOG(ERROR) << "OpenDeck device not found after power cycle";
+                    LOG(ERROR) << "Device didn't disconnect in " << startup_delay_ms * 2 << " ms.";
                     FAIL();
                 }
             }
-            else
+
+            LOG(INFO) << "Device disconnected. Waiting for the device to connect again.";
+
+            startTime = test::millis();
+
+            while (!MIDIHelper::devicePresent(MIDIHelper::deviceCheckType_t::app, true))
             {
-                LOG(INFO) << "Device rebooted";
+                if ((test::millis() - startTime) > startup_delay_ms)
+                {
+                    LOG(ERROR) << "Device didn't connect in " << startup_delay_ms << " ms.";
+                    FAIL();
+                }
             }
+
+            LOG(INFO) << "Device connected. Waiting " << startup_delay_ms / 2 << " milliseconds for the device to initialize";
+            test::sleepMs(startup_delay_ms / 2);
 
             handshake();
             MIDIHelper::flush();
@@ -207,32 +225,7 @@ namespace
 
         void factoryReset()
         {
-            handshake();
-
-            LOG(INFO) << "Performing factory reset";
-            ASSERT_EQ(std::string(""), MIDIHelper::sendRawSysEx(factory_reset_req, false));
-
-            LOG(INFO) << "Waiting " << startup_delay_ms << " ms";
-            test::sleepMs(startup_delay_ms);
-
-            if (!MIDIHelper::devicePresent())
-            {
-                LOG(ERROR) << "OpenDeck device not found after factory reset, attempting power cycle";
-                cyclePower(powerCycleType_t::standardWithDeviceCheck);
-
-                if (!MIDIHelper::devicePresent())
-                {
-                    LOG(ERROR) << "OpenDeck device not found after power cycle";
-                    FAIL();
-                }
-            }
-            else
-            {
-                LOG(INFO) << "Factory reset complete";
-            }
-
-            handshake();
-            MIDIHelper::flush();
+            reboot(softRebootType_t::factoryReset);
         }
 
         void flash()
@@ -661,7 +654,7 @@ TEST_F(HWTest, FwUpdate)
     LOG(INFO) << "Waiting " << startup_delay_ms / 2 << " ms";
     test::sleepMs(startup_delay_ms / 2);
 
-    if (!MIDIHelper::devicePresent(true))
+    if (!MIDIHelper::devicePresent(MIDIHelper::deviceCheckType_t::boot))
     {
         LOG(ERROR) << "OpenDeck DFU device not found after bootloader request";
         FAIL();
@@ -677,7 +670,7 @@ TEST_F(HWTest, FwUpdate)
     LOG(INFO) << "Firmware file sent successfully, waiting " << startup_delay_ms << " ms";
     test::sleepMs(startup_delay_ms);
 
-    if (!MIDIHelper::devicePresent())
+    if (!MIDIHelper::devicePresent(MIDIHelper::deviceCheckType_t::app))
     {
         LOG(ERROR) << "OpenDeck device not found after firmware update, aborting";
         FAIL();

@@ -89,4 +89,10 @@ namespace test
         return res;
     }
 
+    int64_t millis()
+    {
+        struct timespec now;
+        timespec_get(&now, TIME_UTC);
+        return (static_cast<int64_t>(now.tv_sec)) * 1000 + (static_cast<int64_t>(now.tv_nsec)) / 1000000;
+    }
 }    // namespace test
