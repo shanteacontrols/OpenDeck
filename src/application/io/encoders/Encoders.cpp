@@ -43,6 +43,8 @@ Encoders::Encoders(HWA&                hwa,
                               {
                               case MIDI::messageType_t::controlChange:
                               {
+                                  const bool useOmni = event.midiChannel == MIDI::MIDI_CHANNEL_OMNI ? true : false;
+
                                   for (size_t i = 0; i < Collection::size(); i++)
                                   {
                                       if (!_database.read(Database::Config::Section::encoder_t::remoteSync, i))
@@ -55,9 +57,12 @@ Encoders::Encoders(HWA&                hwa,
                                           continue;
                                       }
 
-                                      if (_database.read(Database::Config::Section::encoder_t::midiChannel, i) != event.midiChannel)
+                                      if (!useOmni)
                                       {
-                                          continue;
+                                          if (_database.read(Database::Config::Section::encoder_t::midiChannel, i) != event.midiChannel)
+                                          {
+                                              continue;
+                                          }
                                       }
 
                                       if (_database.read(Database::Config::Section::encoder_t::midiID, i) != event.midiIndex)

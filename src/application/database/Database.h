@@ -70,41 +70,6 @@ namespace Database
                                       static_cast<uint8_t>(section),
                                       static_cast<size_t>(index));
 
-            // Workaround: to save space in database, MIDI channels are defined as half-byte
-            // values, which means they have 0-15 range. MIDI channels, however, use 1-16 range.
-            // When reading the channels from database, increase their value by 1.
-            if constexpr (std::is_same<T, Config::Section::analog_t>::value)
-            {
-                if (section == Config::Section::analog_t::midiChannel)
-                {
-                    value++;
-                }
-            }
-
-            if constexpr (std::is_same<T, Config::Section::button_t>::value)
-            {
-                if (section == Config::Section::button_t::midiChannel)
-                {
-                    value++;
-                }
-            }
-
-            if constexpr (std::is_same<T, Config::Section::encoder_t>::value)
-            {
-                if (section == Config::Section::encoder_t::midiChannel)
-                {
-                    value++;
-                }
-            }
-
-            if constexpr (std::is_same<T, Config::Section::leds_t>::value)
-            {
-                if (section == Config::Section::leds_t::midiChannel)
-                {
-                    value++;
-                }
-            }
-
             return value;
         }
 
@@ -112,44 +77,10 @@ namespace Database
         bool read(T section, I index, int32_t& value)
         {
             auto blockIndex = block(section);
-            auto ret        = LESSDB::read(static_cast<uint8_t>(blockIndex),
-                                    static_cast<uint8_t>(section),
-                                    static_cast<size_t>(index),
-                                    value);
-
-            if constexpr (std::is_same<T, Config::Section::analog_t>::value)
-            {
-                if (section == Config::Section::analog_t::midiChannel)
-                {
-                    value++;
-                }
-            }
-
-            if constexpr (std::is_same<T, Config::Section::button_t>::value)
-            {
-                if (section == Config::Section::button_t::midiChannel)
-                {
-                    value++;
-                }
-            }
-
-            if constexpr (std::is_same<T, Config::Section::encoder_t>::value)
-            {
-                if (section == Config::Section::encoder_t::midiChannel)
-                {
-                    value++;
-                }
-            }
-
-            if constexpr (std::is_same<T, Config::Section::leds_t>::value)
-            {
-                if (section == Config::Section::leds_t::midiChannel)
-                {
-                    value++;
-                }
-            }
-
-            return ret;
+            return LESSDB::read(static_cast<uint8_t>(blockIndex),
+                                static_cast<uint8_t>(section),
+                                static_cast<size_t>(index),
+                                value);
         }
 
         template<typename T, typename I, typename V>
@@ -157,41 +88,6 @@ namespace Database
         {
             auto blockIndex = block(section);
             auto newValue   = static_cast<int32_t>(value);
-
-            // Workaround: to save space in database, MIDI channels are defined as half-byte
-            // values, which means they have 0-15 range. MIDI channels, however, use 1-16 range.
-            // When updating the channels in database, decrease their value by 1.
-            if constexpr (std::is_same<T, Config::Section::analog_t>::value)
-            {
-                if (section == Config::Section::analog_t::midiChannel)
-                {
-                    newValue--;
-                }
-            }
-
-            if constexpr (std::is_same<T, Config::Section::button_t>::value)
-            {
-                if (section == Config::Section::button_t::midiChannel)
-                {
-                    newValue--;
-                }
-            }
-
-            if constexpr (std::is_same<T, Config::Section::encoder_t>::value)
-            {
-                if (section == Config::Section::encoder_t::midiChannel)
-                {
-                    newValue--;
-                }
-            }
-
-            if constexpr (std::is_same<T, Config::Section::leds_t>::value)
-            {
-                if (section == Config::Section::leds_t::midiChannel)
-                {
-                    newValue--;
-                }
-            }
 
             return LESSDB::update(static_cast<uint8_t>(blockIndex),
                                   static_cast<uint8_t>(section),

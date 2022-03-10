@@ -47,6 +47,8 @@ namespace Protocol
         static constexpr uint8_t USB_DATA2             = MIDIlib::USBMIDI::USB_DATA2;
         static constexpr uint8_t USB_DATA3             = MIDIlib::USBMIDI::USB_DATA3;
 
+        static constexpr uint8_t MIDI_CHANNEL_OMNI = 17;
+
         // convulted order to keep compatibility with older firmware
         enum class feature_t : uint8_t
         {

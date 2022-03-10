@@ -291,6 +291,8 @@ LEDs::brightness_t LEDs::valueToBrightness(uint8_t value)
 
 void LEDs::midiToState(Messaging::event_t event, Messaging::eventSource_t source)
 {
+    const bool useOmni = event.midiChannel == MIDI::MIDI_CHANNEL_OMNI ? true : false;
+
     for (size_t i = 0; i < Collection::size(); i++)
     {
         auto controlType = static_cast<controlType_t>(_database.read(Database::Config::Section::leds_t::controlType, i));
@@ -432,7 +434,7 @@ void LEDs::midiToState(Messaging::event_t event, Messaging::eventSource_t source
             }
         }
 
-        if (checkChannel)
+        if (checkChannel && !useOmni)
         {
             // no point in further checking if channel doesn't match
             if (_database.read(Database::Config::Section::leds_t::midiChannel, i) != event.midiChannel)

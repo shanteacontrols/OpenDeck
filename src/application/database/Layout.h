@@ -129,10 +129,10 @@ namespace Database
             // midi channel section
             {
                 IO::Buttons::Collection::size(),
-                LESSDB::sectionParameterType_t::halfByte,
+                LESSDB::sectionParameterType_t::byte,
                 LESSDB::preserveSetting_t::disable,
                 LESSDB::autoIncrementSetting_t::disable,
-                0,
+                1,
             },
         };
 
@@ -176,10 +176,10 @@ namespace Database
             // midi channel section
             {
                 IO::Encoders::Collection::size(),
-                LESSDB::sectionParameterType_t::halfByte,
+                LESSDB::sectionParameterType_t::byte,
                 LESSDB::preserveSetting_t::disable,
                 LESSDB::autoIncrementSetting_t::disable,
-                0,
+                1,
             },
 
             // pulses per step section
@@ -268,10 +268,10 @@ namespace Database
             // midi channel section
             {
                 IO::Analog::Collection::size(),
-                LESSDB::sectionParameterType_t::halfByte,
+                LESSDB::sectionParameterType_t::byte,
                 LESSDB::preserveSetting_t::disable,
                 LESSDB::autoIncrementSetting_t::disable,
-                0,
+                1,
             },
 
             // lower adc percentage offset
@@ -342,10 +342,10 @@ namespace Database
             // midi channel section
             {
                 IO::LEDs::Collection::size(),
-                LESSDB::sectionParameterType_t::halfByte,
+                LESSDB::sectionParameterType_t::byte,
                 LESSDB::preserveSetting_t::disable,
                 LESSDB::autoIncrementSetting_t::disable,
-                0,
+                1,
             },
         };
 

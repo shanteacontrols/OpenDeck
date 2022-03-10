@@ -283,6 +283,9 @@ void Protocol::MIDI::sendMIDI(Messaging::eventSource_t source, const Messaging::
 {
     using namespace Protocol;
 
+    // if omni channel is defined, send the message on each midi channel
+    const bool useOmni = event.midiChannel == MIDI_CHANNEL_OMNI ? true : false;
+
     for (size_t i = 0; i < _midiInterface.size(); i++)
     {
         auto interfaceInstance = _midiInterface[i];
@@ -298,43 +301,113 @@ void Protocol::MIDI::sendMIDI(Messaging::eventSource_t source, const Messaging::
         {
         case MIDI::messageType_t::noteOff:
         {
-            interfaceInstance->sendNoteOff(event.midiIndex, event.midiValue, event.midiChannel);
+            if (useOmni)
+            {
+                for (uint8_t channel = 1; channel <= 16; channel++)
+                {
+                    interfaceInstance->sendNoteOff(event.midiIndex, event.midiValue, channel);
+                }
+            }
+            else
+            {
+                interfaceInstance->sendNoteOff(event.midiIndex, event.midiValue, event.midiChannel);
+            }
         }
         break;
 
         case MIDI::messageType_t::noteOn:
         {
-            interfaceInstance->sendNoteOn(event.midiIndex, event.midiValue, event.midiChannel);
+            if (useOmni)
+            {
+                for (uint8_t channel = 1; channel <= 16; channel++)
+                {
+                    interfaceInstance->sendNoteOn(event.midiIndex, event.midiValue, channel);
+                }
+            }
+            else
+            {
+                interfaceInstance->sendNoteOn(event.midiIndex, event.midiValue, event.midiChannel);
+            }
         }
         break;
 
         case MIDI::messageType_t::controlChange:
         {
-            interfaceInstance->sendControlChange(event.midiIndex, event.midiValue, event.midiChannel);
+            if (useOmni)
+            {
+                for (uint8_t channel = 1; channel <= 16; channel++)
+                {
+                    interfaceInstance->sendControlChange(event.midiIndex, event.midiValue, channel);
+                }
+            }
+            else
+            {
+                interfaceInstance->sendControlChange(event.midiIndex, event.midiValue, event.midiChannel);
+            }
         }
         break;
 
         case MIDI::messageType_t::programChange:
         {
-            interfaceInstance->sendProgramChange(event.midiIndex, event.midiChannel);
+            if (useOmni)
+            {
+                for (uint8_t channel = 1; channel <= 16; channel++)
+                {
+                    interfaceInstance->sendProgramChange(event.midiIndex, channel);
+                }
+            }
+            else
+            {
+                interfaceInstance->sendProgramChange(event.midiIndex, event.midiChannel);
+            }
         }
         break;
 
         case MIDI::messageType_t::afterTouchChannel:
         {
-            interfaceInstance->sendAfterTouch(event.midiValue, event.midiChannel);
+            if (useOmni)
+            {
+                for (uint8_t channel = 1; channel <= 16; channel++)
+                {
+                    interfaceInstance->sendAfterTouch(event.midiValue, channel);
+                }
+            }
+            else
+            {
+                interfaceInstance->sendAfterTouch(event.midiValue, event.midiChannel);
+            }
         }
         break;
 
         case MIDI::messageType_t::afterTouchPoly:
         {
-            interfaceInstance->sendAfterTouch(event.midiValue, event.midiChannel, event.midiIndex);
+            if (useOmni)
+            {
+                for (uint8_t channel = 1; channel <= 16; channel++)
+                {
+                    interfaceInstance->sendAfterTouch(event.midiValue, channel, event.midiIndex);
+                }
+            }
+            else
+            {
+                interfaceInstance->sendAfterTouch(event.midiValue, event.midiChannel, event.midiIndex);
+            }
         }
         break;
 
         case MIDI::messageType_t::pitchBend:
         {
-            interfaceInstance->sendPitchBend(event.midiValue, event.midiChannel);
+            if (useOmni)
+            {
+                for (uint8_t channel = 1; channel <= 16; channel++)
+                {
+                    interfaceInstance->sendPitchBend(event.midiValue, channel);
+                }
+            }
+            else
+            {
+                interfaceInstance->sendPitchBend(event.midiValue, event.midiChannel);
+            }
         }
         break;
 
@@ -406,19 +479,49 @@ void Protocol::MIDI::sendMIDI(Messaging::eventSource_t source, const Messaging::
 
         case MIDI::messageType_t::nrpn7bit:
         {
-            interfaceInstance->sendNRPN(event.midiIndex, event.midiValue, event.midiChannel, false);
+            if (useOmni)
+            {
+                for (uint8_t channel = 1; channel <= 16; channel++)
+                {
+                    interfaceInstance->sendNRPN(event.midiIndex, event.midiValue, channel, false);
+                }
+            }
+            else
+            {
+                interfaceInstance->sendNRPN(event.midiIndex, event.midiValue, event.midiChannel, false);
+            }
         }
         break;
 
         case MIDI::messageType_t::nrpn14bit:
         {
-            interfaceInstance->sendNRPN(event.midiIndex, event.midiValue, event.midiChannel, true);
+            if (useOmni)
+            {
+                for (uint8_t channel = 1; channel <= 16; channel++)
+                {
+                    interfaceInstance->sendNRPN(event.midiIndex, event.midiValue, channel, true);
+                }
+            }
+            else
+            {
+                interfaceInstance->sendNRPN(event.midiIndex, event.midiValue, event.midiChannel, true);
+            }
         }
         break;
 
         case MIDI::messageType_t::controlChange14bit:
         {
-            interfaceInstance->sendControlChange14bit(event.midiIndex, event.midiValue, event.midiChannel);
+            if (useOmni)
+            {
+                for (uint8_t channel = 1; channel <= 16; channel++)
+                {
+                    interfaceInstance->sendControlChange14bit(event.midiIndex, event.midiValue, channel);
+                }
+            }
+            else
+            {
+                interfaceInstance->sendControlChange14bit(event.midiIndex, event.midiValue, event.midiChannel);
+            }
         }
         break;
 
