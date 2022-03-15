@@ -484,7 +484,7 @@ void Instance::DBhandlers::presetChange(uint8_t preset)
         Messaging::event_t event;
         event.componentIndex = 0;
         event.midiChannel    = 0;
-        event.midiIndex      = preset;
+        event.midiIndex      = _system._components.database().getPreset();
         event.midiValue      = 0;
         event.message        = MIDI::messageType_t::programChange;
 
