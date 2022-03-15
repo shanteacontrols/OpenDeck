@@ -88,13 +88,6 @@ namespace
         Database::Config::Section::touchscreen_t::offScreen,
         Database::Config::Section::touchscreen_t::pageSwitchEnabled,
         Database::Config::Section::touchscreen_t::pageSwitchIndex,
-        Database::Config::Section::touchscreen_t::analogPage,
-        Database::Config::Section::touchscreen_t::analogStartXCoordinate,
-        Database::Config::Section::touchscreen_t::analogEndXCoordinate,
-        Database::Config::Section::touchscreen_t::analogStartYCoordinate,
-        Database::Config::Section::touchscreen_t::analogEndYCoordinate,
-        Database::Config::Section::touchscreen_t::analogType,
-        Database::Config::Section::touchscreen_t::analogResetOnRelease,
     };
 }    // namespace
 

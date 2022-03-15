@@ -56,8 +56,6 @@ bool Viewtech::setScreen(size_t screenID)
 
 Touchscreen::tsEvent_t Viewtech::update(Touchscreen::tsData_t& data)
 {
-    pollXY();
-
     auto    event = Touchscreen::tsEvent_t::none;
     uint8_t value = 0;
 
@@ -98,30 +96,6 @@ Touchscreen::tsEvent_t Viewtech::update(Touchscreen::tsData_t& data)
                                 data.buttonID    = Touchscreen::Model::_rxBuffer[7];
 
                                 event = Touchscreen::tsEvent_t::button;
-                            }
-                            break;
-
-                            case static_cast<uint32_t>(response_t::xyUpdate):
-                            {
-                                if ((Touchscreen::Model::_rxBuffer[6] == 0x01) || (Touchscreen::Model::_rxBuffer[6] == 0x03))
-                                {
-                                    data.xPos = Touchscreen::Model::_rxBuffer[7] << 8;
-                                    data.xPos |= Touchscreen::Model::_rxBuffer[8];
-
-                                    data.yPos = Touchscreen::Model::_rxBuffer[9] << 8;
-                                    data.yPos |= Touchscreen::Model::_rxBuffer[10];
-                                    data.pressType = Touchscreen::Model::_rxBuffer[6] == 0x01 ? Touchscreen::pressType_t::initial : Touchscreen::pressType_t::hold;
-
-                                    event = Touchscreen::tsEvent_t::coordinate;
-                                }
-                                else
-                                {
-                                    // screen released
-                                    data.xPos      = 0;
-                                    data.yPos      = 0;
-                                    data.pressType = Touchscreen::pressType_t::none;
-                                    event          = Touchscreen::tsEvent_t::coordinate;
-                                }
                             }
                             break;
 
@@ -191,32 +165,4 @@ bool Viewtech::setBrightness(Touchscreen::brightness_t brightness)
     _hwa.write(_brightnessMapping[static_cast<uint8_t>(brightness)]);
 
     return true;
-}
-
-void Viewtech::pollXY()
-{
-    static uint32_t lastPollTime = 0;
-
-    if ((core::timing::currentRunTimeMs() - lastPollTime) > XY_POLL_TIME_MS)
-    {
-        // header
-        _hwa.write(0xA5);
-        _hwa.write(0x5A);
-
-        // request size
-        _hwa.write(0x03);
-
-        // register read
-        _hwa.write(0x81);
-
-        // read register 6 but request 5 bytes
-        // reg6 contains touch status (1 byte)
-        // reg7 contains x/y coordinates (4 bytes)
-        _hwa.write(0x06);
-
-        // read 5 bytes
-        _hwa.write(0x05);
-
-        lastPollTime = core::timing::currentRunTimeMs();
-    }
 }

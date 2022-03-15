@@ -71,12 +71,6 @@ Display::Display(I2C::HWA&           hwa,
                               displayMIDIevent(Display::eventType_t::out, event);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::touchscreenAnalog,
-                          Messaging::listenType_t::nonFwd,
-                          [this](const Messaging::event_t& event) {
-                              displayMIDIevent(Display::eventType_t::out, event);
-                          });
-
     MIDIDispatcher.listen(Messaging::eventSource_t::midiIn,
                           Messaging::listenType_t::nonFwd,
                           [this](const Messaging::event_t& event) {

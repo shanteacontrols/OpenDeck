@@ -28,12 +28,10 @@ std::array<Touchscreen::Model*, static_cast<size_t>(Touchscreen::model_t::AMOUNT
 
 Touchscreen::Touchscreen(HWA&                hwa,
                          Database::Instance& database,
-                         CDCPassthrough&     cdcPassthrough,
-                         uint16_t            adcResolution)
+                         CDCPassthrough&     cdcPassthrough)
     : _hwa(hwa)
     , _database(database)
     , _cdcPassthrough(cdcPassthrough)
-    , ADC_RESOLUTION(adcResolution)
 {
     MIDIDispatcher.listen(Messaging::eventSource_t::leds,
                           Messaging::listenType_t::fwd,
@@ -202,12 +200,6 @@ void Touchscreen::updateAll(bool forceRefresh)
         }
         break;
 
-        case tsEvent_t::coordinate:
-        {
-            processCoordinate(tsData.pressType, tsData.xPos, tsData.yPos);
-        }
-        break;
-
         default:
             break;
         }
@@ -352,104 +344,6 @@ bool Touchscreen::setBrightness(brightness_t brightness)
     return modelInstance(_activeModel)->setBrightness(brightness);
 }
 
-void Touchscreen::processCoordinate(pressType_t pressType, uint16_t xPos, uint16_t yPos)
-{
-    for (size_t i = 0; i < Collection::size(); i++)
-    {
-        if (_database.read(Database::Config::Section::touchscreen_t::analogPage, i) == static_cast<int32_t>(activeScreen()))
-        {
-            uint16_t startXCoordinate = _database.read(Database::Config::Section::touchscreen_t::analogStartXCoordinate, i);
-            uint16_t endXCoordinate   = _database.read(Database::Config::Section::touchscreen_t::analogEndXCoordinate, i);
-            uint16_t startYCoordinate = _database.read(Database::Config::Section::touchscreen_t::analogStartYCoordinate, i);
-            uint16_t endYCoordinate   = _database.read(Database::Config::Section::touchscreen_t::analogEndYCoordinate, i);
-
-            uint16_t startCoordinate;
-            uint16_t endCoordinate;
-            uint16_t value;
-
-            // x
-            if (_database.read(Database::Config::Section::touchscreen_t::analogType, i) == static_cast<int32_t>(Touchscreen::analogType_t::horizontal))
-            {
-                value = xPos;
-
-                if (pressType == pressType_t::hold)
-                {
-                    // y coordinate can be ignored once the touchscreen is pressed, verify and constrain x range only
-                    if (value > endXCoordinate)
-                    {
-                        value = endXCoordinate;
-                    }
-                    else if (value < startXCoordinate)
-                    {
-                        value = startXCoordinate;
-                    }
-                }
-                else if (pressType == pressType_t::initial)
-                {
-                    if (((value < startXCoordinate) || (value > endXCoordinate)) || ((yPos < startYCoordinate) || (yPos > endYCoordinate)))
-                    {
-                        continue;
-                    }
-                    _analogActive[i] = true;
-                }
-                else
-                {
-                    _analogActive[i] = false;
-                }
-
-                startCoordinate = startXCoordinate;
-                endCoordinate   = endXCoordinate;
-            }
-            // y
-            else
-            {
-                value = yPos;
-
-                if (pressType == pressType_t::hold)
-                {
-                    // x coordinate can be ignored once the touchscreen is pressed, verify and constrain x range only
-                    if (value > endYCoordinate)
-                    {
-                        value = endYCoordinate;
-                    }
-                    else if (value < startYCoordinate)
-                    {
-                        value = startYCoordinate;
-                    }
-                }
-                else if (pressType == pressType_t::initial)
-                {
-                    if (((xPos < startXCoordinate) || (xPos > endXCoordinate)) || ((value < startYCoordinate) || (value > endYCoordinate)))
-                    {
-                        continue;
-                    }
-                    _analogActive[i] = true;
-                }
-                else
-                {
-                    _analogActive[i] = false;
-                }
-
-                startCoordinate = startYCoordinate;
-                endCoordinate   = endYCoordinate;
-            }
-
-            // scale the value to ADC range
-            if (_analogActive[i])
-            {
-                analogHandler(i, value, startCoordinate, endCoordinate);
-            }
-            else
-            {
-                if (_database.read(Database::Config::Section::touchscreen_t::analogResetOnRelease, i))
-                {
-                    analogHandler(i, 0, startCoordinate, endCoordinate);
-                }
-            }
-        }
-    }
-}
-
 bool Touchscreen::isInitialized() const
 {
     return _initialized;
@@ -484,23 +378,6 @@ void Touchscreen::buttonHandler(size_t index, bool state)
 
     // mark this as forwarding message type - further action/processing is required
     MIDIDispatcher.notify(Messaging::eventSource_t::touchscreenButton,
-                          event,
-                          Messaging::listenType_t::fwd);
-}
-
-void Touchscreen::analogHandler(size_t index, uint16_t value, uint16_t min, uint16_t max)
-{
-    Messaging::event_t event;
-
-    event.componentIndex = index;
-    event.midiValue      = core::misc::mapRange(static_cast<uint32_t>(value),
-                                           static_cast<uint32_t>(min),
-                                           static_cast<uint32_t>(max),
-                                           static_cast<uint32_t>(0),
-                                           static_cast<uint32_t>(ADC_RESOLUTION));
-
-    // mark this as forwarding message type - further action/processing is required
-    MIDIDispatcher.notify(Messaging::eventSource_t::touchscreenAnalog,
                           event,
                           Messaging::listenType_t::fwd);
 }

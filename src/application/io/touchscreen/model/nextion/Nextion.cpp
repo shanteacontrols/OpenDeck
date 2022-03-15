@@ -58,8 +58,6 @@ bool Nextion::setScreen(size_t screenID)
 
 Touchscreen::tsEvent_t Nextion::update(Touchscreen::tsData_t& data)
 {
-    pollXY();
-
     uint8_t value     = 0;
     bool    process   = false;
     auto    returnVal = Touchscreen::tsEvent_t::none;
@@ -188,112 +186,10 @@ Touchscreen::tsEvent_t Nextion::response(Touchscreen::tsData_t& data)
         }
         break;
 
-        case responseID_t::initialFinalCoord:
-        {
-            data.xPos = Touchscreen::Model::_rxBuffer[1] << 8;
-            data.xPos |= Touchscreen::Model::_rxBuffer[2];
-
-            data.yPos = Touchscreen::Model::_rxBuffer[3] << 8;
-            data.yPos |= Touchscreen::Model::_rxBuffer[4];
-
-            if (Touchscreen::Model::_rxBuffer[5])
-            {
-                _screenPressed = true;
-                data.pressType = Touchscreen::pressType_t::initial;
-
-                // on each press, restart the xy coordinate retrieval process
-                _xyRequestState = xyRequestState_t::xRequest;
-            }
-            else
-            {
-                _screenPressed = false;
-                data.pressType = Touchscreen::pressType_t::none;
-            }
-
-            return Touchscreen::tsEvent_t::coordinate;
-        }
-        break;
-
-        case responseID_t::coordUpdate:
-        {
-            bool xyUpdated = false;
-
-            switch (_xyRequestState)
-            {
-            case xyRequestState_t::xRequested:
-            {
-                _xPos = Touchscreen::Model::_rxBuffer[2] << 8;
-                _xPos |= Touchscreen::Model::_rxBuffer[1];
-
-                _xyRequestState = xyRequestState_t::yRequest;
-            }
-            break;
-
-            case xyRequestState_t::yRequested:
-            {
-                data.xPos = _xPos;
-
-                data.yPos = Touchscreen::Model::_rxBuffer[2] << 8;
-                data.yPos |= Touchscreen::Model::_rxBuffer[1];
-
-                _xyRequestState = xyRequestState_t::xRequest;
-                xyUpdated       = true;
-            }
-            break;
-
-            default:
-                break;
-            }
-
-            if (xyUpdated && _screenPressed)
-            {
-                data.pressType = Touchscreen::pressType_t::hold;
-                return Touchscreen::tsEvent_t::coordinate;
-            }
-
-            return Touchscreen::tsEvent_t::none;
-        }
-        break;
-
         default:
             return Touchscreen::tsEvent_t::none;
         }
     }
 
     return Touchscreen::tsEvent_t::none;
-}
-
-void Nextion::pollXY()
-{
-    static uint32_t lastPollTime = 0;
-
-    if (!_screenPressed)
-    {
-        return;
-    }
-
-    if ((core::timing::currentRunTimeMs() - lastPollTime) > XY_POLL_TIME_MS)
-    {
-        switch (_xyRequestState)
-        {
-        case xyRequestState_t::xRequest:
-        {
-            writeCommand("get tch0");
-            _xyRequestState = xyRequestState_t::xRequested;
-        }
-        break;
-
-        case xyRequestState_t::yRequest:
-        {
-            writeCommand("get tch1");
-            _xyRequestState = xyRequestState_t::yRequested;
-        }
-        break;
-
-        default:
-            break;
-        }
-
-        lastPollTime = core::timing::currentRunTimeMs();
-    }
 }

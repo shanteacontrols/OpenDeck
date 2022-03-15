@@ -389,55 +389,6 @@ namespace System
                 0,
                 15,
             },
-
-            // analog page section
-            {
-                IO::Touchscreen::Collection::size(),
-                0,
-                15,
-            },
-
-            // analog start x coordinate section
-            {
-                IO::Touchscreen::Collection::size(),
-                0,
-                0,
-            },
-
-            // analog end x coordinate section
-            {
-                IO::Touchscreen::Collection::size(),
-                0,
-                0,
-            },
-
-            // analog start y coordinate section
-            {
-                IO::Touchscreen::Collection::size(),
-                0,
-                0,
-            },
-
-            // analog end y coordinate section
-            {
-                IO::Touchscreen::Collection::size(),
-                0,
-                0,
-            },
-
-            // analog type section
-            {
-                IO::Touchscreen::Collection::size(),
-                0,
-                1,
-            },
-
-            // analog reset on release section
-            {
-                IO::Touchscreen::Collection::size(),
-                0,
-                1,
-            },
         };
 
         std::vector<SysExConf::Block> _layout = {

@@ -29,7 +29,6 @@ namespace Messaging
         buttons,
         encoders,
         touchscreenButton,
-        touchscreenAnalog,
         touchscreenScreen,
         midiIn,
         preset,

@@ -441,69 +441,6 @@ namespace Database
                 LESSDB::autoIncrementSetting_t::disable,
                 0,
             },
-
-            // analog page section
-            {
-                IO::Touchscreen::Collection::size(),
-                LESSDB::sectionParameterType_t::halfByte,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
-                0,
-            },
-
-            // analog start x coordinate section
-            {
-                IO::Touchscreen::Collection::size(),
-                LESSDB::sectionParameterType_t::word,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
-                0,
-            },
-
-            // analog end x coordinate section
-            {
-                IO::Touchscreen::Collection::size(),
-                LESSDB::sectionParameterType_t::word,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
-                0,
-            },
-
-            // analog start y coordinate section
-            {
-                IO::Touchscreen::Collection::size(),
-                LESSDB::sectionParameterType_t::word,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
-                0,
-            },
-
-            // analog end y coordinate section
-            {
-                IO::Touchscreen::Collection::size(),
-                LESSDB::sectionParameterType_t::word,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
-                0,
-            },
-
-            // analog type section
-            {
-                IO::Touchscreen::Collection::size(),
-                LESSDB::sectionParameterType_t::bit,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
-                0,
-            },
-
-            // analog reset on release section
-            {
-                IO::Touchscreen::Collection::size(),
-                LESSDB::sectionParameterType_t::bit,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
-                0,
-            },
         };
 
         std::vector<LESSDB::Block> _systemLayout = {

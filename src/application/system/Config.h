@@ -129,13 +129,6 @@ namespace System
                 offScreen,
                 pageSwitchEnabled,
                 pageSwitchIndex,
-                analogPage,
-                analogStartXCoordinate,
-                analogEndXCoordinate,
-                analogStartYCoordinate,
-                analogEndYCoordinate,
-                analogType,
-                analogResetOnRelease,
                 AMOUNT
             };
         };

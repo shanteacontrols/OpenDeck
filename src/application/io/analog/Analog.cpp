@@ -35,13 +35,6 @@ Analog::Analog(HWA&                hwa,
     , _filter(filter)
     , _database(database)
 {
-    MIDIDispatcher.listen(Messaging::eventSource_t::touchscreenAnalog,
-                          Messaging::listenType_t::fwd,
-                          [this](const Messaging::event_t& event) {
-                              size_t index = event.componentIndex + Collection::startIndex(GROUP_TOUCHSCREEN_COMPONENTS);
-                              processReading(index, event.midiValue);
-                          });
-
     MIDIDispatcher.listen(Messaging::eventSource_t::system,
                           Messaging::listenType_t::all,
                           [this](const Messaging::event_t& event) {

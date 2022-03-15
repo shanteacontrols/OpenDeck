@@ -27,7 +27,7 @@ limitations under the License.
 
 using namespace Protocol;
 
-#if defined(ADC_SUPPORTED) || defined(TOUCHSCREEN_SUPPORTED)
+#ifdef ADC_SUPPORTED
 #define ANALOG_SUPPORTED
 
 namespace IO
@@ -35,8 +35,7 @@ namespace IO
     class Analog : public IO::Base
     {
         public:
-        class Collection : public Common::BaseCollection<NR_OF_ANALOG_INPUTS,
-                                                         NR_OF_TOUCHSCREEN_COMPONENTS>
+        class Collection : public Common::BaseCollection<NR_OF_ANALOG_INPUTS>
         {
             public:
             Collection() = delete;

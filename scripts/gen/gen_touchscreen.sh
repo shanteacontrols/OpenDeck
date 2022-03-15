@@ -80,34 +80,6 @@ do
             printf "    %s\n\n" "update(Database::Config::Section::touchscreen_t::pageSwitchIndex, $i, $screenIndex);"
         } >> "$out_file"
     fi
-
-    if [[ $($json_parser "$json_file" components.[${i}].analog) != "null" ]]
-    then
-        screen=$($json_parser "$json_file" components.[${i}].analog.screen)
-        startXCoordinate=$($json_parser "$json_file" components.[${i}].analog.startXCoordinate)
-        endXCoordinate=$($json_parser "$json_file" components.[${i}].analog.endXCoordinate)
-        startYCoordinate=$($json_parser "$json_file" components.[${i}].analog.startYCoordinate)
-        endYCoordinate=$($json_parser "$json_file" components.[${i}].analog.endYCoordinate)
-
-        if [[ $($json_parser "$json_file" components.[${i}].analog.type) == "horizontal" ]]
-        then
-            type=0
-        else
-            type=1
-        fi
-
-        resetOnRelease=$($json_parser "$json_file" components.[${i}].analog.resetOnRelease)
-
-        {
-            printf "    %s\n" "update(Database::Config::Section::touchscreen_t::analogPage, $i, $screen);"
-            printf "    %s\n" "update(Database::Config::Section::touchscreen_t::analogStartXCoordinate, $i, $startXCoordinate);"
-            printf "    %s\n" "update(Database::Config::Section::touchscreen_t::analogEndXCoordinate, $i, $endXCoordinate);"
-            printf "    %s\n" "update(Database::Config::Section::touchscreen_t::analogStartYCoordinate, $i, $startYCoordinate);"
-            printf "    %s\n" "update(Database::Config::Section::touchscreen_t::analogEndYCoordinate, $i, $endYCoordinate);"
-            printf "    %s\n" "update(Database::Config::Section::touchscreen_t::analogType, $i, $type);"
-            printf "    %s\n\n" "update(Database::Config::Section::touchscreen_t::analogResetOnRelease, $i, $resetOnRelease);"
-        } >> "$out_file"
-    fi
 done
 
 printf "%s\n" "}" >> "$out_file"

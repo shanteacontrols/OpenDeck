@@ -605,55 +605,6 @@ TEST_F(HWTest, DatabaseInitialValues)
         {
             ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::pageSwitchIndex, i));
         }
-
-        // analog page section
-        // all values should be set to 0
-        for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i += PARAM_SKIP)
-        {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::analogPage, i));
-        }
-
-        // analog start x coordinate section
-        // all values should be set to 0
-        for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i += PARAM_SKIP)
-        {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::analogStartXCoordinate, i));
-        }
-
-        // analog end x coordinate section
-        // all values should be set to 0
-        for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i += PARAM_SKIP)
-        {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::analogEndXCoordinate, i));
-        }
-
-        // analog start y coordinate section
-        // all values should be set to 0
-        for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i += PARAM_SKIP)
-        {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::analogStartYCoordinate, i));
-        }
-
-        // analog end y coordinate section
-        // all values should be set to 0
-        for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i += PARAM_SKIP)
-        {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::analogEndYCoordinate, i));
-        }
-
-        // analog type section
-        // all values should be set to 0
-        for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i += PARAM_SKIP)
-        {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::analogType, i));
-        }
-
-        // analog reset on release section
-        // all values should be set to 0
-        for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i += PARAM_SKIP)
-        {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::analogResetOnRelease, i));
-        }
 #endif
     }
 }

@@ -61,12 +61,6 @@ Protocol::MIDI::MIDI(HWAUSB&             hwaUSB,
                               sendMIDI(Messaging::eventSource_t::touchscreenButton, event);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::touchscreenAnalog,
-                          Messaging::listenType_t::nonFwd,
-                          [this](const Messaging::event_t& event) {
-                              sendMIDI(Messaging::eventSource_t::touchscreenAnalog, event);
-                          });
-
     MIDIDispatcher.listen(Messaging::eventSource_t::system,
                           Messaging::listenType_t::nonFwd,
                           [this](const Messaging::event_t& event) {

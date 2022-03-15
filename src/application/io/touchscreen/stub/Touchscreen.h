@@ -129,8 +129,7 @@ namespace IO
 
         Touchscreen(HWA&                hwa,
                     Database::Instance& database,
-                    CDCPassthrough&     cdcPassthrough,
-                    uint16_t            adcResolution)
+                    CDCPassthrough&     cdcPassthrough)
         {}
 
         bool init() override

@@ -46,12 +46,6 @@ ComponentInfo::ComponentInfo()
                           [this](const Messaging::event_t& event) {
                               send(Database::Config::block_t::touchscreen, event.componentIndex);
                           });
-
-    MIDIDispatcher.listen(Messaging::eventSource_t::touchscreenAnalog,
-                          Messaging::listenType_t::all,
-                          [this](const Messaging::event_t& event) {
-                              send(Database::Config::block_t::touchscreen, event.componentIndex);
-                          });
 }
 
 void ComponentInfo::registerHandler(cinfoHandler_t&& handler)

@@ -4,30 +4,12 @@
             "button": {
                 "switchesScreen": true,
                 "screenToSwitch": 1
-            },
-            "analog": {
-                "screen": 3,
-                "startXCoordinate": 58,
-                "endXCoordinate": 245,
-                "startYCoordinate": 149,
-                "endYCoordinate": 335,
-                "type": "horizontal",
-                "resetOnRelease": "true"
             }
         },
         {
             "button": {
                 "switchesScreen": true,
                 "screenToSwitch": 3
-            },
-            "analog": {
-                "screen": 3,
-                "startXCoordinate": 58,
-                "endXCoordinate": 245,
-                "startYCoordinate": 149,
-                "endYCoordinate": 335,
-                "type": "vertical",
-                "resetOnRelease": "true"
             }
         },
         {
@@ -39,15 +21,6 @@
                 "address": 16000,
                 "onScreen": 2,
                 "offScreen": 1
-            },
-            "analog": {
-                "screen": 3,
-                "startXCoordinate": 558,
-                "endXCoordinate": 740,
-                "startYCoordinate": 149,
-                "endYCoordinate": 335,
-                "type": "horizontal",
-                "resetOnRelease": "true"
             }
         },
         {
@@ -59,15 +32,6 @@
                 "address": 16001,
                 "onScreen": 2,
                 "offScreen": 1
-            },
-            "analog": {
-                "screen": 3,
-                "startXCoordinate": 558,
-                "endXCoordinate": 740,
-                "startYCoordinate": 149,
-                "endYCoordinate": 335,
-                "type": "vertical",
-                "resetOnRelease": "true"
             }
         },
         {

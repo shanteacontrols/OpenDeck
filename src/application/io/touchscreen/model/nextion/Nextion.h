@@ -38,8 +38,6 @@ class Nextion : public IO::Touchscreen::Model
     enum class responseID_t : uint8_t
     {
         button,
-        initialFinalCoord,
-        coordUpdate,
         AMOUNT
     };
 
@@ -49,46 +47,20 @@ class Nextion : public IO::Touchscreen::Model
         uint8_t responseID;
     } responseDescriptor_t;
 
-    enum class xyRequestState_t : uint8_t
-    {
-        xRequest,
-        xRequested,
-        yRequest,
-        yRequested,
-    };
-
     bool                       writeCommand(const char* line, ...);
     bool                       endCommand();
     IO::Touchscreen::tsEvent_t response(IO::Touchscreen::tsData_t& data);
-    void                       pollXY();
-
-    static constexpr uint32_t XY_POLL_TIME_MS = 5;
 
     IO::Touchscreen::HWA& _hwa;
 
-    char             _commandBuffer[IO::Touchscreen::Model::BUFFER_SIZE];
-    size_t           _endCounter     = 0;
-    bool             _screenPressed  = false;
-    xyRequestState_t _xyRequestState = xyRequestState_t::xRequest;
-    uint16_t         _xPos           = 0;
+    char   _commandBuffer[IO::Touchscreen::Model::BUFFER_SIZE];
+    size_t _endCounter = 0;
 
     const responseDescriptor_t _responses[static_cast<size_t>(responseID_t::AMOUNT)] = {
         // button
         {
             .size       = 6,
             .responseID = 0x65,
-        },
-
-        // coordinate initial/final
-        {
-            .size       = 9,
-            .responseID = 0x67,
-        },
-
-        // coordinate update
-        {
-            .size       = 8,
-            .responseID = 0x71,
         },
     };
 

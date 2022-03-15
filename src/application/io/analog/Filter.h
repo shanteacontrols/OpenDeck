@@ -61,7 +61,7 @@ namespace IO
 #ifdef ADC_12_BIT
         static constexpr adcType_t ADC_RESOLUTION = adcType_t::adc12bit;
 #else
-        static constexpr adcType_t ADC_RESOLUTION = adcType_t::adc10bit;
+        static constexpr adcType_t ADC_RESOLUTION                                = adcType_t::adc10bit;
 #endif
 
         AnalogFilter()
@@ -92,7 +92,6 @@ namespace IO
                 return true;
             }
 
-#ifdef ADC_SUPPORTED
 #ifdef ANALOG_USE_MEDIAN_FILTER
             auto compare = [](const void* a, const void* b) {
                 if (*(uint16_t*)a < *(uint16_t*)b)
@@ -104,10 +103,7 @@ namespace IO
             };
 #endif
 
-            const bool fastFilter = (index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS)) ? (core::timing::currentRunTimeMs() - _lastStableMovementTime[index]) < FAST_FILTER_ENABLE_AFTER_MS : true;
-#else
-            const bool fastFilter = true;
-#endif
+            const bool fastFilter = (core::timing::currentRunTimeMs() - _lastStableMovementTime[index]) < FAST_FILTER_ENABLE_AFTER_MS;
 
             const bool     use14bit     = (descriptor.type == Analog::type_t::nrpn14bit) || (descriptor.type == Analog::type_t::pitchBend) || (descriptor.type == Analog::type_t::controlChange14bit);
             const uint16_t maxLimit     = use14bit ? MIDI::MIDI_14_BIT_VALUE_MAX : MIDI::MIDI_7_BIT_VALUE_MAX;
@@ -122,45 +118,34 @@ namespace IO
 
             if (abs(descriptor.value - _lastStableValue[index]) < stepDiff)
             {
-#ifdef ADC_SUPPORTED
 #ifdef ANALOG_USE_MEDIAN_FILTER
-                if (index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
-                    _medianSampleCounter[index] = 0;
-#endif
+                _medianSampleCounter[index] = 0;
 #endif
 
                 return false;
             }
 
-#ifdef ADC_SUPPORTED
-            if (index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
-            {
-                // don't filter the readings for touchscreen data
-
 #ifdef ANALOG_USE_MEDIAN_FILTER
-                if (!fastFilter)
-                {
-                    _analogSample[index][_medianSampleCounter[index]++] = descriptor.value;
+            if (!fastFilter)
+            {
+                _analogSample[index][_medianSampleCounter[index]++] = descriptor.value;
 
-                    // take the median value to avoid using outliers
-                    if (_medianSampleCounter[index] == MEDIAN_SAMPLE_COUNT)
-                    {
-                        qsort(_analogSample[index], MEDIAN_SAMPLE_COUNT, sizeof(uint16_t), compare);
-                        _medianSampleCounter[index] = 0;
-                        descriptor.value            = _analogSample[index][MEDIAN_MIDDLE_VALUE];
-                    }
-                    else
-                    {
-                        return false;
-                    }
+                // take the median value to avoid using outliers
+                if (_medianSampleCounter[index] == MEDIAN_SAMPLE_COUNT)
+                {
+                    qsort(_analogSample[index], MEDIAN_SAMPLE_COUNT, sizeof(uint16_t), compare);
+                    _medianSampleCounter[index] = 0;
+                    descriptor.value            = _analogSample[index][MEDIAN_MIDDLE_VALUE];
                 }
+                else
+                {
+                    return false;
+                }
+            }
 #endif
 
 #ifdef ANALOG_USE_EMA_FILTER
-                if (index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
-                    descriptor.value = _emaFilter[index].value(descriptor.value);
-#endif
-            }
+            descriptor.value = _emaFilter[index].value(descriptor.value);
 #endif
 
             const auto midiValue = core::misc::mapRange(static_cast<uint32_t>(descriptor.value), adcMinValue, adcMaxValue, static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
@@ -171,16 +156,11 @@ namespace IO
             setLastStableDirection(index, direction);
             _lastStableValue[index] = descriptor.value;
 
-#ifdef ADC_SUPPORTED
-            if (index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
-            {
-                // when edge values are reached, disable fast filter by resetting last movement time
-                if ((midiValue == 0) || (midiValue == maxLimit))
-                    _lastStableMovementTime[index] = 0;
-                else
-                    _lastStableMovementTime[index] = core::timing::currentRunTimeMs();
-            }
-#endif
+            // when edge values are reached, disable fast filter by resetting last movement time
+            if ((midiValue == 0) || (midiValue == maxLimit))
+                _lastStableMovementTime[index] = 0;
+            else
+                _lastStableMovementTime[index] = core::timing::currentRunTimeMs();
 
             if (descriptor.type == Analog::type_t::fsr)
             {
@@ -196,7 +176,7 @@ namespace IO
 
         uint16_t lastValue(size_t index) override
         {
-            if (index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
+            if (index < IO::Analog::Collection::size())
                 return _lastStableValue[index];
 
             return 0;
@@ -204,15 +184,13 @@ namespace IO
 
         void reset(size_t index) override
         {
-#ifdef ADC_SUPPORTED
-            if (index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
+            if (index < IO::Analog::Collection::size())
             {
 #ifdef ANALOG_USE_MEDIAN_FILTER
                 _medianSampleCounter[index] = 0;
 #endif
                 _lastStableMovementTime[index] = 0;
             }
-#endif
 
             _lastStableValue[index] = 0xFFFF;
         }
@@ -298,19 +276,17 @@ namespace IO
         static constexpr uint32_t FAST_FILTER_ENABLE_AFTER_MS = 50;
 
 // some filtering is needed for adc only
-#ifdef ADC_SUPPORTED
 #ifdef ANALOG_USE_EMA_FILTER
-        EMA _emaFilter[IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS)];
+        EMA _emaFilter[IO::Analog::Collection::size()];
 #endif
 
 #ifdef ANALOG_USE_MEDIAN_FILTER
-        uint16_t _analogSample[IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS)][MEDIAN_SAMPLE_COUNT] = {};
-        uint8_t  _medianSampleCounter[IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS)]               = {};
+        uint16_t _analogSample[IO::Analog::Collection::size()][MEDIAN_SAMPLE_COUNT] = {};
+        uint8_t  _medianSampleCounter[IO::Analog::Collection::size()]               = {};
 #else
-        uint16_t _analogSample[IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS)] = {};
+        uint16_t                   _analogSample[IO::Analog::Collection::size()] = {};
 #endif
-        uint32_t _lastStableMovementTime[IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS)] = {};
-#endif
+        uint32_t _lastStableMovementTime[IO::Analog::Collection::size()] = {};
 
         uint8_t  _lastStableDirection[IO::Analog::Collection::size() / 8 + 1] = {};
         uint16_t _lastStableValue[IO::Analog::Collection::size()]             = {};

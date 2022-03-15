@@ -127,7 +127,7 @@ namespace System
         IO::Buttons                                                                    _buttons           = IO::Buttons(_hwa.io().buttons(), _buttonsFilter, _database);
         IO::LEDs                                                                       _leds              = IO::LEDs(_hwa.io().leds(), _database);
         IO::Encoders                                                                   _encoders          = IO::Encoders(_hwa.io().encoders(), _encodersFilter, _database, 1);
-        IO::Touchscreen                                                                _touchscreen       = IO::Touchscreen(_hwa.io().touchscreen(), _database, _hwa.io().cdcPassthrough(), static_cast<uint16_t>(IO::AnalogFilter::ADC_RESOLUTION));
+        IO::Touchscreen                                                                _touchscreen       = IO::Touchscreen(_hwa.io().touchscreen(), _database, _hwa.io().cdcPassthrough());
         IO::TouchscreenModelBuilder                                                    _touchscreenModels = IO::TouchscreenModelBuilder(_hwa.io().touchscreen());
         IO::I2C                                                                        _i2c               = IO::I2C(_hwa.io().i2c());
         IO::I2CPeripheralBuilder                                                       _i2cPeripherals    = IO::I2CPeripheralBuilder(_hwa.io().i2c(), _database);

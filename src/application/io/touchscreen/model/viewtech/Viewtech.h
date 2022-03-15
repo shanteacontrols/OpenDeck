@@ -37,16 +37,10 @@ class Viewtech : public IO::Touchscreen::Model
     private:
     enum class response_t : uint32_t
     {
-        xyUpdate          = 0x08810605,
         buttonStateChange = 0x05820002
     };
 
-    void pollXY();
-
     IO::Touchscreen::HWA& _hwa;
-
-    // as fast as possible on viewtech - minimum variable response is 80ms
-    static constexpr uint32_t XY_POLL_TIME_MS = 80;
 
     // there are 7 levels of brighness - scale them to available range (0-64)
     const uint8_t _brightnessMapping[7] = {
