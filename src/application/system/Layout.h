@@ -56,11 +56,18 @@ namespace System
                 0,
             },
 
-            // dmx section
+            // dmx settings section
             {
                 static_cast<uint16_t>(Protocol::DMX::setting_t::AMOUNT),
                 0,
                 0,
+            },
+
+            // dmx channel section
+            {
+                513,
+                0,
+                255,
             },
         };
 

@@ -24,7 +24,8 @@ namespace
         Database::Config::Section::global_t::midiSettings,
         Database::Config::Section::global_t::AMOUNT,    // blank/reserved
         Database::Config::Section::global_t::AMOUNT,    // unused
-        Database::Config::Section::global_t::dmx,
+        Database::Config::Section::global_t::dmxSettings,
+        Database::Config::Section::global_t::AMOUNT,    // unused
     };
 
     const Database::Config::Section::button_t _sysEx2DB_button[static_cast<uint8_t>(System::Config::Section::button_t::AMOUNT)] = {

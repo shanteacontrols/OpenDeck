@@ -76,7 +76,7 @@ bool Protocol::DMX::init()
                     "Shantea Controls",
                     BOARD_STRING });
 
-    if (_database.read(Database::Config::Section::global_t::dmx, setting_t::enable))
+    if (_database.read(Database::Config::Section::global_t::dmxSettings, setting_t::enable))
     {
         if (_enabled)
         {
@@ -115,7 +115,7 @@ bool Protocol::DMX::deInit()
 
 void Protocol::DMX::read()
 {
-    if (_database.read(Database::Config::Section::global_t::dmx, setting_t::enable))
+    if (_database.read(Database::Config::Section::global_t::dmxSettings, setting_t::enable))
     {
         ::DMXUSBWidget::read();
     }
@@ -128,7 +128,7 @@ std::optional<uint8_t> Protocol::DMX::sysConfigGet(System::Config::Section::glob
 
     switch (section)
     {
-    case System::Config::Section::global_t::dmx:
+    case System::Config::Section::global_t::dmxSettings:
     {
         bool dmxEnabled = _database.read(Util::Conversion::sys2DBsection(section), setting_t::enable);
 
@@ -149,6 +149,13 @@ std::optional<uint8_t> Protocol::DMX::sysConfigGet(System::Config::Section::glob
     }
     break;
 
+    case System::Config::Section::global_t::dmxChannel:
+    {
+        readValue = channelValue(index);
+        result    = System::Config::status_t::ack;
+    }
+    break;
+
     default:
         return std::nullopt;
     }
@@ -161,10 +168,11 @@ std::optional<uint8_t> Protocol::DMX::sysConfigSet(System::Config::Section::glob
 {
     uint8_t result        = System::Config::status_t::errorWrite;
     auto    dmxInitAction = Common::initAction_t::asIs;
+    bool    writeToDb     = true;
 
     switch (section)
     {
-    case System::Config::Section::global_t::dmx:
+    case System::Config::Section::global_t::dmxSettings:
     {
         bool dmxEnabled = _database.read(Util::Conversion::sys2DBsection(section), setting_t::enable);
 
@@ -186,11 +194,18 @@ std::optional<uint8_t> Protocol::DMX::sysConfigSet(System::Config::Section::glob
     }
     break;
 
+    case System::Config::Section::global_t::dmxChannel:
+    {
+        result    = updateChannelValue(index, value) ? System::Config::status_t::ack : System::Config::status_t::errorWrite;
+        writeToDb = false;
+    }
+    break;
+
     default:
         return std::nullopt;
     }
 
-    if (result == System::Config::status_t::ack)
+    if ((result == System::Config::status_t::ack) && writeToDb)
     {
         result = _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ack : System::Config::status_t::errorWrite;
 

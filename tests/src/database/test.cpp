@@ -71,7 +71,7 @@ TEST_F(DatabaseTest, ReadInitialValues)
 #ifdef DMX_SUPPORTED
         // DMX section
         // all values should be set to 0
-        DB_READ_VERIFY(0, Database::Config::Section::global_t::dmx, Protocol::DMX::setting_t::enable);
+        DB_READ_VERIFY(0, Database::Config::Section::global_t::dmxSettings, Protocol::DMX::setting_t::enable);
 #endif
 
         // button block

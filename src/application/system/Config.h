@@ -53,7 +53,8 @@ namespace System
                 midiSettings,
                 reserved,    // compatibility
                 presets,
-                dmx,
+                dmxSettings,
+                dmxChannel,
                 AMOUNT
             };
 

@@ -909,7 +909,7 @@ TEST_F(HWTest, DMXTest)
     ASSERT_TRUE(verify(false));
 
     LOG(INFO) << "Enabling DMX";
-    ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::global_t::dmx, static_cast<int>(Protocol::DMX::setting_t::enable), 1));
+    ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::global_t::dmxSettings, static_cast<int>(Protocol::DMX::setting_t::enable), 1));
 
     LOG(INFO) << "Checking if the device is detectable by OLA";
     ASSERT_TRUE(verify(true));
