@@ -289,7 +289,7 @@ LEDs::brightness_t LEDs::valueToBrightness(uint8_t value)
     return static_cast<brightness_t>((value % 16 % TOTAL_BRIGHTNESS_VALUES) + 1);
 }
 
-void LEDs::midiToState(Messaging::event_t event, Messaging::eventSource_t source)
+void LEDs::midiToState(const Messaging::event_t& event, Messaging::eventSource_t source)
 {
     const uint8_t globalChannel = _database.read(Database::Config::Section::global_t::midiSettings, MIDI::setting_t::globalChannel);
     const uint8_t channel       = _database.read(Database::Config::Section::global_t::midiSettings,
