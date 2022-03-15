@@ -104,6 +104,14 @@ namespace Board
             {
             }
         }    // namespace setup
+
+        namespace UART
+        {
+            __attribute__((weak)) uint8_t dmxChannelValue(size_t channel)
+            {
+                return 0;
+            }
+        }    // namespace UART
     }        // namespace detail
 
     namespace USB

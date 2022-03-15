@@ -203,11 +203,9 @@ namespace Board
         /// returns: True if there is no more data to transmit, false otherwise.
         bool isTxEmpty(uint8_t channel);
 
-        /// Used to set value for a particular DMX channel.
-        /// Note: DMX channels start from 1.
-        /// param [in]: channel Channel for which to set new value.
-        /// param [in]: value   New value for the specified channel.
-        void setDMXChannelValue(uint16_t channel, uint8_t value);
+        /// Used to set DMX buffer from which values will be read.
+        /// returns: True if the buffer is valid (non-nullptr), false otherwise.
+        bool setDMXBuffer(uint8_t* buffer);
     }    // namespace UART
 
     namespace I2C

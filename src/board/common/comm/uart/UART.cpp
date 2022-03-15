@@ -55,7 +55,8 @@ namespace
 #endif
 
 #ifdef DMX_SUPPORTED
-    uint8_t _dmxBuffer[513];
+    uint8_t* _dmxBuffer;
+    uint8_t* _dmxBufferQueued;
 #endif
 
     /// Starts the process of transmitting the data from UART TX buffer to UART interface.
@@ -207,15 +208,20 @@ namespace Board
         }
 
 #ifdef DMX_SUPPORTED
-        void setDMXChannelValue(uint16_t channel, uint8_t value)
+        bool setDMXBuffer(uint8_t* buffer)
         {
+            if (buffer == nullptr)
+            {
+                return false;    // not allowed
+            }
+
             ATOMIC_SECTION
             {
-                if (channel < 513)
-                {
-                    _dmxBuffer[channel] = value;
-                }
+                // switch to the new buffer only once the current frame is fully sent
+                _dmxBufferQueued = buffer;
             }
+
+            return true;
         }
 #endif
     }    // namespace UART
@@ -264,9 +270,24 @@ namespace Board
         }
 
 #ifdef DMX_SUPPORTED
-        uint8_t* dmxBuffer()
+        uint8_t dmxChannelValue(size_t channel)
         {
-            return _dmxBuffer;
+            if (channel == 0)
+            {
+                // check if buffer needs to be switched
+                if (_dmxBufferQueued != nullptr)
+                {
+                    _dmxBuffer       = _dmxBufferQueued;
+                    _dmxBufferQueued = nullptr;
+                }
+            }
+
+            if ((_dmxBuffer == nullptr) || (channel > 512))
+            {
+                return 0;
+            }
+
+            return _dmxBuffer[channel];
         }
 #endif
     }    // namespace detail::UART

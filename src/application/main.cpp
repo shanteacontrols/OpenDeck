@@ -523,11 +523,11 @@ class HWADMX : public System::Builder::HWA::Protocol::DMX
         return false;
     }
 
-    bool readUSB(uint8_t* buffer, size_t& size, const size_t maxSize) override
+    bool readUSB(DMXUSBWidget::usbReadBuffer_t& buffer, size_t& size) override
     {
         size_t bufferSize = 0;
 
-        if (Board::USB::readCDC(buffer, bufferSize, maxSize))
+        if (Board::USB::readCDC(&buffer[0], bufferSize, buffer.size()))
         {
             size = bufferSize;
             Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::incoming);
@@ -548,16 +548,10 @@ class HWADMX : public System::Builder::HWA::Protocol::DMX
         return false;
     }
 
-    bool updateChannel(uint16_t channel, uint8_t value) override
+    void setBuffer(DMXUSBWidget::dmxBuffer_t& buffer) override
     {
-        Board::UART::setDMXChannelValue(channel, value);
         Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::outgoing);
-        return true;
-    }
-
-    void packetComplete() override
-    {
-        // todo
+        Board::UART::setDMXBuffer(&buffer[0]);
     }
 
     bool uniqueID(Protocol::DMX::uniqueID_t& uniqueID) override
@@ -598,7 +592,7 @@ class HWADMXStub : public System::Builder::HWA::Protocol::DMX
         return false;
     }
 
-    bool readUSB(uint8_t* buffer, size_t& size, const size_t maxSize) override
+    bool readUSB(DMXUSBWidget::usbReadBuffer_t& buffer, size_t& size) override
     {
         return false;
     }
@@ -608,12 +602,7 @@ class HWADMXStub : public System::Builder::HWA::Protocol::DMX
         return false;
     }
 
-    bool updateChannel(uint16_t channel, uint8_t value) override
-    {
-        return false;
-    }
-
-    void packetComplete() override
+    void setBuffer(DMXUSBWidget::dmxBuffer_t& buffer) override
     {
     }
 

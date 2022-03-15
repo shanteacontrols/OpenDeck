@@ -17,7 +17,7 @@ class HWADMX : public Protocol::DMX::HWA
         return true;
     }
 
-    bool readUSB(uint8_t* buffer, size_t& size, const size_t maxSize) override
+    bool readUSB(DMXUSBWidget::usbReadBuffer_t& buffer, size_t& size) override
     {
         return true;
     }
@@ -27,12 +27,7 @@ class HWADMX : public Protocol::DMX::HWA
         return true;
     }
 
-    bool updateChannel(uint16_t channel, uint8_t value) override
-    {
-        return true;
-    }
-
-    void packetComplete() override
+    void setBuffer(DMXUSBWidget::dmxBuffer_t& buffer) override
     {
     }
 

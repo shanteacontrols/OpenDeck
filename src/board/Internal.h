@@ -157,8 +157,8 @@ namespace Board
             /// param [in]: channel UART channel on MCU.
             void indicateTxComplete(uint8_t channel);
 
-            /// Retrieves pointer to internal DMX buffer array.
-            uint8_t* dmxBuffer();
+            /// Retrieves DMX channel value.
+            uint8_t dmxChannelValue(size_t channel);
         }    // namespace UART
 
         namespace I2C

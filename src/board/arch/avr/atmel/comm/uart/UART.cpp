@@ -38,7 +38,6 @@ namespace
     volatile uint32_t                        _dmxByteCounter;
     uint32_t                                 _dmxBreakBRR;
     uint32_t                                 _dmxDataBRR;
-    uint8_t*                                 _dmxBuffer;
 #endif
 }    // namespace
 
@@ -88,7 +87,7 @@ namespace
         break;                                                                           \
         case Board::detail::UART::dmxState_t::data:                                      \
         {                                                                                \
-            UDR(channel) = _dmxBuffer[_dmxByteCounter++];                                \
+            UDR(channel) = Board::detail::UART::dmxChannelValue(_dmxByteCounter++);      \
             if (_dmxByteCounter == 513)                                                  \
             {                                                                            \
                 UCSRB(channel) &= ~(1 << UDRIE(channel));                                \
@@ -401,7 +400,6 @@ namespace Board
 #ifdef DMX_SUPPORTED
                     _dmxState[channel] = config.dmxMode ? dmxState_t::idle : dmxState_t::disabled;
                     _dmxByteCounter    = 0;
-                    _dmxBuffer         = Board::detail::UART::dmxBuffer();
 
                     if (config.dmxMode)
                         enableDataEmptyInt(channel);

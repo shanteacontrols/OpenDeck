@@ -31,7 +31,6 @@ namespace
     volatile uint32_t                        _dmxByteCounter;
     uint32_t                                 _dmxBreakBRR;
     uint32_t                                 _dmxDataBRR;
-    uint8_t*                                 _dmxBuffer;
 }    // namespace
 
 #define DMX_SET_BREAK_BAUDRATE(channel)                                                                       \
@@ -77,7 +76,6 @@ namespace Board::detail
 #ifdef DMX_SUPPORTED
             _dmxState[channel] = config.dmxMode ? dmxState_t::idle : dmxState_t::disabled;
             _dmxByteCounter    = 0;
-            _dmxBuffer         = Board::detail::UART::dmxBuffer();
 
             uint32_t pclk;
 
@@ -248,7 +246,7 @@ namespace Board::detail
 
                 case Board::detail::UART::dmxState_t::data:
                 {
-                    _uartHandler[channel].Instance->DR = _dmxBuffer[_dmxByteCounter++];
+                    _uartHandler[channel].Instance->DR = Board::detail::UART::dmxChannelValue(_dmxByteCounter++);
 
                     if (_dmxByteCounter == 513)
                     {
