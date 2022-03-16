@@ -36,8 +36,7 @@ Buttons::Buttons(HWA&                hwa,
     , _filter(filter)
     , _database(database)
 {
-    MIDIDispatcher.listen(Messaging::eventSource_t::analog,
-                          Messaging::listenType_t::fwd,
+    MIDIDispatcher.listen(Messaging::eventType_t::analogButton,
                           [this](const Messaging::event_t& event) {
                               size_t             index = event.componentIndex + Collection::startIndex(GROUP_ANALOG_INPUTS);
                               buttonDescriptor_t descriptor;
@@ -47,8 +46,7 @@ Buttons::Buttons(HWA&                hwa,
                               processButton(index, event.midiValue, descriptor);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::touchscreenButton,
-                          Messaging::listenType_t::fwd,
+    MIDIDispatcher.listen(Messaging::eventType_t::touchscreenButton,
                           [this](const Messaging::event_t& event) {
                               size_t index = event.componentIndex + Collection::startIndex(GROUP_TOUCHSCREEN_COMPONENTS);
 
@@ -59,8 +57,7 @@ Buttons::Buttons(HWA&                hwa,
                               processButton(index, event.midiValue, descriptor);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::system,
-                          Messaging::listenType_t::all,
+    MIDIDispatcher.listen(Messaging::eventType_t::system,
                           [this](const Messaging::event_t& event) {
                               switch (event.componentIndex)
                               {
@@ -419,9 +416,7 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
 
     if (send)
     {
-        MIDIDispatcher.notify(Messaging::eventSource_t::buttons,
-                              descriptor.event,
-                              Messaging::listenType_t::nonFwd);
+        MIDIDispatcher.notify(Messaging::eventType_t::button, descriptor.event);
     }
 }
 

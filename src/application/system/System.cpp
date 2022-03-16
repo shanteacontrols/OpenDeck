@@ -40,8 +40,7 @@ Instance::Instance(HWA&        hwa,
           _sysExDataHandler,
           _sysExMID)
 {
-    MIDIDispatcher.listen(Messaging::eventSource_t::midiIn,
-                          Messaging::listenType_t::all,
+    MIDIDispatcher.listen(Messaging::eventType_t::midiIn,
                           [this](const Messaging::event_t& event) {
                               if (event.message == MIDI::messageType_t::systemExclusive)
                               {
@@ -128,9 +127,7 @@ bool Instance::init()
         event.midiValue      = 0;
         event.message        = MIDI::messageType_t::programChange;
 
-        MIDIDispatcher.notify(Messaging::eventSource_t::program,
-                              event,
-                              Messaging::listenType_t::nonFwd);
+        MIDIDispatcher.notify(Messaging::eventType_t::program, event);
     }
 
     return true;
@@ -329,9 +326,7 @@ void Instance::forceComponentRefresh()
         Messaging::event_t event;
         event.componentIndex = static_cast<uint8_t>(Messaging::systemMessage_t::forceIOrefresh);
 
-        MIDIDispatcher.notify(Messaging::eventSource_t::system,
-                              event,
-                              Messaging::listenType_t::all);
+        MIDIDispatcher.notify(Messaging::eventType_t::system, event);
     }
 }
 
@@ -343,9 +338,7 @@ void Instance::SysExDataHandler::sendResponse(uint8_t* array, uint16_t size)
     event.sysEx          = array;
     event.sysExLength    = size;
 
-    MIDIDispatcher.notify(Messaging::eventSource_t::system,
-                          event,
-                          Messaging::listenType_t::nonFwd);
+    MIDIDispatcher.notify(Messaging::eventType_t::system, event);
 }
 
 uint8_t Instance::SysExDataHandler::customRequest(uint16_t request, CustomResponse& customResponse)
@@ -488,9 +481,7 @@ void Instance::DBhandlers::presetChange(uint8_t preset)
         event.midiValue      = 0;
         event.message        = MIDI::messageType_t::programChange;
 
-        MIDIDispatcher.notify(Messaging::eventSource_t::preset,
-                          event,
-                          Messaging::listenType_t::nonFwd);
+        MIDIDispatcher.notify(Messaging::eventType_t::preset, event);
 
         _system.forceComponentRefresh(); } });
     }

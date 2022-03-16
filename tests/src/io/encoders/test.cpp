@@ -26,8 +26,7 @@ namespace
                 ASSERT_TRUE(_encoders._database.update(Database::Config::Section::encoder_t::pulsesPerStep, i, 1));
             }
 
-            MIDIDispatcher.listen(Messaging::eventSource_t::encoders,
-                                  Messaging::listenType_t::nonFwd,
+            MIDIDispatcher.listen(Messaging::eventType_t::encoder,
                                   [this](const Messaging::event_t& dispatchMessage) {
                                       _listener.messageListener(dispatchMessage);
                                   });

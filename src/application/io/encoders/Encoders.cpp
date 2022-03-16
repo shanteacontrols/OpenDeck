@@ -36,8 +36,7 @@ Encoders::Encoders(HWA&                hwa,
     , _database(database)
     , TIME_DIFF_READOUT(timeDiffTimeout)
 {
-    MIDIDispatcher.listen(Messaging::eventSource_t::midiIn,
-                          Messaging::listenType_t::nonFwd,
+    MIDIDispatcher.listen(Messaging::eventType_t::midiIn,
                           [this](const Messaging::event_t& event) {
                               const uint8_t globalChannel = _database.read(Database::Config::Section::global_t::midiSettings, MIDI::setting_t::globalChannel);
                               const uint8_t channel       = _database.read(Database::Config::Section::global_t::midiSettings,
@@ -332,9 +331,7 @@ void Encoders::sendMessage(size_t index, encoderDescriptor_t& descriptor)
 
     if (send)
     {
-        MIDIDispatcher.notify(Messaging::eventSource_t::encoders,
-                              descriptor.event,
-                              Messaging::listenType_t::nonFwd);
+        MIDIDispatcher.notify(Messaging::eventType_t::encoder, descriptor.event);
     }
 }
 

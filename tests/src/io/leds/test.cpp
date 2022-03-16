@@ -326,15 +326,14 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
             EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(value)))
                 .Times(1);
 
-            MIDIDispatcher.notify(Messaging::eventSource_t::midiIn,
+            MIDIDispatcher.notify(Messaging::eventType_t::midiIn,
                                   { 0,               // componentIndex - irrelevant
                                     MIDI_CHANNEL,    // midiChannel
                                     led,             // midiIndex
                                     value,           // midiValue
                                     0,               // sysEx
                                     0,               // sysExLength
-                                    MIDI::messageType_t::noteOn },
-                                  Messaging::listenType_t::nonFwd);
+                                    MIDI::messageType_t::noteOn });
 
             ASSERT_EQ(expectedBlinkSpeedValue.at(value), _leds._instance.blinkSpeed(led));
         }
@@ -360,15 +359,14 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
             EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(value)))
                 .Times(1);
 
-            MIDIDispatcher.notify(Messaging::eventSource_t::midiIn,
+            MIDIDispatcher.notify(Messaging::eventType_t::midiIn,
                                   { 0,               // componentIndex - irrelevant
                                     MIDI_CHANNEL,    // midiChannel
                                     led,             // midiIndex
                                     value,           // midiValue
                                     0,               // sysEx
                                     0,               // sysExLength
-                                    MIDI::messageType_t::controlChange },
-                                  Messaging::listenType_t::nonFwd);
+                                    MIDI::messageType_t::controlChange });
 
             ASSERT_EQ(expectedBlinkSpeedValue.at(value), _leds._instance.blinkSpeed(led));
         }
@@ -394,15 +392,14 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
             EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(value)))
                 .Times(1);
 
-            MIDIDispatcher.notify(Messaging::eventSource_t::buttons,
+            MIDIDispatcher.notify(Messaging::eventType_t::button,
                                   { 0,               // componentIndex - irrelevant
                                     MIDI_CHANNEL,    // midiChannel
                                     led,             // midiIndex
                                     value,           // midiValue
                                     0,               // sysEx
                                     0,               // sysExLength
-                                    MIDI::messageType_t::noteOn },
-                                  Messaging::listenType_t::nonFwd);
+                                    MIDI::messageType_t::noteOn });
 
             ASSERT_EQ(expectedBlinkSpeedValue.at(value), _leds._instance.blinkSpeed(led));
         }
@@ -421,15 +418,14 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
             EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(value)))
                 .Times(1);
 
-            MIDIDispatcher.notify(Messaging::eventSource_t::analog,
+            MIDIDispatcher.notify(Messaging::eventType_t::analog,
                                   { 0,               // componentIndex - irrelevant
                                     MIDI_CHANNEL,    // midiChannel
                                     led,             // midiIndex
                                     value,           // midiValue
                                     0,               // sysEx
                                     0,               // sysExLength
-                                    MIDI::messageType_t::noteOn },
-                                  Messaging::listenType_t::nonFwd);
+                                    MIDI::messageType_t::noteOn });
 
             ASSERT_EQ(expectedBlinkSpeedValue.at(value), _leds._instance.blinkSpeed(led));
         }
@@ -455,15 +451,14 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
             EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(value)))
                 .Times(1);
 
-            MIDIDispatcher.notify(Messaging::eventSource_t::buttons,
+            MIDIDispatcher.notify(Messaging::eventType_t::button,
                                   { 0,               // componentIndex - irrelevant
                                     MIDI_CHANNEL,    // midiChannel
                                     led,             // midiIndex
                                     value,           // midiValue
                                     0,               // sysEx
                                     0,               // sysExLength
-                                    MIDI::messageType_t::controlChange },
-                                  Messaging::listenType_t::nonFwd);
+                                    MIDI::messageType_t::controlChange });
 
             ASSERT_EQ(expectedBlinkSpeedValue.at(value), _leds._instance.blinkSpeed(led));
         }
@@ -481,15 +476,14 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
             EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(value)))
                 .Times(1);
 
-            MIDIDispatcher.notify(Messaging::eventSource_t::analog,
+            MIDIDispatcher.notify(Messaging::eventType_t::analog,
                                   { 0,               // componentIndex - irrelevant
                                     MIDI_CHANNEL,    // midiChannel
                                     led,             // midiIndex
                                     value,           // midiValue
                                     0,               // sysEx
                                     0,               // sysExLength
-                                    MIDI::messageType_t::controlChange },
-                                  Messaging::listenType_t::nonFwd);
+                                    MIDI::messageType_t::controlChange });
 
             ASSERT_EQ(expectedBlinkSpeedValue.at(value), _leds._instance.blinkSpeed(led));
         }
@@ -510,7 +504,7 @@ TEST_F(LEDsTest, SingleLEDstate)
     EXPECT_CALL(_leds._hwa, setState(MIDI_ID, LEDs::brightness_t::b100))
         .Times(1);
 
-    MIDIDispatcher.notify(Messaging::eventSource_t::midiIn,
+    MIDIDispatcher.notify(Messaging::eventType_t::midiIn,
                           {
                               0,
                               MIDI_CHANNEL,
@@ -519,14 +513,13 @@ TEST_F(LEDsTest, SingleLEDstate)
                               0,
                               0,
                               MIDI::messageType_t::noteOn,
-                          },
-                          Messaging::listenType_t::nonFwd);
+                          });
 
     EXPECT_CALL(_leds._hwa, setState(MIDI_ID, LEDs::brightness_t::bOff))
         .Times(1);
 
     // now turn the LED off
-    MIDIDispatcher.notify(Messaging::eventSource_t::midiIn,
+    MIDIDispatcher.notify(Messaging::eventType_t::midiIn,
                           {
                               0,
                               MIDI_CHANNEL,
@@ -535,8 +528,7 @@ TEST_F(LEDsTest, SingleLEDstate)
                               0,
                               0,
                               MIDI::messageType_t::noteOn,
-                          },
-                          Messaging::listenType_t::nonFwd);
+                          });
 
     if (LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS) < 3)
     {
@@ -557,7 +549,7 @@ TEST_F(LEDsTest, SingleLEDstate)
     EXPECT_CALL(_leds._hwa, setState(_leds._hwa.rgbSignalIndex(0, LEDs::rgbIndex_t::b), LEDs::brightness_t::b100))
         .Times(1);
 
-    MIDIDispatcher.notify(Messaging::eventSource_t::midiIn,
+    MIDIDispatcher.notify(Messaging::eventType_t::midiIn,
                           {
                               0,
                               MIDI_CHANNEL,
@@ -566,8 +558,7 @@ TEST_F(LEDsTest, SingleLEDstate)
                               0,
                               0,
                               MIDI::messageType_t::noteOn,
-                          },
-                          Messaging::listenType_t::nonFwd);
+                          });
 }
 
 #endif

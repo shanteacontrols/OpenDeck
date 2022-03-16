@@ -39,9 +39,7 @@ TEST_F(MIDITest, OmniChannel)
     event.midiValue      = 127;
     event.message        = MIDI::messageType_t::noteOn;
 
-    MIDIDispatcher.notify(Messaging::eventSource_t::buttons,
-                          event,
-                          Messaging::listenType_t::nonFwd);
+    MIDIDispatcher.notify(Messaging::eventType_t::button, event);
 
     // only 1 message should be written out
     ASSERT_EQ(1, _midi._hwaMIDIUSB._writeParser.totalWrittenChannelMessages());
@@ -51,9 +49,7 @@ TEST_F(MIDITest, OmniChannel)
     _midi._hwaMIDIUSB.clear();
     event.midiChannel = MIDI::MIDI_CHANNEL_OMNI;
 
-    MIDIDispatcher.notify(Messaging::eventSource_t::buttons,
-                          event,
-                          Messaging::listenType_t::nonFwd);
+    MIDIDispatcher.notify(Messaging::eventType_t::button, event);
 
     ASSERT_EQ(16, _midi._hwaMIDIUSB._writeParser.totalWrittenChannelMessages());
 

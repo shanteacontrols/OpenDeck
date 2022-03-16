@@ -47,32 +47,22 @@ Display::Display(I2C::HWA&           hwa,
 {
     _hwa = &hwa;
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::analog,
-                          Messaging::listenType_t::nonFwd,
+    MIDIDispatcher.listen(Messaging::eventType_t::analog,
                           [this](const Messaging::event_t& event) {
                               displayMIDIevent(Display::eventType_t::out, event);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::buttons,
-                          Messaging::listenType_t::nonFwd,
+    MIDIDispatcher.listen(Messaging::eventType_t::button,
                           [this](const Messaging::event_t& event) {
                               displayMIDIevent(Display::eventType_t::out, event);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::encoders,
-                          Messaging::listenType_t::nonFwd,
+    MIDIDispatcher.listen(Messaging::eventType_t::encoder,
                           [this](const Messaging::event_t& event) {
                               displayMIDIevent(Display::eventType_t::out, event);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::touchscreenButton,
-                          Messaging::listenType_t::nonFwd,
-                          [this](const Messaging::event_t& event) {
-                              displayMIDIevent(Display::eventType_t::out, event);
-                          });
-
-    MIDIDispatcher.listen(Messaging::eventSource_t::midiIn,
-                          Messaging::listenType_t::nonFwd,
+    MIDIDispatcher.listen(Messaging::eventType_t::midiIn,
                           [this](const Messaging::event_t& event) {
                               if (event.message != MIDI::messageType_t::systemExclusive)
                               {

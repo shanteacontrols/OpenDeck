@@ -144,8 +144,7 @@ namespace
 
 TEST_F(SystemTest, ForcedResendOnPresetChange)
 {
-    MIDIDispatcher.listen(Messaging::eventSource_t::leds,
-                          Messaging::listenType_t::fwd,
+    MIDIDispatcher.listen(Messaging::eventType_t::touchscreenLED,
                           [this](const Messaging::event_t& dispatchMessage) {
                               _listener.messageListener(dispatchMessage);
                           });
@@ -454,8 +453,7 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
 #ifdef LEDS_SUPPORTED
 TEST_F(SystemTest, PresetChangeIndicatedOnLEDs)
 {
-    MIDIDispatcher.listen(Messaging::eventSource_t::leds,
-                          Messaging::listenType_t::fwd,
+    MIDIDispatcher.listen(Messaging::eventType_t::touchscreenLED,
                           [this](const Messaging::event_t& dispatchMessage) {
                               _listener.messageListener(dispatchMessage);
                           });
@@ -952,7 +950,7 @@ TEST_F(SystemTest, ProgramIndicatedOnStartup)
                                 0x00,    // single
                                 static_cast<uint8_t>(System::Config::block_t::leds),
                                 static_cast<uint8_t>(System::Config::Section::leds_t::testColor),
-                                0x00,    // LED 0
+                                0x00,    // LED
                                 LED_INDEX,
                                 0x00,    // new value / blank
                                 0x00,    // new value / blank
@@ -1015,7 +1013,7 @@ TEST_F(SystemTest, ProgramIndicatedOnStartup)
                                 0x00,    // single
                                 static_cast<uint8_t>(System::Config::block_t::leds),
                                 static_cast<uint8_t>(System::Config::Section::leds_t::testColor),
-                                0x00,    // LED 0
+                                0x00,    // LED
                                 LED_INDEX,
                                 0x00,    // new value / blank
                                 0x00,    // new value / blank

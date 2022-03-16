@@ -160,7 +160,7 @@ namespace IO
         brightness_t           valueToBrightness(uint8_t value);
         void                   startUpAnimation();
         bool                   isControlTypeMatched(MIDI::messageType_t midiMessage, controlType_t controlType);
-        void                   midiToState(const Messaging::event_t& message, Messaging::eventSource_t source);
+        void                   midiToState(const Messaging::event_t& message, Messaging::eventType_t source);
         void                   setState(size_t index, brightness_t brightness);
         std::optional<uint8_t> sysConfigGet(System::Config::Section::leds_t section, size_t index, uint16_t& value);
         std::optional<uint8_t> sysConfigSet(System::Config::Section::leds_t section, size_t index, uint16_t value);

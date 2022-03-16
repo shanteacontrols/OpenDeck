@@ -25,8 +25,7 @@ namespace
                 ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::midiChannel, i, 1));
             }
 
-            MIDIDispatcher.listen(Messaging::eventSource_t::analog,
-                                  Messaging::listenType_t::nonFwd,
+            MIDIDispatcher.listen(Messaging::eventType_t::analog,
                                   [this](const Messaging::event_t& dispatchMessage) {
                                       _listener.messageListener(dispatchMessage);
                                   });
@@ -378,14 +377,12 @@ TEST_F(AnalogTest, ButtonForwarding)
     std::vector<Messaging::event_t> dispatchMessageAnalogFwd;
     std::vector<Messaging::event_t> dispatchMessageButtons;
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::analog,
-                          Messaging::listenType_t::fwd,
+    MIDIDispatcher.listen(Messaging::eventType_t::analogButton,
                           [&](const Messaging::event_t& dispatchMessage) {
                               dispatchMessageAnalogFwd.push_back(dispatchMessage);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::buttons,
-                          Messaging::listenType_t::nonFwd,
+    MIDIDispatcher.listen(Messaging::eventType_t::button,
                           [&](const Messaging::event_t& dispatchMessage) {
                               dispatchMessageButtons.push_back(dispatchMessage);
                           });

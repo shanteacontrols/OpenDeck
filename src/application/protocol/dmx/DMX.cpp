@@ -33,8 +33,7 @@ Protocol::DMX::DMX(HWA& hwa, Database::Instance& database)
     , _hwa(hwa)
     , _database(database)
 {
-    MIDIDispatcher.listen(Messaging::eventSource_t::preset,
-                          Messaging::listenType_t::all,
+    MIDIDispatcher.listen(Messaging::eventType_t::preset,
                           [this](const Messaging::event_t& event) {
                               if (!init())
                               {

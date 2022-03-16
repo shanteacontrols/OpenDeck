@@ -37,38 +37,33 @@ Protocol::MIDI::MIDI(HWAUSB&             hwaUSB,
     _midiInterface[INTERFACE_USB] = &_usbMIDI;
     _midiInterface[INTERFACE_DIN] = &_dinMIDI;
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::analog,
-                          Messaging::listenType_t::nonFwd,
+    MIDIDispatcher.listen(Messaging::eventType_t::analog,
                           [this](const Messaging::event_t& event) {
-                              sendMIDI(Messaging::eventSource_t::analog, event);
+                              sendMIDI(Messaging::eventType_t::analog, event);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::buttons,
-                          Messaging::listenType_t::nonFwd,
+    MIDIDispatcher.listen(Messaging::eventType_t::button,
                           [this](const Messaging::event_t& event) {
-                              sendMIDI(Messaging::eventSource_t::buttons, event);
+                              sendMIDI(Messaging::eventType_t::button, event);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::encoders,
-                          Messaging::listenType_t::nonFwd,
+    MIDIDispatcher.listen(Messaging::eventType_t::encoder,
                           [this](const Messaging::event_t& event) {
-                              sendMIDI(Messaging::eventSource_t::encoders, event);
+                              sendMIDI(Messaging::eventType_t::encoder, event);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::touchscreenButton,
-                          Messaging::listenType_t::nonFwd,
+    MIDIDispatcher.listen(Messaging::eventType_t::touchscreenButton,
                           [this](const Messaging::event_t& event) {
-                              sendMIDI(Messaging::eventSource_t::touchscreenButton, event);
+                              sendMIDI(Messaging::eventType_t::touchscreenButton, event);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::system,
-                          Messaging::listenType_t::nonFwd,
+    MIDIDispatcher.listen(Messaging::eventType_t::system,
                           [this](const Messaging::event_t& event) {
                               switch (event.componentIndex)
                               {
                               case static_cast<uint16_t>(Messaging::systemMessage_t::sysExResponse):
                               {
-                                  sendMIDI(Messaging::eventSource_t::system, event);
+                                  sendMIDI(Messaging::eventType_t::system, event);
                               }
                               break;
 
@@ -77,8 +72,7 @@ Protocol::MIDI::MIDI(HWAUSB&             hwaUSB,
                               }
                           });
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::preset,
-                          Messaging::listenType_t::all,
+    MIDIDispatcher.listen(Messaging::eventType_t::preset,
                           [this](const Messaging::event_t& event) {
                               init();
                           });
@@ -253,9 +247,7 @@ void Protocol::MIDI::read()
                 break;
             }
 
-            MIDIDispatcher.notify(Messaging::eventSource_t::midiIn,
-                                  event,
-                                  Messaging::listenType_t::nonFwd);
+            MIDIDispatcher.notify(Messaging::eventType_t::midiIn, event);
         }
     }
 }
@@ -273,7 +265,7 @@ bool Protocol::MIDI::isDinLoopbackRequired()
             !isSettingEnabled(setting_t::dinThruBle));
 }
 
-void Protocol::MIDI::sendMIDI(Messaging::eventSource_t source, const Messaging::event_t& event)
+void Protocol::MIDI::sendMIDI(Messaging::eventType_t source, const Messaging::event_t& event)
 {
     using namespace Protocol;
 
@@ -527,7 +519,7 @@ void Protocol::MIDI::sendMIDI(Messaging::eventSource_t source, const Messaging::
 
         case MIDI::messageType_t::systemExclusive:
         {
-            if (source == Messaging::eventSource_t::system)
+            if (source == Messaging::eventType_t::system)
             {
                 if (i != INTERFACE_USB)
                 {

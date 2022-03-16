@@ -23,18 +23,19 @@ limitations under the License.
 
 namespace Messaging
 {
-    enum class eventSource_t : uint8_t
+    enum class eventType_t : uint8_t
     {
         analog,
-        buttons,
-        encoders,
+        analogButton,
+        button,
+        encoder,
         touchscreenButton,
         touchscreenScreen,
+        touchscreenLED,
         midiIn,
         preset,
         program,
         system,
-        leds
     };
 
     // enum indicating what types of system-level messages are possible.
@@ -58,8 +59,6 @@ namespace Messaging
 
         event_t() = default;
     };
-
-    using listenType_t = Util::Dispatcher<eventSource_t, event_t>::listenType_t;
 }    // namespace Messaging
 
-#define MIDIDispatcher Util::Dispatcher<Messaging::eventSource_t, Messaging::event_t>::instance()
+#define MIDIDispatcher Util::Dispatcher<Messaging::eventType_t, Messaging::event_t>::instance()

@@ -43,8 +43,7 @@ LEDs::LEDs(HWA&                hwa,
         _brightness[i] = brightness_t::bOff;
     }
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::midiIn,
-                          Messaging::listenType_t::nonFwd,
+    MIDIDispatcher.listen(Messaging::eventType_t::midiIn,
                           [this](const Messaging::event_t& event) {
                               switch (event.message)
                               {
@@ -53,7 +52,7 @@ LEDs::LEDs(HWA&                hwa,
                               case MIDI::messageType_t::controlChange:
                               case MIDI::messageType_t::programChange:
                               {
-                                  midiToState(event, Messaging::eventSource_t::midiIn);
+                                  midiToState(event, Messaging::eventType_t::midiIn);
                               }
                               break;
 
@@ -75,8 +74,7 @@ LEDs::LEDs(HWA&                hwa,
                               }
                           });
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::buttons,
-                          Messaging::listenType_t::nonFwd,
+    MIDIDispatcher.listen(Messaging::eventType_t::button,
                           [this](const Messaging::event_t& event) {
                               switch (event.message)
                               {
@@ -85,7 +83,7 @@ LEDs::LEDs(HWA&                hwa,
                               case MIDI::messageType_t::controlChange:
                               case MIDI::messageType_t::programChange:
                               {
-                                  midiToState(event, Messaging::eventSource_t::buttons);
+                                  midiToState(event, Messaging::eventType_t::button);
                               }
                               break;
 
@@ -94,8 +92,7 @@ LEDs::LEDs(HWA&                hwa,
                               }
                           });
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::analog,
-                          Messaging::listenType_t::nonFwd,
+    MIDIDispatcher.listen(Messaging::eventType_t::analog,
                           [this](const Messaging::event_t& event) {
                               switch (event.message)
                               {
@@ -104,7 +101,7 @@ LEDs::LEDs(HWA&                hwa,
                               case MIDI::messageType_t::controlChange:
                               case MIDI::messageType_t::programChange:
                               {
-                                  midiToState(event, Messaging::eventSource_t::analog);
+                                  midiToState(event, Messaging::eventType_t::analog);
                               }
                               break;
 
@@ -113,23 +110,20 @@ LEDs::LEDs(HWA&                hwa,
                               }
                           });
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::preset,
-                          Messaging::listenType_t::all,
+    MIDIDispatcher.listen(Messaging::eventType_t::preset,
                           [this](const Messaging::event_t& event) {
                               setAllOff();
-                              midiToState(event, Messaging::eventSource_t::preset);
+                              midiToState(event, Messaging::eventType_t::preset);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::touchscreenScreen,
-                          Messaging::listenType_t::all,
+    MIDIDispatcher.listen(Messaging::eventType_t::touchscreenScreen,
                           [this](const Messaging::event_t& event) {
                               refresh();
                           });
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::program,
-                          Messaging::listenType_t::all,
+    MIDIDispatcher.listen(Messaging::eventType_t::program,
                           [this](const Messaging::event_t& event) {
-                              midiToState(event, Messaging::eventSource_t::program);
+                              midiToState(event, Messaging::eventType_t::program);
                           });
 
     ConfigHandler.registerConfig(
@@ -289,7 +283,7 @@ LEDs::brightness_t LEDs::valueToBrightness(uint8_t value)
     return static_cast<brightness_t>((value % 16 % TOTAL_BRIGHTNESS_VALUES) + 1);
 }
 
-void LEDs::midiToState(const Messaging::event_t& event, Messaging::eventSource_t source)
+void LEDs::midiToState(const Messaging::event_t& event, Messaging::eventType_t source)
 {
     const uint8_t globalChannel = _database.read(Database::Config::Section::global_t::midiSettings, MIDI::setting_t::globalChannel);
     const uint8_t channel       = _database.read(Database::Config::Section::global_t::midiSettings,
@@ -315,7 +309,7 @@ void LEDs::midiToState(const Messaging::event_t& event, Messaging::eventSource_t
 
         // determine whether led state or blink state should be changed
         // received MIDI message must match with defined control type
-        if (source != Messaging::eventSource_t::midiIn)
+        if (source != Messaging::eventType_t::midiIn)
         {
             switch (controlType)
             {
@@ -340,7 +334,7 @@ void LEDs::midiToState(const Messaging::event_t& event, Messaging::eventSource_t
             case controlType_t::pcSingleVal:
             {
                 // source must be verified here, otherwise no difference between program and preset source is detected
-                if ((event.message == MIDI::messageType_t::programChange) && (source != Messaging::eventSource_t::preset))
+                if ((event.message == MIDI::messageType_t::programChange) && (source != Messaging::eventType_t::preset))
                 {
                     setState = true;
                 }
@@ -351,7 +345,7 @@ void LEDs::midiToState(const Messaging::event_t& event, Messaging::eventSource_t
             {
                 // it is expected for MIDI message to be set to program change when changing preset
                 // source must be verified here, otherwise no difference between program and preset source is detected
-                if ((event.message == MIDI::messageType_t::programChange) && (source != Messaging::eventSource_t::program))
+                if ((event.message == MIDI::messageType_t::programChange) && (source != Messaging::eventType_t::program))
                 {
                     setState = true;
                 }
@@ -761,9 +755,7 @@ void LEDs::setState(size_t index, brightness_t brightness)
         event.componentIndex = index - Collection::startIndex(GROUP_TOUCHSCREEN_COMPONENTS);
         event.midiValue      = static_cast<uint16_t>(brightness);
 
-        MIDIDispatcher.notify(Messaging::eventSource_t::leds,
-                              event,
-                              Messaging::listenType_t::fwd);
+        MIDIDispatcher.notify(Messaging::eventType_t::touchscreenLED, event);
     }
     else
     {

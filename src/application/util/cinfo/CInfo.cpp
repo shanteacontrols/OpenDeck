@@ -23,26 +23,27 @@ using namespace Util;
 
 ComponentInfo::ComponentInfo()
 {
-    MIDIDispatcher.listen(Messaging::eventSource_t::analog,
-                          Messaging::listenType_t::all,
+    MIDIDispatcher.listen(Messaging::eventType_t::analog,
                           [this](const Messaging::event_t& event) {
                               send(Database::Config::block_t::analog, event.componentIndex);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::buttons,
-                          Messaging::listenType_t::all,
+    MIDIDispatcher.listen(Messaging::eventType_t::analogButton,
+                          [this](const Messaging::event_t& event) {
+                              send(Database::Config::block_t::analog, event.componentIndex);
+                          });
+
+    MIDIDispatcher.listen(Messaging::eventType_t::button,
                           [this](const Messaging::event_t& event) {
                               send(Database::Config::block_t::buttons, event.componentIndex);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::encoders,
-                          Messaging::listenType_t::all,
+    MIDIDispatcher.listen(Messaging::eventType_t::encoder,
                           [this](const Messaging::event_t& event) {
                               send(Database::Config::block_t::encoders, event.componentIndex);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::touchscreenButton,
-                          Messaging::listenType_t::all,
+    MIDIDispatcher.listen(Messaging::eventType_t::touchscreenButton,
                           [this](const Messaging::event_t& event) {
                               send(Database::Config::block_t::touchscreen, event.componentIndex);
                           });

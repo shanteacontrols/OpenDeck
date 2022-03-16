@@ -33,14 +33,12 @@ Touchscreen::Touchscreen(HWA&                hwa,
     , _database(database)
     , _cdcPassthrough(cdcPassthrough)
 {
-    MIDIDispatcher.listen(Messaging::eventSource_t::leds,
-                          Messaging::listenType_t::fwd,
+    MIDIDispatcher.listen(Messaging::eventType_t::touchscreenLED,
                           [this](const Messaging::event_t& event) {
                               setIconState(event.componentIndex, event.midiValue);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventSource_t::preset,
-                          Messaging::listenType_t::all,
+    MIDIDispatcher.listen(Messaging::eventType_t::preset,
                           [this](const Messaging::event_t& event) {
                               if (!init(mode_t::normal))
                               {
@@ -377,9 +375,7 @@ void Touchscreen::buttonHandler(size_t index, bool state)
     event.midiValue      = state;
 
     // mark this as forwarding message type - further action/processing is required
-    MIDIDispatcher.notify(Messaging::eventSource_t::touchscreenButton,
-                          event,
-                          Messaging::listenType_t::fwd);
+    MIDIDispatcher.notify(Messaging::eventType_t::touchscreenButton, event);
 }
 
 void Touchscreen::screenChangeHandler(size_t screenID)
@@ -389,9 +385,7 @@ void Touchscreen::screenChangeHandler(size_t screenID)
     event.componentIndex = screenID;
 
     // mark this as forwarding message type - further action/processing is required
-    MIDIDispatcher.notify(Messaging::eventSource_t::touchscreenScreen,
-                          event,
-                          Messaging::listenType_t::fwd);
+    MIDIDispatcher.notify(Messaging::eventType_t::touchscreenScreen, event);
 }
 
 std::optional<uint8_t> Touchscreen::sysConfigGet(System::Config::Section::touchscreen_t section, size_t index, uint16_t& value)

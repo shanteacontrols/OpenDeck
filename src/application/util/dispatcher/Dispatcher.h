@@ -27,13 +27,6 @@ namespace Util
     class Dispatcher
     {
         public:
-        enum listenType_t
-        {
-            nonFwd,
-            fwd,
-            all
-        };
-
         using messageCallback_t = std::function<void(const Event& event)>;
 
         static Dispatcher& instance()
@@ -42,12 +35,12 @@ namespace Util
             return _instance;
         }
 
-        void listen(Source source, listenType_t listenType, messageCallback_t&& callback)
+        void listen(Source source, messageCallback_t&& callback)
         {
-            _listener.push_back({ source, listenType, std::move(callback) });
+            _listener.push_back({ source, std::move(callback) });
         }
 
-        void notify(Source source, Event const& event, listenType_t listenType)
+        void notify(Source source, Event const& event)
         {
             for (size_t i = 0; i < _listener.size(); i++)
             {
@@ -55,10 +48,7 @@ namespace Util
                 {
                     if (_listener[i].callback != nullptr)
                     {
-                        if ((_listener[i].listenType == listenType) || (_listener[i].listenType == listenType_t::all))
-                        {
-                            _listener[i].callback(event);
-                        }
+                        _listener[i].callback(event);
                     }
                 }
             }
@@ -75,8 +65,7 @@ namespace Util
         struct listener_t
         {
             Source            source;
-            listenType_t      listenType = listenType_t::nonFwd;
-            messageCallback_t callback   = nullptr;
+            messageCallback_t callback = nullptr;
         };
 
         std::vector<listener_t> _listener = {};

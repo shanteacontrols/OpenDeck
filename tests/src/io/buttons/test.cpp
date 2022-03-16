@@ -27,8 +27,7 @@ namespace
                 _buttons._instance.reset(i);
             }
 
-            MIDIDispatcher.listen(Messaging::eventSource_t::buttons,
-                                  Messaging::listenType_t::nonFwd,
+            MIDIDispatcher.listen(Messaging::eventType_t::button,
                                   [this](const Messaging::event_t& dispatchMessage) {
                                       _listener.messageListener(dispatchMessage);
                                   });

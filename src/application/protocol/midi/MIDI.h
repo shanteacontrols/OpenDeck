@@ -103,7 +103,7 @@ namespace Protocol
         bool                   isDinLoopbackRequired();
         std::optional<uint8_t> sysConfigGet(System::Config::Section::global_t section, size_t index, uint16_t& value);
         std::optional<uint8_t> sysConfigSet(System::Config::Section::global_t section, size_t index, uint16_t value);
-        void                   sendMIDI(Messaging::eventSource_t source, const Messaging::event_t& event);
+        void                   sendMIDI(Messaging::eventType_t source, const Messaging::event_t& event);
         void                   setNoteOffMode(noteOffType_t type);
         bool                   setupUSBMIDI();
         bool                   setupDINMIDI();

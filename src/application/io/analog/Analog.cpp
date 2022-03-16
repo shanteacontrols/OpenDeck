@@ -35,8 +35,7 @@ Analog::Analog(HWA&                hwa,
     , _filter(filter)
     , _database(database)
 {
-    MIDIDispatcher.listen(Messaging::eventSource_t::system,
-                          Messaging::listenType_t::all,
+    MIDIDispatcher.listen(Messaging::eventType_t::system,
                           [this](const Messaging::event_t& event) {
                               switch (event.componentIndex)
                               {
@@ -285,8 +284,8 @@ bool Analog::checkFSRvalue(size_t index, analogDescriptor_t& descriptor)
 
 void Analog::sendMessage(size_t index, analogDescriptor_t& descriptor)
 {
-    bool send    = true;
-    bool forward = false;
+    bool send      = true;
+    auto eventType = Messaging::eventType_t::analog;
 
     switch (descriptor.type)
     {
@@ -307,7 +306,7 @@ void Analog::sendMessage(size_t index, analogDescriptor_t& descriptor)
 
     case type_t::button:
     {
-        forward = true;
+        eventType = Messaging::eventType_t::analogButton;
     }
     break;
 
@@ -331,9 +330,7 @@ void Analog::sendMessage(size_t index, analogDescriptor_t& descriptor)
 
     if (send)
     {
-        MIDIDispatcher.notify(Messaging::eventSource_t::analog,
-                              descriptor.event,
-                              forward ? Messaging::listenType_t::fwd : Messaging::listenType_t::nonFwd);
+        MIDIDispatcher.notify(eventType, descriptor.event);
     }
 }
 
