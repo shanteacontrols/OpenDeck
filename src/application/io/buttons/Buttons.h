@@ -84,6 +84,7 @@ namespace IO
             multiValIncDecCC,
             noteOffOnly,
             controlChange0Only,
+            dmx,
             AMOUNT
         };
 

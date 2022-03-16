@@ -57,6 +57,7 @@ namespace IO
             nrpn14bit,
             pitchBend,
             controlChange14bit,
+            dmx,
             AMOUNT
         };
 

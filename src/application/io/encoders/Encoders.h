@@ -53,6 +53,7 @@ namespace IO
             nrpn7bit,
             nrpn14bit,
             controlChange14bit,
+            dmx,
             AMOUNT
         };
 

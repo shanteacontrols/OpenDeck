@@ -237,6 +237,7 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
             case type_t::nrpn7bit:
             case type_t::nrpn14bit:
             case type_t::controlChange14bit:
+            case type_t::dmx:
             {
                 const bool use14bit =
                     ((descriptor.type == type_t::pitchBend) || (descriptor.type == type_t::nrpn14bit) || (descriptor.type == type_t::controlChange14bit));
@@ -257,7 +258,8 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
                 }
                 else
                 {
-                    int16_t limit = use14bit ? 16383 : 127;
+                    int16_t limit = use14bit ? 16383 : (descriptor.type == type_t::dmx) ? 255
+                                                                                        : 127;
 
                     _midiValue[index] += steps;
 
@@ -265,6 +267,11 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
                     {
                         _midiValue[index] = limit;
                     }
+                }
+
+                if (descriptor.type == type_t::dmx)
+                {
+                    descriptor.event.midiIndex = 0;    // irrelevant
                 }
 
                 descriptor.event.midiValue = _midiValue[index];
@@ -298,7 +305,8 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
 
 void Encoders::sendMessage(size_t index, encoderDescriptor_t& descriptor)
 {
-    bool send = true;
+    bool send      = true;
+    auto eventType = Messaging::eventType_t::encoder;
 
     switch (descriptor.type)
     {
@@ -322,6 +330,12 @@ void Encoders::sendMessage(size_t index, encoderDescriptor_t& descriptor)
     }
     break;
 
+    case type_t::dmx:
+    {
+        eventType = Messaging::eventType_t::dmxEncoder;
+    }
+    break;
+
     default:
     {
         send = false;
@@ -331,7 +345,7 @@ void Encoders::sendMessage(size_t index, encoderDescriptor_t& descriptor)
 
     if (send)
     {
-        MIDIDispatcher.notify(Messaging::eventType_t::encoder, descriptor.event);
+        MIDIDispatcher.notify(eventType, descriptor.event);
     }
 }
 

@@ -106,7 +106,8 @@ namespace IO
             const bool fastFilter = (core::timing::currentRunTimeMs() - _lastStableMovementTime[index]) < FAST_FILTER_ENABLE_AFTER_MS;
 
             const bool     use14bit     = (descriptor.type == Analog::type_t::nrpn14bit) || (descriptor.type == Analog::type_t::pitchBend) || (descriptor.type == Analog::type_t::controlChange14bit);
-            const uint16_t maxLimit     = use14bit ? MIDI::MIDI_14_BIT_VALUE_MAX : MIDI::MIDI_7_BIT_VALUE_MAX;
+            const uint16_t maxLimit     = use14bit ? MIDI::MIDI_14_BIT_VALUE_MAX : (descriptor.type == Analog::type_t::dmx) ? 255
+                                                                                                                            : MIDI::MIDI_7_BIT_VALUE_MAX;
             const bool     direction    = descriptor.value >= _lastStableValue[index];
             const auto     oldMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(_lastStableValue[index]), adcMinValue, adcMaxValue, static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
             uint16_t       stepDiff     = 1;

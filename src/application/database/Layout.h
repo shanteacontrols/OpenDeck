@@ -129,7 +129,7 @@ namespace Database
             // midi channel section
             {
                 IO::Buttons::Collection::size(),
-                LESSDB::sectionParameterType_t::byte,
+                LESSDB::sectionParameterType_t::word,
                 LESSDB::preserveSetting_t::disable,
                 LESSDB::autoIncrementSetting_t::disable,
                 1,
@@ -176,7 +176,7 @@ namespace Database
             // midi channel section
             {
                 IO::Encoders::Collection::size(),
-                LESSDB::sectionParameterType_t::byte,
+                LESSDB::sectionParameterType_t::word,
                 LESSDB::preserveSetting_t::disable,
                 LESSDB::autoIncrementSetting_t::disable,
                 1,
@@ -268,7 +268,7 @@ namespace Database
             // midi channel section
             {
                 IO::Analog::Collection::size(),
-                LESSDB::sectionParameterType_t::byte,
+                LESSDB::sectionParameterType_t::word,
                 LESSDB::preserveSetting_t::disable,
                 LESSDB::autoIncrementSetting_t::disable,
                 1,
@@ -342,7 +342,7 @@ namespace Database
             // midi channel section
             {
                 IO::LEDs::Collection::size(),
-                LESSDB::sectionParameterType_t::byte,
+                LESSDB::sectionParameterType_t::word,
                 LESSDB::preserveSetting_t::disable,
                 LESSDB::autoIncrementSetting_t::disable,
                 1,

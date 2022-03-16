@@ -47,6 +47,21 @@ ComponentInfo::ComponentInfo()
                           [this](const Messaging::event_t& event) {
                               send(Database::Config::block_t::touchscreen, event.componentIndex);
                           });
+
+    MIDIDispatcher.listen(Messaging::eventType_t::dmxAnalog,
+                          [this](const Messaging::event_t& event) {
+                              send(Database::Config::block_t::analog, event.componentIndex);
+                          });
+
+    MIDIDispatcher.listen(Messaging::eventType_t::dmxButton,
+                          [this](const Messaging::event_t& event) {
+                              send(Database::Config::block_t::buttons, event.componentIndex);
+                          });
+
+    MIDIDispatcher.listen(Messaging::eventType_t::dmxEncoder,
+                          [this](const Messaging::event_t& event) {
+                              send(Database::Config::block_t::encoders, event.componentIndex);
+                          });
 }
 
 void ComponentInfo::registerHandler(cinfoHandler_t&& handler)

@@ -96,15 +96,15 @@ namespace System
             // midi velocity section
             {
                 IO::Buttons::Collection::size(),
-                1,
-                127,
+                0,
+                255,
             },
 
             // midi channel section
             {
                 IO::Buttons::Collection::size(),
                 1,
-                17,
+                512,
             }
         };
 
@@ -141,7 +141,7 @@ namespace System
             {
                 IO::Encoders::Collection::size(),
                 1,
-                17,
+                512,
             },
 
             // pulses per step section
@@ -241,7 +241,7 @@ namespace System
             {
                 IO::Analog::Collection::size(),
                 1,
-                17,
+                512,
             },
 
             // lower adc percentage offset
@@ -313,7 +313,7 @@ namespace System
             {
                 IO::LEDs::Collection::size(),
                 1,
-                17,
+                512,
             }
         };
 

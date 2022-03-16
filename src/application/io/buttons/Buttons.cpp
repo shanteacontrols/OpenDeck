@@ -230,7 +230,8 @@ void Buttons::processButton(size_t index, bool reading, buttonDescriptor_t& desc
 /// param [in]: descriptor      Structure holding all the information about button for specified index.
 void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descriptor)
 {
-    bool send = true;
+    bool send      = true;
+    auto eventType = Messaging::eventType_t::button;
 
     if (state)
     {
@@ -250,6 +251,13 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
         case messageType_t::mmcPause:
         case messageType_t::mmcRecord:
             break;
+
+        case messageType_t::dmx:
+        {
+            descriptor.event.midiIndex = 0;    // irrelevant
+            eventType                  = Messaging::eventType_t::dmxButton;
+        }
+        break;
 
         case messageType_t::programChange:
         case messageType_t::programChangeInc:
@@ -416,7 +424,7 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
 
     if (send)
     {
-        MIDIDispatcher.notify(Messaging::eventType_t::button, descriptor.event);
+        MIDIDispatcher.notify(eventType, descriptor.event);
     }
 }
 
@@ -507,6 +515,7 @@ void Buttons::fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor)
     case messageType_t::multiValIncDecNote:
     case messageType_t::multiValIncResetCC:
     case messageType_t::multiValIncDecCC:
+    case messageType_t::dmx:
     {
         descriptor.type = type_t::momentary;
     }

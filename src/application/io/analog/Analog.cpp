@@ -154,6 +154,7 @@ void Analog::processReading(size_t index, uint16_t value)
         case type_t::nrpn14bit:
         case type_t::pitchBend:
         case type_t::controlChange14bit:
+        case type_t::dmx:
         {
             if (checkPotentiometerValue(index, analogDescriptor))
             {
@@ -190,12 +191,27 @@ bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descripto
 {
     uint16_t maxLimit;
 
-    if ((descriptor.type == type_t::nrpn14bit) || (descriptor.type == type_t::pitchBend) || (descriptor.type == type_t::controlChange14bit))
+    switch (descriptor.type)
+    {
+    case type_t::nrpn14bit:
+    case type_t::pitchBend:
+    case type_t::controlChange14bit:
     {
         // 14-bit values are already read
         maxLimit = MIDI::MIDI_14_BIT_VALUE_MAX;
     }
-    else
+    break;
+
+    case type_t::dmx:
+    {
+        maxLimit                   = 255;
+        descriptor.event.midiIndex = 0;    // irrelevant
+        descriptor.lowerLimit &= 0xFF;
+        descriptor.upperLimit &= 0xFF;
+    }
+    break;
+
+    default:
     {
         maxLimit = MIDI::MIDI_7_BIT_VALUE_MAX;
 
@@ -208,6 +224,8 @@ bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descripto
 
         auto splitUpperLimit  = Util::Conversion::Split14bit(descriptor.upperLimit);
         descriptor.upperLimit = splitUpperLimit.low();
+    }
+    break;
     }
 
     if (descriptor.event.midiValue > maxLimit)
@@ -307,6 +325,12 @@ void Analog::sendMessage(size_t index, analogDescriptor_t& descriptor)
     case type_t::button:
     {
         eventType = Messaging::eventType_t::analogButton;
+    }
+    break;
+
+    case type_t::dmx:
+    {
+        eventType = Messaging::eventType_t::dmxAnalog;
     }
     break;
 

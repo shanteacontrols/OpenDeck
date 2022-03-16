@@ -41,6 +41,21 @@ Protocol::DMX::DMX(HWA& hwa, Database::Instance& database)
                               }
                           });
 
+    MIDIDispatcher.listen(Messaging::eventType_t::dmxAnalog,
+                          [this](const Messaging::event_t& event) {
+                              updateChannelValue(event.midiChannel, event.midiValue);
+                          });
+
+    MIDIDispatcher.listen(Messaging::eventType_t::dmxButton,
+                          [this](const Messaging::event_t& event) {
+                              updateChannelValue(event.midiChannel, event.midiValue);
+                          });
+
+    MIDIDispatcher.listen(Messaging::eventType_t::dmxEncoder,
+                          [this](const Messaging::event_t& event) {
+                              updateChannelValue(event.midiChannel, event.midiValue);
+                          });
+
     ConfigHandler.registerConfig(
         System::Config::block_t::global,
         // read

@@ -36,6 +36,9 @@ namespace Messaging
         preset,
         program,
         system,
+        dmxAnalog,
+        dmxButton,
+        dmxEncoder,
     };
 
     // enum indicating what types of system-level messages are possible.
