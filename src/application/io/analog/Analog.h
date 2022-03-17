@@ -89,6 +89,7 @@ namespace IO
                 uint16_t       value       = 0;
                 uint16_t       lowerOffset = 0;
                 uint16_t       upperOffset = 0;
+                uint16_t       maxValue    = 127;
             };
 
             virtual bool     isFiltered(size_t index, descriptor_t& descriptor) = 0;
@@ -115,6 +116,7 @@ namespace IO
             uint16_t           upperLimit  = 0;
             uint8_t            lowerOffset = 0;
             uint8_t            upperOffset = 0;
+            uint16_t           maxValue    = 127;
             Messaging::event_t event;
 
             analogDescriptor_t() = default;

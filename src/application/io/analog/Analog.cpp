@@ -134,6 +134,7 @@ void Analog::processReading(size_t index, uint16_t value)
     filterDescriptor.value       = value;
     filterDescriptor.lowerOffset = analogDescriptor.lowerOffset;
     filterDescriptor.upperOffset = analogDescriptor.upperOffset;
+    filterDescriptor.maxValue    = analogDescriptor.maxValue;
 
     if (!_filter.isFiltered(index, filterDescriptor))
     {
@@ -189,22 +190,15 @@ void Analog::processReading(size_t index, uint16_t value)
 
 bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descriptor)
 {
-    uint16_t maxLimit;
-
     switch (descriptor.type)
     {
     case type_t::nrpn14bit:
     case type_t::pitchBend:
     case type_t::controlChange14bit:
-    {
-        // 14-bit values are already read
-        maxLimit = MIDI::MIDI_14_BIT_VALUE_MAX;
-    }
-    break;
+        break;
 
     case type_t::dmx:
     {
-        maxLimit                   = 255;
         descriptor.event.midiIndex = 0;    // irrelevant
         descriptor.lowerLimit &= 0xFF;
         descriptor.upperLimit &= 0xFF;
@@ -213,8 +207,6 @@ bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descripto
 
     default:
     {
-        maxLimit = MIDI::MIDI_7_BIT_VALUE_MAX;
-
         // use 7-bit MIDI ID and limits
         auto splitIndex            = Util::Conversion::Split14bit(descriptor.event.midiIndex);
         descriptor.event.midiIndex = splitIndex.low();
@@ -228,7 +220,7 @@ bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descripto
     break;
     }
 
-    if (descriptor.event.midiValue > maxLimit)
+    if (descriptor.event.midiValue > descriptor.maxValue)
     {
         return false;
     }
@@ -238,7 +230,7 @@ bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descripto
 
         if (descriptor.lowerLimit > descriptor.upperLimit)
         {
-            scaled = core::misc::mapRange(static_cast<uint32_t>(value), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(descriptor.upperLimit), static_cast<uint32_t>(descriptor.lowerLimit));
+            scaled = core::misc::mapRange(static_cast<uint32_t>(value), static_cast<uint32_t>(0), static_cast<uint32_t>(descriptor.maxValue), static_cast<uint32_t>(descriptor.upperLimit), static_cast<uint32_t>(descriptor.lowerLimit));
 
             if (!descriptor.inverted)
             {
@@ -247,7 +239,7 @@ bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descripto
         }
         else
         {
-            scaled = core::misc::mapRange(static_cast<uint32_t>(value), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(descriptor.lowerLimit), static_cast<uint32_t>(descriptor.upperLimit));
+            scaled = core::misc::mapRange(static_cast<uint32_t>(value), static_cast<uint32_t>(0), static_cast<uint32_t>(descriptor.maxValue), static_cast<uint32_t>(descriptor.lowerLimit), static_cast<uint32_t>(descriptor.upperLimit));
 
             if (descriptor.inverted)
             {
@@ -392,6 +384,29 @@ void Analog::fillAnalogDescriptor(size_t index, analogDescriptor_t& descriptor)
     descriptor.event.midiChannel    = _database.read(Database::Config::Section::analog_t::midiChannel, index);
     descriptor.event.midiIndex      = _database.read(Database::Config::Section::analog_t::midiID, index);
     descriptor.event.message        = _internalMsgToMIDIType[static_cast<uint8_t>(descriptor.type)];
+
+    switch (descriptor.type)
+    {
+    case type_t::nrpn14bit:
+    case type_t::pitchBend:
+    case type_t::controlChange14bit:
+    {
+        descriptor.maxValue = MIDI::MIDI_14_BIT_VALUE_MAX;
+    }
+    break;
+
+    case type_t::dmx:
+    {
+        descriptor.maxValue = 255;
+    }
+    break;
+
+    default:
+    {
+        descriptor.maxValue = MIDI::MIDI_7_BIT_VALUE_MAX;
+    }
+    break;
+    }
 }
 
 std::optional<uint8_t> Analog::sysConfigGet(System::Config::Section::analog_t section, size_t index, uint16_t& value)

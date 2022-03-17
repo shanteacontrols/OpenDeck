@@ -103,16 +103,12 @@ namespace IO
             };
 #endif
 
-            const bool fastFilter = (core::timing::currentRunTimeMs() - _lastStableMovementTime[index]) < FAST_FILTER_ENABLE_AFTER_MS;
+            const bool fastFilter   = (core::timing::currentRunTimeMs() - _lastStableMovementTime[index]) < FAST_FILTER_ENABLE_AFTER_MS;
+            const bool direction    = descriptor.value >= _lastStableValue[index];
+            const auto oldMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(_lastStableValue[index]), adcMinValue, adcMaxValue, static_cast<uint32_t>(0), static_cast<uint32_t>(descriptor.maxValue));
+            uint16_t   stepDiff     = 1;
 
-            const bool     use14bit     = (descriptor.type == Analog::type_t::nrpn14bit) || (descriptor.type == Analog::type_t::pitchBend) || (descriptor.type == Analog::type_t::controlChange14bit);
-            const uint16_t maxLimit     = use14bit ? MIDI::MIDI_14_BIT_VALUE_MAX : (descriptor.type == Analog::type_t::dmx) ? 255
-                                                                                                                            : MIDI::MIDI_7_BIT_VALUE_MAX;
-            const bool     direction    = descriptor.value >= _lastStableValue[index];
-            const auto     oldMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(_lastStableValue[index]), adcMinValue, adcMaxValue, static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
-            uint16_t       stepDiff     = 1;
-
-            if (((direction != lastStableDirection(index)) || !fastFilter) && ((oldMIDIvalue != 0) && (oldMIDIvalue != maxLimit)))
+            if (((direction != lastStableDirection(index)) || !fastFilter) && ((oldMIDIvalue != 0) && (oldMIDIvalue != descriptor.maxValue)))
             {
                 stepDiff = _stepDiff7Bit * 2;
             }
@@ -149,7 +145,7 @@ namespace IO
             descriptor.value = _emaFilter[index].value(descriptor.value);
 #endif
 
-            const auto midiValue = core::misc::mapRange(static_cast<uint32_t>(descriptor.value), adcMinValue, adcMaxValue, static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
+            const auto midiValue = core::misc::mapRange(static_cast<uint32_t>(descriptor.value), adcMinValue, adcMaxValue, static_cast<uint32_t>(0), static_cast<uint32_t>(descriptor.maxValue));
 
             if (midiValue == oldMIDIvalue)
                 return false;
@@ -158,14 +154,20 @@ namespace IO
             _lastStableValue[index] = descriptor.value;
 
             // when edge values are reached, disable fast filter by resetting last movement time
-            if ((midiValue == 0) || (midiValue == maxLimit))
+            if ((midiValue == 0) || (midiValue == descriptor.maxValue))
                 _lastStableMovementTime[index] = 0;
             else
                 _lastStableMovementTime[index] = core::timing::currentRunTimeMs();
 
             if (descriptor.type == Analog::type_t::fsr)
             {
-                descriptor.value = core::misc::mapRange(CONSTRAIN(descriptor.value, static_cast<uint32_t>(_adcConfig.fsrMinValue), static_cast<uint32_t>(_adcConfig.fsrMaxValue)), static_cast<uint32_t>(_adcConfig.fsrMinValue), static_cast<uint32_t>(_adcConfig.fsrMaxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI::MIDI_7_BIT_VALUE_MAX));
+                descriptor.value = core::misc::mapRange(CONSTRAIN(descriptor.value,
+                                                                  static_cast<uint32_t>(_adcConfig.fsrMinValue),
+                                                                  static_cast<uint32_t>(_adcConfig.fsrMaxValue)),
+                                                        static_cast<uint32_t>(_adcConfig.fsrMinValue),
+                                                        static_cast<uint32_t>(_adcConfig.fsrMaxValue),
+                                                        static_cast<uint32_t>(0),
+                                                        static_cast<uint32_t>(descriptor.maxValue));
             }
             else
             {
