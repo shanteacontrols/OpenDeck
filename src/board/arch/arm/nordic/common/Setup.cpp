@@ -20,18 +20,12 @@ limitations under the License.
 #include "board/Internal.h"
 #include "nrf.h"
 
-namespace Board
+namespace Board::detail::setup
 {
-    namespace detail
+    void timers()
     {
-        namespace setup
-        {
-            void timers()
-            {
-                // use systick timer on 100us period
-                SysTick_Config(SystemCoreClock / 10000);
-                NVIC_EnableIRQ(SysTick_IRQn);
-            }
-        }    // namespace setup
-    }        // namespace detail
-}    // namespace Board
+        // use systick timer on 100us period
+        SysTick_Config(SystemCoreClock / 10000);
+        NVIC_EnableIRQ(SysTick_IRQn);
+    }
+}    // namespace Board::detail::setup

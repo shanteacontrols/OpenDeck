@@ -89,37 +89,37 @@ namespace Board
     {
         enum class initStatus_t : uint8_t
         {
-            ok,
-            error,
-            alreadyInit
+            OK,
+            ERROR,
+            ALREADY_INIT
         };
 
         enum parity_t : uint8_t
         {
-            no,
-            even,
-            odd
+            NO,
+            EVEN,
+            ODD
         };
 
         enum stopBits_t : uint8_t
         {
-            one,
-            two
+            ONE,
+            TWO
         };
 
         enum type_t : uint8_t
         {
-            rxTx,
-            rx,
-            tx
+            RX_TX,
+            RX,
+            TX
         };
 
         struct config_t
         {
             uint32_t   baudRate = 9600;
-            parity_t   parity   = parity_t::no;
-            stopBits_t stopBits = stopBits_t::one;
-            type_t     type     = type_t::rxTx;
+            parity_t   parity   = parity_t::NO;
+            stopBits_t stopBits = stopBits_t::ONE;
+            type_t     type     = type_t::RX_TX;
             bool       dmxMode  = false;
 
             config_t(uint32_t   baudRate,
@@ -212,15 +212,15 @@ namespace Board
     {
         enum class clockSpeed_t : uint32_t
         {
-            _100k = 100000,
-            _400k = 400000
+            S100K = 100000,
+            S400K = 400000
         };
 
         /// Initializes I2C peripheral on the MCU.
         /// param [in]: channel     I2C interface channel on MCU.
         /// param [in]: clockSpeed  I2C interface speed.
         /// returns: True on success, false otherwise.
-        bool init(uint8_t channel, clockSpeed_t clockSpeed);
+        bool init(uint8_t channel, clockSpeed_t speed);
 
         /// Denitializes I2C peripheral on the MCU.
         /// param [in]: channel     I2C interface channel on MCU.
@@ -246,46 +246,46 @@ namespace Board
     {
         enum class rgbIndex_t : uint8_t
         {
-            r,
-            g,
-            b
+            R,
+            G,
+            B
         };
 
         enum class ledBrightness_t : uint8_t
         {
-            bOff = 0,
-            b25  = 1,
-            b50  = 2,
-            b75  = 3,
-            b100 = 4
+            OFF  = 0,
+            B25  = 1,
+            B50  = 2,
+            B75  = 3,
+            B100 = 4
         };
 
         enum class encoderIndex_t : uint8_t
         {
-            a,
-            b
+            A,
+            B
         };
 
         /// Structure containing digital input readings for a given input.
         /// Count represents total amount of readings stored in readings variable.
         /// Readings variable contains up to 16 last readings where LSB bit is the
         /// newest reading, and MSB bit is the last.
-        typedef struct
+        struct dInReadings_t
         {
             uint8_t  count;
             uint16_t readings;
-        } dInReadings_t;
+        };
 
         enum class dataSource_t : uint8_t
         {
-            usb,
-            uart
+            USB,
+            UART
         };
 
         enum class dataDirection_t : uint8_t
         {
-            incoming,
-            outgoing
+            INCOMING,
+            OUTGOING
         };
 
         /// Returns last read digital input states for requested digital input index.
@@ -339,9 +339,9 @@ namespace Board
 
         enum class parameterType_t : uint8_t
         {
-            byte,
-            word,
-            dword
+            BYTE,
+            WORD,
+            DWORD
         };
 
         /// Initializes and prepares non-volatile storage on board.

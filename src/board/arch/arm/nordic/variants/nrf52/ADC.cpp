@@ -64,17 +64,17 @@ namespace core::adc
         nrf_saadc_oversample_set(NRF_SAADC, NRF_SAADC_OVERSAMPLE_16X);
         nrf_saadc_int_set(NRF_SAADC, NRF_SAADC_INT_STARTED | NRF_SAADC_INT_STOPPED | NRF_SAADC_INT_END);
 
-        for (uint32_t ch_pos = 0; ch_pos < SAADC_CH_NUM; ch_pos++)
+        for (uint32_t chPos = 0; chPos < SAADC_CH_NUM; chPos++)
         {
             nrf_saadc_input_t pselp = NRF_SAADC_INPUT_DISABLED;
 
-            if ((1 << adcChannel) & (1 << ch_pos))
+            if ((1 << adcChannel) & (1 << chPos))
             {
-                pselp = static_cast<nrf_saadc_input_t>(ch_pos + 1);
+                pselp = static_cast<nrf_saadc_input_t>(chPos + 1);
             }
 
-            nrf_saadc_burst_set(NRF_SAADC, ch_pos, NRF_SAADC_BURST_ENABLED);
-            nrf_saadc_channel_input_set(NRF_SAADC, ch_pos, pselp, NRF_SAADC_INPUT_DISABLED);
+            nrf_saadc_burst_set(NRF_SAADC, chPos, NRF_SAADC_BURST_ENABLED);
+            nrf_saadc_channel_input_set(NRF_SAADC, chPos, pselp, NRF_SAADC_INPUT_DISABLED);
         }
     }
 }    // namespace core::adc

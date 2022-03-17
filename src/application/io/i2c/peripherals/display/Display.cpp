@@ -47,38 +47,44 @@ Display::Display(I2C::HWA&           hwa,
 {
     _hwa = &hwa;
 
-    MIDIDispatcher.listen(Messaging::eventType_t::analog,
-                          [this](const Messaging::event_t& event) {
-                              displayMIDIevent(Display::eventType_t::out, event);
+    MIDIDispatcher.listen(Messaging::eventType_t::ANALOG,
+                          [this](const Messaging::event_t& event)
+                          {
+                              displayEvent(Display::eventType_t::OUT, event);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::button,
-                          [this](const Messaging::event_t& event) {
-                              displayMIDIevent(Display::eventType_t::out, event);
+    MIDIDispatcher.listen(Messaging::eventType_t::BUTTON,
+                          [this](const Messaging::event_t& event)
+                          {
+                              displayEvent(Display::eventType_t::OUT, event);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::encoder,
-                          [this](const Messaging::event_t& event) {
-                              displayMIDIevent(Display::eventType_t::out, event);
+    MIDIDispatcher.listen(Messaging::eventType_t::ENCODER,
+                          [this](const Messaging::event_t& event)
+                          {
+                              displayEvent(Display::eventType_t::OUT, event);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::midiIn,
-                          [this](const Messaging::event_t& event) {
-                              if (event.message != MIDI::messageType_t::systemExclusive)
+    MIDIDispatcher.listen(Messaging::eventType_t::MIDI_IN,
+                          [this](const Messaging::event_t& event)
+                          {
+                              if (event.message != MIDI::messageType_t::SYS_EX)
                               {
-                                  displayMIDIevent(Display::eventType_t::in, event);
+                                  displayEvent(Display::eventType_t::IN, event);
                               }
                           });
 
     ConfigHandler.registerConfig(
-        System::Config::block_t::i2c,
+        System::Config::block_t::I2C,
         // read
-        [this](uint8_t section, size_t index, uint16_t& value) {
+        [this](uint8_t section, size_t index, uint16_t& value)
+        {
             return sysConfigGet(static_cast<System::Config::Section::i2c_t>(section), index, value);
         },
 
         // write
-        [this](uint8_t section, size_t index, uint16_t value) {
+        [this](uint8_t section, size_t index, uint16_t value)
+        {
             return sysConfigSet(static_cast<System::Config::Section::i2c_t>(section), index, value);
         });
 
@@ -89,10 +95,10 @@ bool Display::init(uint8_t address)
 {
     _selectedI2Caddress = address;
 
-    if (_database.read(Database::Config::Section::i2c_t::display, setting_t::enable))
+    if (_database.read(Database::Config::Section::i2c_t::DISPLAY, setting_t::ENABLE))
     {
-        auto controller = static_cast<displayController_t>(_database.read(Database::Config::Section::i2c_t::display, setting_t::controller));
-        auto resolution = static_cast<displayResolution_t>(_database.read(Database::Config::Section::i2c_t::display, setting_t::resolution));
+        auto controller = static_cast<displayController_t>(_database.read(Database::Config::Section::i2c_t::DISPLAY, setting_t::CONTROLLER));
+        auto resolution = static_cast<displayResolution_t>(_database.read(Database::Config::Section::i2c_t::DISPLAY, setting_t::RESOLUTION));
 
         if (initU8X8(address, controller, resolution))
         {
@@ -113,16 +119,16 @@ bool Display::init(uint8_t address)
 
             if (!_startupInfoShown)
             {
-                if (_database.read(Database::Config::Section::i2c_t::display, setting_t::deviceInfoMsg) && !_startupInfoShown)
+                if (_database.read(Database::Config::Section::i2c_t::DISPLAY, setting_t::DEVICE_INFO_MSG) && !_startupInfoShown)
                 {
                     displayWelcomeMessage();
                 }
             }
 
-            setRetentionTime(_database.read(Database::Config::Section::i2c_t::display, setting_t::MIDIeventTime) * 1000);
+            setRetentionTime(_database.read(Database::Config::Section::i2c_t::DISPLAY, setting_t::EVENT_TIME) * 1000);
 
-            clearMIDIevent(eventType_t::in);
-            clearMIDIevent(eventType_t::out);
+            clearEvent(eventType_t::IN);
+            clearEvent(eventType_t::OUT);
         }
         else
         {
@@ -145,19 +151,21 @@ bool Display::initU8X8(uint8_t i2cAddress, displayController_t controller, displ
     u8x8_SetupDefaults(&_u8x8);
 
     // i2c hw access
-    auto gpioDelay = [](u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, U8X8_UNUSED void* arg_ptr) -> uint8_t {
+    auto gpioDelay = [](u8x8_t* u8x8, uint8_t msg, uint8_t argInt, U8X8_UNUSED void* argPtr) -> uint8_t
+    {
         return 0;
     };
 
-    auto i2cHWA = [](u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_ptr) -> uint8_t {
-        auto* array = (uint8_t*)arg_ptr;
+    auto i2cHWA = [](u8x8_t* u8x8, uint8_t msg, uint8_t argInt, void* argPtr) -> uint8_t
+    {
+        auto* array = (uint8_t*)argPtr;
 
         switch (msg)
         {
         case U8X8_MSG_BYTE_SEND:
         {
-            memcpy(&u8x8Buffer[u8x8Counter], array, arg_int);
-            u8x8Counter += arg_int;
+            memcpy(&u8x8Buffer[u8x8Counter], array, argInt);
+            u8x8Counter += argInt;
         }
         break;
 
@@ -181,7 +189,7 @@ bool Display::initU8X8(uint8_t i2cAddress, displayController_t controller, displ
     };
 
     // setup specific callbacks depending on controller/resolution
-    if ((resolution == displayResolution_t::_128x64) && (controller == displayController_t::ssd1306))
+    if ((resolution == displayResolution_t::R128X64) && (controller == displayController_t::SSD1306))
     {
         _u8x8.display_cb        = u8x8_d_ssd1306_128x64_noname;
         _u8x8.cad_cb            = u8x8_cad_ssd13xx_i2c;
@@ -191,7 +199,7 @@ bool Display::initU8X8(uint8_t i2cAddress, displayController_t controller, displ
         _columns                = 16;
         success                 = true;
     }
-    else if ((resolution == displayResolution_t::_128x32) && (controller == displayController_t::ssd1306))
+    else if ((resolution == displayResolution_t::R128X32) && (controller == displayController_t::SSD1306))
     {
         _u8x8.display_cb        = u8x8_d_ssd1306_128x32_univision;
         _u8x8.cad_cb            = u8x8_cad_ssd13xx_i2c;
@@ -235,8 +243,8 @@ bool Display::deInit()
 
 const uint8_t* Display::addresses(size_t& amount)
 {
-    amount = sizeof(_i2cAddress) / sizeof(uint8_t);
-    return _i2cAddress;
+    amount = sizeof(I2C_ADDRESS) / sizeof(uint8_t);
+    return I2C_ADDRESS;
 }
 
 /// Checks if LCD requires updating continuously.
@@ -264,20 +272,20 @@ void Display::update()
             continue;
         }
 
-        int8_t string_len = strlen(charPointer) > LCD_WIDTH_MAX ? LCD_WIDTH_MAX : strlen(charPointer);
+        int8_t stringLen = strlen(charPointer) > LCD_WIDTH_MAX ? LCD_WIDTH_MAX : strlen(charPointer);
 
-        for (int j = 0; j < string_len; j++)
+        for (int j = 0; j < stringLen; j++)
         {
             if (BIT_READ(_charChange[i], j))
             {
-                u8x8_DrawGlyph(&_u8x8, j, _rowMap[_resolution][i], charPointer[j]);
+                u8x8_DrawGlyph(&_u8x8, j, ROW_MAP[_resolution][i], charPointer[j]);
             }
         }
 
         // now fill remaining columns with spaces
-        for (uint16_t j = string_len; j < LCD_WIDTH_MAX; j++)
+        for (uint16_t j = stringLen; j < LCD_WIDTH_MAX; j++)
         {
-            u8x8_DrawGlyph(&_u8x8, j, _rowMap[_resolution][i], ' ');
+            u8x8_DrawGlyph(&_u8x8, j, ROW_MAP[_resolution][i], ' ');
         }
 
         _charChange[i] = 0;
@@ -285,15 +293,15 @@ void Display::update()
 
     _lastLCDupdateTime = core::timing::currentRunTimeMs();
 
-    // check if midi in/out messages need to be cleared
-    if (_MIDImessageRetentionTime)
+    // check if in/out messages need to be cleared
+    if (_messageRetentionTime)
     {
         for (int i = 0; i < 2; i++)
         {
             // 0 = in, 1 = out
-            if ((core::timing::currentRunTimeMs() - _lastMIDIMessageDisplayTime[i] > _MIDImessageRetentionTime) && _midiMessageDisplayed[i])
+            if ((core::timing::currentRunTimeMs() - _lasMessageDisplayTime[i] > _messageRetentionTime) && _messageDisplayed[i])
             {
-                clearMIDIevent(static_cast<eventType_t>(i));
+                clearEvent(static_cast<eventType_t>(i));
             }
         }
     }
@@ -342,21 +350,21 @@ uint8_t Display::getTextCenter(uint8_t textSize)
 /// param [in]: retentionTime New retention time in milliseconds.
 void Display::setRetentionTime(uint32_t retentionTime)
 {
-    if (retentionTime < _MIDImessageRetentionTime)
+    if (retentionTime < _messageRetentionTime)
     {
         for (int i = 0; i < 2; i++)
         {
             // 0 = in, 1 = out
             // make sure events are cleared immediately in next call of update()
-            _lastMIDIMessageDisplayTime[i] = 0;
+            _lasMessageDisplayTime[i] = 0;
         }
     }
 
-    _MIDImessageRetentionTime = retentionTime;
+    _messageRetentionTime = retentionTime;
 
     // reset last update time
-    _lastMIDIMessageDisplayTime[eventType_t::in]  = core::timing::currentRunTimeMs();
-    _lastMIDIMessageDisplayTime[eventType_t::out] = core::timing::currentRunTimeMs();
+    _lasMessageDisplayTime[eventType_t::IN]  = core::timing::currentRunTimeMs();
+    _lasMessageDisplayTime[eventType_t::OUT] = core::timing::currentRunTimeMs();
 }
 
 /// Adds normalization to a given octave.
@@ -393,13 +401,14 @@ void Display::displayWelcomeMessage()
     break;
     }
 
-    auto writeString = [&](const char* string, uint8_t row) {
+    auto writeString = [&](const char* string, uint8_t row)
+    {
         uint8_t charIndex = 0;
         uint8_t location  = getTextCenter(strlen(string));
 
         while (string[charIndex] != '\0')
         {
-            u8x8_DrawGlyph(&_u8x8, location + charIndex, _rowMap[_resolution][startRow], string[charIndex]);
+            u8x8_DrawGlyph(&_u8x8, location + charIndex, ROW_MAP[_resolution][startRow], string[charIndex]);
             charIndex++;
         }
     };
@@ -421,15 +430,15 @@ void Display::displayWelcomeMessage()
     core::timing::waitMs(2000);
 }
 
-void Display::displayMIDIevent(eventType_t type, const Messaging::event_t& event)
+void Display::displayEvent(eventType_t type, const Messaging::event_t& event)
 {
     if (!_initialized)
     {
         return;
     }
 
-    uint8_t startRow    = (type == Display::eventType_t::in) ? ROW_START_MIDI_IN_MESSAGE : ROW_START_MIDI_OUT_MESSAGE;
-    uint8_t startColumn = (type == Display::eventType_t::in) ? COLUMN_START_MIDI_IN_MESSAGE : COLUMN_START_MIDI_OUT_MESSAGE;
+    uint8_t startRow    = (type == Display::eventType_t::IN) ? ROW_START_IN_MESSAGE : ROW_START_OUT_MESSAGE;
+    uint8_t startColumn = (type == Display::eventType_t::IN) ? COLUMN_START_IN_MESSAGE : COLUMN_START_OUT_MESSAGE;
 
     _stringBuilder.overwrite("%s", Strings::midiMessage(event.message));
     _stringBuilder.fillUntil(_columns - startColumn - strlen(_stringBuilder.string()));
@@ -437,62 +446,62 @@ void Display::displayMIDIevent(eventType_t type, const Messaging::event_t& event
 
     switch (event.message)
     {
-    case MIDI::messageType_t::noteOff:
-    case MIDI::messageType_t::noteOn:
+    case MIDI::messageType_t::NOTE_OFF:
+    case MIDI::messageType_t::NOTE_ON:
     {
-        if (!_database.read(Database::Config::Section::i2c_t::display, setting_t::MIDInotesAlternate))
+        if (!_database.read(Database::Config::Section::i2c_t::DISPLAY, setting_t::MIDI_NOTES_ALTERNATE))
         {
-            _stringBuilder.overwrite("%d", event.midiIndex);
+            _stringBuilder.overwrite("%d", event.index);
         }
         else
         {
-            _stringBuilder.overwrite("%s%d", Strings::note(MIDI::noteToTonic(event.midiIndex)), normalizeOctave(MIDI::noteToOctave(event.midiValue), _octaveNormalization));
+            _stringBuilder.overwrite("%s%d", Strings::note(MIDI::NOTE_TO_TONIC(event.index)), normalizeOctave(MIDI::NOTE_TO_OCTAVE(event.value), _octaveNormalization));
         }
 
-        _stringBuilder.append(" v%d CH%d", event.midiValue, event.midiChannel);
+        _stringBuilder.append(" v%d CH%d", event.value, event.channel);
         _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
         updateText(startRow + 1, 0);
     }
     break;
 
-    case MIDI::messageType_t::programChange:
+    case MIDI::messageType_t::PROGRAM_CHANGE:
     {
-        _stringBuilder.overwrite("%d CH%d", event.midiIndex, event.midiChannel);
+        _stringBuilder.overwrite("%d CH%d", event.index, event.channel);
         _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
         updateText(startRow + 1, 0);
     }
     break;
 
-    case MIDI::messageType_t::controlChange:
-    case MIDI::messageType_t::controlChange14bit:
-    case MIDI::messageType_t::nrpn7bit:
-    case MIDI::messageType_t::nrpn14bit:
+    case MIDI::messageType_t::CONTROL_CHANGE:
+    case MIDI::messageType_t::CONTROL_CHANGE_14BIT:
+    case MIDI::messageType_t::NRPN_7BIT:
+    case MIDI::messageType_t::NRPN_14BIT:
     {
-        _stringBuilder.overwrite("%d %d CH%d", event.midiIndex, event.midiValue, event.midiChannel);
+        _stringBuilder.overwrite("%d %d CH%d", event.index, event.value, event.channel);
         _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
         updateText(startRow + 1, 0);
     }
     break;
 
-    case MIDI::messageType_t::mmcPlay:
-    case MIDI::messageType_t::mmcStop:
-    case MIDI::messageType_t::mmcRecordStart:
-    case MIDI::messageType_t::mmcRecordStop:
-    case MIDI::messageType_t::mmcPause:
+    case MIDI::messageType_t::MMC_PLAY:
+    case MIDI::messageType_t::MMC_STOP:
+    case MIDI::messageType_t::MMC_RECORD_START:
+    case MIDI::messageType_t::MMC_RECORD_STOP:
+    case MIDI::messageType_t::MMC_PAUSE:
     {
-        _stringBuilder.overwrite("CH%d", event.midiIndex);
+        _stringBuilder.overwrite("CH%d", event.index);
         _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
         updateText(startRow + 1, 0);
     }
     break;
 
-    case MIDI::messageType_t::sysRealTimeClock:
-    case MIDI::messageType_t::sysRealTimeStart:
-    case MIDI::messageType_t::sysRealTimeContinue:
-    case MIDI::messageType_t::sysRealTimeStop:
-    case MIDI::messageType_t::sysRealTimeActiveSensing:
-    case MIDI::messageType_t::sysRealTimeSystemReset:
-    case MIDI::messageType_t::systemExclusive:
+    case MIDI::messageType_t::SYS_REAL_TIME_CLOCK:
+    case MIDI::messageType_t::SYS_REAL_TIME_START:
+    case MIDI::messageType_t::SYS_REAL_TIME_CONTINUE:
+    case MIDI::messageType_t::SYS_REAL_TIME_STOP:
+    case MIDI::messageType_t::SYS_REAL_TIME_ACTIVE_SENSING:
+    case MIDI::messageType_t::SYS_REAL_TIME_SYSTEM_RESET:
+    case MIDI::messageType_t::SYS_EX:
     {
         _stringBuilder.overwrite("");
         _stringBuilder.fillUntil(_columns);
@@ -504,11 +513,11 @@ void Display::displayMIDIevent(eventType_t type, const Messaging::event_t& event
         break;
     }
 
-    _lastMIDIMessageDisplayTime[type] = core::timing::currentRunTimeMs();
-    _midiMessageDisplayed[type]       = true;
+    _lasMessageDisplayTime[type] = core::timing::currentRunTimeMs();
+    _messageDisplayed[type]      = true;
 }
 
-void Display::clearMIDIevent(eventType_t type)
+void Display::clearEvent(eventType_t type)
 {
     if (!_initialized)
     {
@@ -517,29 +526,29 @@ void Display::clearMIDIevent(eventType_t type)
 
     switch (type)
     {
-    case eventType_t::in:
+    case eventType_t::IN:
     {
         // first row
         _stringBuilder.overwrite("In: ");
         _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
-        updateText(ROW_START_MIDI_IN_MESSAGE, 0);
+        updateText(ROW_START_IN_MESSAGE, 0);
         // second row
         _stringBuilder.overwrite("");
         _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
-        updateText(ROW_START_MIDI_IN_MESSAGE + 1, 0);
+        updateText(ROW_START_IN_MESSAGE + 1, 0);
     }
     break;
 
-    case eventType_t::out:
+    case eventType_t::OUT:
     {
         // first row
         _stringBuilder.overwrite("Out: ");
         _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
-        updateText(ROW_START_MIDI_OUT_MESSAGE, 0);
+        updateText(ROW_START_OUT_MESSAGE, 0);
         // second row
         _stringBuilder.overwrite("");
         _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
-        updateText(ROW_START_MIDI_OUT_MESSAGE + 1, 0);
+        updateText(ROW_START_OUT_MESSAGE + 1, 0);
     }
     break;
 
@@ -547,18 +556,18 @@ void Display::clearMIDIevent(eventType_t type)
         return;
     }
 
-    _midiMessageDisplayed[type] = false;
+    _messageDisplayed[type] = false;
 }
 
 std::optional<uint8_t> Display::sysConfigGet(System::Config::Section::i2c_t section, size_t index, uint16_t& value)
 {
-    if (section != System::Config::Section::i2c_t::display)
+    if (section != System::Config::Section::i2c_t::DISPLAY)
     {
         return std::nullopt;
     }
 
     int32_t readValue;
-    auto    result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ack : System::Config::status_t::errorRead;
+    auto    result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_READ;
 
     value = readValue;
 
@@ -567,46 +576,46 @@ std::optional<uint8_t> Display::sysConfigGet(System::Config::Section::i2c_t sect
 
 std::optional<uint8_t> Display::sysConfigSet(System::Config::Section::i2c_t section, size_t index, uint16_t value)
 {
-    if (section != System::Config::Section::i2c_t::display)
+    if (section != System::Config::Section::i2c_t::DISPLAY)
     {
         return std::nullopt;
     }
 
-    auto initAction = Common::initAction_t::asIs;
+    auto initAction = Common::initAction_t::AS_IS;
 
     switch (section)
     {
-    case System::Config::Section::i2c_t::display:
+    case System::Config::Section::i2c_t::DISPLAY:
     {
         auto setting = static_cast<setting_t>(index);
 
         switch (setting)
         {
-        case setting_t::enable:
+        case setting_t::ENABLE:
         {
-            initAction = value ? Common::initAction_t::init : Common::initAction_t::deInit;
+            initAction = value ? Common::initAction_t::INIT : Common::initAction_t::DE_INIT;
         }
         break;
 
-        case setting_t::controller:
+        case setting_t::CONTROLLER:
         {
             if ((value <= static_cast<uint8_t>(displayController_t::AMOUNT)) && (value >= 0))
             {
-                initAction = Common::initAction_t::init;
+                initAction = Common::initAction_t::INIT;
             }
         }
         break;
 
-        case setting_t::resolution:
+        case setting_t::RESOLUTION:
         {
             if ((value <= static_cast<uint8_t>(displayResolution_t::AMOUNT)) && (value >= 0))
             {
-                initAction = Common::initAction_t::init;
+                initAction = Common::initAction_t::INIT;
             }
         }
         break;
 
-        case setting_t::MIDIeventTime:
+        case setting_t::EVENT_TIME:
         {
             setRetentionTime(value * 1000);
         }
@@ -622,15 +631,15 @@ std::optional<uint8_t> Display::sysConfigSet(System::Config::Section::i2c_t sect
         break;
     }
 
-    auto result = _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ack : System::Config::status_t::errorWrite;
+    auto result = _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_WRITE;
 
-    if (result == System::Config::status_t::ack)
+    if (result == System::Config::status_t::ACK)
     {
-        if (initAction == Common::initAction_t::init)
+        if (initAction == Common::initAction_t::INIT)
         {
             init(_selectedI2Caddress);
         }
-        else if (initAction == Common::initAction_t::deInit)
+        else if (initAction == Common::initAction_t::DE_INIT)
         {
             deInit();
         }

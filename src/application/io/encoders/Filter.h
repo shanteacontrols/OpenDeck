@@ -42,12 +42,14 @@ namespace IO
                 reset(index);
             }
 
-            if (position != IO::Encoders::position_t::stopped)
+            if (position != IO::Encoders::position_t::STOPPED)
             {
                 if (_debounceCounter[index] != ENCODERS_DEBOUNCE_COUNT)
                 {
                     if (position != _lastDirection[index])
+                    {
                         _debounceCounter[index] = 0;
+                    }
 
                     _debounceCounter[index]++;
 
@@ -61,8 +63,10 @@ namespace IO
                 _lastDirection[index]    = position;
                 _lastMovementTime[index] = sampleTakenTime;
 
-                if (_debounceDirection[index] != IO::Encoders::position_t::stopped)
+                if (_debounceDirection[index] != IO::Encoders::position_t::STOPPED)
+                {
                     filteredPosition = _debounceDirection[index];
+                }
 
                 return true;
             }
@@ -73,7 +77,7 @@ namespace IO
         void reset(size_t index) override
         {
             _debounceCounter[index]   = 0;
-            _debounceDirection[index] = IO::Encoders::position_t::stopped;
+            _debounceDirection[index] = IO::Encoders::position_t::STOPPED;
         }
 
         uint32_t lastMovementTime(size_t index) override

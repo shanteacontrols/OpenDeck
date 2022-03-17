@@ -57,7 +57,9 @@ class BTLDRWriter : public Updater::BTLDRWriter
         Board::UART::write(UART_CHANNEL_USB_LINK, TARGET_FW_UPDATE_DONE);
 
         while (!Board::UART::isTxEmpty(UART_CHANNEL_USB_LINK))
+        {
             ;
+        }
 #endif
         Board::reboot();
     }
@@ -80,13 +82,13 @@ class HWAFwSelector : public FwSelector::HWA
     {
         switch (fwType)
         {
-        case FwSelector::fwType_t::bootloader:
+        case FwSelector::fwType_t::BOOTLOADER:
         {
             Board::bootloader::runBootloader();
         }
         break;
 
-        case FwSelector::fwType_t::application:
+        case FwSelector::fwType_t::APPLICATION:
         default:
         {
 #if !defined(USB_SUPPORTED)
@@ -96,7 +98,9 @@ class HWAFwSelector : public FwSelector::HWA
             Board::UART::write(UART_CHANNEL_USB_LINK, USB_LINK_MAGIC_VAL_APP);
 
             while (!Board::UART::isTxEmpty(UART_CHANNEL_USB_LINK))
+            {
                 ;
+            }
 
             Board::bootloader::runApplication();
 #elif defined(USB_LINK_MCU)
@@ -160,14 +164,16 @@ class Reader
                     {
                         if (_sysExParser.value(i, value))
                         {
-                            Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::incoming);
+                            Board::io::indicateTraffic(Board::io::dataSource_t::USB, Board::io::dataDirection_t::INCOMING);
 
 #ifdef USB_LINK_MCU
                             Board::UART::write(UART_CHANNEL_USB_LINK, value);
 
                             // expect ACK but ignore the value
                             while (!Board::UART::read(UART_CHANNEL_USB_LINK, value))
+                            {
                                 ;
+                            }
 #else
                             _updater.feed(value);
 #endif

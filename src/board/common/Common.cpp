@@ -77,18 +77,20 @@ namespace Board
         // signal to usb link to reboot as well
 
         uint8_t data[2] = {
-            static_cast<uint8_t>(USBLink::internalCMD_t::rebootBTLDR),
+            static_cast<uint8_t>(USBLink::internalCMD_t::REBOOT_BTLDR),
             Board::bootloader::magicBootValue()
         };
 
-        USBOverSerial::USBWritePacket packet(USBOverSerial::packetType_t::internal,
+        USBOverSerial::USBWritePacket packet(USBOverSerial::packetType_t::INTERNAL,
                                              data,
                                              2,
                                              USB_OVER_SERIAL_BUFFER_SIZE);
         USBOverSerial::write(UART_CHANNEL_USB_LINK, packet);
 
         while (!Board::UART::isTxEmpty(UART_CHANNEL_USB_LINK))
+        {
             ;
+        }
 
         // give some time to usb link to properly re-initialize so that everything is in sync
         core::timing::waitMs(50);

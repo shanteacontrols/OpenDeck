@@ -20,8 +20,9 @@ limitations under the License.
 
 void Updater::feed(uint8_t data)
 {
-    auto nextStage = [&]() {
-        if (_currentStage == static_cast<uint8_t>(receiveStage_t::end))
+    auto nextStage = [&]()
+    {
+        if (_currentStage == static_cast<uint8_t>(receiveStage_t::END))
         {
             reset();
             _writer.apply();
@@ -37,7 +38,7 @@ void Updater::feed(uint8_t data)
 
     if (_currentStage)
     {
-        if (processStart(data) == processStatus_t::complete)
+        if (processStart(data) == processStatus_t::COMPLETE)
         {
             reset();
             nextStage();
@@ -45,19 +46,19 @@ void Updater::feed(uint8_t data)
         }
     }
 
-    processStatus_t result = (this->*processHandler[_currentStage])(data);
+    processStatus_t result = (this->*_processHandler[_currentStage])(data);
 
-    if (result == processStatus_t::complete)
+    if (result == processStatus_t::COMPLETE)
     {
         nextStage();
     }
-    else if (result == processStatus_t::invalid)
+    else if (result == processStatus_t::INVALID)
     {
         // in this case, restart the procedure
         reset();
 
         // also reset again if it fails again - it cannot possibly return complete status since that requires 8 bytes
-        if ((this->*processHandler[_currentStage])(data) == processStatus_t::invalid)
+        if ((this->*_processHandler[_currentStage])(data) == processStatus_t::INVALID)
         {
             reset();
         }
@@ -68,19 +69,19 @@ Updater::processStatus_t Updater::processStart(uint8_t data)
 {
     // 8 received bytes must match the startCommand (lower first, then upper)
 
-    if (((_startCommand >> (_startBytesReceived * 8)) & static_cast<uint64_t>(0xFF)) != data)
+    if (((START_COMMAND >> (_startBytesReceived * 8)) & static_cast<uint64_t>(0xFF)) != data)
     {
         _startBytesReceived = 0;
-        return processStatus_t::invalid;
+        return processStatus_t::INVALID;
     }
 
     if (++_startBytesReceived == 8)
     {
         _startBytesReceived = 0;
-        return processStatus_t::complete;
+        return processStatus_t::COMPLETE;
     }
 
-    return processStatus_t::incomplete;
+    return processStatus_t::INCOMPLETE;
 }
 
 Updater::processStatus_t Updater::processFwMetadata(uint8_t data)
@@ -98,15 +99,15 @@ Updater::processStatus_t Updater::processFwMetadata(uint8_t data)
 
     if (++_stageBytesReceived == 8)
     {
-        if (_receivedUID != _uid)
+        if (_receivedUID != UID)
         {
-            return processStatus_t::invalid;
+            return processStatus_t::INVALID;
         }
 
-        return processStatus_t::complete;
+        return processStatus_t::COMPLETE;
     }
 
-    return processStatus_t::incomplete;
+    return processStatus_t::INCOMPLETE;
 }
 
 Updater::processStatus_t Updater::processFwChunk(uint8_t data)
@@ -115,7 +116,7 @@ Updater::processStatus_t Updater::processFwChunk(uint8_t data)
 
     if (++_stageBytesReceived != 2)
     {
-        return processStatus_t::incomplete;
+        return processStatus_t::INCOMPLETE;
     }
 
     if (!_fwPageBytesReceived)
@@ -151,7 +152,7 @@ Updater::processStatus_t Updater::processFwChunk(uint8_t data)
 
         _stageBytesReceived = 0;
 
-        return processStatus_t::complete;
+        return processStatus_t::COMPLETE;
     }
 
     if (pageWritten)
@@ -159,26 +160,26 @@ Updater::processStatus_t Updater::processFwChunk(uint8_t data)
         _currentFwPage++;
     }
 
-    return processStatus_t::incomplete;
+    return processStatus_t::INCOMPLETE;
 }
 
 Updater::processStatus_t Updater::processEnd(uint8_t data)
 {
     // 4 received bytes must match the _endCommand (lower first, then upper)
 
-    if (((_endCommand >> (_stageBytesReceived * 8)) & static_cast<uint32_t>(0xFF)) != data)
+    if (((END_COMMAND >> (_stageBytesReceived * 8)) & static_cast<uint32_t>(0xFF)) != data)
     {
         _stageBytesReceived = 0;
-        return processStatus_t::invalid;
+        return processStatus_t::INVALID;
     }
 
     if (++_stageBytesReceived == 4)
     {
         _stageBytesReceived = 0;
-        return processStatus_t::complete;
+        return processStatus_t::COMPLETE;
     }
 
-    return processStatus_t::incomplete;
+    return processStatus_t::INCOMPLETE;
 }
 
 void Updater::reset()

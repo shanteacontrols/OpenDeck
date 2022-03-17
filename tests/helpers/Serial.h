@@ -50,7 +50,8 @@ class SerialHelper
         test::wsystem("cat " + responseFileLocation + " | xargs", cmdResponse);
         std::cout << "[cdc] res: " << cmdResponse << std::endl;
 
-        auto HexCharToInt = [](char Input) {
+        auto HexCharToInt = [](char Input)
+        {
             return ((Input >= 'a') && (Input <= 'f'))
                        ? (Input - 87)
                    : ((Input >= 'A') && (Input <= 'F'))

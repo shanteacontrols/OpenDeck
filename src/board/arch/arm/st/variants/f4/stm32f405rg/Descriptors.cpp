@@ -46,7 +46,7 @@ namespace
 
         IRQn_Type irqn() override
         {
-            return _irqn;
+            return IRQN;
         }
 
         void enableClock() override
@@ -65,9 +65,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(A),
                 .index     = CORE_IO_PIN_INDEX_DEF(10),
-                .mode      = core::io::pinMode_t::alternatePP,
-                .pull      = core::io::pullMode_t::none,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_PP,
+                .pull      = core::io::pullMode_t::NONE,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF7_USART1,
             },
 
@@ -75,14 +75,14 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(A),
                 .index     = CORE_IO_PIN_INDEX_DEF(9),
-                .mode      = core::io::pinMode_t::alternatePP,
-                .pull      = core::io::pullMode_t::none,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_PP,
+                .pull      = core::io::pullMode_t::NONE,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF7_USART1,
             },
         };
 
-        const IRQn_Type _irqn = USART1_IRQn;
+        const IRQn_Type IRQN = USART1_IRQn;
     } _uartDescriptor0;
 
     class UARTdescriptor1 : public Board::detail::st::Peripheral
@@ -102,7 +102,7 @@ namespace
 
         IRQn_Type irqn() override
         {
-            return _irqn;
+            return IRQN;
         }
 
         void enableClock() override
@@ -121,9 +121,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(A),
                 .index     = CORE_IO_PIN_INDEX_DEF(3),
-                .mode      = core::io::pinMode_t::alternatePP,
-                .pull      = core::io::pullMode_t::none,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_PP,
+                .pull      = core::io::pullMode_t::NONE,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF7_USART2,
             },
 
@@ -131,14 +131,14 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(A),
                 .index     = CORE_IO_PIN_INDEX_DEF(2),
-                .mode      = core::io::pinMode_t::alternatePP,
-                .pull      = core::io::pullMode_t::none,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_PP,
+                .pull      = core::io::pullMode_t::NONE,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF7_USART2,
             },
         };
 
-        const IRQn_Type _irqn = USART2_IRQn;
+        const IRQn_Type IRQN = USART2_IRQn;
     } _uartDescriptor1;
 
     class UARTdescriptor2 : public Board::detail::st::Peripheral
@@ -158,7 +158,7 @@ namespace
 
         IRQn_Type irqn() override
         {
-            return _irqn;
+            return IRQN;
         }
 
         void enableClock() override
@@ -177,9 +177,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(B),
                 .index     = CORE_IO_PIN_INDEX_DEF(11),
-                .mode      = core::io::pinMode_t::alternatePP,
-                .pull      = core::io::pullMode_t::none,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_PP,
+                .pull      = core::io::pullMode_t::NONE,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF7_USART3,
             },
 
@@ -187,14 +187,14 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(B),
                 .index     = CORE_IO_PIN_INDEX_DEF(10),
-                .mode      = core::io::pinMode_t::alternatePP,
-                .pull      = core::io::pullMode_t::none,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_PP,
+                .pull      = core::io::pullMode_t::NONE,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF7_USART3,
             },
         };
 
-        const IRQn_Type _irqn = USART3_IRQn;
+        const IRQn_Type IRQN = USART3_IRQn;
     } _uartDescriptor2;
 
     class UARTdescriptor3 : public Board::detail::st::Peripheral
@@ -214,7 +214,7 @@ namespace
 
         IRQn_Type irqn() override
         {
-            return _irqn;
+            return IRQN;
         }
 
         void enableClock() override
@@ -233,9 +233,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(A),
                 .index     = CORE_IO_PIN_INDEX_DEF(1),
-                .mode      = core::io::pinMode_t::alternatePP,
-                .pull      = core::io::pullMode_t::none,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_PP,
+                .pull      = core::io::pullMode_t::NONE,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF8_UART4,
             },
 
@@ -243,14 +243,14 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(A),
                 .index     = CORE_IO_PIN_INDEX_DEF(0),
-                .mode      = core::io::pinMode_t::alternatePP,
-                .pull      = core::io::pullMode_t::none,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_PP,
+                .pull      = core::io::pullMode_t::NONE,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF8_UART4,
             },
         };
 
-        const IRQn_Type _irqn = UART4_IRQn;
+        const IRQn_Type IRQN = UART4_IRQn;
     } _uartDescriptor3;
 
     class UARTdescriptor4 : public Board::detail::st::Peripheral
@@ -270,7 +270,7 @@ namespace
 
         IRQn_Type irqn() override
         {
-            return _irqn;
+            return IRQN;
         }
 
         void enableClock() override
@@ -289,9 +289,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(D),
                 .index     = CORE_IO_PIN_INDEX_DEF(2),
-                .mode      = core::io::pinMode_t::alternatePP,
-                .pull      = core::io::pullMode_t::none,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_PP,
+                .pull      = core::io::pullMode_t::NONE,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF8_UART5,
             },
 
@@ -299,14 +299,14 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(C),
                 .index     = CORE_IO_PIN_INDEX_DEF(12),
-                .mode      = core::io::pinMode_t::alternatePP,
-                .pull      = core::io::pullMode_t::none,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_PP,
+                .pull      = core::io::pullMode_t::NONE,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF8_UART5,
             },
         };
 
-        const IRQn_Type _irqn = UART5_IRQn;
+        const IRQn_Type IRQN = UART5_IRQn;
     } _uartDescriptor4;
 
     class UARTdescriptor5 : public Board::detail::st::Peripheral
@@ -326,7 +326,7 @@ namespace
 
         IRQn_Type irqn() override
         {
-            return _irqn;
+            return IRQN;
         }
 
         void enableClock() override
@@ -345,9 +345,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(C),
                 .index     = CORE_IO_PIN_INDEX_DEF(7),
-                .mode      = core::io::pinMode_t::alternatePP,
-                .pull      = core::io::pullMode_t::none,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_PP,
+                .pull      = core::io::pullMode_t::NONE,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF8_USART6,
             },
 
@@ -355,14 +355,14 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(C),
                 .index     = CORE_IO_PIN_INDEX_DEF(6),
-                .mode      = core::io::pinMode_t::alternatePP,
-                .pull      = core::io::pullMode_t::none,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_PP,
+                .pull      = core::io::pullMode_t::NONE,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF8_USART6,
             },
         };
 
-        const IRQn_Type _irqn = USART6_IRQn;
+        const IRQn_Type IRQN = USART6_IRQn;
     } _uartDescriptor5;
 
     class I2Cdescriptor0 : public Board::detail::st::Peripheral
@@ -382,7 +382,7 @@ namespace
 
         IRQn_Type irqn() override
         {
-            return _irqn;
+            return IRQN;
         }
 
         void enableClock() override
@@ -401,9 +401,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(B),
                 .index     = CORE_IO_PIN_INDEX_DEF(7),
-                .mode      = core::io::pinMode_t::alternateOD,
-                .pull      = core::io::pullMode_t::up,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_OD,
+                .pull      = core::io::pullMode_t::UP,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF4_I2C1,
             },
 
@@ -411,14 +411,14 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(B),
                 .index     = CORE_IO_PIN_INDEX_DEF(6),
-                .mode      = core::io::pinMode_t::alternateOD,
-                .pull      = core::io::pullMode_t::up,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_OD,
+                .pull      = core::io::pullMode_t::UP,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF4_I2C1,
             },
         };
 
-        const IRQn_Type _irqn = static_cast<IRQn_Type>(0);
+        const IRQn_Type IRQN = static_cast<IRQn_Type>(0);
     } _i2cDescriptor0;
 
     class I2Cdescriptor1 : public Board::detail::st::Peripheral
@@ -438,7 +438,7 @@ namespace
 
         IRQn_Type irqn() override
         {
-            return _irqn;
+            return IRQN;
         }
 
         void enableClock() override
@@ -457,9 +457,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(B),
                 .index     = CORE_IO_PIN_INDEX_DEF(11),
-                .mode      = core::io::pinMode_t::alternateOD,
-                .pull      = core::io::pullMode_t::up,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_OD,
+                .pull      = core::io::pullMode_t::UP,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF4_I2C2,
             },
 
@@ -467,14 +467,14 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(B),
                 .index     = CORE_IO_PIN_INDEX_DEF(10),
-                .mode      = core::io::pinMode_t::alternateOD,
-                .pull      = core::io::pullMode_t::up,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_OD,
+                .pull      = core::io::pullMode_t::UP,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF4_I2C2,
             },
         };
 
-        const IRQn_Type _irqn = static_cast<IRQn_Type>(0);
+        const IRQn_Type IRQN = static_cast<IRQn_Type>(0);
     } _i2cDescriptor1;
 
     class I2Cdescriptor2 : public Board::detail::st::Peripheral
@@ -494,7 +494,7 @@ namespace
 
         IRQn_Type irqn() override
         {
-            return _irqn;
+            return IRQN;
         }
 
         void enableClock() override
@@ -513,9 +513,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(C),
                 .index     = CORE_IO_PIN_INDEX_DEF(9),
-                .mode      = core::io::pinMode_t::alternateOD,
-                .pull      = core::io::pullMode_t::up,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_OD,
+                .pull      = core::io::pullMode_t::UP,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF4_I2C3,
             },
 
@@ -523,14 +523,14 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(A),
                 .index     = CORE_IO_PIN_INDEX_DEF(8),
-                .mode      = core::io::pinMode_t::alternateOD,
-                .pull      = core::io::pullMode_t::up,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_OD,
+                .pull      = core::io::pullMode_t::UP,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF4_I2C3,
             },
         };
 
-        const IRQn_Type _irqn = static_cast<IRQn_Type>(0);
+        const IRQn_Type IRQN = static_cast<IRQn_Type>(0);
     } _i2cDescriptor2;
 
     Board::detail::st::Peripheral* _uartDescriptor[MAX_UART_INTERFACES] = {

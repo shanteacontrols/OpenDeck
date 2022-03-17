@@ -73,12 +73,13 @@ namespace
         noteB_strig
     };
 
-    char tempBuffer[50];
+    static constexpr size_t BUFFER_SIZE = 50;
+    char                    tempBuffer[BUFFER_SIZE];
 }    // namespace
 
 const char* Strings::board()
 {
-    strcpy(tempBuffer, boardName_string);
+    strncpy(tempBuffer, boardName_string, BUFFER_SIZE);
     return tempBuffer;
 }
 
@@ -86,131 +87,131 @@ const char* Strings::midiMessage(MIDI::messageType_t message)
 {
     switch (message)
     {
-    case MIDI::messageType_t::noteOff:
+    case MIDI::messageType_t::NOTE_OFF:
     {
-        strcpy(tempBuffer, eventNoteOff_string);
+        strncpy(tempBuffer, eventNoteOff_string, BUFFER_SIZE);
     }
     break;
 
-    case MIDI::messageType_t::noteOn:
+    case MIDI::messageType_t::NOTE_ON:
     {
-        strcpy(tempBuffer, eventNoteOn_string);
+        strncpy(tempBuffer, eventNoteOn_string, BUFFER_SIZE);
     }
     break;
 
-    case MIDI::messageType_t::controlChange:
-    case MIDI::messageType_t::controlChange14bit:
+    case MIDI::messageType_t::CONTROL_CHANGE:
+    case MIDI::messageType_t::CONTROL_CHANGE_14BIT:
     {
-        strcpy(tempBuffer, eventCC_string);
+        strncpy(tempBuffer, eventCC_string, BUFFER_SIZE);
     }
     break;
 
-    case MIDI::messageType_t::programChange:
+    case MIDI::messageType_t::PROGRAM_CHANGE:
     {
-        strcpy(tempBuffer, eventPC_string);
+        strncpy(tempBuffer, eventPC_string, BUFFER_SIZE);
     }
     break;
 
-    case MIDI::messageType_t::afterTouchChannel:
+    case MIDI::messageType_t::AFTER_TOUCH_CHANNEL:
     {
-        strcpy(tempBuffer, eventCHAT_string);
+        strncpy(tempBuffer, eventCHAT_string, BUFFER_SIZE);
     }
     break;
 
-    case MIDI::messageType_t::afterTouchPoly:
+    case MIDI::messageType_t::AFTER_TOUCH_POLY:
     {
-        strcpy(tempBuffer, eventAT_string);
+        strncpy(tempBuffer, eventAT_string, BUFFER_SIZE);
     }
     break;
 
-    case MIDI::messageType_t::pitchBend:
+    case MIDI::messageType_t::PITCH_BEND:
     {
-        strcpy(tempBuffer, eventPB_string);
+        strncpy(tempBuffer, eventPB_string, BUFFER_SIZE);
     }
     break;
 
-    case MIDI::messageType_t::systemExclusive:
+    case MIDI::messageType_t::SYS_EX:
     {
-        strcpy(tempBuffer, eventSysExConfig_string);
+        strncpy(tempBuffer, eventSysExConfig_string, BUFFER_SIZE);
     }
     break;
 
-    case MIDI::messageType_t::sysRealTimeClock:
+    case MIDI::messageType_t::SYS_REAL_TIME_CLOCK:
     {
-        strcpy(tempBuffer, eventRTclock_string);
+        strncpy(tempBuffer, eventRTclock_string, BUFFER_SIZE);
     }
     break;
 
-    case MIDI::messageType_t::sysRealTimeStart:
+    case MIDI::messageType_t::SYS_REAL_TIME_START:
     {
-        strcpy(tempBuffer, eventRTstart_string);
+        strncpy(tempBuffer, eventRTstart_string, BUFFER_SIZE);
     }
     break;
 
-    case MIDI::messageType_t::sysRealTimeContinue:
+    case MIDI::messageType_t::SYS_REAL_TIME_CONTINUE:
     {
-        strcpy(tempBuffer, eventRTcontinue_string);
+        strncpy(tempBuffer, eventRTcontinue_string, BUFFER_SIZE);
     }
     break;
 
-    case MIDI::messageType_t::sysRealTimeStop:
+    case MIDI::messageType_t::SYS_REAL_TIME_STOP:
     {
-        strcpy(tempBuffer, eventRTstop_string);
+        strncpy(tempBuffer, eventRTstop_string, BUFFER_SIZE);
     }
     break;
 
-    case MIDI::messageType_t::sysRealTimeActiveSensing:
+    case MIDI::messageType_t::SYS_REAL_TIME_ACTIVE_SENSING:
     {
-        strcpy(tempBuffer, eventRTasens_string);
+        strncpy(tempBuffer, eventRTasens_string, BUFFER_SIZE);
     }
     break;
 
-    case MIDI::messageType_t::sysRealTimeSystemReset:
+    case MIDI::messageType_t::SYS_REAL_TIME_SYSTEM_RESET:
     {
-        strcpy(tempBuffer, eventRTsysrst_string);
+        strncpy(tempBuffer, eventRTsysrst_string, BUFFER_SIZE);
     }
     break;
 
-    case MIDI::messageType_t::mmcPlay:
+    case MIDI::messageType_t::MMC_PLAY:
     {
-        strcpy(tempBuffer, eventMMCplay_string);
+        strncpy(tempBuffer, eventMMCplay_string, BUFFER_SIZE);
     }
     break;
 
-    case MIDI::messageType_t::mmcStop:
+    case MIDI::messageType_t::MMC_STOP:
     {
-        strcpy(tempBuffer, eventMMCstop_string);
+        strncpy(tempBuffer, eventMMCstop_string, BUFFER_SIZE);
     }
     break;
 
-    case MIDI::messageType_t::mmcPause:
+    case MIDI::messageType_t::MMC_PAUSE:
     {
-        strcpy(tempBuffer, eventMMCpause_string);
+        strncpy(tempBuffer, eventMMCpause_string, BUFFER_SIZE);
     }
     break;
 
-    case MIDI::messageType_t::mmcRecordStart:
+    case MIDI::messageType_t::MMC_RECORD_START:
     {
-        strcpy(tempBuffer, eventMMCrecordOn_string);
+        strncpy(tempBuffer, eventMMCrecordOn_string, BUFFER_SIZE);
     }
     break;
 
-    case MIDI::messageType_t::mmcRecordStop:
+    case MIDI::messageType_t::MMC_RECORD_STOP:
     {
-        strcpy(tempBuffer, eventMMCrecordOff_string);
+        strncpy(tempBuffer, eventMMCrecordOff_string, BUFFER_SIZE);
     }
     break;
 
-    case MIDI::messageType_t::nrpn7bit:
-    case MIDI::messageType_t::nrpn14bit:
+    case MIDI::messageType_t::NRPN_7BIT:
+    case MIDI::messageType_t::NRPN_14BIT:
     {
-        strcpy(tempBuffer, eventNRPN_string);
+        strncpy(tempBuffer, eventNRPN_string, BUFFER_SIZE);
     }
     break;
 
     default:
     {
-        strcpy(tempBuffer, eventInvalid_string);
+        strncpy(tempBuffer, eventInvalid_string, BUFFER_SIZE);
     }
     break;
     }
@@ -220,6 +221,6 @@ const char* Strings::midiMessage(MIDI::messageType_t message)
 
 const char* Strings::note(MIDI::note_t note)
 {
-    strcpy(tempBuffer, noteNameArray[static_cast<uint8_t>(note)]);
+    strncpy(tempBuffer, noteNameArray[static_cast<uint8_t>(note)], BUFFER_SIZE);
     return tempBuffer;
 }

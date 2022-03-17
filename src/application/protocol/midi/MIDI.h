@@ -33,40 +33,40 @@ namespace Protocol
     {
         public:
         // alias some types and functions from base midi class for easier access
-        using messageType_t                            = MIDIlib::Base::messageType_t;
-        using usbMIDIPacket_t                          = MIDIlib::USBMIDI::usbMIDIPacket_t;
-        using noteOffType_t                            = MIDIlib::Base::noteOffType_t;
-        using note_t                                   = MIDIlib::Base::note_t;
-        using message_t                                = MIDIlib::Base::message_t;
-        static constexpr auto&   MIDI_7_BIT_VALUE_MAX  = MIDIlib::Base::MIDI_7_BIT_VALUE_MAX;
-        static constexpr auto&   MIDI_14_BIT_VALUE_MAX = MIDIlib::Base::MIDI_14_BIT_VALUE_MAX;
-        static constexpr auto&   noteToTonic           = MIDIlib::Base::noteToTonic;
-        static constexpr auto&   noteToOctave          = MIDIlib::Base::noteToOctave;
-        static constexpr uint8_t USB_EVENT             = MIDIlib::USBMIDI::USB_EVENT;
-        static constexpr uint8_t USB_DATA1             = MIDIlib::USBMIDI::USB_DATA1;
-        static constexpr uint8_t USB_DATA2             = MIDIlib::USBMIDI::USB_DATA2;
-        static constexpr uint8_t USB_DATA3             = MIDIlib::USBMIDI::USB_DATA3;
+        using messageType_t                           = MIDIlib::Base::messageType_t;
+        using usbMIDIPacket_t                         = MIDIlib::USBMIDI::usbMIDIPacket_t;
+        using noteOffType_t                           = MIDIlib::Base::noteOffType_t;
+        using note_t                                  = MIDIlib::Base::note_t;
+        using message_t                               = MIDIlib::Base::message_t;
+        static constexpr auto&   MIDI_7BIT_VALUE_MAX  = MIDIlib::Base::MIDI_7BIT_VALUE_MAX;
+        static constexpr auto&   MIDI_14BIT_VALUE_MAX = MIDIlib::Base::MIDI_14BIT_VALUE_MAX;
+        static constexpr auto&   NOTE_TO_TONIC        = MIDIlib::Base::noteToTonic;
+        static constexpr auto&   NOTE_TO_OCTAVE       = MIDIlib::Base::noteToOctave;
+        static constexpr uint8_t USB_EVENT            = MIDIlib::USBMIDI::USB_EVENT;
+        static constexpr uint8_t USB_DATA1            = MIDIlib::USBMIDI::USB_DATA1;
+        static constexpr uint8_t USB_DATA2            = MIDIlib::USBMIDI::USB_DATA2;
+        static constexpr uint8_t USB_DATA3            = MIDIlib::USBMIDI::USB_DATA3;
 
         static constexpr uint8_t MIDI_CHANNEL_OMNI = 17;
 
         // convulted order to keep compatibility with older firmware
         enum class setting_t : uint8_t
         {
-            standardNoteOff,
-            runningStatus,
-            dinThruUsb,
-            dinEnabled,
-            usbThruDin,
-            usbThruUsb,
-            usbThruBle,
-            dinThruDin,
-            dinThruBle,
-            bleEnabled,
-            bleThruDin,
-            bleThruUsb,
-            bleThruBle,
-            useGlobalChannel,
-            globalChannel,
+            STANDARD_NOTE_OFF,
+            RUNNING_STATUS,
+            DIN_THRU_USB,
+            DIN_ENABLED,
+            USB_THRU_DIN,
+            USB_THRU_USB,
+            USB_THRU_BLE,
+            DIN_THRU_DIN,
+            DIN_THRU_BLE,
+            BLE_ENABLED,
+            BLE_THRU_DIN,
+            BLE_THRU_USB,
+            BLE_THRU_BLE,
+            USE_GLOBAL_CHANNEL,
+            GLOBAL_CHANNEL,
             AMOUNT
         };
 

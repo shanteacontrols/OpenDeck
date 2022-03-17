@@ -33,36 +33,36 @@ namespace Board::detail::setup
 {
     void clocks()
     {
-        RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
-        RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
+        RCC_OscInitTypeDef rccOscInitStruct = { 0 };
+        RCC_ClkInitTypeDef rccClkInitStruct = { 0 };
 
         /* Configure the main internal regulator output voltage */
         __HAL_RCC_PWR_CLK_ENABLE();
         __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE);
 
         /* Initializes the CPU, AHB and APB busses clocks */
-        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-        RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
-        RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
-        RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
-        RCC_OscInitStruct.PLL.PLLM       = HSE_PLLM;
-        RCC_OscInitStruct.PLL.PLLN       = HSE_PLLN;
-        RCC_OscInitStruct.PLL.PLLP       = HSE_PLLP;
-        RCC_OscInitStruct.PLL.PLLQ       = HSE_PLLQ;
+        rccOscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+        rccOscInitStruct.HSEState       = RCC_HSE_ON;
+        rccOscInitStruct.PLL.PLLState   = RCC_PLL_ON;
+        rccOscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
+        rccOscInitStruct.PLL.PLLM       = HSE_PLLM;
+        rccOscInitStruct.PLL.PLLN       = HSE_PLLN;
+        rccOscInitStruct.PLL.PLLP       = HSE_PLLP;
+        rccOscInitStruct.PLL.PLLQ       = HSE_PLLQ;
 
-        if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+        if (HAL_RCC_OscConfig(&rccOscInitStruct) != HAL_OK)
         {
             Board::detail::errorHandler();
         }
 
         /* Initializes the CPU, AHB and APB busses clocks */
-        RCC_ClkInitStruct.ClockType      = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
-        RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
-        RCC_ClkInitStruct.AHBCLKDivider  = AHB_CLK_DIV;
-        RCC_ClkInitStruct.APB1CLKDivider = APB1_CLK_DIV;
-        RCC_ClkInitStruct.APB2CLKDivider = APB2_CLK_DIV;
+        rccClkInitStruct.ClockType      = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+        rccClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
+        rccClkInitStruct.AHBCLKDivider  = AHB_CLK_DIV;
+        rccClkInitStruct.APB1CLKDivider = APB1_CLK_DIV;
+        rccClkInitStruct.APB2CLKDivider = APB2_CLK_DIV;
 
-        if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+        if (HAL_RCC_ClockConfig(&rccClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
         {
             Board::detail::errorHandler();
         }
@@ -144,15 +144,15 @@ namespace Board::detail::setup
     {
         __HAL_RCC_GPIOA_CLK_ENABLE();
 
-        GPIO_InitTypeDef GPIO_InitStruct;
+        GPIO_InitTypeDef gpioInitStruct;
 
         // configure USB D+ D- Pins
-        GPIO_InitStruct.Pin       = GPIO_PIN_11 | GPIO_PIN_12;
-        GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
-        GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull      = GPIO_NOPULL;
-        GPIO_InitStruct.Alternate = GPIO_AF10_OTG_FS;
-        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+        gpioInitStruct.Pin       = GPIO_PIN_11 | GPIO_PIN_12;
+        gpioInitStruct.Speed     = GPIO_SPEED_HIGH;
+        gpioInitStruct.Mode      = GPIO_MODE_AF_PP;
+        gpioInitStruct.Pull      = GPIO_NOPULL;
+        gpioInitStruct.Alternate = GPIO_AF10_OTG_FS;
+        HAL_GPIO_Init(GPIOA, &gpioInitStruct);
 
         // Enable USB OTG clock
         __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
@@ -193,10 +193,10 @@ extern "C" void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     HAL_NVIC_EnableIRQ(ADC_IRQn);
 }
 
-extern "C" void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
+extern "C" void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim)
 {
 #ifdef TIM2
-    if (htim_base->Instance == TIM2)
+    if (htim->Instance == TIM2)
     {
         __HAL_RCC_TIM2_CLK_ENABLE();
 
@@ -205,7 +205,7 @@ extern "C" void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     }
 #endif
 #ifdef TIM3
-    if (htim_base->Instance == TIM3)
+    if (htim->Instance == TIM3)
     {
         __HAL_RCC_TIM3_CLK_ENABLE();
 
@@ -214,7 +214,7 @@ extern "C" void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     }
 #endif
 #ifdef TIM4
-    if (htim_base->Instance == TIM4)
+    if (htim->Instance == TIM4)
     {
         __HAL_RCC_TIM4_CLK_ENABLE();
 
@@ -223,7 +223,7 @@ extern "C" void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     }
 #endif
 #ifdef TIM5
-    if (htim_base->Instance == TIM5)
+    if (htim->Instance == TIM5)
     {
         __HAL_RCC_TIM5_CLK_ENABLE();
 
@@ -232,7 +232,7 @@ extern "C" void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     }
 #endif
 #ifdef TIM6
-    if (htim_base->Instance == TIM6)
+    if (htim->Instance == TIM6)
     {
         __HAL_RCC_TIM6_CLK_ENABLE();
 
@@ -241,7 +241,7 @@ extern "C" void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     }
 #endif
 #ifdef TIM7
-    if (htim_base->Instance == TIM7)
+    if (htim->Instance == TIM7)
     {
         __HAL_RCC_TIM7_CLK_ENABLE();
 
@@ -250,7 +250,7 @@ extern "C" void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     }
 #endif
 #ifdef TIM12
-    if (htim_base->Instance == TIM12)
+    if (htim->Instance == TIM12)
     {
         __HAL_RCC_TIM12_CLK_ENABLE();
 
@@ -259,7 +259,7 @@ extern "C" void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     }
 #endif
 #ifdef TIM12
-    if (htim_base->Instance == TIM13)
+    if (htim->Instance == TIM13)
     {
         __HAL_RCC_TIM13_CLK_ENABLE();
 
@@ -268,7 +268,7 @@ extern "C" void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     }
 #endif
 #ifdef TIM14
-    if (htim_base->Instance == TIM14)
+    if (htim->Instance == TIM14)
     {
         __HAL_RCC_TIM14_CLK_ENABLE();
 

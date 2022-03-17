@@ -59,61 +59,75 @@ namespace IO
     {
         public:
 #ifdef ADC_12_BIT
-        static constexpr adcType_t ADC_RESOLUTION = adcType_t::adc12bit;
+        static constexpr adcType_t ADC_RESOLUTION = adcType_t::ADC_12BIT;
 #else
-        static constexpr adcType_t ADC_RESOLUTION                                = adcType_t::adc10bit;
+        static constexpr adcType_t ADC_RESOLUTION                                = adcType_t::ADC_10BIT;
 #endif
 
         AnalogFilter()
-            : _adcConfig(ADC_RESOLUTION == adcType_t::adc10bit ? adc10bit : adc12bit)
-            , _stepDiff7Bit((_adcConfig.adcMaxValue - _adcConfig.adcMinValue) / 128)
+            : _adcConfig(ADC_RESOLUTION == adcType_t::ADC_10BIT ? _adc10bit : _adc12bit)
+            , STEP_DIFF_7BIT((_adcConfig.ADC_MAX_VALUE - _adcConfig.ADC_MIN_VALUE) / 128)
         {
             for (size_t i = 0; i < IO::Analog::Collection::size(); i++)
+            {
                 _lastStableValue[i] = 0xFFFF;
+            }
         }
 
         bool isFiltered(size_t index, descriptor_t& descriptor) override
         {
-            const uint32_t adcMinValue = lowerOffsetRaw(descriptor.lowerOffset);
-            const uint32_t adcMaxValue = upperOffsetRaw(descriptor.upperOffset);
+            const uint32_t ADC_MIN_VALUE = lowerOffsetRaw(descriptor.lowerOffset);
+            const uint32_t ADC_MAX_VALUE = upperOffsetRaw(descriptor.upperOffset);
 
-            descriptor.value = CONSTRAIN(descriptor.value, adcMinValue, adcMaxValue);
+            descriptor.value = CONSTRAIN(descriptor.value, ADC_MIN_VALUE, ADC_MAX_VALUE);
 
             // avoid filtering in this case for faster response
-            if (descriptor.type == Analog::type_t::button)
+            if (descriptor.type == Analog::type_t::BUTTON)
             {
-                if (descriptor.value < _adcConfig.digitalValueThresholdOff)
+                if (descriptor.value < _adcConfig.DIGITAL_VALUE_THRESHOLD_OFF)
+                {
                     descriptor.value = 1;
-                else if (descriptor.value > _adcConfig.digitalValueThresholdOn)
+                }
+                else if (descriptor.value > _adcConfig.DIGITAL_VALUE_THRESHOLD_ON)
+                {
                     descriptor.value = 0;
+                }
                 else
+                {
                     descriptor.value = 0;
+                }
 
                 return true;
             }
 
 #ifdef ANALOG_USE_MEDIAN_FILTER
-            auto compare = [](const void* a, const void* b) {
+            auto compare = [](const void* a, const void* b)
+            {
                 if (*(uint16_t*)a < *(uint16_t*)b)
+                {
                     return -1;
-                else if (*(uint16_t*)a > *(uint16_t*)b)
+                }
+
+                if (*(uint16_t*)a > *(uint16_t*)b)
+                {
                     return 1;
+                }
 
                 return 0;
             };
 #endif
 
-            const bool fastFilter   = (core::timing::currentRunTimeMs() - _lastStableMovementTime[index]) < FAST_FILTER_ENABLE_AFTER_MS;
-            const bool direction    = descriptor.value >= _lastStableValue[index];
-            const auto oldMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(_lastStableValue[index]), adcMinValue, adcMaxValue, static_cast<uint32_t>(0), static_cast<uint32_t>(descriptor.maxValue));
-            uint16_t   stepDiff     = 1;
+            const bool FAST_FILTER    = (core::timing::currentRunTimeMs() - _lastStableMovementTime[index]) < FAST_FILTER_ENABLE_AFTER_MS;
+            const bool DIRECTION      = descriptor.value >= _lastStableValue[index];
+            const auto OLD_MID_IVALUE = core::misc::mapRange(static_cast<uint32_t>(_lastStableValue[index]), ADC_MIN_VALUE, ADC_MAX_VALUE, static_cast<uint32_t>(0), static_cast<uint32_t>(descriptor.maxValue));
+            int16_t    stepDiff       = 1;
 
-            if (((direction != lastStableDirection(index)) || !fastFilter) && ((oldMIDIvalue != 0) && (oldMIDIvalue != descriptor.maxValue)))
+            if (((DIRECTION != lastStableDirection(index)) || !FAST_FILTER) && ((OLD_MID_IVALUE != 0) && (OLD_MID_IVALUE != descriptor.maxValue)))
             {
-                stepDiff = _stepDiff7Bit * 2;
+                stepDiff = STEP_DIFF_7BIT * 2;
             }
 
-            if (abs(descriptor.value - _lastStableValue[index]) < stepDiff)
+            if (abs(static_cast<int16_t>(descriptor.value) - static_cast<int16_t>(_lastStableValue[index])) < stepDiff)
             {
 #ifdef ANALOG_USE_MEDIAN_FILTER
                 _medianSampleCounter[index] = 0;
@@ -123,7 +137,7 @@ namespace IO
             }
 
 #ifdef ANALOG_USE_MEDIAN_FILTER
-            if (!fastFilter)
+            if (!FAST_FILTER)
             {
                 _analogSample[index][_medianSampleCounter[index]++] = descriptor.value;
 
@@ -145,33 +159,39 @@ namespace IO
             descriptor.value = _emaFilter[index].value(descriptor.value);
 #endif
 
-            const auto midiValue = core::misc::mapRange(static_cast<uint32_t>(descriptor.value), adcMinValue, adcMaxValue, static_cast<uint32_t>(0), static_cast<uint32_t>(descriptor.maxValue));
+            const auto MIDI_VALUE = core::misc::mapRange(static_cast<uint32_t>(descriptor.value), ADC_MIN_VALUE, ADC_MAX_VALUE, static_cast<uint32_t>(0), static_cast<uint32_t>(descriptor.maxValue));
 
-            if (midiValue == oldMIDIvalue)
+            if (MIDI_VALUE == OLD_MID_IVALUE)
+            {
                 return false;
+            }
 
-            setLastStableDirection(index, direction);
+            setLastStableDirection(index, DIRECTION);
             _lastStableValue[index] = descriptor.value;
 
             // when edge values are reached, disable fast filter by resetting last movement time
-            if ((midiValue == 0) || (midiValue == descriptor.maxValue))
+            if ((MIDI_VALUE == 0) || (MIDI_VALUE == descriptor.maxValue))
+            {
                 _lastStableMovementTime[index] = 0;
+            }
             else
+            {
                 _lastStableMovementTime[index] = core::timing::currentRunTimeMs();
+            }
 
-            if (descriptor.type == Analog::type_t::fsr)
+            if (descriptor.type == Analog::type_t::FSR)
             {
                 descriptor.value = core::misc::mapRange(CONSTRAIN(descriptor.value,
-                                                                  static_cast<uint32_t>(_adcConfig.fsrMinValue),
-                                                                  static_cast<uint32_t>(_adcConfig.fsrMaxValue)),
-                                                        static_cast<uint32_t>(_adcConfig.fsrMinValue),
-                                                        static_cast<uint32_t>(_adcConfig.fsrMaxValue),
+                                                                  static_cast<uint32_t>(_adcConfig.FSR_MIN_VALUE),
+                                                                  static_cast<uint32_t>(_adcConfig.FSR_MAX_VALUE)),
+                                                        static_cast<uint32_t>(_adcConfig.FSR_MIN_VALUE),
+                                                        static_cast<uint32_t>(_adcConfig.FSR_MAX_VALUE),
                                                         static_cast<uint32_t>(0),
                                                         static_cast<uint32_t>(descriptor.maxValue));
             }
             else
             {
-                descriptor.value = midiValue;
+                descriptor.value = MIDI_VALUE;
             }
 
             return true;
@@ -180,7 +200,9 @@ namespace IO
         uint16_t lastValue(size_t index) override
         {
             if (index < IO::Analog::Collection::size())
+            {
                 return _lastStableValue[index];
+            }
 
             return 0;
         }
@@ -199,15 +221,15 @@ namespace IO
         }
 
         private:
-        using adcConfig_t = struct
+        struct adcConfig_t
         {
-            const uint16_t adcMinValue;                 ///< Minimum raw ADC value.
-            const uint16_t adcMaxValue;                 ///< Maxmimum raw ADC value.
-            const uint16_t fsrMinValue;                 ///< Minimum raw ADC reading for FSR sensors.
-            const uint16_t fsrMaxValue;                 ///< Maximum raw ADC reading for FSR sensors.
-            const uint16_t aftertouchMaxValue;          ///< Maxmimum raw ADC reading for aftertouch on FSR sensors.
-            const uint16_t digitalValueThresholdOn;     ///< Value above which buton connected to analog input is considered pressed.
-            const uint16_t digitalValueThresholdOff;    ///< Value below which button connected to analog input is considered released.
+            const uint16_t ADC_MIN_VALUE;                  ///< Minimum raw ADC value.
+            const uint16_t ADC_MAX_VALUE;                  ///< Maxmimum raw ADC value.
+            const uint16_t FSR_MIN_VALUE;                  ///< Minimum raw ADC reading for FSR sensors.
+            const uint16_t FSR_MAX_VALUE;                  ///< Maximum raw ADC reading for FSR sensors.
+            const uint16_t AFTERTOUCH_MAX_VALUE;           ///< Maxmimum raw ADC reading for aftertouch on FSR sensors.
+            const uint16_t DIGITAL_VALUE_THRESHOLD_ON;     ///< Value above which buton connected to analog input is considered pressed.
+            const uint16_t DIGITAL_VALUE_THRESHOLD_OFF;    ///< Value below which button connected to analog input is considered released.
         };
 
         void setLastStableDirection(size_t index, bool state)
@@ -232,12 +254,10 @@ namespace IO
 
             if (percentage != 0)
             {
-                return static_cast<double>(_adcConfig.adcMaxValue) * static_cast<double>(percentage / 100.0);
+                return static_cast<double>(_adcConfig.ADC_MAX_VALUE) * static_cast<double>(percentage / 100.0);
             }
-            else
-            {
-                return _adcConfig.adcMinValue;
-            }
+
+            return _adcConfig.ADC_MIN_VALUE;
         }
 
         uint32_t upperOffsetRaw(uint8_t percentage)
@@ -246,36 +266,34 @@ namespace IO
 
             if (percentage != 0)
             {
-                return static_cast<double>(_adcConfig.adcMaxValue) - static_cast<double>(_adcConfig.adcMaxValue * static_cast<double>(percentage / 100.0));
+                return static_cast<double>(_adcConfig.ADC_MAX_VALUE) - static_cast<double>(_adcConfig.ADC_MAX_VALUE * static_cast<double>(percentage / 100.0));
             }
-            else
-            {
-                return _adcConfig.adcMaxValue;
-            }
+
+            return _adcConfig.ADC_MAX_VALUE;
         }
 
-        adcConfig_t adc10bit = {
-            .adcMinValue              = 10,
-            .adcMaxValue              = 1000,
-            .fsrMinValue              = 40,
-            .fsrMaxValue              = 340,
-            .aftertouchMaxValue       = 600,
-            .digitalValueThresholdOn  = 1000,
-            .digitalValueThresholdOff = 600,
+        adcConfig_t _adc10bit = {
+            .ADC_MIN_VALUE               = 10,
+            .ADC_MAX_VALUE               = 1000,
+            .FSR_MIN_VALUE               = 40,
+            .FSR_MAX_VALUE               = 340,
+            .AFTERTOUCH_MAX_VALUE        = 600,
+            .DIGITAL_VALUE_THRESHOLD_ON  = 1000,
+            .DIGITAL_VALUE_THRESHOLD_OFF = 600,
         };
 
-        adcConfig_t adc12bit = {
-            .adcMinValue              = 10,
-            .adcMaxValue              = 4000,
-            .fsrMinValue              = 160,
-            .fsrMaxValue              = 1360,
-            .aftertouchMaxValue       = 2400,
-            .digitalValueThresholdOn  = 4000,
-            .digitalValueThresholdOff = 2400,
+        adcConfig_t _adc12bit = {
+            .ADC_MIN_VALUE               = 10,
+            .ADC_MAX_VALUE               = 4000,
+            .FSR_MIN_VALUE               = 160,
+            .FSR_MAX_VALUE               = 1360,
+            .AFTERTOUCH_MAX_VALUE        = 2400,
+            .DIGITAL_VALUE_THRESHOLD_ON  = 4000,
+            .DIGITAL_VALUE_THRESHOLD_OFF = 2400,
         };
 
         adcConfig_t&              _adcConfig;
-        const uint16_t            _stepDiff7Bit;
+        const uint16_t            STEP_DIFF_7BIT;
         static constexpr uint32_t FAST_FILTER_ENABLE_AFTER_MS = 50;
 
 // some filtering is needed for adc only

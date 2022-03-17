@@ -47,11 +47,11 @@ namespace
             if (lastConnectionState != newState)
             {
                 uint8_t data[2] = {
-                    static_cast<uint8_t>(USBLink::internalCMD_t::usbState),
+                    static_cast<uint8_t>(USBLink::internalCMD_t::USB_STATE),
                     newState,
                 };
 
-                Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::internal,
+                Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::INTERNAL,
                                                             data,
                                                             2,
                                                             USB_OVER_SERIAL_BUFFER_SIZE);
@@ -70,7 +70,7 @@ namespace
         Board::uniqueID(uniqueID);
 
         uint8_t data[11] = {
-            static_cast<uint8_t>(USBLink::internalCMD_t::uniqueID),
+            static_cast<uint8_t>(USBLink::internalCMD_t::UNIQUE_ID),
             uniqueID[0],
             uniqueID[1],
             uniqueID[2],
@@ -83,7 +83,7 @@ namespace
             uniqueID[9],
         };
 
-        Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::internal,
+        Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::INTERNAL,
                                                     data,
                                                     11,
                                                     USB_OVER_SERIAL_BUFFER_SIZE);
@@ -91,30 +91,27 @@ namespace
     }
 }    // namespace
 
-namespace Board
+namespace Board::USB
 {
-    namespace USB
+    void onCDCsetLineEncoding(uint32_t baudRate)
     {
-        void onCDCsetLineEncoding(uint32_t baudRate)
-        {
-            uint8_t data[5] = {
-                static_cast<uint8_t>(USBLink::internalCMD_t::baudRateChange),
-                static_cast<uint8_t>((baudRate) >> 0 & 0xFF),
-                static_cast<uint8_t>((baudRate >> 8) & 0xFF),
-                static_cast<uint8_t>((baudRate >> 16) & 0xFF),
-                static_cast<uint8_t>((baudRate >> 24) & 0xFF),
-            };
+        uint8_t data[5] = {
+            static_cast<uint8_t>(USBLink::internalCMD_t::BAUDRATE_CHANGE),
+            static_cast<uint8_t>((baudRate) >> 0 & 0xFF),
+            static_cast<uint8_t>((baudRate >> 8) & 0xFF),
+            static_cast<uint8_t>((baudRate >> 16) & 0xFF),
+            static_cast<uint8_t>((baudRate >> 24) & 0xFF),
+        };
 
-            Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::internal,
-                                                        data,
-                                                        5,
-                                                        USB_OVER_SERIAL_BUFFER_SIZE);
-            Board::USBOverSerial::write(UART_CHANNEL_USB_LINK, packet);
-        }
-    }    // namespace USB
-}    // namespace Board
+        Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::INTERNAL,
+                                                    data,
+                                                    5,
+                                                    USB_OVER_SERIAL_BUFFER_SIZE);
+        Board::USBOverSerial::write(UART_CHANNEL_USB_LINK, packet);
+    }
+}    // namespace Board::USB
 
-int main(void)
+int main()
 {
     Board::init();
 
@@ -127,31 +124,35 @@ int main(void)
         // USB MIDI -> UART
         if (Board::USB::readMIDI(usbMIDIPacket))
         {
-            Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::midi,
+            Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::MIDI,
                                                         &usbMIDIPacket[0],
                                                         4,
                                                         USB_OVER_SERIAL_BUFFER_SIZE);
 
             if (Board::USBOverSerial::write(UART_CHANNEL_USB_LINK, packet))
-                Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::incoming);
+            {
+                Board::io::indicateTraffic(Board::io::dataSource_t::USB, Board::io::dataDirection_t::INCOMING);
+            }
         }
 
         // USB CDC -> UART
         if (Board::USB::readCDC(cdcReadBuffer, cdcPacketSize, USB_OVER_SERIAL_BUFFER_SIZE))
         {
-            Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::cdc,
+            Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::CDC,
                                                         cdcReadBuffer,
                                                         cdcPacketSize,
                                                         USB_OVER_SERIAL_BUFFER_SIZE);
 
             if (Board::USBOverSerial::write(UART_CHANNEL_USB_LINK, packet))
-                Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::incoming);
+            {
+                Board::io::indicateTraffic(Board::io::dataSource_t::USB, Board::io::dataDirection_t::INCOMING);
+            }
         }
 
         // UART -> USB
         if (Board::USBOverSerial::read(UART_CHANNEL_USB_LINK, readPacket))
         {
-            if (readPacket.type() == Board::USBOverSerial::packetType_t::midi)
+            if (readPacket.type() == Board::USBOverSerial::packetType_t::MIDI)
             {
                 for (size_t i = 0; i < sizeof(usbMIDIPacket); i++)
                 {
@@ -159,22 +160,26 @@ int main(void)
                 }
 
                 if (Board::USB::writeMIDI(usbMIDIPacket))
-                    Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::outgoing);
+                {
+                    Board::io::indicateTraffic(Board::io::dataSource_t::USB, Board::io::dataDirection_t::OUTGOING);
+                }
             }
-            else if (readPacket.type() == Board::USBOverSerial::packetType_t::internal)
+            else if (readPacket.type() == Board::USBOverSerial::packetType_t::INTERNAL)
             {
                 // internal command
-                if (readPacket[0] == static_cast<uint8_t>(USBLink::internalCMD_t::rebootBTLDR))
+                if (readPacket[0] == static_cast<uint8_t>(USBLink::internalCMD_t::REBOOT_BTLDR))
                 {
                     // use received data as the magic bootloader value
                     Board::bootloader::setMagicBootValue(readPacket[1]);
                     Board::reboot();
                 }
             }
-            else if (readPacket.type() == Board::USBOverSerial::packetType_t::cdc)
+            else if (readPacket.type() == Board::USBOverSerial::packetType_t::CDC)
             {
                 if (Board::USB::writeCDC(readPacket.buffer(), readPacket.size()))
-                    Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::outgoing);
+                {
+                    Board::io::indicateTraffic(Board::io::dataSource_t::USB, Board::io::dataDirection_t::OUTGOING);
+                }
             }
 
             // clear out any stored information in packet since we are reusing it

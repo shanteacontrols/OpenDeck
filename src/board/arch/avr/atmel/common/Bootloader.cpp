@@ -29,40 +29,37 @@ limitations under the License.
 /// Location at which reboot type is written in EEPROM when initiating software reset.
 #define REBOOT_VALUE_EEPROM_LOCATION EEPROM_END
 
-namespace Board
+namespace Board::bootloader
 {
-    namespace bootloader
+    uint8_t magicBootValue()
     {
-        uint8_t magicBootValue()
-        {
-            return eeprom_read_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION);
-        }
+        return eeprom_read_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION);
+    }
 
-        void setMagicBootValue(uint8_t value)
-        {
-            eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, static_cast<uint8_t>(value));
-        }
+    void setMagicBootValue(uint8_t value)
+    {
+        eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, static_cast<uint8_t>(value));
+    }
 
-        void runBootloader()
-        {
+    void runBootloader()
+    {
 #if defined(LED_INDICATORS) && defined(LED_INDICATORS_CTL)
-            // the only reason to run this in bootloader is to control led indicators through data event timeouts
-            // if this feature is unavailable, don't configure the timer
-            detail::setup::timers();
+        // the only reason to run this in bootloader is to control led indicators through data event timeouts
+        // if this feature is unavailable, don't configure the timer
+        detail::setup::timers();
 #endif
 
-            detail::setup::usb();
-        }
+        detail::setup::usb();
+    }
 
-        void runApplication()
-        {
-            detail::io::ledFlashStartup();
+    void runApplication()
+    {
+        detail::io::ledFlashStartup();
 
-            __asm__ __volatile__(
-                // Jump to RST vector
-                "clr r30\n"
-                "clr r31\n"
-                "ijmp\n");
-        }
-    }    // namespace bootloader
-}    // namespace Board
+        __asm__ __volatile__(
+            // Jump to RST vector
+            "clr r30\n"
+            "clr r31\n"
+            "ijmp\n");
+    }
+}    // namespace Board::bootloader

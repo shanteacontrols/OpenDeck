@@ -13,7 +13,7 @@ class AnalogFilterStub : public IO::Analog::Filter
         }
     }
 
-    static constexpr adcType_t ADC_RESOLUTION = adcType_t::adc10bit;
+    static constexpr adcType_t ADC_RESOLUTION = adcType_t::ADC_10BIT;
 
     bool isFiltered(size_t index, descriptor_t& descriptor) override
     {

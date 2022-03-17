@@ -14,7 +14,7 @@ class LoggerWriter : public Logger::StreamWriter
         return true;
     }
 } _loggerWriter;
-Logger logger = Logger(_loggerWriter, Logger::lineEnding_t::crlf);
+Logger logger = Logger(_loggerWriter, Logger::lineEnding_t::CRLF);
 #endif
 
 int main(int argc, char* argv[])

@@ -59,12 +59,12 @@ namespace
 
 TEST(Bootloader, FwUpdate)
 {
-    const std::string syxPath    = fw_build_dir + BOARD_STRING + "/" + fw_build_type_subdir + "merged/" + BOARD_STRING + ".sysex.syx";
-    const std::string binaryPath = fw_build_dir + BOARD_STRING + "/" + fw_build_type_subdir + "merged/" + BOARD_STRING + "_sysex.bin";
+    const std::string SYX_PATH    = fw_build_dir + BOARD_STRING + "/" + fw_build_type_subdir + "merged/" + BOARD_STRING + ".sysex.syx";
+    const std::string BINARY_PATH = fw_build_dir + BOARD_STRING + "/" + fw_build_type_subdir + "merged/" + BOARD_STRING + "_sysex.bin";
 
-    std::ifstream        sysExStream(syxPath, std::ios::in | std::ios::binary);
+    std::ifstream        sysExStream(SYX_PATH, std::ios::in | std::ios::binary);
     std::vector<uint8_t> sysExVector((std::istreambuf_iterator<char>(sysExStream)), std::istreambuf_iterator<char>());
-    std::ifstream        binaryStream(binaryPath, std::ios::in | std::ios::binary);
+    std::ifstream        binaryStream(BINARY_PATH, std::ios::in | std::ios::binary);
     std::vector<uint8_t> binaryVector((std::istreambuf_iterator<char>(binaryStream)), std::istreambuf_iterator<char>());
 
     std::vector<uint8_t>               singleSysExMsg = {};

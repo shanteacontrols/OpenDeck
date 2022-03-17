@@ -25,20 +25,20 @@ namespace Messaging
 {
     enum class eventType_t : uint8_t
     {
-        analog,
-        analogButton,
-        button,
-        encoder,
-        touchscreenButton,
-        touchscreenScreen,
-        touchscreenLED,
-        midiIn,
-        preset,
-        program,
-        system,
-        dmxAnalog,
-        dmxButton,
-        dmxEncoder,
+        ANALOG,
+        ANALOG_BUTTON,
+        BUTTON,
+        ENCODER,
+        TOUCHSCREEN_BUTTON,
+        TOUCHSCREEN_SCREEN,
+        TOUCHSCREEN_LED,
+        MIDI_IN,
+        PRESET,
+        PROGRAM,
+        SYSTEM,
+        DMX_ANALOG,
+        DMX_BUTTON,
+        DMX_ENCODER,
     };
 
     // enum indicating what types of system-level messages are possible.
@@ -46,19 +46,19 @@ namespace Messaging
     // in event_t structure.
     enum class systemMessage_t : uint8_t
     {
-        forceIOrefresh,
-        sysExResponse
+        FORCE_IO_REFRESH,
+        SYS_EX_RESPONSE
     };
 
     struct event_t
     {
         size_t                       componentIndex = 0;
-        uint8_t                      midiChannel    = 0;
-        uint16_t                     midiIndex      = 0;
-        uint16_t                     midiValue      = 0;
+        uint8_t                      channel        = 0;
+        uint16_t                     index          = 0;
+        uint16_t                     value          = 0;
         uint8_t*                     sysEx          = nullptr;
         size_t                       sysExLength    = 0;
-        MIDIlib::Base::messageType_t message        = MIDIlib::Base::messageType_t::invalid;
+        MIDIlib::Base::messageType_t message        = MIDIlib::Base::messageType_t::INVALID;
 
         event_t() = default;
     };

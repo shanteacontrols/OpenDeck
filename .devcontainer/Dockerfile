@@ -26,7 +26,18 @@ libgoogle-glog-dev \
 ccache \
 unzip \
 cmake \
+lsb-release \
+software-properties-common \
+python3-pip \
+gcc-multilib \
+gpg-agent \
 && rm -rf /var/lib/apt/lists/*
+
+RUN \
+bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)" && \
+apt-get install -y --no-install-recommends \
+clang-format-14 \
+clang-tidy-14
 
 RUN \
 mkdir /opendeck-deps
@@ -87,6 +98,9 @@ make install && \
 cd ../../ && \
 rm -rf googletest
 
+RUN \
+pip install compiledb
+
 #don't run as root!
 RUN adduser --disabled-password --gecos '' $user
 
@@ -101,3 +115,8 @@ RUN echo "MAKEFLAGS=-j$(nproc)" >> /home/$user/.bashrc
 #run everything below as $user
 USER $user
 WORKDIR /home/$user
+
+RUN \
+sudo update-alternatives --install /usr/local/bin/clang-format clang-format /usr/bin/clang-format-14 20 && \
+sudo update-alternatives --install /usr/local/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-14 20 && \
+sudo update-alternatives --install /usr/local/bin/run-clang-tidy run-clang-tidy /usr/bin/run-clang-tidy-14 20

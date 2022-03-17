@@ -45,7 +45,7 @@ uint8_t Configurable::get(System::Config::block_t block, uint8_t section, size_t
         }
     }
 
-    return System::Config::status_t::errorNotSupported;
+    return System::Config::status_t::ERROR_NOT_SUPPORTED;
 }
 
 uint8_t Configurable::set(System::Config::block_t block, uint8_t section, size_t index, uint16_t value)
@@ -66,5 +66,5 @@ uint8_t Configurable::set(System::Config::block_t block, uint8_t section, size_t
         }
     }
 
-    return System::Config::status_t::errorNotSupported;
+    return System::Config::status_t::ERROR_NOT_SUPPORTED;
 }

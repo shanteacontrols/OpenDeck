@@ -16,55 +16,53 @@ limitations under the License.
 
 */
 
-namespace Board
+namespace Board::detail::st
 {
-    namespace detail
+    bool uartChannel(USART_TypeDef* interface, uint8_t& channel)
     {
-        namespace st
+        for (int i = 0; i < MAX_UART_INTERFACES; i++)
         {
-            bool uartChannel(USART_TypeDef* interface, uint8_t& channel)
+            if (static_cast<USART_TypeDef*>(_uartDescriptor[i]->interface()) == interface)
             {
-                for (int i = 0; i < MAX_UART_INTERFACES; i++)
-                {
-                    if (static_cast<USART_TypeDef*>(_uartDescriptor[i]->interface()) == interface)
-                    {
-                        channel = i;
-                        return true;
-                    }
-                }
-
-                return false;
+                channel = i;
+                return true;
             }
+        }
 
-            Peripheral* uartDescriptor(uint8_t channel)
+        return false;
+    }
+
+    Peripheral* uartDescriptor(uint8_t channel)
+    {
+        if (channel >= MAX_UART_INTERFACES)
+        {
+            return nullptr;
+        }
+
+        return _uartDescriptor[channel];
+    }
+
+    bool i2cChannel(I2C_TypeDef* interface, uint8_t& channel)
+    {
+        for (int i = 0; i < MAX_I2C_INTERFACES; i++)
+        {
+            if (static_cast<I2C_TypeDef*>(_i2cDescriptor[i]->interface()) == interface)
             {
-                if (channel >= MAX_UART_INTERFACES)
-                    return nullptr;
-
-                return _uartDescriptor[channel];
+                channel = i;
+                return true;
             }
+        }
 
-            bool i2cChannel(I2C_TypeDef* interface, uint8_t& channel)
-            {
-                for (int i = 0; i < MAX_I2C_INTERFACES; i++)
-                {
-                    if (static_cast<I2C_TypeDef*>(_i2cDescriptor[i]->interface()) == interface)
-                    {
-                        channel = i;
-                        return true;
-                    }
-                }
+        return false;
+    }
 
-                return false;
-            }
+    Peripheral* i2cDescriptor(uint8_t channel)
+    {
+        if (channel >= MAX_I2C_INTERFACES)
+        {
+            return nullptr;
+        }
 
-            Peripheral* i2cDescriptor(uint8_t channel)
-            {
-                if (channel >= MAX_I2C_INTERFACES)
-                    return nullptr;
-
-                return _i2cDescriptor[channel];
-            }
-        }    // namespace map
-    }        // namespace detail
-}    // namespace Board
+        return _i2cDescriptor[channel];
+    }
+}    // namespace Board::detail::st

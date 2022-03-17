@@ -69,12 +69,12 @@ namespace Board::detail
             }
 
             _uartHandler[channel].Instance        = static_cast<USART_TypeDef*>(Board::detail::st::uartDescriptor(channel)->interface());
-            _uartHandler[channel].Init.BaudRate   = config.dmxMode ? static_cast<uint32_t>(dmxBaudRate_t::brBreak) : config.baudRate;
+            _uartHandler[channel].Init.BaudRate   = config.dmxMode ? static_cast<uint32_t>(dmxBaudRate_t::BR_BREAK) : config.baudRate;
             _uartHandler[channel].Init.WordLength = UART_WORDLENGTH_8B;
-            _uartHandler[channel].Init.StopBits   = config.stopBits == Board::UART::stopBits_t::one ? UART_STOPBITS_1 : UART_STOPBITS_2;
+            _uartHandler[channel].Init.StopBits   = config.stopBits == Board::UART::stopBits_t::ONE ? UART_STOPBITS_1 : UART_STOPBITS_2;
 
 #ifdef DMX_SUPPORTED
-            _dmxState[channel] = config.dmxMode ? dmxState_t::idle : dmxState_t::disabled;
+            _dmxState[channel] = config.dmxMode ? dmxState_t::IDLE : dmxState_t::DISABLED;
             _dmxByteCounter    = 0;
 
             uint32_t pclk;
@@ -100,31 +100,31 @@ namespace Board::detail
                 pclk = HAL_RCC_GetPCLK1Freq();
             }
 
-            _dmxBreakBRR = UART_BRR_SAMPLING16(pclk, static_cast<uint32_t>(dmxBaudRate_t::brBreak));
-            _dmxDataBRR  = UART_BRR_SAMPLING16(pclk, static_cast<uint32_t>(dmxBaudRate_t::brData));
+            _dmxBreakBRR = UART_BRR_SAMPLING16(pclk, static_cast<uint32_t>(dmxBaudRate_t::BR_BREAK));
+            _dmxDataBRR  = UART_BRR_SAMPLING16(pclk, static_cast<uint32_t>(dmxBaudRate_t::BR_DATA));
 #endif
-            if (config.parity == Board::UART::parity_t::no)
+            if (config.parity == Board::UART::parity_t::NO)
             {
                 _uartHandler[channel].Init.Parity = UART_PARITY_NONE;
             }
-            else if (config.parity == Board::UART::parity_t::even)
+            else if (config.parity == Board::UART::parity_t::EVEN)
             {
                 _uartHandler[channel].Init.Parity = UART_PARITY_EVEN;
             }
-            else if (config.parity == Board::UART::parity_t::odd)
+            else if (config.parity == Board::UART::parity_t::ODD)
             {
                 _uartHandler[channel].Init.Parity = UART_PARITY_ODD;
             }
 
-            if (config.type == Board::UART::type_t::rxTx)
+            if (config.type == Board::UART::type_t::RX_TX)
             {
                 _uartHandler[channel].Init.Mode = UART_MODE_TX_RX;
             }
-            else if (config.type == Board::UART::type_t::rx)
+            else if (config.type == Board::UART::type_t::RX)
             {
                 _uartHandler[channel].Init.Mode = UART_MODE_RX;
             }
-            else if (config.type == Board::UART::type_t::tx)
+            else if (config.type == Board::UART::type_t::TX)
             {
                 _uartHandler[channel].Init.Mode = UART_MODE_TX;
             }
@@ -137,7 +137,7 @@ namespace Board::detail
                 return false;
             }
 
-            if ((config.type == Board::UART::type_t::rxTx) || (config.type == Board::UART::type_t::rx))
+            if ((config.type == Board::UART::type_t::RX_TX) || (config.type == Board::UART::type_t::RX))
             {
                 // enable rx interrupt
                 __HAL_UART_ENABLE_IT(&_uartHandler[channel], UART_IT_RXNE);
@@ -174,7 +174,7 @@ namespace Board::detail
             {
                 switch (_dmxState[channel])
                 {
-                case Board::detail::UART::dmxState_t::disabled:
+                case Board::detail::UART::dmxState_t::DISABLED:
                 {
                     size_t  remainingBytes;
                     uint8_t value;
@@ -200,7 +200,7 @@ namespace Board::detail
                 }
                 break;
 
-                case Board::detail::UART::dmxState_t::waitingTXComplete:
+                case Board::detail::UART::dmxState_t::WAITING_TX_COMPLETE:
                 {
                     if (txComplete)
                     {
@@ -217,34 +217,34 @@ namespace Board::detail
                         DMX_SET_BREAK_BAUDRATE(channel);
                         __HAL_UART_DISABLE_IT(&_uartHandler[channel], UART_IT_TC);
                         __HAL_UART_ENABLE_IT(&_uartHandler[channel], UART_IT_TXE);
-                        _dmxState[channel] = Board::detail::UART::dmxState_t::idle;
+                        _dmxState[channel] = Board::detail::UART::dmxState_t::IDLE;
                     }
                 }
                 break;
 
-                case Board::detail::UART::dmxState_t::idle:
+                case Board::detail::UART::dmxState_t::IDLE:
                 {
                     __HAL_UART_DISABLE_IT(&_uartHandler[channel], UART_IT_TXE);
                     __HAL_UART_ENABLE_IT(&_uartHandler[channel], UART_IT_TC);
 
-                    _dmxState[channel]                 = Board::detail::UART::dmxState_t::breakChar;
+                    _dmxState[channel]                 = Board::detail::UART::dmxState_t::BREAK_CHAR;
                     _uartHandler[channel].Instance->DR = 0x00;
                 }
                 break;
 
-                case Board::detail::UART::dmxState_t::breakChar:
+                case Board::detail::UART::dmxState_t::BREAK_CHAR:
                 {
                     if (txComplete)
                     {
                         DMX_SET_DATA_BAUDRATE(channel);
                         __HAL_UART_DISABLE_IT(&_uartHandler[channel], UART_IT_TC);
                         __HAL_UART_ENABLE_IT(&_uartHandler[channel], UART_IT_TXE);
-                        _dmxState[channel] = Board::detail::UART::dmxState_t::data;
+                        _dmxState[channel] = Board::detail::UART::dmxState_t::DATA;
                     }
                 }
                 break;
 
-                case Board::detail::UART::dmxState_t::data:
+                case Board::detail::UART::dmxState_t::DATA:
                 {
                     _uartHandler[channel].Instance->DR = Board::detail::UART::dmxChannelValue(_dmxByteCounter++);
 
@@ -253,7 +253,7 @@ namespace Board::detail
                         __HAL_UART_ENABLE_IT(&_uartHandler[channel], UART_IT_TC);
                         __HAL_UART_DISABLE_IT(&_uartHandler[channel], UART_IT_TXE);
                         _dmxByteCounter    = 0;
-                        _dmxState[channel] = Board::detail::UART::dmxState_t::waitingTXComplete;
+                        _dmxState[channel] = Board::detail::UART::dmxState_t::WAITING_TX_COMPLETE;
                     }
                 }
                 break;

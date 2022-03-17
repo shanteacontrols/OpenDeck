@@ -1,49 +1,45 @@
 ---
-Checks:          'clang-analyzer-*,readability-braces-around-statements,readability-else-after-return,readability-inconsistent-declaration-parameter-name,modernize-use-equals-default,modernize-use-using,modernize-redundant-void-arg,modernize-concat-nested-namespaces,misc-redundant-expression,readability-static-accessed-through-instance'
+Checks:          'clang-analyzer-*,readability-braces-around-statements,readability-else-after-return,readability-inconsistent-declaration-parameter-name,modernize-use-equals-default,modernize-use-using,modernize-redundant-void-arg,modernize-concat-nested-namespaces,misc-redundant-expression,readability-static-accessed-through-instance,readability-static-accessed-through-instance,performance-inefficient-vector-operation,readability-identifier-naming'
 WarningsAsErrors: ''
-HeaderFilterRegex: ''
+HeaderFilterRegex: 'application/.*|board/.*|bootloader/.*|flashgen/.*|sysexgen/.*|usblink/.*'
 AnalyzeTemporaryDtors: false
 FormatStyle:     file
 CheckOptions:
-  - key:             llvm-else-after-return.WarnOnConditionVariables
-    value:           'false'
   - key:             readability-braces-around-statements.ShortStatementLines
     value:           '0'
-  - key:             modernize-loop-convert.MinConfidence
-    value:           reasonable
-  - key:             modernize-replace-auto-ptr.IncludeStyle
-    value:           llvm
-  - key:             cert-str34-c.DiagnoseSignedUnsignedCharComparisons
-    value:           'false'
-  - key:             google-readability-namespace-comments.ShortNamespaceLines
-    value:           '10'
-  - key:             cert-oop54-cpp.WarnOnlyIfThisHasSuspiciousField
-    value:           'false'
-  - key:             cppcoreguidelines-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
-    value:           'true'
-  - key:             cert-dcl16-c.NewSuffixes
-    value:           'L;LL;LU;LLU'
-  - key:             google-readability-braces-around-statements.ShortStatementLines
-    value:           '0'
-  - key:             modernize-pass-by-value.IncludeStyle
-    value:           llvm
-  - key:             google-readability-namespace-comments.SpacesBeforeComments
-    value:           '2'
-  - key:             modernize-loop-convert.MaxCopySize
-    value:           '16'
-  - key:             cppcoreguidelines-explicit-virtual-functions.IgnoreDestructors
-    value:           'true'
-  - key:             modernize-use-nullptr.NullMacros
-    value:           'NULL'
-  - key:             llvm-qualified-auto.AddConstToQualified
-    value:           'false'
-  - key:             modernize-loop-convert.NamingStyle
-    value:           CamelCase
-  - key:             llvm-else-after-return.WarnOnUnfixable
-    value:           'false'
-  - key:             google-readability-function-size.StatementThreshold
-    value:           '800'
   - key:             readability-inconsistent-declaration-parameter-name.Strict
     value:           'true'
-...
-
+  - key:             readability-identifier-naming.IgnoreMainLikeFunctions
+    value:           'true'
+  - key:             readability-identifier-naming.FunctionIgnoredRegexp
+    value:           'main'
+  - key:             readability-identifier-naming.ClassCase
+    value:           'CamelCase'
+  - key:             readability-identifier-naming.ClassMethodCase
+    value:           'camelBack'
+  - key:             readability-identifier-naming.PrivateMemberCase
+    value:           'camelBack'
+  - key:             readability-identifier-naming.PrivateMemberPrefix
+    value:           '_'
+  - key:             readability-identifier-naming.ConstexprVariableCase
+    value:           'UPPER_CASE'
+  - key:             readability-identifier-naming.StructCase
+    value:           'camelBack'
+  - key:             readability-identifier-naming.StructSuffix
+    value:           '_t'
+  - key:             readability-identifier-naming.EnumConstantCase
+    value:           'UPPER_CASE'
+  - key:             readability-identifier-naming.ConstantMemberCase
+    value:           'UPPER_CASE'
+  - key:             readability-identifier-naming.LocalConstantCase
+    value:           'UPPER_CASE'
+  - key:             readability-identifier-naming.ParameterCase
+    value:           'camelBack'
+  - key:             readability-identifier-naming.VirtualMethodCase
+    value:           'camelBack'
+  - key:             readability-identifier-naming.StaticConstantCase
+    value:           'UPPER_CASE'
+  - key:             readability-identifier-naming.StaticVariableCase
+    value:           'camelBack'
+  - key:             readability-identifier-naming.LocalVariableCase
+    value:           'camelBack'

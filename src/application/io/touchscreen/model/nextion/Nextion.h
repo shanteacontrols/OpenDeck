@@ -37,15 +37,15 @@ class Nextion : public IO::Touchscreen::Model
     private:
     enum class responseID_t : uint8_t
     {
-        button,
+        BUTTON,
         AMOUNT
     };
 
-    typedef struct
+    struct responseDescriptor_t
     {
         uint8_t size;
         uint8_t responseID;
-    } responseDescriptor_t;
+    };
 
     bool                       writeCommand(const char* line, ...);
     bool                       endCommand();
@@ -56,7 +56,7 @@ class Nextion : public IO::Touchscreen::Model
     char   _commandBuffer[IO::Touchscreen::Model::BUFFER_SIZE];
     size_t _endCounter = 0;
 
-    const responseDescriptor_t _responses[static_cast<size_t>(responseID_t::AMOUNT)] = {
+    const responseDescriptor_t RESPONSES[static_cast<size_t>(responseID_t::AMOUNT)] = {
         // button
         {
             .size       = 6,
@@ -65,7 +65,7 @@ class Nextion : public IO::Touchscreen::Model
     };
 
     // there are 7 levels of brighness - scale them to available range (0-100)
-    const uint8_t _brightnessMapping[7] = {
+    const uint8_t BRIGHTNESS_MAPPING[7] = {
         10,
         25,
         50,

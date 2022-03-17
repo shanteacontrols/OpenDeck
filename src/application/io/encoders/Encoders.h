@@ -44,32 +44,32 @@ namespace IO
 
         enum class type_t : uint8_t
         {
-            controlChange7Fh01h,
-            controlChange3Fh41h,
-            programChange,
-            controlChange,
-            presetChange,
-            pitchBend,
-            nrpn7bit,
-            nrpn14bit,
-            controlChange14bit,
-            dmx,
+            CONTROL_CHANGE_7FH01H,
+            CONTROL_CHANGE_3FH41H,
+            PROGRAM_CHANGE,
+            CONTROL_CHANGE,
+            PRESET_CHANGE,
+            PITCH_BEND,
+            NRPN_7BIT,
+            NRPN_14BIT,
+            CONTROL_CHANGE_14BIT,
+            DMX,
             AMOUNT
         };
 
         enum class position_t : uint8_t
         {
-            stopped,
-            ccw,
-            cw,
+            STOPPED,
+            CCW,
+            CW,
         };
 
         enum class acceleration_t : uint8_t
         {
-            disabled,
-            slow,
-            medium,
-            fast,
+            DISABLED,
+            SLOW,
+            MEDIUM,
+            FAST,
             AMOUNT
         };
 
@@ -106,7 +106,7 @@ namespace IO
         private:
         struct encoderDescriptor_t
         {
-            type_t             type          = type_t::controlChange7Fh01h;
+            type_t             type          = type_t::CONTROL_CHANGE_7FH01H;
             uint8_t            pulsesPerStep = 0;
             Messaging::event_t event;
 
@@ -131,8 +131,8 @@ namespace IO
         /// Time threshold in milliseconds between two encoder steps used to detect fast movement.
         static constexpr uint32_t ENCODERS_SPEED_TIMEOUT = 140;
 
-        /// Holds current MIDI value for all encoders.
-        int16_t _midiValue[Collection::size()] = { 0 };
+        /// Holds current value for all encoders.
+        int16_t _value[Collection::size()] = { 0 };
 
         /// Array holding current speed (in steps) for all encoders.
         uint8_t _encoderSpeed[Collection::size()] = {};
@@ -144,7 +144,7 @@ namespace IO
         int8_t _encoderPulses[Collection::size()] = {};
 
         /// Lookup table used to convert encoder reading to pulses.
-        const int8_t _encoderLookUpTable[16] = {
+        const int8_t ENCODER_LOOK_UP_TABLE[16] = {
             0,     // 0000
             1,     // 0001
             -1,    // 0010
@@ -167,24 +167,24 @@ namespace IO
         /// Every time fast movement is detected, amount of steps is increased by this value.
         /// Used only in CC/Pitch bend/NRPN modes. In Pitch bend/NRPN modes, this value is multiplied
         /// by 4 due to a larger value range.
-        const uint8_t _encoderSpeedChange[static_cast<uint8_t>(IO::Encoders::acceleration_t::AMOUNT)] = {
+        const uint8_t ENCODER_SPEED_CHANGE[static_cast<uint8_t>(IO::Encoders::acceleration_t::AMOUNT)] = {
             0,    // acceleration disabled
             1,
             2,
             3
         };
 
-        /// Maximum value by which MIDI value is increased during acceleration.
-        const uint8_t _encoderMaxAccSpeed[static_cast<uint8_t>(IO::Encoders::acceleration_t::AMOUNT)] = {
+        /// Maximum value by which value is increased during acceleration.
+        const uint8_t ENCODER_MAX_ACC_SPEED[static_cast<uint8_t>(IO::Encoders::acceleration_t::AMOUNT)] = {
             0,    // acceleration disabled
             5,
             10,
             100
         };
 
-        /// Array used for easier access to current encoder MIDI value in 7Fh01h and 3Fh41h modes.
+        /// Array used for easier access to current encoder value in 7Fh01h and 3Fh41h modes.
         /// Matched with type_t and position_t
-        const uint8_t _encValue[2][3] = {
+        const uint8_t ENC_VALUE[2][3] = {
             // controlChange7Fh01h
             {
                 0,      // stopped
@@ -200,16 +200,16 @@ namespace IO
             }
         };
 
-        const MIDI::messageType_t _internalMsgToMIDIType[static_cast<uint8_t>(type_t::AMOUNT)] = {
-            MIDI::messageType_t::controlChange,
-            MIDI::messageType_t::controlChange,
-            MIDI::messageType_t::programChange,
-            MIDI::messageType_t::controlChange,
-            MIDI::messageType_t::invalid,
-            MIDI::messageType_t::pitchBend,
-            MIDI::messageType_t::nrpn7bit,
-            MIDI::messageType_t::nrpn14bit,
-            MIDI::messageType_t::controlChange14bit,
+        const MIDI::messageType_t INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(type_t::AMOUNT)] = {
+            MIDI::messageType_t::CONTROL_CHANGE,
+            MIDI::messageType_t::CONTROL_CHANGE,
+            MIDI::messageType_t::PROGRAM_CHANGE,
+            MIDI::messageType_t::CONTROL_CHANGE,
+            MIDI::messageType_t::INVALID,
+            MIDI::messageType_t::PITCH_BEND,
+            MIDI::messageType_t::NRPN_7BIT,
+            MIDI::messageType_t::NRPN_14BIT,
+            MIDI::messageType_t::CONTROL_CHANGE_14BIT,
         };
     };
 }    // namespace IO

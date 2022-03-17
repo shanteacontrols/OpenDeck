@@ -26,8 +26,8 @@ class MIDIHelper
 
     enum class deviceCheckType_t : uint8_t
     {
-        app,
-        boot
+        APP,
+        BOOT
     };
 
     static std::vector<MIDI::usbMIDIPacket_t> rawSysExToUSBPackets(std::vector<uint8_t>& raw)
@@ -35,7 +35,7 @@ class MIDIHelper
         Messaging::event_t event;
         event.sysEx       = &raw[0];
         event.sysExLength = raw.size();
-        event.message     = MIDI::messageType_t::systemExclusive;
+        event.message     = MIDI::messageType_t::SYS_EX;
 
         return MIDIHelper::midiToUsbPackets(event);
     }
@@ -69,142 +69,142 @@ class MIDIHelper
             }
 
             std::vector<MIDI::usbMIDIPacket_t> _buffer;
-        } _hwaWriteToUSB;
+        } hwaWriteToUSB;
 
-        MIDIlib::USBMIDI _writeToUsb(_hwaWriteToUSB);
-        _writeToUsb.init();
+        MIDIlib::USBMIDI writeToUsb(hwaWriteToUSB);
+        writeToUsb.init();
 
         switch (event.message)
         {
-        case MIDI::messageType_t::noteOff:
+        case MIDI::messageType_t::NOTE_OFF:
         {
-            _writeToUsb.sendNoteOff(event.midiIndex, event.midiValue, event.midiChannel);
+            writeToUsb.sendNoteOff(event.index, event.value, event.channel);
         }
         break;
 
-        case MIDI::messageType_t::noteOn:
+        case MIDI::messageType_t::NOTE_ON:
         {
-            _writeToUsb.sendNoteOff(event.midiIndex, event.midiValue, event.midiChannel);
+            writeToUsb.sendNoteOff(event.index, event.value, event.channel);
         }
         break;
 
-        case MIDI::messageType_t::controlChange:
+        case MIDI::messageType_t::CONTROL_CHANGE:
         {
-            _writeToUsb.sendControlChange(event.midiIndex, event.midiValue, event.midiChannel);
+            writeToUsb.sendControlChange(event.index, event.value, event.channel);
         }
         break;
 
-        case MIDI::messageType_t::programChange:
+        case MIDI::messageType_t::PROGRAM_CHANGE:
         {
-            _writeToUsb.sendProgramChange(event.midiIndex, event.midiChannel);
+            writeToUsb.sendProgramChange(event.index, event.channel);
         }
         break;
 
-        case MIDI::messageType_t::afterTouchChannel:
+        case MIDI::messageType_t::AFTER_TOUCH_CHANNEL:
         {
-            _writeToUsb.sendAfterTouch(event.midiValue, event.midiChannel);
+            writeToUsb.sendAfterTouch(event.value, event.channel);
         }
         break;
 
-        case MIDI::messageType_t::afterTouchPoly:
+        case MIDI::messageType_t::AFTER_TOUCH_POLY:
         {
-            _writeToUsb.sendAfterTouch(event.midiValue, event.midiChannel, event.midiIndex);
+            writeToUsb.sendAfterTouch(event.value, event.channel, event.index);
         }
         break;
 
-        case MIDI::messageType_t::pitchBend:
+        case MIDI::messageType_t::PITCH_BEND:
         {
-            _writeToUsb.sendPitchBend(event.midiValue, event.midiChannel);
+            writeToUsb.sendPitchBend(event.value, event.channel);
         }
         break;
 
-        case MIDI::messageType_t::sysRealTimeClock:
+        case MIDI::messageType_t::SYS_REAL_TIME_CLOCK:
         {
-            _writeToUsb.sendRealTime(event.message);
+            writeToUsb.sendRealTime(event.message);
         }
         break;
 
-        case MIDI::messageType_t::sysRealTimeStart:
+        case MIDI::messageType_t::SYS_REAL_TIME_START:
         {
-            _writeToUsb.sendRealTime(event.message);
+            writeToUsb.sendRealTime(event.message);
         }
         break;
 
-        case MIDI::messageType_t::sysRealTimeContinue:
+        case MIDI::messageType_t::SYS_REAL_TIME_CONTINUE:
         {
-            _writeToUsb.sendRealTime(event.message);
+            writeToUsb.sendRealTime(event.message);
         }
         break;
 
-        case MIDI::messageType_t::sysRealTimeStop:
+        case MIDI::messageType_t::SYS_REAL_TIME_STOP:
         {
-            _writeToUsb.sendRealTime(event.message);
+            writeToUsb.sendRealTime(event.message);
         }
         break;
 
-        case MIDI::messageType_t::sysRealTimeActiveSensing:
+        case MIDI::messageType_t::SYS_REAL_TIME_ACTIVE_SENSING:
         {
-            _writeToUsb.sendRealTime(event.message);
+            writeToUsb.sendRealTime(event.message);
         }
         break;
 
-        case MIDI::messageType_t::sysRealTimeSystemReset:
+        case MIDI::messageType_t::SYS_REAL_TIME_SYSTEM_RESET:
         {
-            _writeToUsb.sendRealTime(event.message);
+            writeToUsb.sendRealTime(event.message);
         }
         break;
 
-        case MIDI::messageType_t::mmcPlay:
+        case MIDI::messageType_t::MMC_PLAY:
         {
-            _writeToUsb.sendMMC(event.midiIndex, event.message);
+            writeToUsb.sendMMC(event.index, event.message);
         }
         break;
 
-        case MIDI::messageType_t::mmcStop:
+        case MIDI::messageType_t::MMC_STOP:
         {
-            _writeToUsb.sendMMC(event.midiIndex, event.message);
+            writeToUsb.sendMMC(event.index, event.message);
         }
         break;
 
-        case MIDI::messageType_t::mmcPause:
+        case MIDI::messageType_t::MMC_PAUSE:
         {
-            _writeToUsb.sendMMC(event.midiIndex, event.message);
+            writeToUsb.sendMMC(event.index, event.message);
         }
         break;
 
-        case MIDI::messageType_t::mmcRecordStart:
+        case MIDI::messageType_t::MMC_RECORD_START:
         {
-            _writeToUsb.sendMMC(event.midiIndex, event.message);
+            writeToUsb.sendMMC(event.index, event.message);
         }
         break;
 
-        case MIDI::messageType_t::mmcRecordStop:
+        case MIDI::messageType_t::MMC_RECORD_STOP:
         {
-            _writeToUsb.sendMMC(event.midiIndex, event.message);
+            writeToUsb.sendMMC(event.index, event.message);
         }
         break;
 
-        case MIDI::messageType_t::nrpn7bit:
+        case MIDI::messageType_t::NRPN_7BIT:
         {
-            _writeToUsb.sendNRPN(event.midiIndex, event.midiValue, event.midiChannel, false);
+            writeToUsb.sendNRPN(event.index, event.value, event.channel, false);
         }
         break;
 
-        case MIDI::messageType_t::nrpn14bit:
+        case MIDI::messageType_t::NRPN_14BIT:
         {
-            _writeToUsb.sendNRPN(event.midiIndex, event.midiValue, event.midiChannel, true);
+            writeToUsb.sendNRPN(event.index, event.value, event.channel, true);
         }
         break;
 
-        case MIDI::messageType_t::controlChange14bit:
+        case MIDI::messageType_t::CONTROL_CHANGE_14BIT:
         {
-            _writeToUsb.sendControlChange14bit(event.midiIndex, event.midiValue, event.midiChannel);
+            writeToUsb.sendControlChange14bit(event.index, event.value, event.channel);
         }
         break;
 
-        case MIDI::messageType_t::systemExclusive:
+        case MIDI::messageType_t::SYS_EX:
         {
-            _writeToUsb.sendSysEx(event.sysExLength, event.sysEx, true);
+            writeToUsb.sendSysEx(event.sysExLength, event.sysEx, true);
         }
         break;
 
@@ -212,7 +212,7 @@ class MIDIHelper
             break;
         }
 
-        return _hwaWriteToUSB._buffer;
+        return hwaWriteToUSB._buffer;
     }
 
     template<typename T>
@@ -228,10 +228,10 @@ class MIDIHelper
             SYSEX_MANUFACTURER_ID_0,
             SYSEX_MANUFACTURER_ID_1,
             SYSEX_MANUFACTURER_ID_2,
-            static_cast<uint8_t>(SysExConf::status_t::request),    // status
+            static_cast<uint8_t>(SysExConf::status_t::REQUEST),    // status
             0,                                                     // part
-            static_cast<uint8_t>(SysExConf::wish_t::get),          // wish
-            static_cast<uint8_t>(SysExConf::amount_t::single),     // amount
+            static_cast<uint8_t>(SysExConf::wish_t::GET),          // wish
+            static_cast<uint8_t>(SysExConf::amount_t::SINGLE),     // amount
             static_cast<uint8_t>(blockIndex),                      // block
             static_cast<uint8_t>(section),                         // section
             split.high(),                                          // index high byte
@@ -256,10 +256,10 @@ class MIDIHelper
             SYSEX_MANUFACTURER_ID_0,
             SYSEX_MANUFACTURER_ID_1,
             SYSEX_MANUFACTURER_ID_2,
-            static_cast<uint8_t>(SysExConf::status_t::request),
+            static_cast<uint8_t>(SysExConf::status_t::REQUEST),
             0,
-            static_cast<uint8_t>(SysExConf::wish_t::set),
-            static_cast<uint8_t>(SysExConf::amount_t::single),
+            static_cast<uint8_t>(SysExConf::wish_t::SET),
+            static_cast<uint8_t>(SysExConf::amount_t::SINGLE),
             static_cast<uint8_t>(blockIndex),
             static_cast<uint8_t>(section),
             splitIndex.high(),
@@ -277,7 +277,7 @@ class MIDIHelper
         std::vector<uint8_t> requestUint8;
         generateSysExGetReq(section, index, requestUint8);
 
-        return sendRequest(requestUint8, SysExConf::wish_t::get);
+        return sendRequest(requestUint8, SysExConf::wish_t::GET);
     }
 
     template<typename S, typename I, typename V>
@@ -287,15 +287,15 @@ class MIDIHelper
         auto indexSplit = Util::Conversion::Split14bit(static_cast<uint16_t>(index));
         auto valueSplit = Util::Conversion::Split14bit(static_cast<uint16_t>(value));
 
-        const std::vector<uint8_t> requestUint8 = {
+        const std::vector<uint8_t> REQUEST_UINT8 = {
             0xF0,
             SYSEX_MANUFACTURER_ID_0,
             SYSEX_MANUFACTURER_ID_1,
             SYSEX_MANUFACTURER_ID_2,
-            static_cast<uint8_t>(SysExConf::status_t::request),
+            static_cast<uint8_t>(SysExConf::status_t::REQUEST),
             0,
-            static_cast<uint8_t>(SysExConf::wish_t::set),
-            static_cast<uint8_t>(SysExConf::amount_t::single),
+            static_cast<uint8_t>(SysExConf::wish_t::SET),
+            static_cast<uint8_t>(SysExConf::amount_t::SINGLE),
             static_cast<uint8_t>(blockIndex),
             static_cast<uint8_t>(section),
             indexSplit.high(),
@@ -305,7 +305,7 @@ class MIDIHelper
             0xF7
         };
 
-        return sendRequest(requestUint8, SysExConf::wish_t::set);
+        return sendRequest(REQUEST_UINT8, SysExConf::wish_t::SET);
     }
 
     static void flush()
@@ -379,28 +379,26 @@ class MIDIHelper
 
             return cmdResponse;
         }
-        else
+
+        cmd         = "[ -s " + lastResponseFileLocation + " ]";
+        cmdResponse = "";
+
+        while (totalWaitTime < stopWaitAfter)
         {
-            cmd         = "[ -s " + lastResponseFileLocation + " ]";
-            cmdResponse = "";
+            test::sleepMs(waitTimeMs);
+            totalWaitTime += waitTimeMs;
 
-            while (totalWaitTime < stopWaitAfter)
+            if (test::wsystem(cmd) == 0)
             {
-                test::sleepMs(waitTimeMs);
-                totalWaitTime += waitTimeMs;
-
-                if (test::wsystem(cmd) == 0)
-                {
-                    LOG(ERROR) << "Got response while expecting none. Outputting response:";
-                    test::wsystem("cat " + lastResponseFileLocation, cmdResponse);
-                    LOG(INFO) << cmdResponse;
-                    break;
-                }
+                LOG(ERROR) << "Got response while expecting none. Outputting response:";
+                test::wsystem("cat " + lastResponseFileLocation, cmdResponse);
+                LOG(INFO) << cmdResponse;
+                break;
             }
-
-            test::wsystem("killall amidi > /dev/null 2>&1");
-            return cmdResponse;
         }
+
+        test::wsystem("killall amidi > /dev/null 2>&1");
+        return cmdResponse;
     }
 
     // check for opendeck device only here
@@ -413,7 +411,7 @@ class MIDIHelper
 
         std::string port;
 
-        if (type == deviceCheckType_t::boot)
+        if (type == deviceCheckType_t::BOOT)
         {
             port = amidiPort(OPENDECK_DFU_MIDI_DEVICE_NAME);
         }
@@ -443,15 +441,13 @@ class MIDIHelper
 
             return true;
         }
-        else
-        {
-            if (!silent)
-            {
-                LOG(ERROR) << "Device not found";
-            }
 
-            return false;
+        if (!silent)
+        {
+            LOG(ERROR) << "Device not found";
         }
+
+        return false;
     }
 
     static std::string amidiPort(std::string midiDevice)
@@ -480,13 +476,17 @@ class MIDIHelper
             requestString << std::setw(2) << static_cast<int>(*first++);
 
             if (first != last)
+            {
                 requestString << " ";
+            }
         }
 
         std::string responseString = sendRawSysEx(requestString.str());
 
         if (responseString == "")
+        {
             return 0;    // invalid response
+        }
 
         // convert response back to uint8 vector
         std::vector<uint8_t> responseUint8;
@@ -498,52 +498,50 @@ class MIDIHelper
             responseUint8.push_back(byte);
         }
 
-        if (wish == SysExConf::wish_t::get)
+        if (wish == SysExConf::wish_t::GET)
         {
             // last two bytes are result
             auto merged = Util::Conversion::Merge14bit(responseUint8.at(responseUint8.size() - 3), responseUint8.at(responseUint8.size() - 2));
             return merged.value();
         }
-        else
-        {
-            // read status byte
-            return responseUint8.at(4);
-        }
+
+        // read status byte
+        return responseUint8.at(4);
     }
 #endif
 
     static System::Config::block_t block(System::Config::Section::global_t section)
     {
-        return System::Config::block_t::global;
+        return System::Config::block_t::GLOBAL;
     }
 
     static System::Config::block_t block(System::Config::Section::button_t section)
     {
-        return System::Config::block_t::buttons;
+        return System::Config::block_t::BUTTONS;
     }
 
     static System::Config::block_t block(System::Config::Section::encoder_t section)
     {
-        return System::Config::block_t::encoders;
+        return System::Config::block_t::ENCODERS;
     }
 
     static System::Config::block_t block(System::Config::Section::analog_t section)
     {
-        return System::Config::block_t::analog;
+        return System::Config::block_t::ANALOG;
     }
 
     static System::Config::block_t block(System::Config::Section::leds_t section)
     {
-        return System::Config::block_t::leds;
+        return System::Config::block_t::LEDS;
     }
 
     static System::Config::block_t block(System::Config::Section::i2c_t section)
     {
-        return System::Config::block_t::i2c;
+        return System::Config::block_t::I2C;
     }
 
     static System::Config::block_t block(System::Config::Section::touchscreen_t section)
     {
-        return System::Config::block_t::touchscreen;
+        return System::Config::block_t::TOUCHSCREEN;
     }
 };

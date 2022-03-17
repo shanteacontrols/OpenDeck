@@ -37,13 +37,13 @@ class Viewtech : public IO::Touchscreen::Model
     private:
     enum class response_t : uint32_t
     {
-        buttonStateChange = 0x05820002
+        BUTTON_STATE_CHANGE = 0x05820002
     };
 
     IO::Touchscreen::HWA& _hwa;
 
     // there are 7 levels of brighness - scale them to available range (0-64)
-    const uint8_t _brightnessMapping[7] = {
+    const uint8_t BRIGHTNESS_MAPPING[7] = {
         6,
         16,
         32,

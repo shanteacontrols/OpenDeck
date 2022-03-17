@@ -86,14 +86,14 @@ class HWADatabase : public System::Builder::HWA::Database
     {
         switch (type)
         {
-        case Database::Instance::sectionParameterType_t::word:
-            return Board::NVM::parameterType_t::word;
+        case Database::Instance::sectionParameterType_t::WORD:
+            return Board::NVM::parameterType_t::WORD;
 
-        case Database::Instance::sectionParameterType_t::dword:
-            return Board::NVM::parameterType_t::dword;
+        case Database::Instance::sectionParameterType_t::DWORD:
+            return Board::NVM::parameterType_t::DWORD;
 
         default:
-            return Board::NVM::parameterType_t::byte;
+            return Board::NVM::parameterType_t::BYTE;
         }
     }
 } _hwaDatabase;
@@ -120,21 +120,21 @@ class HWALEDs : public System::Builder::HWA::IO::LEDs
 
         switch (rgbComponent)
         {
-        case IO::LEDs::rgbIndex_t::r:
+        case IO::LEDs::rgbIndex_t::R:
         {
-            boardRGBindex = Board::io::rgbIndex_t::r;
+            boardRGBindex = Board::io::rgbIndex_t::R;
         }
         break;
 
-        case IO::LEDs::rgbIndex_t::g:
+        case IO::LEDs::rgbIndex_t::G:
         {
-            boardRGBindex = Board::io::rgbIndex_t::g;
+            boardRGBindex = Board::io::rgbIndex_t::G;
         }
         break;
 
-        case IO::LEDs::rgbIndex_t::b:
+        case IO::LEDs::rgbIndex_t::B:
         {
-            boardRGBindex = Board::io::rgbIndex_t::b;
+            boardRGBindex = Board::io::rgbIndex_t::B;
         }
         break;
 
@@ -149,20 +149,20 @@ class HWALEDs : public System::Builder::HWA::IO::LEDs
     {
         switch (brightness)
         {
-        case IO::LEDs::brightness_t::b25:
-            return Board::io::ledBrightness_t::b25;
+        case IO::LEDs::brightness_t::B25:
+            return Board::io::ledBrightness_t::B25;
 
-        case IO::LEDs::brightness_t::b50:
-            return Board::io::ledBrightness_t::b50;
+        case IO::LEDs::brightness_t::B50:
+            return Board::io::ledBrightness_t::B50;
 
-        case IO::LEDs::brightness_t::b75:
-            return Board::io::ledBrightness_t::b75;
+        case IO::LEDs::brightness_t::B75:
+            return Board::io::ledBrightness_t::B75;
 
-        case IO::LEDs::brightness_t::b100:
-            return Board::io::ledBrightness_t::b100;
+        case IO::LEDs::brightness_t::B100:
+            return Board::io::ledBrightness_t::B100;
 
         default:
-            return Board::io::ledBrightness_t::bOff;
+            return Board::io::ledBrightness_t::OFF;
         }
     }
 } _hwaLEDs;
@@ -228,13 +228,13 @@ class HWADigitalIn
 #ifdef BUTTONS_SUPPORTED
     bool buttonState(size_t index, uint8_t& numberOfReadings, uint32_t& states)
     {
-        if (!Board::io::digitalInState(index, dInReadA))
+        if (!Board::io::digitalInState(index, _dInReadA))
         {
             return false;
         }
 
-        numberOfReadings = dInReadA.count;
-        states           = dInReadA.readings;
+        numberOfReadings = _dInReadA.count;
+        states           = _dInReadA.readings;
 
         return true;
     }
@@ -243,17 +243,17 @@ class HWADigitalIn
 #ifdef ENCODERS_SUPPORTED
     bool encoderState(size_t index, uint8_t& numberOfReadings, uint32_t& states)
     {
-        if (!Board::io::digitalInState(Board::io::encoderSignalIndex(index, Board::io::encoderIndex_t::a), dInReadA))
+        if (!Board::io::digitalInState(Board::io::encoderSignalIndex(index, Board::io::encoderIndex_t::A), _dInReadA))
         {
             return false;
         }
 
-        if (!Board::io::digitalInState(Board::io::encoderSignalIndex(index, Board::io::encoderIndex_t::b), dInReadB))
+        if (!Board::io::digitalInState(Board::io::encoderSignalIndex(index, Board::io::encoderIndex_t::B), _dInReadB))
         {
             return false;
         }
 
-        numberOfReadings = dInReadA.count > dInReadB.count ? dInReadA.count : dInReadB.count;
+        numberOfReadings = _dInReadA.count > _dInReadB.count ? _dInReadA.count : _dInReadB.count;
 
         // construct encoder pair readings
         // encoder signal is made of A and B signals
@@ -262,8 +262,8 @@ class HWADigitalIn
 
         for (uint8_t i = 0; i < numberOfReadings; i++)
         {
-            BIT_WRITE(states, (i * 2) + 1, (dInReadA.readings >> i & 0x01));
-            BIT_WRITE(states, i * 2, (dInReadB.readings >> i & 0x01));
+            BIT_WRITE(states, (i * 2) + 1, (_dInReadA.readings >> i & 0x01));
+            BIT_WRITE(states, i * 2, (_dInReadB.readings >> i & 0x01));
         }
 
         return true;
@@ -271,9 +271,9 @@ class HWADigitalIn
 #endif
 
     private:
-    Board::io::dInReadings_t dInReadA;
+    Board::io::dInReadings_t _dInReadA;
 #ifdef ENCODERS_SUPPORTED
-    Board::io::dInReadings_t dInReadB;
+    Board::io::dInReadings_t _dInReadB;
 #endif
 } _hwaDigitalIn;
 #endif
@@ -362,7 +362,7 @@ class HWAMIDIUSB : public System::Builder::HWA::Protocol::MIDI::USB
     {
         if (Board::USB::readMIDI(packet))
         {
-            Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::incoming);
+            Board::io::indicateTraffic(Board::io::dataSource_t::USB, Board::io::dataDirection_t::INCOMING);
             return true;
         }
 
@@ -373,7 +373,7 @@ class HWAMIDIUSB : public System::Builder::HWA::Protocol::MIDI::USB
     {
         if (Board::USB::writeMIDI(packet))
         {
-            Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::outgoing);
+            Board::io::indicateTraffic(Board::io::dataSource_t::USB, Board::io::dataDirection_t::OUTGOING);
             return true;
         }
 
@@ -395,11 +395,11 @@ class HWAMIDIDIN : public System::Builder::HWA::Protocol::MIDI::DIN
     bool init() override
     {
         Board::UART::config_t config(UART_BAUDRATE_MIDI_STD,
-                                     Board::UART::parity_t::no,
-                                     Board::UART::stopBits_t::one,
-                                     Board::UART::type_t::rxTx);
+                                     Board::UART::parity_t::NO,
+                                     Board::UART::stopBits_t::ONE,
+                                     Board::UART::type_t::RX_TX);
 
-        return Board::UART::init(UART_CHANNEL_DIN, config) == Board::UART::initStatus_t::ok;
+        return Board::UART::init(UART_CHANNEL_DIN, config) == Board::UART::initStatus_t::OK;
     }
 
     bool deInit() override
@@ -418,7 +418,7 @@ class HWAMIDIDIN : public System::Builder::HWA::Protocol::MIDI::DIN
     {
         if (Board::UART::read(UART_CHANNEL_DIN, value))
         {
-            Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::incoming);
+            Board::io::indicateTraffic(Board::io::dataSource_t::UART, Board::io::dataDirection_t::INCOMING);
             return true;
         }
 
@@ -429,7 +429,7 @@ class HWAMIDIDIN : public System::Builder::HWA::Protocol::MIDI::DIN
     {
         if (Board::UART::write(UART_CHANNEL_DIN, value))
         {
-            Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::outgoing);
+            Board::io::indicateTraffic(Board::io::dataSource_t::UART, Board::io::dataDirection_t::OUTGOING);
             return true;
         }
 
@@ -438,7 +438,7 @@ class HWAMIDIDIN : public System::Builder::HWA::Protocol::MIDI::DIN
 
     bool allocated(IO::Common::interface_t interface) override
     {
-        if (interface == IO::Common::interface_t::uart)
+        if (interface == IO::Common::interface_t::UART)
         {
             return Board::UART::isInitialized(UART_CHANNEL_DIN);
         }
@@ -498,12 +498,12 @@ class HWADMX : public System::Builder::HWA::Protocol::DMX
     bool init() override
     {
         Board::UART::config_t config(250000,
-                                     Board::UART::parity_t::no,
-                                     Board::UART::stopBits_t::two,
-                                     Board::UART::type_t::tx,
+                                     Board::UART::parity_t::NO,
+                                     Board::UART::stopBits_t::TWO,
+                                     Board::UART::type_t::TX,
                                      true);
 
-        if (Board::UART::init(UART_CHANNEL_DMX, config) == Board::UART::initStatus_t::ok)
+        if (Board::UART::init(UART_CHANNEL_DMX, config) == Board::UART::initStatus_t::OK)
         {
             CDCLocker::lock();
             return true;
@@ -530,7 +530,7 @@ class HWADMX : public System::Builder::HWA::Protocol::DMX
         if (Board::USB::readCDC(&buffer[0], bufferSize, buffer.size()))
         {
             size = bufferSize;
-            Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::incoming);
+            Board::io::indicateTraffic(Board::io::dataSource_t::USB, Board::io::dataDirection_t::INCOMING);
             return true;
         }
 
@@ -541,7 +541,7 @@ class HWADMX : public System::Builder::HWA::Protocol::DMX
     {
         if (Board::USB::writeCDC(buffer, size))
         {
-            Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::outgoing);
+            Board::io::indicateTraffic(Board::io::dataSource_t::USB, Board::io::dataDirection_t::OUTGOING);
             return true;
         }
 
@@ -550,7 +550,7 @@ class HWADMX : public System::Builder::HWA::Protocol::DMX
 
     void setBuffer(DMXUSBWidget::dmxBuffer_t& buffer) override
     {
-        Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::outgoing);
+        Board::io::indicateTraffic(Board::io::dataSource_t::UART, Board::io::dataDirection_t::OUTGOING);
         Board::UART::setDMXBuffer(&buffer[0]);
     }
 
@@ -562,7 +562,7 @@ class HWADMX : public System::Builder::HWA::Protocol::DMX
 
     bool allocated(IO::Common::interface_t interface) override
     {
-        if (interface == IO::Common::interface_t::uart)
+        if (interface == IO::Common::interface_t::UART)
         {
 #ifdef UART_CHANNEL_DMX
             return Board::UART::isInitialized(UART_CHANNEL_DMX);
@@ -627,11 +627,11 @@ class HWATouchscreen : public System::Builder::HWA::IO::Touchscreen
     bool init() override
     {
         Board::UART::config_t config(UART_BAUDRATE_TOUCHSCREEN,
-                                     Board::UART::parity_t::no,
-                                     Board::UART::stopBits_t::one,
-                                     Board::UART::type_t::rxTx);
+                                     Board::UART::parity_t::NO,
+                                     Board::UART::stopBits_t::ONE,
+                                     Board::UART::type_t::RX_TX);
 
-        return Board::UART::init(UART_CHANNEL_TOUCHSCREEN, config) == Board::UART::initStatus_t::ok;
+        return Board::UART::init(UART_CHANNEL_TOUCHSCREEN, config) == Board::UART::initStatus_t::OK;
     }
 
     bool deInit() override
@@ -687,7 +687,7 @@ class HWACDCPassthrough : public System::Builder::HWA::IO::CDCPassthrough
     {
         if (Board::UART::read(UART_CHANNEL_TOUCHSCREEN, value))
         {
-            Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::incoming);
+            Board::io::indicateTraffic(Board::io::dataSource_t::UART, Board::io::dataDirection_t::INCOMING);
             return true;
         }
 
@@ -698,7 +698,7 @@ class HWACDCPassthrough : public System::Builder::HWA::IO::CDCPassthrough
     {
         if (Board::UART::write(UART_CHANNEL_TOUCHSCREEN, value))
         {
-            Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::outgoing);
+            Board::io::indicateTraffic(Board::io::dataSource_t::UART, Board::io::dataDirection_t::OUTGOING);
             return true;
         }
 
@@ -709,7 +709,7 @@ class HWACDCPassthrough : public System::Builder::HWA::IO::CDCPassthrough
     {
         if (Board::USB::readCDC(buffer, size, maxSize))
         {
-            Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::incoming);
+            Board::io::indicateTraffic(Board::io::dataSource_t::USB, Board::io::dataDirection_t::INCOMING);
             return true;
         }
 
@@ -720,7 +720,7 @@ class HWACDCPassthrough : public System::Builder::HWA::IO::CDCPassthrough
     {
         if (Board::USB::writeCDC(buffer, size))
         {
-            Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::outgoing);
+            Board::io::indicateTraffic(Board::io::dataSource_t::USB, Board::io::dataDirection_t::OUTGOING);
             return true;
         }
 
@@ -732,9 +732,9 @@ class HWACDCPassthrough : public System::Builder::HWA::IO::CDCPassthrough
         if (_passThroughState)
         {
             Board::UART::config_t config(baudRate,
-                                         Board::UART::parity_t::no,
-                                         Board::UART::stopBits_t::one,
-                                         Board::UART::type_t::rxTx);
+                                         Board::UART::parity_t::NO,
+                                         Board::UART::stopBits_t::ONE,
+                                         Board::UART::type_t::RX_TX);
 
             Board::UART::init(UART_CHANNEL_TOUCHSCREEN, config, true);
         }
@@ -830,7 +830,7 @@ class HWAI2C : public System::Builder::HWA::IO::I2C
 
     bool init() override
     {
-        return Board::I2C::init(I2C_CHANNEL, Board::I2C::clockSpeed_t::_400k);
+        return Board::I2C::init(I2C_CHANNEL, Board::I2C::clockSpeed_t::S400K);
     }
 
     bool write(uint8_t address, uint8_t* buffer, size_t size) override

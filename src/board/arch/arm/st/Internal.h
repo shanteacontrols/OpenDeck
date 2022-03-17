@@ -23,37 +23,31 @@ limitations under the License.
 
 // STM32-specific internal APIs
 
-namespace Board
+namespace Board::detail::st
 {
-    namespace detail
+    class Peripheral
     {
-        namespace st
-        {
-            class Peripheral
-            {
-                public:
-                virtual std::vector<core::io::mcuPin_t> pins()         = 0;
-                virtual void*                           interface()    = 0;
-                virtual IRQn_Type                       irqn()         = 0;
-                virtual void                            enableClock()  = 0;
-                virtual void                            disableClock() = 0;
-            };
+        public:
+        virtual std::vector<core::io::mcuPin_t> pins()         = 0;
+        virtual void*                           interface()    = 0;
+        virtual IRQn_Type                       irqn()         = 0;
+        virtual void                            enableClock()  = 0;
+        virtual void                            disableClock() = 0;
+    };
 
-            /// Used to retrieve physical UART interface used on MCU for a given UART channel index as well
-            /// as pins on which the interface is connected.
-            Peripheral* uartDescriptor(uint8_t channel);
+    /// Used to retrieve physical UART interface used on MCU for a given UART channel index as well
+    /// as pins on which the interface is connected.
+    Peripheral* uartDescriptor(uint8_t channel);
 
-            /// Used to retrieve physical I2C interface used on MCU for a given I2C channel index as well
-            /// as pins on which the interface is connected.
-            Peripheral* i2cDescriptor(uint8_t channel);
+    /// Used to retrieve physical I2C interface used on MCU for a given I2C channel index as well
+    /// as pins on which the interface is connected.
+    Peripheral* i2cDescriptor(uint8_t channel);
 
-            /// Used to retrieve UART channel on board for a specified UART interface.
-            /// If no channels are mapped to the provided interface, return false.
-            bool uartChannel(USART_TypeDef* interface, uint8_t& channel);
+    /// Used to retrieve UART channel on board for a specified UART interface.
+    /// If no channels are mapped to the provided interface, return false.
+    bool uartChannel(USART_TypeDef* interface, uint8_t& channel);
 
-            /// Used to retrieve I2C channel on board for a specified UART interface.
-            /// If no channels are mapped to the provided interface, return false.
-            bool i2cChannel(I2C_TypeDef* interface, uint8_t& channel);
-        }    // namespace st
-    }        // namespace detail
-}    // namespace Board
+    /// Used to retrieve I2C channel on board for a specified UART interface.
+    /// If no channels are mapped to the provided interface, return false.
+    bool i2cChannel(I2C_TypeDef* interface, uint8_t& channel);
+}    // namespace Board::detail::st

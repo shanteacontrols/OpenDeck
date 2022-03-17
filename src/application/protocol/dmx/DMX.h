@@ -32,7 +32,7 @@ namespace Protocol
         public:
         enum class setting_t : uint8_t
         {
-            enable,
+            ENABLE,
             AMOUNT
         };
 

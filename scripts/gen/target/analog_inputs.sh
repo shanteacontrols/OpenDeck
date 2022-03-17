@@ -46,7 +46,7 @@ then
 
         {
             printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline core::io::mcuPin_t _aInPins[MAX_ADC_CHANNELS] = {"
+            printf "%s\n" "constexpr inline core::io::mcuPin_t A_IN_PINS[MAX_ADC_CHANNELS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_analog_inputs; i++))
@@ -92,7 +92,7 @@ then
 
         {
             printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline core::io::mcuPin_t _aInPins[MAX_ADC_CHANNELS] = {"
+            printf "%s\n" "constexpr inline core::io::mcuPin_t A_IN_PINS[MAX_ADC_CHANNELS] = {"
         } >> "$out_header"
 
         for ((i=0; i<"$number_of_mux"; i++))
@@ -140,7 +140,7 @@ then
 
         {
             printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline core::io::mcuPin_t _aInPins[MAX_ADC_CHANNELS] = {"
+            printf "%s\n" "constexpr inline core::io::mcuPin_t A_IN_PINS[MAX_ADC_CHANNELS] = {"
         } >> "$out_header"
 
         for ((i=0; i<"$number_of_mux"; i++))
@@ -168,7 +168,7 @@ then
 
         {
             printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline uint8_t _analogIndexes[NR_OF_ANALOG_INPUTS] = {"
+            printf "%s\n" "constexpr inline uint8_t ANALOG_INDEXES[NR_OF_ANALOG_INPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_analog_inputs; i++))

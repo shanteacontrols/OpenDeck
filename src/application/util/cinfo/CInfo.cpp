@@ -23,44 +23,52 @@ using namespace Util;
 
 ComponentInfo::ComponentInfo()
 {
-    MIDIDispatcher.listen(Messaging::eventType_t::analog,
-                          [this](const Messaging::event_t& event) {
-                              send(Database::Config::block_t::analog, event.componentIndex);
+    MIDIDispatcher.listen(Messaging::eventType_t::ANALOG,
+                          [this](const Messaging::event_t& event)
+                          {
+                              send(Database::Config::block_t::ANALOG, event.componentIndex);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::analogButton,
-                          [this](const Messaging::event_t& event) {
-                              send(Database::Config::block_t::analog, event.componentIndex);
+    MIDIDispatcher.listen(Messaging::eventType_t::ANALOG_BUTTON,
+                          [this](const Messaging::event_t& event)
+                          {
+                              send(Database::Config::block_t::ANALOG, event.componentIndex);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::button,
-                          [this](const Messaging::event_t& event) {
-                              send(Database::Config::block_t::buttons, event.componentIndex);
+    MIDIDispatcher.listen(Messaging::eventType_t::BUTTON,
+                          [this](const Messaging::event_t& event)
+                          {
+                              send(Database::Config::block_t::BUTTONS, event.componentIndex);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::encoder,
-                          [this](const Messaging::event_t& event) {
-                              send(Database::Config::block_t::encoders, event.componentIndex);
+    MIDIDispatcher.listen(Messaging::eventType_t::ENCODER,
+                          [this](const Messaging::event_t& event)
+                          {
+                              send(Database::Config::block_t::ENCODERS, event.componentIndex);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::touchscreenButton,
-                          [this](const Messaging::event_t& event) {
-                              send(Database::Config::block_t::touchscreen, event.componentIndex);
+    MIDIDispatcher.listen(Messaging::eventType_t::TOUCHSCREEN_BUTTON,
+                          [this](const Messaging::event_t& event)
+                          {
+                              send(Database::Config::block_t::TOUCHSCREEN, event.componentIndex);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::dmxAnalog,
-                          [this](const Messaging::event_t& event) {
-                              send(Database::Config::block_t::analog, event.componentIndex);
+    MIDIDispatcher.listen(Messaging::eventType_t::DMX_ANALOG,
+                          [this](const Messaging::event_t& event)
+                          {
+                              send(Database::Config::block_t::ANALOG, event.componentIndex);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::dmxButton,
-                          [this](const Messaging::event_t& event) {
-                              send(Database::Config::block_t::buttons, event.componentIndex);
+    MIDIDispatcher.listen(Messaging::eventType_t::DMX_BUTTON,
+                          [this](const Messaging::event_t& event)
+                          {
+                              send(Database::Config::block_t::BUTTONS, event.componentIndex);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::dmxEncoder,
-                          [this](const Messaging::event_t& event) {
-                              send(Database::Config::block_t::encoders, event.componentIndex);
+    MIDIDispatcher.listen(Messaging::eventType_t::DMX_ENCODER,
+                          [this](const Messaging::event_t& event)
+                          {
+                              send(Database::Config::block_t::ENCODERS, event.componentIndex);
                           });
 }
 

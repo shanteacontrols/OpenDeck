@@ -18,21 +18,17 @@ limitations under the License.
 
 #pragma once
 
-namespace Board
+namespace Board::detail::map
 {
-    namespace detail
-    {
-        namespace map
-        {
 #ifdef ADC_SUPPORTED
             constexpr uint32_t adcChannel(uint8_t index)
             {
-                return detail::map::adcChannel(_aInPins[index]);
+                return detail::map::adcChannel(A_IN_PINS[index]);
             }
 
             constexpr const core::io::mcuPin_t& adcPin(uint8_t index)
             {
-                return _aInPins[index];
+                return A_IN_PINS[index];
             }
 
             constexpr uint8_t adcIndex(uint8_t index)
@@ -40,7 +36,7 @@ namespace Board
 #ifndef ANALOG_INDEXING
                 return index;
 #else
-                return _analogIndexes[index];
+                return ANALOG_INDEXES[index];
 #endif
             }
 #endif
@@ -48,24 +44,24 @@ namespace Board
 #if defined(NATIVE_BUTTON_INPUTS) || (defined(NUMBER_OF_BUTTON_ROWS) && !defined(NUMBER_OF_IN_SR))
             constexpr const core::io::mcuPin_t& buttonPin(uint8_t index)
             {
-                return _dInPins[index];
+                return D_IN_PINS[index];
             }
 #endif
 
 #if defined(NATIVE_BUTTON_INPUTS)
             constexpr const core::io::pinPort_t digitalInPort(uint8_t index)
             {
-                return _dInPorts[index];
+                return D_IN_PORTS[index];
             }
 
             constexpr const uint8_t buttonPortIndex(uint8_t index)
             {
-                return _buttonIndexToUniquePortIndex[index];
+                return BUTTON_INDEX_TO_UNIQUE_PORT_INDEX[index];
             }
 
             constexpr const uint8_t buttonPinIndex(uint8_t index)
             {
-                return _buttonIndexToPinIndex[index];
+                return BUTTON_INDEX_TO_PIN_INDEX[index];
             }
 #endif
 
@@ -74,36 +70,36 @@ namespace Board
 #ifndef BUTTON_INDEXING
                 return index;
 #else
-                return _buttonIndexes[index];
+                return BUTTON_INDEXES[index];
 #endif
             }
 
 #if defined(NATIVE_LED_OUTPUTS) || defined(NUMBER_OF_LED_ROWS)
             constexpr const core::io::mcuPin_t& ledPin(uint8_t index)
             {
-                return _dOutPins[index];
+                return D_OUT_PINS[index];
             }
 #endif
 
 #if defined(NATIVE_LED_OUTPUTS)
             constexpr const core::io::pinPort_t digitalOutPort(uint8_t index)
             {
-                return _dOutPorts[index];
+                return D_OUT_PORTS[index];
             }
 
             constexpr const core::io::portWidth_t digitalOutPortClearMask(uint8_t index)
             {
-                return _dOutPortsClearMask[index];
+                return D_OUT_PORTS_CLEAR_MASK[index];
             }
 
             constexpr const uint8_t ledPortIndex(uint8_t index)
             {
-                return _ledIndexToUniquePortIndex[index];
+                return LED_INDEX_TO_UNIQUE_PORT_INDEX[index];
             }
 
             constexpr const uint8_t ledPinIndex(uint8_t index)
             {
-                return _ledIndexToPinIndex[index];
+                return LED_INDEX_TO_PIN_INDEX[index];
             }
 #endif
 
@@ -112,14 +108,14 @@ namespace Board
 #ifndef LED_INDEXING
                 return index;
 #else
-                return _ledIndexes[index];
+                return LED_INDEXES[index];
 #endif
             }
 
 #ifdef TOTAL_UNUSED_IO
             constexpr const Board::detail::io::unusedIO_t& unusedPin(uint8_t index)
             {
-                return _unusedPins[index];
+                return UNUSED_PINS[index];
             }
 #endif
 
@@ -138,16 +134,22 @@ namespace Board
                 descriptor.size = FLASH_PAGE_SIZE_COMMON;
 
                 if (address > FLASH_END)
+                {
                     descriptor.address = 0;
+                }
                 else
+                {
                     descriptor.address = address;
+                }
 
                 return descriptor;
 #else
                 if (pageIndex >= TOTAL_FLASH_PAGES)
-                    return _pageDescriptor[TOTAL_FLASH_PAGES - 1];
+                {
+                    return PAGE_DESCRIPTOR[TOTAL_FLASH_PAGES - 1];
+                }
 
-                return _pageDescriptor[pageIndex];
+                return PAGE_DESCRIPTOR[pageIndex];
 #endif
             }
 
@@ -155,17 +157,15 @@ namespace Board
 #ifdef UART_SUPPORTED
             constexpr const Board::detail::UART::uartPins_t& uartPins(size_t channel)
             {
-                return _uartPins[channel];
+                return UART_PINS[channel];
             }
 #endif
 
 #ifdef I2C_SUPPORTED
             constexpr const Board::detail::I2C::i2cPins_t& i2cPins(size_t channel)
             {
-                return _i2cPins[channel];
+                return I2C_PINS[channel];
             }
 #endif
 #endif
-        }    // namespace map
-    }        // namespace detail
-}    // namespace Board
+}    // namespace Board::detail::map

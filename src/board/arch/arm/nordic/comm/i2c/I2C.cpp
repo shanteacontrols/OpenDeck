@@ -49,12 +49,12 @@ namespace Board::I2C
             return false;
         }
 
-        const nrfx_twim_config_t config = {
+        const nrfx_twim_config_t CONFIG = {
             .scl                = NRF_GPIO_PIN_MAP(Board::detail::map::i2cPins(channel).scl.port,
                                     Board::detail::map::i2cPins(channel).scl.index),
             .sda                = NRF_GPIO_PIN_MAP(Board::detail::map::i2cPins(channel).sda.port,
                                     Board::detail::map::i2cPins(channel).sda.index),
-            .frequency          = speed == clockSpeed_t::_100k ? NRF_TWIM_FREQ_100K : NRF_TWIM_FREQ_400K,
+            .frequency          = speed == clockSpeed_t::S100K ? NRF_TWIM_FREQ_100K : NRF_TWIM_FREQ_400K,
             .interrupt_priority = IRQ_PRIORITY_I2C,
             .hold_bus_uninit    = false
         };
@@ -62,7 +62,7 @@ namespace Board::I2C
         uint32_t context = _i2cInstance[channel].drv_inst_idx;
 
         if (nrfx_twim_init(&_i2cInstance[channel],
-                           &config,
+                           &CONFIG,
                            NULL,
                            (void*)context) == NRFX_SUCCESS)
         {

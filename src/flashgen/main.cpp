@@ -33,58 +33,11 @@ namespace
         public:
         EmuEEPROMStorage() = default;
 
-        ~EmuEEPROMStorage()
-        {
-            std::fstream file;
-
-            file.open(_filename.c_str(), std::ios::trunc | std::ios::in | std::ios::out | std::ios::binary);
-            file.unsetf(std::ios::skipws);
-
-            if (file.is_open())
-            {
-                size_t size = 0;
-
-                // get actual size of vector by finding first entry with content 0xFFFFFFFF
-                for (; size < _flashVector.at(_activePageWrite).size(); size += 4)
-                {
-                    uint32_t data;
-
-                    if (!read32(size + (EMU_EEPROM_PAGE_SIZE * _activePageWrite), data))
-                    {
-                        while (1)
-                        {
-                            // should never happen
-                        }
-                    }
-
-                    if (data == 0xFFFFFFFF)
-                    {
-                        // last entry found
-                        size += 4;
-                        break;
-                    }
-                }
-
-                file.write(reinterpret_cast<char*>(&_flashVector.at(_activePageWrite)[0]), (size + 4) * sizeof(uint8_t));
-                file.close();
-            }
-
-            _filename += "_offset";
-
-            // also create a file containing the offset at which to write generated flash
-            file.open(_filename.c_str(), std::ios::trunc | std::ios::out);
-
-            if (file.is_open())
-            {
-                file << FLASH_PAGE_ADDRESS(FLASH_PAGE_FACTORY);
-                file.close();
-            }
-        }
-
         bool init() override
         {
             _flashVector.at(0).resize(EMU_EEPROM_PAGE_SIZE, 0xFF);
             _flashVector.at(1).resize(EMU_EEPROM_PAGE_SIZE, 0xFF);
+
             return true;
         }
 
@@ -97,13 +50,17 @@ namespace
         {
             switch (page)
             {
-            case EmuEEPROM::page_t::page2:
+            case EmuEEPROM::page_t::PAGE_2:
+            {
                 std::fill(_flashVector.at(1).begin(), _flashVector.at(1).end(), 0xFF);
-                break;
+            }
+            break;
 
             default:
+            {
                 std::fill(_flashVector.at(0).begin(), _flashVector.at(0).end(), 0xFF);
-                break;
+            }
+            break;
             }
             return true;
         }
@@ -137,8 +94,8 @@ namespace
             if (address == 0)
             {
                 if (
-                    (data == static_cast<uint32_t>(EmuEEPROM::pageStatus_t::receiving)) ||
-                    (data == static_cast<uint32_t>(EmuEEPROM::pageStatus_t::valid)))
+                    (data == static_cast<uint32_t>(EmuEEPROM::pageStatus_t::RECEIVING)) ||
+                    (data == static_cast<uint32_t>(EmuEEPROM::pageStatus_t::VALID)))
                 {
                     _activePageWrite = page;
                 }
@@ -195,14 +152,70 @@ namespace
             _filename = filename;
         }
 
+        bool writeToFile()
+        {
+            std::fstream file;
+
+            file.open(_filename.c_str(), std::ios::trunc | std::ios::in | std::ios::out | std::ios::binary);
+            file.unsetf(std::ios::skipws);
+
+            if (file.is_open())
+            {
+                size_t size = 0;
+
+                // get actual size of vector by finding first entry with content 0xFFFFFFFF
+                for (; size < _flashVector.at(_activePageWrite).size(); size += 4)
+                {
+                    uint32_t data;
+
+                    if (!read32(size + (EMU_EEPROM_PAGE_SIZE * _activePageWrite), data))
+                    {
+                        while (1)
+                        {
+                            // should never happen
+                        }
+                    }
+
+                    if (data == 0xFFFFFFFF)
+                    {
+                        // last entry found
+                        size += 4;
+                        break;
+                    }
+                }
+
+                file.write(reinterpret_cast<char*>(&_flashVector.at(_activePageWrite)[0]), (size + 4) * sizeof(uint8_t));
+                file.close();
+            }
+            else
+            {
+                return false;
+            }
+
+            _filename += "_offset";
+
+            // also create a file containing the offset at which to write generated flash
+            file.open(_filename.c_str(), std::ios::trunc | std::ios::out);
+
+            if (file.is_open())
+            {
+                file << FLASH_PAGE_ADDRESS(FLASH_PAGE_FACTORY);
+                file.close();
+
+                return true;
+            }
+
+            return false;
+        }
+
         private:
         std::array<std::vector<uint8_t>, 2> _flashVector;
         std::string                         _filename;
         size_t                              _activePageWrite = 0;
 
-    } emuEEPROMstorage;
+    } _emuEEPROMstorage;
 
-    EmuEEPROM emuEEPROM(emuEEPROMstorage, false);
+    EmuEEPROM _emuEEPROM(_emuEEPROMstorage, false);
 
     class StorageAccess : public LESSDB::StorageAccess
     {
@@ -211,37 +224,37 @@ namespace
 
         bool init() override
         {
-            return emuEEPROM.init();
+            return _emuEEPROM.init();
         }
 
         uint32_t size() override
         {
-            return emuEEPROM.maxAddress();
+            return _emuEEPROM.maxAddress();
         }
 
         bool clear() override
         {
-            return emuEEPROM.format();
+            return _emuEEPROM.format();
         }
 
         bool read(uint32_t address, int32_t& value, LESSDB::sectionParameterType_t type) override
         {
             switch (type)
             {
-            case LESSDB::sectionParameterType_t::word:
-            case LESSDB::sectionParameterType_t::byte:
-            case LESSDB::sectionParameterType_t::halfByte:
-            case LESSDB::sectionParameterType_t::bit:
+            case LESSDB::sectionParameterType_t::WORD:
+            case LESSDB::sectionParameterType_t::BYTE:
+            case LESSDB::sectionParameterType_t::HALF_BYTE:
+            case LESSDB::sectionParameterType_t::BIT:
             {
                 uint16_t tempData;
 
-                auto readStatus = emuEEPROM.read(address, tempData);
+                auto readStatus = _emuEEPROM.read(address, tempData);
 
-                if (readStatus == EmuEEPROM::readStatus_t::ok)
+                if (readStatus == EmuEEPROM::readStatus_t::OK)
                 {
                     value = tempData;
                 }
-                else if (readStatus == EmuEEPROM::readStatus_t::noVar)
+                else if (readStatus == EmuEEPROM::readStatus_t::NO_VAR)
                 {
                     // variable with this address doesn't exist yet - set value to 0
                     value = 0;
@@ -264,14 +277,14 @@ namespace
         {
             switch (type)
             {
-            case LESSDB::sectionParameterType_t::word:
-            case LESSDB::sectionParameterType_t::byte:
-            case LESSDB::sectionParameterType_t::halfByte:
-            case LESSDB::sectionParameterType_t::bit:
+            case LESSDB::sectionParameterType_t::WORD:
+            case LESSDB::sectionParameterType_t::BYTE:
+            case LESSDB::sectionParameterType_t::HALF_BYTE:
+            case LESSDB::sectionParameterType_t::BIT:
             {
                 uint16_t tempData = value;
 
-                return emuEEPROM.write(address, tempData) == EmuEEPROM::writeStatus_t::ok;
+                return _emuEEPROM.write(address, tempData) == EmuEEPROM::writeStatus_t::OK;
             }
             break;
 
@@ -279,10 +292,10 @@ namespace
                 return false;
             }
         }
-    } storageAccess;
+    } _storageAccess;
 
-    Database::AppLayout layout;
-    Database::Instance  database(storageAccess, layout, true);
+    Database::AppLayout _layout;
+    Database::Instance  _database(_storageAccess, _layout, true);
 }    // namespace
 
 int main(int argc, char* argv[])
@@ -293,14 +306,15 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    emuEEPROMstorage.setFilename(argv[1]);
+    _emuEEPROMstorage.setFilename(argv[1]);
 
-    if (database.init())
+    if (_database.init())
     {
         // ensure that we have clean flash binary:
         // firmware also uses custom values after defaults have been written
-        emuEEPROM.pageTransfer();
-        return 0;
+        _emuEEPROM.pageTransfer();
+
+        return _emuEEPROMstorage.writeToFile() ? 0 : 1;
     }
 
     return 1;

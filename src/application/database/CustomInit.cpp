@@ -26,7 +26,7 @@ limitations under the License.
 void Database::Instance::customInitGlobal()
 {
     // set global channel to 1
-    update(Database::Config::Section::global_t::midiSettings, MIDI::setting_t::globalChannel, 1);
+    update(Database::Config::Section::global_t::MIDI_SETTINGS, MIDI::setting_t::GLOBAL_CHANNEL, 1);
 }
 
 void Database::Instance::customInitButtons()
@@ -35,7 +35,7 @@ void Database::Instance::customInitButtons()
     {
         for (size_t i = 0; i < IO::Buttons::Collection::size(group); i++)
         {
-            update(Database::Config::Section::button_t::midiID, i + IO::Buttons::Collection::startIndex(group), i);
+            update(Database::Config::Section::button_t::MIDI_ID, i + IO::Buttons::Collection::startIndex(group), i);
         }
     }
 }
@@ -46,7 +46,7 @@ void Database::Instance::customInitAnalog()
     {
         for (size_t i = 0; i < IO::Analog::Collection::size(group); i++)
         {
-            update(Database::Config::Section::analog_t::midiID, i + IO::Analog::Collection::startIndex(group), i);
+            update(Database::Config::Section::analog_t::MIDI_ID, i + IO::Analog::Collection::startIndex(group), i);
         }
     }
 }
@@ -57,8 +57,8 @@ void Database::Instance::customInitLEDs()
     {
         for (size_t i = 0; i < IO::LEDs::Collection::size(group); i++)
         {
-            update(Database::Config::Section::leds_t::activationID, i + IO::LEDs::Collection::startIndex(group), i);
-            update(Database::Config::Section::leds_t::controlType, i + IO::LEDs::Collection::startIndex(group), IO::LEDs::controlType_t::midiInNoteMultiVal);
+            update(Database::Config::Section::leds_t::ACTIVATION_ID, i + IO::LEDs::Collection::startIndex(group), i);
+            update(Database::Config::Section::leds_t::CONTROL_TYPE, i + IO::LEDs::Collection::startIndex(group), IO::LEDs::controlType_t::MIDI_IN_NOTE_MULTI_VAL);
         }
     }
 }

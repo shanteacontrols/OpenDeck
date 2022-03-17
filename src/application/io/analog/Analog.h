@@ -49,22 +49,22 @@ namespace IO
 
         enum class type_t : uint8_t
         {
-            potentiometerControlChange,
-            potentiometerNote,
-            fsr,
-            button,
-            nrpn7bit,
-            nrpn14bit,
-            pitchBend,
-            controlChange14bit,
-            dmx,
+            POTENTIOMETER_CONTROL_CHANGE,
+            POTENTIOMETER_NOTE,
+            FSR,
+            BUTTON,
+            NRPN_7BIT,
+            NRPN_14BIT,
+            PITCH_BEND,
+            CONTROL_CHANGE_14BIT,
+            DMX,
             AMOUNT
         };
 
         enum class pressureType_t : uint8_t
         {
-            velocity,
-            aftertouch
+            VELOCITY,
+            AFTERTOUCH
         };
 
         class HWA
@@ -79,13 +79,13 @@ namespace IO
             public:
             enum class adcType_t : uint16_t
             {
-                adc10bit = 1023,
-                adc12bit = 4095
+                ADC_10BIT = 1023,
+                ADC_12BIT = 4095
             };
 
             struct descriptor_t
             {
-                Analog::type_t type        = Analog::type_t::potentiometerControlChange;
+                Analog::type_t type        = Analog::type_t::POTENTIOMETER_CONTROL_CHANGE;
                 uint16_t       value       = 0;
                 uint16_t       lowerOffset = 0;
                 uint16_t       upperOffset = 0;
@@ -110,7 +110,7 @@ namespace IO
         private:
         struct analogDescriptor_t
         {
-            type_t             type        = type_t::potentiometerControlChange;
+            type_t             type        = type_t::POTENTIOMETER_CONTROL_CHANGE;
             bool               inverted    = false;
             uint16_t           lowerLimit  = 0;
             uint16_t           upperLimit  = 0;
@@ -138,15 +138,15 @@ namespace IO
 
         uint8_t _fsrPressed[Collection::size() / 8 + 1] = {};
 
-        const MIDI::messageType_t _internalMsgToMIDIType[static_cast<uint8_t>(type_t::AMOUNT)] = {
-            MIDI::messageType_t::controlChange,
-            MIDI::messageType_t::noteOn,
-            MIDI::messageType_t::noteOn,     // fsr: set to off when appropriate
-            MIDI::messageType_t::invalid,    // button: let other listeners handle this
-            MIDI::messageType_t::nrpn7bit,
-            MIDI::messageType_t::nrpn14bit,
-            MIDI::messageType_t::pitchBend,
-            MIDI::messageType_t::controlChange14bit,
+        const MIDI::messageType_t INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(type_t::AMOUNT)] = {
+            MIDI::messageType_t::CONTROL_CHANGE,
+            MIDI::messageType_t::NOTE_ON,
+            MIDI::messageType_t::NOTE_ON,    // fsr: set to off when appropriate
+            MIDI::messageType_t::INVALID,    // button: let other listeners handle this
+            MIDI::messageType_t::NRPN_7BIT,
+            MIDI::messageType_t::NRPN_14BIT,
+            MIDI::messageType_t::PITCH_BEND,
+            MIDI::messageType_t::CONTROL_CHANGE_14BIT,
         };
     };
 }    // namespace IO

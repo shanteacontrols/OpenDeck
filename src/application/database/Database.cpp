@@ -25,9 +25,9 @@ limitations under the License.
 /// Important: ::init must called before trying to use this macro.
 #define SYSTEM_BLOCK_ENTER(code)                                                                                                   \
     {                                                                                                                              \
-        LESSDB::setLayout(_layout.layout(Layout::type_t::system));                                                                 \
+        LESSDB::setLayout(_layout.layout(Layout::type_t::SYSTEM));                                                                 \
         code                                                                                                                       \
-            LESSDB::setLayout(_layout.layout(Layout::type_t::user), _userDataStartAddress + (_lastPresetAddress * _activePreset)); \
+            LESSDB::setLayout(_layout.layout(Layout::type_t::USER), _userDataStartAddress + (_lastPresetAddress * _activePreset)); \
     }
 
 Database::Instance::Instance(LESSDB::StorageAccess& storageAccess,
@@ -35,17 +35,19 @@ Database::Instance::Instance(LESSDB::StorageAccess& storageAccess,
                              bool                   initializeData)
     : LESSDB(storageAccess)
     , _layout(layout)
-    , _initializeData(initializeData)
+    , INITIALIZE_DATA(initializeData)
 {
     ConfigHandler.registerConfig(
-        System::Config::block_t::global,
+        System::Config::block_t::GLOBAL,
         // read
-        [this](uint8_t section, size_t index, uint16_t& value) {
+        [this](uint8_t section, size_t index, uint16_t& value)
+        {
             return sysConfigGet(static_cast<System::Config::Section::global_t>(section), index, value);
         },
 
         // write
-        [this](uint8_t section, size_t index, uint16_t value) {
+        [this](uint8_t section, size_t index, uint16_t value)
+        {
             return sysConfigSet(static_cast<System::Config::Section::global_t>(section), index, value);
         });
 }
@@ -66,7 +68,7 @@ bool Database::Instance::init()
     uint32_t systemBlockUsage = 0;
 
     // set only system block for now
-    if (!LESSDB::setLayout(_layout.layout(Layout::type_t::system)))
+    if (!LESSDB::setLayout(_layout.layout(Layout::type_t::SYSTEM)))
     {
         return false;
     }
@@ -75,7 +77,7 @@ bool Database::Instance::init()
     _userDataStartAddress = LESSDB::nextParameterAddress();
 
     // now set the user layout
-    if (!LESSDB::setLayout(_layout.layout(Layout::type_t::user), _userDataStartAddress))
+    if (!LESSDB::setLayout(_layout.layout(Layout::type_t::USER), _userDataStartAddress))
     {
         return false;
     }
@@ -88,7 +90,7 @@ bool Database::Instance::init()
     // limit by hardcoded limit
     _supportedPresets = CONSTRAIN(_supportedPresets, 0, Config::MAX_PRESETS);
 
-    _uid = layoutUID(_layout.layout(Layout::type_t::user), _supportedPresets);
+    _uid = layoutUID(_layout.layout(Layout::type_t::USER), _supportedPresets);
 
     bool returnValue = true;
 
@@ -100,8 +102,8 @@ bool Database::Instance::init()
     {
         SYSTEM_BLOCK_ENTER(
             _activePreset = read(0,
-                                 static_cast<uint8_t>(Config::Section::system_t::presets),
-                                 static_cast<size_t>(Config::presetSetting_t::activePreset));)
+                                 static_cast<uint8_t>(Config::Section::system_t::PRESETS),
+                                 static_cast<size_t>(Config::presetSetting_t::ACTIVE_PRESET));)
 
         if (getPresetPreserveState())
         {
@@ -154,17 +156,17 @@ bool Database::Instance::factoryReset()
         return false;
     }
 
-    if (_initializeData)
+    if (INITIALIZE_DATA)
     {
-        auto layoutDescriptor = _layout.layout(Layout::type_t::system);
+        auto layoutDescriptor = _layout.layout(Layout::type_t::SYSTEM);
 
         // system layout first
-        if (!LESSDB::setLayout(_layout.layout(Layout::type_t::system), 0))
+        if (!LESSDB::setLayout(_layout.layout(Layout::type_t::SYSTEM), 0))
         {
             return false;
         }
 
-        if (!initData(LESSDB::factoryResetType_t::full))
+        if (!initData(LESSDB::factoryResetType_t::FULL))
         {
             return false;
         }
@@ -176,7 +178,7 @@ bool Database::Instance::factoryReset()
                 return false;
             }
 
-            if (!initData(LESSDB::factoryResetType_t::full))
+            if (!initData(LESSDB::factoryResetType_t::FULL))
             {
                 return false;
             }
@@ -233,8 +235,8 @@ bool Database::Instance::setPreset(uint8_t preset)
 
     SYSTEM_BLOCK_ENTER(
         returnValue = update(0,
-                             static_cast<uint8_t>(Config::Section::system_t::presets),
-                             static_cast<size_t>(Config::presetSetting_t::activePreset),
+                             static_cast<uint8_t>(Config::Section::system_t::PRESETS),
+                             static_cast<size_t>(Config::presetSetting_t::ACTIVE_PRESET),
                              preset);)
 
     if (returnValue)
@@ -260,7 +262,7 @@ bool Database::Instance::setPresetInternal(uint8_t preset)
     }
 
     _activePreset = preset;
-    LESSDB::setLayout(_layout.layout(Layout::type_t::user), _userDataStartAddress + (_lastPresetAddress * _activePreset));
+    LESSDB::setLayout(_layout.layout(Layout::type_t::USER), _userDataStartAddress + (_lastPresetAddress * _activePreset));
 
     return true;
 }
@@ -287,8 +289,8 @@ bool Database::Instance::setPresetPreserveState(bool state)
 
     SYSTEM_BLOCK_ENTER(
         returnValue = update(0,
-                             static_cast<uint8_t>(Config::Section::system_t::presets),
-                             static_cast<size_t>(Config::presetSetting_t::presetPreserve),
+                             static_cast<uint8_t>(Config::Section::system_t::PRESETS),
+                             static_cast<size_t>(Config::presetSetting_t::PRESET_PRESERVE),
                              state);)
 
     return returnValue;
@@ -302,8 +304,8 @@ bool Database::Instance::getPresetPreserveState()
 
     SYSTEM_BLOCK_ENTER(
         returnValue = read(0,
-                           static_cast<uint8_t>(Config::Section::system_t::presets),
-                           static_cast<size_t>(Config::presetSetting_t::presetPreserve));)
+                           static_cast<uint8_t>(Config::Section::system_t::PRESETS),
+                           static_cast<size_t>(Config::presetSetting_t::PRESET_PRESERVE));)
 
     return returnValue;
 }
@@ -316,7 +318,7 @@ bool Database::Instance::isSignatureValid()
 
     SYSTEM_BLOCK_ENTER(
         signature = read(0,
-                         static_cast<uint8_t>(Config::Section::system_t::uid),
+                         static_cast<uint8_t>(Config::Section::system_t::UID),
                          0);)
 
     return _uid == signature;
@@ -329,7 +331,7 @@ bool Database::Instance::setUID()
     bool returnValue;
 
     SYSTEM_BLOCK_ENTER(
-        returnValue = update(0, static_cast<uint8_t>(Config::Section::system_t::uid), 0, _uid);)
+        returnValue = update(0, static_cast<uint8_t>(Config::Section::system_t::UID), 0, _uid);)
 
     return returnValue;
 }
@@ -342,27 +344,27 @@ void Database::Instance::registerHandlers(Handlers& handlers)
 std::optional<uint8_t> Database::Instance::sysConfigGet(System::Config::Section::global_t section, size_t index, uint16_t& value)
 {
     int32_t readValue = 0;
-    uint8_t result    = System::Config::status_t::errorRead;
+    uint8_t result    = System::Config::status_t::ERROR_READ;
 
     switch (section)
     {
-    case System::Config::Section::global_t::presets:
+    case System::Config::Section::global_t::PRESETS:
     {
         auto setting = static_cast<Config::presetSetting_t>(index);
 
         switch (setting)
         {
-        case Config::presetSetting_t::activePreset:
+        case Config::presetSetting_t::ACTIVE_PRESET:
         {
             readValue = getPreset();
-            result    = System::Config::status_t::ack;
+            result    = System::Config::status_t::ACK;
         }
         break;
 
-        case Config::presetSetting_t::presetPreserve:
+        case Config::presetSetting_t::PRESET_PRESERVE:
         {
             readValue = getPresetPreserveState();
-            result    = System::Config::status_t::ack;
+            result    = System::Config::status_t::ACK;
         }
         break;
 
@@ -382,38 +384,38 @@ std::optional<uint8_t> Database::Instance::sysConfigGet(System::Config::Section:
 
 std::optional<uint8_t> Database::Instance::sysConfigSet(System::Config::Section::global_t section, size_t index, uint16_t value)
 {
-    uint8_t result    = System::Config::status_t::errorWrite;
+    uint8_t result    = System::Config::status_t::ERROR_WRITE;
     bool    writeToDb = true;
 
     switch (section)
     {
-    case System::Config::Section::global_t::presets:
+    case System::Config::Section::global_t::PRESETS:
     {
         auto setting = static_cast<Config::presetSetting_t>(index);
 
         switch (setting)
         {
-        case Config::presetSetting_t::activePreset:
+        case Config::presetSetting_t::ACTIVE_PRESET:
         {
             if (value < getSupportedPresets())
             {
                 setPreset(value);
-                result    = System::Config::status_t::ack;
+                result    = System::Config::status_t::ACK;
                 writeToDb = false;
             }
             else
             {
-                result = System::Config::status_t::errorNotSupported;
+                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
             }
         }
         break;
 
-        case Config::presetSetting_t::presetPreserve:
+        case Config::presetSetting_t::PRESET_PRESERVE:
         {
             if ((value <= 1) && (value >= 0))
             {
                 setPresetPreserveState(value);
-                result    = System::Config::status_t::ack;
+                result    = System::Config::status_t::ACK;
                 writeToDb = false;
             }
         }
@@ -430,9 +432,9 @@ std::optional<uint8_t> Database::Instance::sysConfigSet(System::Config::Section:
         return std::nullopt;
     }
 
-    if ((result == System::Config::status_t::ack) && writeToDb)
+    if ((result == System::Config::status_t::ACK) && writeToDb)
     {
-        result = update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ack : System::Config::status_t::errorWrite;
+        result = update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_WRITE;
     }
 
     return result;

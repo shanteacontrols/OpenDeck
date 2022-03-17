@@ -79,7 +79,7 @@ namespace System
                 static_cast<uint16_t>(IO::Buttons::type_t::AMOUNT) - 1,
             },
 
-            // midi message type section
+            // message type section
             {
                 IO::Buttons::Collection::size(),
                 0,
@@ -93,14 +93,14 @@ namespace System
                 127,
             },
 
-            // midi velocity section
+            // value section
             {
                 IO::Buttons::Collection::size(),
                 0,
                 255,
             },
 
-            // midi channel section
+            // channel section
             {
                 IO::Buttons::Collection::size(),
                 1,
@@ -137,7 +137,7 @@ namespace System
                 16383,
             },
 
-            // midi channel section
+            // channel section
             {
                 IO::Encoders::Collection::size(),
                 1,
@@ -237,7 +237,7 @@ namespace System
                 127,
             },
 
-            // midi channel section
+            // channel section
             {
                 IO::Analog::Collection::size(),
                 1,
@@ -309,7 +309,7 @@ namespace System
                 127,
             },
 
-            // midi channel section
+            // channel section
             {
                 IO::LEDs::Collection::size(),
                 1,

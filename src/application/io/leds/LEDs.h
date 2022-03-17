@@ -49,68 +49,68 @@ namespace IO
 
         enum class rgbIndex_t : uint8_t
         {
-            r,
-            g,
-            b
+            R,
+            G,
+            B
         };
 
         enum class color_t : uint8_t
         {
-            off,
-            red,
-            green,
-            yellow,
-            blue,
-            magenta,
-            cyan,
-            white,
+            OFF,
+            RED,
+            GREEN,
+            YELLOW,
+            BLUE,
+            MAGENTA,
+            CYAN,
+            WHITE,
             AMOUNT
         };
 
         enum class setting_t : uint8_t
         {
-            blinkWithMIDIclock,
-            unused,
-            useStartupAnimation,
+            BLINK_WITH_MIDI_CLOCK,
+            UNUSED,
+            USE_STARTUP_ANIMATION,
             AMOUNT
         };
 
         enum class controlType_t : uint8_t
         {
-            midiInNoteSingleVal,
-            localNoteSingleVal,
-            midiInCCSingleVal,
-            localCCSingleVal,
-            pcSingleVal,
-            preset,
-            midiInNoteMultiVal,
-            localNoteMultiVal,
-            midiInCCMultiVal,
-            localCCMultiVal,
+            MIDI_IN_NOTE_SINGLE_VAL,
+            LOCAL_NOTE_SINGLE_VAL,
+            MIDI_IN_CC_SINGLE_VAL,
+            LOCAL_CC_SINGLE_VAL,
+            PC_SINGLE_VAL,
+            PRESET,
+            MIDI_IN_NOTE_MULTI_VAL,
+            LOCAL_NOTE_MULTI_VAL,
+            MIDI_IN_CC_MULTI_VAL,
+            LOCAL_CC_MULTI_VAL,
             AMOUNT
         };
 
         enum class blinkSpeed_t : uint8_t
         {
-            s1000ms,
-            s500ms,
-            s250ms,
-            noBlink
+            S1000MS,
+            S500MS,
+            S250MS,
+            NO_BLINK
         };
 
         enum class blinkType_t : uint8_t
         {
-            timer,
-            midiClock
+            TIMER,
+            MIDI_CLOCK
         };
 
         enum class brightness_t : uint8_t
         {
-            bOff,
-            b25,
-            b50,
-            b75,
-            b100
+            OFF,
+            B25,
+            B50,
+            B75,
+            B100
         };
 
         class HWA
@@ -136,13 +136,13 @@ namespace IO
         private:
         enum class ledBit_t : uint8_t
         {
-            active,     ///< LED is active (either it blinks or it's constantly on), this bit is OR function between blinkOn and state
-            blinkOn,    ///< LED blinks
-            state,      ///< LED is in constant state
-            rgb,        ///< RGB enabled
-            rgb_r,      ///< R index of RGB LED
-            rgb_g,      ///< G index of RGB LED
-            rgb_b       ///< B index of RGB LED
+            ACTIVE,      ///< LED is active (either it blinks or it's constantly on), this bit is OR function between blinkOn and state
+            BLINK_ON,    ///< LED blinks
+            STATE,       ///< LED is in constant state
+            RGB,         ///< RGB enabled
+            RGB_R,       ///< R index of RGB LED
+            RGB_G,       ///< G index of RGB LED
+            RGB_B        ///< B index of RGB LED
         };
 
         void                   setAllOn();
@@ -160,7 +160,7 @@ namespace IO
         brightness_t           valueToBrightness(uint8_t value);
         void                   startUpAnimation();
         bool                   isControlTypeMatched(MIDI::messageType_t midiMessage, controlType_t controlType);
-        void                   midiToState(const Messaging::event_t& message, Messaging::eventType_t source);
+        void                   midiToState(const Messaging::event_t& event, Messaging::eventType_t source);
         void                   setState(size_t index, brightness_t brightness);
         std::optional<uint8_t> sysConfigGet(System::Config::Section::leds_t section, size_t index, uint16_t& value);
         std::optional<uint8_t> sysConfigSet(System::Config::Section::leds_t section, size_t index, uint16_t value);
@@ -182,13 +182,13 @@ namespace IO
         uint8_t _blinkTimer[Collection::size()] = {};
 
         /// Holds currently active LED blink type.
-        blinkType_t _ledBlinkType = blinkType_t::timer;
+        blinkType_t _ledBlinkType = blinkType_t::TIMER;
 
         /// Pointer to array used to check if blinking LEDs should toggle state.
         const uint8_t* _blinkResetArrayPtr = nullptr;
 
         /// Array holding MIDI clock pulses after which LED state is toggled for all possible blink rates.
-        const uint8_t _blinkReset_midiClock[TOTAL_BLINK_SPEEDS] = {
+        const uint8_t BLINK_RESET_MIDI_CLOCK[TOTAL_BLINK_SPEEDS] = {
             48,
             24,
             12,
@@ -196,7 +196,7 @@ namespace IO
         };
 
         /// Array holding time indexes (multipled by 50) after which LED state is toggled for all possible blink rates.
-        const uint8_t _blinkReset_timer[TOTAL_BLINK_SPEEDS] = {
+        const uint8_t BLINK_RESET_TIMER[TOTAL_BLINK_SPEEDS] = {
             20,
             10,
             5,
@@ -212,17 +212,17 @@ namespace IO
         /// Holds last time in miliseconds when LED blinking has been updated.
         uint32_t _lastLEDblinkUpdateTime = 0;
 
-        const MIDI::messageType_t controlTypeToMIDImessage[static_cast<uint8_t>(controlType_t::AMOUNT)] = {
-            MIDI::messageType_t::noteOn,           // midiInNoteSingleVal,
-            MIDI::messageType_t::noteOn,           // localNoteSingleVal,
-            MIDI::messageType_t::controlChange,    // midiInCCSingleVal,
-            MIDI::messageType_t::controlChange,    // localCCSingleVal,
-            MIDI::messageType_t::programChange,    // pcSingleVal,
-            MIDI::messageType_t::programChange,    // preset,
-            MIDI::messageType_t::noteOn,           // midiInNoteMultiVal,
-            MIDI::messageType_t::noteOn,           // localNoteMultiVal,
-            MIDI::messageType_t::controlChange,    // midiInCCMultiVal,
-            MIDI::messageType_t::controlChange,    // localCCMultiVal,
+        const MIDI::messageType_t CONTROL_TYPE_TO_MIDI_MESSAGE[static_cast<uint8_t>(controlType_t::AMOUNT)] = {
+            MIDI::messageType_t::NOTE_ON,           // midiInNoteSingleVal,
+            MIDI::messageType_t::NOTE_ON,           // localNoteSingleVal,
+            MIDI::messageType_t::CONTROL_CHANGE,    // midiInCCSingleVal,
+            MIDI::messageType_t::CONTROL_CHANGE,    // localCCSingleVal,
+            MIDI::messageType_t::PROGRAM_CHANGE,    // pcSingleVal,
+            MIDI::messageType_t::PROGRAM_CHANGE,    // preset,
+            MIDI::messageType_t::NOTE_ON,           // midiInNoteMultiVal,
+            MIDI::messageType_t::NOTE_ON,           // localNoteMultiVal,
+            MIDI::messageType_t::CONTROL_CHANGE,    // midiInCCMultiVal,
+            MIDI::messageType_t::CONTROL_CHANGE,    // localCCMultiVal,
         };
     };
 }    // namespace IO

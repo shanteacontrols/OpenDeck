@@ -18,43 +18,41 @@ limitations under the License.
 
 #include "core/src/general/Helpers.h"
 
-namespace Board
+namespace Board::detail::map
 {
-    namespace detail
+    constexpr uint32_t adcChannel(const core::io::mcuPin_t& pin)
     {
-        namespace map
+        uint8_t index = core::misc::maskToIndex(pin.index);
+
+        if (pin.port == CORE_IO_PIN_PORT_DEF(A))
         {
-            constexpr uint32_t adcChannel(const core::io::mcuPin_t& pin)
+            if (index < 8)
             {
-                uint8_t index = core::misc::maskToIndex(pin.index);
+                return index;
+            }
+        }
+        else if (pin.port == CORE_IO_PIN_PORT_DEF(B))
+        {
+            switch (index)
+            {
+            case 0:
+                return 8;
 
-                if (pin.port == CORE_IO_PIN_PORT_DEF(A))
-                {
-                    if (index < 8)
-                        return index;
-                }
-                else if (pin.port == CORE_IO_PIN_PORT_DEF(B))
-                {
-                    switch (index)
-                    {
-                    case 0:
-                        return 8;
+            case 1:
+                return 9;
 
-                    case 1:
-                        return 9;
-
-                    default:
-                        return 0xFF;
-                    }
-                }
-                else if (pin.port == CORE_IO_PIN_PORT_DEF(C))
-                {
-                    if (index < 6)
-                        return 10 + index;
-                }
-
+            default:
                 return 0xFF;
             }
-        }    // namespace map
-    }        // namespace detail
-}    // namespace Board
+        }
+        else if (pin.port == CORE_IO_PIN_PORT_DEF(C))
+        {
+            if (index < 6)
+            {
+                return 10 + index;
+            }
+        }
+
+        return 0xFF;
+    }
+}    // namespace Board::detail::map

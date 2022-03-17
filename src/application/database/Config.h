@@ -32,13 +32,13 @@ namespace Database
 
         enum class block_t : uint8_t
         {
-            global,
-            buttons,
-            encoders,
-            analog,
-            leds,
-            i2c,
-            touchscreen,
+            GLOBAL,
+            BUTTONS,
+            ENCODERS,
+            ANALOG,
+            LEDS,
+            I2C,
+            TOUCHSCREEN,
             AMOUNT
         };
 
@@ -50,91 +50,91 @@ namespace Database
             // internal
             enum class system_t : uint8_t
             {
-                uid,
-                presets,
+                UID,
+                PRESETS,
                 AMOUNT
             };
 
             enum class global_t : uint8_t
             {
-                midiSettings,
-                dmxSettings,
+                MIDI_SETTINGS,
+                DMX_SETTINGS,
                 AMOUNT
             };
 
             enum class button_t : uint8_t
             {
-                type,
-                midiMessage,
-                midiID,
-                velocity,
-                midiChannel,
+                TYPE,
+                MESSAGE_TYPE,
+                MIDI_ID,
+                VALUE,
+                CHANNEL,
                 AMOUNT
             };
 
             enum class encoder_t : uint8_t
             {
-                enable,
-                invert,
-                mode,
-                midiID,
-                midiChannel,
-                pulsesPerStep,
-                acceleration,
-                remoteSync,
+                ENABLE,
+                INVERT,
+                MODE,
+                MIDI_ID,
+                CHANNEL,
+                PULSES_PER_STEP,
+                ACCELERATION,
+                REMOTE_SYNC,
                 AMOUNT
             };
 
             enum class analog_t : uint8_t
             {
-                enable,
-                invert,
-                type,
-                midiID,
-                lowerLimit,
-                upperLimit,
-                midiChannel,
-                lowerOffset,
-                upperOffset,
+                ENABLE,
+                INVERT,
+                TYPE,
+                MIDI_ID,
+                LOWER_LIMIT,
+                UPPER_LIMIT,
+                CHANNEL,
+                LOWER_OFFSET,
+                UPPER_OFFSET,
                 AMOUNT
             };
 
             enum class leds_t : uint8_t
             {
-                global,
-                activationID,
-                rgbEnable,
-                controlType,
-                activationValue,
-                midiChannel,
+                GLOBAL,
+                ACTIVATION_ID,
+                RGB_ENABLE,
+                CONTROL_TYPE,
+                ACTIVATION_VALUE,
+                CHANNEL,
                 AMOUNT
             };
 
             enum class i2c_t : uint8_t
             {
-                display,
+                DISPLAY,
                 AMOUNT
             };
 
             enum class touchscreen_t : uint8_t
             {
-                setting,
-                xPos,
-                yPos,
-                width,
-                height,
-                onScreen,
-                offScreen,
-                pageSwitchEnabled,
-                pageSwitchIndex,
+                SETTING,
+                X_POS,
+                Y_POS,
+                WIDTH,
+                HEIGHT,
+                ON_SCREEN,
+                OFF_SCREEN,
+                PAGE_SWITCH_ENABLED,
+                PAGE_SWITCH_INDEX,
                 AMOUNT
             };
         };
 
         enum class presetSetting_t : uint8_t
         {
-            activePreset,
-            presetPreserve,
+            ACTIVE_PRESET,
+            PRESET_PRESERVE,
             AMOUNT
         };
     };

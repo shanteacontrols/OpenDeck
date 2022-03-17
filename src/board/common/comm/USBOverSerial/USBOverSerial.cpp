@@ -32,21 +32,22 @@ namespace Board::USBOverSerial
 
         enum class appendResult_t : uint8_t
         {
-            ok,
-            outOfBounds,
-            done
+            OK,
+            OUT_OF_BOUNDS,
+            DONE
         };
 
         enum class framing_t : uint8_t
         {
-            boundary          = 0x7E,
-            escape            = 0x7D,
-            escapeValueSuffix = 0x00
+            BOUNDARY            = 0x7E,
+            ESCAPE              = 0x7D,
+            ESCAPE_VALUE_SUFFIX = 0x00
         };
 
         appendResult_t append(uint8_t value)
         {
-            auto onBoundaryFound = [&]() {
+            auto onBoundaryFound = [&]()
+            {
                 // actual boundary value, reset the packet
                 _packet.reset();
 
@@ -56,7 +57,7 @@ namespace Board::USBOverSerial
 
             if (!_packet._boundaryFound)
             {
-                if (value == static_cast<uint8_t>(framing_t::boundary))
+                if (value == static_cast<uint8_t>(framing_t::BOUNDARY))
                 {
                     _packet._boundaryFound = true;
                 }
@@ -65,38 +66,38 @@ namespace Board::USBOverSerial
             {
                 if (!_packet._escapeProcessing)
                 {
-                    if (value == static_cast<uint8_t>(framing_t::escape))
+                    if (value == static_cast<uint8_t>(framing_t::ESCAPE))
                     {
                         _packet._escapeProcessing = true;
                     }
-                    else if (value == static_cast<uint8_t>(framing_t::boundary))
+                    else if (value == static_cast<uint8_t>(framing_t::BOUNDARY))
                     {
                         onBoundaryFound();
-                        return appendResult_t::ok;
+                        return appendResult_t::OK;
                     }
                 }
                 else
                 {
                     _packet._escapeProcessing = false;
 
-                    if (value == static_cast<uint8_t>(framing_t::boundary))
+                    if (value == static_cast<uint8_t>(framing_t::BOUNDARY))
                     {
                         // this is actual data, do nothing
                     }
-                    else if (value == static_cast<uint8_t>(framing_t::escapeValueSuffix))
+                    else if (value == static_cast<uint8_t>(framing_t::ESCAPE_VALUE_SUFFIX))
                     {
-                        value = static_cast<uint8_t>(framing_t::escape);
+                        value = static_cast<uint8_t>(framing_t::ESCAPE);
                     }
                     else
                     {
                         onBoundaryFound();
-                        return appendResult_t::ok;
+                        return appendResult_t::OK;
                     }
                 }
 
                 if (!_packet._escapeProcessing)
                 {
-                    if (_packet._type == packetType_t::invalid)
+                    if (_packet._type == packetType_t::INVALID)
                     {
                         if (checkType(value))
                         {
@@ -112,7 +113,7 @@ namespace Board::USBOverSerial
                     else
                     {
                         // if the packet is larger than expected, ignore the rest of the packet
-                        if (_packet._count < _packet._maxSize)
+                        if (_packet._count < _packet.MAX_SIZE)
                         {
                             _packet._buffer[_packet._count++] = value;
                         }
@@ -123,11 +124,11 @@ namespace Board::USBOverSerial
                 {
                     _packet._done = true;
 
-                    return appendResult_t::done;
+                    return appendResult_t::DONE;
                 }
             }
 
-            return appendResult_t::ok;
+            return appendResult_t::OK;
         }
 
         private:
@@ -137,9 +138,9 @@ namespace Board::USBOverSerial
         {
             switch (value)
             {
-            case static_cast<uint8_t>(packetType_t::midi):
-            case static_cast<uint8_t>(packetType_t::internal):
-            case static_cast<uint8_t>(packetType_t::cdc):
+            case static_cast<uint8_t>(packetType_t::MIDI):
+            case static_cast<uint8_t>(packetType_t::INTERNAL):
+            case static_cast<uint8_t>(packetType_t::CDC):
                 return true;
 
             default:
@@ -161,7 +162,7 @@ namespace Board::USBOverSerial
         {
             USBPacketUpdater updater(packet);
 
-            if (updater.append(value) == USBPacketUpdater::appendResult_t::done)
+            if (updater.append(value) == USBPacketUpdater::appendResult_t::DONE)
             {
                 return true;
             }
@@ -172,11 +173,12 @@ namespace Board::USBOverSerial
 
     bool write(uint8_t channel, USBWritePacket& packet)
     {
-        auto writeSingle = [](uint8_t channel, uint8_t value, bool initial = false) {
-            if (!initial && (value == static_cast<uint8_t>(USBPacketUpdater::framing_t::boundary)))
+        auto writeSingle = [](uint8_t channel, uint8_t value, bool initial = false)
+        {
+            if (!initial && (value == static_cast<uint8_t>(USBPacketUpdater::framing_t::BOUNDARY)))
             {
                 // send escape first
-                if (!Board::UART::write(channel, static_cast<uint8_t>(USBPacketUpdater::framing_t::escape)))
+                if (!Board::UART::write(channel, static_cast<uint8_t>(USBPacketUpdater::framing_t::ESCAPE)))
                 {
                     return false;
                 }
@@ -187,9 +189,9 @@ namespace Board::USBOverSerial
                 return false;
             }
 
-            if (value == static_cast<uint8_t>(USBPacketUpdater::framing_t::escape))
+            if (value == static_cast<uint8_t>(USBPacketUpdater::framing_t::ESCAPE))
             {
-                if (!Board::UART::write(channel, static_cast<uint8_t>(USBPacketUpdater::framing_t::escapeValueSuffix)))
+                if (!Board::UART::write(channel, static_cast<uint8_t>(USBPacketUpdater::framing_t::ESCAPE_VALUE_SUFFIX)))
                 {
                     return false;
                 }
@@ -198,18 +200,18 @@ namespace Board::USBOverSerial
             return true;
         };
 
-        const size_t numberOfPackets = (packet.size() / packet.maxSize()) + (packet.size() % packet.maxSize() != 0);
+        const size_t NUMBER_OF_PACKETS = (packet.size() / packet.maxSize()) + (packet.size() % packet.maxSize() != 0);
 
-        for (size_t packetIndex = 0; packetIndex < numberOfPackets; packetIndex++)
+        for (size_t packetIndex = 0; packetIndex < NUMBER_OF_PACKETS; packetIndex++)
         {
-            const size_t packetStartIndex = packet.maxSize() * packetIndex;
-            size_t       packetSize       = 0;
+            const size_t PACKET_START_INDEX = packet.maxSize() * packetIndex;
+            size_t       packetSize         = 0;
 
             if (packet.size() > packet.maxSize())
             {
-                if ((packetStartIndex + packet.maxSize()) > packet.size())
+                if ((PACKET_START_INDEX + packet.maxSize()) > packet.size())
                 {
-                    packetSize = packet.size() - packetStartIndex;
+                    packetSize = packet.size() - PACKET_START_INDEX;
                 }
                 else
                 {
@@ -221,7 +223,7 @@ namespace Board::USBOverSerial
                 packetSize = packet.size();
             }
 
-            if (!writeSingle(channel, static_cast<uint8_t>(USBPacketUpdater::framing_t::boundary), true))
+            if (!writeSingle(channel, static_cast<uint8_t>(USBPacketUpdater::framing_t::BOUNDARY), true))
             {
                 return false;
             }
@@ -238,7 +240,7 @@ namespace Board::USBOverSerial
 
             for (size_t i = 0; i < packetSize; i++)
             {
-                if (!writeSingle(channel, packet[i + packetStartIndex]))
+                if (!writeSingle(channel, packet[i + PACKET_START_INDEX]))
                 {
                     return false;
                 }

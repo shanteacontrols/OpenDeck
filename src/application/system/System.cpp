@@ -38,15 +38,16 @@ Instance::Instance(HWA&        hwa,
     , _sysExDataHandler(*this)
     , _sysExConf(
           _sysExDataHandler,
-          _sysExMID)
+          SYS_EX_MID)
 {
-    MIDIDispatcher.listen(Messaging::eventType_t::midiIn,
-                          [this](const Messaging::event_t& event) {
-                              if (event.message == MIDI::messageType_t::systemExclusive)
+    MIDIDispatcher.listen(Messaging::eventType_t::MIDI_IN,
+                          [this](const Messaging::event_t& event)
+                          {
+                              if (event.message == MIDI::messageType_t::SYS_EX)
                               {
                                   _sysExConf.handleMessage(event.sysEx, event.sysExLength);
 
-                                  if (_backupRestoreState == backupRestoreState_t::backup)
+                                  if (_backupRestoreState == backupRestoreState_t::BACKUP)
                                   {
                                       backup();
                                   }
@@ -58,30 +59,35 @@ bool Instance::init()
 {
     _scheduler.init();
 
-    _cInfo.registerHandler([this](size_t group, size_t index) {
-        if (_sysExConf.isConfigurationEnabled())
-        {
-            uint16_t cInfoMessage[] = {
-                SYSEX_CM_COMPONENT_ID,
-                static_cast<uint16_t>(group),
-                0,
-                0
-            };
+    _cInfo.registerHandler([this](size_t group, size_t index)
+                           {
+                               if (_sysExConf.isConfigurationEnabled())
+                               {
+                                   uint16_t cInfoMessage[] = {
+                                       SYSEX_CM_COMPONENT_ID,
+                                       static_cast<uint16_t>(group),
+                                       0,
+                                       0
+                                   };
 
-            auto split = Util::Conversion::Split14bit(index);
+                                   auto split = Util::Conversion::Split14bit(index);
 
-            cInfoMessage[2] = split.high();
-            cInfoMessage[3] = split.low();
+                                   cInfoMessage[2] = split.high();
+                                   cInfoMessage[3] = split.low();
 
-            _sysExConf.sendCustomMessage(cInfoMessage, 4);
-        }
-    });
+                                   _sysExConf.sendCustomMessage(cInfoMessage, 4);
+                               }
+                           });
 
-    _hwa.registerOnUSBconnectionHandler([this]() {
-        _scheduler.registerTask({ SCHEDULED_TASK_FORCED_REFRESH,
-                                  USB_CHANGE_FORCED_REFRESH_DELAY,
-                                  [this]() { forceComponentRefresh(); } });
-    });
+    _hwa.registerOnUSBconnectionHandler([this]()
+                                        {
+                                            _scheduler.registerTask({ SCHEDULED_TASK_FORCED_REFRESH,
+                                                                      USB_CHANGE_FORCED_REFRESH_DELAY,
+                                                                      [this]()
+                                                                      {
+                                                                          forceComponentRefresh();
+                                                                      } });
+                                        });
 
     if (!_hwa.init())
     {
@@ -122,12 +128,12 @@ bool Instance::init()
         Messaging::event_t event;
 
         event.componentIndex = 0;
-        event.midiChannel    = i;
-        event.midiIndex      = Common::program(i);
-        event.midiValue      = 0;
-        event.message        = MIDI::messageType_t::programChange;
+        event.channel        = i;
+        event.index          = Common::program(i);
+        event.value          = 0;
+        event.message        = MIDI::messageType_t::PROGRAM_CHANGE;
 
-        MIDIDispatcher.notify(Messaging::eventType_t::program, event);
+        MIDIDispatcher.notify(Messaging::eventType_t::PROGRAM, event);
     }
 
     return true;
@@ -151,13 +157,13 @@ void Instance::backup()
 {
     uint8_t backupRequest[] = {
         0xF0,
-        _sysExMID.id1,
-        _sysExMID.id2,
-        _sysExMID.id3,
+        SYS_EX_MID.id1,
+        SYS_EX_MID.id2,
+        SYS_EX_MID.id3,
         0x00,    // request
         0x7F,    // all message parts,
-        static_cast<uint8_t>(SysExConf::wish_t::backup),
-        static_cast<uint8_t>(SysExConf::amount_t::all),
+        static_cast<uint8_t>(SysExConf::wish_t::BACKUP),
+        static_cast<uint8_t>(SysExConf::amount_t::ALL),
         0x00,    // block - set later in the loop
         0x00,    // section - set later in the loop
         0x00,    // index MSB - unused but required
@@ -168,20 +174,20 @@ void Instance::backup()
     };
 
     uint16_t presetChangeRequest[] = {
-        static_cast<uint8_t>(SysExConf::wish_t::set),
-        static_cast<uint8_t>(SysExConf::amount_t::single),
-        static_cast<uint8_t>(System::Config::block_t::global),
-        static_cast<uint8_t>(System::Config::Section::global_t::presets),
+        static_cast<uint8_t>(SysExConf::wish_t::SET),
+        static_cast<uint8_t>(SysExConf::amount_t::SINGLE),
+        static_cast<uint8_t>(System::Config::block_t::GLOBAL),
+        static_cast<uint8_t>(System::Config::Section::global_t::PRESETS),
         0x00,    // index 0 (active preset) MSB
         0x00,    // index 0 (active preset) LSB
         0x00,    // preset value MSB - always 0
         0x00     // preset value LSB - set later in the loop
     };
 
-    const uint8_t presetChangeRequestSize        = 8;
-    const uint8_t presetChangeRequestPresetIndex = 7;
-    const uint8_t backupRequestBlockIndex        = 8;
-    const uint8_t backupRequestSectionIndex      = 9;
+    static constexpr uint8_t PRESET_CHANGE_REQUEST_SIZE         = 8;
+    static constexpr uint8_t PRESET_CHANGE_REQUEST_PRESET_INDEX = 7;
+    static constexpr uint8_t BACKUP_REQUEST_BLOCK_INDEX         = 8;
+    static constexpr uint8_t BACKUP_REQUEST_SECTION_INDEX       = 9;
 
     uint8_t currentPreset = _components.database().getPreset();
 
@@ -197,32 +203,32 @@ void Instance::backup()
     for (uint8_t preset = 0; preset < _components.database().getSupportedPresets(); preset++)
     {
         _components.database().setPreset(preset);
-        presetChangeRequest[presetChangeRequestPresetIndex] = preset;
-        _sysExConf.sendCustomMessage(presetChangeRequest, presetChangeRequestSize, false);
+        presetChangeRequest[PRESET_CHANGE_REQUEST_PRESET_INDEX] = preset;
+        _sysExConf.sendCustomMessage(presetChangeRequest, PRESET_CHANGE_REQUEST_SIZE, false);
 
         for (size_t block = 0; block < _sysExConf.blocks(); block++)
         {
-            backupRequest[backupRequestBlockIndex] = block;
+            backupRequest[BACKUP_REQUEST_BLOCK_INDEX] = block;
 
             for (size_t section = 0; section < _sysExConf.sections(block); section++)
             {
                 if (
-                    (block == static_cast<uint8_t>(System::Config::block_t::leds)) &&
-                    ((section == static_cast<uint8_t>(System::Config::Section::leds_t::testColor)) ||
-                     (section == static_cast<uint8_t>(System::Config::Section::leds_t::testBlink))))
+                    (block == static_cast<uint8_t>(System::Config::block_t::LEDS)) &&
+                    ((section == static_cast<uint8_t>(System::Config::Section::leds_t::TEST_COLOR)) ||
+                     (section == static_cast<uint8_t>(System::Config::Section::leds_t::TEST_BLINK))))
                 {
                     continue;    // testing sections, skip
                 }
 
-                backupRequest[backupRequestSectionIndex] = section;
+                backupRequest[BACKUP_REQUEST_SECTION_INDEX] = section;
                 _sysExConf.handleMessage(backupRequest, sizeof(backupRequest));
             }
         }
     }
 
     _components.database().setPreset(currentPreset);
-    presetChangeRequest[presetChangeRequestPresetIndex] = currentPreset;
-    _sysExConf.sendCustomMessage(presetChangeRequest, presetChangeRequestSize, false);
+    presetChangeRequest[PRESET_CHANGE_REQUEST_PRESET_INDEX] = currentPreset;
+    _sysExConf.sendCustomMessage(presetChangeRequest, PRESET_CHANGE_REQUEST_SIZE, false);
 
     // mark the end of restore procedure
     restoreMarker = SYSEX_CR_RESTORE_END;
@@ -233,47 +239,47 @@ void Instance::backup()
     _sysExConf.sendCustomMessage(&endMarker, 1);
     _sysExConf.setSilentMode(false);
 
-    _backupRestoreState = backupRestoreState_t::none;
+    _backupRestoreState = backupRestoreState_t::NONE;
 }
 
 ioComponent_t Instance::checkComponents()
 {
-    switch (componentIndex)
+    switch (_componentIndex)
     {
-    case ioComponent_t::buttons:
+    case ioComponent_t::BUTTONS:
     {
-        componentIndex = ioComponent_t::encoders;
+        _componentIndex = ioComponent_t::ENCODERS;
     }
     break;
 
-    case ioComponent_t::encoders:
+    case ioComponent_t::ENCODERS:
     {
-        componentIndex = ioComponent_t::analog;
+        _componentIndex = ioComponent_t::ANALOG;
     }
     break;
 
-    case ioComponent_t::analog:
+    case ioComponent_t::ANALOG:
     {
-        componentIndex = ioComponent_t::leds;
+        _componentIndex = ioComponent_t::LEDS;
     }
     break;
 
-    case ioComponent_t::leds:
+    case ioComponent_t::LEDS:
     {
-        componentIndex = ioComponent_t::i2c;
+        _componentIndex = ioComponent_t::I2C;
     }
     break;
 
-    case ioComponent_t::i2c:
+    case ioComponent_t::I2C:
     {
-        componentIndex = ioComponent_t::touchscreen;
+        _componentIndex = ioComponent_t::TOUCHSCREEN;
     }
     break;
 
-    case ioComponent_t::touchscreen:
+    case ioComponent_t::TOUCHSCREEN:
     default:
     {
-        componentIndex = ioComponent_t::buttons;
+        _componentIndex = ioComponent_t::BUTTONS;
     }
     break;
     }
@@ -282,7 +288,7 @@ ioComponent_t Instance::checkComponents()
     // This is done so that no single component update takes too long, and
     // thus making other things wait.
 
-    auto component         = _components.io().at(static_cast<size_t>(componentIndex));
+    auto component         = _components.io().at(static_cast<size_t>(_componentIndex));
     auto maxComponentIndex = component->maxComponentUpdateIndex();
     auto loopIterations    = maxComponentIndex >= MAX_UPDATES_PER_RUN ? MAX_UPDATES_PER_RUN : !maxComponentIndex ? 1
                                                                                                                  : maxComponentIndex;
@@ -291,17 +297,17 @@ ioComponent_t Instance::checkComponents()
     {
         for (size_t i = 0; i < loopIterations; i++)
         {
-            component->updateSingle(componentUpdateIndex[static_cast<size_t>(componentIndex)]);
+            component->updateSingle(_componentUpdateIndex[static_cast<size_t>(_componentIndex)]);
 
-            if (++componentUpdateIndex[static_cast<size_t>(componentIndex)] >= maxComponentIndex)
+            if (++_componentUpdateIndex[static_cast<size_t>(_componentIndex)] >= maxComponentIndex)
             {
-                componentUpdateIndex[static_cast<size_t>(componentIndex)] = 0;
+                _componentUpdateIndex[static_cast<size_t>(_componentIndex)] = 0;
             }
         }
     }
 
     // return the last processed io component
-    return componentIndex;
+    return _componentIndex;
 }
 
 void Instance::checkProtocols()
@@ -321,37 +327,39 @@ void Instance::forceComponentRefresh()
 {
     // extra check here - it's possible that preset was changed and then backup/restore procedure started
     // in that case this would get called
-    if (_backupRestoreState == backupRestoreState_t::none)
+    if (_backupRestoreState == backupRestoreState_t::NONE)
     {
         Messaging::event_t event;
-        event.componentIndex = static_cast<uint8_t>(Messaging::systemMessage_t::forceIOrefresh);
+        event.componentIndex = static_cast<uint8_t>(Messaging::systemMessage_t::FORCE_IO_REFRESH);
 
-        MIDIDispatcher.notify(Messaging::eventType_t::system, event);
+        MIDIDispatcher.notify(Messaging::eventType_t::SYSTEM, event);
     }
 }
 
 void Instance::SysExDataHandler::sendResponse(uint8_t* array, uint16_t size)
 {
     Messaging::event_t event;
-    event.componentIndex = static_cast<uint16_t>(Messaging::systemMessage_t::sysExResponse);
-    event.message        = MIDI::messageType_t::systemExclusive;
+    event.componentIndex = static_cast<uint16_t>(Messaging::systemMessage_t::SYS_EX_RESPONSE);
+    event.message        = MIDI::messageType_t::SYS_EX;
     event.sysEx          = array;
     event.sysExLength    = size;
 
-    MIDIDispatcher.notify(Messaging::eventType_t::system, event);
+    MIDIDispatcher.notify(Messaging::eventType_t::SYSTEM, event);
 }
 
 uint8_t Instance::SysExDataHandler::customRequest(uint16_t request, CustomResponse& customResponse)
 {
-    uint8_t result = System::Config::status_t::ack;
+    uint8_t result = System::Config::status_t::ACK;
 
-    auto appendSW = [&customResponse]() {
+    auto appendSW = [&customResponse]()
+    {
         customResponse.append(SW_VERSION_MAJOR);
         customResponse.append(SW_VERSION_MINOR);
         customResponse.append(SW_VERSION_REVISION);
     };
 
-    auto appendHW = [&customResponse]() {
+    auto appendHW = [&customResponse]()
+    {
         customResponse.append((FW_UID >> 24) & static_cast<uint32_t>(0xFF));
         customResponse.append((FW_UID >> 16) & static_cast<uint32_t>(0xFF));
         customResponse.append((FW_UID >> 8) & static_cast<uint32_t>(0xFF));
@@ -383,20 +391,20 @@ uint8_t Instance::SysExDataHandler::customRequest(uint16_t request, CustomRespon
     {
         if (!_system._components.database().factoryReset())
         {
-            result = static_cast<uint8_t>(SysExConf::status_t::errorWrite);
+            result = static_cast<uint8_t>(SysExConf::status_t::ERROR_WRITE);
         }
     }
     break;
 
     case SYSEX_CR_REBOOT_APP:
     {
-        _system._hwa.reboot(FwSelector::fwType_t::application);
+        _system._hwa.reboot(FwSelector::fwType_t::APPLICATION);
     }
     break;
 
     case SYSEX_CR_REBOOT_BTLDR:
     {
-        _system._hwa.reboot(FwSelector::fwType_t::bootloader);
+        _system._hwa.reboot(FwSelector::fwType_t::BOOTLOADER);
     }
     break;
 
@@ -425,25 +433,25 @@ uint8_t Instance::SysExDataHandler::customRequest(uint16_t request, CustomRespon
     case SYSEX_CR_FULL_BACKUP:
     {
         // no response here, just set flag internally that backup needs to be done
-        _system._backupRestoreState = backupRestoreState_t::backup;
+        _system._backupRestoreState = backupRestoreState_t::BACKUP;
     }
     break;
 
     case SYSEX_CR_RESTORE_START:
     {
-        _system._backupRestoreState = backupRestoreState_t::restore;
+        _system._backupRestoreState = backupRestoreState_t::RESTORE;
     }
     break;
 
     case SYSEX_CR_RESTORE_END:
     {
-        _system._backupRestoreState = backupRestoreState_t::none;
+        _system._backupRestoreState = backupRestoreState_t::NONE;
     }
     break;
 
     default:
     {
-        result = System::Config::status_t::errorNotSupported;
+        result = System::Config::status_t::ERROR_NOT_SUPPORTED;
     }
     break;
     }
@@ -469,21 +477,23 @@ uint8_t Instance::SysExDataHandler::set(uint8_t  block,
 
 void Instance::DBhandlers::presetChange(uint8_t preset)
 {
-    if (_system._backupRestoreState == backupRestoreState_t::none)
+    if (_system._backupRestoreState == backupRestoreState_t::NONE)
     {
         _system._scheduler.registerTask({ SCHEDULED_TASK_PRESET,
                                           PRESET_CHANGE_NOTIFY_DELAY,
-                                          [&]() {
-        Messaging::event_t event;
-        event.componentIndex = 0;
-        event.midiChannel    = 0;
-        event.midiIndex      = _system._components.database().getPreset();
-        event.midiValue      = 0;
-        event.message        = MIDI::messageType_t::programChange;
+                                          [&]()
+                                          {
+                                              Messaging::event_t event;
+                                              event.componentIndex = 0;
+                                              event.channel        = 0;
+                                              event.index          = _system._components.database().getPreset();
+                                              event.value          = 0;
+                                              event.message        = MIDI::messageType_t::PROGRAM_CHANGE;
 
-        MIDIDispatcher.notify(Messaging::eventType_t::preset, event);
+                                              MIDIDispatcher.notify(Messaging::eventType_t::PRESET, event);
 
-        _system.forceComponentRefresh(); } });
+                                              _system.forceComponentRefresh();
+                                          } });
     }
 }
 
@@ -503,6 +513,6 @@ void Instance::DBhandlers::factoryResetDone()
     // to avoid MCU reset if factory reset is needed on first run.
     if (_system._components.database().isInitialized())
     {
-        _system._hwa.reboot(FwSelector::fwType_t::application);
+        _system._hwa.reboot(FwSelector::fwType_t::APPLICATION);
     }
 }

@@ -28,8 +28,8 @@ class FwSelector
     /// Location of this value is board-specific.
     enum class fwType_t : uint32_t
     {
-        application = 0xFF,
-        bootloader  = 0x47
+        APPLICATION = 0xFF,
+        BOOTLOADER  = 0x47
     };
 
     class HWA
@@ -53,10 +53,10 @@ class FwSelector
     /// List of all possible bootloader triggers.
     enum class btldrTrigger_t : uint8_t
     {
-        software,
-        hardware,
-        all,
-        none
+        SOFTWARE,
+        HARDWARE,
+        ALL,
+        NONE
     };
 
     /// Verifies if the programmed flash is valid.

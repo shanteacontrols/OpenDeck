@@ -25,12 +25,12 @@ namespace IO
 {
     enum class ioComponent_t : uint8_t
     {
-        buttons,
-        encoders,
-        analog,
-        leds,
-        i2c,
-        touchscreen,
+        BUTTONS,
+        ENCODERS,
+        ANALOG,
+        LEDS,
+        I2C,
+        TOUCHSCREEN,
         AMOUNT
     };
 

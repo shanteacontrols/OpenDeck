@@ -10,6 +10,7 @@ BUILD_DIR       := $(BUILD_DIR_BASE)/$(TARGET)
 TEST_BINARIES   := $(addprefix -object ,$(shell $(FIND) $(BUILD_DIR_BASE) -name "*.out" 2>/dev/null))
 FW_ROOT_DIR     := ../src
 SCRIPTS_DIR     := ../scripts
+CLANG_TIDY_OUT  := $(BUILD_DIR_BASE)/clang-tidy-fixes.yaml
 
 CC              := clang
 CXX             := clang++
@@ -84,6 +85,16 @@ format:
 ifeq ($(CF_FAIL_ON_DIFF), 1)
 	git diff
 	git diff -s --exit-code
+endif
+
+lint:
+	@$(SCRIPTS_DIR)/tidy.sh $(CLANG_TIDY_OUT)
+ifeq ($(CL_FAIL_ON_DIFF), 1)
+	@if [ -s $(CLANG_TIDY_OUT) ]; then \
+		echo Lint issues found:; \
+		cat $(CLANG_TIDY_OUT); \
+		false; \
+	fi
 endif
 
 clean:

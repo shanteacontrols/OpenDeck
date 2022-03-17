@@ -16,19 +16,15 @@ limitations under the License.
 
 */
 
-namespace Board
+namespace Board::detail::map
 {
-    namespace detail
+    constexpr uint32_t adcChannel(const core::io::mcuPin_t& pin)
     {
-        namespace map
+        if (pin.port == CORE_IO_PIN_PORT_DEF(F))
         {
-            constexpr uint32_t adcChannel(const core::io::mcuPin_t& pin)
-            {
-                if (pin.port == CORE_IO_PIN_PORT_DEF(F))
-                    return pin.index;
+            return pin.index;
+        }
 
-                return 0xFF;
-            }
-        }    // namespace map
-    }        // namespace detail
-}    // namespace Board
+        return 0xFF;
+    }
+}    // namespace Board::detail::map

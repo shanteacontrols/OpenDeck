@@ -35,35 +35,24 @@ namespace IO
             GROUP_ANALOG_INPUTS,
         };
 
-        typedef struct
-        {
-            const uint16_t adcMinValue;                 ///< Minimum raw ADC value.
-            const uint16_t adcMaxValue;                 ///< Maxmimum raw ADC value.
-            const uint16_t stepDiff14Bit;               ///< Minimum difference between two raw ADC readings to consider that value has been changed for 14-bit MIDI values.
-            const uint16_t fsrMinValue;                 ///< Minimum raw ADC reading for FSR sensors.
-            const uint16_t fsrMaxValue;                 ///< Maximum raw ADC reading for FSR sensors.
-            const uint16_t aftertouchMaxValue;          ///< Maxmimum raw ADC reading for aftertouch on FSR sensors.
-            const uint16_t digitalValueThresholdOn;     ///< Value above which buton connected to analog input is considered pressed.
-            const uint16_t digitalValueThresholdOff;    ///< Value below which button connected to analog input is considered released.
-        } adcConfig_t;
-
         enum class type_t : uint8_t
         {
-            potentiometerControlChange,
-            potentiometerNote,
-            fsr,
-            button,
-            nrpn7bit,
-            nrpn14bit,
-            pitchBend,
-            controlChange14bit,
+            POTENTIOMETER_CONTROL_CHANGE,
+            POTENTIOMETER_NOTE,
+            FSR,
+            BUTTON,
+            NRPN_7BIT,
+            NRPN_14BIT,
+            PITCH_BEND,
+            CONTROL_CHANGE_14BIT,
+            DMX,
             AMOUNT
         };
 
         enum class pressureType_t : uint8_t
         {
-            velocity,
-            aftertouch
+            VELOCITY,
+            AFTERTOUCH
         };
 
         class HWA
@@ -77,16 +66,17 @@ namespace IO
             public:
             enum class adcType_t : uint16_t
             {
-                adc10bit = 1023,
-                adc12bit = 4095
+                ADC_10BIT = 1023,
+                ADC_12BIT = 4095
             };
 
             struct descriptor_t
             {
-                Analog::type_t type        = Analog::type_t::potentiometerControlChange;
+                Analog::type_t type        = Analog::type_t::POTENTIOMETER_CONTROL_CHANGE;
                 uint16_t       value       = 0;
                 uint16_t       lowerOffset = 0;
                 uint16_t       upperOffset = 0;
+                uint16_t       maxValue    = 127;
             };
 
             virtual bool     isFiltered(size_t index, descriptor_t& descriptor) = 0;

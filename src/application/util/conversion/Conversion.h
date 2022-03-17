@@ -22,23 +22,20 @@ limitations under the License.
 #include "system/Config.h"
 #include "sysex/src/SysExConf.h"
 
-namespace Util
+namespace Util::Conversion
 {
-    namespace Conversion
-    {
-        // Various helper functions used to convert between system config sections to
-        // database sections.
+    // Various helper functions used to convert between system config sections to
+    // database sections.
 
-        Database::Config::Section::global_t      sys2DBsection(System::Config::Section::global_t section);
-        Database::Config::Section::button_t      sys2DBsection(System::Config::Section::button_t section);
-        Database::Config::Section::encoder_t     sys2DBsection(System::Config::Section::encoder_t section);
-        Database::Config::Section::analog_t      sys2DBsection(System::Config::Section::analog_t section);
-        Database::Config::Section::leds_t        sys2DBsection(System::Config::Section::leds_t section);
-        Database::Config::Section::i2c_t         sys2DBsection(System::Config::Section::i2c_t section);
-        Database::Config::Section::touchscreen_t sys2DBsection(System::Config::Section::touchscreen_t section);
+    Database::Config::Section::global_t      sys2DBsection(System::Config::Section::global_t section);
+    Database::Config::Section::button_t      sys2DBsection(System::Config::Section::button_t section);
+    Database::Config::Section::encoder_t     sys2DBsection(System::Config::Section::encoder_t section);
+    Database::Config::Section::analog_t      sys2DBsection(System::Config::Section::analog_t section);
+    Database::Config::Section::leds_t        sys2DBsection(System::Config::Section::leds_t section);
+    Database::Config::Section::i2c_t         sys2DBsection(System::Config::Section::i2c_t section);
+    Database::Config::Section::touchscreen_t sys2DBsection(System::Config::Section::touchscreen_t section);
 
-        // alias split/merge classes from sysexconf to be globally available through this namespace
-        using Split14bit = SysExConf::Split14bit;
-        using Merge14bit = SysExConf::Merge14bit;
-    }    // namespace Conversion
-}    // namespace Util
+    // alias split/merge classes from sysexconf to be globally available through this namespace
+    using Split14bit = SysExConf::Split14bit;
+    using Merge14bit = SysExConf::Merge14bit;
+}    // namespace Util::Conversion

@@ -31,7 +31,7 @@ namespace Board::detail::io
         {
             core::io::mcuPin_t pin = Board::detail::map::adcPin(i);
 
-            CORE_IO_INIT({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::outputPP });
+            CORE_IO_INIT({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::OUTPUT_PP });
             CORE_IO_SET_LOW(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
         }
     }
@@ -39,7 +39,7 @@ namespace Board::detail::io
     void restoreMux(uint8_t muxIndex)
     {
         core::io::mcuPin_t pin = detail::map::adcPin(muxIndex);
-        CORE_IO_INIT({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::analog });
+        CORE_IO_INIT({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::ANALOG });
     }
 }    // namespace Board::detail::io
 

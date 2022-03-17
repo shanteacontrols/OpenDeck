@@ -18,7 +18,7 @@ then
 
     {
         printf "%s\n" "namespace {"
-        printf "%s\n" "constexpr inline Board::detail::io::unusedIO_t _unusedPins[TOTAL_UNUSED_IO] = {"
+        printf "%s\n" "constexpr inline Board::detail::io::unusedIO_t UNUSED_PINS[TOTAL_UNUSED_IO] = {"
     } >> "$out_header"
 
     for ((i=0; i<unused_pins; i++))
@@ -30,9 +30,9 @@ then
                 {
                     printf "%s\n" "{ .pin = { .port = UNUSED_PORT_${i}, .index = UNUSED_PIN_${i}",
                     printf "\n%s\n" "#ifdef CORE_ARCH_AVR"
-                    printf "%s\n" ".mode = core::io::pinMode_t::input, },"
+                    printf "%s\n" ".mode = core::io::pinMode_t::INPUT, },"
                     printf "%s\n" "#else"
-                    printf "%s\n" ".mode = core::io::pinMode_t::input, .pull = core::io::pullMode_t::up, },"
+                    printf "%s\n" ".mode = core::io::pinMode_t::INPUT, .pull = core::io::pullMode_t::UP, },"
                     printf "%s\n" "#endif"
                     printf "%s\n" ".state = true, },"
                 } >> "$out_header"
@@ -42,9 +42,9 @@ then
                 {
                     printf "%s\n" "{ .pin = { .port = UNUSED_PORT_${i}, .index = UNUSED_PIN_${i}",
                     printf "\n%s\n" "#ifdef CORE_ARCH_AVR"
-                    printf "%s\n" ".mode = core::io::pinMode_t::output, },"
+                    printf "%s\n" ".mode = core::io::pinMode_t::OUTPUT, },"
                     printf "%s\n" "#else"
-                    printf "%s\n" ".mode = core::io::pinMode_t::outputPP, .pull = core::io::pullMode_t::none, },"
+                    printf "%s\n" ".mode = core::io::pinMode_t::OUTPUT_PP, .pull = core::io::pullMode_t::NONE, },"
                     printf "%s\n" "#endif"
                     printf "%s\n" ".state = false, },"
                 } >> "$out_header"
@@ -54,9 +54,9 @@ then
                 {
                     printf "%s\n" "{ .pin = { .port = UNUSED_PORT_${i}, .index = UNUSED_PIN_${i}",
                     printf "\n%s\n" "#ifdef CORE_ARCH_AVR"
-                    printf "%s\n" ".mode = core::io::pinMode_t::output, },"
+                    printf "%s\n" ".mode = core::io::pinMode_t::OUTPUT, },"
                     printf "%s\n" "#else"
-                    printf "%s\n" ".mode = core::io::pinMode_t::outputPP, .pull = core::io::pullMode_t::none, }," >> "$out_header"
+                    printf "%s\n" ".mode = core::io::pinMode_t::OUTPUT_PP, .pull = core::io::pullMode_t::NONE, }," >> "$out_header"
                     printf "%s\n" "#endif"
                     printf "%s\n" ".state = true, }," >> "$out_header"
                 } >> "$out_header"

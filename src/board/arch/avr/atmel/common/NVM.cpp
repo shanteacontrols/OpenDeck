@@ -20,80 +20,79 @@ limitations under the License.
 #include "board/Board.h"
 #include <MCU.h>
 
-namespace Board
+namespace Board::NVM
 {
-    namespace NVM
+    bool init()
     {
-        bool init()
+        // nothing to do
+        return true;
+    }
+
+    uint32_t size()
+    {
+        // last eeprom address stores type of firmware to boot once in bootloader
+        return EEPROM_END;
+    }
+
+    bool read(uint32_t address, int32_t& value, parameterType_t type)
+    {
+        switch (type)
         {
-            // nothing to do
-            return true;
+        case parameterType_t::WORD:
+        {
+            value = eeprom_read_word(reinterpret_cast<uint16_t*>(address));
+        }
+        break;
+
+        case parameterType_t::DWORD:
+        {
+            value = eeprom_read_dword(reinterpret_cast<uint32_t*>(address));
+        }
+        break;
+
+        default:
+        {
+            value = eeprom_read_byte(reinterpret_cast<uint8_t*>(address));
+        }
+        break;
         }
 
-        uint32_t size()
+        return true;
+    }
+
+    bool write(uint32_t address, int32_t value, parameterType_t type)
+    {
+        switch (type)
         {
-            // last eeprom address stores type of firmware to boot once in bootloader
-            return EEPROM_END;
+        case parameterType_t::WORD:
+        {
+            eeprom_update_word(reinterpret_cast<uint16_t*>(address), value);
+        }
+        break;
+
+        case parameterType_t::DWORD:
+        {
+            eeprom_update_dword(reinterpret_cast<uint32_t*>(address), value);
+        }
+        break;
+
+        default:
+        {
+            eeprom_update_byte(reinterpret_cast<uint8_t*>(address), value);
+        }
+        break;
         }
 
-        bool read(uint32_t address, int32_t& value, parameterType_t type)
+        return true;
+    }
+
+    bool clear(uint32_t start, uint32_t end)
+    {
+        for (uint32_t i = start; i < end; i++)
         {
-            switch (type)
-            {
-            case parameterType_t::word:
-            {
-                value = eeprom_read_word(reinterpret_cast<uint16_t*>(address));
-            }
-            break;
-
-            case parameterType_t::dword:
-            {
-                value = eeprom_read_dword(reinterpret_cast<uint32_t*>(address));
-            }
-            break;
-
-            default:
-            {
-                value = eeprom_read_byte(reinterpret_cast<uint8_t*>(address));
-            }
-            break;
-            }
-
-            return true;
+            eeprom_update_byte(reinterpret_cast<uint8_t*>(i), 0);
         }
 
-        bool write(uint32_t address, int32_t value, parameterType_t type)
-        {
-            switch (type)
-            {
-            case parameterType_t::word:
-            {
-                eeprom_update_word(reinterpret_cast<uint16_t*>(address), value);
-            }
-            break;
-
-            case parameterType_t::dword:
-            {
-                eeprom_update_dword(reinterpret_cast<uint32_t*>(address), value);
-            }
-            break;
-
-            default:
-            {
-                eeprom_update_byte(reinterpret_cast<uint8_t*>(address), value);
-            }
-            break;
-            }
-
-            return true;
-        }
-
-        bool clear(uint32_t start, uint32_t end)
-        {
-            for (uint32_t i = start; i < end; i++)
-                eeprom_update_byte(reinterpret_cast<uint8_t*>(i), 0);
-
-            return true;
-        }
-    }    // namespace NVM
-}    // namespace Board
+        return true;
+    }
+}    // namespace Board::NVM

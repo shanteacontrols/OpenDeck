@@ -7,10 +7,12 @@ AlignEscapedNewlines: Left
 AlignOperands: true
 AlignTrailingComments: true
 AllowAllParametersOfDeclarationOnNextLine: true
-AllowShortBlocksOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
 AllowShortCaseLabelsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: Empty
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
 AllowShortIfStatementsOnASingleLine: Never
+AllowShortLambdasOnASingleLine: None
 AllowShortLoopsOnASingleLine: false
 AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: false
@@ -30,6 +32,7 @@ BraceWrapping:
   BeforeElse:             true
   IndentBraces:           false
   SplitEmptyFunction:     false
+  BeforeLambdaBody:       true
 BreakBeforeBraces: Custom
 BreakConstructorInitializers: BeforeComma
 ColumnLimit: 0

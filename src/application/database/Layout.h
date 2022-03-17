@@ -39,7 +39,7 @@ namespace Database
         {
             switch (type)
             {
-            case type_t::system:
+            case type_t::SYSTEM:
                 return _systemLayout;
 
             default:
@@ -53,18 +53,18 @@ namespace Database
             // uid section
             {
                 1,
-                LESSDB::sectionParameterType_t::word,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::WORD,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
             // presets
             {
                 static_cast<uint8_t>(Database::Config::presetSetting_t::AMOUNT),
-                LESSDB::sectionParameterType_t::byte,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::BYTE,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
         };
@@ -73,18 +73,18 @@ namespace Database
             // midi settings section
             {
                 static_cast<uint8_t>(Protocol::MIDI::setting_t::AMOUNT),
-                LESSDB::sectionParameterType_t::byte,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::BYTE,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
             // dmx section
             {
                 static_cast<uint8_t>(Protocol::DMX::setting_t::AMOUNT),
-                LESSDB::sectionParameterType_t::byte,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::BYTE,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
         };
@@ -93,45 +93,45 @@ namespace Database
             // type section
             {
                 IO::Buttons::Collection::size(),
-                LESSDB::sectionParameterType_t::bit,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::BIT,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
-            // midi message type section
+            // message type section
             {
                 IO::Buttons::Collection::size(),
-                LESSDB::sectionParameterType_t::byte,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::BYTE,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
             // midi id section
             {
                 IO::Buttons::Collection::size(),
-                LESSDB::sectionParameterType_t::byte,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::BYTE,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
-            // midi velocity section
+            // value section
             {
                 IO::Buttons::Collection::size(),
-                LESSDB::sectionParameterType_t::byte,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::BYTE,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 127,
             },
 
-            // midi channel section
+            // channel section
             {
                 IO::Buttons::Collection::size(),
-                LESSDB::sectionParameterType_t::word,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::WORD,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 1,
             },
         };
@@ -140,72 +140,72 @@ namespace Database
             // encoder enabled section
             {
                 IO::Encoders::Collection::size(),
-                LESSDB::sectionParameterType_t::bit,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::BIT,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
             // encoder inverted section
             {
                 IO::Encoders::Collection::size(),
-                LESSDB::sectionParameterType_t::bit,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::BIT,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
             // encoding mode section
             {
                 IO::Encoders::Collection::size(),
-                LESSDB::sectionParameterType_t::halfByte,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::HALF_BYTE,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
             // midi id section
             {
                 IO::Encoders::Collection::size(),
-                LESSDB::sectionParameterType_t::word,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::enable,
+                LESSDB::sectionParameterType_t::WORD,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::ENABLE,
                 0,
             },
 
-            // midi channel section
+            // channel section
             {
                 IO::Encoders::Collection::size(),
-                LESSDB::sectionParameterType_t::word,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::WORD,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 1,
             },
 
             // pulses per step section
             {
                 IO::Encoders::Collection::size(),
-                LESSDB::sectionParameterType_t::halfByte,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::HALF_BYTE,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 4,
             },
 
             // acceleration section
             {
                 IO::Encoders::Collection::size(),
-                LESSDB::sectionParameterType_t::halfByte,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::HALF_BYTE,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
             // remote sync section
             {
                 IO::Encoders::Collection::size(),
-                LESSDB::sectionParameterType_t::bit,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::BIT,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
         };
@@ -214,81 +214,81 @@ namespace Database
             // analog enabled section
             {
                 IO::Analog::Collection::size(),
-                LESSDB::sectionParameterType_t::bit,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::BIT,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
             // analog inverted section
             {
                 IO::Analog::Collection::size(),
-                LESSDB::sectionParameterType_t::bit,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::BIT,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
             // analog type section
             {
                 IO::Analog::Collection::size(),
-                LESSDB::sectionParameterType_t::halfByte,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::HALF_BYTE,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
             // midi id section
             {
                 IO::Analog::Collection::size(),
-                LESSDB::sectionParameterType_t::word,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::enable,
+                LESSDB::sectionParameterType_t::WORD,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::ENABLE,
                 0,
             },
 
             // lower value limit
             {
                 IO::Analog::Collection::size(),
-                LESSDB::sectionParameterType_t::word,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::WORD,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
             // upper value limit
             {
                 IO::Analog::Collection::size(),
-                LESSDB::sectionParameterType_t::word,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::WORD,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 16383,
             },
 
-            // midi channel section
+            // channel section
             {
                 IO::Analog::Collection::size(),
-                LESSDB::sectionParameterType_t::word,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::WORD,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 1,
             },
 
             // lower adc percentage offset
             {
                 IO::Analog::Collection::size(),
-                LESSDB::sectionParameterType_t::byte,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::BYTE,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
             // upper adc percentage offset
             {
                 IO::Analog::Collection::size(),
-                LESSDB::sectionParameterType_t::byte,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::BYTE,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
         };
@@ -297,54 +297,54 @@ namespace Database
             // global parameters section
             {
                 static_cast<size_t>(IO::LEDs::setting_t::AMOUNT),
-                LESSDB::sectionParameterType_t::byte,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::BYTE,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
             // activation id section
             {
                 IO::LEDs::Collection::size(),
-                LESSDB::sectionParameterType_t::byte,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::BYTE,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
             // rgb enabled section
             {
                 (IO::LEDs::Collection::size() / 3) + (IO::Touchscreen::Collection::size() / 3),
-                LESSDB::sectionParameterType_t::bit,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::BIT,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
             // led control type section
             {
                 IO::LEDs::Collection::size(),
-                LESSDB::sectionParameterType_t::halfByte,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::HALF_BYTE,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
             // single velocity value section
             {
                 IO::LEDs::Collection::size(),
-                LESSDB::sectionParameterType_t::byte,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::BYTE,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 127,
             },
 
-            // midi channel section
+            // channel section
             {
                 IO::LEDs::Collection::size(),
-                LESSDB::sectionParameterType_t::word,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::WORD,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 1,
             },
         };
@@ -353,9 +353,9 @@ namespace Database
             // display section
             {
                 static_cast<uint8_t>(IO::Display::setting_t::AMOUNT),
-                LESSDB::sectionParameterType_t::byte,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::BYTE,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
         };
@@ -364,81 +364,81 @@ namespace Database
             // setting section
             {
                 static_cast<uint8_t>(IO::Touchscreen::setting_t::AMOUNT),
-                LESSDB::sectionParameterType_t::byte,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::BYTE,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
             // x position section
             {
                 IO::Touchscreen::Collection::size(),
-                LESSDB::sectionParameterType_t::word,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::WORD,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
             // y position section
             {
                 IO::Touchscreen::Collection::size(),
-                LESSDB::sectionParameterType_t::word,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::WORD,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
             // width section
             {
                 IO::Touchscreen::Collection::size(),
-                LESSDB::sectionParameterType_t::word,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::WORD,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
             // height section
             {
                 IO::Touchscreen::Collection::size(),
-                LESSDB::sectionParameterType_t::word,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::WORD,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
             // on screen section
             {
                 IO::Touchscreen::Collection::size(),
-                LESSDB::sectionParameterType_t::halfByte,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::HALF_BYTE,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
             // off screen section
             {
                 IO::Touchscreen::Collection::size(),
-                LESSDB::sectionParameterType_t::halfByte,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::HALF_BYTE,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
             // page switch enabled section
             {
                 IO::Touchscreen::Collection::size(),
-                LESSDB::sectionParameterType_t::bit,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::BIT,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
 
             // page switch index section
             {
                 IO::Touchscreen::Collection::size(),
-                LESSDB::sectionParameterType_t::halfByte,
-                LESSDB::preserveSetting_t::disable,
-                LESSDB::autoIncrementSetting_t::disable,
+                LESSDB::sectionParameterType_t::HALF_BYTE,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
         };

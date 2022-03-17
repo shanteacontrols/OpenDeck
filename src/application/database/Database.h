@@ -46,9 +46,8 @@ namespace Database
             public:
             enum class type_t : uint8_t
             {
-                system,
-                user,
-                full
+                SYSTEM,
+                USER,
             };
 
             virtual std::vector<Block>& layout(type_t type) = 0;
@@ -109,37 +108,37 @@ namespace Database
         private:
         Config::block_t block(Config::Section::global_t section)
         {
-            return Config::block_t::global;
+            return Config::block_t::GLOBAL;
         }
 
         Config::block_t block(Config::Section::button_t section)
         {
-            return Config::block_t::buttons;
+            return Config::block_t::BUTTONS;
         }
 
         Config::block_t block(Config::Section::encoder_t section)
         {
-            return Config::block_t::encoders;
+            return Config::block_t::ENCODERS;
         }
 
         Config::block_t block(Config::Section::analog_t section)
         {
-            return Config::block_t::analog;
+            return Config::block_t::ANALOG;
         }
 
         Config::block_t block(Config::Section::leds_t section)
         {
-            return Config::block_t::leds;
+            return Config::block_t::LEDS;
         }
 
         Config::block_t block(Config::Section::i2c_t section)
         {
-            return Config::block_t::i2c;
+            return Config::block_t::I2C;
         }
 
         Config::block_t block(Config::Section::touchscreen_t section)
         {
-            return Config::block_t::touchscreen;
+            return Config::block_t::TOUCHSCREEN;
         }
 
         void                   customInitGlobal();
@@ -158,7 +157,7 @@ namespace Database
         Handlers* _handlers = nullptr;
         Layout&   _layout;
 
-        const bool _initializeData;
+        const bool INITIALIZE_DATA;
 
         /// Holds currently active preset.
         uint8_t _activePreset = 0;

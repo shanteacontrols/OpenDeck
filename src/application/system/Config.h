@@ -33,13 +33,13 @@ namespace System
 
         enum class block_t : uint8_t
         {
-            global,
-            buttons,
-            encoders,
-            analog,
-            leds,
-            i2c,
-            touchscreen,
+            GLOBAL,
+            BUTTONS,
+            ENCODERS,
+            ANALOG,
+            LEDS,
+            I2C,
+            TOUCHSCREEN,
             AMOUNT
         };
 
@@ -50,116 +50,113 @@ namespace System
 
             enum class global_t : uint8_t
             {
-                midiSettings,
-                reserved,    // compatibility
-                presets,
-                dmxSettings,
-                dmxChannel,
+                MIDI_SETTINGS,
+                RESERVED,    // compatibility
+                PRESETS,
+                DMX_SETTINGS,
+                DMX_CHANNEL,
                 AMOUNT
             };
 
             enum class button_t : uint8_t
             {
-                type,
-                midiMessage,
-                midiID,
-                velocity,
-                midiChannel,
+                TYPE,
+                MESSAGE_TYPE,
+                MIDI_ID,
+                VALUE,
+                CHANNEL,
                 AMOUNT
             };
 
             enum class encoder_t : uint8_t
             {
-                enable,
-                invert,
-                mode,
-                midiID,
-                midiChannel,
-                pulsesPerStep,
-                acceleration,
-                midiID_MSB,
-                remoteSync,
+                ENABLE,
+                INVERT,
+                MODE,
+                MIDI_ID,
+                CHANNEL,
+                PULSES_PER_STEP,
+                ACCELERATION,
+                MIDI_ID_MSB,
+                REMOTE_SYNC,
                 AMOUNT
             };
 
             enum class analog_t : uint8_t
             {
-                enable,
-                invert,
-                type,
-                midiID,
-                midiID_MSB,
-                lowerLimit,
-                lowerLimit_MSB,
-                upperLimit,
-                upperLimit_MSB,
-                midiChannel,
-                lowerOffset,
-                upperOffset,
+                ENABLE,
+                INVERT,
+                TYPE,
+                MIDI_ID,
+                MIDI_ID_MSB,
+                LOWER_LIMIT,
+                LOWER_LIMIT_MSB,
+                UPPER_LIMIT,
+                UPPER_LIMIT_MSB,
+                CHANNEL,
+                LOWER_OFFSET,
+                UPPER_OFFSET,
                 AMOUNT
             };
 
             enum class leds_t : uint8_t
             {
-                testColor,
-                testBlink,
-                global,
-                activationID,
-                rgbEnable,
-                controlType,
-                activationValue,
-                midiChannel,
+                TEST_COLOR,
+                TEST_BLINK,
+                GLOBAL,
+                ACTIVATION_ID,
+                RGB_ENABLE,
+                CONTROL_TYPE,
+                ACTIVATION_VALUE,
+                CHANNEL,
                 AMOUNT
             };
 
             enum class i2c_t : uint8_t
             {
-                display,
+                DISPLAY,
                 AMOUNT
             };
 
             enum class touchscreen_t : uint8_t
             {
-                setting,
-                xPos,
-                yPos,
-                width,
-                height,
-                onScreen,
-                offScreen,
-                pageSwitchEnabled,
-                pageSwitchIndex,
+                SETTING,
+                X_POS,
+                Y_POS,
+                WIDTH,
+                HEIGHT,
+                ON_SCREEN,
+                OFF_SCREEN,
+                PAGE_SWITCH_ENABLED,
+                PAGE_SWITCH_INDEX,
                 AMOUNT
             };
         };
 
-        class status_t
+        struct status_t
         {
-            public:
-            status_t() = delete;
-
             // Since get/set config messages return uint8_t to allow for custom, user statuses,
             // redefine same status enum as in SysExConf.h but without enum class.
             // This enum also contains added custom errors.
             enum
             {
-                request,               // 0x00
-                ack,                   // 0x01
-                errorStatus,           // 0x02
-                errorConnection,       // 0x03
-                errorWish,             // 0x04
-                errorAmount,           // 0x05
-                errorBlock,            // 0x06
-                errorSection,          // 0x07
-                errorPart,             // 0x08
-                errorIndex,            // 0x09
-                errorNewValue,         // 0x0A
-                errorMessageLength,    // 0x0B
-                errorWrite,            // 0x0C
-                errorNotSupported,     // 0x0D
-                errorRead,             // 0x0E
-                serialPeripheralAllocatedError = 80,
-                cdcAllocatedError              = 81,
+                REQUEST,                 // 0x00
+                ACK,                     // 0x01
+                ERROR_STATUS,            // 0x02
+                ERROR_CONNECTION,        // 0x03
+                ERROR_WISH,              // 0x04
+                ERROR_AMOUNT,            // 0x05
+                ERROR_BLOCK,             // 0x06
+                ERROR_SECTION,           // 0x07
+                ERROR_PART,              // 0x08
+                ERROR_INDEX,             // 0x09
+                ERROR_NEW_VALUE,         // 0x0A
+                ERROR_MESSAGE_LENGTH,    // 0x0B
+                ERROR_WRITE,             // 0x0C
+                ERROR_NOT_SUPPORTED,     // 0x0D
+                ERROR_READ,              // 0x0E
+                SERIAL_PERIPHERAL_ALLOCATED_ERROR = 80,
+                CDC_ALLOCATED_ERROR               = 81,
             };
         };
     };

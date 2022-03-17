@@ -70,3 +70,37 @@ jobs:
           cd tests
           ../scripts/build_targets.sh --hw
           make exec HW_TESTING=1
+  format:
+    name: Code formatting
+    runs-on: ubuntu-20.04
+    container:
+      image: paradajz168/opendeck-dev:latest
+      options: --user root
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - name: Source formatting
+        run: |
+          cd src
+          make format CF_FAIL_ON_DIFF=1
+      - name: Test formatting
+        run: |
+          cd tests
+          make format CF_FAIL_ON_DIFF=1
+  lint:
+    name: Code linting
+    runs-on: ubuntu-20.04
+    container:
+      image: paradajz168/opendeck-dev:latest
+      options: --user root
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - name: Source lint
+        run: |
+          cd src
+          ../scripts/lint.sh

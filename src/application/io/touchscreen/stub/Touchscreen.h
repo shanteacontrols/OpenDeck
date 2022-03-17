@@ -31,18 +31,18 @@ namespace IO
 
         enum class setting_t : uint8_t
         {
-            enable,
-            model,
-            brightness,
-            initialScreen,
-            cdcPassthrough,
+            ENABLE,
+            MODEL,
+            BRIGHTNESS,
+            INITIAL_SCREEN,
+            CDC_PASSTHROUGH,
             AMOUNT
         };
 
         enum class mode_t : uint8_t
         {
-            normal,
-            cdcPassthrough
+            NORMAL,
+            CDC_PASSTHROUGH
         };
 
         struct icon_t
@@ -57,21 +57,21 @@ namespace IO
 
         enum class tsEvent_t : uint8_t
         {
-            none,
-            button,
-            coordinate
+            NONE,
+            BUTTON,
+            COORDINATE
         };
 
         enum class pressType_t : uint8_t
         {
-            none,
-            initial,
-            hold
+            NONE,
+            INITIAL,
+            HOLD
         };
 
         struct tsData_t
         {
-            pressType_t pressType   = pressType_t::none;
+            pressType_t pressType   = pressType_t::NONE;
             size_t      buttonID    = 0;
             bool        buttonState = false;
             uint16_t    xPos        = 0;
@@ -80,19 +80,19 @@ namespace IO
 
         enum class brightness_t : uint8_t
         {
-            _10,
-            _25,
-            _50,
-            _75,
-            _80,
-            _90,
-            _100
+            B10,
+            B25,
+            B50,
+            B75,
+            B80,
+            B90,
+            B100
         };
 
         enum class model_t : uint8_t
         {
-            nextion,
-            viewtech,
+            NEXTION,
+            VIEWTECH,
             AMOUNT
         };
 

@@ -16,11 +16,12 @@ limitations under the License.
 
 */
 
-#include <util/twi.h>
 #include "board/Board.h"
+#include "core/src/general/Interrupt.h"
 #include "core/src/general/Helpers.h"
 #include "core/src/general/Timing.h"
 #include "core/src/general/RingBuffer.h"
+#include "core/src/general/I2C.h"
 #include <MCU.h>
 
 #define I2C_TRANSFER_TIMEOUT_MS 10
@@ -63,7 +64,9 @@ namespace
         uint8_t status = TW_STATUS & 0xF8;
 
         if ((status != TW_START) && (status != TW_REP_START))
+        {
             return false;
+        }
 
         // send device address
         TWDR = address << 1;
@@ -74,7 +77,9 @@ namespace
         status = TW_STATUS & 0xF8;
 
         if ((status != TW_MT_SLA_ACK) && (status != TW_MR_SLA_ACK))
+        {
             return false;
+        }
 
         return true;
     }
@@ -110,78 +115,91 @@ namespace
     }
 }    // namespace
 
-namespace Board
+namespace Board::I2C
 {
-    namespace I2C
+    bool init(uint8_t channel, clockSpeed_t speed)
     {
-        bool init(uint8_t channel, clockSpeed_t speed)
+        if (channel >= MAX_I2C_INTERFACES)
         {
-            if (channel >= MAX_I2C_INTERFACES)
-                return false;
-
-            // no prescaling
-            TWSR = 0x00;
-
-            // use formula as per datasheet
-            TWBR = ((F_CPU / static_cast<uint32_t>(speed)) - 16) / 2;
-
-            return true;
+            return false;
         }
 
-        bool deInit(uint8_t channel)
-        {
-            if (channel >= MAX_I2C_INTERFACES)
-                return false;
+        // no prescaling
+        TWSR = 0x00;
 
-            TWCR = 0;
-            return true;
+        // use formula as per datasheet
+        TWBR = ((F_CPU / static_cast<uint32_t>(speed)) - 16) / 2;
+
+        return true;
+    }
+
+    bool deInit(uint8_t channel)
+    {
+        if (channel >= MAX_I2C_INTERFACES)
+        {
+            return false;
         }
 
-        bool write(uint8_t channel, uint8_t address, uint8_t* buffer, size_t size)
+        TWCR = 0;
+        return true;
+    }
+
+    bool write(uint8_t channel, uint8_t address, uint8_t* buffer, size_t size)
+    {
+        if (channel >= MAX_I2C_INTERFACES)
         {
-            if (channel >= MAX_I2C_INTERFACES)
-                return false;
+            return false;
+        }
 
-            if (size >= I2C_TX_BUFFER_SIZE)
-                return false;
+        if (size >= I2C_TX_BUFFER_SIZE)
+        {
+            return false;
+        }
 
-            // wait for interface to be ready
-            address <<= 1;
-            _address = address;
+        // wait for interface to be ready
+        address <<= 1;
+        _address = address;
 
-            while (_txBusy)
-                ;
+        while (_txBusy)
+        {
+            ;
+        }
 
-            for (size_t i = 0; i < size; i++)
+        for (size_t i = 0; i < size; i++)
+        {
+            if (!_txBuffer.insert(buffer[i]))
             {
-                if (!_txBuffer.insert(buffer[i]))
-                    return false;
+                return false;
             }
-
-            sendStartInt();
-
-            return true;
         }
 
-        bool deviceAvailable(uint8_t channel, uint8_t address)
+        sendStartInt();
+
+        return true;
+    }
+
+    bool deviceAvailable(uint8_t channel, uint8_t address)
+    {
+        if (channel >= MAX_I2C_INTERFACES)
         {
-            if (channel >= MAX_I2C_INTERFACES)
-                return false;
-
-            bool found = false;
-
-            if (startTransfer(address))
-            {
-                found = true;
-            }
-
-            if (!endTransfer())
-                return false;
-
-            return found;
+            return false;
         }
-    }    // namespace I2C
-}    // namespace Board
+
+        bool found = false;
+
+        if (startTransfer(address))
+        {
+            found = true;
+        }
+
+        if (!endTransfer())
+        {
+            return false;
+        }
+
+        return found;
+    }
+}    // namespace Board::I2C
 
 ISR(TWI_vect)
 {
@@ -254,4 +272,4 @@ ISR(TWI_vect)
     }
     break;
     }
-}
+};

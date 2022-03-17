@@ -22,22 +22,16 @@ limitations under the License.
 
 // both delays assume 16MHz clock
 
-namespace Board
+namespace Board::detail::io
 {
-    namespace detail
+    void sr595wait()
     {
-        namespace io
-        {
-            void sr595wait()
-            {
-                CORE_NOP();
-                CORE_NOP();
-            }
+        CORE_NOP();
+        CORE_NOP();
+    }
 
-            void sr165wait()
-            {
-                CORE_NOP();
-            }
-        }    // namespace io
-    }        // namespace detail
-}    // namespace Board
+    void sr165wait()
+    {
+        CORE_NOP();
+    }
+}    // namespace Board::detail::io

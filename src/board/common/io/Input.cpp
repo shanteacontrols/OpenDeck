@@ -62,7 +62,9 @@ namespace
                 _digitalInBuffer[buttonIndex].readings |= !CORE_IO_READ(SR_IN_DATA_PORT, SR_IN_DATA_PIN);
 
                 if (++_digitalInBuffer[buttonIndex].count > MAX_READING_COUNT)
+                {
                     _digitalInBuffer[buttonIndex].count = MAX_READING_COUNT;
+                }
 
                 CORE_IO_SET_HIGH(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
             }
@@ -223,7 +225,7 @@ namespace Board
 
             uint8_t buttonID = row * NUMBER_OF_BUTTON_COLUMNS + column;
 
-            if (index == encoderIndex_t::a)
+            if (index == encoderIndex_t::A)
             {
                 return buttonID;
             }
@@ -232,7 +234,7 @@ namespace Board
 #else
             uint8_t buttonID = encoderID * 2;
 
-            if (index == encoderIndex_t::a)
+            if (index == encoderIndex_t::A)
             {
                 return buttonID;
             }

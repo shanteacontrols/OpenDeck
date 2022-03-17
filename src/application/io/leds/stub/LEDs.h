@@ -36,82 +36,68 @@ namespace IO
 
         enum class rgbIndex_t : uint8_t
         {
-            r,
-            g,
-            b
+            R,
+            G,
+            B
         };
 
         enum class color_t : uint8_t
         {
-            off,
-            red,
-            green,
-            yellow,
-            blue,
-            magenta,
-            cyan,
-            white,
+            OFF,
+            RED,
+            GREEN,
+            YELLOW,
+            BLUE,
+            MAGENTA,
+            CYAN,
+            WHITE,
             AMOUNT
         };
 
         enum class setting_t : uint8_t
         {
-            blinkWithMIDIclock,
-            unused,
-            useStartupAnimation,
+            BLINK_WITH_MIDI_CLOCK,
+            UNUSED,
+            USE_STARTUP_ANIMATION,
             AMOUNT
         };
 
         enum class controlType_t : uint8_t
         {
-            midiInNoteSingleVal,
-            localNoteSingleVal,
-            midiInCCSingleVal,
-            localCCSingleVal,
-            pcSingleVal,
-            preset,
-            midiInNoteMultiVal,
-            localNoteMultiVal,
-            midiInCCMultiVal,
-            localCCMultiVal,
+            MIDI_IN_NOTE_SINGLE_VAL,
+            LOCAL_NOTE_SINGLE_VAL,
+            MIDI_IN_CC_SINGLE_VAL,
+            LOCAL_CC_SINGLE_VAL,
+            PC_SINGLE_VAL,
+            PRESET,
+            MIDI_IN_NOTE_MULTI_VAL,
+            LOCAL_NOTE_MULTI_VAL,
+            MIDI_IN_CC_MULTI_VAL,
+            LOCAL_CC_MULTI_VAL,
             AMOUNT
         };
 
         enum class blinkSpeed_t : uint8_t
         {
-            noBlink,
-            s100ms,
-            s200ms,
-            s300ms,
-            s400ms,
-            s500ms,
-            s600ms,
-            s700ms,
-            s800ms,
-            s900ms,
-            s1000ms,
-            AMOUNT
+            S1000MS,
+            S500MS,
+            S250MS,
+            NO_BLINK
         };
 
         enum class blinkType_t : uint8_t
         {
-            timer,
-            midiClock
+            TIMER,
+            MIDI_CLOCK
         };
 
         enum class brightness_t : uint8_t
         {
-            bOff,
-            b25,
-            b50,
-            b75,
-            b100
-        };
-
-        enum class dataSource_t : uint8_t
-        {
-            external,    // data from midi in
-            internal     // data from local source (buttons, encoders...)
+            OFF,
+            B25,
+            B50,
+            B75,
+            B100
         };
 
         class HWA

@@ -28,7 +28,7 @@ using namespace IO;
 Nextion::Nextion(IO::Touchscreen::HWA& hwa)
     : _hwa(hwa)
 {
-    IO::Touchscreen::registerModel(IO::Touchscreen::model_t::nextion, this);
+    IO::Touchscreen::registerModel(IO::Touchscreen::model_t::NEXTION, this);
 }
 
 bool Nextion::init()
@@ -60,7 +60,7 @@ Touchscreen::tsEvent_t Nextion::update(Touchscreen::tsData_t& data)
 {
     uint8_t value     = 0;
     bool    process   = false;
-    auto    returnVal = Touchscreen::tsEvent_t::none;
+    auto    returnVal = Touchscreen::tsEvent_t::NONE;
 
     while (_hwa.read(value))
     {
@@ -152,19 +152,19 @@ bool Nextion::endCommand()
 
 bool Nextion::setBrightness(Touchscreen::brightness_t brightness)
 {
-    return writeCommand("dims=%d", _brightnessMapping[static_cast<uint8_t>(brightness)]);
+    return writeCommand("dims=%d", BRIGHTNESS_MAPPING[static_cast<uint8_t>(brightness)]);
 }
 
 Touchscreen::tsEvent_t Nextion::response(Touchscreen::tsData_t& data)
 {
     bool responseFound = false;
-    auto response      = responseID_t::button;    // assumption for now
+    auto response      = responseID_t::BUTTON;    // assumption for now
 
     for (size_t i = 0; i < static_cast<size_t>(responseID_t::AMOUNT); i++)
     {
-        if (Touchscreen::Model::_bufferCount == _responses[i].size)
+        if (Touchscreen::Model::_bufferCount == RESPONSES[i].size)
         {
-            if (Touchscreen::Model::_rxBuffer[0] == static_cast<uint8_t>(_responses[i].responseID))
+            if (Touchscreen::Model::_rxBuffer[0] == static_cast<uint8_t>(RESPONSES[i].responseID))
             {
                 response      = static_cast<responseID_t>(i);
                 responseFound = true;
@@ -177,19 +177,19 @@ Touchscreen::tsEvent_t Nextion::response(Touchscreen::tsData_t& data)
     {
         switch (response)
         {
-        case responseID_t::button:
+        case responseID_t::BUTTON:
         {
             data.buttonState = Touchscreen::Model::_rxBuffer[1];
             data.buttonID    = Touchscreen::Model::_rxBuffer[2];
 
-            return Touchscreen::tsEvent_t::button;
+            return Touchscreen::tsEvent_t::BUTTON;
         }
         break;
 
         default:
-            return Touchscreen::tsEvent_t::none;
+            return Touchscreen::tsEvent_t::NONE;
         }
     }
 
-    return Touchscreen::tsEvent_t::none;
+    return Touchscreen::tsEvent_t::NONE;
 }

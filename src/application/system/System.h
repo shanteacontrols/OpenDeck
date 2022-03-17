@@ -132,7 +132,7 @@ namespace System
         Util::ComponentInfo _cInfo;
         Layout              _layout;
 
-        const SysExConf::manufacturerID_t _sysExMID = {
+        const SysExConf::manufacturerID_t SYS_EX_MID = {
             SYSEX_MANUFACTURER_ID_0,
             SYSEX_MANUFACTURER_ID_1,
             SYSEX_MANUFACTURER_ID_2
@@ -140,13 +140,13 @@ namespace System
 
         enum class backupRestoreState_t : uint8_t
         {
-            none,
-            backup,
-            restore
+            NONE,
+            BACKUP,
+            RESTORE
         };
 
-        backupRestoreState_t _backupRestoreState                                                   = backupRestoreState_t::none;
-        IO::ioComponent_t    componentIndex                                                        = IO::ioComponent_t::AMOUNT;
-        size_t               componentUpdateIndex[static_cast<uint8_t>(IO::ioComponent_t::AMOUNT)] = {};
+        backupRestoreState_t _backupRestoreState                                                    = backupRestoreState_t::NONE;
+        IO::ioComponent_t    _componentIndex                                                        = IO::ioComponent_t::AMOUNT;
+        size_t               _componentUpdateIndex[static_cast<uint8_t>(IO::ioComponent_t::AMOUNT)] = {};
     };
 }    // namespace System

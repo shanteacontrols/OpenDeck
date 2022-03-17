@@ -31,8 +31,8 @@ namespace Util
 
         static Dispatcher& instance()
         {
-            static Dispatcher _instance;
-            return _instance;
+            static Dispatcher instance;
+            return instance;
         }
 
         void listen(Source source, messageCallback_t&& callback)

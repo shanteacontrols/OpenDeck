@@ -65,9 +65,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(A),
                 .index     = CORE_IO_PIN_INDEX_DEF(10),
-                .mode      = core::io::pinMode_t::alternatePP,
-                .pull      = core::io::pullMode_t::none,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_PP,
+                .pull      = core::io::pullMode_t::NONE,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF7_USART1,
             },
 
@@ -75,9 +75,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(A),
                 .index     = CORE_IO_PIN_INDEX_DEF(9),
-                .mode      = core::io::pinMode_t::alternatePP,
-                .pull      = core::io::pullMode_t::none,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_PP,
+                .pull      = core::io::pullMode_t::NONE,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF7_USART1,
             },
         };
@@ -121,9 +121,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(D),
                 .index     = CORE_IO_PIN_INDEX_DEF(6),
-                .mode      = core::io::pinMode_t::alternatePP,
-                .pull      = core::io::pullMode_t::none,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_PP,
+                .pull      = core::io::pullMode_t::NONE,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF7_USART2,
             },
 
@@ -131,9 +131,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(D),
                 .index     = CORE_IO_PIN_INDEX_DEF(5),
-                .mode      = core::io::pinMode_t::alternatePP,
-                .pull      = core::io::pullMode_t::none,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_PP,
+                .pull      = core::io::pullMode_t::NONE,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF7_USART2,
             },
         };
@@ -177,9 +177,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(D),
                 .index     = CORE_IO_PIN_INDEX_DEF(9),
-                .mode      = core::io::pinMode_t::alternatePP,
-                .pull      = core::io::pullMode_t::none,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_PP,
+                .pull      = core::io::pullMode_t::NONE,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF7_USART3,
             },
 
@@ -187,9 +187,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(D),
                 .index     = CORE_IO_PIN_INDEX_DEF(8),
-                .mode      = core::io::pinMode_t::alternatePP,
-                .pull      = core::io::pullMode_t::none,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_PP,
+                .pull      = core::io::pullMode_t::NONE,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF7_USART3,
             },
         };
@@ -233,9 +233,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(C),
                 .index     = CORE_IO_PIN_INDEX_DEF(11),
-                .mode      = core::io::pinMode_t::alternatePP,
-                .pull      = core::io::pullMode_t::none,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_PP,
+                .pull      = core::io::pullMode_t::NONE,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF8_UART4,
             },
 
@@ -243,9 +243,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(C),
                 .index     = CORE_IO_PIN_INDEX_DEF(10),
-                .mode      = core::io::pinMode_t::alternatePP,
-                .pull      = core::io::pullMode_t::none,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_PP,
+                .pull      = core::io::pullMode_t::NONE,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF8_UART4,
             },
         };
@@ -289,9 +289,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(D),
                 .index     = CORE_IO_PIN_INDEX_DEF(2),
-                .mode      = core::io::pinMode_t::alternatePP,
-                .pull      = core::io::pullMode_t::none,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_PP,
+                .pull      = core::io::pullMode_t::NONE,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF8_UART5,
             },
 
@@ -299,9 +299,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(C),
                 .index     = CORE_IO_PIN_INDEX_DEF(12),
-                .mode      = core::io::pinMode_t::alternatePP,
-                .pull      = core::io::pullMode_t::none,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_PP,
+                .pull      = core::io::pullMode_t::NONE,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF8_UART5,
             },
         };
@@ -345,9 +345,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(C),
                 .index     = CORE_IO_PIN_INDEX_DEF(7),
-                .mode      = core::io::pinMode_t::alternatePP,
-                .pull      = core::io::pullMode_t::none,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_PP,
+                .pull      = core::io::pullMode_t::NONE,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF8_USART6,
             },
 
@@ -355,9 +355,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(C),
                 .index     = CORE_IO_PIN_INDEX_DEF(6),
-                .mode      = core::io::pinMode_t::alternatePP,
-                .pull      = core::io::pullMode_t::none,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_PP,
+                .pull      = core::io::pullMode_t::NONE,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF8_USART6,
             },
         };
@@ -401,9 +401,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(B),
                 .index     = CORE_IO_PIN_INDEX_DEF(7),
-                .mode      = core::io::pinMode_t::alternateOD,
-                .pull      = core::io::pullMode_t::up,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_OD,
+                .pull      = core::io::pullMode_t::UP,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF4_I2C1,
             },
 
@@ -411,9 +411,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(B),
                 .index     = CORE_IO_PIN_INDEX_DEF(6),
-                .mode      = core::io::pinMode_t::alternateOD,
-                .pull      = core::io::pullMode_t::up,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_OD,
+                .pull      = core::io::pullMode_t::UP,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF4_I2C1,
             },
 
@@ -458,9 +458,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(B),
                 .index     = CORE_IO_PIN_INDEX_DEF(11),
-                .mode      = core::io::pinMode_t::alternateOD,
-                .pull      = core::io::pullMode_t::up,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_OD,
+                .pull      = core::io::pullMode_t::UP,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF4_I2C2,
             },
 
@@ -468,9 +468,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(B),
                 .index     = CORE_IO_PIN_INDEX_DEF(10),
-                .mode      = core::io::pinMode_t::alternateOD,
-                .pull      = core::io::pullMode_t::up,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_OD,
+                .pull      = core::io::pullMode_t::UP,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF4_I2C2,
             },
         };
@@ -514,9 +514,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(C),
                 .index     = CORE_IO_PIN_INDEX_DEF(9),
-                .mode      = core::io::pinMode_t::alternateOD,
-                .pull      = core::io::pullMode_t::up,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_OD,
+                .pull      = core::io::pullMode_t::UP,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF4_I2C3,
             },
 
@@ -524,9 +524,9 @@ namespace
             {
                 .port      = CORE_IO_PIN_PORT_DEF(A),
                 .index     = CORE_IO_PIN_INDEX_DEF(8),
-                .mode      = core::io::pinMode_t::alternateOD,
-                .pull      = core::io::pullMode_t::up,
-                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .mode      = core::io::pinMode_t::ALTERNATE_OD,
+                .pull      = core::io::pullMode_t::UP,
+                .speed     = core::io::gpioSpeed_t::VERY_HIGH,
                 .alternate = GPIO_AF4_I2C3,
             },
         };

@@ -26,9 +26,9 @@ namespace USBLink
     /// Enumeration value should be placed in Event field of USB MIDI packet
     enum class internalCMD_t : uint8_t
     {
-        rebootBTLDR,
-        usbState,
-        baudRateChange,
-        uniqueID
+        REBOOT_BTLDR,
+        USB_STATE,
+        BAUDRATE_CHANGE,
+        UNIQUE_ID
     };
 }    // namespace USBLink

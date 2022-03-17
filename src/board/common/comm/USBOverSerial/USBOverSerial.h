@@ -21,151 +21,152 @@ limitations under the License.
 #include <cinttypes>
 #include <cstddef>
 
-namespace Board
+namespace Board::USBOverSerial
 {
-    namespace USBOverSerial
+    class USBPacketUpdater;
+
+    enum class packetType_t : uint8_t
     {
-        class USBPacketUpdater;
+        INVALID,     ///< Placeholder type used to indicate that the packet type isn't set.
+        MIDI,        ///< MIDI packet in OpenDeck format.
+        INTERNAL,    ///< Internal command used for target MCU <> USB link communication.
+        CDC,         ///< CDC packet in OpenDeck format.
+    };
 
-        enum class packetType_t : uint8_t
+    class USBPacketBase
+    {
+        public:
+        virtual packetType_t type() const                   = 0;
+        virtual uint8_t*     buffer() const                 = 0;
+        virtual size_t       size() const                   = 0;
+        virtual size_t       maxSize() const                = 0;
+        virtual uint8_t      operator[](size_t index) const = 0;
+    };
+
+    class USBReadPacket : public USBPacketBase
+    {
+        public:
+        USBReadPacket(uint8_t* data, size_t maxSize)
+            : _buffer(data)
+            , MAX_SIZE(maxSize)
+        {}
+
+        packetType_t type() const override
         {
-            invalid,     ///< Placeholder type used to indicate that the packet type isn't set.
-            midi,        ///< MIDI packet in OpenDeck format.
-            internal,    ///< Internal command used for target MCU <> USB link communication.
-            cdc,         ///< CDC packet in OpenDeck format.
-        };
+            return _type;
+        }
 
-        class USBPacketBase
+        uint8_t* buffer() const override
         {
-            public:
-            virtual packetType_t type() const                   = 0;
-            virtual uint8_t*     buffer() const                 = 0;
-            virtual size_t       size() const                   = 0;
-            virtual size_t       maxSize() const                = 0;
-            virtual uint8_t      operator[](size_t index) const = 0;
-        };
+            return _buffer;
+        }
 
-        class USBReadPacket : public USBPacketBase
+        size_t size() const override
         {
-            public:
-            USBReadPacket(uint8_t* data, size_t maxSize)
-                : _buffer(data)
-                , _maxSize(maxSize)
-            {}
+            return _size;
+        }
 
-            packetType_t type() const override
-            {
-                return _type;
-            }
-
-            uint8_t* buffer() const override
-            {
-                return _buffer;
-            }
-
-            size_t size() const override
-            {
-                return _size;
-            }
-
-            size_t maxSize() const override
-            {
-                return _maxSize;
-            }
-
-            uint8_t operator[](size_t index) const override
-            {
-                if (index < _size)
-                    return _buffer[index];
-
-                return 0;
-            }
-
-            bool done() const
-            {
-                return _done;
-            }
-
-            void reset()
-            {
-                _type             = packetType_t::invalid;
-                _size             = 0;
-                _sizeSet          = false;
-                _count            = 0;
-                _boundaryFound    = false;
-                _escapeProcessing = false;
-                _done             = false;
-            }
-
-            private:
-            packetType_t _type             = packetType_t::invalid;
-            uint8_t*     _buffer           = nullptr;
-            size_t       _size             = 0;
-            bool         _sizeSet          = 0;
-            size_t       _count            = 0;
-            bool         _boundaryFound    = false;
-            bool         _escapeProcessing = false;
-            bool         _done             = false;
-            const size_t _maxSize;
-
-            friend class USBPacketUpdater;
-        };
-
-        class USBWritePacket : public USBPacketBase
+        size_t maxSize() const override
         {
-            public:
-            USBWritePacket(packetType_t type, uint8_t* data, size_t size, size_t maxSize)
-                : _type(type)
-                , _buffer(data)
-                , _size(size)
-                , _maxSize(maxSize)
-            {}
+            return MAX_SIZE;
+        }
 
-            packetType_t type() const override
+        uint8_t operator[](size_t index) const override
+        {
+            if (index < _size)
             {
-                return _type;
+                return _buffer[index];
             }
 
-            uint8_t* buffer() const override
+            return 0;
+        }
+
+        bool done() const
+        {
+            return _done;
+        }
+
+        void reset()
+        {
+            _type             = packetType_t::INVALID;
+            _size             = 0;
+            _sizeSet          = false;
+            _count            = 0;
+            _boundaryFound    = false;
+            _escapeProcessing = false;
+            _done             = false;
+        }
+
+        private:
+        packetType_t _type             = packetType_t::INVALID;
+        uint8_t*     _buffer           = nullptr;
+        size_t       _size             = 0;
+        bool         _sizeSet          = 0;
+        size_t       _count            = 0;
+        bool         _boundaryFound    = false;
+        bool         _escapeProcessing = false;
+        bool         _done             = false;
+        const size_t MAX_SIZE;
+
+        friend class USBPacketUpdater;
+    };
+
+    class USBWritePacket : public USBPacketBase
+    {
+        public:
+        USBWritePacket(packetType_t type, uint8_t* data, size_t size, size_t maxSize)
+            : _type(type)
+            , _buffer(data)
+            , SIZE(size)
+            , MAX_SIZE(maxSize)
+        {}
+
+        packetType_t type() const override
+        {
+            return _type;
+        }
+
+        uint8_t* buffer() const override
+        {
+            return _buffer;
+        }
+
+        size_t size() const override
+        {
+            return SIZE;
+        }
+
+        size_t maxSize() const override
+        {
+            return MAX_SIZE;
+        }
+
+        uint8_t operator[](size_t index) const override
+        {
+            if (index < SIZE)
             {
-                return _buffer;
+                return _buffer[index];
             }
 
-            size_t size() const override
-            {
-                return _size;
-            }
+            return 0;
+        }
 
-            size_t maxSize() const override
-            {
-                return _maxSize;
-            }
+        private:
+        packetType_t _type   = packetType_t::MIDI;
+        uint8_t*     _buffer = nullptr;
+        const size_t SIZE;
+        const size_t MAX_SIZE;
+    };
 
-            uint8_t operator[](size_t index) const override
-            {
-                if (index < _size)
-                    return _buffer[index];
+    /// Used to read data using custom OpenDeck format from UART interface.
+    /// param [in]: channel         UART channel on MCU.
+    /// param [in]: packet          Reference to structure in which read data is being stored.
+    /// returns: True if data is available, false otherwise.
+    bool read(uint8_t channel, USBReadPacket& packet);
 
-                return 0;
-            }
-
-            private:
-            packetType_t _type   = packetType_t::midi;
-            uint8_t*     _buffer = nullptr;
-            const size_t _size;
-            const size_t _maxSize;
-        };
-
-        /// Used to read data using custom OpenDeck format from UART interface.
-        /// param [in]: channel         UART channel on MCU.
-        /// param [in]: packet          Reference to structure in which read data is being stored.
-        /// returns: True if data is available, false otherwise.
-        bool read(uint8_t channel, USBReadPacket& packet);
-
-        /// Used to write data using custom OpenDeck format to UART interface.
-        /// param [in]: channel         UART channel on MCU.
-        /// param [in]: packet          Reference to structure in which data to write is stored.
-        /// returns: True on success, false otherwise.
-        bool write(uint8_t channel, USBWritePacket& packet);
-    }    // namespace USBOverSerial
-}    // namespace Board
+    /// Used to write data using custom OpenDeck format to UART interface.
+    /// param [in]: channel         UART channel on MCU.
+    /// param [in]: packet          Reference to structure in which data to write is stored.
+    /// returns: True on success, false otherwise.
+    bool write(uint8_t channel, USBWritePacket& packet);
+}    // namespace Board::USBOverSerial

@@ -22,31 +22,25 @@ limitations under the License.
 
 #ifdef NUMBER_OF_MUX
 
-namespace Board
+namespace Board::detail::io
 {
-    namespace detail
+    void dischargeMux()
     {
-        namespace io
+        // discharge the voltage present on common mux pins to avoid channel crosstalk
+        for (int i = 0; i < MAX_ADC_CHANNELS; i++)
         {
-            void dischargeMux()
-            {
-                // discharge the voltage present on common mux pins to avoid channel crosstalk
-                for (int i = 0; i < MAX_ADC_CHANNELS; i++)
-                {
-                    core::io::mcuPin_t pin = Board::detail::map::adcPin(i);
+            core::io::mcuPin_t pin = Board::detail::map::adcPin(i);
 
-                    CORE_IO_INIT(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::output);
-                    CORE_IO_SET_LOW(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
-                }
-            }
+            CORE_IO_INIT(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::OUTPUT);
+            CORE_IO_SET_LOW(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
+        }
+    }
 
-            void restoreMux(uint8_t muxIndex)
-            {
-                core::io::mcuPin_t pin = detail::map::adcPin(muxIndex);
-                CORE_IO_INIT(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::input);
-            }
-        }    // namespace io
-    }        // namespace detail
-}    // namespace Board
+    void restoreMux(uint8_t muxIndex)
+    {
+        core::io::mcuPin_t pin = detail::map::adcPin(muxIndex);
+        CORE_IO_INIT(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::INPUT);
+    }
+}    // namespace Board::detail::io
 
 #endif

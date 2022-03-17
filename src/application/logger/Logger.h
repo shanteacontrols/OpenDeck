@@ -25,19 +25,19 @@ class Logger
     public:
     enum class logLevel_t : uint8_t
     {
-        info,
-        warning,
-        error,
+        INFO,
+        WARNING,
+        ERROR,
         AMOUNT
     };
 
     enum class lineEnding_t : uint8_t
     {
-        none,
-        lf,      /// Line feed
-        cr,      /// Carriage return
-        lfcr,    /// Line feed + carriage return
-        crlf,    /// Carriage return + line feed
+        NONE,
+        LF,      /// Line feed
+        CR,      /// Carriage return
+        LFCR,    /// Line feed + carriage return
+        CRLF,    /// Carriage return + line feed
         AMOUNT
     };
 
@@ -49,7 +49,7 @@ class Logger
 
     Logger(StreamWriter& writer, lineEnding_t lineEnding)
         : _writer(writer)
-        , _lineEnding(lineEnding)
+        , LINE_ENDING(lineEnding)
     {}
 
     bool write(logLevel_t level, const char* message, ...);
@@ -57,7 +57,7 @@ class Logger
     private:
     static constexpr size_t LOG_BUFFER_SIZE = 512;
     StreamWriter&           _writer;
-    const lineEnding_t      _lineEnding;
+    const lineEnding_t      LINE_ENDING;
     char                    _logBuffer[LOG_BUFFER_SIZE];
 
     const char* _logLevelString[static_cast<uint8_t>(logLevel_t::AMOUNT)] = {
@@ -77,9 +77,9 @@ class Logger
 
 #ifdef USE_LOGGER
 extern Logger logger;
-#define LOG_INFO(...)  logger.write(Logger::logLevel_t::info, __VA_ARGS__)
-#define LOG_WARN(...)  logger.write(Logger::logLevel_t::warning, __VA_ARGS__)
-#define LOG_ERROR(...) logger.write(Logger::logLevel_t::error, __VA_ARGS__)
+#define LOG_INFO(...)  logger.write(Logger::logLevel_t::INFO, __VA_ARGS__)
+#define LOG_WARN(...)  logger.write(Logger::logLevel_t::WARNING, __VA_ARGS__)
+#define LOG_ERROR(...) logger.write(Logger::logLevel_t::ERROR, __VA_ARGS__)
 #else
 #define LOG_INFO(...)
 #define LOG_WARN(...)

@@ -21,75 +21,74 @@ limitations under the License.
 #include <inttypes.h>
 #include <stddef.h>
 
-namespace IO
+namespace IO::Common
 {
-    namespace Common
+    enum class incDecType_t : uint8_t
     {
-        enum class incDecType_t : uint8_t
-        {
-            toEdge,
-            reset,
-        };
+        TO_EDGE,
+        RESET,
+    };
 
-        enum class initAction_t : uint8_t
-        {
-            asIs,
-            init,
-            deInit
-        };
+    enum class initAction_t : uint8_t
+    {
+        AS_IS,
+        INIT,
+        DE_INIT
+    };
 
-        enum class interface_t : uint8_t
-        {
-            uart,
-            cdc
-        };
+    enum class interface_t : uint8_t
+    {
+        UART,
+        CDC
+    };
 
-        template<size_t... T>
-        class BaseCollection
-        {
-            public:
-            BaseCollection() = delete;
+    template<size_t... T>
+    class BaseCollection
+    {
+        public:
+        BaseCollection() = delete;
 
-            static constexpr size_t groups()
+        static constexpr size_t groups()
+        {
+            return sizeof...(T);
+        }
+
+        static constexpr size_t size()
+        {
+            return (T + ...);
+        }
+
+        static constexpr size_t size(size_t group)
+        {
+            constexpr size_t VALUES[] = { T... };
+            return VALUES[group];
+        }
+
+        static constexpr size_t startIndex(size_t group)
+        {
+            size_t index = 0;
+
+            for (size_t i = 0; i < group; i++)
             {
-                return sizeof...(T);
+                index += size(i);
             }
 
-            static constexpr size_t size()
-            {
-                return (T + ...);
-            }
+            return index;
+        }
+    };
 
-            static constexpr size_t size(size_t group)
-            {
-                constexpr size_t values[] = { T... };
-                return values[group];
-            }
+    class Allocatable
+    {
+        public:
+        virtual bool allocated(interface_t interface) = 0;
+    };
 
-            static constexpr size_t startIndex(size_t group)
-            {
-                size_t index = 0;
-
-                for (size_t i = 0; i < group; i++)
-                    index += size(i);
-
-                return index;
-            }
-        };
-
-        class Allocatable
-        {
-            public:
-            virtual bool allocated(interface_t interface) = 0;
-        };
-
-        bool    pcIncrement(uint8_t channel);
-        bool    pcDecrement(uint8_t channel);
-        uint8_t program(uint8_t channel);
-        bool    setProgram(uint8_t channel, uint8_t program);
-        uint8_t valueInc(size_t index, uint8_t step, incDecType_t type);
-        uint8_t valueIncDec(size_t index, uint8_t step);
-        uint8_t currentValue(size_t index);
-        void    resetValue(size_t index);
-    }    // namespace Common
-}    // namespace IO
+    bool    pcIncrement(uint8_t channel);
+    bool    pcDecrement(uint8_t channel);
+    uint8_t program(uint8_t channel);
+    bool    setProgram(uint8_t channel, uint8_t program);
+    uint8_t valueInc(size_t index, uint8_t step, incDecType_t type);
+    uint8_t valueIncDec(size_t index, uint8_t step);
+    uint8_t currentValue(size_t index);
+    void    resetValue(size_t index);
+}    // namespace IO::Common

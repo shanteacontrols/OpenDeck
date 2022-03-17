@@ -39,14 +39,14 @@ class SysExParser
     /// however, SysEx/System Common messages have different values so they're grouped in special enumeration.
     enum class usbMIDIsystemCin_t : uint8_t
     {
-        sysCommon1byteCin = 0x50,
-        sysCommon2byteCin = 0x20,
-        sysCommon3byteCin = 0x30,
-        singleByte        = 0xF0,
-        sysExStartCin     = 0x40,
-        sysExStop1byteCin = sysCommon1byteCin,
-        sysExStop2byteCin = 0x60,
-        sysExStop3byteCin = 0x70
+        SYS_COMMON1BYTE_CIN  = 0x50,
+        SYS_COMMON2BYTE_CIN  = 0x20,
+        SYS_COMMON3BYTE_CIN  = 0x30,
+        SINGLE_BYTE          = 0xF0,
+        SYS_EX_START_CIN     = 0x40,
+        SYS_EX_STOP1BYTE_CIN = SYS_COMMON1BYTE_CIN,
+        SYS_EX_STOP2BYTE_CIN = 0x60,
+        SYS_EX_STOP3BYTE_CIN = 0x70
     };
 
     bool parse(MIDI::usbMIDIPacket_t& packet);

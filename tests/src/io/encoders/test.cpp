@@ -20,14 +20,15 @@ namespace
             // set known state
             for (int i = 0; i < Encoders::Collection::size(); i++)
             {
-                ASSERT_TRUE(_encoders._database.update(Database::Config::Section::encoder_t::enable, i, 1));
-                ASSERT_TRUE(_encoders._database.update(Database::Config::Section::encoder_t::invert, i, 0));
-                ASSERT_TRUE(_encoders._database.update(Database::Config::Section::encoder_t::mode, i, Encoders::type_t::controlChange7Fh01h));
-                ASSERT_TRUE(_encoders._database.update(Database::Config::Section::encoder_t::pulsesPerStep, i, 1));
+                ASSERT_TRUE(_encoders._database.update(Database::Config::Section::encoder_t::ENABLE, i, 1));
+                ASSERT_TRUE(_encoders._database.update(Database::Config::Section::encoder_t::INVERT, i, 0));
+                ASSERT_TRUE(_encoders._database.update(Database::Config::Section::encoder_t::MODE, i, Encoders::type_t::CONTROL_CHANGE_7FH01H));
+                ASSERT_TRUE(_encoders._database.update(Database::Config::Section::encoder_t::PULSES_PER_STEP, i, 1));
             }
 
-            MIDIDispatcher.listen(Messaging::eventType_t::encoder,
-                                  [this](const Messaging::event_t& dispatchMessage) {
+            MIDIDispatcher.listen(Messaging::eventType_t::ENCODER,
+                                  [this](const Messaging::event_t& dispatchMessage)
+                                  {
                                       _listener.messageListener(dispatchMessage);
                                   });
         }
@@ -57,11 +58,12 @@ namespace
 
 TEST_F(EncodersTest, StateDecoding)
 {
-    auto verifyValue = [&](MIDI::messageType_t message, uint16_t value) {
+    auto verifyValue = [&](MIDI::messageType_t message, uint16_t value)
+    {
         for (int i = 0; i < Encoders::Collection::size(); i++)
         {
             ASSERT_EQ(message, _listener._event.at(i).message);
-            ASSERT_EQ(value, _listener._event.at(i).midiValue);
+            ASSERT_EQ(value, _listener._event.at(i).value);
         }
     };
 
@@ -74,60 +76,60 @@ TEST_F(EncodersTest, StateDecoding)
 
     stateChangeRegister(0b10);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 1);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 1);
 
     stateChangeRegister(0b11);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 1);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 1);
 
     stateChangeRegister(0b01);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 1);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 1);
 
     stateChangeRegister(0b10);
     ASSERT_EQ(0, _listener._event.size());
 
     stateChangeRegister(0b11);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 1);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 1);
 
     stateChangeRegister(0b01);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 1);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 1);
 
     stateChangeRegister(0b00);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 1);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 1);
 
     stateChangeRegister(0b11);
     ASSERT_EQ(0, _listener._event.size());
 
     stateChangeRegister(0b01);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 1);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 1);
 
     stateChangeRegister(0b00);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 1);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 1);
 
     stateChangeRegister(0b10);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 1);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 1);
 
     stateChangeRegister(0b01);
     ASSERT_EQ(0, _listener._event.size());
 
     stateChangeRegister(0b00);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 1);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 1);
 
     stateChangeRegister(0b10);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 1);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 1);
 
     stateChangeRegister(0b11);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 1);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 1);
 
     // counter-clockwise: 00, 01, 11, 10
 
@@ -136,65 +138,65 @@ TEST_F(EncodersTest, StateDecoding)
 
     stateChangeRegister(0b01);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 127);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 127);
 
     stateChangeRegister(0b11);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 127);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 127);
 
     stateChangeRegister(0b10);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 127);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 127);
 
     stateChangeRegister(0b01);
     ASSERT_EQ(0, _listener._event.size());
 
     stateChangeRegister(0b11);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 127);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 127);
 
     stateChangeRegister(0b10);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 127);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 127);
 
     stateChangeRegister(0b00);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 127);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 127);
 
     stateChangeRegister(0b11);
     ASSERT_EQ(0, _listener._event.size());
 
     stateChangeRegister(0b10);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 127);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 127);
 
     stateChangeRegister(0b00);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 127);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 127);
 
     stateChangeRegister(0b01);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 127);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 127);
 
     stateChangeRegister(0b10);
     ASSERT_EQ(0, _listener._event.size());
 
     stateChangeRegister(0b00);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 127);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 127);
 
     stateChangeRegister(0b01);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 127);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 127);
 
     stateChangeRegister(0b11);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 127);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 127);
 
     // this time configure 4 pulses per step
     for (int i = 0; i < Encoders::Collection::size(); i++)
     {
-        ASSERT_TRUE(_encoders._database.update(Database::Config::Section::encoder_t::pulsesPerStep, i, 4));
+        ASSERT_TRUE(_encoders._database.update(Database::Config::Section::encoder_t::PULSES_PER_STEP, i, 4));
         _encoders._instance.reset(i);
     }
 
@@ -220,7 +222,7 @@ TEST_F(EncodersTest, StateDecoding)
     // pulse should be registered
     stateChangeRegister(0b00);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 1);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 1);
 
     // 1
     stateChangeRegister(0b10);
@@ -237,7 +239,7 @@ TEST_F(EncodersTest, StateDecoding)
     // 4
     stateChangeRegister(0b00);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 1);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 1);
 
     // now move to opposite direction
     // don't start from 0b00 state again
@@ -254,7 +256,7 @@ TEST_F(EncodersTest, StateDecoding)
 
     stateChangeRegister(0b00);
     ASSERT_EQ(Encoders::Collection::size(), _listener._event.size());
-    verifyValue(MIDI::messageType_t::controlChange, 127);
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 127);
 }
 
 #endif

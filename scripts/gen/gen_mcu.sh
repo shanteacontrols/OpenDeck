@@ -103,7 +103,7 @@ then
 
         {
             printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline Board::detail::flash::flashPage_t _pageDescriptor[TOTAL_FLASH_PAGES] = {"
+            printf "%s\n" "constexpr inline Board::detail::flash::flashPage_t PAGE_DESCRIPTOR[TOTAL_FLASH_PAGES] = {"
         } >> "$out_header"
 
         for ((i=0; i<number_of_flash_pages; i++))

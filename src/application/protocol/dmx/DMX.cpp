@@ -33,38 +33,44 @@ Protocol::DMX::DMX(HWA& hwa, Database::Instance& database)
     , _hwa(hwa)
     , _database(database)
 {
-    MIDIDispatcher.listen(Messaging::eventType_t::preset,
-                          [this](const Messaging::event_t& event) {
+    MIDIDispatcher.listen(Messaging::eventType_t::PRESET,
+                          [this](const Messaging::event_t& event)
+                          {
                               if (!init())
                               {
                                   deInit();
                               }
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::dmxAnalog,
-                          [this](const Messaging::event_t& event) {
-                              updateChannelValue(event.midiChannel, event.midiValue);
+    MIDIDispatcher.listen(Messaging::eventType_t::DMX_ANALOG,
+                          [this](const Messaging::event_t& event)
+                          {
+                              updateChannelValue(event.channel, event.value);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::dmxButton,
-                          [this](const Messaging::event_t& event) {
-                              updateChannelValue(event.midiChannel, event.midiValue);
+    MIDIDispatcher.listen(Messaging::eventType_t::DMX_BUTTON,
+                          [this](const Messaging::event_t& event)
+                          {
+                              updateChannelValue(event.channel, event.value);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::dmxEncoder,
-                          [this](const Messaging::event_t& event) {
-                              updateChannelValue(event.midiChannel, event.midiValue);
+    MIDIDispatcher.listen(Messaging::eventType_t::DMX_ENCODER,
+                          [this](const Messaging::event_t& event)
+                          {
+                              updateChannelValue(event.channel, event.value);
                           });
 
     ConfigHandler.registerConfig(
-        System::Config::block_t::global,
+        System::Config::block_t::GLOBAL,
         // read
-        [this](uint8_t section, size_t index, uint16_t& value) {
+        [this](uint8_t section, size_t index, uint16_t& value)
+        {
             return sysConfigGet(static_cast<System::Config::Section::global_t>(section), index, value);
         },
 
         // write
-        [this](uint8_t section, size_t index, uint16_t value) {
+        [this](uint8_t section, size_t index, uint16_t value)
+        {
             return sysConfigSet(static_cast<System::Config::Section::global_t>(section), index, value);
         });
 }
@@ -90,7 +96,7 @@ bool Protocol::DMX::init()
                     "Shantea Controls",
                     BOARD_STRING });
 
-    if (_database.read(Database::Config::Section::global_t::dmxSettings, setting_t::enable))
+    if (_database.read(Database::Config::Section::global_t::DMX_SETTINGS, setting_t::ENABLE))
     {
         if (_enabled)
         {
@@ -129,7 +135,7 @@ bool Protocol::DMX::deInit()
 
 void Protocol::DMX::read()
 {
-    if (_database.read(Database::Config::Section::global_t::dmxSettings, setting_t::enable))
+    if (_database.read(Database::Config::Section::global_t::DMX_SETTINGS, setting_t::ENABLE))
     {
         ::DMXUSBWidget::read();
     }
@@ -138,35 +144,35 @@ void Protocol::DMX::read()
 std::optional<uint8_t> Protocol::DMX::sysConfigGet(System::Config::Section::global_t section, size_t index, uint16_t& value)
 {
     int32_t readValue = 0;
-    uint8_t result    = System::Config::status_t::errorRead;
+    uint8_t result    = System::Config::status_t::ERROR_READ;
 
     switch (section)
     {
-    case System::Config::Section::global_t::dmxSettings:
+    case System::Config::Section::global_t::DMX_SETTINGS:
     {
-        bool dmxEnabled = _database.read(Util::Conversion::sys2DBsection(section), setting_t::enable);
+        bool dmxEnabled = _database.read(Util::Conversion::sys2DBsection(section), setting_t::ENABLE);
 
         if (!dmxEnabled)
         {
-            if (_hwa.allocated(IO::Common::interface_t::uart))
+            if (_hwa.allocated(IO::Common::interface_t::UART))
             {
-                return System::Config::status_t::serialPeripheralAllocatedError;
+                return System::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
             }
 
-            if (_hwa.allocated(IO::Common::interface_t::cdc))
+            if (_hwa.allocated(IO::Common::interface_t::CDC))
             {
-                return System::Config::status_t::cdcAllocatedError;
+                return System::Config::status_t::CDC_ALLOCATED_ERROR;
             }
         }
 
-        result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ack : System::Config::status_t::errorRead;
+        result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_READ;
     }
     break;
 
-    case System::Config::Section::global_t::dmxChannel:
+    case System::Config::Section::global_t::DMX_CHANNEL:
     {
         readValue = channelValue(index);
-        result    = System::Config::status_t::ack;
+        result    = System::Config::status_t::ACK;
     }
     break;
 
@@ -180,37 +186,37 @@ std::optional<uint8_t> Protocol::DMX::sysConfigGet(System::Config::Section::glob
 
 std::optional<uint8_t> Protocol::DMX::sysConfigSet(System::Config::Section::global_t section, size_t index, uint16_t value)
 {
-    uint8_t result        = System::Config::status_t::errorWrite;
-    auto    dmxInitAction = Common::initAction_t::asIs;
+    uint8_t result        = System::Config::status_t::ERROR_WRITE;
+    auto    dmxInitAction = Common::initAction_t::AS_IS;
     bool    writeToDb     = true;
 
     switch (section)
     {
-    case System::Config::Section::global_t::dmxSettings:
+    case System::Config::Section::global_t::DMX_SETTINGS:
     {
-        bool dmxEnabled = _database.read(Util::Conversion::sys2DBsection(section), setting_t::enable);
+        bool dmxEnabled = _database.read(Util::Conversion::sys2DBsection(section), setting_t::ENABLE);
 
         if (!dmxEnabled)
         {
-            if (_hwa.allocated(IO::Common::interface_t::uart))
+            if (_hwa.allocated(IO::Common::interface_t::UART))
             {
-                return System::Config::status_t::serialPeripheralAllocatedError;
+                return System::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
             }
 
-            if (_hwa.allocated(IO::Common::interface_t::cdc))
+            if (_hwa.allocated(IO::Common::interface_t::CDC))
             {
-                return System::Config::status_t::cdcAllocatedError;
+                return System::Config::status_t::CDC_ALLOCATED_ERROR;
             }
         }
 
-        dmxInitAction = value ? Common::initAction_t::init : Common::initAction_t::deInit;
-        result        = System::Config::status_t::ack;
+        dmxInitAction = value ? Common::initAction_t::INIT : Common::initAction_t::DE_INIT;
+        result        = System::Config::status_t::ACK;
     }
     break;
 
-    case System::Config::Section::global_t::dmxChannel:
+    case System::Config::Section::global_t::DMX_CHANNEL:
     {
-        result    = updateChannelValue(index, value) ? System::Config::status_t::ack : System::Config::status_t::errorWrite;
+        result    = updateChannelValue(index, value) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_WRITE;
         writeToDb = false;
     }
     break;
@@ -219,19 +225,19 @@ std::optional<uint8_t> Protocol::DMX::sysConfigSet(System::Config::Section::glob
         return std::nullopt;
     }
 
-    if ((result == System::Config::status_t::ack) && writeToDb)
+    if ((result == System::Config::status_t::ACK) && writeToDb)
     {
-        result = _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ack : System::Config::status_t::errorWrite;
+        result = _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_WRITE;
 
         switch (dmxInitAction)
         {
-        case Common::initAction_t::init:
+        case Common::initAction_t::INIT:
         {
             init();
         }
         break;
 
-        case Common::initAction_t::deInit:
+        case Common::initAction_t::DE_INIT:
         {
             deInit();
         }

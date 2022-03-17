@@ -6,6 +6,7 @@ DEF_FILE_TARGET      := ../config/target/$(TARGET).yml
 DEF_FILE_TSCREEN     := ../config/touchscreen/$(TARGET).json
 TYPE                 := app
 SCRIPTS_DIR          := ../scripts
+CLANG_TIDY_OUT       := $(BUILD_DIR_BASE)/clang-tidy-fixes.yaml
 
 ifeq (,$(wildcard $(DEF_FILE_TARGET)))
     $(error Target doesn't exist)
@@ -42,6 +43,9 @@ include Sources.mk
 
 #when set to 1, format target will fail if there are any changes to the repository after formatting
 CF_FAIL_ON_DIFF := 0
+
+# when set to 1, lint target will fail if there are any changes to the repository after linting
+CL_FAIL_ON_DIFF := 0
 
 #passed to both c and c++ compiler
 CPPFLAGS := \
@@ -307,12 +311,22 @@ ifeq ($(CF_FAIL_ON_DIFF), 1)
 	git diff -s --exit-code
 endif
 
-tidy:
-	@run-clang-tidy -fix -format -style=file
+lint:
+	@$(SCRIPTS_DIR)/tidy.sh \
+	--output=$(CLANG_TIDY_OUT) \
+	--compiler=$(CC) \
+	--option-files-dir=..
+ifeq ($(CL_FAIL_ON_DIFF), 1)
+	@if [ -s $(CLANG_TIDY_OUT) ]; then \
+		echo Lint issues found:; \
+		cat $(CLANG_TIDY_OUT); \
+		false; \
+	fi
+endif
 
 clean:
 	@echo Cleaning up.
-	@rm -rf $(BUILD_DIR_BASE) $(GEN_DIR_BASE) $(GEN_DIR_TSCREEN_BASE)
+	@rm -rf $(BUILD_DIR_BASE) $(GEN_DIR_BASE) $(GEN_DIR_TSCREEN_BASE) compile_commands.json
 
 #debugging
 print-%:

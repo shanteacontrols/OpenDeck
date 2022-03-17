@@ -36,35 +36,38 @@ namespace IO
 
         enum class type_t : uint8_t
         {
-            momentary,    ///< Event on press and release.
-            latching,     ///< Event between presses only.
+            MOMENTARY,    ///< Event on press and release.
+            LATCHING,     ///< Event between presses only.
             AMOUNT        ///< Total number of button types.
         };
 
         enum class messageType_t : uint8_t
         {
-            note,
-            programChange,
-            controlChange,
-            controlChangeReset,
-            mmcStop,
-            mmcPlay,
-            mmcRecord,
-            mmcPause,
-            realTimeClock,
-            realTimeStart,
-            realTimeContinue,
-            realTimeStop,
-            realTimeActiveSensing,
-            realTimeSystemReset,
-            programChangeInc,
-            programChangeDec,
-            none,
-            presetOpenDeck,
-            multiValIncResetNote,
-            multiValIncDecNote,
-            multiValIncResetCC,
-            multiValIncDecCC,
+            NOTE,
+            PROGRAM_CHANGE,
+            CONTROL_CHANGE,
+            CONTROL_CHANGE_RESET,
+            MMC_STOP,
+            MMC_PLAY,
+            MMC_RECORD,
+            MMC_PAUSE,
+            REAL_TIME_CLOCK,
+            REAL_TIME_START,
+            REAL_TIME_CONTINUE,
+            REAL_TIME_STOP,
+            REAL_TIME_ACTIVE_SENSING,
+            REAL_TIME_SYSTEM_RESET,
+            PROGRAM_CHANGE_INC,
+            PROGRAM_CHANGE_DEC,
+            NONE,
+            PRESET_OPEN_DECK,
+            MULTI_VAL_INC_RESET_NOTE,
+            MULTI_VAL_INC_DEC_NOTE,
+            MULTI_VAL_INC_RESET_CC,
+            MULTI_VAL_INC_DEC_CC,
+            NOTE_OFF_ONLY,
+            CONTROL_CHANGE0_ONLY,
+            DMX,
             AMOUNT
         };
 

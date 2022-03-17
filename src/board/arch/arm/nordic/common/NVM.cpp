@@ -40,10 +40,10 @@ namespace
         {
             switch (page)
             {
-            case EmuEEPROM::page_t::pageFactory:
+            case EmuEEPROM::page_t::PAGE_FACTORY:
                 return FLASH_PAGE_ADDRESS(FLASH_PAGE_FACTORY);
 
-            case EmuEEPROM::page_t::page2:
+            case EmuEEPROM::page_t::PAGE_2:
                 return FLASH_PAGE_ADDRESS(FLASH_PAGE_EEPROM_2);
 
             default:
@@ -55,10 +55,10 @@ namespace
         {
             switch (page)
             {
-            case EmuEEPROM::page_t::pageFactory:
+            case EmuEEPROM::page_t::PAGE_FACTORY:
                 return false;
 
-            case EmuEEPROM::page_t::page2:
+            case EmuEEPROM::page_t::PAGE_2:
             {
                 for (size_t i = 0; i < FLASH_PAGE_EEPROM_2 - FLASH_PAGE_EEPROM_1; i++)
                 {
@@ -139,17 +139,17 @@ namespace Board::NVM
 
         switch (type)
         {
-        case parameterType_t::byte:
-        case parameterType_t::word:
+        case parameterType_t::BYTE:
+        case parameterType_t::WORD:
         {
             auto readStatus = _emuEEPROM.readCached(address, tempData);
             value           = tempData;
 
-            if (readStatus == EmuEEPROM::readStatus_t::ok)
+            if (readStatus == EmuEEPROM::readStatus_t::OK)
             {
                 value = tempData;
             }
-            else if (readStatus == EmuEEPROM::readStatus_t::noVar)
+            else if (readStatus == EmuEEPROM::readStatus_t::NO_VAR)
             {
                 // variable with this address doesn't exist yet - set value to 0
                 value = 0;
@@ -170,12 +170,12 @@ namespace Board::NVM
 
         switch (type)
         {
-        case parameterType_t::byte:
-        case parameterType_t::word:
+        case parameterType_t::BYTE:
+        case parameterType_t::WORD:
         {
             tempData = value;
 
-            if (_emuEEPROM.write(address, tempData) != EmuEEPROM::writeStatus_t::ok)
+            if (_emuEEPROM.write(address, tempData) != EmuEEPROM::writeStatus_t::OK)
             {
                 return false;
             }

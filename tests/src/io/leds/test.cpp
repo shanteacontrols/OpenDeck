@@ -34,265 +34,265 @@ namespace
 
         // these tables should match with the one at https://github.com/shanteacontrols/OpenDeck/wiki/LED-control
         std::vector<LEDs::brightness_t> expectedBrightnessValue = {
-            LEDs::brightness_t::bOff,
-            LEDs::brightness_t::bOff,
-            LEDs::brightness_t::bOff,
-            LEDs::brightness_t::bOff,
-            LEDs::brightness_t::bOff,
-            LEDs::brightness_t::bOff,
-            LEDs::brightness_t::bOff,
-            LEDs::brightness_t::bOff,
-            LEDs::brightness_t::bOff,
-            LEDs::brightness_t::bOff,
-            LEDs::brightness_t::bOff,
-            LEDs::brightness_t::bOff,
-            LEDs::brightness_t::bOff,
-            LEDs::brightness_t::bOff,
-            LEDs::brightness_t::bOff,
-            LEDs::brightness_t::bOff,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
-            LEDs::brightness_t::b25,
-            LEDs::brightness_t::b50,
-            LEDs::brightness_t::b75,
-            LEDs::brightness_t::b100,
+            LEDs::brightness_t::OFF,
+            LEDs::brightness_t::OFF,
+            LEDs::brightness_t::OFF,
+            LEDs::brightness_t::OFF,
+            LEDs::brightness_t::OFF,
+            LEDs::brightness_t::OFF,
+            LEDs::brightness_t::OFF,
+            LEDs::brightness_t::OFF,
+            LEDs::brightness_t::OFF,
+            LEDs::brightness_t::OFF,
+            LEDs::brightness_t::OFF,
+            LEDs::brightness_t::OFF,
+            LEDs::brightness_t::OFF,
+            LEDs::brightness_t::OFF,
+            LEDs::brightness_t::OFF,
+            LEDs::brightness_t::OFF,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
+            LEDs::brightness_t::B25,
+            LEDs::brightness_t::B50,
+            LEDs::brightness_t::B75,
+            LEDs::brightness_t::B100,
         };
 
         std::vector<LEDs::blinkSpeed_t> expectedBlinkSpeedValue = {
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s1000ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s500ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::s250ms,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
-            LEDs::blinkSpeed_t::noBlink,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S1000MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S500MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::S250MS,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
+            LEDs::blinkSpeed_t::NO_BLINK,
         };
 
         TestLEDs _leds;
@@ -306,12 +306,12 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
         return;
     }
 
-    // midiInNoteMultiVal
+    // MIDI_IN_NOTE_MULTI_VAL
     //----------------------------------
 
     for (int i = 0; i < LEDs::Collection::size(); i++)
     {
-        ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::controlType, i, LEDs::controlType_t::midiInNoteMultiVal));
+        ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::MIDI_IN_NOTE_MULTI_VAL));
     }
 
     for (uint8_t led = 0; led < LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
@@ -326,25 +326,25 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
             EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(value)))
                 .Times(1);
 
-            MIDIDispatcher.notify(Messaging::eventType_t::midiIn,
+            MIDIDispatcher.notify(Messaging::eventType_t::MIDI_IN,
                                   { 0,               // componentIndex - irrelevant
                                     MIDI_CHANNEL,    // midiChannel
                                     led,             // midiIndex
                                     value,           // midiValue
                                     0,               // sysEx
                                     0,               // sysExLength
-                                    MIDI::messageType_t::noteOn });
+                                    MIDI::messageType_t::NOTE_ON });
 
             ASSERT_EQ(expectedBlinkSpeedValue.at(value), _leds._instance.blinkSpeed(led));
         }
     }
 
-    // midiInCCMultiVal
+    // MIDI_IN_CC_MULTI_VAL
     //----------------------------------
 
     for (int i = 0; i < LEDs::Collection::size(); i++)
     {
-        ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::controlType, i, LEDs::controlType_t::midiInCCMultiVal));
+        ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::MIDI_IN_CC_MULTI_VAL));
     }
 
     for (uint8_t led = 0; led < LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
@@ -359,25 +359,25 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
             EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(value)))
                 .Times(1);
 
-            MIDIDispatcher.notify(Messaging::eventType_t::midiIn,
+            MIDIDispatcher.notify(Messaging::eventType_t::MIDI_IN,
                                   { 0,               // componentIndex - irrelevant
                                     MIDI_CHANNEL,    // midiChannel
                                     led,             // midiIndex
                                     value,           // midiValue
                                     0,               // sysEx
                                     0,               // sysExLength
-                                    MIDI::messageType_t::controlChange });
+                                    MIDI::messageType_t::CONTROL_CHANGE });
 
             ASSERT_EQ(expectedBlinkSpeedValue.at(value), _leds._instance.blinkSpeed(led));
         }
     }
 
-    // localNoteMultiVal
+    // LOCAL_NOTE_MULTI_VAL
     //----------------------------------
 
     for (int i = 0; i < LEDs::Collection::size(); i++)
     {
-        ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::controlType, i, LEDs::controlType_t::localNoteMultiVal));
+        ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::LOCAL_NOTE_MULTI_VAL));
     }
 
     for (uint8_t led = 0; led < LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
@@ -392,14 +392,14 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
             EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(value)))
                 .Times(1);
 
-            MIDIDispatcher.notify(Messaging::eventType_t::button,
+            MIDIDispatcher.notify(Messaging::eventType_t::BUTTON,
                                   { 0,               // componentIndex - irrelevant
                                     MIDI_CHANNEL,    // midiChannel
                                     led,             // midiIndex
                                     value,           // midiValue
                                     0,               // sysEx
                                     0,               // sysExLength
-                                    MIDI::messageType_t::noteOn });
+                                    MIDI::messageType_t::NOTE_ON });
 
             ASSERT_EQ(expectedBlinkSpeedValue.at(value), _leds._instance.blinkSpeed(led));
         }
@@ -418,14 +418,14 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
             EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(value)))
                 .Times(1);
 
-            MIDIDispatcher.notify(Messaging::eventType_t::analog,
+            MIDIDispatcher.notify(Messaging::eventType_t::ANALOG,
                                   { 0,               // componentIndex - irrelevant
                                     MIDI_CHANNEL,    // midiChannel
                                     led,             // midiIndex
                                     value,           // midiValue
                                     0,               // sysEx
                                     0,               // sysExLength
-                                    MIDI::messageType_t::noteOn });
+                                    MIDI::messageType_t::NOTE_ON });
 
             ASSERT_EQ(expectedBlinkSpeedValue.at(value), _leds._instance.blinkSpeed(led));
         }
@@ -436,7 +436,7 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
 
     for (int i = 0; i < LEDs::Collection::size(); i++)
     {
-        ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::controlType, i, LEDs::controlType_t::localCCMultiVal));
+        ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::LOCAL_CC_MULTI_VAL));
     }
 
     for (uint8_t led = 0; led < LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
@@ -451,14 +451,14 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
             EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(value)))
                 .Times(1);
 
-            MIDIDispatcher.notify(Messaging::eventType_t::button,
+            MIDIDispatcher.notify(Messaging::eventType_t::BUTTON,
                                   { 0,               // componentIndex - irrelevant
                                     MIDI_CHANNEL,    // midiChannel
                                     led,             // midiIndex
                                     value,           // midiValue
                                     0,               // sysEx
                                     0,               // sysExLength
-                                    MIDI::messageType_t::controlChange });
+                                    MIDI::messageType_t::CONTROL_CHANGE });
 
             ASSERT_EQ(expectedBlinkSpeedValue.at(value), _leds._instance.blinkSpeed(led));
         }
@@ -476,14 +476,14 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
             EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(value)))
                 .Times(1);
 
-            MIDIDispatcher.notify(Messaging::eventType_t::analog,
+            MIDIDispatcher.notify(Messaging::eventType_t::ANALOG,
                                   { 0,               // componentIndex - irrelevant
                                     MIDI_CHANNEL,    // midiChannel
                                     led,             // midiIndex
                                     value,           // midiValue
                                     0,               // sysEx
                                     0,               // sysExLength
-                                    MIDI::messageType_t::controlChange });
+                                    MIDI::messageType_t::CONTROL_CHANGE });
 
             ASSERT_EQ(expectedBlinkSpeedValue.at(value), _leds._instance.blinkSpeed(led));
         }
@@ -501,10 +501,10 @@ TEST_F(LEDsTest, SingleLEDstate)
 
     // By default, leds are configured to react on MIDI Note On.
     // Note 0 should turn the first LED on
-    EXPECT_CALL(_leds._hwa, setState(MIDI_ID, LEDs::brightness_t::b100))
+    EXPECT_CALL(_leds._hwa, setState(MIDI_ID, LEDs::brightness_t::B100))
         .Times(1);
 
-    MIDIDispatcher.notify(Messaging::eventType_t::midiIn,
+    MIDIDispatcher.notify(Messaging::eventType_t::MIDI_IN,
                           {
                               0,
                               MIDI_CHANNEL,
@@ -512,14 +512,14 @@ TEST_F(LEDsTest, SingleLEDstate)
                               127,
                               0,
                               0,
-                              MIDI::messageType_t::noteOn,
+                              MIDI::messageType_t::NOTE_ON,
                           });
 
-    EXPECT_CALL(_leds._hwa, setState(MIDI_ID, LEDs::brightness_t::bOff))
+    EXPECT_CALL(_leds._hwa, setState(MIDI_ID, LEDs::brightness_t::OFF))
         .Times(1);
 
     // now turn the LED off
-    MIDIDispatcher.notify(Messaging::eventType_t::midiIn,
+    MIDIDispatcher.notify(Messaging::eventType_t::MIDI_IN,
                           {
                               0,
                               MIDI_CHANNEL,
@@ -527,7 +527,7 @@ TEST_F(LEDsTest, SingleLEDstate)
                               0,
                               0,
                               0,
-                              MIDI::messageType_t::noteOn,
+                              MIDI::messageType_t::NOTE_ON,
                           });
 
     if (LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS) < 3)
@@ -536,20 +536,20 @@ TEST_F(LEDsTest, SingleLEDstate)
     }
 
     // configure RGB LED 0
-    ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::rgbEnable, 0, 1));
+    ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::RGB_ENABLE, 0, 1));
 
     // now turn it on - expect three LEDs to be on
 
-    EXPECT_CALL(_leds._hwa, setState(_leds._hwa.rgbSignalIndex(0, LEDs::rgbIndex_t::r), LEDs::brightness_t::b100))
+    EXPECT_CALL(_leds._hwa, setState(_leds._hwa.rgbSignalIndex(0, LEDs::rgbIndex_t::R), LEDs::brightness_t::B100))
         .Times(1);
 
-    EXPECT_CALL(_leds._hwa, setState(_leds._hwa.rgbSignalIndex(0, LEDs::rgbIndex_t::g), LEDs::brightness_t::b100))
+    EXPECT_CALL(_leds._hwa, setState(_leds._hwa.rgbSignalIndex(0, LEDs::rgbIndex_t::G), LEDs::brightness_t::B100))
         .Times(1);
 
-    EXPECT_CALL(_leds._hwa, setState(_leds._hwa.rgbSignalIndex(0, LEDs::rgbIndex_t::b), LEDs::brightness_t::b100))
+    EXPECT_CALL(_leds._hwa, setState(_leds._hwa.rgbSignalIndex(0, LEDs::rgbIndex_t::B), LEDs::brightness_t::B100))
         .Times(1);
 
-    MIDIDispatcher.notify(Messaging::eventType_t::midiIn,
+    MIDIDispatcher.notify(Messaging::eventType_t::MIDI_IN,
                           {
                               0,
                               MIDI_CHANNEL,
@@ -557,7 +557,7 @@ TEST_F(LEDsTest, SingleLEDstate)
                               127,
                               0,
                               0,
-                              MIDI::messageType_t::noteOn,
+                              MIDI::messageType_t::NOTE_ON,
                           });
 }
 

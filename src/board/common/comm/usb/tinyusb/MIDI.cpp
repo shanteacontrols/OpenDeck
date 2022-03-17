@@ -20,34 +20,31 @@ limitations under the License.
 #include "tusb.h"
 #include <comm/usb/TinyUSB.h>
 
-namespace Board
+namespace Board::USB
 {
-    namespace USB
+    bool readMIDI(midiPacket_t& packet)
     {
-        bool readMIDI(midiPacket_t& packet)
+        tud_task();
+
+        if (!tud_midi_available())
         {
-            tud_task();
-
-            if (!tud_midi_available())
-            {
-                return false;
-            }
-
-            tud_midi_packet_read(&packet[0]);
-
-            return true;
+            return false;
         }
 
-        bool writeMIDI(midiPacket_t& packet)
+        tud_midi_packet_read(&packet[0]);
+
+        return true;
+    }
+
+    bool writeMIDI(midiPacket_t& packet)
+    {
+        if (!tud_midi_packet_write(&packet[0]))
         {
-            if (!tud_midi_packet_write(&packet[0]))
-            {
-                return false;
-            }
-
-            tud_task();
-
-            return true;
+            return false;
         }
-    }    // namespace USB
-}    // namespace Board
+
+        tud_task();
+
+        return true;
+    }
+}    // namespace Board::USB

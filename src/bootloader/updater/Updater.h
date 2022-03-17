@@ -36,9 +36,9 @@ class Updater
 
     Updater(BTLDRWriter& writer, const uint64_t startCommand, const uint32_t endCommand, const uint32_t uid)
         : _writer(writer)
-        , _startCommand(startCommand)
-        , _endCommand(endCommand)
-        , _uid(uid)
+        , START_COMMAND(startCommand)
+        , END_COMMAND(endCommand)
+        , UID(uid)
     {}
 
     void feed(uint8_t data);
@@ -47,18 +47,18 @@ class Updater
     private:
     enum class receiveStage_t : uint8_t
     {
-        start,
-        fwMetadata,
-        fwChunk,
-        end,
+        START,
+        FW_METADATA,
+        FW_CHUNK,
+        END,
         AMOUNT
     };
 
     enum class processStatus_t : uint8_t
     {
-        complete,
-        incomplete,
-        invalid
+        COMPLETE,
+        INCOMPLETE,
+        INVALID
     };
 
     using processHandler_t = processStatus_t (Updater::*)(uint8_t);
@@ -79,11 +79,11 @@ class Updater
     uint32_t       _fwSize              = 0;
     uint32_t       _receivedUID         = 0;
     uint8_t        _startBytesReceived  = 0;
-    const uint64_t _startCommand;
-    const uint32_t _endCommand;
-    const uint32_t _uid;
+    const uint64_t START_COMMAND;
+    const uint32_t END_COMMAND;
+    const uint32_t UID;
 
-    processHandler_t processHandler[static_cast<uint8_t>(receiveStage_t::AMOUNT)] = {
+    processHandler_t _processHandler[static_cast<uint8_t>(receiveStage_t::AMOUNT)] = {
         &Updater::processStart,
         &Updater::processFwMetadata,
         &Updater::processFwChunk,

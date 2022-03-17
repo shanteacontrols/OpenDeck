@@ -34,8 +34,8 @@ namespace Util
 
         static Configurable& instance()
         {
-            static Configurable _instance;
-            return _instance;
+            static Configurable instance;
+            return instance;
         }
 
         void    registerConfig(System::Config::block_t block, getHandler_t&& getHandler, setHandler_t&& setHandler);
@@ -47,13 +47,13 @@ namespace Util
 
         struct getHandlerInternal_t
         {
-            System::Config::block_t block   = System::Config::block_t::global;
+            System::Config::block_t block   = System::Config::block_t::GLOBAL;
             getHandler_t            handler = nullptr;
         };
 
         struct setHandlerInternal_t
         {
-            System::Config::block_t block   = System::Config::block_t::global;
+            System::Config::block_t block   = System::Config::block_t::GLOBAL;
             setHandler_t            handler = nullptr;
         };
 

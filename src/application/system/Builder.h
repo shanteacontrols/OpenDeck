@@ -95,15 +95,15 @@ namespace System
             : _hwa(hwa)
             , _components(*this)
         {
-            _io.at(static_cast<size_t>(::IO::ioComponent_t::buttons))     = &_buttons;
-            _io.at(static_cast<size_t>(::IO::ioComponent_t::encoders))    = &_encoders;
-            _io.at(static_cast<size_t>(::IO::ioComponent_t::analog))      = &_analog;
-            _io.at(static_cast<size_t>(::IO::ioComponent_t::leds))        = &_leds;
-            _io.at(static_cast<size_t>(::IO::ioComponent_t::i2c))         = &_i2c;
-            _io.at(static_cast<size_t>(::IO::ioComponent_t::touchscreen)) = &_touchscreen;
+            _io.at(static_cast<size_t>(::IO::ioComponent_t::BUTTONS))     = &_buttons;
+            _io.at(static_cast<size_t>(::IO::ioComponent_t::ENCODERS))    = &_encoders;
+            _io.at(static_cast<size_t>(::IO::ioComponent_t::ANALOG))      = &_analog;
+            _io.at(static_cast<size_t>(::IO::ioComponent_t::LEDS))        = &_leds;
+            _io.at(static_cast<size_t>(::IO::ioComponent_t::I2C))         = &_i2c;
+            _io.at(static_cast<size_t>(::IO::ioComponent_t::TOUCHSCREEN)) = &_touchscreen;
 
-            _protocol.at(static_cast<size_t>(::Protocol::protocol_t::midi)) = &_midi;
-            _protocol.at(static_cast<size_t>(::Protocol::protocol_t::dmx))  = &_dmx;
+            _protocol.at(static_cast<size_t>(::Protocol::protocol_t::MIDI)) = &_midi;
+            _protocol.at(static_cast<size_t>(::Protocol::protocol_t::DMX))  = &_dmx;
         }
 
         System::Instance::Components& components()

@@ -31,41 +31,40 @@ extern "C" void tud_cdc_line_coding_cb(uint8_t itf, cdc_line_coding_t const* p_l
     Board::USB::onCDCsetLineEncoding(_baudRate);
 }
 
-namespace Board
+namespace Board::USB
 {
-    namespace USB
+    bool readCDC(uint8_t* buffer, size_t& size, const size_t maxSize)
     {
-        bool readCDC(uint8_t* buffer, size_t& size, const size_t maxSize)
+        tud_task();
+
+        if (!tud_cdc_available())
         {
-            tud_task();
-
-            if (!tud_cdc_available())
-                return false;
-
-            size = tud_cdc_read(buffer, maxSize);
-
-            return true;
+            return false;
         }
 
-        bool readCDC(uint8_t& value)
-        {
-            size_t size;
+        size = tud_cdc_read(buffer, maxSize);
 
-            return readCDC(&value, size, 1);
-        }
+        return true;
+    }
 
-        bool writeCDC(uint8_t* buffer, size_t size)
-        {
-            tud_cdc_write(buffer, size);
-            tud_cdc_write_flush();
-            tud_task();
+    bool readCDC(uint8_t& value)
+    {
+        size_t size;
 
-            return true;
-        }
+        return readCDC(&value, size, 1);
+    }
 
-        bool writeCDC(uint8_t value)
-        {
-            return writeCDC(&value, 1);
-        }
-    }    // namespace USB
-}    // namespace Board
+    bool writeCDC(uint8_t* buffer, size_t size)
+    {
+        tud_cdc_write(buffer, size);
+        tud_cdc_write_flush();
+        tud_task();
+
+        return true;
+    }
+
+    bool writeCDC(uint8_t value)
+    {
+        return writeCDC(&value, 1);
+    }
+}    // namespace Board::USB

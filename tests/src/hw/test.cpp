@@ -134,7 +134,8 @@ namespace
 
         void cyclePower(powerCycleType_t powerCycleType)
         {
-            auto cycle = [&]() {
+            auto cycle = [&]()
+            {
                 powerOff();
                 powerOn();
             };
@@ -152,7 +153,7 @@ namespace
                 do
                 {
                     cycle();
-                } while (!MIDIHelper::devicePresent(MIDIHelper::deviceCheckType_t::app));
+                } while (!MIDIHelper::devicePresent(MIDIHelper::deviceCheckType_t::APP));
             }
         }
 
@@ -165,7 +166,7 @@ namespace
                 LOG(ERROR) << "OpenDeck device not responding to handshake, attempting power cycle";
                 cyclePower(powerCycleType_t::standardWithDeviceCheck);
 
-                if (!MIDIHelper::devicePresent(MIDIHelper::deviceCheckType_t::app))
+                if (!MIDIHelper::devicePresent(MIDIHelper::deviceCheckType_t::APP))
                 {
                     LOG(ERROR) << "OpenDeck device not found after power cycle";
                     FAIL();
@@ -194,7 +195,7 @@ namespace
 
             LOG(INFO) << "Request sent. Waiting for the device to disconnect.";
 
-            while (MIDIHelper::devicePresent(MIDIHelper::deviceCheckType_t::app, true))
+            while (MIDIHelper::devicePresent(MIDIHelper::deviceCheckType_t::APP, true))
             {
                 if ((test::millis() - startTime) > (startup_delay_ms * 2))
                 {
@@ -207,7 +208,7 @@ namespace
 
             startTime = test::millis();
 
-            while (!MIDIHelper::devicePresent(MIDIHelper::deviceCheckType_t::app, true))
+            while (!MIDIHelper::devicePresent(MIDIHelper::deviceCheckType_t::APP, true))
             {
                 if ((test::millis() - startTime) > startup_delay_ms)
                 {
@@ -230,7 +231,8 @@ namespace
 
         void flash()
         {
-            auto flash = [this](std::string target, std::string args) {
+            auto flash = [this](std::string target, std::string args)
+            {
                 const size_t ALLOWED_REPEATS = 2;
                 int          result          = -1;
                 std::string  flashTarget     = " TARGET=" + target;
@@ -310,8 +312,8 @@ TEST_F(HWTest, DatabaseInitialValues)
     for (int preset = 0; preset < _database._instance.getSupportedPresets(); preset += (_database._instance.getSupportedPresets() - 1))
     {
         LOG(INFO) << "Checking initial values for preset " << preset + 1;
-        ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::global_t::presets, 0, preset));
-        ASSERT_EQ(preset, MIDIHelper::readFromDevice(System::Config::Section::global_t::presets, 0));
+        ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::global_t::PRESETS, 0, preset));
+        ASSERT_EQ(preset, MIDIHelper::readFromDevice(System::Config::Section::global_t::PRESETS, 0));
 
         // MIDI block
         //----------------------------------
@@ -319,13 +321,13 @@ TEST_F(HWTest, DatabaseInitialValues)
         // all values should be set to 0 except for the global channel which should be 1
         for (size_t i = 0; i < static_cast<uint8_t>(Protocol::MIDI::setting_t::AMOUNT); i += PARAM_SKIP)
         {
-            if (i == static_cast<int>(Protocol::MIDI::setting_t::globalChannel))
+            if (i == static_cast<int>(Protocol::MIDI::setting_t::GLOBAL_CHANNEL))
             {
-                ASSERT_EQ(1, MIDIHelper::readFromDevice(System::Config::Section::global_t::midiSettings, i));
+                ASSERT_EQ(1, MIDIHelper::readFromDevice(System::Config::Section::global_t::MIDI_SETTINGS, i));
             }
             else
             {
-                ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::global_t::midiSettings, i));
+                ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::global_t::MIDI_SETTINGS, i));
             }
         }
 
@@ -335,14 +337,14 @@ TEST_F(HWTest, DatabaseInitialValues)
         // all values should be set to 0 (default type)
         for (size_t i = 0; i < IO::Buttons::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::button_t::type, i));
+            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::button_t::TYPE, i));
         }
 
         // midi message section
         // all values should be set to 0 (default/note)
         for (size_t i = 0; i < IO::Buttons::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::button_t::midiMessage, i));
+            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::button_t::MESSAGE_TYPE, i));
         }
 
         // midi id section
@@ -351,7 +353,7 @@ TEST_F(HWTest, DatabaseInitialValues)
         {
             for (size_t i = 0; i < IO::Buttons::Collection::size(group); i += PARAM_SKIP)
             {
-                ASSERT_EQ(i, MIDIHelper::readFromDevice(System::Config::Section::button_t::midiID, i + IO::Buttons::Collection::startIndex(group)));
+                ASSERT_EQ(i, MIDIHelper::readFromDevice(System::Config::Section::button_t::MIDI_ID, i + IO::Buttons::Collection::startIndex(group)));
             }
         }
 
@@ -359,14 +361,14 @@ TEST_F(HWTest, DatabaseInitialValues)
         // all values should be set to 127
         for (size_t i = 0; i < IO::Buttons::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(127, MIDIHelper::readFromDevice(System::Config::Section::button_t::velocity, i));
+            ASSERT_EQ(127, MIDIHelper::readFromDevice(System::Config::Section::button_t::VALUE, i));
         }
 
         // midi channel section
         // all values should be set to 1
         for (size_t i = 0; i < IO::Buttons::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(1, MIDIHelper::readFromDevice(System::Config::Section::button_t::midiChannel, i));
+            ASSERT_EQ(1, MIDIHelper::readFromDevice(System::Config::Section::button_t::CHANNEL, i));
         }
 
         // encoders block
@@ -375,41 +377,41 @@ TEST_F(HWTest, DatabaseInitialValues)
         // all values should be set to 0
         for (size_t i = 0; i < IO::Encoders::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::encoder_t::enable, i));
+            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::encoder_t::ENABLE, i));
         }
 
         // invert section
         // all values should be set to 0
         for (size_t i = 0; i < IO::Encoders::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::encoder_t::invert, i));
+            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::encoder_t::INVERT, i));
         }
 
         // mode section
         // all values should be set to 0
         for (size_t i = 0; i < IO::Encoders::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::encoder_t::mode, i));
+            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::encoder_t::MODE, i));
         }
 
         // midi id section
         for (size_t i = 0; i < IO::Encoders::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(i, MIDIHelper::readFromDevice(System::Config::Section::encoder_t::midiID, i));
+            ASSERT_EQ(i, MIDIHelper::readFromDevice(System::Config::Section::encoder_t::MIDI_ID, i));
         }
 
         // midi channel section
         // all values should be set to 1
         for (size_t i = 0; i < IO::Encoders::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(1, MIDIHelper::readFromDevice(System::Config::Section::encoder_t::midiChannel, i));
+            ASSERT_EQ(1, MIDIHelper::readFromDevice(System::Config::Section::encoder_t::CHANNEL, i));
         }
 
         // pulses per step section
         // all values should be set to 4
         for (size_t i = 0; i < IO::Encoders::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(4, MIDIHelper::readFromDevice(System::Config::Section::encoder_t::pulsesPerStep, i));
+            ASSERT_EQ(4, MIDIHelper::readFromDevice(System::Config::Section::encoder_t::PULSES_PER_STEP, i));
         }
 
         // analog block
@@ -418,21 +420,21 @@ TEST_F(HWTest, DatabaseInitialValues)
         // all values should be set to 0
         for (size_t i = 0; i < IO::Analog::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::analog_t::enable, i));
+            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::analog_t::ENABLE, i));
         }
 
         // invert section
         // all values should be set to 0
         for (size_t i = 0; i < IO::Analog::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::analog_t::invert, i));
+            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::analog_t::INVERT, i));
         }
 
         // type section
         // all values should be set to 0
         for (size_t i = 0; i < IO::Analog::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::analog_t::invert, i));
+            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::analog_t::INVERT, i));
         }
 
         // midi id section
@@ -441,7 +443,7 @@ TEST_F(HWTest, DatabaseInitialValues)
         {
             for (size_t i = 0; i < IO::Analog::Collection::size(group); i += PARAM_SKIP)
             {
-                ASSERT_EQ(i, MIDIHelper::readFromDevice(System::Config::Section::analog_t::midiID, i + IO::Analog::Collection::startIndex(group)));
+                ASSERT_EQ(i, MIDIHelper::readFromDevice(System::Config::Section::analog_t::MIDI_ID, i + IO::Analog::Collection::startIndex(group)));
             }
         }
 
@@ -449,35 +451,35 @@ TEST_F(HWTest, DatabaseInitialValues)
         // all values should be set to 0
         for (size_t i = 0; i < IO::Analog::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::analog_t::lowerLimit, i));
+            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::analog_t::LOWER_LIMIT, i));
         }
 
         // upper limit section
         // all values should be set to 16383
         for (size_t i = 0; i < IO::Analog::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(16383, MIDIHelper::readFromDevice(System::Config::Section::analog_t::upperLimit, i));
+            ASSERT_EQ(16383, MIDIHelper::readFromDevice(System::Config::Section::analog_t::UPPER_LIMIT, i));
         }
 
         // midi channel section
         // all values should be set to 1
         for (size_t i = 0; i < IO::Analog::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(1, MIDIHelper::readFromDevice(System::Config::Section::analog_t::midiChannel, i));
+            ASSERT_EQ(1, MIDIHelper::readFromDevice(System::Config::Section::analog_t::CHANNEL, i));
         }
 
         // lower offset section
         // all values should be set to 0
         for (int i = 0; i < IO::Analog::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::analog_t::lowerOffset, i));
+            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::analog_t::LOWER_OFFSET, i));
         }
 
         // upper offset section
         // all values should be set to 0
         for (int i = 0; i < IO::Analog::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::analog_t::upperOffset, i));
+            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::analog_t::UPPER_OFFSET, i));
         }
 
         // LED block
@@ -486,7 +488,7 @@ TEST_F(HWTest, DatabaseInitialValues)
         // all values should be set to 0
         for (size_t i = 0; i < static_cast<uint8_t>(IO::LEDs::setting_t::AMOUNT); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::leds_t::global, i));
+            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::leds_t::GLOBAL, i));
         }
 
         // activation id section
@@ -495,7 +497,7 @@ TEST_F(HWTest, DatabaseInitialValues)
         {
             for (size_t i = 0; i < IO::LEDs::Collection::size(group); i += PARAM_SKIP)
             {
-                ASSERT_EQ(i, MIDIHelper::readFromDevice(System::Config::Section::leds_t::activationID, i + IO::LEDs::Collection::startIndex(group)));
+                ASSERT_EQ(i, MIDIHelper::readFromDevice(System::Config::Section::leds_t::ACTIVATION_ID, i + IO::LEDs::Collection::startIndex(group)));
             }
         }
 
@@ -503,41 +505,41 @@ TEST_F(HWTest, DatabaseInitialValues)
         // all values should be set to 0
         for (size_t i = 0; i < IO::LEDs::Collection::size() / 3 + (IO::Touchscreen::Collection::size() / 3); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::leds_t::rgbEnable, i));
+            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::leds_t::RGB_ENABLE, i));
         }
 
         // control type section
-        // all values should be set to midiInNoteMultiVal
+        // all values should be set to MIDI_IN_NOTE_MULTI_VAL
         for (size_t i = 0; i < IO::LEDs::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(static_cast<uint32_t>(IO::LEDs::controlType_t::midiInNoteMultiVal), MIDIHelper::readFromDevice(System::Config::Section::leds_t::controlType, i));
+            ASSERT_EQ(static_cast<uint32_t>(IO::LEDs::controlType_t::MIDI_IN_NOTE_MULTI_VAL), MIDIHelper::readFromDevice(System::Config::Section::leds_t::CONTROL_TYPE, i));
         }
 
         // activation value section
         // all values should be set to 127
         for (size_t i = 0; i < IO::LEDs::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(127, MIDIHelper::readFromDevice(System::Config::Section::leds_t::activationValue, i));
+            ASSERT_EQ(127, MIDIHelper::readFromDevice(System::Config::Section::leds_t::ACTIVATION_VALUE, i));
         }
 
         // midi channel section
         // all values should be set to 1
         for (size_t i = 0; i < IO::LEDs::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(1, MIDIHelper::readFromDevice(System::Config::Section::leds_t::midiChannel, i));
+            ASSERT_EQ(1, MIDIHelper::readFromDevice(System::Config::Section::leds_t::CHANNEL, i));
         }
 
 #ifdef I2C_SUPPORTED
         // i2c block
         //----------------------------------
         // display section
-        ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::i2c_t::display, static_cast<size_t>(IO::Display::setting_t::enable)));
-        ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::i2c_t::display, static_cast<size_t>(IO::Display::setting_t::deviceInfoMsg)));
-        ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::i2c_t::display, static_cast<size_t>(IO::Display::setting_t::controller)));
-        ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::i2c_t::display, static_cast<size_t>(IO::Display::setting_t::resolution)));
-        ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::i2c_t::display, static_cast<size_t>(IO::Display::setting_t::MIDIeventTime)));
-        ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::i2c_t::display, static_cast<size_t>(IO::Display::setting_t::MIDInotesAlternate)));
-        ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::i2c_t::display, static_cast<size_t>(IO::Display::setting_t::octaveNormalization)));
+        ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(IO::Display::setting_t::ENABLE)));
+        ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(IO::Display::setting_t::DEVICE_INFO_MSG)));
+        ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(IO::Display::setting_t::CONTROLLER)));
+        ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(IO::Display::setting_t::RESOLUTION)));
+        ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(IO::Display::setting_t::EVENT_TIME)));
+        ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(IO::Display::setting_t::MIDI_NOTES_ALTERNATE)));
+        ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(IO::Display::setting_t::OCTAVE_NORMALIZATION)));
 #endif
 
 #ifdef TOUCHSCREEN_SUPPORTED
@@ -547,63 +549,63 @@ TEST_F(HWTest, DatabaseInitialValues)
         // all values should be set to 0
         for (size_t i = 0; i < static_cast<uint8_t>(IO::Touchscreen::setting_t::AMOUNT); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::setting, i));
+            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::SETTING, i));
         }
 
         // x position section
         // all values should be set to 0
         for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::xPos, i));
+            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::X_POS, i));
         }
 
         // y position section
         // all values should be set to 0
         for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::yPos, i));
+            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::Y_POS, i));
         }
 
-        // width section
+        // WIDTH section
         // all values should be set to 0
         for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::width, i));
+            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::WIDTH, i));
         }
 
-        // height section
+        // HEIGHT section
         // all values should be set to 0
         for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::height, i));
+            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::HEIGHT, i));
         }
 
         // on screen section
         // all values should be set to 0
         for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::onScreen, i));
+            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::ON_SCREEN, i));
         }
 
         // off screen section
         // all values should be set to 0
         for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::offScreen, i));
+            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::OFF_SCREEN, i));
         }
 
         // page switch enabled section
         // all values should be set to 0
         for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::pageSwitchEnabled, i));
+            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::PAGE_SWITCH_ENABLED, i));
         }
 
         // page switch index section
         // all values should be set to 0
         for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::pageSwitchIndex, i));
+            ASSERT_EQ(0, MIDIHelper::readFromDevice(System::Config::Section::touchscreen_t::PAGE_SWITCH_INDEX, i));
         }
 #endif
     }
@@ -625,7 +627,7 @@ TEST_F(HWTest, FwUpdate)
     LOG(INFO) << "Waiting " << startup_delay_ms / 2 << " ms";
     test::sleepMs(startup_delay_ms / 2);
 
-    if (!MIDIHelper::devicePresent(MIDIHelper::deviceCheckType_t::boot))
+    if (!MIDIHelper::devicePresent(MIDIHelper::deviceCheckType_t::BOOT))
     {
         LOG(ERROR) << "OpenDeck DFU device not found after bootloader request";
         FAIL();
@@ -641,7 +643,7 @@ TEST_F(HWTest, FwUpdate)
     LOG(INFO) << "Firmware file sent successfully, waiting " << startup_delay_ms << " ms";
     test::sleepMs(startup_delay_ms);
 
-    if (!MIDIHelper::devicePresent(MIDIHelper::deviceCheckType_t::app))
+    if (!MIDIHelper::devicePresent(MIDIHelper::deviceCheckType_t::APP))
     {
         LOG(ERROR) << "OpenDeck device not found after firmware update, aborting";
         FAIL();
@@ -656,20 +658,20 @@ TEST_F(HWTest, BackupAndRestore)
 
     for (int preset = 0; preset < _database._instance.getSupportedPresets(); preset++)
     {
-        ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::global_t::presets, static_cast<int>(Database::Config::presetSetting_t::activePreset), preset));
-        ASSERT_EQ(preset, MIDIHelper::readFromDevice(System::Config::Section::global_t::presets, static_cast<int>(Database::Config::presetSetting_t::activePreset)));
+        ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::global_t::PRESETS, static_cast<int>(Database::Config::presetSetting_t::ACTIVE_PRESET), preset));
+        ASSERT_EQ(preset, MIDIHelper::readFromDevice(System::Config::Section::global_t::PRESETS, static_cast<int>(Database::Config::presetSetting_t::ACTIVE_PRESET)));
 
-        ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::analog_t::midiID, 4, 15 + preset));
+        ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::analog_t::MIDI_ID, 4, 15 + preset));
 #ifdef ENCODERS_SUPPORTED
-        ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::encoder_t::midiChannel, 1, 2 + preset));
+        ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::encoder_t::CHANNEL, 1, 2 + preset));
 #endif
-        ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::button_t::velocity, 0, 90 + preset));
+        ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::button_t::VALUE, 0, 90 + preset));
 
-        ASSERT_EQ(15 + preset, MIDIHelper::readFromDevice(System::Config::Section::analog_t::midiID, 4));
+        ASSERT_EQ(15 + preset, MIDIHelper::readFromDevice(System::Config::Section::analog_t::MIDI_ID, 4));
 #ifdef ENCODERS_SUPPORTED
-        ASSERT_EQ(2 + preset, MIDIHelper::readFromDevice(System::Config::Section::encoder_t::midiChannel, 1));
+        ASSERT_EQ(2 + preset, MIDIHelper::readFromDevice(System::Config::Section::encoder_t::CHANNEL, 1));
 #endif
-        ASSERT_EQ(90 + preset, MIDIHelper::readFromDevice(System::Config::Section::button_t::velocity, 0));
+        ASSERT_EQ(90 + preset, MIDIHelper::readFromDevice(System::Config::Section::button_t::VALUE, 0));
     }
 
     LOG(INFO) << "Sending backup request";
@@ -682,14 +684,14 @@ TEST_F(HWTest, BackupAndRestore)
 
     for (int preset = 0; preset < _database._instance.getSupportedPresets(); preset++)
     {
-        ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::global_t::presets, static_cast<int>(Database::Config::presetSetting_t::activePreset), preset));
-        ASSERT_EQ(preset, MIDIHelper::readFromDevice(System::Config::Section::global_t::presets, static_cast<int>(Database::Config::presetSetting_t::activePreset)));
+        ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::global_t::PRESETS, static_cast<int>(Database::Config::presetSetting_t::ACTIVE_PRESET), preset));
+        ASSERT_EQ(preset, MIDIHelper::readFromDevice(System::Config::Section::global_t::PRESETS, static_cast<int>(Database::Config::presetSetting_t::ACTIVE_PRESET)));
 
-        ASSERT_EQ(4, MIDIHelper::readFromDevice(System::Config::Section::analog_t::midiID, 4));
+        ASSERT_EQ(4, MIDIHelper::readFromDevice(System::Config::Section::analog_t::MIDI_ID, 4));
 #ifdef ENCODERS_SUPPORTED
-        ASSERT_EQ(1, MIDIHelper::readFromDevice(System::Config::Section::encoder_t::midiChannel, 1));
+        ASSERT_EQ(1, MIDIHelper::readFromDevice(System::Config::Section::encoder_t::CHANNEL, 1));
 #endif
-        ASSERT_EQ(127, MIDIHelper::readFromDevice(System::Config::Section::button_t::velocity, 0));
+        ASSERT_EQ(127, MIDIHelper::readFromDevice(System::Config::Section::button_t::VALUE, 0));
     }
 
     LOG(INFO) << "Restoring backup";
@@ -713,14 +715,14 @@ TEST_F(HWTest, BackupAndRestore)
 
     for (int preset = 0; preset < _database._instance.getSupportedPresets(); preset++)
     {
-        ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::global_t::presets, static_cast<int>(Database::Config::presetSetting_t::activePreset), preset));
-        ASSERT_EQ(preset, MIDIHelper::readFromDevice(System::Config::Section::global_t::presets, static_cast<int>(Database::Config::presetSetting_t::activePreset)));
+        ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::global_t::PRESETS, static_cast<int>(Database::Config::presetSetting_t::ACTIVE_PRESET), preset));
+        ASSERT_EQ(preset, MIDIHelper::readFromDevice(System::Config::Section::global_t::PRESETS, static_cast<int>(Database::Config::presetSetting_t::ACTIVE_PRESET)));
 
-        ASSERT_EQ(15 + preset, MIDIHelper::readFromDevice(System::Config::Section::analog_t::midiID, 4));
+        ASSERT_EQ(15 + preset, MIDIHelper::readFromDevice(System::Config::Section::analog_t::MIDI_ID, 4));
 #ifdef ENCODERS_SUPPORTED
-        ASSERT_EQ(2 + preset, MIDIHelper::readFromDevice(System::Config::Section::encoder_t::midiChannel, 1));
+        ASSERT_EQ(2 + preset, MIDIHelper::readFromDevice(System::Config::Section::encoder_t::CHANNEL, 1));
 #endif
-        ASSERT_EQ(90 + preset, MIDIHelper::readFromDevice(System::Config::Section::button_t::velocity, 0));
+        ASSERT_EQ(90 + preset, MIDIHelper::readFromDevice(System::Config::Section::button_t::VALUE, 0));
     }
 }
 
@@ -729,7 +731,8 @@ TEST_F(HWTest, USBMIDIData)
     std::string cmd;
     std::string response;
 
-    auto changePreset = [&]() {
+    auto changePreset = [&]()
+    {
         LOG(INFO) << "Switching preset";
         cmd = std::string("amidi -p ") + MIDIHelper::amidiPort(OPENDECK_MIDI_DEVICE_NAME) + " -S \"F0 00 53 43 00 00 01 00 00 02 00 00 00 00 F7\" -d -t 3 > " + temp_midi_data_location;
         ASSERT_EQ(0, test::wsystem(cmd, response));
@@ -749,19 +752,22 @@ TEST_F(HWTest, DINMIDIData)
     std::string cmd;
     std::string response;
 
-    auto changePreset = [&]() {
+    auto changePreset = [&]()
+    {
         LOG(INFO) << "Switching preset";
         cmd = std::string("amidi -p ") + MIDIHelper::amidiPort(OPENDECK_MIDI_DEVICE_NAME) + " -S \"F0 00 53 43 00 00 01 00 00 02 00 00 00 00 F7\" -d -t 3";
         ASSERT_EQ(0, test::wsystem(cmd, response));
     };
 
-    auto monitor = [&]() {
+    auto monitor = [&]()
+    {
         LOG(INFO) << "Monitoring DIN MIDI interface " << OUT_DIN_MIDI_PORT;
         cmd = std::string("amidi -p ") + MIDIHelper::amidiPort(OUT_DIN_MIDI_PORT) + " -d > " + temp_midi_data_location + " &";
         ASSERT_EQ(0, test::wsystem(cmd));
     };
 
-    auto stopMonitoring = []() {
+    auto stopMonitoring = []()
+    {
         test::wsystem("killall amidi > /dev/null");
     };
 
@@ -774,7 +780,7 @@ TEST_F(HWTest, DINMIDIData)
     ASSERT_EQ(0, receivedMessages);
 
     LOG(INFO) << "Enabling DIN MIDI";
-    ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::global_t::midiSettings, Protocol::MIDI::setting_t::dinEnabled, 1));
+    ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::global_t::MIDI_SETTINGS, Protocol::MIDI::setting_t::DIN_ENABLED, 1));
     monitor();
     changePreset();
     stopMonitoring();
@@ -785,7 +791,7 @@ TEST_F(HWTest, DINMIDIData)
 
     // enable DIN MIDI passthrough, send data to DIN MIDI in to device and expect the same message passed to output port
     LOG(INFO) << "Enabling DIN to DIN thru";
-    ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::global_t::midiSettings, Protocol::MIDI::setting_t::dinThruDin, 1));
+    ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::global_t::MIDI_SETTINGS, Protocol::MIDI::setting_t::DIN_THRU_DIN, 1));
 
     monitor();
     std::string msg = "90 00 7F";
@@ -811,7 +817,8 @@ TEST_F(HWTest, DMXTest)
     test::wsystem("olad -f --no-http");
     test::sleepMs(3000);
 
-    auto verify = [](bool state) {
+    auto verify = [](bool state)
+    {
         std::string    cmd           = "ola_dev_info | grep -q " + std::string(BOARD_STRING);
         const uint32_t waitTimeMs    = 1000;
         const uint32_t stopWaitAfter = 22000;    // ola searches after 20sec, 2 more just in case
@@ -860,7 +867,7 @@ TEST_F(HWTest, DMXTest)
     ASSERT_TRUE(verify(false));
 
     LOG(INFO) << "Enabling DMX";
-    ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::global_t::dmxSettings, static_cast<int>(Protocol::DMX::setting_t::enable), 1));
+    ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::global_t::DMX_SETTINGS, static_cast<int>(Protocol::DMX::setting_t::ENABLE), 1));
 
     LOG(INFO) << "Checking if the device is detectable by OLA";
     ASSERT_TRUE(verify(true));
@@ -875,13 +882,15 @@ TEST_F(HWTest, InputOutput)
 {
     std::string response;
 
-    auto monitor = [&]() {
+    auto monitor = [&]()
+    {
         LOG(INFO) << "Monitoring USB MIDI interface";
         auto cmd = std::string("amidi -p ") + MIDIHelper::amidiPort(OPENDECK_MIDI_DEVICE_NAME) + " -d > " + temp_midi_data_location + " &";
         ASSERT_EQ(0, test::wsystem(cmd));
     };
 
-    auto stopMonitoring = []() {
+    auto stopMonitoring = []()
+    {
         test::wsystem("killall amidi > /dev/null");
     };
 
@@ -889,7 +898,7 @@ TEST_F(HWTest, InputOutput)
     for (size_t i = 0; i < hwTestAnalogDescriptor.size(); i++)
     {
         LOG(INFO) << "Enabling analog input " << hwTestAnalogDescriptor.at(i).index;
-        ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::analog_t::enable, hwTestAnalogDescriptor.at(i).index, 1));
+        ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::analog_t::ENABLE, hwTestAnalogDescriptor.at(i).index, 1));
     }
 #endif
 
@@ -966,7 +975,7 @@ TEST_F(HWTest, InputOutput)
     for (size_t i = 0; i < hwTestLEDDescriptor.size(); i++)
     {
         LOG(INFO) << "Toggling LED " << hwTestLEDDescriptor.at(i).index << " on";
-        ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::leds_t::testColor, hwTestLEDDescriptor.at(i).index, 1));
+        ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::leds_t::TEST_COLOR, hwTestLEDDescriptor.at(i).index, 1));
         test::sleepMs(1000);
 
         LOG(INFO) << "Verifying that the LED is turned on";
@@ -991,7 +1000,7 @@ TEST_F(HWTest, InputOutput)
         ASSERT_EQ(0, test::wsystem("cat " + temp_midi_data_location + " | grep \"" + ledOn + "\"", response));
 
         LOG(INFO) << "Toggling LED " << hwTestLEDDescriptor.at(i).index << " off";
-        ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::leds_t::testColor, hwTestLEDDescriptor.at(i).index, 0));
+        ASSERT_TRUE(MIDIHelper::setSingleSysExReq(System::Config::Section::leds_t::TEST_COLOR, hwTestLEDDescriptor.at(i).index, 0));
         test::sleepMs(1000);
 
         LOG(INFO) << "Verifying that the LED is turned off";

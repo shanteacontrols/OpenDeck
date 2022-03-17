@@ -49,42 +49,40 @@ namespace IO
             GROUP_TOUCHSCREEN_COMPONENTS
         };
 
-        /// List of all possible button types.
         enum class type_t : uint8_t
         {
-            momentary,    ///< Event on press and release.
-            latching,     ///< Event between presses only.
+            MOMENTARY,    ///< Event on press and release.
+            LATCHING,     ///< Event between presses only.
             AMOUNT        ///< Total number of button types.
         };
 
-        /// List of all possible MIDI messages buttons can send.
         enum class messageType_t : uint8_t
         {
-            note,
-            programChange,
-            controlChange,
-            controlChangeReset,
-            mmcStop,
-            mmcPlay,
-            mmcRecord,
-            mmcPause,
-            realTimeClock,
-            realTimeStart,
-            realTimeContinue,
-            realTimeStop,
-            realTimeActiveSensing,
-            realTimeSystemReset,
-            programChangeInc,
-            programChangeDec,
-            none,
-            presetOpenDeck,
-            multiValIncResetNote,
-            multiValIncDecNote,
-            multiValIncResetCC,
-            multiValIncDecCC,
-            noteOffOnly,
-            controlChange0Only,
-            dmx,
+            NOTE,
+            PROGRAM_CHANGE,
+            CONTROL_CHANGE,
+            CONTROL_CHANGE_RESET,
+            MMC_STOP,
+            MMC_PLAY,
+            MMC_RECORD,
+            MMC_PAUSE,
+            REAL_TIME_CLOCK,
+            REAL_TIME_START,
+            REAL_TIME_CONTINUE,
+            REAL_TIME_STOP,
+            REAL_TIME_ACTIVE_SENSING,
+            REAL_TIME_SYSTEM_RESET,
+            PROGRAM_CHANGE_INC,
+            PROGRAM_CHANGE_DEC,
+            NONE,
+            PRESET_OPEN_DECK,
+            MULTI_VAL_INC_RESET_NOTE,
+            MULTI_VAL_INC_DEC_NOTE,
+            MULTI_VAL_INC_RESET_CC,
+            MULTI_VAL_INC_DEC_CC,
+            NOTE_OFF_ONLY,
+            CONTROL_CHANGE0_ONLY,
+            DMX,
             AMOUNT
         };
 
@@ -115,8 +113,8 @@ namespace IO
         private:
         struct buttonDescriptor_t
         {
-            type_t             type        = type_t::momentary;
-            messageType_t      messageType = messageType_t::note;
+            type_t             type        = type_t::MOMENTARY;
+            messageType_t      messageType = messageType_t::NOTE;
             Messaging::event_t event;
 
             buttonDescriptor_t() = default;
@@ -140,31 +138,31 @@ namespace IO
         uint8_t _buttonPressed[Collection::size() / 8 + 1]     = {};
         uint8_t _lastLatchingState[Collection::size() / 8 + 1] = {};
 
-        const MIDI::messageType_t _internalMsgToMIDIType[static_cast<uint8_t>(messageType_t::AMOUNT)] = {
-            MIDI::messageType_t::noteOn,
-            MIDI::messageType_t::programChange,
-            MIDI::messageType_t::controlChange,
-            MIDI::messageType_t::controlChange,
-            MIDI::messageType_t::mmcStop,
-            MIDI::messageType_t::mmcPlay,
-            MIDI::messageType_t::mmcRecordStart,    // modified to stop when needed
-            MIDI::messageType_t::mmcPause,
-            MIDI::messageType_t::sysRealTimeClock,
-            MIDI::messageType_t::sysRealTimeStart,
-            MIDI::messageType_t::sysRealTimeContinue,
-            MIDI::messageType_t::sysRealTimeStop,
-            MIDI::messageType_t::sysRealTimeActiveSensing,
-            MIDI::messageType_t::sysRealTimeSystemReset,
-            MIDI::messageType_t::programChange,
-            MIDI::messageType_t::programChange,
-            MIDI::messageType_t::invalid,
-            MIDI::messageType_t::invalid,
-            MIDI::messageType_t::noteOn,
-            MIDI::messageType_t::noteOn,
-            MIDI::messageType_t::controlChange,
-            MIDI::messageType_t::controlChange,
-            MIDI::messageType_t::noteOn,
-            MIDI::messageType_t::controlChange,
+        const MIDI::messageType_t INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(messageType_t::AMOUNT)] = {
+            MIDI::messageType_t::NOTE_ON,
+            MIDI::messageType_t::PROGRAM_CHANGE,
+            MIDI::messageType_t::CONTROL_CHANGE,
+            MIDI::messageType_t::CONTROL_CHANGE,
+            MIDI::messageType_t::MMC_STOP,
+            MIDI::messageType_t::MMC_PLAY,
+            MIDI::messageType_t::MMC_RECORD_START,    // modified to stop when needed
+            MIDI::messageType_t::MMC_PAUSE,
+            MIDI::messageType_t::SYS_REAL_TIME_CLOCK,
+            MIDI::messageType_t::SYS_REAL_TIME_START,
+            MIDI::messageType_t::SYS_REAL_TIME_CONTINUE,
+            MIDI::messageType_t::SYS_REAL_TIME_STOP,
+            MIDI::messageType_t::SYS_REAL_TIME_ACTIVE_SENSING,
+            MIDI::messageType_t::SYS_REAL_TIME_SYSTEM_RESET,
+            MIDI::messageType_t::PROGRAM_CHANGE,
+            MIDI::messageType_t::PROGRAM_CHANGE,
+            MIDI::messageType_t::INVALID,
+            MIDI::messageType_t::INVALID,
+            MIDI::messageType_t::NOTE_ON,
+            MIDI::messageType_t::NOTE_ON,
+            MIDI::messageType_t::CONTROL_CHANGE,
+            MIDI::messageType_t::CONTROL_CHANGE,
+            MIDI::messageType_t::NOTE_ON,
+            MIDI::messageType_t::CONTROL_CHANGE,
         };
     };
 }    // namespace IO

@@ -31,31 +31,32 @@ namespace IO
 
         enum class type_t : uint8_t
         {
-            controlChange7Fh01h,
-            controlChange3Fh41h,
-            programChange,
-            controlChange,
-            presetChange,
-            pitchBend,
-            nrpn7bit,
-            nrpn14bit,
-            controlChange14bit,
+            CONTROL_CHANGE_7FH01H,
+            CONTROL_CHANGE_3FH41H,
+            PROGRAM_CHANGE,
+            CONTROL_CHANGE,
+            PRESET_CHANGE,
+            PITCH_BEND,
+            NRPN_7BIT,
+            NRPN_14BIT,
+            CONTROL_CHANGE_14BIT,
+            DMX,
             AMOUNT
         };
 
         enum class position_t : uint8_t
         {
-            stopped,
-            ccw,
-            cw,
+            STOPPED,
+            CCW,
+            CW,
         };
 
         enum class acceleration_t : uint8_t
         {
-            disabled,
-            slow,
-            medium,
-            fast,
+            DISABLED,
+            SLOW,
+            MEDIUM,
+            FAST,
             AMOUNT
         };
 

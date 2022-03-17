@@ -28,7 +28,7 @@ namespace Protocol
 
         enum class setting_t : uint8_t
         {
-            enabled,
+            ENABLED,
             AMOUNT
         };
 

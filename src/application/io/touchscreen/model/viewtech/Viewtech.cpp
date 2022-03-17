@@ -25,7 +25,7 @@ using namespace IO;
 Viewtech::Viewtech(IO::Touchscreen::HWA& hwa)
     : _hwa(hwa)
 {
-    IO::Touchscreen::registerModel(IO::Touchscreen::model_t::viewtech, this);
+    IO::Touchscreen::registerModel(IO::Touchscreen::model_t::VIEWTECH, this);
 }
 
 bool Viewtech::init()
@@ -56,7 +56,7 @@ bool Viewtech::setScreen(size_t screenID)
 
 Touchscreen::tsEvent_t Viewtech::update(Touchscreen::tsData_t& data)
 {
-    auto    event = Touchscreen::tsEvent_t::none;
+    auto    event = Touchscreen::tsEvent_t::NONE;
     uint8_t value = 0;
 
     while (_hwa.read(value))
@@ -90,12 +90,12 @@ Touchscreen::tsEvent_t Viewtech::update(Touchscreen::tsData_t& data)
 
                             switch (response)
                             {
-                            case static_cast<uint32_t>(response_t::buttonStateChange):
+                            case static_cast<uint32_t>(response_t::BUTTON_STATE_CHANGE):
                             {
                                 data.buttonState = Touchscreen::Model::_rxBuffer[6];
                                 data.buttonID    = Touchscreen::Model::_rxBuffer[7];
 
-                                event = Touchscreen::tsEvent_t::button;
+                                event = Touchscreen::tsEvent_t::BUTTON;
                             }
                             break;
 
@@ -162,7 +162,7 @@ bool Viewtech::setBrightness(Touchscreen::brightness_t brightness)
     _hwa.write(0x01);
 
     // brightness value
-    _hwa.write(_brightnessMapping[static_cast<uint8_t>(brightness)]);
+    _hwa.write(BRIGHTNESS_MAPPING[static_cast<uint8_t>(brightness)]);
 
     return true;
 }

@@ -97,9 +97,9 @@ namespace Board
         {
             switch (source)
             {
-            case dataSource_t::uart:
+            case dataSource_t::UART:
             {
-                if (direction == dataDirection_t::incoming)
+                if (direction == dataDirection_t::INCOMING)
                 {
                     INT_LED_ON(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
                     _midiInDINtimeout = MIDI_INDICATOR_TIMEOUT;
@@ -112,9 +112,9 @@ namespace Board
             }
             break;
 
-            case dataSource_t::usb:
+            case dataSource_t::USB:
             {
-                if (direction == dataDirection_t::incoming)
+                if (direction == dataDirection_t::INCOMING)
                 {
                     INT_LED_ON(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
                     _midiInUSBtimeout = MIDI_INDICATOR_TIMEOUT;

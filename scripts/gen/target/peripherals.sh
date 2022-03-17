@@ -269,7 +269,7 @@ then
     then
         {
             printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline Board::detail::UART::uartPins_t _uartPins[$total_uart_channels] = {"
+            printf "%s\n" "constexpr inline Board::detail::UART::uartPins_t UART_PINS[$total_uart_channels] = {"
         } >> "$out_header"
 
         for ((channel=0; channel<total_uart_channels;channel++))
@@ -323,7 +323,7 @@ then
             printf "%s\n" "#define I2C_SCL_PORT CORE_IO_PIN_PORT_DEF(${i2c_scl_port})"
             printf "%s\n" "#define I2C_SCL_INDEX CORE_IO_PIN_INDEX_DEF(${i2c_scl_index})"
             printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline Board::detail::I2C::i2cPins_t _i2cPins[1] = {"
+            printf "%s\n" "constexpr inline Board::detail::I2C::i2cPins_t I2C_PINS[1] = {"
             printf "%s\n" "{"
             printf "%s\n" "CORE_IO_MCU_PIN_VAR(I2C_SDA_PORT, I2C_SDA_INDEX),"
             printf "%s\n" "CORE_IO_MCU_PIN_VAR(I2C_SCL_PORT, I2C_SCL_INDEX),"

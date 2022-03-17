@@ -27,12 +27,16 @@ namespace Board::detail::io
     void sr595wait()
     {
         for (int i = 0; i < 12; i++)
+        {
             CORE_NOP();
+        }
     }
 
     void sr165wait()
     {
         for (int i = 0; i < 6; i++)
+        {
             CORE_NOP();
+        }
     }
 }    // namespace Board::detail::io

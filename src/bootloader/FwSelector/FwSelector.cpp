@@ -21,11 +21,11 @@ limitations under the License.
 
 void FwSelector::select()
 {
-    auto fwType = fwType_t::application;
+    auto fwType = fwType_t::APPLICATION;
 
     if (_hwa.isHWtriggerActive())
     {
-        fwType = fwType_t::bootloader;
+        fwType = fwType_t::BOOTLOADER;
     }
     else
     {
@@ -33,23 +33,23 @@ void FwSelector::select()
 
         switch (magicValue)
         {
-        case static_cast<uint8_t>(fwType_t::bootloader):
+        case static_cast<uint8_t>(fwType_t::BOOTLOADER):
         {
-            fwType = fwType_t::bootloader;
+            fwType = fwType_t::BOOTLOADER;
         }
         break;
 
         default:
         {
             // assume application here
-            fwType = isAppValid() ? fwType_t::application : fwType_t::bootloader;
+            fwType = isAppValid() ? fwType_t::APPLICATION : fwType_t::BOOTLOADER;
         }
         break;
         }
     }
 
     // always reset soft trigger after reading it back to application
-    _hwa.setMagicBootValue(static_cast<uint8_t>(fwType_t::application));
+    _hwa.setMagicBootValue(static_cast<uint8_t>(fwType_t::APPLICATION));
     _hwa.load(fwType);
 }
 

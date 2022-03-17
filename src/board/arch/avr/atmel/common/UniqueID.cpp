@@ -16,20 +16,8 @@ limitations under the License.
 
 */
 
-#include <cstddef>
-#include <stdio.h>
-#include <stdlib.h>
-#include <avr/power.h>
-#include <avr/eeprom.h>
-#include <avr/wdt.h>
 #include "board/Board.h"
-#include "board/Internal.h"
-#include "board/common/io/Helpers.h"
-#include "core/src/general/ADC.h"
-#include "core/src/arch/avr/Misc.h"
-#include "core/src/general/IO.h"
-#include "core/src/general/Interrupt.h"
-#include "core/src/general/Timing.h"
+#include "core/src/general/Atomic.h"
 #include <Target.h>
 
 // serial numbers are available only on AVR MCUs with USB

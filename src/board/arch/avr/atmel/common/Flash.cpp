@@ -24,91 +24,85 @@ limitations under the License.
 #include "core/src/general/Atomic.h"
 #include <MCU.h>
 
-namespace Board
+namespace Board::detail::flash
 {
-    namespace detail
+    bool isInRange(uint32_t address)
     {
-        namespace flash
+        return address <= FLASH_END;
+    }
+
+    uint32_t size()
+    {
+        return FLASH_END + static_cast<uint32_t>(1);
+    }
+
+    uint32_t pageSize(size_t index)
+    {
+        // always constant on avr
+        return FLASH_PAGE_SIZE_COMMON;
+    }
+
+    bool erasePage(size_t index)
+    {
+        ATOMIC_SECTION
         {
-            bool isInRange(uint32_t address)
-            {
-                return address <= FLASH_END;
-            }
+            boot_page_erase(index * pageSize(index));
+            boot_spm_busy_wait();
+        }
 
-            uint32_t size()
-            {
-                return FLASH_END + static_cast<uint32_t>(1);
-            }
+        return true;
+    }
 
-            uint32_t pageSize(size_t index)
-            {
-                // always constant on avr
-                return FLASH_PAGE_SIZE_COMMON;
-            }
+    void writePage(size_t index)
+    {
+        ATOMIC_SECTION
+        {
+            // write the filled flash page to memory
+            boot_page_write(index * pageSize(index));
+            boot_spm_busy_wait();
 
-            bool erasePage(size_t index)
-            {
-                ATOMIC_SECTION
-                {
-                    boot_page_erase(index * pageSize(index));
-                    boot_spm_busy_wait();
-                }
+            // re-enable RWW section
+            boot_rww_enable();
+        }
+    }
 
-                return true;
-            }
+    bool write16(uint32_t address, uint16_t data)
+    {
+        ATOMIC_SECTION
+        {
+            boot_page_fill(address, data);
+        }
 
-            void writePage(size_t index)
-            {
-                ATOMIC_SECTION
-                {
-                    // write the filled flash page to memory
-                    boot_page_write(index * pageSize(index));
-                    boot_spm_busy_wait();
+        return true;
+    }
 
-                    // re-enable RWW section
-                    boot_rww_enable();
-                }
-            }
-
-            bool write16(uint32_t address, uint16_t data)
-            {
-                ATOMIC_SECTION
-                {
-                    boot_page_fill(address, data);
-                }
-
-                return true;
-            }
-
-            bool read8(uint32_t address, uint8_t& data)
-            {
+    bool read8(uint32_t address, uint8_t& data)
+    {
 #ifdef pgm_read_byte_far
-                data = pgm_read_byte_far(address);
+        data = pgm_read_byte_far(address);
 #else
-                data = pgm_read_byte(address);
+        data = pgm_read_byte(address);
 #endif
-                return true;
-            }
+        return true;
+    }
 
-            bool read16(uint32_t address, uint16_t& data)
-            {
+    bool read16(uint32_t address, uint16_t& data)
+    {
 #ifdef pgm_read_word_far
-                data = pgm_read_word_far(address);
+        data = pgm_read_word_far(address);
 #else
-                data = pgm_read_word(address);
+        data = pgm_read_word(address);
 #endif
-                return true;
-            }
+        return true;
+    }
 
-            bool read32(uint32_t address, uint32_t& data)
-            {
+    bool read32(uint32_t address, uint32_t& data)
+    {
 #ifdef pgm_read_dword_far
-                data = pgm_read_dword_far(address);
+        data = pgm_read_dword_far(address);
 #else
-                data = pgm_read_dword(address);
+        data = pgm_read_dword(address);
 #endif
-                return true;
-            }
-        }    // namespace flash
-    }        // namespace detail
-}    // namespace Board
+        return true;
+    }
+}    // namespace Board::detail::flash

@@ -21,12 +21,13 @@ namespace
 
             for (int i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
             {
-                ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::enable, i, 1));
-                ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::midiChannel, i, 1));
+                ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::ENABLE, i, 1));
+                ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::CHANNEL, i, 1));
             }
 
-            MIDIDispatcher.listen(Messaging::eventType_t::analog,
-                                  [this](const Messaging::event_t& dispatchMessage) {
+            MIDIDispatcher.listen(Messaging::eventType_t::ANALOG,
+                                  [this](const Messaging::event_t& dispatchMessage)
+                                  {
                                       _listener.messageListener(dispatchMessage);
                                   });
         }
@@ -69,7 +70,7 @@ TEST_F(AnalogTest, CC)
     // all received messages should be control change
     for (int i = 0; i < _listener._event.size(); i++)
     {
-        EXPECT_EQ(MIDI::messageType_t::controlChange, _listener._event.at(i).message);
+        EXPECT_EQ(MIDI::messageType_t::CONTROL_CHANGE, _listener._event.at(i).message);
     }
 
     uint8_t expectedMIDIvalue = 0;
@@ -79,7 +80,7 @@ TEST_F(AnalogTest, CC)
         for (int j = 0; j < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
-            EXPECT_EQ(expectedMIDIvalue, _listener._event.at(index).midiValue);
+            EXPECT_EQ(expectedMIDIvalue, _listener._event.at(index).value);
         }
 
         expectedMIDIvalue++;
@@ -103,7 +104,7 @@ TEST_F(AnalogTest, CC)
         for (int j = 0; j < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
-            EXPECT_EQ(expectedMIDIvalue, _listener._event.at(index).midiValue);
+            EXPECT_EQ(expectedMIDIvalue, _listener._event.at(index).value);
         }
 
         expectedMIDIvalue--;
@@ -124,7 +125,7 @@ TEST_F(AnalogTest, PitchBendTest)
     for (int i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
     {
         // configure all analog components as potentiometers with Pitch Bend MIDI message
-        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::type, i, Analog::type_t::pitchBend));
+        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::TYPE, i, Analog::type_t::PITCH_BEND));
     }
 
     for (int i = 0; i <= 16383; i++)
@@ -137,7 +138,7 @@ TEST_F(AnalogTest, PitchBendTest)
     // //all received messages should be pitch bend
     for (int i = 0; i < _listener._event.size(); i++)
     {
-        EXPECT_EQ(MIDI::messageType_t::pitchBend, _listener._event.at(i).message);
+        EXPECT_EQ(MIDI::messageType_t::PITCH_BEND, _listener._event.at(i).message);
     }
 
     uint16_t expectedMIDIvalue = 0;
@@ -147,7 +148,7 @@ TEST_F(AnalogTest, PitchBendTest)
         for (int j = 0; j < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
-            EXPECT_EQ(expectedMIDIvalue, _listener._event.at(index).midiValue);
+            EXPECT_EQ(expectedMIDIvalue, _listener._event.at(index).value);
         }
 
         expectedMIDIvalue++;
@@ -171,7 +172,7 @@ TEST_F(AnalogTest, PitchBendTest)
         for (int j = 0; j < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
-            EXPECT_EQ(expectedMIDIvalue, _listener._event.at(index).midiValue);
+            EXPECT_EQ(expectedMIDIvalue, _listener._event.at(index).value);
         }
 
         expectedMIDIvalue--;
@@ -183,7 +184,7 @@ TEST_F(AnalogTest, Inversion)
     // enable inversion
     for (int i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
     {
-        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::invert, i, 1));
+        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::INVERT, i, 1));
     }
 
     for (int i = 0; i <= 127; i++)
@@ -203,7 +204,7 @@ TEST_F(AnalogTest, Inversion)
         for (int j = 0; j < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
-            EXPECT_EQ(expectedMIDIvalue, _listener._event.at(index).midiValue);
+            EXPECT_EQ(expectedMIDIvalue, _listener._event.at(index).value);
         }
 
         expectedMIDIvalue--;
@@ -216,9 +217,9 @@ TEST_F(AnalogTest, Inversion)
 
     for (int i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
     {
-        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::invert, i, 1));
-        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::lowerLimit, i, 127));
-        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::upperLimit, i, 0));
+        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::INVERT, i, 1));
+        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::LOWER_LIMIT, i, 127));
+        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::UPPER_LIMIT, i, 0));
 
         _analog._instance.reset(i);
     }
@@ -238,7 +239,7 @@ TEST_F(AnalogTest, Inversion)
         for (int j = 0; j < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
-            EXPECT_EQ(expectedMIDIvalue, _listener._event.at(index).midiValue);
+            EXPECT_EQ(expectedMIDIvalue, _listener._event.at(index).value);
         }
 
         expectedMIDIvalue++;
@@ -251,7 +252,7 @@ TEST_F(AnalogTest, Inversion)
 
     for (int i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
     {
-        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::invert, i, 0));
+        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::INVERT, i, 0));
         _analog._instance.reset(i);
     }
 
@@ -270,7 +271,7 @@ TEST_F(AnalogTest, Inversion)
         for (int j = 0; j < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
-            EXPECT_EQ(expectedMIDIvalue, _listener._event.at(index).midiValue);
+            EXPECT_EQ(expectedMIDIvalue, _listener._event.at(index).value);
         }
 
         expectedMIDIvalue--;
@@ -290,8 +291,8 @@ TEST_F(AnalogTest, Scaling)
     // set known state
     for (int i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
     {
-        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::lowerLimit, i, 0));
-        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::upperLimit, i, SCALED_UPPER));
+        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::LOWER_LIMIT, i, 0));
+        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::UPPER_LIMIT, i, SCALED_UPPER));
     }
 
     for (int i = 0; i <= 127; i++)
@@ -307,14 +308,14 @@ TEST_F(AnalogTest, Scaling)
     // last value should match the configured scaled value (SCALED_UPPER)
     for (int i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
     {
-        EXPECT_EQ(0, _listener._event.at(i).midiValue);
-        EXPECT_EQ(SCALED_UPPER, _listener._event.at(_listener._event.size() - Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS) + i).midiValue);
+        EXPECT_EQ(0, _listener._event.at(i).value);
+        EXPECT_EQ(SCALED_UPPER, _listener._event.at(_listener._event.size() - Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS) + i).value);
     }
 
     // now scale minimum value as well
     for (int i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
     {
-        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::lowerLimit, i, SCALED_LOWER));
+        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::LOWER_LIMIT, i, SCALED_LOWER));
     }
 
     _listener._event.clear();
@@ -329,14 +330,14 @@ TEST_F(AnalogTest, Scaling)
 
     for (int i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
     {
-        ASSERT_TRUE(_listener._event.at(i).midiValue >= SCALED_LOWER);
-        ASSERT_TRUE(_listener._event.at(_listener._event.size() - Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS) + i).midiValue <= SCALED_UPPER);
+        ASSERT_TRUE(_listener._event.at(i).value >= SCALED_LOWER);
+        ASSERT_TRUE(_listener._event.at(_listener._event.size() - Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS) + i).value <= SCALED_UPPER);
     }
 
     // now enable inversion
     for (int i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
     {
-        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::invert, i, 1));
+        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::INVERT, i, 1));
         _analog._instance.reset(i);
     }
 
@@ -349,8 +350,8 @@ TEST_F(AnalogTest, Scaling)
 
     for (int i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
     {
-        ASSERT_TRUE(_listener._event.at(i).midiValue >= SCALED_UPPER);
-        ASSERT_TRUE(_listener._event.at(_listener._event.size() - Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS) + i).midiValue <= SCALED_LOWER);
+        ASSERT_TRUE(_listener._event.at(i).value >= SCALED_UPPER);
+        ASSERT_TRUE(_listener._event.at(_listener._event.size() - Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS) + i).value <= SCALED_LOWER);
     }
 }
 
@@ -366,24 +367,26 @@ TEST_F(AnalogTest, ButtonForwarding)
     static constexpr uint8_t BUTTON_MIDI_CHANNEL = 2;
     static constexpr uint8_t BUTTON_VELOCITY     = 100;
 
-    ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::type, BUTTON_INDEX, Analog::type_t::button) == true);
+    ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::TYPE, BUTTON_INDEX, Analog::type_t::BUTTON) == true);
 
     // configure button with the same index (+offset) to certain parameters
-    ASSERT_TRUE(_analog._database.update(Database::Config::Section::button_t::type, Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, Buttons::type_t::momentary));
-    ASSERT_TRUE(_analog._database.update(Database::Config::Section::button_t::midiChannel, Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, BUTTON_MIDI_CHANNEL));
-    ASSERT_TRUE(_analog._database.update(Database::Config::Section::button_t::midiMessage, Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, Buttons::messageType_t::controlChangeReset));
-    ASSERT_TRUE(_analog._database.update(Database::Config::Section::button_t::velocity, Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, BUTTON_VELOCITY));
+    ASSERT_TRUE(_analog._database.update(Database::Config::Section::button_t::TYPE, Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, Buttons::type_t::MOMENTARY));
+    ASSERT_TRUE(_analog._database.update(Database::Config::Section::button_t::CHANNEL, Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, BUTTON_MIDI_CHANNEL));
+    ASSERT_TRUE(_analog._database.update(Database::Config::Section::button_t::MESSAGE_TYPE, Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, Buttons::messageType_t::CONTROL_CHANGE_RESET));
+    ASSERT_TRUE(_analog._database.update(Database::Config::Section::button_t::VALUE, Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, BUTTON_VELOCITY));
 
     std::vector<Messaging::event_t> dispatchMessageAnalogFwd;
     std::vector<Messaging::event_t> dispatchMessageButtons;
 
-    MIDIDispatcher.listen(Messaging::eventType_t::analogButton,
-                          [&](const Messaging::event_t& dispatchMessage) {
+    MIDIDispatcher.listen(Messaging::eventType_t::ANALOG_BUTTON,
+                          [&](const Messaging::event_t& dispatchMessage)
+                          {
                               dispatchMessageAnalogFwd.push_back(dispatchMessage);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::button,
-                          [&](const Messaging::event_t& dispatchMessage) {
+    MIDIDispatcher.listen(Messaging::eventType_t::BUTTON,
+                          [&](const Messaging::event_t& dispatchMessage)
+                          {
                               dispatchMessageButtons.push_back(dispatchMessage);
                           });
 
@@ -401,23 +404,23 @@ TEST_F(AnalogTest, ButtonForwarding)
     // verify the rest of the message
 
     // midi index should be the original one - indexing restarts for each new button group (physical buttons / analog / touchscreen)
-    EXPECT_EQ(MIDI::messageType_t::controlChange, dispatchMessageButtons.at(0).message);
-    EXPECT_EQ(BUTTON_INDEX, dispatchMessageButtons.at(0).midiIndex);
-    EXPECT_EQ(BUTTON_VELOCITY, dispatchMessageButtons.at(0).midiValue);
-    EXPECT_EQ(BUTTON_MIDI_CHANNEL, dispatchMessageButtons.at(0).midiChannel);
+    EXPECT_EQ(MIDI::messageType_t::CONTROL_CHANGE, dispatchMessageButtons.at(0).message);
+    EXPECT_EQ(BUTTON_INDEX, dispatchMessageButtons.at(0).index);
+    EXPECT_EQ(BUTTON_VELOCITY, dispatchMessageButtons.at(0).value);
+    EXPECT_EQ(BUTTON_MIDI_CHANNEL, dispatchMessageButtons.at(0).channel);
 
     stateChangeRegister(0);
 
-    // since the button was configured in controlChangeReset reset mode,
+    // since the button was configured in CONTROL_CHANGE_RESET reset mode,
     // another message should be sent from buttons
     EXPECT_EQ(2, dispatchMessageAnalogFwd.size());
     EXPECT_EQ(BUTTON_INDEX, dispatchMessageAnalogFwd.at(1).componentIndex);
     EXPECT_EQ(2, dispatchMessageButtons.size());
     EXPECT_EQ(Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, dispatchMessageButtons.at(1).componentIndex);
-    EXPECT_EQ(MIDI::messageType_t::controlChange, dispatchMessageButtons.at(1).message);
-    EXPECT_EQ(BUTTON_INDEX, dispatchMessageButtons.at(1).midiIndex);
-    EXPECT_EQ(0, dispatchMessageButtons.at(1).midiValue);
-    EXPECT_EQ(BUTTON_MIDI_CHANNEL, dispatchMessageButtons.at(1).midiChannel);
+    EXPECT_EQ(MIDI::messageType_t::CONTROL_CHANGE, dispatchMessageButtons.at(1).message);
+    EXPECT_EQ(BUTTON_INDEX, dispatchMessageButtons.at(1).index);
+    EXPECT_EQ(0, dispatchMessageButtons.at(1).value);
+    EXPECT_EQ(BUTTON_MIDI_CHANNEL, dispatchMessageButtons.at(1).channel);
 
     // repeat the update - analog class sends forwarding message again since it's not in charge of filtering it
     // buttons class shouldn't send anything new since the state of the button hasn't changed
@@ -430,7 +433,7 @@ TEST_F(AnalogTest, ButtonForwarding)
     dispatchMessageButtons.clear();
     dispatchMessageAnalogFwd.clear();
 
-    ASSERT_TRUE(_analog._database.update(Database::Config::Section::button_t::midiMessage, Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, Buttons::messageType_t::controlChange));
+    ASSERT_TRUE(_analog._database.update(Database::Config::Section::button_t::MESSAGE_TYPE, Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, Buttons::messageType_t::CONTROL_CHANGE));
 
     stateChangeRegister(0xFFFF);
 
@@ -438,10 +441,10 @@ TEST_F(AnalogTest, ButtonForwarding)
     EXPECT_EQ(BUTTON_INDEX, dispatchMessageAnalogFwd.at(0).componentIndex);
     EXPECT_EQ(1, dispatchMessageButtons.size());
     EXPECT_EQ(Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, dispatchMessageButtons.at(0).componentIndex);
-    EXPECT_EQ(MIDI::messageType_t::controlChange, dispatchMessageButtons.at(0).message);
-    EXPECT_EQ(BUTTON_INDEX, dispatchMessageButtons.at(0).midiIndex);
-    EXPECT_EQ(BUTTON_VELOCITY, dispatchMessageButtons.at(0).midiValue);
-    EXPECT_EQ(BUTTON_MIDI_CHANNEL, dispatchMessageButtons.at(0).midiChannel);
+    EXPECT_EQ(MIDI::messageType_t::CONTROL_CHANGE, dispatchMessageButtons.at(0).message);
+    EXPECT_EQ(BUTTON_INDEX, dispatchMessageButtons.at(0).index);
+    EXPECT_EQ(BUTTON_VELOCITY, dispatchMessageButtons.at(0).value);
+    EXPECT_EQ(BUTTON_MIDI_CHANNEL, dispatchMessageButtons.at(0).channel);
 
     stateChangeRegister(0);
 

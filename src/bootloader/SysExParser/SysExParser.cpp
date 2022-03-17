@@ -38,8 +38,8 @@ bool SysExParser::parse(MIDI::usbMIDIPacket_t& packet)
 
     switch (midiMessage)
     {
-    case static_cast<uint8_t>(usbMIDIsystemCin_t::sysCommon1byteCin):
-    case static_cast<uint8_t>(usbMIDIsystemCin_t::singleByte):
+    case static_cast<uint8_t>(usbMIDIsystemCin_t::SYS_COMMON1BYTE_CIN):
+    case static_cast<uint8_t>(usbMIDIsystemCin_t::SINGLE_BYTE):
     {
         if (packet[MIDI::USB_DATA1] == 0xF7)
         {
@@ -51,7 +51,7 @@ bool SysExParser::parse(MIDI::usbMIDIPacket_t& packet)
     }
     break;
 
-    case static_cast<uint8_t>(usbMIDIsystemCin_t::sysExStartCin):
+    case static_cast<uint8_t>(usbMIDIsystemCin_t::SYS_EX_START_CIN):
     {
         if (packet[MIDI::USB_DATA1] == 0xF0)
         {
@@ -68,7 +68,7 @@ bool SysExParser::parse(MIDI::usbMIDIPacket_t& packet)
     }
     break;
 
-    case static_cast<uint8_t>(usbMIDIsystemCin_t::sysExStop2byteCin):
+    case static_cast<uint8_t>(usbMIDIsystemCin_t::SYS_EX_STOP2BYTE_CIN):
     {
         _sysExArray[_sysExArrayLength] = packet[MIDI::USB_DATA1];
         _sysExArrayLength++;
@@ -78,7 +78,7 @@ bool SysExParser::parse(MIDI::usbMIDIPacket_t& packet)
     }
     break;
 
-    case static_cast<uint8_t>(usbMIDIsystemCin_t::sysExStop3byteCin):
+    case static_cast<uint8_t>(usbMIDIsystemCin_t::SYS_EX_STOP3BYTE_CIN):
     {
         if (packet[MIDI::USB_DATA1] == 0xF0)
         {

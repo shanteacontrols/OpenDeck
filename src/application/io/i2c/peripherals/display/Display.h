@@ -32,34 +32,34 @@ namespace IO
         public:
         enum eventType_t : uint8_t
         {
-            in,
-            out,
+            IN,
+            OUT,
         };
 
         enum class setting_t : uint8_t
         {
-            deviceInfoMsg,
-            controller,
-            resolution,
-            MIDIeventTime,
-            MIDInotesAlternate,
-            octaveNormalization,
-            enable,
+            DEVICE_INFO_MSG,
+            CONTROLLER,
+            RESOLUTION,
+            EVENT_TIME,
+            MIDI_NOTES_ALTERNATE,
+            OCTAVE_NORMALIZATION,
+            ENABLE,
             AMOUNT
         };
 
         enum class displayController_t : uint8_t
         {
-            invalid,
-            ssd1306,
+            INVALID,
+            SSD1306,
             AMOUNT
         };
 
         enum displayResolution_t : uint8_t
         {
-            invalid,
-            _128x64,
-            _128x32,
+            INVALID,
+            R128X64,
+            R128X32,
             AMOUNT
         };
 
@@ -75,13 +75,13 @@ namespace IO
         bool                   deInit();
         void                   setAlternateNoteDisplay(bool state);
         void                   setRetentionTime(uint32_t retentionTime);
-        void                   displayMIDIevent(eventType_t type, const Messaging::event_t& event);
+        void                   displayEvent(eventType_t type, const Messaging::event_t& event);
         void                   displayWelcomeMessage();
         void                   updateText(uint8_t row, uint8_t startIndex);
         uint8_t                getTextCenter(uint8_t textSize);
         int8_t                 normalizeOctave(uint8_t octave, int8_t normalization);
         void                   buildString(const char* text, ...);
-        void                   clearMIDIevent(eventType_t type);
+        void                   clearEvent(eventType_t type);
         std::optional<uint8_t> sysConfigGet(System::Config::Section::i2c_t section, size_t index, uint16_t& value);
         std::optional<uint8_t> sysConfigSet(System::Config::Section::i2c_t section, size_t index, uint16_t value);
 
@@ -89,7 +89,7 @@ namespace IO
         u8x8_t              _u8x8;
         static I2C::HWA*    _hwa;
 
-        static constexpr uint8_t _i2cAddress[2] = {
+        static constexpr uint8_t I2C_ADDRESS[2] = {
             0x3C,
             0x3D
         };
@@ -111,20 +111,20 @@ namespace IO
         /// Real height is determined later based on display type.
         static constexpr uint8_t LCD_HEIGHT_MAX = 4;
 
-        static constexpr uint8_t COLUMN_START_MIDI_IN_MESSAGE  = 4;
-        static constexpr uint8_t COLUMN_START_MIDI_OUT_MESSAGE = 5;
+        static constexpr uint8_t COLUMN_START_IN_MESSAGE  = 4;
+        static constexpr uint8_t COLUMN_START_OUT_MESSAGE = 5;
 
-        static constexpr uint8_t ROW_START_MIDI_IN_MESSAGE  = 0;
-        static constexpr uint8_t ROW_START_MIDI_OUT_MESSAGE = 2;
+        static constexpr uint8_t ROW_START_IN_MESSAGE  = 0;
+        static constexpr uint8_t ROW_START_OUT_MESSAGE = 2;
 
-        /// Holds last time index MIDI message was shown for specific event type (in or out).
-        uint32_t _lastMIDIMessageDisplayTime[2] = {};
+        /// Holds last time index message was shown for specific event type (in or out).
+        uint32_t _lasMessageDisplayTime[2] = {};
 
-        /// Holds true if MIDI input or output message is shown on display.
-        bool _midiMessageDisplayed[2] = {};
+        /// Holds true if input or output message is shown on display.
+        bool _messageDisplayed[2] = {};
 
-        /// Holds time after which MIDI message should be cleared on display if retention is disabled.
-        uint32_t _MIDImessageRetentionTime = 0;
+        /// Holds time after which message should be cleared on display if retention is disabled.
+        uint32_t _messageRetentionTime = 0;
 
         /// Holds last time index info message was shown.
         uint32_t _messageDisplayTime = 0;
@@ -155,7 +155,7 @@ namespace IO
         /// Array holding remapped values of LCD rows.
         /// Used to increase readability.
         /// Matched with displayResolution_t enum.
-        const uint8_t _rowMap[static_cast<uint8_t>(displayResolution_t::AMOUNT)][LCD_HEIGHT_MAX] = {
+        const uint8_t ROW_MAP[static_cast<uint8_t>(displayResolution_t::AMOUNT)][LCD_HEIGHT_MAX] = {
             // 128x32
             {
                 0,
