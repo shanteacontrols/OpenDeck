@@ -31,6 +31,7 @@ namespace
     volatile uint32_t                        _dmxByteCounter;
     uint32_t                                 _dmxBreakBRR;
     uint32_t                                 _dmxDataBRR;
+    volatile bool                            _transmitting[MAX_UART_INTERFACES];
 }    // namespace
 
 #define DMX_SET_BREAK_BAUDRATE(channel)                                                                       \
@@ -51,14 +52,29 @@ namespace Board::detail
 {
     namespace UART::ll
     {
-        void enableDataEmptyInt(uint8_t channel)
+        void startTx(uint8_t channel)
         {
-            __HAL_UART_ENABLE_IT(&_uartHandler[channel], UART_IT_TXE);
+            if (!_transmitting[channel])
+            {
+                _transmitting[channel] = true;
+                __HAL_UART_ENABLE_IT(&_uartHandler[channel], UART_IT_TXE);
+            }
+        }
+
+        bool isTxComplete(uint8_t channel)
+        {
+            return !_transmitting[channel];
         }
 
         bool deInit(uint8_t channel)
         {
-            return HAL_UART_DeInit(&_uartHandler[channel]) == HAL_OK;
+            if (HAL_UART_DeInit(&_uartHandler[channel]) == HAL_OK)
+            {
+                _transmitting[channel] = false;
+                return true;
+            }
+
+            return false;
         }
 
         bool init(uint8_t channel, Board::UART::config_t& config)
@@ -145,7 +161,7 @@ namespace Board::detail
 
             if (config.dmxMode)
             {
-                enableDataEmptyInt(channel);
+                startTx(channel);
             }
 
             return true;
@@ -194,7 +210,7 @@ namespace Board::detail
                         if (txComplete)
                         {
                             __HAL_UART_DISABLE_IT(&_uartHandler[channel], UART_IT_TC);
-                            Board::detail::UART::indicateTxComplete(channel);
+                            _transmitting[channel] = false;
                         }
                     }
                 }

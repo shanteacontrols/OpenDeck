@@ -37,9 +37,6 @@ namespace
     /// When enabled, all incoming UART traffic is immediately passed on to UART TX.
     volatile bool _loopbackEnabled[MAX_UART_INTERFACES];
 
-    /// Flag signaling that the transmission is done.
-    volatile bool _txDone[MAX_UART_INTERFACES];
-
     /// Flag holding the state of UART interface (whether it's _initialized or not).
     bool _initialized[MAX_UART_INTERFACES];
 
@@ -58,14 +55,6 @@ namespace
     uint8_t* _dmxBuffer;
     uint8_t* _dmxBufferQueued;
 #endif
-
-    /// Starts the process of transmitting the data from UART TX buffer to UART interface.
-    /// param [in]: channel     UART channel on MCU.
-    void uartTransmitStart(uint8_t channel)
-    {
-        _txDone[channel] = false;
-        Board::detail::UART::ll::enableDataEmptyInt(channel);
-    }
 }    // namespace
 
 namespace Board
@@ -96,7 +85,6 @@ namespace Board
                 _rxBuffer[channel].reset();
                 _txBuffer[channel].reset();
 
-                _txDone[channel]      = true;
                 _initialized[channel] = false;
 
                 return true;
@@ -185,10 +173,7 @@ namespace Board
                     ;
                 }
 
-                if (_txDone[channel])
-                {
-                    uartTransmitStart(channel);
-                }
+                Board::detail::UART::ll::startTx(channel);
             }
 
             return true;
@@ -199,14 +184,14 @@ namespace Board
             return write(channel, &value, 1);
         }
 
-        bool isTxEmpty(uint8_t channel)
+        bool isTxComplete(uint8_t channel)
         {
             if (channel >= MAX_UART_INTERFACES)
             {
                 return false;
             }
 
-            return _txDone[channel];
+            return Board::detail::UART::ll::isTxComplete(channel);
         }
 
 #ifdef DMX_SUPPORTED
@@ -240,7 +225,7 @@ namespace Board
             {
                 if (_txBuffer[channel].insert(data))
                 {
-                    Board::detail::UART::ll::enableDataEmptyInt(channel);
+                    Board::detail::UART::ll::startTx(channel);
 
                     // indicate loopback here since it's run inside interrupt, ie. not visible to the user application
                     Board::io::indicateTraffic(Board::io::dataSource_t::UART, Board::io::dataDirection_t::OUTGOING);
@@ -264,11 +249,6 @@ namespace Board
         bool bytesToSendAvailable(uint8_t channel)
         {
             return _txBuffer[channel].count();
-        }
-
-        void indicateTxComplete(uint8_t channel)
-        {
-            _txDone[channel] = true;
         }
 
 #ifdef DMX_SUPPORTED

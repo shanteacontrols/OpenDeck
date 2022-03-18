@@ -119,10 +119,13 @@ namespace Board::detail
         {
             // low-level UART API, MCU specific
 
-            /// Enables the firing of interrupt once the UART data register is empty.
-            /// This effectively starts the process of transmitting the data from UART TX buffer to UART interface.
+            /// Used to start the process of transmitting the data from UART TX buffer to UART interface.
             /// param [in]: channel     UART channel on MCU.
-            void enableDataEmptyInt(uint8_t channel);
+            void startTx(uint8_t channel);
+
+            /// Checks whether the transmission is complete or not for a given UART channel.
+            /// param [in]: channel     UART channel on MCU.
+            bool isTxComplete(uint8_t channel);
 
             /// Performs low-level initialization of the specified UART channel.
             /// param [in]: channel     UART channel on MCU.
@@ -150,10 +153,6 @@ namespace Board::detail
         /// param [in]: channel             UART channel on MCU.
         /// returns: True if there are bytes to send, false otherwise.
         bool bytesToSendAvailable(uint8_t channel);
-
-        /// Used to indicate that the transmission is complete.
-        /// param [in]: channel UART channel on MCU.
-        void indicateTxComplete(uint8_t channel);
 
         /// Retrieves DMX channel value.
         uint8_t dmxChannelValue(size_t channel);

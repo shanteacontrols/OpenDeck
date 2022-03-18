@@ -201,7 +201,7 @@ namespace Board
         /// Checks if all data on specified UART channel has been sent.
         /// param [in]: channel UART channel on MCU.
         /// returns: True if there is no more data to transmit, false otherwise.
-        bool isTxEmpty(uint8_t channel);
+        bool isTxComplete(uint8_t channel);
 
         /// Used to set DMX buffer from which values will be read.
         /// returns: True if the buffer is valid (non-nullptr), false otherwise.

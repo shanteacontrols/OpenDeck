@@ -103,34 +103,44 @@ namespace
         },
     };
 
-    nrfx_uart_t _uartInstance[MAX_UART_INTERFACES];
+    nrfx_uart_t   _uartInstance[MAX_UART_INTERFACES];
+    volatile bool _transmitting[MAX_UART_INTERFACES];
 }    // namespace
 
 namespace Board::detail
 {
     namespace UART::ll
     {
-        void enableDataEmptyInt(uint8_t channel)
+        void startTx(uint8_t channel)
         {
             // On NRF52, there is no TX Empty interrupt - only TX ready
             // interrupt, which occurs after the data has been sent.
             // In order to trigger the interrupt initially, STARTTX task must be triggered
             // and data needs to be written to TXD register.
+            // Do this only if current data transfer has completed.
 
-            size_t  remainingBytes;
-            uint8_t value;
+            if (!_transmitting[channel])
+            {
+                size_t  remainingBytes;
+                uint8_t value;
 
-            if (Board::detail::UART::getNextByteToSend(channel, value, remainingBytes))
-            {
-                nrf_uart_event_clear(_uartInstance[channel].p_reg, NRF_UART_EVENT_TXDRDY);
-                nrf_uart_task_trigger(_uartInstance[channel].p_reg, NRF_UART_TASK_STARTTX);
-                nrf_uart_txd_set(_uartInstance[channel].p_reg, value);
+                if (Board::detail::UART::getNextByteToSend(channel, value, remainingBytes))
+                {
+                    _transmitting[channel] = true;
+                    nrf_uart_event_clear(_uartInstance[channel].p_reg, NRF_UART_EVENT_TXDRDY);
+                    nrf_uart_task_trigger(_uartInstance[channel].p_reg, NRF_UART_TASK_STARTTX);
+                    nrf_uart_txd_set(_uartInstance[channel].p_reg, value);
+                }
+                else
+                {
+                    nrf_uart_task_trigger(_uartInstance[channel].p_reg, NRF_UART_TASK_STOPTX);
+                }
             }
-            else
-            {
-                nrf_uart_task_trigger(_uartInstance[channel].p_reg, NRF_UART_TASK_STOPTX);
-                Board::detail::UART::indicateTxComplete(channel);
-            }
+        }
+
+        bool isTxComplete(uint8_t channel)
+        {
+            return !_transmitting[channel];
         }
 
         bool deInit(uint8_t channel)
@@ -245,7 +255,7 @@ namespace Board::detail
                 else
                 {
                     nrf_uart_task_trigger(_uartInstance[channel].p_reg, NRF_UART_TASK_STOPTX);
-                    Board::detail::UART::indicateTxComplete(channel);
+                    _transmitting[channel] = false;
                 }
             }
 

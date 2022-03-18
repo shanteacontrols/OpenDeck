@@ -40,6 +40,7 @@ namespace
     uint32_t                                 _dmxBreakBRR;
     uint32_t                                 _dmxDataBRR;
 #endif
+    volatile bool _transmitting[MAX_UART_INTERFACES];
 }    // namespace
 
 // these macros are used to avoid function calls in ISR as much as possible and to avoid
@@ -109,7 +110,7 @@ namespace
         {                                                               \
         case Board::detail::UART::dmxState_t::DISABLED:                 \
         {                                                               \
-            Board::detail::UART::indicateTxComplete(channel);           \
+            _transmitting[channel] = false;                             \
         }                                                               \
         break;                                                          \
         case Board::detail::UART::dmxState_t::WAITING_TX_COMPLETE:      \
@@ -146,17 +147,19 @@ namespace
         }                                                                 \
     } while (0)
 
-#define TXC_ISR(channel)                                  \
-    do                                                    \
-    {                                                     \
-        Board::detail::UART::indicateTxComplete(channel); \
+#define TXC_ISR(channel)                \
+    do                                  \
+    {                                   \
+        _transmitting[channel] = false; \
     } while (0)
 #endif
 
 namespace Board::detail::UART::ll
 {
-    void enableDataEmptyInt(uint8_t channel)
+    void startTx(uint8_t channel)
     {
+        _transmitting[channel] = true;
+
         switch (channel)
         {
         case 0:
@@ -184,6 +187,11 @@ namespace Board::detail::UART::ll
         default:
             break;
         }
+    }
+
+    bool isTxComplete(uint8_t channel)
+    {
+        return !_transmitting[channel];
     }
 
     bool deInit(uint8_t channel)
@@ -226,6 +234,8 @@ namespace Board::detail::UART::ll
             default:
                 break;
             }
+
+            _transmitting[channel] = false;
         }
 
         return true;
@@ -438,7 +448,7 @@ namespace Board::detail::UART::ll
 
         if (config.dmxMode)
         {
-            enableDataEmptyInt(channel);
+            startTx(channel);
         }
 #endif
 

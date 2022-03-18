@@ -87,7 +87,7 @@ namespace Board
                                              USB_OVER_SERIAL_BUFFER_SIZE);
         USBOverSerial::write(UART_CHANNEL_USB_LINK, packet);
 
-        while (!Board::UART::isTxEmpty(UART_CHANNEL_USB_LINK))
+        while (!Board::UART::isTxComplete(UART_CHANNEL_USB_LINK))
         {
             ;
         }

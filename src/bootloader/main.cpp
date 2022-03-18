@@ -56,7 +56,7 @@ class BTLDRWriter : public Updater::BTLDRWriter
 #ifndef USB_SUPPORTED
         Board::UART::write(UART_CHANNEL_USB_LINK, TARGET_FW_UPDATE_DONE);
 
-        while (!Board::UART::isTxEmpty(UART_CHANNEL_USB_LINK))
+        while (!Board::UART::isTxComplete(UART_CHANNEL_USB_LINK))
         {
             ;
         }
@@ -97,7 +97,7 @@ class HWAFwSelector : public FwSelector::HWA
             // if link MCU doesn't receive this, bootloader should be entered
             Board::UART::write(UART_CHANNEL_USB_LINK, USB_LINK_MAGIC_VAL_APP);
 
-            while (!Board::UART::isTxEmpty(UART_CHANNEL_USB_LINK))
+            while (!Board::UART::isTxComplete(UART_CHANNEL_USB_LINK))
             {
                 ;
             }
