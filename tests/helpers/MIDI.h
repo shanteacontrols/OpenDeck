@@ -11,6 +11,7 @@
 #include "util/conversion/Conversion.h"
 #include "system/System.h"
 #include "Misc.h"
+#include "stubs/System.h"
 #include <glog/logging.h>
 
 #ifdef HW_TESTS_SUPPORTED
@@ -22,7 +23,18 @@ using namespace Protocol;
 class MIDIHelper
 {
     public:
-    MIDIHelper() = default;
+    MIDIHelper()
+        : USE_HARDWARE(false)
+    {}
+
+    MIDIHelper(bool useHardware)
+        : USE_HARDWARE(useHardware)
+    {}
+
+    MIDIHelper(TestSystem& system)
+        : _system(&system)
+        , USE_HARDWARE(false)
+    {}
 
     enum class deviceCheckType_t : uint8_t
     {
@@ -30,17 +42,17 @@ class MIDIHelper
         BOOT
     };
 
-    static std::vector<MIDI::usbMIDIPacket_t> rawSysExToUSBPackets(std::vector<uint8_t>& raw)
+    std::vector<MIDI::usbMIDIPacket_t> rawSysExToUSBPackets(std::vector<uint8_t>& raw)
     {
         Messaging::event_t event;
         event.sysEx       = &raw[0];
         event.sysExLength = raw.size();
         event.message     = MIDI::messageType_t::SYS_EX;
 
-        return MIDIHelper::midiToUsbPackets(event);
+        return midiToUsbPackets(event);
     }
 
-    static std::vector<MIDI::usbMIDIPacket_t> midiToUsbPackets(Messaging::event_t event)
+    std::vector<MIDI::usbMIDIPacket_t> midiToUsbPackets(Messaging::event_t event)
     {
         class HWAWriteToUSB : public MIDIlib::USBMIDI::HWA
         {
@@ -216,14 +228,12 @@ class MIDIHelper
     }
 
     template<typename T>
-    static void generateSysExGetReq(T section, size_t index, std::vector<uint8_t>& request)
+    std::vector<uint8_t> generateSysExGetReq(T section, size_t index)
     {
         auto blockIndex = block(section);
         auto split      = Util::Conversion::Split14bit(index);
 
-        request.clear();
-
-        request = {
+        std::vector<uint8_t> request = {
             0xF0,
             SYSEX_MANUFACTURER_ID_0,
             SYSEX_MANUFACTURER_ID_1,
@@ -240,18 +250,18 @@ class MIDIHelper
             0x00,                                                  // new value low byte
             0xF7
         };
+
+        return request;
     }
 
     template<typename S, typename I, typename V>
-    static void generateSysExSetReq(S section, I index, V value, std::vector<uint8_t>& request)
+    std::vector<uint8_t> generateSysExSetReq(S section, I index, V value)
     {
         auto blockIndex = block(section);
         auto splitIndex = Util::Conversion::Split14bit(static_cast<uint16_t>(index));
         auto splitValue = Util::Conversion::Split14bit(static_cast<uint16_t>(value));
 
-        request.clear();
-
-        request = {
+        std::vector<uint8_t> request = {
             0xF0,
             SYSEX_MANUFACTURER_ID_0,
             SYSEX_MANUFACTURER_ID_1,
@@ -268,47 +278,42 @@ class MIDIHelper
             splitValue.low(),
             0xF7
         };
+
+        return request;
     }
 
-#ifdef HW_TESTS_SUPPORTED
     template<typename T>
-    static uint16_t readFromDevice(T section, size_t index)
+    uint16_t readFromSystem(T section, size_t index)
     {
-        std::vector<uint8_t> requestUint8;
-        generateSysExGetReq(section, index, requestUint8);
+        auto request = generateSysExGetReq(section, index);
 
-        return sendRequest(requestUint8, SysExConf::wish_t::GET);
+#ifdef HW_TESTS_SUPPORTED
+        if (USE_HARDWARE)
+        {
+            return sendRequestToDevice(request, SysExConf::wish_t::GET);
+        }
+#endif
+
+        return sendRequestToStub(request, SysExConf::wish_t::GET);
     }
 
     template<typename S, typename I, typename V>
-    static bool setSingleSysExReq(S section, I index, V value)
+    bool writeToSystem(S section, I index, V value)
     {
-        auto blockIndex = block(section);
-        auto indexSplit = Util::Conversion::Split14bit(static_cast<uint16_t>(index));
-        auto valueSplit = Util::Conversion::Split14bit(static_cast<uint16_t>(value));
+        auto request = generateSysExSetReq(section, index, value);
 
-        const std::vector<uint8_t> REQUEST_UINT8 = {
-            0xF0,
-            SYSEX_MANUFACTURER_ID_0,
-            SYSEX_MANUFACTURER_ID_1,
-            SYSEX_MANUFACTURER_ID_2,
-            static_cast<uint8_t>(SysExConf::status_t::REQUEST),
-            0,
-            static_cast<uint8_t>(SysExConf::wish_t::SET),
-            static_cast<uint8_t>(SysExConf::amount_t::SINGLE),
-            static_cast<uint8_t>(blockIndex),
-            static_cast<uint8_t>(section),
-            indexSplit.high(),
-            indexSplit.low(),
-            valueSplit.high(),
-            valueSplit.low(),
-            0xF7
-        };
+#ifdef HW_TESTS_SUPPORTED
+        if (USE_HARDWARE)
+        {
+            return sendRequestToDevice(request, SysExConf::wish_t::SET);
+        }
+#endif
 
-        return sendRequest(REQUEST_UINT8, SysExConf::wish_t::SET);
+        return sendRequestToStub(request, SysExConf::wish_t::SET);
     }
 
-    static void flush()
+#ifdef HW_TESTS_SUPPORTED
+    void flush()
     {
         LOG(INFO) << "Flushing all incoming data from the OpenDeck device";
         std::string cmdResponse;
@@ -324,7 +329,7 @@ class MIDIHelper
 #endif
     }
 
-    static std::string sendRawSysEx(std::string req, bool expectResponse = true)
+    std::string sendRawSysEx(std::string req, bool expectResponse = true)
     {
         std::string cmdResponse;
         std::string lastResponseFileLocation = "/tmp/midi_in_data.txt";
@@ -402,7 +407,7 @@ class MIDIHelper
     }
 
     // check for opendeck device only here
-    static bool devicePresent(deviceCheckType_t type, bool silent = false)
+    bool devicePresent(deviceCheckType_t type, bool silent = false)
     {
         if (!silent)
         {
@@ -450,7 +455,7 @@ class MIDIHelper
         return false;
     }
 
-    static std::string amidiPort(std::string midiDevice)
+    std::string amidiPort(std::string midiDevice)
     {
         std::string cmd = "amidi -l | grep \"" + midiDevice + "\" | grep -Eo 'hw:\\S*'";
         std::string cmdResponse;
@@ -460,9 +465,76 @@ class MIDIHelper
     }
 #endif
 
+    std::vector<uint8_t> sendRawSysEx(std::vector<uint8_t> request)
+    {
+        LOG(INFO) << "Sending request to system: ";
+
+        for (auto i = 0; i < request.size(); i++)
+        {
+            std::cout
+                << std::hex << std::setfill('0') << std::setw(2) << std::uppercase
+                << static_cast<int>(request.at(i)) << " ";
+        }
+
+        std::cout << std::endl;
+
+        Messaging::event_t event;
+        event.sysEx       = &request[0];
+        event.sysExLength = request.size();
+        event.message     = MIDI::messageType_t::SYS_EX;
+
+        processIncoming(event);
+
+        auto response     = _system->_hwaMIDIUSB._writeParser.writtenMessages().at(0).sysexArray;
+        auto responseSize = _system->_hwaMIDIUSB._writeParser.writtenMessages().at(0).length;
+
+        std::vector<uint8_t> responseVec(&response[0], &response[responseSize]);
+
+        LOG(INFO) << "Received response: ";
+
+        for (auto i = 0; i < responseVec.size(); i++)
+        {
+            std::cout
+                << std::hex << std::setfill('0') << std::setw(2) << std::uppercase
+                << static_cast<int>(responseVec.at(i)) << " ";
+        }
+
+        std::cout << std::endl;
+
+        return responseVec;
+    }
+
+    void processIncoming(Messaging::event_t event)
+    {
+        if (_system == nullptr)
+        {
+            return;
+        }
+
+        LOG(INFO) << "Processing incoming messages to system";
+
+        _system->_hwaMIDIUSB.clear();
+        _system->_hwaMIDIDIN.clear();
+
+        _system->_hwaMIDIUSB._readPackets = midiToUsbPackets(event);
+
+        // don't care about hwa calls here
+        EXPECT_CALL(_system->_hwaButtons, state(_, _, _))
+            .Times(AnyNumber());
+
+        EXPECT_CALL(_system->_hwaAnalog, value(_, _))
+            .Times(AnyNumber());
+
+        // now just call system which will call midi.read which in turn will read the filled packets
+        while (_system->_hwaMIDIUSB._readPackets.size())
+        {
+            _system->_instance.run();
+        }
+    }
+
     private:
 #ifdef HW_TESTS_SUPPORTED
-    static uint16_t sendRequest(const std::vector<uint8_t>& requestUint8, SysExConf::wish_t wish)
+    uint16_t sendRequestToDevice(std::vector<uint8_t>& requestUint8, SysExConf::wish_t wish)
     {
         // convert uint8_t vector to string so it can be passed as command line argument
         std::stringstream requestString;
@@ -510,38 +582,57 @@ class MIDIHelper
     }
 #endif
 
-    static System::Config::block_t block(System::Config::Section::global_t section)
+    uint16_t sendRequestToStub(std::vector<uint8_t>& request, SysExConf::wish_t wish, bool customReq = false)
+    {
+        auto response = sendRawSysEx(request);
+
+        if (wish == SysExConf::wish_t::GET)
+        {
+            // last two bytes are result
+            auto merged = Util::Conversion::Merge14bit(response.at(response.size() - 3), response.at(response.size() - 2));
+            return merged.value();
+        }
+
+        // read status byte
+        return response.at(4);
+    }
+
+    System::Config::block_t block(System::Config::Section::global_t section)
     {
         return System::Config::block_t::GLOBAL;
     }
 
-    static System::Config::block_t block(System::Config::Section::button_t section)
+    System::Config::block_t block(System::Config::Section::button_t section)
     {
         return System::Config::block_t::BUTTONS;
     }
 
-    static System::Config::block_t block(System::Config::Section::encoder_t section)
+    System::Config::block_t block(System::Config::Section::encoder_t section)
     {
         return System::Config::block_t::ENCODERS;
     }
 
-    static System::Config::block_t block(System::Config::Section::analog_t section)
+    System::Config::block_t block(System::Config::Section::analog_t section)
     {
         return System::Config::block_t::ANALOG;
     }
 
-    static System::Config::block_t block(System::Config::Section::leds_t section)
+    System::Config::block_t block(System::Config::Section::leds_t section)
     {
         return System::Config::block_t::LEDS;
     }
 
-    static System::Config::block_t block(System::Config::Section::i2c_t section)
+    System::Config::block_t block(System::Config::Section::i2c_t section)
     {
         return System::Config::block_t::I2C;
     }
 
-    static System::Config::block_t block(System::Config::Section::touchscreen_t section)
+    System::Config::block_t block(System::Config::Section::touchscreen_t section)
     {
         return System::Config::block_t::TOUCHSCREEN;
     }
+
+    TestSystem* _system = nullptr;
+
+    [[maybe_unused]] const bool USE_HARDWARE;
 };

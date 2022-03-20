@@ -22,102 +22,46 @@ namespace
             _listener._event.clear();
         }
 
-        void processIncoming(Messaging::event_t event)
+        int supportedPresets()
         {
-            _system._hwaMIDIUSB.clear();
-            _system._hwaMIDIDIN.clear();
+            LOG(INFO) << "Checking the number of supported presets";
 
-            _system._hwaMIDIUSB._readPackets = MIDIHelper::midiToUsbPackets(event);
+            auto response = _helper.sendRawSysEx(std::vector<uint8_t>({ 0xF0,
+                                                                        0x00,
+                                                                        0x53,
+                                                                        0x43,
+                                                                        0x00,
+                                                                        0x00,
+                                                                        SYSEX_CR_SUPPORTED_PRESETS,
+                                                                        0xF7 }));
 
-            // don't care about hwa calls here
-            EXPECT_CALL(_system._hwaButtons, state(_, _, _))
-                .Times(AnyNumber());
-
-            EXPECT_CALL(_system._hwaAnalog, value(_, _))
-                .Times(AnyNumber());
-
-            // now just call system which will call midi.read which in turn will read the filled packets
-            while (_system._hwaMIDIUSB._readPackets.size())
-            {
-                _system._instance.run();
-            }
+            return response.at(8);
         }
 
-        void sendAndVerifySysExRequest(std::vector<uint8_t> request, const std::vector<uint8_t> expectedResponse)
+        void handshake()
         {
-            Messaging::event_t event;
-            event.sysEx       = &request[0];
-            event.sysExLength = request.size();
-            event.message     = MIDI::messageType_t::SYS_EX;
+            LOG(INFO) << "Sending handshake";
 
-            processIncoming(event);
+            std::vector<uint8_t> expected = { 0xF0,
+                                              0x00,
+                                              0x53,
+                                              0x43,
+                                              0x01,
+                                              0x00,
+                                              0x01,
+                                              0xF7 };
 
-            bool responseVerified = false;
+            auto response = _helper.sendRawSysEx(std::vector<uint8_t>({ 0xF0,
+                                                                        0x00,
+                                                                        0x53,
+                                                                        0x43,
+                                                                        0x00,
+                                                                        0x00,
+                                                                        0x01,
+                                                                        0xF7 }));
 
-            // std::cout << "request / expected / received:" << std::endl;
-
-            // for (size_t i = 0; i < request.size(); i++)
-            //     std::cout << static_cast<int>(request.at(i)) << " ";
-            // std::cout << std::endl;
-
-            // for (size_t i = 0; i < expectedResponse.size(); i++)
-            //     std::cout << static_cast<int>(expectedResponse.at(i)) << " ";
-            // std::cout << std::endl;
-
-            // for (size_t i = 0; i < rawBytes.size(); i++)
-            //     std::cout << static_cast<int>(rawBytes.at(i)) << " ";
-            // std::cout << std::endl;
-
-            for (size_t i = 0; i < _system._hwaMIDIUSB._writeParser.writtenMessages().size(); i++)
-            {
-                // it's possible that the first response isn't sysex but some component message
-                if (_system._hwaMIDIUSB._writeParser.writtenMessages().at(0).sysexArray[0] != expectedResponse.at(0))
-                {
-                    continue;
-                }
-
-                responseVerified = true;
-
-                // once F0 is found, however, it should be expected response
-                for (size_t byte = 0; byte < expectedResponse.size(); byte++)
-                {
-                    if (expectedResponse.at(byte) != _system._hwaMIDIUSB._writeParser.writtenMessages().at(i).sysexArray[byte])
-                    {
-                        responseVerified = false;
-                        break;
-                    }
-                }
-
-                if (responseVerified)
-                {
-                    break;
-                }
-            }
-
-            _system._hwaMIDIUSB._writePackets.clear();
-            ASSERT_TRUE(responseVerified);
-        }
-
-        uint16_t readFromDevice(std::vector<uint8_t> request, bool customReq = false)
-        {
-            Messaging::event_t event;
-            event.sysEx       = &request[0];
-            event.sysExLength = request.size();
-            event.message     = MIDI::messageType_t::SYS_EX;
-
-            processIncoming(event);
-
-            auto response     = _system._hwaMIDIUSB._writeParser.writtenMessages().at(0).sysexArray;
-            auto responseSize = _system._hwaMIDIUSB._writeParser.writtenMessages().at(0).length;
-
-            if (customReq)
-            {
-                return response[8];
-            }
-
-            // last two bytes are result
-            auto merged = Util::Conversion::Merge14bit(response[responseSize - 3], response[responseSize - 2]);
-            return merged.value();
+            // verify status byte
+            ASSERT_EQ(expected, response);
         }
 
         void fakeTimeAndRunSystem()
@@ -133,9 +77,9 @@ namespace
             _system._instance.run();
         }
 
-        std::vector<uint8_t> _generatedSysExReq;
-        Listener             _listener;
-        TestSystem           _system;
+        Listener   _listener;
+        TestSystem _system;
+        MIDIHelper _helper = MIDIHelper(_system);
     };
 
 }    // namespace
@@ -170,23 +114,7 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
         // rest of the values are irrelevant
     }
 
-    // handshake
-    sendAndVerifySysExRequest({ 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x00,
-                                0x00,
-                                0x01,
-                                0xF7 },
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x01,
-                                0xF7 });
+    handshake();
 
     static constexpr size_t ANALOG_INDEX              = 0;
     static constexpr size_t ENABLED_ANALOG_COMPONENTS = IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) ? 1 : 0;
@@ -195,104 +123,41 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
     {
         if (ENABLED_ANALOG_COMPONENTS)
         {
-            MIDIHelper::generateSysExSetReq(System::Config::Section::analog_t::ENABLE,
-                                            ANALOG_INDEX,
-                                            1,
-                                            _generatedSysExReq);
-
-            sendAndVerifySysExRequest(_generatedSysExReq,
-                                      { 0xF0,
-                                        0x00,
-                                        0x53,
-                                        0x43,
-                                        0x01,                                                               // ack
-                                        0x00,                                                               // msg part
-                                        0x01,                                                               // set
-                                        0x00,                                                               // single
-                                        static_cast<uint8_t>(System::Config::block_t::ANALOG),              // block
-                                        static_cast<uint8_t>(System::Config::Section::analog_t::ENABLE),    // section
-                                        0x00,                                                               // MSB index
-                                        static_cast<uint8_t>(ANALOG_INDEX),                                 // LSB index
-                                        0x00,                                                               // MSB new value
-                                        1,                                                                  // LSB new value
-                                        0xF7 });
+            ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::analog_t::ENABLE, ANALOG_INDEX, 1));
         }
     };
 
     enableAnalog();
 
-    auto supportedPresets = readFromDevice(
-        { 0xF0,
-          0x00,
-          0x53,
-          0x43,
-          0x00,
-          0x00,
-          SYSEX_CR_SUPPORTED_PRESETS,
-          0xF7 },
-        true);
+    auto presets = supportedPresets();
 
-    LOG(INFO) << "Supported presets: " << static_cast<int>(supportedPresets);
+    LOG(INFO) << "Supported presets: " << presets;
 
-    if (supportedPresets < 2)
+    if (presets < 2)
     {
         LOG(INFO) << "Not enough supported presets for further tests, exiting";
         return;
     }
 
     uint8_t newPreset = 1;
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::PRESETS,
-                                    Database::Config::presetSetting_t::ACTIVE_PRESET,
-                                    newPreset,
-                                    _generatedSysExReq);
 
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,                                                                      // ack
-                                0x00,                                                                      // msg part
-                                0x01,                                                                      // set
-                                0x00,                                                                      // single
-                                static_cast<uint8_t>(System::Config::block_t::GLOBAL),                     // global block
-                                static_cast<uint8_t>(System::Config::Section::global_t::PRESETS),          // preset section
-                                0x00,                                                                      // MSB index (active preset)
-                                static_cast<uint8_t>(Database::Config::presetSetting_t::ACTIVE_PRESET),    // LSB index (active preset)
-                                0x00,                                                                      // MSB new value
-                                newPreset,                                                                 // LSB new value
-                                0xF7 });
+    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::global_t::PRESETS,
+                                      Database::Config::presetSetting_t::ACTIVE_PRESET,
+                                      newPreset));
 
     enableAnalog();
 
 #ifdef DIN_MIDI_SUPPORTED
     // enable DIN midi as well - same data needs to be sent there
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::MIDI_SETTINGS,
-                                    Protocol::MIDI::setting_t::DIN_ENABLED,
-                                    1,
-                                    _generatedSysExReq);
 
     EXPECT_CALL(_system._hwaMIDIDIN, init())
         .WillOnce(Return(true));
 
     // loopback shouldn't be changed
 
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x01,                                                                      // set
-                                0x00,                                                                      // single
-                                static_cast<uint8_t>(System::Config::block_t::GLOBAL),                     // global block
-                                static_cast<uint8_t>(System::Config::Section::global_t::MIDI_SETTINGS),    // midi section
-                                0x00,                                                                      // MSB index (DIN enabled)
-                                static_cast<uint8_t>(MIDI::setting_t::DIN_ENABLED),                        // LSB index (DIN enabled)
-                                0x00,                                                                      // MSB new value (DIN enabled)
-                                0x01,                                                                      // LSB new value (DIN enabled)
-                                0xF7 });
+    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::global_t::MIDI_SETTINGS,
+                                      Protocol::MIDI::setting_t::DIN_ENABLED,
+                                      1));
 #endif
 
     EXPECT_CALL(_system._hwaLEDs, setState(_, _))
@@ -332,27 +197,10 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
     // Nothing should be received on DIN.
 
     newPreset = 0;
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::PRESETS,
-                                    Database::Config::presetSetting_t::ACTIVE_PRESET,
-                                    newPreset,
-                                    _generatedSysExReq);
 
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x01,                                                                      // set
-                                0x00,                                                                      // single
-                                static_cast<uint8_t>(System::Config::block_t::GLOBAL),                     // global block
-                                static_cast<uint8_t>(System::Config::Section::global_t::PRESETS),          // preset section
-                                0x00,                                                                      // MSB index (active preset)
-                                static_cast<uint8_t>(Database::Config::presetSetting_t::ACTIVE_PRESET),    // LSB index (active preset)
-                                0x00,                                                                      // MSB new value
-                                newPreset,                                                                 // LSB new value
-                                0xF7 });
+    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::global_t::PRESETS,
+                                      Database::Config::presetSetting_t::ACTIVE_PRESET,
+                                      newPreset));
 
     // LEDs will be refreshed - they are all off
     EXPECT_CALL(_system._hwaLEDs, setState(_, LEDs::brightness_t::OFF))
@@ -392,27 +240,10 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
     // this will verify that din is properly enabled again
 
     newPreset = 1;
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::PRESETS,
-                                    Database::Config::presetSetting_t::ACTIVE_PRESET,
-                                    newPreset,
-                                    _generatedSysExReq);
 
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,                                                                      // ack
-                                0x00,                                                                      // msg part
-                                0x01,                                                                      // set
-                                0x00,                                                                      // single
-                                static_cast<uint8_t>(System::Config::block_t::GLOBAL),                     // global block
-                                static_cast<uint8_t>(System::Config::Section::global_t::PRESETS),          // preset section
-                                0x00,                                                                      // MSB index (active preset)
-                                static_cast<uint8_t>(Database::Config::presetSetting_t::ACTIVE_PRESET),    // LSB index (active preset)
-                                0x00,                                                                      // MSB new value
-                                newPreset,                                                                 // LSB new value
-                                0xF7 });
+    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::global_t::PRESETS,
+                                      Database::Config::presetSetting_t::ACTIVE_PRESET,
+                                      newPreset));
 
     // LEDs will be refreshed - they are all off
     EXPECT_CALL(_system._hwaLEDs, setState(_, LEDs::brightness_t::OFF))
@@ -481,38 +312,13 @@ TEST_F(SystemTest, PresetChangeIndicatedOnLEDs)
         // rest of the values are irrelevant
     }
 
-    // handshake
-    sendAndVerifySysExRequest({ 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x00,
-                                0x00,
-                                0x01,
-                                0xF7 },
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x01,
-                                0xF7 });
+    handshake();
 
-    auto supportedPresets = readFromDevice(
-        { 0xF0,
-          0x00,
-          0x53,
-          0x43,
-          0x00,
-          0x00,
-          SYSEX_CR_SUPPORTED_PRESETS,
-          0xF7 },
-        true);
+    auto presets = supportedPresets();
 
-    LOG(INFO) << "Supported presets: " << static_cast<int>(supportedPresets);
+    LOG(INFO) << "Supported presets: " << presets;
 
-    if (supportedPresets < 2)
+    if (presets < 2)
     {
         LOG(INFO) << "Not enough supported presets for further tests, exiting";
         return;
@@ -522,74 +328,23 @@ TEST_F(SystemTest, PresetChangeIndicatedOnLEDs)
 
     // Configure the first LED to indicate current preset.
     // Its activation ID is 0 so it should be on only in first preset.
-    MIDIHelper::generateSysExSetReq(System::Config::Section::leds_t::CONTROL_TYPE,
-                                    LED_INDEX,
-                                    LEDs::controlType_t::PRESET,
-                                    _generatedSysExReq);
 
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x01,    // set
-                                0x00,    // single
-                                static_cast<uint8_t>(System::Config::block_t::LEDS),
-                                static_cast<uint8_t>(System::Config::Section::leds_t::CONTROL_TYPE),
-                                0x00,    // LED
-                                LED_INDEX,
-                                0x00,
-                                static_cast<uint8_t>(LEDs::controlType_t::PRESET),
-                                0xF7 });
+    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::leds_t::CONTROL_TYPE,
+                                      LED_INDEX,
+                                      LEDs::controlType_t::PRESET));
 
     // also configure second led
-    MIDIHelper::generateSysExSetReq(System::Config::Section::leds_t::CONTROL_TYPE,
-                                    LED_INDEX + 1,
-                                    LEDs::controlType_t::PRESET,
-                                    _generatedSysExReq);
 
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x01,    // set
-                                0x00,    // single
-                                static_cast<uint8_t>(System::Config::block_t::LEDS),
-                                static_cast<uint8_t>(System::Config::Section::leds_t::CONTROL_TYPE),
-                                0x00,    // LED
-                                LED_INDEX + 1,
-                                0x00,
-                                static_cast<uint8_t>(LEDs::controlType_t::PRESET),
-                                0xF7 });
+    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::leds_t::CONTROL_TYPE,
+                                      LED_INDEX + 1,
+                                      LEDs::controlType_t::PRESET));
 
     // switch preset
     uint8_t newPreset = 1;
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::PRESETS,
-                                    Database::Config::presetSetting_t::ACTIVE_PRESET,
-                                    newPreset,
-                                    _generatedSysExReq);
 
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,                                                                      // ack
-                                0x00,                                                                      // msg part
-                                0x01,                                                                      // set
-                                0x00,                                                                      // single
-                                static_cast<uint8_t>(System::Config::block_t::GLOBAL),                     // global block
-                                static_cast<uint8_t>(System::Config::Section::global_t::PRESETS),          // preset section
-                                0x00,                                                                      // MSB index (active preset)
-                                static_cast<uint8_t>(Database::Config::presetSetting_t::ACTIVE_PRESET),    // LSB index (active preset)
-                                0x00,                                                                      // MSB new value
-                                newPreset,                                                                 // LSB new value
-                                0xF7 });
+    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::global_t::PRESETS,
+                                      Database::Config::presetSetting_t::ACTIVE_PRESET,
+                                      newPreset));
 
     // all leds should be off in new preset
     EXPECT_CALL(_system._hwaLEDs, setState(_, LEDs::brightness_t::OFF))
@@ -602,160 +357,33 @@ TEST_F(SystemTest, PresetChangeIndicatedOnLEDs)
     fakeTimeAndRunSystem();
 
     // verify the leds are off
-    MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX, _generatedSysExReq);
 
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x00,    // get
-                                0x00,    // single
-                                static_cast<uint8_t>(System::Config::block_t::LEDS),
-                                static_cast<uint8_t>(System::Config::Section::leds_t::TEST_COLOR),
-                                0x00,
-                                LED_INDEX,
-                                0x00,    // new value / blank
-                                0x00,    // new value / blank
-                                0x00,
-                                0x00,    // LED state - off
-                                0xF7 });
-
-    MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1, _generatedSysExReq);
-
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x00,    // get
-                                0x00,    // single
-                                static_cast<uint8_t>(System::Config::block_t::LEDS),
-                                static_cast<uint8_t>(System::Config::Section::leds_t::TEST_COLOR),
-                                0x00,
-                                LED_INDEX + 1,
-                                0x00,    // new value / blank
-                                0x00,    // new value / blank
-                                0x00,
-                                0x00,    // LED state - off
-                                0xF7 });
+    ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
+    ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1));
 
     // configure those same two leds to indicate preset in this preset as well
-    MIDIHelper::generateSysExSetReq(System::Config::Section::leds_t::CONTROL_TYPE,
-                                    LED_INDEX,
-                                    LEDs::controlType_t::PRESET,
-                                    _generatedSysExReq);
 
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x01,    // set
-                                0x00,    // single
-                                static_cast<uint8_t>(System::Config::block_t::LEDS),
-                                static_cast<uint8_t>(System::Config::Section::leds_t::CONTROL_TYPE),
-                                0x00,    // LED
-                                LED_INDEX,
-                                0x00,
-                                static_cast<uint8_t>(LEDs::controlType_t::PRESET),
-                                0xF7 });
+    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::leds_t::CONTROL_TYPE,
+                                      LED_INDEX,
+                                      LEDs::controlType_t::PRESET));
 
     // also configure second led
-    MIDIHelper::generateSysExSetReq(System::Config::Section::leds_t::CONTROL_TYPE,
-                                    LED_INDEX + 1,
-                                    LEDs::controlType_t::PRESET,
-                                    _generatedSysExReq);
 
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x01,    // set
-                                0x00,    // single
-                                static_cast<uint8_t>(System::Config::block_t::LEDS),
-                                static_cast<uint8_t>(System::Config::Section::leds_t::CONTROL_TYPE),
-                                0x00,    // LED
-                                LED_INDEX + 1,
-                                0x00,
-                                static_cast<uint8_t>(LEDs::controlType_t::PRESET),
-                                0xF7 });
+    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::leds_t::CONTROL_TYPE,
+                                      LED_INDEX + 1,
+                                      LEDs::controlType_t::PRESET));
 
     // now switch to preset 0 and expect only the first LED to be on
     newPreset = 0;
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::PRESETS,
-                                    Database::Config::presetSetting_t::ACTIVE_PRESET,
-                                    newPreset,
-                                    _generatedSysExReq);
 
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,                                                                      // ack
-                                0x00,                                                                      // msg part
-                                0x01,                                                                      // set
-                                0x00,                                                                      // single
-                                static_cast<uint8_t>(System::Config::block_t::GLOBAL),                     // global block
-                                static_cast<uint8_t>(System::Config::Section::global_t::PRESETS),          // preset section
-                                0x00,                                                                      // MSB index (active preset)
-                                static_cast<uint8_t>(Database::Config::presetSetting_t::ACTIVE_PRESET),    // LSB index (active preset)
-                                0x00,                                                                      // MSB new value
-                                newPreset,                                                                 // LSB new value
-                                0xF7 });
+    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::global_t::PRESETS,
+                                      Database::Config::presetSetting_t::ACTIVE_PRESET,
+                                      newPreset));
 
     // the LEDs should still be off since the timeout hasn't passed
-    MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX, _generatedSysExReq);
 
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x00,    // get
-                                0x00,    // single
-                                static_cast<uint8_t>(System::Config::block_t::LEDS),
-                                static_cast<uint8_t>(System::Config::Section::leds_t::TEST_COLOR),
-                                0x00,    // LED
-                                LED_INDEX,
-                                0x00,    // new value / blank
-                                0x00,    // new value / blank
-                                0x00,
-                                0x00,    // LED state - off
-                                0xF7 });
-
-    MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1, _generatedSysExReq);
-
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x00,    // get
-                                0x00,    // single
-                                static_cast<uint8_t>(System::Config::block_t::LEDS),
-                                static_cast<uint8_t>(System::Config::Section::leds_t::TEST_COLOR),
-                                0x00,    // LED
-                                LED_INDEX + 1,
-                                0x00,    // new value / blank
-                                0x00,    // new value / blank
-                                0x00,
-                                0x00,    // LED state - off
-                                0xF7 });
+    ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
+    ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1));
 
 #ifdef DIGITAL_OUTPUTS_SUPPORTED
     {
@@ -811,110 +439,19 @@ TEST_F(SystemTest, PresetChangeIndicatedOnLEDs)
     }
 
     // also verify through sysex
-    MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX, _generatedSysExReq);
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x00,    // get
-                                0x00,    // single
-                                static_cast<uint8_t>(System::Config::block_t::LEDS),
-                                static_cast<uint8_t>(System::Config::Section::leds_t::TEST_COLOR),
-                                0x00,    // LED
-                                LED_INDEX,
-                                0x00,    // new value / blank
-                                0x00,    // new value / blank
-                                0x00,
-                                0x01,    // LED state - on
-                                0xF7 });
-
-    MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1, _generatedSysExReq);
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x00,    // get
-                                0x00,    // single
-                                static_cast<uint8_t>(System::Config::block_t::LEDS),
-                                static_cast<uint8_t>(System::Config::Section::leds_t::TEST_COLOR),
-                                0x00,    // LED
-                                LED_INDEX + 1,
-                                0x00,    // new value / blank
-                                0x00,    // new value / blank
-                                0x00,
-                                0x00,    // LED state - off
-                                0xF7 });
+    ASSERT_EQ(1, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
+    ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1));
 
     // switch to preset 1 and verify that the first LED is off and second is on
     newPreset = 1;
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::PRESETS,
-                                    Database::Config::presetSetting_t::ACTIVE_PRESET,
-                                    newPreset,
-                                    _generatedSysExReq);
 
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,                                                                      // ack
-                                0x00,                                                                      // msg part
-                                0x01,                                                                      // set
-                                0x00,                                                                      // single
-                                static_cast<uint8_t>(System::Config::block_t::GLOBAL),                     // global block
-                                static_cast<uint8_t>(System::Config::Section::global_t::PRESETS),          // preset section
-                                0x00,                                                                      // MSB index (active preset)
-                                static_cast<uint8_t>(Database::Config::presetSetting_t::ACTIVE_PRESET),    // LSB index (active preset)
-                                0x00,                                                                      // MSB new value
-                                newPreset,                                                                 // LSB new value
-                                0xF7 });
+    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::global_t::PRESETS,
+                                      Database::Config::presetSetting_t::ACTIVE_PRESET,
+                                      newPreset));
 
     // timeout hasn't occured yet
-    MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX, _generatedSysExReq);
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x00,    // get
-                                0x00,    // single
-                                static_cast<uint8_t>(System::Config::block_t::LEDS),
-                                static_cast<uint8_t>(System::Config::Section::leds_t::TEST_COLOR),
-                                0x00,    // LED
-                                LED_INDEX,
-                                0x00,    // new value / blank
-                                0x00,    // new value / blank
-                                0x00,
-                                0x01,    // LED state - on
-                                0xF7 });
-
-    MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1, _generatedSysExReq);
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x00,    // get
-                                0x00,    // single
-                                static_cast<uint8_t>(System::Config::block_t::LEDS),
-                                static_cast<uint8_t>(System::Config::Section::leds_t::TEST_COLOR),
-                                0x00,    // LED
-                                LED_INDEX + 1,
-                                0x00,    // new value / blank
-                                0x00,    // new value / blank
-                                0x00,
-                                0x00,    // LED state - off
-                                0xF7 });
+    ASSERT_EQ(1, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
+    ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1));
 
 #ifdef DIGITAL_OUTPUTS_SUPPORTED
     {
@@ -981,45 +518,11 @@ TEST_F(SystemTest, PresetChangeIndicatedOnLEDs)
 
     ASSERT_TRUE(_system._instance.init());
 
-    // handshake
-    sendAndVerifySysExRequest({ 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x00,
-                                0x00,
-                                0x01,
-                                0xF7 },
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x01,
-                                0xF7 });
-
-    MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX, _generatedSysExReq);
+    handshake();
 
     // initially the state should be off
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x00,    // get
-                                0x00,    // single
-                                static_cast<uint8_t>(System::Config::block_t::LEDS),
-                                static_cast<uint8_t>(System::Config::Section::leds_t::TEST_COLOR),
-                                0x00,    // LED
-                                0x00,
-                                0x00,    // new value / blank
-                                0x00,    // new value / blank
-                                0x00,
-                                0x00,    // LED state - off
-                                0xF7 });
+    ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
+    ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1));
 
 #ifdef DIGITAL_OUTPUTS_SUPPORTED
     {
@@ -1045,24 +548,8 @@ TEST_F(SystemTest, PresetChangeIndicatedOnLEDs)
     fakeTimeAndRunSystem();
 
     // verify with sysex
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x00,    // get
-                                0x00,    // single
-                                static_cast<uint8_t>(System::Config::block_t::LEDS),
-                                static_cast<uint8_t>(System::Config::Section::leds_t::TEST_COLOR),
-                                0x00,    // LED
-                                LED_INDEX,
-                                0x00,    // new value / blank
-                                0x00,    // new value / blank
-                                0x00,
-                                0x01,    // LED state - on
-                                0xF7 });
+    ASSERT_EQ(1, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
+    ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1));
 }
 
 TEST_F(SystemTest, ProgramIndicatedOnStartup)
@@ -1078,71 +565,19 @@ TEST_F(SystemTest, ProgramIndicatedOnStartup)
 
     ASSERT_TRUE(_system._instance.init());
 
-    // handshake
-    sendAndVerifySysExRequest({ 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x00,
-                                0x00,
-                                0x01,
-                                0xF7 },
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x01,
-                                0xF7 });
+    handshake();
 
     static constexpr size_t LED_INDEX = 0;
 
     // configure the first LED to indicate program change
     // its activation ID is 0 so it should be on only for program 0
-    MIDIHelper::generateSysExSetReq(System::Config::Section::leds_t::CONTROL_TYPE,
-                                    LED_INDEX,
-                                    LEDs::controlType_t::PC_SINGLE_VAL,
-                                    _generatedSysExReq);
 
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x01,    // set
-                                0x00,    // single
-                                static_cast<uint8_t>(System::Config::block_t::LEDS),
-                                static_cast<uint8_t>(System::Config::Section::leds_t::CONTROL_TYPE),
-                                0x00,    // LED index
-                                LED_INDEX,
-                                0x00,
-                                static_cast<uint8_t>(LEDs::controlType_t::PC_SINGLE_VAL),
-                                0xF7 });
+    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::leds_t::CONTROL_TYPE,
+                                      LED_INDEX,
+                                      LEDs::controlType_t::PC_SINGLE_VAL));
 
     // led should be off for now
-    MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::TEST_COLOR, 0, _generatedSysExReq);
-
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x00,    // get
-                                0x00,    // single
-                                static_cast<uint8_t>(System::Config::block_t::LEDS),
-                                static_cast<uint8_t>(System::Config::Section::leds_t::TEST_COLOR),
-                                0x00,    // LED
-                                LED_INDEX,
-                                0x00,    // new value / blank
-                                0x00,    // new value / blank
-                                0x00,
-                                0x00,    // LED state - off
-                                0xF7 });
+    ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
 
     // reinit the system again
 
@@ -1165,47 +600,10 @@ TEST_F(SystemTest, ProgramIndicatedOnStartup)
 
     ASSERT_TRUE(_system._instance.init());
 
-    // handshake
-    sendAndVerifySysExRequest({ 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x00,
-                                0x00,
-                                0x01,
-                                0xF7 },
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x01,
-                                0xF7 });
+    handshake();
 
     // also verify with sysex
-    MIDIHelper::generateSysExGetReq(System::Config::Section::leds_t::TEST_COLOR,
-                                    LED_INDEX,
-                                    _generatedSysExReq);
-
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x00,    // get
-                                0x00,    // single
-                                static_cast<uint8_t>(System::Config::block_t::LEDS),
-                                static_cast<uint8_t>(System::Config::Section::leds_t::TEST_COLOR),
-                                0x00,    // LED
-                                LED_INDEX,
-                                0x00,    // new value / blank
-                                0x00,    // new value / blank
-                                0x00,
-                                0x01,    // LED state - on
-                                0xF7 });
+    ASSERT_EQ(1, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
 }
 #endif
 
@@ -1223,71 +621,20 @@ TEST_F(SystemTest, UsbThruDin)
 
     ASSERT_TRUE(_system._instance.init());
 
-    // handshake
-    sendAndVerifySysExRequest({ 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x00,
-                                0x00,
-                                0x01,
-                                0xF7 },
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x01,
-                                0xF7 });
+    handshake();
 
     // enable both din midi and usb to din thru
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::MIDI_SETTINGS,
-                                    Protocol::MIDI::setting_t::DIN_ENABLED,
-                                    1,
-                                    _generatedSysExReq);
 
     EXPECT_CALL(_system._hwaMIDIDIN, init())
         .WillOnce(Return(true));
 
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x01,    // set
-                                0x00,    // single
-                                static_cast<uint8_t>(System::Config::block_t::GLOBAL),
-                                static_cast<uint8_t>(System::Config::Section::global_t::MIDI_SETTINGS),
-                                0x00,                                                            // MSB index (dinEnabled)
-                                static_cast<uint8_t>(Protocol::MIDI::setting_t::DIN_ENABLED),    // LSB index (dinEnabled)
-                                0x00,                                                            // MSB new value
-                                1,                                                               // LSB new value
-                                0xF7 });
+    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::global_t::MIDI_SETTINGS,
+                                      Protocol::MIDI::setting_t::DIN_ENABLED,
+                                      1));
 
-    MIDIHelper::generateSysExSetReq(System::Config::Section::global_t::MIDI_SETTINGS,
-                                    Protocol::MIDI::setting_t::USB_THRU_DIN,
-                                    1,
-                                    _generatedSysExReq);
-
-    sendAndVerifySysExRequest(_generatedSysExReq,
-                              { 0xF0,
-                                0x00,
-                                0x53,
-                                0x43,
-                                0x01,
-                                0x00,
-                                0x01,    // set
-                                0x00,    // single
-                                static_cast<uint8_t>(System::Config::block_t::GLOBAL),
-                                static_cast<uint8_t>(System::Config::Section::global_t::MIDI_SETTINGS),
-                                0x00,                                                             // MSB index (dinThruUsb)
-                                static_cast<uint8_t>(Protocol::MIDI::setting_t::USB_THRU_DIN),    // LSB index (dinThruUsb)
-                                0x00,                                                             // MSB new value
-                                1,                                                                // LSB new value
-                                0xF7 });
+    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::global_t::MIDI_SETTINGS,
+                                      Protocol::MIDI::setting_t::USB_THRU_DIN,
+                                      1));
 
     // generate incoming USB message
 
@@ -1298,7 +645,7 @@ TEST_F(SystemTest, UsbThruDin)
     event.value   = 127;
     event.message = MIDI::messageType_t::CONTROL_CHANGE;
 
-    processIncoming(event);
+    _helper.processIncoming(event);
 
     ASSERT_EQ(1, _system._hwaMIDIDIN._writeParser.totalWrittenChannelMessages());
 
@@ -1310,7 +657,7 @@ TEST_F(SystemTest, UsbThruDin)
         .Times(1);
 #endif
 
-    processIncoming(event);
+    _helper.processIncoming(event);
 
     ASSERT_EQ(1, _system._hwaMIDIDIN._writeParser.totalWrittenChannelMessages());
 }

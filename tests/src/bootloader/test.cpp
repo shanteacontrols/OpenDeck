@@ -55,6 +55,7 @@ namespace
     SysExParser _sysExParser;
     BTLDRWriter _btldrWriter;
     Updater     _updater = Updater(_btldrWriter, COMMAND_FW_UPDATE_START, COMMAND_FW_UPDATE_END, FW_UID);
+    MIDIHelper  _helper;
 }    // namespace
 
 TEST(Bootloader, FwUpdate)
@@ -79,7 +80,7 @@ TEST(Bootloader, FwUpdate)
 
         if (sysExVector.at(i) == 0xF7)
         {
-            auto converted = MIDIHelper::rawSysExToUSBPackets(singleSysExMsg);
+            auto converted = _helper.rawSysExToUSBPackets(singleSysExMsg);
             packets.insert(std::end(packets), std::begin(converted), std::end(converted));
             singleSysExMsg.clear();
         }

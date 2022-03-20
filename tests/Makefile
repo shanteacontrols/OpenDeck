@@ -32,7 +32,9 @@ CPPFLAGS := \
 -fcoverage-mapping \
 -O0 \
 -g \
--Wall
+-Wall \
+-fdata-sections \
+-ffunction-sections
 
 #c++ compiler only
 CXXFLAGS := \
