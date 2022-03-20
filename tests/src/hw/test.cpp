@@ -795,17 +795,25 @@ TEST_F(HWTest, DINMIDIData)
     ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::global_t::MIDI_SETTINGS, Protocol::MIDI::setting_t::DIN_THRU_DIN, 1));
 
     monitor();
-    std::string msg = "90 00 7F";
+    std::string  msg              = "90 00 7F";
+    const size_t MESSAGES_TO_SEND = 100;
+
     LOG(INFO) << "Sending data to DIN MIDI interface " << IN_DIN_MIDI_PORT;
     LOG(INFO) << "Message: " << msg;
+
     cmd = "amidi -p " + _helper.amidiPort(IN_DIN_MIDI_PORT) + " -S \"" + msg + "\"";
-    ASSERT_EQ(0, test::wsystem(cmd));
+
+    for (size_t i = 0; i < MESSAGES_TO_SEND; i++)
+    {
+        ASSERT_EQ(0, test::wsystem(cmd));
+    }
+
     test::sleepMs(1000);
     stopMonitoring();
     receivedMessages = cleanupMIDIResponse(response);
     LOG(INFO) << "Received " << receivedMessages << " DIN MIDI messages on passthrough interface:\n"
               << response;
-    ASSERT_EQ(1, receivedMessages);
+    ASSERT_EQ(MESSAGES_TO_SEND, receivedMessages);
     ASSERT_NE(response.find(msg), std::string::npos);
 }
 #endif
