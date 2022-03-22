@@ -199,8 +199,9 @@ endif
 
 merged:
 	@echo Starting build for $(TARGET)
-	@echo Building application...
+	@$(MAKE) --no-print-directory TYPE=app TARGET=$(TARGET) DEBUG=$(DEBUG) generate
 	@$(MAKE) --no-print-directory TYPE=app TARGET=$(TARGET) DEBUG=$(DEBUG) pre-build
+	@echo Building application...
 	@$(MAKE) --no-print-directory TYPE=app TARGET=$(TARGET) DEBUG=$(DEBUG) binary
 	@echo Building bootloader...
 	@$(MAKE) --no-print-directory TYPE=boot TARGET=$(TARGET) DEBUG=$(DEBUG) binary
@@ -253,7 +254,8 @@ endif
 	@hexdump -v -e '/1 "%02x "' $(BUILD_DIR)/$(TARGET).sysex.syx | sed 's/f7/f7\n/g' | sed 's/^ *//' | tr a-z A-Z > $(BUILD_DIR)/$(TARGET).sysex
 	@echo SysEx file created: $(BUILD_DIR)/$(TARGET).sysex
 
-pre-build: $(PRE_BUILD_FILES)
+generate: $(GEN_FILES)
+pre-build::
 post-build::
 
 $(GEN_DIR_TARGET)/Target.h: $(DEF_FILE_TARGET)
