@@ -6,6 +6,7 @@ DEF_FILE_TARGET      := ../config/target/$(TARGET).yml
 DEF_FILE_TSCREEN     := ../config/touchscreen/$(TARGET).json
 TYPE                 := app
 SCRIPTS_DIR          := ../scripts
+DEPS_DIR             := deps
 CLANG_TIDY_OUT       := $(BUILD_DIR_BASE)/clang-tidy-fixes.yaml
 
 ifeq (,$(wildcard $(DEF_FILE_TARGET)))
