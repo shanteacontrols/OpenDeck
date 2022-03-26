@@ -164,7 +164,7 @@ namespace Board::detail::setup
             sd_power_usbpwrrdy_enable(true);
             sd_power_usbremoved_enable(true);
 
-            sd_power_usbregstatus_get(&usb_reg);
+            sd_power_usbregstatus_get(&usbReg);
         }
         else
 #endif
