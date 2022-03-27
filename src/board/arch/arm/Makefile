@@ -1,6 +1,7 @@
 ifeq (,$(findstring gen,$(TYPE)))
     INCLUDE_DIRS += \
-    -I"board/arch/arm/common/CMSIS"
+    -I"board/arch/arm/common/CMSIS" \
+    -I"../modules/tinyusb/lib/CMSIS_5/CMSIS/Core/Include"
 
     SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
 

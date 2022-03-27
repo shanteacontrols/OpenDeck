@@ -1,6 +1,5 @@
 ifeq (,$(findstring gen,$(TYPE)))
     INCLUDE_DIRS += \
-    -I"../modules/tinyusb/lib/CMSIS_5/CMSIS/Core/Include" \
     -I"../modules/tinyusb/hw/mcu/st/cmsis_device_f4/Include" \
     -I"../modules/tinyusb/hw/mcu/st/stm32f4xx_hal_driver/Inc" \
     -I"../modules/tinyusb/hw/bsp/stm32f4" \
