@@ -50,10 +50,7 @@ namespace Board::detail::setup
         rccOscInitStruct.PLL.PLLP       = HSE_PLLP;
         rccOscInitStruct.PLL.PLLQ       = HSE_PLLQ;
 
-        if (HAL_RCC_OscConfig(&rccOscInitStruct) != HAL_OK)
-        {
-            Board::detail::errorHandler();
-        }
+        BOARD_ERROR_CHECK(HAL_RCC_OscConfig(&rccOscInitStruct), HAL_OK);
 
         /* Initializes the CPU, AHB and APB busses clocks */
         rccClkInitStruct.ClockType      = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
@@ -62,10 +59,7 @@ namespace Board::detail::setup
         rccClkInitStruct.APB1CLKDivider = APB1_CLK_DIV;
         rccClkInitStruct.APB2CLKDivider = APB2_CLK_DIV;
 
-        if (HAL_RCC_ClockConfig(&rccClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
-        {
-            Board::detail::errorHandler();
-        }
+        BOARD_ERROR_CHECK(HAL_RCC_ClockConfig(&rccClkInitStruct, FLASH_LATENCY_2), HAL_OK);
     }
 
     void timers()

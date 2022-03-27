@@ -26,6 +26,15 @@ limitations under the License.
 
 // for internal board usage only - do not include/call in application directly
 
+#define BOARD_ERROR_CHECK(res, expected)   \
+    do                                     \
+    {                                      \
+        if ((res) != (expected))           \
+        {                                  \
+            Board::detail::errorHandler(); \
+        }                                  \
+    } while (0)
+
 namespace Board::detail
 {
 #ifdef BOARD_USE_UPDATE_HOOKS

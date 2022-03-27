@@ -48,11 +48,7 @@ namespace Board::I2C
         _i2cHandler[channel].Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
         _i2cHandler[channel].Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
 
-        if (HAL_I2C_Init(&_i2cHandler[channel]) != HAL_OK)
-        {
-            Board::detail::errorHandler();
-            return false;
-        }
+        BOARD_ERROR_CHECK(HAL_I2C_Init(&_i2cHandler[channel]), HAL_OK);
 
         return true;
     }
