@@ -22,9 +22,9 @@ limitations under the License.
 #include "nrf_sdm.h"
 #include "nrfx_clock.h"
 #include "nrfx_saadc.h"
-#include "nrfx/hal/nrf_gpio.h"
-#include "nrfx/drivers/include/nrfx_power.h"
-#include "nrfx/hal/nrf_nvmc.h"
+#include "nrf_gpio.h"
+#include "nrfx_power.h"
+#include "nrf_nvmc.h"
 #include "core/src/general/ADC.h"
 #ifdef USB_SUPPORTED
 #include "tusb.h"

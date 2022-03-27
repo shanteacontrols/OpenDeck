@@ -10,6 +10,7 @@ ifeq (,$(findstring gen,$(TYPE)))
     -include "board/arch/arm/nordic/variants/nrf52/nrfx_config.h"
 
     INCLUDE_DIRS += \
+    -I"deps/$(NRF52_SDK_VERSION)/components/softdevice/s140/headers" \
     -I"deps/$(NRF52_SDK_VERSION)/components/softdevice/s140/headers/nrf52"
 endif
 

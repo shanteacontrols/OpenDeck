@@ -8,13 +8,11 @@ ifeq (,$(findstring gen,$(TYPE)))
     -I"../modules/tinyusb/hw/mcu/nordic/nrfx/drivers/include" \
     -I"../modules/tinyusb/hw/mcu/nordic/nrfx/drivers/src" \
     -I"../modules/tinyusb/hw/mcu/nordic/nrfx/drivers/src/prs" \
-    -I"../modules/tinyusb/hw/mcu/nordic/nrf5x/s140_nrf52_6.1.1_API/include" \
     -I"../modules/tinyusb/hw/bsp/nrf" \
     -I"../modules/tinyusb/hw" \
     -I"../modules/tinyusb/src"
 
     SOURCES += \
-    modules/tinyusb/hw/mcu/nordic/nrfx/mdk/system_nrf52840.c \
     modules/tinyusb/hw/bsp/board.c
 
     SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY) -maxdepth 1 -name "*.cpp")
