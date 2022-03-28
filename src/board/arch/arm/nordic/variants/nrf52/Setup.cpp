@@ -44,10 +44,6 @@ namespace
 // We must call it within SD's SOC event handler, or set it as power event handler if SD is not enabled.
 extern "C" void tusb_hal_nrf_power_event(uint32_t event);
 
-extern "C" void clock_event_handler(nrfx_clock_evt_type_t event)
-{
-}
-
 extern "C" void power_event_handler(nrfx_power_usb_evt_t event)
 {
     tusb_hal_nrf_power_event((uint32_t)event);
@@ -88,17 +84,34 @@ namespace Board::detail::setup
 
     void clocks()
     {
-        // stop LF clock just in case we jump from application without reset
-        NRF_CLOCK->TASKS_LFCLKSTOP = 1UL;
+        nrfx_clock_init([](nrfx_clock_evt_type_t event)
+                        {
+                            switch (event)
+                            {
+                            case NRFX_CLOCK_EVT_HFCLK_STARTED:
+                            {
+                            }
+                            break;
 
-        // enable external crystal
-        nrfx_clock_init(&clock_event_handler);
-        nrfx_clock_enable();
+                            case NRFX_CLOCK_EVT_LFCLK_STARTED:
+                            {
+                            }
+                            break;
+
+                            default:
+                                break;
+                            }
+                        });
+
         nrfx_clock_hfclk_start();
+        nrfx_clock_lfclk_start();
 
         while (!nrfx_clock_hfclk_is_running())
         {
-            ;
+        }
+
+        while (!nrfx_clock_lfclk_is_running())
+        {
         }
     }
 
