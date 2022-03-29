@@ -65,22 +65,6 @@ namespace
             return true;
         }
 
-        bool write16(uint32_t address, uint16_t data) override
-        {
-            size_t page = 0;
-
-            if (address >= EMU_EEPROM_PAGE_SIZE)
-            {
-                address -= EMU_EEPROM_PAGE_SIZE;
-                page = 1;
-            }
-
-            _flashVector.at(page).at(address + 0) = data >> 0 & static_cast<uint16_t>(0xFF);
-            _flashVector.at(page).at(address + 1) = data >> 8 & static_cast<uint16_t>(0xFF);
-
-            return true;
-        }
-
         bool write32(uint32_t address, uint32_t data) override
         {
             size_t page = 0;
@@ -105,23 +89,6 @@ namespace
             _flashVector.at(page).at(address + 1) = data >> 8 & static_cast<uint16_t>(0xFF);
             _flashVector.at(page).at(address + 2) = data >> 16 & static_cast<uint16_t>(0xFF);
             _flashVector.at(page).at(address + 3) = data >> 24 & static_cast<uint16_t>(0xFF);
-
-            return true;
-        }
-
-        bool read16(uint32_t address, uint16_t& data) override
-        {
-            size_t page = 0;
-
-            if (address >= EMU_EEPROM_PAGE_SIZE)
-            {
-                address -= EMU_EEPROM_PAGE_SIZE;
-                page = 1;
-            }
-
-            data = _flashVector.at(page).at(address + 1);
-            data <<= 8;
-            data |= _flashVector.at(page).at(address + 0);
 
             return true;
         }

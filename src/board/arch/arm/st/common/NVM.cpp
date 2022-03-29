@@ -66,19 +66,9 @@ namespace
             }
         }
 
-        bool write16(uint32_t address, uint16_t data) override
-        {
-            return Board::detail::flash::write16(address, data);
-        }
-
         bool write32(uint32_t address, uint32_t data) override
         {
             return Board::detail::flash::write32(address, data);
-        }
-
-        bool read16(uint32_t address, uint16_t& data) override
-        {
-            return Board::detail::flash::read16(address, data);
         }
 
         bool read32(uint32_t address, uint32_t& data) override
