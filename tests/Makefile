@@ -66,7 +66,7 @@ define LINK_OBJECTS
 	@$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 endef
 
-pre-build:
+generate:
 	@$(SCRIPTS_DIR)/gen/gen_test_targets.sh
 
 exec:

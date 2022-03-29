@@ -75,7 +75,7 @@ targets=()
 
 if [[ "$type" == "tests" ]]
 then
-    make pre-build
+    make generate
 fi
 
 if [[ "$type" == "tests" && -n "$hw" ]]
