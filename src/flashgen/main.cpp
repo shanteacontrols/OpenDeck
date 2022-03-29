@@ -269,7 +269,7 @@ int main(int argc, char* argv[])
 {
     if (argc <= 1)
     {
-        std::cout << argv[0] << "ERROR: Filename for generated flash not provided" << std::endl;
+        std::cout << argv[0] << " ERROR: Filename for generated flash not provided" << std::endl;
         return -1;
     }
 
