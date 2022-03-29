@@ -117,15 +117,7 @@ namespace Board::NVM
 {
     bool init()
     {
-        bool result;
-
-        // disable all interrupts during init to avoid ISRs messing up the flash page formatting/setup
-        ATOMIC_SECTION
-        {
-            result = _emuEEPROM.init();
-        }
-
-        return result;
+        return _emuEEPROM.init();
     }
 
     uint32_t size()
@@ -201,12 +193,8 @@ namespace Board::NVM
         core::timing::waitMs(MIDI_INDICATOR_TIMEOUT);
 #endif
 
-        ATOMIC_SECTION
-        {
-            result = _emuEEPROM.format();
-        }
+        result = _emuEEPROM.format();
 
-        // ignore start/end markers on stm32 for now
         return result;
     }
 }    // namespace Board::NVM
