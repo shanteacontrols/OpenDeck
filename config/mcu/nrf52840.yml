@@ -15,9 +15,9 @@
     size: 0x100000
   eeprom:
     emulated:
-      factory-flash-page: 72
-      eeprom-flash-page1: 88
-      eeprom-flash-page2: 104
+      factory-flash-page: 88
+      eeprom-flash-page1: 104
+      eeprom-flash-page2: 120
   peripherals:
     custom-pins: true
     uart: 1
