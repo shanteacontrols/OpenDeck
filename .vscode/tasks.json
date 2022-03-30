@@ -2,8 +2,19 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "[FW/BTLDR] Build",
-            "command": "cd ./src && compiledb -d . make TARGET=${input:target} LANG=C DEBUG=${input:debug}",
+            "label": "[Debug] blackpill401ce",
+            "command": "cd ./src && make TARGET=blackpill401ce DEBUG=1",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+            }
+        },
+        {
+            "label": "[Debug] discovery",
+            "command": "cd ./src && make TARGET=discovery DEBUG=1",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -14,180 +25,26 @@
             }
         },
         {
-            "label": "[FW/STM32FDiscovery/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGET=discovery LANG=C DEBUG=1 TYPE=app",
+            "label": "[Debug] nrf52840dk",
+            "command": "cd ./src && make TARGET=nrf52840dk DEBUG=1",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
             ],
             "group": {
                 "kind": "build",
-                "isDefault": true
             }
         },
         {
-            "label": "[BTLDR/STM32FDiscovery/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGET=discovery LANG=C DEBUG=1 TYPE=boot",
+            "label": "[Debug] opendeck2",
+            "command": "cd ./src && make TARGET=opendeck2 DEBUG=1",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
             ],
             "group": {
                 "kind": "build",
-                "isDefault": true
             }
-        },
-        {
-            "label": "[FW/Cardamom/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGET=cardamom LANG=C DEBUG=1 TYPE=app",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "[BTLDR/Cardamom/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGET=cardamom LANG=C DEBUG=1 TYPE=boot",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "[FW/DubFocus/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGET=dubfocus LANG=C DEBUG=1 TYPE=app",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "[BTLDR/DubFocus/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGET=dubfocus LANG=C DEBUG=1 TYPE=boot",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "[BTLDR/OpenDeck2/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGET=opendeck2 LANG=C DEBUG=1 TYPE=boot",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "[FW/OpenDeck2/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGET=opendeck2 LANG=C DEBUG=1 TYPE=app",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "[FW/Rooibos/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGET=rooibos LANG=C DEBUG=1 TYPE=app",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "[FW/Bergamot/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGET=bergamot LANG=C DEBUG=1 TYPE=app",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "[FW/BlackPill401/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGET=blackpill401 LANG=C DEBUG=1 TYPE=app",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "[CDC/Discovery/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGET=discovery LANG=C DEBUG=1 TYPE=cdc",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "[FW/BTLDR] Clean",
-            "command": "cd ./src && make clean",
-            "type": "shell",
-            "problemMatcher": []
-        },
-        {
-            "label": "[Tests] Build",
-            "command": "cd ./tests && make pre-build TARGET=${input:target} && make TARGET=${input:target} TESTS=${input:test} && cp $(../scripts/test_dir_get.sh ${input:target} ${input:test})/${input:test}.out build/test.out",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ]
-        },
-        {
-            "label": "[Tests] Clean",
-            "command": "cd ./tests && make clean",
-            "type": "shell",
-            "problemMatcher": []
-        },
-        {
-            "label": "[Tests] Run compiled",
-            "command": "cd ./tests && make exec",
-            "type": "shell",
-            "problemMatcher": []
-        },
-        {
-            "label": "[VSCode] Update intellisense",
-            "command": "./scripts/vscode_intellisense.sh ${input:target}",
-            "type": "shell",
-            "problemMatcher": []
         },
         {
             "label": "[Flashgen] Build",
@@ -218,6 +75,7 @@
                 "mega16u2",
                 "mega2560_muxsh2",
                 "mega2560",
+                "nrf52840dk",
                 "opendeck2",
                 "rooibos",
                 "teensy2pp",
@@ -242,16 +100,6 @@
                 "hw",
                 "bootloader",
                 "midi"
-            ]
-        },
-        {
-            "id": "debug",
-            "type": "pickString",
-            "default": "database",
-            "description": "Build debug version? (0/no, 1/yes)",
-            "options": [
-                "0",
-                "1"
             ]
         }
     ]
