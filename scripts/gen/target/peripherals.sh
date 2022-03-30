@@ -13,6 +13,11 @@ then
     } >> "$out_header_usb"
 fi
 
+if [[ $($yaml_parser "$yaml_file" ble) == "true" ]]
+then
+    printf "%s\n" "DEFINES += BLE_SUPPORTED" >> "$out_makefile"
+fi
+
 if [[ "$($yaml_parser "$yaml_file" uart)" != "null" ]]
 then
     printf "%s\n" 'DEFINES += UART_SUPPORTED' >> "$out_makefile"
