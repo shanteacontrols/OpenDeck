@@ -2,3 +2,4 @@ modules
 usb
 startup.s
 StdLibDummy.cpp
+deps
