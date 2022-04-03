@@ -108,7 +108,7 @@ namespace Board
         }
 #endif
 
-        void errorHandler()
+        void errorHandler(uint32_t error)
         {
             while (true)
             {

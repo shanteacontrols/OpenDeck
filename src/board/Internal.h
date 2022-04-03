@@ -26,13 +26,13 @@ limitations under the License.
 
 // for internal board usage only - do not include/call in application directly
 
-#define BOARD_ERROR_CHECK(res, expected)   \
-    do                                     \
-    {                                      \
-        if ((res) != (expected))           \
-        {                                  \
-            Board::detail::errorHandler(); \
-        }                                  \
+#define BOARD_ERROR_CHECK(res, expected)      \
+    do                                        \
+    {                                         \
+        if ((res) != (expected))              \
+        {                                     \
+            Board::detail::errorHandler(res); \
+        }                                     \
     } while (0)
 
 namespace Board::detail
@@ -46,7 +46,7 @@ namespace Board::detail
 #endif
 
     /// Default error handler.
-    void errorHandler();
+    void errorHandler(uint32_t error = 0);
 
     namespace setup
     {
