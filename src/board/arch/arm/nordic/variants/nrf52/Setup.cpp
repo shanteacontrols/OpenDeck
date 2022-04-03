@@ -36,7 +36,7 @@ limitations under the License.
 namespace
 {
     // nrf requires setting value from ram as an buffer in which adc value will be stored
-    nrf_saadc_value_t adcValue;
+    nrf_saadc_value_t _adcValue;
 }    // namespace
 #endif
 
@@ -142,7 +142,7 @@ namespace Board::detail::setup
             nrf_saadc_channel_init(NRF_SAADC, i, &channelConfig);
         }
 
-        nrf_saadc_buffer_init(NRF_SAADC, &adcValue, 1);
+        nrf_saadc_buffer_init(NRF_SAADC, &_adcValue, 1);
 
         // calibrate adc
         nrf_saadc_enable(NRF_SAADC);
@@ -167,7 +167,7 @@ namespace Board::detail::setup
 
         // USB power may already be ready at this time in which case no event is generated.
         // We need to invoke the handler based on the initial status.
-        uint32_t usbReg;
+        uint32_t usbReg = 0;
 
 #ifdef SOFTDEVICE_PRESENT
         uint8_t sd_en = false;
