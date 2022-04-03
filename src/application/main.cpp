@@ -1048,7 +1048,7 @@ class LoggerWriter : public Logger::StreamWriter
         return Board::USB::writeCDC((uint8_t*)&message[0], strlen(message));
     }
 } _loggerWriter;
-Logger logger = Logger(_loggerWriter, Logger::lineEnding_t::crlf);
+Logger logger = Logger(_loggerWriter, Logger::lineEnding_t::CRLF);
 #endif
 
 System::Builder  _builder(_hwa);
