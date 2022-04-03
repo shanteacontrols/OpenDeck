@@ -18,13 +18,30 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "nrfx_nvmc.h"
+#include "nrf_soc.h"
+#include "nrf_sdh.h"
+#include "nrf_sdh_soc.h"
+#include "nrf_fstorage.h"
+#include "nrf_fstorage_sd.h"
+#include "logger/Logger.h"
 #include <Target.h>
 
-#define _RAM __attribute__((section(".data#"), noinline))
+NRF_FSTORAGE_DEF(nrf_fstorage_t _fstorage) = {
+    .evt_handler = NULL,
+    .start_addr  = FLASH_START_ADDR,
+    .end_addr    = FLASH_END,
+};
 
 namespace Board::detail::flash
 {
+    bool init()
+    {
+        nrf_fstorage_api_t* fsAPI = &nrf_fstorage_sd;
+        BOARD_ERROR_CHECK(nrf_fstorage_init(&_fstorage, fsAPI, NULL), NRF_SUCCESS);
+
+        return true;
+    }
+
     bool isInRange(uint32_t address)
     {
         return address <= FLASH_END;
@@ -40,31 +57,57 @@ namespace Board::detail::flash
         return detail::map::flashPageDescriptor(index).size;
     }
 
-    _RAM bool erasePage(size_t index)
+    bool erasePage(size_t index)
     {
-        return nrfx_nvmc_page_erase(FLASH_PAGE_ADDRESS(index)) == NRFX_SUCCESS;
+        BOARD_ERROR_CHECK(nrf_fstorage_erase(&_fstorage,
+                                             detail::map::flashPageDescriptor(index).address,
+                                             1,
+                                             NULL),
+                          NRF_SUCCESS);
+
+        while (nrf_fstorage_is_busy(&_fstorage))
+        {
+            sd_app_evt_wait();
+        }
+
+        return true;
     }
 
-    _RAM void writePage(size_t index)
+    void writePage(size_t index)
     {
         // nothing to do here
     }
 
-    _RAM bool write16(uint32_t address, uint16_t data)
+    bool write16(uint32_t address, uint16_t data)
     {
-        nrf_nvmc_mode_set(NRF_NVMC, NRF_NVMC_MODE_WRITE);
-        nrfx_nvmc_byte_write(address + 0, data >> 0 & static_cast<uint8_t>(0xFF));
-        nrfx_nvmc_byte_write(address + 1, data >> 8 & static_cast<uint8_t>(0xFF));
-        nrf_nvmc_mode_set(NRF_NVMC, NRF_NVMC_MODE_READONLY);
+        BOARD_ERROR_CHECK(nrf_fstorage_write(&_fstorage,
+                                             address,
+                                             &data,
+                                             sizeof(data),
+                                             NULL),
+                          NRF_SUCCESS);
+
+        while (nrf_fstorage_is_busy(&_fstorage))
+        {
+            sd_app_evt_wait();
+        }
 
         return (*(volatile uint16_t*)address) == data;
     }
 
-    _RAM bool write32(uint32_t address, uint32_t data)
+    bool write32(uint32_t address, uint32_t data)
     {
-        nrf_nvmc_mode_set(NRF_NVMC, NRF_NVMC_MODE_WRITE);
-        nrfx_nvmc_word_write(address, data);
-        nrf_nvmc_mode_set(NRF_NVMC, NRF_NVMC_MODE_READONLY);
+        BOARD_ERROR_CHECK(nrf_fstorage_write(&_fstorage,
+                                             address,
+                                             &data,
+                                             sizeof(data),
+                                             NULL),
+                          NRF_SUCCESS);
+
+        while (nrf_fstorage_is_busy(&_fstorage))
+        {
+            sd_app_evt_wait();
+        }
 
         return (*(volatile uint32_t*)address) == data;
     }

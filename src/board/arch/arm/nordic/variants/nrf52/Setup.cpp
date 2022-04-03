@@ -76,6 +76,8 @@ namespace Board::detail::setup
         }
 
         sd_softdevice_vector_table_base_set(FLASH_START_ADDR);
+
+        BOARD_ERROR_CHECK(detail::flash::init(), true);
     }
 
     void halDeinit()

@@ -237,6 +237,9 @@ namespace Board::detail
             uint32_t size;
         };
 
+        /// Prepares flash for use, if needed.
+        bool init();
+
         /// Checks whether the specified flash address is valid / in range for the current MCU.
         bool isInRange(uint32_t address);
 
