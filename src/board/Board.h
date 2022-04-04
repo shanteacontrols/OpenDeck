@@ -371,6 +371,35 @@ namespace Board
         bool write(uint32_t address, int32_t value, parameterType_t type);
     }    // namespace NVM
 
+    namespace BLE
+    {
+        /// Initializes and prepares BLE stack on board as well as all registered services.
+        // Advertising will be started as well.
+        bool init();
+
+        /// Deinitializes BLE stack, stops advertising and terminates all active BLE connections.
+        bool deInit();
+
+        /// Checks if the device is connected to a central.
+        bool isConnected();
+
+        namespace MIDI
+        {
+            /// Used to read MIDI data from BLE interface.
+            /// param [in]: buffer  Pointer to array in which read data will be stored if available.
+            /// param [in]: size    Reference to variable in which amount of read bytes will be stored.
+            /// param [in]: maxSize Maximum amount of bytes which can be stored in provided buffer.
+            /// returns: True if data is available, false otherwise.
+            bool read(uint8_t* buffer, size_t& size, const size_t maxSize);
+
+            /// Used to write MIDI data to BLE interface.
+            /// param [in]: buffer  Pointer to array holding data to send.
+            /// param [in]: size    Amount of bytes in provided buffer.
+            /// returns: True if transfer has succeded, false otherwise.
+            bool write(uint8_t* buffer, size_t size);
+        }    // namespace MIDI
+    }        // namespace BLE
+
     namespace bootloader
     {
         uint8_t  magicBootValue();

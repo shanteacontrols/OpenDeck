@@ -20,6 +20,7 @@ limitations under the License.
 #include "board/Internal.h"
 #include "nrfx.h"
 #include "nrf_sdm.h"
+#include "nrf_sdh.h"
 #include "nrfx_clock.h"
 #include "nrfx_saadc.h"
 #include "nrf_gpio.h"
@@ -78,6 +79,20 @@ namespace Board::detail::setup
         sd_softdevice_vector_table_base_set(FLASH_START_ADDR);
 
         BOARD_ERROR_CHECK(detail::flash::init(), true);
+
+        detail::registerUpdateHook([]()
+                                   {
+                                       if (nrf_sdh_is_enabled())
+                                       {
+                                           sd_app_evt_wait();
+                                       }
+                                       else
+                                       {
+                                           __WFE();
+                                           __SEV();
+                                           __WFE();
+                                       }
+                                   });
     }
 
     void halDeinit()
@@ -169,11 +184,7 @@ namespace Board::detail::setup
         // We need to invoke the handler based on the initial status.
         uint32_t usbReg = 0;
 
-#ifdef SOFTDEVICE_PRESENT
-        uint8_t sd_en = false;
-        sd_softdevice_is_enabled(&sd_en);
-
-        if (sd_en)
+        if (nrf_sdh_is_enabled())
         {
             sd_power_usbdetected_enable(true);
             sd_power_usbpwrrdy_enable(true);
@@ -182,7 +193,6 @@ namespace Board::detail::setup
             sd_power_usbregstatus_get(&usbReg);
         }
         else
-#endif
         {
             const nrfx_power_config_t PWR_CFG = { 0 };
             nrfx_power_init(&PWR_CFG);

@@ -16,22 +16,11 @@ limitations under the License.
 
 */
 
-#include "board/Board.h"
-#include "board/Internal.h"
-#include "nrf.h"
-#include "app_timer.h"
+#pragma once
 
-namespace Board::detail::setup
+#include <inttypes.h>
+
+namespace Board::detail::BLE::MIDI
 {
-    void timers()
-    {
-        // use systick timer on 100us period
-        SysTick_Config(SystemCoreClock / 10000);
-        NVIC_EnableIRQ(SysTick_IRQn);
-
-#ifdef FW_APP
-        // app timer is used for BLE stack
-        BOARD_ERROR_CHECK(app_timer_init(), NRF_SUCCESS);
-#endif
-    }
-}    // namespace Board::detail::setup
+    bool init();
+}
