@@ -114,6 +114,13 @@
           tx:
             port: "0"
             index: 16
+        ble:
+          rx:
+            port: "0"
+            index: 13
+          tx:
+            port: "0"
+            index: 14
     external:
       type: "native"
       pins:
