@@ -185,10 +185,20 @@ namespace Board::detail::setup
         CORE_IO_INIT({ LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN, core::io::pinMode_t::OUTPUT_PP, core::io::pullMode_t::NONE });
         CORE_IO_INIT({ LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN, core::io::pinMode_t::OUTPUT_PP, core::io::pullMode_t::NONE });
 
+#ifdef BLE_SUPPORTED
+        CORE_IO_INIT({ LED_MIDI_IN_BLE_PORT, LED_MIDI_IN_BLE_PIN, core::io::pinMode_t::OUTPUT_PP, core::io::pullMode_t::NONE });
+        CORE_IO_INIT({ LED_MIDI_OUT_BLE_PORT, LED_MIDI_OUT_BLE_PIN, core::io::pinMode_t::OUTPUT_PP, core::io::pullMode_t::NONE });
+#endif
+
         INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
         INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
         INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
         INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
+
+#ifdef BLE_SUPPORTED
+        INT_LED_OFF(LED_MIDI_IN_BLE_PORT, LED_MIDI_IN_BLE_PIN);
+        INT_LED_OFF(LED_MIDI_OUT_BLE_PORT, LED_MIDI_OUT_BLE_PIN);
+#endif
 #endif
     }
 }    // namespace Board::detail::setup

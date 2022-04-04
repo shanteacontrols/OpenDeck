@@ -292,4 +292,23 @@ then
             printf "%s\n" "#define LED_MIDI_OUT_USB_PIN CORE_IO_PIN_INDEX_DEF(${index})"
         } >> "$out_header"
     fi
+
+    if [[ $($yaml_parser "$yaml_file" leds.internal.pins.ble) != "null" ]]
+    then
+        port=$($yaml_parser "$yaml_file" leds.internal.pins.ble.rx.port)
+        index=$($yaml_parser "$yaml_file" leds.internal.pins.ble.rx.index)
+
+        {
+            printf "%s\n" "#define LED_MIDI_IN_BLE_PORT CORE_IO_PIN_PORT_DEF(${port})"
+            printf "%s\n" "#define LED_MIDI_IN_BLE_PIN CORE_IO_PIN_INDEX_DEF(${index})"
+        } >> "$out_header"
+
+        port=$($yaml_parser "$yaml_file" leds.internal.pins.ble.tx.port)
+        index=$($yaml_parser "$yaml_file" leds.internal.pins.ble.tx.index)
+
+        {
+            printf "%s\n" "#define LED_MIDI_OUT_BLE_PORT CORE_IO_PIN_PORT_DEF(${port})"
+            printf "%s\n" "#define LED_MIDI_OUT_BLE_PIN CORE_IO_PIN_INDEX_DEF(${index})"
+        } >> "$out_header"
+    fi
 fi

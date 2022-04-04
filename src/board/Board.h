@@ -279,7 +279,8 @@ namespace Board
         enum class dataSource_t : uint8_t
         {
             USB,
-            UART
+            UART,
+            BLE
         };
 
         enum class dataDirection_t : uint8_t

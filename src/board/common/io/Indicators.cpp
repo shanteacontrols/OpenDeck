@@ -40,6 +40,10 @@ namespace
     volatile uint8_t _midiInUSBtimeout;
     volatile uint8_t _midiOutUSBtimeout;
 
+#ifdef BLE_SUPPORTED
+    volatile uint8_t _midiInBLEtimeout;
+    volatile uint8_t _midiOutBLEtimeout;
+#endif
     ///
 }    // namespace
 
@@ -88,6 +92,28 @@ namespace Board
                     INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
                 }
             }
+
+#ifdef BLE_SUPPORTED
+            if (_midiInBLEtimeout)
+            {
+                _midiInBLEtimeout--;
+
+                if (!_midiInBLEtimeout)
+                {
+                    INT_LED_OFF(LED_MIDI_IN_BLE_PORT, LED_MIDI_IN_BLE_PIN);
+                }
+            }
+
+            if (_midiOutBLEtimeout)
+            {
+                _midiOutBLEtimeout--;
+
+                if (!_midiOutBLEtimeout)
+                {
+                    INT_LED_OFF(LED_MIDI_OUT_BLE_PORT, LED_MIDI_OUT_BLE_PIN);
+                }
+            }
+#endif
         }
     }    // namespace detail::io
 
@@ -126,6 +152,26 @@ namespace Board
                 }
             }
             break;
+
+#ifdef BLE_SUPPORTED
+            case dataSource_t::BLE:
+            {
+                if (direction == dataDirection_t::INCOMING)
+                {
+                    INT_LED_ON(LED_MIDI_IN_BLE_PORT, LED_MIDI_IN_BLE_PIN);
+                    _midiInBLEtimeout = MIDI_INDICATOR_TIMEOUT;
+                }
+                else
+                {
+                    INT_LED_ON(LED_MIDI_OUT_BLE_PORT, LED_MIDI_OUT_BLE_PIN);
+                    _midiOutBLEtimeout = MIDI_INDICATOR_TIMEOUT;
+                }
+            }
+            break;
+#endif
+
+            default:
+                break;
             }
         }
     }    // namespace io
