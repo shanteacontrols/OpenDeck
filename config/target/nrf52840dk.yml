@@ -1,6 +1,7 @@
 ---
   mcu: "nrf52840"
   usb: true
+  ble: true
   uart:
     dinMIDI:
       pins:
