@@ -74,7 +74,7 @@ class MIDIHelper
                 return false;
             }
 
-            bool write(MIDI::usbMIDIPacket_t packet) override
+            bool write(MIDI::usbMIDIPacket_t& packet) override
             {
                 _buffer.push_back(packet);
                 return true;

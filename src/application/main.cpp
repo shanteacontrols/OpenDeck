@@ -369,7 +369,7 @@ class HWAMIDIUSB : public System::Builder::HWA::Protocol::MIDI::USB
         return false;
     }
 
-    bool write(MIDI::usbMIDIPacket_t packet) override
+    bool write(MIDI::usbMIDIPacket_t& packet) override
     {
         if (Board::USB::writeMIDI(packet))
         {
@@ -425,7 +425,7 @@ class HWAMIDIDIN : public System::Builder::HWA::Protocol::MIDI::DIN
         return false;
     }
 
-    bool write(uint8_t value) override
+    bool write(uint8_t& value) override
     {
         if (Board::UART::write(UART_CHANNEL_DIN, value))
         {
@@ -477,7 +477,7 @@ class HWAMIDIDINStub : public System::Builder::HWA::Protocol::MIDI::DIN
         return false;
     }
 
-    bool write(uint8_t value) override
+    bool write(uint8_t& value) override
     {
         return false;
     }

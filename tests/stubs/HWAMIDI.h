@@ -20,7 +20,7 @@ class WriteParserHWA : public Inherit
         return true;
     }
 
-    bool write(T data) override
+    bool write(T& data) override
     {
         return false;
     }
@@ -128,7 +128,7 @@ class HWAMIDIUSB : public Protocol::MIDI::HWAUSB
         return true;
     }
 
-    bool write(MIDI::usbMIDIPacket_t packet) override
+    bool write(MIDI::usbMIDIPacket_t& packet) override
     {
         _writePackets.push_back(packet);
         _writeParser.feed(packet);
@@ -177,7 +177,7 @@ class HWAMIDIDIN : public Protocol::MIDI::HWADIN
         return true;
     }
 
-    bool write(uint8_t data) override
+    bool write(uint8_t& data) override
     {
         _writePackets.push_back(data);
         _writeParser.feed(data);
