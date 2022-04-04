@@ -192,7 +192,7 @@ void Instance::backup()
     uint8_t currentPreset = _components.database().getPreset();
 
     // make sure not to report any errors while performing backup
-    _sysExConf.setSilentMode(true);
+    _sysExConf.setUserErrorIgnoreMode(true);
 
     // first message sent as an response should be restore start marker
     // this is used to indicate that restore procedure is in progress
@@ -237,7 +237,7 @@ void Instance::backup()
     // finally, send back full backup request to mark the end of sending
     uint16_t endMarker = SYSEX_CR_FULL_BACKUP;
     _sysExConf.sendCustomMessage(&endMarker, 1);
-    _sysExConf.setSilentMode(false);
+    _sysExConf.setUserErrorIgnoreMode(false);
 
     _backupRestoreState = backupRestoreState_t::NONE;
 }
