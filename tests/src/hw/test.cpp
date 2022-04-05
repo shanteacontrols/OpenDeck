@@ -320,15 +320,46 @@ TEST_F(HWTest, DatabaseInitialValues)
         //----------------------------------
         // settings section
         // all values should be set to 0 except for the global channel which should be 1
-        for (size_t i = 0; i < static_cast<uint8_t>(Protocol::MIDI::setting_t::AMOUNT); i += PARAM_SKIP)
+        for (size_t i = 0; i < static_cast<uint8_t>(Protocol::MIDI::setting_t::AMOUNT); i++)
         {
-            if (i == static_cast<int>(Protocol::MIDI::setting_t::GLOBAL_CHANNEL))
+            switch (i)
+            {
+#ifdef DIN_MIDI_SUPPORTED
+            case static_cast<size_t>(Protocol::MIDI::setting_t::DIN_ENABLED):
+            case static_cast<size_t>(Protocol::MIDI::setting_t::DIN_THRU_USB):
+            case static_cast<size_t>(Protocol::MIDI::setting_t::USB_THRU_DIN):
+            case static_cast<size_t>(Protocol::MIDI::setting_t::DIN_THRU_DIN):
+#endif
+
+#ifdef BLE_SUPPORTED
+            case static_cast<size_t>(Protocol::MIDI::setting_t::BLE_ENABLED):
+            case static_cast<size_t>(Protocol::MIDI::setting_t::BLE_THRU_USB):
+            case static_cast<size_t>(Protocol::MIDI::setting_t::BLE_THRU_BLE):
+            case static_cast<size_t>(Protocol::MIDI::setting_t::USB_THRU_BLE):
+#endif
+
+#if defined(DIN_MIDI_SUPPORTED) && defined(BLE_SUPPORTED)
+            case static_cast<size_t>(Protocol::MIDI::setting_t::DIN_THRU_BLE):
+            case static_cast<size_t>(Protocol::MIDI::setting_t::BLE_THRU_DIN):
+#endif
+
+            case static_cast<size_t>(Protocol::MIDI::setting_t::STANDARD_NOTE_OFF):
+            case static_cast<size_t>(Protocol::MIDI::setting_t::RUNNING_STATUS):
+            case static_cast<size_t>(Protocol::MIDI::setting_t::USB_THRU_USB):
+            case static_cast<size_t>(Protocol::MIDI::setting_t::USE_GLOBAL_CHANNEL):
+            {
+                ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::global_t::MIDI_SETTINGS, i));
+            }
+            break;
+
+            case static_cast<size_t>(Protocol::MIDI::setting_t::GLOBAL_CHANNEL):
             {
                 ASSERT_EQ(1, _helper.readFromSystem(System::Config::Section::global_t::MIDI_SETTINGS, i));
             }
-            else
-            {
-                ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::global_t::MIDI_SETTINGS, i));
+            break;
+
+            default:
+                break;
             }
         }
 
