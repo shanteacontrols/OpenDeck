@@ -831,33 +831,47 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
 
         case setting_t::DIN_THRU_DIN:
         {
-            if (value)
+            if (_hwaDIN.supported())
             {
-                _dinMIDI.registerThruInterface(_dinMIDI.transport());
+                if (value)
+                {
+                    _dinMIDI.registerThruInterface(_dinMIDI.transport());
+                }
+                else
+                {
+                    _dinMIDI.unregisterThruInterface(_dinMIDI.transport());
+                }
+
+                result           = System::Config::status_t::ACK;
+                checkDINLoopback = true;
             }
             else
             {
-                _dinMIDI.unregisterThruInterface(_dinMIDI.transport());
+                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
             }
-
-            result           = System::Config::status_t::ACK;
-            checkDINLoopback = true;
         }
         break;
 
         case setting_t::DIN_THRU_USB:
         {
-            if (value)
+            if (_hwaDIN.supported())
             {
-                _dinMIDI.registerThruInterface(_usbMIDI.transport());
+                if (value)
+                {
+                    _dinMIDI.registerThruInterface(_usbMIDI.transport());
+                }
+                else
+                {
+                    _dinMIDI.unregisterThruInterface(_usbMIDI.transport());
+                }
+
+                result           = System::Config::status_t::ACK;
+                checkDINLoopback = true;
             }
             else
             {
-                _dinMIDI.unregisterThruInterface(_usbMIDI.transport());
+                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
             }
-
-            result           = System::Config::status_t::ACK;
-            checkDINLoopback = true;
         }
         break;
 
@@ -900,16 +914,23 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
 
         case setting_t::USB_THRU_DIN:
         {
-            if (value)
+            if (_hwaDIN.supported())
             {
-                _usbMIDI.registerThruInterface(_dinMIDI.transport());
+                if (value)
+                {
+                    _usbMIDI.registerThruInterface(_dinMIDI.transport());
+                }
+                else
+                {
+                    _usbMIDI.unregisterThruInterface(_dinMIDI.transport());
+                }
+
+                result = System::Config::status_t::ACK;
             }
             else
             {
-                _usbMIDI.unregisterThruInterface(_dinMIDI.transport());
+                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
             }
-
-            result = System::Config::status_t::ACK;
         }
         break;
 
