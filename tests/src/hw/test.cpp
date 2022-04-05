@@ -697,11 +697,11 @@ TEST_F(HWTest, BackupAndRestore)
 
     LOG(INFO) << "Restoring backup";
 
-    // remove everything before the first line containing F0 00 53 43 01 00 1B F7
-    ASSERT_EQ(0, test::wsystem("sed -i '0,/^F0 00 53 43 01 00 1B F7$/d' " + backup_file_location));
+    // remove everything before the restore start indicator
+    ASSERT_EQ(0, test::wsystem("sed -n -i '/^F0 00 53 43 00 00 1C F7$/,$p' " + backup_file_location));
 
-    //...and also after the last line containing the same
-    ASSERT_EQ(0, test::wsystem("sed -i '/^F0 00 53 43 01 00 1B F7$/Q' " + backup_file_location));
+    //...and also after the restore end indicator
+    ASSERT_EQ(0, test::wsystem("sed -i '/^F0 00 53 43 00 00 1D F7$/q' " + backup_file_location));
 
     // send backup
     std::ifstream backupStream(backup_file_location);
