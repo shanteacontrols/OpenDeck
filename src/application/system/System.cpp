@@ -440,12 +440,14 @@ uint8_t Instance::SysExDataHandler::customRequest(uint16_t request, CustomRespon
     case SYSEX_CR_RESTORE_START:
     {
         _system._backupRestoreState = backupRestoreState_t::RESTORE;
+        _system._sysExConf.setUserErrorIgnoreMode(true);
     }
     break;
 
     case SYSEX_CR_RESTORE_END:
     {
         _system._backupRestoreState = backupRestoreState_t::NONE;
+        _system._sysExConf.setUserErrorIgnoreMode(false);
     }
     break;
 
