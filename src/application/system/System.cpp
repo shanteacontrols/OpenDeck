@@ -212,12 +212,21 @@ void Instance::backup()
 
             for (size_t section = 0; section < _sysExConf.sections(block); section++)
             {
+                // some sections are irrelevant for backup and should therefore be skipped
+
                 if (
                     (block == static_cast<uint8_t>(System::Config::block_t::LEDS)) &&
                     ((section == static_cast<uint8_t>(System::Config::Section::leds_t::TEST_COLOR)) ||
                      (section == static_cast<uint8_t>(System::Config::Section::leds_t::TEST_BLINK))))
                 {
-                    continue;    // testing sections, skip
+                    continue;
+                }
+
+                if (
+                    (block == static_cast<uint8_t>(System::Config::block_t::GLOBAL)) &&
+                    (section == static_cast<uint8_t>(System::Config::Section::global_t::DMX_CHANNEL)))
+                {
+                    continue;
                 }
 
                 backupRequest[BACKUP_REQUEST_SECTION_INDEX] = section;
