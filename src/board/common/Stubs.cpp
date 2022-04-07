@@ -28,7 +28,7 @@ namespace Board
     {
     }
 
-    namespace io
+    namespace IO
     {
         __attribute__((weak)) bool digitalInState(size_t digitalInIndex, dInReadings_t& dInReadings)
         {
@@ -64,14 +64,14 @@ namespace Board
             return 0;
         }
 
-        __attribute__((weak)) void indicateTraffic(Board::io::dataSource_t source, Board::io::dataDirection_t direction)
+        __attribute__((weak)) void indicateTraffic(Board::IO::dataSource_t source, Board::IO::dataDirection_t direction)
         {
         }
-    }    // namespace io
+    }    // namespace IO
 
     namespace detail
     {
-        namespace io
+        namespace IO
         {
             __attribute__((weak)) void checkDigitalInputs()
             {
@@ -92,7 +92,7 @@ namespace Board
             __attribute__((weak)) void ledFlashStartup()
             {
             }
-        }    // namespace io
+        }    // namespace IO
 
         namespace setup
         {

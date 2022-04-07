@@ -57,7 +57,6 @@ do
 
         if [[ -f ../config/hw-test/"$board".yml ]]
         then
-            echo "Running tests on $board board"
             $test
             result+=$?
         fi

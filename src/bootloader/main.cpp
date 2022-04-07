@@ -164,7 +164,7 @@ class Reader
                     {
                         if (_sysExParser.value(i, value))
                         {
-                            Board::io::indicateTraffic(Board::io::dataSource_t::USB, Board::io::dataDirection_t::INCOMING);
+                            Board::IO::indicateTraffic(Board::IO::dataSource_t::USB, Board::IO::dataDirection_t::INCOMING);
 
 #ifdef USB_LINK_MCU
                             Board::UART::write(UART_CHANNEL_USB_LINK, value);

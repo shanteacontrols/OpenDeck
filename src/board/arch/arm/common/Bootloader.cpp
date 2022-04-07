@@ -53,7 +53,7 @@ namespace Board::bootloader
 
     void runApplication()
     {
-        detail::io::ledFlashStartup();
+        detail::IO::ledFlashStartup();
         detail::setup::halDeinit();
 
         auto appEntry = (appEntry_t) * (volatile uint32_t*)(APP_START_ADDR + 4);

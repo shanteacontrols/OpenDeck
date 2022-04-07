@@ -228,8 +228,8 @@ namespace Board
                     Board::detail::UART::ll::startTx(channel);
 
                     // indicate loopback here since it's run inside interrupt, ie. not visible to the user application
-                    Board::io::indicateTraffic(Board::io::dataSource_t::UART, Board::io::dataDirection_t::OUTGOING);
-                    Board::io::indicateTraffic(Board::io::dataSource_t::UART, Board::io::dataDirection_t::INCOMING);
+                    Board::IO::indicateTraffic(Board::IO::dataSource_t::UART, Board::IO::dataDirection_t::OUTGOING);
+                    Board::IO::indicateTraffic(Board::IO::dataSource_t::UART, Board::IO::dataDirection_t::INCOMING);
                 }
             }
         }
@@ -303,7 +303,7 @@ namespace Board
 
         bool readMIDI(midiPacket_t& packet)
         {
-            bool returnValue = false;
+            bool retVal = false;
 
             if (USBOverSerial::read(UART_CHANNEL_USB_LINK, _readPacket))
             {
@@ -315,7 +315,7 @@ namespace Board
                     }
 
                     _readPacket.reset();
-                    returnValue = true;
+                    retVal = true;
                 }
                 else
                 {
@@ -324,7 +324,7 @@ namespace Board
                 }
             }
 
-            return returnValue;
+            return retVal;
         }
 
         bool writeCDC(uint8_t* buffer, size_t size)

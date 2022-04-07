@@ -27,11 +27,11 @@ limitations under the License.
 #include "core/src/general/RingBuffer.h"
 #include <Target.h>
 
-#define MAX_READING_COUNT (8 * sizeof(((Board::io::dInReadings_t*)0)->readings))
+#define MAX_READING_COUNT (8 * sizeof(((Board::IO::dInReadings_t*)0)->readings))
 
 namespace
 {
-    volatile Board::io::dInReadings_t _digitalInBuffer[NR_OF_DIGITAL_INPUTS];
+    volatile Board::IO::dInReadings_t _digitalInBuffer[NR_OF_DIGITAL_INPUTS];
 #ifdef NATIVE_BUTTON_INPUTS
     core::RingBuffer<core::io::portWidth_t, MAX_READING_COUNT> _portBuffer[NR_OF_DIGITAL_INPUT_PORTS];
 #endif
@@ -45,7 +45,7 @@ namespace
     {
         CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
         CORE_IO_SET_LOW(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
-        Board::detail::io::sr165wait();
+        Board::detail::IO::sr165wait();
 
         CORE_IO_SET_HIGH(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
 
@@ -56,7 +56,7 @@ namespace
                 // this register shifts out MSB first
                 size_t buttonIndex = (shiftRegister * 8) + (7 - input);
                 CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
-                Board::detail::io::sr165wait();
+                Board::detail::IO::sr165wait();
 
                 _digitalInBuffer[buttonIndex].readings <<= 1;
                 _digitalInBuffer[buttonIndex].readings |= !CORE_IO_READ(SR_IN_DATA_PORT, SR_IN_DATA_PIN);
@@ -92,10 +92,10 @@ namespace
             activateInputColumn();
 
 #ifdef NUMBER_OF_IN_SR
-            Board::detail::io::sr165wait();
+            Board::detail::IO::sr165wait();
             CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
             CORE_IO_SET_LOW(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
-            Board::detail::io::sr165wait();
+            Board::detail::IO::sr165wait();
 
             CORE_IO_SET_HIGH(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
 
@@ -104,7 +104,7 @@ namespace
                 // this register shifts out MSB first
                 size_t buttonIndex = ((7 - row) * 8) + column;
                 CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
-                Board::detail::io::sr165wait();
+                Board::detail::IO::sr165wait();
 
                 _digitalInBuffer[buttonIndex].readings <<= 1;
                 _digitalInBuffer[buttonIndex].readings |= !CORE_IO_READ(SR_IN_DATA_PORT, SR_IN_DATA_PIN);
@@ -173,7 +173,7 @@ namespace
 
 namespace Board
 {
-    namespace io
+    namespace IO
     {
         bool digitalInState(size_t digitalInIndex, dInReadings_t& dInReadings)
         {
@@ -243,9 +243,9 @@ namespace Board
 
 #endif
         }
-    }    // namespace io
+    }    // namespace IO
 
-    namespace detail::io
+    namespace detail::IO
     {
         void checkDigitalInputs()
         {
@@ -262,5 +262,5 @@ namespace Board
                 }
             }
         }
-    }    // namespace detail::io
+    }    // namespace detail::IO
 }    // namespace Board

@@ -92,11 +92,11 @@ bool Database::Instance::init()
 
     _uid = layoutUID(_layout.layout(Layout::type_t::USER), _supportedPresets);
 
-    bool returnValue = true;
+    bool retVal = true;
 
     if (!isSignatureValid())
     {
-        returnValue = factoryReset();
+        retVal = factoryReset();
     }
     else
     {
@@ -125,7 +125,7 @@ bool Database::Instance::init()
         }
     }
 
-    if (returnValue)
+    if (retVal)
     {
         _initialized = true;
 
@@ -135,7 +135,7 @@ bool Database::Instance::init()
         }
     }
 
-    return returnValue;
+    return retVal;
 }
 
 bool Database::Instance::isInitialized()
@@ -231,15 +231,15 @@ bool Database::Instance::setPreset(uint8_t preset)
 
     _activePreset = preset;
 
-    bool returnValue;
+    bool retVal;
 
     SYSTEM_BLOCK_ENTER(
-        returnValue = update(0,
-                             static_cast<uint8_t>(Config::Section::system_t::PRESETS),
-                             static_cast<size_t>(Config::presetSetting_t::ACTIVE_PRESET),
-                             preset);)
+        retVal = update(0,
+                        static_cast<uint8_t>(Config::Section::system_t::PRESETS),
+                        static_cast<size_t>(Config::presetSetting_t::ACTIVE_PRESET),
+                        preset);)
 
-    if (returnValue)
+    if (retVal)
     {
         if (_handlers != nullptr)
         {
@@ -247,7 +247,7 @@ bool Database::Instance::setPreset(uint8_t preset)
         }
     }
 
-    return returnValue;
+    return retVal;
 }
 
 /// Used to set new database layout (preset) without writing to database.
@@ -285,29 +285,29 @@ uint8_t Database::Instance::getSupportedPresets()
 /// Otherwise, first preset will be loaded instead.
 bool Database::Instance::setPresetPreserveState(bool state)
 {
-    bool returnValue;
+    bool retVal;
 
     SYSTEM_BLOCK_ENTER(
-        returnValue = update(0,
-                             static_cast<uint8_t>(Config::Section::system_t::PRESETS),
-                             static_cast<size_t>(Config::presetSetting_t::PRESET_PRESERVE),
-                             state);)
+        retVal = update(0,
+                        static_cast<uint8_t>(Config::Section::system_t::PRESETS),
+                        static_cast<size_t>(Config::presetSetting_t::PRESET_PRESERVE),
+                        state);)
 
-    return returnValue;
+    return retVal;
 }
 
 /// Checks if preset preservation setting is enabled or disabled.
 /// returns: True if preset preservation is enabled, false otherwise.
 bool Database::Instance::getPresetPreserveState()
 {
-    bool returnValue;
+    bool retVal;
 
     SYSTEM_BLOCK_ENTER(
-        returnValue = read(0,
-                           static_cast<uint8_t>(Config::Section::system_t::PRESETS),
-                           static_cast<size_t>(Config::presetSetting_t::PRESET_PRESERVE));)
+        retVal = read(0,
+                      static_cast<uint8_t>(Config::Section::system_t::PRESETS),
+                      static_cast<size_t>(Config::presetSetting_t::PRESET_PRESERVE));)
 
-    return returnValue;
+    return retVal;
 }
 
 /// Checks if database has been already initialized by checking DB_BLOCK_ID.
@@ -328,12 +328,12 @@ bool Database::Instance::isSignatureValid()
 /// UID is written to first two database locations.
 bool Database::Instance::setUID()
 {
-    bool returnValue;
+    bool retVal;
 
     SYSTEM_BLOCK_ENTER(
-        returnValue = update(0, static_cast<uint8_t>(Config::Section::system_t::UID), 0, _uid);)
+        retVal = update(0, static_cast<uint8_t>(Config::Section::system_t::UID), 0, _uid);)
 
-    return returnValue;
+    return retVal;
 }
 
 void Database::Instance::registerHandlers(Handlers& handlers)

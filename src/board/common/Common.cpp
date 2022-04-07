@@ -124,14 +124,14 @@ namespace Board
                 case TIMER_CHANNEL_MAIN:
                 {
                     core::timing::detail::rTime_ms++;
-                    Board::detail::io::checkIndicators();
+                    Board::detail::IO::checkIndicators();
 
 #ifdef FW_APP
 #ifndef USB_LINK_MCU
-                    Board::detail::io::checkDigitalInputs();
+                    Board::detail::IO::checkDigitalInputs();
 #ifndef TIMER_CHANNEL_PWM
 #if NR_OF_DIGITAL_OUTPUTS > 0
-                    Board::detail::io::checkDigitalOutputs();
+                    Board::detail::IO::checkDigitalOutputs();
 #endif
 #endif
 #endif
@@ -145,7 +145,7 @@ namespace Board
 #ifdef FW_APP
 #ifndef USB_LINK_MCU
 #if NR_OF_DIGITAL_OUTPUTS > 0
-                    Board::detail::io::checkDigitalOutputs();
+                    Board::detail::IO::checkDigitalOutputs();
 #endif
 #endif
 #endif

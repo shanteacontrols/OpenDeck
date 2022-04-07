@@ -22,7 +22,7 @@ limitations under the License.
 
 #ifdef NUMBER_OF_MUX
 
-namespace Board::detail::io
+namespace Board::detail::IO
 {
     void dischargeMux()
     {
@@ -41,6 +41,6 @@ namespace Board::detail::io
         core::io::mcuPin_t pin = detail::map::adcPin(muxIndex);
         CORE_IO_INIT({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::ANALOG });
     }
-}    // namespace Board::detail::io
+}    // namespace Board::detail::IO
 
 #endif

@@ -45,7 +45,7 @@ namespace Board::detail::setup
 
         // add some delay and remove initial readout of digital inputs
         core::timing::waitMs(10);
-        detail::io::flushInputReadings();
+        detail::IO::flushInputReadings();
         detail::setup::usb();
     }
 
@@ -104,7 +104,7 @@ namespace Board::detail::setup
         {
             EXT_LED_OFF(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
             CORE_IO_SET_HIGH(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
-            detail::io::sr595wait();
+            detail::IO::sr595wait();
             CORE_IO_SET_LOW(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
         }
 
@@ -169,7 +169,7 @@ namespace Board::detail::setup
 #ifdef TOTAL_UNUSED_IO
         for (int i = 0; i < TOTAL_UNUSED_IO; i++)
         {
-            Board::detail::io::unusedIO_t unusedPin = detail::map::unusedPin(i);
+            Board::detail::IO::unusedIO_t unusedPin = detail::map::unusedPin(i);
 
             CORE_IO_INIT({ unusedPin.pin.port, unusedPin.pin.index, unusedPin.pin.mode });
 

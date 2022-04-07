@@ -54,7 +54,7 @@ namespace Board::bootloader
 
     void runApplication()
     {
-        detail::io::ledFlashStartup();
+        detail::IO::ledFlashStartup();
 
         __asm__ __volatile__(
             // Jump to RST vector

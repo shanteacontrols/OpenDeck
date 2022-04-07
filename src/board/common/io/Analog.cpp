@@ -65,7 +65,7 @@ namespace
 
 namespace Board
 {
-    namespace io
+    namespace IO
     {
         bool analogValue(size_t analogID, uint16_t& value)
         {
@@ -90,7 +90,7 @@ namespace Board
 
             return false;
         }
-    }    // namespace io
+    }    // namespace IO
 
     namespace detail::isrHandling
     {
@@ -102,7 +102,7 @@ namespace Board
             if (!firstReading && (adcValue <= ADC_MAX_READING))
             {
 #ifdef NUMBER_OF_MUX
-                detail::io::dischargeMux();
+                detail::IO::dischargeMux();
 #endif
 
                 _analogBuffer[_analogIndex] = adcValue | NEW_READING_FLAG;
@@ -145,7 +145,7 @@ namespace Board
             }
 
 #ifdef NUMBER_OF_MUX
-            detail::io::restoreMux(_activeMux);
+            detail::IO::restoreMux(_activeMux);
 #endif
 
             core::adc::startConversion();

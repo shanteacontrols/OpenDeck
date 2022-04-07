@@ -146,11 +146,11 @@ bool Instance::init()
 ioComponent_t Instance::run()
 {
     _hwa.update();
-    auto ret = checkComponents();
+    auto retVal = checkComponents();
     checkProtocols();
     _scheduler.update();
 
-    return ret;
+    return retVal;
 }
 
 void Instance::backup()

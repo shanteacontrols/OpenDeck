@@ -381,7 +381,7 @@ void Encoders::setValue(size_t index, uint16_t value)
 /// returns: Encoder direction. See position_t.
 Encoders::position_t Encoders::read(size_t index, uint8_t pairState)
 {
-    position_t returnValue = position_t::STOPPED;
+    position_t retVal = position_t::STOPPED;
     pairState &= 0x03;
 
     // add new data
@@ -400,19 +400,19 @@ Encoders::position_t Encoders::read(size_t index, uint8_t pairState)
 
     if (!process)
     {
-        return returnValue;
+        return retVal;
     }
 
     _encoderPulses[index] += ENCODER_LOOK_UP_TABLE[_encoderData[index] & 0x0F];
 
     if (abs(_encoderPulses[index]) >= _database.read(Database::Config::Section::encoder_t::PULSES_PER_STEP, index))
     {
-        returnValue = (_encoderPulses[index] > 0) ? position_t::CCW : position_t::CW;
+        retVal = (_encoderPulses[index] > 0) ? position_t::CCW : position_t::CW;
         // reset count
         _encoderPulses[index] = 0;
     }
 
-    return returnValue;
+    return retVal;
 }
 
 void Encoders::fillEncoderDescriptor(size_t index, encoderDescriptor_t& descriptor)

@@ -58,9 +58,9 @@ bool Nextion::setScreen(size_t screenID)
 
 Touchscreen::tsEvent_t Nextion::update(Touchscreen::tsData_t& data)
 {
-    uint8_t value     = 0;
-    bool    process   = false;
-    auto    returnVal = Touchscreen::tsEvent_t::NONE;
+    uint8_t value   = 0;
+    bool    process = false;
+    auto    retVal  = Touchscreen::tsEvent_t::NONE;
 
     while (_hwa.read(value))
     {
@@ -89,11 +89,11 @@ Touchscreen::tsEvent_t Nextion::update(Touchscreen::tsData_t& data)
 
     if (process)
     {
-        returnVal                        = response(data);
+        retVal                           = response(data);
         Touchscreen::Model::_bufferCount = 0;
     }
 
-    return returnVal;
+    return retVal;
 }
 
 void Nextion::setIconState(Touchscreen::icon_t& icon, bool state)

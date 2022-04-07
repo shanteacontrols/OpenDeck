@@ -31,9 +31,9 @@ namespace
     uint8_t _pwmCounter;
 
 #ifdef NATIVE_LED_OUTPUTS
-    core::io::portWidth_t _portState[NR_OF_DIGITAL_OUTPUT_PORTS][static_cast<uint8_t>(Board::io::ledBrightness_t::B100)];
+    core::io::portWidth_t _portState[NR_OF_DIGITAL_OUTPUT_PORTS][static_cast<uint8_t>(Board::IO::ledBrightness_t::B100)];
 #else
-    volatile uint8_t _ledState[(NR_OF_DIGITAL_OUTPUTS / 8) + 1][static_cast<uint8_t>(Board::io::ledBrightness_t::B100)];
+    volatile uint8_t _ledState[(NR_OF_DIGITAL_OUTPUTS / 8) + 1][static_cast<uint8_t>(Board::IO::ledBrightness_t::B100)];
 #endif
 
 #ifdef NUMBER_OF_LED_COLUMNS
@@ -66,9 +66,9 @@ namespace
 
 namespace Board
 {
-    namespace io
+    namespace IO
     {
-        void writeLEDstate(size_t ledID, io::ledBrightness_t ledBrightness)
+        void writeLEDstate(size_t ledID, IO::ledBrightness_t ledBrightness)
         {
             if (ledID >= NR_OF_DIGITAL_OUTPUTS)
             {
@@ -112,7 +112,7 @@ namespace Board
 #endif
         }
 
-        size_t rgbSignalIndex(size_t rgbID, Board::io::rgbIndex_t index)
+        size_t rgbSignalIndex(size_t rgbID, Board::IO::rgbIndex_t index)
         {
 #ifdef NUMBER_OF_LED_COLUMNS
             uint8_t column  = rgbID % NUMBER_OF_LED_COLUMNS;
@@ -166,9 +166,9 @@ namespace Board
             return result;
 #endif
         }
-    }    // namespace io
+    }    // namespace IO
 
-    namespace detail::io
+    namespace detail::IO
     {
 #ifdef NUMBER_OF_LED_COLUMNS
         void checkDigitalOutputs()
@@ -177,7 +177,7 @@ namespace Board
             {
             case switchState_t::NONE:
             {
-                if (++_pwmCounter >= (static_cast<uint8_t>(Board::io::ledBrightness_t::B100) - 1))
+                if (++_pwmCounter >= (static_cast<uint8_t>(Board::IO::ledBrightness_t::B100) - 1))
                 {
                     switchState = switchState_t::ROWS_OFF;
                 }
@@ -240,15 +240,17 @@ namespace Board
 
                     BIT_READ(_ledState[arrayIndex][_pwmCounter], ledBit) ? EXT_LED_ON(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN) : EXT_LED_OFF(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
                     CORE_IO_SET_LOW(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
-                    detail::io::sr595wait();
+                    detail::IO::sr595wait();
                     CORE_IO_SET_HIGH(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
                 }
             }
 
             CORE_IO_SET_HIGH(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
 
-            if (++_pwmCounter >= static_cast<uint8_t>(Board::io::ledBrightness_t::B100))
+            if (++_pwmCounter >= static_cast<uint8_t>(Board::IO::ledBrightness_t::B100))
+            {
                 _pwmCounter = 0;
+            }
         }
 #else
         void checkDigitalOutputs()
@@ -261,11 +263,11 @@ namespace Board
                 CORE_IO_SET_PORT_STATE(detail::map::digitalOutPort(port), updatedPortState);
             }
 
-            if (++_pwmCounter >= static_cast<uint8_t>(Board::io::ledBrightness_t::B100))
+            if (++_pwmCounter >= static_cast<uint8_t>(Board::IO::ledBrightness_t::B100))
             {
                 _pwmCounter = 0;
             }
         }
 #endif
-    }    // namespace detail::io
+    }    // namespace detail::IO
 }    // namespace Board

@@ -22,7 +22,7 @@ limitations under the License.
 
 // assuming 84MHz clock config
 
-namespace Board::detail::io
+namespace Board::detail::IO
 {
     void sr595wait()
     {
@@ -39,4 +39,4 @@ namespace Board::detail::io
             CORE_NOP();
         }
     }
-}    // namespace Board::detail::io
+}    // namespace Board::detail::IO

@@ -131,7 +131,7 @@ int main()
 
             if (Board::USBOverSerial::write(UART_CHANNEL_USB_LINK, packet))
             {
-                Board::io::indicateTraffic(Board::io::dataSource_t::USB, Board::io::dataDirection_t::INCOMING);
+                Board::IO::indicateTraffic(Board::IO::dataSource_t::USB, Board::IO::dataDirection_t::INCOMING);
             }
         }
 
@@ -145,7 +145,7 @@ int main()
 
             if (Board::USBOverSerial::write(UART_CHANNEL_USB_LINK, packet))
             {
-                Board::io::indicateTraffic(Board::io::dataSource_t::USB, Board::io::dataDirection_t::INCOMING);
+                Board::IO::indicateTraffic(Board::IO::dataSource_t::USB, Board::IO::dataDirection_t::INCOMING);
             }
         }
 
@@ -161,7 +161,7 @@ int main()
 
                 if (Board::USB::writeMIDI(usbMIDIPacket))
                 {
-                    Board::io::indicateTraffic(Board::io::dataSource_t::USB, Board::io::dataDirection_t::OUTGOING);
+                    Board::IO::indicateTraffic(Board::IO::dataSource_t::USB, Board::IO::dataDirection_t::OUTGOING);
                 }
             }
             else if (readPacket.type() == Board::USBOverSerial::packetType_t::INTERNAL)
@@ -178,7 +178,7 @@ int main()
             {
                 if (Board::USB::writeCDC(readPacket.buffer(), readPacket.size()))
                 {
-                    Board::io::indicateTraffic(Board::io::dataSource_t::USB, Board::io::dataDirection_t::OUTGOING);
+                    Board::IO::indicateTraffic(Board::IO::dataSource_t::USB, Board::IO::dataDirection_t::OUTGOING);
                 }
             }
 

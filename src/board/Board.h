@@ -242,7 +242,7 @@ namespace Board
         bool deviceAvailable(uint8_t channel, uint8_t address);
     }    // namespace I2C
 
-    namespace io
+    namespace IO
     {
         enum class rgbIndex_t : uint8_t
         {
@@ -332,7 +332,7 @@ namespace Board
         /// param [source]     Source of data. Depending on the source (USB/UART, corresponding LEDs will be turned on).
         /// param [direction]  Direction of data.
         void indicateTraffic(dataSource_t source, dataDirection_t direction);
-    }    // namespace io
+    }    // namespace IO
 
     namespace NVM
     {

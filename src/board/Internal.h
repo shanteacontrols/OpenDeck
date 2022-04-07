@@ -176,7 +176,7 @@ namespace Board::detail
         };
     }    // namespace I2C
 
-    namespace io
+    namespace IO
     {
         /// Continuously reads all digital inputs.
         void checkDigitalInputs();
@@ -212,7 +212,7 @@ namespace Board::detail
             core::io::mcuPin_t pin;
             bool               state;
         };
-    }    // namespace io
+    }    // namespace IO
 
     namespace isrHandling
     {

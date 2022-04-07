@@ -49,7 +49,7 @@ namespace
 
 namespace Board
 {
-    namespace detail::io
+    namespace detail::IO
     {
         void checkIndicators()
         {
@@ -115,9 +115,9 @@ namespace Board
             }
 #endif
         }
-    }    // namespace detail::io
+    }    // namespace detail::IO
 
-    namespace io
+    namespace IO
     {
         void indicateTraffic(dataSource_t source, dataDirection_t direction)
         {
@@ -174,14 +174,14 @@ namespace Board
                 break;
             }
         }
-    }    // namespace io
+    }    // namespace IO
 }    // namespace Board
 
 #endif
 
 #ifdef LED_INDICATORS
 
-namespace Board::detail::io
+namespace Board::detail::IO
 {
     void ledFlashStartup()
     {
@@ -204,6 +204,6 @@ namespace Board::detail::io
         INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
         INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
     }
-}    // namespace Board::detail::io
+}    // namespace Board::detail::IO
 
 #endif
