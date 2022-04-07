@@ -12,6 +12,7 @@ ifeq (,$(findstring USB_LINK_MCU,$(DEFINES)))
     modules/midi/src/MIDI.cpp \
     modules/midi/src/transport/usb/USB.cpp \
     modules/midi/src/transport/serial/Serial.cpp \
+    modules/midi/src/transport/ble/BLE.cpp \
     modules/u8g2/csrc/u8x8_string.c \
     modules/u8g2/csrc/u8x8_setup.c \
     modules/u8g2/csrc/u8x8_u8toa.c \

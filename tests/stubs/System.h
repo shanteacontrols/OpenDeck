@@ -32,6 +32,7 @@ class TestSystem
     HWASystem                    _hwaSystem;
     HWAMIDIUSB                   _hwaMIDIUSB;
     HWAMIDIDIN                   _hwaMIDIDIN;
+    HWAMIDIBLE                   _hwaMIDIBLE;
     HWADMX                       _hwaDMX;
 
     private:
@@ -143,6 +144,11 @@ class TestSystem
                 ::System::Builder::HWA::Protocol::MIDI::DIN& din() override
                 {
                     return _testSystem._hwaMIDIDIN;
+                }
+
+                ::System::Builder::HWA::Protocol::MIDI::BLE& ble() override
+                {
+                    return _testSystem._hwaMIDIBLE;
                 }
 
                 private:

@@ -15,5 +15,9 @@ class TestMIDI
     Database::Instance& _database = _testDatabase._instance;
     HWAMIDIUSB          _hwaMIDIUSB;
     HWAMIDIDIN          _hwaMIDIDIN;
-    Protocol::MIDI      _instance = Protocol::MIDI(_hwaMIDIUSB, _hwaMIDIDIN, _database);
+    HWAMIDIBLE          _hwaMIDIBLE;
+    Protocol::MIDI      _instance = Protocol::MIDI(_hwaMIDIUSB,
+                                              _hwaMIDIDIN,
+                                              _hwaMIDIBLE,
+                                              _database);
 };

@@ -21,6 +21,7 @@ limitations under the License.
 #include "io/common/Common.h"
 #include "midi/src/transport/usb/USB.h"
 #include "midi/src/transport/serial/Serial.h"
+#include "midi/src/transport/ble/BLE.h"
 #include "protocol/ProtocolBase.h"
 #include "database/Database.h"
 #include "system/Config.h"
@@ -35,6 +36,7 @@ namespace Protocol
         // alias some types and functions from base midi class for easier access
         using messageType_t                           = MIDIlib::Base::messageType_t;
         using usbMIDIPacket_t                         = MIDIlib::USBMIDI::usbMIDIPacket_t;
+        using bleMIDIPacket_t                         = MIDIlib::BLEMIDI::bleMIDIPacket_t;
         using noteOffType_t                           = MIDIlib::Base::noteOffType_t;
         using note_t                                  = MIDIlib::Base::note_t;
         using message_t                               = MIDIlib::Base::message_t;
@@ -83,8 +85,15 @@ namespace Protocol
             virtual bool setLoopback(bool state) = 0;
         };
 
+        class HWABLE : public MIDIlib::BLEMIDI::HWA
+        {
+            public:
+            virtual bool supported() = 0;
+        };
+
         MIDI(HWAUSB&             hwaUSB,
              HWADIN&             hwaDIN,
+             HWABLE&             hwaBLE,
              Database::Instance& database);
 
         bool init() override;
@@ -96,6 +105,7 @@ namespace Protocol
         {
             INTERFACE_USB,
             INTERFACE_DIN,
+            INTERFACE_BLE,
             INTERFACE_AMOUNT
         };
 
@@ -107,12 +117,15 @@ namespace Protocol
         void                   setNoteOffMode(noteOffType_t type);
         bool                   setupUSBMIDI();
         bool                   setupDINMIDI();
+        bool                   setupBLEMIDI();
         bool                   setupThru();
 
         HWAUSB&                                      _hwaUSB;
         HWADIN&                                      _hwaDIN;
+        HWABLE&                                      _hwaBLE;
         MIDIlib::USBMIDI                             _usbMIDI = MIDIlib::USBMIDI(_hwaUSB);
         MIDIlib::SerialMIDI                          _dinMIDI = MIDIlib::SerialMIDI(_hwaDIN);
+        MIDIlib::BLEMIDI                             _bleMIDI = MIDIlib::BLEMIDI(_hwaBLE);
         Database::Instance&                          _database;
         std::array<MIDIlib::Base*, INTERFACE_AMOUNT> _midiInterface;
     };

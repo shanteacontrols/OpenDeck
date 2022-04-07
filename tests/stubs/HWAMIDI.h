@@ -38,6 +38,11 @@ class WriteParserHWA : public Inherit
         return false;
     }
 
+    uint32_t time()
+    {
+        return 0;
+    }
+
     std::vector<T>               _toDecode;
     std::vector<MIDI::message_t> _decoded;
 };
@@ -203,4 +208,47 @@ class HWAMIDIDIN : public Protocol::MIDI::HWADIN
     std::vector<uint8_t>                      _writePackets    = {};
     bool                                      _loopbackEnabled = false;
     WriteParser<MIDIlib::SerialMIDI, uint8_t> _writeParser;
+};
+
+class HWAMIDIBLE : public Protocol::MIDI::HWABLE
+{
+    public:
+    HWAMIDIBLE() = default;
+
+    bool supported() override
+    {
+#ifdef BLE_SUPPORTED
+        return true;
+#else
+        return false;
+#endif
+    }
+
+    MOCK_METHOD0(init, bool());
+    MOCK_METHOD0(deInit, bool());
+
+    bool write(MIDIlib::BLEMIDI::bleMIDIPacket_t& data) override
+    {
+        return false;
+    }
+
+    bool read(MIDIlib::BLEMIDI::bleMIDIPacket_t& data) override
+    {
+        return false;
+    }
+
+    uint32_t time() override
+    {
+        return 0;
+    }
+
+    void clear()
+    {
+        _readPackets.clear();
+        _writePackets.clear();
+    }
+
+    std::vector<uint8_t>                                 _readPackets  = {};
+    std::vector<uint8_t>                                 _writePackets = {};
+    WriteParser<MIDIlib::BLEMIDI, MIDI::bleMIDIPacket_t> _writeParser;
 };

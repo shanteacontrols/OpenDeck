@@ -28,14 +28,17 @@ using namespace IO;
 
 Protocol::MIDI::MIDI(HWAUSB&             hwaUSB,
                      HWADIN&             hwaDIN,
+                     HWABLE&             hwaBLE,
                      Database::Instance& database)
     : _hwaUSB(hwaUSB)
     , _hwaDIN(hwaDIN)
+    , _hwaBLE(hwaBLE)
     , _database(database)
 {
     // place all interfaces in array for easier access
     _midiInterface[INTERFACE_USB] = &_usbMIDI;
     _midiInterface[INTERFACE_DIN] = &_dinMIDI;
+    _midiInterface[INTERFACE_BLE] = &_bleMIDI;
 
     MIDIDispatcher.listen(Messaging::eventType_t::ANALOG,
                           [this](const Messaging::event_t& event)
@@ -110,6 +113,11 @@ bool Protocol::MIDI::init()
         return false;
     }
 
+    if (!setupBLEMIDI())
+    {
+        return false;
+    }
+
     if (!setupThru())
     {
         return false;
@@ -126,6 +134,11 @@ bool Protocol::MIDI::deInit()
     }
 
     if (!_usbMIDI.deInit())
+    {
+        return false;
+    }
+
+    if (!_bleMIDI.deInit())
     {
         return false;
     }
@@ -161,6 +174,22 @@ bool Protocol::MIDI::setupDINMIDI()
     return true;
 }
 
+bool Protocol::MIDI::setupBLEMIDI()
+{
+    if (isSettingEnabled(setting_t::BLE_ENABLED))
+    {
+        _bleMIDI.init();
+    }
+    else
+    {
+        _bleMIDI.deInit();
+    }
+
+    _bleMIDI.setNoteOffMode(isSettingEnabled(setting_t::STANDARD_NOTE_OFF) ? noteOffType_t::STANDARD_NOTE_OFF : noteOffType_t::NOTE_ON_ZERO_VEL);
+
+    return true;
+}
+
 bool Protocol::MIDI::setupThru()
 {
     if (isSettingEnabled(setting_t::DIN_THRU_DIN))
@@ -181,6 +210,15 @@ bool Protocol::MIDI::setupThru()
         _dinMIDI.unregisterThruInterface(_usbMIDI.transport());
     }
 
+    if (isSettingEnabled(setting_t::DIN_THRU_BLE))
+    {
+        _dinMIDI.registerThruInterface(_dinMIDI.transport());
+    }
+    else
+    {
+        _dinMIDI.unregisterThruInterface(_dinMIDI.transport());
+    }
+
     if (isSettingEnabled(setting_t::USB_THRU_DIN))
     {
         _usbMIDI.registerThruInterface(_dinMIDI.transport());
@@ -197,6 +235,42 @@ bool Protocol::MIDI::setupThru()
     else
     {
         _usbMIDI.unregisterThruInterface(_usbMIDI.transport());
+    }
+
+    if (isSettingEnabled(setting_t::USB_THRU_BLE))
+    {
+        _usbMIDI.registerThruInterface(_bleMIDI.transport());
+    }
+    else
+    {
+        _usbMIDI.unregisterThruInterface(_bleMIDI.transport());
+    }
+
+    if (isSettingEnabled(setting_t::BLE_THRU_DIN))
+    {
+        _bleMIDI.registerThruInterface(_dinMIDI.transport());
+    }
+    else
+    {
+        _bleMIDI.unregisterThruInterface(_dinMIDI.transport());
+    }
+
+    if (isSettingEnabled(setting_t::BLE_THRU_USB))
+    {
+        _bleMIDI.registerThruInterface(_usbMIDI.transport());
+    }
+    else
+    {
+        _bleMIDI.unregisterThruInterface(_usbMIDI.transport());
+    }
+
+    if (isSettingEnabled(setting_t::BLE_THRU_BLE))
+    {
+        _bleMIDI.registerThruInterface(_bleMIDI.transport());
+    }
+    else
+    {
+        _bleMIDI.unregisterThruInterface(_bleMIDI.transport());
     }
 
     return true;
@@ -598,6 +672,50 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigGet(System::Config::Section::glo
         }
         break;
 
+        case setting_t::BLE_ENABLED:
+        case setting_t::BLE_THRU_USB:
+        case setting_t::BLE_THRU_BLE:
+        case setting_t::USB_THRU_BLE:
+        {
+            if (_hwaBLE.supported())
+            {
+                result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_READ;
+            }
+            else
+            {
+                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+            }
+        }
+        break;
+
+        case setting_t::DIN_THRU_BLE:
+        case setting_t::BLE_THRU_DIN:
+        {
+            if (_hwaDIN.supported())
+            {
+                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(IO::Common::interface_t::UART))
+                {
+                    result = System::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
+                }
+                else
+                {
+                    if (_hwaBLE.supported())
+                    {
+                        result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_READ;
+                    }
+                    else
+                    {
+                        result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+                    }
+                }
+            }
+            else
+            {
+                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+            }
+        }
+        break;
+
         default:
         {
             result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_READ;
@@ -620,6 +738,7 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
     uint8_t result            = System::Config::status_t::ERROR_WRITE;
     bool    writeToDb         = true;
     auto    dinMIDIinitAction = Common::initAction_t::AS_IS;
+    auto    bleMIDIinitAction = Common::initAction_t::AS_IS;
     bool    checkDINLoopback  = false;
 
     switch (section)
@@ -688,6 +807,28 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
         }
         break;
 
+        case setting_t::BLE_ENABLED:
+        {
+            if (_hwaBLE.supported())
+            {
+                if (value)
+                {
+                    bleMIDIinitAction = Common::initAction_t::INIT;
+                }
+                else
+                {
+                    bleMIDIinitAction = Common::initAction_t::DE_INIT;
+                }
+
+                result = System::Config::status_t::ACK;
+            }
+            else
+            {
+                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+            }
+        }
+        break;
+
         case setting_t::DIN_THRU_DIN:
         {
             if (value)
@@ -720,6 +861,43 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
         }
         break;
 
+        case setting_t::DIN_THRU_BLE:
+        {
+            if (_hwaDIN.supported())
+            {
+                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(IO::Common::interface_t::UART))
+                {
+                    result = System::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
+                }
+                else
+                {
+                    if (_hwaBLE.supported())
+                    {
+                        if (value)
+                        {
+                            _dinMIDI.registerThruInterface(_bleMIDI.transport());
+                        }
+                        else
+                        {
+                            _dinMIDI.unregisterThruInterface(_bleMIDI.transport());
+                        }
+
+                        result           = System::Config::status_t::ACK;
+                        checkDINLoopback = true;
+                    }
+                    else
+                    {
+                        result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+                    }
+                }
+            }
+            else
+            {
+                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+            }
+        }
+        break;
+
         case setting_t::USB_THRU_DIN:
         {
             if (value)
@@ -747,6 +925,108 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
             }
 
             result = System::Config::status_t::ACK;
+        }
+        break;
+
+        case setting_t::USB_THRU_BLE:
+        {
+            if (_hwaBLE.supported())
+            {
+                if (value)
+                {
+                    _usbMIDI.registerThruInterface(_bleMIDI.transport());
+                }
+                else
+                {
+                    _usbMIDI.unregisterThruInterface(_bleMIDI.transport());
+                }
+
+                result = System::Config::status_t::ACK;
+            }
+            else
+            {
+                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+            }
+        }
+        break;
+
+        case setting_t::BLE_THRU_DIN:
+        {
+            if (_hwaDIN.supported())
+            {
+                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(IO::Common::interface_t::UART))
+                {
+                    result = System::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
+                }
+                else
+                {
+                    if (_hwaBLE.supported())
+                    {
+                        if (value)
+                        {
+                            _bleMIDI.registerThruInterface(_dinMIDI.transport());
+                        }
+                        else
+                        {
+                            _bleMIDI.unregisterThruInterface(_dinMIDI.transport());
+                        }
+
+                        result = System::Config::status_t::ACK;
+                    }
+                    else
+                    {
+                        result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+                    }
+                }
+            }
+            else
+            {
+                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+            }
+        }
+        break;
+
+        case setting_t::BLE_THRU_USB:
+        {
+            if (_hwaBLE.supported())
+            {
+                if (value)
+                {
+                    _bleMIDI.registerThruInterface(_usbMIDI.transport());
+                }
+                else
+                {
+                    _bleMIDI.unregisterThruInterface(_usbMIDI.transport());
+                }
+
+                result = System::Config::status_t::ACK;
+            }
+            else
+            {
+                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+            }
+        }
+        break;
+
+        case setting_t::BLE_THRU_BLE:
+        {
+            if (_hwaBLE.supported())
+            {
+                if (value)
+                {
+                    _bleMIDI.registerThruInterface(_bleMIDI.transport());
+                }
+                else
+                {
+                    _bleMIDI.unregisterThruInterface(_bleMIDI.transport());
+                }
+
+                result = System::Config::status_t::ACK;
+            }
+            else
+            {
+                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+            }
         }
         break;
 
@@ -791,6 +1071,24 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
         case Common::initAction_t::DE_INIT:
         {
             _dinMIDI.deInit();
+        }
+        break;
+
+        default:
+            break;
+        }
+
+        switch (bleMIDIinitAction)
+        {
+        case Common::initAction_t::INIT:
+        {
+            _bleMIDI.init();
+        }
+        break;
+
+        case Common::initAction_t::DE_INIT:
+        {
+            _bleMIDI.deInit();
         }
         break;
 

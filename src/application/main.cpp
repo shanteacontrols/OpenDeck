@@ -489,6 +489,87 @@ class HWAMIDIDINStub : public System::Builder::HWA::Protocol::MIDI::DIN
 } _hwaMIDIDIN;
 #endif
 
+#ifdef BLE_SUPPORTED
+class HWAMIDIBLE : public System::Builder::HWA::Protocol::MIDI::BLE
+{
+    public:
+    HWAMIDIBLE() = default;
+
+    bool supported() override
+    {
+        return true;
+    }
+
+    bool init() override
+    {
+        return Board::BLE::init();
+    }
+
+    bool deInit() override
+    {
+        return Board::BLE::deInit();
+    }
+
+    bool write(MIDIlib::BLEMIDI::bleMIDIPacket_t& packet) override
+    {
+        Board::io::indicateTraffic(Board::io::dataSource_t::BLE, Board::io::dataDirection_t::OUTGOING);
+        return Board::BLE::MIDI::write(&packet.data[0], packet.size);
+    }
+
+    bool read(MIDIlib::BLEMIDI::bleMIDIPacket_t& packet) override
+    {
+        if (Board::BLE::MIDI::read(&packet.data[0], packet.size, packet.data.size()))
+        {
+            Board::io::indicateTraffic(Board::io::dataSource_t::BLE, Board::io::dataDirection_t::INCOMING);
+            return true;
+        }
+
+        return false;
+    }
+
+    uint32_t time() override
+    {
+        return core::timing::currentRunTimeMs();
+    }
+} _hwaMIDIBLE;
+#else
+class HWAMIDIBLEStub : public System::Builder::HWA::Protocol::MIDI::BLE
+{
+    public:
+    HWAMIDIBLEStub() = default;
+
+    bool supported() override
+    {
+        return false;
+    }
+
+    bool init() override
+    {
+        return false;
+    }
+
+    bool deInit() override
+    {
+        return false;
+    }
+
+    bool write(MIDIlib::BLEMIDI::bleMIDIPacket_t& packet) override
+    {
+        return false;
+    }
+
+    bool read(MIDIlib::BLEMIDI::bleMIDIPacket_t& data) override
+    {
+        return false;
+    }
+
+    uint32_t time() override
+    {
+        return 0;
+    }
+} _hwaMIDIBLE;
+#endif
+
 #ifdef DMX_SUPPORTED
 class HWADMX : public System::Builder::HWA::Protocol::DMX
 {
@@ -1022,6 +1103,11 @@ class HWABuilder : public ::System::Builder::HWA
             ::System::Builder::HWA::Protocol::MIDI::DIN& din() override
             {
                 return _hwaMIDIDIN;
+            }
+
+            ::System::Builder::HWA::Protocol::MIDI::BLE& ble() override
+            {
+                return _hwaMIDIBLE;
             }
         } _hwaMIDI;
     } _hwaProtocol;
