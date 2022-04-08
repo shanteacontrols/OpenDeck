@@ -2,6 +2,17 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "[Debug] adafruit_ib_nrf52840",
+            "command": "cd ./src && make TARGET=adafruit_ib_nrf52840 DEBUG=1",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+            }
+        },
+        {
             "label": "[Debug] blackpill401ce",
             "command": "cd ./src && make TARGET=blackpill401ce DEBUG=1",
             "type": "shell",
@@ -62,6 +73,7 @@
             "default": "discovery",
             "description": "Select target for which to build:",
             "options": [
+                "adafruit_ib_nrf52840",
                 "bergamot",
                 "blackpill401ce",
                 "blackpill401cc",
