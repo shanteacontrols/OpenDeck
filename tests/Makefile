@@ -38,7 +38,8 @@ CPPFLAGS := \
 
 #c++ compiler only
 CXXFLAGS := \
--std=c++17
+-std=c++17 \
+-Wno-inconsistent-missing-override
 
 #c compiler only
 CFLAGS := \

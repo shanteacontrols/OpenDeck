@@ -55,7 +55,8 @@ CPPFLAGS := \
 -ffunction-sections \
 -fmessage-length=0 \
 -fno-strict-aliasing \
--fshort-enums
+-fshort-enums \
+-Wno-unused-function
 
 #c++ compiler only
 CXXFLAGS := \
@@ -69,7 +70,8 @@ CXXFLAGS := \
 CFLAGS := \
 -std=c11 \
 -Wno-parentheses-equality \
--Wno-unused-value
+-Wno-unused-value \
+-Wno-implicit-function-declaration
 
 #assembler only
 ASFLAGS := \
