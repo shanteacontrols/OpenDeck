@@ -791,11 +791,17 @@ TEST_F(HWTest, DINMIDIData)
         ASSERT_EQ(0, test::wsystem(cmd, response));
     };
 
-    auto monitor = [&]()
+    auto monitor = [&](bool usbMonitoring = false)
     {
         LOG(INFO) << "Monitoring DIN MIDI interface " << OUT_DIN_MIDI_PORT;
         cmd = std::string("amidi -p ") + _helper.amidiPort(OUT_DIN_MIDI_PORT) + " -d > " + temp_midi_data_location + " &";
         ASSERT_EQ(0, test::wsystem(cmd));
+
+        if (usbMonitoring)
+        {
+            cmd = std::string("amidi -p ") + _helper.amidiPort(OPENDECK_MIDI_DEVICE_NAME) + " -d & ";
+            ASSERT_EQ(0, test::wsystem(cmd));
+        }
     };
 
     auto stopMonitoring = []()
@@ -825,7 +831,12 @@ TEST_F(HWTest, DINMIDIData)
     LOG(INFO) << "Enabling DIN to DIN thru";
     ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::global_t::MIDI_SETTINGS, Protocol::MIDI::setting_t::DIN_THRU_DIN, 1));
 
-    monitor();
+    // having DIN to USB thru activated should not influence din to din thruing
+    LOG(INFO) << "Enabling DIN to USB thru";
+    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::global_t::MIDI_SETTINGS, Protocol::MIDI::setting_t::DIN_THRU_USB, 1));
+
+    // monitor usb as well so that outgoing usb messages aren't "stuck"
+    monitor(true);
     std::string  msg              = "90 00 7F";
     const size_t MESSAGES_TO_SEND = 100;
 
