@@ -12,9 +12,6 @@ ifeq (,$(findstring gen,$(TYPE)))
     -I"../modules/tinyusb/hw" \
     -I"../modules/tinyusb/src"
 
-    SOURCES += \
-    modules/tinyusb/hw/bsp/board.c
-
     SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY) -maxdepth 1 -name "*.cpp")
     SOURCES += $(shell $(FIND) ../modules/tinyusb/hw/mcu/nordic/nrfx/drivers/src -name "*.c" | sed "s|^\.\./||")
     SOURCES += $(shell $(FIND) ../modules/tinyusb/src -name "*.c" | sed "s|^\.\./||")

@@ -9,7 +9,6 @@ ifeq (,$(findstring gen,$(TYPE)))
     SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY) -maxdepth 1 -name "*.cpp")
 
     SOURCES += \
-    modules/tinyusb/hw/bsp/board.c \
     modules/tinyusb/hw/mcu/st/cmsis_device_f4/Source/Templates/system_stm32f4xx.c \
     modules/tinyusb/hw/mcu/st/stm32f4xx_hal_driver/Src/stm32f4xx_hal_adc.c \
     modules/tinyusb/hw/mcu/st/stm32f4xx_hal_driver/Src/stm32f4xx_hal.c \
