@@ -43,7 +43,6 @@ app_metadata_offset=$($yaml_parser "$yaml_file" flash.app-metadata-offset)
     printf "%s\n" "MCU_FAMILY := $mcu_family"
     printf "%s\n" "VENDOR := $vendor"
     # base mcu without the variant-specific letters at the end
-    printf "%s\n" "MCU_BASE := $(echo "$mcu" | rev | cut -c3- | rev)"
     printf "%s\n" "MCU := $mcu"
     printf "%s\n" "MCU_DIR := board/arch/$arch/$vendor/variants/$mcu_family/$mcu"
     printf "%s\n" "CPU := $cpu"
