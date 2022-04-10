@@ -328,8 +328,8 @@ namespace Board
         /// returns: True if there is a new reading for specified analog index.
         bool analogValue(size_t analogID, uint16_t& value);
 
-        /// Used to indicate that the data event (DIN MIDI, USB MIDI, CDC etc.) has occured using built-in LEDs on board.
-        /// param [source]     Source of data. Depending on the source (USB/UART, corresponding LEDs will be turned on).
+        /// Used to indicate that the data event (UART, USB etc.) has occured using built-in LEDs on board.
+        /// param [source]     Source of data. Depending on the source corresponding LEDs will be turned on.
         /// param [direction]  Direction of data.
         void indicateTraffic(dataSource_t source, dataDirection_t direction);
     }    // namespace IO
