@@ -20,62 +20,27 @@ limitations under the License.
 
 #include <stddef.h>
 #include <inttypes.h>
-#include "core/src/general/IO.h"
 #include "board/Board.h"
+#ifdef USB_OVER_SERIAL
 #include "usb-link/Commands.h"
-
-// for internal board usage only - do not include/call in application directly
-
-#define BOARD_ERROR_CHECK(res, expected)      \
-    do                                        \
-    {                                         \
-        if ((res) != (expected))              \
-        {                                     \
-            Board::detail::errorHandler(res); \
-        }                                     \
-    } while (0)
+#endif
+#include "core/src/MCU.h"
 
 namespace Board::detail
 {
-#ifdef BOARD_USE_UPDATE_HOOKS
     // some boards/SDKs might require periodic calls to certain APIs:
     // enable only if needed
     using updateHook_t = void (*)();
 
     void registerUpdateHook(updateHook_t hook);
-#endif
-
-    /// Default error handler.
-    void errorHandler(uint32_t error = 0);
 
     namespace setup
     {
-        /// Initializes low-level layer needed for HAL API.
-        void halInit();
-
-        /// Deinitializes low-level layer needed for HAL API.
-        void halDeinit();
-
-        /// Prepares MCU to run application.
         void application();
-
-        /// Prepares MCU to run bootloader.
         void bootloader();
-
-        /// Initializes all used clocks on the board.
-        void clocks();
-
-        /// Initializes all pins to correct states.
         void io();
-
-        /// Initializes analog variables and ADC peripheral.
         void adc();
-
-        /// Initializes USB peripheral and configures it as MIDI device.
         void usb();
-
-        /// Initializes all used timers on board.
-        void timers();
     }    // namespace setup
 
     namespace USB
@@ -88,6 +53,7 @@ namespace Board::detail
             WAITING
         };
 
+#ifdef USB_OVER_SERIAL
         /// Reads the data from UART channel on which USB host is located and checks if
         /// received data is internal packet.
         /// param [in,out] cmd  Reference to variable in which read internal command is stored.
@@ -99,6 +65,14 @@ namespace Board::detail
         /// param [in,out] cmd  Reference to variable in which read internal command is stored.
         /// returns True if internal command is read, false otherwise.
         bool checkInternal(USBLink::internalCMD_t& cmd);
+#endif
+
+        const void* cfgDescriptor(uint16_t* size);
+        const void* deviceDescriptor(uint16_t* size);
+        const void* languageString(uint16_t* size);
+        const void* manufacturerString(uint16_t* size);
+        const void* productString(uint16_t* size);
+        const void* serialIDString(uint16_t* size, uint8_t* uid);
     }    // namespace USB
 
     namespace UART
@@ -120,8 +94,8 @@ namespace Board::detail
 
         struct uartPins_t
         {
-            core::io::mcuPin_t rx;
-            core::io::mcuPin_t tx;
+            core::mcu::io::pin_t rx;
+            core::mcu::io::pin_t tx;
         };
 
         namespace ll
@@ -165,14 +139,18 @@ namespace Board::detail
 
         /// Retrieves DMX channel value.
         uint8_t dmxChannelValue(size_t channel);
+
+        /// Global ISR handler for all UART events.
+        /// param [in]: channel UART channel on MCU.
+        void isr(uint8_t channel);
     }    // namespace UART
 
     namespace I2C
     {
         struct i2cPins_t
         {
-            core::io::mcuPin_t sda;
-            core::io::mcuPin_t scl;
+            core::mcu::io::pin_t sda;
+            core::mcu::io::pin_t scl;
         };
     }    // namespace I2C
 
@@ -206,68 +184,15 @@ namespace Board::detail
         /// Used to restore pin setup for specified multiplexer.
         void restoreMux(uint8_t muxIndex);
 
+        /// Called in ADC ISR once the conversion is done.
+        /// param [in]: adcValue    Retrieved ADC value.
+        void adcISR(uint16_t adcValue);
+
         /// Used as an descriptor for unused pins.
         struct unusedIO_t
         {
-            core::io::mcuPin_t pin;
-            bool               state;
+            core::mcu::io::pin_t pin;
+            bool                 state;
         };
     }    // namespace IO
-
-    namespace isrHandling
-    {
-        /// Global ISR handler for all UART events.
-        /// param [in]: channel UART channel on MCU.
-        void uart(uint8_t channel);
-
-        /// Called in ADC ISR once the conversion is done.
-        /// param [in]: adcValue    Retrieved ADC value.
-        void adc(uint16_t adcValue);
-
-        // Global ISR handler for timer event on all channels.
-        /// param [in]: channel    Channel on timer instance which caused interrupt.
-        void timer(uint8_t channel);
-    }    // namespace isrHandling
-
-    namespace flash
-    {
-        struct flashPage_t
-        {
-            uint32_t address;
-            uint32_t size;
-        };
-
-        /// Prepares flash for use, if needed.
-        bool init();
-
-        /// Checks whether the specified flash address is valid / in range for the current MCU.
-        bool isInRange(uint32_t address);
-
-        /// Retrieves total flash size in bytes.
-        uint32_t size();
-
-        /// Retrieves size of specified flash page.
-        uint32_t pageSize(size_t index);
-
-        /// Erases specified flash page.
-        bool erasePage(size_t index);
-
-        /// Writes filled page buffer to flash page if needed/supported.
-        void writePage(size_t index);
-
-        /// Write 16-bit data to specified address in flash memory.
-        bool write16(uint32_t address, uint16_t data);
-
-        /// Write 32-bit data to specified address in flash memory.
-        bool write32(uint32_t address, uint32_t data);
-
-        /// Read 8-bit data from specified address in flash memory.
-        bool read8(uint32_t address, uint8_t& data);
-
-        /// Read 16-bit data from specified address in flash memory.
-        bool read16(uint32_t address, uint16_t& data);
-
-        /// Read 32-bit data from specified address in flash memory.
-        bool read32(uint32_t address, uint32_t& data);
-    }    // namespace flash
 }    // namespace Board::detail

@@ -16,6 +16,8 @@ limitations under the License.
 
 */
 
+#ifdef I2C_SUPPORTED
+
 #include "Strings.h"
 #include <string.h>
 #include <stdio.h>
@@ -224,3 +226,5 @@ const char* Strings::note(MIDI::note_t note)
     strncpy(tempBuffer, noteNameArray[static_cast<uint8_t>(note)], BUFFER_SIZE);
     return tempBuffer;
 }
+
+#endif

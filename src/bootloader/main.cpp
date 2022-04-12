@@ -20,7 +20,7 @@ limitations under the License.
 #include "updater/Updater.h"
 #include "SysExParser/SysExParser.h"
 #include "FwSelector/FwSelector.h"
-#include "core/src/general/Timing.h"
+#include "core/src/Timing.h"
 
 namespace
 {
@@ -108,7 +108,7 @@ class HWAFwSelector : public FwSelector::HWA
             }
 
             Board::bootloader::runApplication();
-#elif defined(USB_LINK_MCU)
+#elif defined(USB_OVER_SERIAL_HOST)
             // wait a bit first
             core::timing::waitMs(1500);
             uint8_t data;
@@ -169,9 +169,7 @@ class Reader
                     {
                         if (_sysExParser.value(i, value))
                         {
-                            Board::IO::indicateTraffic(Board::IO::dataSource_t::USB, Board::IO::dataDirection_t::INCOMING);
-
-#ifdef USB_LINK_MCU
+#ifdef USB_OVER_SERIAL_HOST
                             Board::UART::write(UART_CHANNEL_USB_LINK, value);
 
                             // expect ACK but ignore the value
@@ -188,7 +186,7 @@ class Reader
             }
         }
 
-#ifdef USB_LINK_MCU
+#ifdef USB_OVER_SERIAL_HOST
         if (Board::UART::read(UART_CHANNEL_USB_LINK, value))
         {
             if (value == TARGET_FW_UPDATE_DONE)
@@ -216,13 +214,13 @@ class Reader
 #endif
 
     private:
-#ifndef USB_LINK_MCU
+#ifndef USB_OVER_SERIAL_HOST
     BTLDRWriter _btldrWriter;
     Updater     _updater = Updater(_btldrWriter, COMMAND_FW_UPDATE_START, COMMAND_FW_UPDATE_END, FW_UID);
 #endif
 
 #ifdef USB_SUPPORTED
-    MIDI::usbMIDIPacket_t _usbMIDIpacket = {};
+    MIDI::usbMIDIPacket_t _usbMIDIpacket;
     SysExParser           _sysExParser;
 #endif
 };

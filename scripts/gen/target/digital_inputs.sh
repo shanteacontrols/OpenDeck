@@ -31,8 +31,8 @@ then
             index_array+=("$index")
 
             {
-                printf "%s\n" "#define DIN_PORT_${i} CORE_IO_PIN_PORT_DEF(${port})"
-                printf "%s\n" "#define DIN_PIN_${i} CORE_IO_PIN_INDEX_DEF(${index})"
+                printf "%s\n" "#define DIN_PORT_${i} CORE_MCU_IO_PIN_PORT_DEF(${port})"
+                printf "%s\n" "#define DIN_PIN_${i} CORE_MCU_IO_PIN_INDEX_DEF(${index})"
             } >> "$out_header"
 
             if [[ -z ${port_duplicates[$port]} ]]
@@ -47,24 +47,24 @@ then
 
         {
             printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline core::io::pinPort_t D_IN_PORTS[NR_OF_DIGITAL_INPUT_PORTS] = {"
+            printf "%s\n" "constexpr inline core::mcu::io::pinPort_t D_IN_PORTS[NR_OF_DIGITAL_INPUT_PORTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<${#port_array_unique[@]}; i++))
         do
             {
-                printf "%s\n" "CORE_IO_PIN_PORT_DEF(${port_array_unique[$i]}),"
+                printf "%s\n" "CORE_MCU_IO_PIN_PORT_DEF(${port_array_unique[$i]}),"
             } >> "$out_header"
         done
 
         {
             printf "%s\n" "};"
-            printf "%s\n" "constexpr inline core::io::mcuPin_t D_IN_PINS[NR_OF_DIGITAL_INPUTS] = {"
+            printf "%s\n" "constexpr inline core::mcu::io::pin_t D_IN_PINS[NR_OF_DIGITAL_INPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_inputs; i++))
         do
-            printf "%s\n" "CORE_IO_MCU_PIN_VAR(DIN_PORT_${i}, DIN_PIN_${i})," >> "$out_header"
+            printf "%s\n" "CORE_MCU_IO_PIN_VAR(DIN_PORT_${i}, DIN_PIN_${i})," >> "$out_header"
         done
 
         {
@@ -113,24 +113,24 @@ then
         index=$($yaml_parser "$yaml_file" buttons.pins.data.index)
 
         {
-            printf "%s\n" "#define SR_IN_DATA_PORT CORE_IO_PIN_PORT_DEF(${port})"
-            printf "%s\n" "#define SR_IN_DATA_PIN CORE_IO_PIN_INDEX_DEF(${index})"
+            printf "%s\n" "#define SR_IN_DATA_PORT CORE_MCU_IO_PIN_PORT_DEF(${port})"
+            printf "%s\n" "#define SR_IN_DATA_PIN CORE_MCU_IO_PIN_INDEX_DEF(${index})"
         } >> "$out_header"
 
         port=$($yaml_parser "$yaml_file" buttons.pins.clock.port)
         index=$($yaml_parser "$yaml_file" buttons.pins.clock.index)
 
         {
-            printf "%s\n" "#define SR_IN_CLK_PORT CORE_IO_PIN_PORT_DEF(${port})"
-            printf "%s\n" "#define SR_IN_CLK_PIN CORE_IO_PIN_INDEX_DEF(${index})"
+            printf "%s\n" "#define SR_IN_CLK_PORT CORE_MCU_IO_PIN_PORT_DEF(${port})"
+            printf "%s\n" "#define SR_IN_CLK_PIN CORE_MCU_IO_PIN_INDEX_DEF(${index})"
         } >> "$out_header"
 
         port=$($yaml_parser "$yaml_file" buttons.pins.latch.port)
         index=$($yaml_parser "$yaml_file" buttons.pins.latch.index)
 
         {
-            printf "%s\n" "#define SR_IN_LATCH_PORT CORE_IO_PIN_PORT_DEF(${port})"
-            printf "%s\n" "#define SR_IN_LATCH_PIN CORE_IO_PIN_INDEX_DEF(${index})"
+            printf "%s\n" "#define SR_IN_LATCH_PORT CORE_MCU_IO_PIN_PORT_DEF(${port})"
+            printf "%s\n" "#define SR_IN_LATCH_PIN CORE_MCU_IO_PIN_INDEX_DEF(${index})"
         } >> "$out_header"
 
         number_of_in_sr=$($yaml_parser "$yaml_file" buttons.shiftRegisters)
@@ -150,24 +150,24 @@ then
             index=$($yaml_parser "$yaml_file" buttons.rows.pins.data.index)
 
             {
-                printf "%s\n" "#define SR_IN_DATA_PORT CORE_IO_PIN_PORT_DEF(${port})"
-                printf "%s\n" "#define SR_IN_DATA_PIN CORE_IO_PIN_INDEX_DEF(${index})"
+                printf "%s\n" "#define SR_IN_DATA_PORT CORE_MCU_IO_PIN_PORT_DEF(${port})"
+                printf "%s\n" "#define SR_IN_DATA_PIN CORE_MCU_IO_PIN_INDEX_DEF(${index})"
             } >> "$out_header"
 
             port=$($yaml_parser "$yaml_file" buttons.rows.pins.clock.port)
             index=$($yaml_parser "$yaml_file" buttons.rows.pins.clock.index)
 
             {
-                printf "%s\n" "#define SR_IN_CLK_PORT CORE_IO_PIN_PORT_DEF(${port})"
-                printf "%s\n" "#define SR_IN_CLK_PIN CORE_IO_PIN_INDEX_DEF(${index})"
+                printf "%s\n" "#define SR_IN_CLK_PORT CORE_MCU_IO_PIN_PORT_DEF(${port})"
+                printf "%s\n" "#define SR_IN_CLK_PIN CORE_MCU_IO_PIN_INDEX_DEF(${index})"
             } >> "$out_header"
 
             port=$($yaml_parser "$yaml_file" buttons.rows.pins.latch.port)
             index=$($yaml_parser "$yaml_file" buttons.rows.pins.latch.index)
 
             {
-                printf "%s\n" "#define SR_IN_LATCH_PORT CORE_IO_PIN_PORT_DEF(${port})"
-                printf "%s\n" "#define SR_IN_LATCH_PIN CORE_IO_PIN_INDEX_DEF(${index})"
+                printf "%s\n" "#define SR_IN_LATCH_PORT CORE_MCU_IO_PIN_PORT_DEF(${port})"
+                printf "%s\n" "#define SR_IN_LATCH_PIN CORE_MCU_IO_PIN_INDEX_DEF(${index})"
             } >> "$out_header"
 
         elif [[ $($yaml_parser "$yaml_file" buttons.rows.type) == "native" ]]
@@ -180,19 +180,19 @@ then
                 index=$($yaml_parser "$yaml_file" buttons.rows.pins.["$i"].index)
 
                 {
-                    printf "%s\n" "#define DIN_PORT_${i} CORE_IO_PIN_PORT_DEF(${port})"
-                    printf "%s\n" "#define DIN_PIN_${i} CORE_IO_PIN_INDEX_DEF(${index})"
+                    printf "%s\n" "#define DIN_PORT_${i} CORE_MCU_IO_PIN_PORT_DEF(${port})"
+                    printf "%s\n" "#define DIN_PIN_${i} CORE_MCU_IO_PIN_INDEX_DEF(${index})"
                 } >> "$out_header"
             done
 
             {
                 printf "%s\n" "namespace {"
-                printf "%s\n" "constexpr inline core::io::mcuPin_t D_IN_PINS[NUMBER_OF_BUTTON_ROWS] = {"
+                printf "%s\n" "constexpr inline core::mcu::io::pin_t D_IN_PINS[NUMBER_OF_BUTTON_ROWS] = {"
             } >> "$out_header"
 
             for ((i=0; i<number_of_rows; i++))
             do
-                printf "%s\n" "CORE_IO_MCU_PIN_VAR(DIN_PORT_${i}, DIN_PIN_${i})," >> "$out_header"
+                printf "%s\n" "CORE_MCU_IO_PIN_VAR(DIN_PORT_${i}, DIN_PIN_${i})," >> "$out_header"
             done
 
             {
@@ -214,8 +214,8 @@ then
                 index=$($yaml_parser "$yaml_file" buttons.columns.pins.decA"$i".index)
 
                 {
-                    printf "%s\n" "#define DEC_BM_PORT_A${i} CORE_IO_PIN_PORT_DEF(${port})"
-                    printf "%s\n" "#define DEC_BM_PIN_A${i} CORE_IO_PIN_INDEX_DEF(${index})"
+                    printf "%s\n" "#define DEC_BM_PORT_A${i} CORE_MCU_IO_PIN_PORT_DEF(${port})"
+                    printf "%s\n" "#define DEC_BM_PIN_A${i} CORE_MCU_IO_PIN_INDEX_DEF(${index})"
                 } >> "$out_header"
             done
         else

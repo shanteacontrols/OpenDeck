@@ -17,7 +17,7 @@ limitations under the License.
 */
 
 #include <inttypes.h>
-#include "core/src/general/Helpers.h"
+#include "core/src/util/Util.h"
 #include "util/conversion/Conversion.h"
 #include "util/configurable/Configurable.h"
 
@@ -88,7 +88,9 @@ bool Database::Instance::init()
     _supportedPresets = (LESSDB::dbSize() - systemBlockUsage) / (LESSDB::currentDBsize() + systemBlockUsage);
 
     // limit by hardcoded limit
-    _supportedPresets = CONSTRAIN(_supportedPresets, 0, Config::MAX_PRESETS);
+    _supportedPresets = core::util::CONSTRAIN(_supportedPresets,
+                                              static_cast<size_t>(0),
+                                              Config::MAX_PRESETS);
 
     _uid = layoutUID(_layout.layout(Layout::type_t::USER), _supportedPresets);
 

@@ -16,9 +16,11 @@ limitations under the License.
 
 */
 
+#ifdef TOUCHSCREEN_SUPPORTED
+
 #include "Touchscreen.h"
-#include "core/src/general/Helpers.h"
-#include "core/src/general/Timing.h"
+#include "core/src/util/Util.h"
+#include "core/src/Timing.h"
 #include "util/conversion/Conversion.h"
 #include "util/configurable/Configurable.h"
 
@@ -545,3 +547,5 @@ std::optional<uint8_t> Touchscreen::sysConfigSet(System::Config::Section::touchs
 
     return System::Config::status_t::ERROR_WRITE;
 }
+
+#endif

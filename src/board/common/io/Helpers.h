@@ -24,26 +24,26 @@ limitations under the License.
 // internal leds are always on unless there's some traffic
 #ifdef LED_INT_INVERT
 #ifndef FW_BOOT
-#define INT_LED_ON(port, pin)  CORE_IO_SET_LOW(port, pin)
-#define INT_LED_OFF(port, pin) CORE_IO_SET_HIGH(port, pin)
+#define INT_LED_ON(port, pin)  CORE_MCU_IO_SET_LOW(port, pin)
+#define INT_LED_OFF(port, pin) CORE_MCU_IO_SET_HIGH(port, pin)
 #else
-#define INT_LED_ON(port, pin)  CORE_IO_SET_HIGH(port, pin)
-#define INT_LED_OFF(port, pin) CORE_IO_SET_LOW(port, pin)
+#define INT_LED_ON(port, pin)  CORE_MCU_IO_SET_HIGH(port, pin)
+#define INT_LED_OFF(port, pin) CORE_MCU_IO_SET_LOW(port, pin)
 #endif
 #else
 #ifndef FW_BOOT
-#define INT_LED_ON(port, pin)  CORE_IO_SET_HIGH(port, pin)
-#define INT_LED_OFF(port, pin) CORE_IO_SET_LOW(port, pin)
+#define INT_LED_ON(port, pin)  CORE_MCU_IO_SET_HIGH(port, pin)
+#define INT_LED_OFF(port, pin) CORE_MCU_IO_SET_LOW(port, pin)
 #else
-#define INT_LED_ON(port, pin)  CORE_IO_SET_LOW(port, pin)
-#define INT_LED_OFF(port, pin) CORE_IO_SET_HIGH(port, pin)
+#define INT_LED_ON(port, pin)  CORE_MCU_IO_SET_LOW(port, pin)
+#define INT_LED_OFF(port, pin) CORE_MCU_IO_SET_HIGH(port, pin)
 #endif
 #endif
 
 #ifdef LED_EXT_INVERT
-#define EXT_LED_ON(port, pin)  CORE_IO_SET_LOW(port, pin)
-#define EXT_LED_OFF(port, pin) CORE_IO_SET_HIGH(port, pin)
+#define EXT_LED_ON(port, pin)  CORE_MCU_IO_SET_LOW(port, pin)
+#define EXT_LED_OFF(port, pin) CORE_MCU_IO_SET_HIGH(port, pin)
 #else
-#define EXT_LED_ON(port, pin)  CORE_IO_SET_HIGH(port, pin)
-#define EXT_LED_OFF(port, pin) CORE_IO_SET_LOW(port, pin)
+#define EXT_LED_ON(port, pin)  CORE_MCU_IO_SET_HIGH(port, pin)
+#define EXT_LED_OFF(port, pin) CORE_MCU_IO_SET_LOW(port, pin)
 #endif

@@ -16,6 +16,8 @@ limitations under the License.
 
 */
 
+#ifdef I2C_SUPPORTED
+
 #include "I2C.h"
 
 using namespace IO;
@@ -94,3 +96,5 @@ void I2C::registerPeripheral(Peripheral* instance)
 
     _peripherals[_peripheralCounter++] = instance;
 }
+
+#endif

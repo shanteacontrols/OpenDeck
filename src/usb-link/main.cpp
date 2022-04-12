@@ -17,9 +17,10 @@ limitations under the License.
 */
 
 #include "board/Board.h"
-#include "board/common/comm/USBOverSerial/USBOverSerial.h"
+#include "board/common/communication/USBOverSerial/USBOverSerial.h"
 #include "Commands.h"
-#include "core/src/general/Timing.h"
+#include "core/src/Timing.h"
+#include "core/src/MCU.h"
 #include "protocol/midi/MIDI.h"
 
 using namespace Protocol;
@@ -39,7 +40,7 @@ namespace
         static uint32_t lastCheckTime       = 0;
         static bool     lastConnectionState = false;
 
-        if (core::timing::currentRunTimeMs() - lastCheckTime > USB_CONN_CHECK_TIME)
+        if (core::timing::ms() - lastCheckTime > USB_CONN_CHECK_TIME)
         {
             bool newState = Board::USB::isUSBconnected();
 
@@ -59,14 +60,14 @@ namespace
                 lastConnectionState = newState;
             }
 
-            lastCheckTime = core::timing::currentRunTimeMs();
+            lastCheckTime = core::timing::ms();
         }
     }
 
     void sendUniqueID()
     {
-        Board::uniqueID_t uniqueID;
-        Board::uniqueID(uniqueID);
+        core::mcu::uniqueID_t uniqueID;
+        core::mcu::uniqueID(uniqueID);
 
         uint8_t data[11] = {
             static_cast<uint8_t>(USBLink::internalCMD_t::UNIQUE_ID),

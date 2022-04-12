@@ -11,8 +11,8 @@ then
         index=$($yaml_parser "$yaml_file" unused-io.["$i"].index)
 
         {
-            printf "%s\n" "#define UNUSED_PORT_${i} CORE_IO_PIN_PORT_DEF(${port})"
-            printf "%s\n" "#define UNUSED_PIN_${i} CORE_IO_PIN_INDEX_DEF(${index})"
+            printf "%s\n" "#define UNUSED_PORT_${i} CORE_MCU_IO_PIN_PORT_DEF(${port})"
+            printf "%s\n" "#define UNUSED_PIN_${i} CORE_MCU_IO_PIN_INDEX_DEF(${index})"
         } >> "$out_header"
     done
 
@@ -30,9 +30,9 @@ then
                 {
                     printf "%s\n" "{ .pin = { .port = UNUSED_PORT_${i}, .index = UNUSED_PIN_${i}",
                     printf "\n%s\n" "#ifdef CORE_ARCH_AVR"
-                    printf "%s\n" ".mode = core::io::pinMode_t::INPUT, },"
+                    printf "%s\n" ".mode = core::mcu::io::pinMode_t::INPUT, },"
                     printf "%s\n" "#else"
-                    printf "%s\n" ".mode = core::io::pinMode_t::INPUT, .pull = core::io::pullMode_t::UP, },"
+                    printf "%s\n" ".mode = core::mcu::io::pinMode_t::INPUT, .pull = core::mcu::io::pullMode_t::UP, },"
                     printf "%s\n" "#endif"
                     printf "%s\n" ".state = true, },"
                 } >> "$out_header"
@@ -42,9 +42,9 @@ then
                 {
                     printf "%s\n" "{ .pin = { .port = UNUSED_PORT_${i}, .index = UNUSED_PIN_${i}",
                     printf "\n%s\n" "#ifdef CORE_ARCH_AVR"
-                    printf "%s\n" ".mode = core::io::pinMode_t::OUTPUT, },"
+                    printf "%s\n" ".mode = core::mcu::io::pinMode_t::OUTPUT, },"
                     printf "%s\n" "#else"
-                    printf "%s\n" ".mode = core::io::pinMode_t::OUTPUT_PP, .pull = core::io::pullMode_t::NONE, },"
+                    printf "%s\n" ".mode = core::mcu::io::pinMode_t::OUTPUT_PP, .pull = core::mcu::io::pullMode_t::NONE, },"
                     printf "%s\n" "#endif"
                     printf "%s\n" ".state = false, },"
                 } >> "$out_header"
@@ -54,9 +54,9 @@ then
                 {
                     printf "%s\n" "{ .pin = { .port = UNUSED_PORT_${i}, .index = UNUSED_PIN_${i}",
                     printf "\n%s\n" "#ifdef CORE_ARCH_AVR"
-                    printf "%s\n" ".mode = core::io::pinMode_t::OUTPUT, },"
+                    printf "%s\n" ".mode = core::mcu::io::pinMode_t::OUTPUT, },"
                     printf "%s\n" "#else"
-                    printf "%s\n" ".mode = core::io::pinMode_t::OUTPUT_PP, .pull = core::io::pullMode_t::NONE, }," >> "$out_header"
+                    printf "%s\n" ".mode = core::mcu::io::pinMode_t::OUTPUT_PP, .pull = core::mcu::io::pullMode_t::NONE, }," >> "$out_header"
                     printf "%s\n" "#endif"
                     printf "%s\n" ".state = true, }," >> "$out_header"
                 } >> "$out_header"

@@ -18,7 +18,7 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "core/src/general/Interrupt.h"
+#include "core/src/MCU.h"
 
 using appEntry_t = void (*)();
 
@@ -42,19 +42,14 @@ namespace Board::bootloader
 
     void runBootloader()
     {
-#if defined(LED_INDICATORS) && defined(LED_INDICATORS_CTL)
-        // the only reason to run this in bootloader is to control led indicators through data event timeouts
-        // if this feature is unavailable, don't configure the timer
-        detail::setup::timers();
-#endif
-
+        core::mcu::timers::startAll();
         detail::setup::usb();
     }
 
     void runApplication()
     {
         detail::IO::ledFlashStartup();
-        detail::setup::halDeinit();
+        core::mcu::deInit();
 
         auto appEntry = (appEntry_t) * (volatile uint32_t*)(APP_START_ADDR + 4);
         appEntry();

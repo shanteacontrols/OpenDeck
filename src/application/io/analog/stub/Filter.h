@@ -27,8 +27,6 @@ namespace IO
     class AnalogFilter : public Analog::Filter
     {
         public:
-        static constexpr adcType_t ADC_RESOLUTION = adcType_t::ADC_10BIT;
-
         AnalogFilter() = default;
 
         bool isFiltered(size_t index, descriptor_t& descriptor) override

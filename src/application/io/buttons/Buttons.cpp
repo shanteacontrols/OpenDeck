@@ -22,8 +22,8 @@ limitations under the License.
 
 #ifdef BUTTONS_SUPPORTED
 
-#include "core/src/general/Helpers.h"
-#include "core/src/general/Timing.h"
+#include "core/src/util/Util.h"
+#include "core/src/Timing.h"
 #include "util/conversion/Conversion.h"
 #include "util/configurable/Configurable.h"
 
@@ -441,7 +441,7 @@ void Buttons::setState(size_t index, bool state)
     uint8_t arrayIndex  = index / 8;
     uint8_t buttonIndex = index - 8 * arrayIndex;
 
-    BIT_WRITE(_buttonPressed[arrayIndex], buttonIndex, state);
+    core::util::BIT_WRITE(_buttonPressed[arrayIndex], buttonIndex, state);
 }
 
 /// Checks for last button state.
@@ -452,7 +452,7 @@ bool Buttons::state(size_t index)
     uint8_t arrayIndex  = index / 8;
     uint8_t buttonIndex = index - 8 * arrayIndex;
 
-    return BIT_READ(_buttonPressed[arrayIndex], buttonIndex);
+    return core::util::BIT_READ(_buttonPressed[arrayIndex], buttonIndex);
 }
 
 /// Updates current state of latching button.
@@ -469,7 +469,7 @@ void Buttons::setLatchingState(size_t index, bool state)
     uint8_t arrayIndex  = index / 8;
     uint8_t buttonIndex = index - 8 * arrayIndex;
 
-    BIT_WRITE(_lastLatchingState[arrayIndex], buttonIndex, state);
+    core::util::BIT_WRITE(_lastLatchingState[arrayIndex], buttonIndex, state);
 }
 
 /// Checks for last latching button state.
@@ -480,7 +480,7 @@ bool Buttons::latchingState(size_t index)
     uint8_t arrayIndex  = index / 8;
     uint8_t buttonIndex = index - 8 * arrayIndex;
 
-    return BIT_READ(_lastLatchingState[arrayIndex], buttonIndex);
+    return core::util::BIT_READ(_lastLatchingState[arrayIndex], buttonIndex);
 }
 
 /// Resets the current state of the specified button.

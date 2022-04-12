@@ -16,9 +16,11 @@ limitations under the License.
 
 */
 
+#ifdef TOUCHSCREEN_SUPPORTED
+
 #include "Viewtech.h"
-#include "core/src/general/Timing.h"
-#include "core/src/general/Helpers.h"
+#include "core/src/Timing.h"
+#include "core/src/util/Util.h"
 
 using namespace IO;
 
@@ -137,8 +139,8 @@ void Viewtech::setIconState(Touchscreen::icon_t& icon, bool state)
     _hwa.write(0x82);
 
     // icon address - for viewtech displays, address is stored in xPos element
-    _hwa.write(MSB_WORD(icon.xPos));
-    _hwa.write(LSB_WORD(icon.xPos));
+    _hwa.write(core::util::MSB_U16(icon.xPos));
+    _hwa.write(core::util::LSB_U16(icon.xPos));
 
     // value to set - 2 bytes are used, higher is always 0
     // inverted logic for setting state - 0 means on state, 1 is off
@@ -166,3 +168,5 @@ bool Viewtech::setBrightness(Touchscreen::brightness_t brightness)
 
     return true;
 }
+
+#endif

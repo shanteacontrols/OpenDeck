@@ -11,7 +11,7 @@ Documentation/*
 *.profraw
 **/cubemx/**/*
 !**/cubemx/**/*.ioc
-src/application/io/touchscreen/gen/*
+src/application/gen/*
 **/*.ico
 **/.clangd/*
 **/clangd/*

@@ -16,15 +16,12 @@ limitations under the License.
 
 */
 
-#include <avr/pgmspace.h>
 #include <avr/eeprom.h>
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "core/src/general/Helpers.h"
-#include "core/src/arch/avr/Misc.h"
-#include "core/src/general/Interrupt.h"
-#include "core/src/general/Timing.h"
-#include <MCU.h>
+#include "core/src/util/Util.h"
+#include "core/src/Timing.h"
+#include "core/src/MCU.h"
 
 namespace Board::bootloader
 {
@@ -43,12 +40,7 @@ namespace Board::bootloader
 
     void runBootloader()
     {
-#if defined(LED_INDICATORS) && defined(LED_INDICATORS_CTL)
-        // the only reason to run this in bootloader is to control led indicators through data event timeouts
-        // if this feature is unavailable, don't configure the timer
-        detail::setup::timers();
-#endif
-
+        core::mcu::timers::startAll();
         detail::setup::usb();
     }
 

@@ -18,7 +18,7 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "core/src/general/Misc.h"
+#include "core/src/util/Util.h"
 
 // assuming 84MHz clock config
 
@@ -28,7 +28,7 @@ namespace Board::detail::IO
     {
         for (int i = 0; i < 12; i++)
         {
-            CORE_NOP();
+            CORE_MCU_NOP();
         }
     }
 
@@ -36,7 +36,7 @@ namespace Board::detail::IO
     {
         for (int i = 0; i < 6; i++)
         {
-            CORE_NOP();
+            CORE_MCU_NOP();
         }
     }
 }    // namespace Board::detail::IO

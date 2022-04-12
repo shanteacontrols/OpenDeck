@@ -6,7 +6,7 @@ vpath modules/%.c ../
 SOURCES_COMMON := 
 
 #common for all targets
-ifeq (,$(findstring USB_LINK_MCU,$(DEFINES)))
+ifeq (,$(findstring USB_OVER_SERIAL_HOST,$(DEFINES)))
     SOURCES_COMMON += \
     modules/dbms/src/LESSDB.cpp \
     modules/midi/src/MIDI.cpp \
@@ -47,5 +47,5 @@ INCLUDE_DIRS_COMMON := \
 -I"../src/board/common" \
 -I"../src/board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)" \
 -I"../src/$(MCU_DIR)" \
--I"../src/$(GEN_DIR_MCU_BASE)/$(MCU)" \
--I"../src/$(GEN_DIR_TARGET)/"
+-I"../src/$(BOARD_GEN_DIR_MCU_BASE)/$(MCU)" \
+-I"../src/$(BOARD_GEN_DIR_TARGET)/"

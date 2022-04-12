@@ -38,20 +38,20 @@ then
             index=$($yaml_parser "$yaml_file" analog.pins.["$i"].index)
 
             {
-                printf "%s\n" "#define AIN_PORT_${i} CORE_IO_PIN_PORT_DEF(${port})"
-                printf "%s\n" "#define AIN_PIN_${i} CORE_IO_PIN_INDEX_DEF(${index})"
+                printf "%s\n" "#define AIN_PORT_${i} CORE_MCU_IO_PIN_PORT_DEF(${port})"
+                printf "%s\n" "#define AIN_PIN_${i} CORE_MCU_IO_PIN_INDEX_DEF(${index})"
             } >> "$out_header"
 
         done
 
         {
             printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline core::io::mcuPin_t A_IN_PINS[MAX_ADC_CHANNELS] = {"
+            printf "%s\n" "constexpr inline core::mcu::io::pin_t A_IN_PINS[MAX_ADC_CHANNELS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_analog_inputs; i++))
         do
-            printf "%s\n" "CORE_IO_MCU_PIN_VAR(AIN_PORT_${i}, AIN_PIN_${i})," >> "$out_header"
+            printf "%s\n" "CORE_MCU_IO_PIN_VAR(AIN_PORT_${i}, AIN_PIN_${i})," >> "$out_header"
         done
 
         {
@@ -72,8 +72,8 @@ then
             index=$($yaml_parser "$yaml_file" analog.pins.s"$i".index)
 
             {
-                printf "%s\n" "#define MUX_PORT_S${i} CORE_IO_PIN_PORT_DEF(${port})"
-                printf "%s\n" "#define MUX_PIN_S${i} CORE_IO_PIN_INDEX_DEF(${index})"
+                printf "%s\n" "#define MUX_PORT_S${i} CORE_MCU_IO_PIN_PORT_DEF(${port})"
+                printf "%s\n" "#define MUX_PIN_S${i} CORE_MCU_IO_PIN_INDEX_DEF(${index})"
             } >> "$out_header"
         done
 
@@ -85,19 +85,19 @@ then
             index=$($yaml_parser "$yaml_file" analog.pins.z"$i".index)
 
             {
-                printf "%s\n" "#define MUX_PORT_INPUT_${i} CORE_IO_PIN_PORT_DEF(${port})"
-                printf "%s\n" "#define MUX_PIN_INPUT_${i} CORE_IO_PIN_INDEX_DEF(${index})"
+                printf "%s\n" "#define MUX_PORT_INPUT_${i} CORE_MCU_IO_PIN_PORT_DEF(${port})"
+                printf "%s\n" "#define MUX_PIN_INPUT_${i} CORE_MCU_IO_PIN_INDEX_DEF(${index})"
             } >> "$out_header"
         done
 
         {
             printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline core::io::mcuPin_t A_IN_PINS[MAX_ADC_CHANNELS] = {"
+            printf "%s\n" "constexpr inline core::mcu::io::pin_t A_IN_PINS[MAX_ADC_CHANNELS] = {"
         } >> "$out_header"
 
         for ((i=0; i<"$number_of_mux"; i++))
         do
-            printf "%s\n" "CORE_IO_MCU_PIN_VAR(MUX_PORT_INPUT_${i}, MUX_PIN_INPUT_${i})," >> "$out_header"
+            printf "%s\n" "CORE_MCU_IO_PIN_VAR(MUX_PORT_INPUT_${i}, MUX_PIN_INPUT_${i})," >> "$out_header"
         done
 
         {
@@ -120,8 +120,8 @@ then
             index=$($yaml_parser "$yaml_file" analog.pins.s"$i".index)
 
             {
-                printf "%s\n" "#define MUX_PORT_S${i} CORE_IO_PIN_PORT_DEF(${port})"
-                printf "%s\n" "#define MUX_PIN_S${i} CORE_IO_PIN_INDEX_DEF(${index})"
+                printf "%s\n" "#define MUX_PORT_S${i} CORE_MCU_IO_PIN_PORT_DEF(${port})"
+                printf "%s\n" "#define MUX_PIN_S${i} CORE_MCU_IO_PIN_INDEX_DEF(${index})"
             } >> "$out_header"
         done
 
@@ -133,19 +133,19 @@ then
             index=$($yaml_parser "$yaml_file" analog.pins.z"$i".index)
 
             {
-                printf "%s\n" "#define MUX_PORT_INPUT_${i} CORE_IO_PIN_PORT_DEF(${port})"
-                printf "%s\n" "#define MUX_PIN_INPUT_${i} CORE_IO_PIN_INDEX_DEF(${index})"
+                printf "%s\n" "#define MUX_PORT_INPUT_${i} CORE_MCU_IO_PIN_PORT_DEF(${port})"
+                printf "%s\n" "#define MUX_PIN_INPUT_${i} CORE_MCU_IO_PIN_INDEX_DEF(${index})"
             } >> "$out_header"
         done
 
         {
             printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline core::io::mcuPin_t A_IN_PINS[MAX_ADC_CHANNELS] = {"
+            printf "%s\n" "constexpr inline core::mcu::io::pin_t A_IN_PINS[MAX_ADC_CHANNELS] = {"
         } >> "$out_header"
 
         for ((i=0; i<"$number_of_mux"; i++))
         do
-            printf "%s\n" "CORE_IO_MCU_PIN_VAR(MUX_PORT_INPUT_${i}, MUX_PIN_INPUT_${i})," >> "$out_header"
+            printf "%s\n" "CORE_MCU_IO_PIN_VAR(MUX_PORT_INPUT_${i}, MUX_PIN_INPUT_${i})," >> "$out_header"
         done
 
         {

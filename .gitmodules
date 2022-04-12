@@ -10,10 +10,6 @@
 	path = modules/sysex
 	url = https://github.com/shanteacontrols/sysex-conf.git
 	branch = master
-[submodule "modules/lufa"]
-	path = modules/lufa
-	url = https://github.com/abcminiuser/lufa.git
-	branch = master
 [submodule "modules/u8g2"]
 	path = modules/u8g2
 	url = https://github.com/olikraus/u8g2.git
@@ -30,6 +26,3 @@
 [submodule "modules/dmxusb"]
 	path = modules/dmxusb
 	url = https://github.com/shanteacontrols/DMXUSB.git
-[submodule "modules/tinyusb"]
-	path = modules/tinyusb
-	url = https://github.com/hathach/tinyusb.git

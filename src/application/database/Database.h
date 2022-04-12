@@ -171,7 +171,7 @@ namespace Database
         uint32_t _lastPresetAddress;
 
         /// Holds total number of supported presets.
-        uint16_t _supportedPresets;
+        size_t _supportedPresets;
 
         uint16_t _uid = 0;
 

@@ -16,9 +16,9 @@ limitations under the License.
 
 */
 
-#include <avr/eeprom.h>
 #include "board/Board.h"
-#include <MCU.h>
+#include "core/src/MCU.h"
+#include <avr/eeprom.h>
 
 namespace Board::NVM
 {

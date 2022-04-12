@@ -16,12 +16,13 @@ limitations under the License.
 
 */
 
+#ifdef DIGITAL_OUTPUTS_SUPPORTED
+
 #include "board/Board.h"
 #include "board/common/io/Helpers.h"
 #include "board/common/constants/IO.h"
 #include "board/Internal.h"
-#include "core/src/general/Helpers.h"
-#include "core/src/general/Atomic.h"
+#include "core/src/util/Util.h"
 #include <Target.h>
 
 namespace
@@ -30,7 +31,7 @@ namespace
     uint8_t          _pwmCounter;
 
 #ifdef NATIVE_LED_OUTPUTS
-    core::io::portWidth_t _portState[NR_OF_DIGITAL_OUTPUT_PORTS][static_cast<uint8_t>(Board::IO::ledBrightness_t::B100)];
+    core::mcu::io::portWidth_t _portState[NR_OF_DIGITAL_OUTPUT_PORTS][static_cast<uint8_t>(Board::IO::ledBrightness_t::B100)];
 #else
     volatile uint8_t _ledState[(NR_OF_DIGITAL_OUTPUTS / 8) + 1][static_cast<uint8_t>(Board::IO::ledBrightness_t::B100)];
 #endif
@@ -51,14 +52,14 @@ namespace
     /// Used to turn the given LED row off.
     inline void ledRowOff(uint8_t row)
     {
-        core::io::mcuPin_t pin = Board::detail::map::ledPin(row);
-        EXT_LED_OFF(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
+        core::mcu::io::pin_t pin = Board::detail::map::ledPin(row);
+        EXT_LED_OFF(CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin));
     }
 
     inline void ledRowOn(uint8_t row)
     {
-        core::io::mcuPin_t pin = Board::detail::map::ledPin(row);
-        EXT_LED_ON(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
+        core::mcu::io::pin_t pin = Board::detail::map::ledPin(row);
+        EXT_LED_ON(CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin));
     }
 #endif
 }    // namespace
@@ -77,32 +78,32 @@ namespace Board
             ledID = detail::map::ledIndex(ledID);
 
 #ifndef NATIVE_LED_OUTPUTS
-            ATOMIC_SECTION
+            CORE_MCU_ATOMIC_SECTION
             {
                 for (int i = 0; i < static_cast<int>(ledBrightness_t::B100); i++)
                 {
                     uint8_t arrayIndex = ledID / 8;
                     uint8_t ledBit     = ledID - 8 * arrayIndex;
 
-                    BIT_WRITE(_ledState[arrayIndex][i], ledBit, i < static_cast<int>(ledBrightness) ? 1 : 0);
+                    core::util::BIT_WRITE(_ledState[arrayIndex][i], ledBit, i < static_cast<int>(ledBrightness) ? 1 : 0);
                 }
             }
 #else
-            ATOMIC_SECTION
+            CORE_MCU_ATOMIC_SECTION
             {
                 for (int i = 0; i < static_cast<int>(ledBrightness_t::B100); i++)
                 {
-                    BIT_WRITE(_portState[detail::map::ledPortIndex(ledID)][i], detail::map::ledPinIndex(ledID), i < static_cast<int>(ledBrightness) ?
+                    core::util::BIT_WRITE(_portState[detail::map::ledPortIndex(ledID)][i], detail::map::ledPinIndex(ledID), i < static_cast<int>(ledBrightness) ?
 #ifndef LED_EXT_INVERT
-                                                                                                                                                    1
+                                                                                                                                                                1
 #else
-                                                                                                                                                    0
+                                                                                                                                                                0
 #endif
-                                                                                                                                                    :
+                                                                                                                                                                :
 #ifndef LED_EXT_INVERT
-                                                                                                                                                    0
+                                                                                                                                                                0
 #else
-                                                                                                                                                    1
+                                                                                                                                                                1
 #endif
 
                     );
@@ -206,9 +207,9 @@ namespace Board
                     activeOutColumn = 0;
                 }
 
-                BIT_READ(activeOutColumn, 0) ? CORE_IO_SET_HIGH(DEC_LM_PORT_A0, DEC_LM_PIN_A0) : CORE_IO_SET_LOW(DEC_LM_PORT_A0, DEC_LM_PIN_A0);
-                BIT_READ(activeOutColumn, 1) ? CORE_IO_SET_HIGH(DEC_LM_PORT_A1, DEC_LM_PIN_A1) : CORE_IO_SET_LOW(DEC_LM_PORT_A1, DEC_LM_PIN_A1);
-                BIT_READ(activeOutColumn, 2) ? CORE_IO_SET_HIGH(DEC_LM_PORT_A2, DEC_LM_PIN_A2) : CORE_IO_SET_LOW(DEC_LM_PORT_A2, DEC_LM_PIN_A2);
+                core::util::BIT_READ(activeOutColumn, 0) ? CORE_MCU_IO_SET_HIGH(DEC_LM_PORT_A0, DEC_LM_PIN_A0) : CORE_MCU_IO_SET_LOW(DEC_LM_PORT_A0, DEC_LM_PIN_A0);
+                core::util::BIT_READ(activeOutColumn, 1) ? CORE_MCU_IO_SET_HIGH(DEC_LM_PORT_A1, DEC_LM_PIN_A1) : CORE_MCU_IO_SET_LOW(DEC_LM_PORT_A1, DEC_LM_PIN_A1);
+                core::util::BIT_READ(activeOutColumn, 2) ? CORE_MCU_IO_SET_HIGH(DEC_LM_PORT_A2, DEC_LM_PIN_A2) : CORE_MCU_IO_SET_LOW(DEC_LM_PORT_A2, DEC_LM_PIN_A2);
 
                 switchState = switchState_t::NONE;
             }
@@ -221,13 +222,13 @@ namespace Board
                 uint8_t arrayIndex = ledID / 8;
                 uint8_t ledBit     = ledID - 8 * arrayIndex;
 
-                BIT_READ(_ledState[arrayIndex][_pwmCounter], ledBit) ? ledRowOn(i) : ledRowOff(i);
+                core::util::BIT_READ(_ledState[arrayIndex][_pwmCounter], ledBit) ? ledRowOn(i) : ledRowOff(i);
             }
         }
 #elif defined(NUMBER_OF_OUT_SR)
         void checkDigitalOutputs()
         {
-            CORE_IO_SET_LOW(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+            CORE_MCU_IO_SET_LOW(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
 
             for (int j = 0; j < NUMBER_OF_OUT_SR; j++)
             {
@@ -237,14 +238,14 @@ namespace Board
                     uint8_t arrayIndex = ledID / 8;
                     uint8_t ledBit     = ledID - 8 * arrayIndex;
 
-                    BIT_READ(_ledState[arrayIndex][_pwmCounter], ledBit) ? EXT_LED_ON(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN) : EXT_LED_OFF(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
-                    CORE_IO_SET_LOW(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+                    core::util::BIT_READ(_ledState[arrayIndex][_pwmCounter], ledBit) ? EXT_LED_ON(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN) : EXT_LED_OFF(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
+                    CORE_MCU_IO_SET_LOW(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
                     detail::IO::sr595wait();
-                    CORE_IO_SET_HIGH(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+                    CORE_MCU_IO_SET_HIGH(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
                 }
             }
 
-            CORE_IO_SET_HIGH(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+            CORE_MCU_IO_SET_HIGH(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
 
             if (++_pwmCounter >= static_cast<uint8_t>(Board::IO::ledBrightness_t::B100))
             {
@@ -256,10 +257,10 @@ namespace Board
         {
             for (size_t port = 0; port < NR_OF_DIGITAL_OUTPUT_PORTS; port++)
             {
-                core::io::portWidth_t updatedPortState = CORE_IO_READ_OUT_PORT(detail::map::digitalOutPort(port));
+                core::mcu::io::portWidth_t updatedPortState = CORE_MCU_IO_READ_OUT_PORT(detail::map::digitalOutPort(port));
                 updatedPortState &= detail::map::digitalOutPortClearMask(port);
                 updatedPortState |= _portState[port][_pwmCounter];
-                CORE_IO_SET_PORT_STATE(detail::map::digitalOutPort(port), updatedPortState);
+                CORE_MCU_IO_SET_PORT_STATE(detail::map::digitalOutPort(port), updatedPortState);
             }
 
             if (++_pwmCounter >= static_cast<uint8_t>(Board::IO::ledBrightness_t::B100))
@@ -270,3 +271,5 @@ namespace Board
 #endif
     }    // namespace detail::IO
 }    // namespace Board
+
+#endif

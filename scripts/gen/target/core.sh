@@ -14,9 +14,18 @@ then
     exit 1
 fi
 
+extClockMhz=$($yaml_parser "$yaml_file" extClockMhz)
+
+if [[ $extClockMhz == "null" ]]
+then
+    extClockMhz=""
+fi
+
 if [[ ! -d $mcu_gen_dir ]]
 then
-    if ! "$script_dir"/gen_mcu.sh "$mcu_yaml_file" "$mcu_gen_dir"
+    core_mcu_config_path=$(find "$script_dir"/../../modules/core/src -type f -name "*$mcu.yml")
+
+    if ! "$script_dir"/gen_mcu.sh "$core_mcu_config_path" "$mcu_yaml_file" "$mcu_gen_dir" "$extClockMhz"
     then
         exit 1
     fi
@@ -34,16 +43,9 @@ then
 fi
 
 {
-    printf "%s%s\n" '-include $(MAKEFILE_INCLUDE_PREFIX)$(GEN_DIR_MCU_BASE)/' "$mcu/MCU.mk"
+    printf "%s%s\n" '-include $(MAKEFILE_INCLUDE_PREFIX)$(BOARD_GEN_DIR_MCU_BASE)/' "$mcu/MCU.mk"
     printf "%s\n" "DEFINES += FW_UID=$($script_dir/gen_fw_uid.sh "$target_name")"
 } >> "$out_makefile"
-
-hse_val=$($yaml_parser "$yaml_file" extClockMhz)
-
-if [[ $hse_val != "null" ]]
-then
-    printf "%s%s\n" "DEFINES += HSE_VALUE=$hse_val" "000000" >> "$out_makefile"
-fi
 
 board_name=$($yaml_parser "$yaml_file" boardNameOverride)
 

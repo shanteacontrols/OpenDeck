@@ -7,9 +7,9 @@ then
     {
         printf "%s\n" "#define USB_PRODUCT_BASE_NAME \"OpenDeck | $board_name\""
         printf "%s\n" "#if defined(FW_APP)"
-        printf "%s\n" "#define USB_PRODUCT UNICODE_STRING(\"OpenDeck | $board_name\")"
+        printf "%s\n" "#define USB_PRODUCT CORE_MCU_USB_STRING(\"OpenDeck | $board_name\")"
         printf "%s\n" "#elif defined(FW_BOOT)"
-        printf "%s\n" "#define USB_PRODUCT UNICODE_STRING(\"OpenDeck DFU | $board_name\")"
+        printf "%s\n" "#define USB_PRODUCT CORE_MCU_USB_STRING(\"OpenDeck DFU | $board_name\")"
         printf "%s\n" "#endif"
     } >> "$out_header_usb"
 fi
@@ -68,17 +68,18 @@ then
                 printf "%s\n" "DEFINES += UART_CHANNEL_USB_LINK=$uart_channel_usb_link" >> "$out_makefile"
 
                 {
-                    printf "%s\n" "#define UART_CHANNEL_${uart_channel_usb_link}_RX_PORT CORE_IO_PIN_PORT_DEF(${uart_usb_link_rx_port})"
-                    printf "%s\n" "#define UART_CHANNEL_${uart_channel_usb_link}_RX_INDEX CORE_IO_PIN_INDEX_DEF(${uart_usb_link_rx_index})"
-                    printf "%s\n" "#define UART_CHANNEL_${uart_channel_usb_link}_TX_PORT CORE_IO_PIN_PORT_DEF(${uart_usb_link_tx_port})"
-                    printf "%s\n" "#define UART_CHANNEL_${uart_channel_usb_link}_TX_INDEX CORE_IO_PIN_INDEX_DEF(${uart_usb_link_tx_index})"
+                    printf "%s\n" "#define UART_CHANNEL_${uart_channel_usb_link}_RX_PORT CORE_MCU_IO_PIN_PORT_DEF(${uart_usb_link_rx_port})"
+                    printf "%s\n" "#define UART_CHANNEL_${uart_channel_usb_link}_RX_INDEX CORE_MCU_IO_PIN_INDEX_DEF(${uart_usb_link_rx_index})"
+                    printf "%s\n" "#define UART_CHANNEL_${uart_channel_usb_link}_TX_PORT CORE_MCU_IO_PIN_PORT_DEF(${uart_usb_link_tx_port})"
+                    printf "%s\n" "#define UART_CHANNEL_${uart_channel_usb_link}_TX_INDEX CORE_MCU_IO_PIN_INDEX_DEF(${uart_usb_link_tx_index})"
                 } >> "$out_header"
             fi
 
             if [[ "$($yaml_parser "$yaml_file" uart.usbLink.type)" == "host" ]]
             then
                 {
-                    printf "%s\n" "DEFINES += USB_LINK_MCU"
+                    printf "%s\n" "DEFINES += USB_OVER_SERIAL"
+                    printf "%s\n" "DEFINES += USB_OVER_SERIAL_HOST"
                     printf "%s\n" "DEFINES += FW_SELECTOR_NO_VERIFY_CRC"
                     printf "%s\n" "#append this only if it wasn't appended already"
                     printf "%s\n" 'ifeq (,$(findstring USB_SUPPORTED,$(DEFINES)))'
@@ -87,8 +88,12 @@ then
                 } >> "$out_makefile"
             elif [[ "$($yaml_parser "$yaml_file" uart.usbLink.type)" == "device" ]]
             then
-                # make sure slave MCUs don't have USB enabled
-                printf "%s\n" 'DEFINES := $(filter-out USB_SUPPORTED,$(DEFINES))' >> "$out_makefile"
+                # make sure USB over serial devices don't have native USB enabled
+                {
+                    printf "%s\n" 'DEFINES := $(filter-out USB_SUPPORTED,$(DEFINES))'
+                    printf "%s\n" "DEFINES += USB_OVER_SERIAL"
+                    printf "%s\n" "DEFINES += USB_OVER_SERIAL_DEVICE"
+                } >> "$out_makefile"
             fi
         fi
     fi
@@ -140,10 +145,10 @@ then
             printf "%s\n" "DEFINES += UART_CHANNEL_DIN=$uart_channel_din_midi" >> "$out_makefile"
 
             {
-                printf "%s\n" "#define UART_CHANNEL_${uart_channel_din_midi}_RX_PORT CORE_IO_PIN_PORT_DEF(${uart_din_midi_rx_port})"
-                printf "%s\n" "#define UART_CHANNEL_${uart_channel_din_midi}_RX_INDEX CORE_IO_PIN_INDEX_DEF(${uart_din_midi_rx_index})"
-                printf "%s\n" "#define UART_CHANNEL_${uart_channel_din_midi}_TX_PORT CORE_IO_PIN_PORT_DEF(${uart_din_midi_tx_port})"
-                printf "%s\n" "#define UART_CHANNEL_${uart_channel_din_midi}_TX_INDEX CORE_IO_PIN_INDEX_DEF(${uart_din_midi_tx_index})"
+                printf "%s\n" "#define UART_CHANNEL_${uart_channel_din_midi}_RX_PORT CORE_MCU_IO_PIN_PORT_DEF(${uart_din_midi_rx_port})"
+                printf "%s\n" "#define UART_CHANNEL_${uart_channel_din_midi}_RX_INDEX CORE_MCU_IO_PIN_INDEX_DEF(${uart_din_midi_rx_index})"
+                printf "%s\n" "#define UART_CHANNEL_${uart_channel_din_midi}_TX_PORT CORE_MCU_IO_PIN_PORT_DEF(${uart_din_midi_tx_port})"
+                printf "%s\n" "#define UART_CHANNEL_${uart_channel_din_midi}_TX_INDEX CORE_MCU_IO_PIN_INDEX_DEF(${uart_din_midi_tx_index})"
             } >> "$out_header"
         fi
     fi
@@ -195,10 +200,10 @@ then
             printf "%s\n" "DEFINES += UART_CHANNEL_DMX=$uart_channel_dmx" >> "$out_makefile"
 
             {
-                printf "%s\n" "#define UART_CHANNEL_${uart_channel_dmx}_RX_PORT CORE_IO_PIN_PORT_DEF(${uart_dmx_rx_port})"
-                printf "%s\n" "#define UART_CHANNEL_${uart_channel_dmx}_RX_INDEX CORE_IO_PIN_INDEX_DEF(${uart_dmx_rx_index})"
-                printf "%s\n" "#define UART_CHANNEL_${uart_channel_dmx}_TX_PORT CORE_IO_PIN_PORT_DEF(${uart_dmx_tx_port})"
-                printf "%s\n" "#define UART_CHANNEL_${uart_channel_dmx}_TX_INDEX CORE_IO_PIN_INDEX_DEF(${uart_dmx_tx_index})"
+                printf "%s\n" "#define UART_CHANNEL_${uart_channel_dmx}_RX_PORT CORE_MCU_IO_PIN_PORT_DEF(${uart_dmx_rx_port})"
+                printf "%s\n" "#define UART_CHANNEL_${uart_channel_dmx}_RX_INDEX CORE_MCU_IO_PIN_INDEX_DEF(${uart_dmx_rx_index})"
+                printf "%s\n" "#define UART_CHANNEL_${uart_channel_dmx}_TX_PORT CORE_MCU_IO_PIN_PORT_DEF(${uart_dmx_tx_port})"
+                printf "%s\n" "#define UART_CHANNEL_${uart_channel_dmx}_TX_INDEX CORE_MCU_IO_PIN_INDEX_DEF(${uart_dmx_tx_index})"
             } >> "$out_header"
         fi
     fi
@@ -250,10 +255,10 @@ then
             printf "%s\n" "DEFINES += UART_CHANNEL_TOUCHSCREEN=$uart_channel_touchscreen" >> "$out_makefile"
 
             {
-                printf "%s\n" "#define UART_CHANNEL_${uart_channel_touchscreen}_RX_PORT CORE_IO_PIN_PORT_DEF(${uart_touchscreen_rx_port})"
-                printf "%s\n" "#define UART_CHANNEL_${uart_channel_touchscreen}_RX_INDEX CORE_IO_PIN_INDEX_DEF(${uart_touchscreen_rx_index})"
-                printf "%s\n" "#define UART_CHANNEL_${uart_channel_touchscreen}_TX_PORT CORE_IO_PIN_PORT_DEF(${uart_touchscreen_tx_port})"
-                printf "%s\n" "#define UART_CHANNEL_${uart_channel_touchscreen}_TX_INDEX CORE_IO_PIN_INDEX_DEF(${uart_touchscreen_tx_index})"
+                printf "%s\n" "#define UART_CHANNEL_${uart_channel_touchscreen}_RX_PORT CORE_MCU_IO_PIN_PORT_DEF(${uart_touchscreen_rx_port})"
+                printf "%s\n" "#define UART_CHANNEL_${uart_channel_touchscreen}_RX_INDEX CORE_MCU_IO_PIN_INDEX_DEF(${uart_touchscreen_rx_index})"
+                printf "%s\n" "#define UART_CHANNEL_${uart_channel_touchscreen}_TX_PORT CORE_MCU_IO_PIN_PORT_DEF(${uart_touchscreen_tx_port})"
+                printf "%s\n" "#define UART_CHANNEL_${uart_channel_touchscreen}_TX_INDEX CORE_MCU_IO_PIN_INDEX_DEF(${uart_touchscreen_tx_index})"
             } >> "$out_header"
         fi
 
@@ -282,8 +287,8 @@ then
         do
             {
                 printf "%s\n" "{"
-                printf "%s\n" "CORE_IO_MCU_PIN_VAR(UART_CHANNEL_${channel}_RX_PORT, UART_CHANNEL_${channel}_RX_INDEX),"
-                printf "%s\n" "CORE_IO_MCU_PIN_VAR(UART_CHANNEL_${channel}_TX_PORT, UART_CHANNEL_${channel}_TX_INDEX),"
+                printf "%s\n" "CORE_MCU_IO_PIN_VAR(UART_CHANNEL_${channel}_RX_PORT, UART_CHANNEL_${channel}_RX_INDEX),"
+                printf "%s\n" "CORE_MCU_IO_PIN_VAR(UART_CHANNEL_${channel}_TX_PORT, UART_CHANNEL_${channel}_TX_INDEX),"
                 printf "%s\n" "},"
             } >> "$out_header"
         done
@@ -324,15 +329,15 @@ then
         printf "%s\n" "DEFINES += I2C_CHANNEL=0" >> "$out_makefile"
 
         {
-            printf "%s\n" "#define I2C_SDA_PORT CORE_IO_PIN_PORT_DEF(${i2c_sda_port})"
-            printf "%s\n" "#define I2C_SDA_INDEX CORE_IO_PIN_INDEX_DEF(${i2c_sda_index})"
-            printf "%s\n" "#define I2C_SCL_PORT CORE_IO_PIN_PORT_DEF(${i2c_scl_port})"
-            printf "%s\n" "#define I2C_SCL_INDEX CORE_IO_PIN_INDEX_DEF(${i2c_scl_index})"
+            printf "%s\n" "#define I2C_SDA_PORT CORE_MCU_IO_PIN_PORT_DEF(${i2c_sda_port})"
+            printf "%s\n" "#define I2C_SDA_INDEX CORE_MCU_IO_PIN_INDEX_DEF(${i2c_sda_index})"
+            printf "%s\n" "#define I2C_SCL_PORT CORE_MCU_IO_PIN_PORT_DEF(${i2c_scl_port})"
+            printf "%s\n" "#define I2C_SCL_INDEX CORE_MCU_IO_PIN_INDEX_DEF(${i2c_scl_index})"
             printf "%s\n" "namespace {"
             printf "%s\n" "constexpr inline Board::detail::I2C::i2cPins_t I2C_PINS[1] = {"
             printf "%s\n" "{"
-            printf "%s\n" "CORE_IO_MCU_PIN_VAR(I2C_SDA_PORT, I2C_SDA_INDEX),"
-            printf "%s\n" "CORE_IO_MCU_PIN_VAR(I2C_SCL_PORT, I2C_SCL_INDEX),"
+            printf "%s\n" "CORE_MCU_IO_PIN_VAR(I2C_SDA_PORT, I2C_SDA_INDEX),"
+            printf "%s\n" "CORE_MCU_IO_PIN_VAR(I2C_SCL_PORT, I2C_SCL_INDEX),"
             printf "%s\n" "},"
             printf "%s\n" "};"
             printf "%s\n" "}"
@@ -346,8 +351,8 @@ then
     index=$($yaml_parser "$yaml_file" bootloader.button.index)
 
     {
-        printf "%s\n" "#define BTLDR_BUTTON_PORT CORE_IO_PIN_PORT_DEF(${port})"
-        printf "%s\n" "#define BTLDR_BUTTON_PIN CORE_IO_PIN_INDEX_DEF(${index})"
+        printf "%s\n" "#define BTLDR_BUTTON_PORT CORE_MCU_IO_PIN_PORT_DEF(${port})"
+        printf "%s\n" "#define BTLDR_BUTTON_PIN CORE_MCU_IO_PIN_INDEX_DEF(${index})"
     } >> "$out_header"
 
     if [[ "$($yaml_parser "$yaml_file" bootloader.button.activeState)" == "high" ]]

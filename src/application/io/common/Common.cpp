@@ -17,7 +17,7 @@ limitations under the License.
 */
 
 #include "Common.h"
-#include "core/src/general/Helpers.h"
+#include "core/src/util/Util.h"
 #include "io/buttons/Buttons.h"
 
 namespace
@@ -148,7 +148,7 @@ namespace IO
 
         // in this case, once the value is larger than 127, decrement value
         // bit 7 in midiValue is used as an indicator that we should decrement the value instead of incrementing it
-        if (BIT_READ(midiValue[index], 7))
+        if (core::util::BIT_READ(midiValue[index], 7))
         {
             if ((midiValue[index] & 0x7F) <= step)
             {
@@ -162,7 +162,7 @@ namespace IO
             // value 0 is reached, go back to incrementing next time
             if (!newValue)
             {
-                BIT_CLEAR(midiValue[index], 7);
+                core::util::BIT_CLEAR(midiValue[index], 7);
             }
         }
         else
@@ -172,7 +172,7 @@ namespace IO
             if (newValue > 127)
             {
                 newValue = 127;
-                BIT_SET(midiValue[index], 7);
+                core::util::BIT_SET(midiValue[index], 7);
             }
         }
 

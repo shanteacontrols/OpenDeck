@@ -17,7 +17,7 @@ limitations under the License.
 */
 
 #include "Scheduler.h"
-#include "core/src/general/Timing.h"
+#include "core/src/Timing.h"
 
 using namespace Util;
 
@@ -43,7 +43,7 @@ void Scheduler::update()
     {
         if (_tasks[i].function != nullptr)
         {
-            if (core::timing::currentRunTimeMs() >= _tasks[i].timeout)
+            if (core::timing::ms() >= _tasks[i].timeout)
             {
                 _tasks[i].function();
                 _tasks[i].function = nullptr;
@@ -72,7 +72,7 @@ bool Scheduler::registerTask(task_t&& task)
     }
 
     _tasks[index].function = std::move(task.function);
-    _tasks[index].timeout  = core::timing::currentRunTimeMs() + task.timeout;
+    _tasks[index].timeout  = core::timing::ms() + task.timeout;
 
     return true;
 }

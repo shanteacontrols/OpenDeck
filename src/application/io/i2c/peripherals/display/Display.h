@@ -19,7 +19,7 @@ limitations under the License.
 #pragma once
 
 #include "u8g2/csrc/u8x8.h"
-#include "core/src/general/StringBuilder.h"
+#include "core/src/util/StringBuilder.h"
 #include "database/Database.h"
 #include "messaging/Messaging.h"
 #include "system/Config.h"
@@ -150,7 +150,7 @@ namespace IO
         bool _initialized = false;
 
         /// Object used for easier string manipulation on display.
-        core::StringBuilder<LCD_STRING_BUFFER_SIZE> _stringBuilder;
+        core::util::StringBuilder<LCD_STRING_BUFFER_SIZE> _stringBuilder;
 
         /// Array holding remapped values of LCD rows.
         /// Used to increase readability.

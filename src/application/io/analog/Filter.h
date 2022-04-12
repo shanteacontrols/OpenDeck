@@ -18,49 +18,25 @@ limitations under the License.
 
 #pragma once
 
-#ifdef ANALOG_SUPPORTED
+#ifdef ADC_SUPPORTED
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "core/src/general/Timing.h"
+#include "core/src/Timing.h"
 #include "io/analog/Analog.h"
-#include "core/src/general/Helpers.h"
+#include "core/src/util/Util.h"
+#include "core/src/util/Filters.h"
+#include "core/src/MCU.h"
 
 namespace IO
 {
-    class EMA
-    {
-        // exponential moving average filter
-        public:
-        EMA() = default;
-
-        uint16_t value(uint16_t rawData)
-        {
-            _currentValue = (PERCENTAGE * static_cast<uint32_t>(rawData) + (100 - PERCENTAGE) * static_cast<uint32_t>(_currentValue)) / 100;
-            return _currentValue;
-        }
-
-        void reset()
-        {
-            _currentValue = 0;
-        }
-
-        private:
-        static constexpr uint32_t PERCENTAGE    = 50;
-        uint16_t                  _currentValue = 0;
-    };
-
     class AnalogFilter : public Analog::Filter
     {
         public:
-#ifdef ADC_12_BIT
-        static constexpr adcType_t ADC_RESOLUTION = adcType_t::ADC_12BIT;
-#else
-        static constexpr adcType_t ADC_RESOLUTION                                = adcType_t::ADC_10BIT;
-#endif
+        static_assert(core::mcu::adc::MAX == 1023 || core::mcu::adc::MAX == 4095, "Unsupported ADC resolution");
 
         AnalogFilter()
-            : _adcConfig(ADC_RESOLUTION == adcType_t::ADC_10BIT ? _adc10bit : _adc12bit)
+            : _adcConfig(core::mcu::adc::MAX == 1023 ? _adc10bit : _adc12bit)
             , STEP_DIFF_7BIT((_adcConfig.ADC_MAX_VALUE - _adcConfig.ADC_MIN_VALUE) / 128)
         {
             for (size_t i = 0; i < IO::Analog::Collection::size(); i++)
@@ -71,10 +47,12 @@ namespace IO
 
         bool isFiltered(size_t index, descriptor_t& descriptor) override
         {
-            const uint32_t ADC_MIN_VALUE = lowerOffsetRaw(descriptor.lowerOffset);
-            const uint32_t ADC_MAX_VALUE = upperOffsetRaw(descriptor.upperOffset);
+            const uint16_t ADC_MIN_VALUE = lowerOffsetRaw(descriptor.lowerOffset);
+            const uint16_t ADC_MAX_VALUE = upperOffsetRaw(descriptor.upperOffset);
 
-            descriptor.value = CONSTRAIN(descriptor.value, ADC_MIN_VALUE, ADC_MAX_VALUE);
+            descriptor.value = core::util::CONSTRAIN(descriptor.value,
+                                                     ADC_MIN_VALUE,
+                                                     ADC_MAX_VALUE);
 
             // avoid filtering in this case for faster response
             if (descriptor.type == Analog::type_t::BUTTON)
@@ -95,26 +73,13 @@ namespace IO
                 return true;
             }
 
-#ifdef ANALOG_USE_MEDIAN_FILTER
-            auto compare = [](const void* a, const void* b)
-            {
-                if (*(uint16_t*)a < *(uint16_t*)b)
-                {
-                    return -1;
-                }
-
-                if (*(uint16_t*)a > *(uint16_t*)b)
-                {
-                    return 1;
-                }
-
-                return 0;
-            };
-#endif
-
-            const bool FAST_FILTER    = (core::timing::currentRunTimeMs() - _lastStableMovementTime[index]) < FAST_FILTER_ENABLE_AFTER_MS;
+            const bool FAST_FILTER    = (core::timing::ms() - _lastStableMovementTime[index]) < FAST_FILTER_ENABLE_AFTER_MS;
             const bool DIRECTION      = descriptor.value >= _lastStableValue[index];
-            const auto OLD_MID_IVALUE = core::misc::mapRange(static_cast<uint32_t>(_lastStableValue[index]), ADC_MIN_VALUE, ADC_MAX_VALUE, static_cast<uint32_t>(0), static_cast<uint32_t>(descriptor.maxValue));
+            const auto OLD_MID_IVALUE = core::util::MAP_RANGE(static_cast<uint32_t>(_lastStableValue[index]),
+                                                              static_cast<uint32_t>(ADC_MIN_VALUE),
+                                                              static_cast<uint32_t>(ADC_MAX_VALUE),
+                                                              static_cast<uint32_t>(0),
+                                                              static_cast<uint32_t>(descriptor.maxValue));
             int16_t    stepDiff       = 1;
 
             if (((DIRECTION != lastStableDirection(index)) || !FAST_FILTER) && ((OLD_MID_IVALUE != 0) && (OLD_MID_IVALUE != descriptor.maxValue)))
@@ -125,7 +90,7 @@ namespace IO
             if (abs(static_cast<int16_t>(descriptor.value) - static_cast<int16_t>(_lastStableValue[index])) < stepDiff)
             {
 #ifdef ANALOG_USE_MEDIAN_FILTER
-                _medianSampleCounter[index] = 0;
+                _medianFilter[index].reset();
 #endif
 
                 return false;
@@ -134,14 +99,11 @@ namespace IO
 #ifdef ANALOG_USE_MEDIAN_FILTER
             if (!FAST_FILTER)
             {
-                _analogSample[index][_medianSampleCounter[index]++] = descriptor.value;
+                auto median = _medianFilter[index].value(descriptor.value);
 
-                // take the median value to avoid using outliers
-                if (_medianSampleCounter[index] == MEDIAN_SAMPLE_COUNT)
+                if (median.has_value())
                 {
-                    qsort(_analogSample[index], MEDIAN_SAMPLE_COUNT, sizeof(uint16_t), compare);
-                    _medianSampleCounter[index] = 0;
-                    descriptor.value            = _analogSample[index][MEDIAN_MIDDLE_VALUE];
+                    descriptor.value = median.value();
                 }
                 else
                 {
@@ -154,7 +116,11 @@ namespace IO
             descriptor.value = _emaFilter[index].value(descriptor.value);
 #endif
 
-            const auto MIDI_VALUE = core::misc::mapRange(static_cast<uint32_t>(descriptor.value), ADC_MIN_VALUE, ADC_MAX_VALUE, static_cast<uint32_t>(0), static_cast<uint32_t>(descriptor.maxValue));
+            const auto MIDI_VALUE = core::util::MAP_RANGE(static_cast<uint32_t>(descriptor.value),
+                                                          static_cast<uint32_t>(ADC_MIN_VALUE),
+                                                          static_cast<uint32_t>(ADC_MAX_VALUE),
+                                                          static_cast<uint32_t>(0),
+                                                          static_cast<uint32_t>(descriptor.maxValue));
 
             if (MIDI_VALUE == OLD_MID_IVALUE)
             {
@@ -171,18 +137,18 @@ namespace IO
             }
             else
             {
-                _lastStableMovementTime[index] = core::timing::currentRunTimeMs();
+                _lastStableMovementTime[index] = core::timing::ms();
             }
 
             if (descriptor.type == Analog::type_t::FSR)
             {
-                descriptor.value = core::misc::mapRange(CONSTRAIN(descriptor.value,
-                                                                  static_cast<uint32_t>(_adcConfig.FSR_MIN_VALUE),
-                                                                  static_cast<uint32_t>(_adcConfig.FSR_MAX_VALUE)),
-                                                        static_cast<uint32_t>(_adcConfig.FSR_MIN_VALUE),
-                                                        static_cast<uint32_t>(_adcConfig.FSR_MAX_VALUE),
-                                                        static_cast<uint32_t>(0),
-                                                        static_cast<uint32_t>(descriptor.maxValue));
+                descriptor.value = core::util::MAP_RANGE(core::util::CONSTRAIN(static_cast<uint32_t>(descriptor.value),
+                                                                               static_cast<uint32_t>(_adcConfig.FSR_MIN_VALUE),
+                                                                               static_cast<uint32_t>(_adcConfig.FSR_MAX_VALUE)),
+                                                         static_cast<uint32_t>(_adcConfig.FSR_MIN_VALUE),
+                                                         static_cast<uint32_t>(_adcConfig.FSR_MAX_VALUE),
+                                                         static_cast<uint32_t>(0),
+                                                         static_cast<uint32_t>(descriptor.maxValue));
             }
             else
             {
@@ -207,7 +173,7 @@ namespace IO
             if (index < IO::Analog::Collection::size())
             {
 #ifdef ANALOG_USE_MEDIAN_FILTER
-                _medianSampleCounter[index] = 0;
+                _medianFilter[index].reset();
 #endif
                 _lastStableMovementTime[index] = 0;
             }
@@ -232,7 +198,7 @@ namespace IO
             uint8_t arrayIndex  = index / 8;
             uint8_t analogIndex = index - 8 * arrayIndex;
 
-            BIT_WRITE(_lastStableDirection[arrayIndex], analogIndex, state);
+            core::util::BIT_WRITE(_lastStableDirection[arrayIndex], analogIndex, state);
         }
 
         bool lastStableDirection(size_t index)
@@ -240,7 +206,7 @@ namespace IO
             uint8_t arrayIndex  = index / 8;
             uint8_t analogIndex = index - 8 * arrayIndex;
 
-            return BIT_READ(_lastStableDirection[arrayIndex], analogIndex);
+            return core::util::BIT_READ(_lastStableDirection[arrayIndex], analogIndex);
         }
 
         uint32_t lowerOffsetRaw(uint8_t percentage)
@@ -295,14 +261,13 @@ namespace IO
 
 // some filtering is needed for adc only
 #ifdef ANALOG_USE_EMA_FILTER
-        EMA _emaFilter[IO::Analog::Collection::size()];
+        core::util::EMAFilter<uint16_t, 50> _emaFilter[IO::Analog::Collection::size()];
 #endif
 
 #ifdef ANALOG_USE_MEDIAN_FILTER
-        uint16_t _analogSample[IO::Analog::Collection::size()][MEDIAN_SAMPLE_COUNT] = {};
-        uint8_t  _medianSampleCounter[IO::Analog::Collection::size()]               = {};
+        core::util::MedianFilter<uint16_t, 3> _medianFilter[IO::Analog::Collection::size()];
 #else
-        uint16_t                   _analogSample[IO::Analog::Collection::size()] = {};
+        uint16_t _analogSample[IO::Analog::Collection::size()] = {};
 #endif
         uint32_t _lastStableMovementTime[IO::Analog::Collection::size()] = {};
 

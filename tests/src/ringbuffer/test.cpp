@@ -1,5 +1,5 @@
 #include "framework/Framework.h"
-#include "core/src/general/RingBuffer.h"
+#include "core/src/util/RingBuffer.h"
 
 namespace
 {
@@ -11,8 +11,8 @@ namespace
             buffer.reset();
         }
 
-        static constexpr size_t                BUFFER_SIZE = 8;
-        core::RingBuffer<uint8_t, BUFFER_SIZE> buffer;
+        static constexpr size_t                      BUFFER_SIZE = 8;
+        core::util::RingBuffer<uint8_t, BUFFER_SIZE> buffer;
     };
 }    // namespace
 
@@ -20,7 +20,7 @@ TEST_F(RingBufferTest, Init)
 {
     ASSERT_TRUE(buffer.isEmpty());
     ASSERT_FALSE(buffer.isFull());
-    ASSERT_EQ(0, buffer.count());
+    ASSERT_EQ(0, buffer.size());
 }
 
 TEST_F(RingBufferTest, Insertion)
@@ -29,14 +29,14 @@ TEST_F(RingBufferTest, Insertion)
 
     ASSERT_FALSE(buffer.isEmpty());
     ASSERT_FALSE(buffer.isFull());
-    ASSERT_EQ(1, buffer.count());
+    ASSERT_EQ(1, buffer.size());
 
     uint8_t value;
 
     ASSERT_TRUE(buffer.remove(value));
     ASSERT_EQ(10, value);
 
-    ASSERT_EQ(0, buffer.count());
+    ASSERT_EQ(0, buffer.size());
     ASSERT_TRUE(buffer.isEmpty());
     ASSERT_FALSE(buffer.isFull());
 
@@ -58,13 +58,13 @@ TEST_F(RingBufferTest, Insertion)
 
     ASSERT_FALSE(buffer.isEmpty());
     ASSERT_TRUE(buffer.isFull());
-    ASSERT_EQ(BUFFER_SIZE - 1, buffer.count());
+    ASSERT_EQ(BUFFER_SIZE - 1, buffer.size());
 
     for (size_t i = 0; i < BUFFER_SIZE - 1; i++)
     {
         ASSERT_TRUE(buffer.remove(value));
         ASSERT_EQ(10 + i, value);
-        ASSERT_EQ(BUFFER_SIZE - 2 - i, buffer.count());
+        ASSERT_EQ(BUFFER_SIZE - 2 - i, buffer.size());
     }
 
     ASSERT_TRUE(buffer.isEmpty());
@@ -85,12 +85,12 @@ TEST_F(RingBufferTest, Insertion)
 
     ASSERT_TRUE(buffer.isEmpty());
     ASSERT_FALSE(buffer.isFull());
-    ASSERT_EQ(0, buffer.count());
+    ASSERT_EQ(0, buffer.size());
 
     ASSERT_TRUE(buffer.insert(12));
     ASSERT_FALSE(buffer.isEmpty());
     ASSERT_FALSE(buffer.isFull());
-    ASSERT_EQ(1, buffer.count());
+    ASSERT_EQ(1, buffer.size());
     ASSERT_TRUE(buffer.remove(value));
     ASSERT_EQ(12, value);
 }

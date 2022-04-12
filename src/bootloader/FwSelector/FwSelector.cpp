@@ -17,7 +17,7 @@ limitations under the License.
 */
 
 #include "FwSelector.h"
-#include "core/src/general/CRC.h"
+#include "core/src/util/Util.h"
 
 void FwSelector::select()
 {
@@ -82,7 +82,7 @@ bool FwSelector::isAppValid()
     for (uint32_t i = firstFwAddr; i < lastFwAddr; i++)
     {
         uint8_t data  = _hwa.readFlash(i);
-        crcCalculated = core::crc::xmodem(crcCalculated, data);
+        crcCalculated = core::util::XMODEM(crcCalculated, data);
     }
 
     return (crcCalculated == crcActual);

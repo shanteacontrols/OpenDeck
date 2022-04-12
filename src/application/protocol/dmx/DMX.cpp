@@ -77,7 +77,7 @@ Protocol::DMX::DMX(HWA& hwa, Database::Instance& database)
 
 bool Protocol::DMX::init()
 {
-    uniqueID_t uniqueID;
+    core::mcu::uniqueID_t uniqueID;
     _hwa.uniqueID(uniqueID);
 
     uint32_t dmxSerialNr = uniqueID[0];

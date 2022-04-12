@@ -16,6 +16,8 @@ limitations under the License.
 
 */
 
+#ifdef USE_LOGGER
+
 #include <cstdarg>
 #include <stdio.h>
 #include "Logger.h"
@@ -50,3 +52,5 @@ bool Logger::write(logLevel_t level, const char* message, ...)
 
     return true;
 }
+
+#endif

@@ -1,28 +1,10 @@
 ---
-  arch: "avr"
-  mcuFamily: "avr8"
-  vendor: "atmel"
-  define-symbol: "__AVR_AT90USB1286__"
   flash:
-    flash-start: 0x00
-    app-start: 0x00
-    app-metadata-offset: 0x98
-    boot-start: 0x1E000
-    page-size: 0x100
-    size: 0x20000
-  eeprom:
-    size: 0x1000
-  peripherals:
-    uart: 1
-    i2c: 1
+    app-start-page: 0
+    boot-start-page: 480
   fuses:
     unlock: 0xFF
     lock: 0xEF
     ext: 0xF8
     high: 0xD0
     low: 0xFF
-  timers:
-    #periods in us
-    main:
-      period: 1000
-      channel: 0

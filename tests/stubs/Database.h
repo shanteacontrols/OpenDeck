@@ -1,6 +1,5 @@
 #pragma once
 
-#include <MCU.h>
 #ifdef EMUEEPROM_INCLUDE_CONFIG
 #include "EmuEEPROM/src/EmuEEPROM.h"
 #endif

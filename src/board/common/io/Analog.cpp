@@ -16,10 +16,10 @@ limitations under the License.
 
 */
 
+#ifdef ADC_SUPPORTED
+
 #include "board/common/constants/IO.h"
-#include "core/src/general/ADC.h"
-#include "core/src/general/Helpers.h"
-#include "core/src/general/Atomic.h"
+#include "core/src/util/Util.h"
 #include "board/Board.h"
 #include "board/Internal.h"
 #include <Target.h>
@@ -53,102 +53,101 @@ namespace
     /// Configures one of 16 inputs/outputs on 4067 multiplexer.
     inline void setMuxInput()
     {
-        BIT_READ(_activeMuxInput, 0) ? CORE_IO_SET_HIGH(MUX_PORT_S0, MUX_PIN_S0) : CORE_IO_SET_LOW(MUX_PORT_S0, MUX_PIN_S0);
-        BIT_READ(_activeMuxInput, 1) ? CORE_IO_SET_HIGH(MUX_PORT_S1, MUX_PIN_S1) : CORE_IO_SET_LOW(MUX_PORT_S1, MUX_PIN_S1);
-        BIT_READ(_activeMuxInput, 2) ? CORE_IO_SET_HIGH(MUX_PORT_S2, MUX_PIN_S2) : CORE_IO_SET_LOW(MUX_PORT_S2, MUX_PIN_S2);
+        core::util::BIT_READ(_activeMuxInput, 0) ? CORE_MCU_IO_SET_HIGH(MUX_PORT_S0, MUX_PIN_S0) : CORE_MCU_IO_SET_LOW(MUX_PORT_S0, MUX_PIN_S0);
+        core::util::BIT_READ(_activeMuxInput, 1) ? CORE_MCU_IO_SET_HIGH(MUX_PORT_S1, MUX_PIN_S1) : CORE_MCU_IO_SET_LOW(MUX_PORT_S1, MUX_PIN_S1);
+        core::util::BIT_READ(_activeMuxInput, 2) ? CORE_MCU_IO_SET_HIGH(MUX_PORT_S2, MUX_PIN_S2) : CORE_MCU_IO_SET_LOW(MUX_PORT_S2, MUX_PIN_S2);
 #ifdef MUX_PORT_S3
-        BIT_READ(_activeMuxInput, 3) ? CORE_IO_SET_HIGH(MUX_PORT_S3, MUX_PIN_S3) : CORE_IO_SET_LOW(MUX_PORT_S3, MUX_PIN_S3);
+        core::util::BIT_READ(_activeMuxInput, 3) ? CORE_MCU_IO_SET_HIGH(MUX_PORT_S3, MUX_PIN_S3) : CORE_MCU_IO_SET_LOW(MUX_PORT_S3, MUX_PIN_S3);
 #endif
     }
 #endif
 }    // namespace
 
-namespace Board
+namespace Board::IO
 {
-    namespace IO
+    bool analogValue(size_t analogID, uint16_t& value)
     {
-        bool analogValue(size_t analogID, uint16_t& value)
+        if (analogID >= NR_OF_ANALOG_INPUTS)
         {
-            if (analogID >= NR_OF_ANALOG_INPUTS)
-            {
-                return false;
-            }
-
-            analogID = detail::map::adcIndex(analogID);
-
-            ATOMIC_SECTION
-            {
-                value = _analogBuffer[analogID];
-                _analogBuffer[analogID] &= ~NEW_READING_FLAG;
-            }
-
-            if (value & NEW_READING_FLAG)
-            {
-                value &= ~NEW_READING_FLAG;
-                return true;
-            }
-
             return false;
         }
-    }    // namespace IO
 
-    namespace detail::isrHandling
-    {
-        void adc(uint16_t adcValue)
+        analogID = detail::map::adcIndex(analogID);
+
+        CORE_MCU_ATOMIC_SECTION
         {
-            static bool firstReading = false;
-            firstReading             = !firstReading;
+            value = _analogBuffer[analogID];
+            _analogBuffer[analogID] &= ~NEW_READING_FLAG;
+        }
 
-            if (!firstReading && (adcValue <= ADC_MAX_READING))
+        if (value & NEW_READING_FLAG)
+        {
+            value &= ~NEW_READING_FLAG;
+            return true;
+        }
+
+        return false;
+    }
+}    // namespace Board::IO
+
+namespace Board::detail::IO
+{
+    void adcISR(uint16_t adcValue)
+    {
+        static bool firstReading = false;
+        firstReading             = !firstReading;
+
+        if (!firstReading && (adcValue <= ADC_MAX_READING))
+        {
+#ifdef NUMBER_OF_MUX
+            detail::IO::dischargeMux();
+#endif
+
+            _analogBuffer[_analogIndex] = adcValue | NEW_READING_FLAG;
+            _analogIndex++;
+#ifdef NUMBER_OF_MUX
+            _activeMuxInput++;
+
+            bool switchMux = (_activeMuxInput == NUMBER_OF_MUX_INPUTS);
+
+            if (switchMux)
+#else
+            if (_analogIndex == NR_OF_ANALOG_INPUTS)
+#endif
             {
 #ifdef NUMBER_OF_MUX
-                detail::IO::dischargeMux();
-#endif
+                _activeMuxInput = 0;
+                _activeMux++;
 
-                _analogBuffer[_analogIndex] = adcValue | NEW_READING_FLAG;
-                _analogIndex++;
-#ifdef NUMBER_OF_MUX
-                _activeMuxInput++;
-
-                bool switchMux = (_activeMuxInput == NUMBER_OF_MUX_INPUTS);
-
-                if (switchMux)
-#else
-                if (_analogIndex == NR_OF_ANALOG_INPUTS)
-#endif
+                if (_activeMux == NUMBER_OF_MUX)
                 {
-#ifdef NUMBER_OF_MUX
-                    _activeMuxInput = 0;
-                    _activeMux++;
-
-                    if (_activeMux == NUMBER_OF_MUX)
-                    {
-                        _activeMux = 0;
+                    _activeMux = 0;
 #endif
-                        _analogIndex = 0;
+                    _analogIndex = 0;
 #ifdef NUMBER_OF_MUX
-                    }
-#endif
-
-#ifdef NUMBER_OF_MUX
-                    // switch to next mux once all mux inputs are read
-                    core::adc::setChannel(Board::detail::map::adcChannel(_activeMux));
-#endif
                 }
+#endif
+
+#ifdef NUMBER_OF_MUX
+                // switch to next mux once all mux inputs are read
+                core::mcu::adc::setChannel(Board::detail::map::adcChannel(_activeMux));
+#endif
+            }
 
 // always switch to next read pin
 #ifdef NUMBER_OF_MUX
-                setMuxInput();
+            setMuxInput();
 #else
-                core::adc::setChannel(Board::detail::map::adcChannel(_analogIndex));
+            core::mcu::adc::setChannel(Board::detail::map::adcChannel(_analogIndex));
 #endif
-            }
+        }
 
 #ifdef NUMBER_OF_MUX
-            detail::IO::restoreMux(_activeMux);
+        detail::IO::restoreMux(_activeMux);
 #endif
 
-            core::adc::startConversion();
-        }
-    }    // namespace detail::isrHandling
-}    // namespace Board
+        core::mcu::adc::startItConversion();
+    }
+}    // namespace Board::detail::IO
+
+#endif

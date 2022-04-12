@@ -1,5 +1,6 @@
 ---
   mcu: "at90usb1286"
+  extClockMhz: 16
   usb: true
   uart:
     dinMIDI:

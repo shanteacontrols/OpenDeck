@@ -1,4 +1,4 @@
-#ifndef USB_LINK_MCU
+#ifndef USB_OVER_SERIAL_HOST
 #ifdef HW_TESTS_SUPPORTED
 
 #include "framework/Framework.h"

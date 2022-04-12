@@ -79,13 +79,13 @@ void ComponentInfo::registerHandler(cinfoHandler_t&& handler)
 
 void ComponentInfo::send(Database::Config::block_t block, size_t index)
 {
-    if ((core::timing::currentRunTimeMs() - _lastCinfoMsgTime[static_cast<size_t>(block)]) > COMPONENT_INFO_TIMEOUT)
+    if ((core::timing::ms() - _lastCinfoMsgTime[static_cast<size_t>(block)]) > COMPONENT_INFO_TIMEOUT)
     {
         if (_handler != nullptr)
         {
             _handler(static_cast<size_t>(block), index);
         }
 
-        _lastCinfoMsgTime[static_cast<size_t>(block)] = core::timing::currentRunTimeMs();
+        _lastCinfoMsgTime[static_cast<size_t>(block)] = core::timing::ms();
     }
 }

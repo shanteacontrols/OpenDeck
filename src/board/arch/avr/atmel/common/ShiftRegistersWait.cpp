@@ -18,7 +18,7 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "core/src/general/Misc.h"
+#include "core/src/util/Util.h"
 
 // both delays assume 16MHz clock
 
@@ -26,12 +26,12 @@ namespace Board::detail::IO
 {
     void sr595wait()
     {
-        CORE_NOP();
-        CORE_NOP();
+        CORE_MCU_NOP();
+        CORE_MCU_NOP();
     }
 
     void sr165wait()
     {
-        CORE_NOP();
+        CORE_MCU_NOP();
     }
 }    // namespace Board::detail::IO

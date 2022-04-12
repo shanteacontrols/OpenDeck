@@ -16,13 +16,13 @@ limitations under the License.
 
 */
 
+#ifdef ADC_SUPPORTED
+
 #include "Analog.h"
 #include "sysex/src/SysExConf.h"
 #include "system/Config.h"
 
-#ifdef ANALOG_SUPPORTED
-
-#include "core/src/general/Helpers.h"
+#include "core/src/util/Util.h"
 #include "util/conversion/Conversion.h"
 #include "util/configurable/Configurable.h"
 
@@ -233,7 +233,11 @@ bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descripto
 
         if (descriptor.lowerLimit > descriptor.upperLimit)
         {
-            scaled = core::misc::mapRange(static_cast<uint32_t>(value), static_cast<uint32_t>(0), static_cast<uint32_t>(descriptor.maxValue), static_cast<uint32_t>(descriptor.upperLimit), static_cast<uint32_t>(descriptor.lowerLimit));
+            scaled = core::util::MAP_RANGE(static_cast<uint32_t>(value),
+                                           static_cast<uint32_t>(0),
+                                           static_cast<uint32_t>(descriptor.maxValue),
+                                           static_cast<uint32_t>(descriptor.upperLimit),
+                                           static_cast<uint32_t>(descriptor.lowerLimit));
 
             if (!descriptor.inverted)
             {
@@ -242,7 +246,11 @@ bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descripto
         }
         else
         {
-            scaled = core::misc::mapRange(static_cast<uint32_t>(value), static_cast<uint32_t>(0), static_cast<uint32_t>(descriptor.maxValue), static_cast<uint32_t>(descriptor.lowerLimit), static_cast<uint32_t>(descriptor.upperLimit));
+            scaled = core::util::MAP_RANGE(static_cast<uint32_t>(value),
+                                           static_cast<uint32_t>(0),
+                                           static_cast<uint32_t>(descriptor.maxValue),
+                                           static_cast<uint32_t>(descriptor.lowerLimit),
+                                           static_cast<uint32_t>(descriptor.upperLimit));
 
             if (descriptor.inverted)
             {
@@ -364,7 +372,7 @@ void Analog::setFSRstate(size_t index, bool state)
     uint8_t arrayIndex  = index / 8;
     uint8_t analogIndex = index - 8 * arrayIndex;
 
-    BIT_WRITE(_fsrPressed[arrayIndex], analogIndex, state);
+    core::util::BIT_WRITE(_fsrPressed[arrayIndex], analogIndex, state);
 }
 
 bool Analog::fsrState(size_t index)
@@ -372,7 +380,7 @@ bool Analog::fsrState(size_t index)
     uint8_t arrayIndex  = index / 8;
     uint8_t analogIndex = index - 8 * arrayIndex;
 
-    return BIT_READ(_fsrPressed[arrayIndex], analogIndex);
+    return core::util::BIT_READ(_fsrPressed[arrayIndex], analogIndex);
 }
 
 void Analog::fillAnalogDescriptor(size_t index, analogDescriptor_t& descriptor)

@@ -16,6 +16,8 @@ limitations under the License.
 
 */
 
+#ifdef TOUCHSCREEN_SUPPORTED
+
 #include "Builder.h"
 
 using namespace IO;
@@ -27,3 +29,5 @@ TouchscreenModelBuilder::TouchscreenModelBuilder(Touchscreen::HWA& hwa)
 
 uint8_t Touchscreen::Model::_rxBuffer[Touchscreen::Model::BUFFER_SIZE];
 size_t  Touchscreen::Model::_bufferCount;
+
+#endif

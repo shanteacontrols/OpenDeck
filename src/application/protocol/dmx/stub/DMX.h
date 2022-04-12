@@ -19,13 +19,13 @@ limitations under the License.
 #pragma once
 
 #include "protocol/ProtocolBase.h"
+#include "core/src/MCU.h"
+
 namespace Protocol
 {
     class DMX : public Protocol::Base
     {
         public:
-        using uniqueID_t = std::array<uint8_t, UID_BITS / 8>;
-
         enum class setting_t : uint8_t
         {
             ENABLED,
@@ -35,7 +35,7 @@ namespace Protocol
         class HWA : public DMXUSBWidget::HWA, public IO::Common::Allocatable
         {
             public:
-            virtual bool uniqueID(uniqueID_t& uniqueID) = 0;
+            virtual bool uniqueID(core::mcu::uniqueID_t& uniqueID) = 0;
         };
 
         DMX(HWA& hwa, Database::Instance& database)

@@ -1,28 +1,10 @@
 ---
-  arch: "avr"
-  mcuFamily: "avr8"
-  vendor: "atmel"
-  define-symbol: "__AVR_ATmega2560__"
   flash:
-    flash-start: 0x00
-    app-start: 0x00
-    app-metadata-offset: 0xE4
-    boot-start: 0x3E000
-    page-size: 0x100
-    size: 0x40000
-  eeprom:
-    size: 0x1000
-  peripherals:
-    uart: 2
-    i2c: 1
+    app-start-page: 0
+    boot-start-page: 992
   fuses:
     unlock: 0xFF
     lock: 0xEF
     ext: 0xFC
     high: 0xD0
     low: 0xFF
-  timers:
-    #periods in us
-    main:
-      period: 1000
-      channel: 0

@@ -16,12 +16,14 @@ limitations under the License.
 
 */
 
+#ifdef I2C_SUPPORTED
+
 #include <string.h>
 #include "Display.h"
 #include "strings/Strings.h"
 #include "protocol/midi/MIDI.h"
-#include "core/src/general/Timing.h"
-#include "core/src/general/Helpers.h"
+#include "core/src/Timing.h"
+#include "core/src/util/Util.h"
 #include "io/common/Common.h"
 #include "util/conversion/Conversion.h"
 #include "util/configurable/Configurable.h"
@@ -254,7 +256,7 @@ void Display::update()
         return;
     }
 
-    if ((core::timing::currentRunTimeMs() - _lastLCDupdateTime) < LCD_REFRESH_TIME)
+    if ((core::timing::ms() - _lastLCDupdateTime) < LCD_REFRESH_TIME)
     {
         return;    // we don't need to update lcd in real time
     }
@@ -275,7 +277,7 @@ void Display::update()
 
         for (int j = 0; j < stringLen; j++)
         {
-            if (BIT_READ(_charChange[i], j))
+            if (core::util::BIT_READ(_charChange[i], j))
             {
                 u8x8_DrawGlyph(&_u8x8, j, ROW_MAP[_resolution][i], charPointer[j]);
             }
@@ -290,7 +292,7 @@ void Display::update()
         _charChange[i] = 0;
     }
 
-    _lastLCDupdateTime = core::timing::currentRunTimeMs();
+    _lastLCDupdateTime = core::timing::ms();
 
     // check if in/out messages need to be cleared
     if (_messageRetentionTime)
@@ -298,7 +300,7 @@ void Display::update()
         for (int i = 0; i < 2; i++)
         {
             // 0 = in, 1 = out
-            if ((core::timing::currentRunTimeMs() - _lasMessageDisplayTime[i] > _messageRetentionTime) && _messageDisplayed[i])
+            if ((core::timing::ms() - _lasMessageDisplayTime[i] > _messageRetentionTime) && _messageDisplayed[i])
             {
                 clearEvent(static_cast<eventType_t>(i));
             }
@@ -330,7 +332,7 @@ void Display::updateText(uint8_t row, uint8_t startIndex)
     {
         if (_lcdRowText[row][startIndex + i] != string[i])
         {
-            BIT_SET(_charChange[row], startIndex + i);
+            core::util::BIT_SET(_charChange[row], startIndex + i);
         }
 
         _lcdRowText[row][startIndex + i] = string[i];
@@ -362,8 +364,8 @@ void Display::setRetentionTime(uint32_t retentionTime)
     _messageRetentionTime = retentionTime;
 
     // reset last update time
-    _lasMessageDisplayTime[eventType_t::IN]  = core::timing::currentRunTimeMs();
-    _lasMessageDisplayTime[eventType_t::OUT] = core::timing::currentRunTimeMs();
+    _lasMessageDisplayTime[eventType_t::IN]  = core::timing::ms();
+    _lasMessageDisplayTime[eventType_t::OUT] = core::timing::ms();
 }
 
 /// Adds normalization to a given octave.
@@ -512,7 +514,7 @@ void Display::displayEvent(eventType_t type, const Messaging::event_t& event)
         break;
     }
 
-    _lasMessageDisplayTime[type] = core::timing::currentRunTimeMs();
+    _lasMessageDisplayTime[type] = core::timing::ms();
     _messageDisplayed[type]      = true;
 }
 
@@ -646,3 +648,5 @@ std::optional<uint8_t> Display::sysConfigSet(System::Config::Section::i2c_t sect
 
     return result;
 }
+
+#endif

@@ -1,29 +1,29 @@
-vpath modules/%.cpp ../
 vpath modules/%.c ../
+vpath modules/%.cpp ../
 vpath modules/%.s ../
 vpath modules/%.S ../
 
 #common include dirs
 INCLUDE_DIRS += \
--I"../modules/" \
--I"$(GEN_DIR_MCU_BASE)/$(MCU)" \
--I"$(GEN_DIR_TARGET)/" \
+-I"./" \
+-I"$(BOARD_GEN_DIR_MCU_BASE)/$(MCU)" \
+-I"$(BOARD_GEN_DIR_TARGET)/" \
 -I"application/" \
--I"bootloader/" \
--I"board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)" \
--I"board/arch/$(ARCH)/$(VENDOR)" \
+-I"board/arch/$(ARCH)/$(VENDOR)/common" \
+-I"board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)/common" \
 -I"board/common" \
--I"./"
+-I"bootloader/" \
+-I"../modules/"
 
 ifneq (,$(findstring USE_TINYUSB,$(DEFINES)))
-    INCLUDE_DIRS += -I"board/common/comm/usb/tinyusb"
+    INCLUDE_DIRS += -I"board/common/communication/usb/tinyusb"
 endif
 
-LINKER_FILE       := $(MCU_DIR)/$(MCU).ld
-TARGET_GEN_HEADER := $(GEN_DIR_TARGET)/Target.h
+LINKER_FILE       := ../modules/core/src/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)/$(MCU)/$(MCU).ld
+TARGET_GEN_HEADER := $(BOARD_GEN_DIR_TARGET)/Target.h
 
 ifneq (,$(wildcard $(DEF_FILE_TSCREEN)))
-    TSCREEN_GEN_SOURCE += $(GEN_DIR_TSCREEN_BASE)/$(TARGET).cpp
+    TSCREEN_GEN_SOURCE += $(APP_GEN_DIR_TARGET)/Touchscreen.cpp
 endif
 
 GEN_FILES += \
@@ -31,122 +31,35 @@ $(TARGET_GEN_HEADER) \
 $(TSCREEN_GEN_SOURCE)
 
 ifeq (,$(findstring gen,$(TYPE)))
-    SOURCES += $(TSCREEN_GEN_SOURCE)
+    SOURCES += $(shell $(FIND) board/arch/$(ARCH)/$(VENDOR)/common/ -type f -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
+    SOURCES += $(shell $(FIND) board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)/common -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
+    SOURCES += $(shell $(FIND) board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)/$(MCU) -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
+    SOURCES += $(shell $(FIND) board/arch/$(ARCH)/$(VENDOR)/variants/common -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
+    SOURCES += $(shell $(FIND) board/arch/$(ARCH)/common -type f -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
+    SOURCES += $(shell $(FIND) board/common -type f -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
 
-    SOURCES += $(shell $(FIND) ./board/common -maxdepth 1 -type f -name "*.cpp")
-    SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/common/ -type f -name "*.cpp")
-    SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/$(VENDOR)/common/ -type f -name "*.cpp")
-    SOURCES += $(shell $(FIND) ./$(MCU_DIR) -maxdepth 1 -type f -regex '.*\.\(s\|c\|cpp\)')
-    SOURCES += board/common/Stubs.cpp
+    SOURCES += $(shell $(FIND) ../modules/core/src/arch/$(ARCH)/$(VENDOR)/common/ -type f -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
+    SOURCES += $(shell $(FIND) ../modules/core/src/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)/common -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
+    SOURCES += $(shell $(FIND) ../modules/core/src/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)/$(MCU) -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
+    SOURCES += $(shell $(FIND) ../modules/core/src/arch/$(ARCH)/$(VENDOR)/variants/common -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
+    SOURCES += $(shell $(FIND) ../modules/core/src/arch/$(ARCH)/common -type f -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
+    SOURCES += $(shell $(FIND) ../modules/core/src/arch/common -type f -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
 
     ifeq ($(TYPE),boot)
-        #bootloader sources
-        #common
-        SOURCES += board/common/io/Indicators.cpp
-        SOURCES += $(shell find ./bootloader -type f -name "*.cpp")
-
-        ifneq (,$(findstring USB_SUPPORTED,$(DEFINES)))
-            SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/midi -type f -name "*.cpp")
-            SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/midi -type f -name "*.c")
-            SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/$(VENDOR)/comm/usb/midi -type f -name "*.cpp")
-
-            ifneq (,$(findstring USE_TINYUSB,$(DEFINES)))
-                SOURCES += board/common/comm/usb/tinyusb/Common.cpp
-                SOURCES += board/common/comm/usb/tinyusb/MIDI.cpp
-            endif
-
-            ifneq (,$(findstring USB_LINK_MCU,$(DEFINES)))
-                #for USB link MCUs, compile UART as well - needed to communicate with main MCU
-                SOURCES += \
-                board/arch/$(ARCH)/$(VENDOR)/comm/uart/UART.cpp \
-                board/common/comm/uart/UART.cpp
-            endif
-        else
-            SOURCES += \
-            board/arch/$(ARCH)/$(VENDOR)/comm/uart/UART.cpp \
-            board/common/comm/uart/UART.cpp
-
-            SOURCES += $(shell $(FIND) ./board/common/comm/USBOverSerial -type f -name "*.cpp")
-        endif
+        SOURCES += $(shell find bootloader -type f -name "*.cpp")
     else ifeq ($(TYPE),app)
-        #application sources
-        #common for all targets
-        SOURCES += $(shell $(FIND) ./board/common/comm/USBOverSerial -type f -name "*.cpp")
-
-        ifneq (,$(findstring USB_SUPPORTED,$(DEFINES)))
-            SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/$(VENDOR)/comm/usb/midi_cdc_dual -type f -name "*.cpp")
-            SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/midi_cdc_dual -type f -name "*.cpp")
-            SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/midi_cdc_dual -type f -name "*.c")
-
-            ifneq (,$(findstring USE_TINYUSB,$(DEFINES)))
-                SOURCES += board/common/comm/usb/tinyusb/Common.cpp
-                SOURCES += board/common/comm/usb/tinyusb/CDC.cpp
-                SOURCES += board/common/comm/usb/tinyusb/MIDI.cpp
-            endif
-        endif
-
-        ifneq (,$(findstring UART_SUPPORTED,$(DEFINES)))
-            SOURCES += \
-            board/arch/$(ARCH)/$(VENDOR)/comm/uart/UART.cpp \
-            board/common/comm/uart/UART.cpp
-        endif
-
-        ifneq (,$(findstring USB_LINK_MCU,$(DEFINES)))
-            #fw for usb links uses different set of sources than other targets
-            SOURCES += \
-            board/common/io/Indicators.cpp \
-            usb-link/main.cpp
+        ifneq (,$(findstring USB_OVER_SERIAL_HOST,$(DEFINES)))
+            #fw for usb hosts uses different set of sources than other targets
+            SOURCES += $(shell find usb-link -type f -name "*.cpp")
         else
-            SOURCES += $(shell $(FIND) ./application -maxdepth 1 -type f -name "*.cpp")
-            SOURCES += $(shell $(FIND) ./application/database -type f -name "*.cpp")
-            SOURCES += $(shell $(FIND) ./application/system -type f -name "*.cpp")
-            SOURCES += $(shell $(FIND) ./application/protocol -type f -name "*.cpp")
-            SOURCES += $(shell $(FIND) ./application/util -type f -name "*.cpp")
-            SOURCES += $(shell $(FIND) ./application/io/common -maxdepth 1 -type f -name "*.cpp")
-            SOURCES += $(shell $(FIND) ../modules/sysex/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
-            SOURCES += $(shell $(FIND) ../modules/midi/src -type f -name "*.cpp" | sed "s|^\.\./||")
+            SOURCES += $(shell $(FIND) application -type f -not -path "*$(APP_GEN_DIR_BASE)*" -regex '.*\.\(s\|c\|cpp\)')
+            SOURCES += $(shell $(FIND) $(APP_GEN_DIR_TARGET) -type f -regex '.*\.\(s\|c\|cpp\)')
             SOURCES += $(shell $(FIND) ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
             SOURCES += $(shell $(FIND) ../modules/dmxusb/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
-            SOURCES += $(shell $(FIND) ./application/io/analog -type f -name "*.cpp")
-            SOURCES += $(shell $(FIND) ./application/io/buttons -type f -name "*.cpp")
-            SOURCES += $(shell $(FIND) ./application/io/encoders -maxdepth 1 -type f -name "*.cpp")
-            SOURCES += $(shell $(FIND) ./application/io/leds -maxdepth 1 -type f -name "*.cpp")
-
-            ifneq (,$(findstring USE_LOGGER,$(DEFINES)))
-                SOURCES += $(shell $(FIND) ./application/logger -maxdepth 1 -type f -name "*.cpp")
-            endif
-
-            ifneq (,$(findstring ADC_SUPPORTED,$(DEFINES)))
-                SOURCES += board/common/io/Analog.cpp
-            endif
-
-            ifneq (,$(findstring DIGITAL_INPUTS_SUPPORTED,$(DEFINES)))
-                SOURCES += board/common/io/Input.cpp
-            endif
-
-            ifneq (,$(findstring DIGITAL_OUTPUTS_SUPPORTED,$(DEFINES)))
-                SOURCES += board/common/io/Output.cpp
-            endif
-
-            ifneq (,$(findstring LED_INDICATORS,$(DEFINES)))
-                SOURCES += board/common/io/Indicators.cpp
-            endif
-
-            #if a file named $(TARGET).cpp exists in ./application/io/leds/startup directory
-            #add it to the sources
-            ifneq (,$(wildcard ./application/io/leds/startup/$(TARGET).cpp))
-                SOURCES += ./application/io/leds/startup/$(TARGET).cpp
-            endif
-
-            ifneq (,$(findstring TOUCHSCREEN_SUPPORTED,$(DEFINES)))
-                SOURCES += $(shell $(FIND) ./application/io/touchscreen -maxdepth 1 -type f -name "*.cpp")
-                SOURCES += $(shell $(FIND) ./application/io/touchscreen/model -type f -name "*.cpp")
-            endif
+            SOURCES += $(shell $(FIND) ../modules/midi/src -type f -name "*.cpp" | sed "s|^\.\./||")
+            SOURCES += $(shell $(FIND) ../modules/sysex/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
 
             ifneq (,$(findstring I2C_SUPPORTED,$(DEFINES)))
-                SOURCES += $(shell $(FIND) ./application/io/i2c -type f -name "*.cpp")
-                SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/$(VENDOR)/comm/i2c -type f -name "*.cpp")
-
                 #u8x8 sources
                 SOURCES += \
                 modules/u8g2/csrc/u8x8_string.c \
@@ -166,13 +79,13 @@ ifeq (,$(findstring gen,$(TYPE)))
     endif
 else ifeq ($(TYPE),flashgen)
     ifeq ($(ARCH),arm)
-        SOURCES += $(shell $(FIND) ./application/database -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) application/database -type f -name "*.cpp")
         SOURCES += $(shell $(FIND) ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
-        SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
         SOURCES += $(TSCREEN_GEN_SOURCE)
-        SOURCES += flashgen/main.cpp
         SOURCES += application/util/configurable/Configurable.cpp
         SOURCES += application/util/conversion/Conversion.cpp
+        SOURCES += flashgen/main.cpp
+        SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
 
         INCLUDE_DIRS += -I"flashgen/"
     endif

@@ -75,7 +75,7 @@ CFLAGS := \
 
 #assembler only
 ASFLAGS := \
- -x assembler-with-cpp
+-x assembler-with-cpp
 
 #common linker flags
 LDFLAGS := \
@@ -143,7 +143,7 @@ ifeq (,$(findstring gen,$(TYPE)))
         -specs=nano.specs \
         -specs=nosys.specs
 
-        LDFLAGS += -Xlinker --defsym=FLASH_START=$(FLASH_START_ADDR)
+        LDFLAGS += -Xlinker --defsym=CORE_FLASH_START_ADDR=$(FLASH_START_ADDR)
 
         ifeq ($(DEBUG), 1)
             CPPFLAGS += -g -gdwarf-2
@@ -261,11 +261,11 @@ generate: $(GEN_FILES)
 pre-build::
 post-build::
 
-$(GEN_DIR_TARGET)/Target.h: $(DEF_FILE_TARGET)
-	@$(SCRIPTS_DIR)/gen/gen_target.sh $(DEF_FILE_TARGET) $(GEN_DIR_TARGET)
+$(TARGET_GEN_HEADER): $(DEF_FILE_TARGET)
+	@$(SCRIPTS_DIR)/gen/gen_target.sh $(DEF_FILE_TARGET) $(BOARD_GEN_DIR_TARGET)
 
-$(GEN_DIR_TSCREEN_BASE)/$(TARGET).cpp: $(DEF_FILE_TSCREEN)
-	@$(SCRIPTS_DIR)/gen/gen_touchscreen.sh $< $(GEN_DIR_TSCREEN_BASE)
+$(TSCREEN_GEN_SOURCE): $(DEF_FILE_TSCREEN)
+	@$(SCRIPTS_DIR)/gen/gen_touchscreen.sh $< $@
 
 ifeq ($(ARCH),arm)
 $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin: $(DEF_FILE_TARGET) $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/application/database/Database.cpp.o $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/application/database/CustomInit.cpp.o
@@ -318,6 +318,7 @@ endif
 
 lint:
 	@$(SCRIPTS_DIR)/tidy.sh \
+	--mcu=$(MCU) \
 	--output=$(CLANG_TIDY_OUT) \
 	--compiler=$(CC) \
 	--option-files-dir=..
@@ -331,7 +332,7 @@ endif
 
 clean:
 	@echo Cleaning up.
-	@rm -rf $(BUILD_DIR_BASE) $(GEN_DIR_BASE) $(GEN_DIR_TSCREEN_BASE) compile_commands.json
+	@rm -rf $(BUILD_DIR_BASE) $(BOARD_GEN_DIR_BASE) $(APP_GEN_DIR) compile_commands.json
 
 #debugging
 print-%:

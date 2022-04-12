@@ -20,8 +20,8 @@ limitations under the License.
 
 #ifdef ENCODERS_SUPPORTED
 
-#include "core/src/general/Timing.h"
-#include "core/src/general/Helpers.h"
+#include "core/src/Timing.h"
+#include "core/src/util/Util.h"
 #include "util/conversion/Conversion.h"
 #include "util/configurable/Configurable.h"
 
@@ -131,7 +131,7 @@ void Encoders::updateSingle(size_t index, bool forceRefresh)
         return;
     }
 
-    uint32_t currentTime = core::timing::currentRunTimeMs();
+    uint32_t currentTime = core::timing::ms();
 
     for (uint8_t reading = 0; reading < numberOfReadings; reading++)
     {
@@ -191,7 +191,9 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
                 // start accelerating
                 if ((sampleTime - _filter.lastMovementTime(index)) < ENCODERS_SPEED_TIMEOUT)
                 {
-                    _encoderSpeed[index] = CONSTRAIN(_encoderSpeed[index] + ENCODER_SPEED_CHANGE[encAcceleration], 0, ENCODER_MAX_ACC_SPEED[encAcceleration]);
+                    _encoderSpeed[index] = core::util::CONSTRAIN(static_cast<uint8_t>(_encoderSpeed[index] + ENCODER_SPEED_CHANGE[encAcceleration]),
+                                                                 static_cast<uint8_t>(0),
+                                                                 ENCODER_MAX_ACC_SPEED[encAcceleration]);
                 }
                 else
                 {
@@ -389,7 +391,7 @@ Encoders::position_t Encoders::read(size_t index, uint8_t pairState)
     bool process = true;
 
     // only process the data from encoder if there is a previous reading stored
-    if (!BIT_READ(_encoderData[index], 7))
+    if (!core::util::BIT_READ(_encoderData[index], 7))
     {
         process = false;
     }

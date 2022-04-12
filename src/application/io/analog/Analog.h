@@ -25,10 +25,9 @@ limitations under the License.
 #include "io/IOBase.h"
 #include "protocol/midi/MIDI.h"
 
-using namespace Protocol;
-
 #ifdef ADC_SUPPORTED
-#define ANALOG_SUPPORTED
+
+using namespace Protocol;
 
 namespace IO
 {
@@ -77,12 +76,6 @@ namespace IO
         class Filter
         {
             public:
-            enum class adcType_t : uint16_t
-            {
-                ADC_10BIT = 1023,
-                ADC_12BIT = 4095
-            };
-
             struct descriptor_t
             {
                 Analog::type_t type        = Analog::type_t::POTENTIOMETER_CONTROL_CHANGE;

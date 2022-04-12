@@ -3,7 +3,7 @@
 #include "stubs/Listener.h"
 #include "io/buttons/Buttons.h"
 
-#ifdef ANALOG_SUPPORTED
+#ifdef ADC_SUPPORTED
 
 using namespace IO;
 

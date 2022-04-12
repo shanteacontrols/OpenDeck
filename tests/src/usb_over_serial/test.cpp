@@ -1,18 +1,18 @@
-#ifdef UART_SUPPORTED
+#ifdef USB_OVER_SERIAL
 
 #include "framework/Framework.h"
 #include "board/Board.h"
-#include "board/common/comm/USBOverSerial/USBOverSerial.h"
-#include "core/src/general/RingBuffer.h"
+#include "board/common/communication/USBOverSerial/USBOverSerial.h"
+#include "core/src/util/RingBuffer.h"
 #include "protocol/midi/MIDI.h"
 
 using namespace Protocol;
 
 namespace
 {
-    static constexpr size_t                BUFFER_SIZE       = 64;
-    static constexpr size_t                TEST_MIDI_CHANNEL = 0;
-    core::RingBuffer<uint8_t, BUFFER_SIZE> buffer;
+    static constexpr size_t                      BUFFER_SIZE       = 64;
+    static constexpr size_t                      TEST_MIDI_CHANNEL = 0;
+    core::util::RingBuffer<uint8_t, BUFFER_SIZE> buffer;
 
     class USBOverSerialTest : public ::testing::Test
     {

@@ -84,7 +84,7 @@ Most of the code is available under Apache Licence v2.0, with the following exce
   * `dbms`: MIT
   * `dmxusb`: MIT
   * `EmuEEPROM`: MIT
-  * `lufa`: Modified MIT, see `modules/lufa/LUFA/Licence.txt` for details
+  * `lufa`: Modified MIT, see `modules/core/modules/lufa/LUFA/Licence.txt` for details
   * `midi`: MIT
   * `sysex`: MIT
   * `u8g2`: Two-clause BSD

@@ -20,9 +20,8 @@ limitations under the License.
 #include "board/common/io/Helpers.h"
 #include "board/Internal.h"
 #include "board/common/constants/IO.h"
-#include "core/src/general/Helpers.h"
-#include "core/src/general/Atomic.h"
-#include "core/src/general/Timing.h"
+#include "core/src/util/Util.h"
+#include "core/src/Timing.h"
 #include <Target.h>
 
 #if defined(LED_INDICATORS) && defined(LED_INDICATORS_CTL)
@@ -128,12 +127,12 @@ namespace Board
                 if (direction == dataDirection_t::INCOMING)
                 {
                     INT_LED_ON(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
-                    _midiInDINtimeout = MIDI_INDICATOR_TIMEOUT;
+                    _midiInDINtimeout = LED_INDICATOR_TIMEOUT;
                 }
                 else
                 {
                     INT_LED_ON(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
-                    _midiOutDINtimeout = MIDI_INDICATOR_TIMEOUT;
+                    _midiOutDINtimeout = LED_INDICATOR_TIMEOUT;
                 }
             }
             break;
@@ -143,12 +142,12 @@ namespace Board
                 if (direction == dataDirection_t::INCOMING)
                 {
                     INT_LED_ON(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
-                    _midiInUSBtimeout = MIDI_INDICATOR_TIMEOUT;
+                    _midiInUSBtimeout = LED_INDICATOR_TIMEOUT;
                 }
                 else
                 {
                     INT_LED_ON(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
-                    _midiOutUSBtimeout = MIDI_INDICATOR_TIMEOUT;
+                    _midiOutUSBtimeout = LED_INDICATOR_TIMEOUT;
                 }
             }
             break;
@@ -159,12 +158,12 @@ namespace Board
                 if (direction == dataDirection_t::INCOMING)
                 {
                     INT_LED_ON(LED_MIDI_IN_BLE_PORT, LED_MIDI_IN_BLE_PIN);
-                    _midiInBLEtimeout = MIDI_INDICATOR_TIMEOUT;
+                    _midiInBLEtimeout = LED_INDICATOR_TIMEOUT;
                 }
                 else
                 {
                     INT_LED_ON(LED_MIDI_OUT_BLE_PORT, LED_MIDI_OUT_BLE_PIN);
-                    _midiOutBLEtimeout = MIDI_INDICATOR_TIMEOUT;
+                    _midiOutBLEtimeout = LED_INDICATOR_TIMEOUT;
                 }
             }
             break;

@@ -16,8 +16,10 @@ limitations under the License.
 
 */
 
-#include "core/src/general/Timing.h"
+#include "core/src/Timing.h"
+#include "core/src/MCU.h"
 #include "board/Board.h"
+#include "board/common/constants/IO.h"
 #include "io/common/Common.h"
 #include "system/System.h"
 #include "system/Builder.h"
@@ -68,6 +70,13 @@ class HWADatabase : public System::Builder::HWA::Database
 
     bool clear() override
     {
+#ifdef LED_INDICATORS
+        // It's possible that LED indicators are still on since
+        // this command is most likely given via USB.
+        // Wait until all indicators are turned off
+        core::timing::waitMs(LED_INDICATOR_TIMEOUT);
+#endif
+
         return Board::NVM::clear(0, Board::NVM::size());
     }
 
@@ -192,7 +201,7 @@ class HWALEDsStub : public System::Builder::HWA::IO::LEDs
 } _hwaLEDs;
 #endif
 
-#ifdef ANALOG_SUPPORTED
+#ifdef ADC_SUPPORTED
 class HWAAnalog : public System::Builder::HWA::IO::Analog
 {
     public:
@@ -262,8 +271,8 @@ class HWADigitalIn
 
         for (uint8_t i = 0; i < numberOfReadings; i++)
         {
-            BIT_WRITE(states, (i * 2) + 1, (_dInReadA.readings >> i & 0x01));
-            BIT_WRITE(states, i * 2, (_dInReadB.readings >> i & 0x01));
+            core::util::BIT_WRITE(states, (i * 2) + 1, (_dInReadA.readings >> i & 0x01));
+            core::util::BIT_WRITE(states, i * 2, (_dInReadB.readings >> i & 0x01));
         }
 
         return true;
@@ -529,7 +538,7 @@ class HWAMIDIBLE : public System::Builder::HWA::Protocol::MIDI::BLE
 
     uint32_t time() override
     {
-        return core::timing::currentRunTimeMs();
+        return core::timing::ms();
     }
 } _hwaMIDIBLE;
 #else
@@ -635,9 +644,9 @@ class HWADMX : public System::Builder::HWA::Protocol::DMX
         Board::UART::setDMXBuffer(&buffer[0]);
     }
 
-    bool uniqueID(Protocol::DMX::uniqueID_t& uniqueID) override
+    bool uniqueID(core::mcu::uniqueID_t& uniqueID) override
     {
-        Board::uniqueID(uniqueID);
+        core::mcu::uniqueID(uniqueID);
         return true;
     }
 
@@ -687,7 +696,7 @@ class HWADMXStub : public System::Builder::HWA::Protocol::DMX
     {
     }
 
-    bool uniqueID(Protocol::DMX::uniqueID_t& uniqueID) override
+    bool uniqueID(core::mcu::uniqueID_t& uniqueID) override
     {
         return false;
     }
@@ -965,7 +974,7 @@ class HWASystem : public System::Builder::HWA::System
         static uint32_t lastCheckTime       = 0;
         static bool     lastConnectionState = false;
 
-        if (core::timing::currentRunTimeMs() - lastCheckTime > USB_CONN_CHECK_TIME)
+        if (core::timing::ms() - lastCheckTime > USB_CONN_CHECK_TIME)
         {
             bool newState = Board::USB::isUSBconnected();
 
@@ -981,7 +990,7 @@ class HWASystem : public System::Builder::HWA::System
             }
 
             lastConnectionState = newState;
-            lastCheckTime       = core::timing::currentRunTimeMs();
+            lastCheckTime       = core::timing::ms();
         }
 
         if (!CDCLocker::locked())

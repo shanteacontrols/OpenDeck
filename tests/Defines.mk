@@ -9,7 +9,7 @@ TEST_DEFINES := 1
 MAKEFILE_INCLUDE_PREFIX := ../src/
 
 include $(MAKEFILE_INCLUDE_PREFIX)Defines.mk
--include $(MAKEFILE_INCLUDE_PREFIX)$(GEN_DIR_TARGET)/HWTestDefines.mk
+-include $(MAKEFILE_INCLUDE_PREFIX)$(BOARD_GEN_DIR_TARGET)/HWTestDefines.mk
 
 #filter out arch symbols to avoid pulling MCU-specific headers
 DEFINES := $(filter-out CORE_ARCH_%,$(DEFINES))

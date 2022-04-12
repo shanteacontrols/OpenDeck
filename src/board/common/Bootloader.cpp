@@ -19,17 +19,22 @@ limitations under the License.
 #include "board/Board.h"
 #include "board/Internal.h"
 #include "board/common/io/Helpers.h"
-#include "core/src/general/Timing.h"
-#include "core/src/general/Reset.h"
-#include "core/src/general/CRC.h"
+#include "core/src/Timing.h"
 #include <Target.h>
+
+// Holds total flash size.
+// Inserted in the binary by build process - this is just the dummy definition.
+// Address where this variable is stored contains total firmware length.
+// After the last firmware address, CRC of firmware is stored.
+// This is used by the bootloader to verify the CRC of application.
+uint32_t _flashSize __attribute__((section(".fwMetadata"))) __attribute__((used)) = 0;
 
 namespace Board::bootloader
 {
     void appAddrBoundary(uint32_t& first, uint32_t& last)
     {
         first = APP_START_ADDR;
-        detail::flash::read32(FW_METADATA_LOCATION, last);
+        core::mcu::flash::read32(FW_METADATA_LOCATION, last);
     }
 
     bool isHWtriggerActive()
@@ -39,9 +44,9 @@ namespace Board::bootloader
 
 #if defined(BTLDR_BUTTON_PORT)
 #ifdef BTLDR_BUTTON_AH
-        return CORE_IO_READ(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
+        return CORE_MCU_IO_READ(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
 #else
-        return !CORE_IO_READ(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
+        return !CORE_MCU_IO_READ(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
 #endif
 #else
         // no hardware entry possible in this case
@@ -51,29 +56,29 @@ namespace Board::bootloader
 
     uint32_t pageSize(size_t index)
     {
-        return detail::flash::pageSize(index + FLASH_PAGE_APP_START);
+        return core::mcu::flash::pageSize(index + FLASH_PAGE_APP_START);
     }
 
     void erasePage(size_t index)
     {
-        detail::flash::erasePage(index + FLASH_PAGE_APP_START);
+        core::mcu::flash::erasePage(index + FLASH_PAGE_APP_START);
     }
 
     void fillPage(size_t index, uint32_t address, uint16_t value)
     {
-        detail::flash::write16(detail::map::flashPageDescriptor(index + FLASH_PAGE_APP_START).address + address, value);
+        core::mcu::flash::write16(detail::map::flashPageDescriptor(index + FLASH_PAGE_APP_START).address + address, value);
     }
 
     void writePage(size_t index)
     {
-        detail::flash::writePage(index + FLASH_PAGE_APP_START);
+        core::mcu::flash::writePage(index + FLASH_PAGE_APP_START);
     }
 
     uint8_t readFlash(uint32_t address)
     {
         uint8_t data = 0;
 
-        if (!detail::flash::read8(address, data))
+        if (!core::mcu::flash::read8(address, data))
         {
             data = 0;
         }

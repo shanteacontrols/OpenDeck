@@ -7,7 +7,7 @@ NRF52_SDK_DL_MARKER_PATH := $(NRF52_SDK_ZIP_PATH).downloaded
 
 ifeq (,$(findstring gen,$(TYPE)))
     INCLUDE_FILES += \
-    -include "board/arch/arm/nordic/variants/nrf52/nrfx_config.h"
+    -include "board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)/common/nrfx_config.h"
 
     INCLUDE_DIRS += \
     -I"deps/$(NRF52_SDK_VERSION)/components/softdevice/s140/headers" \
@@ -43,7 +43,8 @@ ifeq (,$(findstring gen,$(TYPE)))
     deps/$(NRF52_SDK_VERSION)/components/libraries/util/app_util_platform.c \
     deps/$(NRF52_SDK_VERSION)/components/softdevice/common/nrf_sdh_ble.c \
     deps/$(NRF52_SDK_VERSION)/components/softdevice/common/nrf_sdh_soc.c \
-    deps/$(NRF52_SDK_VERSION)/components/softdevice/common/nrf_sdh.c
+    deps/$(NRF52_SDK_VERSION)/components/softdevice/common/nrf_sdh.c \
+    deps/$(NRF52_SDK_VERSION)/components/libraries/timer/app_timer.c
 
     SOURCES += $(shell $(FIND) deps/$(NRF52_SDK_VERSION)/components/libraries/fstorage -type f -name "*.c")
 
@@ -54,7 +55,6 @@ ifeq (,$(findstring gen,$(TYPE)))
         deps/$(NRF52_SDK_VERSION)/components/ble/ble_advertising/ble_advertising.c \
         deps/$(NRF52_SDK_VERSION)/components/ble/common/ble_advdata.c \
         deps/$(NRF52_SDK_VERSION)/components/ble/common/ble_conn_params.c \
-        deps/$(NRF52_SDK_VERSION)/components/libraries/timer/app_timer.c \
         deps/$(NRF52_SDK_VERSION)/components/ble/common/ble_srv_common.c \
         deps/$(NRF52_SDK_VERSION)/components/libraries/fds/fds.c \
         deps/$(NRF52_SDK_VERSION)/components/ble/common/ble_conn_state.c \

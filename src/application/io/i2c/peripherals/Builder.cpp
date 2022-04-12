@@ -16,6 +16,8 @@ limitations under the License.
 
 */
 
+#ifdef I2C_SUPPORTED
+
 #include "Builder.h"
 
 using namespace IO;
@@ -23,3 +25,5 @@ using namespace IO;
 I2CPeripheralBuilder::I2CPeripheralBuilder(I2C::HWA& hwa, Database::Instance& database)
     : _display(hwa, database)
 {}
+
+#endif

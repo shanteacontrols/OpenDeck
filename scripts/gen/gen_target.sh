@@ -20,9 +20,8 @@ echo "" > "$out_header_usb"
 
 {
     printf "%s\n\n" "#pragma once"
-    printf "%s\n" "#include \"core/src/general/IO.h\""
     printf "%s\n" "#include \"board/Internal.h\""
-    printf "%s\n\n" "#include <MCU.h>"
+    printf "%s\n" "#include \"core/src/MCU.h\""
 } >> "$out_header"
 
 source "$script_dir"/target/core.sh

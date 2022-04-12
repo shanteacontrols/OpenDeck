@@ -1,5 +1,6 @@
 ---
   mcu: "atmega2560"
+  extClockMhz: 16
   usb: false
   uart:
     usbLink:

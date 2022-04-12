@@ -15,12 +15,12 @@ then
 fi
 
 # First argument should be path to the input json file,
-# and second directory in which generated file shall be placed.
+# and second path for generated file.
 json_file=$1
 input_dir=../bin/touchscreen/img/$(basename "$json_file" .json)
 gen_dir=$input_dir/icons
 json_parser="dasel -n -p json --plain -f"
-out_file=$2/$(basename "$json_file" .json).cpp
+out_file=$2
 
 echo "Generating touchscreen coordinate file..."
 

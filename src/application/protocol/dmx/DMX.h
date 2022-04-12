@@ -23,6 +23,7 @@ limitations under the License.
 #include "system/Config.h"
 #include "database/Database.h"
 #include "protocol/ProtocolBase.h"
+#include "core/src/MCU.h"
 
 #ifdef DMX_SUPPORTED
 namespace Protocol
@@ -36,12 +37,10 @@ namespace Protocol
             AMOUNT
         };
 
-        using uniqueID_t = std::array<uint8_t, UID_BITS / 8>;
-
         class HWA : public IO::Common::Allocatable, public DMXUSBWidget::HWA
         {
             public:
-            virtual bool uniqueID(uniqueID_t& uniqueID) = 0;
+            virtual bool uniqueID(core::mcu::uniqueID_t& uniqueID) = 0;
         };
 
         DMX(HWA& hwa, Database::Instance& database);

@@ -16,11 +16,11 @@ limitations under the License.
 
 */
 
+#ifdef NUMBER_OF_MUX
+
 #include "board/Board.h"
 #include "board/Internal.h"
 #include <Target.h>
-
-#ifdef NUMBER_OF_MUX
 
 namespace Board::detail::IO
 {
@@ -29,17 +29,17 @@ namespace Board::detail::IO
         // discharge the voltage present on common mux pins to avoid channel crosstalk
         for (int i = 0; i < MAX_ADC_CHANNELS; i++)
         {
-            core::io::mcuPin_t pin = Board::detail::map::adcPin(i);
+            core::mcu::io::pin_t pin = Board::detail::map::adcPin(i);
 
-            CORE_IO_INIT({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::OUTPUT_PP });
-            CORE_IO_SET_LOW(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
+            CORE_MCU_IO_INIT({ CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin), core::mcu::io::pinMode_t::OUTPUT_PP });
+            CORE_MCU_IO_SET_LOW(CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin));
         }
     }
 
     void restoreMux(uint8_t muxIndex)
     {
-        core::io::mcuPin_t pin = detail::map::adcPin(muxIndex);
-        CORE_IO_INIT({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::ANALOG });
+        core::mcu::io::pin_t pin = detail::map::adcPin(muxIndex);
+        CORE_MCU_IO_INIT({ CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin), core::mcu::io::pinMode_t::ANALOG });
     }
 }    // namespace Board::detail::IO
 

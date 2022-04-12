@@ -31,7 +31,7 @@ class HWADMX : public Protocol::DMX::HWA
     {
     }
 
-    bool uniqueID(Protocol::DMX::uniqueID_t& uniqueID) override
+    bool uniqueID(core::mcu::uniqueID_t& uniqueID) override
     {
         return true;
     }

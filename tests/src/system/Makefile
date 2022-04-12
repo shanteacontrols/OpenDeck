@@ -2,7 +2,7 @@ vpath application/%.cpp ../src
 vpath common/%.cpp ../src
 vpath modules/%.cpp ../
 
-ifeq (,$(findstring USB_LINK_MCU,$(DEFINES)))
+ifeq (,$(findstring USB_OVER_SERIAL_HOST,$(DEFINES)))
     SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) := \
     application/database/Database.cpp \
     application/database/CustomInit.cpp \

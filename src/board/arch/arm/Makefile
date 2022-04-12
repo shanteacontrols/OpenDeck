@@ -1,7 +1,7 @@
 ifeq (,$(findstring gen,$(TYPE)))
     INCLUDE_DIRS += \
-    -I"board/arch/arm/common/CMSIS" \
-    -I"../modules/tinyusb/lib/CMSIS_5/CMSIS/Core/Include"
+    -I"../modules/core/src/arch/arm/common/CMSIS" \
+    -I"../modules/core/modules/tinyusb/lib/CMSIS_5/CMSIS/Core/Include"
 
     SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
 
@@ -22,7 +22,8 @@ endif
 
 DEFINES += \
 CORE_ARCH_ARM \
-EMUEEPROM_INCLUDE_CONFIG
+EMUEEPROM_INCLUDE_CONFIG \
+USE_FAST_SOFT_PWM_TIMER
 
 ifeq ($(CPU),cortex-m4)
     DEFINES += \

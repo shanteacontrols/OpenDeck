@@ -16,11 +16,13 @@ limitations under the License.
 
 */
 
+#ifdef TOUCHSCREEN_SUPPORTED
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 #include "Nextion.h"
-#include "core/src/general/Timing.h"
+#include "core/src/Timing.h"
 #include "io/touchscreen/Touchscreen.h"
 
 using namespace IO;
@@ -193,3 +195,5 @@ Touchscreen::tsEvent_t Nextion::response(Touchscreen::tsData_t& data)
 
     return Touchscreen::tsEvent_t::NONE;
 }
+
+#endif

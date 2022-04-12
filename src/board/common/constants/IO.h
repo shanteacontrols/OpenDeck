@@ -21,7 +21,7 @@ limitations under the License.
 #include <inttypes.h>
 
 /// Time in milliseconds during which MIDI event indicators on board are on when MIDI event happens.
-constexpr inline uint32_t MIDI_INDICATOR_TIMEOUT = 50;
+constexpr inline uint32_t LED_INDICATOR_TIMEOUT = 50;
 
 /// Time in milliseconds for single startup animation cycle on built-in LED indicators.
-constexpr inline uint32_t MIDI_INDICATOR_STARTUP_DELAY = 150;
+constexpr inline uint32_t LED_INDICATOR_STARTUP_DELAY = 150;

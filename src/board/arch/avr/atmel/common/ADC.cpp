@@ -16,16 +16,48 @@ limitations under the License.
 
 */
 
-#include "board/Board.h"
-#include "board/Internal.h"
-#include <avr/interrupt.h>
-
 #ifdef FW_APP
 #ifdef ADC_SUPPORTED
-/// ADC ISR used to read values from multiplexers.
-ISR(ADC_vect)
+
+#include "board/Board.h"
+#include "board/Internal.h"
+#include <Target.h>
+
+void core::mcu::isr::adc(uint16_t value)
 {
-    Board::detail::isrHandling::adc(ADC);
+    Board::detail::IO::adcISR(value);
 }
+
+namespace Board::detail::setup
+{
+    void adc()
+    {
+        core::mcu::adc::conf_t adcConfiguration;
+
+        adcConfiguration.prescaler = core::mcu::adc::prescaler_t::P128;
+
+#ifdef ADC_EXT_REF
+        adcConfiguration.vref = core::mcu::adc::vRef_t::AREF;
+#else
+        adcConfiguration.vref = core::mcu::adc::vRef_t::AVCC;
+#endif
+
+        for (int i = 0; i < MAX_ADC_CHANNELS; i++)
+        {
+            core::mcu::adc::disconnectDigitalIn(Board::detail::map::adcChannel(i));
+        }
+
+        core::mcu::adc::init(adcConfiguration);
+
+        for (int i = 0; i < 3; i++)
+        {
+            // few dummy reads to init ADC
+            core::mcu::adc::read(Board::detail::map::adcChannel(0));
+        }
+
+        core::mcu::adc::startItConversion();
+    }
+}    // namespace Board::detail::setup
+
 #endif
 #endif

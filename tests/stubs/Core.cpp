@@ -1,6 +1,6 @@
-#include "core/src/general/Timing.h"
+#include "core/src/Timing.h"
 
 namespace core::timing::detail
 {
-    volatile uint32_t rTime_ms;
+    volatile uint32_t ms;
 }    // namespace core::timing::detail

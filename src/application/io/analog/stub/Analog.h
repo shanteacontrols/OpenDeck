@@ -64,12 +64,6 @@ namespace IO
         class Filter
         {
             public:
-            enum class adcType_t : uint16_t
-            {
-                ADC_10BIT = 1023,
-                ADC_12BIT = 4095
-            };
-
             struct descriptor_t
             {
                 Analog::type_t type        = Analog::type_t::POTENTIOMETER_CONTROL_CHANGE;

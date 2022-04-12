@@ -23,10 +23,10 @@ namespace Board::detail::map
 #ifdef ADC_SUPPORTED
             constexpr uint32_t adcChannel(uint8_t index)
             {
-                return detail::map::adcChannel(A_IN_PINS[index]);
+                return core::mcu::peripherals::adcChannel(A_IN_PINS[index]);
             }
 
-            constexpr const core::io::mcuPin_t& adcPin(uint8_t index)
+            constexpr const core::mcu::io::pin_t& adcPin(uint8_t index)
             {
                 return A_IN_PINS[index];
             }
@@ -42,14 +42,14 @@ namespace Board::detail::map
 #endif
 
 #if defined(NATIVE_BUTTON_INPUTS) || (defined(NUMBER_OF_BUTTON_ROWS) && !defined(NUMBER_OF_IN_SR))
-            constexpr const core::io::mcuPin_t& buttonPin(uint8_t index)
+            constexpr const core::mcu::io::pin_t& buttonPin(uint8_t index)
             {
                 return D_IN_PINS[index];
             }
 #endif
 
 #if defined(NATIVE_BUTTON_INPUTS)
-            constexpr const core::io::pinPort_t digitalInPort(uint8_t index)
+            constexpr const core::mcu::io::pinPort_t digitalInPort(uint8_t index)
             {
                 return D_IN_PORTS[index];
             }
@@ -75,19 +75,19 @@ namespace Board::detail::map
             }
 
 #if defined(NATIVE_LED_OUTPUTS) || defined(NUMBER_OF_LED_ROWS)
-            constexpr const core::io::mcuPin_t& ledPin(uint8_t index)
+            constexpr const core::mcu::io::pin_t& ledPin(uint8_t index)
             {
                 return D_OUT_PINS[index];
             }
 #endif
 
 #if defined(NATIVE_LED_OUTPUTS)
-            constexpr const core::io::pinPort_t digitalOutPort(uint8_t index)
+            constexpr const core::mcu::io::pinPort_t digitalOutPort(uint8_t index)
             {
                 return D_OUT_PORTS[index];
             }
 
-            constexpr const core::io::portWidth_t digitalOutPortClearMask(uint8_t index)
+            constexpr const core::mcu::io::portWidth_t digitalOutPortClearMask(uint8_t index)
             {
                 return D_OUT_PORTS_CLEAR_MASK[index];
             }
@@ -120,15 +120,15 @@ namespace Board::detail::map
 #endif
 
 #ifndef FLASH_PAGE_SIZE_COMMON
-            constexpr const Board::detail::flash::flashPage_t& flashPageDescriptor(size_t pageIndex)
+            constexpr const core::mcu::flash::flashPage_t& flashPageDescriptor(size_t pageIndex)
 #else
-            constexpr Board::detail::flash::flashPage_t flashPageDescriptor(size_t pageIndex)
+            constexpr core::mcu::flash::flashPage_t flashPageDescriptor(size_t pageIndex)
 #endif
             {
 #ifdef FLASH_PAGE_SIZE_COMMON
                 // calculate address only
 
-                Board::detail::flash::flashPage_t descriptor = {};
+                core::mcu::flash::flashPage_t descriptor = {};
 
                 auto address    = FLASH_PAGE_ADDRESS(pageIndex);
                 descriptor.size = FLASH_PAGE_SIZE_COMMON;

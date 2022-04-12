@@ -21,8 +21,8 @@ limitations under the License.
 
 #ifdef LEDS_SUPPORTED
 
-#include "core/src/general/Timing.h"
-#include "core/src/general/Helpers.h"
+#include "core/src/Timing.h"
+#include "core/src/util/Util.h"
 #include "util/conversion/Conversion.h"
 #include "util/configurable/Configurable.h"
 
@@ -178,12 +178,12 @@ void LEDs::updateAll(bool forceRefresh)
     {
     case blinkType_t::TIMER:
     {
-        if ((core::timing::currentRunTimeMs() - _lastLEDblinkUpdateTime) < LED_BLINK_TIMER_TYPE_CHECK_TIME)
+        if ((core::timing::ms() - _lastLEDblinkUpdateTime) < LED_BLINK_TIMER_TYPE_CHECK_TIME)
         {
             return;
         }
 
-        _lastLEDblinkUpdateTime = core::timing::currentRunTimeMs();
+        _lastLEDblinkUpdateTime = core::timing::ms();
     }
     break;
 
@@ -640,9 +640,9 @@ void LEDs::setColor(uint8_t ledID, color_t color, brightness_t brightness)
         uint8_t gLED = _hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::G);
         uint8_t bLED = _hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::B);
 
-        handleLED(rLED, rgbIndex_t::R, BIT_READ(static_cast<uint8_t>(color), static_cast<uint8_t>(rgbIndex_t::R)), true);
-        handleLED(gLED, rgbIndex_t::G, BIT_READ(static_cast<uint8_t>(color), static_cast<uint8_t>(rgbIndex_t::G)), true);
-        handleLED(bLED, rgbIndex_t::B, BIT_READ(static_cast<uint8_t>(color), static_cast<uint8_t>(rgbIndex_t::B)), true);
+        handleLED(rLED, rgbIndex_t::R, core::util::BIT_READ(static_cast<uint8_t>(color), static_cast<size_t>(rgbIndex_t::R)), true);
+        handleLED(gLED, rgbIndex_t::G, core::util::BIT_READ(static_cast<uint8_t>(color), static_cast<size_t>(rgbIndex_t::G)), true);
+        handleLED(bLED, rgbIndex_t::B, core::util::BIT_READ(static_cast<uint8_t>(color), static_cast<size_t>(rgbIndex_t::B)), true);
     }
     else
     {
@@ -701,12 +701,12 @@ void LEDs::resetBlinking()
 
 void LEDs::updateBit(uint8_t index, ledBit_t bit, bool state)
 {
-    BIT_WRITE(_ledState[index], static_cast<uint8_t>(bit), state);
+    core::util::BIT_WRITE(_ledState[index], static_cast<uint8_t>(bit), state);
 }
 
 bool LEDs::bit(uint8_t index, ledBit_t bit)
 {
-    return BIT_READ(_ledState[index], static_cast<uint8_t>(bit));
+    return core::util::BIT_READ(_ledState[index], static_cast<size_t>(bit));
 }
 
 LEDs::color_t LEDs::color(uint8_t ledID)
