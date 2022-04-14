@@ -24,11 +24,10 @@ limitations under the License.
 
 using namespace Protocol;
 
-/// Time in milliseconds after which USB connection state should be checked
-#define USB_CONN_CHECK_TIME 2000
-
 namespace
 {
+    /// Time in milliseconds after which USB connection state should be checked
+    constexpr uint32_t                  USB_CONN_CHECK_TIME = 2000;
     uint8_t                             uartReadBuffer[USB_OVER_SERIAL_BUFFER_SIZE];
     uint8_t                             cdcReadBuffer[USB_OVER_SERIAL_BUFFER_SIZE];
     Board::USBOverSerial::USBReadPacket readPacket(uartReadBuffer, USB_OVER_SERIAL_BUFFER_SIZE);

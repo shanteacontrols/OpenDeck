@@ -43,7 +43,7 @@ class Viewtech : public IO::Touchscreen::Model
     IO::Touchscreen::HWA& _hwa;
 
     // there are 7 levels of brighness - scale them to available range (0-64)
-    const uint8_t BRIGHTNESS_MAPPING[7] = {
+    static constexpr uint8_t BRIGHTNESS_MAPPING[7] = {
         6,
         16,
         32,

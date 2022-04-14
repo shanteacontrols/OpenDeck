@@ -29,13 +29,12 @@ limitations under the License.
 using namespace IO;
 using namespace Protocol;
 
-// u8x8 lib doesn't send packets larger than 32 bytes
-#define U8X8_BUFFER_SIZE 32
-
 namespace
 {
-    uint8_t u8x8Buffer[U8X8_BUFFER_SIZE];
-    size_t  u8x8Counter;
+    // u8x8 lib doesn't send packets larger than 32 bytes
+    constexpr size_t U8X8_BUFFER_SIZE = 32;
+    uint8_t          u8x8Buffer[U8X8_BUFFER_SIZE];
+    size_t           u8x8Counter;
 }    // namespace
 
 // hwa needs to be static since it is used in callback for C library

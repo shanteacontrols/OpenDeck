@@ -138,7 +138,7 @@ namespace IO
         uint8_t _buttonPressed[Collection::size() / 8 + 1]     = {};
         uint8_t _lastLatchingState[Collection::size() / 8 + 1] = {};
 
-        const MIDI::messageType_t INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(messageType_t::AMOUNT)] = {
+        static constexpr MIDI::messageType_t INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(messageType_t::AMOUNT)] = {
             MIDI::messageType_t::NOTE_ON,
             MIDI::messageType_t::PROGRAM_CHANGE,
             MIDI::messageType_t::CONTROL_CHANGE,

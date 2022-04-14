@@ -155,7 +155,7 @@ namespace IO
         /// Array holding remapped values of LCD rows.
         /// Used to increase readability.
         /// Matched with displayResolution_t enum.
-        const uint8_t ROW_MAP[static_cast<uint8_t>(displayResolution_t::AMOUNT)][LCD_HEIGHT_MAX] = {
+        static constexpr uint8_t ROW_MAP[static_cast<uint8_t>(displayResolution_t::AMOUNT)][LCD_HEIGHT_MAX] = {
             // 128x32
             {
                 0,

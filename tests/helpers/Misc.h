@@ -24,8 +24,8 @@ namespace test
 
         out = "";
 
-        const size_t BUFFER_SIZE = 256;
-        char         buffer[BUFFER_SIZE];
+        static constexpr size_t BUFFER_SIZE = 256;
+        char                    buffer[BUFFER_SIZE];
 
         while (!feof(fpipe))
         {

@@ -24,11 +24,10 @@ limitations under the License.
 #include "core/src/general/Atomic.h"
 #include <Target.h>
 
-#define NR_OF_RGB_LEDS (NR_OF_DIGITAL_OUTPUTS / 3)
-
 namespace
 {
-    uint8_t _pwmCounter;
+    constexpr size_t NR_OF_RGB_LEDS = (NR_OF_DIGITAL_OUTPUTS / 3);
+    uint8_t          _pwmCounter;
 
 #ifdef NATIVE_LED_OUTPUTS
     core::io::portWidth_t _portState[NR_OF_DIGITAL_OUTPUT_PORTS][static_cast<uint8_t>(Board::IO::ledBrightness_t::B100)];

@@ -27,10 +27,9 @@ limitations under the License.
 #include "core/src/general/RingBuffer.h"
 #include <Target.h>
 
-#define MAX_READING_COUNT (8 * sizeof(((Board::IO::dInReadings_t*)0)->readings))
-
 namespace
 {
+    constexpr size_t                  MAX_READING_COUNT = (8 * sizeof(((Board::IO::dInReadings_t*)0)->readings));
     volatile Board::IO::dInReadings_t _digitalInBuffer[NR_OF_DIGITAL_INPUTS];
 #ifdef NATIVE_BUTTON_INPUTS
     core::RingBuffer<core::io::portWidth_t, MAX_READING_COUNT> _portBuffer[NR_OF_DIGITAL_INPUT_PORTS];

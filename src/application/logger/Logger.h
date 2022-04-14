@@ -60,13 +60,13 @@ class Logger
     const lineEnding_t      LINE_ENDING;
     char                    _logBuffer[LOG_BUFFER_SIZE];
 
-    const char* _logLevelString[static_cast<uint8_t>(logLevel_t::AMOUNT)] = {
+    static constexpr const char* LOG_LEVEL_STRING[static_cast<uint8_t>(logLevel_t::AMOUNT)] = {
         "[INFO] ",
         "[WARNING] ",
         "[ERROR] ",
     };
 
-    const char* _lineEndingString[static_cast<uint8_t>(lineEnding_t::AMOUNT)] = {
+    static constexpr const char* LINE_ENDING_STRING[static_cast<uint8_t>(lineEnding_t::AMOUNT)] = {
         "",
         "\n",
         "\r",

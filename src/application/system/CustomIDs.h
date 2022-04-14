@@ -18,22 +18,22 @@ limitations under the License.
 
 #pragma once
 
-/// Custom requests for SysEx protocol.
+#include <inttypes.h>
 
-#define SYSEX_CR_FIRMWARE_VERSION              0x56
-#define SYSEX_CR_HARDWARE_UID                  0x42
-#define SYSEX_CR_FIRMWARE_VERSION_HARDWARE_UID 0x43
-#define SYSEX_CR_REBOOT_APP                    0x7F
-#define SYSEX_CR_REBOOT_BTLDR                  0x55
-#define SYSEX_CR_FACTORY_RESET                 0x44
-#define SYSEX_CR_MAX_COMPONENTS                0x4D
-#define SYSEX_CR_SUPPORTED_PRESETS             0x50
-#define SYSEX_CR_BOOTLOADER_SUPPORT            0x51
-#define SYSEX_CR_FULL_BACKUP                   0x1B
-#define SYSEX_CR_RESTORE_START                 0x1C
-#define SYSEX_CR_RESTORE_END                   0x1D
+/// Custom requests for SysEx protocol
 
-///
+constexpr inline uint8_t SYSEX_CR_FIRMWARE_VERSION              = 0x56;
+constexpr inline uint8_t SYSEX_CR_HARDWARE_UID                  = 0x42;
+constexpr inline uint8_t SYSEX_CR_FIRMWARE_VERSION_HARDWARE_UID = 0x43;
+constexpr inline uint8_t SYSEX_CR_REBOOT_APP                    = 0x7F;
+constexpr inline uint8_t SYSEX_CR_REBOOT_BTLDR                  = 0x55;
+constexpr inline uint8_t SYSEX_CR_FACTORY_RESET                 = 0x44;
+constexpr inline uint8_t SYSEX_CR_MAX_COMPONENTS                = 0x4D;
+constexpr inline uint8_t SYSEX_CR_SUPPORTED_PRESETS             = 0x50;
+constexpr inline uint8_t SYSEX_CR_BOOTLOADER_SUPPORT            = 0x51;
+constexpr inline uint8_t SYSEX_CR_FULL_BACKUP                   = 0x1B;
+constexpr inline uint8_t SYSEX_CR_RESTORE_START                 = 0x1C;
+constexpr inline uint8_t SYSEX_CR_RESTORE_END                   = 0x1D;
 
-/// Custom ID used when sending info about components to host.
-#define SYSEX_CM_COMPONENT_ID 0x49
+/// Custom ID used when sending info about components to host
+constexpr inline uint8_t SYSEX_CM_COMPONENT_ID = 0x49;

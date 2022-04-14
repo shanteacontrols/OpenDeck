@@ -24,25 +24,25 @@ limitations under the License.
 #include "board/Internal.h"
 #include <Target.h>
 
+namespace
+{
 #ifndef NUMBER_OF_MUX
-#define ANALOG_IN_BUFFER_SIZE NR_OF_ANALOG_INPUTS
+    constexpr size_t ANALOG_IN_BUFFER_SIZE = NR_OF_ANALOG_INPUTS;
 #else
-#define ANALOG_IN_BUFFER_SIZE (NUMBER_OF_MUX_INPUTS * NUMBER_OF_MUX)
+    constexpr size_t   ANALOG_IN_BUFFER_SIZE = (NUMBER_OF_MUX_INPUTS * NUMBER_OF_MUX);
 #endif
 
-/// Used to indicate that the new reading has been made.
-#define NEW_READING_FLAG 0x8000
+    /// Used to indicate that the new reading has been made.
+    constexpr uint16_t NEW_READING_FLAG = 0x8000;
 
 #ifdef ADC_10_BIT
-#define ADC_MAX_READING 1023
+    constexpr uint16_t ADC_MAX_READING = 1023;
 #elif defined(ADC_12_BIT)
-#define ADC_MAX_READING 4095
+    constexpr uint16_t ADC_MAX_READING       = 4095;
 #else
 #error Unsupported ADC resolution
 #endif
 
-namespace
-{
     uint8_t           _analogIndex;
     volatile uint16_t _analogBuffer[ANALOG_IN_BUFFER_SIZE];
 

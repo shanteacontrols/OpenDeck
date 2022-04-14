@@ -26,11 +26,6 @@ limitations under the License.
 #include "io/analog/Analog.h"
 #include "core/src/general/Helpers.h"
 
-#ifdef ANALOG_USE_MEDIAN_FILTER
-#define MEDIAN_SAMPLE_COUNT 3
-#define MEDIAN_MIDDLE_VALUE 1
-#endif
-
 namespace IO
 {
     class EMA
@@ -295,6 +290,8 @@ namespace IO
         adcConfig_t&              _adcConfig;
         const uint16_t            STEP_DIFF_7BIT;
         static constexpr uint32_t FAST_FILTER_ENABLE_AFTER_MS = 50;
+        static constexpr size_t   MEDIAN_SAMPLE_COUNT         = 3;
+        static constexpr size_t   MEDIAN_MIDDLE_VALUE         = 1;
 
 // some filtering is needed for adc only
 #ifdef ANALOG_USE_EMA_FILTER

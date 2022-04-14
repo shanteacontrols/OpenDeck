@@ -56,7 +56,7 @@ class Nextion : public IO::Touchscreen::Model
     char   _commandBuffer[IO::Touchscreen::Model::BUFFER_SIZE];
     size_t _endCounter = 0;
 
-    const responseDescriptor_t RESPONSES[static_cast<size_t>(responseID_t::AMOUNT)] = {
+    static constexpr responseDescriptor_t RESPONSES[static_cast<size_t>(responseID_t::AMOUNT)] = {
         // button
         {
             .size       = 6,
@@ -65,7 +65,7 @@ class Nextion : public IO::Touchscreen::Model
     };
 
     // there are 7 levels of brighness - scale them to available range (0-100)
-    const uint8_t BRIGHTNESS_MAPPING[7] = {
+    static constexpr uint8_t BRIGHTNESS_MAPPING[7] = {
         10,
         25,
         50,

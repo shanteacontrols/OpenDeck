@@ -26,11 +26,11 @@ limitations under the License.
 #include "core/src/general/Timing.h"
 #include <MCU.h>
 
-/// Location at which reboot type is written in EEPROM when initiating software reset.
-#define REBOOT_VALUE_EEPROM_LOCATION EEPROM_END
-
 namespace Board::bootloader
 {
+    /// Location at which reboot type is written in EEPROM when initiating software reset.
+    constexpr uint32_t REBOOT_VALUE_EEPROM_LOCATION = EEPROM_END;
+
     uint8_t magicBootValue()
     {
         return eeprom_read_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION);

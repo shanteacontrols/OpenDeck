@@ -188,7 +188,7 @@ namespace IO
         const uint8_t* _blinkResetArrayPtr = nullptr;
 
         /// Array holding MIDI clock pulses after which LED state is toggled for all possible blink rates.
-        const uint8_t BLINK_RESET_MIDI_CLOCK[TOTAL_BLINK_SPEEDS] = {
+        static constexpr uint8_t BLINK_RESET_MIDI_CLOCK[TOTAL_BLINK_SPEEDS] = {
             48,
             24,
             12,
@@ -196,7 +196,7 @@ namespace IO
         };
 
         /// Array holding time indexes (multipled by 50) after which LED state is toggled for all possible blink rates.
-        const uint8_t BLINK_RESET_TIMER[TOTAL_BLINK_SPEEDS] = {
+        static constexpr uint8_t BLINK_RESET_TIMER[TOTAL_BLINK_SPEEDS] = {
             20,
             10,
             5,
@@ -212,7 +212,7 @@ namespace IO
         /// Holds last time in miliseconds when LED blinking has been updated.
         uint32_t _lastLEDblinkUpdateTime = 0;
 
-        const MIDI::messageType_t CONTROL_TYPE_TO_MIDI_MESSAGE[static_cast<uint8_t>(controlType_t::AMOUNT)] = {
+        static constexpr MIDI::messageType_t CONTROL_TYPE_TO_MIDI_MESSAGE[static_cast<uint8_t>(controlType_t::AMOUNT)] = {
             MIDI::messageType_t::NOTE_ON,           // midiInNoteSingleVal,
             MIDI::messageType_t::NOTE_ON,           // localNoteSingleVal,
             MIDI::messageType_t::CONTROL_CHANGE,    // midiInCCSingleVal,

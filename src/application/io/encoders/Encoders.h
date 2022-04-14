@@ -144,7 +144,7 @@ namespace IO
         int8_t _encoderPulses[Collection::size()] = {};
 
         /// Lookup table used to convert encoder reading to pulses.
-        const int8_t ENCODER_LOOK_UP_TABLE[16] = {
+        static constexpr int8_t ENCODER_LOOK_UP_TABLE[16] = {
             0,     // 0000
             1,     // 0001
             -1,    // 0010
@@ -167,7 +167,7 @@ namespace IO
         /// Every time fast movement is detected, amount of steps is increased by this value.
         /// Used only in CC/Pitch bend/NRPN modes. In Pitch bend/NRPN modes, this value is multiplied
         /// by 4 due to a larger value range.
-        const uint8_t ENCODER_SPEED_CHANGE[static_cast<uint8_t>(IO::Encoders::acceleration_t::AMOUNT)] = {
+        static constexpr uint8_t ENCODER_SPEED_CHANGE[static_cast<uint8_t>(IO::Encoders::acceleration_t::AMOUNT)] = {
             0,    // acceleration disabled
             1,
             2,
@@ -175,7 +175,7 @@ namespace IO
         };
 
         /// Maximum value by which value is increased during acceleration.
-        const uint8_t ENCODER_MAX_ACC_SPEED[static_cast<uint8_t>(IO::Encoders::acceleration_t::AMOUNT)] = {
+        static constexpr uint8_t ENCODER_MAX_ACC_SPEED[static_cast<uint8_t>(IO::Encoders::acceleration_t::AMOUNT)] = {
             0,    // acceleration disabled
             5,
             10,
@@ -184,7 +184,7 @@ namespace IO
 
         /// Array used for easier access to current encoder value in 7Fh01h and 3Fh41h modes.
         /// Matched with type_t and position_t
-        const uint8_t ENC_VALUE[2][3] = {
+        static constexpr uint8_t ENC_VALUE[2][3] = {
             // controlChange7Fh01h
             {
                 0,      // stopped
@@ -200,7 +200,7 @@ namespace IO
             }
         };
 
-        const MIDI::messageType_t INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(type_t::AMOUNT)] = {
+        static constexpr MIDI::messageType_t INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(type_t::AMOUNT)] = {
             MIDI::messageType_t::CONTROL_CHANGE,
             MIDI::messageType_t::CONTROL_CHANGE,
             MIDI::messageType_t::PROGRAM_CHANGE,

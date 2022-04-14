@@ -25,7 +25,10 @@ limitations under the License.
 #include <cstddef>
 #include "util/conversion/Conversion.h"
 
-#define BYTES_PER_FW_MESSAGE 32
+namespace
+{
+    constexpr size_t BYTES_PER_FW_MESSAGE = 32;
+}
 
 void appendCommand(uint64_t command, size_t bytes, std::vector<uint8_t>& output)
 {

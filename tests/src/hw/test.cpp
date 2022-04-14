@@ -870,17 +870,17 @@ TEST_F(HWTest, DMXTest)
 
     auto verify = [](bool state)
     {
-        std::string    cmd           = "ola_dev_info | grep -q " + std::string(BOARD_STRING);
-        const uint32_t waitTimeMs    = 1000;
-        const uint32_t stopWaitAfter = 22000;    // ola searches after 20sec, 2 more just in case
-        uint32_t       totalWaitTime = 0;
+        std::string    cmd                = "ola_dev_info | grep -q " + std::string(BOARD_STRING);
+        const uint32_t WAIT_TIME_MS       = 1000;
+        const uint32_t STOP_WAIT_AFTER_MS = 22000;    // ola searches after 20sec, 2 more just in case
+        uint32_t       totalWaitTime      = 0;
 
         while (test::wsystem(cmd))
         {
-            test::sleepMs(waitTimeMs);
-            totalWaitTime += waitTimeMs;
+            test::sleepMs(WAIT_TIME_MS);
+            totalWaitTime += WAIT_TIME_MS;
 
-            if (totalWaitTime == stopWaitAfter)
+            if (totalWaitTime == STOP_WAIT_AFTER_MS)
             {
                 break;
             }
@@ -888,7 +888,7 @@ TEST_F(HWTest, DMXTest)
 
         if (!state)
         {
-            if (totalWaitTime == stopWaitAfter)
+            if (totalWaitTime == STOP_WAIT_AFTER_MS)
             {
                 LOG(INFO) << "OLA didn't detect the device while DMX was disabled";
                 return true;
@@ -901,7 +901,7 @@ TEST_F(HWTest, DMXTest)
         }
         else
         {
-            if (totalWaitTime == stopWaitAfter)
+            if (totalWaitTime == STOP_WAIT_AFTER_MS)
             {
                 LOG(ERROR) << "OLA didn't detect the device while DMX was enabled";
                 return false;

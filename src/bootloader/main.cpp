@@ -22,11 +22,16 @@ limitations under the License.
 #include "FwSelector/FwSelector.h"
 #include "core/src/general/Timing.h"
 
-/// Value sent from non-USB target to USB link before loading application
-#define USB_LINK_MAGIC_VAL_APP 0x55
+namespace
+{
+#ifdef USB_OVER_SERIAL
+    /// Value sent from non-USB target to USB link before loading application
+    constexpr uint8_t USB_LINK_MAGIC_VAL_APP = 0x55;
 
-/// Value sent from non-USB target to USB link after the firmware update is done
-#define TARGET_FW_UPDATE_DONE 0xFD
+    /// Value sent from non-USB target to USB link after the firmware update is done
+    constexpr uint8_t TARGET_FW_UPDATE_DONE = 0xFD;
+#endif
+}    // namespace
 
 class BTLDRWriter : public Updater::BTLDRWriter
 {

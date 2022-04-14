@@ -346,9 +346,9 @@ class MIDIHelper
             return "";
         }
 
-        const uint32_t waitTimeMs    = 10;
-        const uint32_t stopWaitAfter = 2000;
-        uint32_t       totalWaitTime = 0;
+        static constexpr uint32_t WAIT_TIME_MS       = 10;
+        static constexpr uint32_t STOP_WAIT_AFTER_MS = 2000;
+        uint32_t                  totalWaitTime      = 0;
 
         if (expectResponse)
         {
@@ -362,10 +362,10 @@ class MIDIHelper
 
             while (test::wsystem(cmd, cmdResponse))
             {
-                test::sleepMs(waitTimeMs);
-                totalWaitTime += waitTimeMs;
+                test::sleepMs(WAIT_TIME_MS);
+                totalWaitTime += WAIT_TIME_MS;
 
-                if (totalWaitTime == stopWaitAfter)
+                if (totalWaitTime == STOP_WAIT_AFTER_MS)
                 {
                     LOG(ERROR) << "Failed to find valid response to request. Outputting response:";
                     test::wsystem("cat " + lastResponseFileLocation, cmdResponse);
@@ -388,10 +388,10 @@ class MIDIHelper
         cmd         = "[ -s " + lastResponseFileLocation + " ]";
         cmdResponse = "";
 
-        while (totalWaitTime < stopWaitAfter)
+        while (totalWaitTime < STOP_WAIT_AFTER_MS)
         {
-            test::sleepMs(waitTimeMs);
-            totalWaitTime += waitTimeMs;
+            test::sleepMs(WAIT_TIME_MS);
+            totalWaitTime += WAIT_TIME_MS;
 
             if (test::wsystem(cmd) == 0)
             {

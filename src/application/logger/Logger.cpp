@@ -29,7 +29,7 @@ bool Logger::write(logLevel_t level, const char* message, ...)
 
     if (level != logLevel_t::AMOUNT)
     {
-        if (!_writer.write(_logLevelString[static_cast<uint8_t>(level)]))
+        if (!_writer.write(LOG_LEVEL_STRING[static_cast<uint8_t>(level)]))
         {
             return false;
         }
@@ -42,7 +42,7 @@ bool Logger::write(logLevel_t level, const char* message, ...)
 
     if (LINE_ENDING != lineEnding_t::AMOUNT)
     {
-        if (!_writer.write(_lineEndingString[static_cast<uint8_t>(LINE_ENDING)]))
+        if (!_writer.write(LINE_ENDING_STRING[static_cast<uint8_t>(LINE_ENDING)]))
         {
             return false;
         }

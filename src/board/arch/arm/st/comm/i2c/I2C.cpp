@@ -23,12 +23,11 @@ limitations under the License.
 #include "core/src/general/Timing.h"
 #include <MCU.h>
 
-#define I2C_TRANSFER_TIMEOUT_MS 10
-#define I2C_SCAN_RETRIES        3
-
 namespace
 {
-    I2C_HandleTypeDef _i2cHandler[MAX_I2C_INTERFACES];
+    constexpr uint32_t I2C_TRANSFER_TIMEOUT_MS = 10;
+    constexpr size_t   I2C_SCAN_RETRIES        = 3;
+    I2C_HandleTypeDef  _i2cHandler[MAX_I2C_INTERFACES];
 }    // namespace
 
 namespace Board::I2C

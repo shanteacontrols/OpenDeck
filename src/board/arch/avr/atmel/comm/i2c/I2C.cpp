@@ -24,13 +24,12 @@ limitations under the License.
 #include "core/src/general/I2C.h"
 #include <MCU.h>
 
-#define I2C_TRANSFER_TIMEOUT_MS 10
-#define TWCR_CLR_MASK           0x0F
-
 // note: on AVR, only 1 I2C channel is supported with the index 0
 
 namespace
 {
+    constexpr uint32_t                            I2C_TRANSFER_TIMEOUT_MS = 10;
+    constexpr uint8_t                             TWCR_CLR_MASK           = 0x0F;
     uint32_t                                      _currentTime;
     core::RingBuffer<uint8_t, I2C_TX_BUFFER_SIZE> _txBuffer;
     uint8_t                                       _address;

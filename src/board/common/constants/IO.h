@@ -18,8 +18,10 @@ limitations under the License.
 
 #pragma once
 
+#include <inttypes.h>
+
 /// Time in milliseconds during which MIDI event indicators on board are on when MIDI event happens.
-#define MIDI_INDICATOR_TIMEOUT 50
+constexpr inline uint32_t MIDI_INDICATOR_TIMEOUT = 50;
 
 /// Time in milliseconds for single startup animation cycle on built-in LED indicators.
-#define LED_INDICATOR_STARTUP_DELAY 150
+constexpr inline uint32_t MIDI_INDICATOR_STARTUP_DELAY = 150;

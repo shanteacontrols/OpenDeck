@@ -132,7 +132,7 @@ namespace System
         Util::ComponentInfo _cInfo;
         Layout              _layout;
 
-        const SysExConf::manufacturerID_t SYS_EX_MID = {
+        static constexpr SysExConf::manufacturerID_t SYS_EX_MID = {
             SYSEX_MANUFACTURER_ID_0,
             SYSEX_MANUFACTURER_ID_1,
             SYSEX_MANUFACTURER_ID_2
