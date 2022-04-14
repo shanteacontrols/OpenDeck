@@ -166,14 +166,6 @@ namespace Board::detail::UART::ll
         break;
 #endif
 
-#ifdef UCSRB_2
-        case 2:
-        {
-            UCSRB_2 |= (1 << UDRIE_2);
-        }
-        break;
-#endif
-
         default:
             break;
         }
@@ -206,17 +198,6 @@ namespace Board::detail::UART::ll
                 UCSRB_1 = 0;
                 UCSRC_1 = 0;
                 UBRR_1  = 0;
-            }
-            break;
-#endif
-
-#ifdef UCSRB_2
-            case 2:
-            {
-                UCSRA_2 = 0;
-                UCSRB_2 = 0;
-                UCSRC_2 = 0;
-                UBRR_2  = 0;
             }
             break;
 #endif
@@ -267,15 +248,6 @@ namespace Board::detail::UART::ll
             break;
 #endif
 
-#ifdef UCSRA_2
-            case 2:
-            {
-                UCSRA_2 = (1 << U2X_2);    // double speed uart
-                UBRR_2  = baudCount - 1;
-            }
-            break;
-#endif
-
             default:
                 break;
             }
@@ -296,15 +268,6 @@ namespace Board::detail::UART::ll
             {
                 UCSRA_1 = 0;
                 UBRR_1  = (baudCount >> 1) - 1;
-            }
-            break;
-#endif
-
-#ifdef UCSRA_2
-            case 2:
-            {
-                UCSRA_2 = 0;
-                UBRR_2  = (baudCount >> 1) - 1;
             }
             break;
 #endif
@@ -393,41 +356,6 @@ namespace Board::detail::UART::ll
         break;
 #endif
 
-#ifdef UCSRC_2
-        case 2:
-        {
-            UCSRC_2 = (1 << UCSZ1_2) | (1 << UCSZ0_2);
-
-            if (config.type == Board::UART::type_t::RX_TX)
-            {
-                UCSRB_2 = (1 << RXEN_2) | (1 << TXEN_2) | (1 << RXCIE_2) | (1 << TXCIE_2);
-            }
-            else if (config.type == Board::UART::type_t::RX)
-            {
-                UCSRB_2 = (1 << RXEN_2) | (1 << RXCIE_2);
-            }
-            else if (config.type == Board::UART::type_t::TX)
-            {
-                UCSRB_2 = (1 << TXEN_2) | (1 << TXCIE_2);
-            }
-
-            if (config.stopBits == Board::UART::stopBits_t::TWO)
-            {
-                UCSRC_2 |= (1 << USBS_2);
-            }
-
-            if (config.parity == Board::UART::parity_t::EVEN)
-            {
-                UCSRC_2 |= (1 << UPM1_2);
-            }
-            else if (config.parity == Board::UART::parity_t::ODD)
-            {
-                UCSRC_2 |= (1 << UPM0_2) | (1 << UPM1_2);
-            }
-        }
-        break;
-#endif
-
         default:
             break;
         }
@@ -462,16 +390,6 @@ ISR(USART_RX_vect_1)
 };
 #endif
 
-#ifdef UDR_2
-ISR(USART_RX_vect_2)
-{
-    uint8_t data = UDR_2;
-    Board::detail::UART::storeIncomingData(2, data);
-}
-#endif
-
-///
-
 /// ISR used to write outgoing data in buffer to UART.
 
 ISR(USART_UDRE_vect_0)
@@ -486,15 +404,6 @@ ISR(USART_UDRE_vect_1)
 };
 #endif
 
-#ifdef USART_UDRE_vect_2
-ISR(USART_UDRE_vect_2)
-{
-    UDRE_ISR(2);
-}
-#endif
-
-///
-
 /// ISR fired once the UART transmission is complete.
 
 ISR(USART_TX_vect_0)
@@ -508,14 +417,5 @@ ISR(USART_TX_vect_1)
     TXC_ISR(1);
 };
 #endif
-
-#ifdef USART_TX_vect_2
-ISR(USART_TX_vect_2)
-{
-    TXC_ISR(2);
-}
-#endif
-
-///
 
 #endif
