@@ -49,7 +49,7 @@ CF_FAIL_ON_DIFF := 0
 CL_FAIL_ON_DIFF := 0
 
 #passed to both c and c++ compiler
-CPPFLAGS := \
+CPPFLAGS += \
 -Wall \
 -fdata-sections \
 -ffunction-sections \
@@ -59,7 +59,7 @@ CPPFLAGS := \
 -Wno-unused-function
 
 #c++ compiler only
-CXXFLAGS := \
+CXXFLAGS += \
 -std=c++17 \
 -fno-rtti \
 -fno-exceptions \
@@ -67,18 +67,18 @@ CXXFLAGS := \
 -fno-threadsafe-statics
 
 #c compiler only
-CFLAGS := \
+CFLAGS += \
 -std=c11 \
 -Wno-parentheses-equality \
 -Wno-unused-value \
 -Wno-implicit-function-declaration
 
 #assembler only
-ASFLAGS := \
+ASFLAGS += \
 -x assembler-with-cpp
 
 #common linker flags
-LDFLAGS := \
+LDFLAGS += \
 -Wl,--gc-sections \
 -Wl,-Map="$(OUTPUT).map",--cref
 
@@ -103,10 +103,6 @@ ifeq (,$(findstring gen,$(TYPE)))
         -funsigned-bitfields \
         -fno-jump-tables
 
-        ifeq ($(MCU), atmega16u2)
-            CPPFLAGS += -flto
-        endif
-
         LDFLAGS += \
         -Wl,--section-start=.text=$(FLASH_START_ADDR) \
         -mrelax \
@@ -116,10 +112,6 @@ ifeq (,$(findstring gen,$(TYPE)))
             CPPFLAGS += -g -gdwarf-2
             LDFLAGS  += -g -gdwarf-2
             OPT      := -Og
-        endif
-
-        ifeq ($(MCU), atmega16u2)
-            LDFLAGS += -flto
         endif
     else ifeq ($(ARCH),arm)
         CC         := $(CC_ARM)
