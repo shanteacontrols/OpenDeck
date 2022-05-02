@@ -27,7 +27,6 @@ app_start_page=$($yaml_parser "$yaml_file" flash.app-start-page)
 boot_start_page=$($yaml_parser "$yaml_file" flash.boot-start-page)
 
 {
-    printf "%s\n" 'MCU_DIR := board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)/$(MCU)'
     printf "%s\n" "DEFINES += FLASH_PAGE_APP_START=$app_start_page"
 } >> "$out_makefile"
 
