@@ -26,6 +26,21 @@ mkdir -p "$gen_dir"
 app_start_page=$($yaml_parser "$yaml_file" flash.app-start-page)
 boot_start_page=$($yaml_parser "$yaml_file" flash.boot-start-page)
 
+if [[ $app_start_page == "null" ]]
+then
+    app_start_page=0
+fi
+
+if [[ $boot_start_page != "null" ]]
+then
+    {
+        printf "%s\n" "DEFINES += BOOTLOADER_SUPPORTED"
+    } >> "$out_makefile"
+else
+    # no bootloader, start at first page
+    app_start_page=0
+fi
+
 {
     printf "%s\n" "DEFINES += FLASH_PAGE_APP_START=$app_start_page"
 } >> "$out_makefile"
@@ -33,21 +48,34 @@ boot_start_page=$($yaml_parser "$yaml_file" flash.boot-start-page)
 if [[ $($yaml_parser "$base_yaml_file" flash.pages) != "null" ]]
 then
     app_start_address=$($yaml_parser "$base_yaml_file" flash.pages.["$app_start_page"].address)
-    boot_start_address=$($yaml_parser "$base_yaml_file" flash.pages.["$boot_start_page"].address)
+
+    if [[ $boot_start_page != "null" ]]
+    then
+        boot_start_address=$($yaml_parser "$base_yaml_file" flash.pages.["$boot_start_page"].address)
+    fi
 else
     # all flash pages have common size
     app_start_address=$($yaml_parser "$base_yaml_file" flash.page-size)
-    boot_start_address=$($yaml_parser "$base_yaml_file" flash.page-size)
-
     ((app_start_address*=app_start_page))
-    ((boot_start_address*=boot_start_page))
+
+    if [[ $boot_start_page != "null" ]]
+    then
+        boot_start_address=$($yaml_parser "$base_yaml_file" flash.page-size)
+        ((boot_start_address*=boot_start_page))
+    fi
 fi
 
 {
     printf "%s%x\n" "APP_START_ADDR := 0x" "$app_start_address"
-    printf "%s%x\n" "BOOT_START_ADDR := 0x" "$boot_start_address"
     printf "%s\n" 'FW_METADATA_LOCATION := $(shell printf "0x%x" $$(( $(APP_START_ADDR) + $(FW_METADATA_OFFSET) )) )'
 } >> "$out_makefile"
+
+if [[ $boot_start_page != "null" ]]
+then
+    {
+        printf "%s%x\n" "BOOT_START_ADDR := 0x" "$boot_start_address"
+    } >> "$out_makefile"
+fi
 
 if [[ $($yaml_parser "$yaml_file" flash.emueeprom) != "null" ]]
 then
