@@ -299,9 +299,7 @@ endif
 format:
 	@echo Checking code formatting...
 	@$(FIND) . -regex '.*\.\(cpp\|hpp\|h\|cc\|cxx\|c\)' \
-	-not -path "**/gen/**/*" \
-	-not -path "**/CMSIS/*" \
-	-not -name "*hal_conf*" \
+	-not -path "**/deps/**/*" \
 	-exec $(CLANG_FORMAT) -style=file -i {} +
 ifeq ($(CF_FAIL_ON_DIFF), 1)
 	git diff
