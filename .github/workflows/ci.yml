@@ -27,33 +27,6 @@ jobs:
           cd tests/
           ../scripts/build_targets.sh
           make exec
-  build_and_test_macos:
-    name: Build [macOS]
-    runs-on: macos-11
-    steps:
-      - name: Install required packages
-        run: |
-          cd
-          brew install bash srecord git git-lfs dasel gdb binutils findutils coreutils unzip wget dfu-util imagemagick ccache || true
-          wget -q --show-progress --progress=bar:force:noscroll https://downloads.arduino.cc/arduino-1.8.19-macosx.zip -O arduino.zip
-          unzip -q arduino.zip
-          rm arduino.zip
-          mv Arduino.app arduino-1.8.19
-          wget -q --show-progress --progress=bar:force:noscroll https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/10.3-2021.10/gcc-arm-none-eabi-10.3-2021.10-mac.tar.bz2
-          tar -xf gcc-arm-none-eabi-10.3-2021.10-mac.tar.bz2
-          rm gcc-arm-none-eabi-10.3-2021.10-mac.tar.bz2
-      - name: Pull the repository and submodules
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-          submodules: recursive
-      - name: Build targets
-        run: |
-          PATH="/usr/local/opt/binutils/bin:/Users/runner/arduino-1.8.19/Contents/Java/hardware/tools/avr/bin:/Users/runner/gcc-arm-none-eabi-10.3-2021.10/bin:$PATH"
-          export MAKEFLAGS=-j$(nproc)
-          git fetch --tags
-          cd src/
-          ../scripts/build_targets.sh
   hw-tests:
     name: Run tests on physical boards
     runs-on: self-hosted
