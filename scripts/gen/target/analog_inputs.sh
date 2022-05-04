@@ -71,6 +71,12 @@ then
             port=$($yaml_parser "$yaml_file" analog.pins.s"$i".port)
             index=$($yaml_parser "$yaml_file" analog.pins.s"$i".index)
 
+            if [[ ($port == "null") || ($index == "null") ]]
+            then
+                echo "ERROR: Pin s${i} for multiplexer undefined"
+                exit 1
+            fi
+
             {
                 printf "%s\n" "#define MUX_PORT_S${i} CORE_MCU_IO_PIN_PORT_DEF(${port})"
                 printf "%s\n" "#define MUX_PIN_S${i} CORE_MCU_IO_PIN_INDEX_DEF(${index})"
@@ -83,6 +89,12 @@ then
         do
             port=$($yaml_parser "$yaml_file" analog.pins.z"$i".port)
             index=$($yaml_parser "$yaml_file" analog.pins.z"$i".index)
+
+            if [[ ($port == "null") || ($index == "null") ]]
+            then
+                echo "ERROR: Pin z${i} for multiplexer undefined"
+                exit 1
+            fi
 
             {
                 printf "%s\n" "#define MUX_PORT_INPUT_${i} CORE_MCU_IO_PIN_PORT_DEF(${port})"
@@ -119,6 +131,12 @@ then
             port=$($yaml_parser "$yaml_file" analog.pins.s"$i".port)
             index=$($yaml_parser "$yaml_file" analog.pins.s"$i".index)
 
+            if [[ ($port == "null") || ($index == "null") ]]
+            then
+                echo "ERROR: Pin s${i} for multiplexer undefined"
+                exit 1
+            fi
+
             {
                 printf "%s\n" "#define MUX_PORT_S${i} CORE_MCU_IO_PIN_PORT_DEF(${port})"
                 printf "%s\n" "#define MUX_PIN_S${i} CORE_MCU_IO_PIN_INDEX_DEF(${index})"
@@ -131,6 +149,12 @@ then
         do
             port=$($yaml_parser "$yaml_file" analog.pins.z"$i".port)
             index=$($yaml_parser "$yaml_file" analog.pins.z"$i".index)
+
+            if [[ ($port == "null") || ($index == "null") ]]
+            then
+                echo "ERROR: Pin z${i} for multiplexer undefined"
+                exit 1
+            fi
 
             {
                 printf "%s\n" "#define MUX_PORT_INPUT_${i} CORE_MCU_IO_PIN_PORT_DEF(${port})"
