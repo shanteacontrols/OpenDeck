@@ -2,6 +2,14 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "[Tests] Build",
+            "command": "cd ./tests && make TARGET=${input:target} TESTS=${input:test} && cp $(../scripts/test_dir_get.sh ${input:target} ${input:test})/${input:test}.out build/test.out",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
             "label": "[Debug] adafruit_ib_nrf52840",
             "command": "cd ./src && make TARGET=adafruit_ib_nrf52840 DEBUG=1",
             "type": "shell",
