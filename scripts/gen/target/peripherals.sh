@@ -5,11 +5,11 @@ then
     printf "%s\n" "DEFINES += USB_SUPPORTED" >> "$out_makefile"
 
     {
-        printf "%s\n" "#define USB_PRODUCT_BASE_NAME \"OpenDeck | $board_name\""
+        printf "%s\n" "#define USB_PRODUCT_BASE_NAME \"$project | $board_name\""
         printf "%s\n" "#if defined(FW_APP)"
-        printf "%s\n" "#define USB_PRODUCT CORE_MCU_USB_STRING(\"OpenDeck | $board_name\")"
+        printf "%s\n" "#define USB_PRODUCT CORE_MCU_USB_STRING(\"$project | $board_name\")"
         printf "%s\n" "#elif defined(FW_BOOT)"
-        printf "%s\n" "#define USB_PRODUCT CORE_MCU_USB_STRING(\"OpenDeck DFU | $board_name\")"
+        printf "%s\n" "#define USB_PRODUCT CORE_MCU_USB_STRING(\"$project DFU | $board_name\")"
         printf "%s\n" "#endif"
     } >> "$out_header_usb"
 fi

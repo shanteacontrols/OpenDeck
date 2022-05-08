@@ -4,7 +4,7 @@ mcu=$($yaml_parser "$yaml_file" mcu)
 target_name=$(basename "$yaml_file" .yml)
 
 # MCU processing first
-mcu_gen_dir=$(dirname "$2")/../mcu/$mcu
+mcu_gen_dir=$(dirname "$gen_dir")/../mcu/$mcu
 mcu_yaml_file=$(dirname "$yaml_file")/../mcu/$mcu.yml
 hw_test_yaml_file=$(dirname "$yaml_file")/../hw-test/$target_name.yml
 
@@ -34,7 +34,7 @@ fi
 if [[ -f $hw_test_yaml_file ]]
 then
     # hw config files go into the same dir as target ones
-    if ! "$script_dir"/gen_hwconfig.sh "$hw_test_yaml_file" "$gen_dir"
+    if ! "$script_dir"/gen_hwconfig.sh "$project" "$hw_test_yaml_file" "$gen_dir"
     then
         exit 1
     else

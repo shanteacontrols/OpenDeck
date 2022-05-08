@@ -1,5 +1,6 @@
 include Toolchain.mk
 
+PROJECT              := OpenDeck
 BUILD_DIR_BASE       := ./build
 TARGET               := discovery
 DEF_FILE_TARGET      := ../config/target/$(TARGET).yml
@@ -254,7 +255,7 @@ pre-build::
 post-build::
 
 $(TARGET_GEN_HEADER): $(DEF_FILE_TARGET)
-	@$(SCRIPTS_DIR)/gen/gen_target.sh $(DEF_FILE_TARGET) $(BOARD_GEN_DIR_TARGET)
+	@$(SCRIPTS_DIR)/gen/gen_target.sh $(PROJECT) $(DEF_FILE_TARGET) $(BOARD_GEN_DIR_TARGET)
 
 $(TSCREEN_GEN_SOURCE): $(DEF_FILE_TSCREEN)
 	@$(SCRIPTS_DIR)/gen/gen_touchscreen.sh $< $@

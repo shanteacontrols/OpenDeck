@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
-yaml_file=$1
-gen_dir=$2
+project=$1
+yaml_file=$2
+gen_dir=$3
 yaml_parser="dasel -n -p yaml --plain -f"
 out_header="$gen_dir"/Target.h
 out_makefile="$gen_dir"/Makefile

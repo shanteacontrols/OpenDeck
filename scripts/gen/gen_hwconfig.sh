@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-yaml_file=$1
-gen_dir=$2
+project=$1
+yaml_file=$2
+gen_dir=$3
 yaml_parser="dasel -n -p yaml --plain -f"
 target_name=$(basename "$yaml_file" .yml)
 out_header="$gen_dir"/HWTestDefines.h
@@ -13,8 +14,8 @@ echo "Generating HW test config..."
 
 {
     printf "%s\n\n" "#pragma once"
-    printf "%s\n" "std::string OPENDECK_MIDI_DEVICE_NAME=\"OpenDeck | $target_name\";"
-    printf "%s\n" "std::string OPENDECK_DFU_MIDI_DEVICE_NAME=\"OpenDeck DFU | $target_name\";"
+    printf "%s\n" "std::string OPENDECK_MIDI_DEVICE_NAME=\"$project | $target_name\";"
+    printf "%s\n" "std::string OPENDECK_DFU_MIDI_DEVICE_NAME=\"$project DFU | $target_name\";"
 } >> "$out_header"
 
 if [[ $($yaml_parser "$yaml_file" flash) != "null" ]]
