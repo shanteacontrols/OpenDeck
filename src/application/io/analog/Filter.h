@@ -75,14 +75,14 @@ namespace IO
 
             const bool FAST_FILTER    = (core::timing::ms() - _lastStableMovementTime[index]) < FAST_FILTER_ENABLE_AFTER_MS;
             const bool DIRECTION      = descriptor.value >= _lastStableValue[index];
-            const auto OLD_MID_IVALUE = core::util::MAP_RANGE(static_cast<uint32_t>(_lastStableValue[index]),
+            const auto OLD_MIDI_VALUE = core::util::MAP_RANGE(static_cast<uint32_t>(_lastStableValue[index]),
                                                               static_cast<uint32_t>(ADC_MIN_VALUE),
                                                               static_cast<uint32_t>(ADC_MAX_VALUE),
                                                               static_cast<uint32_t>(0),
                                                               static_cast<uint32_t>(descriptor.maxValue));
             int16_t    stepDiff       = 1;
 
-            if (((DIRECTION != lastStableDirection(index)) || !FAST_FILTER) && ((OLD_MID_IVALUE != 0) && (OLD_MID_IVALUE != descriptor.maxValue)))
+            if (((DIRECTION != lastStableDirection(index)) || !FAST_FILTER) && ((OLD_MIDI_VALUE != 0) && (OLD_MIDI_VALUE != descriptor.maxValue)))
             {
                 stepDiff = STEP_DIFF_7BIT * 2;
             }
@@ -122,7 +122,7 @@ namespace IO
                                                           static_cast<uint32_t>(0),
                                                           static_cast<uint32_t>(descriptor.maxValue));
 
-            if (MIDI_VALUE == OLD_MID_IVALUE)
+            if (MIDI_VALUE == OLD_MIDI_VALUE)
             {
                 return false;
             }
