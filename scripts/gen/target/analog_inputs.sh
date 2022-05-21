@@ -30,6 +30,8 @@ then
 
     if [[ $analog_in_type == "native" ]]
     then
+        printf "%s\n" "DEFINES += ANALOG_INPUT_DRIVER_NATIVE" >> "$out_makefile"
+
         nr_of_analog_inputs=$($yaml_parser "$yaml_file" analog.pins --length)
 
         for ((i=0; i<nr_of_analog_inputs; i++))
@@ -66,6 +68,8 @@ then
 
     elif [[ $analog_in_type == 4067 ]]
     then
+        printf "%s\n" "DEFINES += ANALOG_INPUT_DRIVER_MULTIPLEXER" >> "$out_makefile"
+
         for ((i=0; i<4; i++))
         do
             port=$($yaml_parser "$yaml_file" analog.pins.s"$i".port)
@@ -126,6 +130,8 @@ then
         } >> "$out_makefile"
     elif [[ $analog_in_type == 4051 ]]
     then
+        printf "%s\n" "DEFINES += ANALOG_INPUT_DRIVER_MULTIPLEXER" >> "$out_makefile"
+
         for ((i=0; i<3; i++))
         do
             port=$($yaml_parser "$yaml_file" analog.pins.s"$i".port)

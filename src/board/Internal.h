@@ -161,6 +161,9 @@ namespace Board::detail
 
         constexpr inline size_t NR_OF_RGB_LEDS = NR_OF_DIGITAL_OUTPUTS / 3;
 
+        /// Used to indicate that the new analog reading has been made
+        constexpr uint16_t ADC_NEW_READING_FLAG = 0x8000;
+
         /// Continuously reads all digital inputs.
         void checkDigitalInputs();
 
