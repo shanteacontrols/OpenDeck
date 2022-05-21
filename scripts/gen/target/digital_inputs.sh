@@ -144,7 +144,8 @@ then
 
         if [[ $($yaml_parser "$yaml_file" buttons.rows.type) == "shiftRegister" ]]
         then
-            number_of_rows=8
+            number_of_in_sr=$($yaml_parser "$yaml_file" buttons.rows.shiftRegisters)
+            number_of_rows=$((8 * number_of_in_sr))
 
             port=$($yaml_parser "$yaml_file" buttons.rows.pins.data.port)
             index=$($yaml_parser "$yaml_file" buttons.rows.pins.data.index)

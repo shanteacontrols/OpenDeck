@@ -102,7 +102,7 @@ namespace
             for (int row = 0; row < NUMBER_OF_BUTTON_ROWS; row++)
             {
                 // this register shifts out MSB first
-                size_t buttonIndex = ((7 - row) * 8) + column;
+                size_t buttonIndex = ((((NUMBER_OF_IN_SR * 8) - 1) - row) * NUMBER_OF_BUTTON_COLUMNS) + column;
                 CORE_MCU_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
                 Board::detail::IO::sr165wait();
 
