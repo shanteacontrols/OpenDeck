@@ -20,6 +20,7 @@ limitations under the License.
 
 #include <inttypes.h>
 #include <functional>
+#include <stddef.h>
 
 namespace Util
 {
@@ -36,6 +37,12 @@ namespace Util
             std::function<void()> function = nullptr;
 
             task_t() = default;
+
+            task_t(size_t id, uint32_t timeout, std::function<void()> function)
+                : id(id)
+                , timeout(timeout)
+                , function(std::move(function))
+            {}
         };
 
         bool init();
