@@ -159,6 +159,8 @@ namespace Board::detail
         // constant used to easily access maximum amount of previous readings for a given digital input
         constexpr inline size_t MAX_READING_COUNT = (8 * sizeof(((Board::IO::dInReadings_t*)0)->readings));
 
+        constexpr inline size_t NR_OF_RGB_LEDS = NR_OF_DIGITAL_OUTPUTS / 3;
+
         /// Continuously reads all digital inputs.
         void checkDigitalInputs();
 

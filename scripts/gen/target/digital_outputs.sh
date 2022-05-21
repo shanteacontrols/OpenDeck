@@ -11,6 +11,8 @@ then
 
     if [[ $digital_out_type == "native" ]]
     then
+        printf "%s\n" "DEFINES += DIGITAL_OUTPUT_DRIVER_NATIVE" >> "$out_makefile"
+
         nr_of_digital_outputs=$($yaml_parser "$yaml_file" leds.external.pins --length)
 
         unset port_duplicates
@@ -118,10 +120,10 @@ then
             printf "%s\n" "};" >> "$out_header"
             printf "%s\n" "}"
         } >> "$out_header"
-
-        printf "%s\n" "DEFINES += NATIVE_LED_OUTPUTS" >> "$out_makefile"
     elif [[ $digital_out_type == shiftRegister ]]
     then
+        printf "%s\n" "DEFINES += DIGITAL_OUTPUT_DRIVER_SHIFT_REGISTER" >> "$out_makefile"
+
         port=$($yaml_parser "$yaml_file" leds.external.pins.data.port)
         index=$($yaml_parser "$yaml_file" leds.external.pins.data.index)
 
@@ -160,6 +162,8 @@ then
         printf "%s\n" "DEFINES += NUMBER_OF_OUT_SR=$number_of_out_sr" >> "$out_makefile"
     elif [[ $digital_out_type == matrix ]]
     then
+        printf "%s\n" "DEFINES += DIGITAL_OUTPUT_DRIVER_MATRIX_NATIVE_ROWS" >> "$out_makefile"
+
         number_of_led_columns=8
         number_of_led_rows=$($yaml_parser "$yaml_file" leds.external.rows.pins --length)
 

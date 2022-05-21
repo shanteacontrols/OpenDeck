@@ -74,14 +74,14 @@ namespace Board::detail::map
 #endif
             }
 
-#if defined(NATIVE_LED_OUTPUTS) || defined(NUMBER_OF_LED_ROWS)
+#if defined(DIGITAL_OUTPUT_DRIVER_NATIVE) || defined(DIGITAL_OUTPUT_DRIVER_MATRIX_NATIVE_ROWS)
             constexpr const core::mcu::io::pin_t& ledPin(uint8_t index)
             {
                 return D_OUT_PINS[index];
             }
 #endif
 
-#if defined(NATIVE_LED_OUTPUTS)
+#if defined(DIGITAL_OUTPUT_DRIVER_NATIVE)
             constexpr const core::mcu::io::pinPort_t digitalOutPort(uint8_t index)
             {
                 return D_OUT_PORTS[index];
