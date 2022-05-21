@@ -11,6 +11,8 @@ then
 
     if [[ $digital_in_type == native ]]
     then
+        printf "%s\n" "DEFINES += DIGITAL_INPUT_DRIVER_NATIVE" >> "$out_makefile"
+
         nr_of_digital_inputs=$($yaml_parser "$yaml_file" buttons.pins --length)
 
         unset port_duplicates
@@ -101,14 +103,14 @@ then
             printf "%s\n" "}"
         } >> "$out_header"
 
-        printf "%s\n" "DEFINES += NATIVE_BUTTON_INPUTS" >> "$out_makefile"
-
         if [[ "$($yaml_parser "$yaml_file" buttons.extPullups)" == "true" ]]
         then
             printf "%s\n" "DEFINES += BUTTONS_EXT_PULLUPS" >> "$out_makefile"
         fi
     elif [[ $digital_in_type == shiftRegister ]]
     then
+        printf "%s\n" "DEFINES += DIGITAL_INPUT_DRIVER_SHIFT_REGISTER" >> "$out_makefile"
+
         port=$($yaml_parser "$yaml_file" buttons.pins.data.port)
         index=$($yaml_parser "$yaml_file" buttons.pins.data.index)
 
@@ -144,6 +146,8 @@ then
 
         if [[ $($yaml_parser "$yaml_file" buttons.rows.type) == "shiftRegister" ]]
         then
+            printf "%s\n" "DEFINES += DIGITAL_INPUT_DRIVER_MATRIX_SHIFT_REGISTER_ROWS" >> "$out_makefile"
+
             number_of_in_sr=$($yaml_parser "$yaml_file" buttons.rows.shiftRegisters)
             number_of_rows=$((8 * number_of_in_sr))
 
@@ -174,6 +178,8 @@ then
             printf "%s\n" "DEFINES += NUMBER_OF_IN_SR=$number_of_in_sr" >> "$out_makefile"
         elif [[ $($yaml_parser "$yaml_file" buttons.rows.type) == "native" ]]
         then
+            printf "%s\n" "DEFINES += DIGITAL_INPUT_DRIVER_MATRIX_NATIVE_ROWS" >> "$out_makefile"
+
             number_of_rows=$($yaml_parser "$yaml_file" buttons.rows.pins --length)
 
            for ((i=0; i<number_of_rows; i++))

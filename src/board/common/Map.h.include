@@ -41,14 +41,14 @@ namespace Board::detail::map
             }
 #endif
 
-#if defined(NATIVE_BUTTON_INPUTS) || (defined(NUMBER_OF_BUTTON_ROWS) && !defined(NUMBER_OF_IN_SR))
+#if defined(DIGITAL_INPUT_DRIVER_NATIVE) || defined(DIGITAL_INPUT_DRIVER_MATRIX_NATIVE_ROWS)
             constexpr const core::mcu::io::pin_t& buttonPin(uint8_t index)
             {
                 return D_IN_PINS[index];
             }
 #endif
 
-#if defined(NATIVE_BUTTON_INPUTS)
+#if defined(DIGITAL_INPUT_DRIVER_NATIVE)
             constexpr const core::mcu::io::pinPort_t digitalInPort(uint8_t index)
             {
                 return D_IN_PORTS[index];

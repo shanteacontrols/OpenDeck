@@ -156,6 +156,9 @@ namespace Board::detail
 
     namespace IO
     {
+        // constant used to easily access maximum amount of previous readings for a given digital input
+        constexpr inline size_t MAX_READING_COUNT = (8 * sizeof(((Board::IO::dInReadings_t*)0)->readings));
+
         /// Continuously reads all digital inputs.
         void checkDigitalInputs();
 
