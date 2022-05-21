@@ -171,6 +171,7 @@ then
                 printf "%s\n" "#define SR_IN_LATCH_PIN CORE_MCU_IO_PIN_INDEX_DEF(${index})"
             } >> "$out_header"
 
+            printf "%s\n" "DEFINES += NUMBER_OF_IN_SR=$number_of_in_sr" >> "$out_makefile"
         elif [[ $($yaml_parser "$yaml_file" buttons.rows.type) == "native" ]]
         then
             number_of_rows=$($yaml_parser "$yaml_file" buttons.rows.pins --length)
