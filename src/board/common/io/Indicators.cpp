@@ -46,145 +46,165 @@ namespace
     ///
 }    // namespace
 
-namespace Board
+namespace Board::detail::IO::indicators
 {
-    namespace detail::IO
+    void init()
     {
-        void checkIndicators()
-        {
-            if (_midiInDINtimeout)
-            {
-                _midiInDINtimeout--;
-
-                if (!_midiInDINtimeout)
-                {
-                    INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
-                }
-            }
-
-            if (_midiOutDINtimeout)
-            {
-                _midiOutDINtimeout--;
-
-                if (!_midiOutDINtimeout)
-                {
-                    INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
-                }
-            }
-
-            if (_midiInUSBtimeout)
-            {
-                _midiInUSBtimeout--;
-
-                if (!_midiInUSBtimeout)
-                {
-                    INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
-                }
-            }
-
-            if (_midiOutUSBtimeout)
-            {
-                _midiOutUSBtimeout--;
-
-                if (!_midiOutUSBtimeout)
-                {
-                    INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
-                }
-            }
+        CORE_MCU_IO_INIT(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
+        CORE_MCU_IO_INIT(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
+        CORE_MCU_IO_INIT(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
+        CORE_MCU_IO_INIT(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
 
 #ifdef BLE_SUPPORTED
-            if (_midiInBLEtimeout)
-            {
-                _midiInBLEtimeout--;
-
-                if (!_midiInBLEtimeout)
-                {
-                    INT_LED_OFF(LED_MIDI_IN_BLE_PORT, LED_MIDI_IN_BLE_PIN);
-                }
-            }
-
-            if (_midiOutBLEtimeout)
-            {
-                _midiOutBLEtimeout--;
-
-                if (!_midiOutBLEtimeout)
-                {
-                    INT_LED_OFF(LED_MIDI_OUT_BLE_PORT, LED_MIDI_OUT_BLE_PIN);
-                }
-            }
+        CORE_MCU_IO_INIT(LED_MIDI_IN_BLE_PORT, LED_MIDI_IN_BLE_PIN, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
+        CORE_MCU_IO_INIT(LED_MIDI_OUT_BLE_PORT, LED_MIDI_OUT_BLE_PIN, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
 #endif
-        }
-    }    // namespace detail::IO
 
-    namespace IO
-    {
-        void indicateTraffic(dataSource_t source, dataDirection_t direction)
-        {
-            switch (source)
-            {
-            case dataSource_t::UART:
-            {
-                if (direction == dataDirection_t::INCOMING)
-                {
-                    INT_LED_ON(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
-                    _midiInDINtimeout = LED_INDICATOR_TIMEOUT;
-                }
-                else
-                {
-                    INT_LED_ON(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
-                    _midiOutDINtimeout = LED_INDICATOR_TIMEOUT;
-                }
-            }
-            break;
-
-            case dataSource_t::USB:
-            {
-                if (direction == dataDirection_t::INCOMING)
-                {
-                    INT_LED_ON(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
-                    _midiInUSBtimeout = LED_INDICATOR_TIMEOUT;
-                }
-                else
-                {
-                    INT_LED_ON(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
-                    _midiOutUSBtimeout = LED_INDICATOR_TIMEOUT;
-                }
-            }
-            break;
+        INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
+        INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+        INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
+        INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
 
 #ifdef BLE_SUPPORTED
-            case dataSource_t::BLE:
-            {
-                if (direction == dataDirection_t::INCOMING)
-                {
-                    INT_LED_ON(LED_MIDI_IN_BLE_PORT, LED_MIDI_IN_BLE_PIN);
-                    _midiInBLEtimeout = LED_INDICATOR_TIMEOUT;
-                }
-                else
-                {
-                    INT_LED_ON(LED_MIDI_OUT_BLE_PORT, LED_MIDI_OUT_BLE_PIN);
-                    _midiOutBLEtimeout = LED_INDICATOR_TIMEOUT;
-                }
-            }
-            break;
+        INT_LED_OFF(LED_MIDI_IN_BLE_PORT, LED_MIDI_IN_BLE_PIN);
+        INT_LED_OFF(LED_MIDI_OUT_BLE_PORT, LED_MIDI_OUT_BLE_PIN);
 #endif
+    }
 
-            default:
-                break;
+    void update()
+    {
+        if (_midiInDINtimeout)
+        {
+            _midiInDINtimeout--;
+
+            if (!_midiInDINtimeout)
+            {
+                INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
             }
         }
-    }    // namespace IO
-}    // namespace Board
+
+        if (_midiOutDINtimeout)
+        {
+            _midiOutDINtimeout--;
+
+            if (!_midiOutDINtimeout)
+            {
+                INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+            }
+        }
+
+        if (_midiInUSBtimeout)
+        {
+            _midiInUSBtimeout--;
+
+            if (!_midiInUSBtimeout)
+            {
+                INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
+            }
+        }
+
+        if (_midiOutUSBtimeout)
+        {
+            _midiOutUSBtimeout--;
+
+            if (!_midiOutUSBtimeout)
+            {
+                INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
+            }
+        }
+
+#ifdef BLE_SUPPORTED
+        if (_midiInBLEtimeout)
+        {
+            _midiInBLEtimeout--;
+
+            if (!_midiInBLEtimeout)
+            {
+                INT_LED_OFF(LED_MIDI_IN_BLE_PORT, LED_MIDI_IN_BLE_PIN);
+            }
+        }
+
+        if (_midiOutBLEtimeout)
+        {
+            _midiOutBLEtimeout--;
+
+            if (!_midiOutBLEtimeout)
+            {
+                INT_LED_OFF(LED_MIDI_OUT_BLE_PORT, LED_MIDI_OUT_BLE_PIN);
+            }
+        }
+#endif
+    }
+}    // namespace Board::detail::IO::indicators
+
+namespace Board::IO::indicators
+{
+    void indicateTraffic(dataSource_t source, dataDirection_t direction)
+    {
+        switch (source)
+        {
+        case dataSource_t::UART:
+        {
+            if (direction == dataDirection_t::INCOMING)
+            {
+                INT_LED_ON(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
+                _midiInDINtimeout = LED_INDICATOR_TIMEOUT;
+            }
+            else
+            {
+                INT_LED_ON(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+                _midiOutDINtimeout = LED_INDICATOR_TIMEOUT;
+            }
+        }
+        break;
+
+        case dataSource_t::USB:
+        {
+            if (direction == dataDirection_t::INCOMING)
+            {
+                INT_LED_ON(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
+                _midiInUSBtimeout = LED_INDICATOR_TIMEOUT;
+            }
+            else
+            {
+                INT_LED_ON(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
+                _midiOutUSBtimeout = LED_INDICATOR_TIMEOUT;
+            }
+        }
+        break;
+
+#ifdef BLE_SUPPORTED
+        case dataSource_t::BLE:
+        {
+            if (direction == dataDirection_t::INCOMING)
+            {
+                INT_LED_ON(LED_MIDI_IN_BLE_PORT, LED_MIDI_IN_BLE_PIN);
+                _midiInBLEtimeout = LED_INDICATOR_TIMEOUT;
+            }
+            else
+            {
+                INT_LED_ON(LED_MIDI_OUT_BLE_PORT, LED_MIDI_OUT_BLE_PIN);
+                _midiOutBLEtimeout = LED_INDICATOR_TIMEOUT;
+            }
+        }
+        break;
+#endif
+
+        default:
+            break;
+        }
+    }
+}    // namespace Board::IO::indicators
 
 #endif
 
 #ifdef LED_INDICATORS
 
-namespace Board::detail::IO
+namespace Board::detail::IO::indicators
 {
     void ledFlashStartup()
     {
-        for (int i = 0; i < 3; i++)
+        for (uint8_t i = 0; i < 3; i++)
         {
             INT_LED_ON(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
             INT_LED_ON(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
@@ -203,6 +223,6 @@ namespace Board::detail::IO
         INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
         INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
     }
-}    // namespace Board::detail::IO
+}    // namespace Board::detail::IO::indicators
 
 #endif

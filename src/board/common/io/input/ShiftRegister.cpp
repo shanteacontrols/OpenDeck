@@ -29,35 +29,37 @@ limitations under the License.
 #include "core/src/util/RingBuffer.h"
 #include <Target.h>
 
+using namespace Board::IO::digitalIn;
 using namespace Board::detail;
+using namespace Board::detail::IO::digitalIn;
 
 namespace
 {
-    volatile Board::IO::dInReadings_t _digitalInBuffer[NR_OF_DIGITAL_INPUTS];
+    volatile readings_t _digitalInBuffer[NR_OF_DIGITAL_INPUTS];
 
     inline void storeDigitalIn()
     {
         CORE_MCU_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
         CORE_MCU_IO_SET_LOW(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
-        IO::sr165wait();
+        IO::spiWait();
 
         CORE_MCU_IO_SET_HIGH(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
 
-        for (int shiftRegister = 0; shiftRegister < NUMBER_OF_IN_SR; shiftRegister++)
+        for (uint8_t shiftRegister = 0; shiftRegister < NUMBER_OF_IN_SR; shiftRegister++)
         {
-            for (int input = 0; input < 8; input++)
+            for (uint8_t input = 0; input < 8; input++)
             {
                 //  register shifts out MSB first
-                size_t buttonIndex = (shiftRegister * 8) + (7 - input);
+                size_t index = (shiftRegister * 8) + (7 - input);
                 CORE_MCU_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
-                IO::sr165wait();
+                IO::spiWait();
 
-                _digitalInBuffer[buttonIndex].readings <<= 1;
-                _digitalInBuffer[buttonIndex].readings |= !CORE_MCU_IO_READ(SR_IN_DATA_PORT, SR_IN_DATA_PIN);
+                _digitalInBuffer[index].readings <<= 1;
+                _digitalInBuffer[index].readings |= !CORE_MCU_IO_READ(SR_IN_DATA_PORT, SR_IN_DATA_PIN);
 
-                if (++_digitalInBuffer[buttonIndex].count > IO::MAX_READING_COUNT)
+                if (++_digitalInBuffer[index].count > MAX_READING_COUNT)
                 {
-                    _digitalInBuffer[buttonIndex].count = IO::MAX_READING_COUNT;
+                    _digitalInBuffer[index].count = MAX_READING_COUNT;
                 }
 
                 CORE_MCU_IO_SET_HIGH(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
@@ -66,44 +68,57 @@ namespace
     }
 }    // namespace
 
-namespace Board::IO
+namespace Board::detail::IO::digitalIn
 {
-    bool digitalInState(size_t digitalInIndex, dInReadings_t& dInReadings)
+    void init()
     {
-        if (digitalInIndex >= NR_OF_DIGITAL_INPUTS)
+        CORE_MCU_IO_INIT(SR_IN_DATA_PORT, SR_IN_DATA_PIN, core::mcu::io::pinMode_t::INPUT);
+        CORE_MCU_IO_INIT(SR_IN_CLK_PORT, SR_IN_CLK_PIN, core::mcu::io::pinMode_t::OUTPUT_PP);
+        CORE_MCU_IO_INIT(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN, core::mcu::io::pinMode_t::OUTPUT_PP);
+
+        CORE_MCU_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
+        CORE_MCU_IO_SET_HIGH(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
+    }
+}    // namespace Board::detail::IO::digitalIn
+
+namespace Board::IO::digitalIn
+{
+    bool state(size_t index, readings_t& readings)
+    {
+        if (index >= NR_OF_DIGITAL_INPUTS)
         {
             return false;
         }
 
-        digitalInIndex = detail::map::buttonIndex(digitalInIndex);
+        index = detail::map::buttonIndex(index);
 
         CORE_MCU_ATOMIC_SECTION
         {
-            dInReadings.count                      = _digitalInBuffer[digitalInIndex].count;
-            dInReadings.readings                   = _digitalInBuffer[digitalInIndex].readings;
-            _digitalInBuffer[digitalInIndex].count = 0;
+            readings.count                = _digitalInBuffer[index].count;
+            readings.readings             = _digitalInBuffer[index].readings;
+            _digitalInBuffer[index].count = 0;
         }
 
-        return dInReadings.count > 0;
+        return readings.count > 0;
     }
 
-    size_t encoderIndex(size_t buttonID)
+    size_t encoderFromInput(size_t index)
     {
-        return buttonID / 2;
+        return index / 2;
     }
 
-    size_t encoderSignalIndex(size_t encoderID, encoderIndex_t index)
+    size_t encoderComponentFromEncoder(size_t index, encoderComponent_t component)
     {
-        uint8_t buttonID = encoderID * 2;
+        index *= 2;
 
-        if (index == encoderIndex_t::A)
+        if (component == encoderComponent_t::A)
         {
-            return buttonID;
+            return index;
         }
 
-        return buttonID + 1;
+        return index + 1;
     }
-}    // namespace Board::IO
+}    // namespace Board::IO::digitalIn
 
 #include "Common.cpp.include"
 

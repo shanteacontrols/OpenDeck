@@ -48,7 +48,7 @@ void core::mcu::isr::adc(uint16_t value)
     if (nrf_saadc_event_check(NRF_SAADC, NRF_SAADC_EVENT_END))
     {
         nrf_saadc_event_clear(NRF_SAADC, NRF_SAADC_EVENT_END);
-        Board::detail::IO::adcISR(value);
+        Board::detail::IO::analog::isr(value);
     }
 
     if (nrf_saadc_event_check(NRF_SAADC, NRF_SAADC_EVENT_CALIBRATEDONE))
@@ -57,9 +57,9 @@ void core::mcu::isr::adc(uint16_t value)
     }
 }
 
-namespace Board::detail::setup
+namespace Board::detail::IO::analog::MCU
 {
-    void adc()
+    void init()
     {
         nrf_saadc_event_clear(NRF_SAADC, NRF_SAADC_EVENT_STARTED);
         nrf_saadc_event_clear(NRF_SAADC, NRF_SAADC_EVENT_STOPPED);
@@ -99,7 +99,7 @@ namespace Board::detail::setup
         core::mcu::adc::setChannel(map::adcChannel(0));
         core::mcu::adc::startItConversion();
     }
-}    // namespace Board::detail::setup
+}    // namespace Board::detail::IO::analog::MCU
 
 #endif
 #endif

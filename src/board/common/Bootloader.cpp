@@ -42,12 +42,8 @@ namespace Board::bootloader
         // add some delay before reading the pins to avoid incorrect state detection
         core::timing::waitMs(100);
 
-#if defined(BTLDR_BUTTON_PORT)
-#ifdef BTLDR_BUTTON_AH
-        return CORE_MCU_IO_READ(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
-#else
-        return !CORE_MCU_IO_READ(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
-#endif
+#ifdef BTLDR_BUTTON_SUPPORTED
+        return IS_BTLDR_ACTIVE();
 #else
         // no hardware entry possible in this case
         return false;
@@ -84,5 +80,11 @@ namespace Board::bootloader
         }
 
         return data;
+    }
+
+    void runBootloader()
+    {
+        core::mcu::timers::startAll();
+        detail::USB::init();
     }
 }    // namespace Board::bootloader

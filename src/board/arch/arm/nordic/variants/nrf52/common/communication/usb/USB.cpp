@@ -33,9 +33,9 @@ extern "C" void power_event_handler(nrfx_power_usb_evt_t event)
     tusb_hal_nrf_power_event((uint32_t)event);
 }
 
-namespace Board::detail::setup
+namespace Board::detail::USB
 {
-    void usb()
+    void init()
     {
         NVIC_SetPriority(USBD_IRQn, IRQ_PRIORITY_USB);
 
@@ -77,6 +77,6 @@ namespace Board::detail::setup
         tusb_init();
         detail::registerUpdateHook(&tud_task);
     }
-}    // namespace Board::detail::setup
+}    // namespace Board::detail::USB
 
 #endif

@@ -144,7 +144,7 @@ namespace
     } while (0)
 #endif
 
-namespace Board::detail::UART::ll
+namespace Board::detail::UART::MCU
 {
     void startTx(uint8_t channel)
     {
@@ -372,7 +372,7 @@ namespace Board::detail::UART::ll
 
         return true;
     }
-}    // namespace Board::detail::UART::ll
+}    // namespace Board::detail::UART::MCU
 
 /// ISR used to store incoming data from UART to buffer.
 

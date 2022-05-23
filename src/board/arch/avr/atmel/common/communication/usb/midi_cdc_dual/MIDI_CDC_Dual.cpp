@@ -127,9 +127,9 @@ extern "C" void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t*
 
 namespace Board
 {
-    namespace detail::setup
+    namespace detail::USB
     {
-        void usb()
+        void init()
         {
             _cdcInterface.Config.ControlInterfaceNumber       = USB_INTERFACE_ID_CDC_CCI;
             _cdcInterface.Config.DataINEndpoint.Address       = USB_ENDPOINT_ADDR_CDC_IN;
@@ -151,7 +151,7 @@ namespace Board
 
             USB_Init();
         }
-    }    // namespace detail::setup
+    }    // namespace detail::USB
 
     namespace USB
     {

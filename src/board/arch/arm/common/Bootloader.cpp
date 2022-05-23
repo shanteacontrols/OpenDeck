@@ -40,15 +40,9 @@ namespace Board::bootloader
         _fwEntryType = static_cast<uint32_t>(value);
     }
 
-    void runBootloader()
-    {
-        core::mcu::timers::startAll();
-        detail::setup::usb();
-    }
-
     void runApplication()
     {
-        detail::IO::ledFlashStartup();
+        detail::IO::indicators::ledFlashStartup();
         core::mcu::deInit();
 
         auto appEntry = (appEntry_t) * (volatile uint32_t*)(APP_START_ADDR + 4);

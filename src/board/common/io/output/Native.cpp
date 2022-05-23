@@ -26,57 +26,76 @@ limitations under the License.
 #include "core/src/util/Util.h"
 #include <Target.h>
 
+using namespace Board::IO::digitalOut;
+using namespace Board::detail;
+using namespace Board::detail::IO::digitalOut;
+
 namespace
 {
     uint8_t                    _pwmCounter;
-    core::mcu::io::portWidth_t _portState[NR_OF_DIGITAL_OUTPUT_PORTS][static_cast<uint8_t>(Board::IO::ledBrightness_t::B100)];
+    core::mcu::io::portWidth_t _portState[NR_OF_DIGITAL_OUTPUT_PORTS][static_cast<uint8_t>(ledBrightness_t::B100)];
 }    // namespace
 
-namespace Board::detail::IO
+namespace Board::detail::IO::digitalOut
 {
-    void checkDigitalOutputs()
+    void init()
+    {
+        for (size_t i = 0; i < NR_OF_DIGITAL_OUTPUTS; i++)
+        {
+            auto pin = detail::map::ledPin(i);
+
+            CORE_MCU_IO_INIT(CORE_MCU_IO_PIN_PORT(pin),
+                             CORE_MCU_IO_PIN_INDEX(pin),
+                             core::mcu::io::pinMode_t::OUTPUT_PP,
+                             core::mcu::io::pullMode_t::NONE);
+
+            EXT_LED_OFF(CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin));
+        }
+    }
+
+    void update()
     {
         for (size_t port = 0; port < NR_OF_DIGITAL_OUTPUT_PORTS; port++)
         {
-            core::mcu::io::portWidth_t updatedPortState = CORE_MCU_IO_READ_OUT_PORT(detail::map::digitalOutPort(port));
+            core::mcu::io::portWidth_t updatedPortState = CORE_MCU_IO_READ_OUT_PORT(map::digitalOutPort(port));
             updatedPortState &= detail::map::digitalOutPortClearMask(port);
             updatedPortState |= _portState[port][_pwmCounter];
             CORE_MCU_IO_SET_PORT_STATE(detail::map::digitalOutPort(port), updatedPortState);
         }
 
-        if (++_pwmCounter >= static_cast<uint8_t>(Board::IO::ledBrightness_t::B100))
+        if (++_pwmCounter >= static_cast<uint8_t>(ledBrightness_t::B100))
         {
             _pwmCounter = 0;
         }
     }
-}    // namespace Board::detail::IO
+}    // namespace Board::detail::IO::digitalOut
 
-namespace Board::IO
+namespace Board::IO::digitalOut
 {
-    void writeLEDstate(size_t ledID, IO::ledBrightness_t ledBrightness)
+    void writeLEDstate(size_t index, ledBrightness_t ledBrightness)
     {
-        if (ledID >= NR_OF_DIGITAL_OUTPUTS)
+        if (index >= NR_OF_DIGITAL_OUTPUTS)
         {
             return;
         }
 
-        ledID = detail::map::ledIndex(ledID);
+        index = map::ledIndex(index);
 
         CORE_MCU_ATOMIC_SECTION
         {
-            for (int i = 0; i < static_cast<int>(ledBrightness_t::B100); i++)
+            for (uint8_t i = 0; i < static_cast<int>(ledBrightness_t::B100); i++)
             {
-                core::util::BIT_WRITE(_portState[detail::map::ledPortIndex(ledID)][i], detail::map::ledPinIndex(ledID), i < static_cast<int>(ledBrightness) ?
+                core::util::BIT_WRITE(_portState[map::ledPortIndex(index)][i], map::ledPinIndex(index), i < static_cast<int>(ledBrightness) ?
 #ifndef LED_EXT_INVERT
-                                                                                                                                                            1
+                                                                                                                                            1
 #else
-                                                                                                                                                            0
+                                                                                                                                            0
 #endif
-                                                                                                                                                            :
+                                                                                                                                            :
 #ifndef LED_EXT_INVERT
-                                                                                                                                                            0
+                                                                                                                                            0
 #else
-                                                                                                                                                            1
+                                                                                                                                            1
 #endif
 
                 );
@@ -84,23 +103,23 @@ namespace Board::IO
         }
     }
 
-    size_t rgbSignalIndex(size_t rgbID, Board::IO::rgbIndex_t index)
+    size_t rgbFromOutput(size_t index)
     {
-        return rgbID * 3 + static_cast<uint8_t>(index);
-    }
+        uint8_t result = index / 3;
 
-    size_t rgbIndex(size_t ledID)
-    {
-        uint8_t result = ledID / 3;
-
-        if (result >= Board::detail::IO::NR_OF_RGB_LEDS)
+        if (result >= NR_OF_RGB_LEDS)
         {
-            return Board::detail::IO::NR_OF_RGB_LEDS - 1;
+            return NR_OF_RGB_LEDS - 1;
         }
 
         return result;
     }
-}    // namespace Board::IO
+
+    size_t rgbComponentFromRGB(size_t index, rgbComponent_t component)
+    {
+        return index * 3 + static_cast<uint8_t>(component);
+    }
+}    // namespace Board::IO::digitalOut
 
 #endif
 #endif

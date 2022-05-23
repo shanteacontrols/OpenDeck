@@ -106,9 +106,9 @@ extern "C" uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue, const uint
 
 namespace Board
 {
-    namespace detail::setup
+    namespace detail::USB
     {
-        void usb()
+        void init()
         {
             _midiInterface.Config.StreamingInterfaceNumber = USB_INTERFACE_ID_AUDIO_STREAM;
             _midiInterface.Config.DataINEndpoint.Address   = USB_ENDPOINT_ADDR_MIDI_IN;
@@ -120,7 +120,7 @@ namespace Board
 
             USB_Init();
         }
-    }    // namespace detail::setup
+    }    // namespace detail::USB
 
     namespace USB
     {

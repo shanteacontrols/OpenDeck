@@ -540,13 +540,13 @@ TEST_F(LEDsTest, SingleLEDstate)
 
     // now turn it on - expect three LEDs to be on
 
-    EXPECT_CALL(_leds._hwa, setState(_leds._hwa.rgbSignalIndex(0, LEDs::rgbIndex_t::R), LEDs::brightness_t::B100))
+    EXPECT_CALL(_leds._hwa, setState(_leds._hwa.rgbComponentFromRGB(0, LEDs::rgbComponent_t::R), LEDs::brightness_t::B100))
         .Times(1);
 
-    EXPECT_CALL(_leds._hwa, setState(_leds._hwa.rgbSignalIndex(0, LEDs::rgbIndex_t::G), LEDs::brightness_t::B100))
+    EXPECT_CALL(_leds._hwa, setState(_leds._hwa.rgbComponentFromRGB(0, LEDs::rgbComponent_t::G), LEDs::brightness_t::B100))
         .Times(1);
 
-    EXPECT_CALL(_leds._hwa, setState(_leds._hwa.rgbSignalIndex(0, LEDs::rgbIndex_t::B), LEDs::brightness_t::B100))
+    EXPECT_CALL(_leds._hwa, setState(_leds._hwa.rgbComponentFromRGB(0, LEDs::rgbComponent_t::B), LEDs::brightness_t::B100))
         .Times(1);
 
     MIDIDispatcher.notify(Messaging::eventType_t::MIDI_IN,

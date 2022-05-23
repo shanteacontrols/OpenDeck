@@ -438,10 +438,10 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
 /// param [in]: state       New button state (true/pressed, false/released).
 void Buttons::setState(size_t index, bool state)
 {
-    uint8_t arrayIndex  = index / 8;
-    uint8_t buttonIndex = index - 8 * arrayIndex;
+    uint8_t arrayIndex = index / 8;
+    uint8_t bit        = index - 8 * arrayIndex;
 
-    core::util::BIT_WRITE(_buttonPressed[arrayIndex], buttonIndex, state);
+    core::util::BIT_WRITE(_buttonPressed[arrayIndex], bit, state);
 }
 
 /// Checks for last button state.
@@ -449,10 +449,10 @@ void Buttons::setState(size_t index, bool state)
 /// returns: True if last state was on/pressed, false otherwise.
 bool Buttons::state(size_t index)
 {
-    uint8_t arrayIndex  = index / 8;
-    uint8_t buttonIndex = index - 8 * arrayIndex;
+    uint8_t arrayIndex = index / 8;
+    uint8_t bit        = index - 8 * arrayIndex;
 
-    return core::util::BIT_READ(_buttonPressed[arrayIndex], buttonIndex);
+    return core::util::BIT_READ(_buttonPressed[arrayIndex], bit);
 }
 
 /// Updates current state of latching button.
@@ -466,10 +466,10 @@ bool Buttons::state(size_t index)
 /// param [in]: state       New latching state.
 void Buttons::setLatchingState(size_t index, bool state)
 {
-    uint8_t arrayIndex  = index / 8;
-    uint8_t buttonIndex = index - 8 * arrayIndex;
+    uint8_t arrayIndex = index / 8;
+    uint8_t bit        = index - 8 * arrayIndex;
 
-    core::util::BIT_WRITE(_lastLatchingState[arrayIndex], buttonIndex, state);
+    core::util::BIT_WRITE(_lastLatchingState[arrayIndex], bit, state);
 }
 
 /// Checks for last latching button state.
@@ -477,10 +477,10 @@ void Buttons::setLatchingState(size_t index, bool state)
 /// returns: True if last state was on/pressed, false otherwise.
 bool Buttons::latchingState(size_t index)
 {
-    uint8_t arrayIndex  = index / 8;
-    uint8_t buttonIndex = index - 8 * arrayIndex;
+    uint8_t arrayIndex = index / 8;
+    uint8_t bit        = index - 8 * arrayIndex;
 
-    return core::util::BIT_READ(_lastLatchingState[arrayIndex], buttonIndex);
+    return core::util::BIT_READ(_lastLatchingState[arrayIndex], bit);
 }
 
 /// Resets the current state of the specified button.

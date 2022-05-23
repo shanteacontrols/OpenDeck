@@ -38,15 +38,9 @@ namespace Board::bootloader
         eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, static_cast<uint8_t>(value));
     }
 
-    void runBootloader()
-    {
-        core::mcu::timers::startAll();
-        detail::setup::usb();
-    }
-
     void runApplication()
     {
-        detail::IO::ledFlashStartup();
+        detail::IO::indicators::ledFlashStartup();
 
         __asm__ __volatile__(
             // Jump to RST vector

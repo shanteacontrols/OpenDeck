@@ -26,12 +26,12 @@ limitations under the License.
 
 void core::mcu::isr::adc(uint16_t value)
 {
-    Board::detail::IO::adcISR(value);
+    Board::detail::IO::analog::isr(value);
 }
 
-namespace Board::detail::setup
+namespace Board::detail::IO::analog::MCU
 {
-    void adc()
+    void init()
     {
         ADC_HandleTypeDef      adcHandler = {};
         ADC_ChannelConfTypeDef sConfig    = {};
@@ -67,7 +67,7 @@ namespace Board::detail::setup
         adcHandler.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
         HAL_ADC_Init(&adcHandler);
 
-        for (int i = 0; i < MAX_ADC_CHANNELS; i++)
+        for (size_t i = 0; i < MAX_ADC_CHANNELS; i++)
         {
             sConfig.Channel      = map::adcChannel(i);
             sConfig.Rank         = 1;
@@ -80,7 +80,7 @@ namespace Board::detail::setup
 
         HAL_ADC_Start_IT(&adcHandler);
     }
-}    // namespace Board::detail::setup
+}    // namespace Board::detail::IO::analog::MCU
 
 #endif
 #endif

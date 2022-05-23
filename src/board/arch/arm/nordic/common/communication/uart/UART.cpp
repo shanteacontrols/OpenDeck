@@ -106,7 +106,7 @@ namespace
     volatile bool _transmitting[core::mcu::peripherals::MAX_UART_INTERFACES];
 }    // namespace
 
-namespace Board::detail::UART::ll
+namespace Board::detail::UART::MCU
 {
     void startTx(uint8_t channel)
     {
@@ -220,7 +220,7 @@ namespace Board::detail::UART::ll
 
         return true;
     }
-}    // namespace Board::detail::UART::ll
+}    // namespace Board::detail::UART::MCU
 
 void core::mcu::isr::uart(uint8_t channel)
 {

@@ -25,6 +25,10 @@ limitations under the License.
 #include "board/Internal.h"
 #include <Target.h>
 
+using namespace Board::IO::analog;
+using namespace Board::detail;
+using namespace Board::detail::IO::analog;
+
 namespace
 {
     constexpr size_t ANALOG_IN_BUFFER_SIZE = NR_OF_ANALOG_INPUTS;
@@ -33,16 +37,28 @@ namespace
     volatile uint16_t _analogBuffer[ANALOG_IN_BUFFER_SIZE];
 }    // namespace
 
-namespace Board::detail::IO
+namespace Board::detail::IO::analog
 {
-    void adcISR(uint16_t adcValue)
+    void init()
+    {
+        MCU::init();
+
+        for (size_t i = 0; i < MAX_ADC_CHANNELS; i++)
+        {
+            auto pin = map::adcPin(i);
+            CORE_MCU_IO_INIT(CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin), core::mcu::io::pinMode_t::ANALOG);
+            CORE_MCU_IO_SET_LOW(CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin));
+        }
+    }
+
+    void isr(uint16_t adcValue)
     {
         static bool firstReading = false;
         firstReading             = !firstReading;
 
         if (!firstReading && (adcValue <= core::mcu::adc::MAX))
         {
-            _analogBuffer[_analogIndex] = adcValue | Board::detail::IO::ADC_NEW_READING_FLAG;
+            _analogBuffer[_analogIndex] = adcValue | ADC_NEW_READING_FLAG;
             _analogIndex++;
             if (_analogIndex == NR_OF_ANALOG_INPUTS)
             {
@@ -50,12 +66,12 @@ namespace Board::detail::IO
             }
 
             // always switch to next read pin
-            core::mcu::adc::setChannel(Board::detail::map::adcChannel(_analogIndex));
+            core::mcu::adc::setChannel(map::adcChannel(_analogIndex));
         }
 
         core::mcu::adc::startItConversion();
     }
-}    // namespace Board::detail::IO
+}    // namespace Board::detail::IO::analog
 
 #include "Common.cpp.include"
 

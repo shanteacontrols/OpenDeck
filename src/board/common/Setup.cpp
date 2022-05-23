@@ -49,12 +49,12 @@ namespace Board
         core::mcu::timers::allocate(mainTimerIndex, []()
                                     {
                                         core::timing::detail::ms++;
-                                        Board::detail::IO::checkIndicators();
+                                        detail::IO::indicators::update();
 #ifndef USB_OVER_SERIAL_HOST
-                                        Board::detail::IO::checkDigitalInputs();
+                                        detail::IO::digitalIn::update();
 #ifndef USE_FAST_SOFT_PWM_TIMER
 #if NR_OF_DIGITAL_OUTPUTS > 0
-                                        Board::detail::IO::checkDigitalOutputs();
+                                        detail::IO::digitalOut::update();
 #endif
 #endif
 #endif
@@ -71,7 +71,7 @@ namespace Board
 #ifdef FW_APP
 #ifndef USB_OVER_SERIAL_HOST
 #if NR_OF_DIGITAL_OUTPUTS > 0
-                                        Board::detail::IO::checkDigitalOutputs();
+                                        detail::IO::digitalOut::update();
 #endif
 #endif
 #endif
@@ -101,7 +101,7 @@ namespace Board
         {
             core::mcu::init(core::mcu::initType_t::BOOT);
             core::mcu::timers::init();
-            detail::setup::io();
+            detail::IO::init();
 
 #ifdef USB_OVER_SERIAL
             Board::UART::config_t config(UART_BAUDRATE_USB,
@@ -117,8 +117,7 @@ namespace Board
         {
             core::mcu::init(core::mcu::initType_t::APP);
             core::mcu::timers::init();
-            detail::setup::io();
-            detail::setup::adc();
+            detail::IO::init();
 
 #ifdef USB_OVER_SERIAL
             Board::UART::config_t config(UART_BAUDRATE_USB,
@@ -129,7 +128,7 @@ namespace Board
             Board::UART::init(UART_CHANNEL_USB_LINK, config);
 #endif
 
-            detail::setup::usb();
+            detail::USB::init();
 
 #ifdef USB_OVER_SERIAL_DEVICE
             // wait for unique id from usb host
@@ -138,7 +137,7 @@ namespace Board
 
             while (1)
             {
-                while (!Board::detail::USB::readInternal(cmd))
+                while (!detail::USB::readInternal(cmd))
                 {
                     ;
                 }

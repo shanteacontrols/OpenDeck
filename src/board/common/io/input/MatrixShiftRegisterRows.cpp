@@ -29,12 +29,14 @@ limitations under the License.
 #include "core/src/util/RingBuffer.h"
 #include <Target.h>
 
+using namespace Board::IO::digitalIn;
 using namespace Board::detail;
+using namespace Board::detail::IO::digitalIn;
 
 namespace
 {
-    volatile Board::IO::dInReadings_t _digitalInBuffer[NR_OF_DIGITAL_INPUTS];
-    volatile uint8_t                  _activeInColumn;
+    volatile readings_t _digitalInBuffer[NR_OF_DIGITAL_INPUTS];
+    volatile uint8_t    _activeInColumn;
 
     inline void activateInputColumn()
     {
@@ -50,30 +52,30 @@ namespace
 
     inline void storeDigitalIn()
     {
-        for (int column = 0; column < NUMBER_OF_BUTTON_COLUMNS; column++)
+        for (uint8_t column = 0; column < NUMBER_OF_BUTTON_COLUMNS; column++)
         {
             activateInputColumn();
 
-            IO::sr165wait();
+            IO::spiWait();
             CORE_MCU_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
             CORE_MCU_IO_SET_LOW(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
-            IO::sr165wait();
+            IO::spiWait();
 
             CORE_MCU_IO_SET_HIGH(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
 
-            for (int row = 0; row < NUMBER_OF_BUTTON_ROWS; row++)
+            for (uint8_t row = 0; row < NUMBER_OF_BUTTON_ROWS; row++)
             {
                 // this register shifts out MSB first
-                size_t buttonIndex = ((((NUMBER_OF_IN_SR * 8) - 1) - row) * NUMBER_OF_BUTTON_COLUMNS) + column;
+                size_t index = ((((NUMBER_OF_IN_SR * 8) - 1) - row) * NUMBER_OF_BUTTON_COLUMNS) + column;
                 CORE_MCU_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
-                IO::sr165wait();
+                IO::spiWait();
 
-                _digitalInBuffer[buttonIndex].readings <<= 1;
-                _digitalInBuffer[buttonIndex].readings |= !CORE_MCU_IO_READ(SR_IN_DATA_PORT, SR_IN_DATA_PIN);
+                _digitalInBuffer[index].readings <<= 1;
+                _digitalInBuffer[index].readings |= !CORE_MCU_IO_READ(SR_IN_DATA_PORT, SR_IN_DATA_PIN);
 
-                if (++_digitalInBuffer[buttonIndex].count > IO::MAX_READING_COUNT)
+                if (++_digitalInBuffer[index].count > MAX_READING_COUNT)
                 {
-                    _digitalInBuffer[buttonIndex].count = IO::MAX_READING_COUNT;
+                    _digitalInBuffer[index].count = MAX_READING_COUNT;
                 }
 
                 CORE_MCU_IO_SET_HIGH(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
@@ -82,31 +84,52 @@ namespace
     }
 }    // namespace
 
-namespace Board::IO
+namespace Board::detail::IO::digitalIn
 {
-    bool digitalInState(size_t digitalInIndex, dInReadings_t& dInReadings)
+    void init()
     {
-        if (digitalInIndex >= NR_OF_DIGITAL_INPUTS)
+        CORE_MCU_IO_INIT(SR_IN_DATA_PORT, SR_IN_DATA_PIN, core::mcu::io::pinMode_t::INPUT);
+        CORE_MCU_IO_INIT(SR_IN_CLK_PORT, SR_IN_CLK_PIN, core::mcu::io::pinMode_t::OUTPUT_PP);
+        CORE_MCU_IO_INIT(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN, core::mcu::io::pinMode_t::OUTPUT_PP);
+
+        CORE_MCU_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
+        CORE_MCU_IO_SET_HIGH(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
+
+        CORE_MCU_IO_INIT(DEC_BM_PORT_A0, DEC_BM_PIN_A0, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
+        CORE_MCU_IO_INIT(DEC_BM_PORT_A1, DEC_BM_PIN_A1, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
+        CORE_MCU_IO_INIT(DEC_BM_PORT_A2, DEC_BM_PIN_A2, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
+
+        CORE_MCU_IO_SET_LOW(DEC_BM_PORT_A0, DEC_BM_PIN_A0);
+        CORE_MCU_IO_SET_LOW(DEC_BM_PORT_A1, DEC_BM_PIN_A1);
+        CORE_MCU_IO_SET_LOW(DEC_BM_PORT_A2, DEC_BM_PIN_A2);
+    }
+}    // namespace Board::detail::IO::digitalIn
+
+namespace Board::IO::digitalIn
+{
+    bool state(size_t index, readings_t& readings)
+    {
+        if (index >= NR_OF_DIGITAL_INPUTS)
         {
             return false;
         }
 
-        digitalInIndex = detail::map::buttonIndex(digitalInIndex);
+        index = map::buttonIndex(index);
 
         CORE_MCU_ATOMIC_SECTION
         {
-            dInReadings.count                      = _digitalInBuffer[digitalInIndex].count;
-            dInReadings.readings                   = _digitalInBuffer[digitalInIndex].readings;
-            _digitalInBuffer[digitalInIndex].count = 0;
+            readings.count                = _digitalInBuffer[index].count;
+            readings.readings             = _digitalInBuffer[index].readings;
+            _digitalInBuffer[index].count = 0;
         }
 
-        return dInReadings.count > 0;
+        return readings.count > 0;
     }
 
-    size_t encoderIndex(size_t buttonID)
+    size_t encoderFromInput(size_t index)
     {
-        uint8_t row    = buttonID / NUMBER_OF_BUTTON_COLUMNS;
-        uint8_t column = buttonID % NUMBER_OF_BUTTON_COLUMNS;
+        uint8_t row    = index / NUMBER_OF_BUTTON_COLUMNS;
+        uint8_t column = index % NUMBER_OF_BUTTON_COLUMNS;
 
         if (row % 2)
         {
@@ -116,21 +139,20 @@ namespace Board::IO
         return (row * NUMBER_OF_BUTTON_COLUMNS) / 2 + column;
     }
 
-    size_t encoderSignalIndex(size_t encoderID, encoderIndex_t index)
+    size_t encoderComponentFromEncoder(size_t index, encoderComponent_t component)
     {
-        uint8_t column = encoderID % NUMBER_OF_BUTTON_COLUMNS;
-        uint8_t row    = (encoderID / NUMBER_OF_BUTTON_COLUMNS) * 2;
+        uint8_t column = index % NUMBER_OF_BUTTON_COLUMNS;
+        uint8_t row    = (index / NUMBER_OF_BUTTON_COLUMNS) * 2;
+        index          = row * NUMBER_OF_BUTTON_COLUMNS + column;
 
-        uint8_t buttonID = row * NUMBER_OF_BUTTON_COLUMNS + column;
-
-        if (index == encoderIndex_t::A)
+        if (component == encoderComponent_t::A)
         {
-            return buttonID;
+            return index;
         }
 
-        return buttonID + NUMBER_OF_BUTTON_COLUMNS;
+        return index + NUMBER_OF_BUTTON_COLUMNS;
     }
-}    // namespace Board::IO
+}    // namespace Board::IO::digitalIn
 
 #include "Common.cpp.include"
 

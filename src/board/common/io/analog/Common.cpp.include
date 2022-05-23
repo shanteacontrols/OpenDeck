@@ -16,26 +16,30 @@ limitations under the License.
 
 */
 
-namespace Board::IO
+using namespace Board::IO::analog;
+using namespace Board::detail;
+using namespace Board::detail::IO::analog;
+
+namespace Board::IO::analog
 {
-    bool analogValue(size_t analogID, uint16_t& value)
+    bool value(size_t index, uint16_t& value)
     {
-        if (analogID >= NR_OF_ANALOG_INPUTS)
+        if (index >= NR_OF_ANALOG_INPUTS)
         {
             return false;
         }
 
-        analogID = detail::map::adcIndex(analogID);
+        index = map::adcIndex(index);
 
         CORE_MCU_ATOMIC_SECTION
         {
-            value = _analogBuffer[analogID];
-            _analogBuffer[analogID] &= ~Board::detail::IO::ADC_NEW_READING_FLAG;
+            value = _analogBuffer[index];
+            _analogBuffer[index] &= ~ADC_NEW_READING_FLAG;
         }
 
-        if (value & Board::detail::IO::ADC_NEW_READING_FLAG)
+        if (value & ADC_NEW_READING_FLAG)
         {
-            value &= ~Board::detail::IO::ADC_NEW_READING_FLAG;
+            value &= ~ADC_NEW_READING_FLAG;
             return true;
         }
 

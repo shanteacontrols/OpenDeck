@@ -22,9 +22,9 @@ limitations under the License.
 #include "tusb.h"
 #include "core/src/MCU.h"
 
-namespace Board::detail::setup
+namespace Board::detail::USB
 {
-    void usb()
+    void init()
     {
         auto descriptor = core::mcu::peripherals::usbDescriptor();
         descriptor->enableClock();
@@ -40,6 +40,6 @@ namespace Board::detail::setup
         tusb_init();
         Board::detail::registerUpdateHook(&tud_task);
     }
-}    // namespace Board::detail::setup
+}    // namespace Board::detail::USB
 
 #endif

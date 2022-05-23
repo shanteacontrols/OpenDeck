@@ -29,17 +29,19 @@ limitations under the License.
 #include "core/src/util/RingBuffer.h"
 #include <Target.h>
 
+using namespace Board::IO::digitalIn;
 using namespace Board::detail;
+using namespace Board::detail::IO::digitalIn;
 
 namespace
 {
-    volatile Board::IO::dInReadings_t                                         _digitalInBuffer[NR_OF_DIGITAL_INPUTS];
-    core::util::RingBuffer<core::mcu::io::portWidth_t, IO::MAX_READING_COUNT> _portBuffer[NR_OF_DIGITAL_INPUT_PORTS];
+    volatile readings_t                                                   _digitalInBuffer[NR_OF_DIGITAL_INPUTS];
+    core::util::RingBuffer<core::mcu::io::portWidth_t, MAX_READING_COUNT> _portBuffer[NR_OF_DIGITAL_INPUT_PORTS];
 
     inline void storeDigitalIn()
     {
         // read all input ports instead of reading pin by pin to reduce the time spent in ISR
-        for (int portIndex = 0; portIndex < NR_OF_DIGITAL_INPUT_PORTS; portIndex++)
+        for (uint8_t portIndex = 0; portIndex < NR_OF_DIGITAL_INPUT_PORTS; portIndex++)
         {
             _portBuffer[portIndex].insert(CORE_MCU_IO_READ_IN_PORT(map::digitalInPort(portIndex)));
         }
@@ -55,16 +57,16 @@ namespace
 
         while (_portBuffer[portIndex].remove(portValue))
         {
-            for (int i = 0; i < NR_OF_DIGITAL_INPUTS; i++)
+            for (size_t i = 0; i < NR_OF_DIGITAL_INPUTS; i++)
             {
                 if (map::buttonPortIndex(i) == portIndex)
                 {
                     _digitalInBuffer[i].readings <<= 1;
                     _digitalInBuffer[i].readings |= !core::util::BIT_READ(portValue, map::buttonPinIndex(i));
 
-                    if (++_digitalInBuffer[i].count > IO::MAX_READING_COUNT)
+                    if (++_digitalInBuffer[i].count > MAX_READING_COUNT)
                     {
-                        _digitalInBuffer[i].count = IO::MAX_READING_COUNT;
+                        _digitalInBuffer[i].count = MAX_READING_COUNT;
                     }
                 }
             }
@@ -72,42 +74,65 @@ namespace
     }
 }    // namespace
 
-namespace Board::IO
+namespace Board::detail::IO::digitalIn
 {
-    bool digitalInState(size_t digitalInIndex, dInReadings_t& dInReadings)
+    void init()
     {
-        if (digitalInIndex >= NR_OF_DIGITAL_INPUTS)
+        for (size_t i = 0; i < NR_OF_DIGITAL_INPUTS; i++)
+        {
+            auto pin = detail::map::buttonPin(i);
+
+#ifndef BUTTONS_EXT_PULLUPS
+            CORE_MCU_IO_INIT(CORE_MCU_IO_PIN_PORT(pin),
+                             CORE_MCU_IO_PIN_INDEX(pin),
+                             core::mcu::io::pinMode_t::INPUT,
+                             core::mcu::io::pullMode_t::UP);
+#else
+            CORE_MCU_IO_INIT(CORE_MCU_IO_PIN_PORT(pin),
+                             CORE_MCU_IO_PIN_INDEX(pin),
+                             core::mcu::io::pinMode_t::INPUT,
+                             core::mcu::io::pullMode_t::NONE);
+#endif
+        }
+    }
+}    // namespace Board::detail::IO::digitalIn
+
+namespace Board::IO::digitalIn
+{
+    bool state(size_t index, readings_t& readings)
+    {
+        if (index >= NR_OF_DIGITAL_INPUTS)
         {
             return false;
         }
 
-        fillBuffer(digitalInIndex);
+        fillBuffer(index);
 
-        digitalInIndex                         = detail::map::buttonIndex(digitalInIndex);
-        dInReadings.count                      = _digitalInBuffer[digitalInIndex].count;
-        dInReadings.readings                   = _digitalInBuffer[digitalInIndex].readings;
-        _digitalInBuffer[digitalInIndex].count = 0;
+        index                         = map::buttonIndex(index);
+        readings.count                = _digitalInBuffer[index].count;
+        readings.readings             = _digitalInBuffer[index].readings;
+        _digitalInBuffer[index].count = 0;
 
-        return dInReadings.count > 0;
+        return readings.count > 0;
     }
 
-    size_t encoderIndex(size_t buttonID)
+    size_t encoderFromInput(size_t index)
     {
-        return buttonID / 2;
+        return index / 2;
     }
 
-    size_t encoderSignalIndex(size_t encoderID, encoderIndex_t index)
+    size_t encoderComponentFromEncoder(size_t index, encoderComponent_t component)
     {
-        uint8_t buttonID = encoderID * 2;
+        index *= 2;
 
-        if (index == encoderIndex_t::A)
+        if (component == encoderComponent_t::A)
         {
-            return buttonID;
+            return index;
         }
 
-        return buttonID + 1;
+        return index + 1;
     }
-}    // namespace Board::IO
+}    // namespace Board::IO::digitalIn
 
 #include "Common.cpp.include"
 

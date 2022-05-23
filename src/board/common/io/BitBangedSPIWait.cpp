@@ -20,18 +20,19 @@ limitations under the License.
 #include "board/Internal.h"
 #include "core/src/util/Util.h"
 
-// both delays assume 16MHz clock
+namespace
+{
+    // delay for 150ns
+    constexpr uint32_t LOOPS = 150 / (((1.0 / CORE_CPU_FREQ_MHZ * 1000000)) * 1000000000);
+}    // namespace
 
 namespace Board::detail::IO
 {
-    void sr595wait()
+    void spiWait()
     {
-        CORE_MCU_NOP();
-        CORE_MCU_NOP();
-    }
-
-    void sr165wait()
-    {
-        CORE_MCU_NOP();
+        for (uint32_t i = 0; i < LOOPS; i++)
+        {
+            CORE_MCU_NOP();
+        }
     }
 }    // namespace Board::detail::IO

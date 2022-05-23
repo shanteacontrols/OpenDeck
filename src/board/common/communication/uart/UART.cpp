@@ -68,7 +68,7 @@ namespace Board
                 return false;
             }
 
-            if (Board::detail::UART::ll::deInit(channel))
+            if (Board::detail::UART::MCU::deInit(channel))
             {
                 setLoopbackState(channel, false);
 
@@ -97,7 +97,7 @@ namespace Board
 
             if (deInit(channel))
             {
-                if (Board::detail::UART::ll::init(channel, config))
+                if (Board::detail::UART::MCU::init(channel, config))
                 {
                     _initialized[channel] = true;
                     return initStatus_t::OK;
@@ -163,7 +163,7 @@ namespace Board
                     ;
                 }
 
-                Board::detail::UART::ll::startTx(channel);
+                Board::detail::UART::MCU::startTx(channel);
             }
 
             return true;
@@ -181,7 +181,7 @@ namespace Board
                 return false;
             }
 
-            return Board::detail::UART::ll::isTxComplete(channel);
+            return Board::detail::UART::MCU::isTxComplete(channel);
         }
 
 #ifdef DMX_SUPPORTED
@@ -215,11 +215,14 @@ namespace Board
             {
                 if (_txBuffer[channel].insert(data))
                 {
-                    Board::detail::UART::ll::startTx(channel);
+                    Board::detail::UART::MCU::startTx(channel);
 
                     // indicate loopback here since it's run inside interrupt, ie. not visible to the user application
-                    Board::IO::indicateTraffic(Board::IO::dataSource_t::UART, Board::IO::dataDirection_t::OUTGOING);
-                    Board::IO::indicateTraffic(Board::IO::dataSource_t::UART, Board::IO::dataDirection_t::INCOMING);
+                    Board::IO::indicators::indicateTraffic(Board::IO::indicators::dataSource_t::UART,
+                                                           Board::IO::indicators::dataDirection_t::OUTGOING);
+
+                    Board::IO::indicators::indicateTraffic(Board::IO::indicators::dataSource_t::UART,
+                                                           Board::IO::indicators::dataDirection_t::INCOMING);
                 }
             }
         }

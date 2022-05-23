@@ -16,21 +16,22 @@ limitations under the License.
 
 */
 
-namespace Board::detail::IO::digitalIn
-{
-    void update()
-    {
-        storeDigitalIn();
-    }
+#include "board/Board.h"
+#include "board/Internal.h"
+#include "core/src/util/Util.h"
 
-    void flush()
+namespace Board::detail::IO
+{
+    void init()
     {
-        CORE_MCU_ATOMIC_SECTION
-        {
-            for (size_t i = 0; i < NR_OF_DIGITAL_INPUTS; i++)
-            {
-                _digitalInBuffer[i].count = 0;
-            }
-        }
+        bootloader::init();
+        indicators::init();
+
+#ifdef FW_APP
+        analog::init();
+        digitalIn::init();
+        digitalOut::init();
+        unused::init();
+#endif
     }
 }    // namespace Board::detail::IO

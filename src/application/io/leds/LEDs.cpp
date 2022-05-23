@@ -514,15 +514,15 @@ void LEDs::midiToState(const Messaging::event_t& event, Messaging::eventType_t s
 
 void LEDs::setBlinkSpeed(uint8_t ledID, blinkSpeed_t state, bool updateState)
 {
-    uint8_t ledArray[3] = {};
-    uint8_t leds        = 0;
-    uint8_t rgbIndex    = _hwa.rgbIndex(ledID);
+    uint8_t ledArray[3]   = {};
+    uint8_t leds          = 0;
+    uint8_t rgbFromOutput = _hwa.rgbFromOutput(ledID);
 
-    if (_database.read(Database::Config::Section::leds_t::RGB_ENABLE, rgbIndex))
+    if (_database.read(Database::Config::Section::leds_t::RGB_ENABLE, rgbFromOutput))
     {
-        ledArray[0] = _hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::R);
-        ledArray[1] = _hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::G);
-        ledArray[2] = _hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::B);
+        ledArray[0] = _hwa.rgbComponentFromRGB(rgbFromOutput, rgbComponent_t::R);
+        ledArray[1] = _hwa.rgbComponentFromRGB(rgbFromOutput, rgbComponent_t::G);
+        ledArray[2] = _hwa.rgbComponentFromRGB(rgbFromOutput, rgbComponent_t::B);
 
         leds = 3;
     }
@@ -583,9 +583,9 @@ void LEDs::refresh()
 
 void LEDs::setColor(uint8_t ledID, color_t color, brightness_t brightness)
 {
-    uint8_t rgbIndex = _hwa.rgbIndex(ledID);
+    uint8_t rgbFromOutput = _hwa.rgbFromOutput(ledID);
 
-    auto handleLED = [&](uint8_t index, rgbIndex_t rgbIndex, bool state, bool isRGB)
+    auto handleLED = [&](uint8_t index, rgbComponent_t rgbFromOutput, bool state, bool isRGB)
     {
         if (state)
         {
@@ -596,21 +596,21 @@ void LEDs::setColor(uint8_t ledID, color_t color, brightness_t brightness)
             {
                 updateBit(index, ledBit_t::RGB, true);
 
-                switch (rgbIndex)
+                switch (rgbFromOutput)
                 {
-                case rgbIndex_t::R:
+                case rgbComponent_t::R:
                 {
                     updateBit(index, ledBit_t::RGB_R, state);
                 }
                 break;
 
-                case rgbIndex_t::G:
+                case rgbComponent_t::G:
                 {
                     updateBit(index, ledBit_t::RGB_G, state);
                 }
                 break;
 
-                case rgbIndex_t::B:
+                case rgbComponent_t::B:
                 {
                     updateBit(index, ledBit_t::RGB_B, state);
                 }
@@ -632,37 +632,27 @@ void LEDs::setColor(uint8_t ledID, color_t color, brightness_t brightness)
         }
     };
 
-    if (_database.read(Database::Config::Section::leds_t::RGB_ENABLE, rgbIndex))
+    if (_database.read(Database::Config::Section::leds_t::RGB_ENABLE, rgbFromOutput))
     {
         // rgb led is composed of three standard LEDs
         // get indexes of individual LEDs first
-        uint8_t rLED = _hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::R);
-        uint8_t gLED = _hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::G);
-        uint8_t bLED = _hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::B);
+        uint8_t rLED = _hwa.rgbComponentFromRGB(rgbFromOutput, rgbComponent_t::R);
+        uint8_t gLED = _hwa.rgbComponentFromRGB(rgbFromOutput, rgbComponent_t::G);
+        uint8_t bLED = _hwa.rgbComponentFromRGB(rgbFromOutput, rgbComponent_t::B);
 
-        handleLED(rLED, rgbIndex_t::R, core::util::BIT_READ(static_cast<uint8_t>(color), static_cast<size_t>(rgbIndex_t::R)), true);
-        handleLED(gLED, rgbIndex_t::G, core::util::BIT_READ(static_cast<uint8_t>(color), static_cast<size_t>(rgbIndex_t::G)), true);
-        handleLED(bLED, rgbIndex_t::B, core::util::BIT_READ(static_cast<uint8_t>(color), static_cast<size_t>(rgbIndex_t::B)), true);
+        handleLED(rLED, rgbComponent_t::R, core::util::BIT_READ(static_cast<uint8_t>(color), static_cast<size_t>(rgbComponent_t::R)), true);
+        handleLED(gLED, rgbComponent_t::G, core::util::BIT_READ(static_cast<uint8_t>(color), static_cast<size_t>(rgbComponent_t::G)), true);
+        handleLED(bLED, rgbComponent_t::B, core::util::BIT_READ(static_cast<uint8_t>(color), static_cast<size_t>(rgbComponent_t::B)), true);
     }
     else
     {
-        handleLED(ledID, rgbIndex_t::R, static_cast<bool>(color), false);
+        handleLED(ledID, rgbComponent_t::R, static_cast<bool>(color), false);
     }
 }
 
 IO::LEDs::blinkSpeed_t LEDs::blinkSpeed(uint8_t ledID)
 {
     return static_cast<blinkSpeed_t>(_blinkTimer[ledID]);
-}
-
-size_t LEDs::rgbSignalIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent)
-{
-    return _hwa.rgbSignalIndex(rgbIndex, rgbComponent);
-}
-
-size_t LEDs::rgbIndex(size_t singleLEDindex)
-{
-    return _hwa.rgbIndex(singleLEDindex);
 }
 
 void LEDs::setBlinkType(blinkType_t blinkType)
@@ -723,14 +713,14 @@ LEDs::color_t LEDs::color(uint8_t ledID)
     }
 
     // rgb led
-    uint8_t rgbIndex = _hwa.rgbIndex(ledID);
+    uint8_t rgbFromOutput = _hwa.rgbFromOutput(ledID);
 
     uint8_t color = 0;
-    color |= bit(_hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::B), ledBit_t::RGB_B);
+    color |= bit(_hwa.rgbComponentFromRGB(rgbFromOutput, rgbComponent_t::B), ledBit_t::RGB_B);
     color <<= 1;
-    color |= bit(_hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::G), ledBit_t::RGB_G);
+    color |= bit(_hwa.rgbComponentFromRGB(rgbFromOutput, rgbComponent_t::G), ledBit_t::RGB_G);
     color <<= 1;
-    color |= bit(_hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::R), ledBit_t::RGB_R);
+    color |= bit(_hwa.rgbComponentFromRGB(rgbFromOutput, rgbComponent_t::R), ledBit_t::RGB_R);
 
     return static_cast<color_t>(color);
 }
@@ -787,19 +777,31 @@ std::optional<uint8_t> LEDs::sysConfigGet(System::Config::Section::leds_t sectio
 
     case System::Config::Section::leds_t::CHANNEL:
     {
-        result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_READ;
+        result = _database.read(Util::Conversion::sys2DBsection(section),
+                                index,
+                                readValue)
+                     ? System::Config::status_t::ACK
+                     : System::Config::status_t::ERROR_READ;
     }
     break;
 
     case System::Config::Section::leds_t::RGB_ENABLE:
     {
-        result = _database.read(Util::Conversion::sys2DBsection(section), rgbIndex(index), readValue) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_READ;
+        result = _database.read(Util::Conversion::sys2DBsection(section),
+                                _hwa.rgbFromOutput(index),
+                                readValue)
+                     ? System::Config::status_t::ACK
+                     : System::Config::status_t::ERROR_READ;
     }
     break;
 
     default:
     {
-        result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_READ;
+        result = _database.read(Util::Conversion::sys2DBsection(section),
+                                index,
+                                readValue)
+                     ? System::Config::status_t::ACK
+                     : System::Config::status_t::ERROR_READ;
     }
     break;
     }
@@ -869,12 +871,16 @@ std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t sectio
     case System::Config::Section::leds_t::RGB_ENABLE:
     {
         // make sure to turn all three leds off before setting new state
-        setColor(rgbSignalIndex(rgbIndex(index), rgbIndex_t::R), color_t::OFF, brightness_t::OFF);
-        setColor(rgbSignalIndex(rgbIndex(index), rgbIndex_t::G), color_t::OFF, brightness_t::OFF);
-        setColor(rgbSignalIndex(rgbIndex(index), rgbIndex_t::B), color_t::OFF, brightness_t::OFF);
+        setColor(_hwa.rgbComponentFromRGB(_hwa.rgbFromOutput(index), rgbComponent_t::R), color_t::OFF, brightness_t::OFF);
+        setColor(_hwa.rgbComponentFromRGB(_hwa.rgbFromOutput(index), rgbComponent_t::G), color_t::OFF, brightness_t::OFF);
+        setColor(_hwa.rgbComponentFromRGB(_hwa.rgbFromOutput(index), rgbComponent_t::B), color_t::OFF, brightness_t::OFF);
 
         // write rgb enabled bit to led
-        result = _database.update(Util::Conversion::sys2DBsection(section), rgbIndex(index), value) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_WRITE;
+        result = _database.update(Util::Conversion::sys2DBsection(section),
+                                  _hwa.rgbFromOutput(index),
+                                  value)
+                     ? System::Config::status_t::ACK
+                     : System::Config::status_t::ERROR_WRITE;
 
         if (value && (result == System::Config::status_t::ACK))
         {
@@ -883,7 +889,7 @@ std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t sectio
             for (int i = 0; i < 3; i++)
             {
                 result = _database.update(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::ACTIVATION_ID),
-                                          rgbSignalIndex(rgbIndex(index), static_cast<rgbIndex_t>(i)),
+                                          _hwa.rgbComponentFromRGB(_hwa.rgbFromOutput(index), static_cast<rgbComponent_t>(i)),
                                           _database.read(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::ACTIVATION_ID), index))
                              ? System::Config::status_t::ACK
                              : System::Config::status_t::ERROR_WRITE;
@@ -894,7 +900,7 @@ std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t sectio
                 }
 
                 result = _database.update(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::CONTROL_TYPE),
-                                          rgbSignalIndex(rgbIndex(index), static_cast<rgbIndex_t>(i)),
+                                          _hwa.rgbComponentFromRGB(_hwa.rgbFromOutput(index), static_cast<rgbComponent_t>(i)),
                                           _database.read(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::CONTROL_TYPE), index))
                              ? System::Config::status_t::ACK
                              : System::Config::status_t::ERROR_WRITE;
@@ -905,7 +911,7 @@ std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t sectio
                 }
 
                 result = _database.update(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::CHANNEL),
-                                          rgbSignalIndex(rgbIndex(index), static_cast<rgbIndex_t>(i)),
+                                          _hwa.rgbComponentFromRGB(_hwa.rgbFromOutput(index), static_cast<rgbComponent_t>(i)),
                                           _database.read(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::CHANNEL), index))
                              ? System::Config::status_t::ACK
                              : System::Config::status_t::ERROR_WRITE;
@@ -924,13 +930,13 @@ std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t sectio
     case System::Config::Section::leds_t::CHANNEL:
     {
         // first, find out if RGB led is enabled for this led index
-        if (_database.read(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::RGB_ENABLE), rgbIndex(index)))
+        if (_database.read(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::RGB_ENABLE), _hwa.rgbFromOutput(index)))
         {
             // rgb led enabled - copy these settings to all three leds
             for (int i = 0; i < 3; i++)
             {
                 result = _database.update(Util::Conversion::sys2DBsection(section),
-                                          rgbSignalIndex(rgbIndex(index), static_cast<rgbIndex_t>(i)),
+                                          _hwa.rgbComponentFromRGB(_hwa.rgbFromOutput(index), static_cast<rgbComponent_t>(i)),
                                           value)
                              ? System::Config::status_t::ACK
                              : System::Config::status_t::ERROR_WRITE;

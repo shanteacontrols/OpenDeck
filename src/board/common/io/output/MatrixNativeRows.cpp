@@ -26,10 +26,14 @@ limitations under the License.
 #include "core/src/util/Util.h"
 #include <Target.h>
 
+using namespace Board::IO::digitalOut;
+using namespace Board::detail;
+using namespace Board::detail::IO::digitalOut;
+
 namespace
 {
     uint8_t          _pwmCounter;
-    volatile uint8_t _ledState[(NR_OF_DIGITAL_OUTPUTS / 8) + 1][static_cast<uint8_t>(Board::IO::ledBrightness_t::B100)];
+    volatile uint8_t _ledState[(NR_OF_DIGITAL_OUTPUTS / 8) + 1][static_cast<uint8_t>(ledBrightness_t::B100)];
 
     enum class switchState_t : uint8_t
     {
@@ -46,26 +50,50 @@ namespace
     /// Used to turn the given LED row off.
     inline void ledRowOff(uint8_t row)
     {
-        core::mcu::io::pin_t pin = Board::detail::map::ledPin(row);
+        auto pin = map::ledPin(row);
         EXT_LED_OFF(CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin));
     }
 
     inline void ledRowOn(uint8_t row)
     {
-        core::mcu::io::pin_t pin = Board::detail::map::ledPin(row);
+        auto pin = map::ledPin(row);
         EXT_LED_ON(CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin));
     }
 }    // namespace
 
-namespace Board::detail::IO
+namespace Board::detail::IO::digitalOut
 {
-    void checkDigitalOutputs()
+    void init()
+    {
+        CORE_MCU_IO_INIT(DEC_LM_PORT_A0, DEC_LM_PIN_A0, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
+        CORE_MCU_IO_INIT(DEC_LM_PORT_A1, DEC_LM_PIN_A1, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
+        CORE_MCU_IO_INIT(DEC_LM_PORT_A2, DEC_LM_PIN_A2, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
+
+        CORE_MCU_IO_SET_LOW(DEC_LM_PORT_A0, DEC_LM_PIN_A0);
+        CORE_MCU_IO_SET_LOW(DEC_LM_PORT_A1, DEC_LM_PIN_A1);
+        CORE_MCU_IO_SET_LOW(DEC_LM_PORT_A2, DEC_LM_PIN_A2);
+
+        for (uint8_t i = 0; i < NUMBER_OF_LED_ROWS; i++)
+        {
+            auto pin = detail::map::ledPin(i);
+
+            // when rows are used from native outputs, use open-drain configuration
+            CORE_MCU_IO_INIT(CORE_MCU_IO_PIN_PORT(pin),
+                             CORE_MCU_IO_PIN_INDEX(pin),
+                             core::mcu::io::pinMode_t::OUTPUT_OD,
+                             core::mcu::io::pullMode_t::NONE);
+
+            EXT_LED_OFF(CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin));
+        }
+    }
+
+    void update()
     {
         switch (switchState)
         {
         case switchState_t::NONE:
         {
-            if (++_pwmCounter >= (static_cast<uint8_t>(Board::IO::ledBrightness_t::B100) - 1))
+            if (++_pwmCounter >= (static_cast<uint8_t>(ledBrightness_t::B100) - 1))
             {
                 switchState = switchState_t::ROWS_OFF;
             }
@@ -76,7 +104,7 @@ namespace Board::detail::IO
         {
             _pwmCounter = 0;
 
-            for (int i = 0; i < NUMBER_OF_LED_ROWS; i++)
+            for (uint8_t i = 0; i < NUMBER_OF_LED_ROWS; i++)
             {
                 ledRowOff(i);
             }
@@ -104,80 +132,80 @@ namespace Board::detail::IO
         break;
         }
 
-        for (int i = 0; i < NUMBER_OF_LED_ROWS; i++)
+        for (uint8_t i = 0; i < NUMBER_OF_LED_ROWS; i++)
         {
-            size_t  ledID      = activeOutColumn + i * NUMBER_OF_LED_COLUMNS;
-            uint8_t arrayIndex = ledID / 8;
-            uint8_t ledBit     = ledID - 8 * arrayIndex;
+            size_t  index      = activeOutColumn + i * NUMBER_OF_LED_COLUMNS;
+            uint8_t arrayIndex = index / 8;
+            uint8_t bit        = index - 8 * arrayIndex;
 
-            core::util::BIT_READ(_ledState[arrayIndex][_pwmCounter], ledBit) ? ledRowOn(i) : ledRowOff(i);
+            core::util::BIT_READ(_ledState[arrayIndex][_pwmCounter], bit) ? ledRowOn(i) : ledRowOff(i);
         }
     }
-}    // namespace Board::detail::IO
+}    // namespace Board::detail::IO::digitalOut
 
-namespace Board::IO
+namespace Board::IO::digitalOut
 {
-    void writeLEDstate(size_t ledID, IO::ledBrightness_t ledBrightness)
+    void writeLEDstate(size_t index, ledBrightness_t ledBrightness)
     {
-        if (ledID >= NR_OF_DIGITAL_OUTPUTS)
+        if (index >= NR_OF_DIGITAL_OUTPUTS)
         {
             return;
         }
 
-        ledID = detail::map::ledIndex(ledID);
+        index = detail::map::ledIndex(index);
 
         CORE_MCU_ATOMIC_SECTION
         {
-            for (int i = 0; i < static_cast<int>(ledBrightness_t::B100); i++)
+            for (uint8_t i = 0; i < static_cast<int>(ledBrightness_t::B100); i++)
             {
-                uint8_t arrayIndex = ledID / 8;
-                uint8_t ledBit     = ledID - 8 * arrayIndex;
+                uint8_t arrayIndex = index / 8;
+                uint8_t bit        = index - 8 * arrayIndex;
 
-                core::util::BIT_WRITE(_ledState[arrayIndex][i], ledBit, i < static_cast<int>(ledBrightness) ? 1 : 0);
+                core::util::BIT_WRITE(_ledState[arrayIndex][i], bit, i < static_cast<int>(ledBrightness) ? 1 : 0);
             }
         }
     }
 
-    size_t rgbSignalIndex(size_t rgbID, Board::IO::rgbIndex_t index)
+    size_t rgbFromOutput(size_t index)
     {
-        uint8_t column  = rgbID % NUMBER_OF_LED_COLUMNS;
-        uint8_t row     = (rgbID / NUMBER_OF_LED_COLUMNS) * 3;
+        uint8_t row = index / NUMBER_OF_LED_COLUMNS;
+
+        uint8_t mod = row % 3;
+        row -= mod;
+
+        uint8_t column = index % NUMBER_OF_LED_COLUMNS;
+
+        uint8_t result = (row * NUMBER_OF_LED_COLUMNS) / 3 + column;
+
+        if (result >= NR_OF_RGB_LEDS)
+        {
+            return NR_OF_RGB_LEDS - 1;
+        }
+
+        return result;
+    }
+
+    size_t rgbComponentFromRGB(size_t index, rgbComponent_t component)
+    {
+        uint8_t column  = index % NUMBER_OF_LED_COLUMNS;
+        uint8_t row     = (index / NUMBER_OF_LED_COLUMNS) * 3;
         uint8_t address = column + NUMBER_OF_LED_COLUMNS * row;
 
-        switch (index)
+        switch (component)
         {
-        case rgbIndex_t::R:
+        case rgbComponent_t::R:
             return address;
 
-        case rgbIndex_t::G:
+        case rgbComponent_t::G:
             return address + NUMBER_OF_LED_COLUMNS * 1;
 
-        case rgbIndex_t::B:
+        case rgbComponent_t::B:
             return address + NUMBER_OF_LED_COLUMNS * 2;
         }
 
         return 0;
     }
-
-    size_t rgbIndex(size_t ledID)
-    {
-        uint8_t row = ledID / NUMBER_OF_LED_COLUMNS;
-
-        uint8_t mod = row % 3;
-        row -= mod;
-
-        uint8_t column = ledID % NUMBER_OF_LED_COLUMNS;
-
-        uint8_t result = (row * NUMBER_OF_LED_COLUMNS) / 3 + column;
-
-        if (result >= Board::detail::IO::NR_OF_RGB_LEDS)
-        {
-            return Board::detail::IO::NR_OF_RGB_LEDS - 1;
-        }
-
-        return result;
-    }
-}    // namespace Board::IO
+}    // namespace Board::IO::digitalOut
 
 #endif
 #endif

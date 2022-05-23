@@ -347,6 +347,8 @@ fi
 
 if [[ $($yaml_parser "$yaml_file" bootloader.button) != "null" ]]
 then
+    printf "%s\n" "DEFINES += BTLDR_BUTTON_SUPPORTED" >> "$out_makefile"
+
     port=$($yaml_parser "$yaml_file" bootloader.button.port)
     index=$($yaml_parser "$yaml_file" bootloader.button.index)
 

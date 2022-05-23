@@ -25,6 +25,10 @@ limitations under the License.
 #include "board/Internal.h"
 #include <Target.h>
 
+using namespace Board::IO::analog;
+using namespace Board::detail;
+using namespace Board::detail::IO::analog;
+
 namespace
 {
     constexpr size_t ANALOG_IN_BUFFER_SIZE = (NUMBER_OF_MUX_INPUTS * NUMBER_OF_MUX);
@@ -44,20 +48,57 @@ namespace
         core::util::BIT_READ(_activeMuxInput, 3) ? CORE_MCU_IO_SET_HIGH(MUX_PORT_S3, MUX_PIN_S3) : CORE_MCU_IO_SET_LOW(MUX_PORT_S3, MUX_PIN_S3);
 #endif
     }
+
+    void dischargeMux()
+    {
+        // discharge the voltage present on common mux pins to avoid channel crosstalk
+        for (size_t i = 0; i < MAX_ADC_CHANNELS; i++)
+        {
+            auto pin = map::adcPin(i);
+
+            CORE_MCU_IO_INIT(CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin), core::mcu::io::pinMode_t::OUTPUT_PP);
+            CORE_MCU_IO_SET_LOW(CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin));
+        }
+    }
+
+    void restoreMux(uint8_t muxIndex)
+    {
+        auto pin = map::adcPin(muxIndex);
+        CORE_MCU_IO_INIT(CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin), core::mcu::io::pinMode_t::ANALOG);
+    }
 }    // namespace
 
-namespace Board::detail::IO
+namespace Board::detail::IO::analog
 {
-    void adcISR(uint16_t adcValue)
+    void init()
+    {
+        MCU::init();
+
+        for (size_t i = 0; i < MAX_ADC_CHANNELS; i++)
+        {
+            auto pin = map::adcPin(i);
+            CORE_MCU_IO_INIT(CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin), core::mcu::io::pinMode_t::ANALOG);
+            CORE_MCU_IO_SET_LOW(CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin));
+        }
+
+        CORE_MCU_IO_INIT(MUX_PORT_S0, MUX_PIN_S0, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
+        CORE_MCU_IO_INIT(MUX_PORT_S1, MUX_PIN_S1, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
+        CORE_MCU_IO_INIT(MUX_PORT_S2, MUX_PIN_S2, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
+#ifdef MUX_PORT_S3
+        CORE_MCU_IO_INIT(MUX_PORT_S3, MUX_PIN_S3, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
+#endif
+    }
+
+    void isr(uint16_t adcValue)
     {
         static bool firstReading = false;
         firstReading             = !firstReading;
 
         if (!firstReading && (adcValue <= core::mcu::adc::MAX))
         {
-            detail::IO::dischargeMux();
+            dischargeMux();
 
-            _analogBuffer[_analogIndex] = adcValue | Board::detail::IO::ADC_NEW_READING_FLAG;
+            _analogBuffer[_analogIndex] = adcValue | ADC_NEW_READING_FLAG;
             _analogIndex++;
             _activeMuxInput++;
 
@@ -75,18 +116,18 @@ namespace Board::detail::IO
                 }
 
                 // switch to next mux once all mux inputs are read
-                core::mcu::adc::setChannel(Board::detail::map::adcChannel(_activeMux));
+                core::mcu::adc::setChannel(map::adcChannel(_activeMux));
             }
 
             // always switch to next read pin
             setMuxInput();
         }
 
-        detail::IO::restoreMux(_activeMux);
+        restoreMux(_activeMux);
 
         core::mcu::adc::startItConversion();
     }
-}    // namespace Board::detail::IO
+}    // namespace Board::detail::IO::analog
 
 #include "Common.cpp.include"
 

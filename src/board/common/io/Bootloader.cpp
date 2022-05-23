@@ -16,27 +16,23 @@ limitations under the License.
 
 */
 
+#ifdef BTLDR_BUTTON_SUPPORTED
+
 #include "board/Board.h"
 #include "board/Internal.h"
 #include "core/src/util/Util.h"
+#include <Target.h>
 
-// assuming 84MHz clock config
-
-namespace Board::detail::IO
+namespace Board::detail::IO::bootloader
 {
-    void sr595wait()
+    void init()
     {
-        for (int i = 0; i < 12; i++)
-        {
-            CORE_MCU_NOP();
-        }
+#ifdef BTLDR_BUTTON_AH
+        CORE_MCU_IO_INIT(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN, core::mcu::io::pinMode_t::INPUT, core::mcu::io::pullMode_t::DOWN);
+#else
+        CORE_MCU_IO_INIT(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN, core::mcu::io::pinMode_t::INPUT, core::mcu::io::pullMode_t::UP);
+#endif
     }
+}    // namespace Board::detail::IO::bootloader
 
-    void sr165wait()
-    {
-        for (int i = 0; i < 6; i++)
-        {
-            CORE_MCU_NOP();
-        }
-    }
-}    // namespace Board::detail::IO
+#endif

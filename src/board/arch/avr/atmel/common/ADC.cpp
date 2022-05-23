@@ -25,12 +25,12 @@ limitations under the License.
 
 void core::mcu::isr::adc(uint16_t value)
 {
-    Board::detail::IO::adcISR(value);
+    Board::detail::IO::analog::isr(value);
 }
 
-namespace Board::detail::setup
+namespace Board::detail::IO::analog::MCU
 {
-    void adc()
+    void init()
     {
         core::mcu::adc::conf_t adcConfiguration;
 
@@ -42,14 +42,14 @@ namespace Board::detail::setup
         adcConfiguration.vref = core::mcu::adc::vRef_t::AVCC;
 #endif
 
-        for (int i = 0; i < MAX_ADC_CHANNELS; i++)
+        for (size_t i = 0; i < MAX_ADC_CHANNELS; i++)
         {
             core::mcu::adc::disconnectDigitalIn(Board::detail::map::adcChannel(i));
         }
 
         core::mcu::adc::init(adcConfiguration);
 
-        for (int i = 0; i < 3; i++)
+        for (uint8_t i = 0; i < 3; i++)
         {
             // few dummy reads to init ADC
             core::mcu::adc::read(Board::detail::map::adcChannel(0));
@@ -57,7 +57,7 @@ namespace Board::detail::setup
 
         core::mcu::adc::startItConversion();
     }
-}    // namespace Board::detail::setup
+}    // namespace Board::detail::IO::analog::MCU
 
 #endif
 #endif

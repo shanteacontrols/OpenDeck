@@ -238,95 +238,109 @@ namespace Board
 
     namespace IO
     {
-        enum class rgbIndex_t : uint8_t
+        void init();
+
+        namespace digitalIn
         {
-            R,
-            G,
-            B
-        };
+            enum class encoderComponent_t : uint8_t
+            {
+                A,
+                B
+            };
 
-        enum class ledBrightness_t : uint8_t
+            /// Structure containing digital input readings for a given input.
+            /// Count represents total amount of readings stored in readings variable.
+            /// Readings variable contains up to 16 last readings where LSB bit is the
+            /// newest reading, and MSB bit is the last.
+            struct readings_t
+            {
+                uint8_t  count;
+                uint16_t readings;
+            };
+
+            /// Returns last read digital input states for requested digital input index.
+            /// param [in]:     index           Index of digital input which should be read.
+            /// param [in,out]: readings        Reference to variable in which new digital input readings are stored.
+            /// returns: True if there are new readings for specified digital input index.
+            bool state(size_t index, readings_t& readings);
+
+            /// Calculates encoder index based on provided digital input index.
+            /// param [in]: index   Digital input index from which encoder is being calculated.
+            /// returns: Calculated encoder index.
+            size_t encoderFromInput(size_t index);
+
+            /// Used to calculate index of A or B component index of encoder.
+            /// param [in]: index       Encoder which is being checked.
+            /// param [in]: component   A or B encoder component (enumerated type, see encoderComponent_t).
+            /// returns: Calculated index of A or B signal of encoder.
+            size_t encoderComponentFromEncoder(size_t index, encoderComponent_t component);
+        }    // namespace digitalIn
+
+        namespace digitalOut
         {
-            OFF  = 0,
-            B25  = 1,
-            B50  = 2,
-            B75  = 3,
-            B100 = 4
-        };
+            enum class rgbComponent_t : uint8_t
+            {
+                R,
+                G,
+                B
+            };
 
-        enum class encoderIndex_t : uint8_t
+            enum class ledBrightness_t : uint8_t
+            {
+                OFF  = 0,
+                B25  = 1,
+                B50  = 2,
+                B75  = 3,
+                B100 = 4
+            };
+
+            /// Used to turn LED connected to the board on or off.
+            /// param [in]: index           LED for which to change state.
+            /// param [in]: brightnessLevel See ledBrightness_t enum.
+            void writeLEDstate(size_t index, ledBrightness_t ledBrightness);
+
+            /// Calculates RGB LED index based on provided single-color LED index.
+            /// param [in]: index   Index of single-color LED.
+            /// returns: Calculated index of RGB LED.
+            size_t rgbFromOutput(size_t index);
+
+            /// Used to calculate index of R, G or B component of RGB LED.
+            /// param [in]: index       Index of RGB LED.
+            /// param [in]: component   R, G or B component (enumerated type, see rgbComponent_t).
+            /// returns: Calculated index of R, G or B component of RGB LED.
+            size_t rgbComponentFromRGB(size_t index, rgbComponent_t component);
+        }    // namespace digitalOut
+
+        namespace analog
         {
-            A,
-            B
-        };
+            /// brief Checks for current analog value for specified analog index.
+            /// @param[in] index        Analog index for which ADC value is being checked.
+            /// param [in,out]:         Reference to variable in which new ADC reading is stored.
+            /// returns: True if there is a new reading for specified analog index.
+            bool value(size_t index, uint16_t& value);
+        }    // namespace analog
 
-        /// Structure containing digital input readings for a given input.
-        /// Count represents total amount of readings stored in readings variable.
-        /// Readings variable contains up to 16 last readings where LSB bit is the
-        /// newest reading, and MSB bit is the last.
-        struct dInReadings_t
+        namespace indicators
         {
-            uint8_t  count;
-            uint16_t readings;
-        };
+            enum class dataSource_t : uint8_t
+            {
+                USB,
+                UART,
+                BLE
+            };
 
-        enum class dataSource_t : uint8_t
-        {
-            USB,
-            UART,
-            BLE
-        };
+            enum class dataDirection_t : uint8_t
+            {
+                INCOMING,
+                OUTGOING
+            };
 
-        enum class dataDirection_t : uint8_t
-        {
-            INCOMING,
-            OUTGOING
-        };
-
-        /// Returns last read digital input states for requested digital input index.
-        /// param [in]:     digitalInIndex  Index of digital input which should be read.
-        /// param [in,out]: dInReadings     Reference to variable in which new digital input readings are stored.
-        /// returns: True if there are new readings for specified digital input index.
-        bool digitalInState(size_t digitalInIndex, dInReadings_t& dInReadings);
-
-        /// Calculates encoder index based on provided button index.
-        /// param [in]: buttonID   Button index from which encoder is being calculated.
-        /// returns: Calculated encoder index.
-        size_t encoderIndex(size_t buttonID);
-
-        /// Used to calculate index of A or B signal of encoder.
-        /// param [in]: encoderID   Encoder which is being checked.
-        /// param [in]: index       A or B signal (enumerated type, see encoderIndex_t).
-        /// returns: Calculated index of A or B signal of encoder.
-        size_t encoderSignalIndex(size_t encoderID, encoderIndex_t index);
-
-        /// Used to turn LED connected to the board on or off.
-        /// param [in]: ledID           LED for which to change state.
-        /// param [in]: brightnessLevel See ledBrightness_t enum.
-        void writeLEDstate(size_t ledID, ledBrightness_t ledBrightness);
-
-        /// Calculates RGB LED index based on provided single-color LED index.
-        /// param [in]: ledID   Index of single-color LED.
-        /// returns: Calculated index of RGB LED.
-        size_t rgbIndex(size_t ledID);
-
-        /// Used to calculate index of R, G or B component of RGB LED.
-        /// param [in]: rgbID   Index of RGB LED.
-        /// param [in]: index   R, G or B component (enumerated type, see rgbIndex_t).
-        /// returns: Calculated index of R, G or B component of RGB LED.
-        size_t rgbSignalIndex(size_t rgbID, rgbIndex_t index);
-
-        /// brief Checks for current analog value for specified analog index.
-        /// @param[in] analogID     Analog index for which ADC value is being checked.
-        /// param [in,out]:         Reference to variable in which new ADC reading is stored.
-        /// returns: True if there is a new reading for specified analog index.
-        bool analogValue(size_t analogID, uint16_t& value);
-
-        /// Used to indicate that the data event (UART, USB etc.) has occured using built-in LEDs on board.
-        /// param [source]     Source of data. Depending on the source corresponding LEDs will be turned on.
-        /// param [direction]  Direction of data.
-        void indicateTraffic(dataSource_t source, dataDirection_t direction);
-    }    // namespace IO
+            /// Used to indicate that the data event (UART, USB etc.) has occured using built-in LEDs on board.
+            /// param [source]     Source of data. Depending on the source corresponding LEDs will be turned on.
+            /// param [direction]  Direction of data.
+            void indicateTraffic(dataSource_t source, dataDirection_t direction);
+        }    // namespace indicators
+    }        // namespace IO
 
     namespace NVM
     {

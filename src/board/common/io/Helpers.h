@@ -18,7 +18,7 @@ limitations under the License.
 
 #pragma once
 
-/// Helper macros used for easier control of internal (on-board) and external LEDs.
+/// Helper macros used for easier IO control
 
 // reverse the logic in bootloader mode:
 // internal leds are always on unless there's some traffic
@@ -46,4 +46,12 @@ limitations under the License.
 #else
 #define EXT_LED_ON(port, pin)  CORE_MCU_IO_SET_HIGH(port, pin)
 #define EXT_LED_OFF(port, pin) CORE_MCU_IO_SET_LOW(port, pin)
+#endif
+
+#ifdef BTLDR_BUTTON_SUPPORTED
+#ifdef BTLDR_BUTTON_AH
+#define IS_BTLDR_ACTIVE() (CORE_MCU_IO_READ(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN))
+#else
+#define IS_BTLDR_ACTIVE() (!(CORE_MCU_IO_READ(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN)))
+#endif
 #endif

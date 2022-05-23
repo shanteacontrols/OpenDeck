@@ -47,7 +47,7 @@ namespace IO
             GROUP_TOUCHSCREEN_COMPONENTS
         };
 
-        enum class rgbIndex_t : uint8_t
+        enum class rgbComponent_t : uint8_t
         {
             R,
             G,
@@ -116,9 +116,9 @@ namespace IO
         class HWA
         {
             public:
-            virtual void   setState(size_t index, brightness_t brightness)                = 0;
-            virtual size_t rgbIndex(size_t singleLEDindex)                                = 0;
-            virtual size_t rgbSignalIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent) = 0;
+            virtual void   setState(size_t index, brightness_t brightness)                   = 0;
+            virtual size_t rgbFromOutput(size_t index)                                       = 0;
+            virtual size_t rgbComponentFromRGB(size_t index, LEDs::rgbComponent_t component) = 0;
         };
 
         LEDs(HWA&                hwa,
@@ -148,8 +148,6 @@ namespace IO
         void                   setAllOn();
         void                   refresh();
         void                   setBlinkSpeed(uint8_t ledID, blinkSpeed_t state, bool updateState = true);
-        size_t                 rgbSignalIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent);
-        size_t                 rgbIndex(size_t singleLEDindex);
         void                   setBlinkType(blinkType_t blinkType);
         void                   resetBlinking();
         void                   updateBit(uint8_t index, ledBit_t bit, bool state);

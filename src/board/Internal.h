@@ -38,9 +38,6 @@ namespace Board::detail
     {
         void application();
         void bootloader();
-        void io();
-        void adc();
-        void usb();
     }    // namespace setup
 
     namespace USB
@@ -52,6 +49,8 @@ namespace Board::detail
             SENDING,
             WAITING
         };
+
+        void init();
 
 #ifdef USB_OVER_SERIAL
         /// Reads the data from UART channel on which USB host is located and checks if
@@ -98,7 +97,7 @@ namespace Board::detail
             core::mcu::io::pin_t tx;
         };
 
-        namespace ll
+        namespace MCU
         {
             // low-level UART API, MCU specific
 
@@ -118,7 +117,7 @@ namespace Board::detail
             /// Performs low-level deinitialization of the specified UART channel.
             /// param [in]: channel UART channel on MCU.
             bool deInit(uint8_t channel);
-        }    // namespace ll
+        }    // namespace MCU
 
         /// Used to store incoming data from UART to buffer.
         /// param [in]: channel UART channel on MCU.
@@ -156,51 +155,79 @@ namespace Board::detail
 
     namespace IO
     {
-        // constant used to easily access maximum amount of previous readings for a given digital input
-        constexpr inline size_t MAX_READING_COUNT = (8 * sizeof(((Board::IO::dInReadings_t*)0)->readings));
+        void init();
 
-        constexpr inline size_t NR_OF_RGB_LEDS = NR_OF_DIGITAL_OUTPUTS / 3;
+        /// MCU-specific delay routine used to generate correct SPI timings in bit-banging mode.
+        void spiWait();
 
-        /// Used to indicate that the new analog reading has been made
-        constexpr uint16_t ADC_NEW_READING_FLAG = 0x8000;
-
-        /// Continuously reads all digital inputs.
-        void checkDigitalInputs();
-
-        /// Removes all readings from digital inputs.
-        void flushInputReadings();
-
-        /// Checks if digital outputs need to be updated.
-        void checkDigitalOutputs();
-
-        /// Checks if indicator LEDs need to be turned on or off.
-        void checkIndicators();
-
-        /// Flashes integrated LEDs on board on startup to indicate that application is about to be loaded.
-        void ledFlashStartup();
-
-        /// MCU-specific delay routine used when setting 74HC595 shift register state.
-        void sr595wait();
-
-        /// MCU-specific delay routine used when setting 74HC165 shift register state.
-        void sr165wait();
-
-        /// Used to temporarily configure all common multiplexer pins as outputs to minimize
-        /// the effect of channel-to-channel crosstalk.
-        void dischargeMux();
-
-        /// Used to restore pin setup for specified multiplexer.
-        void restoreMux(uint8_t muxIndex);
-
-        /// Called in ADC ISR once the conversion is done.
-        /// param [in]: adcValue    Retrieved ADC value.
-        void adcISR(uint16_t adcValue);
-
-        /// Used as an descriptor for unused pins.
-        struct unusedIO_t
+        namespace digitalIn
         {
-            core::mcu::io::pin_t pin;
-            bool                 state;
-        };
-    }    // namespace IO
+            // constant used to easily access maximum amount of previous readings for a given digital input
+            constexpr inline size_t MAX_READING_COUNT = (8 * sizeof(((Board::IO::digitalIn::readings_t*)0)->readings));
+
+            void init();
+
+            /// Continuously reads all digital inputs.
+            void update();
+
+            /// Removes all readings from digital inputs.
+            void flush();
+        }    // namespace digitalIn
+
+        namespace digitalOut
+        {
+            constexpr inline size_t NR_OF_RGB_LEDS = NR_OF_DIGITAL_OUTPUTS / 3;
+
+            void init();
+
+            /// Checks if digital outputs need to be updated.
+            void update();
+        }    // namespace digitalOut
+
+        namespace analog
+        {
+            namespace MCU
+            {
+                /// Performs low-level initialization of internal ADC.
+                void init();
+            }    // namespace MCU
+
+            /// Used to indicate that the new analog reading has been made
+            constexpr uint16_t ADC_NEW_READING_FLAG = 0x8000;
+
+            void init();
+
+            /// Called in ADC ISR once the conversion is done.
+            /// param [in]: adcValue    Retrieved ADC value.
+            void isr(uint16_t adcValue);
+        }    // namespace analog
+
+        namespace indicators
+        {
+            void init();
+
+            /// Checks if indicator LEDs need to be turned on or off.
+            void update();
+
+            /// Flashes integrated LEDs on board on startup to indicate that application is about to be loaded.
+            void ledFlashStartup();
+        }    // namespace indicators
+
+        namespace unused
+        {
+            /// Used as an descriptor for unused pins.
+            struct unusedIO_t
+            {
+                core::mcu::io::pin_t pin;
+                bool                 state;
+            };
+
+            void init();
+        }    // namespace unused
+
+        namespace bootloader
+        {
+            void init();
+        }    // namespace bootloader
+    }        // namespace IO
 }    // namespace Board::detail
