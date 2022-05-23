@@ -210,6 +210,36 @@ then
             printf "%s\n" "DEFINES += NUMBER_OF_LED_COLUMNS=$number_of_led_columns"
             printf "%s\n" "DEFINES += NUMBER_OF_LED_ROWS=$number_of_led_rows"
         } >> "$out_makefile"
+    elif [[ $digital_out_type == max7219 ]]
+    then
+        printf "%s\n" "DEFINES += DIGITAL_OUTPUT_DRIVER_MAX7219" >> "$out_makefile"
+
+        port=$($yaml_parser "$yaml_file" leds.external.pins.data.port)
+        index=$($yaml_parser "$yaml_file" leds.external.pins.data.index)
+
+        {
+            printf "%s\n" "#define MAX7219_DATA_PORT CORE_MCU_IO_PIN_PORT_DEF(${port})"
+            printf "%s\n" "#define MAX7219_DATA_PIN CORE_MCU_IO_PIN_INDEX_DEF(${index})"
+        } >> "$out_header"
+
+        port=$($yaml_parser "$yaml_file" leds.external.pins.clock.port)
+        index=$($yaml_parser "$yaml_file" leds.external.pins.clock.index)
+
+        {
+            printf "%s\n" "#define MAX7219_CLK_PORT CORE_MCU_IO_PIN_PORT_DEF(${port})"
+            printf "%s\n" "#define MAX7219_CLK_PIN CORE_MCU_IO_PIN_INDEX_DEF(${index})"
+        } >> "$out_header"
+
+        port=$($yaml_parser "$yaml_file" leds.external.pins.latch.port)
+        index=$($yaml_parser "$yaml_file" leds.external.pins.latch.index)
+
+        {
+            printf "%s\n" "#define MAX7219_LATCH_PORT CORE_MCU_IO_PIN_PORT_DEF(${port})"
+            printf "%s\n" "#define MAX7219_LATCH_PIN CORE_MCU_IO_PIN_INDEX_DEF(${index})"
+        } >> "$out_header"
+
+        # hardcode for now
+        nr_of_digital_outputs=64
     fi
 
     if [[ "$($yaml_parser "$yaml_file" leds.external.indexing)" != "null" ]]
