@@ -2,10 +2,10 @@
 
 #include "io/i2c/I2C.h"
 
-class HWAI2C : public IO::I2C::HWA
+class HWADisplay : public IO::I2C::Peripheral::HWA
 {
     public:
-    HWAI2C() = default;
+    HWADisplay() = default;
 
     bool init() override
     {

@@ -63,12 +63,11 @@ namespace IO
             AMOUNT
         };
 
-        Display(I2C::HWA&           hwa,
-                Database::Instance& database);
+        Display(I2C::Peripheral::HWA& hwa,
+                Database::Instance&   database);
 
-        bool           init(uint8_t address) override;
-        void           update() override;
-        const uint8_t* addresses(size_t& amount) override;
+        bool init() override;
+        void update() override;
 
         private:
         bool                   initU8X8(uint8_t i2cAddress, displayController_t controller, displayResolution_t resolution);
@@ -85,11 +84,11 @@ namespace IO
         std::optional<uint8_t> sysConfigGet(System::Config::Section::i2c_t section, size_t index, uint16_t& value);
         std::optional<uint8_t> sysConfigSet(System::Config::Section::i2c_t section, size_t index, uint16_t value);
 
-        Database::Instance& _database;
-        u8x8_t              _u8x8;
-        static I2C::HWA*    _hwa;
+        Database::Instance&          _database;
+        u8x8_t                       _u8x8;
+        static I2C::Peripheral::HWA* _hwa;
 
-        static constexpr uint8_t I2C_ADDRESS[2] = {
+        static constexpr std::array<uint8_t, 2> I2C_ADDRESS = {
             0x3C,
             0x3D
         };

@@ -11,7 +11,8 @@
     dmx:
       channel: 2
   i2c:
-    channel: 2
+    display:
+      channel: 2
   buttons:
     type: "native"
     pins:

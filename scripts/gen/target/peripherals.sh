@@ -307,38 +307,76 @@ if [[ "$($yaml_parser "$yaml_file" i2c)" != "null" ]]
 then
     printf "%s\n" "DEFINES += I2C_SUPPORTED" >> "$out_makefile"
 
-    i2c_channel=$($yaml_parser "$yaml_file" i2c.channel)
-    i2c_pins=$($yaml_parser "$yaml_file" i2c.pins)
+    declare -A i2cChannelArray
+    declare -i total_i2c_channels
+    declare -i use_custom_i2c_pins
 
-    if [[ $i2c_channel == "null" && $i2c_pins == "null" ]]
+    use_custom_i2c_pins=0
+    total_i2c_channels=0
+
+    if [[ "$($yaml_parser "$yaml_file" i2c.display)" != "null" ]]
     then
-        echo "I2C channel or pins left unspecified"
-        exit 1
+        printf "%s\n" "DEFINES += DISPLAY_SUPPORTED" >> "$out_makefile"
+
+        i2c_channel=$($yaml_parser "$yaml_file" i2c.display.channel)
+        i2c_pins=$($yaml_parser "$yaml_file" i2c.display.pins)
+
+        if [[ $i2c_channel == "null" && $i2c_pins == "null" ]]
+        then
+            echo "I2C channel or pins left unspecified"
+            exit 1
+        fi
+
+        if [[ $i2c_channel != "null" ]]
+        then
+            printf "%s\n" "DEFINES += I2C_CHANNEL_DISPLAY=$i2c_channel" >> "$out_makefile"
+        elif [[ $i2c_pins != "null" ]]
+        then
+            use_custom_i2c_pins=1
+
+            i2c_sda_port=$($yaml_parser "$yaml_file" i2c.display.pins.sda.port)
+            i2c_sda_index=$($yaml_parser "$yaml_file" i2c.display.pins.sda.index)
+            i2c_scl_port=$($yaml_parser "$yaml_file" i2c.display.pins.scl.port)
+            i2c_scl_index=$($yaml_parser "$yaml_file" i2c.display.pins.scl.index)
+
+            key=${i2c_sda_port}${i2c_sda_index}${i2c_scl_port}${i2c_scl_index}
+
+            if [[ -z "${i2cChannelArray[$key]}" ]]
+            then
+                # unique (non-existing) channel found
+                i2cChannelArray[$key]=$total_i2c_channels
+                ((total_i2c_channels++))
+            fi
+
+            printf "%s\n" "DEFINES += I2C_CHANNEL_DISPLAY=0" >> "$out_makefile"
+
+            {
+                printf "%s\n" "#define I2C_CHANNEL_${i2cChannelArray[$key]}_SDA_PORT CORE_MCU_IO_PIN_PORT_DEF(${i2c_sda_port})"
+                printf "%s\n" "#define I2C_CHANNEL_${i2cChannelArray[$key]}_SDA_INDEX CORE_MCU_IO_PIN_INDEX_DEF(${i2c_sda_index})"
+                printf "%s\n" "#define I2C_CHANNEL_${i2cChannelArray[$key]}_SCL_PORT CORE_MCU_IO_PIN_PORT_DEF(${i2c_scl_port})"
+                printf "%s\n" "#define I2C_CHANNEL_${i2cChannelArray[$key]}_SCL_INDEX CORE_MCU_IO_PIN_INDEX_DEF(${i2c_scl_index})"
+            } >> "$out_header"
+        fi
     fi
 
-    if [[ $i2c_channel != "null" ]]
+    if [[ "$use_custom_i2c_pins" -eq 1 ]]
     then
-        printf "%s\n" "DEFINES += I2C_CHANNEL=$i2c_channel" >> "$out_makefile"
-    elif [[ $i2c_pins != "null" ]]
-    then
-        i2c_sda_port=$($yaml_parser "$yaml_file" i2c.pins.sda.port)
-        i2c_sda_index=$($yaml_parser "$yaml_file" i2c.pins.sda.index)
-        i2c_scl_port=$($yaml_parser "$yaml_file" i2c.pins.scl.port)
-        i2c_scl_index=$($yaml_parser "$yaml_file" i2c.pins.scl.index)
+        {
+            printf "%s\n" "namespace {"
+            printf "%s\n" "constexpr inline Board::detail::I2C::i2cPins_t I2C_PINS[$total_i2c_channels] = {"
+        } >> "$out_header"
 
-        printf "%s\n" "DEFINES += I2C_CHANNEL=0" >> "$out_makefile"
+        for ((channel=0; channel<total_i2c_channels;channel++))
+        do
+            {
+                printf "%s\n" "{"
+                printf "%s\n" "CORE_MCU_IO_PIN_VAR(I2C_CHANNEL_${channel}_SDA_PORT, I2C_CHANNEL_${channel}_SDA_INDEX),"
+                printf "%s\n" "CORE_MCU_IO_PIN_VAR(I2C_CHANNEL_${channel}_SCL_PORT, I2C_CHANNEL_${channel}_SCL_INDEX),"
+                printf "%s\n" "},"
+            } >> "$out_header"
+        done
 
         {
-            printf "%s\n" "#define I2C_SDA_PORT CORE_MCU_IO_PIN_PORT_DEF(${i2c_sda_port})"
-            printf "%s\n" "#define I2C_SDA_INDEX CORE_MCU_IO_PIN_INDEX_DEF(${i2c_sda_index})"
-            printf "%s\n" "#define I2C_SCL_PORT CORE_MCU_IO_PIN_PORT_DEF(${i2c_scl_port})"
-            printf "%s\n" "#define I2C_SCL_INDEX CORE_MCU_IO_PIN_INDEX_DEF(${i2c_scl_index})"
-            printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline Board::detail::I2C::i2cPins_t I2C_PINS[1] = {"
-            printf "%s\n" "{"
-            printf "%s\n" "CORE_MCU_IO_PIN_VAR(I2C_SDA_PORT, I2C_SDA_INDEX),"
-            printf "%s\n" "CORE_MCU_IO_PIN_VAR(I2C_SCL_PORT, I2C_SCL_INDEX),"
-            printf "%s\n" "},"
             printf "%s\n" "};"
             printf "%s\n" "}"
         } >> "$out_header"

@@ -25,35 +25,15 @@ using namespace IO;
 std::array<I2C::Peripheral*, I2C::MAX_PERIPHERALS> I2C::_peripherals;
 size_t                                             I2C::_peripheralCounter;
 
-I2C::I2C(HWA& hwa)
-    : _hwa(hwa)
-{}
-
 bool I2C::init()
 {
-    if (!_hwa.init())
-    {
-        return false;
-    }
-
-    // Get I2C addresses for each peripheral.
-    // Once one of the provided addresses is found on I2C bus,
-    // initialize the peripheral with that address.
-
     for (size_t i = 0; i < _peripheralCounter; i++)
     {
         if (_peripherals.at(i) != nullptr)
         {
-            size_t totalAddresses  = 0;
-            auto   addressesBuffer = _peripherals.at(i)->addresses(totalAddresses);
-
-            for (size_t address = 0; address < totalAddresses; address++)
+            if (!_peripherals.at(i)->init())
             {
-                if (_hwa.deviceAvailable(addressesBuffer[address]))
-                {
-                    _peripherals.at(i)->init(addressesBuffer[address]);
-                    break;
-                }
+                return false;
             }
         }
     }

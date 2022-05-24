@@ -29,15 +29,21 @@ namespace
     constexpr uint32_t I2C_TRANSFER_TIMEOUT_MS = 10;
     constexpr size_t   I2C_SCAN_RETRIES        = 3;
     I2C_HandleTypeDef  _i2cHandler[core::mcu::peripherals::MAX_I2C_INTERFACES];
+    bool               _initialized[core::mcu::peripherals::MAX_I2C_INTERFACES];
 }    // namespace
 
 namespace Board::I2C
 {
-    bool init(uint8_t channel, clockSpeed_t speed)
+    initStatus_t init(uint8_t channel, clockSpeed_t speed)
     {
         if (channel >= core::mcu::peripherals::MAX_I2C_INTERFACES)
         {
-            return false;
+            return initStatus_t::ERROR;
+        }
+
+        if (isInitialized(channel))
+        {
+            return initStatus_t::ALREADY_INIT;
         }
 
         _i2cHandler[channel].Instance             = static_cast<I2C_TypeDef*>(core::mcu::peripherals::i2cDescriptor(channel)->interface());
@@ -49,8 +55,14 @@ namespace Board::I2C
         _i2cHandler[channel].Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
 
         CORE_ERROR_CHECK(HAL_I2C_Init(&_i2cHandler[channel]), HAL_OK);
+        _initialized[channel] = true;
 
-        return true;
+        return initStatus_t::OK;
+    }
+
+    bool isInitialized(uint8_t channel)
+    {
+        return _initialized[channel];
     }
 
     bool deInit(uint8_t channel)
@@ -60,7 +72,13 @@ namespace Board::I2C
             return false;
         }
 
-        return HAL_I2C_DeInit(&_i2cHandler[channel]) == HAL_OK;
+        if (HAL_I2C_DeInit(&_i2cHandler[channel]) == HAL_OK)
+        {
+            _initialized[channel] = false;
+            return true;
+        }
+
+        return false;
     }
 
     bool write(uint8_t channel, uint8_t address, uint8_t* buffer, size_t size)

@@ -49,7 +49,7 @@ namespace System
                 using Analog         = ::IO::Analog::HWA;
                 using Buttons        = ::IO::Buttons::HWA;
                 using CDCPassthrough = ::IO::Touchscreen::CDCPassthrough;
-                using I2C            = ::IO::I2C::HWA;
+                using Display        = ::IO::I2C::Peripheral::HWA;
                 using Encoders       = ::IO::Encoders::HWA;
                 using LEDs           = ::IO::LEDs::HWA;
                 using Touchscreen    = ::IO::Touchscreen::HWA;
@@ -57,7 +57,7 @@ namespace System
                 virtual Analog&         analog()         = 0;
                 virtual Buttons&        buttons()        = 0;
                 virtual CDCPassthrough& cdcPassthrough() = 0;
-                virtual I2C&            i2c()            = 0;
+                virtual Display&        display()        = 0;
                 virtual Encoders&       encoders()       = 0;
                 virtual LEDs&           leds()           = 0;
                 virtual Touchscreen&    touchscreen()    = 0;
@@ -131,12 +131,12 @@ namespace System
         IO::Encoders                                                                   _encoders          = IO::Encoders(_hwa.io().encoders(), _encodersFilter, _database, 1);
         IO::Touchscreen                                                                _touchscreen       = IO::Touchscreen(_hwa.io().touchscreen(), _database, _hwa.io().cdcPassthrough());
         IO::TouchscreenModelBuilder                                                    _touchscreenModels = IO::TouchscreenModelBuilder(_hwa.io().touchscreen());
-        IO::I2C                                                                        _i2c               = IO::I2C(_hwa.io().i2c());
-        IO::I2CPeripheralBuilder                                                       _i2cPeripherals    = IO::I2CPeripheralBuilder(_hwa.io().i2c(), _database);
-        Protocol::MIDI                                                                 _midi              = Protocol::MIDI(_hwa.protocol().midi().usb(), _hwa.protocol().midi().din(), _hwa.protocol().midi().ble(), _database);
-        Protocol::DMX                                                                  _dmx               = Protocol::DMX(_hwa.protocol().dmx(), _database);
-        std::array<IO::Base*, static_cast<size_t>(IO::ioComponent_t::AMOUNT)>          _io                = {};
-        std::array<Protocol::Base*, static_cast<size_t>(Protocol::protocol_t::AMOUNT)> _protocol          = {};
+        IO::I2C                                                                        _i2c;
+        IO::I2CPeripheralBuilder                                                       _i2cPeripherals = IO::I2CPeripheralBuilder(_hwa.io().display(), _database);
+        Protocol::MIDI                                                                 _midi           = Protocol::MIDI(_hwa.protocol().midi().usb(), _hwa.protocol().midi().din(), _hwa.protocol().midi().ble(), _database);
+        Protocol::DMX                                                                  _dmx            = Protocol::DMX(_hwa.protocol().dmx(), _database);
+        std::array<IO::Base*, static_cast<size_t>(IO::ioComponent_t::AMOUNT)>          _io             = {};
+        std::array<Protocol::Base*, static_cast<size_t>(Protocol::protocol_t::AMOUNT)> _protocol       = {};
 
         class Components : public System::Instance::Components
         {

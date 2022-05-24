@@ -29,13 +29,14 @@
           port: "0"
           index: 24
   i2c:
-    pins:
-      sda:
-        port: "0"
-        index: 21
-      scl:
-        port: "0"
-        index: 22
+    display:
+      pins:
+        sda:
+          port: "0"
+          index: 21
+        scl:
+          port: "0"
+          index: 22
   buttons:
     type: "native"
     extPullups: false

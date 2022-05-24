@@ -12,7 +12,8 @@
       channel: 1
       components: 32
   i2c:
-    channel: 0
+    display:
+      channel: 0
   buttons:
     type: "native"
     pins:

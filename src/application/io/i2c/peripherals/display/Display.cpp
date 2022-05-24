@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef I2C_SUPPORTED
+#ifdef DISPLAY_SUPPORTED
 
 #include <string.h>
 #include "Display.h"
@@ -40,10 +40,10 @@ namespace
 }    // namespace
 
 // hwa needs to be static since it is used in callback for C library
-I2C::HWA* Display::_hwa;
+I2C::Peripheral::HWA* Display::_hwa;
 
-Display::Display(I2C::HWA&           hwa,
-                 Database::Instance& database)
+Display::Display(I2C::Peripheral::HWA& hwa,
+                 Database::Instance&   database)
     : _database(database)
 {
     _hwa = &hwa;
@@ -92,16 +92,36 @@ Display::Display(I2C::HWA&           hwa,
     I2C::registerPeripheral(this);
 }
 
-bool Display::init(uint8_t address)
+bool Display::init()
 {
-    _selectedI2Caddress = address;
+    if (!_hwa->init())
+    {
+        return false;
+    }
+
+    bool addressFound = false;
+
+    for (size_t address = 0; address < I2C_ADDRESS.size(); address++)
+    {
+        if (_hwa->deviceAvailable(I2C_ADDRESS[address]))
+        {
+            addressFound        = true;
+            _selectedI2Caddress = I2C_ADDRESS[address];
+            break;
+        }
+    }
+
+    if (!addressFound)
+    {
+        return false;
+    }
 
     if (_database.read(Database::Config::Section::i2c_t::DISPLAY, setting_t::ENABLE))
     {
         auto controller = static_cast<displayController_t>(_database.read(Database::Config::Section::i2c_t::DISPLAY, setting_t::CONTROLLER));
         auto resolution = static_cast<displayResolution_t>(_database.read(Database::Config::Section::i2c_t::DISPLAY, setting_t::RESOLUTION));
 
-        if (initU8X8(address, controller, resolution))
+        if (initU8X8(_selectedI2Caddress, controller, resolution))
         {
             _resolution = resolution;
 
@@ -240,12 +260,6 @@ bool Display::deInit()
     _initialized = false;
 
     return true;
-}
-
-const uint8_t* Display::addresses(size_t& amount)
-{
-    amount = sizeof(I2C_ADDRESS) / sizeof(uint8_t);
-    return I2C_ADDRESS;
 }
 
 /// Checks if LCD requires updating continuously.
@@ -638,7 +652,7 @@ std::optional<uint8_t> Display::sysConfigSet(System::Config::Section::i2c_t sect
     {
         if (initAction == Common::initAction_t::INIT)
         {
-            init(_selectedI2Caddress);
+            init();
         }
         else if (initAction == Common::initAction_t::DE_INIT)
         {

@@ -24,6 +24,13 @@ limitations under the License.
 
 namespace Board
 {
+    enum class initStatus_t : uint8_t
+    {
+        OK,
+        ERROR,
+        ALREADY_INIT
+    };
+
     /// Perfoms initialization of MCU and all board peripherals.
     void init();
 
@@ -81,13 +88,6 @@ namespace Board
 
     namespace UART
     {
-        enum class initStatus_t : uint8_t
-        {
-            OK,
-            ERROR,
-            ALREADY_INIT
-        };
-
         enum parity_t : uint8_t
         {
             NO,
@@ -213,8 +213,12 @@ namespace Board
         /// Initializes I2C peripheral on the MCU.
         /// param [in]: channel     I2C interface channel on MCU.
         /// param [in]: clockSpeed  I2C interface speed.
-        /// returns: True on success, false otherwise.
-        bool init(uint8_t channel, clockSpeed_t speed);
+        /// returns: see initStatus_t.
+        initStatus_t init(uint8_t channel, clockSpeed_t speed);
+
+        /// Checks if specified I2C channel is initialized.
+        /// param [in]: channel I2C channel on MCU.
+        bool isInitialized(uint8_t channel);
 
         /// Denitializes I2C peripheral on the MCU.
         /// param [in]: channel     I2C interface channel on MCU.

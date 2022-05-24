@@ -18,10 +18,6 @@ limitations under the License.
 
 #pragma once
 
-#include <vector>
-#include <inttypes.h>
-#include "io/IOBase.h"
-
 namespace IO
 {
     class I2C : public IO::Base
@@ -30,21 +26,19 @@ namespace IO
         class Peripheral
         {
             public:
-            virtual bool           init(uint8_t address)     = 0;
-            virtual void           update()                  = 0;
-            virtual const uint8_t* addresses(size_t& amount) = 0;
+            class HWA
+            {
+                public:
+                virtual bool init()                                               = 0;
+                virtual bool write(uint8_t address, uint8_t* buffer, size_t size) = 0;
+                virtual bool deviceAvailable(uint8_t address)                     = 0;
+            };
+
+            virtual bool init()   = 0;
+            virtual void update() = 0;
         };
 
-        class HWA
-        {
-            public:
-            virtual bool init()                                               = 0;
-            virtual bool write(uint8_t address, uint8_t* buffer, size_t size) = 0;
-            virtual bool deviceAvailable(uint8_t address)                     = 0;
-        };
-
-        I2C(HWA& hwa)
-        {}
+        I2C() = default;
 
         bool init() override
         {

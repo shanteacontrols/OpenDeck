@@ -6,7 +6,7 @@
 #include "HWAEncoders.h"
 #include "HWATouchscreen.h"
 #include "HWASystem.h"
-#include "HWAI2C.h"
+#include "HWADisplay.h"
 #include "HWAMIDI.h"
 #include "HWADMX.h"
 #include "Database.h"
@@ -28,7 +28,7 @@ class TestSystem
     HWAEncoders                  _hwaEncoders;
     HWATouchscreen               _hwaTouchscreen;
     HWATouchscreenCDCPassthrough _hwaCDCPassthrough;
-    HWAI2C                       _hwaI2C;
+    HWADisplay                   _hwaDisplay;
     HWASystem                    _hwaSystem;
     HWAMIDIUSB                   _hwaMIDIUSB;
     HWAMIDIDIN                   _hwaMIDIDIN;
@@ -102,9 +102,9 @@ class TestSystem
                 return _testSystem._hwaCDCPassthrough;
             }
 
-            ::System::Builder::HWA::IO::I2C& i2c() override
+            ::System::Builder::HWA::IO::Display& display() override
             {
-                return _testSystem._hwaI2C;
+                return _testSystem._hwaDisplay;
             }
 
             private:

@@ -11,7 +11,8 @@
     dmx:
       channel: 5
   i2c:
-    channel: 0
+    display:
+      channel: 0
   buttons:
     type: "native"
     extPullups: false

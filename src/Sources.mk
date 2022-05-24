@@ -59,7 +59,7 @@ ifeq (,$(findstring gen,$(TYPE)))
             SOURCES += $(shell $(FIND) ../modules/midi/src -type f -name "*.cpp" | sed "s|^\.\./||")
             SOURCES += $(shell $(FIND) ../modules/sysex/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
 
-            ifneq (,$(findstring I2C_SUPPORTED,$(DEFINES)))
+            ifneq (,$(findstring DISPLAY_SUPPORTED,$(DEFINES)))
                 #u8x8 sources
                 SOURCES += \
                 modules/u8g2/csrc/u8x8_string.c \

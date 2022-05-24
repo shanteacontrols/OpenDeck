@@ -34,6 +34,7 @@ namespace
     core::util::RingBuffer<uint8_t, I2C_TX_BUFFER_SIZE> _txBuffer;
     uint8_t                                             _address;
     volatile bool                                       _txBusy;
+    bool                                                _initialized;
 
 #define TIMEOUT_CHECK(register, bit)                                           \
     do                                                                         \
@@ -116,11 +117,16 @@ namespace
 
 namespace Board::I2C
 {
-    bool init(uint8_t channel, clockSpeed_t speed)
+    initStatus_t init(uint8_t channel, clockSpeed_t speed)
     {
         if (channel >= core::mcu::peripherals::MAX_I2C_INTERFACES)
         {
-            return false;
+            return initStatus_t::ERROR;
+        }
+
+        if (isInitialized(channel))
+        {
+            return initStatus_t::ALREADY_INIT;
         }
 
         // no prescaling
@@ -129,7 +135,14 @@ namespace Board::I2C
         // use formula as per datasheet
         TWBR = ((F_CPU / static_cast<uint32_t>(speed)) - 16) / 2;
 
-        return true;
+        _initialized = true;
+
+        return initStatus_t::OK;
+    }
+
+    bool isInitialized(uint8_t channel)
+    {
+        return _initialized;
     }
 
     bool deInit(uint8_t channel)
@@ -139,7 +152,9 @@ namespace Board::I2C
             return false;
         }
 
-        TWCR = 0;
+        TWCR         = 0;
+        _initialized = false;
+
         return true;
     }
 

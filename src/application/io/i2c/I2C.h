@@ -22,6 +22,7 @@ limitations under the License.
 #include <stddef.h>
 #include <inttypes.h>
 #include "io/IOBase.h"
+#include "io/common/Common.h"
 
 #ifdef I2C_SUPPORTED
 
@@ -33,20 +34,19 @@ namespace IO
         class Peripheral
         {
             public:
-            virtual bool           init(uint8_t address)     = 0;
-            virtual void           update()                  = 0;
-            virtual const uint8_t* addresses(size_t& amount) = 0;
+            class HWA
+            {
+                public:
+                virtual bool init()                                               = 0;
+                virtual bool write(uint8_t address, uint8_t* buffer, size_t size) = 0;
+                virtual bool deviceAvailable(uint8_t address)                     = 0;
+            };
+
+            virtual bool init()   = 0;
+            virtual void update() = 0;
         };
 
-        class HWA
-        {
-            public:
-            virtual bool init()                                               = 0;
-            virtual bool write(uint8_t address, uint8_t* buffer, size_t size) = 0;
-            virtual bool deviceAvailable(uint8_t address)                     = 0;
-        };
-
-        I2C(HWA& hwa);
+        I2C() = default;
 
         bool        init() override;
         void        updateSingle(size_t index, bool forceRefresh = false) override;
@@ -55,7 +55,6 @@ namespace IO
         static void registerPeripheral(Peripheral* instance);
 
         private:
-        HWA&                                            _hwa;
         static constexpr size_t                         MAX_PERIPHERALS = 5;
         static size_t                                   _peripheralCounter;
         static std::array<Peripheral*, MAX_PERIPHERALS> _peripherals;

@@ -370,7 +370,7 @@ class HWAMIDIDIN : public System::Builder::HWA::Protocol::MIDI::DIN
                                      Board::UART::stopBits_t::ONE,
                                      Board::UART::type_t::RX_TX);
 
-        return Board::UART::init(UART_CHANNEL_DIN, config) == Board::UART::initStatus_t::OK;
+        return Board::UART::init(UART_CHANNEL_DIN, config) == Board::initStatus_t::OK;
     }
 
     bool deInit() override
@@ -563,7 +563,7 @@ class HWADMX : public System::Builder::HWA::Protocol::DMX
                                      Board::UART::type_t::TX,
                                      true);
 
-        if (Board::UART::init(UART_CHANNEL_DMX, config) == Board::UART::initStatus_t::OK)
+        if (Board::UART::init(UART_CHANNEL_DMX, config) == Board::initStatus_t::OK)
         {
             CDCLocker::lock();
             return true;
@@ -697,7 +697,7 @@ class HWATouchscreen : public System::Builder::HWA::IO::Touchscreen
                                      Board::UART::stopBits_t::ONE,
                                      Board::UART::type_t::RX_TX);
 
-        return Board::UART::init(UART_CHANNEL_TOUCHSCREEN, config) == Board::UART::initStatus_t::OK;
+        return Board::UART::init(UART_CHANNEL_TOUCHSCREEN, config) == Board::initStatus_t::OK;
     }
 
     bool deInit() override
@@ -896,32 +896,33 @@ class HWACDCPassthroughStub : public System::Builder::HWA::IO::CDCPassthrough
 } _hwaCDCPassthrough;
 #endif
 
-#ifdef I2C_SUPPORTED
-class HWAI2C : public System::Builder::HWA::IO::I2C
+#ifdef DISPLAY_SUPPORTED
+class HWADisplay : public System::Builder::HWA::IO::Display
 {
     public:
-    HWAI2C() = default;
+    HWADisplay() = default;
 
     bool init() override
     {
-        return Board::I2C::init(I2C_CHANNEL, Board::I2C::clockSpeed_t::S400K);
+        // for i2c, consider ALREADY_INIT status a success
+        return Board::I2C::init(I2C_CHANNEL_DISPLAY, Board::I2C::clockSpeed_t::S400K) != Board::initStatus_t::ERROR;
     }
 
     bool write(uint8_t address, uint8_t* buffer, size_t size) override
     {
-        return Board::I2C::write(I2C_CHANNEL, address, buffer, size);
+        return Board::I2C::write(I2C_CHANNEL_DISPLAY, address, buffer, size);
     }
 
     bool deviceAvailable(uint8_t address) override
     {
-        return Board::I2C::deviceAvailable(I2C_CHANNEL, address);
+        return Board::I2C::deviceAvailable(I2C_CHANNEL_DISPLAY, address);
     }
-} _hwaI2C;
+} _hwaDisplay;
 #else
-class HWAI2CStub : public System::Builder::HWA::IO::I2C
+class HWADisplayStub : public System::Builder::HWA::IO::Display
 {
     public:
-    HWAI2CStub() = default;
+    HWADisplayStub() = default;
 
     bool init() override
     {
@@ -937,7 +938,7 @@ class HWAI2CStub : public System::Builder::HWA::IO::I2C
     {
         return false;
     }
-} _hwaI2C;
+} _hwaDisplay;
 #endif
 
 class HWASystem : public System::Builder::HWA::System
@@ -1065,9 +1066,9 @@ class HWABuilder : public ::System::Builder::HWA
             return _hwaCDCPassthrough;
         }
 
-        ::System::Builder::HWA::IO::I2C& i2c() override
+        ::System::Builder::HWA::IO::Display& display() override
         {
-            return _hwaI2C;
+            return _hwaDisplay;
         }
     } _hwaIO;
 

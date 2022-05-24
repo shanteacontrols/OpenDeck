@@ -28,15 +28,21 @@ limitations under the License.
 namespace
 {
     nrfx_twim_t _i2cInstance[core::mcu::peripherals::MAX_I2C_INTERFACES];
+    bool        _initialized[core::mcu::peripherals::MAX_I2C_INTERFACES];
 }    // namespace
 
 namespace Board::I2C
 {
-    bool init(uint8_t channel, clockSpeed_t speed)
+    initStatus_t init(uint8_t channel, clockSpeed_t speed)
     {
         if (channel >= core::mcu::peripherals::MAX_I2C_INTERFACES)
         {
-            return false;
+            return initStatus_t::ERROR;
+        }
+
+        if (isInitialized(channel))
+        {
+            return initStatus_t::ALREADY_INIT;
         }
 
         switch (channel)
@@ -48,7 +54,7 @@ namespace Board::I2C
         break;
 
         default:
-            return false;
+            return initStatus_t::ERROR;
         }
 
         const nrfx_twim_config_t CONFIG = {
@@ -69,10 +75,17 @@ namespace Board::I2C
                            (void*)context) == NRFX_SUCCESS)
         {
             nrfx_twim_enable(&_i2cInstance[channel]);
-            return true;
+            _initialized[channel] = true;
+
+            return initStatus_t::OK;
         }
 
-        return false;
+        return initStatus_t::ERROR;
+    }
+
+    bool isInitialized(uint8_t channel)
+    {
+        return _initialized[channel];
     }
 
     bool deInit(uint8_t channel)
@@ -83,6 +96,7 @@ namespace Board::I2C
         }
 
         nrfx_twim_uninit(&_i2cInstance[channel]);
+        _initialized[channel] = false;
 
         return true;
     }

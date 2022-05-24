@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef I2C_SUPPORTED
+#ifdef DISPLAY_SUPPORTED
 
 #include "Strings.h"
 #include <string.h>
