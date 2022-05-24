@@ -52,10 +52,10 @@ namespace Board::I2C
         }
 
         const nrfx_twim_config_t CONFIG = {
-            .scl                = NRF_GPIO_PIN_MAP(Board::detail::map::i2cPins(channel).scl.port,
-                                    Board::detail::map::i2cPins(channel).scl.index),
-            .sda                = NRF_GPIO_PIN_MAP(Board::detail::map::i2cPins(channel).sda.port,
-                                    Board::detail::map::i2cPins(channel).sda.index),
+            .scl                = CORE_NRF_GPIO_PIN_MAP(Board::detail::map::i2cPins(channel).scl.port,
+                                         Board::detail::map::i2cPins(channel).scl.index),
+            .sda                = CORE_NRF_GPIO_PIN_MAP(Board::detail::map::i2cPins(channel).sda.port,
+                                         Board::detail::map::i2cPins(channel).sda.index),
             .frequency          = speed == clockSpeed_t::S100K ? NRF_TWIM_FREQ_100K : NRF_TWIM_FREQ_400K,
             .interrupt_priority = IRQ_PRIORITY_I2C,
             .hold_bus_uninit    = false
