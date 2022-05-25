@@ -23,7 +23,7 @@ limitations under the License.
 #include "board/Internal.h"
 #include <Target.h>
 
-void core::mcu::isr::adc(uint16_t value)
+void core::mcu::isr::adc(uint32_t value)
 {
     Board::detail::IO::analog::isr(value);
 }

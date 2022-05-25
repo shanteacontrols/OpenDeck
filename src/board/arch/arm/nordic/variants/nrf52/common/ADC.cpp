@@ -32,7 +32,7 @@ namespace
     nrf_saadc_value_t _adcValue;
 }    // namespace
 
-void core::mcu::isr::adc(uint16_t value)
+void core::mcu::isr::adc(uint32_t value)
 {
     if (nrf_saadc_event_check(NRF_SAADC, NRF_SAADC_EVENT_STARTED))
     {
