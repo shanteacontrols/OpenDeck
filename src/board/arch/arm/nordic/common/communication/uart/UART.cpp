@@ -21,7 +21,6 @@ limitations under the License.
 #include <map>
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "nrfx_prs.h"
 #include "nrfx_uarte.h"
 #include <Target.h>
 
@@ -104,8 +103,11 @@ namespace
 
     uint8_t       _nrfTxBuffer[core::mcu::peripherals::MAX_UART_INTERFACES];
     uint8_t       _nrfRxBuffer[core::mcu::peripherals::MAX_UART_INTERFACES];
-    nrfx_uarte_t  _uartInstance[core::mcu::peripherals::MAX_UART_INTERFACES];
     volatile bool _transmitting[core::mcu::peripherals::MAX_UART_INTERFACES];
+    nrfx_uarte_t  _uartInstance[core::mcu::peripherals::MAX_UART_INTERFACES] = {
+         NRFX_UARTE_INSTANCE(0),
+         NRFX_UARTE_INSTANCE(1),
+    };
 
     inline void checkTx(uint8_t channel)
     {
@@ -171,31 +173,11 @@ namespace Board::detail::UART::MCU
         CORE_MCU_IO_DEINIT(Board::detail::map::uartPins(channel).tx);
         CORE_MCU_IO_DEINIT(Board::detail::map::uartPins(channel).rx);
 
-        nrfx_prs_release(_uartInstance[channel].p_reg);
-
         return true;
     }
 
     bool init(uint8_t channel, Board::UART::config_t& config)
     {
-        switch (channel)
-        {
-        case 0:
-        {
-            _uartInstance[channel] = NRFX_UARTE_INSTANCE(0);
-        }
-        break;
-
-        case 1:
-        {
-            _uartInstance[channel] = NRFX_UARTE_INSTANCE(1);
-        }
-        break;
-
-        default:
-            return false;
-        }
-
         // unsupported by NRF52
         if (config.parity == Board::UART::parity_t::ODD)
         {
@@ -203,11 +185,6 @@ namespace Board::detail::UART::MCU
         }
 
         if (!_baudRateMap[config.baudRate])
-        {
-            return false;
-        }
-
-        if (nrfx_prs_acquire(_uartInstance[channel].p_reg, nrfx_uart_0_irq_handler) != NRFX_SUCCESS)
         {
             return false;
         }

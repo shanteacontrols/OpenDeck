@@ -9,6 +9,12 @@ then
         printf "%s\n" "DEFINES += ADC_EXT_REF" >> "$out_makefile"
     fi
 
+    if [[ "$($yaml_parser "$yaml_file" analog.inputVoltage)" != "null" ]]
+    then
+        input_voltage=$($yaml_parser "$yaml_file" analog.inputVoltage | sed 's/\.//g')
+        printf "%s\n" "DEFINES += ADC_INPUT_V_$input_voltage" >> "$out_makefile"
+    fi
+
     analog_filter_median=$($yaml_parser "$yaml_file" analog.filter.median)
     analog_filter_ema=$($yaml_parser "$yaml_file" analog.filter.ema)
 
