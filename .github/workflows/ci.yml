@@ -11,7 +11,7 @@ jobs:
       options: --user root
     steps:
       - name: Pull the repository and submodules
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
           submodules: recursive
@@ -31,7 +31,7 @@ jobs:
     name: Run tests on physical boards
     runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
           submodules: recursive
@@ -50,7 +50,7 @@ jobs:
       image: paradajz168/opendeck-dev:latest
       options: --user root
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
           submodules: recursive
@@ -69,7 +69,7 @@ jobs:
       image: paradajz168/opendeck-dev:latest
       options: --user root
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
           submodules: recursive
