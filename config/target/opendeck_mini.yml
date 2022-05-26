@@ -81,13 +81,6 @@
     internal:
       invert: false
       pins:
-        din:
-          rx:
-            port: "A"
-            index: 5
-          tx:
-            port: "A"
-            index: 6
         usb:
           rx:
             port: "A"
@@ -95,6 +88,13 @@
           tx:
             port: "A"
             index: 4
+        uart:
+          rx:
+            port: "A"
+            index: 5
+          tx:
+            port: "A"
+            index: 6
     external:
       type: "native"
       invert: false

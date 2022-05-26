@@ -19,7 +19,6 @@ limitations under the License.
 #include "core/src/Timing.h"
 #include "core/src/MCU.h"
 #include "board/Board.h"
-#include "board/common/constants/IO.h"
 #include "io/common/Common.h"
 #include "system/System.h"
 #include "system/Builder.h"
@@ -74,7 +73,7 @@ class HWADatabase : public System::Builder::HWA::Database
         // It's possible that LED indicators are still on since
         // this command is most likely given via USB.
         // Wait until all indicators are turned off
-        core::timing::waitMs(LED_INDICATOR_TIMEOUT);
+        core::timing::waitMs(Board::IO::indicators::LED_TRAFFIC_INDICATOR_TIMEOUT);
 #endif
 
         return Board::NVM::clear(0, Board::NVM::size());
@@ -329,8 +328,8 @@ class HWAMIDIUSB : public System::Builder::HWA::Protocol::MIDI::USB
     {
         if (Board::USB::readMIDI(packet))
         {
-            Board::IO::indicators::indicateTraffic(Board::IO::indicators::dataSource_t::USB,
-                                                   Board::IO::indicators::dataDirection_t::INCOMING);
+            Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::USB,
+                                                   Board::IO::indicators::direction_t::INCOMING);
 
             return true;
         }
@@ -342,8 +341,8 @@ class HWAMIDIUSB : public System::Builder::HWA::Protocol::MIDI::USB
     {
         if (Board::USB::writeMIDI(packet))
         {
-            Board::IO::indicators::indicateTraffic(Board::IO::indicators::dataSource_t::USB,
-                                                   Board::IO::indicators::dataDirection_t::OUTGOING);
+            Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::USB,
+                                                   Board::IO::indicators::direction_t::OUTGOING);
 
             return true;
         }
@@ -389,8 +388,8 @@ class HWAMIDIDIN : public System::Builder::HWA::Protocol::MIDI::DIN
     {
         if (Board::UART::read(UART_CHANNEL_DIN, value))
         {
-            Board::IO::indicators::indicateTraffic(Board::IO::indicators::dataSource_t::UART,
-                                                   Board::IO::indicators::dataDirection_t::INCOMING);
+            Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::UART,
+                                                   Board::IO::indicators::direction_t::INCOMING);
 
             return true;
         }
@@ -402,8 +401,8 @@ class HWAMIDIDIN : public System::Builder::HWA::Protocol::MIDI::DIN
     {
         if (Board::UART::write(UART_CHANNEL_DIN, value))
         {
-            Board::IO::indicators::indicateTraffic(Board::IO::indicators::dataSource_t::UART,
-                                                   Board::IO::indicators::dataDirection_t::OUTGOING);
+            Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::UART,
+                                                   Board::IO::indicators::direction_t::OUTGOING);
 
             return true;
         }
@@ -487,8 +486,8 @@ class HWAMIDIBLE : public System::Builder::HWA::Protocol::MIDI::BLE
 
     bool write(MIDIlib::BLEMIDI::bleMIDIPacket_t& packet) override
     {
-        Board::IO::indicators::indicateTraffic(Board::IO::indicators::dataSource_t::BLE,
-                                               Board::IO::indicators::dataDirection_t::OUTGOING);
+        Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::BLE,
+                                               Board::IO::indicators::direction_t::OUTGOING);
 
         return Board::BLE::MIDI::write(&packet.data[0], packet.size);
     }
@@ -497,8 +496,8 @@ class HWAMIDIBLE : public System::Builder::HWA::Protocol::MIDI::BLE
     {
         if (Board::BLE::MIDI::read(&packet.data[0], packet.size, packet.data.size()))
         {
-            Board::IO::indicators::indicateTraffic(Board::IO::indicators::dataSource_t::BLE,
-                                                   Board::IO::indicators::dataDirection_t::INCOMING);
+            Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::BLE,
+                                                   Board::IO::indicators::direction_t::INCOMING);
 
             return true;
         }
@@ -590,8 +589,8 @@ class HWADMX : public System::Builder::HWA::Protocol::DMX
         if (Board::USB::readCDC(&buffer[0], bufferSize, buffer.size()))
         {
             size = bufferSize;
-            Board::IO::indicators::indicateTraffic(Board::IO::indicators::dataSource_t::USB,
-                                                   Board::IO::indicators::dataDirection_t::INCOMING);
+            Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::USB,
+                                                   Board::IO::indicators::direction_t::INCOMING);
 
             return true;
         }
@@ -603,8 +602,8 @@ class HWADMX : public System::Builder::HWA::Protocol::DMX
     {
         if (Board::USB::writeCDC(buffer, size))
         {
-            Board::IO::indicators::indicateTraffic(Board::IO::indicators::dataSource_t::USB,
-                                                   Board::IO::indicators::dataDirection_t::OUTGOING);
+            Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::USB,
+                                                   Board::IO::indicators::direction_t::OUTGOING);
 
             return true;
         }
@@ -614,8 +613,8 @@ class HWADMX : public System::Builder::HWA::Protocol::DMX
 
     void setBuffer(DMXUSBWidget::dmxBuffer_t& buffer) override
     {
-        Board::IO::indicators::indicateTraffic(Board::IO::indicators::dataSource_t::UART,
-                                               Board::IO::indicators::dataDirection_t::OUTGOING);
+        Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::UART,
+                                               Board::IO::indicators::direction_t::OUTGOING);
 
         Board::UART::setDMXBuffer(&buffer[0]);
     }
@@ -753,8 +752,8 @@ class HWACDCPassthrough : public System::Builder::HWA::IO::CDCPassthrough
     {
         if (Board::UART::read(UART_CHANNEL_TOUCHSCREEN, value))
         {
-            Board::IO::indicators::indicateTraffic(Board::IO::indicators::dataSource_t::UART,
-                                                   Board::IO::indicators::dataDirection_t::INCOMING);
+            Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::UART,
+                                                   Board::IO::indicators::direction_t::INCOMING);
 
             return true;
         }
@@ -766,8 +765,8 @@ class HWACDCPassthrough : public System::Builder::HWA::IO::CDCPassthrough
     {
         if (Board::UART::write(UART_CHANNEL_TOUCHSCREEN, value))
         {
-            Board::IO::indicators::indicateTraffic(Board::IO::indicators::dataSource_t::UART,
-                                                   Board::IO::indicators::dataDirection_t::OUTGOING);
+            Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::UART,
+                                                   Board::IO::indicators::direction_t::OUTGOING);
 
             return true;
         }
@@ -779,8 +778,8 @@ class HWACDCPassthrough : public System::Builder::HWA::IO::CDCPassthrough
     {
         if (Board::USB::readCDC(buffer, size, maxSize))
         {
-            Board::IO::indicators::indicateTraffic(Board::IO::indicators::dataSource_t::USB,
-                                                   Board::IO::indicators::dataDirection_t::INCOMING);
+            Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::USB,
+                                                   Board::IO::indicators::direction_t::INCOMING);
 
             return true;
         }
@@ -792,8 +791,8 @@ class HWACDCPassthrough : public System::Builder::HWA::IO::CDCPassthrough
     {
         if (Board::USB::writeCDC(buffer, size))
         {
-            Board::IO::indicators::indicateTraffic(Board::IO::indicators::dataSource_t::USB,
-                                                   Board::IO::indicators::dataDirection_t::OUTGOING);
+            Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::USB,
+                                                   Board::IO::indicators::direction_t::OUTGOING);
 
             return true;
         }

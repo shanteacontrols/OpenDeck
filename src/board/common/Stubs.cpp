@@ -75,7 +75,11 @@ namespace Board
 
         namespace indicators
         {
-            __attribute__((weak)) void indicateTraffic(dataSource_t source, dataDirection_t direction)
+            __attribute__((weak)) void indicateTraffic(source_t source, direction_t direction)
+            {
+            }
+
+            __attribute__((weak)) void indicateFirmwareUpdateStart()
             {
             }
         }    // namespace indicators
@@ -139,7 +143,11 @@ namespace Board
                 {
                 }
 
-                __attribute__((weak)) void ledFlashStartup()
+                __attribute__((weak)) void indicateApplicationLoad()
+                {
+                }
+
+                __attribute__((weak)) void indicateBootloaderLoad()
                 {
                 }
             }    // namespace indicators

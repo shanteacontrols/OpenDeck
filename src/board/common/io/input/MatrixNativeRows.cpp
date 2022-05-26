@@ -24,7 +24,6 @@ limitations under the License.
 #include <stdlib.h>
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "board/common/constants/IO.h"
 #include "core/src/util/Util.h"
 #include "core/src/util/RingBuffer.h"
 #include <Target.h>
@@ -40,9 +39,9 @@ namespace
 
     inline void activateInputColumn()
     {
-        core::util::BIT_READ(_activeInColumn, 0) ? CORE_MCU_IO_SET_HIGH(DEC_BM_PORT_A0, DEC_BM_PIN_A0) : CORE_MCU_IO_SET_LOW(DEC_BM_PORT_A0, DEC_BM_PIN_A0);
-        core::util::BIT_READ(_activeInColumn, 1) ? CORE_MCU_IO_SET_HIGH(DEC_BM_PORT_A1, DEC_BM_PIN_A1) : CORE_MCU_IO_SET_LOW(DEC_BM_PORT_A1, DEC_BM_PIN_A1);
-        core::util::BIT_READ(_activeInColumn, 2) ? CORE_MCU_IO_SET_HIGH(DEC_BM_PORT_A2, DEC_BM_PIN_A2) : CORE_MCU_IO_SET_LOW(DEC_BM_PORT_A2, DEC_BM_PIN_A2);
+        CORE_MCU_IO_SET_STATE(PIN_PORT_DEC_BM_A0, PIN_INDEX_DEC_BM_A0, core::util::BIT_READ(_activeInColumn, 0));
+        CORE_MCU_IO_SET_STATE(PIN_PORT_DEC_BM_A1, PIN_INDEX_DEC_BM_A1, core::util::BIT_READ(_activeInColumn, 1));
+        CORE_MCU_IO_SET_STATE(PIN_PORT_DEC_BM_A2, PIN_INDEX_DEC_BM_A2, core::util::BIT_READ(_activeInColumn, 2));
 
         if (++_activeInColumn == NUMBER_OF_BUTTON_COLUMNS)
         {
@@ -90,13 +89,24 @@ namespace Board::detail::IO::digitalIn
 #endif
         }
 
-        CORE_MCU_IO_INIT(DEC_BM_PORT_A0, DEC_BM_PIN_A0, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
-        CORE_MCU_IO_INIT(DEC_BM_PORT_A1, DEC_BM_PIN_A1, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
-        CORE_MCU_IO_INIT(DEC_BM_PORT_A2, DEC_BM_PIN_A2, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
+        CORE_MCU_IO_INIT(PIN_PORT_DEC_BM_A0,
+                         PIN_INDEX_DEC_BM_A0,
+                         core::mcu::io::pinMode_t::OUTPUT_PP,
+                         core::mcu::io::pullMode_t::NONE);
 
-        CORE_MCU_IO_SET_LOW(DEC_BM_PORT_A0, DEC_BM_PIN_A0);
-        CORE_MCU_IO_SET_LOW(DEC_BM_PORT_A1, DEC_BM_PIN_A1);
-        CORE_MCU_IO_SET_LOW(DEC_BM_PORT_A2, DEC_BM_PIN_A2);
+        CORE_MCU_IO_INIT(PIN_PORT_DEC_BM_A1,
+                         PIN_INDEX_DEC_BM_A1,
+                         core::mcu::io::pinMode_t::OUTPUT_PP,
+                         core::mcu::io::pullMode_t::NONE);
+
+        CORE_MCU_IO_INIT(PIN_PORT_DEC_BM_A2,
+                         PIN_INDEX_DEC_BM_A2,
+                         core::mcu::io::pinMode_t::OUTPUT_PP,
+                         core::mcu::io::pullMode_t::NONE);
+
+        CORE_MCU_IO_SET_LOW(PIN_PORT_DEC_BM_A0, PIN_INDEX_DEC_BM_A0);
+        CORE_MCU_IO_SET_LOW(PIN_PORT_DEC_BM_A1, PIN_INDEX_DEC_BM_A1);
+        CORE_MCU_IO_SET_LOW(PIN_PORT_DEC_BM_A2, PIN_INDEX_DEC_BM_A2);
     }
 }    // namespace Board::detail::IO::digitalIn
 

@@ -102,13 +102,6 @@
     internal:
       invert: true
       pins:
-        din:
-          rx:
-            port: "0"
-            index: 13
-          tx:
-            port: "0"
-            index: 14
         usb:
           rx:
             port: "0"
@@ -116,6 +109,13 @@
           tx:
             port: "0"
             index: 16
+        uart:
+          rx:
+            port: "0"
+            index: 13
+          tx:
+            port: "0"
+            index: 14
         ble:
           rx:
             port: "0"

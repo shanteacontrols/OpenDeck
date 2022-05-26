@@ -47,10 +47,12 @@ namespace Board
         {
             ;
         }
-
-        // give some time to usb link to properly re-initialize so that everything is in sync
-        core::timing::waitMs(50);
 #endif
+
+        // In case the indicator LEDs were on before this command was issued, this will make sure
+        // they are off before the reboot.
+        // Double the delay time to avoid "sharp" transition between traffic event and bootloader indication.
+        core::timing::waitMs(IO::indicators::LED_TRAFFIC_INDICATOR_TIMEOUT * 2);
 
         core::mcu::reset();
     }

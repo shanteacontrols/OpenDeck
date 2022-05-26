@@ -20,8 +20,7 @@ limitations under the License.
 #ifdef DIGITAL_OUTPUT_DRIVER_MAX7219
 
 #include "board/Board.h"
-#include "board/common/io/Helpers.h"
-#include "board/common/constants/IO.h"
+#include "Helpers.h"
 #include "board/Internal.h"
 #include "core/src/util/Util.h"
 #include <Target.h>
@@ -44,23 +43,26 @@ namespace
     {
         CORE_MCU_ATOMIC_SECTION
         {
-            CORE_MCU_IO_SET_LOW(MAX7219_LATCH_PORT, MAX7219_LATCH_PIN);
+            CORE_MCU_IO_SET_LOW(PIN_PORT_MAX7219_LATCH, PIN_INDEX_MAX7219_LATCH);
 
             auto sendByte = [](uint8_t byte)
             {
                 for (int8_t bit = 7; bit >= 0; bit--)
                 {
-                    core::util::BIT_READ(byte, bit) ? CORE_MCU_IO_SET_HIGH(MAX7219_DATA_PORT, MAX7219_DATA_PIN) : CORE_MCU_IO_SET_LOW(MAX7219_DATA_PORT, MAX7219_DATA_PIN);
-                    CORE_MCU_IO_SET_LOW(MAX7219_CLK_PORT, MAX7219_CLK_PIN);
+                    CORE_MCU_IO_SET_STATE(PIN_PORT_MAX7219_DATA,
+                                          PIN_INDEX_MAX7219_DATA,
+                                          core::util::BIT_READ(byte, bit));
+
+                    CORE_MCU_IO_SET_LOW(PIN_PORT_MAX7219_CLK, PIN_INDEX_MAX7219_CLK);
                     Board::detail::IO::spiWait();
-                    CORE_MCU_IO_SET_HIGH(MAX7219_CLK_PORT, MAX7219_CLK_PIN);
+                    CORE_MCU_IO_SET_HIGH(PIN_PORT_MAX7219_CLK, PIN_INDEX_MAX7219_CLK);
                 }
             };
 
             sendByte(reg);
             sendByte(data);
 
-            CORE_MCU_IO_SET_HIGH(MAX7219_LATCH_PORT, MAX7219_LATCH_PIN);
+            CORE_MCU_IO_SET_HIGH(PIN_PORT_MAX7219_LATCH, PIN_INDEX_MAX7219_LATCH);
         }
     }
 }    // namespace
@@ -69,9 +71,20 @@ namespace Board::detail::IO::digitalOut
 {
     void init()
     {
-        CORE_MCU_IO_INIT(MAX7219_DATA_PORT, MAX7219_DATA_PIN, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
-        CORE_MCU_IO_INIT(MAX7219_CLK_PORT, MAX7219_CLK_PIN, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
-        CORE_MCU_IO_INIT(MAX7219_LATCH_PORT, MAX7219_LATCH_PIN, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
+        CORE_MCU_IO_INIT(PIN_PORT_MAX7219_DATA,
+                         PIN_INDEX_MAX7219_DATA,
+                         core::mcu::io::pinMode_t::OUTPUT_PP,
+                         core::mcu::io::pullMode_t::NONE);
+
+        CORE_MCU_IO_INIT(PIN_PORT_MAX7219_CLK,
+                         PIN_INDEX_MAX7219_CLK,
+                         core::mcu::io::pinMode_t::OUTPUT_PP,
+                         core::mcu::io::pullMode_t::NONE);
+
+        CORE_MCU_IO_INIT(PIN_PORT_MAX7219_LATCH,
+                         PIN_INDEX_MAX7219_LATCH,
+                         core::mcu::io::pinMode_t::OUTPUT_PP,
+                         core::mcu::io::pullMode_t::NONE);
 
         // no display testing
         sendCommand(MAX7219_REG_DISPLAYTEST, 0);

@@ -18,9 +18,18 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "board/common/io/Helpers.h"
 #include "core/src/Timing.h"
 #include <Target.h>
+
+#ifdef BTLDR_BUTTON_SUPPORTED
+#ifdef BTLDR_BUTTON_AH
+#define IS_BTLDR_ACTIVE() (CORE_MCU_IO_READ(PIN_PORT_BTLDR_BUTTON, PIN_INDEX_BTLDR_BUTTON))
+#else
+#define IS_BTLDR_ACTIVE() (!(CORE_MCU_IO_READ(PIN_PORT_BTLDR_BUTTON, PIN_INDEX_BTLDR_BUTTON)))
+#endif
+#else
+#define IS_BTLDR_ACTIVE() (false)
+#endif
 
 // Holds total flash size.
 // Inserted in the binary by build process - this is just the dummy definition.
@@ -42,12 +51,7 @@ namespace Board::bootloader
         // add some delay before reading the pins to avoid incorrect state detection
         core::timing::waitMs(100);
 
-#ifdef BTLDR_BUTTON_SUPPORTED
         return IS_BTLDR_ACTIVE();
-#else
-        // no hardware entry possible in this case
-        return false;
-#endif
     }
 
     uint32_t pageSize(size_t index)
@@ -86,5 +90,6 @@ namespace Board::bootloader
     {
         core::mcu::timers::startAll();
         detail::USB::init();
+        detail::IO::indicators::indicateBootloaderLoad();
     }
 }    // namespace Board::bootloader

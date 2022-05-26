@@ -88,6 +88,7 @@ namespace Board
         core::mcu::timers::allocate(mainTimerIndex, []()
                                     {
                                         core::timing::detail::ms++;
+                                        detail::IO::indicators::update();
                                     });
 
         // don't start the timers yet - if the app will be run immediately, it's not needed
@@ -99,6 +100,8 @@ namespace Board
     {
         void bootloader()
         {
+            // partial initialization - init the rest in runBootloader() if it's determined that bootloader should really run
+
             core::mcu::init(core::mcu::initType_t::BOOT);
             core::mcu::timers::init();
             detail::IO::init();
@@ -118,6 +121,7 @@ namespace Board
             core::mcu::init(core::mcu::initType_t::APP);
             core::mcu::timers::init();
             detail::IO::init();
+            detail::IO::indicators::indicateApplicationLoad();
 
 #ifdef USB_OVER_SERIAL
             Board::UART::config_t config(UART_BAUDRATE_USB,

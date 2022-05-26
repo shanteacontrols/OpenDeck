@@ -20,8 +20,7 @@ limitations under the License.
 #ifdef DIGITAL_OUTPUT_DRIVER_NATIVE
 
 #include "board/Board.h"
-#include "board/common/io/Helpers.h"
-#include "board/common/constants/IO.h"
+#include "Helpers.h"
 #include "board/Internal.h"
 #include "core/src/util/Util.h"
 #include <Target.h>

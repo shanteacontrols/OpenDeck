@@ -24,7 +24,6 @@ limitations under the License.
 #include <stdlib.h>
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "board/common/constants/IO.h"
 #include "core/src/util/Util.h"
 #include "core/src/util/RingBuffer.h"
 #include <Target.h>
@@ -40,9 +39,9 @@ namespace
 
     inline void activateInputColumn()
     {
-        core::util::BIT_READ(_activeInColumn, 0) ? CORE_MCU_IO_SET_HIGH(DEC_BM_PORT_A0, DEC_BM_PIN_A0) : CORE_MCU_IO_SET_LOW(DEC_BM_PORT_A0, DEC_BM_PIN_A0);
-        core::util::BIT_READ(_activeInColumn, 1) ? CORE_MCU_IO_SET_HIGH(DEC_BM_PORT_A1, DEC_BM_PIN_A1) : CORE_MCU_IO_SET_LOW(DEC_BM_PORT_A1, DEC_BM_PIN_A1);
-        core::util::BIT_READ(_activeInColumn, 2) ? CORE_MCU_IO_SET_HIGH(DEC_BM_PORT_A2, DEC_BM_PIN_A2) : CORE_MCU_IO_SET_LOW(DEC_BM_PORT_A2, DEC_BM_PIN_A2);
+        CORE_MCU_IO_SET_STATE(PIN_PORT_DEC_BM_A0, PIN_INDEX_DEC_BM_A0, core::util::BIT_READ(_activeInColumn, 0));
+        CORE_MCU_IO_SET_STATE(PIN_PORT_DEC_BM_A1, PIN_INDEX_DEC_BM_A1, core::util::BIT_READ(_activeInColumn, 1));
+        CORE_MCU_IO_SET_STATE(PIN_PORT_DEC_BM_A2, PIN_INDEX_DEC_BM_A2, core::util::BIT_READ(_activeInColumn, 2));
 
         if (++_activeInColumn == NUMBER_OF_BUTTON_COLUMNS)
         {
@@ -57,28 +56,28 @@ namespace
             activateInputColumn();
 
             IO::spiWait();
-            CORE_MCU_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
-            CORE_MCU_IO_SET_LOW(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
+            CORE_MCU_IO_SET_LOW(PIN_PORT_SR_IN_CLK, PIN_INDEX_SR_IN_CLK);
+            CORE_MCU_IO_SET_LOW(PIN_PORT_SR_IN_LATCH, PIN_INDEX_SR_IN_LATCH);
             IO::spiWait();
 
-            CORE_MCU_IO_SET_HIGH(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
+            CORE_MCU_IO_SET_HIGH(PIN_PORT_SR_IN_LATCH, PIN_INDEX_SR_IN_LATCH);
 
             for (uint8_t row = 0; row < NUMBER_OF_BUTTON_ROWS; row++)
             {
                 // this register shifts out MSB first
                 size_t index = ((((NUMBER_OF_IN_SR * 8) - 1) - row) * NUMBER_OF_BUTTON_COLUMNS) + column;
-                CORE_MCU_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
+                CORE_MCU_IO_SET_LOW(PIN_PORT_SR_IN_CLK, PIN_INDEX_SR_IN_CLK);
                 IO::spiWait();
 
                 _digitalInBuffer[index].readings <<= 1;
-                _digitalInBuffer[index].readings |= !CORE_MCU_IO_READ(SR_IN_DATA_PORT, SR_IN_DATA_PIN);
+                _digitalInBuffer[index].readings |= !CORE_MCU_IO_READ(PIN_PORT_SR_IN_DATA, PIN_INDEX_SR_IN_DATA);
 
                 if (++_digitalInBuffer[index].count > MAX_READING_COUNT)
                 {
                     _digitalInBuffer[index].count = MAX_READING_COUNT;
                 }
 
-                CORE_MCU_IO_SET_HIGH(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
+                CORE_MCU_IO_SET_HIGH(PIN_PORT_SR_IN_CLK, PIN_INDEX_SR_IN_CLK);
             }
         }
     }
@@ -88,20 +87,39 @@ namespace Board::detail::IO::digitalIn
 {
     void init()
     {
-        CORE_MCU_IO_INIT(SR_IN_DATA_PORT, SR_IN_DATA_PIN, core::mcu::io::pinMode_t::INPUT);
-        CORE_MCU_IO_INIT(SR_IN_CLK_PORT, SR_IN_CLK_PIN, core::mcu::io::pinMode_t::OUTPUT_PP);
-        CORE_MCU_IO_INIT(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN, core::mcu::io::pinMode_t::OUTPUT_PP);
+        CORE_MCU_IO_INIT(PIN_PORT_SR_IN_DATA,
+                         PIN_INDEX_SR_IN_DATA,
+                         core::mcu::io::pinMode_t::INPUT);
 
-        CORE_MCU_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
-        CORE_MCU_IO_SET_HIGH(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
+        CORE_MCU_IO_INIT(PIN_PORT_SR_IN_CLK,
+                         PIN_INDEX_SR_IN_CLK,
+                         core::mcu::io::pinMode_t::OUTPUT_PP);
 
-        CORE_MCU_IO_INIT(DEC_BM_PORT_A0, DEC_BM_PIN_A0, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
-        CORE_MCU_IO_INIT(DEC_BM_PORT_A1, DEC_BM_PIN_A1, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
-        CORE_MCU_IO_INIT(DEC_BM_PORT_A2, DEC_BM_PIN_A2, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
+        CORE_MCU_IO_INIT(PIN_PORT_SR_IN_LATCH,
+                         PIN_INDEX_SR_IN_LATCH,
+                         core::mcu::io::pinMode_t::OUTPUT_PP);
 
-        CORE_MCU_IO_SET_LOW(DEC_BM_PORT_A0, DEC_BM_PIN_A0);
-        CORE_MCU_IO_SET_LOW(DEC_BM_PORT_A1, DEC_BM_PIN_A1);
-        CORE_MCU_IO_SET_LOW(DEC_BM_PORT_A2, DEC_BM_PIN_A2);
+        CORE_MCU_IO_SET_LOW(PIN_PORT_SR_IN_CLK, PIN_INDEX_SR_IN_CLK);
+        CORE_MCU_IO_SET_HIGH(PIN_PORT_SR_IN_LATCH, PIN_INDEX_SR_IN_LATCH);
+
+        CORE_MCU_IO_INIT(PIN_PORT_DEC_BM_A0,
+                         PIN_INDEX_DEC_BM_A0,
+                         core::mcu::io::pinMode_t::OUTPUT_PP,
+                         core::mcu::io::pullMode_t::NONE);
+
+        CORE_MCU_IO_INIT(PIN_PORT_DEC_BM_A1,
+                         PIN_INDEX_DEC_BM_A1,
+                         core::mcu::io::pinMode_t::OUTPUT_PP,
+                         core::mcu::io::pullMode_t::NONE);
+
+        CORE_MCU_IO_INIT(PIN_PORT_DEC_BM_A2,
+                         PIN_INDEX_DEC_BM_A2,
+                         core::mcu::io::pinMode_t::OUTPUT_PP,
+                         core::mcu::io::pullMode_t::NONE);
+
+        CORE_MCU_IO_SET_LOW(PIN_PORT_DEC_BM_A0, PIN_INDEX_DEC_BM_A0);
+        CORE_MCU_IO_SET_LOW(PIN_PORT_DEC_BM_A1, PIN_INDEX_DEC_BM_A1);
+        CORE_MCU_IO_SET_LOW(PIN_PORT_DEC_BM_A2, PIN_INDEX_DEC_BM_A2);
     }
 }    // namespace Board::detail::IO::digitalIn
 

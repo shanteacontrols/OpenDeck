@@ -132,8 +132,8 @@ int main()
 
             if (USBOverSerial::write(UART_CHANNEL_USB_LINK, packet))
             {
-                Board::IO::indicators::indicateTraffic(Board::IO::indicators::dataSource_t::USB,
-                                                       Board::IO::indicators::dataDirection_t::INCOMING);
+                Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::USB,
+                                                       Board::IO::indicators::direction_t::INCOMING);
             }
         }
 
@@ -147,8 +147,8 @@ int main()
 
             if (USBOverSerial::write(UART_CHANNEL_USB_LINK, packet))
             {
-                Board::IO::indicators::indicateTraffic(Board::IO::indicators::dataSource_t::USB,
-                                                       Board::IO::indicators::dataDirection_t::INCOMING);
+                Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::USB,
+                                                       Board::IO::indicators::direction_t::INCOMING);
             }
         }
 
@@ -164,8 +164,8 @@ int main()
 
                 if (USB::writeMIDI(usbMIDIPacket))
                 {
-                    Board::IO::indicators::indicateTraffic(Board::IO::indicators::dataSource_t::USB,
-                                                           Board::IO::indicators::dataDirection_t::OUTGOING);
+                    Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::USB,
+                                                           Board::IO::indicators::direction_t::OUTGOING);
                 }
             }
             else if (readPacket.type() == USBOverSerial::packetType_t::INTERNAL)
@@ -182,8 +182,8 @@ int main()
             {
                 if (USB::writeCDC(readPacket.buffer(), readPacket.size()))
                 {
-                    Board::IO::indicators::indicateTraffic(Board::IO::indicators::dataSource_t::USB,
-                                                           Board::IO::indicators::dataDirection_t::OUTGOING);
+                    Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::USB,
+                                                           Board::IO::indicators::direction_t::OUTGOING);
                 }
             }
 

@@ -19,7 +19,6 @@ limitations under the License.
 #ifdef ADC_SUPPORTED
 #ifdef ANALOG_INPUT_DRIVER_NATIVE
 
-#include "board/common/constants/IO.h"
 #include "core/src/util/Util.h"
 #include "board/Board.h"
 #include "board/Internal.h"

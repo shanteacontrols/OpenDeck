@@ -40,8 +40,6 @@ namespace Board::bootloader
 
     void runApplication()
     {
-        detail::IO::indicators::ledFlashStartup();
-
         __asm__ __volatile__(
             // Jump to RST vector
             "clr r30\n"

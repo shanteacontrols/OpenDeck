@@ -104,6 +104,9 @@ Updater::processStatus_t Updater::processFwMetadata(uint8_t data)
             return processStatus_t::INVALID;
         }
 
+        // next stage is firmware update
+        _writer.onFirmwareUpdateStart();
+
         return processStatus_t::COMPLETE;
     }
 

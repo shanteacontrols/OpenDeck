@@ -326,23 +326,34 @@ namespace Board
 
         namespace indicators
         {
-            enum class dataSource_t : uint8_t
+            enum class source_t : uint8_t
             {
                 USB,
                 UART,
                 BLE
             };
 
-            enum class dataDirection_t : uint8_t
+            enum class direction_t : uint8_t
             {
                 INCOMING,
                 OUTGOING
             };
 
+            /// Time in milliseconds during which LED indicators are on when indicateTraffic() is called.
+            constexpr inline uint32_t LED_TRAFFIC_INDICATOR_TIMEOUT = 50;
+
+            /// Blinking time in milliseconds for indicator LEDs to indicate that the firmware update is in progress.
+            /// Blinking starts once indicateFirmwareUpdateStart() is called.
+            constexpr inline uint32_t LED_DFU_INDICATOR_TIMEOUT = 500;
+
             /// Used to indicate that the data event (UART, USB etc.) has occured using built-in LEDs on board.
-            /// param [source]     Source of data. Depending on the source corresponding LEDs will be turned on.
-            /// param [direction]  Direction of data.
-            void indicateTraffic(dataSource_t source, dataDirection_t direction);
+            /// param [source]      Source of data. Depending on the source corresponding LEDs will be turned on.
+            /// param [direction]   Direction of data.
+            void indicateTraffic(source_t source, direction_t direction);
+
+            /// Used to indicate that the firmware update is in progress.
+            /// This will blink all the internal LEDs continuously until update is done.
+            void indicateFirmwareUpdateStart();
         }    // namespace indicators
     }        // namespace IO
 

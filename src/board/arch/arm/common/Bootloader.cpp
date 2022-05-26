@@ -42,7 +42,6 @@ namespace Board::bootloader
 
     void runApplication()
     {
-        detail::IO::indicators::ledFlashStartup();
         core::mcu::deInit();
 
         auto appEntry = (appEntry_t) * (volatile uint32_t*)(APP_START_ADDR + 4);

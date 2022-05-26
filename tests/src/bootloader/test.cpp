@@ -45,6 +45,10 @@ namespace
             updated = true;
         }
 
+        void onFirmwareUpdateStart() override
+        {
+        }
+
         std::vector<uint8_t> writtenBytes = {};
         bool                 updated      = false;
     };

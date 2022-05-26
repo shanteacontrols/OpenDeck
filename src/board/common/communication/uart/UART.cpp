@@ -218,11 +218,11 @@ namespace Board
                     Board::detail::UART::MCU::startTx(channel);
 
                     // indicate loopback here since it's run inside interrupt, ie. not visible to the user application
-                    Board::IO::indicators::indicateTraffic(Board::IO::indicators::dataSource_t::UART,
-                                                           Board::IO::indicators::dataDirection_t::OUTGOING);
+                    Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::UART,
+                                                           Board::IO::indicators::direction_t::OUTGOING);
 
-                    Board::IO::indicators::indicateTraffic(Board::IO::indicators::dataSource_t::UART,
-                                                           Board::IO::indicators::dataDirection_t::INCOMING);
+                    Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::UART,
+                                                           Board::IO::indicators::direction_t::INCOMING);
                 }
             }
         }

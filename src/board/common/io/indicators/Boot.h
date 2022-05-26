@@ -18,10 +18,14 @@ limitations under the License.
 
 #pragma once
 
-#include <inttypes.h>
+#ifdef FW_BOOT
 
-/// Time in milliseconds during which MIDI event indicators on board are on when MIDI event happens.
-constexpr inline uint32_t LED_INDICATOR_TIMEOUT = 50;
+#define GENERATE_INDICATOR(type)
 
-/// Time in milliseconds for single startup animation cycle on built-in LED indicators.
-constexpr inline uint32_t LED_INDICATOR_STARTUP_DELAY = 150;
+// no individual updates in bootloader
+#define UPDATE_INDICATOR_TYPE(type)
+
+// no traffic indication in bootloader
+#define INDICATE_TRAFFIC_TYPE(type, direction)
+
+#endif

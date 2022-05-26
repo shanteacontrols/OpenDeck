@@ -19,7 +19,6 @@ limitations under the License.
 #ifdef ADC_SUPPORTED
 #ifdef ANALOG_INPUT_DRIVER_MULTIPLEXER
 
-#include "board/common/constants/IO.h"
 #include "core/src/util/Util.h"
 #include "board/Board.h"
 #include "board/Internal.h"
@@ -41,11 +40,11 @@ namespace
     /// Configures one of 16 inputs/outputs on 4067 multiplexer.
     inline void setMuxInput()
     {
-        core::util::BIT_READ(_activeMuxInput, 0) ? CORE_MCU_IO_SET_HIGH(MUX_PORT_S0, MUX_PIN_S0) : CORE_MCU_IO_SET_LOW(MUX_PORT_S0, MUX_PIN_S0);
-        core::util::BIT_READ(_activeMuxInput, 1) ? CORE_MCU_IO_SET_HIGH(MUX_PORT_S1, MUX_PIN_S1) : CORE_MCU_IO_SET_LOW(MUX_PORT_S1, MUX_PIN_S1);
-        core::util::BIT_READ(_activeMuxInput, 2) ? CORE_MCU_IO_SET_HIGH(MUX_PORT_S2, MUX_PIN_S2) : CORE_MCU_IO_SET_LOW(MUX_PORT_S2, MUX_PIN_S2);
-#ifdef MUX_PORT_S3
-        core::util::BIT_READ(_activeMuxInput, 3) ? CORE_MCU_IO_SET_HIGH(MUX_PORT_S3, MUX_PIN_S3) : CORE_MCU_IO_SET_LOW(MUX_PORT_S3, MUX_PIN_S3);
+        CORE_MCU_IO_SET_STATE(PIN_PORT_MUX_S0, PIN_INDEX_MUX_S0, core::util::BIT_READ(_activeMuxInput, 0));
+        CORE_MCU_IO_SET_STATE(PIN_PORT_MUX_S1, PIN_INDEX_MUX_S1, core::util::BIT_READ(_activeMuxInput, 1));
+        CORE_MCU_IO_SET_STATE(PIN_PORT_MUX_S2, PIN_INDEX_MUX_S2, core::util::BIT_READ(_activeMuxInput, 2));
+#ifdef PIN_PORT_MUX_S3
+        CORE_MCU_IO_SET_STATE(PIN_PORT_MUX_S3, PIN_INDEX_MUX_S3, core::util::BIT_READ(_activeMuxInput, 3));
 #endif
     }
 
@@ -81,11 +80,25 @@ namespace Board::detail::IO::analog
             CORE_MCU_IO_SET_LOW(CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin));
         }
 
-        CORE_MCU_IO_INIT(MUX_PORT_S0, MUX_PIN_S0, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
-        CORE_MCU_IO_INIT(MUX_PORT_S1, MUX_PIN_S1, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
-        CORE_MCU_IO_INIT(MUX_PORT_S2, MUX_PIN_S2, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
-#ifdef MUX_PORT_S3
-        CORE_MCU_IO_INIT(MUX_PORT_S3, MUX_PIN_S3, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
+        CORE_MCU_IO_INIT(PIN_PORT_MUX_S0,
+                         PIN_INDEX_MUX_S0,
+                         core::mcu::io::pinMode_t::OUTPUT_PP,
+                         core::mcu::io::pullMode_t::NONE);
+
+        CORE_MCU_IO_INIT(PIN_PORT_MUX_S1,
+                         PIN_INDEX_MUX_S1,
+                         core::mcu::io::pinMode_t::OUTPUT_PP,
+                         core::mcu::io::pullMode_t::NONE);
+
+        CORE_MCU_IO_INIT(PIN_PORT_MUX_S2,
+                         PIN_INDEX_MUX_S2,
+                         core::mcu::io::pinMode_t::OUTPUT_PP,
+                         core::mcu::io::pullMode_t::NONE);
+#ifdef PIN_PORT_MUX_S3
+        CORE_MCU_IO_INIT(PIN_PORT_MUX_S3,
+                         PIN_INDEX_MUX_S3,
+                         core::mcu::io::pinMode_t::OUTPUT_PP,
+                         core::mcu::io::pullMode_t::NONE);
 #endif
     }
 

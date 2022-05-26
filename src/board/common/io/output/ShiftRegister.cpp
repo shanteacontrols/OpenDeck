@@ -20,8 +20,7 @@ limitations under the License.
 #ifdef DIGITAL_OUTPUT_DRIVER_SHIFT_REGISTER
 
 #include "board/Board.h"
-#include "board/common/io/Helpers.h"
-#include "board/common/constants/IO.h"
+#include "Helpers.h"
 #include "board/Internal.h"
 #include "core/src/util/Util.h"
 #include <Target.h>
@@ -40,12 +39,26 @@ namespace Board::detail::IO::digitalOut
 {
     void init()
     {
-        CORE_MCU_IO_INIT(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
-        CORE_MCU_IO_INIT(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
-        CORE_MCU_IO_INIT(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
+        CORE_MCU_IO_INIT(PIN_PORT_SR_OUT_DATA,
+                         PIN_INDEX_SR_OUT_DATA,
+                         core::mcu::io::pinMode_t::OUTPUT_PP,
+                         core::mcu::io::pullMode_t::NONE);
 
-#ifdef SR_OUT_OE_PORT
-        CORE_MCU_IO_INIT(SR_OUT_OE_PORT, SR_OUT_OE_PIN, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
+        CORE_MCU_IO_INIT(PIN_PORT_SR_OUT_CLK,
+                         PIN_INDEX_SR_OUT_CLK,
+                         core::mcu::io::pinMode_t::OUTPUT_PP,
+                         core::mcu::io::pullMode_t::NONE);
+
+        CORE_MCU_IO_INIT(PIN_PORT_SR_OUT_LATCH,
+                         PIN_INDEX_SR_OUT_LATCH,
+                         core::mcu::io::pinMode_t::OUTPUT_PP,
+                         core::mcu::io::pullMode_t::NONE);
+
+#ifdef PIN_PORT_SR_OUT_OE
+        CORE_MCU_IO_INIT(PIN_PORT_SR_OUT_OE,
+                         PIN_INDEX_SR_OUT_OE,
+                         core::mcu::io::pinMode_t::OUTPUT_PP,
+                         core::mcu::io::pullMode_t::NONE);
 #endif
 
         // this will init all outputs to their default state (off)
@@ -56,7 +69,7 @@ namespace Board::detail::IO::digitalOut
 
     void update()
     {
-        CORE_MCU_IO_SET_LOW(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+        CORE_MCU_IO_SET_LOW(PIN_PORT_SR_OUT_LATCH, PIN_INDEX_SR_OUT_LATCH);
 
         for (uint8_t shiftRegister = 0; shiftRegister < NUMBER_OF_OUT_SR; shiftRegister++)
         {
@@ -67,16 +80,16 @@ namespace Board::detail::IO::digitalOut
                 uint8_t bit        = index - 8 * arrayIndex;
 
                 core::util::BIT_READ(_ledState[arrayIndex][_pwmCounter], bit)
-                    ? EXT_LED_ON(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN)
-                    : EXT_LED_OFF(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
+                    ? EXT_LED_ON(PIN_PORT_SR_OUT_DATA, PIN_INDEX_SR_OUT_DATA)
+                    : EXT_LED_OFF(PIN_PORT_SR_OUT_DATA, PIN_INDEX_SR_OUT_DATA);
 
-                CORE_MCU_IO_SET_LOW(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+                CORE_MCU_IO_SET_LOW(PIN_PORT_SR_OUT_CLK, PIN_INDEX_SR_OUT_CLK);
                 detail::IO::spiWait();
-                CORE_MCU_IO_SET_HIGH(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+                CORE_MCU_IO_SET_HIGH(PIN_PORT_SR_OUT_CLK, PIN_INDEX_SR_OUT_CLK);
             }
         }
 
-        CORE_MCU_IO_SET_HIGH(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+        CORE_MCU_IO_SET_HIGH(PIN_PORT_SR_OUT_LATCH, PIN_INDEX_SR_OUT_LATCH);
 
         if (++_pwmCounter >= static_cast<uint8_t>(ledBrightness_t::B100))
         {

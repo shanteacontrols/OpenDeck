@@ -210,7 +210,10 @@ namespace Board::detail
             void update();
 
             /// Flashes integrated LEDs on board on startup to indicate that application is about to be loaded.
-            void ledFlashStartup();
+            void indicateApplicationLoad();
+
+            /// Flashes integrated LEDs on board on startup to indicate that bootloader is about to be loaded.
+            void indicateBootloaderLoad();
         }    // namespace indicators
 
         namespace unused

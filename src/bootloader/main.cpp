@@ -28,6 +28,9 @@ namespace
     /// Value sent from non-USB target to USB link before loading application
     constexpr uint8_t USB_LINK_MAGIC_VAL_APP = 0x55;
 
+    /// Value sent from non-USB target to USB link after the firmware update is started
+    constexpr uint8_t TARGET_FW_UPDATE_STARTED = 0xFC;
+
     /// Value sent from non-USB target to USB link after the firmware update is done
     constexpr uint8_t TARGET_FW_UPDATE_DONE = 0xFD;
 #endif
@@ -67,6 +70,20 @@ class BTLDRWriter : public Updater::BTLDRWriter
         }
 #endif
         Board::reboot();
+    }
+
+    void onFirmwareUpdateStart() override
+    {
+#ifndef USB_SUPPORTED
+        Board::UART::write(UART_CHANNEL_USB_LINK, TARGET_FW_UPDATE_STARTED);
+
+        while (!Board::UART::isTxComplete(UART_CHANNEL_USB_LINK))
+        {
+            ;
+        }
+#endif
+
+        Board::IO::indicators::indicateFirmwareUpdateStart();
     }
 };
 
@@ -195,6 +212,10 @@ class Reader
                 // of the FW stream (if won't fit into 4k space), wait for TARGET_FW_UPDATE_DONE
                 // byte on UART sent by target MCU (this is done in BTLDRWriter::apply())
                 Board::reboot();
+            }
+            else if (value == TARGET_FW_UPDATE_STARTED)
+            {
+                Board::IO::indicators::indicateFirmwareUpdateStart();
             }
         }
 #endif

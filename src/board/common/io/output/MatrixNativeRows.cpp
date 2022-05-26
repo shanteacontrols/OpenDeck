@@ -20,8 +20,7 @@ limitations under the License.
 #ifdef DIGITAL_OUTPUT_DRIVER_MATRIX_NATIVE_ROWS
 
 #include "board/Board.h"
-#include "board/common/io/Helpers.h"
-#include "board/common/constants/IO.h"
+#include "Helpers.h"
 #include "board/Internal.h"
 #include "core/src/util/Util.h"
 #include <Target.h>
@@ -65,13 +64,24 @@ namespace Board::detail::IO::digitalOut
 {
     void init()
     {
-        CORE_MCU_IO_INIT(DEC_LM_PORT_A0, DEC_LM_PIN_A0, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
-        CORE_MCU_IO_INIT(DEC_LM_PORT_A1, DEC_LM_PIN_A1, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
-        CORE_MCU_IO_INIT(DEC_LM_PORT_A2, DEC_LM_PIN_A2, core::mcu::io::pinMode_t::OUTPUT_PP, core::mcu::io::pullMode_t::NONE);
+        CORE_MCU_IO_INIT(PIN_PORT_DEC_LM_A0,
+                         PIN_INDEX_DEC_LM_A0,
+                         core::mcu::io::pinMode_t::OUTPUT_PP,
+                         core::mcu::io::pullMode_t::NONE);
 
-        CORE_MCU_IO_SET_LOW(DEC_LM_PORT_A0, DEC_LM_PIN_A0);
-        CORE_MCU_IO_SET_LOW(DEC_LM_PORT_A1, DEC_LM_PIN_A1);
-        CORE_MCU_IO_SET_LOW(DEC_LM_PORT_A2, DEC_LM_PIN_A2);
+        CORE_MCU_IO_INIT(PIN_PORT_DEC_LM_A1,
+                         PIN_INDEX_DEC_LM_A1,
+                         core::mcu::io::pinMode_t::OUTPUT_PP,
+                         core::mcu::io::pullMode_t::NONE);
+
+        CORE_MCU_IO_INIT(PIN_PORT_DEC_LM_A2,
+                         PIN_INDEX_DEC_LM_A2,
+                         core::mcu::io::pinMode_t::OUTPUT_PP,
+                         core::mcu::io::pullMode_t::NONE);
+
+        CORE_MCU_IO_SET_LOW(PIN_PORT_DEC_LM_A0, PIN_INDEX_DEC_LM_A0);
+        CORE_MCU_IO_SET_LOW(PIN_PORT_DEC_LM_A1, PIN_INDEX_DEC_LM_A1);
+        CORE_MCU_IO_SET_LOW(PIN_PORT_DEC_LM_A2, PIN_INDEX_DEC_LM_A2);
 
         for (uint8_t i = 0; i < NUMBER_OF_LED_ROWS; i++)
         {
@@ -123,9 +133,9 @@ namespace Board::detail::IO::digitalOut
                 activeOutColumn = 0;
             }
 
-            core::util::BIT_READ(activeOutColumn, 0) ? CORE_MCU_IO_SET_HIGH(DEC_LM_PORT_A0, DEC_LM_PIN_A0) : CORE_MCU_IO_SET_LOW(DEC_LM_PORT_A0, DEC_LM_PIN_A0);
-            core::util::BIT_READ(activeOutColumn, 1) ? CORE_MCU_IO_SET_HIGH(DEC_LM_PORT_A1, DEC_LM_PIN_A1) : CORE_MCU_IO_SET_LOW(DEC_LM_PORT_A1, DEC_LM_PIN_A1);
-            core::util::BIT_READ(activeOutColumn, 2) ? CORE_MCU_IO_SET_HIGH(DEC_LM_PORT_A2, DEC_LM_PIN_A2) : CORE_MCU_IO_SET_LOW(DEC_LM_PORT_A2, DEC_LM_PIN_A2);
+            CORE_MCU_IO_SET_STATE(PIN_PORT_DEC_LM_A0, PIN_INDEX_DEC_LM_A0, core::util::BIT_READ(activeOutColumn, 0));
+            CORE_MCU_IO_SET_STATE(PIN_PORT_DEC_LM_A1, PIN_INDEX_DEC_LM_A1, core::util::BIT_READ(activeOutColumn, 1));
+            CORE_MCU_IO_SET_STATE(PIN_PORT_DEC_LM_A2, PIN_INDEX_DEC_LM_A2, core::util::BIT_READ(activeOutColumn, 2));
 
             switchState = switchState_t::NONE;
         }

@@ -179,14 +179,14 @@
     internal:
       invert: false
       pins:
-        din:
+        usb:
           rx:
             port: "A"
             index: 10
           tx:
             port: "A"
             index: 9
-        usb:
+        uart:
           rx:
             port: "A"
             index: 10

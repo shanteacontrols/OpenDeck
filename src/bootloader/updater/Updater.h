@@ -32,6 +32,7 @@ class Updater
         virtual void     fillPage(size_t index, uint32_t address, uint16_t value) = 0;
         virtual void     writePage(size_t index)                                  = 0;
         virtual void     apply()                                                  = 0;
+        virtual void     onFirmwareUpdateStart()                                  = 0;
     };
 
     Updater(BTLDRWriter& writer, const uint64_t startCommand, const uint32_t endCommand, const uint32_t uid)

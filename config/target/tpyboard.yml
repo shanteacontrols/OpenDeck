@@ -95,13 +95,6 @@
   leds:
     internal:
       pins:
-        din:
-          rx:
-            port: "B"
-            index: 4
-          tx:
-            port: "A"
-            index: 15
         usb:
           rx:
             port: "A"
@@ -109,6 +102,13 @@
           tx:
             port: "A"
             index: 13
+        uart:
+          rx:
+            port: "B"
+            index: 4
+          tx:
+            port: "A"
+            index: 15
     external:
       type: "native"
       pins:

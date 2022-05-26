@@ -24,7 +24,6 @@ limitations under the License.
 #include <stdlib.h>
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "board/common/constants/IO.h"
 #include "core/src/util/Util.h"
 #include "core/src/util/RingBuffer.h"
 #include <Target.h>
@@ -39,11 +38,11 @@ namespace
 
     inline void storeDigitalIn()
     {
-        CORE_MCU_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
-        CORE_MCU_IO_SET_LOW(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
+        CORE_MCU_IO_SET_LOW(PIN_PORT_SR_IN_CLK, PIN_INDEX_SR_IN_CLK);
+        CORE_MCU_IO_SET_LOW(PIN_PORT_SR_IN_LATCH, PIN_INDEX_SR_IN_LATCH);
         IO::spiWait();
 
-        CORE_MCU_IO_SET_HIGH(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
+        CORE_MCU_IO_SET_HIGH(PIN_PORT_SR_IN_LATCH, PIN_INDEX_SR_IN_LATCH);
 
         for (uint8_t shiftRegister = 0; shiftRegister < NUMBER_OF_IN_SR; shiftRegister++)
         {
@@ -51,18 +50,18 @@ namespace
             {
                 //  register shifts out MSB first
                 size_t index = (shiftRegister * 8) + (7 - input);
-                CORE_MCU_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
+                CORE_MCU_IO_SET_LOW(PIN_PORT_SR_IN_CLK, PIN_INDEX_SR_IN_CLK);
                 IO::spiWait();
 
                 _digitalInBuffer[index].readings <<= 1;
-                _digitalInBuffer[index].readings |= !CORE_MCU_IO_READ(SR_IN_DATA_PORT, SR_IN_DATA_PIN);
+                _digitalInBuffer[index].readings |= !CORE_MCU_IO_READ(PIN_PORT_SR_IN_DATA, PIN_INDEX_SR_IN_DATA);
 
                 if (++_digitalInBuffer[index].count > MAX_READING_COUNT)
                 {
                     _digitalInBuffer[index].count = MAX_READING_COUNT;
                 }
 
-                CORE_MCU_IO_SET_HIGH(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
+                CORE_MCU_IO_SET_HIGH(PIN_PORT_SR_IN_CLK, PIN_INDEX_SR_IN_CLK);
             }
         }
     }
@@ -72,12 +71,20 @@ namespace Board::detail::IO::digitalIn
 {
     void init()
     {
-        CORE_MCU_IO_INIT(SR_IN_DATA_PORT, SR_IN_DATA_PIN, core::mcu::io::pinMode_t::INPUT);
-        CORE_MCU_IO_INIT(SR_IN_CLK_PORT, SR_IN_CLK_PIN, core::mcu::io::pinMode_t::OUTPUT_PP);
-        CORE_MCU_IO_INIT(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN, core::mcu::io::pinMode_t::OUTPUT_PP);
+        CORE_MCU_IO_INIT(PIN_PORT_SR_IN_DATA,
+                         PIN_INDEX_SR_IN_DATA,
+                         core::mcu::io::pinMode_t::INPUT);
 
-        CORE_MCU_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
-        CORE_MCU_IO_SET_HIGH(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
+        CORE_MCU_IO_INIT(PIN_PORT_SR_IN_CLK,
+                         PIN_INDEX_SR_IN_CLK,
+                         core::mcu::io::pinMode_t::OUTPUT_PP);
+
+        CORE_MCU_IO_INIT(PIN_PORT_SR_IN_LATCH,
+                         PIN_INDEX_SR_IN_LATCH,
+                         core::mcu::io::pinMode_t::OUTPUT_PP);
+
+        CORE_MCU_IO_SET_LOW(PIN_PORT_SR_IN_CLK, PIN_INDEX_SR_IN_CLK);
+        CORE_MCU_IO_SET_HIGH(PIN_PORT_SR_IN_LATCH, PIN_INDEX_SR_IN_LATCH);
     }
 }    // namespace Board::detail::IO::digitalIn
 

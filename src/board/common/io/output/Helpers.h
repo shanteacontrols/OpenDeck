@@ -16,24 +16,12 @@ limitations under the License.
 
 */
 
-#include "board/Board.h"
-#include "board/Internal.h"
-#include "core/src/util/Util.h"
+#pragma once
 
-namespace Board::detail::IO
-{
-    void init()
-    {
-        bootloader::init();
-        indicators::init();
-
-        // initialize the rest of IO only for app
-
-#ifdef FW_APP
-        analog::init();
-        digitalIn::init();
-        digitalOut::init();
-        unused::init();
+#ifdef LED_EXT_INVERT
+#define EXT_LED_ON(port, pin)  CORE_MCU_IO_SET_LOW(port, pin)
+#define EXT_LED_OFF(port, pin) CORE_MCU_IO_SET_HIGH(port, pin)
+#else
+#define EXT_LED_ON(port, pin)  CORE_MCU_IO_SET_HIGH(port, pin)
+#define EXT_LED_OFF(port, pin) CORE_MCU_IO_SET_LOW(port, pin)
 #endif
-    }
-}    // namespace Board::detail::IO

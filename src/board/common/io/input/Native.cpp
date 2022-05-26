@@ -24,7 +24,6 @@ limitations under the License.
 #include <stdlib.h>
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "board/common/constants/IO.h"
 #include "core/src/util/Util.h"
 #include "core/src/util/RingBuffer.h"
 #include <Target.h>

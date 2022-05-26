@@ -33,8 +33,8 @@ then
             index_array+=("$index")
 
             {
-                printf "%s\n" "#define DOUT_PORT_${i} CORE_MCU_IO_PIN_PORT_DEF(${port})"
-                printf "%s\n" "#define DOUT_PIN_${i} CORE_MCU_IO_PIN_INDEX_DEF(${index})"
+                printf "%s\n" "#define PIN_PORT_DOUT_${i} CORE_MCU_IO_PIN_PORT_DEF(${port})"
+                printf "%s\n" "#define PIN_INDEX_DOUT_${i} CORE_MCU_IO_PIN_INDEX_DEF(${index})"
             } >> "$out_header"
 
             if [[ -z ${port_duplicates[$port]} ]]
@@ -87,7 +87,7 @@ then
 
         for ((i=0; i<nr_of_digital_outputs; i++))
         do
-            printf "%s\n" "CORE_MCU_IO_PIN_VAR(DOUT_PORT_${i}, DOUT_PIN_${i})," >> "$out_header"
+            printf "%s\n" "CORE_MCU_IO_PIN_VAR(PIN_PORT_DOUT_${i}, PIN_INDEX_DOUT_${i})," >> "$out_header"
         done
 
         {
@@ -128,32 +128,32 @@ then
         index=$($yaml_parser "$yaml_file" leds.external.pins.data.index)
 
         {
-            printf "%s\n" "#define SR_OUT_DATA_PORT CORE_MCU_IO_PIN_PORT_DEF(${port})"
-            printf "%s\n" "#define SR_OUT_DATA_PIN CORE_MCU_IO_PIN_INDEX_DEF(${index})"
+            printf "%s\n" "#define PIN_PORT_SR_OUT_DATA CORE_MCU_IO_PIN_PORT_DEF(${port})"
+            printf "%s\n" "#define PIN_INDEX_SR_OUT_DATA CORE_MCU_IO_PIN_INDEX_DEF(${index})"
         } >> "$out_header"
 
         port=$($yaml_parser "$yaml_file" leds.external.pins.clock.port)
         index=$($yaml_parser "$yaml_file" leds.external.pins.clock.index)
 
         {
-            printf "%s\n" "#define SR_OUT_CLK_PORT CORE_MCU_IO_PIN_PORT_DEF(${port})"
-            printf "%s\n" "#define SR_OUT_CLK_PIN CORE_MCU_IO_PIN_INDEX_DEF(${index})"
+            printf "%s\n" "#define PIN_PORT_SR_OUT_CLK CORE_MCU_IO_PIN_PORT_DEF(${port})"
+            printf "%s\n" "#define PIN_INDEX_SR_OUT_CLK CORE_MCU_IO_PIN_INDEX_DEF(${index})"
         } >> "$out_header"
 
         port=$($yaml_parser "$yaml_file" leds.external.pins.latch.port)
         index=$($yaml_parser "$yaml_file" leds.external.pins.latch.index)
 
         {
-            printf "%s\n" "#define SR_OUT_LATCH_PORT CORE_MCU_IO_PIN_PORT_DEF(${port})"
-            printf "%s\n" "#define SR_OUT_LATCH_PIN CORE_MCU_IO_PIN_INDEX_DEF(${index})"
+            printf "%s\n" "#define PIN_PORT_SR_OUT_LATCH CORE_MCU_IO_PIN_PORT_DEF(${port})"
+            printf "%s\n" "#define PIN_INDEX_SR_OUT_LATCH CORE_MCU_IO_PIN_INDEX_DEF(${index})"
         } >> "$out_header"
 
         port=$($yaml_parser "$yaml_file" leds.external.pins.enable.port)
         index=$($yaml_parser "$yaml_file" leds.external.pins.enable.index)
 
         {
-            printf "%s\n" "#define SR_OUT_OE_PORT CORE_MCU_IO_PIN_PORT_DEF(${port})"
-            printf "%s\n" "#define SR_OUT_OE_PIN CORE_MCU_IO_PIN_INDEX_DEF(${index})"
+            printf "%s\n" "#define PIN_PORT_SR_OUT_OE CORE_MCU_IO_PIN_PORT_DEF(${port})"
+            printf "%s\n" "#define PIN_INDEX_SR_OUT_OE CORE_MCU_IO_PIN_INDEX_DEF(${index})"
         } >> "$out_header"
 
         number_of_out_sr=$($yaml_parser "$yaml_file" leds.external.shiftRegisters)
@@ -173,8 +173,8 @@ then
             index=$($yaml_parser "$yaml_file" leds.external.columns.pins.decA"$i".index)
 
             {
-                printf "%s\n" "#define DEC_LM_PORT_A${i} CORE_MCU_IO_PIN_PORT_DEF(${port})"
-                printf "%s\n" "#define DEC_LM_PIN_A${i} CORE_MCU_IO_PIN_INDEX_DEF(${index})"
+                printf "%s\n" "#define PIN_PORT_DEC_LM_A${i} CORE_MCU_IO_PIN_PORT_DEF(${port})"
+                printf "%s\n" "#define PIN_INDEX_DEC_LM_A${i} CORE_MCU_IO_PIN_INDEX_DEF(${index})"
             } >> "$out_header"
         done
 
@@ -184,8 +184,8 @@ then
             index=$($yaml_parser "$yaml_file" leds.external.rows.pins.["$i"].index)
 
             {
-                printf "%s\n" "#define LED_ROW_PORT_${i} CORE_MCU_IO_PIN_PORT_DEF(${port})"
-                printf "%s\n" "#define LED_ROW_PIN_${i} CORE_MCU_IO_PIN_INDEX_DEF(${index})"
+                printf "%s\n" "#define PIN_PORT_LED_ROW_${i} CORE_MCU_IO_PIN_PORT_DEF(${port})"
+                printf "%s\n" "#define PIN_INDEX_LED_ROW_${i} CORE_MCU_IO_PIN_INDEX_DEF(${index})"
             } >> "$out_header"
         done
 
@@ -196,7 +196,7 @@ then
 
         for ((i=0; i<"$number_of_led_rows"; i++))
         do
-            printf "%s\n" "CORE_MCU_IO_PIN_VAR(LED_ROW_PORT_${i}, LED_ROW_PIN_${i})," >> "$out_header"
+            printf "%s\n" "CORE_MCU_IO_PIN_VAR(PIN_PORT_LED_ROW_${i}, PIN_INDEX_LED_ROW_${i})," >> "$out_header"
         done
 
         {
@@ -218,24 +218,24 @@ then
         index=$($yaml_parser "$yaml_file" leds.external.pins.data.index)
 
         {
-            printf "%s\n" "#define MAX7219_DATA_PORT CORE_MCU_IO_PIN_PORT_DEF(${port})"
-            printf "%s\n" "#define MAX7219_DATA_PIN CORE_MCU_IO_PIN_INDEX_DEF(${index})"
+            printf "%s\n" "#define PIN_PORT_MAX7219_DATA CORE_MCU_IO_PIN_PORT_DEF(${port})"
+            printf "%s\n" "#define PIN_INDEX_MAX7219_DATA CORE_MCU_IO_PIN_INDEX_DEF(${index})"
         } >> "$out_header"
 
         port=$($yaml_parser "$yaml_file" leds.external.pins.clock.port)
         index=$($yaml_parser "$yaml_file" leds.external.pins.clock.index)
 
         {
-            printf "%s\n" "#define MAX7219_CLK_PORT CORE_MCU_IO_PIN_PORT_DEF(${port})"
-            printf "%s\n" "#define MAX7219_CLK_PIN CORE_MCU_IO_PIN_INDEX_DEF(${index})"
+            printf "%s\n" "#define PIN_PORT_MAX7219_CLK CORE_MCU_IO_PIN_PORT_DEF(${port})"
+            printf "%s\n" "#define PIN_INDEX_MAX7219_CLK CORE_MCU_IO_PIN_INDEX_DEF(${index})"
         } >> "$out_header"
 
         port=$($yaml_parser "$yaml_file" leds.external.pins.latch.port)
         index=$($yaml_parser "$yaml_file" leds.external.pins.latch.index)
 
         {
-            printf "%s\n" "#define MAX7219_LATCH_PORT CORE_MCU_IO_PIN_PORT_DEF(${port})"
-            printf "%s\n" "#define MAX7219_LATCH_PIN CORE_MCU_IO_PIN_INDEX_DEF(${index})"
+            printf "%s\n" "#define PIN_PORT_MAX7219_LATCH CORE_MCU_IO_PIN_PORT_DEF(${port})"
+            printf "%s\n" "#define PIN_INDEX_MAX7219_LATCH CORE_MCU_IO_PIN_INDEX_DEF(${index})"
         } >> "$out_header"
 
         # hardcode for now
@@ -289,60 +289,66 @@ then
         printf "%s\n" "DEFINES += LED_INT_INVERT" >> "$out_makefile"
     fi
 
-    if [[ $($yaml_parser "$yaml_file" leds.internal.pins.din) != "null" ]]
-    then
-        port=$($yaml_parser "$yaml_file" leds.internal.pins.din.rx.port)
-        index=$($yaml_parser "$yaml_file" leds.internal.pins.din.rx.index)
-
-        {
-            printf "%s\n" "#define LED_MIDI_IN_DIN_PORT CORE_MCU_IO_PIN_PORT_DEF(${port})"
-            printf "%s\n" "#define LED_MIDI_IN_DIN_PIN CORE_MCU_IO_PIN_INDEX_DEF(${index})"
-        } >> "$out_header"
-
-        port=$($yaml_parser "$yaml_file" leds.internal.pins.din.tx.port)
-        index=$($yaml_parser "$yaml_file" leds.internal.pins.din.tx.index)
-
-        {
-            printf "%s\n" "#define LED_MIDI_OUT_DIN_PORT CORE_MCU_IO_PIN_PORT_DEF(${port})"
-            printf "%s\n" "#define LED_MIDI_OUT_DIN_PIN CORE_MCU_IO_PIN_INDEX_DEF(${index})"
-        } >> "$out_header"
-    fi
-
     if [[ $($yaml_parser "$yaml_file" leds.internal.pins.usb) != "null" ]]
     then
+        printf "%s\n" "DEFINES += USB_INDICATORS_SUPPORTED" >> "$out_makefile"
+
         port=$($yaml_parser "$yaml_file" leds.internal.pins.usb.rx.port)
         index=$($yaml_parser "$yaml_file" leds.internal.pins.usb.rx.index)
 
         {
-            printf "%s\n" "#define LED_MIDI_IN_USB_PORT CORE_MCU_IO_PIN_PORT_DEF(${port})"
-            printf "%s\n" "#define LED_MIDI_IN_USB_PIN CORE_MCU_IO_PIN_INDEX_DEF(${index})"
+            printf "%s\n" "#define PIN_PORT_LED_IND_IN_USB CORE_MCU_IO_PIN_PORT_DEF(${port})"
+            printf "%s\n" "#define PIN_INDEX_LED_IND_IN_USB CORE_MCU_IO_PIN_INDEX_DEF(${index})"
         } >> "$out_header"
 
         port=$($yaml_parser "$yaml_file" leds.internal.pins.usb.tx.port)
         index=$($yaml_parser "$yaml_file" leds.internal.pins.usb.tx.index)
 
         {
-            printf "%s\n" "#define LED_MIDI_OUT_USB_PORT CORE_MCU_IO_PIN_PORT_DEF(${port})"
-            printf "%s\n" "#define LED_MIDI_OUT_USB_PIN CORE_MCU_IO_PIN_INDEX_DEF(${index})"
+            printf "%s\n" "#define PIN_PORT_LED_IND_OUT_USB CORE_MCU_IO_PIN_PORT_DEF(${port})"
+            printf "%s\n" "#define PIN_INDEX_LED_IND_OUT_USB CORE_MCU_IO_PIN_INDEX_DEF(${index})"
+        } >> "$out_header"
+    fi
+
+    if [[ $($yaml_parser "$yaml_file" leds.internal.pins.uart) != "null" ]]
+    then
+        printf "%s\n" "DEFINES += UART_INDICATORS_SUPPORTED" >> "$out_makefile"
+
+        port=$($yaml_parser "$yaml_file" leds.internal.pins.uart.rx.port)
+        index=$($yaml_parser "$yaml_file" leds.internal.pins.uart.rx.index)
+
+        {
+            printf "%s\n" "#define PIN_PORT_LED_IND_IN_UART CORE_MCU_IO_PIN_PORT_DEF(${port})"
+            printf "%s\n" "#define PIN_INDEX_LED_IND_IN_UART CORE_MCU_IO_PIN_INDEX_DEF(${index})"
+        } >> "$out_header"
+
+        port=$($yaml_parser "$yaml_file" leds.internal.pins.uart.tx.port)
+        index=$($yaml_parser "$yaml_file" leds.internal.pins.uart.tx.index)
+
+        {
+            printf "%s\n" "#define PIN_PORT_LED_IND_OUT_UART CORE_MCU_IO_PIN_PORT_DEF(${port})"
+            printf "%s\n" "#define PIN_INDEX_LED_IND_OUT_UART CORE_MCU_IO_PIN_INDEX_DEF(${index})"
         } >> "$out_header"
     fi
 
     if [[ $($yaml_parser "$yaml_file" leds.internal.pins.ble) != "null" ]]
     then
+        printf "%s\n" "DEFINES += BLE_INDICATORS_SUPPORTED" >> "$out_makefile"
+
         port=$($yaml_parser "$yaml_file" leds.internal.pins.ble.rx.port)
         index=$($yaml_parser "$yaml_file" leds.internal.pins.ble.rx.index)
 
         {
-            printf "%s\n" "#define LED_MIDI_IN_BLE_PORT CORE_MCU_IO_PIN_PORT_DEF(${port})"
-            printf "%s\n" "#define LED_MIDI_IN_BLE_PIN CORE_MCU_IO_PIN_INDEX_DEF(${index})"
+            printf "%s\n" "#define PIN_PORT_LED_IND_IN_BLE CORE_MCU_IO_PIN_PORT_DEF(${port})"
+            printf "%s\n" "#define PIN_INDEX_LED_IND_IN_BLE CORE_MCU_IO_PIN_INDEX_DEF(${index})"
         } >> "$out_header"
 
         port=$($yaml_parser "$yaml_file" leds.internal.pins.ble.tx.port)
         index=$($yaml_parser "$yaml_file" leds.internal.pins.ble.tx.index)
 
         {
-            printf "%s\n" "#define LED_MIDI_OUT_BLE_PORT CORE_MCU_IO_PIN_PORT_DEF(${port})"
-            printf "%s\n" "#define LED_MIDI_OUT_BLE_PIN CORE_MCU_IO_PIN_INDEX_DEF(${index})"
+            printf "%s\n" "#define PIN_PORT_LED_IND_OUT_BLE CORE_MCU_IO_PIN_PORT_DEF(${port})"
+            printf "%s\n" "#define PIN_INDEX_LED_IND_OUT_BLE CORE_MCU_IO_PIN_INDEX_DEF(${index})"
         } >> "$out_header"
     fi
 fi

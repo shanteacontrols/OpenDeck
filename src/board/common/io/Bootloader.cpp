@@ -28,9 +28,15 @@ namespace Board::detail::IO::bootloader
     void init()
     {
 #ifdef BTLDR_BUTTON_AH
-        CORE_MCU_IO_INIT(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN, core::mcu::io::pinMode_t::INPUT, core::mcu::io::pullMode_t::DOWN);
+        CORE_MCU_IO_INIT(PIN_PORT_BTLDR_BUTTON,
+                         PIN_INDEX_BTLDR_BUTTON,
+                         core::mcu::io::pinMode_t::INPUT,
+                         core::mcu::io::pullMode_t::DOWN);
 #else
-        CORE_MCU_IO_INIT(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN, core::mcu::io::pinMode_t::INPUT, core::mcu::io::pullMode_t::UP);
+        CORE_MCU_IO_INIT(PIN_PORT_BTLDR_BUTTON,
+                         PIN_INDEX_BTLDR_BUTTON,
+                         core::mcu::io::pinMode_t::INPUT,
+                         core::mcu::io::pullMode_t::UP);
 #endif
     }
 }    // namespace Board::detail::IO::bootloader

@@ -143,14 +143,14 @@
     internal:
       invert: true
       pins:
-        din:
+        usb:
           rx:
             port: "A"
             index: 6
           tx:
             port: "A"
             index: 7
-        usb:
+        uart:
           rx:
             port: "A"
             index: 6
