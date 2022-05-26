@@ -12,6 +12,8 @@ jobs:
       image: paradajz168/opendeck-dev:latest
       options: --user root
     steps:
+      - name: Mark repository as safe
+        run: git config --global --add safe.directory /__w/OpenDeck/OpenDeck
       - name: Pull the repository and submodules
         uses: actions/checkout@v3
         with:

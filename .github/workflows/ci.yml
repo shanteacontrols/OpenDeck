@@ -10,6 +10,8 @@ jobs:
       image: paradajz168/opendeck-dev:latest
       options: --user root
     steps:
+      - name: Mark repository as safe
+        run: git config --global --add safe.directory /__w/OpenDeck/OpenDeck
       - name: Pull the repository and submodules
         uses: actions/checkout@v3
         with:
@@ -31,6 +33,8 @@ jobs:
     name: Run tests on physical boards
     runs-on: self-hosted
     steps:
+      - name: Mark repository as safe
+        run: git config --global --add safe.directory /__w/OpenDeck/OpenDeck
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -50,6 +54,8 @@ jobs:
       image: paradajz168/opendeck-dev:latest
       options: --user root
     steps:
+      - name: Mark repository as safe
+        run: git config --global --add safe.directory /__w/OpenDeck/OpenDeck
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -69,6 +75,8 @@ jobs:
       image: paradajz168/opendeck-dev:latest
       options: --user root
     steps:
+      - name: Mark repository as safe
+        run: git config --global --add safe.directory /__w/OpenDeck/OpenDeck
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
