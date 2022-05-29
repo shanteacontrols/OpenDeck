@@ -171,5 +171,34 @@
             ],
             "preLaunchTask": "[Debug] nrf52840dk"
         },
+        {
+            "name": "[Launch] opendeck3a/App/BMP",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "bmp",
+            "cwd": "${workspaceRoot}",
+            "executable": "./src/build/opendeck3a/debug/merged/opendeck3a.hex",
+            "interface": "swd",
+            "device": "nrf52840_xxaa",
+            "BMPGDBSerialPort": "/dev/ttyBmpGdb",
+            "targetId": 1,
+            "preLaunchCommands": [
+                "add-symbol-file ${workspaceRoot}/src/build/opendeck3a/debug/app/opendeck3a.elf",
+            ],
+            "preLaunchTask": "[Debug] opendeck3a"
+        },
+        {
+            "name": "[ATT] opendeck3a/Boot/BMP",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "bmp",
+            "cwd": "${workspaceRoot}",
+            "executable": "./src/build/opendeck3a/debug/boot/opendeck3a.elf",
+            "interface": "swd",
+            "device": "nrf52840_xxaa",
+            "BMPGDBSerialPort": "/dev/ttyBmpGdb",
+            "targetId": 1,
+            "preLaunchTask": "[Debug] opendeck3a"
+        },
     ]
 }
