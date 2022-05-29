@@ -63,12 +63,6 @@ namespace
     {
         switch (event->header.evt_id)
         {
-        case BLE_GAP_EVT_DISCONNECTED:
-        {
-            LOG_INFO("Disconnected from peer");
-        }
-        break;
-
         case BLE_GAP_EVT_CONNECTED:
         {
             LOG_INFO("Connected to peer");
@@ -106,12 +100,6 @@ namespace
         }
         break;
 
-        case BLE_GATTS_EVT_HVN_TX_COMPLETE:
-        {
-            LOG_INFO("Handle Value Notification transmission complete");
-        }
-        break;
-
         case BLE_GAP_EVT_CONN_PARAM_UPDATE:
         {
             LOG_INFO("Connection parameters update success");
@@ -144,27 +132,21 @@ namespace
         }
         break;
 
-        case BLE_GATTC_EVT_EXCHANGE_MTU_RSP:
+        case BLE_GAP_EVT_ADV_SET_TERMINATED:
         {
-            LOG_INFO("Exchange MTU Response");
+            LOG_INFO("Advertising set terminated");
         }
         break;
 
-        case BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST:
+        case BLE_GAP_OPT_AUTH_PAYLOAD_TIMEOUT:
         {
-            LOG_INFO("Exchange MTU Request");
-        }
-        break;
-
-        case BLE_GATTS_EVT_WRITE:
-        {
-            LOG_INFO("Write operation performed");
+            LOG_INFO("Set Authenticated payload timeout");
         }
         break;
 
         default:
         {
-            LOG_INFO("Common/Unhandled BLE event received. ID = %d", event->header.evt_id);
+            // LOG_INFO("Common/Unhandled BLE event received. ID = %d", event->header.evt_id);
         }
         break;
         }

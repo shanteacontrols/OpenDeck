@@ -220,50 +220,6 @@ namespace
         }
         break;
 
-        case BLE_GAP_EVT_CONN_PARAM_UPDATE:
-        {
-            LOG_INFO("Connection interval updated");
-        }
-        break;
-
-        case BLE_GAP_OPT_AUTH_PAYLOAD_TIMEOUT:
-        {
-            LOG_INFO("Set Authenticated payload timeout");
-        }
-        break;
-
-        case BLE_GATTS_EVT_HVN_TX_COMPLETE:
-        {
-            LOG_INFO("Handle Value Notification transmission complete");
-        }
-        break;
-
-        case BLE_GAP_EVT_AUTH_STATUS:
-        {
-            if (event->evt.gap_evt.params.auth_status.auth_status == BLE_GAP_SEC_STATUS_SUCCESS)
-            {
-                LOG_INFO("Authorization succeeded!");
-            }
-            else
-            {
-                LOG_INFO("Authorization failed with code: %u!",
-                         event->evt.gap_evt.params.auth_status.auth_status);
-            }
-        }
-        break;
-
-        case BLE_GAP_EVT_CONN_SEC_UPDATE:
-        {
-            LOG_INFO("Connection security updated");
-        }
-        break;
-
-        case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
-        {
-            LOG_INFO("Request to provide security parameters");
-        }
-        break;
-
         case BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST:
         {
             LOG_INFO("Exchange MTU Request");
@@ -276,22 +232,8 @@ namespace
         }
         break;
 
-        case BLE_GAP_EVT_ADV_SET_TERMINATED:
-        {
-            LOG_INFO("Advertising set terminated");
-        };
-
-        case BLE_GAP_EVT_SEC_INFO_REQUEST:
-        {
-            LOG_INFO("Request to provide security information");
-        }
-        break;
-
         default:
-        {
-            LOG_INFO("MIDI/Unhandled BLE event received. ID = %d", event->header.evt_id);
-        }
-        break;
+            break;
         }
     }
 }    // namespace
@@ -362,7 +304,11 @@ namespace Board::BLE::MIDI
             hvxParams.p_data = gattsValue.p_value;
 
             retVal = sd_ble_gatts_hvx(_midiService.connHandle, &hvxParams);
-            LOG_INFO("sd_ble_gatts_hvx result: %x", retVal);
+
+            if (retVal != 0)
+            {
+                LOG_INFO("MIDI BLE sending failed");
+            }
         }
         else
         {
