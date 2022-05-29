@@ -30,10 +30,12 @@ namespace
         {
         }
 
-        void fillPage(size_t index, uint32_t address, uint16_t value) override
+        void fillPage(size_t index, uint32_t address, uint32_t value) override
         {
-            writtenBytes.push_back(value & 0xFF);
-            writtenBytes.push_back(value >> 8);
+            writtenBytes.push_back(value >> 0 & static_cast<uint32_t>(0xFF));
+            writtenBytes.push_back(value >> 8 & static_cast<uint32_t>(0xFF));
+            writtenBytes.push_back(value >> 16 & static_cast<uint32_t>(0xFF));
+            writtenBytes.push_back(value >> 24 & static_cast<uint32_t>(0xFF));
         }
 
         void writePage(size_t index) override
@@ -116,7 +118,26 @@ TEST(Bootloader, FwUpdate)
     ASSERT_TRUE(_btldrWriter.updated);
 
     // written content should also match the original binary file from which .syx file has been created
-    ASSERT_TRUE(_btldrWriter.writtenBytes == binaryVector);
+    // verify only until binaryVector.size() -> writtenBytes vector could be slightly larger due to padding
+    for (size_t i = 0; i < binaryVector.size(); i++)
+    {
+        if (_btldrWriter.writtenBytes.at(i) != binaryVector.at(i))
+        {
+            LOG(ERROR) << "Difference on byte " << i;
+            ASSERT_TRUE(true == false);
+        }
+    }
+
+    if (binaryVector.size() != _btldrWriter.writtenBytes.size())
+    {
+        LOG(INFO) << "Expecting padding in firmware file";
+
+        // now verify padding if present
+        for (size_t i = binaryVector.size(); i < _btldrWriter.writtenBytes.size(); i++)
+        {
+            ASSERT_EQ(0xFF, _btldrWriter.writtenBytes.at(i));
+        }
+    }
 }
 
 #endif

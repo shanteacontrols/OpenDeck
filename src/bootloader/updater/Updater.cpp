@@ -115,9 +115,9 @@ Updater::processStatus_t Updater::processFwMetadata(uint8_t data)
 
 Updater::processStatus_t Updater::processFwChunk(uint8_t data)
 {
-    _receivedWord |= (data << (8 * _stageBytesReceived));
+    _receivedWord |= static_cast<uint32_t>(data) << (8 * _stageBytesReceived);
 
-    if (++_stageBytesReceived != 2)
+    if (++_stageBytesReceived != sizeof(_receivedWord))
     {
         return processStatus_t::INCOMPLETE;
     }
@@ -129,9 +129,8 @@ Updater::processStatus_t Updater::processFwChunk(uint8_t data)
 
     _writer.fillPage(_currentFwPage, _fwPageBytesReceived, _receivedWord);
 
-    // we are operating with words (two bytes)
-    _fwPageBytesReceived += 2;
-    _fwBytesReceived += 2;
+    _fwPageBytesReceived += sizeof(_receivedWord);
+    _fwBytesReceived += sizeof(_receivedWord);
 
     _receivedWord       = 0;
     _stageBytesReceived = 0;

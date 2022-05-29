@@ -29,7 +29,7 @@ class Updater
         public:
         virtual uint32_t pageSize(size_t index)                                   = 0;
         virtual void     erasePage(size_t index)                                  = 0;
-        virtual void     fillPage(size_t index, uint32_t address, uint16_t value) = 0;
+        virtual void     fillPage(size_t index, uint32_t address, uint32_t value) = 0;
         virtual void     writePage(size_t index)                                  = 0;
         virtual void     apply()                                                  = 0;
         virtual void     onFirmwareUpdateStart()                                  = 0;
@@ -73,7 +73,7 @@ class Updater
 
     uint8_t        _currentStage        = 0;
     size_t         _currentFwPage       = 0;
-    uint16_t       _receivedWord        = 0;
+    uint32_t       _receivedWord        = 0;
     uint32_t       _fwPageBytesReceived = 0;
     uint8_t        _stageBytesReceived  = 0;
     uint32_t       _fwBytesReceived     = 0;

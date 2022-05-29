@@ -90,6 +90,12 @@ int main(int argc, char* argv[])
     std::vector<uint8_t> output;
     std::fstream         outputFile;
 
+    // make sure firmware size is multiple of 4 (parser operates on 4-byte values)
+    while (contents.size() % 4)
+    {
+        contents.push_back(0xFF);
+    }
+
     printf("Firmware size is %lu bytes. Generating SysEx file, please wait...\n", contents.size());
 
     appendCommand(COMMAND_FW_UPDATE_START, 4, output);

@@ -49,7 +49,7 @@ class BTLDRWriter : public Updater::BTLDRWriter
         Board::bootloader::erasePage(index);
     }
 
-    void fillPage(size_t index, uint32_t address, uint16_t value) override
+    void fillPage(size_t index, uint32_t address, uint32_t value) override
     {
         Board::bootloader::fillPage(index, address, value);
     }
