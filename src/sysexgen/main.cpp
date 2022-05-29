@@ -59,7 +59,8 @@ void appendCommand(uint64_t command, size_t bytes, std::vector<uint8_t>& output)
         }
         else
         {
-            printf("Incorrect number of bytes per command message specified\n");
+            std::cout << "Incorrect number of bytes per command message specified"
+                      << std::endl;
             exit(1);
         }
 
@@ -96,7 +97,9 @@ int main(int argc, char* argv[])
         contents.push_back(0xFF);
     }
 
-    printf("Firmware size is %lu bytes. Generating SysEx file, please wait...\n", contents.size());
+    std::cout << "Firmware update file size is "
+              << contents.size() << " bytes. Generating SysEx file, please wait..."
+              << std::endl;
 
     appendCommand(COMMAND_FW_UPDATE_START, 4, output);
 
