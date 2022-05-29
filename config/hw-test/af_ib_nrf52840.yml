@@ -1,0 +1,3 @@
+---
+flash:
+  args: "FLASH_TOOL=bmp PORT=ttyBmpGdb"
