@@ -242,8 +242,8 @@ namespace
     };
 
     const core::mcu::usb::descriptorString_t _languageString     = CORE_MCU_USB_STRING_DESCRIPTOR_ARRAY(core::mcu::usb::LANGUAGE_ID_ENG);
-    const core::mcu::usb::descriptorString_t _manufacturerString = CORE_MCU_USB_STRING_DESCRIPTOR(USB_MANUFACTURER);
-    const core::mcu::usb::descriptorString_t _productString      = CORE_MCU_USB_STRING_DESCRIPTOR(USB_PRODUCT);
+    const core::mcu::usb::descriptorString_t _manufacturerString = CORE_MCU_USB_STRING_DESCRIPTOR(USB_MANUFACTURER_NAME);
+    const core::mcu::usb::descriptorString_t _productString      = CORE_MCU_USB_STRING_DESCRIPTOR(USB_PRODUCT_NAME);
 }    // namespace
 
 namespace Board::detail::USB

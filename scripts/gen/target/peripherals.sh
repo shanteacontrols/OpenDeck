@@ -7,9 +7,9 @@ then
     {
         printf "%s\n" "#define USB_PRODUCT_BASE_NAME \"$project | $board_name\""
         printf "%s\n" "#if defined(FW_APP)"
-        printf "%s\n" "#define USB_PRODUCT CORE_MCU_USB_STRING(\"$project | $board_name\")"
+        printf "%s\n" "#define USB_PRODUCT_NAME CORE_MCU_USB_STRING(\"$project | $board_name\")"
         printf "%s\n" "#elif defined(FW_BOOT)"
-        printf "%s\n" "#define USB_PRODUCT CORE_MCU_USB_STRING(\"$project DFU | $board_name\")"
+        printf "%s\n" "#define USB_PRODUCT_NAME CORE_MCU_USB_STRING(\"$project DFU | $board_name\")"
         printf "%s\n" "#endif"
     } >> "$out_header"
 fi

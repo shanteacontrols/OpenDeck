@@ -28,4 +28,4 @@ limitations under the License.
 #define USB_PRODUCT_ID 0x8473
 #endif
 
-#define USB_MANUFACTURER CORE_MCU_USB_STRING("Shantea Controls")
+#define USB_MANUFACTURER_NAME CORE_MCU_USB_STRING("Shantea Controls")
