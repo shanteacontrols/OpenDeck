@@ -175,7 +175,7 @@ namespace
 
         BLE_GAP_CONN_SEC_MODE_SET_OPEN(&secMode);
 
-        CORE_ERROR_CHECK(sd_ble_gap_device_name_set(&secMode, (const uint8_t*)USB_PRODUCT_BASE_NAME, strlen(USB_PRODUCT_BASE_NAME)), NRF_SUCCESS);
+        CORE_ERROR_CHECK(sd_ble_gap_device_name_set(&secMode, (const uint8_t*)BLE_PRODUCT_NAME, strlen(BLE_PRODUCT_NAME)), NRF_SUCCESS);
 
         memset(&gapConnParams, 0, sizeof(gapConnParams));
 
