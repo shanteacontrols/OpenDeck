@@ -8,16 +8,11 @@ yaml_parser="dasel -n -p yaml --plain -f"
 out_header="$gen_dir"/Target.h
 out_makefile="$gen_dir"/Makefile
 
-# Generated header contains cpp code.
-# Generate USB names in dedicated header since this one is included in .c files
-out_header_usb="$gen_dir"/USBnames.h
-
 echo "Generating target definitions..."
 
 mkdir -p "$gen_dir"
 echo "" > "$out_header"
 echo "" > "$out_makefile"
-echo "" > "$out_header_usb"
 
 {
     printf "%s\n\n" "#pragma once"

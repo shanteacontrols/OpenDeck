@@ -11,7 +11,7 @@ then
         printf "%s\n" "#elif defined(FW_BOOT)"
         printf "%s\n" "#define USB_PRODUCT CORE_MCU_USB_STRING(\"$project DFU | $board_name\")"
         printf "%s\n" "#endif"
-    } >> "$out_header_usb"
+    } >> "$out_header"
 fi
 
 if [[ $($yaml_parser "$yaml_file" ble) == "true" ]]

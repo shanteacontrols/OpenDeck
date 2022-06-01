@@ -25,7 +25,7 @@ limitations under the License.
 #include "Descriptors.h"
 #include "board/common/communication/usb/Constants.h"
 #include "board/common/communication/usb/descriptors/common/Common.h"
-#include <USBnames.h>
+#include <Target.h>
 
 namespace
 {

@@ -38,10 +38,10 @@ limitations under the License.
 #include "nrf_nvmc.h"
 #include "fds.h"
 #include "ble_config.h"
-#include <USBnames.h>
 #include "services/midi/MIDI.h"
 #include "logger/Logger.h"
 #include "core/src/ErrorHandler.h"
+#include <Target.h>
 
 namespace
 {
