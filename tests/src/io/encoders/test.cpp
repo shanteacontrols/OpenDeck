@@ -18,7 +18,7 @@ namespace
             ASSERT_EQ(0, _encoders._database.getPreset());
 
             // set known state
-            for (int i = 0; i < Encoders::Collection::size(); i++)
+            for (size_t i = 0; i < Encoders::Collection::size(); i++)
             {
                 ASSERT_TRUE(_encoders._database.update(Database::Config::Section::encoder_t::ENABLE, i, 1));
                 ASSERT_TRUE(_encoders._database.update(Database::Config::Section::encoder_t::INVERT, i, 0));
@@ -60,7 +60,7 @@ TEST_F(EncodersTest, StateDecoding)
 {
     auto verifyValue = [&](MIDI::messageType_t message, uint16_t value)
     {
-        for (int i = 0; i < Encoders::Collection::size(); i++)
+        for (size_t i = 0; i < Encoders::Collection::size(); i++)
         {
             ASSERT_EQ(message, _listener._event.at(i).message);
             ASSERT_EQ(value, _listener._event.at(i).value);
@@ -194,7 +194,7 @@ TEST_F(EncodersTest, StateDecoding)
     verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 127);
 
     // this time configure 4 pulses per step
-    for (int i = 0; i < Encoders::Collection::size(); i++)
+    for (size_t i = 0; i < Encoders::Collection::size(); i++)
     {
         ASSERT_TRUE(_encoders._database.update(Database::Config::Section::encoder_t::PULSES_PER_STEP, i, 4));
         _encoders._instance.reset(i);

@@ -1,9 +1,9 @@
+#ifdef ADC_SUPPORTED
+
 #include "framework/Framework.h"
 #include "stubs/Analog.h"
 #include "stubs/Listener.h"
 #include "io/buttons/Buttons.h"
-
-#ifdef ADC_SUPPORTED
 
 using namespace IO;
 
@@ -19,7 +19,7 @@ namespace
             ASSERT_EQ(0, _analog._database.getPreset());
             ASSERT_TRUE(_analog._instance.init());
 
-            for (int i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
+            for (size_t i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
             {
                 ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::ENABLE, i, 1));
                 ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::CHANNEL, i, 1));
@@ -68,16 +68,16 @@ TEST_F(AnalogTest, CC)
     EXPECT_EQ((Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS) * 128), _listener._event.size());
 
     // all received messages should be control change
-    for (int i = 0; i < _listener._event.size(); i++)
+    for (size_t i = 0; i < _listener._event.size(); i++)
     {
         EXPECT_EQ(MIDI::messageType_t::CONTROL_CHANGE, _listener._event.at(i).message);
     }
 
     uint8_t expectedMIDIvalue = 0;
 
-    for (int i = 0; i < _listener._event.size(); i += Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS))
+    for (size_t i = 0; i < _listener._event.size(); i += Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS))
     {
-        for (int j = 0; j < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); j++)
+        for (size_t j = 0; j < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
             EXPECT_EQ(expectedMIDIvalue, _listener._event.at(index).value);
@@ -99,9 +99,9 @@ TEST_F(AnalogTest, CC)
 
     expectedMIDIvalue = 126;
 
-    for (int i = 0; i < _listener._event.size(); i += Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS))
+    for (size_t i = 0; i < _listener._event.size(); i += Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS))
     {
-        for (int j = 0; j < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); j++)
+        for (size_t j = 0; j < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
             EXPECT_EQ(expectedMIDIvalue, _listener._event.at(index).value);
@@ -122,7 +122,7 @@ TEST_F(AnalogTest, CC)
 TEST_F(AnalogTest, PitchBendTest)
 {
     // set known state
-    for (int i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
+    for (size_t i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
     {
         // configure all analog components as potentiometers with Pitch Bend MIDI message
         ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::TYPE, i, Analog::type_t::PITCH_BEND));
@@ -136,16 +136,16 @@ TEST_F(AnalogTest, PitchBendTest)
     EXPECT_EQ((Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS) * 16384), _listener._event.size());
 
     // //all received messages should be pitch bend
-    for (int i = 0; i < _listener._event.size(); i++)
+    for (size_t i = 0; i < _listener._event.size(); i++)
     {
         EXPECT_EQ(MIDI::messageType_t::PITCH_BEND, _listener._event.at(i).message);
     }
 
     uint16_t expectedMIDIvalue = 0;
 
-    for (int i = 0; i < _listener._event.size(); i += Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS))
+    for (size_t i = 0; i < _listener._event.size(); i += Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS))
     {
-        for (int j = 0; j < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); j++)
+        for (size_t j = 0; j < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
             EXPECT_EQ(expectedMIDIvalue, _listener._event.at(index).value);
@@ -167,9 +167,9 @@ TEST_F(AnalogTest, PitchBendTest)
 
     expectedMIDIvalue = 16382;
 
-    for (int i = 0; i < _listener._event.size(); i += Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS))
+    for (size_t i = 0; i < _listener._event.size(); i += Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS))
     {
-        for (int j = 0; j < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); j++)
+        for (size_t j = 0; j < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
             EXPECT_EQ(expectedMIDIvalue, _listener._event.at(index).value);
@@ -182,7 +182,7 @@ TEST_F(AnalogTest, PitchBendTest)
 TEST_F(AnalogTest, Inversion)
 {
     // enable inversion
-    for (int i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
+    for (size_t i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
     {
         ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::INVERT, i, 1));
     }
@@ -199,9 +199,9 @@ TEST_F(AnalogTest, Inversion)
 
     uint16_t expectedMIDIvalue = 127;
 
-    for (int i = 0; i < _listener._event.size(); i += Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS))
+    for (size_t i = 0; i < _listener._event.size(); i += Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS))
     {
-        for (int j = 0; j < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); j++)
+        for (size_t j = 0; j < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
             EXPECT_EQ(expectedMIDIvalue, _listener._event.at(index).value);
@@ -215,7 +215,7 @@ TEST_F(AnalogTest, Inversion)
     // funky setup: set lower limit to 127, upper to 0 while inversion is enabled
     // result should be the same as when default setup is used (no inversion / 0 as lower limit, 127 as upper limit)
 
-    for (int i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
+    for (size_t i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
     {
         ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::INVERT, i, 1));
         ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::LOWER_LIMIT, i, 127));
@@ -234,9 +234,9 @@ TEST_F(AnalogTest, Inversion)
 
     expectedMIDIvalue = 0;
 
-    for (int i = 0; i < _listener._event.size(); i += Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS))
+    for (size_t i = 0; i < _listener._event.size(); i += Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS))
     {
-        for (int j = 0; j < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); j++)
+        for (size_t j = 0; j < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
             EXPECT_EQ(expectedMIDIvalue, _listener._event.at(index).value);
@@ -250,7 +250,7 @@ TEST_F(AnalogTest, Inversion)
     // now disable inversion
     _listener._event.clear();
 
-    for (int i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
+    for (size_t i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
     {
         ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::INVERT, i, 0));
         _analog._instance.reset(i);
@@ -266,9 +266,9 @@ TEST_F(AnalogTest, Inversion)
 
     expectedMIDIvalue = 127;
 
-    for (int i = 0; i < _listener._event.size(); i += Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS))
+    for (size_t i = 0; i < _listener._event.size(); i += Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS))
     {
-        for (int j = 0; j < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); j++)
+        for (size_t j = 0; j < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
             EXPECT_EQ(expectedMIDIvalue, _listener._event.at(index).value);
@@ -289,7 +289,7 @@ TEST_F(AnalogTest, Scaling)
     static constexpr uint32_t SCALED_UPPER = 100;
 
     // set known state
-    for (int i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
+    for (size_t i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
     {
         ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::LOWER_LIMIT, i, 0));
         ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::UPPER_LIMIT, i, SCALED_UPPER));
@@ -306,14 +306,14 @@ TEST_F(AnalogTest, Scaling)
 
     // first value should be 0
     // last value should match the configured scaled value (SCALED_UPPER)
-    for (int i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
+    for (size_t i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
     {
         EXPECT_EQ(0, _listener._event.at(i).value);
         EXPECT_EQ(SCALED_UPPER, _listener._event.at(_listener._event.size() - Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS) + i).value);
     }
 
     // now scale minimum value as well
-    for (int i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
+    for (size_t i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
     {
         ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::LOWER_LIMIT, i, SCALED_LOWER));
     }
@@ -328,14 +328,14 @@ TEST_F(AnalogTest, Scaling)
     LOG(INFO) << "Received " << _listener._event.size() << " messages";
     ASSERT_TRUE((Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS) * 128) > _listener._event.size());
 
-    for (int i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
+    for (size_t i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
     {
         ASSERT_TRUE(_listener._event.at(i).value >= SCALED_LOWER);
         ASSERT_TRUE(_listener._event.at(_listener._event.size() - Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS) + i).value <= SCALED_UPPER);
     }
 
     // now enable inversion
-    for (int i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
+    for (size_t i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
     {
         ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::INVERT, i, 1));
         _analog._instance.reset(i);
@@ -348,7 +348,7 @@ TEST_F(AnalogTest, Scaling)
         stateChangeRegister(i);
     }
 
-    for (int i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
+    for (size_t i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
     {
         ASSERT_TRUE(_listener._event.at(i).value >= SCALED_UPPER);
         ASSERT_TRUE(_listener._event.at(_listener._event.size() - Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS) + i).value <= SCALED_LOWER);

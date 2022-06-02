@@ -309,7 +309,7 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
     // MIDI_IN_NOTE_MULTI_VAL
     //----------------------------------
 
-    for (int i = 0; i < LEDs::Collection::size(); i++)
+    for (size_t i = 0; i < LEDs::Collection::size(); i++)
     {
         ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::MIDI_IN_NOTE_MULTI_VAL));
     }
@@ -342,7 +342,7 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
     // MIDI_IN_CC_MULTI_VAL
     //----------------------------------
 
-    for (int i = 0; i < LEDs::Collection::size(); i++)
+    for (size_t i = 0; i < LEDs::Collection::size(); i++)
     {
         ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::MIDI_IN_CC_MULTI_VAL));
     }
@@ -375,7 +375,7 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
     // LOCAL_NOTE_MULTI_VAL
     //----------------------------------
 
-    for (int i = 0; i < LEDs::Collection::size(); i++)
+    for (size_t i = 0; i < LEDs::Collection::size(); i++)
     {
         ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::LOCAL_NOTE_MULTI_VAL));
     }
@@ -434,7 +434,7 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
     // localCCMultiVal
     //----------------------------------
 
-    for (int i = 0; i < LEDs::Collection::size(); i++)
+    for (size_t i = 0; i < LEDs::Collection::size(); i++)
     {
         ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::LOCAL_CC_MULTI_VAL));
     }

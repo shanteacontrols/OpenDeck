@@ -237,7 +237,7 @@ namespace
                 int          result          = -1;
                 std::string  flashTarget     = " TARGET=" + target;
 
-                for (int i = 0; i < ALLOWED_REPEATS; i++)
+                for (size_t i = 0; i < ALLOWED_REPEATS; i++)
                 {
                     LOG(INFO) << "Flashing the device, attempt " << i + 1;
                     result = test::wsystem(flash_cmd + flashTarget + " " + args);
@@ -502,14 +502,14 @@ TEST_F(HWTest, DatabaseInitialValues)
 
         // lower offset section
         // all values should be set to 0
-        for (int i = 0; i < IO::Analog::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Analog::Collection::size(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::analog_t::LOWER_OFFSET, i));
         }
 
         // upper offset section
         // all values should be set to 0
-        for (int i = 0; i < IO::Analog::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Analog::Collection::size(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::analog_t::UPPER_OFFSET, i));
         }

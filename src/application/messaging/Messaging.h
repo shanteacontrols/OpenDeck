@@ -60,6 +60,22 @@ namespace Messaging
         size_t                       sysExLength    = 0;
         MIDIlib::Base::messageType_t message        = MIDIlib::Base::messageType_t::INVALID;
 
+        event_t(size_t                       componentIndex,
+                uint8_t                      channel,
+                uint16_t                     index,
+                uint16_t                     value,
+                uint8_t*                     sysEx,
+                size_t                       sysExLength,
+                MIDIlib::Base::messageType_t message)
+            : componentIndex(componentIndex)
+            , channel(channel)
+            , index(index)
+            , value(value)
+            , sysEx(sysEx)
+            , sysExLength(sysExLength)
+            , message(message)
+        {}
+
         event_t() = default;
     };
 }    // namespace Messaging

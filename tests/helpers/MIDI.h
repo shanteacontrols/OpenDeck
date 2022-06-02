@@ -469,7 +469,7 @@ class MIDIHelper
     {
         LOG(INFO) << "Sending request to system: ";
 
-        for (auto i = 0; i < request.size(); i++)
+        for (size_t i = 0; i < request.size(); i++)
         {
             std::cout
                 << std::hex << std::setfill('0') << std::setw(2) << std::uppercase
@@ -492,7 +492,7 @@ class MIDIHelper
 
         LOG(INFO) << "Received response: ";
 
-        for (auto i = 0; i < responseVec.size(); i++)
+        for (size_t i = 0; i < responseVec.size(); i++)
         {
             std::cout
                 << std::hex << std::setfill('0') << std::setw(2) << std::uppercase

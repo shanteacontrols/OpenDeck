@@ -68,7 +68,7 @@ namespace
         {
             // preset change will be reported after PRESET_CHANGE_NOTIFY_DELAY ms
             // fake the passage of time here
-            core::timing::detail::ms += System::Instance::PRESET_CHANGE_NOTIFY_DELAY;
+            core::timing::detail::ms = core::timing::detail::ms + System::Instance::PRESET_CHANGE_NOTIFY_DELAY;
 
             // clear out everything before running to parse with clean state
             _system._hwaMIDIUSB.clear();
