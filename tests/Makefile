@@ -34,11 +34,14 @@ CPPFLAGS := \
 -g \
 -Wall \
 -fdata-sections \
--ffunction-sections
+-ffunction-sections \
+-Wsign-compare \
+-Werror
 
 #c++ compiler only
 CXXFLAGS := \
--std=c++17 \
+-std=c++20 \
+-Wpedantic \
 -Wno-inconsistent-missing-override
 
 #c compiler only
