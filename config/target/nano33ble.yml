@@ -1,0 +1,128 @@
+---
+  mcu: "nrf52840"
+  usb: true
+  ble: true
+  uart:
+    dinMIDI:
+      pins:
+        rx:
+          port: "1"
+          index: 10
+        tx:
+          port: "1"
+          index: 3
+    touchscreen:
+      pins:
+        rx:
+          port: "1"
+          index: 10
+        tx:
+          port: "1"
+          index: 3
+      components: 64
+    dmx:
+      pins:
+        rx:
+          port: "1"
+          index: 10
+        tx:
+          port: "1"
+          index: 3
+  i2c:
+    display:
+      pins:
+        sda:
+          port: "0"
+          index: 31
+        scl:
+          port: "0"
+          index: 2
+  buttons:
+    type: "native"
+    extPullups: false
+    pins:
+    -
+      port: "1"
+      index: 11
+    -
+      port: "1"
+      index: 12
+    -
+      port: "1"
+      index: 15
+    -
+      port: "1"
+      index: 13
+    -
+      port: "1"
+      index: 14
+    -
+      port: "0"
+      index: 23
+  analog:
+    type: "native"
+    pins:
+    -
+      port: "0"
+      index: 4
+    -
+      port: "0"
+      index: 5
+    -
+      port: "0"
+      index: 30
+    -
+      port: "0"
+      index: 29
+    -
+      port: "0"
+      index: 28
+    -
+      port: "0"
+      index: 3
+  leds:
+    internal:
+      invert: true
+      pins:
+        usb:
+          rx:
+            port: "0"
+            index: 24
+          tx:
+            port: "0"
+            index: 16
+        uart:
+          rx:
+            port: "0"
+            index: 24
+          tx:
+            port: "0"
+            index: 16
+        ble:
+          rx:
+            port: "0"
+            index: 24
+          tx:
+            port: "0"
+            index: 16
+    external:
+      type: "native"
+      pins:
+      -
+        port: "0"
+        index: 21
+      -
+        port: "0"
+        index: 27
+      -
+        port: "1"
+        index: 2
+      -
+        port: "1"
+        index: 1
+      -
+        port: "1"
+        index: 8
+      -
+        port: "0"
+        index: 13

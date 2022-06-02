@@ -40,6 +40,8 @@ If the feature you want isn't supported yet, don't feel discouraged. Open up a [
 OpenDeck firmware is compatible with [official OpenDeck board](https://www.tindie.com/products/paradajz/opendeck-diy-midi-platform/), as well as various other boards, both small and large:
 
 * [Adafruit ItsyBitsy nRF52840 Express](https://www.adafruit.com/product/4481)
+* [Arduino Nano 33 BLE](https://store.arduino.cc/products/arduino-nano-33-ble)
+* [Arduino Nano 33 BLE Sense](https://store.arduino.cc/products/arduino-nano-33-ble-sense)
 * [Arduino Mega2560](https://store.arduino.cc/products/arduino-mega-2560-rev3)
 * [Arduino Mega2560 Pro Mini / Meduino](http://wiki.epalsite.com/index.php?title=Mega2560_Pro_Mini)
 * [Mux Shield v2 with Arduino Mega2560](https://mayhewlabs.com/products/mux-shield-2)
