@@ -109,29 +109,83 @@ namespace
          NRFX_UARTE_INSTANCE(1),
     };
 
+    volatile Board::detail::UART::dmxState_t _dmxState[core::mcu::peripherals::MAX_UART_INTERFACES];
+
+    inline void dmxSetBreakBaudrate(uint8_t channel)
+    {
+        nrf_uarte_baudrate_set(_uartInstance[channel].p_reg, _baudRateMap[static_cast<uint32_t>(Board::detail::UART::dmxBaudRate_t::BR_BREAK)]);
+    }
+
+    inline void dmxSetDataBaudrate(uint8_t channel)
+    {
+        nrf_uarte_baudrate_set(_uartInstance[channel].p_reg, _baudRateMap[static_cast<uint32_t>(Board::detail::UART::dmxBaudRate_t::BR_DATA)]);
+    }
+
     inline void checkTx(uint8_t channel)
     {
-        size_t  remainingBytes;
-        uint8_t value;
+        using namespace Board::detail::UART;
 
-        if (Board::detail::UART::getNextByteToSend(channel, value, remainingBytes))
+        switch (_dmxState[channel])
         {
-            _nrfTxBuffer[channel] = value;
+        case dmxState_t::DISABLED:
+        {
+            size_t  remainingBytes;
+            uint8_t value;
+
+            if (Board::detail::UART::getNextByteToSend(channel, value, remainingBytes))
+            {
+                _nrfTxBuffer[channel] = value;
+                nrf_uarte_event_clear(_uartInstance[channel].p_reg, NRF_UARTE_EVENT_ENDTX);
+                nrf_uarte_event_clear(_uartInstance[channel].p_reg, NRF_UARTE_EVENT_TXSTOPPED);
+                nrf_uarte_tx_buffer_set(_uartInstance[channel].p_reg, &_nrfTxBuffer[channel], 1);
+                _transmitting[channel] = true;
+                nrf_uarte_task_trigger(_uartInstance[channel].p_reg, NRF_UARTE_TASK_STARTTX);
+            }
+            else
+            {
+                // Transmitter has to be stopped by triggering STOPTX task to achieve
+                // the lowest possible level of the UARTE power consumption.
+
+                _transmitting[channel] = false;
+
+                nrf_uarte_event_clear(_uartInstance[channel].p_reg, NRF_UARTE_EVENT_TXSTOPPED);
+                nrf_uarte_task_trigger(_uartInstance[channel].p_reg, NRF_UARTE_TASK_STOPTX);
+            }
+        }
+        break;
+
+        case dmxState_t::IDLE:
+        case dmxState_t::DATA:
+        {
+            dmxSetBreakBaudrate(channel);
+            switchDmxBuffer();
+            _dmxState[channel] = dmxState_t::BREAK_CHAR;
+
+            _nrfTxBuffer[channel] = 0;
             nrf_uarte_event_clear(_uartInstance[channel].p_reg, NRF_UARTE_EVENT_ENDTX);
             nrf_uarte_event_clear(_uartInstance[channel].p_reg, NRF_UARTE_EVENT_TXSTOPPED);
             nrf_uarte_tx_buffer_set(_uartInstance[channel].p_reg, &_nrfTxBuffer[channel], 1);
             _transmitting[channel] = true;
             nrf_uarte_task_trigger(_uartInstance[channel].p_reg, NRF_UARTE_TASK_STARTTX);
         }
-        else
+        break;
+
+        case dmxState_t::BREAK_CHAR:
         {
-            // Transmitter has to be stopped by triggering STOPTX task to achieve
-            // the lowest possible level of the UARTE power consumption.
+            dmxSetDataBaudrate(channel);
+            _dmxState[channel] = dmxState_t::DATA;
 
-            _transmitting[channel] = false;
-
+            nrf_uarte_event_clear(_uartInstance[channel].p_reg, NRF_UARTE_EVENT_ENDTX);
             nrf_uarte_event_clear(_uartInstance[channel].p_reg, NRF_UARTE_EVENT_TXSTOPPED);
-            nrf_uarte_task_trigger(_uartInstance[channel].p_reg, NRF_UARTE_TASK_STOPTX);
+
+            nrf_uarte_tx_buffer_set(_uartInstance[channel].p_reg, &dmxBuffer()->at(0), 513);
+            _transmitting[channel] = true;
+            nrf_uarte_task_trigger(_uartInstance[channel].p_reg, NRF_UARTE_TASK_STARTTX);
+        }
+        break;
+
+        default:
+            break;
         }
     }
 }    // namespace
@@ -204,10 +258,27 @@ namespace Board::detail::UART::MCU
         nrfx_uarte_config_t nrfUartConfig = {};
         nrfUartConfig.hal_cfg             = {
                         .hwfc   = NRF_UARTE_HWFC_DISABLED,
-                        .parity = config.parity ? NRF_UARTE_PARITY_INCLUDED : NRF_UARTE_PARITY_EXCLUDED
+                        .parity = config.parity ? NRF_UARTE_PARITY_INCLUDED : NRF_UARTE_PARITY_EXCLUDED,
+                        .stop   = config.stopBits == Board::UART::stopBits_t::ONE ? NRF_UARTE_STOP_ONE : NRF_UARTE_STOP_TWO
         };
 
-        nrf_uarte_baudrate_set(_uartInstance[channel].p_reg, _baudRateMap[config.baudRate]);
+        if (config.dmxMode)
+        {
+            if (config.dmxBuffer == nullptr)
+            {
+                return false;
+            }
+
+            Board::UART::updateDmxBuffer(*config.dmxBuffer);
+            _dmxState[channel] = dmxState_t::IDLE;
+            dmxSetBreakBaudrate(channel);
+        }
+        else
+        {
+            _dmxState[channel] = dmxState_t::DISABLED;
+            nrf_uarte_baudrate_set(_uartInstance[channel].p_reg, _baudRateMap[config.baudRate]);
+        }
+
         nrf_uarte_configure(_uartInstance[channel].p_reg, &nrfUartConfig.hal_cfg);
         nrf_uarte_txrx_pins_set(_uartInstance[channel].p_reg,
                                 CORE_NRF_GPIO_PIN_MAP(Board::detail::map::uartPins(channel).tx.port,
@@ -227,6 +298,11 @@ namespace Board::detail::UART::MCU
         nrf_uarte_rx_buffer_set(_uartInstance[channel].p_reg, &_nrfRxBuffer[channel], 1);
         nrf_uarte_enable(_uartInstance[channel].p_reg);
         nrf_uarte_task_trigger(_uartInstance[channel].p_reg, NRF_UARTE_TASK_STARTRX);
+
+        if (config.dmxMode)
+        {
+            startTx(channel);
+        }
 
         return true;
     }
