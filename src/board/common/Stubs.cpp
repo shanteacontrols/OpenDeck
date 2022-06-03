@@ -169,9 +169,13 @@ namespace Board
 
         namespace UART
         {
-            __attribute__((weak)) uint8_t dmxChannelValue(size_t channel)
+            __attribute__((weak)) Board::UART::dmxBuffer_t* dmxBuffer()
             {
                 return 0;
+            }
+
+            __attribute__((weak)) void switchDmxBuffer()
+            {
             }
         }    // namespace UART
     }        // namespace detail

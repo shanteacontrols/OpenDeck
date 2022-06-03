@@ -554,13 +554,14 @@ class HWADMX : public System::Builder::HWA::Protocol::DMX
     public:
     HWADMX() = default;
 
-    bool init() override
+    bool init(DMXUSBWidget::dmxBuffer_t& buffer) override
     {
         Board::UART::config_t config(250000,
                                      Board::UART::parity_t::NO,
                                      Board::UART::stopBits_t::TWO,
                                      Board::UART::type_t::TX,
-                                     true);
+                                     true,
+                                     buffer);
 
         if (Board::UART::init(UART_CHANNEL_DMX, config) == Board::initStatus_t::OK)
         {
@@ -611,12 +612,12 @@ class HWADMX : public System::Builder::HWA::Protocol::DMX
         return false;
     }
 
-    void setBuffer(DMXUSBWidget::dmxBuffer_t& buffer) override
+    void updateBuffer(DMXUSBWidget::dmxBuffer_t& buffer) override
     {
         Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::UART,
                                                Board::IO::indicators::direction_t::OUTGOING);
 
-        Board::UART::setDMXBuffer(&buffer[0]);
+        Board::UART::updateDmxBuffer(buffer);
     }
 
     bool uniqueID(core::mcu::uniqueID_t& uniqueID) override
@@ -647,7 +648,7 @@ class HWADMXStub : public System::Builder::HWA::Protocol::DMX
     public:
     HWADMXStub() = default;
 
-    bool init() override
+    bool init(DMXUSBWidget::dmxBuffer_t& buffer) override
     {
         return false;
     }
@@ -667,7 +668,7 @@ class HWADMXStub : public System::Builder::HWA::Protocol::DMX
         return false;
     }
 
-    void setBuffer(DMXUSBWidget::dmxBuffer_t& buffer) override
+    void updateBuffer(DMXUSBWidget::dmxBuffer_t& buffer) override
     {
     }
 

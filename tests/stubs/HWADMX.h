@@ -7,7 +7,7 @@ class HWADMX : public Protocol::DMX::HWA
     public:
     HWADMX() = default;
 
-    bool init() override
+    bool init(DMXUSBWidget::dmxBuffer_t& buffer) override
     {
         return true;
     }
@@ -27,7 +27,7 @@ class HWADMX : public Protocol::DMX::HWA
         return true;
     }
 
-    void setBuffer(DMXUSBWidget::dmxBuffer_t& buffer) override
+    void updateBuffer(DMXUSBWidget::dmxBuffer_t& buffer) override
     {
     }
 

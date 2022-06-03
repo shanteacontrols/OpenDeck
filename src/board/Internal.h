@@ -87,7 +87,7 @@ namespace Board::detail
 
         enum class dmxBaudRate_t : uint32_t
         {
-            BR_BREAK = 100000,
+            BR_BREAK = 76800,
             BR_DATA  = 250000
         };
 
@@ -136,8 +136,15 @@ namespace Board::detail
         /// returns: True if there are bytes to send, false otherwise.
         bool bytesToSendAvailable(uint8_t channel);
 
-        /// Retrieves DMX channel value.
-        uint8_t dmxChannelValue(size_t channel);
+        /// Retrieves currently active DMX buffer.
+        Board::UART::dmxBuffer_t* dmxBuffer();
+
+        /// Switches currently active DMX buffer.
+        /// Double buffering is used for DMX to avoid tearing.
+        /// One buffer is in read-only state while the other is getting filled
+        /// with new data.
+        /// Once the full frame has been sent, buffers should be switched.
+        void switchDmxBuffer();
 
         /// Global ISR handler for all UART events.
         /// param [in]: channel UART channel on MCU.

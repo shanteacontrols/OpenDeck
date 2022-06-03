@@ -88,6 +88,8 @@ namespace Board
 
     namespace UART
     {
+        using dmxBuffer_t = std::array<uint8_t, 513>;
+
         enum parity_t : uint8_t
         {
             NO,
@@ -110,22 +112,25 @@ namespace Board
 
         struct config_t
         {
-            uint32_t   baudRate = 9600;
-            parity_t   parity   = parity_t::NO;
-            stopBits_t stopBits = stopBits_t::ONE;
-            type_t     type     = type_t::RX_TX;
-            bool       dmxMode  = false;
+            uint32_t     baudRate  = 9600;
+            parity_t     parity    = parity_t::NO;
+            stopBits_t   stopBits  = stopBits_t::ONE;
+            type_t       type      = type_t::RX_TX;
+            bool         dmxMode   = false;
+            dmxBuffer_t* dmxBuffer = nullptr;
 
-            config_t(uint32_t   baudRate,
-                     parity_t   parity,
-                     stopBits_t stopBits,
-                     type_t     type,
-                     bool       dmxMode)
+            config_t(uint32_t     baudRate,
+                     parity_t     parity,
+                     stopBits_t   stopBits,
+                     type_t       type,
+                     bool         dmxMode,
+                     dmxBuffer_t& dmxBuffer)
                 : baudRate(baudRate)
                 , parity(parity)
                 , stopBits(stopBits)
                 , type(type)
                 , dmxMode(dmxMode)
+                , dmxBuffer(&dmxBuffer)
             {}
 
             config_t(uint32_t   baudRate,
@@ -197,9 +202,9 @@ namespace Board
         /// returns: True if there is no more data to transmit, false otherwise.
         bool isTxComplete(uint8_t channel);
 
-        /// Used to set DMX buffer from which values will be read.
+        /// Used to change DMX buffer from which values will be read.
         /// returns: True if the buffer is valid (non-nullptr), false otherwise.
-        bool setDMXBuffer(uint8_t* buffer);
+        bool updateDmxBuffer(dmxBuffer_t& buffer);
     }    // namespace UART
 
     namespace I2C

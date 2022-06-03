@@ -79,9 +79,10 @@ namespace
         break;                                                                             \
         case Board::detail::UART::dmxState_t::DATA:                                        \
         {                                                                                  \
-            UDR(channel) = Board::detail::UART::dmxChannelValue(_dmxByteCounter++);        \
+            UDR(channel) = Board::detail::UART::dmxBuffer()->at(_dmxByteCounter++);        \
             if (_dmxByteCounter == 513)                                                    \
             {                                                                              \
+                Board::detail::UART::switchDmxBuffer();                                    \
                 UCSRB(channel) &= ~(1 << UDRIE(channel));                                  \
                 _dmxByteCounter    = 0;                                                    \
                 _dmxState[channel] = Board::detail::UART::dmxState_t::WAITING_TX_COMPLETE; \
@@ -222,6 +223,13 @@ namespace Board::detail::UART::MCU
 #ifdef DMX_SUPPORTED
         if (config.dmxMode)
         {
+            if (config.dmxBuffer == nullptr)
+            {
+                return false;
+            }
+
+            Board::UART::updateDmxBuffer(*config.dmxBuffer);
+
             config.baudRate = static_cast<uint32_t>(dmxBaudRate_t::BR_BREAK);
         }
 #endif

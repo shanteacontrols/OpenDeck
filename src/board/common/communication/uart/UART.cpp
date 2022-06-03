@@ -42,8 +42,8 @@ namespace
     core::util::RingBuffer<uint8_t, UART_RX_BUFFER_SIZE> _rxBuffer[core::mcu::peripherals::MAX_UART_INTERFACES];
 
 #ifdef DMX_SUPPORTED
-    uint8_t* _dmxBuffer;
-    uint8_t* _dmxBufferQueued;
+    Board::UART::dmxBuffer_t* _dmxBuffer;
+    Board::UART::dmxBuffer_t* _dmxBufferQueued;
 #endif
 }    // namespace
 
@@ -185,17 +185,18 @@ namespace Board
         }
 
 #ifdef DMX_SUPPORTED
-        bool setDMXBuffer(uint8_t* buffer)
+        bool updateDmxBuffer(dmxBuffer_t& buffer)
         {
-            if (buffer == nullptr)
-            {
-                return false;    // not allowed
-            }
-
             CORE_MCU_ATOMIC_SECTION
             {
                 // switch to the new buffer only once the current frame is fully sent
-                _dmxBufferQueued = buffer;
+                _dmxBufferQueued = &buffer;
+
+                // first init - assign it to _dmxBuffer as well
+                if (_dmxBuffer == nullptr)
+                {
+                    _dmxBuffer = &buffer;
+                }
             }
 
             return true;
@@ -245,24 +246,21 @@ namespace Board
         }
 
 #ifdef DMX_SUPPORTED
-        uint8_t dmxChannelValue(size_t channel)
+        Board::UART::dmxBuffer_t* dmxBuffer()
         {
-            if (channel == 0)
+            return _dmxBuffer;
+        }
+
+        void switchDmxBuffer()
+        {
+            // check if buffer needs to be switched
+            if (_dmxBufferQueued != nullptr)
             {
-                // check if buffer needs to be switched
-                if (_dmxBufferQueued != nullptr)
-                {
-                    _dmxBuffer       = _dmxBufferQueued;
-                    _dmxBufferQueued = nullptr;
-                }
+                _dmxBuffer       = _dmxBufferQueued;
+                _dmxBufferQueued = nullptr;
             }
 
-            if ((_dmxBuffer == nullptr) || (channel > 512))
-            {
-                return 0;
-            }
-
-            return _dmxBuffer[channel];
+            // else leave as is
         }
 #endif
     }    // namespace detail::UART
