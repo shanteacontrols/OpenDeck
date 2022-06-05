@@ -153,7 +153,7 @@ namespace
                 do
                 {
                     cycle();
-                } while (!_helper.devicePresent(MIDIHelper::deviceCheckType_t::APP));
+                } while (!_helper.devicePresent());
             }
         }
 
@@ -166,7 +166,7 @@ namespace
                 LOG(ERROR) << "OpenDeck device not responding to handshake, attempting power cycle";
                 cyclePower(powerCycleType_t::standardWithDeviceCheck);
 
-                if (!_helper.devicePresent(MIDIHelper::deviceCheckType_t::APP))
+                if (!_helper.devicePresent())
                 {
                     LOG(ERROR) << "OpenDeck device not found after power cycle";
                     FAIL();
@@ -195,7 +195,7 @@ namespace
 
             LOG(INFO) << "Request sent. Waiting for the device to disconnect.";
 
-            while (_helper.devicePresent(MIDIHelper::deviceCheckType_t::APP, true))
+            while (_helper.devicePresent(true))
             {
                 if ((test::millis() - startTime) > (startup_delay_ms * 2))
                 {
@@ -208,7 +208,7 @@ namespace
 
             startTime = test::millis();
 
-            while (!_helper.devicePresent(MIDIHelper::deviceCheckType_t::APP, true))
+            while (!_helper.devicePresent(true))
             {
                 if ((test::millis() - startTime) > startup_delay_ms)
                 {
@@ -286,21 +286,20 @@ namespace
         TestDatabase _database;
         MIDIHelper   _helper = MIDIHelper(true);
 
-        const std::string handshake_req            = "F0 00 53 43 00 00 01 F7";
-        const std::string reboot_req               = "F0 00 53 43 00 00 7F F7";
-        const std::string handshake_ack            = "F0 00 53 43 01 00 01 F7";
-        const std::string factory_reset_req        = "F0 00 53 43 00 00 44 F7";
-        const std::string btldr_req                = "F0 00 53 43 00 00 55 F7";
-        const std::string backup_req               = "F0 00 53 43 00 00 1B F7";
-        const std::string usb_power_off_cmd        = "echo write_high 1 > /dev/actl";
-        const std::string usb_power_on_cmd         = "echo write_low 1 > /dev/actl";
-        const std::string sysex_fw_update_delay_ms = "5";
-        const uint32_t    startup_delay_ms         = 10000;
-        const std::string fw_build_dir             = "../src/build/";
-        const std::string fw_build_type_subdir     = "release/";
-        const std::string temp_midi_data_location  = "/tmp/temp_midi_data";
-        const std::string backup_file_location     = "/tmp/backup.txt";
-        bool              powerStatus              = false;
+        const std::string handshake_req           = "F0 00 53 43 00 00 01 F7";
+        const std::string reboot_req              = "F0 00 53 43 00 00 7F F7";
+        const std::string handshake_ack           = "F0 00 53 43 01 00 01 F7";
+        const std::string factory_reset_req       = "F0 00 53 43 00 00 44 F7";
+        const std::string btldr_req               = "F0 00 53 43 00 00 55 F7";
+        const std::string backup_req              = "F0 00 53 43 00 00 1B F7";
+        const std::string usb_power_off_cmd       = "echo write_high 1 > /dev/actl";
+        const std::string usb_power_on_cmd        = "echo write_low 1 > /dev/actl";
+        const uint32_t    startup_delay_ms        = 10000;
+        const std::string fw_build_dir            = "../src/build/";
+        const std::string fw_build_type_subdir    = "release/";
+        const std::string temp_midi_data_location = "/tmp/temp_midi_data";
+        const std::string backup_file_location    = "/tmp/backup.txt";
+        bool              powerStatus             = false;
     };
 
 }    // namespace
@@ -645,37 +644,18 @@ TEST_F(HWTest, DatabaseInitialValues)
 
 TEST_F(HWTest, FwUpdate)
 {
-    std::string syxPath = fw_build_dir + BOARD_STRING + "/" + fw_build_type_subdir + "merged/" + BOARD_STRING + ".sysex.syx";
-
-    if (!std::filesystem::exists(syxPath))
-    {
-        LOG(ERROR) << ".syx file not found, aborting";
-        FAIL();
-    }
-
     LOG(INFO) << "Entering bootloader mode";
     ASSERT_EQ(std::string(""), _helper.sendRawSysEx(btldr_req, false));
 
     LOG(INFO) << "Waiting " << startup_delay_ms / 2 << " ms";
     test::sleepMs(startup_delay_ms / 2);
 
-    if (!_helper.devicePresent(MIDIHelper::deviceCheckType_t::BOOT))
-    {
-        LOG(ERROR) << "OpenDeck DFU device not found after bootloader request";
-        FAIL();
-    }
-    else
-    {
-        LOG(INFO) << "Entered bootloader mode";
-    }
-
-    LOG(INFO) << "Sending firmware file to device";
-    std::string cmd = std::string("amidi -p ") + _helper.amidiPort(OPENDECK_DFU_MIDI_DEVICE_NAME) + " -s " + syxPath + " -i " + sysex_fw_update_delay_ms;
+    std::string cmd = flash_cmd + std::string(" FLASH_TOOL=opendeck TARGET=") + std::string(BOARD_STRING);
     ASSERT_EQ(0, test::wsystem(cmd));
     LOG(INFO) << "Firmware file sent successfully, waiting " << startup_delay_ms << " ms";
     test::sleepMs(startup_delay_ms);
 
-    if (!_helper.devicePresent(MIDIHelper::deviceCheckType_t::APP))
+    if (!_helper.devicePresent())
     {
         LOG(ERROR) << "OpenDeck device not found after firmware update, aborting";
         FAIL();
