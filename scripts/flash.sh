@@ -25,17 +25,17 @@ read -r port
 
 echo "Please select AVR MCU you want to flash and then press enter:"
 
-boards=$(find src/board/arch/avr/atmel/variants/avr8 -mindepth 1 -type d | awk -F/ '{ print $NF }')
-echo "$boards" | cut -d . -f1 | cat -n
+mcus=$(find config/mcu -type f -name "at*" -exec basename -s '.yml' {} +)
+echo "$mcus" | cat -n
 
-echo -n "Board number: "
-read -r board_nr
+echo -n "MCU number: "
+read -r mcu_nr
 
 echo "
 Please wait...
 "
 
-mcu=$(echo "$boards" | head -n "$board_nr" | tail -n 1)
+mcu=$(echo "$mcus" | head -n "$mcu_nr" | tail -n 1)
 
 # don't use yaml parser (dasel) here so that this script can be run without any external tools
 unlock_fuse=$(< config/mcu/"$mcu".yml awk '{$1=$1};1' | grep ^unlock | cut -d: -f2 | xargs)
