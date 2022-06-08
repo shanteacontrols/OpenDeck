@@ -22,6 +22,7 @@ limitations under the License.
 #include <stddef.h>
 #include <array>
 #include "util/incdec/IncDec.h"
+#include "messaging/Messaging.h"
 
 namespace Global
 {
@@ -37,7 +38,7 @@ namespace Global
             return program;
         }
 
-        bool increment(uint8_t channel, uint8_t steps)
+        bool incrementProgram(uint8_t channel, uint8_t steps)
         {
             if (channel > 16)
             {
@@ -45,7 +46,7 @@ namespace Global
             }
 
             auto newProgram = ProgramIncDec::increment(_program[channel],
-                                                       steps,
+                                                       steps + _offset,
                                                        ProgramIncDec::type_t::EDGE);
 
             if (newProgram != _program[channel])
@@ -57,7 +58,7 @@ namespace Global
             return false;
         }
 
-        bool decrement(uint8_t channel, uint8_t steps)
+        bool decrementProgram(uint8_t channel, uint8_t steps)
         {
             if (channel > 16)
             {
@@ -65,7 +66,7 @@ namespace Global
             }
 
             auto newProgram = ProgramIncDec::decrement(_program[channel],
-                                                       steps,
+                                                       steps + _offset,
                                                        ProgramIncDec::type_t::EDGE);
 
             if (newProgram != _program[channel])
@@ -94,6 +95,8 @@ namespace Global
                 return false;
             }
 
+            program += _offset;
+
             if (program > 127)
             {
                 return false;
@@ -103,13 +106,61 @@ namespace Global
             return true;
         }
 
+        bool incrementOffset(uint8_t steps)
+        {
+            auto newOffset = OffsetIncDec::increment(_offset,
+                                                     steps,
+                                                     OffsetIncDec::type_t::EDGE);
+
+            if (newOffset != _offset)
+            {
+                setOffset(newOffset);
+                return true;
+            }
+
+            return false;
+        }
+
+        bool decrementOffset(uint8_t steps)
+        {
+            auto newOffset = OffsetIncDec::decrement(_offset,
+                                                     steps,
+                                                     OffsetIncDec::type_t::EDGE);
+
+            if (newOffset != _offset)
+            {
+                setOffset(newOffset);
+                return true;
+            }
+
+            return false;
+        }
+
+        void setOffset(uint8_t offset)
+        {
+            _offset = offset;
+
+            Messaging::event_t event;
+            event.systemMessage = Messaging::systemMessage_t::MIDI_PROGRAM_OFFSET_CHANGE;
+            event.value         = offset;
+
+            MIDIDispatcher.notify(Messaging::eventType_t::SYSTEM, event);
+        }
+
+        uint8_t offset()
+        {
+            return _offset;
+        }
+
         private:
         MIDIProgram() = default;
 
         using ProgramIncDec = Util::IncDec<uint8_t, 0, 127>;
+        using OffsetIncDec  = Util::IncDec<uint8_t, 0, 127>;
 
         // channels use 1-16 range
         std::array<uint8_t, 17> _program;
+        uint8_t                 _offset = 0;
     };
 }    // namespace Global
 

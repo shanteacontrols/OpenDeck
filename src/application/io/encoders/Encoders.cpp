@@ -220,14 +220,14 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
             {
                 if (encoderState == position_t::CCW)
                 {
-                    if (!MIDIProgram.increment(descriptor.event.channel, 1))
+                    if (!MIDIProgram.incrementProgram(descriptor.event.channel, 1))
                     {
                         send = false;    // edge value reached, nothing more to send
                     }
                 }
                 else
                 {
-                    if (!MIDIProgram.decrement(descriptor.event.channel, 1))
+                    if (!MIDIProgram.decrementProgram(descriptor.event.channel, 1))
                     {
                         send = false;    // edge value reached, nothing more to send
                     }

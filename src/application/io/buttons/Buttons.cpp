@@ -266,30 +266,36 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
         break;
 
         case messageType_t::PROGRAM_CHANGE:
+        {
+            descriptor.event.value = 0;
+            descriptor.event.index += MIDIProgram.offset();
+            descriptor.event.index &= 0x7F;
+        }
+        break;
+
         case messageType_t::PROGRAM_CHANGE_INC:
+        {
+            descriptor.event.value = 0;
+
+            if (!MIDIProgram.incrementProgram(descriptor.event.channel, 1))
+            {
+                send = false;
+            }
+
+            descriptor.event.index = MIDIProgram.program(descriptor.event.channel);
+        }
+        break;
+
         case messageType_t::PROGRAM_CHANGE_DEC:
         {
             descriptor.event.value = 0;
 
-            if (descriptor.messageType != messageType_t::PROGRAM_CHANGE)
+            if (!MIDIProgram.decrementProgram(descriptor.event.channel, 1))
             {
-                if (descriptor.messageType == messageType_t::PROGRAM_CHANGE_INC)
-                {
-                    if (!MIDIProgram.increment(descriptor.event.channel, 1))
-                    {
-                        send = false;
-                    }
-                }
-                else
-                {
-                    if (!MIDIProgram.decrement(descriptor.event.channel, 1))
-                    {
-                        send = false;
-                    }
-                }
-
-                descriptor.event.index = MIDIProgram.program(descriptor.event.channel);
+                send = false;
             }
+
+            descriptor.event.index = MIDIProgram.program(descriptor.event.channel);
         }
         break;
 
@@ -393,6 +399,22 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
         case messageType_t::CONTROL_CHANGE0_ONLY:
         {
             descriptor.event.value = 0;
+        }
+        break;
+
+        case messageType_t::PROGRAM_CHANGE_OFFSET_INC:
+        {
+            MIDIProgram.incrementOffset(descriptor.event.value);
+
+            // propagate button event but set the message to invalid since there is nothing to send
+            descriptor.event.message = MIDI::messageType_t::INVALID;
+        }
+        break;
+
+        case messageType_t::PROGRAM_CHANGE_OFFSET_DEC:
+        {
+            MIDIProgram.decrementOffset(descriptor.event.value);
+            descriptor.event.message = MIDI::messageType_t::INVALID;
         }
         break;
 
@@ -530,6 +552,9 @@ void Buttons::fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor)
     case messageType_t::MULTI_VAL_INC_RESET_CC:
     case messageType_t::MULTI_VAL_INC_DEC_CC:
     case messageType_t::DMX:
+    case messageType_t::PRESET_OPEN_DECK:
+    case messageType_t::PROGRAM_CHANGE_OFFSET_INC:
+    case messageType_t::PROGRAM_CHANGE_OFFSET_DEC:
     {
         descriptor.type = type_t::MOMENTARY;
     }
@@ -540,12 +565,6 @@ void Buttons::fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor)
     case messageType_t::CONTROL_CHANGE0_ONLY:
     {
         descriptor.type = type_t::LATCHING;
-    }
-    break;
-
-    case messageType_t::PRESET_OPEN_DECK:
-    {
-        descriptor.type = type_t::MOMENTARY;
     }
     break;
 

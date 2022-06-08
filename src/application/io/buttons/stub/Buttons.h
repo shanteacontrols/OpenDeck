@@ -68,6 +68,8 @@ namespace IO
             NOTE_OFF_ONLY,
             CONTROL_CHANGE0_ONLY,
             DMX,
+            PROGRAM_CHANGE_OFFSET_INC,
+            PROGRAM_CHANGE_OFFSET_DEC,
             AMOUNT
         };
 

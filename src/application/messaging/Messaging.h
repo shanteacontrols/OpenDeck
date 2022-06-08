@@ -45,7 +45,8 @@ namespace Messaging
     enum class systemMessage_t : uint8_t
     {
         FORCE_IO_REFRESH,
-        SYS_EX_RESPONSE
+        SYS_EX_RESPONSE,
+        MIDI_PROGRAM_OFFSET_CHANGE
     };
 
     struct event_t
