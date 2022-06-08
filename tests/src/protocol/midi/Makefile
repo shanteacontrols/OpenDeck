@@ -5,6 +5,5 @@ ifeq (,$(findstring USB_OVER_SERIAL_HOST,$(DEFINES)))
     SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) := \
     application/database/Database.cpp \
     application/database/CustomInit.cpp \
-    application/protocol/midi/MIDI.cpp \
-    application/io/common/Common.cpp
+    application/protocol/midi/MIDI.cpp
 endif

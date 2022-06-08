@@ -17,12 +17,12 @@ limitations under the License.
 */
 
 #include "MIDI.h"
-#include "io/common/Common.h"
 #include "system/Config.h"
 #include "util/conversion/Conversion.h"
 #include "messaging/Messaging.h"
 #include "util/configurable/Configurable.h"
 #include "logger/Logger.h"
+#include "global/MIDIProgram.h"
 
 using namespace IO;
 
@@ -314,7 +314,7 @@ void Protocol::MIDI::read()
 
             case messageType_t::PROGRAM_CHANGE:
             {
-                Common::setProgram(event.channel, event.index);
+                MIDIProgram.setProgram(event.channel, event.index);
                 _database.setPreset(event.index);
             }
             break;
@@ -656,7 +656,7 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigGet(System::Config::Section::glo
         {
             if (_hwaDIN.supported())
             {
-                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(IO::Common::interface_t::UART))
+                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(IO::Common::Allocatable::interface_t::UART))
                 {
                     result = System::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
                 }
@@ -693,7 +693,7 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigGet(System::Config::Section::glo
         {
             if (_hwaDIN.supported())
             {
-                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(IO::Common::interface_t::UART))
+                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(IO::Common::Allocatable::interface_t::UART))
                 {
                     result = System::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
                 }
@@ -754,7 +754,7 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
             // this setting applies to din midi only
             if (_hwaDIN.supported())
             {
-                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(IO::Common::interface_t::UART))
+                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(IO::Common::Allocatable::interface_t::UART))
                 {
                     result = System::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
                 }
@@ -782,7 +782,7 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
         {
             if (_hwaDIN.supported())
             {
-                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(IO::Common::interface_t::UART))
+                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(IO::Common::Allocatable::interface_t::UART))
                 {
                     result = System::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
                 }
@@ -879,7 +879,7 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
         {
             if (_hwaDIN.supported())
             {
-                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(IO::Common::interface_t::UART))
+                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(IO::Common::Allocatable::interface_t::UART))
                 {
                     result = System::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
                 }
@@ -975,7 +975,7 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
         {
             if (_hwaDIN.supported())
             {
-                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(IO::Common::interface_t::UART))
+                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(IO::Common::Allocatable::interface_t::UART))
                 {
                     result = System::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
                 }

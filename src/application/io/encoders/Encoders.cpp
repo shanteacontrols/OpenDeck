@@ -220,20 +220,20 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
             {
                 if (encoderState == position_t::CCW)
                 {
-                    if (!Common::pcIncrement(descriptor.event.channel))
+                    if (!MIDIProgram.increment(descriptor.event.channel, 1))
                     {
                         send = false;    // edge value reached, nothing more to send
                     }
                 }
                 else
                 {
-                    if (!Common::pcDecrement(descriptor.event.channel))
+                    if (!MIDIProgram.decrement(descriptor.event.channel, 1))
                     {
                         send = false;    // edge value reached, nothing more to send
                     }
                 }
 
-                descriptor.event.value = Common::program(descriptor.event.channel);
+                descriptor.event.value = MIDIProgram.program(descriptor.event.channel);
             }
             break;
 
@@ -254,23 +254,44 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
 
                 if (encoderState == position_t::CCW)
                 {
-                    _value[index] -= steps;
-
-                    if (_value[index] < 0)
-                    {
-                        _value[index] = 0;
-                    }
+                    // ValueIncDecMIDI7Bit is used, but any type can be used when decrementing since the limit is 0 for all of them
+                    _value[index] = ValueIncDecMIDI7Bit::decrement(_value[index],
+                                                                   steps,
+                                                                   ValueIncDecMIDI7Bit::type_t::EDGE);
                 }
                 else
                 {
-                    int16_t limit = MIDI::MIDI_14BIT_VALUE_MAX ? 16383 : (descriptor.type == type_t::DMX) ? 255
-                                                                                                          : MIDI::MIDI_7BIT_VALUE_MAX;
-
-                    _value[index] += steps;
-
-                    if (_value[index] > limit)
+                    switch (descriptor.type)
                     {
-                        _value[index] = limit;
+                    case type_t::DMX:
+                    {
+                        _value[index] = ValueIncDecDMX::increment(_value[index],
+                                                                  steps,
+                                                                  ValueIncDecDMX::type_t::EDGE);
+                    }
+                    break;
+
+                    case type_t::CONTROL_CHANGE:
+                    case type_t::NRPN_7BIT:
+                    {
+                        _value[index] = ValueIncDecMIDI7Bit::increment(_value[index],
+                                                                       steps,
+                                                                       ValueIncDecMIDI7Bit::type_t::EDGE);
+                    }
+                    break;
+
+                    case type_t::PITCH_BEND:
+                    case type_t::NRPN_14BIT:
+                    case type_t::CONTROL_CHANGE_14BIT:
+                    {
+                        _value[index] = ValueIncDecMIDI14Bit::increment(_value[index],
+                                                                        steps,
+                                                                        ValueIncDecMIDI14Bit::type_t::EDGE);
+                    }
+                    break;
+
+                    default:
+                        break;
                     }
                 }
 

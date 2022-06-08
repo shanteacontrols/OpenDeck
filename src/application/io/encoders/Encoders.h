@@ -21,7 +21,7 @@ limitations under the License.
 #include "database/Database.h"
 #include "io/IOBase.h"
 #include "messaging/Messaging.h"
-#include "io/common/Common.h"
+#include "global/MIDIProgram.h"
 #include "system/Config.h"
 #include "io/IOBase.h"
 #include "protocol/midi/MIDI.h"
@@ -124,6 +124,10 @@ namespace IO
         HWA&                _hwa;
         Filter&             _filter;
         Database::Instance& _database;
+
+        using ValueIncDecMIDI7Bit  = Util::IncDec<uint8_t, 0, ::MIDI::MIDI_7BIT_VALUE_MAX>;
+        using ValueIncDecMIDI14Bit = Util::IncDec<uint16_t, 0, ::MIDI::MIDI_14BIT_VALUE_MAX>;
+        using ValueIncDecDMX       = Util::IncDec<uint8_t, 0, 255>;
 
         /// Time difference betweeen multiple encoder readouts in milliseconds.
         const uint32_t TIME_DIFF_READOUT;

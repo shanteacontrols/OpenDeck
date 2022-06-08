@@ -19,6 +19,7 @@ limitations under the License.
 #include "Buttons.h"
 #include "sysex/src/SysExConf.h"
 #include "system/Config.h"
+#include "global/MIDIProgram.h"
 
 #ifdef BUTTONS_SUPPORTED
 
@@ -274,32 +275,33 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
             {
                 if (descriptor.messageType == messageType_t::PROGRAM_CHANGE_INC)
                 {
-                    if (!Common::pcIncrement(descriptor.event.channel))
+                    if (!MIDIProgram.increment(descriptor.event.channel, 1))
                     {
                         send = false;
                     }
                 }
                 else
                 {
-                    if (!Common::pcDecrement(descriptor.event.channel))
+                    if (!MIDIProgram.decrement(descriptor.event.channel, 1))
                     {
                         send = false;
                     }
                 }
 
-                descriptor.event.index = Common::program(descriptor.event.channel);
+                descriptor.event.index = MIDIProgram.program(descriptor.event.channel);
             }
         }
         break;
 
         case messageType_t::MULTI_VAL_INC_RESET_NOTE:
         {
-            uint8_t currentValue = Common::currentValue(index);
-            uint8_t value        = Common::valueInc(index, descriptor.event.value, Common::incDecType_t::RESET);
+            auto newValue = ValueIncDecMIDI7Bit::increment(_incDecValue[index],
+                                                           descriptor.event.value,
+                                                           ValueIncDecMIDI7Bit::type_t::OVERFLOW);
 
-            if (currentValue != value)
+            if (newValue != _incDecValue[index])
             {
-                if (!value)
+                if (!newValue)
                 {
                     descriptor.event.message = MIDI::messageType_t::NOTE_OFF;
                 }
@@ -308,7 +310,8 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
                     descriptor.event.message = MIDI::messageType_t::NOTE_ON;
                 }
 
-                descriptor.event.value = currentValue;
+                _incDecValue[index]    = newValue;
+                descriptor.event.value = newValue;
             }
             else
             {
@@ -319,12 +322,13 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
 
         case messageType_t::MULTI_VAL_INC_DEC_NOTE:
         {
-            uint8_t currentValue = Common::currentValue(index);
-            uint8_t value        = Common::valueIncDec(index, descriptor.event.value);
+            auto newValue = ValueIncDecMIDI7Bit::increment(_incDecValue[index],
+                                                           descriptor.event.value,
+                                                           ValueIncDecMIDI7Bit::type_t::EDGE);
 
-            if (currentValue != value)
+            if (newValue != _incDecValue[index])
             {
-                if (!value)
+                if (!newValue)
                 {
                     descriptor.event.message = MIDI::messageType_t::NOTE_OFF;
                 }
@@ -333,7 +337,8 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
                     descriptor.event.message = MIDI::messageType_t::NOTE_ON;
                 }
 
-                descriptor.event.value = currentValue;
+                _incDecValue[index]    = newValue;
+                descriptor.event.value = newValue;
             }
             else
             {
@@ -344,12 +349,14 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
 
         case messageType_t::MULTI_VAL_INC_RESET_CC:
         {
-            uint8_t currentValue = Common::currentValue(index);
-            uint8_t value        = Common::valueInc(index, descriptor.event.value, Common::incDecType_t::RESET);
+            auto newValue = ValueIncDecMIDI7Bit::increment(_incDecValue[index],
+                                                           descriptor.event.value,
+                                                           ValueIncDecMIDI7Bit::type_t::OVERFLOW);
 
-            if (currentValue != value)
+            if (newValue != _incDecValue[index])
             {
-                descriptor.event.value = currentValue;
+                _incDecValue[index]    = newValue;
+                descriptor.event.value = newValue;
             }
             else
             {
@@ -360,12 +367,14 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
 
         case messageType_t::MULTI_VAL_INC_DEC_CC:
         {
-            uint8_t currentValue = Common::currentValue(index);
-            uint8_t value        = Common::valueIncDec(index, descriptor.event.value);
+            auto newValue = ValueIncDecMIDI7Bit::increment(_incDecValue[index],
+                                                           descriptor.event.value,
+                                                           ValueIncDecMIDI7Bit::type_t::EDGE);
 
-            if (currentValue != value)
+            if (newValue != _incDecValue[index])
             {
-                descriptor.event.value = currentValue;
+                _incDecValue[index]    = newValue;
+                descriptor.event.value = newValue;
             }
             else
             {

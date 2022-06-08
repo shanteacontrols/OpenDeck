@@ -20,7 +20,7 @@ limitations under the License.
 
 #include "database/Database.h"
 #include "protocol/midi/MIDI.h"
-#include "io/common/Common.h"
+#include "global/MIDIProgram.h"
 #include "system/Config.h"
 #include "io/IOBase.h"
 
@@ -120,6 +120,8 @@ namespace IO
             buttonDescriptor_t() = default;
         };
 
+        using ValueIncDecMIDI7Bit = Util::IncDec<uint8_t, 0, ::MIDI::MIDI_7BIT_VALUE_MAX>;
+
         bool                   state(size_t index);
         bool                   state(size_t index, uint8_t& numberOfReadings, uint32_t& states);
         void                   fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor);
@@ -137,6 +139,7 @@ namespace IO
 
         uint8_t _buttonPressed[Collection::size() / 8 + 1]     = {};
         uint8_t _lastLatchingState[Collection::size() / 8 + 1] = {};
+        uint8_t _incDecValue[Collection::size()]               = {};
 
         static constexpr MIDI::messageType_t INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(messageType_t::AMOUNT)] = {
             MIDI::messageType_t::NOTE_ON,

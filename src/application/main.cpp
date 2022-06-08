@@ -410,9 +410,9 @@ class HWAMIDIDIN : public System::Builder::HWA::Protocol::MIDI::DIN
         return false;
     }
 
-    bool allocated(IO::Common::interface_t interface) override
+    bool allocated(IO::Common::Allocatable::interface_t interface) override
     {
-        if (interface == IO::Common::interface_t::UART)
+        if (interface == IO::Common::Allocatable::interface_t::UART)
         {
             return Board::UART::isInitialized(UART_CHANNEL_DIN);
         }
@@ -456,7 +456,7 @@ class HWAMIDIDINStub : public System::Builder::HWA::Protocol::MIDI::DIN
         return false;
     }
 
-    bool allocated(IO::Common::interface_t interface) override
+    bool allocated(IO::Common::Allocatable::interface_t interface) override
     {
         return false;
     }
@@ -626,9 +626,9 @@ class HWADMX : public System::Builder::HWA::Protocol::DMX
         return true;
     }
 
-    bool allocated(IO::Common::interface_t interface) override
+    bool allocated(IO::Common::Allocatable::interface_t interface) override
     {
-        if (interface == IO::Common::interface_t::UART)
+        if (interface == IO::Common::Allocatable::interface_t::UART)
         {
 #ifdef UART_CHANNEL_DMX
             return Board::UART::isInitialized(UART_CHANNEL_DMX);
@@ -677,7 +677,7 @@ class HWADMXStub : public System::Builder::HWA::Protocol::DMX
         return false;
     }
 
-    bool allocated(IO::Common::interface_t interface) override
+    bool allocated(IO::Common::Allocatable::interface_t interface) override
     {
         return false;
     }
@@ -715,7 +715,7 @@ class HWATouchscreen : public System::Builder::HWA::IO::Touchscreen
         return Board::UART::read(UART_CHANNEL_TOUCHSCREEN, value);
     }
 
-    bool allocated(IO::Common::interface_t interface) override
+    bool allocated(IO::Common::Allocatable::interface_t interface) override
     {
 #ifdef UART_CHANNEL_TOUCHSCREEN
         return Board::UART::isInitialized(UART_CHANNEL_TOUCHSCREEN);
@@ -814,7 +814,7 @@ class HWACDCPassthrough : public System::Builder::HWA::IO::CDCPassthrough
         }
     }
 
-    bool allocated(IO::Common::interface_t interface) override
+    bool allocated(IO::Common::Allocatable::interface_t interface) override
     {
         return CDCLocker::locked();
     }
@@ -848,7 +848,7 @@ class HWATouchscreenStub : public System::Builder::HWA::IO::Touchscreen
         return false;
     }
 
-    bool allocated(IO::Common::interface_t interface) override
+    bool allocated(IO::Common::Allocatable::interface_t interface) override
     {
         return false;
     }
@@ -889,7 +889,7 @@ class HWACDCPassthroughStub : public System::Builder::HWA::IO::CDCPassthrough
         return false;
     }
 
-    bool allocated(IO::Common::interface_t interface) override
+    bool allocated(IO::Common::Allocatable::interface_t interface) override
     {
         return false;
     }

@@ -21,7 +21,6 @@ limitations under the License.
 
 #ifdef DMX_SUPPORTED
 
-#include "io/common/Common.h"
 #include "util/conversion/Conversion.h"
 #include "util/configurable/Configurable.h"
 #include "messaging/Messaging.h"
@@ -154,12 +153,12 @@ std::optional<uint8_t> Protocol::DMX::sysConfigGet(System::Config::Section::glob
 
         if (!dmxEnabled)
         {
-            if (_hwa.allocated(IO::Common::interface_t::UART))
+            if (_hwa.allocated(IO::Common::Allocatable::interface_t::UART))
             {
                 return System::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
             }
 
-            if (_hwa.allocated(IO::Common::interface_t::CDC))
+            if (_hwa.allocated(IO::Common::Allocatable::interface_t::CDC))
             {
                 return System::Config::status_t::CDC_ALLOCATED_ERROR;
             }
@@ -198,12 +197,12 @@ std::optional<uint8_t> Protocol::DMX::sysConfigSet(System::Config::Section::glob
 
         if (!dmxEnabled)
         {
-            if (_hwa.allocated(IO::Common::interface_t::UART))
+            if (_hwa.allocated(IO::Common::Allocatable::interface_t::UART))
             {
                 return System::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
             }
 
-            if (_hwa.allocated(IO::Common::interface_t::CDC))
+            if (_hwa.allocated(IO::Common::Allocatable::interface_t::CDC))
             {
                 return System::Config::status_t::CDC_ALLOCATED_ERROR;
             }

@@ -27,7 +27,7 @@ class HWATouchscreen : public IO::Touchscreen::HWA
         return true;
     }
 
-    bool allocated(IO::Common::interface_t interface) override
+    bool allocated(IO::Common::Allocatable::interface_t interface) override
     {
         return false;
     }
@@ -68,7 +68,7 @@ class HWATouchscreenCDCPassthrough : public IO::Touchscreen::CDCPassthrough
         return true;
     }
 
-    bool allocated(IO::Common::interface_t interface) override
+    bool allocated(IO::Common::Allocatable::interface_t interface) override
     {
         return false;
     }

@@ -25,7 +25,7 @@ limitations under the License.
 #include "messaging/Messaging.h"
 #include "util/configurable/Configurable.h"
 #include "util/conversion/Conversion.h"
-#include "io/common/Common.h"
+#include "global/MIDIProgram.h"
 
 using namespace IO;
 using namespace System;
@@ -129,7 +129,7 @@ bool Instance::init()
 
         event.componentIndex = 0;
         event.channel        = i;
-        event.index          = Common::program(i);
+        event.index          = MIDIProgram.program(i);
         event.value          = 0;
         event.message        = MIDI::messageType_t::PROGRAM_CHANGE;
 

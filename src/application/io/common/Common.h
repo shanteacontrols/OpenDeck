@@ -23,23 +23,11 @@ limitations under the License.
 
 namespace IO::Common
 {
-    enum class incDecType_t : uint8_t
-    {
-        TO_EDGE,
-        RESET,
-    };
-
     enum class initAction_t : uint8_t
     {
         AS_IS,
         INIT,
         DE_INIT
-    };
-
-    enum class interface_t : uint8_t
-    {
-        UART,
-        CDC
     };
 
     template<size_t... T>
@@ -80,15 +68,12 @@ namespace IO::Common
     class Allocatable
     {
         public:
+        enum class interface_t : uint8_t
+        {
+            UART,
+            CDC
+        };
+
         virtual bool allocated(interface_t interface) = 0;
     };
-
-    bool    pcIncrement(uint8_t channel);
-    bool    pcDecrement(uint8_t channel);
-    uint8_t program(uint8_t channel);
-    bool    setProgram(uint8_t channel, uint8_t program);
-    uint8_t valueInc(size_t index, uint8_t step, incDecType_t type);
-    uint8_t valueIncDec(size_t index, uint8_t step);
-    uint8_t currentValue(size_t index);
-    void    resetValue(size_t index);
 }    // namespace IO::Common

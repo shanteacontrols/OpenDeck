@@ -402,7 +402,7 @@ void Touchscreen::screenChangeHandler(size_t screenID)
 
 std::optional<uint8_t> Touchscreen::sysConfigGet(System::Config::Section::touchscreen_t section, size_t index, uint16_t& value)
 {
-    if (!isInitialized() && _hwa.allocated(IO::Common::interface_t::UART))
+    if (!isInitialized() && _hwa.allocated(IO::Common::Allocatable::interface_t::UART))
     {
         return System::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
     }
@@ -415,7 +415,7 @@ std::optional<uint8_t> Touchscreen::sysConfigGet(System::Config::Section::touchs
         {
         case static_cast<size_t>(setting_t::CDC_PASSTHROUGH):
         {
-            if (_cdcPassthrough.allocated(IO::Common::interface_t::CDC))
+            if (_cdcPassthrough.allocated(IO::Common::Allocatable::interface_t::CDC))
             {
                 return System::Config::status_t::CDC_ALLOCATED_ERROR;
             }
@@ -441,7 +441,7 @@ std::optional<uint8_t> Touchscreen::sysConfigGet(System::Config::Section::touchs
 
 std::optional<uint8_t> Touchscreen::sysConfigSet(System::Config::Section::touchscreen_t section, size_t index, uint16_t value)
 {
-    if (!isInitialized() && _hwa.allocated(IO::Common::interface_t::UART))
+    if (!isInitialized() && _hwa.allocated(IO::Common::Allocatable::interface_t::UART))
     {
         return System::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
     }
@@ -503,7 +503,7 @@ std::optional<uint8_t> Touchscreen::sysConfigSet(System::Config::Section::touchs
 
         case static_cast<size_t>(IO::Touchscreen::setting_t::CDC_PASSTHROUGH):
         {
-            if (_cdcPassthrough.allocated(IO::Common::interface_t::CDC))
+            if (_cdcPassthrough.allocated(IO::Common::Allocatable::interface_t::CDC))
             {
                 return System::Config::status_t::CDC_ALLOCATED_ERROR;
             }

@@ -36,7 +36,7 @@ class HWADMX : public Protocol::DMX::HWA
         return true;
     }
 
-    bool allocated(IO::Common::interface_t interface) override
+    bool allocated(IO::Common::Allocatable::interface_t interface) override
     {
         return false;
     }
