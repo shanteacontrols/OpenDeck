@@ -42,8 +42,6 @@ namespace Messaging
     };
 
     // enum indicating what types of system-level messages are possible.
-    // When system message is used, its type should be stored into componentIndex
-    // in event_t structure.
     enum class systemMessage_t : uint8_t
     {
         FORCE_IO_REFRESH,
@@ -59,6 +57,7 @@ namespace Messaging
         uint8_t*                     sysEx          = nullptr;
         size_t                       sysExLength    = 0;
         MIDIlib::Base::messageType_t message        = MIDIlib::Base::messageType_t::INVALID;
+        systemMessage_t              systemMessage  = systemMessage_t::FORCE_IO_REFRESH;
 
         event_t(size_t                       componentIndex,
                 uint8_t                      channel,

@@ -339,7 +339,7 @@ void Instance::forceComponentRefresh()
     if (_backupRestoreState == backupRestoreState_t::NONE)
     {
         Messaging::event_t event;
-        event.componentIndex = static_cast<uint8_t>(Messaging::systemMessage_t::FORCE_IO_REFRESH);
+        event.systemMessage = Messaging::systemMessage_t::FORCE_IO_REFRESH;
 
         MIDIDispatcher.notify(Messaging::eventType_t::SYSTEM, event);
     }
@@ -348,10 +348,10 @@ void Instance::forceComponentRefresh()
 void Instance::SysExDataHandler::sendResponse(uint8_t* array, uint16_t size)
 {
     Messaging::event_t event;
-    event.componentIndex = static_cast<uint16_t>(Messaging::systemMessage_t::SYS_EX_RESPONSE);
-    event.message        = MIDI::messageType_t::SYS_EX;
-    event.sysEx          = array;
-    event.sysExLength    = size;
+    event.systemMessage = Messaging::systemMessage_t::SYS_EX_RESPONSE;
+    event.message       = MIDI::messageType_t::SYS_EX;
+    event.sysEx         = array;
+    event.sysExLength   = size;
 
     MIDIDispatcher.notify(Messaging::eventType_t::SYSTEM, event);
 }

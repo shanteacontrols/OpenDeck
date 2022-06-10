@@ -63,9 +63,9 @@ Buttons::Buttons(HWA&                hwa,
     MIDIDispatcher.listen(Messaging::eventType_t::SYSTEM,
                           [this](const Messaging::event_t& event)
                           {
-                              switch (event.componentIndex)
+                              switch (event.systemMessage)
                               {
-                              case static_cast<uint8_t>(Messaging::systemMessage_t::FORCE_IO_REFRESH):
+                              case Messaging::systemMessage_t::FORCE_IO_REFRESH:
                               {
                                   updateAll(true);
                               }

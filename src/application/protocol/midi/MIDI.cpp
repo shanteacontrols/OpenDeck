@@ -67,9 +67,9 @@ Protocol::MIDI::MIDI(HWAUSB&             hwaUSB,
     MIDIDispatcher.listen(Messaging::eventType_t::SYSTEM,
                           [this](const Messaging::event_t& event)
                           {
-                              switch (event.componentIndex)
+                              switch (event.systemMessage)
                               {
-                              case static_cast<uint16_t>(Messaging::systemMessage_t::SYS_EX_RESPONSE):
+                              case Messaging::systemMessage_t::SYS_EX_RESPONSE:
                               {
                                   sendMIDI(Messaging::eventType_t::SYSTEM, event);
                               }
