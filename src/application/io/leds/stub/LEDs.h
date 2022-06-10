@@ -59,6 +59,7 @@ namespace IO
             BLINK_WITH_MIDI_CLOCK,
             UNUSED,
             USE_STARTUP_ANIMATION,
+            USE_MIDI_PROGRAM_OFFSET,
             AMOUNT
         };
 

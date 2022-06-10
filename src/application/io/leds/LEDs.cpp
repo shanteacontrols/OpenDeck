@@ -18,6 +18,7 @@ limitations under the License.
 
 #include "LEDs.h"
 #include "messaging/Messaging.h"
+#include "global/MIDIProgram.h"
 
 #ifdef LEDS_SUPPORTED
 
@@ -461,6 +462,15 @@ void LEDs::midiToState(const Messaging::event_t& event, Messaging::eventType_t s
 
             uint8_t activationID = _database.read(Database::Config::Section::leds_t::ACTIVATION_ID, i);
 
+            if (event.message == MIDI::messageType_t::PROGRAM_CHANGE)
+            {
+                if (_database.read(Database::Config::Section::leds_t::GLOBAL, setting_t::USE_MIDI_PROGRAM_OFFSET))
+                {
+                    activationID += MIDIProgram.offset();
+                    activationID &= 0x7F;
+                }
+            }
+
             if (setState)
             {
                 // match activation ID with received ID
@@ -851,6 +861,12 @@ std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t sectio
         break;
 
         case setting_t::UNUSED:
+        {
+            result = System::Config::status_t::ACK;
+        }
+        break;
+
+        case setting_t::USE_MIDI_PROGRAM_OFFSET:
         {
             result = System::Config::status_t::ACK;
         }
