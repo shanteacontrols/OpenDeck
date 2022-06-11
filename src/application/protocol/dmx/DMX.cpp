@@ -142,8 +142,8 @@ void Protocol::DMX::read()
 
 std::optional<uint8_t> Protocol::DMX::sysConfigGet(System::Config::Section::global_t section, size_t index, uint16_t& value)
 {
-    int32_t readValue = 0;
-    uint8_t result    = System::Config::status_t::ERROR_READ;
+    [[maybe_unused]] int32_t readValue = 0;
+    [[maybe_unused]] uint8_t result    = System::Config::status_t::ERROR_READ;
 
     switch (section)
     {
@@ -185,9 +185,9 @@ std::optional<uint8_t> Protocol::DMX::sysConfigGet(System::Config::Section::glob
 
 std::optional<uint8_t> Protocol::DMX::sysConfigSet(System::Config::Section::global_t section, size_t index, uint16_t value)
 {
-    uint8_t result        = System::Config::status_t::ERROR_WRITE;
-    auto    dmxInitAction = Common::initAction_t::AS_IS;
-    bool    writeToDb     = true;
+    [[maybe_unused]] uint8_t result        = System::Config::status_t::ERROR_WRITE;
+    [[maybe_unused]] auto    dmxInitAction = Common::initAction_t::AS_IS;
+    [[maybe_unused]] bool    writeToDb     = true;
 
     switch (section)
     {

@@ -631,8 +631,8 @@ void Protocol::MIDI::setNoteOffMode(noteOffType_t type)
 
 std::optional<uint8_t> Protocol::MIDI::sysConfigGet(System::Config::Section::global_t section, size_t index, uint16_t& value)
 {
-    int32_t readValue = 0;
-    uint8_t result    = System::Config::status_t::ERROR_READ;
+    [[maybe_unused]] int32_t readValue = 0;
+    [[maybe_unused]] uint8_t result    = System::Config::status_t::ERROR_READ;
 
     switch (section)
     {
@@ -735,11 +735,11 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigGet(System::Config::Section::glo
 
 std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::global_t section, size_t index, uint16_t value)
 {
-    uint8_t result            = System::Config::status_t::ERROR_WRITE;
-    bool    writeToDb         = true;
-    auto    dinMIDIinitAction = Common::initAction_t::AS_IS;
-    auto    bleMIDIinitAction = Common::initAction_t::AS_IS;
-    bool    checkDINLoopback  = false;
+    [[maybe_unused]] uint8_t result            = System::Config::status_t::ERROR_WRITE;
+    [[maybe_unused]] bool    writeToDb         = true;
+    [[maybe_unused]] auto    dinMIDIinitAction = Common::initAction_t::AS_IS;
+    [[maybe_unused]] auto    bleMIDIinitAction = Common::initAction_t::AS_IS;
+    [[maybe_unused]] bool    checkDINLoopback  = false;
 
     switch (section)
     {
