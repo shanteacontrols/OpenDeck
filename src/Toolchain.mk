@@ -21,6 +21,7 @@ CXX_NATIVE      := g++
 LD_NATIVE       := g++
 CLANG_FORMAT    := clang-format
 YAML_PARSER     := dasel
+CCACHE          := ccache
 
 REQ_PACKAGES := \
 git \
@@ -35,7 +36,7 @@ $(CXX_NATIVE) \
 objcopy \
 $(YAML_PARSER) \
 $(SHA256SUM) \
-ccache
+$(CCACHE)
 
 #don't allow running make at all if required packages don't exist on the system
 #don't run this if the user is root - it's very likely sudo is used for flashing in this case
