@@ -40,7 +40,7 @@ namespace
             _listener._event.clear();
         }
 
-        void stateChangeRegister(bool state)
+        void stateChangeRegisterAll(bool state)
         {
             _listener._event.clear();
 
@@ -101,12 +101,12 @@ TEST_F(ButtonsTest, Note)
         };
 
         // simulate button press
-        stateChangeRegister(true);
+        stateChangeRegisterAll(true);
         ASSERT_EQ(Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
         verifyValue(true);
 
         // simulate button release
-        stateChangeRegister(false);
+        stateChangeRegisterAll(false);
         ASSERT_EQ(Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
         verifyValue(false);
 
@@ -116,16 +116,16 @@ TEST_F(ButtonsTest, Note)
             ASSERT_TRUE(_buttons._database.update(Database::Config::Section::button_t::TYPE, i, Buttons::type_t::LATCHING));
         }
 
-        stateChangeRegister(true);
+        stateChangeRegisterAll(true);
         ASSERT_EQ(Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
         verifyValue(true);
 
         // nothing should happen on release
-        stateChangeRegister(false);
+        stateChangeRegisterAll(false);
         ASSERT_EQ(0, _listener._event.size());
 
         // press again, new messages should arrive
-        stateChangeRegister(true);
+        stateChangeRegisterAll(true);
         verifyValue(false);
     };
 
@@ -178,12 +178,12 @@ TEST_F(ButtonsTest, ProgramChange)
         };
 
         // simulate button press
-        stateChangeRegister(true);
+        stateChangeRegisterAll(true);
         ASSERT_EQ(Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
         verifyMessage();
 
         // program change shouldn't be sent on release
-        stateChangeRegister(false);
+        stateChangeRegisterAll(false);
         ASSERT_EQ(0, _listener._event.size());
 
         // repeat the entire test again, but with buttons configured as latching types
@@ -193,11 +193,11 @@ TEST_F(ButtonsTest, ProgramChange)
             ASSERT_TRUE(_buttons._database.update(Database::Config::Section::button_t::TYPE, i, Buttons::type_t::LATCHING));
         }
 
-        stateChangeRegister(true);
+        stateChangeRegisterAll(true);
         ASSERT_EQ(Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
         verifyMessage();
 
-        stateChangeRegister(false);
+        stateChangeRegisterAll(false);
         ASSERT_EQ(0, _listener._event.size());
     };
 
@@ -209,7 +209,7 @@ TEST_F(ButtonsTest, ProgramChange)
 
     // test PROGRAM_CHANGE_INC/PROGRAM_CHANGE_DEC
     _buttons._database.factoryReset();
-    stateChangeRegister(false);
+    stateChangeRegisterAll(false);
 
     auto configurePCbutton = [&](size_t index, uint8_t channel, bool increase)
     {
@@ -241,19 +241,19 @@ TEST_F(ButtonsTest, ProgramChange)
     configurePCbutton(0, CHANNEL, true);
 
     // verify that the received program change was 1 for button 0
-    stateChangeRegister(true);
+    stateChangeRegisterAll(true);
     verifyProgramChange(0, CHANNEL, 1);
-    stateChangeRegister(false);
+    stateChangeRegisterAll(false);
 
     // after this, verify that the received program change was 2 for button 0
-    stateChangeRegister(true);
+    stateChangeRegisterAll(true);
     verifyProgramChange(0, CHANNEL, 2);
-    stateChangeRegister(false);
+    stateChangeRegisterAll(false);
 
     // after this, verify that the received program change was 3 for button 0
-    stateChangeRegister(true);
+    stateChangeRegisterAll(true);
     verifyProgramChange(0, CHANNEL, 3);
-    stateChangeRegister(false);
+    stateChangeRegisterAll(false);
 
     // now, revert all buttons back to default
     _buttons._database.factoryReset();
@@ -267,35 +267,35 @@ TEST_F(ButtonsTest, ProgramChange)
     configurePCbutton(4, CHANNEL, true);
 
     // verify that the program change is continuing to increase
-    stateChangeRegister(true);
+    stateChangeRegisterAll(true);
     verifyProgramChange(4, CHANNEL, 4);
-    stateChangeRegister(false);
+    stateChangeRegisterAll(false);
 
-    stateChangeRegister(true);
+    stateChangeRegisterAll(true);
     verifyProgramChange(4, CHANNEL, 5);
-    stateChangeRegister(false);
+    stateChangeRegisterAll(false);
 
     // now configure two buttons to send program change/inc
     configurePCbutton(0, CHANNEL, true);
 
-    stateChangeRegister(true);
+    stateChangeRegisterAll(true);
     // program change should be increased by 1, first by button 0
     verifyProgramChange(0, CHANNEL, 6);
     // then by button 4
     verifyProgramChange(4, CHANNEL, 7);
-    stateChangeRegister(false);
+    stateChangeRegisterAll(false);
 
     // configure another button to PROGRAM_CHANGE_INC, but on other channel
     configurePCbutton(1, 4, true);
 
-    stateChangeRegister(true);
+    stateChangeRegisterAll(true);
     // program change should be increased by 1, first by button 0
     verifyProgramChange(0, CHANNEL, 8);
     // then by button 4
     verifyProgramChange(4, CHANNEL, 9);
     // program change should be sent on channel 4 by button 1
     verifyProgramChange(1, 4, 1);
-    stateChangeRegister(false);
+    stateChangeRegisterAll(false);
 
     // revert to default again
     _buttons._database.factoryReset();
@@ -303,37 +303,37 @@ TEST_F(ButtonsTest, ProgramChange)
     // now configure button 0 for PROGRAM_CHANGE_DEC
     configurePCbutton(0, CHANNEL, false);
 
-    stateChangeRegister(true);
+    stateChangeRegisterAll(true);
     // program change should decrease by 1
     verifyProgramChange(0, CHANNEL, 8);
-    stateChangeRegister(false);
+    stateChangeRegisterAll(false);
 
-    stateChangeRegister(true);
+    stateChangeRegisterAll(true);
     // program change should decrease by 1 again
     verifyProgramChange(0, CHANNEL, 7);
-    stateChangeRegister(false);
+    stateChangeRegisterAll(false);
 
     // configure another button for PROGRAM_CHANGE_DEC
     configurePCbutton(1, CHANNEL, false);
 
-    stateChangeRegister(true);
+    stateChangeRegisterAll(true);
     // button 0 should decrease the value by 1
     verifyProgramChange(0, CHANNEL, 6);
     // button 1 should decrease it again
     verifyProgramChange(1, CHANNEL, 5);
-    stateChangeRegister(false);
+    stateChangeRegisterAll(false);
 
     // configure another button for PROGRAM_CHANGE_DEC
     configurePCbutton(2, CHANNEL, false);
 
-    stateChangeRegister(true);
+    stateChangeRegisterAll(true);
     // button 0 should decrease the value by 1
     verifyProgramChange(0, CHANNEL, 4);
     // button 1 should decrease it again
     verifyProgramChange(1, CHANNEL, 3);
     // button 2 should decrease it again
     verifyProgramChange(2, CHANNEL, 2);
-    stateChangeRegister(false);
+    stateChangeRegisterAll(false);
 
     // reset all received messages first
     _listener._event.clear();
@@ -342,7 +342,7 @@ TEST_F(ButtonsTest, ProgramChange)
     // program change value is 0 after the second button decreases it
     // once the value is 0 no further messages should be sent in dec mode
 
-    stateChangeRegister(true);
+    stateChangeRegisterAll(true);
     // button 0 should decrease the value by 1
     verifyProgramChange(0, CHANNEL, 1);
     // button 1 should decrease it again
@@ -361,17 +361,17 @@ TEST_F(ButtonsTest, ProgramChange)
 
     ASSERT_EQ(2, pcCounter);
 
-    stateChangeRegister(false);
+    stateChangeRegisterAll(false);
 
     // revert all buttons to default
     _buttons._database.factoryReset();
 
     configurePCbutton(0, CHANNEL, true);
 
-    stateChangeRegister(true);
+    stateChangeRegisterAll(true);
     // button 0 should increase the last value by 1
     verifyProgramChange(0, CHANNEL, 1);
-    stateChangeRegister(false);
+    stateChangeRegisterAll(false);
 }
 
 TEST_F(ButtonsTest, ControlChange)
@@ -406,13 +406,13 @@ TEST_F(ButtonsTest, ControlChange)
         };
 
         // simulate button press
-        stateChangeRegister(true);
+        stateChangeRegisterAll(true);
         ASSERT_EQ(Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
         verifyMessage(controlValue);
 
         // no messages should be sent on release
-        stateChangeRegister(false);
+        stateChangeRegisterAll(false);
         ASSERT_EQ(0, _listener._event.size());
 
         // change to latching type
@@ -423,12 +423,12 @@ TEST_F(ButtonsTest, ControlChange)
             ASSERT_TRUE(_buttons._database.update(Database::Config::Section::button_t::TYPE, i, Buttons::type_t::LATCHING));
         }
 
-        stateChangeRegister(true);
+        stateChangeRegisterAll(true);
         ASSERT_EQ(Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
         verifyMessage(controlValue);
 
-        stateChangeRegister(false);
+        stateChangeRegisterAll(false);
         ASSERT_EQ(0, _listener._event.size());
 
         // change type to control change with 0 on reset, momentary mode
@@ -444,12 +444,12 @@ TEST_F(ButtonsTest, ControlChange)
             ASSERT_TRUE(_buttons._database.update(Database::Config::Section::button_t::MESSAGE_TYPE, i, Buttons::messageType_t::CONTROL_CHANGE_RESET));
         }
 
-        stateChangeRegister(true);
+        stateChangeRegisterAll(true);
         ASSERT_EQ(Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
         verifyMessage(controlValue);
 
-        stateChangeRegister(false);
+        stateChangeRegisterAll(false);
         ASSERT_EQ(Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
         verifyMessage(0);
@@ -464,15 +464,15 @@ TEST_F(ButtonsTest, ControlChange)
             ASSERT_TRUE(_buttons._database.update(Database::Config::Section::button_t::TYPE, i, Buttons::type_t::LATCHING));
         }
 
-        stateChangeRegister(true);
+        stateChangeRegisterAll(true);
         ASSERT_EQ(Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
         verifyMessage(controlValue);
 
-        stateChangeRegister(false);
+        stateChangeRegisterAll(false);
         ASSERT_EQ(0, _listener._event.size());
 
-        stateChangeRegister(true);
+        stateChangeRegisterAll(true);
         ASSERT_EQ(Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
         verifyMessage(0);
@@ -502,10 +502,10 @@ TEST_F(ButtonsTest, NoMessages)
         _buttons._instance.reset(i);
     }
 
-    stateChangeRegister(true);
+    stateChangeRegisterAll(true);
     ASSERT_EQ(0, _listener._event.size());
 
-    stateChangeRegister(false);
+    stateChangeRegisterAll(false);
     ASSERT_EQ(0, _listener._event.size());
 
     for (size_t i = 0; i < Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS); i++)
@@ -513,16 +513,16 @@ TEST_F(ButtonsTest, NoMessages)
         ASSERT_TRUE(_buttons._database.update(Database::Config::Section::button_t::TYPE, i, Buttons::type_t::LATCHING));
     }
 
-    stateChangeRegister(true);
+    stateChangeRegisterAll(true);
     ASSERT_EQ(0, _listener._event.size());
 
-    stateChangeRegister(false);
+    stateChangeRegisterAll(false);
     ASSERT_EQ(0, _listener._event.size());
 
-    stateChangeRegister(true);
+    stateChangeRegisterAll(true);
     ASSERT_EQ(0, _listener._event.size());
 
-    stateChangeRegister(false);
+    stateChangeRegisterAll(false);
     ASSERT_EQ(0, _listener._event.size());
 }
 
@@ -573,12 +573,12 @@ TEST_F(ButtonsTest, PresetChange)
     _buttons._instance.reset(BUTTON_INDEX);
 
     // simulate button press
-    stateChangeRegister(true);
+    stateChangeRegisterAll(true);
     ASSERT_EQ(1, _dbHandlers._preset);
     _dbHandlers._preset = 0;
 
     // verify that preset is unchanged after the button is released
-    stateChangeRegister(false);
+    stateChangeRegisterAll(false);
     ASSERT_EQ(0, _dbHandlers._preset);
 }
 
