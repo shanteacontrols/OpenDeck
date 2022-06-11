@@ -308,7 +308,7 @@ ifeq ($(CF_FAIL_ON_DIFF), 1)
 endif
 
 lint:
-	@$(SCRIPTS_DIR)/tidy.sh \
+	@$(SCRIPTS_DIR)/clang_tidy_wrapper.sh \
 	--mcu=$(MCU) \
 	--output=$(CLANG_TIDY_OUT) \
 	--compiler=$(CC) \
