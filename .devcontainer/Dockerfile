@@ -110,7 +110,7 @@ RUN adduser $user sudo
 #disable password prompt for sudo commands
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 RUN echo "alias mkc='make clean'" >> /home/$user/.bashrc
-RUN echo "MAKEFLAGS=-j$(nproc)" >> /home/$user/.bashrc
+RUN echo "export MAKEFLAGS=-j$(nproc)" >> /home/$user/.bashrc
 
 #run everything below as $user
 USER $user
