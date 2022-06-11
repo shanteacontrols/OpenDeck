@@ -561,4 +561,119 @@ TEST_F(LEDsTest, SingleLEDstate)
                           });
 }
 
+TEST_F(LEDsTest, ProgramChangeWithOffset)
+{
+    if (LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS) < 4)
+    {
+        return;
+    }
+
+    // configure first four LEDs to indicate program change
+    static constexpr size_t PC_LEDS = 4;
+
+    for (size_t i = 0; i < PC_LEDS; i++)
+    {
+        ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::PC_SINGLE_VAL));
+    }
+
+    // notify program change
+    uint8_t program = 0;
+
+    // first LED should be on, rest is off
+    EXPECT_CALL(_leds._hwa, setState(_, LEDs::brightness_t::B100))
+        .Times(1);
+
+    EXPECT_CALL(_leds._hwa, setState(_, LEDs::brightness_t::OFF))
+        .Times(3);
+
+    MIDIDispatcher.notify(Messaging::eventType_t::PROGRAM,
+                          {
+                              0,
+                              MIDI_CHANNEL,
+                              program,
+                              0,    // value unused by program change
+                              0,
+                              0,
+                              MIDI::messageType_t::PROGRAM_CHANGE,
+                          });
+
+    // now increase the program by 1
+    program++;
+
+    // second LED should be on, rest is off
+    EXPECT_CALL(_leds._hwa, setState(0, LEDs::brightness_t::OFF))
+        .Times(1);
+
+    EXPECT_CALL(_leds._hwa, setState(1, LEDs::brightness_t::B100))
+        .Times(1);
+
+    EXPECT_CALL(_leds._hwa, setState(2, LEDs::brightness_t::OFF))
+        .Times(1);
+
+    EXPECT_CALL(_leds._hwa, setState(3, LEDs::brightness_t::OFF))
+        .Times(1);
+
+    MIDIDispatcher.notify(Messaging::eventType_t::PROGRAM,
+                          {
+                              0,
+                              MIDI_CHANNEL,
+                              program,
+                              0,    // value unused by program change
+                              0,
+                              0,
+                              MIDI::messageType_t::PROGRAM_CHANGE,
+                          });
+
+    // change the MIDI program offset
+    MIDIProgram.setOffset(1);
+
+    // nothing should change yet
+    // second LED should be on, rest is off
+    EXPECT_CALL(_leds._hwa, setState(0, LEDs::brightness_t::OFF))
+        .Times(1);
+
+    EXPECT_CALL(_leds._hwa, setState(1, LEDs::brightness_t::B100))
+        .Times(1);
+
+    EXPECT_CALL(_leds._hwa, setState(2, LEDs::brightness_t::OFF))
+        .Times(1);
+
+    EXPECT_CALL(_leds._hwa, setState(3, LEDs::brightness_t::OFF))
+        .Times(1);
+
+    MIDIDispatcher.notify(Messaging::eventType_t::PROGRAM,
+                          {
+                              0,
+                              MIDI_CHANNEL,
+                              program,
+                              0,    // value unused by program change
+                              0,
+                              0,
+                              MIDI::messageType_t::PROGRAM_CHANGE,
+                          });
+
+    // enable LED sync with offset
+    ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::GLOBAL, LEDs::setting_t::USE_MIDI_PROGRAM_OFFSET, 1));
+
+    // notify the program 1 again
+    // this time, due to the offset, first LED should be on, and the rest should be off
+    // when sync is active, all activation IDs for LEDs that use program change message type are incremented by the program offset
+    EXPECT_CALL(_leds._hwa, setState(_, LEDs::brightness_t::B100))
+        .Times(1);
+
+    EXPECT_CALL(_leds._hwa, setState(_, LEDs::brightness_t::OFF))
+        .Times(3);
+
+    MIDIDispatcher.notify(Messaging::eventType_t::PROGRAM,
+                          {
+                              0,
+                              MIDI_CHANNEL,
+                              program,
+                              0,    // value unused by program change
+                              0,
+                              0,
+                              MIDI::messageType_t::PROGRAM_CHANGE,
+                          });
+}
+
 #endif

@@ -52,6 +52,18 @@ namespace
             _buttons._instance.updateAll();
         }
 
+        void stateChangeRegisterSingle(size_t index, bool state)
+        {
+            _listener._event.clear();
+
+            EXPECT_CALL(_buttons._hwa, state(_, _, _))
+                .WillRepeatedly(DoAll(SetArgReferee<1>(1),
+                                      SetArgReferee<2>(state),
+                                      Return(true)));
+
+            _buttons._instance.updateSingle(index);
+        }
+
         Listener    _listener;
         TestButtons _buttons;
     };
@@ -372,6 +384,119 @@ TEST_F(ButtonsTest, ProgramChange)
     // button 0 should increase the last value by 1
     verifyProgramChange(0, CHANNEL, 1);
     stateChangeRegisterAll(false);
+}
+
+TEST_F(ButtonsTest, ProgramChangeWithOffset)
+{
+    if (Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS) < 3)
+    {
+        return;
+    }
+
+    static constexpr size_t BUTTON_INDEX_OFFSET_DEC = 0;
+    static constexpr size_t BUTTON_INDEX_OFFSET_INC = 1;
+    static constexpr size_t BUTTON_INDEX_PROGRAM    = 2;
+    static constexpr size_t PROGRAM_CHANGE_CHANNEL  = 1;
+    static constexpr size_t OFFSET_INC_DEC_AMOUNT   = 3;
+
+    auto verifyProgramChange = [&](size_t index, uint8_t channel, uint8_t program)
+    {
+        LOG(INFO) << "Verifiyng received MIDI Program Change message";
+        LOG(INFO) << "Expecting channel " << static_cast<int>(channel) << ", program " << static_cast<int>(program);
+
+        ASSERT_EQ(MIDI::messageType_t::PROGRAM_CHANGE, _listener._event.at(index).message);
+
+        // program change value should always be set to 0
+        ASSERT_EQ(0, _listener._event.at(index).value);
+
+        // verify channel
+        ASSERT_EQ(channel, _listener._event.at(index).channel);
+
+        ASSERT_EQ(program, _listener._event.at(index).index);
+    };
+
+    auto toggleProgramChangeIncButton = [&]()
+    {
+        LOG(INFO) << "Incrementing MIDI Program Change offset by " << OFFSET_INC_DEC_AMOUNT;
+        LOG(INFO) << "Current offset is " << static_cast<int>(MIDIProgram.offset());
+        stateChangeRegisterSingle(BUTTON_INDEX_OFFSET_INC, true);
+        ASSERT_TRUE(MIDIProgram.offset() >= 0);
+        ASSERT_TRUE(MIDIProgram.offset() <= 127);
+        stateChangeRegisterSingle(BUTTON_INDEX_OFFSET_INC, false);
+        LOG(INFO) << "Offset after change is " << static_cast<int>(MIDIProgram.offset());
+    };
+
+    auto toggleProgramChangeDecButton = [&]()
+    {
+        LOG(INFO) << "Decrementing MIDI Program Change offset by " << OFFSET_INC_DEC_AMOUNT;
+        LOG(INFO) << "Current offset is " << static_cast<int>(MIDIProgram.offset());
+        stateChangeRegisterSingle(BUTTON_INDEX_OFFSET_DEC, true);
+        ASSERT_TRUE(MIDIProgram.offset() >= 0);
+        ASSERT_TRUE(MIDIProgram.offset() <= 127);
+        stateChangeRegisterSingle(BUTTON_INDEX_OFFSET_DEC, false);
+        LOG(INFO) << "Offset after change is " << static_cast<int>(MIDIProgram.offset());
+    };
+
+    auto toggleProgramChangeButton = [&]()
+    {
+        LOG(INFO) << "Toggling program change button";
+
+        stateChangeRegisterSingle(BUTTON_INDEX_PROGRAM, true);
+        ASSERT_EQ(1, _listener._event.size());
+        verifyProgramChange(0, PROGRAM_CHANGE_CHANNEL, BUTTON_INDEX_PROGRAM + MIDIProgram.offset());
+        stateChangeRegisterSingle(BUTTON_INDEX_PROGRAM, false);
+    };
+
+    // set known state
+    ASSERT_TRUE(_buttons._database.update(Database::Config::Section::button_t::MESSAGE_TYPE, BUTTON_INDEX_OFFSET_DEC, Buttons::messageType_t::PROGRAM_CHANGE_OFFSET_DEC));
+    ASSERT_TRUE(_buttons._database.update(Database::Config::Section::button_t::VALUE, BUTTON_INDEX_OFFSET_DEC, OFFSET_INC_DEC_AMOUNT));
+    ASSERT_TRUE(_buttons._database.update(Database::Config::Section::button_t::MESSAGE_TYPE, BUTTON_INDEX_OFFSET_INC, Buttons::messageType_t::PROGRAM_CHANGE_OFFSET_INC));
+    ASSERT_TRUE(_buttons._database.update(Database::Config::Section::button_t::VALUE, BUTTON_INDEX_OFFSET_INC, OFFSET_INC_DEC_AMOUNT));
+    ASSERT_TRUE(_buttons._database.update(Database::Config::Section::button_t::MESSAGE_TYPE, BUTTON_INDEX_PROGRAM, Buttons::messageType_t::PROGRAM_CHANGE));
+
+    _buttons._instance.reset(BUTTON_INDEX_OFFSET_DEC);
+    _buttons._instance.reset(BUTTON_INDEX_OFFSET_INC);
+    _buttons._instance.reset(BUTTON_INDEX_PROGRAM);
+
+    toggleProgramChangeButton();
+    toggleProgramChangeIncButton();
+    toggleProgramChangeButton();
+
+    // toggle the incrementing button few more times
+    for (size_t i = 0; i < 10; i++)
+    {
+        toggleProgramChangeIncButton();
+    }
+
+    toggleProgramChangeButton();
+
+    // verify that incrementing past the value of 127 isn't possible
+    while (MIDIProgram.offset() != 127)
+    {
+        toggleProgramChangeIncButton();
+    }
+
+    // try again - nothing should change
+    toggleProgramChangeIncButton();
+    ASSERT_EQ(127, MIDIProgram.offset());
+
+    // start decrementing offset
+    for (size_t i = 0; i < 50; i++)
+    {
+        toggleProgramChangeDecButton();
+    }
+
+    toggleProgramChangeButton();
+
+    LOG(INFO) << "Setting the offset to 0 manually";
+    MIDIProgram.setOffset(0);
+    ASSERT_EQ(0, MIDIProgram.offset());
+
+    toggleProgramChangeButton();
+
+    // decrement again - verify that nothing changes
+    toggleProgramChangeDecButton();
+    ASSERT_EQ(0, MIDIProgram.offset());
 }
 
 TEST_F(ButtonsTest, ControlChange)
