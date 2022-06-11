@@ -94,18 +94,12 @@ ifeq ($(CF_FAIL_ON_DIFF), 1)
 endif
 
 lint:
-	@$(SCRIPTS_DIR)/tidy.sh $(CLANG_TIDY_OUT)
-ifeq ($(CL_FAIL_ON_DIFF), 1)
-	@if [ -s $(CLANG_TIDY_OUT) ]; then \
-		echo Lint issues found:; \
-		cat $(CLANG_TIDY_OUT); \
-		false; \
-	fi
-endif
+	@infer capture -- $(MAKE) --no-print-directory TARGET=$(TARGET) DEBUG=$(DEBUG) CCACHE=
+	@infer analyze
 
 clean:
 	@echo Cleaning up.
-	@rm -rf $(BUILD_DIR_BASE)/
+	@rm -rf $(BUILD_DIR_BASE)/ infer-out
 
 #debugging
 print-%:

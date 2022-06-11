@@ -33,3 +33,4 @@ src/application/gen/*
 *-backups
 *-bak
 *.kicad_prl
+**/infer-out/*

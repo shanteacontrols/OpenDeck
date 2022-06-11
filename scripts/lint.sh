@@ -1,38 +1,77 @@
 #!/usr/bin/env bash
 
+run_dir="OpenDeck"
+
+if [[ $(pwd) != *"$run_dir" ]]
+then
+    echo This script must be run from $run_dir directory!
+    exit 1
+fi
+
 # Run linting for several targets so that most of the codebase is covered
 
 set -e
 
-make clean
-
-lint_target()
+clang_tidy_lint()
 {
-    echo "Linting for target: $1"
-    make TARGET="$1"
-    compiledb make TARGET="$1" binary TYPE=app
-    make lint TARGET="$1" TYPE=app CL_FAIL_ON_DIFF=1
-    rm -f compile_commands.json
-    compiledb make TARGET="$1" binary TYPE=boot
-    make lint TARGET="$1" TYPE=boot CL_FAIL_ON_DIFF=1
-    rm -f compile_commands.json
-    compiledb make TARGET="$1" binary TYPE=sysexgen
-    make lint TARGET="$1" TYPE=sysexgen CL_FAIL_ON_DIFF=1
-    rm -f compile_commands.json
+    echo "Linting firmware code with clang-tidy for target: $1"
+    dir=src
+    cd $dir
+    build_cmd="make TARGET=$1 DEBUG=0"
+    eval "$build_cmd" clean
+    eval "$build_cmd"
+    eval compiledb "$build_cmd" binary TYPE=app
+    eval "$build_cmd" lint TYPE=app CL_FAIL_ON_DIFF=1
+    rm compile_commands.json
+    eval compiledb "$build_cmd" binary TYPE=boot
+    eval "$build_cmd" lint TYPE=boot CL_FAIL_ON_DIFF=1
+    rm compile_commands.json
+    eval compiledb "$build_cmd" binary TYPE=sysexgen
+    eval "$build_cmd" lint TYPE=sysexgen CL_FAIL_ON_DIFF=1
+    rm compile_commands.json
 
     if [[ $2 -ne 0 ]]
     then
-        compiledb make TARGET="$1" binary TYPE=flashgen
-        make lint TARGET="$1" TYPE=flashgen CL_FAIL_ON_DIFF=1
-        rm -f compile_commands.json
+        eval compiledb "$build_cmd" binary TYPE=flashgen
+        eval "$build_cmd" lint TYPE=flashgen CL_FAIL_ON_DIFF=1
+        rm compile_commands.json
     fi
+
+    cd ../
 }
 
-lint_target discovery
-lint_target opendeck2
-lint_target rooibos
-lint_target nrf52840dk
-lint_target mega2560 0
-lint_target mega16u2 0
-lint_target opendeck_mini 0
-lint_target teensy2pp 0
+infer_lint()
+{
+    echo "Linting test code with infer for target: $1"
+    dir=tests
+    cd $dir
+    build_cmd="make TARGET=$1 DEBUG=0"
+    eval "$build_cmd" clean
+    eval "$build_cmd" generate
+    eval "$build_cmd" lint
+    cd ../
+}
+
+clang_tidy_lint discovery
+infer_lint discovery
+
+clang_tidy_lint opendeck2
+infer_lint opendeck2
+
+clang_tidy_lint rooibos
+infer_lint rooibos
+
+clang_tidy_lint nrf52840dk
+infer_lint nrf52840dk
+
+clang_tidy_lint mega2560 0
+infer_lint mega2560
+
+clang_tidy_lint mega16u2 0
+infer_lint mega16u2
+
+clang_tidy_lint opendeck_mini 0
+infer_lint opendeck_mini
+
+clang_tidy_lint teensy2pp 0
+infer_lint teensy2pp

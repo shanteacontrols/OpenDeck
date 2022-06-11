@@ -81,7 +81,6 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
-      - name: Source lint
+      - name: Lint
         run: |
-          cd src
-          ../scripts/lint.sh
+          ./scripts/lint.sh
