@@ -146,7 +146,7 @@ TEST_F(ButtonsTest, ProgramChange)
         return;
     }
 
-    auto tesprogramChange = [&](uint8_t channel)
+    auto testProgramChange = [&](uint8_t channel)
     {
         // set known state
         for (size_t i = 0; i < Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS); i++)
@@ -204,7 +204,7 @@ TEST_F(ButtonsTest, ProgramChange)
     // test for all channels
     for (int i = 1; i <= 16; i++)
     {
-        tesprogramChange(i);
+        testProgramChange(i);
     }
 
     // test PROGRAM_CHANGE_INC/PROGRAM_CHANGE_DEC
