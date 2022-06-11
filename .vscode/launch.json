@@ -58,14 +58,11 @@
             "request": "attach",
             "servertype": "bmp",
             "cwd": "${workspaceRoot}",
-            "executable": "./src/build/adafruit_ib_nrf52840/debug/merged/adafruit_ib_nrf52840.hex",
+            "executable": "./src/build/adafruit_ib_nrf52840/debug/app/adafruit_ib_nrf52840.elf",
             "interface": "swd",
             "device": "nrf52840_xxaa",
             "BMPGDBSerialPort": "/dev/ttyBmpGdb",
             "targetId": 1,
-            "preLaunchCommands": [
-                "add-symbol-file ${workspaceRoot}/src/build/adafruit_ib_nrf52840/debug/app/adafruit_ib_nrf52840.elf",
-            ],
             "preLaunchTask": "[Debug] adafruit_ib_nrf52840"
         },
         {
@@ -74,16 +71,13 @@
             "request": "attach",
             "servertype": "stlink",
             "cwd": "${workspaceRoot}",
-            "executable": "./src/build/blackpill401ce/debug/merged/blackpill401ce.hex",
+            "executable": "./src/build/blackpill401ce/debug/app/blackpill401ce.elf",
             "interface": "swd",
             "svdFile": "${workspaceFolder}/misc/STM32F40x.svd",
             "device": "STM32F401",
             "stlinkPath": "/opt/stm32cubeide_1.9.0/plugins/com.st.stm32cube.ide.mcu.externaltools.stlink-gdb-server.linux64_2.0.200.202202231230/tools/bin/ST-LINK_gdbserver",
             "stm32cubeprogrammer": "/opt/stm32cubeide_1.9.0/plugins/com.st.stm32cube.ide.mcu.externaltools.cubeprogrammer.linux64_2.0.200.202202231230/tools/bin",
             "serialNumber": "530047001400004150514E4E",
-            "preLaunchCommands": [
-                "add-symbol-file ${workspaceRoot}/src/build/blackpill401ce/debug/app/blackpill401ce.elf",
-            ],
             "preLaunchTask": "[Debug] blackpill401ce"
         },
         {
@@ -92,15 +86,12 @@
             "request": "attach",
             "servertype": "bmp",
             "cwd": "${workspaceRoot}",
-            "executable": "./src/build/discovery/debug/merged/discovery.hex",
+            "executable": "./src/build/discovery/debug/app/discovery.elf",
             "interface": "swd",
             "svdFile": "${workspaceFolder}/misc/STM32F40x.svd",
             "device": "STM32F407",
             "BMPGDBSerialPort": "/dev/ttyBmpGdb",
             "targetId": 1,
-            "preLaunchCommands": [
-                "add-symbol-file ${workspaceRoot}/src/build/discovery/debug/app/discovery.elf",
-            ],
             "preLaunchTask": "[Debug] discovery"
         },
         {
@@ -109,16 +100,13 @@
             "request": "attach",
             "servertype": "stlink",
             "cwd": "${workspaceRoot}",
-            "executable": "./src/build/discovery/debug/merged/discovery.hex",
+            "executable": "./src/build/discovery/debug/app/discovery.elf",
             "interface": "swd",
             "svdFile": "${workspaceFolder}/misc/STM32F40x.svd",
             "device": "STM32F407",
             "targetId": 1,
             "stlinkPath": "/opt/stm32cubeide_1.9.0/plugins/com.st.stm32cube.ide.mcu.externaltools.stlink-gdb-server.linux64_2.0.200.202202231230/tools/bin/ST-LINK_gdbserver",
             "stm32cubeprogrammer": "/opt/stm32cubeide_1.9.0/plugins/com.st.stm32cube.ide.mcu.externaltools.cubeprogrammer.linux64_2.0.200.202202231230/tools/bin",
-            "preLaunchCommands": [
-                "add-symbol-file ${workspaceRoot}/src/build/discovery/debug/app/discovery.elf",
-            ],
             "preLaunchTask": "[Debug] discovery"
         },
         {
@@ -127,16 +115,13 @@
             "request": "attach",
             "servertype": "bmp",
             "cwd": "${workspaceRoot}",
-            "executable": "./src/build/opendeck2/debug/merged/opendeck2.hex",
+            "executable": "./src/build/opendeck2/debug/app/opendeck2.elf",
             "interface": "swd",
             "svdFile": "${workspaceFolder}/misc/STM32F40x.svd",
             "device": "STM32F405",
             "BMPGDBSerialPort": "/dev/ttyBmpGdb",
             "targetId": 1,
             "gdbPath": "arm-none-eabi-gdb",
-            "preLaunchCommands": [
-                "add-symbol-file ${workspaceRoot}/src/build/opendeck2/debug/app/opendeck2.elf",
-            ],
             "preLaunchTask": "[Debug] opendeck2"
         },
         {
@@ -145,16 +130,13 @@
             "request": "attach",
             "servertype": "stlink",
             "cwd": "${workspaceRoot}",
-            "executable": "./src/build/opendeck2/debug/merged/opendeck2.hex",
+            "executable": "./src/build/opendeck2/debug/app/opendeck2.elf",
             "interface": "swd",
             "svdFile": "${workspaceFolder}/misc/STM32F40x.svd",
             "device": "STM32F405",
             "stlinkPath": "/opt/stm32cubeide_1.9.0/plugins/com.st.stm32cube.ide.mcu.externaltools.stlink-gdb-server.linux64_2.0.200.202202231230/tools/bin/ST-LINK_gdbserver",
             "stm32cubeprogrammer": "/opt/stm32cubeide_1.9.0/plugins/com.st.stm32cube.ide.mcu.externaltools.cubeprogrammer.linux64_2.0.200.202202231230/tools/bin",
             "serialNumber": "1A4814002B135937334D4E00",
-            "preLaunchCommands": [
-                "add-symbol-file ${workspaceRoot}/src/build/opendeck2/debug/app/opendeck2.elf",
-            ],
             "preLaunchTask": "[Debug] opendeck2"
         },
         {
@@ -163,12 +145,9 @@
             "request": "attach",
             "servertype": "jlink",
             "cwd": "${workspaceRoot}",
-            "executable": "${workspaceRoot}/src/build/nrf52840dk/debug/merged/nrf52840dk.hex",
+            "executable": "${workspaceRoot}/src/build/nrf52840dk/debug/app/nrf52840dk.elf",
             "serverpath": "/usr/bin/JLinkGDBServerCLExe",
             "device": "nrf52840_xxaa",
-            "preLaunchCommands": [
-                "add-symbol-file ${workspaceRoot}/src/build/nrf52840dk/debug/app/nrf52840dk.elf",
-            ],
             "preLaunchTask": "[Debug] nrf52840dk"
         },
         {
@@ -188,16 +167,19 @@
             "preLaunchTask": "[Debug] opendeck3a"
         },
         {
-            "name": "[ATT] opendeck3a/Boot/BMP",
+            "name": "[Launch] opendeck3a/Boot/BMP",
             "type": "cortex-debug",
             "request": "launch",
             "servertype": "bmp",
             "cwd": "${workspaceRoot}",
-            "executable": "./src/build/opendeck3a/debug/boot/opendeck3a.elf",
+            "executable": "./src/build/opendeck3a/debug/merged/opendeck3a.hex",
             "interface": "swd",
             "device": "nrf52840_xxaa",
             "BMPGDBSerialPort": "/dev/ttyBmpGdb",
             "targetId": 1,
+            "preLaunchCommands": [
+                "add-symbol-file ${workspaceRoot}/src/build/opendeck3a/debug/boot/opendeck3a.elf",
+            ],
             "preLaunchTask": "[Debug] opendeck3a"
         },
     ]
