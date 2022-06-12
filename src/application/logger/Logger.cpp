@@ -22,13 +22,8 @@ limitations under the License.
 #include <stdio.h>
 #include "Logger.h"
 
-bool Logger::write(logLevel_t level, const char* message, ...)
+bool Logger::write(logLevel_t level, const char* file, int line, const char* message, ...)
 {
-    va_list args;
-    va_start(args, message);
-    vsnprintf(_logBuffer, sizeof(_logBuffer), message, args);
-    va_end(args);
-
     if (level != logLevel_t::AMOUNT)
     {
         if (!_writer.write(LOG_LEVEL_STRING[static_cast<uint8_t>(level)]))
@@ -36,6 +31,18 @@ bool Logger::write(logLevel_t level, const char* message, ...)
             return false;
         }
     }
+
+    snprintf(_logBuffer, sizeof(_logBuffer), "[%s:%d] ", file, line);
+
+    if (!_writer.write(_logBuffer))
+    {
+        return false;
+    }
+
+    va_list args;
+    va_start(args, message);
+    vsnprintf(_logBuffer, sizeof(_logBuffer), message, args);
+    va_end(args);
 
     if (!_writer.write(_logBuffer))
     {

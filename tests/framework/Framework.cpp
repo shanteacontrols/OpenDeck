@@ -17,10 +17,25 @@ class LoggerWriter : public Logger::StreamWriter
 Logger logger = Logger(_loggerWriter, Logger::lineEnding_t::CRLF);
 #endif
 
+namespace
+{
+    void glogPrefix(std::ostream& s, const google::LogMessageInfo& l, void*)
+    {
+        s << "["
+          << l.severity
+          << "] "
+          << "["
+          << l.filename
+          << ':'
+          << l.line_number
+          << "]";
+    }
+}    // namespace
+
 int main(int argc, char* argv[])
 {
     FLAGS_logtostderr = 1;
-    google::InitGoogleLogging(argv[0]);
+    google::InitGoogleLogging(argv[0], &glogPrefix);
     ::testing::InitGoogleTest(&argc, argv);
 
     LOG(INFO) << "Running tests for " << std::string(BOARD_STRING) << " board";

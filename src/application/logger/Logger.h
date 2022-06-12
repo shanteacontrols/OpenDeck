@@ -52,7 +52,7 @@ class Logger
         , LINE_ENDING(lineEnding)
     {}
 
-    bool write(logLevel_t level, const char* message, ...);
+    bool write(logLevel_t level, const char* file, int line, const char* message, ...);
 
     private:
     static constexpr size_t LOG_BUFFER_SIZE = 512;
@@ -77,9 +77,15 @@ class Logger
 
 #ifdef USE_LOGGER
 extern Logger logger;
-#define LOG_INFO(...)  logger.write(Logger::logLevel_t::INFO, __VA_ARGS__)
-#define LOG_WARN(...)  logger.write(Logger::logLevel_t::WARNING, __VA_ARGS__)
-#define LOG_ERROR(...) logger.write(Logger::logLevel_t::ERROR, __VA_ARGS__)
+
+// __FILE_NAME__ is clang specific
+#ifndef __FILE_NAME__
+#define __FILE_NAME__ __FILE__
+#endif
+
+#define LOG_INFO(...)  logger.write(Logger::logLevel_t::INFO, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define LOG_WARN(...)  logger.write(Logger::logLevel_t::WARNING, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define LOG_ERROR(...) logger.write(Logger::logLevel_t::ERROR, __FILE_NAME__, __LINE__, __VA_ARGS__)
 #else
 #define LOG_INFO(...)
 #define LOG_WARN(...)
