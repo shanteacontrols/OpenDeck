@@ -22,7 +22,6 @@ clang \
 ca-certificates \
 sudo \
 bash-completion \
-libgoogle-glog-dev \
 ccache \
 unzip \
 cmake \
@@ -104,6 +103,19 @@ make && \
 make install && \
 cd ../../ && \
 rm -rf googletest
+
+#use newer version of glog
+RUN \
+cd /opendeck-deps && \
+git clone https://github.com/google/glog.git && \
+cd glog && \
+git checkout v0.6.0 && \
+cmake -S . -B build -G "Unix Makefiles" && \
+cmake --build build && \
+cmake --build build --target install && \
+cd ../ && \
+rm -rf glog && \
+ldconfig
 
 RUN \
 pip install compiledb
