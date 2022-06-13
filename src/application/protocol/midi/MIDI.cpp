@@ -75,15 +75,15 @@ Protocol::MIDI::MIDI(HWAUSB&             hwaUSB,
                               }
                               break;
 
+                              case Messaging::systemMessage_t::PRESET_CHANGED:
+                              {
+                                  init();
+                              }
+                              break;
+
                               default:
                                   break;
                               }
-                          });
-
-    MIDIDispatcher.listen(Messaging::eventType_t::PRESET,
-                          [this](const Messaging::event_t& event)
-                          {
-                              init();
                           });
 
     ConfigHandler.registerConfig(
@@ -315,7 +315,6 @@ void Protocol::MIDI::read()
             case messageType_t::PROGRAM_CHANGE:
             {
                 MIDIProgram.setProgram(event.channel, event.index);
-                _database.setPreset(event.index);
             }
             break;
 

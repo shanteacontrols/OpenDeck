@@ -43,7 +43,15 @@ Instance::Instance(HWA&        hwa,
     MIDIDispatcher.listen(Messaging::eventType_t::MIDI_IN,
                           [this](const Messaging::event_t& event)
                           {
-                              if (event.message == MIDI::messageType_t::SYS_EX)
+                              switch (event.message)
+                              {
+                              case MIDI::messageType_t::PROGRAM_CHANGE:
+                              {
+                                  _components.database().setPreset(event.index);
+                              }
+                              break;
+
+                              case MIDI::messageType_t::SYS_EX:
                               {
                                   _sysExConf.handleMessage(event.sysEx, event.sysExLength);
 
@@ -51,6 +59,39 @@ Instance::Instance(HWA&        hwa,
                                   {
                                       backup();
                                   }
+                              }
+                              break;
+
+                              default:
+                                  break;
+                              }
+                          });
+
+    MIDIDispatcher.listen(Messaging::eventType_t::SYSTEM,
+                          [this](const Messaging::event_t& event)
+                          {
+                              switch (event.systemMessage)
+                              {
+                              case Messaging::systemMessage_t::PRESET_CHANGE_INC_REQ:
+                              {
+                                  _components.database().setPreset(_components.database().getPreset() + 1);
+                              }
+                              break;
+
+                              case Messaging::systemMessage_t::PRESET_CHANGE_DEC_REQ:
+                              {
+                                  _components.database().setPreset(_components.database().getPreset() - 1);
+                              }
+                              break;
+
+                              case Messaging::systemMessage_t::PRESET_CHANGE_DIRECT_REQ:
+                              {
+                                  _components.database().setPreset(event.index);
+                              }
+                              break;
+
+                              default:
+                                  break;
                               }
                           });
 }
@@ -499,9 +540,9 @@ void Instance::DBhandlers::presetChange(uint8_t preset)
                                               event.channel        = 0;
                                               event.index          = _system._components.database().getPreset();
                                               event.value          = 0;
-                                              event.message        = MIDI::messageType_t::PROGRAM_CHANGE;
+                                              event.systemMessage  = Messaging::systemMessage_t::PRESET_CHANGED;
 
-                                              MIDIDispatcher.notify(Messaging::eventType_t::PRESET, event);
+                                              MIDIDispatcher.notify(Messaging::eventType_t::SYSTEM, event);
 
                                               _system.forceComponentRefresh();
                                           } });

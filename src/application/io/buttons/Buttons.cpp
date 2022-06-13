@@ -184,7 +184,9 @@ void Buttons::processButton(size_t index, bool reading, buttonDescriptor_t& desc
     // don't process messageType_t::NONE type of message
     if (descriptor.messageType != messageType_t::NONE)
     {
-        if (descriptor.messageType == messageType_t::PRESET_OPEN_DECK)
+        bool send = true;
+
+        if (descriptor.messageType == messageType_t::PRESET_CHANGE)
         {
             // change preset only on press
             if (reading)
@@ -192,13 +194,10 @@ void Buttons::processButton(size_t index, bool reading, buttonDescriptor_t& desc
                 // don't send off message once the preset is switched (in case this button has standard message type in switched preset)
                 // pretend the button is already released
                 setState(index, false);
-                _database.setPreset(descriptor.event.index);
             }
         }
         else
         {
-            bool sendMIDI = true;
-
             if (descriptor.type == type_t::LATCHING)
             {
                 // act on press only
@@ -218,14 +217,14 @@ void Buttons::processButton(size_t index, bool reading, buttonDescriptor_t& desc
                 }
                 else
                 {
-                    sendMIDI = false;
+                    send = false;
                 }
             }
+        }
 
-            if (sendMIDI)
-            {
-                sendMessage(index, reading, descriptor);
-            }
+        if (send)
+        {
+            sendMessage(index, reading, descriptor);
         }
     }
 }
@@ -418,6 +417,13 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
         }
         break;
 
+        case messageType_t::PRESET_CHANGE:
+        {
+            eventType                      = Messaging::eventType_t::SYSTEM;
+            descriptor.event.systemMessage = Messaging::systemMessage_t::PRESET_CHANGE_DIRECT_REQ;
+        }
+        break;
+
         default:
         {
             send = false;
@@ -552,7 +558,7 @@ void Buttons::fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor)
     case messageType_t::MULTI_VAL_INC_RESET_CC:
     case messageType_t::MULTI_VAL_INC_DEC_CC:
     case messageType_t::DMX:
-    case messageType_t::PRESET_OPEN_DECK:
+    case messageType_t::PRESET_CHANGE:
     case messageType_t::PROGRAM_CHANGE_OFFSET_INC:
     case messageType_t::PROGRAM_CHANGE_OFFSET_DEC:
     {

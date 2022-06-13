@@ -663,48 +663,28 @@ TEST_F(ButtonsTest, PresetChange)
         return;
     }
 
-    class DBhandlers : public Database::Instance::Handlers
-    {
-        public:
-        DBhandlers() = default;
-
-        void presetChange(uint8_t preset) override
-        {
-            _preset = preset;
-        }
-
-        void factoryResetStart() override
-        {
-        }
-
-        void factoryResetDone() override
-        {
-        }
-
-        void initialized() override
-        {
-        }
-
-        uint8_t _preset = 0;
-    } _dbHandlers;
-
-    _buttons._database.registerHandlers(_dbHandlers);
+    MIDIDispatcher.listen(Messaging::eventType_t::SYSTEM,
+                          [this](const Messaging::event_t& dispatchMessage)
+                          {
+                              _listener.messageListener(dispatchMessage);
+                          });
 
     // configure one button to change preset
     static constexpr size_t BUTTON_INDEX = 0;
 
     ASSERT_TRUE(_buttons._database.update(Database::Config::Section::button_t::MIDI_ID, BUTTON_INDEX, 1));
-    ASSERT_TRUE(_buttons._database.update(Database::Config::Section::button_t::MESSAGE_TYPE, BUTTON_INDEX, Buttons::messageType_t::PRESET_OPEN_DECK));
+    ASSERT_TRUE(_buttons._database.update(Database::Config::Section::button_t::MESSAGE_TYPE, BUTTON_INDEX, Buttons::messageType_t::PRESET_CHANGE));
     _buttons._instance.reset(BUTTON_INDEX);
 
     // simulate button press
-    stateChangeRegisterAll(true);
-    ASSERT_EQ(1, _dbHandlers._preset);
-    _dbHandlers._preset = 0;
+    stateChangeRegisterSingle(BUTTON_INDEX, true);
 
-    // verify that preset is unchanged after the button is released
-    stateChangeRegisterAll(false);
-    ASSERT_EQ(0, _dbHandlers._preset);
+    ASSERT_EQ(1, _listener._event.size());
+    ASSERT_EQ(Messaging::systemMessage_t::PRESET_CHANGE_DIRECT_REQ, _listener._event.at(0).systemMessage);
+
+    // verify that no new events are generated on button release
+    stateChangeRegisterSingle(BUTTON_INDEX, false);
+    ASSERT_EQ(0, _listener._event.size());
 }
 
 #endif

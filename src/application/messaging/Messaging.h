@@ -33,7 +33,6 @@ namespace Messaging
         TOUCHSCREEN_SCREEN,
         TOUCHSCREEN_LED,
         MIDI_IN,
-        PRESET,
         PROGRAM,
         SYSTEM,
         DMX_ANALOG,
@@ -46,7 +45,11 @@ namespace Messaging
     {
         FORCE_IO_REFRESH,
         SYS_EX_RESPONSE,
-        MIDI_PROGRAM_OFFSET_CHANGE
+        MIDI_PROGRAM_OFFSET_CHANGE,
+        PRESET_CHANGE_INC_REQ,
+        PRESET_CHANGE_DEC_REQ,
+        PRESET_CHANGE_DIRECT_REQ,
+        PRESET_CHANGED
     };
 
     struct event_t

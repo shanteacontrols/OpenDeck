@@ -204,161 +204,129 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
             encoderDescriptor_t descriptor;
             fillEncoderDescriptor(index, descriptor);
 
-            bool    send  = true;
-            uint8_t steps = (_encoderSpeed[index] > 0) ? _encoderSpeed[index] : 1;
-
-            switch (descriptor.type)
-            {
-            case type_t::CONTROL_CHANGE_7FH01H:
-            case type_t::CONTROL_CHANGE_3FH41H:
-            {
-                descriptor.event.value = ENC_VALUE[static_cast<uint8_t>(descriptor.type)][static_cast<uint8_t>(encoderState)];
-            }
-            break;
-
-            case type_t::PROGRAM_CHANGE:
-            {
-                if (encoderState == position_t::CCW)
-                {
-                    if (!MIDIProgram.incrementProgram(descriptor.event.channel, 1))
-                    {
-                        send = false;    // edge value reached, nothing more to send
-                    }
-                }
-                else
-                {
-                    if (!MIDIProgram.decrementProgram(descriptor.event.channel, 1))
-                    {
-                        send = false;    // edge value reached, nothing more to send
-                    }
-                }
-
-                descriptor.event.value = MIDIProgram.program(descriptor.event.channel);
-            }
-            break;
-
-            case type_t::CONTROL_CHANGE:
-            case type_t::PITCH_BEND:
-            case type_t::NRPN_7BIT:
-            case type_t::NRPN_14BIT:
-            case type_t::CONTROL_CHANGE_14BIT:
-            case type_t::DMX:
-            {
-                const bool USE_14BIT =
-                    ((descriptor.type == type_t::PITCH_BEND) || (descriptor.type == type_t::NRPN_14BIT) || (descriptor.type == type_t::CONTROL_CHANGE_14BIT));
-
-                if (USE_14BIT && (steps > 1))
-                {
-                    steps <<= 2;
-                }
-
-                if (encoderState == position_t::CCW)
-                {
-                    // ValueIncDecMIDI7Bit is used, but any type can be used when decrementing since the limit is 0 for all of them
-                    _value[index] = ValueIncDecMIDI7Bit::decrement(_value[index],
-                                                                   steps,
-                                                                   ValueIncDecMIDI7Bit::type_t::EDGE);
-                }
-                else
-                {
-                    switch (descriptor.type)
-                    {
-                    case type_t::DMX:
-                    {
-                        _value[index] = ValueIncDecDMX::increment(_value[index],
-                                                                  steps,
-                                                                  ValueIncDecDMX::type_t::EDGE);
-                    }
-                    break;
-
-                    case type_t::CONTROL_CHANGE:
-                    case type_t::NRPN_7BIT:
-                    {
-                        _value[index] = ValueIncDecMIDI7Bit::increment(_value[index],
-                                                                       steps,
-                                                                       ValueIncDecMIDI7Bit::type_t::EDGE);
-                    }
-                    break;
-
-                    case type_t::PITCH_BEND:
-                    case type_t::NRPN_14BIT:
-                    case type_t::CONTROL_CHANGE_14BIT:
-                    {
-                        _value[index] = ValueIncDecMIDI14Bit::increment(_value[index],
-                                                                        steps,
-                                                                        ValueIncDecMIDI14Bit::type_t::EDGE);
-                    }
-                    break;
-
-                    default:
-                        break;
-                    }
-                }
-
-                if (descriptor.type == type_t::DMX)
-                {
-                    descriptor.event.index = 0;    // irrelevant
-                }
-
-                descriptor.event.value = _value[index];
-            }
-            break;
-
-            case type_t::PRESET_CHANGE:
-            {
-                send           = false;
-                uint8_t preset = _database.getPreset();
-                preset += (encoderState == position_t::CW) ? 1 : -1;
-
-                _database.setPreset(preset);
-            }
-            break;
-
-            default:
-            {
-                send = false;
-            }
-            break;
-            }
-
-            if (send)
-            {
-                sendMessage(index, descriptor);
-            }
+            sendMessage(index, encoderState, descriptor);
         }
     }
 }
 
-void Encoders::sendMessage(size_t index, encoderDescriptor_t& descriptor)
+void Encoders::sendMessage(size_t index, position_t encoderState, encoderDescriptor_t& descriptor)
 {
-    bool send      = true;
-    auto eventType = Messaging::eventType_t::ENCODER;
+    auto    eventType = Messaging::eventType_t::ENCODER;
+    bool    send      = true;
+    uint8_t steps     = (_encoderSpeed[index] > 0) ? _encoderSpeed[index] : 1;
 
     switch (descriptor.type)
     {
     case type_t::CONTROL_CHANGE_7FH01H:
     case type_t::CONTROL_CHANGE_3FH41H:
+    {
+        descriptor.event.value = ENC_VALUE[static_cast<uint8_t>(descriptor.type)][static_cast<uint8_t>(encoderState)];
+    }
+    break;
+
     case type_t::PROGRAM_CHANGE:
+    {
+        if (encoderState == position_t::CCW)
+        {
+            if (!MIDIProgram.incrementProgram(descriptor.event.channel, 1))
+            {
+                send = false;    // edge value reached, nothing more to send
+            }
+        }
+        else
+        {
+            if (!MIDIProgram.decrementProgram(descriptor.event.channel, 1))
+            {
+                send = false;    // edge value reached, nothing more to send
+            }
+        }
+
+        descriptor.event.value = MIDIProgram.program(descriptor.event.channel);
+    }
+    break;
+
     case type_t::CONTROL_CHANGE:
     case type_t::PITCH_BEND:
     case type_t::NRPN_7BIT:
     case type_t::NRPN_14BIT:
-        break;
-
     case type_t::CONTROL_CHANGE_14BIT:
+    case type_t::DMX:
     {
-        if (descriptor.event.index >= 96)
+        const bool USE_14BIT =
+            ((descriptor.type == type_t::PITCH_BEND) || (descriptor.type == type_t::NRPN_14BIT) || (descriptor.type == type_t::CONTROL_CHANGE_14BIT));
+
+        if (USE_14BIT && (steps > 1))
         {
-            // not allowed
-            send = false;
-            break;
+            steps <<= 2;
         }
+
+        if (encoderState == position_t::CCW)
+        {
+            // ValueIncDecMIDI7Bit is used, but any type can be used when decrementing since the limit is 0 for all of them
+            _value[index] = ValueIncDecMIDI7Bit::decrement(_value[index],
+                                                           steps,
+                                                           ValueIncDecMIDI7Bit::type_t::EDGE);
+        }
+        else
+        {
+            switch (descriptor.type)
+            {
+            case type_t::DMX:
+            {
+                _value[index] = ValueIncDecDMX::increment(_value[index],
+                                                          steps,
+                                                          ValueIncDecDMX::type_t::EDGE);
+            }
+            break;
+
+            case type_t::CONTROL_CHANGE:
+            case type_t::NRPN_7BIT:
+            {
+                _value[index] = ValueIncDecMIDI7Bit::increment(_value[index],
+                                                               steps,
+                                                               ValueIncDecMIDI7Bit::type_t::EDGE);
+            }
+            break;
+
+            case type_t::PITCH_BEND:
+            case type_t::NRPN_14BIT:
+            case type_t::CONTROL_CHANGE_14BIT:
+            {
+                _value[index] = ValueIncDecMIDI14Bit::increment(_value[index],
+                                                                steps,
+                                                                ValueIncDecMIDI14Bit::type_t::EDGE);
+            }
+            break;
+
+            default:
+                break;
+            }
+        }
+
+        if (descriptor.type == type_t::DMX)
+        {
+            eventType              = Messaging::eventType_t::DMX_ENCODER;
+            descriptor.event.index = 0;    // irrelevant
+        }
+        else if (descriptor.type == type_t::CONTROL_CHANGE_14BIT)
+        {
+            if (descriptor.event.index >= 96)
+            {
+                // not allowed
+                send = false;
+            }
+        }
+
+        descriptor.event.value = _value[index];
     }
     break;
 
-    case type_t::DMX:
+    case type_t::PRESET_CHANGE:
     {
-        eventType = Messaging::eventType_t::DMX_ENCODER;
+        eventType                      = Messaging::eventType_t::SYSTEM;
+        descriptor.event.systemMessage = (encoderState == position_t::CW)
+                                             ? Messaging::systemMessage_t::PRESET_CHANGE_INC_REQ
+                                             : Messaging::systemMessage_t::PRESET_CHANGE_DEC_REQ;
     }
     break;
 
@@ -440,9 +408,7 @@ Encoders::position_t Encoders::read(size_t index, uint8_t pairState)
 
 void Encoders::fillEncoderDescriptor(size_t index, encoderDescriptor_t& descriptor)
 {
-    descriptor.type          = static_cast<type_t>(_database.read(Database::Config::Section::encoder_t::MODE, index));
-    descriptor.pulsesPerStep = _database.read(Database::Config::Section::encoder_t::PULSES_PER_STEP, index);
-
+    descriptor.type                 = static_cast<type_t>(_database.read(Database::Config::Section::encoder_t::MODE, index));
     descriptor.event.componentIndex = index;
     descriptor.event.channel        = _database.read(Database::Config::Section::encoder_t::CHANNEL, index);
     descriptor.event.index          = _database.read(Database::Config::Section::encoder_t::MIDI_ID, index);

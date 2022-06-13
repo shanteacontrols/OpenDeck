@@ -75,7 +75,7 @@ namespace IO
             PROGRAM_CHANGE_INC,
             PROGRAM_CHANGE_DEC,
             NONE,
-            PRESET_OPEN_DECK,
+            PRESET_CHANGE,
             MULTI_VAL_INC_RESET_NOTE,
             MULTI_VAL_INC_DEC_NOTE,
             MULTI_VAL_INC_RESET_CC,

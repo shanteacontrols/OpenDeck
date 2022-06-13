@@ -32,12 +32,22 @@ Protocol::DMX::DMX(HWA& hwa, Database::Instance& database)
     , _hwa(hwa)
     , _database(database)
 {
-    MIDIDispatcher.listen(Messaging::eventType_t::PRESET,
+    MIDIDispatcher.listen(Messaging::eventType_t::SYSTEM,
                           [this](const Messaging::event_t& event)
                           {
-                              if (!init())
+                              switch (event.systemMessage)
                               {
-                                  deInit();
+                              case Messaging::systemMessage_t::PRESET_CHANGED:
+                              {
+                                  if (!init())
+                                  {
+                                      deInit();
+                                  }
+                              }
+                              break;
+
+                              default:
+                                  break;
                               }
                           });
 

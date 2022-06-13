@@ -41,12 +41,22 @@ Touchscreen::Touchscreen(HWA&                hwa,
                               setIconState(event.componentIndex, event.value);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::PRESET,
+    MIDIDispatcher.listen(Messaging::eventType_t::SYSTEM,
                           [this](const Messaging::event_t& event)
                           {
-                              if (!init(mode_t::NORMAL))
+                              switch (event.systemMessage)
                               {
-                                  deInit(mode_t::NORMAL);
+                              case Messaging::systemMessage_t::PRESET_CHANGED:
+                              {
+                                  if (!init(mode_t::NORMAL))
+                                  {
+                                      deInit(mode_t::NORMAL);
+                                  }
+                              }
+                              break;
+
+                              default:
+                                  break;
                               }
                           });
 

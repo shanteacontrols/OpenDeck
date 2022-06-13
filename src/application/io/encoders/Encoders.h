@@ -106,8 +106,7 @@ namespace IO
         private:
         struct encoderDescriptor_t
         {
-            type_t             type          = type_t::CONTROL_CHANGE_7FH01H;
-            uint8_t            pulsesPerStep = 0;
+            type_t             type = type_t::CONTROL_CHANGE_7FH01H;
             Messaging::event_t event;
 
             encoderDescriptor_t() = default;
@@ -116,7 +115,7 @@ namespace IO
         void                   fillEncoderDescriptor(size_t index, encoderDescriptor_t& descriptor);
         position_t             read(size_t index, uint8_t pairState);
         void                   processReading(size_t index, uint8_t pairValue, uint32_t sampleTime);
-        void                   sendMessage(size_t index, encoderDescriptor_t& descriptor);
+        void                   sendMessage(size_t index, position_t encoderState, encoderDescriptor_t& descriptor);
         void                   setValue(size_t index, uint16_t value);
         std::optional<uint8_t> sysConfigGet(System::Config::Section::encoder_t section, size_t index, uint16_t& value);
         std::optional<uint8_t> sysConfigSet(System::Config::Section::encoder_t section, size_t index, uint16_t value);
