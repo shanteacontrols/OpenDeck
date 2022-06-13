@@ -29,8 +29,8 @@ limitations under the License.
 
 using namespace IO;
 
-LEDs::LEDs(HWA&                hwa,
-           Database::Instance& database)
+LEDs::LEDs(HWA&      hwa,
+           Database& database)
     : _hwa(hwa)
     , _database(database)
 {

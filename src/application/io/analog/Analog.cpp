@@ -28,9 +28,9 @@ limitations under the License.
 
 using namespace IO;
 
-Analog::Analog(HWA&                hwa,
-               Filter&             filter,
-               Database::Instance& database)
+Analog::Analog(HWA&      hwa,
+               Filter&   filter,
+               Database& database)
     : _hwa(hwa)
     , _filter(filter)
     , _database(database)

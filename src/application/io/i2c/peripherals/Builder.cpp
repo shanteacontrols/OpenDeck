@@ -23,7 +23,7 @@ limitations under the License.
 using namespace IO;
 
 I2CPeripheralBuilder::I2CPeripheralBuilder(I2C::Peripheral::HWA& displayHWA,
-                                           Database::Instance&   database)
+                                           DisplayDatabase&      database)
     : _display(displayHWA, database)
 {}
 

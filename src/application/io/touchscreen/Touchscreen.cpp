@@ -28,9 +28,9 @@ using namespace IO;
 
 std::array<Touchscreen::Model*, static_cast<size_t>(Touchscreen::model_t::AMOUNT)> Touchscreen::_models;
 
-Touchscreen::Touchscreen(HWA&                hwa,
-                         Database::Instance& database,
-                         CDCPassthrough&     cdcPassthrough)
+Touchscreen::Touchscreen(HWA&            hwa,
+                         Database&       database,
+                         CDCPassthrough& cdcPassthrough)
     : _hwa(hwa)
     , _database(database)
     , _cdcPassthrough(cdcPassthrough)

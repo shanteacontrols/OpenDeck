@@ -43,7 +43,7 @@ namespace
 I2C::Peripheral::HWA* Display::_hwa;
 
 Display::Display(I2C::Peripheral::HWA& hwa,
-                 Database::Instance&   database)
+                 Database&             database)
     : _database(database)
 {
     _hwa = &hwa;

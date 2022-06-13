@@ -32,7 +32,7 @@ total_components=$($json_parser "$json_file" components --length)
 
 {
     printf "%s\n\n" "#include \"database/Database.h\""
-    printf "%s\n" "void Database::Instance::customInitTouchscreen()"
+    printf "%s\n" "void Database::Admin::customInitTouchscreen()"
     printf "%s\n" "{"
 } > "$out_file"
 

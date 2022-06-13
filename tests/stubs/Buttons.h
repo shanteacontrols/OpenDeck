@@ -13,8 +13,9 @@ class TestButtons
     TestDatabase _testDatabase;
 
     public:
-    Database::Instance& _database = _testDatabase._instance;
-    HWAButtons          _hwa;
-    ButtonsFilterStub   _filter;
-    IO::Buttons         _instance = IO::Buttons(_hwa, _filter, _database);
+    Database::Admin&      _databaseAdmin = _testDatabase._instance;
+    IO::Buttons::Database _database      = IO::Buttons::Database(_testDatabase._instance);
+    HWAButtons            _hwa;
+    ButtonsFilterStub     _filter;
+    IO::Buttons           _instance = IO::Buttons(_hwa, _filter, _database);
 };

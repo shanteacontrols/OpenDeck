@@ -26,8 +26,10 @@ namespace IO
     class I2CPeripheralBuilder
     {
         public:
+        using DisplayDatabase = Database::User<Database::Config::Section::i2c_t>;
+
         I2CPeripheralBuilder(I2C::Peripheral::HWA& displayHWA,
-                             Database::Instance&   database)
+                             DisplayDatabase&      database)
         {}
     };
 }    // namespace IO

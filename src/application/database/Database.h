@@ -18,13 +18,14 @@ limitations under the License.
 
 #pragma once
 
+#include <type_traits>
 #include "dbms/src/LESSDB.h"
 #include "system/Config.h"
 #include "Config.h"
 
 namespace Database
 {
-    class Instance : public LESSDB
+    class Admin : public LESSDB
     {
         public:
         class Handlers
@@ -53,9 +54,9 @@ namespace Database
             virtual std::vector<Block>& layout(type_t type) = 0;
         };
 
-        Instance(LESSDB::StorageAccess& storageAccess,
-                 Layout&                layout,
-                 bool                   initializeData);
+        Admin(LESSDB::StorageAccess& storageAccess,
+              Layout&                layout,
+              bool                   initializeData);
 
         using sectionParameterType_t = LESSDB::sectionParameterType_t;
         using LESSDB::read;
@@ -105,42 +106,42 @@ namespace Database
         bool    setPresetPreserveState(bool state);
         bool    getPresetPreserveState();
 
-        private:
-        Config::block_t block(Config::Section::global_t section)
+        static constexpr Config::block_t block(Config::Section::global_t section)
         {
             return Config::block_t::GLOBAL;
         }
 
-        Config::block_t block(Config::Section::button_t section)
+        static constexpr Config::block_t block(Config::Section::button_t section)
         {
             return Config::block_t::BUTTONS;
         }
 
-        Config::block_t block(Config::Section::encoder_t section)
+        static constexpr Config::block_t block(Config::Section::encoder_t section)
         {
             return Config::block_t::ENCODERS;
         }
 
-        Config::block_t block(Config::Section::analog_t section)
+        static constexpr Config::block_t block(Config::Section::analog_t section)
         {
             return Config::block_t::ANALOG;
         }
 
-        Config::block_t block(Config::Section::leds_t section)
+        static constexpr Config::block_t block(Config::Section::leds_t section)
         {
             return Config::block_t::LEDS;
         }
 
-        Config::block_t block(Config::Section::i2c_t section)
+        static constexpr Config::block_t block(Config::Section::i2c_t section)
         {
             return Config::block_t::I2C;
         }
 
-        Config::block_t block(Config::Section::touchscreen_t section)
+        static constexpr Config::block_t block(Config::Section::touchscreen_t section)
         {
             return Config::block_t::TOUCHSCREEN;
         }
 
+        private:
         void                   customInitGlobal();
         void                   customInitButtons();
         void                   customInitEncoders();
@@ -176,5 +177,55 @@ namespace Database
         uint16_t _uid = 0;
 
         bool _initialized = false;
+    };
+
+    template<typename... sections>
+    class User
+    {
+        public:
+        User(Admin& admin)
+            : _admin(admin)
+        {}
+
+        using Config = Database::Config;
+
+        template<typename T, typename I>
+        typename std::enable_if<(std::is_same_v<T, sections> || ...), int32_t>::type
+        read(T section, I index)
+        {
+            auto blockIndex = Admin::block(section);
+            auto value      = _admin.read(static_cast<uint8_t>(blockIndex),
+                                     static_cast<uint8_t>(section),
+                                     static_cast<size_t>(index));
+
+            return value;
+        }
+
+        template<typename T, typename I>
+        typename std::enable_if<(std::is_same_v<T, sections> || ...), bool>::type
+        read(T section, I index, int32_t& value)
+        {
+            auto blockIndex = Admin::block(section);
+            return _admin.read(static_cast<uint8_t>(blockIndex),
+                               static_cast<uint8_t>(section),
+                               static_cast<size_t>(index),
+                               value);
+        }
+
+        template<typename T, typename I, typename V>
+        typename std::enable_if<(std::is_same_v<T, sections> || ...), bool>::type
+        update(T section, I index, V value)
+        {
+            auto blockIndex = Admin::block(section);
+            auto newValue   = static_cast<int32_t>(value);
+
+            return _admin.update(static_cast<uint8_t>(blockIndex),
+                                 static_cast<uint8_t>(section),
+                                 static_cast<size_t>(index),
+                                 newValue);
+        }
+
+        private:
+        Admin& _admin;
     };
 }    // namespace Database

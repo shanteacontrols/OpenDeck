@@ -12,7 +12,8 @@ class TestLEDs
     TestDatabase _testDatabase;
 
     public:
-    Database::Instance& _database = _testDatabase._instance;
-    HWALEDs             _hwa;
-    IO::LEDs            _instance = IO::LEDs(_hwa, _database);
+    Database::Admin&   _databaseAdmin = _testDatabase._instance;
+    IO::LEDs::Database _database      = IO::LEDs::Database(_testDatabase._instance);
+    HWALEDs            _hwa;
+    IO::LEDs           _instance = IO::LEDs(_hwa, _database);
 };

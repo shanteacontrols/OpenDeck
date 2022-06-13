@@ -79,25 +79,25 @@ class HWADatabase : public System::Builder::HWA::Database
         return Board::NVM::clear(0, Board::NVM::size());
     }
 
-    bool read(uint32_t address, int32_t& value, Database::Instance::sectionParameterType_t type) override
+    bool read(uint32_t address, int32_t& value, Database::Admin::sectionParameterType_t type) override
     {
         return Board::NVM::read(address, value, boardParamType(type));
     }
 
-    bool write(uint32_t address, int32_t value, Database::Instance::sectionParameterType_t type) override
+    bool write(uint32_t address, int32_t value, Database::Admin::sectionParameterType_t type) override
     {
         return Board::NVM::write(address, value, boardParamType(type));
     }
 
     private:
-    Board::NVM::parameterType_t boardParamType(Database::Instance::sectionParameterType_t type)
+    Board::NVM::parameterType_t boardParamType(Database::Admin::sectionParameterType_t type)
     {
         switch (type)
         {
-        case Database::Instance::sectionParameterType_t::WORD:
+        case Database::Admin::sectionParameterType_t::WORD:
             return Board::NVM::parameterType_t::WORD;
 
-        case Database::Instance::sectionParameterType_t::DWORD:
+        case Database::Admin::sectionParameterType_t::DWORD:
             return Board::NVM::parameterType_t::DWORD;
 
         default:

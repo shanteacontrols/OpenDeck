@@ -63,8 +63,10 @@ namespace IO
             AMOUNT
         };
 
+        using Database = Database::User<Database::Config::Section::i2c_t>;
+
         Display(I2C::Peripheral::HWA& hwa,
-                Database::Instance&   database);
+                Database&             database);
 
         bool init() override;
         void update() override;
@@ -84,7 +86,7 @@ namespace IO
         std::optional<uint8_t> sysConfigGet(System::Config::Section::i2c_t section, size_t index, uint16_t& value);
         std::optional<uint8_t> sysConfigSet(System::Config::Section::i2c_t section, size_t index, uint16_t value);
 
-        Database::Instance&          _database;
+        Database&                    _database;
         u8x8_t                       _u8x8;
         static I2C::Peripheral::HWA* _hwa;
 

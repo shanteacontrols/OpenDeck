@@ -90,9 +90,11 @@ namespace IO
             virtual void     reset(size_t index)                                = 0;
         };
 
-        Analog(HWA&                hwa,
-               Filter&             filter,
-               Database::Instance& database);
+        using Database = Database::User<Database::Config::Section::analog_t>;
+
+        Analog(HWA&      hwa,
+               Filter&   filter,
+               Database& database);
 
         bool   init() override;
         void   updateSingle(size_t index, bool forceRefresh = false) override;
@@ -125,9 +127,9 @@ namespace IO
         std::optional<uint8_t> sysConfigGet(System::Config::Section::analog_t section, size_t index, uint16_t& value);
         std::optional<uint8_t> sysConfigSet(System::Config::Section::analog_t section, size_t index, uint16_t value);
 
-        HWA&                _hwa;
-        Filter&             _filter;
-        Database::Instance& _database;
+        HWA&      _hwa;
+        Filter&   _filter;
+        Database& _database;
 
         uint8_t _fsrPressed[Collection::size() / 8 + 1] = {};
 

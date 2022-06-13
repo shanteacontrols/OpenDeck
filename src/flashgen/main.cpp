@@ -262,7 +262,7 @@ namespace
     } _storageAccess;
 
     Database::AppLayout _layout;
-    Database::Instance  _database(_storageAccess, _layout, true);
+    Database::Admin     _database(_storageAccess, _layout, true);
 }    // namespace
 
 int main(int argc, char* argv[])

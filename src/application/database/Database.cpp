@@ -30,9 +30,9 @@ limitations under the License.
             LESSDB::setLayout(_layout.layout(Layout::type_t::USER), _userDataStartAddress + (_lastPresetAddress * _activePreset)); \
     }
 
-Database::Instance::Instance(LESSDB::StorageAccess& storageAccess,
-                             Layout&                layout,
-                             bool                   initializeData)
+Database::Admin::Admin(LESSDB::StorageAccess& storageAccess,
+                       Layout&                layout,
+                       bool                   initializeData)
     : LESSDB(storageAccess)
     , _layout(layout)
     , INITIALIZE_DATA(initializeData)
@@ -52,13 +52,13 @@ Database::Instance::Instance(LESSDB::StorageAccess& storageAccess,
         });
 }
 
-bool Database::Instance::init(Handlers& handlers)
+bool Database::Admin::init(Handlers& handlers)
 {
     registerHandlers(handlers);
     return init();
 }
 
-bool Database::Instance::init()
+bool Database::Admin::init()
 {
     if (!LESSDB::init())
     {
@@ -140,13 +140,13 @@ bool Database::Instance::init()
     return retVal;
 }
 
-bool Database::Instance::isInitialized()
+bool Database::Admin::isInitialized()
 {
     return _initialized;
 }
 
 /// Performs full factory reset of data in database.
-bool Database::Instance::factoryReset()
+bool Database::Admin::factoryReset()
 {
     if (_handlers != nullptr)
     {
@@ -224,7 +224,7 @@ bool Database::Instance::factoryReset()
 /// Used to set new database layout (preset).
 /// param [in]: preset  New preset to set.
 /// returns: False if specified preset isn't supported, true otherwise.
-bool Database::Instance::setPreset(uint8_t preset)
+bool Database::Admin::setPreset(uint8_t preset)
 {
     if (preset >= _supportedPresets)
     {
@@ -256,7 +256,7 @@ bool Database::Instance::setPreset(uint8_t preset)
 /// For internal use only.
 /// param [in]: preset  New preset to set.
 /// returns: False if specified preset isn't supported, true otherwise.
-bool Database::Instance::setPresetInternal(uint8_t preset)
+bool Database::Admin::setPresetInternal(uint8_t preset)
 {
     if (preset >= _supportedPresets)
     {
@@ -270,14 +270,14 @@ bool Database::Instance::setPresetInternal(uint8_t preset)
 }
 
 /// Retrieves currently active preset.
-uint8_t Database::Instance::getPreset()
+uint8_t Database::Admin::getPreset()
 {
     return _activePreset;
 }
 
 /// Retrieves number of presets possible to store in database.
 /// Preset is simply another database layout copy.
-uint8_t Database::Instance::getSupportedPresets()
+uint8_t Database::Admin::getSupportedPresets()
 {
     return _supportedPresets;
 }
@@ -285,7 +285,7 @@ uint8_t Database::Instance::getSupportedPresets()
 /// Enables or disables preservation of preset setting.
 /// If preservation is enabled, configured preset will be loaded on board power on.
 /// Otherwise, first preset will be loaded instead.
-bool Database::Instance::setPresetPreserveState(bool state)
+bool Database::Admin::setPresetPreserveState(bool state)
 {
     bool retVal;
 
@@ -300,7 +300,7 @@ bool Database::Instance::setPresetPreserveState(bool state)
 
 /// Checks if preset preservation setting is enabled or disabled.
 /// returns: True if preset preservation is enabled, false otherwise.
-bool Database::Instance::getPresetPreserveState()
+bool Database::Admin::getPresetPreserveState()
 {
     bool retVal;
 
@@ -314,7 +314,7 @@ bool Database::Instance::getPresetPreserveState()
 
 /// Checks if database has been already initialized by checking DB_BLOCK_ID.
 /// returns: True if valid, false otherwise.
-bool Database::Instance::isSignatureValid()
+bool Database::Admin::isSignatureValid()
 {
     uint16_t signature;
 
@@ -328,7 +328,7 @@ bool Database::Instance::isSignatureValid()
 
 /// Updates unique database UID.
 /// UID is written to first two database locations.
-bool Database::Instance::setUID()
+bool Database::Admin::setUID()
 {
     bool retVal;
 
@@ -338,12 +338,12 @@ bool Database::Instance::setUID()
     return retVal;
 }
 
-void Database::Instance::registerHandlers(Handlers& handlers)
+void Database::Admin::registerHandlers(Handlers& handlers)
 {
     _handlers = &handlers;
 }
 
-std::optional<uint8_t> Database::Instance::sysConfigGet(System::Config::Section::global_t section, size_t index, uint16_t& value)
+std::optional<uint8_t> Database::Admin::sysConfigGet(System::Config::Section::global_t section, size_t index, uint16_t& value)
 {
     int32_t readValue = 0;
     uint8_t result    = System::Config::status_t::ERROR_READ;
@@ -384,7 +384,7 @@ std::optional<uint8_t> Database::Instance::sysConfigGet(System::Config::Section:
     return result;
 }
 
-std::optional<uint8_t> Database::Instance::sysConfigSet(System::Config::Section::global_t section, size_t index, uint16_t value)
+std::optional<uint8_t> Database::Admin::sysConfigSet(System::Config::Section::global_t section, size_t index, uint16_t value)
 {
     uint8_t result    = System::Config::status_t::ERROR_WRITE;
     bool    writeToDb = true;
@@ -442,30 +442,30 @@ std::optional<uint8_t> Database::Instance::sysConfigSet(System::Config::Section:
     return result;
 }
 
-__attribute__((weak)) void Database::Instance::customInitGlobal()
+__attribute__((weak)) void Database::Admin::customInitGlobal()
 {
 }
 
-__attribute__((weak)) void Database::Instance::customInitButtons()
+__attribute__((weak)) void Database::Admin::customInitButtons()
 {
 }
 
-__attribute__((weak)) void Database::Instance::customInitEncoders()
+__attribute__((weak)) void Database::Admin::customInitEncoders()
 {
 }
 
-__attribute__((weak)) void Database::Instance::customInitAnalog()
+__attribute__((weak)) void Database::Admin::customInitAnalog()
 {
 }
 
-__attribute__((weak)) void Database::Instance::customInitLEDs()
+__attribute__((weak)) void Database::Admin::customInitLEDs()
 {
 }
 
-__attribute__((weak)) void Database::Instance::customInitDisplay()
+__attribute__((weak)) void Database::Admin::customInitDisplay()
 {
 }
 
-__attribute__((weak)) void Database::Instance::customInitTouchscreen()
+__attribute__((weak)) void Database::Admin::customInitTouchscreen()
 {
 }

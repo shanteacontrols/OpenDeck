@@ -260,5 +260,5 @@ class TestDatabase
     Database::AppLayout _layout;
 
     public:
-    Database::Instance _instance = Database::Instance(_dbStorageMock, _layout, true);
+    Database::Admin _instance = Database::Admin(_dbStorageMock, _layout, true);
 };

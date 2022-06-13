@@ -21,8 +21,9 @@ class TestAnalog
     TestDatabase _testDatabase;
 
     public:
-    Database::Instance& _database = _testDatabase._instance;
-    HWAAnalog           _hwa;
-    AnalogFilterStub    _filter;
-    IO::Analog          _instance = IO::Analog(_hwa, _filter, _database);
+    Database::Admin&     _databaseAdmin = _testDatabase._instance;
+    IO::Analog::Database _database      = IO::Analog::Database(_testDatabase._instance);
+    HWAAnalog            _hwa;
+    AnalogFilterStub     _filter;
+    IO::Analog           _instance = IO::Analog(_hwa, _filter, _database);
 };

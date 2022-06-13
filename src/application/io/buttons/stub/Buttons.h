@@ -86,9 +86,12 @@ namespace IO
             virtual bool isFiltered(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
         };
 
-        Buttons(HWA&                hwa,
-                Filter&             filter,
-                Database::Instance& database)
+        using Database = Database::User<Database::Config::Section::button_t,
+                                        Database::Config::Section::encoder_t>;
+
+        Buttons(HWA&      hwa,
+                Filter&   filter,
+                Database& database)
         {}
 
         bool init() override

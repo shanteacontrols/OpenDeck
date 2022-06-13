@@ -142,9 +142,11 @@ namespace IO
             static size_t           _bufferCount;
         };
 
-        Touchscreen(HWA&                hwa,
-                    Database::Instance& database,
-                    CDCPassthrough&     cdcPassthrough);
+        using Database = Database::User<Database::Config::Section::touchscreen_t>;
+
+        Touchscreen(HWA&            hwa,
+                    Database&       database,
+                    CDCPassthrough& cdcPassthrough);
 
         bool        init() override;
         void        updateSingle(size_t index, bool forceRefresh = false) override;
@@ -169,7 +171,7 @@ namespace IO
         std::optional<uint8_t> sysConfigSet(System::Config::Section::touchscreen_t section, size_t index, uint16_t value);
 
         HWA&                                                            _hwa;
-        Database::Instance&                                             _database;
+        Database&                                                       _database;
         CDCPassthrough&                                                 _cdcPassthrough;
         size_t                                                          _activeScreenID                                = 0;
         bool                                                            _initialized                                   = false;

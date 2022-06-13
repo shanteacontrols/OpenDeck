@@ -14,10 +14,10 @@ namespace
         protected:
         void SetUp() override
         {
-            ASSERT_TRUE(_analog._database.init());
-            ASSERT_TRUE(_analog._database.factoryReset());
-            ASSERT_EQ(0, _analog._database.getPreset());
-            ASSERT_TRUE(_analog._instance.init());
+            ASSERT_TRUE(_analog._databaseAdmin.init());
+            ASSERT_TRUE(_analog._databaseAdmin.factoryReset());
+            ASSERT_EQ(0, _analog._databaseAdmin.getPreset());
+            ASSERT_TRUE(_analog._databaseAdmin.init());
 
             for (size_t i = 0; i < Analog::Collection::size(Analog::GROUP_ANALOG_INPUTS); i++)
             {
@@ -370,10 +370,10 @@ TEST_F(AnalogTest, ButtonForwarding)
     ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::TYPE, BUTTON_INDEX, Analog::type_t::BUTTON) == true);
 
     // configure button with the same index (+offset) to certain parameters
-    ASSERT_TRUE(_analog._database.update(Database::Config::Section::button_t::TYPE, Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, Buttons::type_t::MOMENTARY));
-    ASSERT_TRUE(_analog._database.update(Database::Config::Section::button_t::CHANNEL, Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, BUTTON_MIDI_CHANNEL));
-    ASSERT_TRUE(_analog._database.update(Database::Config::Section::button_t::MESSAGE_TYPE, Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, Buttons::messageType_t::CONTROL_CHANGE_RESET));
-    ASSERT_TRUE(_analog._database.update(Database::Config::Section::button_t::VALUE, Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, BUTTON_VELOCITY));
+    ASSERT_TRUE(_analog._databaseAdmin.update(Database::Config::Section::button_t::TYPE, Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, Buttons::type_t::MOMENTARY));
+    ASSERT_TRUE(_analog._databaseAdmin.update(Database::Config::Section::button_t::CHANNEL, Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, BUTTON_MIDI_CHANNEL));
+    ASSERT_TRUE(_analog._databaseAdmin.update(Database::Config::Section::button_t::MESSAGE_TYPE, Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, Buttons::messageType_t::CONTROL_CHANGE_RESET));
+    ASSERT_TRUE(_analog._databaseAdmin.update(Database::Config::Section::button_t::VALUE, Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, BUTTON_VELOCITY));
 
     std::vector<Messaging::event_t> dispatchMessageAnalogFwd;
     std::vector<Messaging::event_t> dispatchMessageButtons;
@@ -433,7 +433,7 @@ TEST_F(AnalogTest, ButtonForwarding)
     dispatchMessageButtons.clear();
     dispatchMessageAnalogFwd.clear();
 
-    ASSERT_TRUE(_analog._database.update(Database::Config::Section::button_t::MESSAGE_TYPE, Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, Buttons::messageType_t::CONTROL_CHANGE));
+    ASSERT_TRUE(_analog._databaseAdmin.update(Database::Config::Section::button_t::MESSAGE_TYPE, Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, Buttons::messageType_t::CONTROL_CHANGE));
 
     stateChangeRegister(0xFFFF);
 

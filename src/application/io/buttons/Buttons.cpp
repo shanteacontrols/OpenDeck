@@ -30,9 +30,9 @@ limitations under the License.
 
 using namespace IO;
 
-Buttons::Buttons(HWA&                hwa,
-                 Filter&             filter,
-                 Database::Instance& database)
+Buttons::Buttons(HWA&      hwa,
+                 Filter&   filter,
+                 Database& database)
     : _hwa(hwa)
     , _filter(filter)
     , _database(database)

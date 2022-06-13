@@ -13,10 +13,10 @@ namespace
         protected:
         void SetUp() override
         {
-            ASSERT_TRUE(_buttons._database.init());
-            ASSERT_TRUE(_buttons._database.factoryReset());
-            ASSERT_EQ(0, _buttons._database.getPreset());
-            ASSERT_TRUE(_buttons._instance.init());
+            ASSERT_TRUE(_buttons._databaseAdmin.init());
+            ASSERT_TRUE(_buttons._databaseAdmin.factoryReset());
+            ASSERT_EQ(0, _buttons._databaseAdmin.getPreset());
+            ASSERT_TRUE(_buttons._databaseAdmin.init());
 
             for (size_t i = 0; i < Buttons::Collection::size(Buttons::GROUP_DIGITAL_INPUTS); i++)
             {
@@ -220,7 +220,7 @@ TEST_F(ButtonsTest, ProgramChange)
     }
 
     // test PROGRAM_CHANGE_INC/PROGRAM_CHANGE_DEC
-    _buttons._database.factoryReset();
+    _buttons._databaseAdmin.factoryReset();
     stateChangeRegisterAll(false);
 
     auto configurePCbutton = [&](size_t index, uint8_t channel, bool increase)
@@ -268,7 +268,7 @@ TEST_F(ButtonsTest, ProgramChange)
     stateChangeRegisterAll(false);
 
     // now, revert all buttons back to default
-    _buttons._database.factoryReset();
+    _buttons._databaseAdmin.factoryReset();
 
     if (Buttons::Collection::size() < 2)
     {
@@ -310,7 +310,7 @@ TEST_F(ButtonsTest, ProgramChange)
     stateChangeRegisterAll(false);
 
     // revert to default again
-    _buttons._database.factoryReset();
+    _buttons._databaseAdmin.factoryReset();
 
     // now configure button 0 for PROGRAM_CHANGE_DEC
     configurePCbutton(0, CHANNEL, false);
@@ -376,7 +376,7 @@ TEST_F(ButtonsTest, ProgramChange)
     stateChangeRegisterAll(false);
 
     // revert all buttons to default
-    _buttons._database.factoryReset();
+    _buttons._databaseAdmin.factoryReset();
 
     configurePCbutton(0, CHANNEL, true);
 
@@ -653,7 +653,7 @@ TEST_F(ButtonsTest, NoMessages)
 
 TEST_F(ButtonsTest, PresetChange)
 {
-    if (_buttons._database.getSupportedPresets() <= 1)
+    if (_buttons._databaseAdmin.getSupportedPresets() <= 1)
     {
         return;
     }

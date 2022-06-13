@@ -30,8 +30,10 @@ namespace IO
     class I2CPeripheralBuilder
     {
         public:
+        using DisplayDatabase = Display::Database;
+
         I2CPeripheralBuilder(I2C::Peripheral::HWA& displayHWA,
-                             Database::Instance&   database);
+                             DisplayDatabase&      database);
 
         private:
         Display _display;

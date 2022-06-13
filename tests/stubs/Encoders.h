@@ -13,8 +13,9 @@ class TestEncoders
     TestDatabase _testDatabase;
 
     public:
-    Database::Instance& _database = _testDatabase._instance;
-    HWAEncoders         _hwa;
-    EncodersFilterStub  _filter;
-    IO::Encoders        _instance = IO::Encoders(_hwa, _filter, _database);
+    Database::Admin&       _databaseAdmin = _testDatabase._instance;
+    IO::Encoders::Database _database      = IO::Encoders::Database(_testDatabase._instance);
+    HWAEncoders            _hwa;
+    EncodersFilterStub     _filter;
+    IO::Encoders           _instance = IO::Encoders(_hwa, _filter, _database);
 };

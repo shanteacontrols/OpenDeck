@@ -38,7 +38,9 @@ namespace Protocol
             virtual bool uniqueID(core::mcu::uniqueID_t& uniqueID) = 0;
         };
 
-        DMX(HWA& hwa, Database::Instance& database)
+        using Database = Database::User<Database::Config::Section::global_t>;
+
+        DMX(HWA& hwa, Database& database)
         {}
 
         bool init() override

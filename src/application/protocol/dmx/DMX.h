@@ -43,15 +43,17 @@ namespace Protocol
             virtual bool uniqueID(core::mcu::uniqueID_t& uniqueID) = 0;
         };
 
-        DMX(HWA& hwa, Database::Instance& database);
+        using Database = Database::User<Database::Config::Section::global_t>;
+
+        DMX(HWA& hwa, Database& database);
 
         bool init() override;
         bool deInit() override;
         void read() override;
 
         private:
-        HWA&                _hwa;
-        Database::Instance& _database;
+        HWA&      _hwa;
+        Database& _database;
 
         bool _enabled = false;
 

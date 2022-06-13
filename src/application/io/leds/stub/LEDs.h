@@ -109,8 +109,11 @@ namespace IO
             virtual size_t rgbComponentFromRGB(size_t index, LEDs::rgbComponent_t component) = 0;
         };
 
-        LEDs(HWA&                hwa,
-             Database::Instance& database)
+        using Database = Database::User<Database::Config::Section::leds_t,
+                                        Database::Config::Section::global_t>;
+
+        LEDs(HWA&      hwa,
+             Database& database)
         {}
 
         bool init() override

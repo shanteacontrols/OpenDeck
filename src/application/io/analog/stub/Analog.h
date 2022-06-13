@@ -79,10 +79,11 @@ namespace IO
         };
 
         using buttonHandler_t = std::function<void(size_t index, bool state)>;
+        using Database        = Database::User<Database::Config::Section::analog_t>;
 
-        Analog(HWA&                hwa,
-               Filter&             filter,
-               Database::Instance& database)
+        Analog(HWA&      hwa,
+               Filter&   filter,
+               Database& database)
         {}
 
         bool init() override

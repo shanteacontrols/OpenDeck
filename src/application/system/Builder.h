@@ -84,7 +84,7 @@ namespace System
                 virtual DMX&  dmx()  = 0;
             };
 
-            using Database = ::Database::Instance::StorageAccess;
+            using Database = ::Database::Admin::StorageAccess;
             using System   = ::System::Instance::HWA;
 
             virtual IO&       io()       = 0;
@@ -121,20 +121,28 @@ namespace System
         private:
         HWA&                                                                           _hwa;
         Database::AppLayout                                                            _dbLayout;
-        Database::Instance                                                             _database = Database::Instance(_hwa.database(), _dbLayout, INIT_DB_DATA);
+        Database::Admin                                                                _database            = Database::Admin(_hwa.database(), _dbLayout, INIT_DB_DATA);
+        IO::Buttons::Database                                                          _buttonsDatabase     = IO::Buttons::Database(_database);
+        IO::Analog::Database                                                           _analogDatabase      = IO::Analog::Database(_database);
+        IO::Encoders::Database                                                         _encodersDatabase    = IO::Encoders::Database(_database);
+        IO::LEDs::Database                                                             _ledsDatabase        = IO::LEDs::Database(_database);
+        IO::Touchscreen::Database                                                      _touchscreenDatabase = IO::Touchscreen::Database(_database);
+        IO::I2CPeripheralBuilder::DisplayDatabase                                      _displayDatabase     = IO::I2CPeripheralBuilder::DisplayDatabase(_database);
+        Protocol::MIDI::Database                                                       _midiDatabase        = Protocol::MIDI::Database(_database);
+        Protocol::DMX::Database                                                        _dmxDatabase         = Protocol::DMX::Database(_database);
         IO::EncodersFilter                                                             _encodersFilter;
         IO::ButtonsFilter                                                              _buttonsFilter;
         IO::AnalogFilter                                                               _analogFilter;
-        IO::Analog                                                                     _analog            = IO::Analog(_hwa.io().analog(), _analogFilter, _database);
-        IO::Buttons                                                                    _buttons           = IO::Buttons(_hwa.io().buttons(), _buttonsFilter, _database);
-        IO::LEDs                                                                       _leds              = IO::LEDs(_hwa.io().leds(), _database);
-        IO::Encoders                                                                   _encoders          = IO::Encoders(_hwa.io().encoders(), _encodersFilter, _database, 1);
-        IO::Touchscreen                                                                _touchscreen       = IO::Touchscreen(_hwa.io().touchscreen(), _database, _hwa.io().cdcPassthrough());
+        IO::Analog                                                                     _analog            = IO::Analog(_hwa.io().analog(), _analogFilter, _analogDatabase);
+        IO::Buttons                                                                    _buttons           = IO::Buttons(_hwa.io().buttons(), _buttonsFilter, _buttonsDatabase);
+        IO::LEDs                                                                       _leds              = IO::LEDs(_hwa.io().leds(), _ledsDatabase);
+        IO::Encoders                                                                   _encoders          = IO::Encoders(_hwa.io().encoders(), _encodersFilter, _encodersDatabase, 1);
+        IO::Touchscreen                                                                _touchscreen       = IO::Touchscreen(_hwa.io().touchscreen(), _touchscreenDatabase, _hwa.io().cdcPassthrough());
         IO::TouchscreenModelBuilder                                                    _touchscreenModels = IO::TouchscreenModelBuilder(_hwa.io().touchscreen());
         IO::I2C                                                                        _i2c;
-        IO::I2CPeripheralBuilder                                                       _i2cPeripherals = IO::I2CPeripheralBuilder(_hwa.io().display(), _database);
-        Protocol::MIDI                                                                 _midi           = Protocol::MIDI(_hwa.protocol().midi().usb(), _hwa.protocol().midi().din(), _hwa.protocol().midi().ble(), _database);
-        Protocol::DMX                                                                  _dmx            = Protocol::DMX(_hwa.protocol().dmx(), _database);
+        IO::I2CPeripheralBuilder                                                       _i2cPeripherals = IO::I2CPeripheralBuilder(_hwa.io().display(), _displayDatabase);
+        Protocol::MIDI                                                                 _midi           = Protocol::MIDI(_hwa.protocol().midi().usb(), _hwa.protocol().midi().din(), _hwa.protocol().midi().ble(), _midiDatabase);
+        Protocol::DMX                                                                  _dmx            = Protocol::DMX(_hwa.protocol().dmx(), _dmxDatabase);
         std::array<IO::Base*, static_cast<size_t>(IO::ioComponent_t::AMOUNT)>          _io             = {};
         std::array<Protocol::Base*, static_cast<size_t>(Protocol::protocol_t::AMOUNT)> _protocol       = {};
 
@@ -155,7 +163,7 @@ namespace System
                 return _builder._protocol;
             }
 
-            Database::Instance& database() override
+            Database::Admin& database() override
             {
                 return _builder._database;
             }

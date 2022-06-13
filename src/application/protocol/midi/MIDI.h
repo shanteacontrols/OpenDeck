@@ -91,10 +91,12 @@ namespace Protocol
             virtual bool supported() = 0;
         };
 
-        MIDI(HWAUSB&             hwaUSB,
-             HWADIN&             hwaDIN,
-             HWABLE&             hwaBLE,
-             Database::Instance& database);
+        using Database = Database::User<Database::Config::Section::global_t>;
+
+        MIDI(HWAUSB&   hwaUSB,
+             HWADIN&   hwaDIN,
+             HWABLE&   hwaBLE,
+             Database& database);
 
         bool init() override;
         bool deInit() override;
@@ -126,7 +128,7 @@ namespace Protocol
         MIDIlib::USBMIDI                             _usbMIDI = MIDIlib::USBMIDI(_hwaUSB);
         MIDIlib::SerialMIDI                          _dinMIDI = MIDIlib::SerialMIDI(_hwaDIN);
         MIDIlib::BLEMIDI                             _bleMIDI = MIDIlib::BLEMIDI(_hwaBLE);
-        Database::Instance&                          _database;
+        Database&                                    _database;
         std::array<MIDIlib::Base*, INTERFACE_AMOUNT> _midiInterface;
     };
 }    // namespace Protocol

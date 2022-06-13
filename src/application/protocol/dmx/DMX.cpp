@@ -27,7 +27,7 @@ limitations under the License.
 
 using namespace IO;
 
-Protocol::DMX::DMX(HWA& hwa, Database::Instance& database)
+Protocol::DMX::DMX(HWA& hwa, Database& database)
     : DMXUSBWidget(hwa)
     , _hwa(hwa)
     , _database(database)

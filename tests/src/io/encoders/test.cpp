@@ -13,9 +13,9 @@ namespace
         protected:
         void SetUp() override
         {
-            ASSERT_TRUE(_encoders._database.init());
-            ASSERT_TRUE(_encoders._database.factoryReset());
-            ASSERT_EQ(0, _encoders._database.getPreset());
+            ASSERT_TRUE(_encoders._databaseAdmin.init());
+            ASSERT_TRUE(_encoders._databaseAdmin.factoryReset());
+            ASSERT_EQ(0, _encoders._databaseAdmin.getPreset());
 
             // set known state
             for (size_t i = 0; i < Encoders::Collection::size(); i++)

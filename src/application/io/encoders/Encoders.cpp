@@ -27,10 +27,10 @@ limitations under the License.
 
 using namespace IO;
 
-Encoders::Encoders(HWA&                hwa,
-                   Filter&             filter,
-                   Database::Instance& database,
-                   uint32_t            timeDiffTimeout)
+Encoders::Encoders(HWA&      hwa,
+                   Filter&   filter,
+                   Database& database,
+                   uint32_t  timeDiffTimeout)
     : _hwa(hwa)
     , _filter(filter)
     , _database(database)

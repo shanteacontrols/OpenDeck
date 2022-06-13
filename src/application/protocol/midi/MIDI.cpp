@@ -26,10 +26,10 @@ limitations under the License.
 
 using namespace IO;
 
-Protocol::MIDI::MIDI(HWAUSB&             hwaUSB,
-                     HWADIN&             hwaDIN,
-                     HWABLE&             hwaBLE,
-                     Database::Instance& database)
+Protocol::MIDI::MIDI(HWAUSB&   hwaUSB,
+                     HWADIN&   hwaDIN,
+                     HWABLE&   hwaBLE,
+                     Database& database)
     : _hwaUSB(hwaUSB)
     , _hwaDIN(hwaDIN)
     , _hwaBLE(hwaBLE)

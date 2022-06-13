@@ -122,8 +122,11 @@ namespace IO
             virtual size_t rgbComponentFromRGB(size_t index, LEDs::rgbComponent_t component) = 0;
         };
 
-        LEDs(HWA&                hwa,
-             Database::Instance& database);
+        using Database = Database::User<Database::Config::Section::leds_t,
+                                        Database::Config::Section::global_t>;
+
+        LEDs(HWA&      hwa,
+             Database& database);
 
         bool         init() override;
         void         updateSingle(size_t index, bool forceRefresh = false) override;
@@ -164,8 +167,8 @@ namespace IO
         std::optional<uint8_t> sysConfigGet(System::Config::Section::leds_t section, size_t index, uint16_t& value);
         std::optional<uint8_t> sysConfigSet(System::Config::Section::leds_t section, size_t index, uint16_t value);
 
-        HWA&                _hwa;
-        Database::Instance& _database;
+        HWA&      _hwa;
+        Database& _database;
 
         static constexpr size_t  TOTAL_BLINK_SPEEDS              = 4;
         static constexpr size_t  TOTAL_BRIGHTNESS_VALUES         = 4;

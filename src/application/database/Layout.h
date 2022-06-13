@@ -30,7 +30,7 @@ limitations under the License.
 
 namespace Database
 {
-    class AppLayout : public Database::Instance::Layout
+    class AppLayout : public Database::Admin::Layout
     {
         public:
         AppLayout() = default;

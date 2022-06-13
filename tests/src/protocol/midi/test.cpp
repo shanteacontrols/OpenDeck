@@ -12,7 +12,7 @@ namespace
         protected:
         void SetUp() override
         {
-            ASSERT_TRUE(_midi._database.init());
+            ASSERT_TRUE(_midi._databaseAdmin.init());
 
             EXPECT_CALL(_midi._hwaMIDIDIN, setLoopback(false))
                 .WillOnce(Return(true));

@@ -13,9 +13,9 @@ namespace
         protected:
         void SetUp() override
         {
-            ASSERT_TRUE(_leds._database.init());
-            ASSERT_TRUE(_leds._database.factoryReset());
-            ASSERT_EQ(0, _leds._database.getPreset());
+            ASSERT_TRUE(_leds._databaseAdmin.init());
+            ASSERT_TRUE(_leds._databaseAdmin.factoryReset());
+            ASSERT_EQ(0, _leds._databaseAdmin.getPreset());
 
             // LEDs calls HWA only for digital out group - for the other groups controls is done via dispatcher.
             // Once init() is called, all LEDs should be turned off

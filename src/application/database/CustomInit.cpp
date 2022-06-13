@@ -23,13 +23,13 @@ limitations under the License.
 
 // each new group of components should have their IDs start from 0
 
-void Database::Instance::customInitGlobal()
+void Database::Admin::customInitGlobal()
 {
     // set global channel to 1
     update(Database::Config::Section::global_t::MIDI_SETTINGS, MIDI::setting_t::GLOBAL_CHANNEL, 1);
 }
 
-void Database::Instance::customInitButtons()
+void Database::Admin::customInitButtons()
 {
     for (size_t group = 0; group < IO::Buttons::Collection::groups(); group++)
     {
@@ -40,7 +40,7 @@ void Database::Instance::customInitButtons()
     }
 }
 
-void Database::Instance::customInitAnalog()
+void Database::Admin::customInitAnalog()
 {
     for (size_t group = 0; group < IO::Analog::Collection::groups(); group++)
     {
@@ -51,7 +51,7 @@ void Database::Instance::customInitAnalog()
     }
 }
 
-void Database::Instance::customInitLEDs()
+void Database::Admin::customInitLEDs()
 {
     for (size_t group = 0; group < IO::LEDs::Collection::groups(); group++)
     {
