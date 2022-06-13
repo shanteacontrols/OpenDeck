@@ -5,8 +5,6 @@
   uart:
     dinMIDI:
       channel: 0
-    dmx:
-      channel: 0
   i2c:
     display:
       channel: 0
