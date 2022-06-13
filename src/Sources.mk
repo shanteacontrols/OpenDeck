@@ -83,7 +83,6 @@ else ifeq ($(TYPE),flashgen)
         SOURCES += $(shell $(FIND) ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
         SOURCES += $(TSCREEN_GEN_SOURCE)
         SOURCES += application/util/configurable/Configurable.cpp
-        SOURCES += application/util/conversion/Conversion.cpp
         SOURCES += flashgen/main.cpp
         SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
 

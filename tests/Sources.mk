@@ -28,7 +28,6 @@ ifeq (,$(findstring USB_OVER_SERIAL_HOST,$(DEFINES)))
     stubs/Core.cpp \
     application/util/configurable/Configurable.cpp \
     application/util/scheduler/Scheduler.cpp \
-    application/util/conversion/Conversion.cpp \
     application/logger/Logger.cpp
 endif
 
