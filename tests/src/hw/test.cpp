@@ -6,7 +6,6 @@
 #include <filesystem>
 #include "helpers/Misc.h"
 #include "helpers/MIDI.h"
-#include "helpers/Serial.h"
 #include "stubs/Database.h"
 #include <HWTestDefines.h>
 #include "system/Builder.h"
