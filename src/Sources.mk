@@ -85,8 +85,6 @@ else ifeq ($(TYPE),flashgen)
         SOURCES += application/util/configurable/Configurable.cpp
         SOURCES += flashgen/main.cpp
         SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
-
-        INCLUDE_DIRS += -I"flashgen/"
     endif
 else ifeq ($(TYPE),sysexgen)
     SOURCES += sysexgen/main.cpp
