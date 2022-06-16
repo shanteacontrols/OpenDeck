@@ -4,7 +4,7 @@ ifeq (,$(findstring gen,$(TYPE)))
     -I"../modules/avr-libstdcpp/include"
 
     ifneq (,$(findstring USB_SUPPORTED,$(DEFINES)))
-        #common for bootloader and application on usb supported mcus
+        # Common for bootloader and application on USB supported MCUs
         SOURCES += \
         modules/core/modules/lufa/LUFA/Drivers/USB/Core/AVR8/Device_AVR8.c \
         modules/core/modules/lufa/LUFA/Drivers/USB/Core/AVR8/EndpointStream_AVR8.c \

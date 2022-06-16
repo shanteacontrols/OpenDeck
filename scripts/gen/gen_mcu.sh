@@ -37,7 +37,7 @@ then
         printf "%s\n" "DEFINES += BOOTLOADER_SUPPORTED"
     } >> "$out_makefile"
 else
-    # no bootloader, start at first page
+    # No bootloader, start at first page
     app_start_page=0
 fi
 
@@ -54,7 +54,7 @@ then
         boot_start_address=$($yaml_parser "$base_yaml_file" flash.pages.["$boot_start_page"].address)
     fi
 else
-    # all flash pages have common size
+    # All flash pages have common size
     app_start_address=$($yaml_parser "$base_yaml_file" flash.page-size)
     ((app_start_address*=app_start_page))
 

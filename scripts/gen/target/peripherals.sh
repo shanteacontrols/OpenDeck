@@ -59,7 +59,7 @@ then
 
                 if [[ -z "${uartChannelArray[$key]}" ]]
                 then
-                    # unique (non-existing) channel found
+                    # Unique (non-existing) channel found
                     uartChannelArray[$key]=$total_uart_channels
                     ((total_uart_channels++))
                 fi
@@ -88,7 +88,7 @@ then
                 } >> "$out_makefile"
             elif [[ "$($yaml_parser "$yaml_file" uart.usbLink.type)" == "device" ]]
             then
-                # make sure USB over serial devices don't have native USB enabled
+                # Make sure USB over serial devices don't have native USB enabled
                 {
                     printf "%s\n" 'DEFINES := $(filter-out USB_SUPPORTED,$(DEFINES))'
                     printf "%s\n" "DEFINES += USB_OVER_SERIAL"
@@ -136,7 +136,7 @@ then
 
             if [[ -z "${uartChannelArray[$key]}" ]]
             then
-                # unique (non-existing) channel found
+                # Unique (non-existing) channel found
                 uartChannelArray[$key]=$total_uart_channels
                 ((total_uart_channels++))
             fi
@@ -191,7 +191,7 @@ then
 
             if [[ -z "${uartChannelArray[$key]}" ]]
             then
-                # unique (non-existing) channel found
+                # Unique (non-existing) channel found
                 uartChannelArray[$key]=$total_uart_channels
                 ((total_uart_channels++))
             fi
@@ -246,7 +246,7 @@ then
 
             if [[ -z "${uartChannelArray[$key]}" ]]
             then
-                # unique (non-existing) channel found
+                # Unique (non-existing) channel found
                 uartChannelArray[$key]=$total_uart_channels
                 ((total_uart_channels++))
             fi
@@ -262,7 +262,7 @@ then
             } >> "$out_header"
         fi
 
-        # guard against ommisions of touchscreen component amount by assigning the value to 0 if undefined
+        # Guard against ommisions of touchscreen component amount by assigning the value to 0 if undefined
         nr_of_touchscreen_components=$($yaml_parser "$yaml_file" uart.touchscreen.components | grep -v null | awk '{print$1}END{if(NR==0)print 0}')
 
         if [[ "$nr_of_touchscreen_components" -eq 0 ]]
@@ -299,7 +299,7 @@ then
         } >> "$out_header"
     fi
 else
-    # make sure this is set to 0 if uart/touchscreen isn't used as this symbol is used thorugh application IO modules
+    # Make sure this is set to 0 if uart/touchscreen isn't used as this symbol is used thorugh application IO modules
     printf "%s\n" "DEFINES += NR_OF_TOUCHSCREEN_COMPONENTS=0" >> "$out_makefile"
 fi
 
@@ -343,7 +343,7 @@ then
 
             if [[ -z "${i2cChannelArray[$key]}" ]]
             then
-                # unique (non-existing) channel found
+                # Unique (non-existing) channel found
                 i2cChannelArray[$key]=$total_i2c_channels
                 ((total_i2c_channels++))
             fi
@@ -397,7 +397,7 @@ then
 
     if [[ "$($yaml_parser "$yaml_file" bootloader.button.activeState)" == "high" ]]
     then
-        # active high
+        # Active high
         printf "%s\n" "DEFINES += BTLDR_BUTTON_AH" >> "$out_makefile"
     fi
 fi

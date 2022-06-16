@@ -3,7 +3,7 @@ vpath modules/%.cpp ../
 vpath modules/%.s ../
 vpath modules/%.S ../
 
-#common include dirs
+# Common include dirs
 INCLUDE_DIRS += \
 -I"./" \
 -I"$(BOARD_GEN_DIR_MCU_BASE)/$(MCU)" \
@@ -49,7 +49,7 @@ ifeq (,$(findstring gen,$(TYPE)))
         SOURCES += $(shell find bootloader -type f -name "*.cpp")
     else ifeq ($(TYPE),app)
         ifneq (,$(findstring USB_OVER_SERIAL_HOST,$(DEFINES)))
-            #fw for usb hosts uses different set of sources than other targets
+            # FW for USB hosts uses different set of sources than other targets
             SOURCES += $(shell find usb-link -type f -name "*.cpp")
         else
             SOURCES += $(shell $(FIND) application -type f -not -path "*$(APP_GEN_DIR_BASE)*" -regex '.*\.\(s\|c\|cpp\)')
@@ -60,7 +60,7 @@ ifeq (,$(findstring gen,$(TYPE)))
             SOURCES += $(shell $(FIND) ../modules/sysex/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
 
             ifneq (,$(findstring DISPLAY_SUPPORTED,$(DEFINES)))
-                #u8x8 sources
+                # u8x8 sources
                 SOURCES += \
                 modules/u8g2/csrc/u8x8_string.c \
                 modules/u8g2/csrc/u8x8_setup.c \
@@ -90,10 +90,10 @@ else ifeq ($(TYPE),sysexgen)
     SOURCES += sysexgen/main.cpp
 endif
 
-#make sure all objects are located in build directory
+# Make sure all objects are located in build directory
 OBJECTS := $(addprefix $(BUILD_DIR)/,$(SOURCES))
-#also make sure objects have .o extension
+# Also make sure objects have .o extension
 OBJECTS := $(addsuffix .o,$(OBJECTS))
 
-#include generated dependency files to allow incremental build when only headers change
+# Include generated dependency files to allow incremental build when only headers change
 -include $(OBJECTS:%.o=%.d)

@@ -35,7 +35,7 @@ then
     find="find"
 fi
 
-# clean up all temporary profraw files
+# Clean up all temporary profraw files
 $find "$bin_dir" -type f -name "*.profraw" -exec rm {} \;
 
 if [ "$hw_testing" = "1" ]

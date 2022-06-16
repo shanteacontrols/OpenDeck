@@ -11,8 +11,8 @@ BOARD_GEN_DIR_TARGET        := $(BOARD_GEN_DIR_TARGET_BASE)/$(TARGET)
 APP_GEN_DIR_BASE            := application/gen
 APP_GEN_DIR_TARGET          := $(APP_GEN_DIR_BASE)/$(TARGET)
 
-#the MAKEFILE_INCLUDE_PREFIX prefix is used to specify the start directory makefiles
-#needed for tests since they are outside of src/
+# The MAKEFILE_INCLUDE_PREFIX prefix is used to specify the start directory makefiles.
+# This is needed for tests since they are outside of src/.
 -include $(MAKEFILE_INCLUDE_PREFIX)$(BOARD_GEN_DIR_TARGET)/Makefile
 -include $(MAKEFILE_INCLUDE_PREFIX)board/arch/$(ARCH)/Makefile
 -include $(MAKEFILE_INCLUDE_PREFIX)board/arch/$(ARCH)/$(VENDOR)/Makefile
@@ -21,14 +21,14 @@ APP_GEN_DIR_TARGET          := $(APP_GEN_DIR_BASE)/$(TARGET)
 
 FW_METADATA_SIZE            := 4
 
-#these can be overriden by target/vendor/arch/mcu etc.
+# These can be overriden by target/vendor/arch/mcu etc.
 USB_OVER_SERIAL_BUFFER_SIZE ?= 16
 I2C_TX_BUFFER_SIZE          ?= 64
 UART_TX_BUFFER_SIZE         ?= 128
 UART_RX_BUFFER_SIZE         ?= 128
 MIDI_SYSEX_ARRAY_SIZE       ?= 100
 MIDI_BLE_MAX_PACKET_SIZE    ?= 128
-#tinyusb only
+# tinyusb only
 USB_MIDI_TX_BUFFER_SIZE     ?= 4096
 USB_MIDI_RX_BUFFER_SIZE     ?= 4096
 USB_CDC_TX_BUFFER_SIZE      ?= 2048
@@ -66,7 +66,7 @@ else ifeq ($(TYPE),app)
     DEFINES += FW_APP
     FLASH_START_ADDR := $(APP_START_ADDR)
 else ifeq ($(TYPE),flashgen)
-    #same as app
+    # Same as app
     DEFINES += FW_APP
     FLASH_START_ADDR := $(APP_START_ADDR)
     DEFINES := $(filter-out CORE_ARCH_%,$(DEFINES))

@@ -37,7 +37,7 @@ Please wait...
 
 mcu=$(echo "$mcus" | head -n "$mcu_nr" | tail -n 1)
 
-# don't use yaml parser (dasel) here so that this script can be run without any external tools
+# Don't use yaml parser (dasel) here so that this script can be run without any external tools
 unlock_fuse=$(< config/mcu/"$mcu".yml awk '{$1=$1};1' | grep ^unlock | cut -d: -f2 | xargs)
 lock_fuse=$(< config/mcu/"$mcu".yml awk '{$1=$1};1' | grep ^lock | cut -d: -f2 | xargs)
 ext_fuse=$(< config/mcu/"$mcu".yml awk '{$1=$1};1' | grep ^ext | cut -d: -f2 | xargs)
@@ -54,7 +54,7 @@ Path: "
 
 read -r path
 
-# remove single quotes if present
+# Remove single quotes if present
 path=${path//\'/}
 
 echo "Connect programmer to programming header on the board and then press enter."

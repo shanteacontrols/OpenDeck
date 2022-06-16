@@ -99,7 +99,7 @@ do
     then
         make TARGET="${targets[$i]}" DEBUG=0
     else
-        # binaries, sysex files and defines are needed for tests, compile that as well
+        # Binaries, sysex files and defines are needed for tests, compile that as well
         make --no-print-directory -C ../src TARGET="${targets[$i]}" DEBUG=0
 
         if [[ -n "$hw" ]]

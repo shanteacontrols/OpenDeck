@@ -35,21 +35,20 @@ FLASH_BINARY_DIR := $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/merged
 
 SYSEX_BINARY_SUFFIX := _sysex
 
-#includes
-#important - do not change the order of inclusion!
+# Important - do not change the order of inclusion!
 include Defines.mk
 include Sources.mk
 -include flashing/$(FLASH_TOOL).mk
 
 .DEFAULT_GOAL := merged
 
-#when set to 1, format target will fail if there are any changes to the repository after formatting
+# When set to 1, format target will fail if there are any changes to the repository after formatting.
 CF_FAIL_ON_DIFF := 0
 
-# when set to 1, lint target will fail if there are any changes to the repository after linting
+# When set to 1, lint target will fail if there are any changes to the repository after linting.
 CL_FAIL_ON_DIFF := 0
 
-#passed to both c and c++ compiler
+# Passed to both C and C++ compiler
 CPPFLAGS += \
 -Wall \
 -fdata-sections \
@@ -59,7 +58,7 @@ CPPFLAGS += \
 -fshort-enums \
 -Wno-unused-function
 
-#c++ compiler only
+# C++ compiler only
 CXXFLAGS += \
 -std=c++17 \
 -fno-rtti \
@@ -67,24 +66,24 @@ CXXFLAGS += \
 -fpermissive \
 -fno-threadsafe-statics
 
-#c compiler only
+# C compiler only
 CFLAGS += \
 -std=c11 \
 -Wno-parentheses-equality \
 -Wno-unused-value \
 -Wno-implicit-function-declaration
 
-#assembler only
+# Assembler only
 ASFLAGS += \
 -x assembler-with-cpp
 
-#common linker flags
+# Linker flags
 LDFLAGS += \
 -Wl,--gc-sections \
--Wl,-Map="$(OUTPUT).map",--cref
+-Wl,-Map="$(OUTPUT).map",--cref \
+-T $(LINKER_FILE)
 
-#custom linker script
-LDFLAGS += -T $(LINKER_FILE)
+# Optimization level
 OPT := -Os
 
 ifneq (,$(findstring gen,$(TYPE)))
@@ -107,7 +106,7 @@ endif
 binary: $(OUTPUT).elf
 
 $(OUTPUT).elf: $(OBJECTS)
-#perform the linking only if sources have been defined
+# Perform the linking only if sources have been defined
 ifneq ($(OBJECTS),)
 	@echo Creating executable: $@
 	@$(LD) -o$(OUTPUT).elf $(OBJECTS) $(LDFLAGS)
@@ -115,7 +114,7 @@ ifeq (,$(findstring gen,$(TYPE)))
 	@objcopy --gap-fill 0xFF -O ihex $(OUTPUT).elf $(OUTPUT).hex
 endif
 ifeq ($(TYPE),app)
-#append metadata only for application
+# Append metadata only for application
 	@srec_cat $(OUTPUT).hex -Intel -exclude $(FW_METADATA_LOCATION) $$(($(FW_METADATA_LOCATION) + $(FW_METADATA_SIZE))) -MAximum_Little_Endian $(FW_METADATA_LOCATION) -o $(OUTPUT).hex -Intel
 	@srec_cat $(OUTPUT).hex -Intel -Cyclic_Redundancy_Check_16_Little_Endian -MAximum-Address $(OUTPUT).hex -Intel -Cyclic_Redundancy_Check_16_XMODEM -Output $(OUTPUT).hex -Intel
 endif
@@ -123,7 +122,7 @@ ifeq (,$(findstring gen,$(TYPE)))
 	@objcopy -I ihex "$(OUTPUT).hex" -O binary "$(OUTPUT).bin"
 endif
 	@$(SIZE_TOOL) "$(OUTPUT).elf"
-#indicate that new binary has been created
+# Indicate that new binary has been created
 	@echo $(shell date +%s%N) > $(BUILD_TIME_FILE)
 endif
 
@@ -139,7 +138,7 @@ merged:
 	@$(MAKE) --no-print-directory TYPE=sysexgen TARGET=$(TARGET) DEBUG=$(DEBUG) binary
 	@echo Building flashgen...
 	@$(MAKE) --no-print-directory TYPE=flashgen TARGET=$(TARGET) DEBUG=$(DEBUG) binary
-#relink only if needed
+# Relink only if needed
 	@NEW_BUILD_TIME=$$(cat $(BUILD_TIME_FILE)) && if [ $$(echo $$NEW_BUILD_TIME) = $$(echo $(LAST_BUILD_TIME)) ]; then \
 	echo Merged binary up to date; \
 	else \
@@ -158,9 +157,9 @@ ifeq ($(ARCH), avr)
 	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/$(TARGET).hex -Intel \
 	-o $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex
 else
-#define FACTORY_IMAGE_START_ADDR variable as shell variable instead of make variable:
-#when this recipe is started, generated_flash.bin_offset doesn't exist yet, so make will
-#complain that it cannot find it if it were defined like this: $(shell cat $(BUILD_DIR_BASE)/flashgen/$(TARGET)/release/generated_flash.bin_offset)
+# Define FACTORY_IMAGE_START_ADDR variable as shell variable instead of make variable:
+# when this recipe is started, generated_flash.bin_offset doesn't exist yet, so make will
+# complain that it cannot find it if it were defined like this: $(shell cat $(BUILD_DIR_BASE)/flashgen/$(TARGET)/release/generated_flash.bin_offset).
 	@FACTORY_IMAGE_START_ADDR=$$(cat $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin_offset) && \
 	srec_cat \
 	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/boot/$(TARGET).hex -Intel \
@@ -178,9 +177,9 @@ endif
 	@rm $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex
 	@echo Merged binary created: $(BUILD_DIR)/$(TARGET).hex
 	@echo Creating SysEx file...
-#raw syx file for use with amidi
+# Raw syx file for use with amidi
 	@$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/sysexgen/$(TARGET).elf $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).bin $(BUILD_DIR)/$(TARGET).sysex.syx
-#ascii sysex file for use with web configurator
+# ASCII sysex file for use with web configurator
 	@hexdump -v -e '/1 "%02x "' $(BUILD_DIR)/$(TARGET).sysex.syx | sed 's/f7/f7\n/g' | sed 's/^ *//' | tr a-z A-Z > $(BUILD_DIR)/$(TARGET).sysex
 	@echo SysEx file created: $(BUILD_DIR)/$(TARGET).sysex
 
@@ -199,7 +198,7 @@ $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin: $(DEF_FI
 	@$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/$(TARGET).elf $@
 else
 $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin:
-#just create dummy binary
+# Just create dummy binary
 	@mkdir -p $(@D)
 	@touch $@
 endif
@@ -259,6 +258,6 @@ clean:
 	@echo Cleaning up.
 	@rm -rf $(BUILD_DIR_BASE) $(BOARD_GEN_DIR_BASE) $(APP_GEN_DIR) compile_commands.json
 
-#debugging
+# Debugging
 print-%:
 	@echo '$($*)'

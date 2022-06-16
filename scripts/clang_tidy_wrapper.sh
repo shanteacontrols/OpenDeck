@@ -87,11 +87,11 @@ then
     ignore_regex+="|"
   done
 
-  #last '|' must be removed
+  # Last '|' must be removed
   ignore_regex=${ignore_regex::-1}
   ignore_regex+=").)*$"
 
-  # clean up compile_commands.json
+  # Clean up compile_commands.json
   readarray -t cleanup_args <"$option_files_dir"/.clang-tidy-compile-commands-clean
 
   for line in "${cleanup_args[@]}"

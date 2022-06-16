@@ -6,6 +6,6 @@ else ifeq ($(TYPE),app)
     UART_RX_BUFFER_SIZE := 64
 endif
 
-# some extra optimization to fit bootloader
+# Some extra optimization to fit bootloader
 CPPFLAGS += -flto
 LDFLAGS  += -flto

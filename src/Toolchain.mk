@@ -38,6 +38,6 @@ $(CCACHE)
 
 $(call CHECK_PACKAGES,$(REQ_PACKAGES))
 
-#avoid find errors
-#defined here to avoid verify target parsing "2>/dev/null" as an package causing it to fail
+# Redefine find here to avoid verify target parsing "2>/dev/null" as an package causing it to fail.
+# Used to avoid build failures if some sources don't exist for a given target.
 FIND := $(FIND) 2>/dev/null

@@ -33,7 +33,7 @@ fi
 
 if [[ -f $hw_test_yaml_file ]]
 then
-    # hw config files go into the same dir as target ones
+    # HW config files go into the same dir as target ones
     if ! "$script_dir"/gen_hwconfig.sh "$project" "$hw_test_yaml_file" "$gen_dir"
     then
         exit 1

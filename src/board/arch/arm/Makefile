@@ -5,7 +5,7 @@ ifeq (,$(findstring gen,$(TYPE)))
 
     SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
 
-    #clang-specific defines
+    # clang-specific defines
     ifneq (,$(findstring clang,$(CC_ARM)))
         TOOLCHAIN_DIR := $(shell dirname $(shell which arm-none-eabi-gcc) | rev | cut -c5- | rev)
         CPP_VER := $(shell $(FIND) $(TOOLCHAIN_DIR)/arm-none-eabi/include/c++ -mindepth 1 -maxdepth 1 | rev | cut -d/ -f 1 | rev)
