@@ -43,12 +43,12 @@ namespace Board::detail::IO::digitalOut
         {
             auto pin = detail::map::ledPin(i);
 
-            CORE_MCU_IO_INIT(CORE_MCU_IO_PIN_PORT(pin),
-                             CORE_MCU_IO_PIN_INDEX(pin),
+            CORE_MCU_IO_INIT(pin.port,
+                             pin.index,
                              core::mcu::io::pinMode_t::OUTPUT_PP,
                              core::mcu::io::pullMode_t::NONE);
 
-            EXT_LED_OFF(CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin));
+            EXT_LED_OFF(pin.port, pin.index);
         }
     }
 

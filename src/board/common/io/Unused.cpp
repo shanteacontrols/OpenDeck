@@ -38,8 +38,8 @@ namespace Board::detail::IO::unused
             // for input mode, pull up is activated so no need to set state via CORE_IO_SET_STATE
             if (unusedPin.pin.mode == core::mcu::io::pinMode_t::OUTPUT_PP)
             {
-                CORE_MCU_IO_SET_STATE(CORE_MCU_IO_PIN_PORT(unusedPin.pin),
-                                      CORE_MCU_IO_PIN_INDEX(unusedPin.pin),
+                CORE_MCU_IO_SET_STATE(unusedPin.pin.port,
+                                      unusedPin.pin.index,
                                       unusedPin.state);
             }
         }

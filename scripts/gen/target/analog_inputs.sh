@@ -59,7 +59,7 @@ then
 
         for ((i=0; i<nr_of_analog_inputs; i++))
         do
-            printf "%s\n" "CORE_MCU_IO_PIN_VAR(PIN_PORT_AIN_${i}, PIN_INDEX_AIN_${i})," >> "$out_header"
+            printf "%s\n" "core::mcu::io::pin_t{PIN_PORT_AIN_${i}, PIN_INDEX_AIN_${i}}," >> "$out_header"
         done
 
         {
@@ -119,7 +119,7 @@ then
 
         for ((i=0; i<"$number_of_mux"; i++))
         do
-            printf "%s\n" "CORE_MCU_IO_PIN_VAR(PIN_PORT_MUX_INPUT_${i}, PIN_INDEX_MUX_INPUT_${i})," >> "$out_header"
+            printf "%s\n" "core::mcu::io::pin_t{PIN_PORT_MUX_INPUT_${i}, PIN_INDEX_MUX_INPUT_${i}}," >> "$out_header"
         done
 
         {
@@ -181,7 +181,7 @@ then
 
         for ((i=0; i<"$number_of_mux"; i++))
         do
-            printf "%s\n" "CORE_MCU_IO_PIN_VAR(PIN_PORT_MUX_INPUT_${i}, PIN_INDEX_MUX_INPUT_${i})," >> "$out_header"
+            printf "%s\n" "core::mcu::io::pin_t{PIN_PORT_MUX_INPUT_${i}, PIN_INDEX_MUX_INPUT_${i}}," >> "$out_header"
         done
 
         {

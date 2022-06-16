@@ -45,8 +45,8 @@ namespace Board::detail::IO::analog
         for (size_t i = 0; i < MAX_ADC_CHANNELS; i++)
         {
             auto pin = map::adcPin(i);
-            CORE_MCU_IO_INIT(CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin), core::mcu::io::pinMode_t::ANALOG);
-            CORE_MCU_IO_SET_LOW(CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin));
+            CORE_MCU_IO_INIT(pin.port, pin.index, core::mcu::io::pinMode_t::ANALOG);
+            CORE_MCU_IO_SET_LOW(pin.port, pin.index);
         }
     }
 

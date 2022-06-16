@@ -287,8 +287,8 @@ then
         do
             {
                 printf "%s\n" "{"
-                printf "%s\n" "CORE_MCU_IO_PIN_VAR(PIN_PORT_UART_CHANNEL_${channel}_RX, PIN_INDEX_UART_CHANNEL_${channel}_RX),"
-                printf "%s\n" "CORE_MCU_IO_PIN_VAR(PIN_PORT_UART_CHANNEL_${channel}_TX, PIN_INDEX_UART_CHANNEL_${channel}_TX),"
+                printf "%s\n" "core::mcu::io::pin_t{PIN_PORT_UART_CHANNEL_${channel}_RX, PIN_INDEX_UART_CHANNEL_${channel}_RX},"
+                printf "%s\n" "core::mcu::io::pin_t{PIN_PORT_UART_CHANNEL_${channel}_TX, PIN_INDEX_UART_CHANNEL_${channel}_TX},"
                 printf "%s\n" "},"
             } >> "$out_header"
         done
@@ -370,8 +370,8 @@ then
         do
             {
                 printf "%s\n" "{"
-                printf "%s\n" "CORE_MCU_IO_PIN_VAR(PIN_PORT_I2C_CHANNEL_${channel}_SDA, PIN_INDEX_I2C_CHANNEL_${channel}_SDA),"
-                printf "%s\n" "CORE_MCU_IO_PIN_VAR(PIN_PORT_I2C_CHANNEL_${channel}_SCL, PIN_INDEX_I2C_CHANNEL_${channel}_SCL),"
+                printf "%s\n" "core::mcu::io::pin_t{PIN_PORT_I2C_CHANNEL_${channel}_SDA, PIN_INDEX_I2C_CHANNEL_${channel}_SDA},"
+                printf "%s\n" "core::mcu::io::pin_t{PIN_PORT_I2C_CHANNEL_${channel}_SCL, PIN_INDEX_I2C_CHANNEL_${channel}_SCL},"
                 printf "%s\n" "},"
             } >> "$out_header"
         done

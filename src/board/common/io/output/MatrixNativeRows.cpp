@@ -50,13 +50,13 @@ namespace
     inline void ledRowOff(uint8_t row)
     {
         auto pin = map::ledPin(row);
-        EXT_LED_OFF(CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin));
+        EXT_LED_OFF(pin.port, pin.index);
     }
 
     inline void ledRowOn(uint8_t row)
     {
         auto pin = map::ledPin(row);
-        EXT_LED_ON(CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin));
+        EXT_LED_ON(pin.port, pin.index);
     }
 }    // namespace
 
@@ -88,12 +88,12 @@ namespace Board::detail::IO::digitalOut
             auto pin = detail::map::ledPin(i);
 
             // when rows are used from native outputs, use open-drain configuration
-            CORE_MCU_IO_INIT(CORE_MCU_IO_PIN_PORT(pin),
-                             CORE_MCU_IO_PIN_INDEX(pin),
+            CORE_MCU_IO_INIT(pin.port,
+                             pin.index,
                              core::mcu::io::pinMode_t::OUTPUT_OD,
                              core::mcu::io::pullMode_t::NONE);
 
-            EXT_LED_OFF(CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin));
+            EXT_LED_OFF(pin.port, pin.index);
         }
     }
 

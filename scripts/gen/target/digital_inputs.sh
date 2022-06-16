@@ -66,7 +66,7 @@ then
 
         for ((i=0; i<nr_of_digital_inputs; i++))
         do
-            printf "%s\n" "CORE_MCU_IO_PIN_VAR(PIN_PORT_DIN_${i}, PIN_INDEX_DIN_${i})," >> "$out_header"
+            printf "%s\n" "core::mcu::io::pin_t{PIN_PORT_DIN_${i}, PIN_INDEX_DIN_${i}}," >> "$out_header"
         done
 
         {
@@ -200,7 +200,7 @@ then
 
             for ((i=0; i<number_of_rows; i++))
             do
-                printf "%s\n" "CORE_MCU_IO_PIN_VAR(PIN_PORT_DIN_${i}, PIN_INDEX_DIN_${i})," >> "$out_header"
+                printf "%s\n" "core::mcu::io::pin_t{PIN_PORT_DIN_${i}, PIN_INDEX_DIN_${i}}," >> "$out_header"
             done
 
             {

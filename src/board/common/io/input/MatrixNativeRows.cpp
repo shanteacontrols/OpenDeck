@@ -63,7 +63,7 @@ namespace
                 pin          = map::buttonPin(row);
 
                 _digitalInBuffer[index].readings <<= 1;
-                _digitalInBuffer[index].readings |= !CORE_MCU_IO_READ(CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin));
+                _digitalInBuffer[index].readings |= !CORE_MCU_IO_READ(pin.port, pin.index);
 
                 if (++_digitalInBuffer[index].count > MAX_READING_COUNT)
                 {
@@ -83,9 +83,9 @@ namespace Board::detail::IO::digitalIn
             auto pin = detail::map::buttonPin(i);
 
 #ifndef BUTTONS_EXT_PULLUPS
-            CORE_MCU_IO_INIT(CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin), core::mcu::io::pinMode_t::INPUT, core::mcu::io::pullMode_t::UP);
+            CORE_MCU_IO_INIT(pin.port, pin.index, core::mcu::io::pinMode_t::INPUT, core::mcu::io::pullMode_t::UP);
 #else
-            CORE_MCU_IO_INIT(CORE_MCU_IO_PIN_PORT(pin), CORE_MCU_IO_PIN_INDEX(pin), core::mcu::io::pinMode_t::INPUT, core::mcu::io::pullMode_t::NONE);
+            CORE_MCU_IO_INIT(pin.port, pin.index, core::mcu::io::pinMode_t::INPUT, core::mcu::io::pullMode_t::NONE);
 #endif
         }
 
