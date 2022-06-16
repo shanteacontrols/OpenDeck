@@ -87,83 +87,17 @@ LDFLAGS += \
 LDFLAGS += -T $(LINKER_FILE)
 OPT := -Os
 
-ifeq (,$(findstring gen,$(TYPE)))
-    ifeq ($(ARCH),avr)
-        CC         := $(CC_AVR)
-        CXX        := $(CXX_AVR)
-        LD         := $(LD_AVR)
-        SIZE_TOOL  := avr-size -C --mcu=$(MCU)
-
-        CFLAGS += \
-        -fpack-struct
-
-        CPPFLAGS += \
-        -mrelax \
-        -mmcu=$(MCU) \
-        -funsigned-char \
-        -funsigned-bitfields \
-        -fno-jump-tables
-
-        LDFLAGS += \
-        -Wl,--section-start=.text=$(FLASH_START_ADDR) \
-        -mrelax \
-        -mmcu=$(MCU)
-
-        ifeq ($(DEBUG), 1)
-            CPPFLAGS += -g -gdwarf-2
-            LDFLAGS  += -g -gdwarf-2
-            OPT      := -Og
-        endif
-    else ifeq ($(ARCH),arm)
-        CC         := $(CC_ARM)
-        CXX        := $(CXX_ARM)
-        LD         := $(LD_ARM)
-        AS         := $(CC_ARM)
-        SIZE_TOOL  := size
-
-        CPPFLAGS += \
-        -mcpu=$(CPU) \
-        -mthumb \
-        -mno-unaligned-access
-
-        ifneq (,$(findstring clang,$(CC_ARM)))
-            CPPFLAGS += -target arm-none-eabi
-        endif
-
-        LDFLAGS += \
-        -mcpu=$(CPU) \
-        -mthumb \
-        -specs=nano.specs \
-        -specs=nosys.specs
-
-        LDFLAGS += -Xlinker --defsym=CORE_FLASH_START_ADDR=$(FLASH_START_ADDR)
-
-        ifeq ($(DEBUG), 1)
-            CPPFLAGS += -g -gdwarf-2
-            LDFLAGS  += -g -gdwarf-2
-            OPT      := -Og
-        endif
-
-        ifneq ($(FPU),)
-            CPPFLAGS += -mfpu=$(FPU)
-            LDFLAGS  += -mfpu=$(FPU)
-        endif
-
-        ifneq ($(FLOAT-ABI),)
-            CPPFLAGS += -mfloat-abi=$(FLOAT-ABI)
-            LDFLAGS  += -mfloat-abi=$(FLOAT-ABI)
-        endif
-    endif
-else
+ifneq (,$(findstring gen,$(TYPE)))
     CC        := $(CC_NATIVE)
     CXX       := $(CXX_NATIVE)
     LD        := $(LD_NATIVE)
     SIZE_TOOL := size
-
-    LDFLAGS :=
+    LDFLAGS   :=
+    CXXFLAGS  := -std=c++17
+    CPPFLAGS  :=
 
     ifeq ($(DEBUG), 1)
-        CPPFLAGS += -g -gdwarf-2
+        CPPFLAGS := -g -gdwarf-2
         OPT      := -O0
     else
         OPT := -O3

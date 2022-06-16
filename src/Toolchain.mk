@@ -1,4 +1,11 @@
-#toolchain checks
+# Helper function used to verify if given list of packages exist on the system.
+# Don't run this if the user is root - it's very likely sudo is used for flashing in this case
+# and some of the binaries may not be available due to the PATH being set for non-root user only.
+ifneq ($(shell id -u), 0)
+define CHECK_PACKAGES
+	$(foreach package, $(1), $(if $(shell which $(package) 2>/dev/null),,$(error Required package not found: $(package))))
+endef
+endif
 
 ifeq ($(shell uname), Linux)
     FIND      := find
@@ -10,12 +17,6 @@ else
     $(error Unsupported platform)
 endif
 
-CC_AVR          := avr-gcc
-CXX_AVR         := avr-g++
-LD_AVR          := avr-g++
-CC_ARM          := arm-none-eabi-gcc
-CXX_ARM         := arm-none-eabi-g++
-LD_ARM          := arm-none-eabi-g++
 CC_NATIVE       := gcc
 CXX_NATIVE      := g++
 LD_NATIVE       := g++
@@ -24,13 +25,10 @@ YAML_PARSER     := dasel
 CCACHE          := ccache
 
 REQ_PACKAGES := \
+awk \
 git \
 $(FIND) \
 srec_cat \
-$(CC_AVR) \
-$(CXX_AVR) \
-$(CC_ARM) \
-$(CXX_ARM) \
 $(CC_NATIVE) \
 $(CXX_NATIVE) \
 objcopy \
@@ -38,12 +36,7 @@ $(YAML_PARSER) \
 $(SHA256SUM) \
 $(CCACHE)
 
-#don't allow running make at all if required packages don't exist on the system
-#don't run this if the user is root - it's very likely sudo is used for flashing in this case
-#and some of the binaries may not be available due to the PATH being set for non-root user only
-ifneq ($(shell id -u), 0)
-    $(foreach package, $(REQ_PACKAGES), $(if $(shell which $(package) 2>/dev/null),,$(error Required package not found: $(package))))
-endif
+$(call CHECK_PACKAGES,$(REQ_PACKAGES))
 
 #avoid find errors
 #defined here to avoid verify target parsing "2>/dev/null" as an package causing it to fail

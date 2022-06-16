@@ -12,12 +12,6 @@ FW_ROOT_DIR     := ../src
 SCRIPTS_DIR     := ../scripts
 CLANG_TIDY_OUT  := $(BUILD_DIR_BASE)/clang-tidy-fixes.yaml
 
-CC              := clang
-CXX             := clang++
-LLVM_PROFDATA   := llvm-profdata
-LLVM_COV        := llvm-cov
-CLANG_FORMAT    := clang-format
-
 ifeq (,$(wildcard $(DEF_FILE_TARGET)))
     $(error Target doesn't exist)
 endif
@@ -25,6 +19,12 @@ endif
 include Defines.mk
 include Sources.mk
 -include Objects.mk
+
+CC              := clang
+CXX             := clang++
+LLVM_PROFDATA   := llvm-profdata
+LLVM_COV        := llvm-cov
+CLANG_FORMAT    := clang-format
 
 #passed to both c and c++ compiler
 CPPFLAGS := \

@@ -50,3 +50,40 @@ else ifeq ($(TYPE),app)
     DEFINES += \
     USE_FLASH_DESCRIPTORS
 endif
+
+CC             := avr-gcc
+CXX            := avr-g++
+LD             := avr-g++
+AS             := $(CC)
+SIZE_TOOL_BASE := avr-size
+SIZE_TOOL      := $(SIZE_TOOL_BASE) -C --mcu=$(MCU)
+
+REQ_PACKAGES := \
+$(CC) \
+$(CXX) \
+$(LD) \
+$(AS) \
+$(SIZE_TOOL_BASE)
+
+$(call CHECK_PACKAGES,$(REQ_PACKAGES))
+
+CFLAGS += \
+-fpack-struct
+
+CPPFLAGS += \
+-mrelax \
+-mmcu=$(MCU) \
+-funsigned-char \
+-funsigned-bitfields \
+-fno-jump-tables
+
+LDFLAGS += \
+-Wl,--section-start=.text=$(FLASH_START_ADDR) \
+-mrelax \
+-mmcu=$(MCU)
+
+ifeq ($(DEBUG), 1)
+    CPPFLAGS += -g -gdwarf-2
+    LDFLAGS  += -g -gdwarf-2
+    OPT      := -Og
+endif

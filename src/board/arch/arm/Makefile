@@ -29,3 +29,52 @@ ifeq ($(CPU),cortex-m4)
     DEFINES += \
     CORE_ARM_M4
 endif
+
+CC        := arm-none-eabi-gcc
+CXX       := arm-none-eabi-g++
+LD        := arm-none-eabi-g++
+AS        := $(CC)
+SIZE_TOOL := size
+
+REQ_PACKAGES := \
+$(CC) \
+$(CXX) \
+$(LD) \
+$(AS) \
+$(SIZE_TOOL)
+
+$(call CHECK_PACKAGES,$(REQ_PACKAGES))
+
+CPPFLAGS += \
+-mcpu=$(CPU) \
+-mthumb \
+-mno-unaligned-access
+
+ifneq (,$(findstring clang,$(CC_ARM)))
+    CPPFLAGS += -target arm-none-eabi
+endif
+
+LDFLAGS += \
+-mcpu=$(CPU) \
+-mthumb \
+-specs=nano.specs \
+-specs=nosys.specs
+
+LDFLAGS += \
+-Xlinker --defsym=CORE_FLASH_START_ADDR=$(FLASH_START_ADDR)
+
+ifeq ($(DEBUG), 1)
+    CPPFLAGS += -g -gdwarf-2
+    LDFLAGS  += -g -gdwarf-2
+    OPT      := -Og
+endif
+
+ifneq ($(FPU),)
+    CPPFLAGS += -mfpu=$(FPU)
+    LDFLAGS  += -mfpu=$(FPU)
+endif
+
+ifneq ($(FLOAT-ABI),)
+    CPPFLAGS += -mfloat-abi=$(FLOAT-ABI)
+    LDFLAGS  += -mfloat-abi=$(FLOAT-ABI)
+endif
