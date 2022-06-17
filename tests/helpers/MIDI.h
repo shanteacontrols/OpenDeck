@@ -12,6 +12,7 @@
 #include "system/System.h"
 #include "Misc.h"
 #include "stubs/System.h"
+#include "system/Config.h"
 #include <glog/logging.h>
 
 #ifdef HW_TESTS_SUPPORTED
@@ -224,14 +225,16 @@ class MIDIHelper
     template<typename T>
     std::vector<uint8_t> generateSysExGetReq(T section, size_t index)
     {
+        using namespace System;
+
         auto blockIndex = block(section);
         auto split      = Util::Conversion::Split14bit(index);
 
         std::vector<uint8_t> request = {
             0xF0,
-            SYSEX_MANUFACTURER_ID_0,
-            SYSEX_MANUFACTURER_ID_1,
-            SYSEX_MANUFACTURER_ID_2,
+            Config::SYSEX_MANUFACTURER_ID_0,
+            Config::SYSEX_MANUFACTURER_ID_1,
+            Config::SYSEX_MANUFACTURER_ID_2,
             static_cast<uint8_t>(SysExConf::status_t::REQUEST),    // status
             0,                                                     // part
             static_cast<uint8_t>(SysExConf::wish_t::GET),          // wish
@@ -251,15 +254,17 @@ class MIDIHelper
     template<typename S, typename I, typename V>
     std::vector<uint8_t> generateSysExSetReq(S section, I index, V value)
     {
+        using namespace System;
+
         auto blockIndex = block(section);
         auto splitIndex = Util::Conversion::Split14bit(static_cast<uint16_t>(index));
         auto splitValue = Util::Conversion::Split14bit(static_cast<uint16_t>(value));
 
         std::vector<uint8_t> request = {
             0xF0,
-            SYSEX_MANUFACTURER_ID_0,
-            SYSEX_MANUFACTURER_ID_1,
-            SYSEX_MANUFACTURER_ID_2,
+            Config::SYSEX_MANUFACTURER_ID_0,
+            Config::SYSEX_MANUFACTURER_ID_1,
+            Config::SYSEX_MANUFACTURER_ID_2,
             static_cast<uint8_t>(SysExConf::status_t::REQUEST),
             0,
             static_cast<uint8_t>(SysExConf::wish_t::SET),

@@ -18,6 +18,7 @@ limitations under the License.
 
 #include "DMX.h"
 #include "dmxusb/src/DMXUSBWidget.h"
+#include <Target.h>
 
 #ifdef DMX_SUPPORTED
 

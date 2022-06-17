@@ -35,10 +35,11 @@ class Updater
         virtual void     onFirmwareUpdateStart()                                  = 0;
     };
 
-    Updater(BTLDRWriter& writer, const uint64_t startCommand, const uint32_t endCommand, const uint32_t uid)
+    static constexpr uint64_t START_COMMAND = 0x4F70456E6E45704F;
+    static constexpr uint32_t END_COMMAND   = 0x4465436B;
+
+    Updater(BTLDRWriter& writer, const uint32_t uid)
         : _writer(writer)
-        , START_COMMAND(startCommand)
-        , END_COMMAND(endCommand)
         , UID(uid)
     {}
 
@@ -71,17 +72,16 @@ class Updater
 
     BTLDRWriter& _writer;
 
-    uint8_t        _currentStage        = 0;
-    size_t         _currentFwPage       = 0;
-    uint32_t       _receivedWord        = 0;
-    uint32_t       _fwPageBytesReceived = 0;
-    uint8_t        _stageBytesReceived  = 0;
-    uint32_t       _fwBytesReceived     = 0;
-    uint32_t       _fwSize              = 0;
-    uint32_t       _receivedUID         = 0;
-    uint8_t        _startBytesReceived  = 0;
-    const uint64_t START_COMMAND;
-    const uint32_t END_COMMAND;
+    uint8_t  _currentStage        = 0;
+    size_t   _currentFwPage       = 0;
+    uint32_t _receivedWord        = 0;
+    uint32_t _fwPageBytesReceived = 0;
+    uint8_t  _stageBytesReceived  = 0;
+    uint32_t _fwBytesReceived     = 0;
+    uint32_t _fwSize              = 0;
+    uint32_t _receivedUID         = 0;
+    uint8_t  _startBytesReceived  = 0;
+
     const uint32_t UID;
 
     processHandler_t _processHandler[static_cast<uint8_t>(receiveStage_t::AMOUNT)] = {

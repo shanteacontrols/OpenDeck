@@ -21,6 +21,7 @@ limitations under the License.
 #include "SysExParser/SysExParser.h"
 #include "FwSelector/FwSelector.h"
 #include "core/src/Timing.h"
+#include <Target.h>
 
 namespace
 {
@@ -237,7 +238,7 @@ class Reader
     private:
 #ifndef USB_OVER_SERIAL_HOST
     BTLDRWriter _btldrWriter;
-    Updater     _updater = Updater(_btldrWriter, COMMAND_FW_UPDATE_START, COMMAND_FW_UPDATE_END, FW_UID);
+    Updater     _updater = Updater(_btldrWriter, FW_UID);
 #endif
 
 #ifdef USB_SUPPORTED

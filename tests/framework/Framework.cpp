@@ -1,4 +1,5 @@
 #include "Framework.h"
+#include <Target.h>
 
 #ifdef USE_LOGGER
 #include "logger/Logger.h"

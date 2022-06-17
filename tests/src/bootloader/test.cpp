@@ -60,7 +60,7 @@ namespace
 
     SysExParser _sysExParser;
     BTLDRWriter _btldrWriter;
-    Updater     _updater = Updater(_btldrWriter, COMMAND_FW_UPDATE_START, COMMAND_FW_UPDATE_END, FW_UID);
+    Updater     _updater = Updater(_btldrWriter, FW_UID);
     MIDIHelper  _helper;
 }    // namespace
 

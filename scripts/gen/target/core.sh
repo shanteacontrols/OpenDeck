@@ -44,7 +44,6 @@ fi
 
 {
     printf "%s%s\n" '-include $(MAKEFILE_INCLUDE_PREFIX)$(BOARD_GEN_DIR_MCU_BASE)/' "$mcu/MCU.mk"
-    printf "%s\n" "DEFINES += FW_UID=$($script_dir/gen_fw_uid.sh "$target_name")"
 } >> "$out_makefile"
 
 board_name=$($yaml_parser "$yaml_file" boardNameOverride)
@@ -54,4 +53,7 @@ then
     board_name=$target_name
 fi
 
-printf "%s\n" "DEFINES += BOARD_STRING=\\\"$board_name\\\"" >> "$out_makefile"
+{
+    printf "%s\n" "#define BOARD_STRING \"$board_name\""
+    printf "%s\n" "#define FW_UID $($script_dir/gen_fw_uid.sh "$target_name")"
+} >> "$out_header"

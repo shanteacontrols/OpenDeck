@@ -26,6 +26,7 @@ limitations under the License.
 #include "util/configurable/Configurable.h"
 #include "util/conversion/Conversion.h"
 #include "global/MIDIProgram.h"
+#include <Target.h>
 
 using namespace IO;
 using namespace System;

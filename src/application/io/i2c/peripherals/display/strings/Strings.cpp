@@ -21,6 +21,7 @@ limitations under the License.
 #include "Strings.h"
 #include <string.h>
 #include <stdio.h>
+#include <Target.h>
 
 namespace
 {

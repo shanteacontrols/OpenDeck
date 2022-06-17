@@ -55,6 +55,8 @@ namespace Protocol
         HWA&      _hwa;
         Database& _database;
 
+        static constexpr uint16_t ESTA_ID = 0x6555;
+
         bool _enabled = false;
 
         std::optional<uint8_t> sysConfigGet(System::Config::Section::global_t section, size_t index, uint16_t& value);

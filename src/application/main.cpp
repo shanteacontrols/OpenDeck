@@ -364,7 +364,9 @@ class HWAMIDIDIN : public System::Builder::HWA::Protocol::MIDI::DIN
 
     bool init() override
     {
-        Board::UART::config_t config(UART_BAUDRATE_MIDI_STD,
+        static constexpr uint32_t BAUDRATE = 31250;
+
+        Board::UART::config_t config(BAUDRATE,
                                      Board::UART::parity_t::NO,
                                      Board::UART::stopBits_t::ONE,
                                      Board::UART::type_t::RX_TX);
@@ -692,7 +694,9 @@ class HWATouchscreen : public System::Builder::HWA::IO::Touchscreen
 
     bool init() override
     {
-        Board::UART::config_t config(UART_BAUDRATE_TOUCHSCREEN,
+        static constexpr uint32_t BAUDRATE = 38400;
+
+        Board::UART::config_t config(BAUDRATE,
                                      Board::UART::parity_t::NO,
                                      Board::UART::stopBits_t::ONE,
                                      Board::UART::type_t::RX_TX);

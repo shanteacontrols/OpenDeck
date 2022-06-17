@@ -107,7 +107,7 @@ namespace Board
             detail::IO::init();
 
 #ifdef USB_OVER_SERIAL
-            Board::UART::config_t config(UART_BAUDRATE_USB,
+            Board::UART::config_t config(Board::detail::USB::USB_OVER_SERIAL_BAUDRATE,
                                          Board::UART::parity_t::NO,
                                          Board::UART::stopBits_t::ONE,
                                          Board::UART::type_t::RX_TX);
@@ -124,7 +124,7 @@ namespace Board
             detail::IO::indicators::indicateApplicationLoad();
 
 #ifdef USB_OVER_SERIAL
-            Board::UART::config_t config(UART_BAUDRATE_USB,
+            Board::UART::config_t config(Board::detail::USB::USB_OVER_SERIAL_BAUDRATE,
                                          Board::UART::parity_t::NO,
                                          Board::UART::stopBits_t::ONE,
                                          Board::UART::type_t::RX_TX);

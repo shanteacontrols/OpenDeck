@@ -24,57 +24,68 @@ limitations under the License.
 #include <string>
 #include <cstddef>
 #include "util/conversion/Conversion.h"
+#include "updater/Updater.h"
+#include "system/Config.h"
+#include <Target.h>
 
 namespace
 {
     constexpr size_t BYTES_PER_FW_MESSAGE = 32;
-}
 
-void appendCommand(uint64_t command, size_t bytes, std::vector<uint8_t>& output)
-{
-    for (int i = 0; i < 2; i++)
+    void appendSysExID(std::vector<uint8_t>& vec)
     {
-        output.push_back(0xF0);
-        output.push_back(SYSEX_MANUFACTURER_ID_0);
-        output.push_back(SYSEX_MANUFACTURER_ID_1);
-        output.push_back(SYSEX_MANUFACTURER_ID_2);
+        using namespace System;
 
-        std::vector<uint8_t> commandArray;
-
-        if (bytes == 2)
-        {
-            uint64_t shiftAmount = 16 * i;
-
-            commandArray.push_back((command >> (shiftAmount + 0) & 0xFF));
-            commandArray.push_back((command >> (shiftAmount + 8) & 0xFF));
-        }
-        else if (bytes == 4)
-        {
-            uint64_t shiftAmount = 32 * i;
-
-            commandArray.push_back((command >> (shiftAmount + 0) & 0xFF));
-            commandArray.push_back((command >> (shiftAmount + 8) & 0xFF));
-            commandArray.push_back((command >> (shiftAmount + 16) & 0xFF));
-            commandArray.push_back((command >> (shiftAmount + 24) & 0xFF));
-        }
-        else
-        {
-            std::cout << "Incorrect number of bytes per command message specified"
-                      << std::endl;
-            exit(1);
-        }
-
-        for (size_t i = 0; i < commandArray.size(); i++)
-        {
-            auto split = Util::Conversion::Split14bit(commandArray.at(i));
-
-            output.push_back(split.high());
-            output.push_back(split.low());
-        }
-
-        output.push_back(0xF7);
+        vec.push_back(Config::SYSEX_MANUFACTURER_ID_0);
+        vec.push_back(Config::SYSEX_MANUFACTURER_ID_1);
+        vec.push_back(Config::SYSEX_MANUFACTURER_ID_2);
     }
-}
+
+    void appendCommand(uint64_t command, size_t bytes, std::vector<uint8_t>& output)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            output.push_back(0xF0);
+
+            appendSysExID(output);
+
+            std::vector<uint8_t> commandArray;
+
+            if (bytes == 2)
+            {
+                uint64_t shiftAmount = 16 * i;
+
+                commandArray.push_back((command >> (shiftAmount + 0) & 0xFF));
+                commandArray.push_back((command >> (shiftAmount + 8) & 0xFF));
+            }
+            else if (bytes == 4)
+            {
+                uint64_t shiftAmount = 32 * i;
+
+                commandArray.push_back((command >> (shiftAmount + 0) & 0xFF));
+                commandArray.push_back((command >> (shiftAmount + 8) & 0xFF));
+                commandArray.push_back((command >> (shiftAmount + 16) & 0xFF));
+                commandArray.push_back((command >> (shiftAmount + 24) & 0xFF));
+            }
+            else
+            {
+                std::cout << "Incorrect number of bytes per command message specified"
+                          << std::endl;
+                exit(1);
+            }
+
+            for (size_t i = 0; i < commandArray.size(); i++)
+            {
+                auto split = Util::Conversion::Split14bit(commandArray.at(i));
+
+                output.push_back(split.high());
+                output.push_back(split.low());
+            }
+
+            output.push_back(0xF7);
+        }
+    }
+}    // namespace
 
 int main(int argc, char* argv[])
 {
@@ -101,12 +112,10 @@ int main(int argc, char* argv[])
               << contents.size() << " bytes. Generating SysEx file, please wait..."
               << std::endl;
 
-    appendCommand(COMMAND_FW_UPDATE_START, 4, output);
+    appendCommand(Updater::START_COMMAND, 4, output);
 
     output.push_back(0xF0);
-    output.push_back(SYSEX_MANUFACTURER_ID_0);
-    output.push_back(SYSEX_MANUFACTURER_ID_1);
-    output.push_back(SYSEX_MANUFACTURER_ID_2);
+    appendSysExID(output);
 
     for (size_t i = 0; i < 4; i++)
     {
@@ -134,9 +143,7 @@ int main(int argc, char* argv[])
         if (!byteCounter)
         {
             output.push_back(0xF0);
-            output.push_back(SYSEX_MANUFACTURER_ID_0);
-            output.push_back(SYSEX_MANUFACTURER_ID_1);
-            output.push_back(SYSEX_MANUFACTURER_ID_2);
+            appendSysExID(output);
             lastByteSet = 0;
         }
 
@@ -160,7 +167,7 @@ int main(int argc, char* argv[])
         output.push_back(0xF7);
     }
 
-    appendCommand(COMMAND_FW_UPDATE_END, 2, output);
+    appendCommand(Updater::END_COMMAND, 2, output);
 
     outputFile.open(argv[2], std::ios::trunc | std::ios::in | std::ios::out | std::ios::binary);
     outputFile.unsetf(std::ios::skipws);

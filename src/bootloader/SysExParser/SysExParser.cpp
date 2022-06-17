@@ -18,6 +18,7 @@ limitations under the License.
 
 #include "SysExParser.h"
 #include "util/conversion/Conversion.h"
+#include "system/Config.h"
 
 bool SysExParser::isValidMessage(MIDI::usbMIDIPacket_t& packet)
 {
@@ -129,17 +130,19 @@ bool SysExParser::value(size_t index, uint8_t& data)
 
 bool SysExParser::verify()
 {
-    if (_sysExArray[1] != SYSEX_MANUFACTURER_ID_0)
+    using namespace System;
+
+    if (_sysExArray[1] != Config::SYSEX_MANUFACTURER_ID_0)
     {
         return false;
     }
 
-    if (_sysExArray[2] != SYSEX_MANUFACTURER_ID_1)
+    if (_sysExArray[2] != Config::SYSEX_MANUFACTURER_ID_1)
     {
         return false;
     }
 
-    if (_sysExArray[3] != SYSEX_MANUFACTURER_ID_2)
+    if (_sysExArray[3] != Config::SYSEX_MANUFACTURER_ID_2)
     {
         return false;
     }

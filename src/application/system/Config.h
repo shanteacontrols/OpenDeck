@@ -31,6 +31,10 @@ namespace System
         public:
         Config() = delete;
 
+        static constexpr uint8_t SYSEX_MANUFACTURER_ID_0 = 0x00;
+        static constexpr uint8_t SYSEX_MANUFACTURER_ID_1 = 0x53;
+        static constexpr uint8_t SYSEX_MANUFACTURER_ID_2 = 0x43;
+
         enum class block_t : uint8_t
         {
             GLOBAL,

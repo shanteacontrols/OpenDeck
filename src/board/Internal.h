@@ -53,6 +53,8 @@ namespace Board::detail
         void init();
 
 #ifdef USB_OVER_SERIAL
+        constexpr inline uint32_t USB_OVER_SERIAL_BAUDRATE = 38400;
+
         /// Reads the data from UART channel on which USB host is located and checks if
         /// received data is internal packet.
         /// param [in,out] cmd  Reference to variable in which read internal command is stored.

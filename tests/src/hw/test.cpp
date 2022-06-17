@@ -8,6 +8,7 @@
 #include "helpers/MIDI.h"
 #include "stubs/Database.h"
 #include <HWTestDefines.h>
+#include <Target.h>
 #include "system/Builder.h"
 
 namespace
