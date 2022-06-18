@@ -19,16 +19,8 @@ src/application/gen/*
 *.b#*
 *.s#*
 *.dri
-*.GBL
-*.GBO
-*.GBS
 *.GKS
-*.GKO
-*.GTL
-*.GTO
-*.GTS
 *.gpi
-*.TXT
 *fp-info-cache
 *-backups
 *-bak
