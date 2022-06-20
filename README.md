@@ -35,9 +35,25 @@ OpenDeck supports sending of both 7-bit and 14-bit Non-Registered Part Numbers (
 
 If the feature you want isn't supported yet, don't feel discouraged. Open up a [discussion thread](https://github.com/shanteacontrols/OpenDeck/discussions) and let's talk about it.
 
+## Official board
+
+![](https://raw.githubusercontent.com/shanteacontrols/website/master/images/opendeck3-header.png)
+
+The official board currently comes in A and B variant: A variant is based on Arduino Nano 33 BLE with nRF52840 MCU and B variant on STM32F4 Black Pill with STM32F411 MCU. A variant supports BLE MIDI and supports few more presets due to larger flash memory - everything else is the same. The board features the following:
+
+* 128 digital inputs
+* 64 digital outputs
+* 64 analog inputs
+* DIN MIDI
+* USB MIDI
+* DMX output
+* Bluetooth on A variant
+
+The board is available on [Tindie](https://www.tindie.com/products/paradajz/opendeck-diy-midi-platform-v3/).
+
 ## Supported boards
 
-OpenDeck firmware is compatible with [official OpenDeck board](https://www.tindie.com/products/paradajz/opendeck-diy-midi-platform/), as well as various other boards, both small and large:
+The firmware supports various other boards, both small and large:
 
 * [Adafruit ItsyBitsy nRF52840 Express](https://www.adafruit.com/product/4481)
 * [Arduino Nano 33 BLE](https://store.arduino.cc/products/arduino-nano-33-ble)
@@ -49,13 +65,15 @@ OpenDeck firmware is compatible with [official OpenDeck board](https://www.tindi
 * [STM32F4 Discovery](https://www.st.com/en/evaluation-tools/stm32f4discovery.html) ([Mouser](https://hr.mouser.com/ProductDetail/STMicroelectronics/STM32F407G-DISC1?qs=%2Fha2pyFadugMvYxi1ftRWf5mGCRgIpVnZzkmnZLph%2FPbqHgeIRafES4CiZOiJh1y) / [Digikey](https://www.digikey.com/en/products/detail/stmicroelectronics/STM32F407G-DISC1/5824404?s=N4IgTCBcDaIMoBUCyBmMAxALABgOwHEBaAEQEk4BhARhAF0BfIA))
 * [STM32F401CC Black Pill](https://stm32-base.org/boards/STM32F401CCU6-WeAct-Black-Pill-V1.2.html)
 * [STM32F401CE Black Pill](https://stm32-base.org/boards/STM32F401CEU6-WeAct-Black-Pill-V3.0)
-* [STM32F411 Black Pill](https://stm32-base.org/boards/STM32F411CEU6-WeAct-Black-Pill-V2.0) ([Adafruit](https://www.adafruit.com/product/4877) / [AliExpress](https://www.aliexpress.com/item/1005001456186625.html?pdp_ext_f=%7B%22sku_id%22:%2212000016817645221%22,%22ship_from%22:%22CN%22%7D&gps-id=pcStoreJustForYou&scm=1007.23125.137358.0&scm_id=1007.23125.137358.0&scm-url=1007.23125.137358.0&pvid=c145b0d6-10a9-42f7-9ddf-a3701e2ee9a1&spm=a2g0o.store_pc_home.smartJustForYou_6000147819213.1))
+* [STM32F411 Black Pill [1]](https://stm32-base.org/boards/STM32F411CEU6-WeAct-Black-Pill-V2.0) ([Adafruit](https://www.adafruit.com/product/4877))
 * [Waveshare Core405R](https://www.waveshare.com/core405r.htm)
 * [Waveshare Core407V](https://www.waveshare.com/core407v.htm)
 * [Waveshare Core407I](https://www.waveshare.com/core407i.htm)
 * [STM32F4VE](https://stm32-base.org/boards/STM32F407VET6-STM32-F4VE-V2.0) ([eBay](https://www.ebay.com/itm/401956886691?hash=item5d967f58a3:g:fFcAAOSw4fhdy2rk))
 * [TPyBoard (PyBoard clone)](http://www.chinalctech.com/m/view.php?aid=338) ([eBay](https://www.ebay.com/itm/183887614794?hash=item2ad08e534a:g:bmsAAOSwrSpdLtFM))
 * [nRF52840 DK](https://www.nordicsemi.com/Products/Development-hardware/nrf52840-dk)
+
+[1] WeAct (developer of Black Pill boards) currently sells Black Pill board with AT32F403ACGU7 MCU instead of STM32F411. **This variant isn't supported!**
 
 *Some of the supported boards*
 
