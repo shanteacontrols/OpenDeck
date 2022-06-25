@@ -109,6 +109,13 @@ namespace
          NRFX_UARTE_INSTANCE(1),
     };
 
+    enum class txEvent_t : uint8_t
+    {
+        EMPTY,
+        COMPLETE,
+        STOPPED
+    };
+
     volatile Board::detail::UART::dmxState_t _dmxState[core::mcu::peripherals::MAX_UART_INTERFACES];
 
     inline void dmxSetBreakBaudrate(uint8_t channel)
@@ -121,7 +128,7 @@ namespace
         nrf_uarte_baudrate_set(_uartInstance[channel].p_reg, _baudRateMap[static_cast<uint32_t>(Board::detail::UART::dmxBaudRate_t::BR_DATA)]);
     }
 
-    inline void checkTx(uint8_t channel)
+    inline void checkTx(uint8_t channel, txEvent_t event)
     {
         using namespace Board::detail::UART;
 
@@ -143,13 +150,20 @@ namespace
             }
             else
             {
-                // Transmitter has to be stopped by triggering STOPTX task to achieve
-                // the lowest possible level of the UARTE power consumption.
+                if (event == txEvent_t::STOPPED)
+                {
+                    // NRF_UARTE_TASK_STOPTX already triggered or there was no transmission in the first place
+                    //  tx is done
+                    _transmitting[channel] = false;
+                }
+                else
+                {
+                    // Transmitter has to be stopped by triggering STOPTX task to achieve
+                    // the lowest possible level of the UARTE power consumption.
 
-                _transmitting[channel] = false;
-
-                nrf_uarte_event_clear(_uartInstance[channel].p_reg, NRF_UARTE_EVENT_TXSTOPPED);
-                nrf_uarte_task_trigger(_uartInstance[channel].p_reg, NRF_UARTE_TASK_STOPTX);
+                    nrf_uarte_event_clear(_uartInstance[channel].p_reg, NRF_UARTE_EVENT_TXSTOPPED);
+                    nrf_uarte_task_trigger(_uartInstance[channel].p_reg, NRF_UARTE_TASK_STOPTX);
+                }
             }
         }
         break;
@@ -157,30 +171,38 @@ namespace
         case dmxState_t::IDLE:
         case dmxState_t::DATA:
         {
-            dmxSetBreakBaudrate(channel);
-            switchDmxBuffer();
-            _dmxState[channel] = dmxState_t::BREAK_CHAR;
+            // switch baudrate only once the outgoing transmission is fully complete *or* stopped
+            if (event != txEvent_t::EMPTY)
+            {
+                dmxSetBreakBaudrate(channel);
+                switchDmxBuffer();
+                _dmxState[channel] = dmxState_t::BREAK_CHAR;
 
-            _nrfTxBuffer[channel] = 0;
-            nrf_uarte_event_clear(_uartInstance[channel].p_reg, NRF_UARTE_EVENT_ENDTX);
-            nrf_uarte_event_clear(_uartInstance[channel].p_reg, NRF_UARTE_EVENT_TXSTOPPED);
-            nrf_uarte_tx_buffer_set(_uartInstance[channel].p_reg, &_nrfTxBuffer[channel], 1);
-            _transmitting[channel] = true;
-            nrf_uarte_task_trigger(_uartInstance[channel].p_reg, NRF_UARTE_TASK_STARTTX);
+                _nrfTxBuffer[channel] = 0;
+                nrf_uarte_event_clear(_uartInstance[channel].p_reg, NRF_UARTE_EVENT_ENDTX);
+                nrf_uarte_event_clear(_uartInstance[channel].p_reg, NRF_UARTE_EVENT_TXSTOPPED);
+                nrf_uarte_tx_buffer_set(_uartInstance[channel].p_reg, &_nrfTxBuffer[channel], 1);
+                _transmitting[channel] = true;
+                nrf_uarte_task_trigger(_uartInstance[channel].p_reg, NRF_UARTE_TASK_STARTTX);
+            }
         }
         break;
 
         case dmxState_t::BREAK_CHAR:
         {
-            dmxSetDataBaudrate(channel);
-            _dmxState[channel] = dmxState_t::DATA;
+            // start sending data once the break char is fully sent
+            if (event == txEvent_t::COMPLETE)
+            {
+                dmxSetDataBaudrate(channel);
+                _dmxState[channel] = dmxState_t::DATA;
 
-            nrf_uarte_event_clear(_uartInstance[channel].p_reg, NRF_UARTE_EVENT_ENDTX);
-            nrf_uarte_event_clear(_uartInstance[channel].p_reg, NRF_UARTE_EVENT_TXSTOPPED);
+                nrf_uarte_event_clear(_uartInstance[channel].p_reg, NRF_UARTE_EVENT_ENDTX);
+                nrf_uarte_event_clear(_uartInstance[channel].p_reg, NRF_UARTE_EVENT_TXSTOPPED);
 
-            nrf_uarte_tx_buffer_set(_uartInstance[channel].p_reg, &dmxBuffer()->at(0), 513);
-            _transmitting[channel] = true;
-            nrf_uarte_task_trigger(_uartInstance[channel].p_reg, NRF_UARTE_TASK_STARTTX);
+                nrf_uarte_tx_buffer_set(_uartInstance[channel].p_reg, &dmxBuffer()->at(0), 513);
+                _transmitting[channel] = true;
+                nrf_uarte_task_trigger(_uartInstance[channel].p_reg, NRF_UARTE_TASK_STARTTX);
+            }
         }
         break;
 
@@ -202,7 +224,7 @@ namespace Board::detail::UART::MCU
 
         if (!_transmitting[channel])
         {
-            checkTx(channel);
+            checkTx(channel, txEvent_t::COMPLETE);
         }
     }
 
@@ -330,17 +352,28 @@ void core::mcu::isr::uart(uint8_t channel)
         nrf_uarte_event_clear(_uartInstance[channel].p_reg, NRF_UARTE_EVENT_RXTO);
     }
 
-    //  last TX byte transmitted from internal NRF buffer
+    //  tx empty
+    if (nrf_uarte_event_check(_uartInstance[channel].p_reg, NRF_UARTE_EVENT_TXDRDY))
+    {
+        nrf_uarte_event_clear(_uartInstance[channel].p_reg, NRF_UARTE_EVENT_TXDRDY);
+        checkTx(channel, txEvent_t::EMPTY);
+    }
+
+    // tx complete
     if (nrf_uarte_event_check(_uartInstance[channel].p_reg, NRF_UARTE_EVENT_ENDTX))
     {
         nrf_uarte_event_clear(_uartInstance[channel].p_reg, NRF_UARTE_EVENT_ENDTX);
-        checkTx(channel);
+        checkTx(channel, txEvent_t::COMPLETE);
     }
 
-    // transmitting stopped
+    // tx stopped
     if (nrf_uarte_event_check(_uartInstance[channel].p_reg, NRF_UARTE_EVENT_TXSTOPPED))
     {
         nrf_uarte_event_clear(_uartInstance[channel].p_reg, NRF_UARTE_EVENT_TXSTOPPED);
+
+        // it's possible that something has entered the ring buffer in the mean time:
+        // verify, but without triggering stop event again
+        checkTx(channel, txEvent_t::STOPPED);
     }
 }
 
