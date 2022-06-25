@@ -18,6 +18,13 @@ else
     BUILD_TYPE := release
 endif
 
+# Verbose builds
+ifeq ($(V),1)
+    Q :=
+else
+    Q := @
+endif
+
 BUILD_DIR := $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)
 
 ifneq (,$(filter $(MAKECMDGOALS),concat))

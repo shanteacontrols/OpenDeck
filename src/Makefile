@@ -66,115 +66,118 @@ binary: $(OUTPUT).elf
 $(OUTPUT).elf: $(OBJECTS)
 # Perform the linking only if sources have been defined
 ifneq ($(OBJECTS),)
-	@echo Creating executable: $@
-	@$(LD) -o$(OUTPUT).elf $(OBJECTS) $(LDFLAGS)
+	$(Q)echo Creating executable: $@
+	$(Q)$(LD) -o$(OUTPUT).elf $(OBJECTS) $(LDFLAGS)
 ifeq (,$(findstring gen,$(TYPE)))
-	@objcopy --gap-fill 0xFF -O ihex $(OUTPUT).elf $(OUTPUT).hex
+	$(Q)objcopy --gap-fill 0xFF -O ihex $(OUTPUT).elf $(OUTPUT).hex
 endif
 ifeq ($(TYPE),app)
 # Append metadata only for application
-	@srec_cat $(OUTPUT).hex -Intel -exclude $(FW_METADATA_LOCATION) $$(($(FW_METADATA_LOCATION) + $(FW_METADATA_SIZE))) -MAximum_Little_Endian $(FW_METADATA_LOCATION) -o $(OUTPUT).hex -Intel
-	@srec_cat $(OUTPUT).hex -Intel -Cyclic_Redundancy_Check_16_Little_Endian -MAximum-Address $(OUTPUT).hex -Intel -Cyclic_Redundancy_Check_16_XMODEM -Output $(OUTPUT).hex -Intel
+	$(Q)srec_cat $(OUTPUT).hex -Intel -exclude $(FW_METADATA_LOCATION) $$(($(FW_METADATA_LOCATION) + $(FW_METADATA_SIZE))) -MAximum_Little_Endian $(FW_METADATA_LOCATION) -o $(OUTPUT).hex -Intel
+	$(Q)srec_cat $(OUTPUT).hex -Intel -Cyclic_Redundancy_Check_16_Little_Endian -MAximum-Address $(OUTPUT).hex -Intel -Cyclic_Redundancy_Check_16_XMODEM -Output $(OUTPUT).hex -Intel
 endif
 ifeq (,$(findstring gen,$(TYPE)))
-	@objcopy -I ihex "$(OUTPUT).hex" -O binary "$(OUTPUT).bin"
+	$(Q)objcopy -I ihex "$(OUTPUT).hex" -O binary "$(OUTPUT).bin"
 endif
-	@$(SIZE_TOOL) "$(OUTPUT).elf"
+	$(Q)$(SIZE_TOOL) "$(OUTPUT).elf"
 # Indicate that new binary has been created
-	@echo $(shell date +%s%N) > $(BUILD_TIME_FILE)
+	$(Q)echo $(shell date +%s%N) > $(BUILD_TIME_FILE)
 endif
 
 all:
-	@echo Starting build for $(TARGET)
-	@$(MAKE) --no-print-directory TYPE=app TARGET=$(TARGET) DEBUG=$(DEBUG) generate
-	@$(MAKE) --no-print-directory TYPE=app TARGET=$(TARGET) DEBUG=$(DEBUG) pre-build
-	@echo Building application...
-	@$(MAKE) --no-print-directory TYPE=app TARGET=$(TARGET) DEBUG=$(DEBUG) binary
-	@echo Building bootloader...
-	@$(MAKE) --no-print-directory TYPE=boot TARGET=$(TARGET) DEBUG=$(DEBUG) binary
-	@echo Building sysexgen...
-	@$(MAKE) --no-print-directory TYPE=sysexgen TARGET=$(TARGET) DEBUG=$(DEBUG) binary
-	@echo Building flashgen...
-	@$(MAKE) --no-print-directory TYPE=flashgen TARGET=$(TARGET) DEBUG=$(DEBUG) binary
+	$(Q)echo Starting build for $(TARGET)
+	$(Q)$(MAKE) --no-print-directory TYPE=app TARGET=$(TARGET) DEBUG=$(DEBUG) generate V=$(V)
+	$(Q)$(MAKE) --no-print-directory TYPE=app TARGET=$(TARGET) DEBUG=$(DEBUG) pre-build V=$(V)
+	$(Q)echo Building application...
+	$(Q)$(MAKE) --no-print-directory TYPE=app TARGET=$(TARGET) DEBUG=$(DEBUG) binary V=$(V)
+	$(Q)echo Building bootloader...
+	$(Q)$(MAKE) --no-print-directory TYPE=boot TARGET=$(TARGET) DEBUG=$(DEBUG) binary V=$(V)
+	$(Q)echo Building sysexgen...
+	$(Q)$(MAKE) --no-print-directory TYPE=sysexgen TARGET=$(TARGET) DEBUG=$(DEBUG) binary V=$(V)
+	$(Q)echo Building flashgen...
+	$(Q)$(MAKE) --no-print-directory TYPE=flashgen TARGET=$(TARGET) DEBUG=$(DEBUG) binary V=$(V)
 # Relink only if needed
-	@NEW_BUILD_TIME=$$(cat $(BUILD_TIME_FILE)) && if [ $$(echo $$NEW_BUILD_TIME) = $$(echo $(LAST_BUILD_TIME)) ]; then \
+	$(Q)NEW_BUILD_TIME=$$(cat $(BUILD_TIME_FILE)) && if [ $$(echo $$NEW_BUILD_TIME) = $$(echo $(LAST_BUILD_TIME)) ]; then \
 	echo Merged binary up to date; \
 	else \
-	$(MAKE) --no-print-directory TARGET=$(TARGET) DEBUG=$(DEBUG) concat; \
-	$(MAKE) --no-print-directory TARGET=$(TARGET) DEBUG=$(DEBUG) post-build; \
+	$(MAKE) --no-print-directory TARGET=$(TARGET) DEBUG=$(DEBUG) concat V=$(V); \
+	$(MAKE) --no-print-directory TARGET=$(TARGET) DEBUG=$(DEBUG) post-build V=$(V); \
 	fi
 
 concat: $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin
-	@mkdir -p $(BUILD_DIR)
-ifeq ($(ARCH), avr)
-	@srec_cat \
+	$(Q)mkdir -p $(BUILD_DIR)
+# If INIT_DB_DATA is set to 1, DB data will be initialized in firmware.
+# Otherwise, initial DB data is read from generated binary file appended
+# to application binary.
+ifneq (,$(findstring INIT_DB_DATA=1,$(DEFINES)))
+	$(Q)srec_cat \
 	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/$(TARGET).hex -Intel \
 	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/boot/$(TARGET).hex -Intel \
 	-o $(BUILD_DIR)/$(TARGET).hex -Intel
-	@srec_cat \
+	$(Q)srec_cat \
 	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/$(TARGET).hex -Intel \
 	-o $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex
 else
 # Define FACTORY_IMAGE_START_ADDR variable as shell variable instead of make variable:
 # when this recipe is started, generated_flash.bin_offset doesn't exist yet, so make will
 # complain that it cannot find it if it were defined like this: $(shell cat $(BUILD_DIR_BASE)/flashgen/$(TARGET)/release/generated_flash.bin_offset).
-	@FACTORY_IMAGE_START_ADDR=$$(cat $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin_offset) && \
+	$(Q)FACTORY_IMAGE_START_ADDR=$$(cat $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin_offset) && \
 	srec_cat \
 	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/boot/$(TARGET).hex -Intel \
 	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/$(TARGET).hex -Intel \
 	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
 	-o $(BUILD_DIR)/$(TARGET).hex -Intel
-	@FACTORY_IMAGE_START_ADDR=$$(cat $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin_offset) && \
+	$(Q)FACTORY_IMAGE_START_ADDR=$$(cat $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin_offset) && \
 	srec_cat \
 	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/$(TARGET).hex -Intel \
 	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
 	-o $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex
 endif
-	@objcopy -I ihex "$(BUILD_DIR)/$(TARGET).hex" --gap-fill 0xFF -O binary "$(BUILD_DIR)/$(TARGET).bin"
-	@objcopy -I ihex "$(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex" --gap-fill 0xFF -O binary "$(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).bin"
-	@rm $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex
-	@echo Merged binary created: $(BUILD_DIR)/$(TARGET).hex
-	@echo Creating SysEx file...
+	$(Q)objcopy -I ihex "$(BUILD_DIR)/$(TARGET).hex" --gap-fill 0xFF -O binary "$(BUILD_DIR)/$(TARGET).bin"
+	$(Q)objcopy -I ihex "$(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex" --gap-fill 0xFF -O binary "$(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).bin"
+	$(Q)rm $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex
+	$(Q)echo Merged binary created: $(BUILD_DIR)/$(TARGET).hex
+	$(Q)echo Creating SysEx file...
 # Raw syx file for use with amidi
-	@$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/sysexgen/$(TARGET).elf $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).bin $(BUILD_DIR)/$(TARGET).sysex.syx
+	$(Q)$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/sysexgen/$(TARGET).elf $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).bin $(BUILD_DIR)/$(TARGET).sysex.syx
 # ASCII sysex file for use with web configurator
-	@hexdump -v -e '/1 "%02x "' $(BUILD_DIR)/$(TARGET).sysex.syx | sed 's/f7/f7\n/g' | sed 's/^ *//' | tr a-z A-Z > $(BUILD_DIR)/$(TARGET).sysex
-	@echo SysEx file created: $(BUILD_DIR)/$(TARGET).sysex
+	$(Q)hexdump -v -e '/1 "%02x "' $(BUILD_DIR)/$(TARGET).sysex.syx | sed 's/f7/f7\n/g' | sed 's/^ *//' | tr a-z A-Z > $(BUILD_DIR)/$(TARGET).sysex
+	$(Q)echo SysEx file created: $(BUILD_DIR)/$(TARGET).sysex
 
 generate: $(GEN_FILES)
 pre-build::
 post-build::
 
 $(TARGET_GEN_HEADER): $(DEF_FILE_TARGET)
-	@$(SCRIPTS_DIR)/gen/gen_target.sh $(PROJECT) $(DEF_FILE_TARGET) $(BOARD_GEN_DIR_TARGET)
+	$(Q)$(SCRIPTS_DIR)/gen/gen_target.sh $(PROJECT) $(DEF_FILE_TARGET) $(BOARD_GEN_DIR_TARGET)
 
 $(TSCREEN_GEN_SOURCE): $(DEF_FILE_TSCREEN)
-	@$(SCRIPTS_DIR)/gen/gen_touchscreen.sh $< $@
+	$(Q)$(SCRIPTS_DIR)/gen/gen_touchscreen.sh $< $@
 
 ifeq ($(ARCH),arm)
 $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin: $(DEF_FILE_TARGET) $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/application/database/Database.cpp.o $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/application/database/CustomInit.cpp.o
-	@$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/$(TARGET).elf $@
+	$(Q)$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/$(TARGET).elf $@
 else
 $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin:
 # Just create dummy binary
-	@mkdir -p $(@D)
-	@touch $@
+	$(Q)mkdir -p $(@D)
+	$(Q)touch $@
 endif
 
 $(BUILD_DIR)/%.c.o: %.c
-	@mkdir -p $(@D)
-	@echo Building: $<
-	@$(CCACHE) $(CC) $(CPPFLAGS) $(CFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	$(Q)mkdir -p $(@D)
+	$(Q)echo Building: $<
+	$(Q)$(CCACHE) $(CC) $(CPPFLAGS) $(CFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
 $(BUILD_DIR)/%.cpp.o: %.cpp
-	@mkdir -p $(@D)
-	@echo Building: $<
-	@$(CCACHE) $(CXX) $(CPPFLAGS) $(CXXFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	$(Q)mkdir -p $(@D)
+	$(Q)echo Building: $<
+	$(Q)$(CCACHE) $(CXX) $(CPPFLAGS) $(CXXFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
 define COMPILE_ASM
-	@mkdir -p $(@D)
-	@echo Building: $<
-	@$(CCACHE) $(AS) $(CPPFLAGS) $(CFLAGS) $(ASFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	$(Q)mkdir -p $(@D)
+	$(Q)echo Building: $<
+	$(Q)$(CCACHE) $(AS) $(CPPFLAGS) $(CFLAGS) $(ASFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 endef
 
 $(BUILD_DIR)/%.s.o: %.s

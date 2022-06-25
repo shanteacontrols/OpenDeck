@@ -69,21 +69,21 @@ DEFINES += \
 SOFTDEVICE_PRESENT
 
 $(NRF52_SDK_DL_MARKER_PATH):
-	@echo Downloading nRF52 SDK...
-	@mkdir -p $(DEPS_DIR)
-	@wget --quiet $(NRF52_SDK_LINK) -P $(DEPS_DIR)
-	@echo Extracting nRF52 SDK...
-	@unzip -q $(NRF52_SDK_ZIP_PATH) -d $(DEPS_DIR)
-	@touch $(NRF52_SDK_DL_MARKER_PATH)
-	@rm $(NRF52_SDK_ZIP_PATH)
+	$(Q)echo Downloading nRF52 SDK...
+	$(Q)mkdir -p $(DEPS_DIR)
+	$(Q)wget --quiet $(NRF52_SDK_LINK) -P $(DEPS_DIR)
+	$(Q)echo Extracting nRF52 SDK...
+	$(Q)unzip -q $(NRF52_SDK_ZIP_PATH) -d $(DEPS_DIR)
+	$(Q)touch $(NRF52_SDK_DL_MARKER_PATH)
+	$(Q)rm $(NRF52_SDK_ZIP_PATH)
 
 pre-build:: $(NRF52_SDK_DL_MARKER_PATH)
 
 post-build::
-	@echo -n "Appending SoftDevice to merged binary..."
-	@srec_cat \
+	$(Q)echo -n "Appending SoftDevice to merged binary..."
+	$(Q)srec_cat \
 	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/merged/$(TARGET).hex -Intel \
 	$(NRF52_SOFTDEVICE_PATH) -Intel \
 	-o $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/merged/$(TARGET).hex -Intel
-	@objcopy -I ihex "$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/merged/$(TARGET).hex" --gap-fill 0xFF -O binary "$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/merged/$(TARGET).bin"
-	@echo " done"
+	$(Q)objcopy -I ihex "$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/merged/$(TARGET).hex" --gap-fill 0xFF -O binary "$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/merged/$(TARGET).bin"
+	$(Q)echo " done"
