@@ -1,52 +1,8 @@
-include Toolchain.mk
-
-PROJECT              := OpenDeck
-BUILD_DIR_BASE       := ./build
-TARGET               := discovery
-DEF_FILE_TARGET      := ../config/target/$(TARGET).yml
-DEF_FILE_TSCREEN     := ../config/touchscreen/$(TARGET).json
-TYPE                 := app
-SCRIPTS_DIR          := ../scripts
-DEPS_DIR             := deps
-CLANG_TIDY_OUT       := $(BUILD_DIR_BASE)/clang-tidy-fixes.yaml
-
-ifeq (,$(wildcard $(DEF_FILE_TARGET)))
-    $(error Target doesn't exist)
-endif
-
-ifeq ($(DEBUG),1)
-    BUILD_TYPE := debug
-else
-    BUILD_TYPE := release
-endif
-
-BUILD_DIR := $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)
-
-ifneq (,$(filter $(MAKECMDGOALS),concat))
-    BUILD_DIR := $(BUILD_DIR)/merged
-else
-    BUILD_DIR := $(BUILD_DIR)/$(TYPE)
-endif
-
-OUTPUT           := $(BUILD_DIR)/$(TARGET)
-BUILD_TIME_FILE  := $(BUILD_DIR_BASE)/lastbuild
-LAST_BUILD_TIME  := $(shell cat $(BUILD_TIME_FILE) 2>/dev/null | awk '{print$$1}END{if(NR==0)print 0}')
-FLASH_BINARY_DIR := $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/merged
-
-SYSEX_BINARY_SUFFIX := _sysex
-
 # Important - do not change the order of inclusion!
+include Toolchain.mk
 include Defines.mk
 include Sources.mk
 -include flashing/$(FLASH_TOOL).mk
-
-.DEFAULT_GOAL := merged
-
-# When set to 1, format target will fail if there are any changes to the repository after formatting.
-CF_FAIL_ON_DIFF := 0
-
-# When set to 1, lint target will fail if there are any changes to the repository after linting.
-CL_FAIL_ON_DIFF := 0
 
 # Passed to both C and C++ compiler
 CPPFLAGS += \
@@ -102,6 +58,8 @@ ifneq (,$(findstring gen,$(TYPE)))
         OPT := -O3
     endif
 endif
+
+.DEFAULT_GOAL := merged
 
 binary: $(OUTPUT).elf
 

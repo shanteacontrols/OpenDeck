@@ -1,21 +1,4 @@
 include ../src/Toolchain.mk
-
-.DEFAULT_GOAL   := test
-
-BUILD_DIR_BASE  := ./build
-TARGET          := discovery
-DEF_FILE_TARGET := ../config/target/$(TARGET).yml
-TYPE            := app
-BUILD_DIR       := $(BUILD_DIR_BASE)/$(TARGET)
-TEST_BINARIES   := $(addprefix -object ,$(shell $(FIND) $(BUILD_DIR_BASE) -name "*.out" 2>/dev/null))
-FW_ROOT_DIR     := ../src
-SCRIPTS_DIR     := ../scripts
-CLANG_TIDY_OUT  := $(BUILD_DIR_BASE)/clang-tidy-fixes.yaml
-
-ifeq (,$(wildcard $(DEF_FILE_TARGET)))
-    $(error Target doesn't exist)
-endif
-
 include Defines.mk
 include Sources.mk
 -include Objects.mk
@@ -54,6 +37,8 @@ LDFLAGS := \
 -lpthread \
 -lgmock \
 -lgtest
+
+.DEFAULT_GOAL := test
 
 $(BUILD_DIR)/%.c.o $(BUILD_DIR_BASE)/%.c.o: %.c
 	@mkdir -p $(@D)
