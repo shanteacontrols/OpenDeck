@@ -87,3 +87,6 @@ ifeq ($(DEBUG), 1)
     LDFLAGS  += -g -gdwarf-2
     OPT      := -Og
 endif
+
+flashread:
+	@avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -C /etc/avrdude.conf -U flash:r:readcontents.bin:r

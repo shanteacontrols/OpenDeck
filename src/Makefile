@@ -183,11 +183,6 @@ $(BUILD_DIR)/%.s.o: %.s
 $(BUILD_DIR)/%.S.o: %.S
 	$(COMPILE_ASM)
 
-ifeq ($(ARCH), avr)
-flashread:
-	@avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -C /etc/avrdude.conf -U flash:r:readcontents.bin:r
-endif
-
 format:
 	@echo Checking code formatting...
 	@$(FIND) . -regex '.*\.\(cpp\|hpp\|h\|cc\|cxx\|c\)' \
