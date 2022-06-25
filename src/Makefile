@@ -59,7 +59,7 @@ ifneq (,$(findstring gen,$(TYPE)))
     endif
 endif
 
-.DEFAULT_GOAL := merged
+.DEFAULT_GOAL := all
 
 binary: $(OUTPUT).elf
 
@@ -84,7 +84,7 @@ endif
 	@echo $(shell date +%s%N) > $(BUILD_TIME_FILE)
 endif
 
-merged:
+all:
 	@echo Starting build for $(TARGET)
 	@$(MAKE) --no-print-directory TYPE=app TARGET=$(TARGET) DEBUG=$(DEBUG) generate
 	@$(MAKE) --no-print-directory TYPE=app TARGET=$(TARGET) DEBUG=$(DEBUG) pre-build
