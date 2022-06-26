@@ -34,7 +34,7 @@ CC        := arm-none-eabi-gcc
 CXX       := arm-none-eabi-g++
 LD        := arm-none-eabi-g++
 AS        := $(CC)
-SIZE_TOOL := size
+SIZE_TOOL := 
 
 REQ_PACKAGES := \
 $(CC) \

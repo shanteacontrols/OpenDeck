@@ -37,7 +37,8 @@ ASFLAGS += \
 LDFLAGS += \
 -Wl,--gc-sections \
 -Wl,-Map="$(OUTPUT).map",--cref \
--T $(LINKER_FILE)
+-T $(LINKER_FILE) \
+-Wl,--print-memory-usage
 
 # Optimization level
 OPT := -Os
@@ -47,7 +48,7 @@ ifneq (,$(findstring gen,$(TYPE)))
     CXX       := $(CXX_NATIVE)
     LD        := $(LD_NATIVE)
     SIZE_TOOL := size
-    LDFLAGS   :=
+    LDFLAGS   := 
     CXXFLAGS  := -std=c++17
     CPPFLAGS  :=
 
@@ -79,7 +80,9 @@ endif
 ifeq (,$(findstring gen,$(TYPE)))
 	$(Q)objcopy -I ihex "$(OUTPUT).hex" -O binary "$(OUTPUT).bin"
 endif
+ifneq (,$(SIZE_TOOL))
 	$(Q)$(SIZE_TOOL) "$(OUTPUT).elf"
+endif
 # Indicate that new binary has been created
 	$(Q)echo $(shell date +%s%N) > $(BUILD_TIME_FILE)
 endif
