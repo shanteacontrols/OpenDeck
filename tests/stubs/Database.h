@@ -246,7 +246,7 @@ class DBstorageMock : public LESSDB::StorageAccess
     EmuEEPROMStorageAccess _storageMock;
     EmuEEPROM              _emuEEPROM = EmuEEPROM(_storageMock, false);
 #else
-    std::array<uint8_t, EEPROM_END> _memoryArray = {};
+    std::array<uint8_t, CORE_MCU_EEPROM_SIZE - 1> _memoryArray = {};
 #endif
 };
 

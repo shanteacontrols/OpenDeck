@@ -25,12 +25,12 @@ limitations under the License.
 namespace
 {
 #ifdef DMX_SUPPORTED
-    volatile Board::detail::UART::dmxState_t _dmxState[core::mcu::peripherals::MAX_UART_INTERFACES];
+    volatile Board::detail::UART::dmxState_t _dmxState[CORE_MCU_MAX_UART_INTERFACES];
     volatile uint32_t                        _dmxByteCounter;
     uint32_t                                 _dmxBreakBRR;
     uint32_t                                 _dmxDataBRR;
 #endif
-    volatile bool _transmitting[core::mcu::peripherals::MAX_UART_INTERFACES];
+    volatile bool _transmitting[CORE_MCU_MAX_UART_INTERFACES];
 }    // namespace
 
 // these macros are used to avoid function calls in ISR as much as possible and to avoid

@@ -33,7 +33,7 @@ namespace
 
     inline uint32_t scaleValue(uint32_t value)
     {
-        if (value > core::mcu::adc::MAX)
+        if (value > CORE_MCU_ADC_MAX_VALUE)
         {
             // invalid value
             return 0xFFFFFFFF;
@@ -43,13 +43,13 @@ namespace
         // if 3.3V input analog voltage is used, ADC requires gain setting of 3.6V (nothing between 3.0V and 3.6V)
         // calculate maximum range for 3.3V and scale (difference is ~9%)
         static constexpr uint32_t ADC_MAX_RANGE_V33 =
-            core::mcu::adc::MAX - static_cast<uint32_t>(static_cast<float>(core::mcu::adc::MAX) * 0.09);
+            static_cast<uint32_t>(CORE_MCU_ADC_MAX_VALUE) - static_cast<uint32_t>(static_cast<float>(CORE_MCU_ADC_MAX_VALUE) * 0.09);
 
         return core::util::MAP_RANGE(value,
                                      static_cast<uint32_t>(0),
                                      ADC_MAX_RANGE_V33,
                                      static_cast<uint32_t>(0),
-                                     core::mcu::adc::MAX);
+                                     static_cast<uint32_t>(CORE_MCU_ADC_MAX_VALUE));
 #else
         return value;
 #endif
@@ -58,28 +58,8 @@ namespace
 
 void core::mcu::isr::adc(uint32_t value)
 {
-    if (nrf_saadc_event_check(NRF_SAADC, NRF_SAADC_EVENT_STARTED))
-    {
-        nrf_saadc_event_clear(NRF_SAADC, NRF_SAADC_EVENT_STARTED);
-        nrf_saadc_task_trigger(NRF_SAADC, NRF_SAADC_TASK_SAMPLE);
-    }
-
-    if (nrf_saadc_event_check(NRF_SAADC, NRF_SAADC_EVENT_STOPPED))
-    {
-        nrf_saadc_event_clear(NRF_SAADC, NRF_SAADC_EVENT_STOPPED);
-    }
-
-    if (nrf_saadc_event_check(NRF_SAADC, NRF_SAADC_EVENT_END))
-    {
-        nrf_saadc_event_clear(NRF_SAADC, NRF_SAADC_EVENT_END);
-        auto scaled = scaleValue(value);
-        Board::detail::IO::analog::isr(scaled);
-    }
-
-    if (nrf_saadc_event_check(NRF_SAADC, NRF_SAADC_EVENT_CALIBRATEDONE))
-    {
-        nrf_saadc_event_clear(NRF_SAADC, NRF_SAADC_EVENT_CALIBRATEDONE);
-    }
+    auto scaled = scaleValue(value);
+    Board::detail::IO::analog::isr(scaled);
 }
 
 namespace Board::detail::IO::analog::MCU

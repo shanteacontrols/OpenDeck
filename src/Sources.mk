@@ -6,20 +6,25 @@ vpath modules/%.S ../
 # Common include dirs
 INCLUDE_DIRS += \
 -I"./" \
--I"$(BOARD_GEN_DIR_MCU_BASE)/$(MCU)" \
+-I"$(BOARD_GEN_DIR_MCU_BASE)/$(CORE_MCU_MODEL)" \
 -I"$(BOARD_GEN_DIR_TARGET)/" \
 -I"application/" \
--I"board/arch/$(ARCH)/$(VENDOR)/common" \
--I"board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)/common" \
+-I"board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/common" \
+-I"board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/common" \
+-I"../modules/core/src/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/common" \
+-I"../modules/core/src/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/common" \
 -I"board/common" \
 -I"bootloader/" \
 -I"../modules/"
 
 ifneq (,$(findstring USE_TINYUSB,$(DEFINES)))
-    INCLUDE_DIRS += -I"board/common/communication/usb/tinyusb"
+    INCLUDE_DIRS += \
+    -I"board/common/communication/usb/tinyusb" \
+    -I"../modules/core/modules/tinyusb/hw" \
+    -I"../modules/core/modules/tinyusb/src"
 endif
 
-LINKER_FILE       := ../modules/core/src/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)/$(MCU)/$(MCU).ld
+LINKER_FILE       := ../modules/core/src/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/$(CORE_MCU_MODEL)/$(CORE_MCU_MODEL).ld
 TARGET_GEN_HEADER := $(BOARD_GEN_DIR_TARGET)/Target.h
 
 ifneq (,$(wildcard $(DEF_FILE_TSCREEN)))
@@ -31,18 +36,18 @@ $(TARGET_GEN_HEADER) \
 $(TSCREEN_GEN_SOURCE)
 
 ifeq (,$(findstring gen,$(TYPE)))
-    SOURCES += $(shell $(FIND) board/arch/$(ARCH)/$(VENDOR)/common/ -type f -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
-    SOURCES += $(shell $(FIND) board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)/common -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
-    SOURCES += $(shell $(FIND) board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)/$(MCU) -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
-    SOURCES += $(shell $(FIND) board/arch/$(ARCH)/$(VENDOR)/variants/common -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
-    SOURCES += $(shell $(FIND) board/arch/$(ARCH)/common -type f -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
+    SOURCES += $(shell $(FIND) board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/common/ -type f -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
+    SOURCES += $(shell $(FIND) board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/common -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
+    SOURCES += $(shell $(FIND) board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/$(CORE_MCU_MODEL) -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
+    SOURCES += $(shell $(FIND) board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/common -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
+    SOURCES += $(shell $(FIND) board/arch/$(CORE_MCU_ARCH)/common -type f -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
     SOURCES += $(shell $(FIND) board/common -type f -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
 
-    SOURCES += $(shell $(FIND) ../modules/core/src/arch/$(ARCH)/$(VENDOR)/common/ -type f -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
-    SOURCES += $(shell $(FIND) ../modules/core/src/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)/common -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
-    SOURCES += $(shell $(FIND) ../modules/core/src/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)/$(MCU) -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
-    SOURCES += $(shell $(FIND) ../modules/core/src/arch/$(ARCH)/$(VENDOR)/variants/common -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
-    SOURCES += $(shell $(FIND) ../modules/core/src/arch/$(ARCH)/common -type f -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
+    SOURCES += $(shell $(FIND) ../modules/core/src/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/common/ -type f -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
+    SOURCES += $(shell $(FIND) ../modules/core/src/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/common -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
+    SOURCES += $(shell $(FIND) ../modules/core/src/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/$(CORE_MCU_MODEL) -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
+    SOURCES += $(shell $(FIND) ../modules/core/src/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/common -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
+    SOURCES += $(shell $(FIND) ../modules/core/src/arch/$(CORE_MCU_ARCH)/common -type f -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
     SOURCES += $(shell $(FIND) ../modules/core/src/arch/common -type f -regex '.*\.\(s\|c\|cpp\)' | sed "s|^\.\./||")
 
     ifeq ($(TYPE),boot)
@@ -78,7 +83,7 @@ ifeq (,$(findstring gen,$(TYPE)))
         endif
     endif
 else ifeq ($(TYPE),flashgen)
-    ifeq ($(ARCH),arm)
+    ifeq ($(CORE_MCU_ARCH),arm)
         SOURCES += $(shell $(FIND) application/database -type f -name "*.cpp")
         SOURCES += $(shell $(FIND) ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
         SOURCES += $(TSCREEN_GEN_SOURCE)

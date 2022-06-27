@@ -23,7 +23,7 @@ limitations under the License.
 namespace
 {
     // delay for 150ns
-    constexpr uint32_t LOOPS = 150 / (((1.0 / CORE_CPU_FREQ_MHZ * 1000000)) * 1000000000);
+    constexpr uint32_t LOOPS = 150 / (((1.0 / CORE_MCU_CPU_FREQ_MHZ * 1000000)) * 1000000000);
 }    // namespace
 
 namespace Board::detail::IO

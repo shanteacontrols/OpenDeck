@@ -67,7 +67,7 @@ fi
 
 {
     printf "%s%x\n" "APP_START_ADDR := 0x" "$app_start_address"
-    printf "%s\n" 'FW_METADATA_LOCATION := $(shell printf "0x%x" $$(( $(APP_START_ADDR) + $(FW_METADATA_OFFSET) )) )'
+    printf "%s\n" 'FW_METADATA_LOCATION := $(shell printf "0x%x" $$(( $(APP_START_ADDR) + $(CORE_FW_METADATA_OFFSET) )) )'
 } >> "$out_makefile"
 
 if [[ $boot_start_page != "null" ]]
@@ -90,18 +90,38 @@ then
     fi
 
     {
-        printf "%s\n" "#define FLASH_PAGE_FACTORY   $factory_flash_page"
-        printf "%s\n" "#define FLASH_PAGE_EEPROM_1  $eeprom_flash_page_1"
-        printf "%s\n" "#define FLASH_PAGE_EEPROM_2  $eeprom_flash_page_2"
+        printf "%s\n" "FLASH_PAGE_FACTORY := $factory_flash_page"
+        printf "%s\n" "FLASH_PAGE_EEPROM_1 := $eeprom_flash_page_1"
+        printf "%s\n" "FLASH_PAGE_EEPROM_2 := $eeprom_flash_page_2"
+        printf "%s\n" 'DEFINES += FLASH_PAGE_FACTORY=$(FLASH_PAGE_FACTORY)'
+        printf "%s\n" 'DEFINES += FLASH_PAGE_EEPROM_1=$(FLASH_PAGE_EEPROM_1)'
+        printf "%s\n" 'DEFINES += FLASH_PAGE_EEPROM_2=$(FLASH_PAGE_EEPROM_2)'
+    } >> "$out_makefile"
 
-        printf "%s\n" "constexpr uint32_t FLASH_PAGE_SIZE_EEPROM() {"
-        printf "%s\n" "#ifdef FLASH_PAGE_SIZE_COMMON"
-        printf "%s\n" "return ((FLASH_PAGE_EEPROM_2 - FLASH_PAGE_EEPROM_1) * FLASH_PAGE_SIZE_COMMON) - $factory_flash_page_offset;"
-        printf "%s\n" "#else"
-        printf "%s\n" "return FLASH_PAGE_SIZE(FLASH_PAGE_EEPROM_1) - $factory_flash_page_offset;"
-        printf "%s\n" "#endif"
-        printf "%s\n" "}"
-    } >> "$out_header"
+    if [[ $($yaml_parser "$base_yaml_file" flash.pages) == "null" ]]
+    then
+        # Common flash page size
+        {
+            printf "%s\n" 'EMU_EEPROM_PAGE_SIZE := $(shell echo $$(( ($(FLASH_PAGE_EEPROM_2) - $(FLASH_PAGE_EEPROM_1)) * $(CORE_MCU_FLASH_PAGE_SIZE_COMMON) )) )'
+            printf "%s\n" 'DEFINES += EMU_EEPROM_PAGE_SIZE=$(EMU_EEPROM_PAGE_SIZE)'
+            # Offset is never used when flash pages have the same size
+            printf "%s\n" 'EMU_EEPROM_FLASH_USAGE := $(shell echo $$(( $(EMU_EEPROM_PAGE_SIZE) * 3 )) )'
+        } >> "$out_makefile"
+    else
+        emueeprom_factory_size=$($yaml_parser "$base_yaml_file" flash.pages.["$factory_flash_page"].size)
+        emueeprom_page1_size=$($yaml_parser "$base_yaml_file" flash.pages.["$eeprom_flash_page_1"].size)
+        emueeprom_page2_size=$($yaml_parser "$base_yaml_file" flash.pages.["$eeprom_flash_page_2"].size)
+
+        emueeprom_page_size=$emueeprom_factory_size
+        ((emueeprom_page_size-=factory_flash_page_offset))
+        emueeprom_flash_usage=$((emueeprom_page_size + emueeprom_page1_size + emueeprom_page2_size))
+
+        {
+            printf "%s\n" "EMU_EEPROM_PAGE_SIZE := $emueeprom_page_size"
+            printf "%s\n" 'DEFINES += EMU_EEPROM_PAGE_SIZE=$(EMU_EEPROM_PAGE_SIZE)'
+            printf "%s\n" "EMU_EEPROM_FLASH_USAGE := $emueeprom_flash_usage"
+        } >> "$out_makefile"
+    fi
 
     # When emulated EEPROM is used, one of the pages is factory page with
     # default settings. Database shouldn't be formatted in this case.

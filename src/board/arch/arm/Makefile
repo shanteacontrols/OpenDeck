@@ -1,8 +1,4 @@
 ifeq (,$(findstring gen,$(TYPE)))
-    INCLUDE_DIRS += \
-    -I"../modules/core/src/arch/arm/common/CMSIS" \
-    -I"../modules/core/modules/tinyusb/lib/CMSIS_5/CMSIS/Core/Include"
-
     SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
 
     # clang-specific defines
@@ -18,17 +14,57 @@ ifeq (,$(findstring gen,$(TYPE)))
         -isystem"$(TOOLCHAIN_DIR)/arm-none-eabi/include/c++/$(CPP_VER)/backward" \
         -isystem"$(TOOLCHAIN_DIR)/arm-none-eabi/include"
     endif
+
+    CPPFLAGS += \
+    -mcpu=$(CORE_MCU_CPU) \
+    -mthumb \
+    -mno-unaligned-access
+
+    ifneq (,$(findstring clang,$(CC_ARM)))
+        CPPFLAGS += -target arm-none-eabi
+    endif
+
+    LDFLAGS += \
+    -mcpu=$(CORE_MCU_CPU) \
+    -mthumb \
+    -specs=nano.specs \
+    -specs=nosys.specs
+
+    LDFLAGS += \
+    -Xlinker --defsym=CORE_MCU_FLASH_START_ADDR_USER=$(FLASH_START_ADDR)
+
+    # bootloader fw is always set to 32k
+    BOOT_SIZE := 32768
+
+    ifeq ($(TYPE),boot)
+        CORE_MCU_FLASH_SIZE_USER=$(BOOT_SIZE)
+    else
+        CORE_MCU_FLASH_SIZE_USER=$(shell echo $$(( $(CORE_MCU_FLASH_SIZE) - $(BOOT_SIZE) - $(EMU_EEPROM_FLASH_USAGE) )) )
+    endif
+
+    DEFINES += CORE_MCU_FLASH_SIZE_USER=$(CORE_MCU_FLASH_SIZE_USER)
+    LDFLAGS += -Xlinker --defsym=CORE_MCU_FLASH_SIZE_USER=$(CORE_MCU_FLASH_SIZE_USER)
+
+    ifeq ($(DEBUG), 1)
+        CPPFLAGS += -g -gdwarf-2
+        LDFLAGS  += -g -gdwarf-2
+        OPT      := -Og
+    endif
+
+    ifneq ($(CORE_MCU_FPU),)
+        CPPFLAGS += -mfpu=$(CORE_MCU_FPU)
+        LDFLAGS  += -mfpu=$(CORE_MCU_FPU)
+    endif
+
+    ifneq ($(CORE_MCU_FLOAT_ABI),)
+        CPPFLAGS += -mfloat-abi=$(CORE_MCU_FLOAT_ABI)
+        LDFLAGS  += -mfloat-abi=$(CORE_MCU_FLOAT_ABI)
+    endif
 endif
 
 DEFINES += \
-CORE_ARCH_ARM \
 EMUEEPROM_INCLUDE_CONFIG \
 USE_FAST_SOFT_PWM_TIMER
-
-ifeq ($(CPU),cortex-m4)
-    DEFINES += \
-    CORE_ARM_M4
-endif
 
 CC        := arm-none-eabi-gcc
 CXX       := arm-none-eabi-g++
@@ -44,37 +80,3 @@ $(AS) \
 $(SIZE_TOOL)
 
 $(call CHECK_PACKAGES,$(REQ_PACKAGES))
-
-CPPFLAGS += \
--mcpu=$(CPU) \
--mthumb \
--mno-unaligned-access
-
-ifneq (,$(findstring clang,$(CC_ARM)))
-    CPPFLAGS += -target arm-none-eabi
-endif
-
-LDFLAGS += \
--mcpu=$(CPU) \
--mthumb \
--specs=nano.specs \
--specs=nosys.specs
-
-LDFLAGS += \
--Xlinker --defsym=CORE_FLASH_START_ADDR=$(FLASH_START_ADDR)
-
-ifeq ($(DEBUG), 1)
-    CPPFLAGS += -g -gdwarf-2
-    LDFLAGS  += -g -gdwarf-2
-    OPT      := -Og
-endif
-
-ifneq ($(FPU),)
-    CPPFLAGS += -mfpu=$(FPU)
-    LDFLAGS  += -mfpu=$(FPU)
-endif
-
-ifneq ($(FLOAT-ABI),)
-    CPPFLAGS += -mfloat-abi=$(FLOAT-ABI)
-    LDFLAGS  += -mfloat-abi=$(FLOAT-ABI)
-endif

@@ -33,10 +33,10 @@ namespace IO
     class AnalogFilter : public Analog::Filter
     {
         public:
-        static_assert(core::mcu::adc::MAX == 1023 || core::mcu::adc::MAX == 4095, "Unsupported ADC resolution");
+        static_assert(CORE_MCU_ADC_MAX_VALUE == 1023 || CORE_MCU_ADC_MAX_VALUE == 4095, "Unsupported ADC resolution");
 
         AnalogFilter()
-            : _adcConfig(core::mcu::adc::MAX == 1023 ? _adc10bit : _adc12bit)
+            : _adcConfig(CORE_MCU_ADC_MAX_VALUE == 1023 ? _adc10bit : _adc12bit)
             , STEP_DIFF_7BIT((_adcConfig.ADC_MAX_VALUE - _adcConfig.ADC_MIN_VALUE) / 128)
         {
             for (size_t i = 0; i < IO::Analog::Collection::size(); i++)

@@ -38,7 +38,7 @@ namespace Board
 {
     void uniqueID(core::mcu::uniqueID_t& uid)
     {
-        for (size_t i = 0; i < core::mcu::UID_BITS / 8; i++)
+        for (size_t i = 0; i < CORE_MCU_UID_BITS / 8; i++)
         {
             uid[i] = _uidUSBDevice[i];
         }
@@ -185,7 +185,7 @@ namespace Board
 
                 case static_cast<uint8_t>(USBLink::internalCMD_t::UNIQUE_ID):
                 {
-                    for (size_t i = 0; i < core::mcu::UID_BITS / 8; i++)
+                    for (size_t i = 0; i < CORE_MCU_UID_BITS / 8; i++)
                     {
                         _uidUSBDevice[i] = _readPacket[i + 1];
                     }

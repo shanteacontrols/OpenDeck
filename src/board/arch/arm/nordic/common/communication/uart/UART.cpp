@@ -101,10 +101,10 @@ namespace
         },
     };
 
-    uint8_t       _nrfTxBuffer[core::mcu::peripherals::MAX_UART_INTERFACES];
-    uint8_t       _nrfRxBuffer[core::mcu::peripherals::MAX_UART_INTERFACES];
-    volatile bool _transmitting[core::mcu::peripherals::MAX_UART_INTERFACES];
-    nrfx_uarte_t  _uartInstance[core::mcu::peripherals::MAX_UART_INTERFACES] = {
+    uint8_t       _nrfTxBuffer[CORE_MCU_MAX_UART_INTERFACES];
+    uint8_t       _nrfRxBuffer[CORE_MCU_MAX_UART_INTERFACES];
+    volatile bool _transmitting[CORE_MCU_MAX_UART_INTERFACES];
+    nrfx_uarte_t  _uartInstance[CORE_MCU_MAX_UART_INTERFACES] = {
          NRFX_UARTE_INSTANCE(0),
          NRFX_UARTE_INSTANCE(1),
     };
@@ -116,7 +116,7 @@ namespace
         STOPPED
     };
 
-    volatile Board::detail::UART::dmxState_t _dmxState[core::mcu::peripherals::MAX_UART_INTERFACES];
+    volatile Board::detail::UART::dmxState_t _dmxState[CORE_MCU_MAX_UART_INTERFACES];
 
     inline void dmxSetBreakBaudrate(uint8_t channel)
     {

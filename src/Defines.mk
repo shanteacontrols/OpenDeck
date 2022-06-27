@@ -56,10 +56,10 @@ APP_GEN_DIR_TARGET          := $(APP_GEN_DIR_BASE)/$(TARGET)
 # The MAKEFILE_INCLUDE_PREFIX prefix is used to specify the start directory makefiles.
 # This is needed for tests since they are outside of src/.
 -include $(MAKEFILE_INCLUDE_PREFIX)$(BOARD_GEN_DIR_TARGET)/Makefile
--include $(MAKEFILE_INCLUDE_PREFIX)board/arch/$(ARCH)/Makefile
--include $(MAKEFILE_INCLUDE_PREFIX)board/arch/$(ARCH)/$(VENDOR)/Makefile
--include $(MAKEFILE_INCLUDE_PREFIX)board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)/Makefile
--include $(MAKEFILE_INCLUDE_PREFIX)board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)/$(MCU)/Makefile
+-include $(MAKEFILE_INCLUDE_PREFIX)board/arch/$(CORE_MCU_ARCH)/Makefile
+-include $(MAKEFILE_INCLUDE_PREFIX)board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/Makefile
+-include $(MAKEFILE_INCLUDE_PREFIX)board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/Makefile
+-include $(MAKEFILE_INCLUDE_PREFIX)board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/$(CORE_MCU_MODEL)/Makefile
 
 FW_METADATA_SIZE            := 4
 
@@ -120,7 +120,7 @@ else
     $(error Invalid firmware type specified)
 endif
 
-DEFINES += CORE_FLASH_START_ADDR=$(FLASH_START_ADDR)
+DEFINES += CORE_MCU_FLASH_START_ADDR_USER=$(FLASH_START_ADDR)
 DEFINES += BOOT_START_ADDR=$(BOOT_START_ADDR)
 DEFINES += APP_START_ADDR=$(APP_START_ADDR)
 DEFINES += FW_METADATA_LOCATION=$(FW_METADATA_LOCATION)

@@ -7,7 +7,7 @@ NRF52_SDK_DL_MARKER_PATH := $(NRF52_SDK_ZIP_PATH).downloaded
 
 ifeq (,$(findstring gen,$(TYPE)))
     INCLUDE_FILES += \
-    -include "board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)/common/nrfx_config.h"
+    -include "board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/common/nrfx_config.h"
 
     INCLUDE_DIRS += \
     -I"deps/$(NRF52_SDK_VERSION)/components/softdevice/s140/headers" \

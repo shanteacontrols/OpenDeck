@@ -31,7 +31,7 @@ ifeq (,$(findstring USB_OVER_SERIAL_HOST,$(DEFINES)))
     application/logger/Logger.cpp
 endif
 
-ifeq ($(ARCH),arm)
+ifeq ($(CORE_MCU_ARCH),arm)
     SOURCES_COMMON += modules/EmuEEPROM/src/EmuEEPROM.cpp
 endif
 
@@ -44,6 +44,6 @@ INCLUDE_DIRS_COMMON := \
 -I"../src/bootloader/" \
 -I"../src/application/" \
 -I"../src/board/common" \
--I"../src/board/arch/$(ARCH)/$(VENDOR)/variants/$(MCU_FAMILY)" \
--I"../src/$(BOARD_GEN_DIR_MCU_BASE)/$(MCU)" \
+-I"../src/board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)" \
+-I"../src/$(BOARD_GEN_DIR_MCU_BASE)/$(CORE_MCU_MODEL)" \
 -I"../src/$(BOARD_GEN_DIR_TARGET)/"

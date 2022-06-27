@@ -107,7 +107,7 @@ namespace Board::detail::IO::analog
         static bool firstReading = false;
         firstReading             = !firstReading;
 
-        if (!firstReading && (adcValue <= core::mcu::adc::MAX))
+        if (!firstReading && (adcValue <= CORE_MCU_ADC_MAX_VALUE))
         {
             dischargeMux();
 

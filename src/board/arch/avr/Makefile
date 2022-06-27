@@ -21,21 +21,36 @@ ifeq (,$(findstring gen,$(TYPE)))
         modules/core/modules/lufa/LUFA/Drivers/USB/Class/Device/MIDIClassDevice.c \
         modules/core/modules/lufa/LUFA/Drivers/USB/Class/Device/CDCClassDevice.c
     endif
+
+    CFLAGS += \
+    -fpack-struct
+
+    CPPFLAGS += \
+    -mrelax \
+    -mmcu=$(CORE_MCU_MODEL) \
+    -funsigned-char \
+    -funsigned-bitfields \
+    -fno-jump-tables
+
+    LDFLAGS += \
+    -Wl,--section-start=.text=$(FLASH_START_ADDR) \
+    -mrelax \
+    -mmcu=$(CORE_MCU_MODEL)
+
+    ifeq ($(DEBUG), 1)
+        CPPFLAGS += -g -gdwarf-2
+        LDFLAGS  += -g -gdwarf-2
+        OPT      := -Og
+    endif
 endif
 
 FLASH_TOOL := arduino
 
 DEFINES += \
-CORE_ARCH_AVR \
-ARCH=ARCH_AVR8 \
-IO_REG_WIDTH=8 \
-F_CPU=16000000UL \
-F_USB=16000000UL \
 BOARD=BOARD_NONE \
 USE_STATIC_OPTIONS=0 \
 USB_DEVICE_ONLY \
 INTERRUPT_CONTROL_ENDPOINT \
-ADC_10_BIT \
 ORDERED_EP_CONFIG \
 USE_CUSTOM_USB_ENDPOINTS
 
@@ -56,7 +71,7 @@ CXX            := avr-g++
 LD             := avr-g++
 AS             := $(CC)
 SIZE_TOOL_BASE := avr-size
-SIZE_TOOL      := $(SIZE_TOOL_BASE) -C --mcu=$(MCU)
+SIZE_TOOL      := $(SIZE_TOOL_BASE) -C --mcu=$(CORE_MCU_MODEL)
 
 REQ_PACKAGES := \
 $(CC) \
@@ -67,26 +82,5 @@ $(SIZE_TOOL_BASE)
 
 $(call CHECK_PACKAGES,$(REQ_PACKAGES))
 
-CFLAGS += \
--fpack-struct
-
-CPPFLAGS += \
--mrelax \
--mmcu=$(MCU) \
--funsigned-char \
--funsigned-bitfields \
--fno-jump-tables
-
-LDFLAGS += \
--Wl,--section-start=.text=$(FLASH_START_ADDR) \
--mrelax \
--mmcu=$(MCU)
-
-ifeq ($(DEBUG), 1)
-    CPPFLAGS += -g -gdwarf-2
-    LDFLAGS  += -g -gdwarf-2
-    OPT      := -Og
-endif
-
 flashread:
-	$(Q)avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -C /etc/avrdude.conf -U flash:r:readcontents.bin:r
+	$(Q)avrdude -p $(CORE_MCU_MODEL) -P /dev/$(PORT) -b 19200 -c avrisp -C /etc/avrdude.conf -U flash:r:readcontents.bin:r

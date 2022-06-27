@@ -24,12 +24,12 @@ limitations under the License.
 
 namespace
 {
-    UART_HandleTypeDef                       _uartHandler[core::mcu::peripherals::MAX_UART_INTERFACES];
-    volatile Board::detail::UART::dmxState_t _dmxState[core::mcu::peripherals::MAX_UART_INTERFACES];
+    UART_HandleTypeDef                       _uartHandler[CORE_MCU_MAX_UART_INTERFACES];
+    volatile Board::detail::UART::dmxState_t _dmxState[CORE_MCU_MAX_UART_INTERFACES];
     volatile uint32_t                        _dmxByteCounter;
     uint32_t                                 _dmxBreakBRR;
     uint32_t                                 _dmxDataBRR;
-    volatile bool                            _transmitting[core::mcu::peripherals::MAX_UART_INTERFACES];
+    volatile bool                            _transmitting[CORE_MCU_MAX_UART_INTERFACES];
 
     inline void dmxSetBreakBaudrate(uint8_t channel)
     {

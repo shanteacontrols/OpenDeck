@@ -36,7 +36,7 @@ namespace Board::detail::IO::analog::MCU
         ADC_HandleTypeDef      adcHandler = {};
         ADC_ChannelConfTypeDef sConfig    = {};
 
-        switch (CORE_CPU_FREQ_MHZ)
+        switch (CORE_MCU_CPU_FREQ_MHZ)
         {
         case 84:
         {

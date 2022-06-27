@@ -53,7 +53,5 @@ then
     board_name=$target_name
 fi
 
-{
-    printf "%s\n" "#define BOARD_STRING \"$board_name\""
-    printf "%s\n" "#define FW_UID $($script_dir/gen_fw_uid.sh "$target_name")"
-} >> "$out_header"
+printf "%s\n" "#define BOARD_STRING \"$board_name\"" >> "$out_header"
+printf "%s\n" "DEFINES += FW_UID=$($script_dir/gen_fw_uid.sh "$target_name")" >> "$out_makefile"

@@ -26,7 +26,7 @@ limitations under the License.
 namespace Board::bootloader
 {
     /// Location at which reboot type is written in EEPROM when initiating software reset.
-    constexpr uint32_t REBOOT_VALUE_EEPROM_LOCATION = EEPROM_END;
+    constexpr uint32_t REBOOT_VALUE_EEPROM_LOCATION = CORE_MCU_EEPROM_SIZE - 1;
 
     uint8_t magicBootValue()
     {

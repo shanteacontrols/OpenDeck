@@ -39,13 +39,13 @@ namespace
             switch (page)
             {
             case EmuEEPROM::page_t::PAGE_FACTORY:
-                return FLASH_PAGE_ADDRESS(FLASH_PAGE_FACTORY);
+                return CORE_MCU_FLASH_PAGE_ADDRESS(FLASH_PAGE_FACTORY);
 
             case EmuEEPROM::page_t::PAGE_2:
-                return FLASH_PAGE_ADDRESS(FLASH_PAGE_EEPROM_2);
+                return CORE_MCU_FLASH_PAGE_ADDRESS(FLASH_PAGE_EEPROM_2);
 
             default:
-                return FLASH_PAGE_ADDRESS(FLASH_PAGE_EEPROM_1);
+                return CORE_MCU_FLASH_PAGE_ADDRESS(FLASH_PAGE_EEPROM_1);
             }
         }
 

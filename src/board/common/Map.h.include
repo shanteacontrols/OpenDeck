@@ -21,151 +21,135 @@ limitations under the License.
 namespace Board::detail::map
 {
 #ifdef ADC_SUPPORTED
-            constexpr uint32_t adcChannel(uint8_t index)
-            {
-                return core::mcu::peripherals::adcChannel(A_IN_PINS[index]);
-            }
+    constexpr uint32_t adcChannel(uint8_t index)
+    {
+        return core::mcu::peripherals::adcChannel(A_IN_PINS[index]);
+    }
 
-            constexpr const core::mcu::io::pin_t& adcPin(uint8_t index)
-            {
-                return A_IN_PINS[index];
-            }
+    constexpr const core::mcu::io::pin_t& adcPin(uint8_t index)
+    {
+        return A_IN_PINS[index];
+    }
 
-            constexpr uint8_t adcIndex(uint8_t index)
-            {
+    constexpr uint8_t adcIndex(uint8_t index)
+    {
 #ifndef ANALOG_INDEXING
-                return index;
+        return index;
 #else
-                return ANALOG_INDEXES[index];
+        return ANALOG_INDEXES[index];
 #endif
-            }
+    }
 #endif
 
 #if defined(DIGITAL_INPUT_DRIVER_NATIVE) || defined(DIGITAL_INPUT_DRIVER_MATRIX_NATIVE_ROWS)
-            constexpr const core::mcu::io::pin_t& buttonPin(uint8_t index)
-            {
-                return D_IN_PINS[index];
-            }
+    constexpr const core::mcu::io::pin_t& buttonPin(uint8_t index)
+    {
+        return D_IN_PINS[index];
+    }
 #endif
 
 #if defined(DIGITAL_INPUT_DRIVER_NATIVE)
-            constexpr const core::mcu::io::pinPort_t digitalInPort(uint8_t index)
-            {
-                return D_IN_PORTS[index];
-            }
+    constexpr const core::mcu::io::pinPort_t digitalInPort(uint8_t index)
+    {
+        return D_IN_PORTS[index];
+    }
 
-            constexpr const uint8_t buttonPortIndex(uint8_t index)
-            {
-                return BUTTON_INDEX_TO_UNIQUE_PORT_INDEX[index];
-            }
+    constexpr const uint8_t buttonPortIndex(uint8_t index)
+    {
+        return BUTTON_INDEX_TO_UNIQUE_PORT_INDEX[index];
+    }
 
-            constexpr const uint8_t buttonPinIndex(uint8_t index)
-            {
-                return BUTTON_INDEX_TO_PIN_INDEX[index];
-            }
+    constexpr const uint8_t buttonPinIndex(uint8_t index)
+    {
+        return BUTTON_INDEX_TO_PIN_INDEX[index];
+    }
 #endif
 
-            constexpr uint8_t buttonIndex(uint8_t index)
-            {
+    constexpr uint8_t buttonIndex(uint8_t index)
+    {
 #ifndef BUTTON_INDEXING
-                return index;
+        return index;
 #else
-                return BUTTON_INDEXES[index];
+        return BUTTON_INDEXES[index];
 #endif
-            }
+    }
 
 #if defined(DIGITAL_OUTPUT_DRIVER_NATIVE) || defined(DIGITAL_OUTPUT_DRIVER_MATRIX_NATIVE_ROWS)
-            constexpr const core::mcu::io::pin_t& ledPin(uint8_t index)
-            {
-                return D_OUT_PINS[index];
-            }
+    constexpr const core::mcu::io::pin_t& ledPin(uint8_t index)
+    {
+        return D_OUT_PINS[index];
+    }
 #endif
 
 #if defined(DIGITAL_OUTPUT_DRIVER_NATIVE)
-            constexpr const core::mcu::io::pinPort_t digitalOutPort(uint8_t index)
-            {
-                return D_OUT_PORTS[index];
-            }
+    constexpr const core::mcu::io::pinPort_t digitalOutPort(uint8_t index)
+    {
+        return D_OUT_PORTS[index];
+    }
 
-            constexpr const core::mcu::io::portWidth_t digitalOutPortClearMask(uint8_t index)
-            {
-                return D_OUT_PORTS_CLEAR_MASK[index];
-            }
+    constexpr const core::mcu::io::portWidth_t digitalOutPortClearMask(uint8_t index)
+    {
+        return D_OUT_PORTS_CLEAR_MASK[index];
+    }
 
-            constexpr const uint8_t ledPortIndex(uint8_t index)
-            {
-                return LED_INDEX_TO_UNIQUE_PORT_INDEX[index];
-            }
+    constexpr const uint8_t ledPortIndex(uint8_t index)
+    {
+        return LED_INDEX_TO_UNIQUE_PORT_INDEX[index];
+    }
 
-            constexpr const uint8_t ledPinIndex(uint8_t index)
-            {
-                return LED_INDEX_TO_PIN_INDEX[index];
-            }
+    constexpr const uint8_t ledPinIndex(uint8_t index)
+    {
+        return LED_INDEX_TO_PIN_INDEX[index];
+    }
 #endif
 
-            constexpr uint8_t ledIndex(uint8_t index)
-            {
+    constexpr uint8_t ledIndex(uint8_t index)
+    {
 #ifndef LED_INDEXING
-                return index;
+        return index;
 #else
-                return LED_INDEXES[index];
+        return LED_INDEXES[index];
 #endif
-            }
+    }
 
 #ifdef TOTAL_UNUSED_IO
-            constexpr const Board::detail::IO::unused::unusedIO_t& unusedPin(uint8_t index)
-            {
-                return UNUSED_PINS[index];
-            }
+    constexpr const Board::detail::IO::unused::unusedIO_t& unusedPin(uint8_t index)
+    {
+        return UNUSED_PINS[index];
+    }
 #endif
 
-#ifndef FLASH_PAGE_SIZE_COMMON
-            constexpr const core::mcu::flash::flashPage_t& flashPageDescriptor(size_t pageIndex)
+    constexpr core::mcu::flash::flashPage_t flashPageDescriptor(size_t pageIndex)
+    {
+        core::mcu::flash::flashPage_t descriptor = {};
+
+        if (pageIndex < CORE_MCU_TOTAL_FLASH_PAGES)
+        {
+            descriptor.address = CORE_MCU_FLASH_PAGE_ADDRESS(pageIndex);
+
+#ifdef CORE_MCU_FLASH_PAGE_SIZE_COMMON
+            descriptor.size = CORE_MCU_FLASH_PAGE_SIZE_COMMON;
 #else
-            constexpr core::mcu::flash::flashPage_t flashPageDescriptor(size_t pageIndex)
+            descriptor.size = CORE_MCU_FLASH_PAGE_SIZE(pageIndex);
 #endif
-            {
-#ifdef FLASH_PAGE_SIZE_COMMON
-                // calculate address only
+        }
 
-                core::mcu::flash::flashPage_t descriptor = {};
+        return descriptor;
+    }
 
-                auto address    = FLASH_PAGE_ADDRESS(pageIndex);
-                descriptor.size = FLASH_PAGE_SIZE_COMMON;
-
-                if (address > FLASH_END)
-                {
-                    descriptor.address = 0;
-                }
-                else
-                {
-                    descriptor.address = address;
-                }
-
-                return descriptor;
-#else
-                if (pageIndex >= TOTAL_FLASH_PAGES)
-                {
-                    return PAGE_DESCRIPTOR[TOTAL_FLASH_PAGES - 1];
-                }
-
-                return PAGE_DESCRIPTOR[pageIndex];
-#endif
-            }
-
-#ifdef CUSTOM_PERIPHERAL_PINS
+#ifdef CORE_MCU_CUSTOM_PERIPHERAL_PINS
 #ifdef UART_SUPPORTED
-            constexpr const Board::detail::UART::uartPins_t& uartPins(size_t channel)
-            {
-                return UART_PINS[channel];
-            }
+    constexpr const Board::detail::UART::uartPins_t& uartPins(size_t channel)
+    {
+        return UART_PINS[channel];
+    }
 #endif
 
 #ifdef I2C_SUPPORTED
-            constexpr const Board::detail::I2C::i2cPins_t& i2cPins(size_t channel)
-            {
-                return I2C_PINS[channel];
-            }
+    constexpr const Board::detail::I2C::i2cPins_t& i2cPins(size_t channel)
+    {
+        return I2C_PINS[channel];
+    }
 #endif
 #endif
 }    // namespace Board::detail::map

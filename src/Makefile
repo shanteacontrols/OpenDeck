@@ -49,6 +49,7 @@ ifneq (,$(findstring gen,$(TYPE)))
     LD        := $(LD_NATIVE)
     SIZE_TOOL := size
     LDFLAGS   := 
+    LDLIBS    := 
     CXXFLAGS  := -std=c++17
     CPPFLAGS  :=
 
@@ -68,7 +69,7 @@ $(OUTPUT).elf: $(OBJECTS)
 # Perform the linking only if sources have been defined
 ifneq ($(OBJECTS),)
 	$(Q)echo Creating executable: $@
-	$(Q)$(LD) -o$(OUTPUT).elf $(OBJECTS) $(LDFLAGS)
+	$(Q)$(LD) -o$(OUTPUT).elf $(OBJECTS) $(LDFLAGS) $(LDLIBS)
 ifeq (,$(findstring gen,$(TYPE)))
 	$(Q)objcopy --gap-fill 0xFF -O ihex $(OUTPUT).elf $(OUTPUT).hex
 endif
@@ -157,7 +158,7 @@ $(TARGET_GEN_HEADER): $(DEF_FILE_TARGET)
 $(TSCREEN_GEN_SOURCE): $(DEF_FILE_TSCREEN)
 	$(Q)$(SCRIPTS_DIR)/gen/gen_touchscreen.sh $< $@
 
-ifeq ($(ARCH),arm)
+ifeq ($(CORE_MCU_ARCH),arm)
 $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin: $(DEF_FILE_TARGET) $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/application/database/Database.cpp.o $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/application/database/CustomInit.cpp.o
 	$(Q)$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/$(TARGET).elf $@
 else
@@ -201,7 +202,7 @@ endif
 
 lint:
 	@$(SCRIPTS_DIR)/clang_tidy_wrapper.sh \
-	--mcu=$(MCU) \
+	--mcu=$(CORE_MCU_MODEL) \
 	--output=$(CLANG_TIDY_OUT) \
 	--compiler=$(CC) \
 	--option-files-dir=..

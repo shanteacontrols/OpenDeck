@@ -166,7 +166,7 @@ namespace
 
             if (file.is_open())
             {
-                file << FLASH_PAGE_ADDRESS(FLASH_PAGE_FACTORY);
+                file << CORE_MCU_FLASH_PAGE_ADDRESS(FLASH_PAGE_FACTORY);
                 file.close();
 
                 return true;

@@ -33,11 +33,11 @@ namespace Board::detail::USB
     const void* serialIDString(uint16_t* size, uint8_t* uid)
     {
         _signatureDescriptorInternal.header.type = core::mcu::usb::DESC_TYPE_STRING;
-        _signatureDescriptorInternal.header.size = core::mcu::usb::STRING_LEN(core::mcu::UID_BITS / 4);
+        _signatureDescriptorInternal.header.size = core::mcu::usb::STRING_LEN(CORE_MCU_UID_BITS / 4);
 
         uint8_t uidIndex = 0;
 
-        for (size_t i = 0; i < core::mcu::UID_BITS / 4; i++)
+        for (size_t i = 0; i < CORE_MCU_UID_BITS / 4; i++)
         {
             uint8_t uidByte = uid[uidIndex];
 

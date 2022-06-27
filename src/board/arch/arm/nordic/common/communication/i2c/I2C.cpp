@@ -27,8 +27,8 @@ limitations under the License.
 
 namespace
 {
-    bool        _initialized[core::mcu::peripherals::MAX_I2C_INTERFACES];
-    nrfx_twim_t _i2cInstance[core::mcu::peripherals::MAX_I2C_INTERFACES] = {
+    bool        _initialized[CORE_MCU_MAX_I2C_INTERFACES];
+    nrfx_twim_t _i2cInstance[CORE_MCU_MAX_I2C_INTERFACES] = {
         NRFX_TWIM_INSTANCE(0)
     };
 }    // namespace
@@ -37,7 +37,7 @@ namespace Board::I2C
 {
     initStatus_t init(uint8_t channel, clockSpeed_t speed)
     {
-        if (channel >= core::mcu::peripherals::MAX_I2C_INTERFACES)
+        if (channel >= CORE_MCU_MAX_I2C_INTERFACES)
         {
             return initStatus_t::ERROR;
         }
@@ -80,7 +80,7 @@ namespace Board::I2C
 
     bool deInit(uint8_t channel)
     {
-        if (channel >= core::mcu::peripherals::MAX_I2C_INTERFACES)
+        if (channel >= CORE_MCU_MAX_I2C_INTERFACES)
         {
             return false;
         }
@@ -93,7 +93,7 @@ namespace Board::I2C
 
     bool write(uint8_t channel, uint8_t address, uint8_t* buffer, size_t size)
     {
-        if (channel >= core::mcu::peripherals::MAX_I2C_INTERFACES)
+        if (channel >= CORE_MCU_MAX_I2C_INTERFACES)
         {
             return false;
         }
@@ -105,7 +105,7 @@ namespace Board::I2C
 
     bool deviceAvailable(uint8_t channel, uint8_t address)
     {
-        if (channel >= core::mcu::peripherals::MAX_I2C_INTERFACES)
+        if (channel >= CORE_MCU_MAX_I2C_INTERFACES)
         {
             return false;
         }

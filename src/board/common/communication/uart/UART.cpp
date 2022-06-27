@@ -30,16 +30,16 @@ namespace
 {
     /// Flag determining whether or not UART loopback functionality is enabled.
     /// When enabled, all incoming UART traffic is immediately passed on to UART TX.
-    volatile bool _loopbackEnabled[core::mcu::peripherals::MAX_UART_INTERFACES];
+    volatile bool _loopbackEnabled[CORE_MCU_MAX_UART_INTERFACES];
 
     /// Flag holding the state of UART interface (whether it's _initialized or not).
-    bool _initialized[core::mcu::peripherals::MAX_UART_INTERFACES];
+    bool _initialized[CORE_MCU_MAX_UART_INTERFACES];
 
     /// Buffer in which outgoing UART data is stored.
-    core::util::RingBuffer<uint8_t, UART_TX_BUFFER_SIZE> _txBuffer[core::mcu::peripherals::MAX_UART_INTERFACES];
+    core::util::RingBuffer<uint8_t, UART_TX_BUFFER_SIZE> _txBuffer[CORE_MCU_MAX_UART_INTERFACES];
 
     /// Buffer in which incoming UART data is stored.
-    core::util::RingBuffer<uint8_t, UART_RX_BUFFER_SIZE> _rxBuffer[core::mcu::peripherals::MAX_UART_INTERFACES];
+    core::util::RingBuffer<uint8_t, UART_RX_BUFFER_SIZE> _rxBuffer[CORE_MCU_MAX_UART_INTERFACES];
 
 #ifdef DMX_SUPPORTED
     Board::UART::dmxBuffer_t* _dmxBuffer;
@@ -53,7 +53,7 @@ namespace Board
     {
         void setLoopbackState(uint8_t channel, bool state)
         {
-            if (channel >= core::mcu::peripherals::MAX_UART_INTERFACES)
+            if (channel >= CORE_MCU_MAX_UART_INTERFACES)
             {
                 return;
             }
@@ -63,7 +63,7 @@ namespace Board
 
         bool deInit(uint8_t channel)
         {
-            if (channel >= core::mcu::peripherals::MAX_UART_INTERFACES)
+            if (channel >= CORE_MCU_MAX_UART_INTERFACES)
             {
                 return false;
             }
@@ -85,7 +85,7 @@ namespace Board
 
         initStatus_t init(uint8_t channel, config_t& config, bool force)
         {
-            if (channel >= core::mcu::peripherals::MAX_UART_INTERFACES)
+            if (channel >= CORE_MCU_MAX_UART_INTERFACES)
             {
                 return initStatus_t::ERROR;
             }
@@ -109,7 +109,7 @@ namespace Board
 
         bool isInitialized(uint8_t channel)
         {
-            if (channel >= core::mcu::peripherals::MAX_UART_INTERFACES)
+            if (channel >= CORE_MCU_MAX_UART_INTERFACES)
             {
                 return false;
             }
@@ -121,7 +121,7 @@ namespace Board
         {
             size = 0;
 
-            if (channel >= core::mcu::peripherals::MAX_UART_INTERFACES)
+            if (channel >= CORE_MCU_MAX_UART_INTERFACES)
             {
                 return false;
             }
@@ -141,7 +141,7 @@ namespace Board
         {
             value = 0;
 
-            if (channel >= core::mcu::peripherals::MAX_UART_INTERFACES)
+            if (channel >= CORE_MCU_MAX_UART_INTERFACES)
             {
                 return false;
             }
@@ -151,7 +151,7 @@ namespace Board
 
         bool write(uint8_t channel, uint8_t* buffer, size_t size)
         {
-            if (channel >= core::mcu::peripherals::MAX_UART_INTERFACES)
+            if (channel >= CORE_MCU_MAX_UART_INTERFACES)
             {
                 return false;
             }
@@ -176,7 +176,7 @@ namespace Board
 
         bool isTxComplete(uint8_t channel)
         {
-            if (channel >= core::mcu::peripherals::MAX_UART_INTERFACES)
+            if (channel >= CORE_MCU_MAX_UART_INTERFACES)
             {
                 return false;
             }

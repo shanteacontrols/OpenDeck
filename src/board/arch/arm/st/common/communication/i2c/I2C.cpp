@@ -28,15 +28,15 @@ namespace
 {
     constexpr uint32_t I2C_TRANSFER_TIMEOUT_MS = 10;
     constexpr size_t   I2C_SCAN_RETRIES        = 3;
-    I2C_HandleTypeDef  _i2cHandler[core::mcu::peripherals::MAX_I2C_INTERFACES];
-    bool               _initialized[core::mcu::peripherals::MAX_I2C_INTERFACES];
+    I2C_HandleTypeDef  _i2cHandler[CORE_MCU_MAX_I2C_INTERFACES];
+    bool               _initialized[CORE_MCU_MAX_I2C_INTERFACES];
 }    // namespace
 
 namespace Board::I2C
 {
     initStatus_t init(uint8_t channel, clockSpeed_t speed)
     {
-        if (channel >= core::mcu::peripherals::MAX_I2C_INTERFACES)
+        if (channel >= CORE_MCU_MAX_I2C_INTERFACES)
         {
             return initStatus_t::ERROR;
         }
@@ -67,7 +67,7 @@ namespace Board::I2C
 
     bool deInit(uint8_t channel)
     {
-        if (channel >= core::mcu::peripherals::MAX_I2C_INTERFACES)
+        if (channel >= CORE_MCU_MAX_I2C_INTERFACES)
         {
             return false;
         }
@@ -83,7 +83,7 @@ namespace Board::I2C
 
     bool write(uint8_t channel, uint8_t address, uint8_t* buffer, size_t size)
     {
-        if (channel >= core::mcu::peripherals::MAX_I2C_INTERFACES)
+        if (channel >= CORE_MCU_MAX_I2C_INTERFACES)
         {
             return false;
         }
@@ -93,7 +93,7 @@ namespace Board::I2C
 
     bool deviceAvailable(uint8_t channel, uint8_t address)
     {
-        if (channel >= core::mcu::peripherals::MAX_I2C_INTERFACES)
+        if (channel >= CORE_MCU_MAX_I2C_INTERFACES)
         {
             return false;
         }
