@@ -24,7 +24,7 @@ CXXFLAGS += \
 
 # C compiler only
 CFLAGS += \
--std=c11 \
+-std=gnu11 \
 -Wno-parentheses-equality \
 -Wno-unused-value \
 -Wno-implicit-function-declaration
