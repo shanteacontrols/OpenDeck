@@ -101,6 +101,11 @@ ifeq ($(LOG), 1)
     DEFINES += USE_LOGGER
 endif
 
+ifneq (,$(findstring USE_TINYUSB,$(DEFINES)))
+    DEFINES += \
+    BOARD_USE_UPDATE_HOOKS
+endif
+
 ifeq ($(TYPE),boot)
     DEFINES += FW_BOOT
     FLASH_START_ADDR := $(BOOT_START_ADDR)
