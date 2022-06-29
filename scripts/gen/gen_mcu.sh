@@ -56,12 +56,15 @@ then
 else
     # All flash pages have common size
     app_start_address=$($yaml_parser "$base_yaml_file" flash.page-size)
+    flash_start_address=$($yaml_parser "$base_yaml_file" flash.flash-start)
     ((app_start_address*=app_start_page))
+    ((app_start_address+=flash_start_address))
 
     if [[ $boot_start_page != "null" ]]
     then
         boot_start_address=$($yaml_parser "$base_yaml_file" flash.page-size)
         ((boot_start_address*=boot_start_page))
+        ((boot_start_address+=flash_start_address))
     fi
 fi
 
