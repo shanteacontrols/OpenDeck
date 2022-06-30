@@ -35,6 +35,8 @@ namespace
     constexpr uint32_t SOFT_PWM_TIMER_TIMEOUT_US = 200;
 #endif
 #endif
+
+    bool _usbInitialized;
 }    // namespace
 
 namespace Board
@@ -96,6 +98,23 @@ namespace Board
 #endif
     }
 
+    namespace USB
+    {
+        initStatus_t init()
+        {
+            // allow usb init only once
+            if (!_usbInitialized)
+            {
+                detail::USB::init();
+                _usbInitialized = true;
+
+                return initStatus_t::OK;
+            }
+
+            return initStatus_t::ALREADY_INIT;
+        }
+    }    // namespace USB
+
     namespace detail::setup
     {
         void bootloader()
@@ -131,8 +150,6 @@ namespace Board
 
             Board::UART::init(UART_CHANNEL_USB_LINK, config);
 #endif
-
-            detail::USB::init();
 
 #ifdef USB_OVER_SERIAL_DEVICE
             // wait for unique id from usb host

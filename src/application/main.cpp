@@ -316,7 +316,8 @@ class HWAMIDIUSB : public System::Builder::HWA::Protocol::MIDI::USB
 
     bool init() override
     {
-        return true;    // already initialized
+        // usb has both MIDI and CDC interface - it might be already initialized
+        return Board::USB::init() != Board::initStatus_t::ERROR;
     }
 
     bool deInit() override
@@ -558,6 +559,12 @@ class HWADMX : public System::Builder::HWA::Protocol::DMX
 
     bool init(DMXUSBWidget::dmxBuffer_t& buffer) override
     {
+        // usb has both MIDI and CDC interface - it might be already initialized
+        if (Board::USB::init() == Board::initStatus_t::ERROR)
+        {
+            return false;
+        }
+
         Board::UART::config_t config(250000,
                                      Board::UART::parity_t::NO,
                                      Board::UART::stopBits_t::TWO,

@@ -115,6 +115,7 @@ namespace Board::USB
 int main()
 {
     Board::init();
+    Board::USB::init();
 
     // make sure device is ready before sending unique id
     core::timing::waitMs(50);

@@ -44,6 +44,11 @@ namespace Board
     {
         using midiPacket_t = std::array<uint8_t, 4>;
 
+        /// Initializes USB interface.
+        /// Note: explicit call needed only for application.
+        /// For bootloader, USB is initialized automatically once runBootloader is called.
+        initStatus_t init();
+
         /// Checks if USB has been enumerated on host machine.
         bool isUSBconnected();
 

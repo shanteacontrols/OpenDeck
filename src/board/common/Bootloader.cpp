@@ -89,7 +89,7 @@ namespace Board::bootloader
     void runBootloader()
     {
         core::mcu::timers::startAll();
-        detail::USB::init();
+        Board::USB::init();
         detail::IO::indicators::indicateBootloaderLoad();
     }
 }    // namespace Board::bootloader
