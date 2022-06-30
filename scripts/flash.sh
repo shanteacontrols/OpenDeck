@@ -46,10 +46,10 @@ high_fuse=$(< config/mcu/"$mcu".yml awk '{$1=$1};1' | grep ^high | cut -d: -f2 |
 
 echo -n "Type the path (location) of the binary you want to flash.
 If you want to flash official binary from OpenDeck repository, go to the following link and
-download appropriate .hex file: https://github.com/shanteacontrols/OpenDeck/releases
-.hex file can be found in release assets.
+download appropriate .bin file: https://github.com/shanteacontrols/OpenDeck/releases
+.bin file can be found in release assets.
 
-Tip: you can also drag .hex file to the terminal - path to the binary will be printed.
+Tip: you can also drag .bin file to the terminal - path to the binary will be printed.
 Path: "
 
 read -r path
