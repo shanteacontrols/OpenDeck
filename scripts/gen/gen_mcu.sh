@@ -25,6 +25,7 @@ mkdir -p "$gen_dir"
 
 app_start_page=$($yaml_parser "$yaml_file" flash.app-start-page)
 boot_start_page=$($yaml_parser "$yaml_file" flash.boot-start-page)
+app_boot_jump_offset=$($yaml_parser "$yaml_file" flash.app-boot-jump-offset)
 
 if [[ $app_start_page == "null" ]]
 then
@@ -132,6 +133,11 @@ then
     printf "%s\n" "DEFINES += INIT_DB_DATA=0" >> "$out_makefile"
 else
     printf "%s\n" "DEFINES += INIT_DB_DATA=1" >> "$out_makefile"
+fi
+
+if [[ $app_boot_jump_offset != "null" ]]
+then
+    printf "%s\n" "DEFINES += APP_BOOT_JUMP_OFFSET=$app_boot_jump_offset" >> "$out_makefile"
 fi
 
 if [[ $($yaml_parser "$yaml_file" fuses) != "null" ]]

@@ -2,6 +2,7 @@
   flash:
     boot-start-page: 0
     app-start-page: 5
+    app-boot-jump-offset: 4
     emueeprom:
       factory-page:
         page: 2
