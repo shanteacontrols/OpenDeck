@@ -41,13 +41,6 @@ namespace Board::detail::IO::analog
     void init()
     {
         MCU::init();
-
-        for (size_t i = 0; i < MAX_ADC_CHANNELS; i++)
-        {
-            auto pin = map::adcPin(i);
-            CORE_MCU_IO_INIT(pin.port, pin.index, core::mcu::io::pinMode_t::ANALOG);
-            CORE_MCU_IO_SET_LOW(pin.port, pin.index);
-        }
     }
 
     void isr(uint16_t adcValue)

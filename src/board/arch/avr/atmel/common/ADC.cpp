@@ -44,6 +44,11 @@ namespace Board::detail::IO::analog::MCU
 
         for (size_t i = 0; i < MAX_ADC_CHANNELS; i++)
         {
+            auto pin = map::adcPin(i);
+
+            CORE_MCU_IO_INIT(pin.port, pin.index, core::mcu::io::pinMode_t::ANALOG);
+            CORE_MCU_IO_SET_LOW(pin.port, pin.index);
+
             core::mcu::adc::disconnectDigitalIn(Board::detail::map::adcChannel(i));
         }
 
