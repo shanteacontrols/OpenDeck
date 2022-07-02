@@ -72,6 +72,8 @@ The firmware supports various other boards, both small and large:
 * [STM32F4VE](https://stm32-base.org/boards/STM32F407VET6-STM32-F4VE-V2.0) ([eBay](https://www.ebay.com/itm/401956886691?hash=item5d967f58a3:g:fFcAAOSw4fhdy2rk))
 * [TPyBoard (PyBoard clone)](http://www.chinalctech.com/m/view.php?aid=338) ([eBay](https://www.ebay.com/itm/183887614794?hash=item2ad08e534a:g:bmsAAOSwrSpdLtFM))
 * [nRF52840 DK](https://www.nordicsemi.com/Products/Development-hardware/nrf52840-dk)
+* [Raspberry Pi Pico](https://www.raspberrypi.com/products/raspberry-pi-pico/)
+* [WeAct Raspberry Pi Pico](https://www.aliexpress.com/item/1005003708090298.html?pdp_ext_f=%7B%22sku_id%22:%2212000029284764160%22,%22ship_from%22:%22CN%22%7D&gps-id=pcStoreLeaderboard&scm=1007.22922.271278.0&scm_id=1007.22922.271278.0&scm-url=1007.22922.271278.0&pvid=41bf8177-c3f6-4f3b-9f1f-ba67a2e46422&spm=a2g0o.store_pc_home.smartLeaderboard_6000147819209.1005003708090298)
 
 [1] WeAct (developer of Black Pill boards) currently sells Black Pill board with AT32F403ACGU7 MCU instead of STM32F411. **This variant isn't supported!**
 
