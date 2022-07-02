@@ -150,7 +150,16 @@ endif
 
 generate: $(GEN_FILES)
 pre-build::
+
 post-build::
+ifeq ($(USE_UF2),1)
+	@../modules/core/modules/tinyusb/tools/uf2/utils/uf2conv.py \
+	-b $(CORE_MCU_FLASH_START_ADDR) \
+	-f $(UF2_FAMILY_ID) \
+	-o $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/merged/$(TARGET).uf2 \
+	-c \
+	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/merged/$(TARGET).bin
+endif
 
 $(TARGET_GEN_HEADER): $(DEF_FILE_TARGET)
 	$(Q)$(SCRIPTS_DIR)/gen/gen_target.sh $(PROJECT) $(DEF_FILE_TARGET) $(BOARD_GEN_DIR_TARGET)
