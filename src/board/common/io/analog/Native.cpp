@@ -28,37 +28,79 @@ using namespace Board::IO::analog;
 using namespace Board::detail;
 using namespace Board::detail::IO::analog;
 
+static_assert(ADC_SAMPLES > 0, "At least 1 ADC sample required");
+
 namespace
 {
     constexpr size_t ANALOG_IN_BUFFER_SIZE = NR_OF_ANALOG_INPUTS;
 
     uint8_t           _analogIndex;
     volatile uint16_t _analogBuffer[ANALOG_IN_BUFFER_SIZE];
+    volatile uint16_t _sample;
+    volatile uint8_t  _sampleCounter;
 }    // namespace
 
 namespace Board::detail::IO::analog
 {
     void init()
     {
-        MCU::init();
+        core::mcu::adc::conf_t adcConfiguration;
+
+        adcConfiguration.prescaler = ADC_PRESCALER;
+        adcConfiguration.voltage   = ADC_INPUT_VOLTAGE;
+
+#ifdef ADC_EXT_REF
+        adcConfiguration.externalRef = true;
+#else
+        adcConfiguration.externalRef = false;
+#endif
+
+        core::mcu::adc::init(adcConfiguration);
+
+        for (size_t i = 0; i < MAX_ADC_CHANNELS; i++)
+        {
+            auto pin = map::adcPin(i);
+            core::mcu::adc::initPin(pin);
+        }
+
+        for (uint8_t i = 0; i < 3; i++)
+        {
+            // few dummy reads to init ADC
+            core::mcu::adc::read(map::adcPin(0));
+        }
+
+        core::mcu::adc::setActivePin(map::adcPin(0));
+        core::mcu::adc::enableIt(Board::detail::IO::analog::ISR_PRIORITY);
+        core::mcu::adc::startItConversion();
     }
 
     void isr(uint16_t adcValue)
     {
-        static bool firstReading = false;
-        firstReading             = !firstReading;
-
-        if (!firstReading && (adcValue <= CORE_MCU_ADC_MAX_VALUE))
+        if (adcValue <= CORE_MCU_ADC_MAX_VALUE)
         {
-            _analogBuffer[_analogIndex] = adcValue | ADC_NEW_READING_FLAG;
-            _analogIndex++;
-            if (_analogIndex == NR_OF_ANALOG_INPUTS)
+            // always ignore first sample
+            if (_sampleCounter)
             {
-                _analogIndex = 0;
+                _sample += adcValue;
             }
 
-            // always switch to next read pin
-            core::mcu::adc::setChannel(map::adcChannel(_analogIndex));
+            if (++_sampleCounter == (ADC_SAMPLES + 1))
+            {
+                _sample /= ADC_SAMPLES;
+                _analogBuffer[_analogIndex] = _sample;
+                _analogBuffer[_analogIndex] |= ADC_NEW_READING_FLAG;
+                _sample        = 0;
+                _sampleCounter = 0;
+                _analogIndex++;
+
+                if (_analogIndex == NR_OF_ANALOG_INPUTS)
+                {
+                    _analogIndex = 0;
+                }
+
+                // always switch to next read pin
+                core::mcu::adc::setActivePin(map::adcPin(_analogIndex));
+            }
         }
 
         core::mcu::adc::startItConversion();

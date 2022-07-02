@@ -195,14 +195,10 @@ namespace Board::detail
 
         namespace analog
         {
-            namespace MCU
-            {
-                /// Performs low-level initialization of internal ADC.
-                void init();
-            }    // namespace MCU
-
             /// Used to indicate that the new analog reading has been made
             constexpr uint16_t ADC_NEW_READING_FLAG = 0x8000;
+
+            constexpr uint8_t ISR_PRIORITY = 5;
 
             void init();
 

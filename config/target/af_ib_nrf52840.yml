@@ -58,6 +58,7 @@
       index: 12
   analog:
     type: "native"
+    inputVoltage: "3.0"
     pins:
     -
       port: "0"

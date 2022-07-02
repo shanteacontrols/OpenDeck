@@ -13,7 +13,3 @@
 #define NRFX_NVMC_ENABLED                      1
 #define IRQ_PRIORITY_USB                       2
 #define IRQ_PRIORITY_UART                      3
-#define IRQ_PRIORITY_I2C                       3
-#define IRQ_PRIORITY_ADC                       5
-#define NRFX_TWIM_ENABLED                      1
-#define NRFX_TWIM0_ENABLED                     1

@@ -10,3 +10,8 @@
         page: 104
       page2:
         page: 120
+  adc:
+    # Ignored for nRF52
+    prescaler: 1
+    # Internal oversampling used, take one sample only
+    samples: 1

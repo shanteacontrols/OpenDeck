@@ -43,6 +43,7 @@
   analog:
     extReference: true
     type: "4067"
+    inputVoltage: "3.3"
     multiplexers: 1
     pins:
       s0:

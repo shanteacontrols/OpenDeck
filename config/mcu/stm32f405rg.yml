@@ -10,3 +10,6 @@
         page: 7
       page2:
         page: 8
+  adc:
+    prescaler: 8
+    samples: 16

@@ -172,6 +172,7 @@
   analog:
     type: "4067"
     multiplexers: 4
+    inputVoltage: "3.3"
     pins:
       s0:
         port: "B"

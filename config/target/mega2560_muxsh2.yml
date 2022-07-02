@@ -115,6 +115,7 @@
       index: 1
   analog:
     type: "4067"
+    inputVoltage: "5.0"
     multiplexers: 3
     pins:
       s0:

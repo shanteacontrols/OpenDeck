@@ -51,6 +51,7 @@
   analog:
     extReference: false
     type: "4067"
+    inputVoltage: "3.3"
     multiplexers: 5
     pins:
       s0:

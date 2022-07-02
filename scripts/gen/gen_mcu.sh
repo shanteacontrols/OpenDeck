@@ -26,6 +26,8 @@ mkdir -p "$gen_dir"
 app_start_page=$($yaml_parser "$yaml_file" flash.app-start-page)
 boot_start_page=$($yaml_parser "$yaml_file" flash.boot-start-page)
 app_boot_jump_offset=$($yaml_parser "$yaml_file" flash.app-boot-jump-offset)
+adc_prescaler=$($yaml_parser "$yaml_file" adc.prescaler)
+adc_samples=$($yaml_parser "$yaml_file" adc.samples)
 
 if [[ $app_start_page == "null" ]]
 then
@@ -155,4 +157,14 @@ then
         printf "%s\n" "FUSE_HIGH := $fuse_high"
         printf "%s\n" "FUSE_LOW := $fuse_low"
     } >> "$out_makefile"
+fi
+
+if [[ $adc_prescaler != "null" ]]
+then
+    printf "%s\n" "DEFINES += ADC_PRESCALER=$adc_prescaler" >> "$out_makefile"
+fi
+
+if [[ $adc_samples != "null" ]]
+then
+    printf "%s\n" "DEFINES += ADC_SAMPLES=$adc_samples" >> "$out_makefile"
 fi

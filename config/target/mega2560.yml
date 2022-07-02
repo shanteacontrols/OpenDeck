@@ -112,6 +112,7 @@
       index: 1
   analog:
     type: "native"
+    inputVoltage: "5.0"
     pins:
     -
       port: "F"

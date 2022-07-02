@@ -25,74 +25,16 @@ limitations under the License.
 #include "core/src/MCU.h"
 
 // note: on AVR, only 1 I2C channel is supported with the index 0
+// I2C implementation in core module uses blocking I2C. Here, interrupt
+// based implementation is used instead to speed up the transfer.
 
 namespace
 {
-    constexpr uint32_t                                  I2C_TRANSFER_TIMEOUT_MS = 10;
-    constexpr uint8_t                                   TWCR_CLR_MASK           = 0x0F;
-    uint32_t                                            _currentTime;
+    constexpr uint8_t                                   TWCR_CLR_MASK = 0x0F;
     core::util::RingBuffer<uint8_t, I2C_TX_BUFFER_SIZE> _txBuffer;
     uint8_t                                             _address;
     volatile bool                                       _txBusy;
     bool                                                _initialized;
-
-#define TIMEOUT_CHECK(register, bit)                                           \
-    do                                                                         \
-    {                                                                          \
-        _currentTime = core::timing::ms();                                     \
-        while (!core::util::BIT_READ(register, bit))                           \
-        {                                                                      \
-            if ((core::timing::ms() - _currentTime) > I2C_TRANSFER_TIMEOUT_MS) \
-            {                                                                  \
-                TWCR = 0;                                                      \
-                TWDR = 0;                                                      \
-                return false;                                                  \
-            }                                                                  \
-        }                                                                      \
-    } while (0)
-
-    inline bool startTransfer(uint8_t address)
-    {
-        // enable interrupt flag
-        // enable start bit (set to master)
-        TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN);
-
-        // wait for interrupt flag to be cleared
-        TIMEOUT_CHECK(TWCR, TWINT);
-
-        // check the value of TWI status register
-        uint8_t status = TW_STATUS & 0xF8;
-
-        if ((status != TW_START) && (status != TW_REP_START))
-        {
-            return false;
-        }
-
-        // send device address
-        TWDR = address << 1;
-        TWCR = (1 << TWINT) | (1 << TWEN);
-
-        TIMEOUT_CHECK(TWCR, TWINT);
-
-        status = TW_STATUS & 0xF8;
-
-        if ((status != TW_MT_SLA_ACK) && (status != TW_MR_SLA_ACK))
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    inline bool endTransfer()
-    {
-        // wait until all ongoing transmissions are stopped
-        TWCR |= (1 << TWSTO);
-
-        TIMEOUT_CHECK(TWCR, TWSTO);
-
-        return true;
-    }
 
     inline void sendByteInt(uint8_t data)
     {
@@ -119,25 +61,18 @@ namespace Board::I2C
 {
     initStatus_t init(uint8_t channel, clockSpeed_t speed)
     {
-        if (channel >= CORE_MCU_MAX_I2C_INTERFACES)
-        {
-            return initStatus_t::ERROR;
-        }
-
         if (isInitialized(channel))
         {
             return initStatus_t::ALREADY_INIT;
         }
 
-        // no prescaling
-        TWSR = 0x00;
+        if (core::mcu::i2c::init(channel, static_cast<uint32_t>(speed)))
+        {
+            _initialized = true;
+            return initStatus_t::OK;
+        }
 
-        // use formula as per datasheet
-        TWBR = ((F_CPU / static_cast<uint32_t>(speed)) - 16) / 2;
-
-        _initialized = true;
-
-        return initStatus_t::OK;
+        return initStatus_t::ERROR;
     }
 
     bool isInitialized(uint8_t channel)
@@ -147,15 +82,13 @@ namespace Board::I2C
 
     bool deInit(uint8_t channel)
     {
-        if (channel >= CORE_MCU_MAX_I2C_INTERFACES)
+        if (core::mcu::i2c::deInit(channel))
         {
-            return false;
+            _initialized = false;
+            return true;
         }
 
-        TWCR         = 0;
-        _initialized = false;
-
-        return true;
+        return false;
     }
 
     bool write(uint8_t channel, uint8_t address, uint8_t* buffer, size_t size)
@@ -194,24 +127,7 @@ namespace Board::I2C
 
     bool deviceAvailable(uint8_t channel, uint8_t address)
     {
-        if (channel >= CORE_MCU_MAX_I2C_INTERFACES)
-        {
-            return false;
-        }
-
-        bool found = false;
-
-        if (startTransfer(address))
-        {
-            found = true;
-        }
-
-        if (!endTransfer())
-        {
-            return false;
-        }
-
-        return found;
+        return core::mcu::i2c::deviceAvailable(channel, address);
     }
 }    // namespace Board::I2C
 

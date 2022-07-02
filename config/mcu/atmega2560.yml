@@ -8,3 +8,6 @@
     ext: 0xFC
     high: 0xD0
     low: 0xFF
+  adc:
+    prescaler: 128
+    samples: 1
