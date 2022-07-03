@@ -11,9 +11,12 @@ then
 
     if [[ $digital_out_type == "native" ]]
     then
-        printf "%s\n" "DEFINES += DIGITAL_OUTPUT_DRIVER_NATIVE" >> "$out_makefile"
-
         nr_of_digital_outputs=$($yaml_parser "$yaml_file" leds.external.pins --length)
+
+        {
+            printf "%s\n" "DEFINES += DIGITAL_OUTPUT_DRIVER_NATIVE"
+            printf "%s\n" "DEFINES += NR_OF_RGB_LEDS=$((nr_of_digital_outputs/3))"
+        } >> "$out_makefile"
 
         unset port_duplicates
         unset port_array
@@ -159,13 +162,19 @@ then
         number_of_out_sr=$($yaml_parser "$yaml_file" leds.external.shiftRegisters)
         nr_of_digital_outputs=$((number_of_out_sr * 8))
 
-        printf "%s\n" "DEFINES += NUMBER_OF_OUT_SR=$number_of_out_sr" >> "$out_makefile"
+        {
+            printf "%s\n" "DEFINES += NR_OF_RGB_LEDS=$((nr_of_digital_outputs/3))"
+            printf "%s\n" "DEFINES += NUMBER_OF_OUT_SR=$number_of_out_sr"
+        } >> "$out_makefile"
     elif [[ $digital_out_type == matrix ]]
     then
-        printf "%s\n" "DEFINES += DIGITAL_OUTPUT_DRIVER_MATRIX_NATIVE_ROWS" >> "$out_makefile"
-
         number_of_led_columns=8
         number_of_led_rows=$($yaml_parser "$yaml_file" leds.external.rows.pins --length)
+
+        {
+            printf "%s\n" "DEFINES += DIGITAL_OUTPUT_DRIVER_MATRIX_NATIVE_ROWS"
+            printf "%s\n" "DEFINES += NR_OF_RGB_LEDS=$(((number_of_led_rows/3) * number_of_led_columns))"
+        } >> "$out_makefile"
 
         for ((i=0; i<3; i++))
         do
@@ -212,7 +221,14 @@ then
         } >> "$out_makefile"
     elif [[ $digital_out_type == max7219 ]]
     then
-        printf "%s\n" "DEFINES += DIGITAL_OUTPUT_DRIVER_MAX7219" >> "$out_makefile"
+        # Hardcode LED amounts for now
+        nr_of_digital_outputs=64
+
+        {
+            printf "%s\n" "DEFINES += DIGITAL_OUTPUT_DRIVER_MAX7219"
+            printf "%s\n" "DEFINES += NR_OF_RGB_LEDS=16"
+        } >> "$out_makefile"
+
 
         port=$($yaml_parser "$yaml_file" leds.external.pins.data.port)
         index=$($yaml_parser "$yaml_file" leds.external.pins.data.index)
@@ -237,9 +253,6 @@ then
             printf "%s\n" "#define PIN_PORT_MAX7219_LATCH CORE_MCU_IO_PIN_PORT_DEF(${port})"
             printf "%s\n" "#define PIN_INDEX_MAX7219_LATCH CORE_MCU_IO_PIN_INDEX_DEF(${index})"
         } >> "$out_header"
-
-        # hardcode for now
-        nr_of_digital_outputs=64
     fi
 
     if [[ "$($yaml_parser "$yaml_file" leds.external.indexing)" != "null" ]]

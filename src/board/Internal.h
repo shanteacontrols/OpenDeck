@@ -185,8 +185,6 @@ namespace Board::detail
 
         namespace digitalOut
         {
-            constexpr inline size_t NR_OF_RGB_LEDS = NR_OF_DIGITAL_OUTPUTS / 3;
-
             void init();
 
             /// Checks if digital outputs need to be updated.
