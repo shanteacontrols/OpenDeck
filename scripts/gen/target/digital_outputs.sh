@@ -164,7 +164,7 @@ then
 
         {
             printf "%s\n" "DEFINES += NR_OF_RGB_LEDS=$((nr_of_digital_outputs/3))"
-            printf "%s\n" "DEFINES += NUMBER_OF_OUT_SR=$number_of_out_sr"
+            printf "%s\n" "DEFINES += NR_OF_OUT_SR=$number_of_out_sr"
         } >> "$out_makefile"
     elif [[ $digital_out_type == matrix ]]
     then
@@ -200,7 +200,7 @@ then
 
         {
             printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline core::mcu::io::pin_t D_OUT_PINS[NUMBER_OF_LED_ROWS] = {"
+            printf "%s\n" "constexpr inline core::mcu::io::pin_t D_OUT_PINS[NR_OF_LED_ROWS] = {"
         } >> "$out_header"
 
         for ((i=0; i<"$number_of_led_rows"; i++))
@@ -216,8 +216,8 @@ then
         nr_of_digital_outputs=$(("$number_of_led_columns" * "$number_of_led_rows"))
 
         {
-            printf "%s\n" "DEFINES += NUMBER_OF_LED_COLUMNS=$number_of_led_columns"
-            printf "%s\n" "DEFINES += NUMBER_OF_LED_ROWS=$number_of_led_rows"
+            printf "%s\n" "DEFINES += NR_OF_LED_COLUMNS=$number_of_led_columns"
+            printf "%s\n" "DEFINES += NR_OF_LED_ROWS=$number_of_led_rows"
         } >> "$out_makefile"
     elif [[ $digital_out_type == max7219 ]]
     then

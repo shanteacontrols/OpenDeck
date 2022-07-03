@@ -70,7 +70,7 @@ namespace Board::detail::IO::analog
 
         core::mcu::adc::init(adcConfiguration);
 
-        for (size_t i = 0; i < MAX_ADC_CHANNELS; i++)
+        for (size_t i = 0; i < NR_OF_ADC_CHANNELS; i++)
         {
             auto pin = map::adcPin(i);
             core::mcu::adc::initPin(pin);
@@ -128,14 +128,14 @@ namespace Board::detail::IO::analog
                 _analogIndex++;
                 _activeMuxInput++;
 
-                bool switchMux = (_activeMuxInput == NUMBER_OF_MUX_INPUTS);
+                bool switchMux = (_activeMuxInput == NR_OF_MUX_INPUTS);
 
                 if (switchMux)
                 {
                     _activeMuxInput = 0;
                     _activeMux++;
 
-                    if (_activeMux == NUMBER_OF_MUX)
+                    if (_activeMux == NR_OF_MUX)
                     {
                         _activeMux   = 0;
                         _analogIndex = 0;

@@ -107,7 +107,7 @@ namespace Board::detail::map
 #endif
     }
 
-#ifdef TOTAL_UNUSED_IO
+#ifdef NR_OF_UNUSED_IO
     constexpr const Board::detail::IO::unused::unusedIO_t& unusedPin(uint8_t index)
     {
         return UNUSED_PINS[index];

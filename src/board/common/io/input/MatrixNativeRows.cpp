@@ -43,7 +43,7 @@ namespace
         CORE_MCU_IO_SET_STATE(PIN_PORT_DEC_BM_A1, PIN_INDEX_DEC_BM_A1, core::util::BIT_READ(_activeInColumn, 1));
         CORE_MCU_IO_SET_STATE(PIN_PORT_DEC_BM_A2, PIN_INDEX_DEC_BM_A2, core::util::BIT_READ(_activeInColumn, 2));
 
-        if (++_activeInColumn == NUMBER_OF_BUTTON_COLUMNS)
+        if (++_activeInColumn == NR_OF_BUTTON_COLUMNS)
         {
             _activeInColumn = 0;
         }
@@ -51,15 +51,15 @@ namespace
 
     inline void storeDigitalIn()
     {
-        for (uint8_t column = 0; column < NUMBER_OF_BUTTON_COLUMNS; column++)
+        for (uint8_t column = 0; column < NR_OF_BUTTON_COLUMNS; column++)
         {
             activateInputColumn();
 
             core::mcu::io::pin_t pin;
 
-            for (uint8_t row = 0; row < NUMBER_OF_BUTTON_ROWS; row++)
+            for (uint8_t row = 0; row < NR_OF_BUTTON_ROWS; row++)
             {
-                size_t index = (row * NUMBER_OF_BUTTON_COLUMNS) + column;
+                size_t index = (row * NR_OF_BUTTON_COLUMNS) + column;
                 pin          = map::buttonPin(row);
 
                 _digitalInBuffer[index].readings <<= 1;
@@ -78,7 +78,7 @@ namespace Board::detail::IO::digitalIn
 {
     void init()
     {
-        for (uint8_t i = 0; i < NUMBER_OF_BUTTON_ROWS; i++)
+        for (uint8_t i = 0; i < NR_OF_BUTTON_ROWS; i++)
         {
             auto pin = detail::map::buttonPin(i);
 
@@ -133,29 +133,29 @@ namespace Board::IO::digitalIn
 
     size_t encoderFromInput(size_t index)
     {
-        uint8_t row    = index / NUMBER_OF_BUTTON_COLUMNS;
-        uint8_t column = index % NUMBER_OF_BUTTON_COLUMNS;
+        uint8_t row    = index / NR_OF_BUTTON_COLUMNS;
+        uint8_t column = index % NR_OF_BUTTON_COLUMNS;
 
         if (row % 2)
         {
             row -= 1;    // uneven row, get info from previous (even) row
         }
 
-        return (row * NUMBER_OF_BUTTON_COLUMNS) / 2 + column;
+        return (row * NR_OF_BUTTON_COLUMNS) / 2 + column;
     }
 
     size_t encoderComponentFromEncoder(size_t index, encoderComponent_t component)
     {
-        uint8_t column = index % NUMBER_OF_BUTTON_COLUMNS;
-        uint8_t row    = (index / NUMBER_OF_BUTTON_COLUMNS) * 2;
-        index          = row * NUMBER_OF_BUTTON_COLUMNS + column;
+        uint8_t column = index % NR_OF_BUTTON_COLUMNS;
+        uint8_t row    = (index / NR_OF_BUTTON_COLUMNS) * 2;
+        index          = row * NR_OF_BUTTON_COLUMNS + column;
 
         if (component == encoderComponent_t::A)
         {
             return index;
         }
 
-        return index + NUMBER_OF_BUTTON_COLUMNS;
+        return index + NR_OF_BUTTON_COLUMNS;
     }
 }    // namespace Board::IO::digitalIn
 

@@ -71,7 +71,7 @@ namespace Board::detail::IO::digitalOut
     {
         CORE_MCU_IO_SET_LOW(PIN_PORT_SR_OUT_LATCH, PIN_INDEX_SR_OUT_LATCH);
 
-        for (uint8_t shiftRegister = 0; shiftRegister < NUMBER_OF_OUT_SR; shiftRegister++)
+        for (uint8_t shiftRegister = 0; shiftRegister < NR_OF_OUT_SR; shiftRegister++)
         {
             for (uint8_t output = 0; output < 8; output++)
             {

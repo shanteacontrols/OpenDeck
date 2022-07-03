@@ -57,7 +57,7 @@ namespace Board::detail::IO::analog
 
         core::mcu::adc::init(adcConfiguration);
 
-        for (size_t i = 0; i < MAX_ADC_CHANNELS; i++)
+        for (size_t i = 0; i < NR_OF_ADC_CHANNELS; i++)
         {
             auto pin = map::adcPin(i);
             core::mcu::adc::initPin(pin);

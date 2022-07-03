@@ -83,7 +83,7 @@ namespace Board::detail::IO::digitalOut
         CORE_MCU_IO_SET_LOW(PIN_PORT_DEC_LM_A1, PIN_INDEX_DEC_LM_A1);
         CORE_MCU_IO_SET_LOW(PIN_PORT_DEC_LM_A2, PIN_INDEX_DEC_LM_A2);
 
-        for (uint8_t i = 0; i < NUMBER_OF_LED_ROWS; i++)
+        for (uint8_t i = 0; i < NR_OF_LED_ROWS; i++)
         {
             auto pin = detail::map::ledPin(i);
 
@@ -114,7 +114,7 @@ namespace Board::detail::IO::digitalOut
         {
             _pwmCounter = 0;
 
-            for (uint8_t i = 0; i < NUMBER_OF_LED_ROWS; i++)
+            for (uint8_t i = 0; i < NR_OF_LED_ROWS; i++)
             {
                 ledRowOff(i);
             }
@@ -128,7 +128,7 @@ namespace Board::detail::IO::digitalOut
 
         case switchState_t::COLUMNS:
         {
-            if (++activeOutColumn >= NUMBER_OF_LED_COLUMNS)
+            if (++activeOutColumn >= NR_OF_LED_COLUMNS)
             {
                 activeOutColumn = 0;
             }
@@ -142,9 +142,9 @@ namespace Board::detail::IO::digitalOut
         break;
         }
 
-        for (uint8_t i = 0; i < NUMBER_OF_LED_ROWS; i++)
+        for (uint8_t i = 0; i < NR_OF_LED_ROWS; i++)
         {
-            size_t  index      = activeOutColumn + i * NUMBER_OF_LED_COLUMNS;
+            size_t  index      = activeOutColumn + i * NR_OF_LED_COLUMNS;
             uint8_t arrayIndex = index / 8;
             uint8_t bit        = index - 8 * arrayIndex;
 
@@ -178,14 +178,14 @@ namespace Board::IO::digitalOut
 
     size_t rgbFromOutput(size_t index)
     {
-        uint8_t row = index / NUMBER_OF_LED_COLUMNS;
+        uint8_t row = index / NR_OF_LED_COLUMNS;
 
         uint8_t mod = row % 3;
         row -= mod;
 
-        uint8_t column = index % NUMBER_OF_LED_COLUMNS;
+        uint8_t column = index % NR_OF_LED_COLUMNS;
 
-        uint8_t result = (row * NUMBER_OF_LED_COLUMNS) / 3 + column;
+        uint8_t result = (row * NR_OF_LED_COLUMNS) / 3 + column;
 
         if (result >= NR_OF_RGB_LEDS)
         {
@@ -197,9 +197,9 @@ namespace Board::IO::digitalOut
 
     size_t rgbComponentFromRGB(size_t index, rgbComponent_t component)
     {
-        uint8_t column  = index % NUMBER_OF_LED_COLUMNS;
-        uint8_t row     = (index / NUMBER_OF_LED_COLUMNS) * 3;
-        uint8_t address = column + NUMBER_OF_LED_COLUMNS * row;
+        uint8_t column  = index % NR_OF_LED_COLUMNS;
+        uint8_t row     = (index / NR_OF_LED_COLUMNS) * 3;
+        uint8_t address = column + NR_OF_LED_COLUMNS * row;
 
         switch (component)
         {
@@ -207,10 +207,10 @@ namespace Board::IO::digitalOut
             return address;
 
         case rgbComponent_t::G:
-            return address + NUMBER_OF_LED_COLUMNS * 1;
+            return address + NR_OF_LED_COLUMNS * 1;
 
         case rgbComponent_t::B:
-            return address + NUMBER_OF_LED_COLUMNS * 2;
+            return address + NR_OF_LED_COLUMNS * 2;
         }
 
         return 0;

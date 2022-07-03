@@ -54,7 +54,7 @@ then
 
         {
             printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline core::mcu::io::pin_t A_IN_PINS[MAX_ADC_CHANNELS] = {"
+            printf "%s\n" "constexpr inline core::mcu::io::pin_t A_IN_PINS[NR_OF_ADC_CHANNELS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_analog_inputs; i++))
@@ -68,7 +68,7 @@ then
         } >> "$out_header"
 
         {
-            printf "%s\n" "DEFINES += MAX_ADC_CHANNELS=$nr_of_analog_inputs"
+            printf "%s\n" "DEFINES += NR_OF_ADC_CHANNELS=$nr_of_analog_inputs"
             printf "%s\n" "DEFINES += NATIVE_ANALOG_INPUTS"
         } >> "$out_makefile"
 
@@ -114,7 +114,7 @@ then
 
         {
             printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline core::mcu::io::pin_t A_IN_PINS[MAX_ADC_CHANNELS] = {"
+            printf "%s\n" "constexpr inline core::mcu::io::pin_t A_IN_PINS[NR_OF_ADC_CHANNELS] = {"
         } >> "$out_header"
 
         for ((i=0; i<"$number_of_mux"; i++))
@@ -130,9 +130,9 @@ then
         nr_of_analog_inputs=$((16 * "$number_of_mux"))
 
         {
-            printf "%s\n" "DEFINES += NUMBER_OF_MUX=$number_of_mux"
-            printf "%s\n" "DEFINES += NUMBER_OF_MUX_INPUTS=16"
-            printf "%s\n" "DEFINES += MAX_ADC_CHANNELS=$number_of_mux"
+            printf "%s\n" "DEFINES += NR_OF_MUX=$number_of_mux"
+            printf "%s\n" "DEFINES += NR_OF_MUX_INPUTS=16"
+            printf "%s\n" "DEFINES += NR_OF_ADC_CHANNELS=$number_of_mux"
         } >> "$out_makefile"
     elif [[ $analog_in_type == 4051 ]]
     then
@@ -176,7 +176,7 @@ then
 
         {
             printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline core::mcu::io::pin_t A_IN_PINS[MAX_ADC_CHANNELS] = {"
+            printf "%s\n" "constexpr inline core::mcu::io::pin_t A_IN_PINS[NR_OF_ADC_CHANNELS] = {"
         } >> "$out_header"
 
         for ((i=0; i<"$number_of_mux"; i++))
@@ -192,9 +192,9 @@ then
         nr_of_analog_inputs=$((8 * "$number_of_mux"))
 
         {
-            printf "%s\n" "DEFINES += NUMBER_OF_MUX=$number_of_mux"
-            printf "%s\n" "DEFINES += NUMBER_OF_MUX_INPUTS=8"
-            printf "%s\n" "DEFINES += MAX_ADC_CHANNELS=$number_of_mux"
+            printf "%s\n" "DEFINES += NR_OF_MUX=$number_of_mux"
+            printf "%s\n" "DEFINES += NR_OF_MUX_INPUTS=8"
+            printf "%s\n" "DEFINES += NR_OF_ADC_CHANNELS=$number_of_mux"
         } >> "$out_makefile"
     fi
 
@@ -225,6 +225,6 @@ then
 else
     {
         printf "%s\n" "DEFINES += NR_OF_ANALOG_INPUTS=0"
-        printf "%s\n" "DEFINES += MAX_ADC_CHANNELS=0" 
+        printf "%s\n" "DEFINES += NR_OF_ADC_CHANNELS=0" 
     } >> "$out_makefile"
 fi

@@ -138,7 +138,7 @@ then
         number_of_in_sr=$($yaml_parser "$yaml_file" buttons.shiftRegisters)
         nr_of_digital_inputs=$(( 8 * "$number_of_in_sr"))
 
-        printf "%s\n" "DEFINES += NUMBER_OF_IN_SR=$number_of_in_sr" >> "$out_makefile"
+        printf "%s\n" "DEFINES += NR_OF_IN_SR=$number_of_in_sr" >> "$out_makefile"
     elif [[ $digital_in_type == matrix ]]
     then
         number_of_rows=0
@@ -175,7 +175,7 @@ then
                 printf "%s\n" "#define PIN_INDEX_SR_IN_LATCH CORE_MCU_IO_PIN_INDEX_DEF(${index})"
             } >> "$out_header"
 
-            printf "%s\n" "DEFINES += NUMBER_OF_IN_SR=$number_of_in_sr" >> "$out_makefile"
+            printf "%s\n" "DEFINES += NR_OF_IN_SR=$number_of_in_sr" >> "$out_makefile"
         elif [[ $($yaml_parser "$yaml_file" buttons.rows.type) == "native" ]]
         then
             printf "%s\n" "DEFINES += DIGITAL_INPUT_DRIVER_MATRIX_NATIVE_ROWS" >> "$out_makefile"
@@ -195,7 +195,7 @@ then
 
             {
                 printf "%s\n" "namespace {"
-                printf "%s\n" "constexpr inline core::mcu::io::pin_t D_IN_PINS[NUMBER_OF_BUTTON_ROWS] = {"
+                printf "%s\n" "constexpr inline core::mcu::io::pin_t D_IN_PINS[NR_OF_BUTTON_ROWS] = {"
             } >> "$out_header"
 
             for ((i=0; i<number_of_rows; i++))
@@ -234,8 +234,8 @@ then
         nr_of_digital_inputs=$(("$number_of_columns" * "$number_of_rows"))
 
         {
-            printf "%s\n" "DEFINES += NUMBER_OF_BUTTON_COLUMNS=$number_of_columns"
-            printf "%s\n" "DEFINES += NUMBER_OF_BUTTON_ROWS=$number_of_rows"
+            printf "%s\n" "DEFINES += NR_OF_BUTTON_COLUMNS=$number_of_columns"
+            printf "%s\n" "DEFINES += NR_OF_BUTTON_ROWS=$number_of_rows"
         } >> "$out_makefile"
     fi
 

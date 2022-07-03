@@ -44,7 +44,7 @@ namespace
 
         CORE_MCU_IO_SET_HIGH(PIN_PORT_SR_IN_LATCH, PIN_INDEX_SR_IN_LATCH);
 
-        for (uint8_t shiftRegister = 0; shiftRegister < NUMBER_OF_IN_SR; shiftRegister++)
+        for (uint8_t shiftRegister = 0; shiftRegister < NR_OF_IN_SR; shiftRegister++)
         {
             for (uint8_t input = 0; input < 8; input++)
             {
