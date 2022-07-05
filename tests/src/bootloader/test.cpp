@@ -38,7 +38,7 @@ namespace
             writtenBytes.push_back(value >> 24 & static_cast<uint32_t>(0xFF));
         }
 
-        void writePage(size_t index) override
+        void commitPage(size_t index) override
         {
         }
 

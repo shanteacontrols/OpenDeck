@@ -140,7 +140,7 @@ Updater::processStatus_t Updater::processFwChunk(uint8_t data)
     if (_fwPageBytesReceived == _writer.pageSize(_currentFwPage))
     {
         _fwPageBytesReceived = 0;
-        _writer.writePage(_currentFwPage);
+        _writer.commitPage(_currentFwPage);
         pageWritten = true;
     }
 
@@ -149,7 +149,7 @@ Updater::processStatus_t Updater::processFwChunk(uint8_t data)
         // make sure page is written even if entire page range wasn't received
         if (!pageWritten)
         {
-            _writer.writePage(_currentFwPage);
+            _writer.commitPage(_currentFwPage);
         }
 
         _stageBytesReceived = 0;

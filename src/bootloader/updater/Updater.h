@@ -30,7 +30,7 @@ class Updater
         virtual uint32_t pageSize(size_t index)                                   = 0;
         virtual void     erasePage(size_t index)                                  = 0;
         virtual void     fillPage(size_t index, uint32_t address, uint32_t value) = 0;
-        virtual void     writePage(size_t index)                                  = 0;
+        virtual void     commitPage(size_t index)                                 = 0;
         virtual void     apply()                                                  = 0;
         virtual void     onFirmwareUpdateStart()                                  = 0;
     };

@@ -120,7 +120,7 @@ namespace Board::detail::map
 
         if (pageIndex < CORE_MCU_TOTAL_FLASH_PAGES)
         {
-            descriptor.address = CORE_MCU_FLASH_PAGE_ADDRESS(pageIndex);
+            descriptor.address = CORE_MCU_FLASH_PAGE_ADDR(pageIndex);
 
 #ifdef CORE_MCU_FLASH_PAGE_SIZE_COMMON
             descriptor.size = CORE_MCU_FLASH_PAGE_SIZE_COMMON;

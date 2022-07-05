@@ -55,9 +55,9 @@ class BTLDRWriter : public Updater::BTLDRWriter
         Board::bootloader::fillPage(index, address, value);
     }
 
-    void writePage(size_t index) override
+    void commitPage(size_t index) override
     {
-        Board::bootloader::writePage(index);
+        Board::bootloader::commitPage(index);
     }
 
     void apply() override

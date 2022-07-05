@@ -61,17 +61,17 @@ namespace Board::bootloader
 
     void erasePage(size_t index)
     {
-        core::mcu::flash::erasePage(index + FLASH_PAGE_APP_START);
+        core::mcu::bootloader::erasePage(index + FLASH_PAGE_APP_START);
     }
 
     void fillPage(size_t index, uint32_t address, uint32_t value)
     {
-        core::mcu::flash::write32(detail::map::flashPageDescriptor(index + FLASH_PAGE_APP_START).address + address, value);
+        core::mcu::bootloader::fillPage(index + FLASH_PAGE_APP_START, address, value);
     }
 
-    void writePage(size_t index)
+    void commitPage(size_t index)
     {
-        core::mcu::flash::writePage(index + FLASH_PAGE_APP_START);
+        core::mcu::bootloader::commitPage(index + FLASH_PAGE_APP_START);
     }
 
     uint8_t readFlash(uint32_t address)
