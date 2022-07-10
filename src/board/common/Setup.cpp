@@ -31,7 +31,7 @@ namespace
 {
     constexpr uint32_t MAIN_TIMER_TIMEOUT_US = 1000;
 #ifdef FW_APP
-#ifdef USE_FAST_SOFT_PWM_TIMER
+#if defined(USE_FAST_SOFT_PWM_TIMER) && defined(SOFT_PWM_SUPPORTED)
     constexpr uint32_t SOFT_PWM_TIMER_TIMEOUT_US = 200;
 #endif
 #endif
@@ -65,7 +65,7 @@ namespace Board
         core::mcu::timers::setPeriod(mainTimerIndex, MAIN_TIMER_TIMEOUT_US);
         core::mcu::timers::start(mainTimerIndex);
 
-#ifdef USE_FAST_SOFT_PWM_TIMER
+#if defined(USE_FAST_SOFT_PWM_TIMER) && defined(SOFT_PWM_SUPPORTED)
         size_t pwmTimerIndex = 0;
 
         core::mcu::timers::allocate(pwmTimerIndex, []()

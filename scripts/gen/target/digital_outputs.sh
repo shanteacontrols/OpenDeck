@@ -16,6 +16,7 @@ then
         {
             printf "%s\n" "DEFINES += DIGITAL_OUTPUT_DRIVER_NATIVE"
             printf "%s\n" "DEFINES += NR_OF_RGB_LEDS=$((nr_of_digital_outputs/3))"
+            printf "%s\n" "DEFINES += SOFT_PWM_SUPPORTED"
         } >> "$out_makefile"
 
         unset port_duplicates
@@ -165,6 +166,7 @@ then
         {
             printf "%s\n" "DEFINES += NR_OF_RGB_LEDS=$((nr_of_digital_outputs/3))"
             printf "%s\n" "DEFINES += NR_OF_OUT_SR=$number_of_out_sr"
+            printf "%s\n" "DEFINES += SOFT_PWM_SUPPORTED"
         } >> "$out_makefile"
     elif [[ $digital_out_type == matrix ]]
     then
@@ -218,6 +220,7 @@ then
         {
             printf "%s\n" "DEFINES += NR_OF_LED_COLUMNS=$number_of_led_columns"
             printf "%s\n" "DEFINES += NR_OF_LED_ROWS=$number_of_led_rows"
+            printf "%s\n" "DEFINES += SOFT_PWM_SUPPORTED"
         } >> "$out_makefile"
     elif [[ $digital_out_type == max7219 ]]
     then
