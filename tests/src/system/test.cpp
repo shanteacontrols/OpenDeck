@@ -284,6 +284,11 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
 #ifdef LEDS_SUPPORTED
 TEST_F(SystemTest, PresetChangeIndicatedOnLEDs)
 {
+    if (LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS) < 2)
+    {
+        return;
+    }
+
     MIDIDispatcher.listen(Messaging::eventType_t::TOUCHSCREEN_LED,
                           [this](const Messaging::event_t& dispatchMessage)
                           {

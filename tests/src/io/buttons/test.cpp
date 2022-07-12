@@ -270,7 +270,7 @@ TEST_F(ButtonsTest, ProgramChange)
     // now, revert all buttons back to default
     _buttons._databaseAdmin.factoryReset();
 
-    if (Buttons::Collection::size() < 2)
+    if (Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) < 4)
     {
         return;
     }
