@@ -63,6 +63,8 @@ The firmware supports various other boards, both small and large:
 * [Mux Shield v2 with Arduino Mega2560](https://mayhewlabs.com/products/mux-shield-2)
 * [nRF52840 DK](https://www.nordicsemi.com/Products/Development-hardware/nrf52840-dk)
 * [Raspberry Pi Pico](https://www.raspberrypi.com/products/raspberry-pi-pico/)
+* [Seeed Studio XIAO nRF52840](https://www.seeedstudio.com/seeed-xiao-ble-nrf52840-p-5201.html)
+* [Seeed Studio XIAO RP2040](https://www.seeedstudio.com/xiao-rp2040-v1-0-p-5026.html)
 * [STM32F401CC Black Pill](https://stm32-base.org/boards/STM32F401CCU6-WeAct-Black-Pill-V1.2.html)
 * [STM32F401CE Black Pill](https://stm32-base.org/boards/STM32F401CEU6-WeAct-Black-Pill-V3.0)
 * [STM32F411 Black Pill [1]](https://stm32-base.org/boards/STM32F411CEU6-WeAct-Black-Pill-V2.0) ([Adafruit](https://www.adafruit.com/product/4877))

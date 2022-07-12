@@ -1,0 +1,80 @@
+---
+  mcu: "rp2040"
+  usb: true
+  uart:
+    dinMIDI:
+      pins:
+        rx:
+          port: "0"
+          index: 1
+        tx:
+          port: "0"
+          index: 0
+    touchscreen:
+      pins:
+        rx:
+          port: "0"
+          index: 1
+        tx:
+          port: "0"
+          index: 0
+      components: 64
+  i2c:
+    display:
+      pins:
+        sda:
+          port: "0"
+          index: 6
+        scl:
+          port: "0"
+          index: 7
+  buttons:
+    type: "native"
+    extPullups: false
+    pins:
+    -
+      port: "0"
+      index: 3
+    -
+      port: "0"
+      index: 4
+  analog:
+    type: "native"
+    inputVoltage: "3.3"
+    pins:
+    -
+      port: "0"
+      index: 26
+    -
+      port: "0"
+      index: 27
+    -
+      port: "0"
+      index: 28
+    -
+      port: "0"
+      index: 29
+  leds:
+    internal:
+      invert: true
+      pins:
+        usb:
+          rx:
+            port: "0"
+            index: 25
+          tx:
+            port: "0"
+            index: 16
+        uart:
+          rx:
+            port: "0"
+            index: 25
+          tx:
+            port: "0"
+            index: 16
+    external:
+      type: "native"
+      pins:
+      -
+        port: "0"
+        index: 2
