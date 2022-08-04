@@ -193,7 +193,7 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
                 {
                     _encoderSpeed[index] = core::util::CONSTRAIN(static_cast<uint8_t>(_encoderSpeed[index] + ENCODER_SPEED_CHANGE[encAcceleration]),
                                                                  static_cast<uint8_t>(0),
-                                                                 ENCODER_MAX_ACC_SPEED[encAcceleration]);
+                                                                 ENCODER_ACC_STEP_INC[encAcceleration]);
                 }
                 else
                 {

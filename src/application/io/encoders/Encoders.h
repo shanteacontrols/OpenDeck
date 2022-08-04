@@ -180,8 +180,8 @@ namespace IO
             3
         };
 
-        /// Maximum value by which value is increased during acceleration.
-        static constexpr uint8_t ENCODER_MAX_ACC_SPEED[static_cast<uint8_t>(IO::Encoders::acceleration_t::AMOUNT)] = {
+        /// Value by which value is increased during acceleration.
+        static constexpr uint8_t ENCODER_ACC_STEP_INC[static_cast<uint8_t>(IO::Encoders::acceleration_t::AMOUNT)] = {
             0,    // acceleration disabled
             5,
             10,
