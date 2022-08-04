@@ -20,5 +20,6 @@
     "explorer.compactFolders": false,
     "editor.mouseWheelZoom": true,
     "editor.formatOnSave": true,
-    "editor.defaultFormatter": "xaver.clang-format"
+    "editor.defaultFormatter": "xaver.clang-format",
+    "git.mergeEditor": true
 }
