@@ -5017,7 +5017,7 @@ design rules under a new name.</description>
 </signal>
 <signal name="S$121">
 </signal>
-<signal name="DEC_DO_A0">
+<signal name="MAX7219_DIN">
 <contactref element="U1" pad="16"/>
 <wire x1="90.969" y1="89.094" x2="91.38" y2="89.094" width="0.2032" layer="1"/>
 <wire x1="91.38" y1="89.094" x2="91.694" y2="89.408" width="0.2032" layer="1"/>
@@ -5053,7 +5053,7 @@ design rules under a new name.</description>
 <wire x1="76.2" y1="3.556" x2="76.708" y2="4.064" width="0.2032" layer="16"/>
 <wire x1="76.708" y1="4.064" x2="76.708" y2="13.716" width="0.2032" layer="16"/>
 </signal>
-<signal name="DEC_DO_A1">
+<signal name="MAX7219_LOAD">
 <contactref element="U1" pad="15"/>
 <via x="93.218" y="90.932" extent="1-16" drill="0.4"/>
 <wire x1="92.202" y1="97.79" x2="91.44" y2="98.552" width="0.2032" layer="16"/>
@@ -7246,7 +7246,7 @@ design rules under a new name.</description>
 <signal name="LR_3_MI">
 <contactref element="U1" pad="17"/>
 </signal>
-<signal name="DEC_DO_A2">
+<signal name="MAX7219_CLK">
 <contactref element="U1" pad="14"/>
 <wire x1="90.969" y1="88.094" x2="92.158" y2="88.094" width="0.2032" layer="1"/>
 <wire x1="92.158" y1="88.094" x2="92.71" y2="88.646" width="0.2032" layer="1"/>

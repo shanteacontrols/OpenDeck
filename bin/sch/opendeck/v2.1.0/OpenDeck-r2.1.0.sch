@@ -4063,8 +4063,8 @@
 <attribute name="VALUE" x="149.86" y="99.06" size="1.778" layer="96" font="vector"/>
 <attribute name="LCSC" x="147.32" y="101.6" size="1.778" layer="96" rot="R180" display="off"/>
 </instance>
-<instance part="GND35" gate="1" x="127" y="91.44" smashed="yes" rot="R270">
-<attribute name="VALUE" x="124.46" y="93.98" size="1.778" layer="96" font="vector" rot="R270"/>
+<instance part="GND35" gate="1" x="124.46" y="91.44" smashed="yes" rot="R270">
+<attribute name="VALUE" x="121.92" y="93.98" size="1.778" layer="96" font="vector" rot="R270"/>
 </instance>
 <instance part="C19" gate="C" x="124.46" y="195.58">
 <attribute name="LCSC" x="124.46" y="195.58" size="1.778" layer="96" display="off"/>
@@ -4352,14 +4352,14 @@
 </instance>
 <instance part="U7" gate="-GND" x="154.94" y="91.44" rot="R90"/>
 <instance part="U7" gate="-VCC" x="154.94" y="93.98" rot="R90"/>
-<instance part="GND36" gate="1" x="127" y="83.82" smashed="yes" rot="R270">
-<attribute name="VALUE" x="124.46" y="86.36" size="1.778" layer="96" font="vector" rot="R270"/>
+<instance part="GND36" gate="1" x="124.46" y="83.82" smashed="yes" rot="R270">
+<attribute name="VALUE" x="121.92" y="86.36" size="1.778" layer="96" font="vector" rot="R270"/>
 </instance>
-<instance part="GND37" gate="1" x="127" y="78.74" smashed="yes" rot="R270">
-<attribute name="VALUE" x="124.46" y="81.28" size="1.778" layer="96" font="vector" rot="R270"/>
+<instance part="GND37" gate="1" x="124.46" y="78.74" smashed="yes" rot="R270">
+<attribute name="VALUE" x="121.92" y="81.28" size="1.778" layer="96" font="vector" rot="R270"/>
 </instance>
-<instance part="GND38" gate="1" x="127" y="73.66" smashed="yes" rot="R270">
-<attribute name="VALUE" x="124.46" y="76.2" size="1.778" layer="96" font="vector" rot="R270"/>
+<instance part="GND38" gate="1" x="124.46" y="73.66" smashed="yes" rot="R270">
+<attribute name="VALUE" x="121.92" y="76.2" size="1.778" layer="96" font="vector" rot="R270"/>
 </instance>
 <instance part="GND44" gate="1" x="185.42" y="99.06" smashed="yes" rot="R180">
 <attribute name="VALUE" x="187.96" y="101.6" size="1.778" layer="96" font="vector" rot="R180"/>
@@ -4491,7 +4491,7 @@
 </segment>
 <segment>
 <pinref part="GND35" gate="1" pin="GND"/>
-<wire x1="129.54" y1="91.44" x2="149.86" y2="91.44" width="0.1524" layer="91"/>
+<wire x1="127" y1="91.44" x2="149.86" y2="91.44" width="0.1524" layer="91"/>
 <pinref part="U7" gate="-GND" pin="VEE"/>
 </segment>
 <segment>
@@ -4734,17 +4734,17 @@
 <segment>
 <pinref part="U7" gate="-GATES" pin="1!(OE)"/>
 <pinref part="GND36" gate="1" pin="GND"/>
-<wire x1="129.54" y1="83.82" x2="144.78" y2="83.82" width="0.1524" layer="91"/>
+<wire x1="127" y1="83.82" x2="144.78" y2="83.82" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="U7" gate="-GATES" pin="2!(OE)"/>
 <pinref part="GND37" gate="1" pin="GND"/>
-<wire x1="129.54" y1="78.74" x2="144.78" y2="78.74" width="0.1524" layer="91"/>
+<wire x1="127" y1="78.74" x2="144.78" y2="78.74" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="U7" gate="-GATES" pin="3!(OE)"/>
 <pinref part="GND38" gate="1" pin="GND"/>
-<wire x1="129.54" y1="73.66" x2="144.78" y2="73.66" width="0.1524" layer="91"/>
+<wire x1="127" y1="73.66" x2="144.78" y2="73.66" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="GND44" gate="1" pin="GND"/>
@@ -6498,7 +6498,7 @@
 <junction x="170.18" y="86.36"/>
 </segment>
 </net>
-<net name="DEC_DO_A0" class="0">
+<net name="MAX7219_DIN" class="0">
 <segment>
 <label x="142.24" y="86.36" size="1.27" layer="95" font="vector" rot="R180" xref="yes"/>
 <pinref part="U7" gate="-GATES" pin="1A"/>
@@ -6540,7 +6540,7 @@
 <pinref part="D17" gate="G$1" pin="I/O2"/>
 </segment>
 </net>
-<net name="DEC_DO_A1" class="0">
+<net name="MAX7219_LOAD" class="0">
 <segment>
 <label x="142.24" y="81.28" size="1.27" layer="95" font="vector" rot="R180" xref="yes"/>
 <pinref part="U7" gate="-GATES" pin="2A"/>
@@ -7752,7 +7752,7 @@
 <label x="205.74" y="469.9" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
-<net name="DEC_DO_A2" class="0">
+<net name="MAX7219_CLK" class="0">
 <segment>
 <pinref part="U1" gate="G$1" pin="PA0"/>
 <wire x1="203.2" y1="485.14" x2="205.74" y2="485.14" width="0.1524" layer="91"/>
