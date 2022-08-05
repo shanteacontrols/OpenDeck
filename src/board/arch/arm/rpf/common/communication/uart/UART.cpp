@@ -30,8 +30,8 @@ namespace
 {
     volatile bool _transmitting[CORE_MCU_MAX_UART_INTERFACES];
     uart_inst_t*  _uartInstance[CORE_MCU_MAX_UART_INTERFACES] = {
-         uart0,
-         uart1
+        uart0,
+        uart1
     };
 
     constexpr uint8_t UART_IRQ[CORE_MCU_MAX_UART_INTERFACES] = {

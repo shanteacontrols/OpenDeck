@@ -105,8 +105,8 @@ namespace
     uint8_t       _nrfRxBuffer[CORE_MCU_MAX_UART_INTERFACES];
     volatile bool _transmitting[CORE_MCU_MAX_UART_INTERFACES];
     nrfx_uarte_t  _uartInstance[CORE_MCU_MAX_UART_INTERFACES] = {
-         NRFX_UARTE_INSTANCE(0),
-         NRFX_UARTE_INSTANCE(1),
+        NRFX_UARTE_INSTANCE(0),
+        NRFX_UARTE_INSTANCE(1),
     };
 
     enum class txEvent_t : uint8_t
