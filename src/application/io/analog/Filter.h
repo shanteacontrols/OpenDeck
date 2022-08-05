@@ -245,11 +245,11 @@ namespace IO
 
         adcConfig_t _adc12bit = {
             .ADC_MIN_VALUE               = 10,
-            .ADC_MAX_VALUE               = 4000,
+            .ADC_MAX_VALUE               = 3950,
             .FSR_MIN_VALUE               = 160,
             .FSR_MAX_VALUE               = 1360,
             .AFTERTOUCH_MAX_VALUE        = 2400,
-            .DIGITAL_VALUE_THRESHOLD_ON  = 4000,
+            .DIGITAL_VALUE_THRESHOLD_ON  = 3950,
             .DIGITAL_VALUE_THRESHOLD_OFF = 2400,
         };
 
