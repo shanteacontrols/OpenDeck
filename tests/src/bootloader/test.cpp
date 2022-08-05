@@ -1,4 +1,4 @@
-#ifndef USB_OVER_SERIAL_HOST
+#ifndef HW_USB_OVER_SERIAL_HOST
 
 #include "framework/Framework.h"
 #include "SysExParser/SysExParser.h"

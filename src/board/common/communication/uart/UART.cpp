@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef UART_SUPPORTED
+#ifdef HW_SUPPORT_UART
 
 #include "board/Board.h"
 #include "board/Internal.h"
@@ -36,12 +36,12 @@ namespace
     bool _initialized[CORE_MCU_MAX_UART_INTERFACES];
 
     /// Buffer in which outgoing UART data is stored.
-    core::util::RingBuffer<uint8_t, UART_TX_BUFFER_SIZE> _txBuffer[CORE_MCU_MAX_UART_INTERFACES];
+    core::util::RingBuffer<uint8_t, BUFFER_SIZE_UART_TX> _txBuffer[CORE_MCU_MAX_UART_INTERFACES];
 
     /// Buffer in which incoming UART data is stored.
-    core::util::RingBuffer<uint8_t, UART_RX_BUFFER_SIZE> _rxBuffer[CORE_MCU_MAX_UART_INTERFACES];
+    core::util::RingBuffer<uint8_t, BUFFER_SIZE_UART_RX> _rxBuffer[CORE_MCU_MAX_UART_INTERFACES];
 
-#ifdef DMX_SUPPORTED
+#ifdef HW_SUPPORT_DMX
     Board::UART::dmxBuffer_t* _dmxBuffer;
     Board::UART::dmxBuffer_t* _dmxBufferQueued;
 #endif
@@ -184,7 +184,7 @@ namespace Board
             return Board::detail::UART::MCU::isTxComplete(channel);
         }
 
-#ifdef DMX_SUPPORTED
+#ifdef HW_SUPPORT_DMX
         bool updateDmxBuffer(dmxBuffer_t& buffer)
         {
             CORE_MCU_ATOMIC_SECTION
@@ -245,7 +245,7 @@ namespace Board
             return _txBuffer[channel].size();
         }
 
-#ifdef DMX_SUPPORTED
+#ifdef HW_SUPPORT_DMX
         Board::UART::dmxBuffer_t* dmxBuffer()
         {
             return _dmxBuffer;

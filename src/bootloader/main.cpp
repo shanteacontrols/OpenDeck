@@ -25,7 +25,7 @@ limitations under the License.
 
 namespace
 {
-#ifdef USB_OVER_SERIAL
+#ifdef HW_USB_OVER_SERIAL
     /// Value sent from non-USB target to USB link before loading application
     constexpr uint8_t USB_LINK_MAGIC_VAL_APP = 0x55;
 
@@ -62,10 +62,10 @@ class BTLDRWriter : public Updater::BTLDRWriter
 
     void apply() override
     {
-#ifndef USB_SUPPORTED
-        Board::UART::write(UART_CHANNEL_USB_LINK, TARGET_FW_UPDATE_DONE);
+#ifndef HW_SUPPORT_USB
+        Board::UART::write(HW_UART_CHANNEL_USB_LINK, TARGET_FW_UPDATE_DONE);
 
-        while (!Board::UART::isTxComplete(UART_CHANNEL_USB_LINK))
+        while (!Board::UART::isTxComplete(HW_UART_CHANNEL_USB_LINK))
         {
             ;
         }
@@ -75,10 +75,10 @@ class BTLDRWriter : public Updater::BTLDRWriter
 
     void onFirmwareUpdateStart() override
     {
-#ifndef USB_SUPPORTED
-        Board::UART::write(UART_CHANNEL_USB_LINK, TARGET_FW_UPDATE_STARTED);
+#ifndef HW_SUPPORT_USB
+        Board::UART::write(HW_UART_CHANNEL_USB_LINK, TARGET_FW_UPDATE_STARTED);
 
-        while (!Board::UART::isTxComplete(UART_CHANNEL_USB_LINK))
+        while (!Board::UART::isTxComplete(HW_UART_CHANNEL_USB_LINK))
         {
             ;
         }
@@ -114,24 +114,24 @@ class HWAFwSelector : public FwSelector::HWA
         case FwSelector::fwType_t::APPLICATION:
         default:
         {
-#if !defined(USB_SUPPORTED)
+#if !defined(HW_SUPPORT_USB)
             // on non-usb supported board, send magic value to USB link so that link
             // knows whether the target MCU has entered application
             // if link MCU doesn't receive this, bootloader should be entered
-            Board::UART::write(UART_CHANNEL_USB_LINK, USB_LINK_MAGIC_VAL_APP);
+            Board::UART::write(HW_UART_CHANNEL_USB_LINK, USB_LINK_MAGIC_VAL_APP);
 
-            while (!Board::UART::isTxComplete(UART_CHANNEL_USB_LINK))
+            while (!Board::UART::isTxComplete(HW_UART_CHANNEL_USB_LINK))
             {
                 ;
             }
 
             Board::bootloader::runApplication();
-#elif defined(USB_OVER_SERIAL_HOST)
+#elif defined(HW_USB_OVER_SERIAL_HOST)
             // wait a bit first
             core::timing::waitMs(1500);
             uint8_t data;
 
-            while (Board::UART::read(UART_CHANNEL_USB_LINK, data))
+            while (Board::UART::read(HW_UART_CHANNEL_USB_LINK, data))
             {
                 if (data == USB_LINK_MAGIC_VAL_APP)
                 {
@@ -170,7 +170,7 @@ class Reader
     public:
     Reader() = default;
 
-#ifdef USB_SUPPORTED
+#ifdef HW_SUPPORT_USB
     void read()
     {
         uint8_t value = 0;
@@ -187,11 +187,11 @@ class Reader
                     {
                         if (_sysExParser.value(i, value))
                         {
-#ifdef USB_OVER_SERIAL_HOST
-                            Board::UART::write(UART_CHANNEL_USB_LINK, value);
+#ifdef HW_USB_OVER_SERIAL_HOST
+                            Board::UART::write(HW_UART_CHANNEL_USB_LINK, value);
 
                             // expect ACK but ignore the value
-                            while (!Board::UART::read(UART_CHANNEL_USB_LINK, value))
+                            while (!Board::UART::read(HW_UART_CHANNEL_USB_LINK, value))
                             {
                                 ;
                             }
@@ -204,8 +204,8 @@ class Reader
             }
         }
 
-#ifdef USB_OVER_SERIAL_HOST
-        if (Board::UART::read(UART_CHANNEL_USB_LINK, value))
+#ifdef HW_USB_OVER_SERIAL_HOST
+        if (Board::UART::read(HW_UART_CHANNEL_USB_LINK, value))
         {
             if (value == TARGET_FW_UPDATE_DONE)
             {
@@ -226,22 +226,22 @@ class Reader
     {
         uint8_t value;
 
-        if (Board::UART::read(UART_CHANNEL_USB_LINK, value))
+        if (Board::UART::read(HW_UART_CHANNEL_USB_LINK, value))
         {
             // send USB_LINK_MAGIC_VAL_APP for ACK so that USB link can proceed with next byte
-            Board::UART::write(UART_CHANNEL_USB_LINK, USB_LINK_MAGIC_VAL_APP);
+            Board::UART::write(HW_UART_CHANNEL_USB_LINK, USB_LINK_MAGIC_VAL_APP);
             _updater.feed(value);
         }
     }
 #endif
 
     private:
-#ifndef USB_OVER_SERIAL_HOST
+#ifndef HW_USB_OVER_SERIAL_HOST
     BTLDRWriter _btldrWriter;
     Updater     _updater = Updater(_btldrWriter, FW_UID);
 #endif
 
-#ifdef USB_SUPPORTED
+#ifdef HW_SUPPORT_USB
     MIDI::usbMIDIPacket_t _usbMIDIpacket;
     SysExParser           _sysExParser;
 #endif

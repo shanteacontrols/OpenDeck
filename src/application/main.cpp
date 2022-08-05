@@ -69,7 +69,7 @@ class HWADatabase : public System::Builder::HWA::Database
 
     bool clear() override
     {
-#ifdef LED_INDICATORS
+#ifdef HW_SUPPORT_LED_INDICATORS
         // It's possible that LED indicators are still on since
         // this command is most likely given via USB.
         // Wait until all indicators are turned off
@@ -154,7 +154,7 @@ class HWALEDsStub : public System::Builder::HWA::IO::LEDs
 } _hwaLEDs;
 #endif
 
-#ifdef ADC_SUPPORTED
+#ifdef HW_SUPPORT_ADC
 class HWAAnalog : public System::Builder::HWA::IO::Analog
 {
     public:
@@ -352,7 +352,7 @@ class HWAMIDIUSB : public System::Builder::HWA::Protocol::MIDI::USB
     }
 } _hwaMIDIUSB;
 
-#ifdef DIN_MIDI_SUPPORTED
+#ifdef HW_SUPPORT_DIN_MIDI
 class HWAMIDIDIN : public System::Builder::HWA::Protocol::MIDI::DIN
 {
     public:
@@ -372,24 +372,24 @@ class HWAMIDIDIN : public System::Builder::HWA::Protocol::MIDI::DIN
                                      Board::UART::stopBits_t::ONE,
                                      Board::UART::type_t::RX_TX);
 
-        return Board::UART::init(UART_CHANNEL_DIN, config) == Board::initStatus_t::OK;
+        return Board::UART::init(HW_UART_CHANNEL_DIN, config) == Board::initStatus_t::OK;
     }
 
     bool deInit() override
     {
-        Board::UART::deInit(UART_CHANNEL_DIN);
+        Board::UART::deInit(HW_UART_CHANNEL_DIN);
         return true;
     }
 
     bool setLoopback(bool state) override
     {
-        Board::UART::setLoopbackState(UART_CHANNEL_DIN, state);
+        Board::UART::setLoopbackState(HW_UART_CHANNEL_DIN, state);
         return true;
     }
 
     bool read(uint8_t& value) override
     {
-        if (Board::UART::read(UART_CHANNEL_DIN, value))
+        if (Board::UART::read(HW_UART_CHANNEL_DIN, value))
         {
             Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::UART,
                                                    Board::IO::indicators::direction_t::INCOMING);
@@ -402,7 +402,7 @@ class HWAMIDIDIN : public System::Builder::HWA::Protocol::MIDI::DIN
 
     bool write(uint8_t& value) override
     {
-        if (Board::UART::write(UART_CHANNEL_DIN, value))
+        if (Board::UART::write(HW_UART_CHANNEL_DIN, value))
         {
             Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::UART,
                                                    Board::IO::indicators::direction_t::OUTGOING);
@@ -417,7 +417,7 @@ class HWAMIDIDIN : public System::Builder::HWA::Protocol::MIDI::DIN
     {
         if (interface == IO::Common::Allocatable::interface_t::UART)
         {
-            return Board::UART::isInitialized(UART_CHANNEL_DIN);
+            return Board::UART::isInitialized(HW_UART_CHANNEL_DIN);
         }
 
         return false;
@@ -466,7 +466,7 @@ class HWAMIDIDINStub : public System::Builder::HWA::Protocol::MIDI::DIN
 } _hwaMIDIDIN;
 #endif
 
-#ifdef BLE_SUPPORTED
+#ifdef HW_SUPPORT_BLE
 class HWAMIDIBLE : public System::Builder::HWA::Protocol::MIDI::BLE
 {
     public:
@@ -551,7 +551,7 @@ class HWAMIDIBLEStub : public System::Builder::HWA::Protocol::MIDI::BLE
 } _hwaMIDIBLE;
 #endif
 
-#ifdef DMX_SUPPORTED
+#ifdef HW_SUPPORT_DMX
 class HWADMX : public System::Builder::HWA::Protocol::DMX
 {
     public:
@@ -572,7 +572,7 @@ class HWADMX : public System::Builder::HWA::Protocol::DMX
                                      true,
                                      buffer);
 
-        if (Board::UART::init(UART_CHANNEL_DMX, config) == Board::initStatus_t::OK)
+        if (Board::UART::init(HW_UART_CHANNEL_DMX, config) == Board::initStatus_t::OK)
         {
             CDCLocker::lock();
             return true;
@@ -583,7 +583,7 @@ class HWADMX : public System::Builder::HWA::Protocol::DMX
 
     bool deInit() override
     {
-        if (Board::UART::deInit(UART_CHANNEL_DMX))
+        if (Board::UART::deInit(HW_UART_CHANNEL_DMX))
         {
             CDCLocker::unlock();
             return true;
@@ -639,8 +639,8 @@ class HWADMX : public System::Builder::HWA::Protocol::DMX
     {
         if (interface == IO::Common::Allocatable::interface_t::UART)
         {
-#ifdef UART_CHANNEL_DMX
-            return Board::UART::isInitialized(UART_CHANNEL_DMX);
+#ifdef HW_UART_CHANNEL_DMX
+            return Board::UART::isInitialized(HW_UART_CHANNEL_DMX);
 #else
             return false;
 #endif
@@ -693,7 +693,7 @@ class HWADMXStub : public System::Builder::HWA::Protocol::DMX
 } _hwaDMX;
 #endif
 
-#ifdef TOUCHSCREEN_SUPPORTED
+#ifdef HW_SUPPORT_TOUCHSCREEN
 class HWATouchscreen : public System::Builder::HWA::IO::Touchscreen
 {
     public:
@@ -708,28 +708,28 @@ class HWATouchscreen : public System::Builder::HWA::IO::Touchscreen
                                      Board::UART::stopBits_t::ONE,
                                      Board::UART::type_t::RX_TX);
 
-        return Board::UART::init(UART_CHANNEL_TOUCHSCREEN, config) == Board::initStatus_t::OK;
+        return Board::UART::init(HW_UART_CHANNEL_TOUCHSCREEN, config) == Board::initStatus_t::OK;
     }
 
     bool deInit() override
     {
-        return Board::UART::deInit(UART_CHANNEL_TOUCHSCREEN);
+        return Board::UART::deInit(HW_UART_CHANNEL_TOUCHSCREEN);
     }
 
     bool write(uint8_t value) override
     {
-        return Board::UART::write(UART_CHANNEL_TOUCHSCREEN, value);
+        return Board::UART::write(HW_UART_CHANNEL_TOUCHSCREEN, value);
     }
 
     bool read(uint8_t& value) override
     {
-        return Board::UART::read(UART_CHANNEL_TOUCHSCREEN, value);
+        return Board::UART::read(HW_UART_CHANNEL_TOUCHSCREEN, value);
     }
 
     bool allocated(IO::Common::Allocatable::interface_t interface) override
     {
-#ifdef UART_CHANNEL_TOUCHSCREEN
-        return Board::UART::isInitialized(UART_CHANNEL_TOUCHSCREEN);
+#ifdef HW_UART_CHANNEL_TOUCHSCREEN
+        return Board::UART::isInitialized(HW_UART_CHANNEL_TOUCHSCREEN);
 #else
         return false;
 #endif
@@ -762,7 +762,7 @@ class HWACDCPassthrough : public System::Builder::HWA::IO::CDCPassthrough
 
     bool uartRead(uint8_t& value) override
     {
-        if (Board::UART::read(UART_CHANNEL_TOUCHSCREEN, value))
+        if (Board::UART::read(HW_UART_CHANNEL_TOUCHSCREEN, value))
         {
             Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::UART,
                                                    Board::IO::indicators::direction_t::INCOMING);
@@ -775,7 +775,7 @@ class HWACDCPassthrough : public System::Builder::HWA::IO::CDCPassthrough
 
     bool uartWrite(uint8_t value) override
     {
-        if (Board::UART::write(UART_CHANNEL_TOUCHSCREEN, value))
+        if (Board::UART::write(HW_UART_CHANNEL_TOUCHSCREEN, value))
         {
             Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::UART,
                                                    Board::IO::indicators::direction_t::OUTGOING);
@@ -821,7 +821,7 @@ class HWACDCPassthrough : public System::Builder::HWA::IO::CDCPassthrough
                                          Board::UART::stopBits_t::ONE,
                                          Board::UART::type_t::RX_TX);
 
-            Board::UART::init(UART_CHANNEL_TOUCHSCREEN, config, true);
+            Board::UART::init(HW_UART_CHANNEL_TOUCHSCREEN, config, true);
         }
     }
 
@@ -907,7 +907,7 @@ class HWACDCPassthroughStub : public System::Builder::HWA::IO::CDCPassthrough
 } _hwaCDCPassthrough;
 #endif
 
-#ifdef DISPLAY_SUPPORTED
+#ifdef HW_SUPPORT_DISPLAY
 class HWADisplay : public System::Builder::HWA::IO::Display
 {
     public:
@@ -916,17 +916,17 @@ class HWADisplay : public System::Builder::HWA::IO::Display
     bool init() override
     {
         // for i2c, consider ALREADY_INIT status a success
-        return Board::I2C::init(I2C_CHANNEL_DISPLAY, Board::I2C::clockSpeed_t::S400K) != Board::initStatus_t::ERROR;
+        return Board::I2C::init(HW_I2C_CHANNEL_DISPLAY, Board::I2C::clockSpeed_t::S400K) != Board::initStatus_t::ERROR;
     }
 
     bool write(uint8_t address, uint8_t* buffer, size_t size) override
     {
-        return Board::I2C::write(I2C_CHANNEL_DISPLAY, address, buffer, size);
+        return Board::I2C::write(HW_I2C_CHANNEL_DISPLAY, address, buffer, size);
     }
 
     bool deviceAvailable(uint8_t address) override
     {
-        return Board::I2C::deviceAvailable(I2C_CHANNEL_DISPLAY, address);
+        return Board::I2C::deviceAvailable(HW_I2C_CHANNEL_DISPLAY, address);
     }
 } _hwaDisplay;
 #else
@@ -1118,7 +1118,7 @@ class HWABuilder : public ::System::Builder::HWA
     } _hwaProtocol;
 } _hwa;
 
-#ifdef TOUCHSCREEN_SUPPORTED
+#ifdef HW_SUPPORT_TOUCHSCREEN
 namespace Board::USB
 {
     void onCDCsetLineEncoding(uint32_t baudRate)

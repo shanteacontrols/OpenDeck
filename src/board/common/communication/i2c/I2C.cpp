@@ -16,8 +16,8 @@ limitations under the License.
 
 */
 
-#ifdef I2C_SUPPORTED
-#ifndef I2C_CUSTOM_IMPL
+#ifdef HW_SUPPORT_I2C
+#ifndef BOARD_I2C_CUSTOM_IMPL
 
 #include "board/Board.h"
 #include "board/Internal.h"

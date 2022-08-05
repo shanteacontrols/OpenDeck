@@ -24,7 +24,7 @@ limitations under the License.
 #include "io/IOBase.h"
 #include "io/common/Common.h"
 
-#ifdef I2C_SUPPORTED
+#ifdef HW_SUPPORT_I2C
 
 namespace IO
 {

@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef UART_SUPPORTED
+#ifdef HW_SUPPORT_UART
 
 #include <map>
 #include "board/Board.h"

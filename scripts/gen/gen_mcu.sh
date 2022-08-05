@@ -21,6 +21,8 @@ fi
 
 echo "Generating MCU configuration..."
 
+printf "%s\n" "### OPENDECK ADDITIONS ###" >> "$out_makefile"
+
 mkdir -p "$gen_dir"
 
 app_start_page=$($yaml_parser "$yaml_file" flash.app-start-page)
@@ -37,7 +39,7 @@ fi
 if [[ $boot_start_page != "null" ]]
 then
     {
-        printf "%s\n" "DEFINES += BOOTLOADER_SUPPORTED"
+        printf "%s\n" "DEFINES += HW_SUPPORT_BOOTLOADER"
     } >> "$out_makefile"
 else
     # No bootloader, start at first page
@@ -45,7 +47,7 @@ else
 fi
 
 {
-    printf "%s\n" "DEFINES += FLASH_PAGE_APP_START=$app_start_page"
+    printf "%s\n" "DEFINES += FLASH_PAGE_APP=$app_start_page"
 } >> "$out_makefile"
 
 if [[ $($yaml_parser "$base_yaml_file" flash.pages) != "null" ]]
@@ -72,14 +74,14 @@ else
 fi
 
 {
-    printf "%s%x\n" "APP_START_ADDR := 0x" "$app_start_address"
-    printf "%s\n" 'FW_METADATA_LOCATION := $(shell printf "0x%x" $$(( $(APP_START_ADDR) + $(CORE_FW_METADATA_OFFSET) )) )'
+    printf "%s%x\n" "FLASH_ADDR_APP_START := 0x" "$app_start_address"
+    printf "%s\n" 'FLASH_ADDR_FW_METADATA := $(shell printf "0x%x" $$(( $(FLASH_ADDR_APP_START) + $(CORE_FW_METADATA_OFFSET) )) )'
 } >> "$out_makefile"
 
 if [[ $boot_start_page != "null" ]]
 then
     {
-        printf "%s%x\n" "BOOT_START_ADDR := 0x" "$boot_start_address"
+        printf "%s%x\n" "FLASH_ADDR_BOOT_START := 0x" "$boot_start_address"
     } >> "$out_makefile"
 fi
 
@@ -132,14 +134,14 @@ then
     # When emulated EEPROM is used, one of the pages is factory page with
     # default settings. Database shouldn't be formatted in this case.
     # The values from factory page should be used as initial ones.
-    printf "%s\n" "DEFINES += INIT_DB_DATA=0" >> "$out_makefile"
+    printf "%s\n" "DEFINES += DATABASE_INIT_DATA=0" >> "$out_makefile"
 else
-    printf "%s\n" "DEFINES += INIT_DB_DATA=1" >> "$out_makefile"
+    printf "%s\n" "DEFINES += DATABASE_INIT_DATA=1" >> "$out_makefile"
 fi
 
 if [[ $app_boot_jump_offset != "null" ]]
 then
-    printf "%s\n" "DEFINES += APP_BOOT_JUMP_OFFSET=$app_boot_jump_offset" >> "$out_makefile"
+    printf "%s\n" "DEFINES += FLASH_OFFSET_APP_JUMP_FROM_BOOTLOADER=$app_boot_jump_offset" >> "$out_makefile"
 fi
 
 if [[ $($yaml_parser "$yaml_file" fuses) != "null" ]]
@@ -161,10 +163,10 @@ fi
 
 if [[ $adc_prescaler != "null" ]]
 then
-    printf "%s\n" "DEFINES += ADC_PRESCALER=$adc_prescaler" >> "$out_makefile"
+    printf "%s\n" "DEFINES += HW_ADC_PRESCALER=$adc_prescaler" >> "$out_makefile"
 fi
 
 if [[ $adc_samples != "null" ]]
 then
-    printf "%s\n" "DEFINES += ADC_SAMPLES=$adc_samples" >> "$out_makefile"
+    printf "%s\n" "DEFINES += HW_ADC_SAMPLES=$adc_samples" >> "$out_makefile"
 fi

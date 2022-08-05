@@ -16,8 +16,8 @@ limitations under the License.
 
 */
 
-#ifdef DIGITAL_INPUTS_SUPPORTED
-#ifdef DIGITAL_INPUT_DRIVER_NATIVE
+#ifdef HW_SUPPORT_DIGITAL_INPUTS
+#ifdef HW_DRIVER_DIGITAL_INPUT_NATIVE
 
 #include <math.h>
 #include <stdio.h>
@@ -34,13 +34,13 @@ using namespace Board::detail::IO::digitalIn;
 
 namespace
 {
-    volatile readings_t                                                   _digitalInBuffer[NR_OF_DIGITAL_INPUTS];
-    core::util::RingBuffer<core::mcu::io::portWidth_t, MAX_READING_COUNT> _portBuffer[NR_OF_DIGITAL_INPUT_PORTS];
+    volatile readings_t                                                   _digitalInBuffer[HW_MAX_NR_OF_DIGITAL_INPUTS];
+    core::util::RingBuffer<core::mcu::io::portWidth_t, MAX_READING_COUNT> _portBuffer[HW_NR_OF_DIGITAL_INPUT_PORTS];
 
     inline void storeDigitalIn()
     {
         // read all input ports instead of reading pin by pin to reduce the time spent in ISR
-        for (uint8_t portIndex = 0; portIndex < NR_OF_DIGITAL_INPUT_PORTS; portIndex++)
+        for (uint8_t portIndex = 0; portIndex < HW_NR_OF_DIGITAL_INPUT_PORTS; portIndex++)
         {
             _portBuffer[portIndex].insert(CORE_MCU_IO_READ_IN_PORT(map::digitalInPort(portIndex)));
         }
@@ -56,7 +56,7 @@ namespace
 
         while (_portBuffer[portIndex].remove(portValue))
         {
-            for (size_t i = 0; i < NR_OF_DIGITAL_INPUTS; i++)
+            for (size_t i = 0; i < HW_MAX_NR_OF_DIGITAL_INPUTS; i++)
             {
                 if (map::buttonPortIndex(i) == portIndex)
                 {
@@ -77,11 +77,11 @@ namespace Board::detail::IO::digitalIn
 {
     void init()
     {
-        for (size_t i = 0; i < NR_OF_DIGITAL_INPUTS; i++)
+        for (size_t i = 0; i < HW_MAX_NR_OF_DIGITAL_INPUTS; i++)
         {
             auto pin = detail::map::buttonPin(i);
 
-#ifndef BUTTONS_EXT_PULLUPS
+#ifndef HW_BUTTONS_EXT_PULLUPS
             CORE_MCU_IO_INIT(pin.port,
                              pin.index,
                              core::mcu::io::pinMode_t::INPUT,
@@ -100,7 +100,7 @@ namespace Board::IO::digitalIn
 {
     bool state(size_t index, readings_t& readings)
     {
-        if (index >= NR_OF_DIGITAL_INPUTS)
+        if (index >= HW_MAX_NR_OF_DIGITAL_INPUTS)
         {
             return false;
         }

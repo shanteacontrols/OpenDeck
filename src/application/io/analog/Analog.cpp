@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef ADC_SUPPORTED
+#ifdef HW_SUPPORT_ADC
 
 #include "Analog.h"
 #include "sysex/src/SysExConf.h"

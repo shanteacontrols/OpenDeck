@@ -1,5 +1,5 @@
-#ifndef USB_OVER_SERIAL_HOST
-#ifdef HW_TESTS_SUPPORTED
+#ifndef HW_USB_OVER_SERIAL_HOST
+#ifdef TESTS_HW_SUPPORT
 
 #include "framework/Framework.h"
 #include <string>
@@ -259,7 +259,7 @@ namespace
 
             ASSERT_EQ(0, flash(std::string(BOARD_STRING), std::string(FLASH_ARGS)));
 
-#ifndef USB_SUPPORTED
+#ifndef HW_SUPPORT_USB
             LOG(INFO) << "Flashing USB Link MCU";
             flash(std::string(USB_LINK_TARGET), std::string(FLASH_ARGS_USB_LINK));
 #endif
@@ -323,21 +323,21 @@ TEST_F(HWTest, DatabaseInitialValues)
         {
             switch (i)
             {
-#ifdef DIN_MIDI_SUPPORTED
+#ifdef HW_SUPPORT_DIN_MIDI
             case static_cast<size_t>(Protocol::MIDI::setting_t::DIN_ENABLED):
             case static_cast<size_t>(Protocol::MIDI::setting_t::DIN_THRU_USB):
             case static_cast<size_t>(Protocol::MIDI::setting_t::USB_THRU_DIN):
             case static_cast<size_t>(Protocol::MIDI::setting_t::DIN_THRU_DIN):
 #endif
 
-#ifdef BLE_SUPPORTED
+#ifdef HW_SUPPORT_BLE
             case static_cast<size_t>(Protocol::MIDI::setting_t::BLE_ENABLED):
             case static_cast<size_t>(Protocol::MIDI::setting_t::BLE_THRU_USB):
             case static_cast<size_t>(Protocol::MIDI::setting_t::BLE_THRU_BLE):
             case static_cast<size_t>(Protocol::MIDI::setting_t::USB_THRU_BLE):
 #endif
 
-#if defined(DIN_MIDI_SUPPORTED) && defined(BLE_SUPPORTED)
+#if defined(HW_SUPPORT_DIN_MIDI) && defined(HW_SUPPORT_BLE)
             case static_cast<size_t>(Protocol::MIDI::setting_t::DIN_THRU_BLE):
             case static_cast<size_t>(Protocol::MIDI::setting_t::BLE_THRU_DIN):
 #endif
@@ -560,7 +560,7 @@ TEST_F(HWTest, DatabaseInitialValues)
             ASSERT_EQ(1, _helper.readFromSystem(System::Config::Section::leds_t::CHANNEL, i));
         }
 
-#ifdef I2C_SUPPORTED
+#ifdef HW_SUPPORT_I2C
         // i2c block
         //----------------------------------
         // display section
@@ -573,7 +573,7 @@ TEST_F(HWTest, DatabaseInitialValues)
         ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(IO::Display::setting_t::OCTAVE_NORMALIZATION)));
 #endif
 
-#ifdef TOUCHSCREEN_SUPPORTED
+#ifdef HW_SUPPORT_TOUCHSCREEN
         // touchscreen block
         //----------------------------------
         // setting section
@@ -757,7 +757,7 @@ TEST_F(HWTest, USBMIDIData)
     ASSERT_EQ(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), receivedMessages);
 }
 
-#ifdef DIN_MIDI_SUPPORTED
+#ifdef HW_SUPPORT_DIN_MIDI
 #ifdef TEST_DIN_MIDI
 TEST_F(HWTest, DINMIDIData)
 {
@@ -841,7 +841,7 @@ TEST_F(HWTest, DINMIDIData)
 #endif
 #endif
 
-#ifdef DMX_SUPPORTED
+#ifdef HW_SUPPORT_DMX
 TEST_F(HWTest, DMXTest)
 {
     LOG(INFO) << "Starting OLA daemon";
@@ -1012,7 +1012,7 @@ TEST_F(HWTest, InputOutput)
         LOG(INFO) << "Verifying that the LED is turned on";
         std::string ledOn = "read " + std::to_string(hwTestLEDDescriptor.at(i).pin);
 
-#ifdef LED_EXT_INVERT
+#ifdef HW_LEDS_EXT_INVERT
         ledOn += " ok: 0";
 #else
         ledOn += " ok: 1";
@@ -1037,7 +1037,7 @@ TEST_F(HWTest, InputOutput)
         LOG(INFO) << "Verifying that the LED is turned off";
         std::string ledOff = "read " + std::to_string(hwTestLEDDescriptor.at(i).pin);
 
-#ifdef LED_EXT_INVERT
+#ifdef HW_LEDS_EXT_INVERT
         ledOff += " ok: 1";
 #else
         ledOff += " ok: 0";

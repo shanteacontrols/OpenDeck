@@ -28,6 +28,6 @@ include $(MAKEFILE_INCLUDE_PREFIX)Defines.mk
 #filter out arch symbols to avoid pulling MCU-specific headers
 DEFINES := $(filter-out CORE_ARCH_%,$(DEFINES))
 DEFINES := $(filter-out CORE_VENDOR_%,$(DEFINES))
-DEFINES := $(filter-out INIT_DB_DATA%,$(DEFINES))
+DEFINES := $(filter-out DATABASE_INIT_DATA%,$(DEFINES))
 
-DEFINES += INIT_DB_DATA=1
+DEFINES += DATABASE_INIT_DATA=1

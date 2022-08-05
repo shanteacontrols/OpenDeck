@@ -53,7 +53,7 @@ ifeq (,$(findstring gen,$(TYPE)))
     ifeq ($(TYPE),boot)
         SOURCES += $(shell find bootloader -type f -name "*.cpp")
     else ifeq ($(TYPE),app)
-        ifneq (,$(findstring USB_OVER_SERIAL_HOST,$(DEFINES)))
+        ifneq (,$(findstring HW_USB_OVER_SERIAL_HOST,$(DEFINES)))
             # FW for USB hosts uses different set of sources than other targets
             SOURCES += $(shell find usb-link -type f -name "*.cpp")
         else
@@ -64,7 +64,7 @@ ifeq (,$(findstring gen,$(TYPE)))
             SOURCES += $(shell $(FIND) ../modules/midi/src -type f -name "*.cpp" | sed "s|^\.\./||")
             SOURCES += $(shell $(FIND) ../modules/sysex/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
 
-            ifneq (,$(findstring DISPLAY_SUPPORTED,$(DEFINES)))
+            ifneq (,$(findstring HW_SUPPORT_DISPLAY,$(DEFINES)))
                 # u8x8 sources
                 SOURCES += \
                 modules/u8g2/csrc/u8x8_string.c \

@@ -16,8 +16,8 @@ limitations under the License.
 
 */
 
-#ifdef DIGITAL_OUTPUTS_SUPPORTED
-#ifdef DIGITAL_OUTPUT_DRIVER_NATIVE
+#ifdef HW_SUPPORT_DIGITAL_OUTPUTS
+#ifdef HW_DRIVER_DIGITAL_OUTPUT_NATIVE
 
 #include "board/Board.h"
 #include "Helpers.h"
@@ -32,14 +32,14 @@ using namespace Board::detail::IO::digitalOut;
 namespace
 {
     uint8_t                    _pwmCounter;
-    core::mcu::io::portWidth_t _portState[NR_OF_DIGITAL_OUTPUT_PORTS][static_cast<uint8_t>(ledBrightness_t::B100)];
+    core::mcu::io::portWidth_t _portState[HW_NR_OF_DIGITAL_OUTPUT_PORTS][static_cast<uint8_t>(ledBrightness_t::B100)];
 }    // namespace
 
 namespace Board::detail::IO::digitalOut
 {
     void init()
     {
-        for (size_t i = 0; i < NR_OF_DIGITAL_OUTPUTS; i++)
+        for (size_t i = 0; i < HW_MAX_NR_OF_DIGITAL_OUTPUTS; i++)
         {
             auto pin = detail::map::ledPin(i);
 
@@ -54,7 +54,7 @@ namespace Board::detail::IO::digitalOut
 
     void update()
     {
-        for (size_t port = 0; port < NR_OF_DIGITAL_OUTPUT_PORTS; port++)
+        for (size_t port = 0; port < HW_NR_OF_DIGITAL_OUTPUT_PORTS; port++)
         {
             core::mcu::io::portWidth_t updatedPortState = CORE_MCU_IO_READ_OUT_PORT(map::digitalOutPort(port));
             updatedPortState &= detail::map::digitalOutPortClearMask(port);
@@ -73,7 +73,7 @@ namespace Board::IO::digitalOut
 {
     void writeLEDstate(size_t index, ledBrightness_t ledBrightness)
     {
-        if (index >= NR_OF_DIGITAL_OUTPUTS)
+        if (index >= HW_MAX_NR_OF_DIGITAL_OUTPUTS)
         {
             return;
         }
@@ -85,13 +85,13 @@ namespace Board::IO::digitalOut
             for (uint8_t i = 0; i < static_cast<int>(ledBrightness_t::B100); i++)
             {
                 core::util::BIT_WRITE(_portState[map::ledPortIndex(index)][i], map::ledPinIndex(index), i < static_cast<int>(ledBrightness) ?
-#ifndef LED_EXT_INVERT
+#ifndef HW_LEDS_EXT_INVERT
                                                                                                                                             1
 #else
                                                                                                                                             0
 #endif
                                                                                                                                             :
-#ifndef LED_EXT_INVERT
+#ifndef HW_LEDS_EXT_INVERT
                                                                                                                                             0
 #else
                                                                                                                                             1
@@ -106,9 +106,9 @@ namespace Board::IO::digitalOut
     {
         uint8_t result = index / 3;
 
-        if (result >= NR_OF_RGB_LEDS)
+        if (result >= HW_NR_OF_RGB_LEDS)
         {
-            return NR_OF_RGB_LEDS - 1;
+            return HW_NR_OF_RGB_LEDS - 1;
         }
 
         return result;

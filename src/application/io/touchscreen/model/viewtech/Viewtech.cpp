@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef TOUCHSCREEN_SUPPORTED
+#ifdef HW_SUPPORT_TOUCHSCREEN
 
 #include "Viewtech.h"
 #include "core/src/Timing.h"

@@ -1,4 +1,4 @@
-#ifdef USB_OVER_SERIAL
+#ifdef HW_USB_OVER_SERIAL
 
 #include "framework/Framework.h"
 #include "board/Board.h"

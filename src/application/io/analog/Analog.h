@@ -25,7 +25,7 @@ limitations under the License.
 #include "io/IOBase.h"
 #include "protocol/midi/MIDI.h"
 
-#ifdef ADC_SUPPORTED
+#ifdef HW_SUPPORT_ADC
 
 using namespace Protocol;
 
@@ -34,7 +34,7 @@ namespace IO
     class Analog : public IO::Base
     {
         public:
-        class Collection : public Common::BaseCollection<NR_OF_ANALOG_INPUTS>
+        class Collection : public Common::BaseCollection<HW_SUPPORTED_NR_OF_ANALOG_INPUTS>
         {
             public:
             Collection() = delete;

@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef USB_SUPPORTED
+#ifdef HW_SUPPORT_USB
 #ifdef USE_TINYUSB
 #ifdef FW_APP
 

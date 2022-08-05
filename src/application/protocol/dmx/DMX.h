@@ -25,7 +25,7 @@ limitations under the License.
 #include "protocol/ProtocolBase.h"
 #include "core/src/MCU.h"
 
-#ifdef DMX_SUPPORTED
+#ifdef HW_SUPPORT_DMX
 namespace Protocol
 {
     class DMX : public DMXUSBWidget, public Protocol::Base

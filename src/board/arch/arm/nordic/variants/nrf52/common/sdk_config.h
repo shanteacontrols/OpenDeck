@@ -11093,7 +11093,7 @@
 
 // <o> NRF_SDH_BLE_GATT_MAX_MTU_SIZE - Static maximum MTU size.
 #ifndef NRF_SDH_BLE_GATT_MAX_MTU_SIZE
-#define NRF_SDH_BLE_GATT_MAX_MTU_SIZE (MIDI_BLE_MAX_PACKET_SIZE + 3)
+#define NRF_SDH_BLE_GATT_MAX_MTU_SIZE (BUFFER_SIZE_BLE_MIDI_PACKET + 3)
 #endif
 
 // <o> NRF_SDH_BLE_GATTS_ATTR_TAB_SIZE - Attribute Table size in bytes. The size must be a multiple of 4.

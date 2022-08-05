@@ -20,7 +20,7 @@ limitations under the License.
 
 namespace Board::detail::map
 {
-#ifdef ADC_SUPPORTED
+#ifdef HW_SUPPORT_ADC
     constexpr const core::mcu::io::pin_t& adcPin(uint8_t index)
     {
         return A_IN_PINS[index];
@@ -28,7 +28,7 @@ namespace Board::detail::map
 
     constexpr uint8_t adcIndex(uint8_t index)
     {
-#ifndef ANALOG_INDEXING
+#ifndef INDEXING_ANALOG
         return index;
 #else
         return ANALOG_INDEXES[index];
@@ -36,14 +36,14 @@ namespace Board::detail::map
     }
 #endif
 
-#if defined(DIGITAL_INPUT_DRIVER_NATIVE) || defined(DIGITAL_INPUT_DRIVER_MATRIX_NATIVE_ROWS)
+#if defined(HW_DRIVER_DIGITAL_INPUT_NATIVE) || defined(HW_DRIVER_DIGITAL_INPUT_MATRIX_NATIVE_ROWS)
     constexpr const core::mcu::io::pin_t& buttonPin(uint8_t index)
     {
         return D_IN_PINS[index];
     }
 #endif
 
-#if defined(DIGITAL_INPUT_DRIVER_NATIVE)
+#if defined(HW_DRIVER_DIGITAL_INPUT_NATIVE)
     constexpr const core::mcu::io::pinPort_t digitalInPort(uint8_t index)
     {
         return D_IN_PORTS[index];
@@ -62,21 +62,21 @@ namespace Board::detail::map
 
     constexpr uint8_t buttonIndex(uint8_t index)
     {
-#ifndef BUTTON_INDEXING
+#ifndef INDEXING_BUTTONS
         return index;
 #else
         return BUTTON_INDEXES[index];
 #endif
     }
 
-#if defined(DIGITAL_OUTPUT_DRIVER_NATIVE) || defined(DIGITAL_OUTPUT_DRIVER_MATRIX_NATIVE_ROWS)
+#if defined(HW_DRIVER_DIGITAL_OUTPUT_NATIVE) || defined(HW_DRIVER_DIGITAL_OUTPUT_MATRIX_NATIVE_ROWS)
     constexpr const core::mcu::io::pin_t& ledPin(uint8_t index)
     {
         return D_OUT_PINS[index];
     }
 #endif
 
-#if defined(DIGITAL_OUTPUT_DRIVER_NATIVE)
+#if defined(HW_DRIVER_DIGITAL_OUTPUT_NATIVE)
     constexpr const core::mcu::io::pinPort_t digitalOutPort(uint8_t index)
     {
         return D_OUT_PORTS[index];
@@ -100,14 +100,14 @@ namespace Board::detail::map
 
     constexpr uint8_t ledIndex(uint8_t index)
     {
-#ifndef LED_INDEXING
+#ifndef INDEXING_LEDS
         return index;
 #else
         return LED_INDEXES[index];
 #endif
     }
 
-#ifdef NR_OF_UNUSED_IO
+#ifdef HW_NR_OF_UNUSED_IO
     constexpr const Board::detail::IO::unused::unusedIO_t& unusedPin(uint8_t index)
     {
         return UNUSED_PINS[index];
@@ -133,14 +133,14 @@ namespace Board::detail::map
     }
 
 #ifdef CORE_MCU_CUSTOM_PERIPHERAL_PINS
-#ifdef UART_SUPPORTED
+#ifdef HW_SUPPORT_UART
     constexpr const Board::detail::UART::uartPins_t& uartPins(size_t channel)
     {
         return UART_PINS[channel];
     }
 #endif
 
-#ifdef I2C_SUPPORTED
+#ifdef HW_SUPPORT_I2C
     constexpr const Board::detail::I2C::i2cPins_t& i2cPins(size_t channel)
     {
         return I2C_PINS[channel];

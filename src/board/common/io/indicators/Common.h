@@ -18,7 +18,7 @@ limitations under the License.
 
 #pragma once
 
-#ifdef LED_INT_INVERT
+#ifdef HW_LEDS_INT_INVERT
 #define LED_ON(port, pin)    CORE_MCU_IO_SET_LOW(port, pin)
 #define LED_OFF(port, pin)   CORE_MCU_IO_SET_HIGH(port, pin)
 #define IS_LED_ON(port, pin) !CORE_MCU_IO_READ(port, pin)

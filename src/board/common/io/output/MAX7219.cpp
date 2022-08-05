@@ -16,8 +16,8 @@ limitations under the License.
 
 */
 
-#ifdef DIGITAL_OUTPUTS_SUPPORTED
-#ifdef DIGITAL_OUTPUT_DRIVER_MAX7219
+#ifdef HW_SUPPORT_DIGITAL_OUTPUTS
+#ifdef HW_DRIVER_DIGITAL_OUTPUT_MAX7219
 
 #include "board/Board.h"
 #include "Helpers.h"
@@ -134,9 +134,9 @@ namespace Board::IO::digitalOut
 
         uint8_t result = (row * 8) / 3 + column;
 
-        if (result >= NR_OF_RGB_LEDS)
+        if (result >= HW_NR_OF_RGB_LEDS)
         {
-            return NR_OF_RGB_LEDS - 1;
+            return HW_NR_OF_RGB_LEDS - 1;
         }
 
         return result;

@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef I2C_SUPPORTED
+#ifdef HW_SUPPORT_I2C
 
 #include "Builder.h"
 

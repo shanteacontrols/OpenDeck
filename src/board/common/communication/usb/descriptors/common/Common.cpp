@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef USB_SUPPORTED
+#ifdef HW_SUPPORT_USB
 
 #include <string.h>
 #include <stdio.h>

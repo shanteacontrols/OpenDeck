@@ -26,7 +26,7 @@ limitations under the License.
 
 using namespace Protocol;
 
-#if defined(DIGITAL_INPUTS_SUPPORTED) || defined(TOUCHSCREEN_SUPPORTED) || defined(ADC_SUPPORTED)
+#if defined(HW_SUPPORT_DIGITAL_INPUTS) || defined(HW_SUPPORT_TOUCHSCREEN) || defined(HW_SUPPORT_ADC)
 #define BUTTONS_SUPPORTED
 
 namespace IO
@@ -34,9 +34,9 @@ namespace IO
     class Buttons : public IO::Base
     {
         public:
-        class Collection : public Common::BaseCollection<NR_OF_DIGITAL_INPUTS,
-                                                         NR_OF_ANALOG_INPUTS,
-                                                         NR_OF_TOUCHSCREEN_COMPONENTS>
+        class Collection : public Common::BaseCollection<HW_SUPPORTED_NR_OF_DIGITAL_INPUTS,
+                                                         HW_SUPPORTED_NR_OF_ANALOG_INPUTS,
+                                                         HW_SUPPORTED_NR_OF_TOUCHSCREEN_COMPONENTS>
         {
             public:
             Collection() = delete;

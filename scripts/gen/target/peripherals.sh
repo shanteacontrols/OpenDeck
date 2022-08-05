@@ -2,7 +2,7 @@
 
 if [[ $($yaml_parser "$yaml_file" usb) == "true" ]]
 then
-    printf "%s\n" "DEFINES += USB_SUPPORTED" >> "$out_makefile"
+    printf "%s\n" "DEFINES += HW_SUPPORT_USB" >> "$out_makefile"
 
     {
         printf "%s\n" "#define BLE_PRODUCT_NAME \"$project BLE | $board_name\""
@@ -16,12 +16,12 @@ fi
 
 if [[ $($yaml_parser "$yaml_file" ble) == "true" ]]
 then
-    printf "%s\n" "DEFINES += BLE_SUPPORTED" >> "$out_makefile"
+    printf "%s\n" "DEFINES += HW_SUPPORT_BLE" >> "$out_makefile"
 fi
 
 if [[ "$($yaml_parser "$yaml_file" uart)" != "null" ]]
 then
-    printf "%s\n" 'DEFINES += UART_SUPPORTED' >> "$out_makefile"
+    printf "%s\n" 'DEFINES += HW_SUPPORT_UART' >> "$out_makefile"
 
     declare -A uartChannelArray
     declare -i total_uart_channels
@@ -45,7 +45,7 @@ then
 
             if [[ $uart_channel_usb_link != "null" ]]
             then
-                printf "%s\n" "DEFINES += UART_CHANNEL_USB_LINK=$uart_channel_usb_link" >> "$out_makefile"
+                printf "%s\n" "DEFINES += HW_UART_CHANNEL_USB_LINK=$uart_channel_usb_link" >> "$out_makefile"
             elif [[ $uart_usb_link_pins != "null" ]]
             then
                 use_custom_uart_pins=1
@@ -65,7 +65,7 @@ then
                 fi
 
                 uart_channel_usb_link=${uartChannelArray[$key]}
-                printf "%s\n" "DEFINES += UART_CHANNEL_USB_LINK=$uart_channel_usb_link" >> "$out_makefile"
+                printf "%s\n" "DEFINES += HW_UART_CHANNEL_USB_LINK=$uart_channel_usb_link" >> "$out_makefile"
 
                 {
                     printf "%s\n" "#define PIN_PORT_UART_CHANNEL_${uart_channel_usb_link}_RX CORE_MCU_IO_PIN_PORT_DEF(${uart_usb_link_rx_port})"
@@ -78,21 +78,21 @@ then
             if [[ "$($yaml_parser "$yaml_file" uart.usbLink.type)" == "host" ]]
             then
                 {
-                    printf "%s\n" "DEFINES += USB_OVER_SERIAL"
-                    printf "%s\n" "DEFINES += USB_OVER_SERIAL_HOST"
-                    printf "%s\n" "DEFINES += FW_SELECTOR_NO_VERIFY_CRC"
+                    printf "%s\n" "DEFINES += HW_USB_OVER_SERIAL"
+                    printf "%s\n" "DEFINES += HW_USB_OVER_SERIAL_HOST"
+                    printf "%s\n" "DEFINES += BOOTLOADER_NO_VERIFY_CRC"
                     printf "%s\n" "#append this only if it wasn't appended already"
-                    printf "%s\n" 'ifeq (,$(findstring USB_SUPPORTED,$(DEFINES)))'
-                    printf "%s\n" "    DEFINES += USB_SUPPORTED"
+                    printf "%s\n" 'ifeq (,$(findstring HW_SUPPORT_USB,$(DEFINES)))'
+                    printf "%s\n" "    DEFINES += HW_SUPPORT_USB"
                     printf "%s\n" "endif"
                 } >> "$out_makefile"
             elif [[ "$($yaml_parser "$yaml_file" uart.usbLink.type)" == "device" ]]
             then
                 # Make sure USB over serial devices don't have native USB enabled
                 {
-                    printf "%s\n" 'DEFINES := $(filter-out USB_SUPPORTED,$(DEFINES))'
-                    printf "%s\n" "DEFINES += USB_OVER_SERIAL"
-                    printf "%s\n" "DEFINES += USB_OVER_SERIAL_DEVICE"
+                    printf "%s\n" 'DEFINES := $(filter-out HW_SUPPORT_USB,$(DEFINES))'
+                    printf "%s\n" "DEFINES += HW_USB_OVER_SERIAL"
+                    printf "%s\n" "DEFINES += HW_USB_OVER_SERIAL_DEVICE"
                 } >> "$out_makefile"
             fi
         fi
@@ -100,7 +100,7 @@ then
 
     if [[ "$($yaml_parser "$yaml_file" uart.dinMIDI)" != "null" ]]
     then
-        printf "%s\n" "DEFINES += DIN_MIDI_SUPPORTED" >> "$out_makefile"
+        printf "%s\n" "DEFINES += HW_SUPPORT_DIN_MIDI" >> "$out_makefile"
 
         uart_channel_din_midi=$($yaml_parser "$yaml_file" uart.dinMIDI.channel)
         uart_din_mini_pins=$($yaml_parser "$yaml_file" uart.dinMIDI.pins)
@@ -122,7 +122,7 @@ then
 
         if [[ $uart_channel_din_midi != "null" ]]
         then
-            printf "%s\n" "DEFINES += UART_CHANNEL_DIN=$uart_channel_din_midi" >> "$out_makefile"
+            printf "%s\n" "DEFINES += HW_UART_CHANNEL_DIN=$uart_channel_din_midi" >> "$out_makefile"
         elif [[ $uart_usb_link_pins != "null" ]]
         then
             use_custom_uart_pins=1
@@ -142,7 +142,7 @@ then
             fi
 
             uart_channel_din_midi=${uartChannelArray[$key]}
-            printf "%s\n" "DEFINES += UART_CHANNEL_DIN=$uart_channel_din_midi" >> "$out_makefile"
+            printf "%s\n" "DEFINES += HW_UART_CHANNEL_DIN=$uart_channel_din_midi" >> "$out_makefile"
 
             {
                 printf "%s\n" "#define PIN_PORT_UART_CHANNEL_${uart_channel_din_midi}_RX CORE_MCU_IO_PIN_PORT_DEF(${uart_din_midi_rx_port})"
@@ -155,7 +155,7 @@ then
 
     if [[ $($yaml_parser "$yaml_file" uart.dmx) != "null" ]]
     then
-        printf "%s\n" "DEFINES += DMX_SUPPORTED" >> "$out_makefile"
+        printf "%s\n" "DEFINES += HW_SUPPORT_DMX" >> "$out_makefile"
 
         uart_channel_dmx=$($yaml_parser "$yaml_file" uart.dmx.channel)
         uart_dmx_pins=$($yaml_parser "$yaml_file" uart.dmx.pins)
@@ -177,7 +177,7 @@ then
 
         if [[ $uart_channel_dmx != "null" ]]
         then
-            printf "%s\n" "DEFINES += UART_CHANNEL_DMX=$uart_channel_dmx" >> "$out_makefile"
+            printf "%s\n" "DEFINES += HW_UART_CHANNEL_DMX=$uart_channel_dmx" >> "$out_makefile"
         elif [[ $uart_dmx_pins != "null" ]]
         then
             use_custom_uart_pins=1
@@ -197,7 +197,7 @@ then
             fi
 
             uart_channel_dmx=${uartChannelArray[$key]}
-            printf "%s\n" "DEFINES += UART_CHANNEL_DMX=$uart_channel_dmx" >> "$out_makefile"
+            printf "%s\n" "DEFINES += HW_UART_CHANNEL_DMX=$uart_channel_dmx" >> "$out_makefile"
 
             {
                 printf "%s\n" "#define PIN_PORT_UART_CHANNEL_${uart_channel_dmx}_RX CORE_MCU_IO_PIN_PORT_DEF(${uart_dmx_rx_port})"
@@ -210,7 +210,7 @@ then
 
     if [[ "$($yaml_parser "$yaml_file" uart.touchscreen)" != "null" ]]
     then
-        printf "%s\n" "DEFINES += TOUCHSCREEN_SUPPORTED" >> "$out_makefile"
+        printf "%s\n" "DEFINES += HW_SUPPORT_TOUCHSCREEN" >> "$out_makefile"
 
         uart_channel_touchscreen=$($yaml_parser "$yaml_file" uart.touchscreen.channel)
         uart_touchscreen_pins=$($yaml_parser "$yaml_file" uart.touchscreen.pins)
@@ -232,7 +232,7 @@ then
 
         if [[ $uart_channel_touchscreen != "null" ]]
         then
-            printf "%s\n" "DEFINES += UART_CHANNEL_TOUCHSCREEN=$uart_channel_touchscreen" >> "$out_makefile"
+            printf "%s\n" "DEFINES += HW_UART_CHANNEL_TOUCHSCREEN=$uart_channel_touchscreen" >> "$out_makefile"
         elif [[ $uart_dmx_pins != "null" ]]
         then
             use_custom_uart_pins=1
@@ -252,7 +252,7 @@ then
             fi
 
             uart_channel_touchscreen=${uartChannelArray[$key]}
-            printf "%s\n" "DEFINES += UART_CHANNEL_TOUCHSCREEN=$uart_channel_touchscreen" >> "$out_makefile"
+            printf "%s\n" "DEFINES += HW_UART_CHANNEL_TOUCHSCREEN=$uart_channel_touchscreen" >> "$out_makefile"
 
             {
                 printf "%s\n" "#define PIN_PORT_UART_CHANNEL_${uart_channel_touchscreen}_RX CORE_MCU_IO_PIN_PORT_DEF(${uart_touchscreen_rx_port})"
@@ -271,9 +271,9 @@ then
             exit 1
         fi
 
-        printf "%s\n" "DEFINES += NR_OF_TOUCHSCREEN_COMPONENTS=$nr_of_touchscreen_components" >> "$out_makefile"
+        printf "%s\n" "DEFINES += HW_SUPPORTED_NR_OF_TOUCHSCREEN_COMPONENTS=$nr_of_touchscreen_components" >> "$out_makefile"
     else
-        printf "%s\n" "DEFINES += NR_OF_TOUCHSCREEN_COMPONENTS=0" >> "$out_makefile"
+        printf "%s\n" "DEFINES += HW_SUPPORTED_NR_OF_TOUCHSCREEN_COMPONENTS=0" >> "$out_makefile"
     fi
 
     if [[ "$use_custom_uart_pins" -eq 1 ]]
@@ -300,12 +300,12 @@ then
     fi
 else
     # Make sure this is set to 0 if uart/touchscreen isn't used as this symbol is used thorugh application IO modules
-    printf "%s\n" "DEFINES += NR_OF_TOUCHSCREEN_COMPONENTS=0" >> "$out_makefile"
+    printf "%s\n" "DEFINES += HW_SUPPORTED_NR_OF_TOUCHSCREEN_COMPONENTS=0" >> "$out_makefile"
 fi
 
 if [[ "$($yaml_parser "$yaml_file" i2c)" != "null" ]]
 then
-    printf "%s\n" "DEFINES += I2C_SUPPORTED" >> "$out_makefile"
+    printf "%s\n" "DEFINES += HW_SUPPORT_I2C" >> "$out_makefile"
 
     declare -A i2cChannelArray
     declare -i total_i2c_channels
@@ -316,7 +316,7 @@ then
 
     if [[ "$($yaml_parser "$yaml_file" i2c.display)" != "null" ]]
     then
-        printf "%s\n" "DEFINES += DISPLAY_SUPPORTED" >> "$out_makefile"
+        printf "%s\n" "DEFINES += HW_SUPPORT_DISPLAY" >> "$out_makefile"
 
         i2c_channel=$($yaml_parser "$yaml_file" i2c.display.channel)
         i2c_pins=$($yaml_parser "$yaml_file" i2c.display.pins)
@@ -329,7 +329,7 @@ then
 
         if [[ $i2c_channel != "null" ]]
         then
-            printf "%s\n" "DEFINES += I2C_CHANNEL_DISPLAY=$i2c_channel" >> "$out_makefile"
+            printf "%s\n" "DEFINES += HW_I2C_CHANNEL_DISPLAY=$i2c_channel" >> "$out_makefile"
         elif [[ $i2c_pins != "null" ]]
         then
             use_custom_i2c_pins=1
@@ -348,7 +348,7 @@ then
                 ((total_i2c_channels++))
             fi
 
-            printf "%s\n" "DEFINES += I2C_CHANNEL_DISPLAY=0" >> "$out_makefile"
+            printf "%s\n" "DEFINES += HW_I2C_CHANNEL_DISPLAY=0" >> "$out_makefile"
 
             {
                 printf "%s\n" "#define PIN_PORT_I2C_CHANNEL_${i2cChannelArray[$key]}_SDA CORE_MCU_IO_PIN_PORT_DEF(${i2c_sda_port})"
@@ -385,7 +385,7 @@ fi
 
 if [[ $($yaml_parser "$yaml_file" bootloader.button) != "null" ]]
 then
-    printf "%s\n" "DEFINES += BTLDR_BUTTON_SUPPORTED" >> "$out_makefile"
+    printf "%s\n" "DEFINES += HW_SUPPORT_BOOTLOADER_BUTTON" >> "$out_makefile"
 
     port=$($yaml_parser "$yaml_file" bootloader.button.port)
     index=$($yaml_parser "$yaml_file" bootloader.button.index)
@@ -398,6 +398,6 @@ then
     if [[ "$($yaml_parser "$yaml_file" bootloader.button.activeState)" == "high" ]]
     then
         # Active high
-        printf "%s\n" "DEFINES += BTLDR_BUTTON_AH" >> "$out_makefile"
+        printf "%s\n" "DEFINES += HW_BOOTLOADER_BUTTON_ACTIVE_HIGH" >> "$out_makefile"
     fi
 fi

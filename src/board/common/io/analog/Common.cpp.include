@@ -29,7 +29,7 @@ namespace Board::IO::analog
 {
     bool value(size_t index, uint16_t& value)
     {
-        if (index >= NR_OF_ANALOG_INPUTS)
+        if (index >= HW_MAX_NR_OF_ANALOG_INPUTS)
         {
             return false;
         }

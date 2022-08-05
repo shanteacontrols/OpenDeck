@@ -27,14 +27,14 @@ limitations under the License.
 #include "messaging/Messaging.h"
 #include "io/IOBase.h"
 
-#ifdef TOUCHSCREEN_SUPPORTED
+#ifdef HW_SUPPORT_TOUCHSCREEN
 
 namespace IO
 {
     class Touchscreen : public IO::Base
     {
         public:
-        class Collection : public Common::BaseCollection<NR_OF_TOUCHSCREEN_COMPONENTS>
+        class Collection : public Common::BaseCollection<HW_SUPPORTED_NR_OF_TOUCHSCREEN_COMPONENTS>
         {
             public:
             Collection() = delete;
@@ -177,8 +177,8 @@ namespace IO
         bool                                                            _initialized                                   = false;
         mode_t                                                          _mode                                          = mode_t::NORMAL;
         model_t                                                         _activeModel                                   = model_t::AMOUNT;
-        uint8_t                                                         _txBuffer[TSCREEN_CDC_PASSTHROUGH_BUFFER_SIZE] = {};
-        uint8_t                                                         _rxBuffer[TSCREEN_CDC_PASSTHROUGH_BUFFER_SIZE] = {};
+        uint8_t                                                         _txBuffer[BUFFER_SIZE_TSCREEN_CDC_PASSTHROUGH] = {};
+        uint8_t                                                         _rxBuffer[BUFFER_SIZE_TSCREEN_CDC_PASSTHROUGH] = {};
         static std::array<Model*, static_cast<size_t>(model_t::AMOUNT)> _models;
     };
 }    // namespace IO

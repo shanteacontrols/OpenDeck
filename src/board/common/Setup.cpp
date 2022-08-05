@@ -31,7 +31,7 @@ namespace
 {
     constexpr uint32_t MAIN_TIMER_TIMEOUT_US = 1000;
 #ifdef FW_APP
-#if defined(USE_FAST_SOFT_PWM_TIMER) && defined(SOFT_PWM_SUPPORTED)
+#if defined(BOARD_USE_FAST_SOFT_PWM_TIMER) && defined(HW_SUPPORT_SOFT_PWM)
     constexpr uint32_t SOFT_PWM_TIMER_TIMEOUT_US = 200;
 #endif
 #endif
@@ -52,10 +52,10 @@ namespace Board
                                     {
                                         core::timing::detail::ms++;
                                         detail::IO::indicators::update();
-#ifndef USB_OVER_SERIAL_HOST
+#ifndef HW_USB_OVER_SERIAL_HOST
                                         detail::IO::digitalIn::update();
-#ifndef USE_FAST_SOFT_PWM_TIMER
-#if NR_OF_DIGITAL_OUTPUTS > 0
+#ifndef BOARD_USE_FAST_SOFT_PWM_TIMER
+#if HW_MAX_NR_OF_DIGITAL_OUTPUTS > 0
                                         detail::IO::digitalOut::update();
 #endif
 #endif
@@ -65,14 +65,14 @@ namespace Board
         core::mcu::timers::setPeriod(mainTimerIndex, MAIN_TIMER_TIMEOUT_US);
         core::mcu::timers::start(mainTimerIndex);
 
-#if defined(USE_FAST_SOFT_PWM_TIMER) && defined(SOFT_PWM_SUPPORTED)
+#if defined(BOARD_USE_FAST_SOFT_PWM_TIMER) && defined(HW_SUPPORT_SOFT_PWM)
         size_t pwmTimerIndex = 0;
 
         core::mcu::timers::allocate(pwmTimerIndex, []()
                                     {
 #ifdef FW_APP
-#ifndef USB_OVER_SERIAL_HOST
-#if NR_OF_DIGITAL_OUTPUTS > 0
+#ifndef HW_USB_OVER_SERIAL_HOST
+#if HW_MAX_NR_OF_DIGITAL_OUTPUTS > 0
                                         detail::IO::digitalOut::update();
 #endif
 #endif
@@ -125,13 +125,13 @@ namespace Board
             core::mcu::timers::init();
             detail::IO::init();
 
-#ifdef USB_OVER_SERIAL
+#ifdef HW_USB_OVER_SERIAL
             Board::UART::config_t config(Board::detail::USB::USB_OVER_SERIAL_BAUDRATE,
                                          Board::UART::parity_t::NO,
                                          Board::UART::stopBits_t::ONE,
                                          Board::UART::type_t::RX_TX);
 
-            Board::UART::init(UART_CHANNEL_USB_LINK, config);
+            Board::UART::init(HW_UART_CHANNEL_USB_LINK, config);
 #endif
         }
 
@@ -142,16 +142,16 @@ namespace Board
             detail::IO::init();
             detail::IO::indicators::indicateApplicationLoad();
 
-#ifdef USB_OVER_SERIAL
+#ifdef HW_USB_OVER_SERIAL
             Board::UART::config_t config(Board::detail::USB::USB_OVER_SERIAL_BAUDRATE,
                                          Board::UART::parity_t::NO,
                                          Board::UART::stopBits_t::ONE,
                                          Board::UART::type_t::RX_TX);
 
-            Board::UART::init(UART_CHANNEL_USB_LINK, config);
+            Board::UART::init(HW_UART_CHANNEL_USB_LINK, config);
 #endif
 
-#ifdef USB_OVER_SERIAL_DEVICE
+#ifdef HW_USB_OVER_SERIAL_DEVICE
             // wait for unique id from usb host
             // this is to make sure host and the device share the same unique id
             USBLink::internalCMD_t cmd;

@@ -16,8 +16,8 @@ limitations under the License.
 
 */
 
-#ifdef DIGITAL_INPUTS_SUPPORTED
-#ifdef DIGITAL_INPUT_DRIVER_SHIFT_REGISTER
+#ifdef HW_SUPPORT_DIGITAL_INPUTS
+#ifdef HW_DRIVER_DIGITAL_INPUT_SHIFT_REGISTER
 
 #include <math.h>
 #include <stdio.h>
@@ -34,7 +34,7 @@ using namespace Board::detail::IO::digitalIn;
 
 namespace
 {
-    volatile readings_t _digitalInBuffer[NR_OF_DIGITAL_INPUTS];
+    volatile readings_t _digitalInBuffer[HW_MAX_NR_OF_DIGITAL_INPUTS];
 
     inline void storeDigitalIn()
     {
@@ -44,7 +44,7 @@ namespace
 
         CORE_MCU_IO_SET_HIGH(PIN_PORT_SR_IN_LATCH, PIN_INDEX_SR_IN_LATCH);
 
-        for (uint8_t shiftRegister = 0; shiftRegister < NR_OF_IN_SR; shiftRegister++)
+        for (uint8_t shiftRegister = 0; shiftRegister < HW_NR_OF_IN_SR; shiftRegister++)
         {
             for (uint8_t input = 0; input < 8; input++)
             {
@@ -92,7 +92,7 @@ namespace Board::IO::digitalIn
 {
     bool state(size_t index, readings_t& readings)
     {
-        if (index >= NR_OF_DIGITAL_INPUTS)
+        if (index >= HW_MAX_NR_OF_DIGITAL_INPUTS)
         {
             return false;
         }

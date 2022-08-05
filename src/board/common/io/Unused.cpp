@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef NR_OF_UNUSED_IO
+#ifdef HW_NR_OF_UNUSED_IO
 
 #include "board/Board.h"
 #include "board/Internal.h"
@@ -29,7 +29,7 @@ namespace Board::detail::IO::unused
 {
     void init()
     {
-        for (size_t i = 0; i < NR_OF_UNUSED_IO; i++)
+        for (size_t i = 0; i < HW_NR_OF_UNUSED_IO; i++)
         {
             auto unusedPin = map::unusedPin(i);
 

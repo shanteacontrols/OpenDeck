@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef TOUCHSCREEN_SUPPORTED
+#ifdef HW_SUPPORT_TOUCHSCREEN
 
 #include "Touchscreen.h"
 #include "core/src/util/Util.h"
@@ -228,7 +228,7 @@ void Touchscreen::updateAll(bool forceRefresh)
         {
             uint32_t size = 0;
 
-            for (size = 0; size < TSCREEN_CDC_PASSTHROUGH_BUFFER_SIZE; size++)
+            for (size = 0; size < BUFFER_SIZE_TSCREEN_CDC_PASSTHROUGH; size++)
             {
                 uint8_t value;
 
@@ -252,7 +252,7 @@ void Touchscreen::updateAll(bool forceRefresh)
         {
             size_t size = 0;
 
-            while (_cdcPassthrough.cdcRead(_rxBuffer, size, TSCREEN_CDC_PASSTHROUGH_BUFFER_SIZE))
+            while (_cdcPassthrough.cdcRead(_rxBuffer, size, BUFFER_SIZE_TSCREEN_CDC_PASSTHROUGH))
             {
                 for (size_t i = 0; i < size; i++)
                 {

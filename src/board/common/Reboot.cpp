@@ -20,7 +20,7 @@ limitations under the License.
 #include "board/Internal.h"
 #include "core/src/Timing.h"
 #include "core/src/MCU.h"
-#ifdef USB_OVER_SERIAL
+#ifdef HW_USB_OVER_SERIAL
 #include "board/common/communication/USBOverSerial/USBOverSerial.h"
 #include "usb-link/Commands.h"
 #endif
@@ -29,7 +29,7 @@ namespace Board
 {
     void reboot()
     {
-#ifndef USB_SUPPORTED
+#ifndef HW_SUPPORT_USB
         // signal to usb link to reboot as well
 
         uint8_t data[2] = {
@@ -40,10 +40,10 @@ namespace Board
         USBOverSerial::USBWritePacket packet(USBOverSerial::packetType_t::INTERNAL,
                                              data,
                                              2,
-                                             USB_OVER_SERIAL_BUFFER_SIZE);
-        USBOverSerial::write(UART_CHANNEL_USB_LINK, packet);
+                                             BUFFER_SIZE_USB_OVER_SERIAL);
+        USBOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
 
-        while (!Board::UART::isTxComplete(UART_CHANNEL_USB_LINK))
+        while (!Board::UART::isTxComplete(HW_UART_CHANNEL_USB_LINK))
         {
             ;
         }

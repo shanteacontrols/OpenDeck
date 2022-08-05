@@ -121,7 +121,7 @@ namespace System
         private:
         HWA&                                                                           _hwa;
         Database::AppLayout                                                            _dbLayout;
-        Database::Admin                                                                _database            = Database::Admin(_hwa.database(), _dbLayout, INIT_DB_DATA);
+        Database::Admin                                                                _database            = Database::Admin(_hwa.database(), _dbLayout, DATABASE_INIT_DATA);
         IO::Buttons::Database                                                          _buttonsDatabase     = IO::Buttons::Database(_database);
         IO::Analog::Database                                                           _analogDatabase      = IO::Analog::Database(_database);
         IO::Encoders::Database                                                         _encodersDatabase    = IO::Encoders::Database(_database);

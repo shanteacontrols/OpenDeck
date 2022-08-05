@@ -21,7 +21,7 @@ limitations under the License.
 #include <stddef.h>
 #include <inttypes.h>
 #include "board/Board.h"
-#ifdef USB_OVER_SERIAL
+#ifdef HW_USB_OVER_SERIAL
 #include "usb-link/Commands.h"
 #endif
 #include "core/src/MCU.h"
@@ -52,7 +52,7 @@ namespace Board::detail
 
         void init();
 
-#ifdef USB_OVER_SERIAL
+#ifdef HW_USB_OVER_SERIAL
         constexpr inline uint32_t USB_OVER_SERIAL_BAUDRATE = 38400;
 
         /// Reads the data from UART channel on which USB host is located and checks if

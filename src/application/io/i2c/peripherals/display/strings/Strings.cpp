@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef DISPLAY_SUPPORTED
+#ifdef HW_SUPPORT_DISPLAY
 
 #include "Strings.h"
 #include <string.h>

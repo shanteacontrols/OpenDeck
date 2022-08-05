@@ -38,7 +38,7 @@ then
     then
         exit 1
     else
-        printf "%s\n" "DEFINES += HW_TESTS_SUPPORTED" >> "$out_makefile"
+        printf "%s\n" "DEFINES += TESTS_HW_SUPPORT" >> "$out_makefile"
     fi
 fi
 

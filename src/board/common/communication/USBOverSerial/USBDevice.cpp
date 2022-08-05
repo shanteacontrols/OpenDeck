@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef USB_OVER_SERIAL_DEVICE
+#ifdef HW_USB_OVER_SERIAL_DEVICE
 
 // simulated USB interface via UART - make this transparent to the application
 
@@ -29,8 +29,8 @@ namespace
 {
     /// Holds the USB state received from USB link MCU
     bool                                _usbConnectionState = false;
-    uint8_t                             _readBuffer[USB_OVER_SERIAL_BUFFER_SIZE];
-    Board::USBOverSerial::USBReadPacket _readPacket(_readBuffer, USB_OVER_SERIAL_BUFFER_SIZE);
+    uint8_t                             _readBuffer[BUFFER_SIZE_USB_OVER_SERIAL];
+    Board::USBOverSerial::USBReadPacket _readPacket(_readBuffer, BUFFER_SIZE_USB_OVER_SERIAL);
     core::mcu::uniqueID_t               _uidUSBDevice;
 }    // namespace
 
@@ -56,16 +56,16 @@ namespace Board
             USBOverSerial::USBWritePacket writePacket(USBOverSerial::packetType_t::MIDI,
                                                       &packet[0],
                                                       sizeof(packet),
-                                                      USB_OVER_SERIAL_BUFFER_SIZE);
+                                                      BUFFER_SIZE_USB_OVER_SERIAL);
 
-            return USBOverSerial::write(UART_CHANNEL_USB_LINK, writePacket);
+            return USBOverSerial::write(HW_UART_CHANNEL_USB_LINK, writePacket);
         }
 
         bool readMIDI(midiPacket_t& packet)
         {
             bool retVal = false;
 
-            if (USBOverSerial::read(UART_CHANNEL_USB_LINK, _readPacket))
+            if (USBOverSerial::read(HW_UART_CHANNEL_USB_LINK, _readPacket))
             {
                 if (_readPacket.type() == USBOverSerial::packetType_t::MIDI)
                 {
@@ -92,9 +92,9 @@ namespace Board
             USBOverSerial::USBWritePacket packet(USBOverSerial::packetType_t::CDC,
                                                  buffer,
                                                  size,
-                                                 USB_OVER_SERIAL_BUFFER_SIZE);
+                                                 BUFFER_SIZE_USB_OVER_SERIAL);
 
-            return USBOverSerial::write(UART_CHANNEL_USB_LINK, packet);
+            return USBOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
         }
 
         bool writeCDC(uint8_t value)
@@ -102,14 +102,14 @@ namespace Board
             USBOverSerial::USBWritePacket packet(USBOverSerial::packetType_t::CDC,
                                                  &value,
                                                  1,
-                                                 USB_OVER_SERIAL_BUFFER_SIZE);
+                                                 BUFFER_SIZE_USB_OVER_SERIAL);
 
-            return USBOverSerial::write(UART_CHANNEL_USB_LINK, packet);
+            return USBOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
         }
 
         bool readCDC(uint8_t* buffer, size_t& size, const size_t maxSize)
         {
-            if (USBOverSerial::read(UART_CHANNEL_USB_LINK, _readPacket))
+            if (USBOverSerial::read(HW_UART_CHANNEL_USB_LINK, _readPacket))
             {
                 if (_readPacket.type() == USBOverSerial::packetType_t::CDC)
                 {
@@ -133,7 +133,7 @@ namespace Board
 
         bool readCDC(uint8_t& value)
         {
-            if (USBOverSerial::read(UART_CHANNEL_USB_LINK, _readPacket))
+            if (USBOverSerial::read(HW_UART_CHANNEL_USB_LINK, _readPacket))
             {
                 if (_readPacket.type() == USBOverSerial::packetType_t::CDC)
                 {
@@ -212,7 +212,7 @@ namespace Board
 
         bool readInternal(USBLink::internalCMD_t& cmd)
         {
-            if (USBOverSerial::read(UART_CHANNEL_USB_LINK, _readPacket))
+            if (USBOverSerial::read(HW_UART_CHANNEL_USB_LINK, _readPacket))
             {
                 if (_readPacket.type() == USBOverSerial::packetType_t::INTERNAL)
                 {

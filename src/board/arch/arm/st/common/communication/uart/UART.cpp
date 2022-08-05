@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef UART_SUPPORTED
+#ifdef HW_SUPPORT_UART
 
 #include "board/Board.h"
 #include "board/Internal.h"
@@ -78,7 +78,7 @@ namespace Board::detail::UART::MCU
             return false;
         }
 
-#ifdef DMX_SUPPORTED
+#ifdef HW_SUPPORT_DMX
         if (config.dmxMode)
         {
             if (config.dmxBuffer == nullptr)

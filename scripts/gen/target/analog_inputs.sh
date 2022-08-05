@@ -2,7 +2,7 @@
 
 if [[ "$($yaml_parser "$yaml_file" analog)" != "null" ]]
 then
-    printf "%s\n" "DEFINES += ADC_SUPPORTED" >> "$out_makefile"
+    printf "%s\n" "DEFINES += HW_SUPPORT_ADC" >> "$out_makefile"
 
     if [[ "$($yaml_parser "$yaml_file" analog.extReference)" == "true" ]]
     then
@@ -12,7 +12,7 @@ then
     if [[ "$($yaml_parser "$yaml_file" analog.inputVoltage)" != "null" ]]
     then
         input_voltage=$($yaml_parser "$yaml_file" analog.inputVoltage | sed 's/\.//g')
-        printf "%s\n" "DEFINES += ADC_INPUT_VOLTAGE=$input_voltage" >> "$out_makefile"
+        printf "%s\n" "DEFINES += HW_ADC_INPUT_VOLTAGE=$input_voltage" >> "$out_makefile"
     fi
 
     analog_filter_median=$($yaml_parser "$yaml_file" analog.filter.median)
@@ -21,12 +21,12 @@ then
     # use filters by default if not specified
     if [[ $analog_filter_median != "false" ]]
     then
-        printf "%s\n" "DEFINES += ANALOG_USE_MEDIAN_FILTER" >> "$out_makefile"
+        printf "%s\n" "DEFINES += ANALOG_FILTER_MEDIAN" >> "$out_makefile"
     fi
 
     if [[ $analog_filter_ema != "false" ]]
     then
-        printf "%s\n" "DEFINES += ANALOG_USE_EMA_FILTER" >> "$out_makefile"
+        printf "%s\n" "DEFINES += ANALOG_FILTER_EMA" >> "$out_makefile"
     fi
 
     analog_in_type=$($yaml_parser "$yaml_file" analog.type)
@@ -36,7 +36,7 @@ then
 
     if [[ $analog_in_type == "native" ]]
     then
-        printf "%s\n" "DEFINES += ANALOG_INPUT_DRIVER_NATIVE" >> "$out_makefile"
+        printf "%s\n" "DEFINES += HW_DRIVER_ANALOG_INPUT_NATIVE" >> "$out_makefile"
 
         nr_of_analog_inputs=$($yaml_parser "$yaml_file" analog.pins --length)
 
@@ -54,7 +54,7 @@ then
 
         {
             printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline core::mcu::io::pin_t A_IN_PINS[NR_OF_ADC_CHANNELS] = {"
+            printf "%s\n" "constexpr inline core::mcu::io::pin_t A_IN_PINS[HW_NR_OF_ADC_CHANNELS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_analog_inputs; i++))
@@ -67,14 +67,10 @@ then
             printf "%s\n" "}"
         } >> "$out_header"
 
-        {
-            printf "%s\n" "DEFINES += NR_OF_ADC_CHANNELS=$nr_of_analog_inputs"
-            printf "%s\n" "DEFINES += NATIVE_ANALOG_INPUTS"
-        } >> "$out_makefile"
-
+        printf "%s\n" "DEFINES += HW_NR_OF_ADC_CHANNELS=$nr_of_analog_inputs" >> "$out_makefile"
     elif [[ $analog_in_type == 4067 ]]
     then
-        printf "%s\n" "DEFINES += ANALOG_INPUT_DRIVER_MULTIPLEXER" >> "$out_makefile"
+        printf "%s\n" "DEFINES += HW_DRIVER_ANALOG_INPUT_MULTIPLEXER" >> "$out_makefile"
 
         for ((i=0; i<4; i++))
         do
@@ -114,7 +110,7 @@ then
 
         {
             printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline core::mcu::io::pin_t A_IN_PINS[NR_OF_ADC_CHANNELS] = {"
+            printf "%s\n" "constexpr inline core::mcu::io::pin_t A_IN_PINS[HW_NR_OF_ADC_CHANNELS] = {"
         } >> "$out_header"
 
         for ((i=0; i<"$number_of_mux"; i++))
@@ -130,13 +126,13 @@ then
         nr_of_analog_inputs=$((16 * "$number_of_mux"))
 
         {
-            printf "%s\n" "DEFINES += NR_OF_MUX=$number_of_mux"
-            printf "%s\n" "DEFINES += NR_OF_MUX_INPUTS=16"
-            printf "%s\n" "DEFINES += NR_OF_ADC_CHANNELS=$number_of_mux"
+            printf "%s\n" "DEFINES += HW_NR_OF_MUX=$number_of_mux"
+            printf "%s\n" "DEFINES += HW_NR_OF_MUX_INPUTS=16"
+            printf "%s\n" "DEFINES += HW_NR_OF_ADC_CHANNELS=$number_of_mux"
         } >> "$out_makefile"
     elif [[ $analog_in_type == 4051 ]]
     then
-        printf "%s\n" "DEFINES += ANALOG_INPUT_DRIVER_MULTIPLEXER" >> "$out_makefile"
+        printf "%s\n" "DEFINES += HW_DRIVER_ANALOG_INPUT_MULTIPLEXER" >> "$out_makefile"
 
         for ((i=0; i<3; i++))
         do
@@ -176,7 +172,7 @@ then
 
         {
             printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline core::mcu::io::pin_t A_IN_PINS[NR_OF_ADC_CHANNELS] = {"
+            printf "%s\n" "constexpr inline core::mcu::io::pin_t A_IN_PINS[HW_NR_OF_ADC_CHANNELS] = {"
         } >> "$out_header"
 
         for ((i=0; i<"$number_of_mux"; i++))
@@ -192,11 +188,13 @@ then
         nr_of_analog_inputs=$((8 * "$number_of_mux"))
 
         {
-            printf "%s\n" "DEFINES += NR_OF_MUX=$number_of_mux"
-            printf "%s\n" "DEFINES += NR_OF_MUX_INPUTS=8"
-            printf "%s\n" "DEFINES += NR_OF_ADC_CHANNELS=$number_of_mux"
+            printf "%s\n" "DEFINES += HW_NR_OF_MUX=$number_of_mux"
+            printf "%s\n" "DEFINES += HW_NR_OF_MUX_INPUTS=8"
+            printf "%s\n" "DEFINES += HW_NR_OF_ADC_CHANNELS=$number_of_mux"
         } >> "$out_makefile"
     fi
+
+    printf "%s\n" "DEFINES += HW_MAX_NR_OF_ANALOG_INPUTS=$nr_of_analog_inputs" >> "$out_makefile"
 
     if [[ "$($yaml_parser "$yaml_file" analog.indexing)" != "null" ]]
     then
@@ -204,7 +202,7 @@ then
 
         {
             printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline uint8_t ANALOG_INDEXES[NR_OF_ANALOG_INPUTS] = {"
+            printf "%s\n" "constexpr inline uint8_t ANALOG_INDEXES[HW_MAX_NR_OF_ANALOG_INPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_analog_inputs; i++))
@@ -218,13 +216,17 @@ then
             printf "%s\n" "}"
         } >> "$out_header"
 
-        printf "%s\n" "DEFINES += ANALOG_INDEXING" >> "$out_makefile"
+        {
+            printf "%s\n" "DEFINES += INDEXING_ANALOG"
+            printf "%s\n" "DEFINES += HW_SUPPORTED_NR_OF_ANALOG_INPUTS=$nr_of_analog_inputs"
+        } >> "$out_makefile"
+    else
+        printf "%s\n" "DEFINES += HW_SUPPORTED_NR_OF_ANALOG_INPUTS=$nr_of_analog_inputs" >> "$out_makefile"
     fi
-
-    printf "%s\n" "DEFINES += NR_OF_ANALOG_INPUTS=$nr_of_analog_inputs" >> "$out_makefile"
 else
     {
-        printf "%s\n" "DEFINES += NR_OF_ANALOG_INPUTS=0"
-        printf "%s\n" "DEFINES += NR_OF_ADC_CHANNELS=0" 
+        printf "%s\n" "DEFINES += HW_MAX_NR_OF_ANALOG_INPUTS=0"
+        printf "%s\n" "DEFINES += HW_SUPPORTED_NR_OF_ANALOG_INPUTS=0"
+        printf "%s\n" "DEFINES += HW_NR_OF_ADC_CHANNELS=0" 
     } >> "$out_makefile"
 fi

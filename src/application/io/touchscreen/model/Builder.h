@@ -20,7 +20,7 @@ limitations under the License.
 
 #include "io/touchscreen/Touchscreen.h"
 
-#ifdef TOUCHSCREEN_SUPPORTED
+#ifdef HW_SUPPORT_TOUCHSCREEN
 
 #include "nextion/Nextion.h"
 #include "viewtech/Viewtech.h"

@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef I2C_SUPPORTED
+#ifdef HW_SUPPORT_I2C
 
 #include "board/Board.h"
 #include "core/src/util/Util.h"
@@ -31,7 +31,7 @@ limitations under the License.
 namespace
 {
     constexpr uint8_t                                   TWCR_CLR_MASK = 0x0F;
-    core::util::RingBuffer<uint8_t, I2C_TX_BUFFER_SIZE> _txBuffer;
+    core::util::RingBuffer<uint8_t, BUFFER_SIZE_I2C_TX> _txBuffer;
     uint8_t                                             _address;
     volatile bool                                       _txBusy;
     bool                                                _initialized;
@@ -98,7 +98,7 @@ namespace Board::I2C
             return false;
         }
 
-        if (size >= I2C_TX_BUFFER_SIZE)
+        if (size >= BUFFER_SIZE_I2C_TX)
         {
             return false;
         }

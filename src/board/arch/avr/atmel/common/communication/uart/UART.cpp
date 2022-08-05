@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef UART_SUPPORTED
+#ifdef HW_SUPPORT_UART
 
 #include "board/Board.h"
 #include "board/Internal.h"
@@ -24,7 +24,7 @@ limitations under the License.
 
 namespace
 {
-#ifdef DMX_SUPPORTED
+#ifdef HW_SUPPORT_DMX
     volatile Board::detail::UART::dmxState_t _dmxState[CORE_MCU_MAX_UART_INTERFACES];
     volatile uint32_t                        _dmxByteCounter;
     uint32_t                                 _dmxBreakBRR;
@@ -45,12 +45,12 @@ namespace
 #define _UDRIE_GEN(x) UDRIE_##x
 #define UDRIE(x)      _UDRIE_GEN(x)
 
-#ifdef DMX_SUPPORTED
+#ifdef HW_SUPPORT_DMX
 #define DMX_SET_BREAK_BAUDRATE(channel) (UBRR(channel) = _dmxBreakBRR)
 #define DMX_SET_DATA_BAUDRATE(channel)  (UBRR(channel) = _dmxDataBRR)
 #endif
 
-#ifdef DMX_SUPPORTED
+#ifdef HW_SUPPORT_DMX
 #define UDRE_ISR(channel)                                                                  \
     do                                                                                     \
     {                                                                                      \
@@ -220,7 +220,7 @@ namespace Board::detail::UART::MCU
             return false;
         }
 
-#ifdef DMX_SUPPORTED
+#ifdef HW_SUPPORT_DMX
         if (config.dmxMode)
         {
             if (config.dmxBuffer == nullptr)
@@ -285,7 +285,7 @@ namespace Board::detail::UART::MCU
             }
         }
 
-#ifdef DMX_SUPPORTED
+#ifdef HW_SUPPORT_DMX
         _dmxBreakBRR = ((F_CPU / 8) + (static_cast<uint32_t>(dmxBaudRate_t::BR_BREAK) / 2)) / static_cast<uint32_t>(dmxBaudRate_t::BR_BREAK);
         _dmxDataBRR  = ((F_CPU / 8) + (static_cast<uint32_t>(dmxBaudRate_t::BR_DATA) / 2)) / static_cast<uint32_t>(dmxBaudRate_t::BR_DATA);
 
@@ -368,7 +368,7 @@ namespace Board::detail::UART::MCU
             break;
         }
 
-#ifdef DMX_SUPPORTED
+#ifdef HW_SUPPORT_DMX
         _dmxState[channel] = config.dmxMode ? dmxState_t::IDLE : dmxState_t::DISABLED;
         _dmxByteCounter    = 0;
 

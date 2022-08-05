@@ -6,7 +6,7 @@ vpath modules/%.c ../
 SOURCES_COMMON := 
 
 #common for all targets
-ifeq (,$(findstring USB_OVER_SERIAL_HOST,$(DEFINES)))
+ifeq (,$(findstring HW_USB_OVER_SERIAL_HOST,$(DEFINES)))
     SOURCES_COMMON += \
     modules/dbms/src/LESSDB.cpp \
     modules/midi/src/MIDI.cpp \

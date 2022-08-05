@@ -75,7 +75,7 @@ ifeq (,$(findstring gen,$(TYPE)))
 endif
 ifeq ($(TYPE),app)
 # Append metadata only for application
-	$(Q)srec_cat $(OUTPUT).hex -Intel -exclude $(FW_METADATA_LOCATION) $$(($(FW_METADATA_LOCATION) + $(FW_METADATA_SIZE))) -MAximum_Little_Endian $(FW_METADATA_LOCATION) -o $(OUTPUT).hex -Intel
+	$(Q)srec_cat $(OUTPUT).hex -Intel -exclude $(FLASH_ADDR_FW_METADATA) $$(($(FLASH_ADDR_FW_METADATA) + $(FW_METADATA_SIZE))) -MAximum_Little_Endian $(FLASH_ADDR_FW_METADATA) -o $(OUTPUT).hex -Intel
 	$(Q)srec_cat $(OUTPUT).hex -Intel -Cyclic_Redundancy_Check_16_Little_Endian -MAximum-Address $(OUTPUT).hex -Intel -Cyclic_Redundancy_Check_16_XMODEM -Output $(OUTPUT).hex -Intel
 endif
 ifeq (,$(findstring gen,$(TYPE)))
@@ -110,10 +110,10 @@ all:
 
 concat: $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin
 	$(Q)mkdir -p $(BUILD_DIR)
-# If INIT_DB_DATA is set to 1, DB data will be initialized in firmware.
+# If DATABASE_INIT_DATA is set to 1, DB data will be initialized in firmware.
 # Otherwise, initial DB data is read from generated binary file appended
 # to application binary.
-ifneq (,$(findstring INIT_DB_DATA=1,$(DEFINES)))
+ifneq (,$(findstring DATABASE_INIT_DATA=1,$(DEFINES)))
 	$(Q)srec_cat \
 	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/$(TARGET).hex -Intel \
 	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/boot/$(TARGET).hex -Intel \

@@ -1,4 +1,4 @@
-#ifndef USB_OVER_SERIAL_HOST
+#ifndef HW_USB_OVER_SERIAL_HOST
 
 #include "framework/Framework.h"
 #include "stubs/Database.h"
@@ -68,7 +68,7 @@ TEST_F(DatabaseTest, ReadInitialValues)
             }
         }
 
-#ifdef DMX_SUPPORTED
+#ifdef HW_SUPPORT_DMX
         // DMX section
         // all values should be set to 0
         DB_READ_VERIFY(0, Database::Config::Section::global_t::DMX_SETTINGS, Protocol::DMX::setting_t::ENABLE);
@@ -272,7 +272,7 @@ TEST_F(DatabaseTest, ReadInitialValues)
             DB_READ_VERIFY(1, Database::Config::Section::leds_t::CHANNEL, i);
         }
 
-#ifdef I2C_SUPPORTED
+#ifdef HW_SUPPORT_I2C
         // i2c block
         //----------------------------------
         // display section
@@ -285,7 +285,7 @@ TEST_F(DatabaseTest, ReadInitialValues)
         DB_READ_VERIFY(0, Database::Config::Section::i2c_t::DISPLAY, IO::Display::setting_t::OCTAVE_NORMALIZATION);
 #endif
 
-#ifdef TOUCHSCREEN_SUPPORTED
+#ifdef HW_SUPPORT_TOUCHSCREEN
         // touchscreen block
         //----------------------------------
         // setting section
@@ -405,7 +405,7 @@ TEST_F(DatabaseTest, FactoryReset)
     ASSERT_TRUE(_database._instance.update(Database::Config::Section::encoder_t::CHANNEL, 0, 11));
 #endif
 
-#ifdef I2C_SUPPORTED
+#ifdef HW_SUPPORT_I2C
     ASSERT_TRUE(_database._instance.update(Database::Config::Section::i2c_t::DISPLAY,
                                            IO::Display::setting_t::CONTROLLER,
                                            IO::Display::displayController_t::SSD1306));
@@ -423,7 +423,7 @@ TEST_F(DatabaseTest, FactoryReset)
     DB_READ_VERIFY(1, Database::Config::Section::encoder_t::CHANNEL, 0);
 #endif
 
-#ifdef I2C_SUPPORTED
+#ifdef HW_SUPPORT_I2C
     DB_READ_VERIFY(static_cast<int32_t>(IO::Display::displayController_t::INVALID),
                    Database::Config::Section::i2c_t::DISPLAY,
                    IO::Display::setting_t::CONTROLLER);

@@ -3,7 +3,7 @@ ifeq (,$(findstring gen,$(TYPE)))
     -I"../modules/core/modules/lufa/" \
     -I"../modules/avr-libstdcpp/include"
 
-    ifneq (,$(findstring USB_SUPPORTED,$(DEFINES)))
+    ifneq (,$(findstring HW_SUPPORT_USB,$(DEFINES)))
         # Common for bootloader and application on USB supported MCUs
         SOURCES += \
         modules/core/modules/lufa/LUFA/Drivers/USB/Core/AVR8/Device_AVR8.c \
@@ -53,7 +53,7 @@ USB_DEVICE_ONLY \
 INTERRUPT_CONTROL_ENDPOINT \
 ORDERED_EP_CONFIG \
 USE_CUSTOM_USB_ENDPOINTS \
-I2C_CUSTOM_IMPL
+BOARD_I2C_CUSTOM_IMPL
 
 ifeq ($(TYPE),boot)
     DEFINES += \

@@ -26,7 +26,7 @@ limitations under the License.
 
 using namespace Protocol;
 
-#if defined(DIGITAL_OUTPUTS_SUPPORTED) || defined(TOUCHSCREEN_SUPPORTED)
+#if defined(HW_SUPPORT_DIGITAL_OUTPUTS) || defined(HW_SUPPORT_TOUCHSCREEN)
 #define LEDS_SUPPORTED
 
 namespace IO
@@ -34,8 +34,8 @@ namespace IO
     class LEDs : public IO::Base
     {
         public:
-        class Collection : public Common::BaseCollection<NR_OF_DIGITAL_OUTPUTS,
-                                                         NR_OF_TOUCHSCREEN_COMPONENTS>
+        class Collection : public Common::BaseCollection<HW_SUPPORTED_NR_OF_DIGITAL_OUTPUTS,
+                                                         HW_SUPPORTED_NR_OF_TOUCHSCREEN_COMPONENTS>
         {
             public:
             Collection() = delete;

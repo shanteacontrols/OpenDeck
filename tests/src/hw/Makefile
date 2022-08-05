@@ -1,7 +1,7 @@
 vpath application/%.cpp ../src
 vpath board/%.cpp ../src
 
-ifeq (,$(findstring USB_OVER_SERIAL_HOST,$(DEFINES)))
+ifeq (,$(findstring HW_USB_OVER_SERIAL_HOST,$(DEFINES)))
     SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) := \
     application/database/Database.cpp \
     application/database/CustomInit.cpp \

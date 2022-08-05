@@ -16,8 +16,8 @@ limitations under the License.
 
 */
 
-#ifdef ADC_SUPPORTED
-#ifdef ANALOG_INPUT_DRIVER_NATIVE
+#ifdef HW_SUPPORT_ADC
+#ifdef HW_DRIVER_ANALOG_INPUT_NATIVE
 
 #include "core/src/util/Util.h"
 #include "board/Board.h"
@@ -28,11 +28,11 @@ using namespace Board::IO::analog;
 using namespace Board::detail;
 using namespace Board::detail::IO::analog;
 
-static_assert(ADC_SAMPLES > 0, "At least 1 ADC sample required");
+static_assert(HW_ADC_SAMPLES > 0, "At least 1 ADC sample required");
 
 namespace
 {
-    constexpr size_t ANALOG_IN_BUFFER_SIZE = NR_OF_ANALOG_INPUTS;
+    constexpr size_t ANALOG_IN_BUFFER_SIZE = HW_MAX_NR_OF_ANALOG_INPUTS;
 
     uint8_t           _analogIndex;
     volatile uint16_t _analogBuffer[ANALOG_IN_BUFFER_SIZE];
@@ -46,8 +46,8 @@ namespace Board::detail::IO::analog
     {
         core::mcu::adc::conf_t adcConfiguration;
 
-        adcConfiguration.prescaler = ADC_PRESCALER;
-        adcConfiguration.voltage   = ADC_INPUT_VOLTAGE;
+        adcConfiguration.prescaler = HW_ADC_PRESCALER;
+        adcConfiguration.voltage   = HW_ADC_INPUT_VOLTAGE;
 
 #ifdef ADC_EXT_REF
         adcConfiguration.externalRef = true;
@@ -57,7 +57,7 @@ namespace Board::detail::IO::analog
 
         core::mcu::adc::init(adcConfiguration);
 
-        for (size_t i = 0; i < NR_OF_ADC_CHANNELS; i++)
+        for (size_t i = 0; i < HW_NR_OF_ADC_CHANNELS; i++)
         {
             auto pin = map::adcPin(i);
             core::mcu::adc::initPin(pin);
@@ -84,16 +84,16 @@ namespace Board::detail::IO::analog
                 _sample += adcValue;
             }
 
-            if (++_sampleCounter == (ADC_SAMPLES + 1))
+            if (++_sampleCounter == (HW_ADC_SAMPLES + 1))
             {
-                _sample /= ADC_SAMPLES;
+                _sample /= HW_ADC_SAMPLES;
                 _analogBuffer[_analogIndex] = _sample;
                 _analogBuffer[_analogIndex] |= ADC_NEW_READING_FLAG;
                 _sample        = 0;
                 _sampleCounter = 0;
                 _analogIndex++;
 
-                if (_analogIndex == NR_OF_ANALOG_INPUTS)
+                if (_analogIndex == HW_MAX_NR_OF_ANALOG_INPUTS)
                 {
                     _analogIndex = 0;
                 }

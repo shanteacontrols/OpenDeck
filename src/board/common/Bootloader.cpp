@@ -21,8 +21,8 @@ limitations under the License.
 #include "core/src/Timing.h"
 #include <Target.h>
 
-#ifdef BTLDR_BUTTON_SUPPORTED
-#ifdef BTLDR_BUTTON_AH
+#ifdef HW_SUPPORT_BOOTLOADER_BUTTON
+#ifdef HW_BOOTLOADER_BUTTON_ACTIVE_HIGH
 #define IS_BTLDR_ACTIVE() (CORE_MCU_IO_READ(PIN_PORT_BTLDR_BUTTON, PIN_INDEX_BTLDR_BUTTON))
 #else
 #define IS_BTLDR_ACTIVE() (!(CORE_MCU_IO_READ(PIN_PORT_BTLDR_BUTTON, PIN_INDEX_BTLDR_BUTTON)))
@@ -42,8 +42,8 @@ namespace Board::bootloader
 {
     void appAddrBoundary(uint32_t& first, uint32_t& last)
     {
-        first = APP_START_ADDR;
-        core::mcu::flash::read32(FW_METADATA_LOCATION, last);
+        first = FLASH_ADDR_APP_START;
+        core::mcu::flash::read32(FLASH_ADDR_FW_METADATA, last);
     }
 
     bool isHWtriggerActive()
@@ -56,22 +56,22 @@ namespace Board::bootloader
 
     uint32_t pageSize(size_t index)
     {
-        return core::mcu::flash::pageSize(index + FLASH_PAGE_APP_START);
+        return core::mcu::flash::pageSize(index + FLASH_PAGE_APP);
     }
 
     void erasePage(size_t index)
     {
-        core::mcu::bootloader::erasePage(index + FLASH_PAGE_APP_START);
+        core::mcu::bootloader::erasePage(index + FLASH_PAGE_APP);
     }
 
     void fillPage(size_t index, uint32_t address, uint32_t value)
     {
-        core::mcu::bootloader::fillPage(index + FLASH_PAGE_APP_START, address, value);
+        core::mcu::bootloader::fillPage(index + FLASH_PAGE_APP, address, value);
     }
 
     void commitPage(size_t index)
     {
-        core::mcu::bootloader::commitPage(index + FLASH_PAGE_APP_START);
+        core::mcu::bootloader::commitPage(index + FLASH_PAGE_APP);
     }
 
     uint8_t readFlash(uint32_t address)

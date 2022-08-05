@@ -160,7 +160,7 @@ class HWAMIDIDIN : public Protocol::MIDI::HWADIN
 
     bool supported() override
     {
-#ifdef DIN_MIDI_SUPPORTED
+#ifdef HW_SUPPORT_DIN_MIDI
         return true;
 #else
         return false;
@@ -217,7 +217,7 @@ class HWAMIDIBLE : public Protocol::MIDI::HWABLE
 
     bool supported() override
     {
-#ifdef BLE_SUPPORTED
+#ifdef HW_SUPPORT_BLE
         return true;
 #else
         return false;

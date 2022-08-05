@@ -21,7 +21,7 @@ limitations under the License.
 #include "io/i2c/I2C.h"
 #include "database/Database.h"
 
-#ifdef I2C_SUPPORTED
+#ifdef HW_SUPPORT_I2C
 
 #include "display/Display.h"
 

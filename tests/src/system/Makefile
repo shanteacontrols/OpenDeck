@@ -2,7 +2,7 @@ vpath application/%.cpp ../src
 vpath common/%.cpp ../src
 vpath modules/%.cpp ../
 
-ifeq (,$(findstring USB_OVER_SERIAL_HOST,$(DEFINES)))
+ifeq (,$(findstring HW_USB_OVER_SERIAL_HOST,$(DEFINES)))
     SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) := \
     application/database/Database.cpp \
     application/database/CustomInit.cpp \
@@ -17,7 +17,7 @@ ifeq (,$(findstring USB_OVER_SERIAL_HOST,$(DEFINES)))
     application/io/leds/LEDs.cpp \
     application/io/analog/Analog.cpp \
 
-    ifneq (,$(findstring I2C_SUPPORTED,$(DEFINES)))
+    ifneq (,$(findstring HW_SUPPORT_I2C,$(DEFINES)))
         SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) += \
         application/io/i2c/I2C.cpp \
         application/io/i2c/peripherals/Builder.cpp \
@@ -25,7 +25,7 @@ ifeq (,$(findstring USB_OVER_SERIAL_HOST,$(DEFINES)))
         application/io/i2c/peripherals/display/strings/Strings.cpp
     endif
 
-    ifneq (,$(findstring TOUCHSCREEN_SUPPORTED,$(DEFINES)))
+    ifneq (,$(findstring HW_SUPPORT_TOUCHSCREEN,$(DEFINES)))
         SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) += \
         application/io/touchscreen/Touchscreen.cpp \
         application/io/touchscreen/model/Builder.cpp \

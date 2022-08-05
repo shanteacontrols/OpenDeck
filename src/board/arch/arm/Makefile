@@ -64,7 +64,7 @@ endif
 
 DEFINES += \
 EMUEEPROM_INCLUDE_CONFIG \
-USE_FAST_SOFT_PWM_TIMER
+BOARD_USE_FAST_SOFT_PWM_TIMER
 
 CC        := arm-none-eabi-gcc
 CXX       := arm-none-eabi-g++
