@@ -1,0 +1,263 @@
+---
+  mcu: "stm32f405rg"
+  extClockMhz: 12
+  usb: true
+  uart:
+    dinMIDI:
+      channel: 5
+    touchscreen:
+      channel: 4
+      components: 64
+    dmx:
+      channel: 4
+  i2c:
+    display:
+      channel: 0
+  buttons:
+    extPullups: true
+    type: "matrix"
+    rows:
+      type: "native"
+      pins:
+      -
+        port: "A"
+        index: 4
+      -
+        port: "A"
+        index: 5
+      -
+        port: "C"
+        index: 4
+      -
+        port: "C"
+        index: 5
+      -
+        port: "B"
+        index: 11
+      -
+        port: "B"
+        index: 10
+      -
+        port: "B"
+        index: 2
+      -
+        port: "B"
+        index: 1
+    columns:
+      type: "decoder"
+      pins:
+        decA0:
+          port: "C"
+          index: 8
+        decA1:
+          port: "C"
+          index: 9
+        decA2:
+          port: "A"
+          index: 8
+    indexing:
+      - 0
+      - 7
+      - 2
+      - 1
+      - 4
+      - 3
+      - 5
+      - 6
+      - 8
+      - 15
+      - 10
+      - 9
+      - 12
+      - 11
+      - 13
+      - 14
+      - 16
+      - 23
+      - 18
+      - 17
+      - 20
+      - 19
+      - 21
+      - 22
+      - 24
+      - 31
+      - 26
+      - 25
+      - 28
+      - 27
+      - 29
+      - 30
+      - 56
+      - 63
+      - 58
+      - 57
+      - 60
+      - 59
+      - 61
+      - 62
+      - 48
+      - 55
+      - 50
+      - 49
+      - 52
+      - 51
+      - 53
+      - 54
+      - 40
+      - 47
+      - 42
+      - 41
+      - 44
+      - 43
+      - 45
+      - 46
+      - 32
+      - 39
+      - 34
+      - 33
+      - 36
+      - 35
+      - 37
+      - 38
+  analog:
+    type: "4067"
+    inputVoltage: "3.3"
+    multiplexers: 2
+    pins:
+      s0:
+        port: "B"
+        index: 14
+      s1:
+        port: "B"
+        index: 15
+      s2:
+        port: "B"
+        index: 12
+      s3:
+        port: "B"
+        index: 13
+      z0:
+        port: "C"
+        index: 2
+      z1:
+        port: "C"
+        index: 1
+    indexing:
+      - 8
+      - 9
+      - 10
+      - 11
+      - 12
+      - 13
+      - 14
+      - 15
+      - 7
+      - 6
+      - 5
+      - 4
+      - 3
+      - 2
+      - 1
+      - 0
+      - 24
+      - 25
+      - 26
+      - 27
+      - 28
+      - 29
+      - 30
+      - 31
+      - 23
+      - 22
+      - 21
+      - 20
+      - 19
+      - 18
+      - 17
+      - 16
+  leds:
+    internal:
+      invert: false
+      pins:
+        usb:
+          rx:
+            port: "A"
+            index: 10
+          tx:
+            port: "A"
+            index: 9
+        uart:
+          rx:
+            port: "A"
+            index: 10
+          tx:
+            port: "A"
+            index: 9
+    external:
+      invert: true
+      type: "max7219"
+      pins:
+        data:
+          port: "A"
+          index: 2
+        clock:
+          port: "A"
+          index: 0
+        latch:
+          port: "A"
+          index: 1
+      indexing:
+      - 24
+      - 28
+      - 30
+      - 26
+      - 27
+      - 31
+      - 29
+      - 25
+      - 56
+      - 60
+      - 62
+      - 58
+      - 59
+      - 63
+      - 61
+      - 57
+      - 16
+      - 20
+      - 22
+      - 18
+      - 19
+      - 23
+      - 21
+      - 17
+      - 32
+      - 36
+      - 38
+      - 34
+      - 35
+      - 39
+      - 37
+      - 33
+      - 0
+      - 4
+      - 6
+      - 2
+      - 3
+      - 7
+      - 5
+      - 1
+      - 40
+      - 44
+      - 46
+      - 42
+      - 43
+      - 47
+      - 45
+      - 41
+  bootloader:
+    button:
+      port: "B"
+      index: 4
+      activeState: "low"
