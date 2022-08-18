@@ -18,6 +18,7 @@ limitations under the License.
 
 #pragma once
 
+#include <array>
 #include "database/Database.h"
 #include "protocol/midi/MIDI.h"
 #include "global/MIDIProgram.h"
@@ -146,31 +147,34 @@ namespace IO
         uint8_t _lastLatchingState[Collection::size() / 8 + 1] = {};
         uint8_t _incDecValue[Collection::size()]               = {};
 
-        static constexpr MIDI::messageType_t INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(messageType_t::AMOUNT)] = {
-            MIDI::messageType_t::NOTE_ON,
-            MIDI::messageType_t::PROGRAM_CHANGE,
-            MIDI::messageType_t::CONTROL_CHANGE,
-            MIDI::messageType_t::CONTROL_CHANGE,
-            MIDI::messageType_t::MMC_STOP,
-            MIDI::messageType_t::MMC_PLAY,
-            MIDI::messageType_t::MMC_RECORD_START,    // modified to stop when needed
-            MIDI::messageType_t::MMC_PAUSE,
-            MIDI::messageType_t::SYS_REAL_TIME_CLOCK,
-            MIDI::messageType_t::SYS_REAL_TIME_START,
-            MIDI::messageType_t::SYS_REAL_TIME_CONTINUE,
-            MIDI::messageType_t::SYS_REAL_TIME_STOP,
-            MIDI::messageType_t::SYS_REAL_TIME_ACTIVE_SENSING,
-            MIDI::messageType_t::SYS_REAL_TIME_SYSTEM_RESET,
-            MIDI::messageType_t::PROGRAM_CHANGE,
-            MIDI::messageType_t::PROGRAM_CHANGE,
-            MIDI::messageType_t::INVALID,
-            MIDI::messageType_t::INVALID,
-            MIDI::messageType_t::NOTE_ON,
-            MIDI::messageType_t::NOTE_ON,
-            MIDI::messageType_t::CONTROL_CHANGE,
-            MIDI::messageType_t::CONTROL_CHANGE,
-            MIDI::messageType_t::NOTE_ON,
-            MIDI::messageType_t::CONTROL_CHANGE,
+        static constexpr std::array<MIDI::messageType_t, static_cast<uint8_t>(messageType_t::AMOUNT)> INTERNAL_MSG_TO_MIDI_TYPE = {
+            MIDI::messageType_t::NOTE_ON,                         // NOTE
+            MIDI::messageType_t::PROGRAM_CHANGE,                  // PROGRAM_CHANGE
+            MIDI::messageType_t::CONTROL_CHANGE,                  // CONTROL_CHANGE
+            MIDI::messageType_t::CONTROL_CHANGE,                  // CONTROL_CHANGE_RESET
+            MIDI::messageType_t::MMC_STOP,                        // MMC_STOP
+            MIDI::messageType_t::MMC_PLAY,                        // MMC_PLAY
+            MIDI::messageType_t::MMC_RECORD_START,                // MMC_RECORD - modified to stop when needed
+            MIDI::messageType_t::MMC_PAUSE,                       // MMC_PAUSE
+            MIDI::messageType_t::SYS_REAL_TIME_CLOCK,             // REAL_TIME_CLOCK
+            MIDI::messageType_t::SYS_REAL_TIME_START,             // REAL_TIME_START
+            MIDI::messageType_t::SYS_REAL_TIME_CONTINUE,          // REAL_TIME_CONTINUE
+            MIDI::messageType_t::SYS_REAL_TIME_STOP,              // REAL_TIME_STOP
+            MIDI::messageType_t::SYS_REAL_TIME_ACTIVE_SENSING,    // REAL_TIME_ACTIVE_SENSING
+            MIDI::messageType_t::SYS_REAL_TIME_SYSTEM_RESET,      // REAL_TIME_SYSTEM_RESET
+            MIDI::messageType_t::PROGRAM_CHANGE,                  // PROGRAM_CHANGE_INC
+            MIDI::messageType_t::PROGRAM_CHANGE,                  // PROGRAM_CHANGE_DEC
+            MIDI::messageType_t::INVALID,                         // NONE
+            MIDI::messageType_t::INVALID,                         // PRESET_CHANGE
+            MIDI::messageType_t::NOTE_ON,                         // MULTI_VAL_INC_RESET_NOTE
+            MIDI::messageType_t::NOTE_ON,                         // MULTI_VAL_INC_DEC_NOTE
+            MIDI::messageType_t::CONTROL_CHANGE,                  // MULTI_VAL_INC_RESET_CC
+            MIDI::messageType_t::CONTROL_CHANGE,                  // MULTI_VAL_INC_DEC_CC
+            MIDI::messageType_t::NOTE_ON,                         // NOTE_OFF_ONLY
+            MIDI::messageType_t::CONTROL_CHANGE,                  // CONTROL_CHANGE0_ONLY
+            MIDI::messageType_t::INVALID,                         // DMX
+            MIDI::messageType_t::INVALID,                         // PROGRAM_CHANGE_OFFSET_INC
+            MIDI::messageType_t::INVALID,                         // PROGRAM_CHANGE_OFFSET_DEC
         };
     };
 }    // namespace IO

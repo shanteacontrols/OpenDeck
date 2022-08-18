@@ -18,6 +18,7 @@ limitations under the License.
 
 #pragma once
 
+#include <array>
 #include "database/Database.h"
 #include "io/IOBase.h"
 #include "messaging/Messaging.h"
@@ -206,16 +207,17 @@ namespace IO
             }
         };
 
-        static constexpr MIDI::messageType_t INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(type_t::AMOUNT)] = {
-            MIDI::messageType_t::CONTROL_CHANGE,
-            MIDI::messageType_t::CONTROL_CHANGE,
-            MIDI::messageType_t::PROGRAM_CHANGE,
-            MIDI::messageType_t::CONTROL_CHANGE,
-            MIDI::messageType_t::INVALID,
-            MIDI::messageType_t::PITCH_BEND,
-            MIDI::messageType_t::NRPN_7BIT,
-            MIDI::messageType_t::NRPN_14BIT,
-            MIDI::messageType_t::CONTROL_CHANGE_14BIT,
+        static constexpr std::array<MIDI::messageType_t, static_cast<uint8_t>(type_t::AMOUNT)> INTERNAL_MSG_TO_MIDI_TYPE = {
+            MIDI::messageType_t::CONTROL_CHANGE,          // CONTROL_CHANGE_7FH01H
+            MIDI::messageType_t::CONTROL_CHANGE,          // CONTROL_CHANGE_3FH41H
+            MIDI::messageType_t::PROGRAM_CHANGE,          // PROGRAM_CHANGE
+            MIDI::messageType_t::CONTROL_CHANGE,          // CONTROL_CHANGE
+            MIDI::messageType_t::INVALID,                 // PRESET_CHANGE
+            MIDI::messageType_t::PITCH_BEND,              // PITCH_BEND
+            MIDI::messageType_t::NRPN_7BIT,               // NRPN_7BIT
+            MIDI::messageType_t::NRPN_14BIT,              // NRPN_14BIT
+            MIDI::messageType_t::CONTROL_CHANGE_14BIT,    // CONTROL_CHANGE_14BIT
+            MIDI::messageType_t::INVALID,                 // DMX
         };
     };
 }    // namespace IO
