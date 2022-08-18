@@ -404,16 +404,12 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
         case messageType_t::PROGRAM_CHANGE_OFFSET_INC:
         {
             MIDIProgram.incrementOffset(descriptor.event.value);
-
-            // propagate button event but set the message to invalid since there is nothing to send
-            descriptor.event.message = MIDI::messageType_t::INVALID;
         }
         break;
 
         case messageType_t::PROGRAM_CHANGE_OFFSET_DEC:
         {
             MIDIProgram.decrementOffset(descriptor.event.value);
-            descriptor.event.message = MIDI::messageType_t::INVALID;
         }
         break;
 
@@ -436,7 +432,6 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
         switch (descriptor.messageType)
         {
         case messageType_t::NOTE:
-        case messageType_t::NOTE_OFF_ONLY:
         {
             descriptor.event.value   = 0;
             descriptor.event.message = MIDI::messageType_t::NOTE_OFF;
@@ -444,7 +439,6 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
         break;
 
         case messageType_t::CONTROL_CHANGE_RESET:
-        case messageType_t::CONTROL_CHANGE0_ONLY:
         {
             descriptor.event.value = 0;
         }
@@ -561,14 +555,14 @@ void Buttons::fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor)
     case messageType_t::PRESET_CHANGE:
     case messageType_t::PROGRAM_CHANGE_OFFSET_INC:
     case messageType_t::PROGRAM_CHANGE_OFFSET_DEC:
+    case messageType_t::NOTE_OFF_ONLY:
+    case messageType_t::CONTROL_CHANGE0_ONLY:
     {
         descriptor.type = type_t::MOMENTARY;
     }
     break;
 
     case messageType_t::MMC_RECORD:
-    case messageType_t::NOTE_OFF_ONLY:
-    case messageType_t::CONTROL_CHANGE0_ONLY:
     {
         descriptor.type = type_t::LATCHING;
     }
