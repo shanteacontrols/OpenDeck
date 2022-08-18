@@ -8,8 +8,6 @@
     touchscreen:
       channel: 0
       components: 32
-    dmx:
-      channel: 0
   buttons:
     type: "shiftRegister"
     shiftRegisters: 2
