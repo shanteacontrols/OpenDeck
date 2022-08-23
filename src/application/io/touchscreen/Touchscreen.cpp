@@ -117,9 +117,6 @@ bool Touchscreen::init(mode_t mode)
 
                 if (_initialized)
                 {
-                    // add slight delay before display becomes ready on power on
-                    core::timing::waitMs(1000);
-
                     setScreen(_database.read(Database::Config::Section::touchscreen_t::SETTING,
                                              Touchscreen::setting_t::INITIAL_SCREEN));
 

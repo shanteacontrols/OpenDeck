@@ -39,6 +39,9 @@ bool Nextion::init()
 
     if (_hwa.init())
     {
+        // add slight delay to ensure display can receive commands after power on
+        core::timing::waitMs(1000);
+
         endCommand();
         writeCommand("sendxy=1");
 

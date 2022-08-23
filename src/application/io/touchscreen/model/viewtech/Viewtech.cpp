@@ -33,7 +33,16 @@ Viewtech::Viewtech(IO::Touchscreen::HWA& hwa)
 bool Viewtech::init()
 {
     Touchscreen::Model::_bufferCount = 0;
-    return _hwa.init();
+
+    if (_hwa.init())
+    {
+        // add slight delay to ensure display can receive commands after power on
+        core::timing::waitMs(3000);
+
+        return true;
+    }
+
+    return false;
 }
 
 bool Viewtech::deInit()
