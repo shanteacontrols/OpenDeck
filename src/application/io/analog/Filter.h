@@ -244,7 +244,7 @@ namespace IO
         };
 
         adcConfig_t _adc12bit = {
-            .ADC_MIN_VALUE               = 10,
+            .ADC_MIN_VALUE               = 64,
             .ADC_MAX_VALUE               = 3950,
             .FSR_MIN_VALUE               = 160,
             .FSR_MAX_VALUE               = 1360,
