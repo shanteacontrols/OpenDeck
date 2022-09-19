@@ -43,6 +43,12 @@ LDFLAGS += \
 # Optimization level
 OPT := -Os
 
+ifeq ($(DEBUG), 1)
+    CPPFLAGS += -g -gdwarf-2
+    LDFLAGS  += -g -gdwarf-2
+    OPT      := -Og
+endif
+
 ifneq (,$(findstring gen,$(TYPE)))
     CC        := $(CC_NATIVE)
     CXX       := $(CXX_NATIVE)

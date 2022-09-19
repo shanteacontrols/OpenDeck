@@ -45,12 +45,6 @@ ifeq (,$(findstring gen,$(TYPE)))
     DEFINES += CORE_MCU_FLASH_SIZE_USER=$(CORE_MCU_FLASH_SIZE_USER)
     LDFLAGS += -Xlinker --defsym=CORE_MCU_FLASH_SIZE_USER=$(CORE_MCU_FLASH_SIZE_USER)
 
-    ifeq ($(DEBUG), 1)
-        CPPFLAGS += -g -gdwarf-2
-        LDFLAGS  += -g -gdwarf-2
-        OPT      := -Og
-    endif
-
     ifneq ($(CORE_MCU_FPU),)
         CPPFLAGS += -mfpu=$(CORE_MCU_FPU)
         LDFLAGS  += -mfpu=$(CORE_MCU_FPU)

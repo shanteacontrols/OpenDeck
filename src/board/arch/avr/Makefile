@@ -36,12 +36,6 @@ ifeq (,$(findstring gen,$(TYPE)))
     -Wl,--section-start=.text=$(FLASH_START_ADDR) \
     -mrelax \
     -mmcu=$(CORE_MCU_MODEL)
-
-    ifeq ($(DEBUG), 1)
-        CPPFLAGS += -g -gdwarf-2
-        LDFLAGS  += -g -gdwarf-2
-        OPT      := -Og
-    endif
 endif
 
 FLASH_TOOL := arduino
