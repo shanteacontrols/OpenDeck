@@ -108,22 +108,28 @@ endif
 ifeq ($(TYPE),boot)
     DEFINES += FW_BOOT
     FLASH_START_ADDR := $(FLASH_ADDR_BOOT_START)
-else ifeq ($(TYPE),app)
-    DEFINES += FW_APP
-    FLASH_START_ADDR := $(FLASH_ADDR_APP_START)
-else ifeq ($(TYPE),flashgen)
-    # Same as app
-    DEFINES += FW_APP
-    FLASH_START_ADDR := $(FLASH_ADDR_APP_START)
-    DEFINES := $(filter-out CORE_ARCH_%,$(DEFINES))
-    DEFINES := $(filter-out CORE_VENDOR_%,$(DEFINES))
-else ifeq ($(TYPE),sysexgen)
-    DEFINES := $(filter-out CORE_ARCH_%,$(DEFINES))
-    DEFINES := $(filter-out CORE_VENDOR_%,$(DEFINES))
+    CORE_MCU_FLASH_SIZE_USER := $(BOOT_SIZE)
 else
-    $(error Invalid firmware type specified)
+    CORE_MCU_FLASH_SIZE_USER := $(APP_SIZE)
+
+    ifeq ($(TYPE),app)
+        DEFINES += FW_APP
+        FLASH_START_ADDR := $(FLASH_ADDR_APP_START)
+    else ifeq ($(TYPE),flashgen)
+        # Same as app
+        DEFINES += FW_APP
+        FLASH_START_ADDR := $(FLASH_ADDR_APP_START)
+        DEFINES := $(filter-out CORE_ARCH_%,$(DEFINES))
+        DEFINES := $(filter-out CORE_VENDOR_%,$(DEFINES))
+    else ifeq ($(TYPE),sysexgen)
+        DEFINES := $(filter-out CORE_ARCH_%,$(DEFINES))
+        DEFINES := $(filter-out CORE_VENDOR_%,$(DEFINES))
+    else
+        $(error Invalid firmware type specified)
+    endif
 endif
 
+DEFINES += CORE_MCU_FLASH_SIZE_USER=$(CORE_MCU_FLASH_SIZE_USER)
 DEFINES += CORE_MCU_FLASH_START_ADDR_USER=$(FLASH_START_ADDR)
 DEFINES += FLASH_ADDR_BOOT_START=$(FLASH_ADDR_BOOT_START)
 DEFINES += FLASH_ADDR_APP_START=$(FLASH_ADDR_APP_START)

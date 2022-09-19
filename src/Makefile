@@ -38,6 +38,8 @@ LDFLAGS += \
 -Wl,--gc-sections \
 -Wl,-Map="$(OUTPUT).map",--cref \
 -T $(LINKER_FILE) \
+-Xlinker --defsym=CORE_MCU_FLASH_START_ADDR_USER=$(FLASH_START_ADDR) \
+-Xlinker --defsym=CORE_MCU_FLASH_SIZE_USER=$(CORE_MCU_FLASH_SIZE_USER) \
 -Wl,--print-memory-usage
 
 # Optimization level

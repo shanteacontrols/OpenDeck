@@ -30,18 +30,6 @@ ifeq (,$(findstring gen,$(TYPE)))
     -specs=nano.specs \
     -specs=nosys.specs
 
-    LDFLAGS += \
-    -Xlinker --defsym=CORE_MCU_FLASH_START_ADDR_USER=$(FLASH_START_ADDR)
-
-    ifeq ($(TYPE),boot)
-        CORE_MCU_FLASH_SIZE_USER=$(BOOT_SIZE)
-    else
-        CORE_MCU_FLASH_SIZE_USER=$(APP_SIZE)
-    endif
-
-    DEFINES += CORE_MCU_FLASH_SIZE_USER=$(CORE_MCU_FLASH_SIZE_USER)
-    LDFLAGS += -Xlinker --defsym=CORE_MCU_FLASH_SIZE_USER=$(CORE_MCU_FLASH_SIZE_USER)
-
     ifneq ($(CORE_MCU_FPU),)
         CPPFLAGS += -mfpu=$(CORE_MCU_FPU)
         LDFLAGS  += -mfpu=$(CORE_MCU_FPU)
