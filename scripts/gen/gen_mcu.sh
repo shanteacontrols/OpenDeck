@@ -152,7 +152,10 @@ then
     # The values from factory page should be used as initial ones.
     printf "%s\n" "DEFINES += DATABASE_INIT_DATA=0" >> "$out_makefile"
 else
-    printf "%s\n" "DEFINES += DATABASE_INIT_DATA=1" >> "$out_makefile"
+    {
+        printf "%s\n" "EMU_EEPROM_FLASH_USAGE := 0"
+        printf "%s\n" "DEFINES += DATABASE_INIT_DATA=1"
+    } >> "$out_makefile"
 fi
 
 if [[ $app_boot_jump_offset != "null" ]]
