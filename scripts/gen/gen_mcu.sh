@@ -25,11 +25,27 @@ printf "%s\n" "### OPENDECK ADDITIONS ###" >> "$out_makefile"
 
 mkdir -p "$gen_dir"
 
+declare -i app_start_page
+declare -i boot_start_page
+declare -i app_boot_jump_offset
+declare -i adc_prescaler
+declare -i adc_samples
+declare -i boot_size
+declare -i factory_flash_page
+declare -i factory_flash_page_offset
+declare -i eeprom_flash_page_1
+declare -i eeprom_flash_page_2
+
 app_start_page=$($yaml_parser "$yaml_file" flash.app-start-page)
 boot_start_page=$($yaml_parser "$yaml_file" flash.boot-start-page)
 app_boot_jump_offset=$($yaml_parser "$yaml_file" flash.app-boot-jump-offset)
 adc_prescaler=$($yaml_parser "$yaml_file" adc.prescaler)
 adc_samples=$($yaml_parser "$yaml_file" adc.samples)
+boot_size=0
+factory_flash_page=0
+factory_flash_page_offset=0
+eeprom_flash_page_1=0
+eeprom_flash_page_2=0
 
 if [[ $app_start_page == "null" ]]
 then
