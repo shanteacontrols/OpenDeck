@@ -27,6 +27,7 @@ mkdir -p "$gen_dir"
 
 declare -i app_start_page
 declare -i boot_start_page
+declare -i boot_end_page
 declare -i app_boot_jump_offset
 declare -i adc_prescaler
 declare -i adc_samples
@@ -35,9 +36,11 @@ declare -i factory_flash_page
 declare -i factory_flash_page_offset
 declare -i eeprom_flash_page_1
 declare -i eeprom_flash_page_2
+declare -i total_flash_pages
 
 app_start_page=$($yaml_parser "$yaml_file" flash.app-start-page)
 boot_start_page=$($yaml_parser "$yaml_file" flash.boot-start-page)
+boot_end_page=0
 app_boot_jump_offset=$($yaml_parser "$yaml_file" flash.app-boot-jump-offset)
 adc_prescaler=$($yaml_parser "$yaml_file" adc.prescaler)
 adc_samples=$($yaml_parser "$yaml_file" adc.samples)
@@ -46,6 +49,7 @@ factory_flash_page=0
 factory_flash_page_offset=0
 eeprom_flash_page_1=0
 eeprom_flash_page_2=0
+total_flash_pages=0
 
 if [[ $app_start_page == "null" ]]
 then
@@ -74,6 +78,8 @@ then
     then
         boot_start_address=$($yaml_parser "$base_yaml_file" flash.pages.["$boot_start_page"].address)
     fi
+
+    total_flash_pages=$($yaml_parser "$base_yaml_file" flash.pages --length)
 else
     # All flash pages have common size
     app_start_address=$($yaml_parser "$base_yaml_file" flash.page-size)
@@ -87,6 +93,8 @@ else
         ((boot_start_address*=boot_start_page))
         ((boot_start_address+=flash_start_address))
     fi
+
+    total_flash_pages=$($yaml_parser "$base_yaml_file" flash.size)/$($yaml_parser "$base_yaml_file" flash.page-size)
 fi
 
 {
@@ -161,6 +169,43 @@ fi
 if [[ $app_boot_jump_offset != "null" ]]
 then
     printf "%s\n" "DEFINES += FLASH_OFFSET_APP_JUMP_FROM_BOOTLOADER=$app_boot_jump_offset" >> "$out_makefile"
+fi
+
+# Calculate boot size
+# First boot page is known, but last isn't - determine
+
+if [[ $boot_start_page != "null" ]]
+then
+    boot_end_page=$total_flash_pages
+
+    for ((i=0;i<total_flash_pages;i++))
+    do
+        if [[ ($app_start_page == "$i") || ($factory_flash_page == "$i") ]]
+        then
+            if [[ $i > $boot_start_page ]]
+            then
+                boot_end_page=$i
+                break
+            fi
+        fi
+    done
+
+    total_boot_pages=$((boot_end_page-boot_start_page))
+
+    if [[ $($yaml_parser "$base_yaml_file" flash.pages) != "null" ]]
+    then
+        for ((i=0;i<total_boot_pages;i++))
+        do
+            boot_size+=$($yaml_parser "$base_yaml_file" flash.pages.["$i"].size)
+        done
+    else
+        boot_size=$(($($yaml_parser "$base_yaml_file" flash.page-size)*total_boot_pages))
+    fi
+
+    {
+        printf "%s%s\n" "BOOT_SIZE := " "$boot_size"
+        printf "%s%s\n" "APP_SIZE := " '$(shell echo $$(( $(CORE_MCU_FLASH_SIZE) - $(BOOT_SIZE) - $(EMU_EEPROM_FLASH_USAGE) )) )'
+    } >> "$out_makefile"
 fi
 
 if [[ $($yaml_parser "$yaml_file" fuses) != "null" ]]

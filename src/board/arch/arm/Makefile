@@ -33,13 +33,10 @@ ifeq (,$(findstring gen,$(TYPE)))
     LDFLAGS += \
     -Xlinker --defsym=CORE_MCU_FLASH_START_ADDR_USER=$(FLASH_START_ADDR)
 
-    # bootloader fw is always set to 32k
-    BOOT_SIZE := 32768
-
     ifeq ($(TYPE),boot)
         CORE_MCU_FLASH_SIZE_USER=$(BOOT_SIZE)
     else
-        CORE_MCU_FLASH_SIZE_USER=$(shell echo $$(( $(CORE_MCU_FLASH_SIZE) - $(BOOT_SIZE) - $(EMU_EEPROM_FLASH_USAGE) )) )
+        CORE_MCU_FLASH_SIZE_USER=$(APP_SIZE)
     endif
 
     DEFINES += CORE_MCU_FLASH_SIZE_USER=$(CORE_MCU_FLASH_SIZE_USER)
