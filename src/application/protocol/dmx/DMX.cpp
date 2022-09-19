@@ -239,7 +239,9 @@ std::optional<uint8_t> Protocol::DMX::sysConfigSet(System::Config::Section::glob
 
     if ((result == System::Config::status_t::ACK) && writeToDb)
     {
-        result = _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_WRITE;
+        result = _database.update(Util::Conversion::sys2DBsection(section), index, value)
+                     ? System::Config::status_t::ACK
+                     : System::Config::status_t::ERROR_WRITE;
 
         switch (dmxInitAction)
         {

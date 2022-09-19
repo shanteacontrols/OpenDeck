@@ -725,7 +725,9 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigGet(System::Config::Section::glo
 
         default:
         {
-            result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_READ;
+            result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue)
+                         ? System::Config::status_t::ACK
+                         : System::Config::status_t::ERROR_READ;
         }
         break;
         }
@@ -1086,7 +1088,9 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
 
     if ((result == System::Config::status_t::ACK) && writeToDb)
     {
-        result = _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_WRITE;
+        result = _database.update(Util::Conversion::sys2DBsection(section), index, value)
+                     ? System::Config::status_t::ACK
+                     : System::Config::status_t::ERROR_WRITE;
 
         switch (dinMIDIinitAction)
         {

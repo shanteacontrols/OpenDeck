@@ -649,7 +649,9 @@ std::optional<uint8_t> Display::sysConfigSet(System::Config::Section::i2c_t sect
         break;
     }
 
-    auto result = _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_WRITE;
+    auto result = _database.update(Util::Conversion::sys2DBsection(section), index, value)
+                      ? System::Config::status_t::ACK
+                      : System::Config::status_t::ERROR_WRITE;
 
     if (result == System::Config::status_t::ACK)
     {

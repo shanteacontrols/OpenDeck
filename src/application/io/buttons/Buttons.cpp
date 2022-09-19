@@ -601,7 +601,9 @@ std::optional<uint8_t> Buttons::sysConfigGet(System::Config::Section::button_t s
 
 std::optional<uint8_t> Buttons::sysConfigSet(System::Config::Section::button_t section, size_t index, uint16_t value)
 {
-    auto result = _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_WRITE;
+    auto result = _database.update(Util::Conversion::sys2DBsection(section), index, value)
+                      ? System::Config::status_t::ACK
+                      : System::Config::status_t::ERROR_WRITE;
 
     if (result == System::Config::status_t::ACK)
     {

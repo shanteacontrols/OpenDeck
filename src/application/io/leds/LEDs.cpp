@@ -902,7 +902,9 @@ std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t sectio
         // write to db if success is true and writing should take place
         if (result == System::Config::status_t::ACK)
         {
-            result = _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_WRITE;
+            result = _database.update(Util::Conversion::sys2DBsection(section), index, value)
+                         ? System::Config::status_t::ACK
+                         : System::Config::status_t::ERROR_WRITE;
         }
     }
     break;
@@ -989,14 +991,18 @@ std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t sectio
         else
         {
             // apply to single led only
-            result = _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_WRITE;
+            result = _database.update(Util::Conversion::sys2DBsection(section), index, value)
+                         ? System::Config::status_t::ACK
+                         : System::Config::status_t::ERROR_WRITE;
         }
     }
     break;
 
     default:
     {
-        result = _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_WRITE;
+        result = _database.update(Util::Conversion::sys2DBsection(section), index, value)
+                     ? System::Config::status_t::ACK
+                     : System::Config::status_t::ERROR_WRITE;
     }
     break;
     }

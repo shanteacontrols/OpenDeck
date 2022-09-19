@@ -463,7 +463,9 @@ std::optional<uint8_t> Analog::sysConfigSet(System::Config::Section::analog_t se
         break;
     }
 
-    return _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_WRITE;
+    return _database.update(Util::Conversion::sys2DBsection(section), index, value)
+               ? System::Config::status_t::ACK
+               : System::Config::status_t::ERROR_WRITE;
 }
 
 #endif
