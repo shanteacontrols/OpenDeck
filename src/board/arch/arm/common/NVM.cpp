@@ -113,7 +113,7 @@ namespace Board::NVM
         return _emuEEPROM.maxAddress();
     }
 
-    bool read(uint32_t address, int32_t& value, parameterType_t type)
+    bool read(uint32_t address, uint32_t& value, parameterType_t type)
     {
         uint16_t tempData;
 
@@ -144,7 +144,7 @@ namespace Board::NVM
         return true;
     }
 
-    bool write(uint32_t address, int32_t value, parameterType_t type)
+    bool write(uint32_t address, uint32_t value, parameterType_t type)
     {
         uint16_t tempData;
 

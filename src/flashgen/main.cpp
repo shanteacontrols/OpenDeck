@@ -204,7 +204,7 @@ namespace
             return _emuEEPROM.format();
         }
 
-        bool read(uint32_t address, int32_t& value, LESSDB::sectionParameterType_t type) override
+        bool read(uint32_t address, uint32_t& value, LESSDB::sectionParameterType_t type) override
         {
             switch (type)
             {
@@ -240,7 +240,7 @@ namespace
             }
         }
 
-        bool write(uint32_t address, int32_t value, LESSDB::sectionParameterType_t type) override
+        bool write(uint32_t address, uint32_t value, LESSDB::sectionParameterType_t type) override
         {
             switch (type)
             {

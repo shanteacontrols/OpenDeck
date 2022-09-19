@@ -345,8 +345,8 @@ void Database::Admin::registerHandlers(Handlers& handlers)
 
 std::optional<uint8_t> Database::Admin::sysConfigGet(System::Config::Section::global_t section, size_t index, uint16_t& value)
 {
-    int32_t readValue = 0;
-    uint8_t result    = System::Config::status_t::ERROR_READ;
+    uint32_t readValue = 0;
+    uint8_t  result    = System::Config::status_t::ERROR_READ;
 
     switch (section)
     {

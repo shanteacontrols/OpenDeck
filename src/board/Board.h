@@ -394,14 +394,14 @@ namespace Board
         /// param [in]: value   Reference to variable in which read value is being stored.
         /// param [in]: type    Type of parameter which is being read.
         /// returns: True on success, false otherwise.
-        bool read(uint32_t address, int32_t& value, parameterType_t type);
+        bool read(uint32_t address, uint32_t& value, parameterType_t type);
 
         /// Used to write value to memory provided by specific board.
         /// param [in]: address Memory address in which new value is being written.
         /// param [in]: value   Value to write.
         /// param [in]: type    Type of parameter which is being written.
         /// returns: True on success, false otherwise.
-        bool write(uint32_t address, int32_t value, parameterType_t type);
+        bool write(uint32_t address, uint32_t value, parameterType_t type);
     }    // namespace NVM
 
     namespace BLE

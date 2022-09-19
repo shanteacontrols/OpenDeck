@@ -797,14 +797,14 @@ void LEDs::setState(size_t index, brightness_t brightness)
 
 std::optional<uint8_t> LEDs::sysConfigGet(System::Config::Section::leds_t section, size_t index, uint16_t& value)
 {
-    int32_t readValue;
-    auto    result = System::Config::status_t::ACK;
+    uint32_t readValue;
+    auto     result = System::Config::status_t::ACK;
 
     switch (section)
     {
     case System::Config::Section::leds_t::TEST_COLOR:
     {
-        readValue = static_cast<int32_t>(color(index));
+        readValue = static_cast<uint32_t>(color(index));
     }
     break;
 

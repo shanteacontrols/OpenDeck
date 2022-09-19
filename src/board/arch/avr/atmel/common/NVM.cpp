@@ -34,7 +34,7 @@ namespace Board::NVM
         return CORE_MCU_EEPROM_SIZE - 1;
     }
 
-    bool read(uint32_t address, int32_t& value, parameterType_t type)
+    bool read(uint32_t address, uint32_t& value, parameterType_t type)
     {
         switch (type)
         {
@@ -60,7 +60,7 @@ namespace Board::NVM
         return true;
     }
 
-    bool write(uint32_t address, int32_t value, parameterType_t type)
+    bool write(uint32_t address, uint32_t value, parameterType_t type)
     {
         switch (type)
         {

@@ -588,9 +588,13 @@ bool Buttons::state(size_t index, uint8_t& numberOfReadings, uint32_t& states)
 
 std::optional<uint8_t> Buttons::sysConfigGet(System::Config::Section::button_t section, size_t index, uint16_t& value)
 {
-    int32_t readValue;
-    auto    result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_READ;
-    value          = readValue;
+    uint32_t readValue;
+
+    auto result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue)
+                      ? System::Config::status_t::ACK
+                      : System::Config::status_t::ERROR_READ;
+
+    value = readValue;
 
     return result;
 }

@@ -79,12 +79,12 @@ class HWADatabase : public System::Builder::HWA::Database
         return Board::NVM::clear(0, Board::NVM::size());
     }
 
-    bool read(uint32_t address, int32_t& value, Database::Admin::sectionParameterType_t type) override
+    bool read(uint32_t address, uint32_t& value, Database::Admin::sectionParameterType_t type) override
     {
         return Board::NVM::read(address, value, boardParamType(type));
     }
 
-    bool write(uint32_t address, int32_t value, Database::Admin::sectionParameterType_t type) override
+    bool write(uint32_t address, uint32_t value, Database::Admin::sectionParameterType_t type) override
     {
         return Board::NVM::write(address, value, boardParamType(type));
     }

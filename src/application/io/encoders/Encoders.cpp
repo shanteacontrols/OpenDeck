@@ -396,7 +396,7 @@ Encoders::position_t Encoders::read(size_t index, uint8_t pairState)
 
     _encoderPulses[index] += ENCODER_LOOK_UP_TABLE[_encoderData[index] & 0x0F];
 
-    if (abs(_encoderPulses[index]) >= _database.read(Database::Config::Section::encoder_t::PULSES_PER_STEP, index))
+    if (abs(_encoderPulses[index]) >= static_cast<int32_t>(_database.read(Database::Config::Section::encoder_t::PULSES_PER_STEP, index)))
     {
         retVal = (_encoderPulses[index] > 0) ? position_t::CCW : position_t::CW;
         // reset count
@@ -417,8 +417,11 @@ void Encoders::fillEncoderDescriptor(size_t index, encoderDescriptor_t& descript
 
 std::optional<uint8_t> Encoders::sysConfigGet(System::Config::Section::encoder_t section, size_t index, uint16_t& value)
 {
-    int32_t readValue;
-    auto    result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_READ;
+    uint32_t readValue;
+
+    auto result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue)
+                      ? System::Config::status_t::ACK
+                      : System::Config::status_t::ERROR_READ;
 
     if (result == System::Config::status_t::ACK)
     {

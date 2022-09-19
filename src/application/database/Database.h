@@ -63,7 +63,7 @@ namespace Database
         using LESSDB::update;
 
         template<typename T, typename I>
-        int32_t read(T section, I index)
+        uint32_t read(T section, I index)
         {
             auto blockIndex = block(section);
             auto value      = LESSDB::read(static_cast<uint8_t>(blockIndex),
@@ -74,7 +74,7 @@ namespace Database
         }
 
         template<typename T, typename I>
-        bool read(T section, I index, int32_t& value)
+        bool read(T section, I index, uint32_t& value)
         {
             auto blockIndex = block(section);
             return LESSDB::read(static_cast<uint8_t>(blockIndex),
@@ -87,7 +87,7 @@ namespace Database
         bool update(T section, I index, V value)
         {
             auto blockIndex = block(section);
-            auto newValue   = static_cast<int32_t>(value);
+            auto newValue   = static_cast<uint32_t>(value);
 
             return LESSDB::update(static_cast<uint8_t>(blockIndex),
                                   static_cast<uint8_t>(section),
@@ -190,7 +190,7 @@ namespace Database
         using Config = Database::Config;
 
         template<typename T, typename I>
-        typename std::enable_if<(std::is_same_v<T, sections> || ...), int32_t>::type
+        typename std::enable_if<(std::is_same_v<T, sections> || ...), uint32_t>::type
         read(T section, I index)
         {
             auto blockIndex = Admin::block(section);
@@ -203,7 +203,7 @@ namespace Database
 
         template<typename T, typename I>
         typename std::enable_if<(std::is_same_v<T, sections> || ...), bool>::type
-        read(T section, I index, int32_t& value)
+        read(T section, I index, uint32_t& value)
         {
             auto blockIndex = Admin::block(section);
             return _admin.read(static_cast<uint8_t>(blockIndex),
@@ -217,7 +217,7 @@ namespace Database
         update(T section, I index, V value)
         {
             auto blockIndex = Admin::block(section);
-            auto newValue   = static_cast<int32_t>(value);
+            auto newValue   = static_cast<uint32_t>(value);
 
             return _admin.update(static_cast<uint8_t>(blockIndex),
                                  static_cast<uint8_t>(section),

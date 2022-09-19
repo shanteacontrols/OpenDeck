@@ -581,8 +581,11 @@ std::optional<uint8_t> Display::sysConfigGet(System::Config::Section::i2c_t sect
         return std::nullopt;
     }
 
-    int32_t readValue;
-    auto    result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_READ;
+    uint32_t readValue;
+
+    auto result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue)
+                      ? System::Config::status_t::ACK
+                      : System::Config::status_t::ERROR_READ;
 
     value = readValue;
 

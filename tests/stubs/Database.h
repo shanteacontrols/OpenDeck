@@ -39,7 +39,7 @@ class DBstorageMock : public LESSDB::StorageAccess
 #endif
     }
 
-    bool read(uint32_t address, int32_t& value, LESSDB::sectionParameterType_t type) override
+    bool read(uint32_t address, uint32_t& value, LESSDB::sectionParameterType_t type) override
     {
 #ifndef EMUEEPROM_INCLUDE_CONFIG
         switch (type)
@@ -111,7 +111,7 @@ class DBstorageMock : public LESSDB::StorageAccess
 #endif
     }
 
-    bool write(uint32_t address, int32_t value, LESSDB::sectionParameterType_t type) override
+    bool write(uint32_t address, uint32_t value, LESSDB::sectionParameterType_t type) override
     {
 #ifndef EMUEEPROM_INCLUDE_CONFIG
         switch (type)

@@ -153,8 +153,8 @@ void Protocol::DMX::read()
 
 std::optional<uint8_t> Protocol::DMX::sysConfigGet(System::Config::Section::global_t section, size_t index, uint16_t& value)
 {
-    [[maybe_unused]] int32_t readValue = 0;
-    [[maybe_unused]] uint8_t result    = System::Config::status_t::ERROR_READ;
+    [[maybe_unused]] uint32_t readValue = 0;
+    [[maybe_unused]] uint8_t  result    = System::Config::status_t::ERROR_READ;
 
     switch (section)
     {
@@ -175,7 +175,9 @@ std::optional<uint8_t> Protocol::DMX::sysConfigGet(System::Config::Section::glob
             }
         }
 
-        result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_READ;
+        result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue)
+                     ? System::Config::status_t::ACK
+                     : System::Config::status_t::ERROR_READ;
     }
     break;
 

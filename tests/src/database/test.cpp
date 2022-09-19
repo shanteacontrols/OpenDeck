@@ -35,7 +35,7 @@ namespace
         TestDatabase _database;
     };
 
-    int32_t _dbReadRetVal;
+    uint32_t _dbReadRetVal;
 }    // namespace
 
 // more detailed check
