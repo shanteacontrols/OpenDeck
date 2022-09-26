@@ -48,7 +48,7 @@ ifeq (,$(findstring gen,$(TYPE)))
 
     SOURCES += $(shell $(FIND) deps/$(NRF52_SDK_VERSION)/components/libraries/fstorage -type f -name "*.c")
 
-    ifeq ($(TYPE),app)
+    ifeq ($(TYPE),application)
         SOURCES += \
         deps/$(NRF52_SDK_VERSION)/components/ble/nrf_ble_qwr/nrf_ble_qwr.c \
         deps/$(NRF52_SDK_VERSION)/components/ble/nrf_ble_gatt/nrf_ble_gatt.c \

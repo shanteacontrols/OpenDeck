@@ -5,7 +5,7 @@ vpath modules/%.c ../
 
 SOURCES_COMMON := 
 
-#common for all targets
+# Common for all targets
 ifeq (,$(findstring HW_USB_OVER_SERIAL_HOST,$(DEFINES)))
     SOURCES_COMMON += \
     modules/dbms/src/LESSDB.cpp \
@@ -35,7 +35,7 @@ ifeq ($(CORE_MCU_ARCH),arm)
     SOURCES_COMMON += modules/EmuEEPROM/src/EmuEEPROM.cpp
 endif
 
-#common include dirs
+# Common include dirs
 INCLUDE_DIRS_COMMON := \
 -I"./" \
 -I"./stubs" \

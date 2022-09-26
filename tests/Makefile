@@ -1,4 +1,16 @@
+# Important - do not change the order of inclusion!
+
 include ../src/Toolchain.mk
+include Setup.mk
+include ../src/Setup.mk
+-include ../src/$(BOARD_GEN_DIR_TARGET)/Makefile
+-include ../src/board/arch/$(CORE_MCU_ARCH)/Makefile
+-include ../src/board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/Makefile
+-include ../src/board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/Makefile
+-include ../src/board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/$(CORE_MCU_MODEL)/Makefile
+-include ../src/$(TYPE)/Makefile
+include ../src/Defines.mk
+-include $(MAKEFILE_INCLUDE_PREFIX)$(BOARD_GEN_DIR_TARGET)/HWTestDefines.mk
 include Defines.mk
 include Sources.mk
 -include Objects.mk
@@ -9,7 +21,7 @@ LLVM_PROFDATA   := llvm-profdata
 LLVM_COV        := llvm-cov
 CLANG_FORMAT    := clang-format
 
-#passed to both c and c++ compiler
+# Passed to both C and C++ compiler
 CPPFLAGS := \
 -fprofile-instr-generate \
 -fcoverage-mapping \
@@ -21,17 +33,17 @@ CPPFLAGS := \
 -Wsign-compare \
 -Werror
 
-#c++ compiler only
+# C++ compiler only
 CXXFLAGS := \
 -std=c++20 \
 -Wpedantic \
 -Wno-inconsistent-missing-override
 
-#c compiler only
+# C compiler only
 CFLAGS := \
 -std=c11
 
-#linker
+# Linker flags
 LDFLAGS := \
 -lglog \
 -lpthread \
@@ -86,6 +98,6 @@ clean:
 	@echo Cleaning up.
 	@rm -rf $(BUILD_DIR_BASE)/ infer-out
 
-#debugging
+# Debugging
 print-%:
 	@echo '$($*)'

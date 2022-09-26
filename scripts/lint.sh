@@ -20,11 +20,11 @@ clang_tidy_lint()
     build_cmd="make TARGET=$1 DEBUG=0"
     eval "$build_cmd" clean
     eval "$build_cmd"
-    eval compiledb "$build_cmd" binary TYPE=app
-    eval "$build_cmd" lint TYPE=app CL_FAIL_ON_DIFF=1
+    eval compiledb "$build_cmd" binary TYPE=application
+    eval "$build_cmd" lint TYPE=application CL_FAIL_ON_DIFF=1
     rm compile_commands.json
-    eval compiledb "$build_cmd" binary TYPE=boot
-    eval "$build_cmd" lint TYPE=boot CL_FAIL_ON_DIFF=1
+    eval compiledb "$build_cmd" binary TYPE=bootloader
+    eval "$build_cmd" lint TYPE=bootloader CL_FAIL_ON_DIFF=1
     rm compile_commands.json
     eval compiledb "$build_cmd" binary TYPE=sysexgen
     eval "$build_cmd" lint TYPE=sysexgen CL_FAIL_ON_DIFF=1

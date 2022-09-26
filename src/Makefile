@@ -1,73 +1,15 @@
 # Important - do not change the order of inclusion!
 include Toolchain.mk
+include Setup.mk
+-include $(BOARD_GEN_DIR_TARGET)/Makefile
+-include board/arch/$(CORE_MCU_ARCH)/Makefile
+-include board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/Makefile
+-include board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/Makefile
+-include board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/$(CORE_MCU_MODEL)/Makefile
+-include $(TYPE)/Makefile
 include Defines.mk
 include Sources.mk
 -include flashing/$(FLASH_TOOL).mk
-
-# Passed to both C and C++ compiler
-CPPFLAGS += \
--Wall \
--fdata-sections \
--ffunction-sections \
--fmessage-length=0 \
--fno-strict-aliasing \
--fshort-enums \
--Wno-unused-function
-
-# C++ compiler only
-CXXFLAGS += \
--std=c++17 \
--fno-rtti \
--fno-exceptions \
--fpermissive \
--fno-threadsafe-statics
-
-# C compiler only
-CFLAGS += \
--std=gnu11 \
--Wno-parentheses-equality \
--Wno-unused-value \
--Wno-implicit-function-declaration
-
-# Assembler only
-ASFLAGS += \
--x assembler-with-cpp
-
-# Linker flags
-LDFLAGS += \
--Wl,--gc-sections \
--Wl,-Map="$(OUTPUT).map",--cref \
--T $(LINKER_FILE) \
--Xlinker --defsym=CORE_MCU_FLASH_START_ADDR_USER=$(FLASH_START_ADDR) \
--Xlinker --defsym=CORE_MCU_FLASH_SIZE_USER=$(CORE_MCU_FLASH_SIZE_USER) \
--Wl,--print-memory-usage
-
-# Optimization level
-OPT := -Os
-
-ifeq ($(DEBUG), 1)
-    CPPFLAGS += -g -gdwarf-2
-    LDFLAGS  += -g -gdwarf-2
-    OPT      := -Og
-endif
-
-ifneq (,$(findstring gen,$(TYPE)))
-    CC        := $(CC_NATIVE)
-    CXX       := $(CXX_NATIVE)
-    LD        := $(LD_NATIVE)
-    SIZE_TOOL := size
-    LDFLAGS   := 
-    LDLIBS    := 
-    CXXFLAGS  := -std=c++17
-    CPPFLAGS  :=
-
-    ifeq ($(DEBUG), 1)
-        CPPFLAGS := -g -gdwarf-2
-        OPT      := -O0
-    else
-        OPT := -O3
-    endif
-endif
 
 .DEFAULT_GOAL := all
 
@@ -80,13 +22,11 @@ ifneq ($(OBJECTS),)
 	$(Q)$(LD) -o$(OUTPUT).elf $(OBJECTS) $(LDFLAGS) $(LDLIBS)
 ifeq (,$(findstring gen,$(TYPE)))
 	$(Q)objcopy --gap-fill 0xFF -O ihex $(OUTPUT).elf $(OUTPUT).hex
-endif
-ifeq ($(TYPE),app)
+ifeq ($(TYPE),application)
 # Append metadata only for application
 	$(Q)srec_cat $(OUTPUT).hex -Intel -exclude $(FLASH_ADDR_FW_METADATA) $$(($(FLASH_ADDR_FW_METADATA) + $(FW_METADATA_SIZE))) -MAximum_Little_Endian $(FLASH_ADDR_FW_METADATA) -o $(OUTPUT).hex -Intel
 	$(Q)srec_cat $(OUTPUT).hex -Intel -Cyclic_Redundancy_Check_16_Little_Endian -MAximum-Address $(OUTPUT).hex -Intel -Cyclic_Redundancy_Check_16_XMODEM -Output $(OUTPUT).hex -Intel
 endif
-ifeq (,$(findstring gen,$(TYPE)))
 	$(Q)objcopy -I ihex "$(OUTPUT).hex" -O binary "$(OUTPUT).bin"
 endif
 ifneq (,$(SIZE_TOOL))
@@ -98,12 +38,12 @@ endif
 
 all:
 	$(Q)echo Starting build for $(TARGET)
-	$(Q)$(MAKE) --no-print-directory TYPE=app TARGET=$(TARGET) DEBUG=$(DEBUG) generate V=$(V)
-	$(Q)$(MAKE) --no-print-directory TYPE=app TARGET=$(TARGET) DEBUG=$(DEBUG) pre-build V=$(V)
+	$(Q)$(MAKE) --no-print-directory TYPE=application TARGET=$(TARGET) DEBUG=$(DEBUG) generate V=$(V)
+	$(Q)$(MAKE) --no-print-directory TYPE=application TARGET=$(TARGET) DEBUG=$(DEBUG) pre-build V=$(V)
 	$(Q)echo Building application...
-	$(Q)$(MAKE) --no-print-directory TYPE=app TARGET=$(TARGET) DEBUG=$(DEBUG) binary V=$(V)
+	$(Q)$(MAKE) --no-print-directory TYPE=application TARGET=$(TARGET) DEBUG=$(DEBUG) binary V=$(V)
 	$(Q)echo Building bootloader...
-	$(Q)$(MAKE) --no-print-directory TYPE=boot TARGET=$(TARGET) DEBUG=$(DEBUG) binary V=$(V)
+	$(Q)$(MAKE) --no-print-directory TYPE=bootloader TARGET=$(TARGET) DEBUG=$(DEBUG) binary V=$(V)
 	$(Q)echo Building sysexgen...
 	$(Q)$(MAKE) --no-print-directory TYPE=sysexgen TARGET=$(TARGET) DEBUG=$(DEBUG) binary V=$(V)
 	$(Q)echo Building flashgen...
@@ -123,11 +63,11 @@ concat: $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin
 # to application binary.
 ifneq (,$(findstring DATABASE_INIT_DATA=1,$(DEFINES)))
 	$(Q)srec_cat \
-	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/$(TARGET).hex -Intel \
-	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/boot/$(TARGET).hex -Intel \
+	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/application/$(TARGET).hex -Intel \
+	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/bootloader/$(TARGET).hex -Intel \
 	-o $(BUILD_DIR)/$(TARGET).hex -Intel
 	$(Q)srec_cat \
-	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/$(TARGET).hex -Intel \
+	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/application/$(TARGET).hex -Intel \
 	-o $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex
 else
 # Define FACTORY_IMAGE_START_ADDR variable as shell variable instead of make variable:
@@ -135,13 +75,13 @@ else
 # complain that it cannot find it if it were defined like this: $(shell cat $(BUILD_DIR_BASE)/flashgen/$(TARGET)/release/generated_flash.bin_offset).
 	$(Q)FACTORY_IMAGE_START_ADDR=$$(cat $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin_offset) && \
 	srec_cat \
-	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/boot/$(TARGET).hex -Intel \
-	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/$(TARGET).hex -Intel \
+	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/bootloader/$(TARGET).hex -Intel \
+	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/application/$(TARGET).hex -Intel \
 	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
 	-o $(BUILD_DIR)/$(TARGET).hex -Intel
 	$(Q)FACTORY_IMAGE_START_ADDR=$$(cat $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin_offset) && \
 	srec_cat \
-	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/$(TARGET).hex -Intel \
+	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/application/$(TARGET).hex -Intel \
 	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
 	-o $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex
 endif
@@ -176,7 +116,7 @@ $(TSCREEN_GEN_SOURCE): $(DEF_FILE_TSCREEN)
 	$(Q)$(SCRIPTS_DIR)/gen/gen_touchscreen.sh $< $@
 
 ifeq ($(CORE_MCU_ARCH),arm)
-$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin: $(DEF_FILE_TARGET) $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/application/database/Database.cpp.o $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/app/application/database/CustomInit.cpp.o
+$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin: $(DEF_FILE_TARGET) $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/application/application/database/Database.cpp.o $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/application/application/database/CustomInit.cpp.o
 	$(Q)$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/$(TARGET).elf $@
 else
 $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin:

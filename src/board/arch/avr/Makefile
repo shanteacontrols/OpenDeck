@@ -49,7 +49,7 @@ ORDERED_EP_CONFIG \
 USE_CUSTOM_USB_ENDPOINTS \
 BOARD_I2C_CUSTOM_IMPL
 
-ifeq ($(TYPE),boot)
+ifeq ($(TYPE),bootloader)
     DEFINES += \
     NO_SOF_EVENTS \
     DEVICE_STATE_AS_GPIOR \
@@ -57,7 +57,7 @@ ifeq ($(TYPE),boot)
     NO_DEVICE_SELF_POWER \
     USE_RAM_DESCRIPTORS \
     CORE_USE_C_TIMER_CALLBACK
-else ifeq ($(TYPE),app)
+else ifeq ($(TYPE),application)
     DEFINES += \
     USE_FLASH_DESCRIPTORS
 endif
