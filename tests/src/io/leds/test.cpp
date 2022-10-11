@@ -1,6 +1,7 @@
 #include "framework/Framework.h"
 #include "stubs/LEDs.h"
 #include "stubs/Listener.h"
+#include "util/configurable/Configurable.h"
 
 #ifdef LEDS_SUPPORTED
 
@@ -27,6 +28,7 @@ namespace
 
         void TearDown() override
         {
+            ConfigHandler.clear();
             MIDIDispatcher.clear();
         }
 

@@ -36,6 +36,8 @@ namespace Board::USBOverSerial
     class USBPacketBase
     {
         public:
+        virtual ~USBPacketBase() = default;
+
         virtual packetType_t type() const                   = 0;
         virtual uint8_t*     buffer() const                 = 0;
         virtual size_t       size() const                   = 0;

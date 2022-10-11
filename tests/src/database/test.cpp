@@ -14,6 +14,7 @@
 #include "io/touchscreen/Touchscreen.h"
 #include "protocol/dmx/DMX.h"
 #include "protocol/midi/MIDI.h"
+#include "util/configurable/Configurable.h"
 
 namespace
 {
@@ -29,6 +30,7 @@ namespace
 
         void TearDown() override
         {
+            ConfigHandler.clear();
             MIDIDispatcher.clear();
         }
 

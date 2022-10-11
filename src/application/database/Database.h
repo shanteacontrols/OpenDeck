@@ -31,6 +31,8 @@ namespace Database
         class Handlers
         {
             public:
+            virtual ~Handlers() = default;
+
             virtual void presetChange(uint8_t preset) = 0;
             virtual void factoryResetStart()          = 0;
             virtual void factoryResetDone()           = 0;
@@ -50,6 +52,8 @@ namespace Database
                 SYSTEM,
                 USER,
             };
+
+            virtual ~Layout() = default;
 
             virtual std::vector<Block>& layout(type_t type) = 0;
         };

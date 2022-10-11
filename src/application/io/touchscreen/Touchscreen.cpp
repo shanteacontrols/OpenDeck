@@ -75,6 +75,14 @@ Touchscreen::Touchscreen(HWA&            hwa,
         });
 }
 
+Touchscreen::~Touchscreen()
+{
+    for (size_t i = 0; i < static_cast<size_t>(Touchscreen::model_t::AMOUNT); i++)
+    {
+        _models.at(i) = nullptr;
+    }
+}
+
 bool Touchscreen::init()
 {
     return init(mode_t::NORMAL);

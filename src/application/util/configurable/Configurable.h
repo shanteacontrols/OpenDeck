@@ -41,6 +41,7 @@ namespace Util
         void    registerConfig(System::Config::block_t block, getHandler_t&& getHandler, setHandler_t&& setHandler);
         uint8_t get(System::Config::block_t block, uint8_t section, size_t index, uint16_t& value);
         uint8_t set(System::Config::block_t block, uint8_t section, size_t index, uint16_t value);
+        void    clear();
 
         private:
         Configurable() = default;

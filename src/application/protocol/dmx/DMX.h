@@ -40,6 +40,8 @@ namespace Protocol
         class HWA : public IO::Common::Allocatable, public DMXUSBWidget::HWA
         {
             public:
+            virtual ~HWA() = default;
+
             virtual bool uniqueID(core::mcu::uniqueID_t& uniqueID) = 0;
         };
 

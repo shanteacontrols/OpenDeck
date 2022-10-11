@@ -25,6 +25,16 @@ using namespace IO;
 std::array<I2C::Peripheral*, I2C::MAX_PERIPHERALS> I2C::_peripherals;
 size_t                                             I2C::_peripheralCounter;
 
+I2C::~I2C()
+{
+    for (size_t i = 0; i < I2C::MAX_PERIPHERALS; i++)
+    {
+        _peripherals.at(i) = nullptr;
+    }
+
+    _peripheralCounter = 0;
+}
+
 bool I2C::init()
 {
     for (size_t i = 0; i < _peripheralCounter; i++)

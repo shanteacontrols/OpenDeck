@@ -29,10 +29,14 @@ namespace IO
             class HWA
             {
                 public:
+                virtual ~HWA() = default;
+
                 virtual bool init()                                               = 0;
                 virtual bool write(uint8_t address, uint8_t* buffer, size_t size) = 0;
                 virtual bool deviceAvailable(uint8_t address)                     = 0;
             };
+
+            virtual ~Peripheral() = default;
 
             virtual bool init()   = 0;
             virtual void update() = 0;

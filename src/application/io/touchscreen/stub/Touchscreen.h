@@ -99,6 +99,8 @@ namespace IO
         class HWA : public ::IO::Common::Allocatable
         {
             public:
+            virtual ~HWA() = default;
+
             virtual bool init()               = 0;
             virtual bool deInit()             = 0;
             virtual bool write(uint8_t value) = 0;
@@ -108,6 +110,8 @@ namespace IO
         class CDCPassthrough : public Common::Allocatable
         {
             public:
+            virtual ~CDCPassthrough() = default;
+
             virtual bool init()                                                       = 0;
             virtual bool deInit()                                                     = 0;
             virtual bool uartRead(uint8_t& value)                                     = 0;
@@ -119,6 +123,8 @@ namespace IO
         class Model
         {
             public:
+            virtual ~Model() = default;
+
             virtual bool      init()                                 = 0;
             virtual bool      deInit()                               = 0;
             virtual bool      setScreen(size_t screenID)             = 0;

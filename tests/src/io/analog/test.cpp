@@ -4,6 +4,7 @@
 #include "stubs/Analog.h"
 #include "stubs/Listener.h"
 #include "io/buttons/Buttons.h"
+#include "util/configurable/Configurable.h"
 
 using namespace IO;
 
@@ -34,6 +35,7 @@ namespace
 
         void TearDown() override
         {
+            ConfigHandler.clear();
             MIDIDispatcher.clear();
             _listener._event.clear();
         }

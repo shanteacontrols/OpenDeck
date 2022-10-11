@@ -54,6 +54,8 @@ namespace System
                 using LEDs           = ::IO::LEDs::HWA;
                 using Touchscreen    = ::IO::Touchscreen::HWA;
 
+                virtual ~IO() = default;
+
                 virtual Analog&         analog()         = 0;
                 virtual Buttons&        buttons()        = 0;
                 virtual CDCPassthrough& cdcPassthrough() = 0;
@@ -73,6 +75,8 @@ namespace System
                     using DIN = ::Protocol::MIDI::HWADIN;
                     using BLE = ::Protocol::MIDI::HWABLE;
 
+                    virtual ~MIDI() = default;
+
                     virtual USB& usb() = 0;
                     virtual DIN& din() = 0;
                     virtual BLE& ble() = 0;
@@ -80,12 +84,16 @@ namespace System
 
                 using DMX = ::Protocol::DMX::HWA;
 
+                virtual ~Protocol() = default;
+
                 virtual MIDI& midi() = 0;
                 virtual DMX&  dmx()  = 0;
             };
 
             using Database = ::Database::Admin::StorageAccess;
             using System   = ::System::Instance::HWA;
+
+            virtual ~HWA() = default;
 
             virtual IO&       io()       = 0;
             virtual Protocol& protocol() = 0;

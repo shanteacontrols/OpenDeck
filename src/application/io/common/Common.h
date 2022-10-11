@@ -74,6 +74,8 @@ namespace IO::Common
             CDC
         };
 
+        virtual ~Allocatable() = default;
+
         virtual bool allocated(interface_t interface) = 0;
     };
 }    // namespace IO::Common

@@ -37,6 +37,8 @@ namespace IO
     class Base
     {
         public:
+        virtual ~Base() = default;
+
         virtual bool   init()                                                = 0;
         virtual void   updateSingle(size_t index, bool forceRefresh = false) = 0;
         virtual void   updateAll(bool forceRefresh = false)                  = 0;

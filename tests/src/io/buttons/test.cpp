@@ -1,6 +1,7 @@
 #include "framework/Framework.h"
 #include "stubs/Buttons.h"
 #include "stubs/Listener.h"
+#include "util/configurable/Configurable.h"
 
 #ifdef BUTTONS_SUPPORTED
 
@@ -36,6 +37,7 @@ namespace
 
         void TearDown() override
         {
+            ConfigHandler.clear();
             MIDIDispatcher.clear();
             _listener._event.clear();
         }

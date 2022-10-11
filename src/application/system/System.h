@@ -59,6 +59,8 @@ namespace System
         class HWA
         {
             public:
+            virtual ~HWA() = default;
+
             virtual bool init()                                                                        = 0;
             virtual void update()                                                                      = 0;
             virtual void reboot(FwSelector::fwType_t type)                                             = 0;
@@ -68,6 +70,8 @@ namespace System
         class Components
         {
             public:
+            virtual ~Components() = default;
+
             virtual std::array<::IO::Base*, static_cast<size_t>(::IO::ioComponent_t::AMOUNT)>&          io()       = 0;
             virtual std::array<::Protocol::Base*, static_cast<size_t>(::Protocol::protocol_t::AMOUNT)>& protocol() = 0;
             virtual Database::Admin&                                                                    database() = 0;

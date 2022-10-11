@@ -69,6 +69,8 @@ namespace IO
         class HWA
         {
             public:
+            virtual ~HWA() = default;
+
             // should return true if the value has been refreshed, false otherwise
             virtual bool value(size_t index, uint16_t& value) = 0;
         };
@@ -84,6 +86,8 @@ namespace IO
                 uint16_t       upperOffset = 0;
                 uint16_t       maxValue    = 127;
             };
+
+            virtual ~Filter() = default;
 
             virtual bool     isFiltered(size_t index, descriptor_t& descriptor) = 0;
             virtual uint16_t lastValue(size_t index)                            = 0;

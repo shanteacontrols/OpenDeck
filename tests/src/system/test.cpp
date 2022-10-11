@@ -4,6 +4,7 @@
 #include "stubs/System.h"
 #include "stubs/Listener.h"
 #include "helpers/MIDI.h"
+#include "util/configurable/Configurable.h"
 
 using namespace IO;
 
@@ -18,6 +19,7 @@ namespace
 
         void TearDown() override
         {
+            ConfigHandler.clear();
             MIDIDispatcher.clear();
             _listener._event.clear();
         }
@@ -81,7 +83,6 @@ namespace
         TestSystem _system;
         MIDIHelper _helper = MIDIHelper(_system);
     };
-
 }    // namespace
 
 TEST_F(SystemTest, ForcedResendOnPresetChange)

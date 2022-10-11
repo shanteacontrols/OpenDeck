@@ -68,3 +68,9 @@ uint8_t Configurable::set(System::Config::block_t block, uint8_t section, size_t
 
     return System::Config::status_t::ERROR_NOT_SUPPORTED;
 }
+
+void Configurable::clear()
+{
+    _getters.clear();
+    _setters.clear();
+}

@@ -44,6 +44,8 @@ class Logger
     class StreamWriter
     {
         public:
+        virtual ~StreamWriter() = default;
+
         virtual bool write(const char* message) = 0;
     };
 

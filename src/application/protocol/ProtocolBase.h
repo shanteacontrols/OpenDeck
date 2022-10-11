@@ -32,6 +32,8 @@ namespace Protocol
     class Base
     {
         public:
+        virtual ~Base() = default;
+
         virtual bool init()   = 0;
         virtual bool deInit() = 0;
         virtual void read()   = 0;
