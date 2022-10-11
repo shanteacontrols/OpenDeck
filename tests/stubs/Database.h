@@ -175,7 +175,8 @@ class DBstorageMock : public LESSDB::StorageAccess
         public:
         EmuEEPROMStorageAccess()
         {
-            _pageArray.resize(EMU_EEPROM_PAGE_SIZE * 2, 0xFF);
+            std::fill(_pageArray.at(0).begin(), _pageArray.at(0).end(), 0xFF);
+            std::fill(_pageArray.at(1).begin(), _pageArray.at(1).end(), 0xFF);
         }
 
         bool init() override
@@ -183,64 +184,68 @@ class DBstorageMock : public LESSDB::StorageAccess
             return true;
         }
 
-        uint32_t startAddress(EmuEEPROM::page_t page) override
-        {
-            if (page == EmuEEPROM::page_t::PAGE_1)
-            {
-                return 0;
-            }
-
-            return EMU_EEPROM_PAGE_SIZE;
-        }
-
         bool erasePage(EmuEEPROM::page_t page) override
         {
-            if (page == EmuEEPROM::page_t::PAGE_1)
+            if (page == EmuEEPROM::page_t::PAGE_FACTORY)
             {
-                std::fill(_pageArray.begin(), _pageArray.end() - EMU_EEPROM_PAGE_SIZE, 0xFF);
-            }
-            else
-            {
-                std::fill(_pageArray.begin() + EMU_EEPROM_PAGE_SIZE, _pageArray.end(), 0xFF);
+                return false;
             }
 
+            auto& ref = page == EmuEEPROM::page_t::PAGE_1 ? _pageArray.at(0) : _pageArray.at(1);
+
+            std::fill(ref.begin(), ref.end(), 0xFF);
             return true;
         }
 
-        bool write32(uint32_t address, uint32_t data) override
+        bool write32(EmuEEPROM::page_t page, uint32_t offset, uint32_t data) override
         {
+            if (page == EmuEEPROM::page_t::PAGE_FACTORY)
+            {
+                return false;
+            }
+
             // 0->1 transition is not allowed
             uint32_t currentData = 0;
-            read32(address, currentData);
+            read32(page, offset, currentData);
 
             if (data > currentData)
             {
                 return false;
             }
 
-            _pageArray.at(address + 0) = (data >> 0) & (uint32_t)0xFF;
-            _pageArray.at(address + 1) = (data >> 8) & (uint32_t)0xFF;
-            _pageArray.at(address + 2) = (data >> 16) & (uint32_t)0xFF;
-            _pageArray.at(address + 3) = (data >> 24) & (uint32_t)0xFF;
+            auto& ref = page == EmuEEPROM::page_t::PAGE_1 ? _pageArray.at(0) : _pageArray.at(1);
+
+            ref.at(offset + 0) = data >> 0 & static_cast<uint16_t>(0xFF);
+            ref.at(offset + 1) = data >> 8 & static_cast<uint16_t>(0xFF);
+            ref.at(offset + 2) = data >> 16 & static_cast<uint16_t>(0xFF);
+            ref.at(offset + 3) = data >> 24 & static_cast<uint16_t>(0xFF);
 
             return true;
         }
 
-        bool read32(uint32_t address, uint32_t& data) override
+        bool read32(EmuEEPROM::page_t page, uint32_t offset, uint32_t& data) override
         {
-            data = _pageArray.at(address + 3);
+            // no factory page here
+            if (page == EmuEEPROM::page_t::PAGE_FACTORY)
+            {
+                return false;
+            }
+
+            auto& ref = page == EmuEEPROM::page_t::PAGE_1 ? _pageArray.at(0) : _pageArray.at(1);
+
+            data = ref.at(offset + 3);
             data <<= 8;
-            data |= _pageArray.at(address + 2);
+            data |= ref.at(offset + 2);
             data <<= 8;
-            data |= _pageArray.at(address + 1);
+            data |= ref.at(offset + 1);
             data <<= 8;
-            data |= _pageArray.at(address + 0);
+            data |= ref.at(offset + 0);
 
             return true;
         }
 
         private:
-        std::vector<uint8_t> _pageArray;
+        std::array<std::array<uint8_t, EMU_EEPROM_PAGE_SIZE>, 2> _pageArray;
     };
 
     EmuEEPROMStorageAccess _storageMock;

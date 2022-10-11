@@ -31,51 +31,53 @@ namespace
     class EmuEEPROMStorage : public EmuEEPROM::StorageAccess
     {
         public:
-        EmuEEPROMStorage() = default;
+        EmuEEPROMStorage()
+        {
+            std::fill(_pageArray.at(0).begin(), _pageArray.at(0).end(), 0xFF);
+            std::fill(_pageArray.at(1).begin(), _pageArray.at(1).end(), 0xFF);
+        }
 
         bool init() override
         {
-            _flashVector.at(0).resize(EMU_EEPROM_PAGE_SIZE, 0xFF);
-            _flashVector.at(1).resize(EMU_EEPROM_PAGE_SIZE, 0xFF);
-
             return true;
-        }
-
-        uint32_t startAddress(EmuEEPROM::page_t page) override
-        {
-            return EMU_EEPROM_PAGE_SIZE * static_cast<uint32_t>(page);
         }
 
         bool erasePage(EmuEEPROM::page_t page) override
         {
+            if (page == EmuEEPROM::page_t::PAGE_FACTORY)
+            {
+                return false;
+            }
+
             switch (page)
             {
+            case EmuEEPROM::page_t::PAGE_1:
+            {
+                std::fill(_pageArray.at(0).begin(), _pageArray.at(0).end(), 0xFF);
+            }
+            break;
+
             case EmuEEPROM::page_t::PAGE_2:
             {
-                std::fill(_flashVector.at(1).begin(), _flashVector.at(1).end(), 0xFF);
+                std::fill(_pageArray.at(1).begin(), _pageArray.at(1).end(), 0xFF);
             }
             break;
 
             default:
-            {
-                std::fill(_flashVector.at(0).begin(), _flashVector.at(0).end(), 0xFF);
+                break;
             }
-            break;
-            }
+
             return true;
         }
 
-        bool write32(uint32_t address, uint32_t data) override
+        bool write32(EmuEEPROM::page_t page, uint32_t offset, uint32_t data) override
         {
-            size_t page = 0;
-
-            if (address >= EMU_EEPROM_PAGE_SIZE)
+            if (page == EmuEEPROM::page_t::PAGE_FACTORY)
             {
-                address -= EMU_EEPROM_PAGE_SIZE;
-                page = 1;
+                return false;
             }
 
-            if (address == 0)
+            if (offset == 0)
             {
                 if (
                     (data == static_cast<uint32_t>(EmuEEPROM::pageStatus_t::RECEIVING)) ||
@@ -85,31 +87,33 @@ namespace
                 }
             }
 
-            _flashVector.at(page).at(address + 0) = data >> 0 & static_cast<uint16_t>(0xFF);
-            _flashVector.at(page).at(address + 1) = data >> 8 & static_cast<uint16_t>(0xFF);
-            _flashVector.at(page).at(address + 2) = data >> 16 & static_cast<uint16_t>(0xFF);
-            _flashVector.at(page).at(address + 3) = data >> 24 & static_cast<uint16_t>(0xFF);
+            auto& ref = page == EmuEEPROM::page_t::PAGE_1 ? _pageArray.at(0) : _pageArray.at(1);
+
+            ref.at(offset + 0) = data >> 0 & static_cast<uint16_t>(0xFF);
+            ref.at(offset + 1) = data >> 8 & static_cast<uint16_t>(0xFF);
+            ref.at(offset + 2) = data >> 16 & static_cast<uint16_t>(0xFF);
+            ref.at(offset + 3) = data >> 24 & static_cast<uint16_t>(0xFF);
 
             return true;
         }
 
-        bool read32(uint32_t address, uint32_t& data) override
+        bool read32(EmuEEPROM::page_t page, uint32_t offset, uint32_t& data) override
         {
-            size_t page = 0;
-
-            if (address >= EMU_EEPROM_PAGE_SIZE)
+            // no factory page here
+            if (page == EmuEEPROM::page_t::PAGE_FACTORY)
             {
-                address -= EMU_EEPROM_PAGE_SIZE;
-                page = 1;
+                return false;
             }
 
-            data = _flashVector.at(page).at(address + 3);
+            auto& ref = page == EmuEEPROM::page_t::PAGE_1 ? _pageArray.at(0) : _pageArray.at(1);
+
+            data = ref.at(offset + 3);
             data <<= 8;
-            data |= _flashVector.at(page).at(address + 2);
+            data |= ref.at(offset + 2);
             data <<= 8;
-            data |= _flashVector.at(page).at(address + 1);
+            data |= ref.at(offset + 1);
             data <<= 8;
-            data |= _flashVector.at(page).at(address + 0);
+            data |= ref.at(offset + 0);
 
             return true;
         }
@@ -130,12 +134,14 @@ namespace
             {
                 size_t size = 0;
 
+                auto& ref = _activePageWrite == EmuEEPROM::page_t::PAGE_1 ? _pageArray.at(0) : _pageArray.at(1);
+
                 // get actual size of vector by finding first entry with content 0xFFFFFFFF
-                for (; size < _flashVector.at(_activePageWrite).size(); size += 4)
+                for (; size < ref.size(); size += 4)
                 {
                     uint32_t data;
 
-                    if (!read32(size + (EMU_EEPROM_PAGE_SIZE * _activePageWrite), data))
+                    if (!read32(_activePageWrite, size, data))
                     {
                         while (1)
                         {
@@ -151,7 +157,7 @@ namespace
                     }
                 }
 
-                file.write(reinterpret_cast<char*>(&_flashVector.at(_activePageWrite)[0]), (size + 4) * sizeof(uint8_t));
+                file.write(reinterpret_cast<char*>(&ref[0]), (size + 4) * sizeof(uint8_t));
                 file.close();
             }
             else
@@ -176,9 +182,9 @@ namespace
         }
 
         private:
-        std::array<std::vector<uint8_t>, 2> _flashVector;
-        std::string                         _filename;
-        size_t                              _activePageWrite = 0;
+        std::array<std::array<uint8_t, EMU_EEPROM_PAGE_SIZE>, 2> _pageArray;
+        std::string                                              _filename;
+        EmuEEPROM::page_t                                        _activePageWrite = EmuEEPROM::page_t::PAGE_1;
 
     } _emuEEPROMstorage;
 

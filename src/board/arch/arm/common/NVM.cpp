@@ -34,21 +34,6 @@ namespace
             return true;
         }
 
-        uint32_t startAddress(EmuEEPROM::page_t page) override
-        {
-            switch (page)
-            {
-            case EmuEEPROM::page_t::PAGE_FACTORY:
-                return CORE_MCU_FLASH_PAGE_ADDR(FLASH_PAGE_FACTORY);
-
-            case EmuEEPROM::page_t::PAGE_2:
-                return CORE_MCU_FLASH_PAGE_ADDR(FLASH_PAGE_EEPROM_2);
-
-            default:
-                return CORE_MCU_FLASH_PAGE_ADDR(FLASH_PAGE_EEPROM_1);
-            }
-        }
-
         bool erasePage(EmuEEPROM::page_t page) override
         {
             switch (page)
@@ -86,14 +71,30 @@ namespace
             }
         }
 
-        bool write32(uint32_t address, uint32_t data) override
+        bool write32(EmuEEPROM::page_t page, uint32_t offset, uint32_t data) override
         {
-            return core::mcu::flash::write32(address, data);
+            return core::mcu::flash::write32(START_ADDRESS(page) + offset, data);
         }
 
-        bool read32(uint32_t address, uint32_t& data) override
+        bool read32(EmuEEPROM::page_t page, uint32_t offset, uint32_t& data) override
         {
-            return core::mcu::flash::read32(address, data);
+            return core::mcu::flash::read32(START_ADDRESS(page) + offset, data);
+        }
+
+        private:
+        static constexpr uint32_t START_ADDRESS(EmuEEPROM::page_t page)
+        {
+            switch (page)
+            {
+            case EmuEEPROM::page_t::PAGE_FACTORY:
+                return CORE_MCU_FLASH_PAGE_ADDR(FLASH_PAGE_FACTORY);
+
+            case EmuEEPROM::page_t::PAGE_2:
+                return CORE_MCU_FLASH_PAGE_ADDR(FLASH_PAGE_EEPROM_2);
+
+            default:
+                return CORE_MCU_FLASH_PAGE_ADDR(FLASH_PAGE_EEPROM_1);
+            }
         }
     };
 
