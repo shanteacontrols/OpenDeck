@@ -60,7 +60,7 @@ namespace
             for (uint8_t row = 0; row < HW_NR_OF_BUTTON_ROWS; row++)
             {
                 size_t index = (row * HW_NR_OF_BUTTON_COLUMNS) + column;
-                pin          = map::buttonPin(row);
+                pin          = map::BUTTON_PIN(row);
 
                 _digitalInBuffer[index].readings <<= 1;
                 _digitalInBuffer[index].readings |= !CORE_MCU_IO_READ(pin.port, pin.index);
@@ -80,7 +80,7 @@ namespace Board::detail::IO::digitalIn
     {
         for (uint8_t i = 0; i < HW_NR_OF_BUTTON_ROWS; i++)
         {
-            auto pin = detail::map::buttonPin(i);
+            auto pin = detail::map::BUTTON_PIN(i);
 
 #ifndef HW_BUTTONS_EXT_PULLUPS
             CORE_MCU_IO_INIT(pin.port, pin.index, core::mcu::io::pinMode_t::INPUT, core::mcu::io::pullMode_t::UP);
@@ -119,7 +119,7 @@ namespace Board::IO::digitalIn
             return false;
         }
 
-        index = map::buttonIndex(index);
+        index = map::BUTTON_INDEX(index);
 
         CORE_MCU_ATOMIC_SECTION
         {

@@ -65,8 +65,8 @@ namespace Board::detail::UART::MCU
     {
         uart_init(_uartInstance[channel], config.baudRate);
 
-        gpio_set_function(Board::detail::map::uartPins(channel).tx.index, GPIO_FUNC_UART);
-        gpio_set_function(Board::detail::map::uartPins(channel).rx.index, GPIO_FUNC_UART);
+        gpio_set_function(Board::detail::map::UART_PINS(channel).tx.index, GPIO_FUNC_UART);
+        gpio_set_function(Board::detail::map::UART_PINS(channel).rx.index, GPIO_FUNC_UART);
         uart_set_hw_flow(_uartInstance[channel], false, false);
         uart_set_format(_uartInstance[channel], 8, config.stopBits, static_cast<uart_parity_t>(config.parity));
         uart_set_fifo_enabled(_uartInstance[channel], false);

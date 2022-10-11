@@ -74,35 +74,35 @@ namespace System
         std::vector<SysExConf::Section> _buttonSections = {
             // type section
             {
-                IO::Buttons::Collection::size(),
+                IO::Buttons::Collection::SIZE(),
                 0,
                 static_cast<uint16_t>(IO::Buttons::type_t::AMOUNT) - 1,
             },
 
             // message type section
             {
-                IO::Buttons::Collection::size(),
+                IO::Buttons::Collection::SIZE(),
                 0,
                 static_cast<uint16_t>(IO::Buttons::messageType_t::AMOUNT) - 1,
             },
 
             // midi id section
             {
-                IO::Buttons::Collection::size(),
+                IO::Buttons::Collection::SIZE(),
                 0,
                 127,
             },
 
             // value section
             {
-                IO::Buttons::Collection::size(),
+                IO::Buttons::Collection::SIZE(),
                 0,
                 255,
             },
 
             // channel section
             {
-                IO::Buttons::Collection::size(),
+                IO::Buttons::Collection::SIZE(),
                 1,
                 512,
             }
@@ -111,63 +111,63 @@ namespace System
         std::vector<SysExConf::Section> _encoderSections = {
             // encoder enabled section
             {
-                IO::Encoders::Collection::size(),
+                IO::Encoders::Collection::SIZE(),
                 0,
                 1,
             },
 
             // encoder inverted section
             {
-                IO::Encoders::Collection::size(),
+                IO::Encoders::Collection::SIZE(),
                 0,
                 1,
             },
 
             // encoding mode section
             {
-                IO::Encoders::Collection::size(),
+                IO::Encoders::Collection::SIZE(),
                 0,
                 static_cast<uint16_t>(IO::Encoders::type_t::AMOUNT) - 1,
             },
 
             // midi id section, lsb
             {
-                IO::Encoders::Collection::size(),
+                IO::Encoders::Collection::SIZE(),
                 0,
                 16383,
             },
 
             // channel section
             {
-                IO::Encoders::Collection::size(),
+                IO::Encoders::Collection::SIZE(),
                 1,
                 512,
             },
 
             // pulses per step section
             {
-                IO::Encoders::Collection::size(),
+                IO::Encoders::Collection::SIZE(),
                 2,
                 4,
             },
 
             // acceleration section
             {
-                IO::Encoders::Collection::size(),
+                IO::Encoders::Collection::SIZE(),
                 0,
                 static_cast<uint16_t>(IO::Encoders::acceleration_t::AMOUNT) - 1,
             },
 
             // midi id section, msb
             {
-                IO::Encoders::Collection::size(),
+                IO::Encoders::Collection::SIZE(),
                 0,
                 127,
             },
 
             // remote sync section
             {
-                IO::Encoders::Collection::size(),
+                IO::Encoders::Collection::SIZE(),
                 0,
                 1,
             },
@@ -176,84 +176,84 @@ namespace System
         std::vector<SysExConf::Section> _analogSections = {
             // analog enabled section
             {
-                IO::Analog::Collection::size(),
+                IO::Analog::Collection::SIZE(),
                 0,
                 1,
             },
 
             // analog inverted section
             {
-                IO::Analog::Collection::size(),
+                IO::Analog::Collection::SIZE(),
                 0,
                 1,
             },
 
             // analog type section
             {
-                IO::Analog::Collection::size(),
+                IO::Analog::Collection::SIZE(),
                 0,
                 static_cast<uint16_t>(IO::Analog::type_t::AMOUNT) - 1,
             },
 
             // midi id section, lsb
             {
-                IO::Analog::Collection::size(),
+                IO::Analog::Collection::SIZE(),
                 0,
                 16383,
             },
 
             // midi id section, msb
             {
-                IO::Analog::Collection::size(),
+                IO::Analog::Collection::SIZE(),
                 0,
                 127,
             },
 
             // lower value limit, lsb
             {
-                IO::Analog::Collection::size(),
+                IO::Analog::Collection::SIZE(),
                 0,
                 16383,
             },
 
             // lower value limit, msb
             {
-                IO::Analog::Collection::size(),
+                IO::Analog::Collection::SIZE(),
                 0,
                 127,
             },
 
             // upper value limit, lsb
             {
-                IO::Analog::Collection::size(),
+                IO::Analog::Collection::SIZE(),
                 0,
                 16383,
             },
 
             // upper value limit, msb
             {
-                IO::Analog::Collection::size(),
+                IO::Analog::Collection::SIZE(),
                 0,
                 127,
             },
 
             // channel section
             {
-                IO::Analog::Collection::size(),
+                IO::Analog::Collection::SIZE(),
                 1,
                 512,
             },
 
             // lower adc percentage offset
             {
-                IO::Analog::Collection::size(),
+                IO::Analog::Collection::SIZE(),
                 0,
                 100,
             },
 
             // upper adc percentage offset
             {
-                IO::Analog::Collection::size(),
+                IO::Analog::Collection::SIZE(),
                 0,
                 100,
             },
@@ -262,14 +262,14 @@ namespace System
         std::vector<SysExConf::Section> _ledSections = {
             // led color test section
             {
-                IO::LEDs::Collection::size(),
+                IO::LEDs::Collection::SIZE(),
                 0,
                 static_cast<uint16_t>(IO::LEDs::color_t::AMOUNT) - 1,
             },
 
             // led blink test section
             {
-                IO::LEDs::Collection::size(),
+                IO::LEDs::Collection::SIZE(),
                 0,
                 1,
             },
@@ -283,35 +283,35 @@ namespace System
 
             // activation note section
             {
-                IO::LEDs::Collection::size(),
+                IO::LEDs::Collection::SIZE(),
                 0,
                 127,
             },
 
             // rgb enabled section
             {
-                IO::LEDs::Collection::size(),
+                IO::LEDs::Collection::SIZE(),
                 0,
                 1,
             },
 
             // led control type section
             {
-                IO::LEDs::Collection::size(),
+                IO::LEDs::Collection::SIZE(),
                 0,
                 static_cast<uint16_t>(IO::LEDs::controlType_t::AMOUNT) - 1,
             },
 
             // single led velocity value section
             {
-                IO::LEDs::Collection::size(),
+                IO::LEDs::Collection::SIZE(),
                 1,
                 127,
             },
 
             // channel section
             {
-                IO::LEDs::Collection::size(),
+                IO::LEDs::Collection::SIZE(),
                 1,
                 512,
             }
@@ -336,56 +336,56 @@ namespace System
 
             // x position section
             {
-                IO::Touchscreen::Collection::size(),
+                IO::Touchscreen::Collection::SIZE(),
                 0,
                 0,
             },
 
             // y position section
             {
-                IO::Touchscreen::Collection::size(),
+                IO::Touchscreen::Collection::SIZE(),
                 0,
                 0,
             },
 
             // width section
             {
-                IO::Touchscreen::Collection::size(),
+                IO::Touchscreen::Collection::SIZE(),
                 0,
                 1024,
             },
 
             // height section
             {
-                IO::Touchscreen::Collection::size(),
+                IO::Touchscreen::Collection::SIZE(),
                 0,
                 600,
             },
 
             // on screen section
             {
-                IO::Touchscreen::Collection::size(),
+                IO::Touchscreen::Collection::SIZE(),
                 0,
                 15,
             },
 
             // off screen section
             {
-                IO::Touchscreen::Collection::size(),
+                IO::Touchscreen::Collection::SIZE(),
                 0,
                 15,
             },
 
             // page switch enabled section
             {
-                IO::Touchscreen::Collection::size(),
+                IO::Touchscreen::Collection::SIZE(),
                 0,
                 1,
             },
 
             // page switch index section
             {
-                IO::Touchscreen::Collection::size(),
+                IO::Touchscreen::Collection::SIZE(),
                 0,
                 15,
             },

@@ -160,7 +160,7 @@ std::optional<uint8_t> Protocol::DMX::sysConfigGet(System::Config::Section::glob
     {
     case System::Config::Section::global_t::DMX_SETTINGS:
     {
-        bool dmxEnabled = _database.read(Util::Conversion::sys2DBsection(section), setting_t::ENABLE);
+        bool dmxEnabled = _database.read(Util::Conversion::SYS_2_DB_SECTION(section), setting_t::ENABLE);
 
         if (!dmxEnabled)
         {
@@ -175,7 +175,7 @@ std::optional<uint8_t> Protocol::DMX::sysConfigGet(System::Config::Section::glob
             }
         }
 
-        result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue)
+        result = _database.read(Util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
                      ? System::Config::status_t::ACK
                      : System::Config::status_t::ERROR_READ;
     }
@@ -206,7 +206,7 @@ std::optional<uint8_t> Protocol::DMX::sysConfigSet(System::Config::Section::glob
     {
     case System::Config::Section::global_t::DMX_SETTINGS:
     {
-        bool dmxEnabled = _database.read(Util::Conversion::sys2DBsection(section), setting_t::ENABLE);
+        bool dmxEnabled = _database.read(Util::Conversion::SYS_2_DB_SECTION(section), setting_t::ENABLE);
 
         if (!dmxEnabled)
         {
@@ -239,7 +239,7 @@ std::optional<uint8_t> Protocol::DMX::sysConfigSet(System::Config::Section::glob
 
     if ((result == System::Config::status_t::ACK) && writeToDb)
     {
-        result = _database.update(Util::Conversion::sys2DBsection(section), index, value)
+        result = _database.update(Util::Conversion::SYS_2_DB_SECTION(section), index, value)
                      ? System::Config::status_t::ACK
                      : System::Config::status_t::ERROR_WRITE;
 

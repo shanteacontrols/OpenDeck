@@ -40,7 +40,7 @@ Buttons::Buttons(HWA&      hwa,
     MIDIDispatcher.listen(Messaging::eventType_t::ANALOG_BUTTON,
                           [this](const Messaging::event_t& event)
                           {
-                              size_t             index = event.componentIndex + Collection::startIndex(GROUP_ANALOG_INPUTS);
+                              size_t             index = event.componentIndex + Collection::START_INDEX(GROUP_ANALOG_INPUTS);
                               buttonDescriptor_t descriptor;
                               fillButtonDescriptor(index, descriptor);
 
@@ -51,7 +51,7 @@ Buttons::Buttons(HWA&      hwa,
     MIDIDispatcher.listen(Messaging::eventType_t::TOUCHSCREEN_BUTTON,
                           [this](const Messaging::event_t& event)
                           {
-                              size_t index = event.componentIndex + Collection::startIndex(GROUP_TOUCHSCREEN_COMPONENTS);
+                              size_t index = event.componentIndex + Collection::START_INDEX(GROUP_TOUCHSCREEN_COMPONENTS);
 
                               buttonDescriptor_t descriptor;
                               fillButtonDescriptor(index, descriptor);
@@ -93,7 +93,7 @@ Buttons::Buttons(HWA&      hwa,
 
 bool Buttons::init()
 {
-    for (size_t i = 0; i < Collection::size(); i++)
+    for (size_t i = 0; i < Collection::SIZE(); i++)
     {
         reset(i);
     }
@@ -157,7 +157,7 @@ void Buttons::updateSingle(size_t index, bool forceRefresh)
 
 void Buttons::updateAll(bool forceRefresh)
 {
-    for (size_t i = 0; i < Collection::size(GROUP_DIGITAL_INPUTS); i++)
+    for (size_t i = 0; i < Collection::SIZE(GROUP_DIGITAL_INPUTS); i++)
     {
         updateSingle(i, forceRefresh);
     }
@@ -165,7 +165,7 @@ void Buttons::updateAll(bool forceRefresh)
 
 size_t Buttons::maxComponentUpdateIndex()
 {
-    return Collection::size(GROUP_DIGITAL_INPUTS);
+    return Collection::SIZE(GROUP_DIGITAL_INPUTS);
 }
 
 /// Handles changes in button states.
@@ -590,7 +590,7 @@ std::optional<uint8_t> Buttons::sysConfigGet(System::Config::Section::button_t s
 {
     uint32_t readValue;
 
-    auto result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue)
+    auto result = _database.read(Util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
                       ? System::Config::status_t::ACK
                       : System::Config::status_t::ERROR_READ;
 
@@ -601,7 +601,7 @@ std::optional<uint8_t> Buttons::sysConfigGet(System::Config::Section::button_t s
 
 std::optional<uint8_t> Buttons::sysConfigSet(System::Config::Section::button_t section, size_t index, uint16_t value)
 {
-    auto result = _database.update(Util::Conversion::sys2DBsection(section), index, value)
+    auto result = _database.update(Util::Conversion::SYS_2_DB_SECTION(section), index, value)
                       ? System::Config::status_t::ACK
                       : System::Config::status_t::ERROR_WRITE;
 

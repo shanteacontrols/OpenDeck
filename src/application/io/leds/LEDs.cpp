@@ -39,7 +39,7 @@ LEDs::LEDs(HWA&      hwa,
         _blinkState[i] = true;
     }
 
-    for (size_t i = 0; i < Collection::size(); i++)
+    for (size_t i = 0; i < Collection::SIZE(); i++)
     {
         _brightness[i] = brightness_t::OFF;
     }
@@ -223,7 +223,7 @@ void LEDs::updateAll(bool forceRefresh)
         _blinkCounter[i] = 0;
 
         // assign changed state to all leds which have this speed
-        for (size_t j = 0; j < Collection::size(); j++)
+        for (size_t j = 0; j < Collection::SIZE(); j++)
         {
             if (!bit(j, ledBit_t::BLINK_ON))
             {
@@ -253,19 +253,19 @@ __attribute__((weak)) void LEDs::startUpAnimation()
 
     core::timing::waitMs(1000);
 
-    for (size_t i = 0; i < Collection::size(GROUP_DIGITAL_OUTPUTS); i++)
+    for (size_t i = 0; i < Collection::SIZE(GROUP_DIGITAL_OUTPUTS); i++)
     {
         setState(i, brightness_t::OFF);
         core::timing::waitMs(35);
     }
 
-    for (size_t i = 0; i < Collection::size(GROUP_DIGITAL_OUTPUTS); i++)
+    for (size_t i = 0; i < Collection::SIZE(GROUP_DIGITAL_OUTPUTS); i++)
     {
-        setState(Collection::size(GROUP_DIGITAL_OUTPUTS) - 1 - i, brightness_t::B100);
+        setState(Collection::SIZE(GROUP_DIGITAL_OUTPUTS) - 1 - i, brightness_t::B100);
         core::timing::waitMs(35);
     }
 
-    for (size_t i = 0; i < Collection::size(GROUP_DIGITAL_OUTPUTS); i++)
+    for (size_t i = 0; i < Collection::SIZE(GROUP_DIGITAL_OUTPUTS); i++)
     {
         setState(i, brightness_t::OFF);
         core::timing::waitMs(35);
@@ -337,7 +337,7 @@ void LEDs::midiToState(const Messaging::event_t& event, Messaging::eventType_t s
 
     auto message = eventToMessage(event);
 
-    for (size_t i = 0; i < Collection::size(); i++)
+    for (size_t i = 0; i < Collection::SIZE(); i++)
     {
         auto controlType = static_cast<controlType_t>(_database.read(Database::Config::Section::leds_t::CONTROL_TYPE, i));
 
@@ -602,7 +602,7 @@ void LEDs::setBlinkSpeed(uint8_t ledID, blinkSpeed_t state, bool updateState)
 void LEDs::setAllOn()
 {
     // turn on all LEDs
-    for (size_t i = 0; i < Collection::size(); i++)
+    for (size_t i = 0; i < Collection::SIZE(); i++)
     {
         setColor(i, color_t::RED, brightness_t::B100);
     }
@@ -611,7 +611,7 @@ void LEDs::setAllOn()
 void LEDs::setAllOff()
 {
     // turn off all LEDs
-    for (size_t i = 0; i < Collection::size(); i++)
+    for (size_t i = 0; i < Collection::SIZE(); i++)
     {
         resetState(i);
     }
@@ -619,7 +619,7 @@ void LEDs::setAllOff()
 
 void LEDs::refresh()
 {
-    for (size_t i = 0; i < Collection::size(); i++)
+    for (size_t i = 0; i < Collection::SIZE(); i++)
     {
         setState(i, _brightness[i]);
     }
@@ -778,13 +778,13 @@ void LEDs::resetState(uint8_t index)
 
 void LEDs::setState(size_t index, brightness_t brightness)
 {
-    if (index >= Collection::size(GROUP_DIGITAL_OUTPUTS))
+    if (index >= Collection::SIZE(GROUP_DIGITAL_OUTPUTS))
     {
         // specified hwa interface only writes to physical leds
         // for touchscreen and other destinations, notify via dispatcher
 
         Messaging::event_t event;
-        event.componentIndex = index - Collection::startIndex(GROUP_TOUCHSCREEN_COMPONENTS);
+        event.componentIndex = index - Collection::START_INDEX(GROUP_TOUCHSCREEN_COMPONENTS);
         event.value          = static_cast<uint16_t>(brightness);
 
         MIDIDispatcher.notify(Messaging::eventType_t::TOUCHSCREEN_LED, event);
@@ -810,7 +810,7 @@ std::optional<uint8_t> LEDs::sysConfigGet(System::Config::Section::leds_t sectio
 
     case System::Config::Section::leds_t::CHANNEL:
     {
-        result = _database.read(Util::Conversion::sys2DBsection(section),
+        result = _database.read(Util::Conversion::SYS_2_DB_SECTION(section),
                                 index,
                                 readValue)
                      ? System::Config::status_t::ACK
@@ -820,7 +820,7 @@ std::optional<uint8_t> LEDs::sysConfigGet(System::Config::Section::leds_t sectio
 
     case System::Config::Section::leds_t::RGB_ENABLE:
     {
-        result = _database.read(Util::Conversion::sys2DBsection(section),
+        result = _database.read(Util::Conversion::SYS_2_DB_SECTION(section),
                                 _hwa.rgbFromOutput(index),
                                 readValue)
                      ? System::Config::status_t::ACK
@@ -830,7 +830,7 @@ std::optional<uint8_t> LEDs::sysConfigGet(System::Config::Section::leds_t sectio
 
     default:
     {
-        result = _database.read(Util::Conversion::sys2DBsection(section),
+        result = _database.read(Util::Conversion::SYS_2_DB_SECTION(section),
                                 index,
                                 readValue)
                      ? System::Config::status_t::ACK
@@ -902,7 +902,7 @@ std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t sectio
         // write to db if success is true and writing should take place
         if (result == System::Config::status_t::ACK)
         {
-            result = _database.update(Util::Conversion::sys2DBsection(section), index, value)
+            result = _database.update(Util::Conversion::SYS_2_DB_SECTION(section), index, value)
                          ? System::Config::status_t::ACK
                          : System::Config::status_t::ERROR_WRITE;
         }
@@ -917,7 +917,7 @@ std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t sectio
         setColor(_hwa.rgbComponentFromRGB(_hwa.rgbFromOutput(index), rgbComponent_t::B), color_t::OFF, brightness_t::OFF);
 
         // write rgb enabled bit to led
-        result = _database.update(Util::Conversion::sys2DBsection(section),
+        result = _database.update(Util::Conversion::SYS_2_DB_SECTION(section),
                                   _hwa.rgbFromOutput(index),
                                   value)
                      ? System::Config::status_t::ACK
@@ -929,9 +929,9 @@ std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t sectio
 
             for (int i = 0; i < 3; i++)
             {
-                result = _database.update(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::ACTIVATION_ID),
+                result = _database.update(Util::Conversion::SYS_2_DB_SECTION(System::Config::Section::leds_t::ACTIVATION_ID),
                                           _hwa.rgbComponentFromRGB(_hwa.rgbFromOutput(index), static_cast<rgbComponent_t>(i)),
-                                          _database.read(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::ACTIVATION_ID), index))
+                                          _database.read(Util::Conversion::SYS_2_DB_SECTION(System::Config::Section::leds_t::ACTIVATION_ID), index))
                              ? System::Config::status_t::ACK
                              : System::Config::status_t::ERROR_WRITE;
 
@@ -940,9 +940,9 @@ std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t sectio
                     break;
                 }
 
-                result = _database.update(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::CONTROL_TYPE),
+                result = _database.update(Util::Conversion::SYS_2_DB_SECTION(System::Config::Section::leds_t::CONTROL_TYPE),
                                           _hwa.rgbComponentFromRGB(_hwa.rgbFromOutput(index), static_cast<rgbComponent_t>(i)),
-                                          _database.read(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::CONTROL_TYPE), index))
+                                          _database.read(Util::Conversion::SYS_2_DB_SECTION(System::Config::Section::leds_t::CONTROL_TYPE), index))
                              ? System::Config::status_t::ACK
                              : System::Config::status_t::ERROR_WRITE;
 
@@ -951,9 +951,9 @@ std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t sectio
                     break;
                 }
 
-                result = _database.update(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::CHANNEL),
+                result = _database.update(Util::Conversion::SYS_2_DB_SECTION(System::Config::Section::leds_t::CHANNEL),
                                           _hwa.rgbComponentFromRGB(_hwa.rgbFromOutput(index), static_cast<rgbComponent_t>(i)),
-                                          _database.read(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::CHANNEL), index))
+                                          _database.read(Util::Conversion::SYS_2_DB_SECTION(System::Config::Section::leds_t::CHANNEL), index))
                              ? System::Config::status_t::ACK
                              : System::Config::status_t::ERROR_WRITE;
 
@@ -971,12 +971,12 @@ std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t sectio
     case System::Config::Section::leds_t::CHANNEL:
     {
         // first, find out if RGB led is enabled for this led index
-        if (_database.read(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::RGB_ENABLE), _hwa.rgbFromOutput(index)))
+        if (_database.read(Util::Conversion::SYS_2_DB_SECTION(System::Config::Section::leds_t::RGB_ENABLE), _hwa.rgbFromOutput(index)))
         {
             // rgb led enabled - copy these settings to all three leds
             for (int i = 0; i < 3; i++)
             {
-                result = _database.update(Util::Conversion::sys2DBsection(section),
+                result = _database.update(Util::Conversion::SYS_2_DB_SECTION(section),
                                           _hwa.rgbComponentFromRGB(_hwa.rgbFromOutput(index), static_cast<rgbComponent_t>(i)),
                                           value)
                              ? System::Config::status_t::ACK
@@ -991,7 +991,7 @@ std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t sectio
         else
         {
             // apply to single led only
-            result = _database.update(Util::Conversion::sys2DBsection(section), index, value)
+            result = _database.update(Util::Conversion::SYS_2_DB_SECTION(section), index, value)
                          ? System::Config::status_t::ACK
                          : System::Config::status_t::ERROR_WRITE;
         }
@@ -1000,7 +1000,7 @@ std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t sectio
 
     default:
     {
-        result = _database.update(Util::Conversion::sys2DBsection(section), index, value)
+        result = _database.update(Util::Conversion::SYS_2_DB_SECTION(section), index, value)
                      ? System::Config::status_t::ACK
                      : System::Config::status_t::ERROR_WRITE;
     }

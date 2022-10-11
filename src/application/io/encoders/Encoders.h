@@ -143,16 +143,16 @@ namespace IO
         static constexpr uint32_t ENCODERS_SPEED_TIMEOUT = 140;
 
         /// Holds current value for all encoders.
-        int16_t _value[Collection::size()] = { 0 };
+        int16_t _value[Collection::SIZE()] = { 0 };
 
         /// Array holding current speed (in steps) for all encoders.
-        uint8_t _encoderSpeed[Collection::size()] = {};
+        uint8_t _encoderSpeed[Collection::SIZE()] = {};
 
         /// Array holding last two readings from encoder pins.
-        uint8_t _encoderData[Collection::size()] = {};
+        uint8_t _encoderData[Collection::SIZE()] = {};
 
         /// Array holding current amount of pulses for all encoders.
-        int8_t _encoderPulses[Collection::size()] = {};
+        int8_t _encoderPulses[Collection::SIZE()] = {};
 
         /// Lookup table used to convert encoder reading to pulses.
         static constexpr int8_t ENCODER_LOOK_UP_TABLE[16] = {

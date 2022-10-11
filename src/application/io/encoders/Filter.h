@@ -97,10 +97,10 @@ namespace IO
         static constexpr uint8_t ENCODERS_DEBOUNCE_COUNT = 4;
 
         /// Array holding previous encoder direction for all encoders.
-        IO::Encoders::position_t _lastDirection[IO::Encoders::Collection::size()] = {};
+        IO::Encoders::position_t _lastDirection[IO::Encoders::Collection::SIZE()] = {};
 
         /// Array holding current debounced direction for all encoders.
-        IO::Encoders::position_t _debounceDirection[IO::Encoders::Collection::size()] = {};
+        IO::Encoders::position_t _debounceDirection[IO::Encoders::Collection::SIZE()] = {};
 
         /// Used to detect constant rotation in single direction.
         /// Once n consecutive movements in same direction are detected,
@@ -108,10 +108,10 @@ namespace IO
         /// encoder stops moving for ENCODERS_DEBOUNCE_RESET_TIME milliseconds *or*
         /// n new consecutive movements are made in the opposite direction.
         /// n = ENCODERS_DEBOUNCE_COUNT (defined in Constants.h)
-        uint8_t _debounceCounter[IO::Encoders::Collection::size()] = {};
+        uint8_t _debounceCounter[IO::Encoders::Collection::SIZE()] = {};
 
         /// Array holding last movement time for all encoders.
-        uint32_t _lastMovementTime[IO::Encoders::Collection::size()] = {};
+        uint32_t _lastMovementTime[IO::Encoders::Collection::SIZE()] = {};
     };
 }    // namespace IO
 

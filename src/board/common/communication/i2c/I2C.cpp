@@ -38,8 +38,8 @@ namespace Board::I2C
         }
 
 #ifdef CORE_MCU_CUSTOM_PERIPHERAL_PINS
-        if (core::mcu::i2c::init(Board::detail::map::i2cPins(channel).sda,
-                                 Board::detail::map::i2cPins(channel).scl,
+        if (core::mcu::i2c::init(Board::detail::map::I2C_PINS(channel).sda,
+                                 Board::detail::map::I2C_PINS(channel).scl,
                                  channel,
                                  static_cast<uint32_t>(speed)))
 #else

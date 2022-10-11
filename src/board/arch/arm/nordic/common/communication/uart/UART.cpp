@@ -246,8 +246,8 @@ namespace Board::detail::UART::MCU
 
         nrf_uarte_disable(_uartInstance[channel].p_reg);
 
-        CORE_MCU_IO_DEINIT(Board::detail::map::uartPins(channel).tx);
-        CORE_MCU_IO_DEINIT(Board::detail::map::uartPins(channel).rx);
+        CORE_MCU_IO_DEINIT(Board::detail::map::UART_PINS(channel).tx);
+        CORE_MCU_IO_DEINIT(Board::detail::map::UART_PINS(channel).rx);
 
         return true;
     }
@@ -265,15 +265,15 @@ namespace Board::detail::UART::MCU
             return false;
         }
 
-        CORE_MCU_IO_SET_HIGH(Board::detail::map::uartPins(channel).tx.port, Board::detail::map::uartPins(channel).tx.index);
+        CORE_MCU_IO_SET_HIGH(Board::detail::map::UART_PINS(channel).tx.port, Board::detail::map::UART_PINS(channel).tx.index);
 
-        CORE_MCU_IO_INIT(Board::detail::map::uartPins(channel).tx.port,
-                         Board::detail::map::uartPins(channel).tx.index,
+        CORE_MCU_IO_INIT(Board::detail::map::UART_PINS(channel).tx.port,
+                         Board::detail::map::UART_PINS(channel).tx.index,
                          core::mcu::io::pinMode_t::OUTPUT_PP,
                          core::mcu::io::pullMode_t::NONE);
 
-        CORE_MCU_IO_INIT(Board::detail::map::uartPins(channel).rx.port,
-                         Board::detail::map::uartPins(channel).rx.index,
+        CORE_MCU_IO_INIT(Board::detail::map::UART_PINS(channel).rx.port,
+                         Board::detail::map::UART_PINS(channel).rx.index,
                          core::mcu::io::pinMode_t::INPUT,
                          core::mcu::io::pullMode_t::NONE);
 
@@ -303,10 +303,10 @@ namespace Board::detail::UART::MCU
 
         nrf_uarte_configure(_uartInstance[channel].p_reg, &nrfUartConfig.hal_cfg);
         nrf_uarte_txrx_pins_set(_uartInstance[channel].p_reg,
-                                CORE_NRF_GPIO_PIN_MAP(Board::detail::map::uartPins(channel).tx.port,
-                                                      Board::detail::map::uartPins(channel).tx.index),
-                                CORE_NRF_GPIO_PIN_MAP(Board::detail::map::uartPins(channel).rx.port,
-                                                      Board::detail::map::uartPins(channel).rx.index));
+                                CORE_NRF_GPIO_PIN_MAP(Board::detail::map::UART_PINS(channel).tx.port,
+                                                      Board::detail::map::UART_PINS(channel).tx.index),
+                                CORE_NRF_GPIO_PIN_MAP(Board::detail::map::UART_PINS(channel).rx.port,
+                                                      Board::detail::map::UART_PINS(channel).rx.index));
 
         nrf_uarte_int_enable(_uartInstance[channel].p_reg,
                              NRF_UARTE_INT_ENDRX_MASK |

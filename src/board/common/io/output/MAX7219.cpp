@@ -113,7 +113,7 @@ namespace Board::IO::digitalOut
 {
     void writeLEDstate(size_t index, ledBrightness_t ledBrightness)
     {
-        index          = map::ledIndex(index);
+        index          = map::LED_INDEX(index);
         uint8_t column = index % 8;
         uint8_t row    = index / 8;
 

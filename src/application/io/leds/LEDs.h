@@ -177,13 +177,13 @@ namespace IO
         static constexpr uint8_t LED_BLINK_TIMER_TYPE_CHECK_TIME = 50;
 
         /// Array holding current LED status for all LEDs.
-        uint8_t _ledState[Collection::size()] = {};
+        uint8_t _ledState[Collection::SIZE()] = {};
 
         /// Array holding current LED brightness for all LEDs.
-        brightness_t _brightness[Collection::size()] = {};
+        brightness_t _brightness[Collection::SIZE()] = {};
 
         /// Array holding time after which LEDs should blink.
-        uint8_t _blinkTimer[Collection::size()] = {};
+        uint8_t _blinkTimer[Collection::SIZE()] = {};
 
         /// Holds currently active LED blink type.
         blinkType_t _ledBlinkType = blinkType_t::TIMER;

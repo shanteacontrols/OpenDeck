@@ -97,7 +97,7 @@ namespace Board::IO::digitalIn
             return false;
         }
 
-        index = detail::map::buttonIndex(index);
+        index = detail::map::BUTTON_INDEX(index);
 
         CORE_MCU_ATOMIC_SECTION
         {

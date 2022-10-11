@@ -51,7 +51,7 @@ Encoders::Encoders(HWA&      hwa,
                               {
                               case MIDI::messageType_t::CONTROL_CHANGE:
                               {
-                                  for (size_t i = 0; i < Collection::size(); i++)
+                                  for (size_t i = 0; i < Collection::SIZE(); i++)
                                   {
                                       if (!_database.read(Database::Config::Section::encoder_t::REMOTE_SYNC, i))
                                       {
@@ -103,7 +103,7 @@ Encoders::Encoders(HWA&      hwa,
 
 bool Encoders::init()
 {
-    for (size_t i = 0; i < Collection::size(); i++)
+    for (size_t i = 0; i < Collection::SIZE(); i++)
     {
         reset(i);
     }
@@ -152,7 +152,7 @@ void Encoders::updateSingle(size_t index, bool forceRefresh)
 
 void Encoders::updateAll(bool forceRefresh)
 {
-    for (size_t i = 0; i < Collection::size(); i++)
+    for (size_t i = 0; i < Collection::SIZE(); i++)
     {
         updateSingle(i, forceRefresh);
     }
@@ -160,7 +160,7 @@ void Encoders::updateAll(bool forceRefresh)
 
 size_t Encoders::maxComponentUpdateIndex()
 {
-    return Collection::size();
+    return Collection::SIZE();
 }
 
 void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTime)
@@ -419,7 +419,7 @@ std::optional<uint8_t> Encoders::sysConfigGet(System::Config::Section::encoder_t
 {
     uint32_t readValue;
 
-    auto result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue)
+    auto result = _database.read(Util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
                       ? System::Config::status_t::ACK
                       : System::Config::status_t::ERROR_READ;
 
@@ -447,7 +447,7 @@ std::optional<uint8_t> Encoders::sysConfigSet(System::Config::Section::encoder_t
         break;
     }
 
-    auto result = _database.update(Util::Conversion::sys2DBsection(section), index, value)
+    auto result = _database.update(Util::Conversion::SYS_2_DB_SECTION(section), index, value)
                       ? System::Config::status_t::ACK
                       : System::Config::status_t::ERROR_WRITE;
 

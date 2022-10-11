@@ -41,7 +41,7 @@ namespace Board::detail::IO::digitalOut
     {
         for (size_t i = 0; i < HW_MAX_NR_OF_DIGITAL_OUTPUTS; i++)
         {
-            auto pin = detail::map::ledPin(i);
+            auto pin = detail::map::LED_PIN(i);
 
             CORE_MCU_IO_INIT(pin.port,
                              pin.index,
@@ -56,10 +56,10 @@ namespace Board::detail::IO::digitalOut
     {
         for (size_t port = 0; port < HW_NR_OF_DIGITAL_OUTPUT_PORTS; port++)
         {
-            core::mcu::io::portWidth_t updatedPortState = CORE_MCU_IO_READ_OUT_PORT(map::digitalOutPort(port));
-            updatedPortState &= detail::map::digitalOutPortClearMask(port);
+            core::mcu::io::portWidth_t updatedPortState = CORE_MCU_IO_READ_OUT_PORT(map::DIGITAL_OUT_PORT(port));
+            updatedPortState &= detail::map::DIGITAL_OUT_PORT_CLEAR_MASK(port);
             updatedPortState |= _portState[port][_pwmCounter];
-            CORE_MCU_IO_SET_PORT_STATE(detail::map::digitalOutPort(port), updatedPortState);
+            CORE_MCU_IO_SET_PORT_STATE(detail::map::DIGITAL_OUT_PORT(port), updatedPortState);
         }
 
         if (++_pwmCounter >= static_cast<uint8_t>(ledBrightness_t::B100))
@@ -78,23 +78,23 @@ namespace Board::IO::digitalOut
             return;
         }
 
-        index = map::ledIndex(index);
+        index = map::LED_INDEX(index);
 
         CORE_MCU_ATOMIC_SECTION
         {
             for (uint8_t i = 0; i < static_cast<int>(ledBrightness_t::B100); i++)
             {
-                core::util::BIT_WRITE(_portState[map::ledPortIndex(index)][i], map::ledPinIndex(index), i < static_cast<int>(ledBrightness) ?
+                core::util::BIT_WRITE(_portState[map::LED_PORT_INDEX(index)][i], map::LED_PIN_INDEX(index), i < static_cast<int>(ledBrightness) ?
 #ifndef HW_LEDS_EXT_INVERT
-                                                                                                                                            1
+                                                                                                                                                1
 #else
-                                                                                                                                            0
+                                                                                                                                                0
 #endif
-                                                                                                                                            :
+                                                                                                                                                :
 #ifndef HW_LEDS_EXT_INVERT
-                                                                                                                                            0
+                                                                                                                                                0
 #else
-                                                                                                                                            1
+                                                                                                                                                1
 #endif
 
                 );

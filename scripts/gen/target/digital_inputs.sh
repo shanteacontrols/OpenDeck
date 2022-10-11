@@ -48,8 +48,8 @@ then
         printf "%s\n" "#define HW_NR_OF_DIGITAL_INPUT_PORTS ${#port_array_unique[@]}" >> "$out_header"
 
         {
-            printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline core::mcu::io::pinPort_t D_IN_PORTS[HW_NR_OF_DIGITAL_INPUT_PORTS] = {"
+            printf "%s\n" "namespace gen {"
+            printf "%s\n" "constexpr inline core::mcu::io::pinPort_t DIGITAL_IN_PORT[HW_NR_OF_DIGITAL_INPUT_PORTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<${#port_array_unique[@]}; i++))
@@ -61,7 +61,7 @@ then
 
         {
             printf "%s\n" "};"
-            printf "%s\n" "constexpr inline core::mcu::io::pin_t D_IN_PINS[HW_MAX_NR_OF_DIGITAL_INPUTS] = {"
+            printf "%s\n" "constexpr inline core::mcu::io::pin_t BUTTON_PIN[HW_MAX_NR_OF_DIGITAL_INPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_inputs; i++))
@@ -74,7 +74,7 @@ then
         } >> "$out_header"
 
         {
-            printf "%s\n" "constexpr inline uint8_t BUTTON_INDEX_TO_UNIQUE_PORT_INDEX[HW_MAX_NR_OF_DIGITAL_INPUTS] = {"
+            printf "%s\n" "constexpr inline uint8_t BUTTON_PORT_INDEX[HW_MAX_NR_OF_DIGITAL_INPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_inputs; i++))
@@ -90,7 +90,7 @@ then
 
         {
             printf "%s\n" "};" >> "$out_header"
-            printf "%s\n" "constexpr inline uint8_t BUTTON_INDEX_TO_PIN_INDEX[HW_MAX_NR_OF_DIGITAL_INPUTS] = {"
+            printf "%s\n" "constexpr inline uint8_t BUTTON_PIN_INDEX[HW_MAX_NR_OF_DIGITAL_INPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_inputs; i++))
@@ -194,8 +194,8 @@ then
             done
 
             {
-                printf "%s\n" "namespace {"
-                printf "%s\n" "constexpr inline core::mcu::io::pin_t D_IN_PINS[HW_NR_OF_BUTTON_ROWS] = {"
+                printf "%s\n" "namespace gen {"
+                printf "%s\n" "constexpr inline core::mcu::io::pin_t BUTTON_PIN[HW_NR_OF_BUTTON_ROWS] = {"
             } >> "$out_header"
 
             for ((i=0; i<number_of_rows; i++))
@@ -246,8 +246,8 @@ then
         nr_of_digital_inputs=$($yaml_parser "$yaml_file" buttons.indexing --length)
 
         {
-            printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline uint8_t BUTTON_INDEXES[HW_MAX_NR_OF_DIGITAL_INPUTS] = {" 
+            printf "%s\n" "namespace gen {"
+            printf "%s\n" "constexpr inline uint8_t BUTTON_INDEX[HW_MAX_NR_OF_DIGITAL_INPUTS] = {" 
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_inputs; i++))

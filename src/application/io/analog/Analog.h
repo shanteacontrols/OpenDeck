@@ -135,7 +135,7 @@ namespace IO
         Filter&   _filter;
         Database& _database;
 
-        uint8_t _fsrPressed[Collection::size() / 8 + 1] = {};
+        uint8_t _fsrPressed[Collection::SIZE() / 8 + 1] = {};
 
         static constexpr MIDI::messageType_t INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(type_t::AMOUNT)] = {
             MIDI::messageType_t::CONTROL_CHANGE,

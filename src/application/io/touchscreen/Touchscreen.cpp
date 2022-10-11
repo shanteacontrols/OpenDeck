@@ -309,7 +309,7 @@ void Touchscreen::setIconState(size_t index, bool state)
         return;
     }
 
-    if (index >= Collection::size())
+    if (index >= Collection::SIZE())
     {
         return;
     }
@@ -449,7 +449,7 @@ std::optional<uint8_t> Touchscreen::sysConfigGet(System::Config::Section::touchs
 
     uint32_t readValue;
 
-    auto result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue)
+    auto result = _database.read(Util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
                       ? System::Config::status_t::ACK
                       : System::Config::status_t::ERROR_READ;
 
@@ -546,7 +546,7 @@ std::optional<uint8_t> Touchscreen::sysConfigSet(System::Config::Section::touchs
 
     if (writeToDb)
     {
-        result = _database.update(Util::Conversion::sys2DBsection(section), index, value);
+        result = _database.update(Util::Conversion::SYS_2_DB_SECTION(section), index, value);
     }
 
     if (result)

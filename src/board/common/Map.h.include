@@ -21,100 +21,100 @@ limitations under the License.
 namespace Board::detail::map
 {
 #ifdef HW_SUPPORT_ADC
-    constexpr const core::mcu::io::pin_t& adcPin(uint8_t index)
+    constexpr const core::mcu::io::pin_t& ADC_PIN(uint8_t index)
     {
-        return A_IN_PINS[index];
+        return gen::ADC_PIN[index];
     }
 
-    constexpr uint8_t adcIndex(uint8_t index)
+    constexpr uint8_t ADC_INDEX(uint8_t index)
     {
 #ifndef INDEXING_ANALOG
         return index;
 #else
-        return ANALOG_INDEXES[index];
+        return gen::ADC_INDEX[index];
 #endif
     }
 #endif
 
 #if defined(HW_DRIVER_DIGITAL_INPUT_NATIVE) || defined(HW_DRIVER_DIGITAL_INPUT_MATRIX_NATIVE_ROWS)
-    constexpr const core::mcu::io::pin_t& buttonPin(uint8_t index)
+    constexpr const core::mcu::io::pin_t& BUTTON_PIN(uint8_t index)
     {
-        return D_IN_PINS[index];
+        return gen::BUTTON_PIN[index];
     }
 #endif
 
 #if defined(HW_DRIVER_DIGITAL_INPUT_NATIVE)
-    constexpr const core::mcu::io::pinPort_t digitalInPort(uint8_t index)
+    constexpr const core::mcu::io::pinPort_t DIGITAL_IN_PORT(uint8_t index)
     {
-        return D_IN_PORTS[index];
+        return gen::DIGITAL_IN_PORT[index];
     }
 
-    constexpr const uint8_t buttonPortIndex(uint8_t index)
+    constexpr const uint8_t BUTTON_PORT_INDEX(uint8_t index)
     {
-        return BUTTON_INDEX_TO_UNIQUE_PORT_INDEX[index];
+        return gen::BUTTON_PORT_INDEX[index];
     }
 
-    constexpr const uint8_t buttonPinIndex(uint8_t index)
+    constexpr const uint8_t BUTTON_PIN_INDEX(uint8_t index)
     {
-        return BUTTON_INDEX_TO_PIN_INDEX[index];
+        return gen::BUTTON_PIN_INDEX[index];
     }
 #endif
 
-    constexpr uint8_t buttonIndex(uint8_t index)
+    constexpr uint8_t BUTTON_INDEX(uint8_t index)
     {
 #ifndef INDEXING_BUTTONS
         return index;
 #else
-        return BUTTON_INDEXES[index];
+        return gen::BUTTON_INDEX[index];
 #endif
     }
 
 #if defined(HW_DRIVER_DIGITAL_OUTPUT_NATIVE) || defined(HW_DRIVER_DIGITAL_OUTPUT_MATRIX_NATIVE_ROWS)
-    constexpr const core::mcu::io::pin_t& ledPin(uint8_t index)
+    constexpr const core::mcu::io::pin_t& LED_PIN(uint8_t index)
     {
-        return D_OUT_PINS[index];
+        return gen::LED_PIN[index];
     }
 #endif
 
 #if defined(HW_DRIVER_DIGITAL_OUTPUT_NATIVE)
-    constexpr const core::mcu::io::pinPort_t digitalOutPort(uint8_t index)
+    constexpr const core::mcu::io::pinPort_t DIGITAL_OUT_PORT(uint8_t index)
     {
-        return D_OUT_PORTS[index];
+        return gen::DIGITAL_OUT_PORT[index];
     }
 
-    constexpr const core::mcu::io::portWidth_t digitalOutPortClearMask(uint8_t index)
+    constexpr const core::mcu::io::portWidth_t DIGITAL_OUT_PORT_CLEAR_MASK(uint8_t index)
     {
-        return D_OUT_PORTS_CLEAR_MASK[index];
+        return gen::DIGITAL_OUT_PORT_CLEAR_MASK[index];
     }
 
-    constexpr const uint8_t ledPortIndex(uint8_t index)
+    constexpr const uint8_t LED_PORT_INDEX(uint8_t index)
     {
-        return LED_INDEX_TO_UNIQUE_PORT_INDEX[index];
+        return gen::LED_PORT_INDEX[index];
     }
 
-    constexpr const uint8_t ledPinIndex(uint8_t index)
+    constexpr const uint8_t LED_PIN_INDEX(uint8_t index)
     {
-        return LED_INDEX_TO_PIN_INDEX[index];
+        return gen::LED_PIN_INDEX[index];
     }
 #endif
 
-    constexpr uint8_t ledIndex(uint8_t index)
+    constexpr uint8_t LED_INDEX(uint8_t index)
     {
 #ifndef INDEXING_LEDS
         return index;
 #else
-        return LED_INDEXES[index];
+        return gen::LED_INDEX[index];
 #endif
     }
 
 #ifdef HW_NR_OF_UNUSED_IO
-    constexpr const Board::detail::IO::unused::unusedIO_t& unusedPin(uint8_t index)
+    constexpr const Board::detail::IO::unused::unusedIO_t& UNUSED_PIN(uint8_t index)
     {
-        return UNUSED_PINS[index];
+        return gen::UNUSED_PIN[index];
     }
 #endif
 
-    constexpr core::mcu::flash::flashPage_t flashPageDescriptor(size_t pageIndex)
+    constexpr core::mcu::flash::flashPage_t FLASH_PAGE_DESCRIPTOR(size_t pageIndex)
     {
         core::mcu::flash::flashPage_t descriptor = {};
 
@@ -134,16 +134,16 @@ namespace Board::detail::map
 
 #ifdef CORE_MCU_CUSTOM_PERIPHERAL_PINS
 #ifdef HW_SUPPORT_UART
-    constexpr const Board::detail::UART::uartPins_t& uartPins(size_t channel)
+    constexpr const Board::detail::UART::uartPins_t& UART_PINS(size_t channel)
     {
-        return UART_PINS[channel];
+        return gen::UART_PINS[channel];
     }
 #endif
 
 #ifdef HW_SUPPORT_I2C
-    constexpr const Board::detail::I2C::i2cPins_t& i2cPins(size_t channel)
+    constexpr const Board::detail::I2C::i2cPins_t& I2C_PINS(size_t channel)
     {
-        return I2C_PINS[channel];
+        return gen::I2C_PINS[channel];
     }
 #endif
 #endif

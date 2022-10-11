@@ -31,34 +31,34 @@ void Database::Admin::customInitGlobal()
 
 void Database::Admin::customInitButtons()
 {
-    for (size_t group = 0; group < IO::Buttons::Collection::groups(); group++)
+    for (size_t group = 0; group < IO::Buttons::Collection::GROUPS(); group++)
     {
-        for (size_t i = 0; i < IO::Buttons::Collection::size(group); i++)
+        for (size_t i = 0; i < IO::Buttons::Collection::SIZE(group); i++)
         {
-            update(Database::Config::Section::button_t::MIDI_ID, i + IO::Buttons::Collection::startIndex(group), i);
+            update(Database::Config::Section::button_t::MIDI_ID, i + IO::Buttons::Collection::START_INDEX(group), i);
         }
     }
 }
 
 void Database::Admin::customInitAnalog()
 {
-    for (size_t group = 0; group < IO::Analog::Collection::groups(); group++)
+    for (size_t group = 0; group < IO::Analog::Collection::GROUPS(); group++)
     {
-        for (size_t i = 0; i < IO::Analog::Collection::size(group); i++)
+        for (size_t i = 0; i < IO::Analog::Collection::SIZE(group); i++)
         {
-            update(Database::Config::Section::analog_t::MIDI_ID, i + IO::Analog::Collection::startIndex(group), i);
+            update(Database::Config::Section::analog_t::MIDI_ID, i + IO::Analog::Collection::START_INDEX(group), i);
         }
     }
 }
 
 void Database::Admin::customInitLEDs()
 {
-    for (size_t group = 0; group < IO::LEDs::Collection::groups(); group++)
+    for (size_t group = 0; group < IO::LEDs::Collection::GROUPS(); group++)
     {
-        for (size_t i = 0; i < IO::LEDs::Collection::size(group); i++)
+        for (size_t i = 0; i < IO::LEDs::Collection::SIZE(group); i++)
         {
-            update(Database::Config::Section::leds_t::ACTIVATION_ID, i + IO::LEDs::Collection::startIndex(group), i);
-            update(Database::Config::Section::leds_t::CONTROL_TYPE, i + IO::LEDs::Collection::startIndex(group), IO::LEDs::controlType_t::MIDI_IN_NOTE_MULTI_VAL);
+            update(Database::Config::Section::leds_t::ACTIVATION_ID, i + IO::LEDs::Collection::START_INDEX(group), i);
+            update(Database::Config::Section::leds_t::CONTROL_TYPE, i + IO::LEDs::Collection::START_INDEX(group), IO::LEDs::controlType_t::MIDI_IN_NOTE_MULTI_VAL);
         }
     }
 }

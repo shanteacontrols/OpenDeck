@@ -31,7 +31,7 @@ namespace Board::detail::IO::unused
     {
         for (size_t i = 0; i < HW_NR_OF_UNUSED_IO; i++)
         {
-            auto unusedPin = map::unusedPin(i);
+            auto unusedPin = map::UNUSED_PIN(i);
 
             CORE_MCU_IO_INIT(unusedPin.pin.port, unusedPin.pin.index, unusedPin.pin.mode);
 

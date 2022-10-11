@@ -23,6 +23,8 @@ CheckOptions:
     value:           '_'
   - key:             readability-identifier-naming.ConstexprVariableCase
     value:           'UPPER_CASE'
+  - key:             readability-identifier-naming.ConstexprFunctionCase
+    value:           'UPPER_CASE'
   - key:             readability-identifier-naming.StructCase
     value:           'camelBack'
   - key:             readability-identifier-naming.StructSuffix

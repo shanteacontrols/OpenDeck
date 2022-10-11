@@ -68,7 +68,7 @@ Analog::Analog(HWA&      hwa,
 
 bool Analog::init()
 {
-    for (size_t i = 0; i < Collection::size(); i++)
+    for (size_t i = 0; i < Collection::SIZE(); i++)
     {
         reset(i);
     }
@@ -109,7 +109,7 @@ void Analog::updateSingle(size_t index, bool forceRefresh)
 void Analog::updateAll(bool forceRefresh)
 {
     // check values
-    for (size_t i = 0; i < Collection::size(GROUP_ANALOG_INPUTS); i++)
+    for (size_t i = 0; i < Collection::SIZE(GROUP_ANALOG_INPUTS); i++)
     {
         updateSingle(i, forceRefresh);
     }
@@ -117,7 +117,7 @@ void Analog::updateAll(bool forceRefresh)
 
 size_t Analog::maxComponentUpdateIndex()
 {
-    return Collection::size(GROUP_ANALOG_INPUTS);
+    return Collection::SIZE(GROUP_ANALOG_INPUTS);
 }
 
 void Analog::processReading(size_t index, uint16_t value)
@@ -277,7 +277,7 @@ bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descripto
 bool Analog::checkFSRvalue(size_t index, analogDescriptor_t& descriptor)
 {
     // don't allow touchscreen components to be processed as FSR
-    if (index >= Collection::size(GROUP_ANALOG_INPUTS))
+    if (index >= Collection::SIZE(GROUP_ANALOG_INPUTS))
     {
         return false;
     }
@@ -424,7 +424,7 @@ std::optional<uint8_t> Analog::sysConfigGet(System::Config::Section::analog_t se
 {
     uint32_t readValue;
 
-    auto result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue)
+    auto result = _database.read(Util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
                       ? System::Config::status_t::ACK
                       : System::Config::status_t::ERROR_READ;
 
@@ -463,7 +463,7 @@ std::optional<uint8_t> Analog::sysConfigSet(System::Config::Section::analog_t se
         break;
     }
 
-    return _database.update(Util::Conversion::sys2DBsection(section), index, value)
+    return _database.update(Util::Conversion::SYS_2_DB_SECTION(section), index, value)
                ? System::Config::status_t::ACK
                : System::Config::status_t::ERROR_WRITE;
 }

@@ -107,7 +107,7 @@ namespace Board::IO::digitalOut
             return;
         }
 
-        index = map::ledIndex(index);
+        index = map::LED_INDEX(index);
 
         CORE_MCU_ATOMIC_SECTION
         {

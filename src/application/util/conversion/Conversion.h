@@ -35,37 +35,37 @@ namespace Util
         using Split14bit = SysExConf::Split14bit;
         using Merge14bit = SysExConf::Merge14bit;
 
-        static constexpr Database::Config::Section::global_t sys2DBsection(System::Config::Section::global_t section)
+        static constexpr Database::Config::Section::global_t SYS_2_DB_SECTION(System::Config::Section::global_t section)
         {
             return SYS_EX2_DB_GLOBAL[static_cast<uint8_t>(section)];
         }
 
-        static constexpr Database::Config::Section::button_t sys2DBsection(System::Config::Section::button_t section)
+        static constexpr Database::Config::Section::button_t SYS_2_DB_SECTION(System::Config::Section::button_t section)
         {
             return SYS_EX2_DB_BUTTON[static_cast<uint8_t>(section)];
         }
 
-        static constexpr Database::Config::Section::encoder_t sys2DBsection(System::Config::Section::encoder_t section)
+        static constexpr Database::Config::Section::encoder_t SYS_2_DB_SECTION(System::Config::Section::encoder_t section)
         {
             return SYS_EX2_DB_ENCODER[static_cast<uint8_t>(section)];
         }
 
-        static constexpr Database::Config::Section::analog_t sys2DBsection(System::Config::Section::analog_t section)
+        static constexpr Database::Config::Section::analog_t SYS_2_DB_SECTION(System::Config::Section::analog_t section)
         {
             return SYS_EX2_DB_ANALOG[static_cast<uint8_t>(section)];
         }
 
-        static constexpr Database::Config::Section::leds_t sys2DBsection(System::Config::Section::leds_t section)
+        static constexpr Database::Config::Section::leds_t SYS_2_DB_SECTION(System::Config::Section::leds_t section)
         {
             return SYS_EX2_DB_LEDS[static_cast<uint8_t>(section)];
         }
 
-        static constexpr Database::Config::Section::i2c_t sys2DBsection(System::Config::Section::i2c_t section)
+        static constexpr Database::Config::Section::i2c_t SYS_2_DB_SECTION(System::Config::Section::i2c_t section)
         {
             return SYS_EX2_DB_I2C[static_cast<uint8_t>(section)];
         }
 
-        static constexpr Database::Config::Section::touchscreen_t sys2DBsection(System::Config::Section::touchscreen_t section)
+        static constexpr Database::Config::Section::touchscreen_t SYS_2_DB_SECTION(System::Config::Section::touchscreen_t section)
         {
             return SYS_EX2_DB_TOUCHSCREEN[static_cast<uint8_t>(section)];
         }

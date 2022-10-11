@@ -53,8 +53,8 @@ then
         done
 
         {
-            printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline core::mcu::io::pin_t A_IN_PINS[HW_NR_OF_ADC_CHANNELS] = {"
+            printf "%s\n" "namespace gen {"
+            printf "%s\n" "constexpr inline core::mcu::io::pin_t ADC_PIN[HW_NR_OF_ADC_CHANNELS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_analog_inputs; i++))
@@ -109,8 +109,8 @@ then
         done
 
         {
-            printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline core::mcu::io::pin_t A_IN_PINS[HW_NR_OF_ADC_CHANNELS] = {"
+            printf "%s\n" "namespace gen {"
+            printf "%s\n" "constexpr inline core::mcu::io::pin_t ADC_PIN[HW_NR_OF_ADC_CHANNELS] = {"
         } >> "$out_header"
 
         for ((i=0; i<"$number_of_mux"; i++))
@@ -171,8 +171,8 @@ then
         done
 
         {
-            printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline core::mcu::io::pin_t A_IN_PINS[HW_NR_OF_ADC_CHANNELS] = {"
+            printf "%s\n" "namespace gen {"
+            printf "%s\n" "constexpr inline core::mcu::io::pin_t ADC_PIN[HW_NR_OF_ADC_CHANNELS] = {"
         } >> "$out_header"
 
         for ((i=0; i<"$number_of_mux"; i++))
@@ -201,8 +201,8 @@ then
         nr_of_analog_inputs=$($yaml_parser "$yaml_file" analog.indexing --length)
 
         {
-            printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline uint8_t ANALOG_INDEXES[HW_MAX_NR_OF_ANALOG_INPUTS] = {"
+            printf "%s\n" "namespace gen {"
+            printf "%s\n" "constexpr inline uint8_t ADC_INDEX[HW_MAX_NR_OF_ANALOG_INPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_analog_inputs; i++))

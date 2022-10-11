@@ -643,7 +643,7 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigGet(System::Config::Section::glo
         {
         case setting_t::STANDARD_NOTE_OFF:
         {
-            result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue)
+            result = _database.read(Util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
                          ? System::Config::status_t::ACK
                          : System::Config::status_t::ERROR_READ;
         }
@@ -663,7 +663,7 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigGet(System::Config::Section::glo
                 }
                 else
                 {
-                    result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue)
+                    result = _database.read(Util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
                                  ? System::Config::status_t::ACK
                                  : System::Config::status_t::ERROR_READ;
                 }
@@ -682,7 +682,7 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigGet(System::Config::Section::glo
         {
             if (_hwaBLE.supported())
             {
-                result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue)
+                result = _database.read(Util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
                              ? System::Config::status_t::ACK
                              : System::Config::status_t::ERROR_READ;
             }
@@ -706,7 +706,7 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigGet(System::Config::Section::glo
                 {
                     if (_hwaBLE.supported())
                     {
-                        result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue)
+                        result = _database.read(Util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
                                      ? System::Config::status_t::ACK
                                      : System::Config::status_t::ERROR_READ;
                     }
@@ -725,7 +725,7 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigGet(System::Config::Section::glo
 
         default:
         {
-            result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue)
+            result = _database.read(Util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
                          ? System::Config::status_t::ACK
                          : System::Config::status_t::ERROR_READ;
         }
@@ -1088,7 +1088,7 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
 
     if ((result == System::Config::status_t::ACK) && writeToDb)
     {
-        result = _database.update(Util::Conversion::sys2DBsection(section), index, value)
+        result = _database.update(Util::Conversion::SYS_2_DB_SECTION(section), index, value)
                      ? System::Config::status_t::ACK
                      : System::Config::status_t::ERROR_WRITE;
 

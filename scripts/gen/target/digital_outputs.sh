@@ -51,8 +51,8 @@ then
 
         {
             printf "%s\n" "#define HW_NR_OF_DIGITAL_OUTPUT_PORTS ${#port_array_unique[@]}"
-            printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline core::mcu::io::pinPort_t D_OUT_PORTS[HW_NR_OF_DIGITAL_OUTPUT_PORTS] = {"
+            printf "%s\n" "namespace gen {"
+            printf "%s\n" "constexpr inline core::mcu::io::pinPort_t DIGITAL_OUT_PORT[HW_NR_OF_DIGITAL_OUTPUT_PORTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<${#port_array_unique[@]}; i++))
@@ -64,7 +64,7 @@ then
 
         {
             printf "%s\n" "};"
-            printf "%s\n" "constexpr inline core::mcu::io::portWidth_t D_OUT_PORTS_CLEAR_MASK[HW_NR_OF_DIGITAL_OUTPUT_PORTS] = {"
+            printf "%s\n" "constexpr inline core::mcu::io::portWidth_t DIGITAL_OUT_PORT_CLEAR_MASK[HW_NR_OF_DIGITAL_OUTPUT_PORTS] = {"
         } >> "$out_header"
 
         for ((port=0; port<${#port_array_unique[@]}; port++))
@@ -86,7 +86,7 @@ then
 
         {
             printf "%s\n" "};"
-            printf "%s\n" "constexpr inline core::mcu::io::pin_t D_OUT_PINS[HW_MAX_NR_OF_DIGITAL_OUTPUTS] = {"
+            printf "%s\n" "constexpr inline core::mcu::io::pin_t LED_PIN[HW_MAX_NR_OF_DIGITAL_OUTPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_outputs; i++))
@@ -96,7 +96,7 @@ then
 
         {
             printf "%s\n" "};" >> "$out_header"
-            printf "%s\n" "constexpr inline uint8_t LED_INDEX_TO_UNIQUE_PORT_INDEX[HW_MAX_NR_OF_DIGITAL_OUTPUTS] = {"
+            printf "%s\n" "constexpr inline uint8_t LED_PORT_INDEX[HW_MAX_NR_OF_DIGITAL_OUTPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_outputs; i++))
@@ -112,7 +112,7 @@ then
 
         {
             printf "%s\n" "};" >> "$out_header"
-            printf "%s\n" "constexpr inline uint8_t LED_INDEX_TO_PIN_INDEX[HW_MAX_NR_OF_DIGITAL_OUTPUTS] = {"
+            printf "%s\n" "constexpr inline uint8_t LED_PIN_INDEX[HW_MAX_NR_OF_DIGITAL_OUTPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_outputs; i++))
@@ -201,8 +201,8 @@ then
         done
 
         {
-            printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline core::mcu::io::pin_t D_OUT_PINS[HW_NR_OF_LED_ROWS] = {"
+            printf "%s\n" "namespace gen {"
+            printf "%s\n" "constexpr inline core::mcu::io::pin_t LED_PIN[HW_NR_OF_LED_ROWS] = {"
         } >> "$out_header"
 
         for ((i=0; i<"$number_of_led_rows"; i++))
@@ -265,8 +265,8 @@ then
         nr_of_digital_outputs=$($yaml_parser "$yaml_file" leds.external.indexing --length)
 
         {
-            printf "%s\n" "namespace {"
-            printf "%s\n" "constexpr inline uint8_t LED_INDEXES[HW_MAX_NR_OF_DIGITAL_OUTPUTS] = {"
+            printf "%s\n" "namespace gen {"
+            printf "%s\n" "constexpr inline uint8_t LED_INDEX[HW_MAX_NR_OF_DIGITAL_OUTPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_outputs; i++))

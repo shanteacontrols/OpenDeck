@@ -461,11 +461,11 @@ uint8_t Instance::SysExDataHandler::customRequest(uint16_t request, CustomRespon
 
     case SYSEX_CR_MAX_COMPONENTS:
     {
-        customResponse.append(Buttons::Collection::size());
-        customResponse.append(Encoders::Collection::size());
-        customResponse.append(Analog::Collection::size());
-        customResponse.append(LEDs::Collection::size());
-        customResponse.append(Touchscreen::Collection::size());
+        customResponse.append(Buttons::Collection::SIZE());
+        customResponse.append(Encoders::Collection::SIZE());
+        customResponse.append(Analog::Collection::SIZE());
+        customResponse.append(LEDs::Collection::SIZE());
+        customResponse.append(Touchscreen::Collection::SIZE());
     }
     break;
 

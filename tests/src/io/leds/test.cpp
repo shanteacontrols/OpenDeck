@@ -21,7 +21,7 @@ namespace
             // LEDs calls HWA only for digital out group - for the other groups controls is done via dispatcher.
             // Once init() is called, all LEDs should be turned off
             EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(0)))
-                .Times(LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS));
+                .Times(LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS));
 
             _leds._instance.init();
         }
@@ -303,7 +303,7 @@ namespace
 
 TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
 {
-    if (!LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS))
+    if (!LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS))
     {
         return;
     }
@@ -311,15 +311,15 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
     // MIDI_IN_NOTE_MULTI_VAL
     //----------------------------------
 
-    for (size_t i = 0; i < LEDs::Collection::size(); i++)
+    for (size_t i = 0; i < LEDs::Collection::SIZE(); i++)
     {
         ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::MIDI_IN_NOTE_MULTI_VAL));
     }
 
-    for (uint8_t led = 0; led < LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
+    for (uint8_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
     {
         EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(0)))
-            .Times(LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS));
+            .Times(LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS));
 
         _leds._instance.setAllOff();
 
@@ -344,15 +344,15 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
     // MIDI_IN_CC_MULTI_VAL
     //----------------------------------
 
-    for (size_t i = 0; i < LEDs::Collection::size(); i++)
+    for (size_t i = 0; i < LEDs::Collection::SIZE(); i++)
     {
         ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::MIDI_IN_CC_MULTI_VAL));
     }
 
-    for (uint8_t led = 0; led < LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
+    for (uint8_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
     {
         EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(0)))
-            .Times(LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS));
+            .Times(LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS));
 
         _leds._instance.setAllOff();
 
@@ -377,15 +377,15 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
     // LOCAL_NOTE_MULTI_VAL
     //----------------------------------
 
-    for (size_t i = 0; i < LEDs::Collection::size(); i++)
+    for (size_t i = 0; i < LEDs::Collection::SIZE(); i++)
     {
         ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::LOCAL_NOTE_MULTI_VAL));
     }
 
-    for (uint8_t led = 0; led < LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
+    for (uint8_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
     {
         EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(0)))
-            .Times(LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS));
+            .Times(LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS));
 
         _leds._instance.setAllOff();
 
@@ -408,10 +408,10 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
     }
 
     // same test for analog components
-    for (uint8_t led = 0; led < LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
+    for (uint8_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
     {
         EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(0)))
-            .Times(LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS));
+            .Times(LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS));
 
         _leds._instance.setAllOff();
 
@@ -436,15 +436,15 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
     // localCCMultiVal
     //----------------------------------
 
-    for (size_t i = 0; i < LEDs::Collection::size(); i++)
+    for (size_t i = 0; i < LEDs::Collection::SIZE(); i++)
     {
         ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::LOCAL_CC_MULTI_VAL));
     }
 
-    for (uint8_t led = 0; led < LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
+    for (uint8_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
     {
         EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(0)))
-            .Times(LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS));
+            .Times(LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS));
 
         _leds._instance.setAllOff();
 
@@ -466,10 +466,10 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
         }
     }
 
-    for (uint8_t led = 0; led < LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
+    for (uint8_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
     {
         EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(0)))
-            .Times(LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS));
+            .Times(LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS));
 
         _leds._instance.setAllOff();
 
@@ -494,7 +494,7 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
 
 TEST_F(LEDsTest, SingleLEDstate)
 {
-    if (!LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS))
+    if (!LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS))
     {
         return;
     }
@@ -532,7 +532,7 @@ TEST_F(LEDsTest, SingleLEDstate)
                               MIDI::messageType_t::NOTE_ON,
                           });
 
-    if (LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS) < 3)
+    if (LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS) < 3)
     {
         return;
     }
@@ -565,7 +565,7 @@ TEST_F(LEDsTest, SingleLEDstate)
 
 TEST_F(LEDsTest, ProgramChangeWithOffset)
 {
-    if (LEDs::Collection::size(LEDs::GROUP_DIGITAL_OUTPUTS) < 4)
+    if (LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS) < 4)
     {
         return;
     }

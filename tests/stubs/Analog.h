@@ -11,7 +11,7 @@ class TestAnalog
 
     void updateLastFilterValue(uint16_t value)
     {
-        for (size_t i = 0; i < IO::Analog::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Analog::Collection::SIZE(); i++)
         {
             _filter.updateLastValue(i, value);
         }

@@ -34,7 +34,7 @@ namespace Board::IO::analog
             return false;
         }
 
-        index = map::adcIndex(index);
+        index = map::ADC_INDEX(index);
 
         CORE_MCU_ATOMIC_SECTION
         {

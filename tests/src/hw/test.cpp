@@ -366,38 +366,38 @@ TEST_F(HWTest, DatabaseInitialValues)
         //----------------------------------
         // type section
         // all values should be set to 0 (default type)
-        for (size_t i = 0; i < IO::Buttons::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Buttons::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::button_t::TYPE, i));
         }
 
         // midi message section
         // all values should be set to 0 (default/note)
-        for (size_t i = 0; i < IO::Buttons::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Buttons::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::button_t::MESSAGE_TYPE, i));
         }
 
         // midi id section
         // incremental values - first value should be 0, each successive value should be incremented by 1 for each group
-        for (size_t group = 0; group < IO::Buttons::Collection::groups(); group++)
+        for (size_t group = 0; group < IO::Buttons::Collection::GROUPS(); group++)
         {
-            for (size_t i = 0; i < IO::Buttons::Collection::size(group); i += PARAM_SKIP)
+            for (size_t i = 0; i < IO::Buttons::Collection::SIZE(group); i += PARAM_SKIP)
             {
-                ASSERT_EQ(i, _helper.readFromSystem(System::Config::Section::button_t::MIDI_ID, i + IO::Buttons::Collection::startIndex(group)));
+                ASSERT_EQ(i, _helper.readFromSystem(System::Config::Section::button_t::MIDI_ID, i + IO::Buttons::Collection::START_INDEX(group)));
             }
         }
 
         // midi velocity section
         // all values should be set to 127
-        for (size_t i = 0; i < IO::Buttons::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Buttons::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(127, _helper.readFromSystem(System::Config::Section::button_t::VALUE, i));
         }
 
         // midi channel section
         // all values should be set to 1
-        for (size_t i = 0; i < IO::Buttons::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Buttons::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(1, _helper.readFromSystem(System::Config::Section::button_t::CHANNEL, i));
         }
@@ -406,41 +406,41 @@ TEST_F(HWTest, DatabaseInitialValues)
         //----------------------------------
         // enable section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Encoders::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Encoders::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::encoder_t::ENABLE, i));
         }
 
         // invert section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Encoders::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Encoders::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::encoder_t::INVERT, i));
         }
 
         // mode section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Encoders::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Encoders::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::encoder_t::MODE, i));
         }
 
         // midi id section
-        for (size_t i = 0; i < IO::Encoders::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Encoders::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(i, _helper.readFromSystem(System::Config::Section::encoder_t::MIDI_ID, i));
         }
 
         // midi channel section
         // all values should be set to 1
-        for (size_t i = 0; i < IO::Encoders::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Encoders::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(1, _helper.readFromSystem(System::Config::Section::encoder_t::CHANNEL, i));
         }
 
         // pulses per step section
         // all values should be set to 4
-        for (size_t i = 0; i < IO::Encoders::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Encoders::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(4, _helper.readFromSystem(System::Config::Section::encoder_t::PULSES_PER_STEP, i));
         }
@@ -449,66 +449,66 @@ TEST_F(HWTest, DatabaseInitialValues)
         //----------------------------------
         // enable section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Analog::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Analog::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::analog_t::ENABLE, i));
         }
 
         // invert section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Analog::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Analog::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::analog_t::INVERT, i));
         }
 
         // type section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Analog::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Analog::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::analog_t::INVERT, i));
         }
 
         // midi id section
         // incremental values - first value should be 0, each successive value should be incremented by 1 for each group
-        for (size_t group = 0; group < IO::Analog::Collection::groups(); group++)
+        for (size_t group = 0; group < IO::Analog::Collection::GROUPS(); group++)
         {
-            for (size_t i = 0; i < IO::Analog::Collection::size(group); i += PARAM_SKIP)
+            for (size_t i = 0; i < IO::Analog::Collection::SIZE(group); i += PARAM_SKIP)
             {
-                ASSERT_EQ(i, _helper.readFromSystem(System::Config::Section::analog_t::MIDI_ID, i + IO::Analog::Collection::startIndex(group)));
+                ASSERT_EQ(i, _helper.readFromSystem(System::Config::Section::analog_t::MIDI_ID, i + IO::Analog::Collection::START_INDEX(group)));
             }
         }
 
         // lower limit section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Analog::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Analog::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::analog_t::LOWER_LIMIT, i));
         }
 
         // upper limit section
         // all values should be set to 16383
-        for (size_t i = 0; i < IO::Analog::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Analog::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(16383, _helper.readFromSystem(System::Config::Section::analog_t::UPPER_LIMIT, i));
         }
 
         // midi channel section
         // all values should be set to 1
-        for (size_t i = 0; i < IO::Analog::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Analog::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(1, _helper.readFromSystem(System::Config::Section::analog_t::CHANNEL, i));
         }
 
         // lower offset section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Analog::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Analog::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::analog_t::LOWER_OFFSET, i));
         }
 
         // upper offset section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Analog::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Analog::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::analog_t::UPPER_OFFSET, i));
         }
@@ -524,38 +524,38 @@ TEST_F(HWTest, DatabaseInitialValues)
 
         // activation id section
         // incremental values - first value should be 0, each successive value should be incremented by 1 for each group
-        for (size_t group = 0; group < IO::LEDs::Collection::groups(); group++)
+        for (size_t group = 0; group < IO::LEDs::Collection::GROUPS(); group++)
         {
-            for (size_t i = 0; i < IO::LEDs::Collection::size(group); i += PARAM_SKIP)
+            for (size_t i = 0; i < IO::LEDs::Collection::SIZE(group); i += PARAM_SKIP)
             {
-                ASSERT_EQ(i, _helper.readFromSystem(System::Config::Section::leds_t::ACTIVATION_ID, i + IO::LEDs::Collection::startIndex(group)));
+                ASSERT_EQ(i, _helper.readFromSystem(System::Config::Section::leds_t::ACTIVATION_ID, i + IO::LEDs::Collection::START_INDEX(group)));
             }
         }
 
         // rgb enable section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::LEDs::Collection::size() / 3 + (IO::Touchscreen::Collection::size() / 3); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::LEDs::Collection::SIZE() / 3 + (IO::Touchscreen::Collection::SIZE() / 3); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::leds_t::RGB_ENABLE, i));
         }
 
         // control type section
         // all values should be set to MIDI_IN_NOTE_MULTI_VAL
-        for (size_t i = 0; i < IO::LEDs::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::LEDs::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(static_cast<uint32_t>(IO::LEDs::controlType_t::MIDI_IN_NOTE_MULTI_VAL), _helper.readFromSystem(System::Config::Section::leds_t::CONTROL_TYPE, i));
         }
 
         // activation value section
         // all values should be set to 127
-        for (size_t i = 0; i < IO::LEDs::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::LEDs::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(127, _helper.readFromSystem(System::Config::Section::leds_t::ACTIVATION_VALUE, i));
         }
 
         // midi channel section
         // all values should be set to 1
-        for (size_t i = 0; i < IO::LEDs::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::LEDs::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(1, _helper.readFromSystem(System::Config::Section::leds_t::CHANNEL, i));
         }
@@ -585,56 +585,56 @@ TEST_F(HWTest, DatabaseInitialValues)
 
         // x position section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Touchscreen::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::touchscreen_t::X_POS, i));
         }
 
         // y position section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Touchscreen::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::touchscreen_t::Y_POS, i));
         }
 
         // WIDTH section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Touchscreen::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::touchscreen_t::WIDTH, i));
         }
 
         // HEIGHT section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Touchscreen::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::touchscreen_t::HEIGHT, i));
         }
 
         // on screen section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Touchscreen::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::touchscreen_t::ON_SCREEN, i));
         }
 
         // off screen section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Touchscreen::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::touchscreen_t::OFF_SCREEN, i));
         }
 
         // page switch enabled section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Touchscreen::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::touchscreen_t::PAGE_SWITCH_ENABLED, i));
         }
 
         // page switch index section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i += PARAM_SKIP)
+        for (size_t i = 0; i < IO::Touchscreen::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::touchscreen_t::PAGE_SWITCH_INDEX, i));
         }
@@ -754,7 +754,7 @@ TEST_F(HWTest, USBMIDIData)
     auto receivedMessages = cleanupMIDIResponse(response);
     LOG(INFO) << "Received " << receivedMessages << " USB messages after preset change:\n"
               << response;
-    ASSERT_EQ(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), receivedMessages);
+    ASSERT_EQ(IO::Buttons::Collection::SIZE(IO::Buttons::GROUP_DIGITAL_INPUTS), receivedMessages);
 }
 
 #ifdef HW_SUPPORT_DIN_MIDI
@@ -805,7 +805,7 @@ TEST_F(HWTest, DINMIDIData)
     receivedMessages = cleanupMIDIResponse(response);
     LOG(INFO) << "Received " << receivedMessages << " DIN MIDI messages after preset change:\n"
               << response;
-    ASSERT_EQ(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS), receivedMessages);
+    ASSERT_EQ(IO::Buttons::Collection::SIZE(IO::Buttons::GROUP_DIGITAL_INPUTS), receivedMessages);
 
     // enable DIN MIDI passthrough, send data to DIN MIDI in to device and expect the same message passed to output port
     LOG(INFO) << "Enabling DIN to DIN thru";

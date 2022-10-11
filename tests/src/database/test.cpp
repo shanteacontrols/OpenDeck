@@ -80,37 +80,37 @@ TEST_F(DatabaseTest, ReadInitialValues)
         //----------------------------------
         // type section
         // all values should be set to 0 (default type)
-        for (size_t i = 0; i < IO::Buttons::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Buttons::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(0, Database::Config::Section::button_t::TYPE, i);
         }
 
         // midi message section
         // all values should be set to 0 (default/note)
-        for (size_t i = 0; i < IO::Buttons::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Buttons::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(0, Database::Config::Section::button_t::MESSAGE_TYPE, i);
         }
 
         // midi id section
-        for (size_t group = 0; group < IO::Buttons::Collection::groups(); group++)
+        for (size_t group = 0; group < IO::Buttons::Collection::GROUPS(); group++)
         {
-            for (size_t i = 0; i < IO::Buttons::Collection::size(group); i++)
+            for (size_t i = 0; i < IO::Buttons::Collection::SIZE(group); i++)
             {
-                DB_READ_VERIFY(i, Database::Config::Section::button_t::MIDI_ID, i + IO::Buttons::Collection::startIndex(group));
+                DB_READ_VERIFY(i, Database::Config::Section::button_t::MIDI_ID, i + IO::Buttons::Collection::START_INDEX(group));
             }
         }
 
         // midi velocity section
         // all values should be set to 127
-        for (size_t i = 0; i < IO::Buttons::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Buttons::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(127, Database::Config::Section::button_t::VALUE, i);
         }
 
         // midi channel section
         // all values should be set to 1
-        for (size_t i = 0; i < IO::Buttons::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Buttons::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(1, Database::Config::Section::button_t::CHANNEL, i);
         }
@@ -119,42 +119,42 @@ TEST_F(DatabaseTest, ReadInitialValues)
         //----------------------------------
         // enable section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Encoders::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Encoders::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(0, Database::Config::Section::encoder_t::ENABLE, i);
         }
 
         // invert section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Encoders::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Encoders::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(0, Database::Config::Section::encoder_t::INVERT, i);
         }
 
         // mode section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Encoders::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Encoders::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(0, Database::Config::Section::encoder_t::MODE, i);
         }
 
         // midi id section
         // incremental values - first value should be 0, each successive value should be incremented by 1 for each group
-        for (size_t i = 0; i < IO::Encoders::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Encoders::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(i, Database::Config::Section::encoder_t::MIDI_ID, i);
         }
 
         // midi channel section
         // all values should be set to 1
-        for (size_t i = 0; i < IO::Encoders::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Encoders::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(1, Database::Config::Section::encoder_t::CHANNEL, i);
         }
 
         // pulses per step section
         // all values should be set to 4
-        for (size_t i = 0; i < IO::Encoders::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Encoders::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(4, Database::Config::Section::encoder_t::PULSES_PER_STEP, i);
         }
@@ -163,66 +163,66 @@ TEST_F(DatabaseTest, ReadInitialValues)
         //----------------------------------
         // enable section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Analog::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Analog::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(0, Database::Config::Section::analog_t::ENABLE, i);
         }
 
         // invert section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Analog::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Analog::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(0, Database::Config::Section::analog_t::INVERT, i);
         }
 
         // type section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Analog::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Analog::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(0, Database::Config::Section::analog_t::INVERT, i);
         }
 
         // midi id section
         // incremental values - first value should be 0, each successive value should be incremented by 1 for each group
-        for (size_t group = 0; group < IO::Analog::Collection::groups(); group++)
+        for (size_t group = 0; group < IO::Analog::Collection::GROUPS(); group++)
         {
-            for (size_t i = 0; i < IO::Analog::Collection::size(group); i++)
+            for (size_t i = 0; i < IO::Analog::Collection::SIZE(group); i++)
             {
-                DB_READ_VERIFY(i, Database::Config::Section::analog_t::MIDI_ID, i + IO::Analog::Collection::startIndex(group));
+                DB_READ_VERIFY(i, Database::Config::Section::analog_t::MIDI_ID, i + IO::Analog::Collection::START_INDEX(group));
             }
         }
 
         // lower limit section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Analog::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Analog::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(0, Database::Config::Section::analog_t::LOWER_LIMIT, i);
         }
 
         // upper limit section
         // all values should be set to 16383
-        for (size_t i = 0; i < IO::Analog::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Analog::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(16383, Database::Config::Section::analog_t::UPPER_LIMIT, i);
         }
 
         // midi channel section
         // all values should be set to 1
-        for (size_t i = 0; i < IO::Analog::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Analog::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(1, Database::Config::Section::analog_t::CHANNEL, i);
         }
 
         // lower offset section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Analog::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Analog::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(0, Database::Config::Section::analog_t::LOWER_OFFSET, i);
         }
 
         // upper offset section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Analog::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Analog::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(0, Database::Config::Section::analog_t::UPPER_OFFSET, i);
         }
@@ -238,38 +238,38 @@ TEST_F(DatabaseTest, ReadInitialValues)
 
         // activation id section
         // incremental values - first value should be 0, each successive value should be incremented by 1 for each group
-        for (size_t group = 0; group < IO::LEDs::Collection::groups(); group++)
+        for (size_t group = 0; group < IO::LEDs::Collection::GROUPS(); group++)
         {
-            for (size_t i = 0; i < IO::LEDs::Collection::size(group); i++)
+            for (size_t i = 0; i < IO::LEDs::Collection::SIZE(group); i++)
             {
-                DB_READ_VERIFY(i, Database::Config::Section::leds_t::ACTIVATION_ID, i + IO::LEDs::Collection::startIndex(group));
+                DB_READ_VERIFY(i, Database::Config::Section::leds_t::ACTIVATION_ID, i + IO::LEDs::Collection::START_INDEX(group));
             }
         }
 
         // rgb enable section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::LEDs::Collection::size() / 3 + (IO::Touchscreen::Collection::size() / 3); i++)
+        for (size_t i = 0; i < IO::LEDs::Collection::SIZE() / 3 + (IO::Touchscreen::Collection::SIZE() / 3); i++)
         {
             DB_READ_VERIFY(0, Database::Config::Section::leds_t::RGB_ENABLE, i);
         }
 
         // control type section
         // all values should be set to MIDI_IN_NOTE_MULTI_VAL
-        for (size_t i = 0; i < IO::LEDs::Collection::size(); i++)
+        for (size_t i = 0; i < IO::LEDs::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(static_cast<uint32_t>(IO::LEDs::controlType_t::MIDI_IN_NOTE_MULTI_VAL), Database::Config::Section::leds_t::CONTROL_TYPE, i);
         }
 
         // activation value section
         // all values should be set to 127
-        for (size_t i = 0; i < IO::LEDs::Collection::size(); i++)
+        for (size_t i = 0; i < IO::LEDs::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(127, Database::Config::Section::leds_t::ACTIVATION_VALUE, i);
         }
 
         // midi channel section
         // all values should be set to 1
-        for (size_t i = 0; i < IO::LEDs::Collection::size(); i++)
+        for (size_t i = 0; i < IO::LEDs::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(1, Database::Config::Section::leds_t::CHANNEL, i);
         }
@@ -299,56 +299,56 @@ TEST_F(DatabaseTest, ReadInitialValues)
 
         // x position section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Touchscreen::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(0, Database::Config::Section::touchscreen_t::X_POS, i);
         }
 
         // y position section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Touchscreen::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(0, Database::Config::Section::touchscreen_t::Y_POS, i);
         }
 
         // width section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Touchscreen::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(0, Database::Config::Section::touchscreen_t::WIDTH, i);
         }
 
         // height section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Touchscreen::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(0, Database::Config::Section::touchscreen_t::HEIGHT, i);
         }
 
         // on screen section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Touchscreen::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(0, Database::Config::Section::touchscreen_t::ON_SCREEN, i);
         }
 
         // off screen section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Touchscreen::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(0, Database::Config::Section::touchscreen_t::OFF_SCREEN, i);
         }
 
         // page switch enabled section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Touchscreen::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(0, Database::Config::Section::touchscreen_t::PAGE_SWITCH_ENABLED, i);
         }
 
         // page switch index section
         // all values should be set to 0
-        for (size_t i = 0; i < IO::Touchscreen::Collection::size(); i++)
+        for (size_t i = 0; i < IO::Touchscreen::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(0, Database::Config::Section::touchscreen_t::PAGE_SWITCH_INDEX, i);
         }
@@ -375,14 +375,14 @@ TEST_F(DatabaseTest, Presets)
         // try setting value in preset 1, switch back to preset 0 and verify preset 0 still contains default value
         ASSERT_TRUE(_database._instance.setPreset(1));
 
-        if (IO::Analog::Collection::size())
+        if (IO::Analog::Collection::SIZE())
         {
             ASSERT_TRUE(_database._instance.update(Database::Config::Section::analog_t::MIDI_ID, 0, 127));
         }
 
         ASSERT_TRUE(_database._instance.setPreset(0));
 
-        if (IO::Analog::Collection::size())
+        if (IO::Analog::Collection::SIZE())
         {
             ASSERT_EQ(0, _database._instance.read(Database::Config::Section::analog_t::MIDI_ID, 0));
         }
@@ -439,7 +439,7 @@ TEST_F(DatabaseTest, LEDs)
 {
     // regression test
     // by default, rgb state should be disabled
-    for (size_t i = 0; i < IO::LEDs::Collection::size() / 3; i++)
+    for (size_t i = 0; i < IO::LEDs::Collection::SIZE() / 3; i++)
     {
         ASSERT_FALSE(_database._instance.read(Database::Config::Section::leds_t::RGB_ENABLE, i));
     }
@@ -447,7 +447,7 @@ TEST_F(DatabaseTest, LEDs)
     ASSERT_TRUE(_database._instance.update(Database::Config::Section::leds_t::CONTROL_TYPE, 0, IO::LEDs::controlType_t::PC_SINGLE_VAL));
 
     // rgb state shouldn't change
-    for (size_t i = 0; i < IO::LEDs::Collection::size() / 3; i++)
+    for (size_t i = 0; i < IO::LEDs::Collection::SIZE() / 3; i++)
     {
         DB_READ_VERIFY(0, Database::Config::Section::leds_t::RGB_ENABLE, i);
     }

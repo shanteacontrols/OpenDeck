@@ -147,9 +147,9 @@ namespace IO
         Filter&            _filter;
         Buttons::Database& _database;
 
-        uint8_t _buttonPressed[Collection::size() / 8 + 1]     = {};
-        uint8_t _lastLatchingState[Collection::size() / 8 + 1] = {};
-        uint8_t _incDecValue[Collection::size()]               = {};
+        uint8_t _buttonPressed[Collection::SIZE() / 8 + 1]     = {};
+        uint8_t _lastLatchingState[Collection::SIZE() / 8 + 1] = {};
+        uint8_t _incDecValue[Collection::SIZE()]               = {};
 
         static constexpr std::array<MIDI::messageType_t, static_cast<uint8_t>(messageType_t::AMOUNT)> INTERNAL_MSG_TO_MIDI_TYPE = {
             MIDI::messageType_t::NOTE_ON,                         // NOTE

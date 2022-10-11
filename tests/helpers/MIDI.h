@@ -227,7 +227,7 @@ class MIDIHelper
     {
         using namespace System;
 
-        auto blockIndex = block(section);
+        auto blockIndex = BLOCK(section);
         auto split      = Util::Conversion::Split14bit(index);
 
         std::vector<uint8_t> request = {
@@ -256,7 +256,7 @@ class MIDIHelper
     {
         using namespace System;
 
-        auto blockIndex = block(section);
+        auto blockIndex = BLOCK(section);
         auto splitIndex = Util::Conversion::Split14bit(static_cast<uint16_t>(index));
         auto splitValue = Util::Conversion::Split14bit(static_cast<uint16_t>(value));
 
@@ -586,37 +586,37 @@ class MIDIHelper
         return response.at(4);
     }
 
-    System::Config::block_t block(System::Config::Section::global_t section)
+    static constexpr System::Config::block_t BLOCK(System::Config::Section::global_t section)
     {
         return System::Config::block_t::GLOBAL;
     }
 
-    System::Config::block_t block(System::Config::Section::button_t section)
+    static constexpr System::Config::block_t BLOCK(System::Config::Section::button_t section)
     {
         return System::Config::block_t::BUTTONS;
     }
 
-    System::Config::block_t block(System::Config::Section::encoder_t section)
+    static constexpr System::Config::block_t BLOCK(System::Config::Section::encoder_t section)
     {
         return System::Config::block_t::ENCODERS;
     }
 
-    System::Config::block_t block(System::Config::Section::analog_t section)
+    static constexpr System::Config::block_t BLOCK(System::Config::Section::analog_t section)
     {
         return System::Config::block_t::ANALOG;
     }
 
-    System::Config::block_t block(System::Config::Section::leds_t section)
+    static constexpr System::Config::block_t BLOCK(System::Config::Section::leds_t section)
     {
         return System::Config::block_t::LEDS;
     }
 
-    System::Config::block_t block(System::Config::Section::i2c_t section)
+    static constexpr System::Config::block_t BLOCK(System::Config::Section::i2c_t section)
     {
         return System::Config::block_t::I2C;
     }
 
-    System::Config::block_t block(System::Config::Section::touchscreen_t section)
+    static constexpr System::Config::block_t BLOCK(System::Config::Section::touchscreen_t section)
     {
         return System::Config::block_t::TOUCHSCREEN;
     }

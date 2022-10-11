@@ -436,7 +436,7 @@ std::optional<uint8_t> Database::Admin::sysConfigSet(System::Config::Section::gl
 
     if ((result == System::Config::status_t::ACK) && writeToDb)
     {
-        result = update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_WRITE;
+        result = update(Util::Conversion::SYS_2_DB_SECTION(section), index, value) ? System::Config::status_t::ACK : System::Config::status_t::ERROR_WRITE;
     }
 
     return result;

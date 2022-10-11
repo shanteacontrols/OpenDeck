@@ -583,7 +583,7 @@ std::optional<uint8_t> Display::sysConfigGet(System::Config::Section::i2c_t sect
 
     uint32_t readValue;
 
-    auto result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue)
+    auto result = _database.read(Util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
                       ? System::Config::status_t::ACK
                       : System::Config::status_t::ERROR_READ;
 
@@ -649,7 +649,7 @@ std::optional<uint8_t> Display::sysConfigSet(System::Config::Section::i2c_t sect
         break;
     }
 
-    auto result = _database.update(Util::Conversion::sys2DBsection(section), index, value)
+    auto result = _database.update(Util::Conversion::SYS_2_DB_SECTION(section), index, value)
                       ? System::Config::status_t::ACK
                       : System::Config::status_t::ERROR_WRITE;
 

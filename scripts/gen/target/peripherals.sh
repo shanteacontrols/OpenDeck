@@ -279,7 +279,7 @@ then
     if [[ "$use_custom_uart_pins" -eq 1 ]]
     then
         {
-            printf "%s\n" "namespace {"
+            printf "%s\n" "namespace gen {"
             printf "%s\n" "constexpr inline Board::detail::UART::uartPins_t UART_PINS[$total_uart_channels] = {"
         } >> "$out_header"
 
@@ -362,7 +362,7 @@ then
     if [[ "$use_custom_i2c_pins" -eq 1 ]]
     then
         {
-            printf "%s\n" "namespace {"
+            printf "%s\n" "namespace gen {"
             printf "%s\n" "constexpr inline Board::detail::I2C::i2cPins_t I2C_PINS[$total_i2c_channels] = {"
         } >> "$out_header"
 
