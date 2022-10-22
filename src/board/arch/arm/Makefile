@@ -43,7 +43,8 @@ endif
 
 DEFINES += \
 EMUEEPROM_INCLUDE_CONFIG \
-BOARD_USE_FAST_SOFT_PWM_TIMER
+BOARD_USE_FAST_SOFT_PWM_TIMER \
+CORE_MCU_BTLDR_CACHE_WORDS_USER=8192
 
 CC        := arm-none-eabi-gcc
 CXX       := arm-none-eabi-g++
