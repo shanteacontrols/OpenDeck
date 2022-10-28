@@ -1,15 +1,15 @@
 ---
   flash:
     boot-start-page: 0
-    app-start-page: 8
+    app-start-page: 16
     app-boot-jump-offset: 260
     emueeprom:
       factory-page:
-        page: 64
+        page: 72
       page1:
-        page: 96
+        page: 104
       page2:
-        page: 128
+        page: 136
   adc:
     prescaler: 6
     samples: 16
