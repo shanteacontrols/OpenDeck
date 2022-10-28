@@ -147,10 +147,6 @@ namespace Board::detail
         /// with new data.
         /// Once the full frame has been sent, buffers should be switched.
         void switchDmxBuffer();
-
-        /// Global ISR handler for all UART events.
-        /// param [in]: channel UART channel on MCU.
-        void isr(uint8_t channel);
     }    // namespace UART
 
     namespace I2C
@@ -199,10 +195,6 @@ namespace Board::detail
             constexpr uint8_t ISR_PRIORITY = 5;
 
             void init();
-
-            /// Called in ADC ISR once the conversion is done.
-            /// param [in]: adcValue    Retrieved ADC value.
-            void isr(uint16_t adcValue);
         }    // namespace analog
 
         namespace indicators
