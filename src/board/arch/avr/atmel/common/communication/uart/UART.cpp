@@ -172,11 +172,6 @@ namespace Board::detail::UART::MCU
         }
     }
 
-    bool isTxComplete(uint8_t channel)
-    {
-        return !_transmitting[channel];
-    }
-
     bool deInit(uint8_t channel)
     {
         CORE_MCU_ATOMIC_SECTION

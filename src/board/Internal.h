@@ -107,10 +107,6 @@ namespace Board::detail
             /// param [in]: channel     UART channel on MCU.
             void startTx(uint8_t channel);
 
-            /// Checks whether the transmission is complete or not for a given UART channel.
-            /// param [in]: channel     UART channel on MCU.
-            bool isTxComplete(uint8_t channel);
-
             /// Performs low-level initialization of the specified UART channel.
             /// param [in]: channel     UART channel on MCU.
             /// param [in]: config_t    Structure containing configuration for given UART channel.

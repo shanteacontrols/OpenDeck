@@ -55,11 +55,6 @@ namespace Board::detail::UART::MCU
         }
     }
 
-    bool isTxComplete(uint8_t channel)
-    {
-        return !_transmitting[channel];
-    }
-
     bool deInit(uint8_t channel)
     {
         if (HAL_UART_DeInit(&_uartHandler[channel]) == HAL_OK)

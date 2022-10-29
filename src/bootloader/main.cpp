@@ -64,11 +64,6 @@ class BTLDRWriter : public Updater::BTLDRWriter
     {
 #ifndef HW_SUPPORT_USB
         Board::UART::write(HW_UART_CHANNEL_USB_LINK, TARGET_FW_UPDATE_DONE);
-
-        while (!Board::UART::isTxComplete(HW_UART_CHANNEL_USB_LINK))
-        {
-            ;
-        }
 #endif
         Board::reboot();
     }
@@ -77,11 +72,6 @@ class BTLDRWriter : public Updater::BTLDRWriter
     {
 #ifndef HW_SUPPORT_USB
         Board::UART::write(HW_UART_CHANNEL_USB_LINK, TARGET_FW_UPDATE_STARTED);
-
-        while (!Board::UART::isTxComplete(HW_UART_CHANNEL_USB_LINK))
-        {
-            ;
-        }
 #endif
 
         Board::IO::indicators::indicateFirmwareUpdateStart();
@@ -119,12 +109,7 @@ class HWAFwSelector : public FwSelector::HWA
             // knows whether the target MCU has entered application
             // if link MCU doesn't receive this, bootloader should be entered
             Board::UART::write(HW_UART_CHANNEL_USB_LINK, USB_LINK_MAGIC_VAL_APP);
-
-            while (!Board::UART::isTxComplete(HW_UART_CHANNEL_USB_LINK))
-            {
-                ;
-            }
-
+            core::timing::waitMs(1);
             Board::bootloader::runApplication();
 #elif defined(HW_USB_OVER_SERIAL_HOST)
             // wait a bit first

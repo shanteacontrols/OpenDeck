@@ -228,11 +228,6 @@ namespace Board::detail::UART::MCU
         }
     }
 
-    bool isTxComplete(uint8_t channel)
-    {
-        return !_transmitting[channel];
-    }
-
     bool deInit(uint8_t channel)
     {
         nrf_uarte_int_disable(_uartInstance[channel].p_reg,

@@ -42,11 +42,6 @@ namespace Board
                                              2,
                                              BUFFER_SIZE_USB_OVER_SERIAL);
         USBOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
-
-        while (!Board::UART::isTxComplete(HW_UART_CHANNEL_USB_LINK))
-        {
-            ;
-        }
 #endif
 
         // In case the indicator LEDs were on before this command was issued, this will make sure

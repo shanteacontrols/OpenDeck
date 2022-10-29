@@ -202,11 +202,6 @@ namespace Board
         /// param [in]: state   New state of loopback functionality (true/enabled, false/disabled).
         void setLoopbackState(uint8_t channel, bool state);
 
-        /// Checks if all data on specified UART channel has been sent.
-        /// param [in]: channel UART channel on MCU.
-        /// returns: True if there is no more data to transmit, false otherwise.
-        bool isTxComplete(uint8_t channel);
-
         /// Used to change DMX buffer from which values will be read.
         /// returns: True if the buffer is valid (non-nullptr), false otherwise.
         bool updateDmxBuffer(dmxBuffer_t& buffer);

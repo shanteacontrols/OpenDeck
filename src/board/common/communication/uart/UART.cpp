@@ -174,16 +174,6 @@ namespace Board
             return write(channel, &value, 1);
         }
 
-        bool isTxComplete(uint8_t channel)
-        {
-            if (channel >= CORE_MCU_MAX_UART_INTERFACES)
-            {
-                return false;
-            }
-
-            return Board::detail::UART::MCU::isTxComplete(channel);
-        }
-
 #ifdef HW_SUPPORT_DMX
         bool updateDmxBuffer(dmxBuffer_t& buffer)
         {
