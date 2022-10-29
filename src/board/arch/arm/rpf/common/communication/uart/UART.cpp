@@ -66,16 +66,15 @@ namespace Board::detail::UART::MCU
         uart_set_format(_uartInstance[channel], 8, config.stopBits, static_cast<uart_parity_t>(config.parity));
         uart_set_fifo_enabled(_uartInstance[channel], false);
         irq_set_enabled(UART_IRQ[channel], true);
+        uart_set_irq_enables(_uartInstance[channel], true, false);
 
         // ignore first rx event (junk)
-        core::timing::waitMs(50);
+        core::timing::waitMs(150);
 
-        while (uart_is_readable(_uartInstance[channel]))
-        {
-            uart_getc(_uartInstance[channel]);
-        }
+        uint8_t junk;
 
-        uart_set_irq_enables(_uartInstance[channel], true, false);
+        while (Board::UART::read(channel, junk))
+            ;
 
         return true;
     }
