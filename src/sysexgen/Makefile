@@ -14,7 +14,9 @@ else
     OPT := -O3
 endif
 
-SOURCES += sysexgen/main.cpp
-
 DEFINES := $(filter-out CORE_ARCH_%,$(DEFINES))
 DEFINES := $(filter-out CORE_VENDOR_%,$(DEFINES))
+
+ifneq (,$(findstring HW_SUPPORT_BOOTLOADER,$(DEFINES)))
+    SOURCES += sysexgen/main.cpp
+endif

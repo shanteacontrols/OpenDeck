@@ -642,6 +642,7 @@ TEST_F(HWTest, DatabaseInitialValues)
     }
 }
 
+#ifdef HW_SUPPORT_BOOTLOADER
 TEST_F(HWTest, FwUpdate)
 {
     LOG(INFO) << "Entering bootloader mode";
@@ -663,6 +664,7 @@ TEST_F(HWTest, FwUpdate)
 
     handshake();
 }
+#endif
 
 TEST_F(HWTest, BackupAndRestore)
 {

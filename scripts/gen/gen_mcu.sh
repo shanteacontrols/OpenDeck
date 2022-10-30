@@ -26,6 +26,7 @@ printf "%s\n" "### OPENDECK ADDITIONS ###" >> "$out_makefile"
 mkdir -p "$gen_dir"
 
 declare -i app_start_page
+declare -i boot_supported
 declare -i boot_start_page
 declare -i boot_end_page
 declare -i app_boot_jump_offset
@@ -37,6 +38,14 @@ declare -i factory_flash_page_offset
 declare -i eeprom_flash_page_1
 declare -i eeprom_flash_page_2
 declare -i total_flash_pages
+
+if [[ $($yaml_parser "$yaml_file" flash.boot-start-page) != "null" ]]
+then
+    # Having just "if [[ $boot_start_page != "null" ]]" check later will
+    # fail because boot_start_page is defined as integer, so even if
+    # dasel returns null for boot-start-page key, the value will be 0
+    boot_supported=1
+fi
 
 app_start_page=$($yaml_parser "$yaml_file" flash.app-start-page)
 boot_start_page=$($yaml_parser "$yaml_file" flash.boot-start-page)
@@ -56,7 +65,7 @@ then
     app_start_page=0
 fi
 
-if [[ $boot_start_page != "null" ]]
+if [[ $boot_supported -ne 0 ]]
 then
     {
         printf "%s\n" "DEFINES += HW_SUPPORT_BOOTLOADER"
@@ -74,7 +83,7 @@ if [[ $($yaml_parser "$base_yaml_file" flash.pages) != "null" ]]
 then
     app_start_address=$($yaml_parser "$base_yaml_file" flash.pages.["$app_start_page"].address)
 
-    if [[ $boot_start_page != "null" ]]
+    if [[ $boot_supported -ne 0 ]]
     then
         boot_start_address=$($yaml_parser "$base_yaml_file" flash.pages.["$boot_start_page"].address)
     fi
@@ -87,7 +96,7 @@ else
     ((app_start_address*=app_start_page))
     ((app_start_address+=flash_start_address))
 
-    if [[ $boot_start_page != "null" ]]
+    if [[ $boot_supported -ne 0 ]]
     then
         boot_start_address=$($yaml_parser "$base_yaml_file" flash.page-size)
         ((boot_start_address*=boot_start_page))
@@ -102,7 +111,7 @@ fi
     printf "%s\n" 'FLASH_ADDR_FW_METADATA := $(shell printf "0x%x" $$(( $(FLASH_ADDR_APP_START) + $(CORE_FW_METADATA_OFFSET) )) )'
 } >> "$out_makefile"
 
-if [[ $boot_start_page != "null" ]]
+if [[ $boot_supported -ne 0 ]]
 then
     {
         printf "%s%x\n" "FLASH_ADDR_BOOT_START := 0x" "$boot_start_address"
@@ -174,7 +183,7 @@ fi
 # Calculate boot size
 # First boot page is known, but last isn't - determine
 
-if [[ $boot_start_page != "null" ]]
+if [[ $boot_supported -ne 0 ]]
 then
     boot_end_page=$total_flash_pages
 
@@ -206,6 +215,8 @@ then
         printf "%s%s\n" "BOOT_SIZE := " "$boot_size"
         printf "%s%s\n" "APP_SIZE := " '$(shell echo $$(( $(CORE_MCU_FLASH_SIZE) - $(BOOT_SIZE) - $(EMU_EEPROM_FLASH_USAGE) )) )'
     } >> "$out_makefile"
+else
+    printf "%s%s\n" "APP_SIZE := " '$(shell echo $$(( $(CORE_MCU_FLASH_SIZE) - $(EMU_EEPROM_FLASH_USAGE) )) )' >> "$out_makefile"
 fi
 
 if [[ $($yaml_parser "$yaml_file" fuses) != "null" ]]

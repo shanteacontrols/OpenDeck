@@ -1,4 +1,5 @@
 #ifndef HW_USB_OVER_SERIAL_HOST
+#ifdef HW_SUPPORT_BOOTLOADER
 
 #include "framework/Framework.h"
 #include "SysExParser/SysExParser.h"
@@ -140,4 +141,5 @@ TEST(Bootloader, FwUpdate)
     }
 }
 
+#endif
 #endif
