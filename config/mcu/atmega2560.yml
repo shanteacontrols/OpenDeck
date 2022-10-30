@@ -1,7 +1,6 @@
 ---
   flash:
     app-start-page: 0
-    boot-start-page: 992
   fuses:
     unlock: 0xFF
     lock: 0xEF
