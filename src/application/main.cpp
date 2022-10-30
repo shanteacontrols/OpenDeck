@@ -366,13 +366,7 @@ class HWAMIDIDIN : public System::Builder::HWA::Protocol::MIDI::DIN
     bool init() override
     {
         static constexpr uint32_t BAUDRATE = 31250;
-
-        Board::UART::config_t config(BAUDRATE,
-                                     Board::UART::parity_t::NO,
-                                     Board::UART::stopBits_t::ONE,
-                                     Board::UART::type_t::RX_TX);
-
-        return Board::UART::init(HW_UART_CHANNEL_DIN, config) == Board::initStatus_t::OK;
+        return Board::UART::init(HW_UART_CHANNEL_DIN, BAUDRATE) == Board::initStatus_t::OK;
     }
 
     bool deInit() override
@@ -565,19 +559,6 @@ class HWADMX : public System::Builder::HWA::Protocol::DMX
             return false;
         }
 
-        Board::UART::config_t config(250000,
-                                     Board::UART::parity_t::NO,
-                                     Board::UART::stopBits_t::TWO,
-                                     Board::UART::type_t::TX,
-                                     true,
-                                     buffer);
-
-        if (Board::UART::init(HW_UART_CHANNEL_DMX, config) == Board::initStatus_t::OK)
-        {
-            CDCLocker::lock();
-            return true;
-        }
-
         return false;
     }
 
@@ -625,8 +606,6 @@ class HWADMX : public System::Builder::HWA::Protocol::DMX
     {
         Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::UART,
                                                Board::IO::indicators::direction_t::OUTGOING);
-
-        Board::UART::updateDmxBuffer(buffer);
     }
 
     bool uniqueID(core::mcu::uniqueID_t& uniqueID) override
@@ -702,13 +681,7 @@ class HWATouchscreen : public System::Builder::HWA::IO::Touchscreen
     bool init() override
     {
         static constexpr uint32_t BAUDRATE = 38400;
-
-        Board::UART::config_t config(BAUDRATE,
-                                     Board::UART::parity_t::NO,
-                                     Board::UART::stopBits_t::ONE,
-                                     Board::UART::type_t::RX_TX);
-
-        return Board::UART::init(HW_UART_CHANNEL_TOUCHSCREEN, config) == Board::initStatus_t::OK;
+        return Board::UART::init(HW_UART_CHANNEL_TOUCHSCREEN, BAUDRATE) == Board::initStatus_t::OK;
     }
 
     bool deInit() override
@@ -816,12 +789,7 @@ class HWACDCPassthrough : public System::Builder::HWA::IO::CDCPassthrough
     {
         if (_passThroughState)
         {
-            Board::UART::config_t config(baudRate,
-                                         Board::UART::parity_t::NO,
-                                         Board::UART::stopBits_t::ONE,
-                                         Board::UART::type_t::RX_TX);
-
-            Board::UART::init(HW_UART_CHANNEL_TOUCHSCREEN, config, true);
+            Board::UART::init(HW_UART_CHANNEL_TOUCHSCREEN, baudRate, true);
         }
     }
 

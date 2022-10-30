@@ -18,6 +18,7 @@ echo "" > "$out_makefile"
     printf "%s\n\n" "#pragma once"
     printf "%s\n" "#include \"board/Internal.h\""
     printf "%s\n" "#include \"core/src/MCU.h\""
+    printf "%s\n" "#include \"core/src/arch/common/UART.h\""
 } >> "$out_header"
 
 source "$script_dir"/target/core.sh

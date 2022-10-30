@@ -126,12 +126,7 @@ namespace Board
             detail::IO::init();
 
 #ifdef HW_USB_OVER_SERIAL
-            Board::UART::config_t config(Board::detail::USB::USB_OVER_SERIAL_BAUDRATE,
-                                         Board::UART::parity_t::NO,
-                                         Board::UART::stopBits_t::ONE,
-                                         Board::UART::type_t::RX_TX);
-
-            Board::UART::init(HW_UART_CHANNEL_USB_LINK, config);
+            Board::UART::init(HW_UART_CHANNEL_USB_LINK, Board::detail::USB::USB_OVER_SERIAL_BAUDRATE);
 #endif
         }
 
@@ -143,12 +138,7 @@ namespace Board
             detail::IO::indicators::indicateApplicationLoad();
 
 #ifdef HW_USB_OVER_SERIAL
-            Board::UART::config_t config(Board::detail::USB::USB_OVER_SERIAL_BAUDRATE,
-                                         Board::UART::parity_t::NO,
-                                         Board::UART::stopBits_t::ONE,
-                                         Board::UART::type_t::RX_TX);
-
-            Board::UART::init(HW_UART_CHANNEL_USB_LINK, config);
+            Board::UART::init(HW_UART_CHANNEL_USB_LINK, Board::detail::USB::USB_OVER_SERIAL_BAUDRATE);
 #endif
 
 #ifdef HW_USB_OVER_SERIAL_DEVICE

@@ -134,7 +134,7 @@ namespace Board::detail::map
 
 #ifdef CORE_MCU_CUSTOM_PERIPHERAL_PINS
 #ifdef HW_SUPPORT_UART
-    constexpr const Board::detail::UART::uartPins_t& UART_PINS(size_t channel)
+    constexpr const core::mcu::uart::Config::pins_t& UART_PINS(size_t channel)
     {
         return gen::UART_PINS[channel];
     }

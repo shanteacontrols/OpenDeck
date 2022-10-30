@@ -93,71 +93,13 @@ namespace Board
 
     namespace UART
     {
-        using dmxBuffer_t = std::array<uint8_t, 513>;
-
-        enum parity_t : uint8_t
-        {
-            NO,
-            EVEN,
-            ODD
-        };
-
-        enum stopBits_t : uint8_t
-        {
-            ONE,
-            TWO
-        };
-
-        enum type_t : uint8_t
-        {
-            RX_TX,
-            RX,
-            TX
-        };
-
-        struct config_t
-        {
-            uint32_t     baudRate  = 9600;
-            parity_t     parity    = parity_t::NO;
-            stopBits_t   stopBits  = stopBits_t::ONE;
-            type_t       type      = type_t::RX_TX;
-            bool         dmxMode   = false;
-            dmxBuffer_t* dmxBuffer = nullptr;
-
-            config_t(uint32_t     baudRate,
-                     parity_t     parity,
-                     stopBits_t   stopBits,
-                     type_t       type,
-                     bool         dmxMode,
-                     dmxBuffer_t& dmxBuffer)
-                : baudRate(baudRate)
-                , parity(parity)
-                , stopBits(stopBits)
-                , type(type)
-                , dmxMode(dmxMode)
-                , dmxBuffer(&dmxBuffer)
-            {}
-
-            config_t(uint32_t   baudRate,
-                     parity_t   parity,
-                     stopBits_t stopBits,
-                     type_t     type)
-                : baudRate(baudRate)
-                , parity(parity)
-                , stopBits(stopBits)
-                , type(type)
-            {}
-
-            config_t() = default;
-        };
-
         /// Initializes UART peripheral.
         /// param [in]: channel     UART channel on MCU.
-        /// param [in]: config      Structure containing configuration for given UART channel.
+        /// param [in]: baudRate    Baud rate for specified channel.
         /// param [in]: force       Forces the enabling of UART channel
         ///                         even if UART is already enabled.
         /// returns: see initStatus_t.
-        initStatus_t init(uint8_t channel, config_t& config, bool force = false);
+        initStatus_t init(uint8_t channel, uint32_t baudRate, bool force = false);
 
         /// Deinitializes specified UART channel.
         /// param [in]: channel UART channel on MCU.
@@ -201,10 +143,6 @@ namespace Board
         /// param [in]: channel UART channel on MCU.
         /// param [in]: state   New state of loopback functionality (true/enabled, false/disabled).
         void setLoopbackState(uint8_t channel, bool state);
-
-        /// Used to change DMX buffer from which values will be read.
-        /// returns: True if the buffer is valid (non-nullptr), false otherwise.
-        bool updateDmxBuffer(dmxBuffer_t& buffer);
     }    // namespace UART
 
     namespace I2C

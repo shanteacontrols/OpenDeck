@@ -23,237 +23,79 @@ limitations under the License.
 #include "core/src/util/RingBuffer.h"
 #include "core/src/util/Util.h"
 #include "core/src/MCU.h"
-
-// generic UART driver, arch-independent
+#include <Target.h>
 
 namespace
 {
-    /// Flag determining whether or not UART loopback functionality is enabled.
-    /// When enabled, all incoming UART traffic is immediately passed on to UART TX.
-    volatile bool _loopbackEnabled[CORE_MCU_MAX_UART_INTERFACES];
-
-    /// Flag holding the state of UART interface (whether it's _initialized or not).
-    bool _initialized[CORE_MCU_MAX_UART_INTERFACES];
-
-    /// Buffer in which outgoing UART data is stored.
-    core::util::RingBuffer<uint8_t, BUFFER_SIZE_UART_TX> _txBuffer[CORE_MCU_MAX_UART_INTERFACES];
-
-    /// Buffer in which incoming UART data is stored.
-    core::util::RingBuffer<uint8_t, BUFFER_SIZE_UART_RX> _rxBuffer[CORE_MCU_MAX_UART_INTERFACES];
-
-#ifdef HW_SUPPORT_DMX
-    Board::UART::dmxBuffer_t* _dmxBuffer;
-    Board::UART::dmxBuffer_t* _dmxBufferQueued;
-#endif
+    core::mcu::uart::Channel<BUFFER_SIZE_UART_TX, BUFFER_SIZE_UART_RX> _channels[CORE_MCU_MAX_UART_INTERFACES];
 }    // namespace
 
-namespace Board
+namespace Board::UART
 {
-    namespace UART
+    initStatus_t init(uint8_t channel, uint32_t baudRate, bool force)
     {
-        void setLoopbackState(uint8_t channel, bool state)
+        if (isInitialized(channel))
         {
-            if (channel >= CORE_MCU_MAX_UART_INTERFACES)
+            if (!force)
             {
-                return;
+                // interface already initialized
+                return initStatus_t::ALREADY_INIT;
             }
 
-            _loopbackEnabled[channel] = state;
-        }
-
-        bool deInit(uint8_t channel)
-        {
-            if (channel >= CORE_MCU_MAX_UART_INTERFACES)
-            {
-                return false;
-            }
-
-            if (Board::detail::UART::MCU::deInit(channel))
-            {
-                setLoopbackState(channel, false);
-
-                _rxBuffer[channel].reset();
-                _txBuffer[channel].reset();
-
-                _initialized[channel] = false;
-
-                return true;
-            }
-
-            return false;
-        }
-
-        initStatus_t init(uint8_t channel, config_t& config, bool force)
-        {
-            if (channel >= CORE_MCU_MAX_UART_INTERFACES)
+            if (!deInit(channel))
             {
                 return initStatus_t::ERROR;
             }
-
-            if (isInitialized(channel) && !force)
-            {
-                return initStatus_t::ALREADY_INIT;    // interface already initialized
-            }
-
-            if (deInit(channel))
-            {
-                if (Board::detail::UART::MCU::init(channel, config))
-                {
-                    _initialized[channel] = true;
-                    return initStatus_t::OK;
-                }
-            }
-
-            return initStatus_t::ERROR;
         }
 
-        bool isInitialized(uint8_t channel)
-        {
-            if (channel >= CORE_MCU_MAX_UART_INTERFACES)
-            {
-                return false;
-            }
-
-            return _initialized[channel];
-        }
-
-        bool read(uint8_t channel, uint8_t* buffer, size_t& size, const size_t maxSize)
-        {
-            size = 0;
-
-            if (channel >= CORE_MCU_MAX_UART_INTERFACES)
-            {
-                return false;
-            }
-
-            while (_rxBuffer[channel].remove(buffer[size++]))
-            {
-                if (size >= maxSize)
-                {
-                    break;
-                }
-            }
-
-            return size > 0;
-        }
-
-        bool read(uint8_t channel, uint8_t& value)
-        {
-            value = 0;
-
-            if (channel >= CORE_MCU_MAX_UART_INTERFACES)
-            {
-                return false;
-            }
-
-            return _rxBuffer[channel].remove(value);
-        }
-
-        bool write(uint8_t channel, uint8_t* buffer, size_t size)
-        {
-            if (channel >= CORE_MCU_MAX_UART_INTERFACES)
-            {
-                return false;
-            }
-
-            for (size_t i = 0; i < size; i++)
-            {
-                while (!_txBuffer[channel].insert(buffer[i]))
-                {
-                    ;
-                }
-
-                Board::detail::UART::MCU::startTx(channel);
-            }
-
-            return true;
-        }
-
-        bool write(uint8_t channel, uint8_t value)
-        {
-            return write(channel, &value, 1);
-        }
-
-#ifdef HW_SUPPORT_DMX
-        bool updateDmxBuffer(dmxBuffer_t& buffer)
-        {
-            CORE_MCU_ATOMIC_SECTION
-            {
-                // switch to the new buffer only once the current frame is fully sent
-                _dmxBufferQueued = &buffer;
-
-                // first init - assign it to _dmxBuffer as well
-                if (_dmxBuffer == nullptr)
-                {
-                    _dmxBuffer = &buffer;
-                }
-            }
-
-            return true;
-        }
+        core::mcu::uart::Config config(channel,
+                                       baudRate,
+                                       core::mcu::uart::Config::parity_t::NO,
+                                       core::mcu::uart::Config::stopBits_t::ONE,
+                                       core::mcu::uart::Config::type_t::RX_TX
+#ifdef CORE_MCU_CUSTOM_PERIPHERAL_PINS
+                                       ,
+                                       Board::detail::map::UART_PINS(channel)
 #endif
-    }    // namespace UART
+        );
 
-    namespace detail::UART
+        return _channels[channel].init(config) ? initStatus_t::OK : initStatus_t::ERROR;
+    }
+
+    bool deInit(uint8_t channel)
     {
-        void storeIncomingData(uint8_t channel, uint8_t data)
-        {
-            if (!_loopbackEnabled[channel])
-            {
-                _rxBuffer[channel].insert(data);
-            }
-            else
-            {
-                if (_txBuffer[channel].insert(data))
-                {
-                    Board::detail::UART::MCU::startTx(channel);
+        return _channels[channel].deInit();
+    }
 
-                    // indicate loopback here since it's run inside interrupt, ie. not visible to the user application
-                    Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::UART,
-                                                           Board::IO::indicators::direction_t::OUTGOING);
+    bool isInitialized(uint8_t channel)
+    {
+        return _channels[channel].isInitialized();
+    }
 
-                    Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::UART,
-                                                           Board::IO::indicators::direction_t::INCOMING);
-                }
-            }
-        }
+    bool read(uint8_t channel, uint8_t* buffer, size_t& size, const size_t maxSize)
+    {
+        return _channels[channel].read(buffer, size, maxSize);
+    }
 
-        bool getNextByteToSend(uint8_t channel, uint8_t& data, size_t& remainingBytes)
-        {
-            if (_txBuffer[channel].remove(data))
-            {
-                remainingBytes = _txBuffer[channel].size();
-                return true;
-            }
+    bool read(uint8_t channel, uint8_t& value)
+    {
+        return _channels[channel].read(value);
+    }
 
-            remainingBytes = 0;
-            return false;
-        }
+    bool write(uint8_t channel, uint8_t* buffer, size_t size)
+    {
+        return _channels[channel].write(buffer, size);
+    }
 
-        bool bytesToSendAvailable(uint8_t channel)
-        {
-            return _txBuffer[channel].size();
-        }
+    bool write(uint8_t channel, uint8_t value)
+    {
+        return write(channel, &value, 1);
+    }
 
-#ifdef HW_SUPPORT_DMX
-        Board::UART::dmxBuffer_t* dmxBuffer()
-        {
-            return _dmxBuffer;
-        }
-
-        void switchDmxBuffer()
-        {
-            // check if buffer needs to be switched
-            if (_dmxBufferQueued != nullptr)
-            {
-                _dmxBuffer       = _dmxBufferQueued;
-                _dmxBufferQueued = nullptr;
-            }
-
-            // else leave as is
-        }
-#endif
-    }    // namespace detail::UART
-}    // namespace Board
+    void setLoopbackState(uint8_t channel, bool state)
+    {
+        return _channels[channel].setLoopbackState(state);
+    }
+}    // namespace Board::UART
 
 #endif

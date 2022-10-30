@@ -280,7 +280,7 @@ then
     then
         {
             printf "%s\n" "namespace gen {"
-            printf "%s\n" "constexpr inline Board::detail::UART::uartPins_t UART_PINS[$total_uart_channels] = {"
+            printf "%s\n" "constexpr inline core::mcu::uart::Config::pins_t UART_PINS[$total_uart_channels] = {"
         } >> "$out_header"
 
         for ((channel=0; channel<total_uart_channels;channel++))
