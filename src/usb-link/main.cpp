@@ -141,6 +141,10 @@ int main()
                     bootloader::setMagicBootValue(readPacket[1]);
                     reboot();
                 }
+                else if (readPacket[0] == static_cast<uint8_t>(USBLink::internalCMD_t::DISCONNECT_USB))
+                {
+                    Board::USB::deInit();
+                }
             }
 
             // clear out any stored information in packet since we are reusing it

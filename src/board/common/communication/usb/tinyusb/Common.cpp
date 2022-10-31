@@ -100,13 +100,32 @@ extern "C" void tud_umount_cb(void)
     _usbConnected = false;
 }
 
-namespace Board::USB
+namespace Board
 {
-    bool isUSBconnected()
+    namespace USB
     {
-        return _usbConnected;
-    }
-}    // namespace Board::USB
+        bool isUSBconnected()
+        {
+            return _usbConnected;
+        }
+    }    // namespace USB
+
+    namespace detail::USB
+    {
+        void deInit()
+        {
+            tud_disconnect();
+        }
+
+        void update()
+        {
+            if (Board::USB::isInitialized())
+            {
+                tud_task();
+            }
+        }
+    }    // namespace detail::USB
+}    // namespace Board
 
 #endif
 #endif

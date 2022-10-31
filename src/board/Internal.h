@@ -51,6 +51,8 @@ namespace Board::detail
         };
 
         void init();
+        void deInit();
+        void update();
 
 #ifdef HW_USB_OVER_SERIAL
         constexpr inline uint32_t USB_OVER_SERIAL_BAUDRATE = 38400;

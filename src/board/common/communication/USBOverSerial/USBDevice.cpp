@@ -153,6 +153,24 @@ namespace Board
 
     namespace detail::USB
     {
+        void init()
+        {
+        }
+
+        void deInit()
+        {
+            uint8_t data[1] = {
+                static_cast<uint8_t>(USBLink::internalCMD_t::DISCONNECT_USB),
+            };
+
+            USBOverSerial::USBWritePacket packet(USBOverSerial::packetType_t::INTERNAL,
+                                                 data,
+                                                 1,
+                                                 BUFFER_SIZE_USB_OVER_SERIAL);
+
+            USBOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
+        }
+
         bool checkInternal(USBLink::internalCMD_t& cmd)
         {
             bool validCmd = true;
@@ -189,6 +207,12 @@ namespace Board
                     {
                         _uidUSBDevice[i] = _readPacket[i + 1];
                     }
+                }
+                break;
+
+                case static_cast<uint8_t>(USBLink::internalCMD_t::DISCONNECT_USB):
+                {
+                    Board::USB::deInit();
                 }
                 break;
 

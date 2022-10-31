@@ -113,6 +113,20 @@ namespace Board
 
             return initStatus_t::ALREADY_INIT;
         }
+
+        void deInit()
+        {
+            if (_usbInitialized)
+            {
+                detail::USB::deInit();
+                _usbInitialized = false;
+            }
+        }
+
+        bool isInitialized()
+        {
+            return _usbInitialized;
+        }
     }    // namespace USB
 
     namespace detail::setup

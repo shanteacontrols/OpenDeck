@@ -49,6 +49,12 @@ namespace Board
         /// For bootloader, USB is initialized automatically once runBootloader is called.
         initStatus_t init();
 
+        /// Checks if the USB interface has been initialized.
+        bool isInitialized();
+
+        /// Shuts down USB connection to host.
+        void deInit();
+
         /// Checks if USB has been enumerated on host machine.
         bool isUSBconnected();
 

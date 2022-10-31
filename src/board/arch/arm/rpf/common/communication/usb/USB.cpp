@@ -27,7 +27,7 @@ namespace Board::detail::USB
     void init()
     {
         tusb_init();
-        Board::detail::registerUpdateHook(&tud_task);
+        detail::registerUpdateHook(&Board::detail::USB::update);
     }
 }    // namespace Board::detail::USB
 

@@ -29,6 +29,7 @@ namespace USBLink
         REBOOT_BTLDR,
         USB_STATE,
         BAUDRATE_CHANGE,
-        UNIQUE_ID
+        UNIQUE_ID,
+        DISCONNECT_USB
     };
 }    // namespace USBLink

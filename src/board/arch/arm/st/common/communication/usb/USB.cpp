@@ -38,7 +38,7 @@ namespace Board::detail::USB
         USB_OTG_FS->GCCFG |= USB_OTG_GCCFG_NOVBUSSENS;
 
         tusb_init();
-        Board::detail::registerUpdateHook(&tud_task);
+        detail::registerUpdateHook(&Board::detail::USB::update);
     }
 }    // namespace Board::detail::USB
 

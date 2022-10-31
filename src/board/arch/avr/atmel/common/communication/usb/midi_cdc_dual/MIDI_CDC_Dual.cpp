@@ -151,6 +151,11 @@ namespace Board
 
             USB_Init();
         }
+
+        void deInit()
+        {
+            USB_Disable();
+        }
     }    // namespace detail::USB
 
     namespace USB

@@ -69,13 +69,14 @@ namespace Board::detail::USB
         {
             tusb_hal_nrf_power_event(NRFX_POWER_USB_EVT_DETECTED);
         }
+
         if (usbReg & POWER_USBREGSTATUS_OUTPUTRDY_Msk)
         {
             tusb_hal_nrf_power_event(NRFX_POWER_USB_EVT_READY);
         }
 
         tusb_init();
-        detail::registerUpdateHook(&tud_task);
+        detail::registerUpdateHook(&Board::detail::USB::update);
     }
 }    // namespace Board::detail::USB
 
