@@ -233,7 +233,7 @@ then
         if [[ $uart_channel_touchscreen != "null" ]]
         then
             printf "%s\n" "DEFINES += HW_UART_CHANNEL_TOUCHSCREEN=$uart_channel_touchscreen" >> "$out_makefile"
-        elif [[ $uart_dmx_pins != "null" ]]
+        elif [[ $uart_touchscreen_pins != "null" ]]
         then
             use_custom_uart_pins=1
 
