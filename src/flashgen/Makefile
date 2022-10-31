@@ -26,5 +26,4 @@ endif
 # Same as app
 DEFINES += FW_APP
 FLASH_START_ADDR := $(FLASH_ADDR_APP_START)
-DEFINES := $(filter-out CORE_ARCH_%,$(DEFINES))
-DEFINES := $(filter-out CORE_VENDOR_%,$(DEFINES))
+DEFINES += CORE_MCU_STUB
