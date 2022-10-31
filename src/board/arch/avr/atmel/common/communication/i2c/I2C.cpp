@@ -66,7 +66,7 @@ namespace Board::I2C
             return initStatus_t::ALREADY_INIT;
         }
 
-        if (core::mcu::i2c::init(channel, static_cast<uint32_t>(speed)))
+        if (core::mcu::i2c::init(channel, static_cast<core::mcu::i2c::Config::clockSpeed_t>(speed)))
         {
             _initialized = true;
             return initStatus_t::OK;

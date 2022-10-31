@@ -76,15 +76,6 @@ namespace Board::detail
         const void* serialIDString(uint16_t* size, uint8_t* uid);
     }    // namespace USB
 
-    namespace I2C
-    {
-        struct i2cPins_t
-        {
-            core::mcu::io::pin_t sda;
-            core::mcu::io::pin_t scl;
-        };
-    }    // namespace I2C
-
     namespace IO
     {
         void init();

@@ -363,7 +363,7 @@ then
     then
         {
             printf "%s\n" "namespace gen {"
-            printf "%s\n" "constexpr inline Board::detail::I2C::i2cPins_t I2C_PINS[$total_i2c_channels] = {"
+            printf "%s\n" "constexpr inline core::mcu::i2c::Config::pins_t I2C_PINS[$total_i2c_channels] = {"
         } >> "$out_header"
 
         for ((channel=0; channel<total_i2c_channels;channel++))

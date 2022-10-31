@@ -37,15 +37,14 @@ namespace Board::I2C
             return initStatus_t::ALREADY_INIT;
         }
 
+        core::mcu::i2c::Config config(static_cast<core::mcu::i2c::Config::clockSpeed_t>(speed)
 #ifdef CORE_MCU_CUSTOM_PERIPHERAL_PINS
-        if (core::mcu::i2c::init(Board::detail::map::I2C_PINS(channel).sda,
-                                 Board::detail::map::I2C_PINS(channel).scl,
-                                 channel,
-                                 static_cast<uint32_t>(speed)))
-#else
-        if (core::mcu::i2c::init(channel,
-                                 static_cast<uint32_t>(speed)))
+                                          ,
+                                      Board::detail::map::I2C_PINS(channel)
 #endif
+        );
+
+        if (core::mcu::i2c::init(channel, config))
         {
             _initialized[channel] = true;
             return initStatus_t::OK;

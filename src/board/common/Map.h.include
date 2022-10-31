@@ -141,7 +141,7 @@ namespace Board::detail::map
 #endif
 
 #ifdef HW_SUPPORT_I2C
-    constexpr const Board::detail::I2C::i2cPins_t& I2C_PINS(size_t channel)
+    constexpr const core::mcu::i2c::Config::pins_t& I2C_PINS(size_t channel)
     {
         return gen::I2C_PINS[channel];
     }
