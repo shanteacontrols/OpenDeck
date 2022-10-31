@@ -45,7 +45,6 @@ namespace IO
             NRPN_14BIT,
             PITCH_BEND,
             CONTROL_CHANGE_14BIT,
-            DMX,
             AMOUNT
         };
 

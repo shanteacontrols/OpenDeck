@@ -250,7 +250,6 @@ void Encoders::sendMessage(size_t index, position_t encoderState, encoderDescrip
     case type_t::NRPN_7BIT:
     case type_t::NRPN_14BIT:
     case type_t::CONTROL_CHANGE_14BIT:
-    case type_t::DMX:
     {
         const bool USE_14BIT =
             ((descriptor.type == type_t::PITCH_BEND) || (descriptor.type == type_t::NRPN_14BIT) || (descriptor.type == type_t::CONTROL_CHANGE_14BIT));
@@ -271,14 +270,6 @@ void Encoders::sendMessage(size_t index, position_t encoderState, encoderDescrip
         {
             switch (descriptor.type)
             {
-            case type_t::DMX:
-            {
-                _value[index] = ValueIncDecDMX::increment(_value[index],
-                                                          steps,
-                                                          ValueIncDecDMX::type_t::EDGE);
-            }
-            break;
-
             case type_t::CONTROL_CHANGE:
             case type_t::NRPN_7BIT:
             {
@@ -303,12 +294,7 @@ void Encoders::sendMessage(size_t index, position_t encoderState, encoderDescrip
             }
         }
 
-        if (descriptor.type == type_t::DMX)
-        {
-            eventType              = Messaging::eventType_t::DMX_ENCODER;
-            descriptor.event.index = 0;    // irrelevant
-        }
-        else if (descriptor.type == type_t::CONTROL_CHANGE_14BIT)
+        if (descriptor.type == type_t::CONTROL_CHANGE_14BIT)
         {
             if (descriptor.event.index >= 96)
             {

@@ -83,7 +83,6 @@ namespace IO
             MULTI_VAL_INC_DEC_CC,
             NOTE_OFF_ONLY,
             CONTROL_CHANGE0_ONLY,
-            DMX,
             PROGRAM_CHANGE_OFFSET_INC,
             PROGRAM_CHANGE_OFFSET_DEC,
             AMOUNT
@@ -176,7 +175,6 @@ namespace IO
             MIDI::messageType_t::CONTROL_CHANGE,                  // MULTI_VAL_INC_DEC_CC
             MIDI::messageType_t::NOTE_ON,                         // NOTE_OFF_ONLY
             MIDI::messageType_t::CONTROL_CHANGE,                  // CONTROL_CHANGE0_ONLY
-            MIDI::messageType_t::INVALID,                         // DMX
             MIDI::messageType_t::INVALID,                         // PROGRAM_CHANGE_OFFSET_INC
             MIDI::messageType_t::INVALID,                         // PROGRAM_CHANGE_OFFSET_DEC
         };

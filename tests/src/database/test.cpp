@@ -12,7 +12,6 @@
 #include "io/leds/LEDs.h"
 #include "io/i2c/peripherals/display/Display.h"
 #include "io/touchscreen/Touchscreen.h"
-#include "protocol/dmx/DMX.h"
 #include "protocol/midi/MIDI.h"
 #include "util/configurable/Configurable.h"
 
@@ -69,12 +68,6 @@ TEST_F(DatabaseTest, ReadInitialValues)
                 DB_READ_VERIFY(0, Database::Config::Section::global_t::MIDI_SETTINGS, i);
             }
         }
-
-#ifdef HW_SUPPORT_DMX
-        // DMX section
-        // all values should be set to 0
-        DB_READ_VERIFY(0, Database::Config::Section::global_t::DMX_SETTINGS, Protocol::DMX::setting_t::ENABLE);
-#endif
 
         // button block
         //----------------------------------

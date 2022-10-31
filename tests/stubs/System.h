@@ -8,7 +8,6 @@
 #include "HWASystem.h"
 #include "HWADisplay.h"
 #include "HWAMIDI.h"
-#include "HWADMX.h"
 #include "Database.h"
 #include "system/Builder.h"
 #include "system/System.h"
@@ -33,7 +32,6 @@ class TestSystem
     HWAMIDIUSB                   _hwaMIDIUSB;
     HWAMIDIDIN                   _hwaMIDIDIN;
     HWAMIDIBLE                   _hwaMIDIBLE;
-    HWADMX                       _hwaDMX;
 
     private:
     class HWABuilder : public ::System::Builder::HWA
@@ -115,18 +113,12 @@ class TestSystem
         {
             public:
             HWAProtocol(TestSystem& testSystem)
-                : _testSystem(testSystem)
-                , _hwaMIDI(testSystem)
+                : _hwaMIDI(testSystem)
             {}
 
             ::System::Builder::HWA::Protocol::MIDI& midi()
             {
                 return _hwaMIDI;
-            }
-
-            ::System::Builder::HWA::Protocol::DMX& dmx()
-            {
-                return _testSystem._hwaDMX;
             }
 
             class HWAProtocolMIDI : public ::System::Builder::HWA::Protocol::MIDI
@@ -156,7 +148,6 @@ class TestSystem
             };
 
             private:
-            TestSystem&     _testSystem;
             HWAProtocolMIDI _hwaMIDI;
         };
 

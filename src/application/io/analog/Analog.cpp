@@ -156,7 +156,6 @@ void Analog::processReading(size_t index, uint16_t value)
     case type_t::NRPN_14BIT:
     case type_t::PITCH_BEND:
     case type_t::CONTROL_CHANGE_14BIT:
-    case type_t::DMX:
     {
         if (checkPotentiometerValue(index, analogDescriptor))
         {
@@ -198,14 +197,6 @@ bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descripto
     case type_t::PITCH_BEND:
     case type_t::CONTROL_CHANGE_14BIT:
         break;
-
-    case type_t::DMX:
-    {
-        descriptor.event.index = 0;    // irrelevant
-        descriptor.lowerLimit &= 0xFF;
-        descriptor.upperLimit &= 0xFF;
-    }
-    break;
 
     default:
     {
@@ -331,12 +322,6 @@ void Analog::sendMessage(size_t index, analogDescriptor_t& descriptor)
     }
     break;
 
-    case type_t::DMX:
-    {
-        eventType = Messaging::eventType_t::DMX_ANALOG;
-    }
-    break;
-
     case type_t::CONTROL_CHANGE_14BIT:
     {
         if (descriptor.event.index >= 96)
@@ -403,12 +388,6 @@ void Analog::fillAnalogDescriptor(size_t index, analogDescriptor_t& descriptor)
     case type_t::CONTROL_CHANGE_14BIT:
     {
         descriptor.maxValue = MIDI::MIDI_14BIT_VALUE_MAX;
-    }
-    break;
-
-    case type_t::DMX:
-    {
-        descriptor.maxValue = 255;
     }
     break;
 

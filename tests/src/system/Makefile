@@ -9,9 +9,7 @@ ifeq (,$(findstring HW_USB_OVER_SERIAL_HOST,$(DEFINES)))
     application/system/System.cpp \
     application/util/cinfo/CInfo.cpp \
     application/protocol/midi/MIDI.cpp \
-    application/protocol/dmx/DMX.cpp \
     modules/sysex/src/SysExConf.cpp \
-    modules/dmxusb/src/DMXUSBWidget.cpp \
     application/io/buttons/Buttons.cpp \
     application/io/encoders/Encoders.cpp \
     application/io/leds/LEDs.cpp \

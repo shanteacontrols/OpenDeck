@@ -153,61 +153,6 @@ then
         fi
     fi
 
-    if [[ $($yaml_parser "$yaml_file" uart.dmx) != "null" ]]
-    then
-        printf "%s\n" "DEFINES += HW_SUPPORT_DMX" >> "$out_makefile"
-
-        uart_channel_dmx=$($yaml_parser "$yaml_file" uart.dmx.channel)
-        uart_dmx_pins=$($yaml_parser "$yaml_file" uart.dmx.pins)
-
-        if [[ -n "$uart_channel_usb_link" ]]
-        then
-            if [[ $uart_channel_usb_link -eq $uart_channel_dmx ]]
-            then
-                echo "USB link UART channel and DMX UART channel cannot be the same"
-                exit 1
-            fi
-        fi
-
-        if [[ $uart_channel_dmx == "null" && $uart_dmx_pins == "null" ]]
-        then
-            echo "DMX UART channel or pins left unspecified"
-            exit 1
-        fi
-
-        if [[ $uart_channel_dmx != "null" ]]
-        then
-            printf "%s\n" "DEFINES += HW_UART_CHANNEL_DMX=$uart_channel_dmx" >> "$out_makefile"
-        elif [[ $uart_dmx_pins != "null" ]]
-        then
-            use_custom_uart_pins=1
-
-            uart_dmx_rx_port=$($yaml_parser "$yaml_file" uart.dmx.pins.rx.port)
-            uart_dmx_rx_index=$($yaml_parser "$yaml_file" uart.dmx.pins.rx.index)
-            uart_dmx_tx_port=$($yaml_parser "$yaml_file" uart.dmx.pins.tx.port)
-            uart_dmx_tx_index=$($yaml_parser "$yaml_file" uart.dmx.pins.tx.index)
-
-            key=${uart_dmx_rx_port}${uart_dmx_rx_index}${uart_dmx_tx_port}${uart_dmx_tx_index}
-
-            if [[ -z "${uartChannelArray[$key]}" ]]
-            then
-                # Unique (non-existing) channel found
-                uartChannelArray[$key]=$total_uart_channels
-                ((total_uart_channels++))
-            fi
-
-            uart_channel_dmx=${uartChannelArray[$key]}
-            printf "%s\n" "DEFINES += HW_UART_CHANNEL_DMX=$uart_channel_dmx" >> "$out_makefile"
-
-            {
-                printf "%s\n" "#define PIN_PORT_UART_CHANNEL_${uart_channel_dmx}_RX CORE_MCU_IO_PIN_PORT_DEF(${uart_dmx_rx_port})"
-                printf "%s\n" "#define PIN_INDEX_UART_CHANNEL_${uart_channel_dmx}_RX CORE_MCU_IO_PIN_INDEX_DEF(${uart_dmx_rx_index})"
-                printf "%s\n" "#define PIN_PORT_UART_CHANNEL_${uart_channel_dmx}_TX CORE_MCU_IO_PIN_PORT_DEF(${uart_dmx_tx_port})"
-                printf "%s\n" "#define PIN_INDEX_UART_CHANNEL_${uart_channel_dmx}_TX CORE_MCU_IO_PIN_INDEX_DEF(${uart_dmx_tx_index})"
-            } >> "$out_header"
-        fi
-    fi
-
     if [[ "$($yaml_parser "$yaml_file" uart.touchscreen)" != "null" ]]
     then
         printf "%s\n" "DEFINES += HW_SUPPORT_TOUCHSCREEN" >> "$out_makefile"

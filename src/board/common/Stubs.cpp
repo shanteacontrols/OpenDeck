@@ -166,14 +166,7 @@ namespace Board
                 }
             }    // namespace bootloader
         }        // namespace IO
-
-        namespace UART
-        {
-            __attribute__((weak)) void switchDmxBuffer()
-            {
-            }
-        }    // namespace UART
-    }        // namespace detail
+    }            // namespace detail
 
     namespace USB
     {

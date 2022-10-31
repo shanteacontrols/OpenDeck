@@ -25,7 +25,6 @@ namespace Protocol
     enum class protocol_t : uint8_t
     {
         MIDI,
-        DMX,
         AMOUNT
     };
 

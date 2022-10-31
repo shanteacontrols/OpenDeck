@@ -57,8 +57,6 @@ namespace System
                 MIDI_SETTINGS,
                 RESERVED,    // compatibility
                 PRESETS,
-                DMX_SETTINGS,
-                DMX_CHANNEL,
                 AMOUNT
             };
 

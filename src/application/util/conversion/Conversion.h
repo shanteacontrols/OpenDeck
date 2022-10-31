@@ -75,8 +75,6 @@ namespace Util
             Database::Config::Section::global_t::MIDI_SETTINGS,
             Database::Config::Section::global_t::AMOUNT,    // blank/reserved
             Database::Config::Section::global_t::AMOUNT,    // unused
-            Database::Config::Section::global_t::DMX_SETTINGS,
-            Database::Config::Section::global_t::AMOUNT,    // unused
         };
 
         static constexpr Database::Config::Section::button_t SYS_EX2_DB_BUTTON[static_cast<uint8_t>(System::Config::Section::button_t::AMOUNT)] = {

@@ -20,14 +20,6 @@
           port: "1"
           index: 3
       components: 64
-    dmx:
-      pins:
-        rx:
-          port: "1"
-          index: 10
-        tx:
-          port: "1"
-          index: 3
   i2c:
     display:
       pins:

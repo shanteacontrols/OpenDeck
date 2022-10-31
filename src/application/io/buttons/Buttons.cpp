@@ -257,13 +257,6 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
         case messageType_t::MMC_RECORD:
             break;
 
-        case messageType_t::DMX:
-        {
-            descriptor.event.index = 0;    // irrelevant
-            eventType              = Messaging::eventType_t::DMX_BUTTON;
-        }
-        break;
-
         case messageType_t::PROGRAM_CHANGE:
         {
             descriptor.event.value = 0;
@@ -551,7 +544,6 @@ void Buttons::fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor)
     case messageType_t::MULTI_VAL_INC_DEC_NOTE:
     case messageType_t::MULTI_VAL_INC_RESET_CC:
     case messageType_t::MULTI_VAL_INC_DEC_CC:
-    case messageType_t::DMX:
     case messageType_t::PRESET_CHANGE:
     case messageType_t::PROGRAM_CHANGE_OFFSET_INC:
     case messageType_t::PROGRAM_CHANGE_OFFSET_DEC:

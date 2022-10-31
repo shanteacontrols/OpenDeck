@@ -40,7 +40,6 @@ namespace IO
             NRPN_7BIT,
             NRPN_14BIT,
             CONTROL_CHANGE_14BIT,
-            DMX,
             AMOUNT
         };
 

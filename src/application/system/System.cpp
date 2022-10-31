@@ -264,13 +264,6 @@ void Instance::backup()
                     continue;
                 }
 
-                if (
-                    (block == static_cast<uint8_t>(System::Config::block_t::GLOBAL)) &&
-                    (section == static_cast<uint8_t>(System::Config::Section::global_t::DMX_CHANNEL)))
-                {
-                    continue;
-                }
-
                 backupRequest[BACKUP_REQUEST_SECTION_INDEX] = section;
                 _sysExConf.handleMessage(backupRequest, sizeof(backupRequest));
             }

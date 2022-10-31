@@ -54,7 +54,6 @@ namespace IO
             NRPN_7BIT,
             NRPN_14BIT,
             CONTROL_CHANGE_14BIT,
-            DMX,
             AMOUNT
         };
 
@@ -134,7 +133,6 @@ namespace IO
 
         using ValueIncDecMIDI7Bit  = Util::IncDec<uint8_t, 0, ::MIDI::MIDI_7BIT_VALUE_MAX>;
         using ValueIncDecMIDI14Bit = Util::IncDec<uint16_t, 0, ::MIDI::MIDI_14BIT_VALUE_MAX>;
-        using ValueIncDecDMX       = Util::IncDec<uint8_t, 0, 255>;
 
         /// Time difference betweeen multiple encoder readouts in milliseconds.
         const uint32_t TIME_DIFF_READOUT;
@@ -221,7 +219,6 @@ namespace IO
             MIDI::messageType_t::NRPN_7BIT,               // NRPN_7BIT
             MIDI::messageType_t::NRPN_14BIT,              // NRPN_14BIT
             MIDI::messageType_t::CONTROL_CHANGE_14BIT,    // CONTROL_CHANGE_14BIT
-            MIDI::messageType_t::INVALID,                 // DMX
         };
     };
 }    // namespace IO

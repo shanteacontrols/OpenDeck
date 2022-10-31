@@ -7,8 +7,6 @@ OpenDeck is a platform for building MIDI controllers. It is a firmware running o
 
 Solving this two goals means you can forget about implementation details and focus on having your custom controller built as fast as possible.
 
-The platform also supports DMX output so it can be used as DMX interface through `usbserial` plugin in [Open Lighting Architecture](https://www.openlighting.org/).
-
 *Click the image below for a demo video of the [OpenDeck configurator](https://config.shanteacontrols.com)*
 
 [![Watch the video](https://img.youtube.com/vi/7X2LC0JMfAU/maxresdefault.jpg)](https://youtu.be/7X2LC0JMfAU)
@@ -31,7 +29,7 @@ The following components are supported:
 * LCD/OLED displays
 * Touchscreen displays (Nextion and Viewtech/Stone)
 
-OpenDeck supports sending of both 7-bit and 14-bit Non-Registered Part Numbers (NRPN), latching messages on buttons, various encoding modes for quadrature encoders, LED control using MIDI In, configurable MIDI channels for each component individually, DMX output, Bluetooth MIDI etc. Full list of supported features can be found [here](https://github.com/shanteacontrols/OpenDeck/wiki/Configurable-features).
+OpenDeck supports sending of both 7-bit and 14-bit Non-Registered Part Numbers (NRPN), latching messages on buttons, various encoding modes for quadrature encoders, LED control using MIDI In, configurable MIDI channels for each component individually, Bluetooth MIDI etc. Full list of supported features can be found [here](https://github.com/shanteacontrols/OpenDeck/wiki/Configurable-features).
 
 If the feature you want isn't supported yet, don't feel discouraged. Open up a [discussion thread](https://github.com/shanteacontrols/OpenDeck/discussions) and let's talk about it.
 
@@ -46,7 +44,6 @@ The official board currently comes in A and B variant: A variant is based on Ard
 * 64 analog inputs
 * DIN MIDI
 * USB MIDI
-* DMX output
 * Bluetooth on A variant
 
 The board is available on [Tindie](https://www.tindie.com/products/paradajz/opendeck-diy-midi-platform-v3/).
@@ -106,7 +103,6 @@ Most of the code is available under Apache Licence v2.0, with the following exce
   * `avr-libstdcpp`: GNU GPL v3 or later with GCC Runtime Library Exception 3.1
   * `core`: MIT
   * `dbms`: MIT
-  * `dmxusb`: MIT
   * `EmuEEPROM`: MIT
   * `lufa`: Modified MIT, see `modules/core/modules/lufa/LUFA/Licence.txt` for details
   * `midi`: MIT

@@ -26,7 +26,6 @@
 #include "io/leds/LEDs.h"
 #include "io/i2c/peripherals/display/Display.h"
 #include "io/touchscreen/Touchscreen.h"
-#include "protocol/dmx/DMX.h"
 #include "protocol/midi/MIDI.h"
 
 namespace System
@@ -54,20 +53,6 @@ namespace System
                 static_cast<uint16_t>(Database::Config::presetSetting_t::AMOUNT),
                 0,
                 0,
-            },
-
-            // dmx settings section
-            {
-                static_cast<uint16_t>(Protocol::DMX::setting_t::AMOUNT),
-                0,
-                0,
-            },
-
-            // dmx channel section
-            {
-                513,
-                0,
-                255,
             },
         };
 
@@ -104,7 +89,7 @@ namespace System
             {
                 IO::Buttons::Collection::SIZE(),
                 1,
-                512,
+                16,
             }
         };
 
@@ -141,7 +126,7 @@ namespace System
             {
                 IO::Encoders::Collection::SIZE(),
                 1,
-                512,
+                16,
             },
 
             // pulses per step section
@@ -241,7 +226,7 @@ namespace System
             {
                 IO::Analog::Collection::SIZE(),
                 1,
-                512,
+                16,
             },
 
             // lower adc percentage offset
@@ -313,7 +298,7 @@ namespace System
             {
                 IO::LEDs::Collection::SIZE(),
                 1,
-                512,
+                16,
             }
         };
 

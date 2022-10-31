@@ -8,8 +8,6 @@
     touchscreen:
       channel: 2
       components: 64
-    dmx:
-      channel: 2
   i2c:
     display:
       channel: 2

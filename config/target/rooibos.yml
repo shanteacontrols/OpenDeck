@@ -6,8 +6,6 @@
     touchscreen:
       channel: 0
       components: 64
-    dmx:
-      channel: 1
   buttons:
     type: "native"
     extPullups: true

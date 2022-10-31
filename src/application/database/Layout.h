@@ -25,7 +25,6 @@ limitations under the License.
 #include "io/leds/LEDs.h"
 #include "io/i2c/peripherals/display/Display.h"
 #include "io/touchscreen/Touchscreen.h"
-#include "protocol/dmx/DMX.h"
 #include "protocol/midi/MIDI.h"
 
 namespace Database
@@ -78,15 +77,6 @@ namespace Database
                 LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
-
-            // dmx section
-            {
-                static_cast<uint8_t>(Protocol::DMX::setting_t::AMOUNT),
-                LESSDB::sectionParameterType_t::BYTE,
-                LESSDB::preserveSetting_t::DISABLE,
-                LESSDB::autoIncrementSetting_t::DISABLE,
-                0,
-            },
         };
 
         std::vector<LESSDB::Section> _buttonSections = {
@@ -129,7 +119,7 @@ namespace Database
             // channel section
             {
                 IO::Buttons::Collection::SIZE(),
-                LESSDB::sectionParameterType_t::WORD,
+                LESSDB::sectionParameterType_t::BYTE,
                 LESSDB::preserveSetting_t::DISABLE,
                 LESSDB::autoIncrementSetting_t::DISABLE,
                 1,
@@ -176,7 +166,7 @@ namespace Database
             // channel section
             {
                 IO::Encoders::Collection::SIZE(),
-                LESSDB::sectionParameterType_t::WORD,
+                LESSDB::sectionParameterType_t::BYTE,
                 LESSDB::preserveSetting_t::DISABLE,
                 LESSDB::autoIncrementSetting_t::DISABLE,
                 1,
@@ -268,7 +258,7 @@ namespace Database
             // channel section
             {
                 IO::Analog::Collection::SIZE(),
-                LESSDB::sectionParameterType_t::WORD,
+                LESSDB::sectionParameterType_t::BYTE,
                 LESSDB::preserveSetting_t::DISABLE,
                 LESSDB::autoIncrementSetting_t::DISABLE,
                 1,
@@ -342,7 +332,7 @@ namespace Database
             // channel section
             {
                 IO::LEDs::Collection::SIZE(),
-                LESSDB::sectionParameterType_t::WORD,
+                LESSDB::sectionParameterType_t::BYTE,
                 LESSDB::preserveSetting_t::DISABLE,
                 LESSDB::autoIncrementSetting_t::DISABLE,
                 1,

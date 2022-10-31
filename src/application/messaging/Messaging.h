@@ -35,9 +35,6 @@ namespace Messaging
         MIDI_IN,
         PROGRAM,
         SYSTEM,
-        DMX_ANALOG,
-        DMX_BUTTON,
-        DMX_ENCODER,
     };
 
     // enum indicating what types of system-level messages are possible.

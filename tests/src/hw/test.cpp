@@ -50,7 +50,6 @@ namespace
             test::wsystem("rm -f " + temp_midi_data_location);
             test::wsystem("rm -f " + backup_file_location);
             test::wsystem("killall amidi > /dev/null 2>&1");
-            test::wsystem("killall olad > /dev/null 2>&1");
             test::wsystem("killall ssterm > /dev/null 2>&1");
 
             std::string cmdResponse;
@@ -60,14 +59,6 @@ namespace
                 LOG(INFO) << "Waiting for ssterm process to be terminated";
 
                 while (test::wsystem("pgrep ssterm", cmdResponse) == 0)
-                    ;
-            }
-
-            if (test::wsystem("pgrep olad", cmdResponse) == 0)
-            {
-                LOG(INFO) << "Waiting for olad process to be terminated";
-
-                while (test::wsystem("pgrep olad", cmdResponse) == 0)
                     ;
             }
 
@@ -841,73 +832,6 @@ TEST_F(HWTest, DINMIDIData)
     ASSERT_NE(response.find(msg), std::string::npos);
 }
 #endif
-#endif
-
-#ifdef HW_SUPPORT_DMX
-TEST_F(HWTest, DMXTest)
-{
-    LOG(INFO) << "Starting OLA daemon";
-    test::wsystem("olad -f --no-http");
-    test::sleepMs(3000);
-
-    auto verify = [](bool state)
-    {
-        std::string    cmd                = "ola_dev_info | grep -q " + std::string(BOARD_STRING);
-        const uint32_t WAIT_TIME_MS       = 1000;
-        const uint32_t STOP_WAIT_AFTER_MS = 22000;    // ola searches after 20sec, 2 more just in case
-        uint32_t       totalWaitTime      = 0;
-
-        while (test::wsystem(cmd))
-        {
-            test::sleepMs(WAIT_TIME_MS);
-            totalWaitTime += WAIT_TIME_MS;
-
-            if (totalWaitTime == STOP_WAIT_AFTER_MS)
-            {
-                break;
-            }
-        }
-
-        if (!state)
-        {
-            if (totalWaitTime == STOP_WAIT_AFTER_MS)
-            {
-                LOG(INFO) << "OLA didn't detect the device while DMX was disabled";
-                return true;
-            }
-            else
-            {
-                LOG(ERROR) << "OLA detected the device while DMX was disabled";
-                return false;
-            }
-        }
-        else
-        {
-            if (totalWaitTime == STOP_WAIT_AFTER_MS)
-            {
-                LOG(ERROR) << "OLA didn't detect the device while DMX was enabled";
-                return false;
-            }
-            else
-            {
-                LOG(INFO) << "OLA detected the device while DMX was enabled";
-                return true;
-            }
-        }
-    };
-
-    LOG(INFO) << "DMX is disabled, checking if the device isn't detectable by OLA";
-    ASSERT_TRUE(verify(false));
-
-    LOG(INFO) << "Enabling DMX";
-    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::global_t::DMX_SETTINGS, static_cast<int>(Protocol::DMX::setting_t::ENABLE), 1));
-
-    LOG(INFO) << "Checking if the device is detectable by OLA";
-    ASSERT_TRUE(verify(true));
-
-    // midi part should remain functional as well
-    ASSERT_EQ(handshake_ack, _helper.sendRawSysEx(handshake_req));
-}
 #endif
 
 #ifdef TEST_IO

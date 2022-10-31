@@ -30,7 +30,6 @@ limitations under the License.
 #include "io/i2c/peripherals/Builder.h"
 #include "io/touchscreen/Touchscreen.h"
 #include "io/touchscreen/model/Builder.h"
-#include "protocol/dmx/DMX.h"
 #include "protocol/midi/MIDI.h"
 #include "database/Layout.h"
 
@@ -82,12 +81,9 @@ namespace System
                     virtual BLE& ble() = 0;
                 };
 
-                using DMX = ::Protocol::DMX::HWA;
-
                 virtual ~Protocol() = default;
 
                 virtual MIDI& midi() = 0;
-                virtual DMX&  dmx()  = 0;
             };
 
             using Database = ::Database::Admin::StorageAccess;
@@ -113,7 +109,6 @@ namespace System
             _io.at(static_cast<size_t>(::IO::ioComponent_t::TOUCHSCREEN)) = &_touchscreen;
 
             _protocol.at(static_cast<size_t>(::Protocol::protocol_t::MIDI)) = &_midi;
-            _protocol.at(static_cast<size_t>(::Protocol::protocol_t::DMX))  = &_dmx;
         }
 
         System::Instance::Components& components()
@@ -137,7 +132,6 @@ namespace System
         IO::Touchscreen::Database                                                      _touchscreenDatabase = IO::Touchscreen::Database(_database);
         IO::I2CPeripheralBuilder::DisplayDatabase                                      _displayDatabase     = IO::I2CPeripheralBuilder::DisplayDatabase(_database);
         Protocol::MIDI::Database                                                       _midiDatabase        = Protocol::MIDI::Database(_database);
-        Protocol::DMX::Database                                                        _dmxDatabase         = Protocol::DMX::Database(_database);
         IO::EncodersFilter                                                             _encodersFilter;
         IO::ButtonsFilter                                                              _buttonsFilter;
         IO::AnalogFilter                                                               _analogFilter;
@@ -150,7 +144,6 @@ namespace System
         IO::I2C                                                                        _i2c;
         IO::I2CPeripheralBuilder                                                       _i2cPeripherals = IO::I2CPeripheralBuilder(_hwa.io().display(), _displayDatabase);
         Protocol::MIDI                                                                 _midi           = Protocol::MIDI(_hwa.protocol().midi().usb(), _hwa.protocol().midi().din(), _hwa.protocol().midi().ble(), _midiDatabase);
-        Protocol::DMX                                                                  _dmx            = Protocol::DMX(_hwa.protocol().dmx(), _dmxDatabase);
         std::array<IO::Base*, static_cast<size_t>(IO::ioComponent_t::AMOUNT)>          _io             = {};
         std::array<Protocol::Base*, static_cast<size_t>(Protocol::protocol_t::AMOUNT)> _protocol       = {};
 

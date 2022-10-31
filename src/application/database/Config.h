@@ -58,7 +58,6 @@ namespace Database
             enum class global_t : uint8_t
             {
                 MIDI_SETTINGS,
-                DMX_SETTINGS,
                 AMOUNT
             };
 

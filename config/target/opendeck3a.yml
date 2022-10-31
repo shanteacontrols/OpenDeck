@@ -20,14 +20,6 @@
         tx:
           port: "0"
           index: 21
-    dmx:
-      pins:
-        rx:
-          port: "0"
-          index: 27
-        tx:
-          port: "0"
-          index: 21
   i2c:
     display:
       pins:

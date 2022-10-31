@@ -23,6 +23,3 @@
 [submodule "modules/avr-libstdcpp"]
 	path = modules/avr-libstdcpp
 	url = https://github.com/modm-io/avr-libstdcpp.git
-[submodule "modules/dmxusb"]
-	path = modules/dmxusb
-	url = https://github.com/shanteacontrols/DMXUSB.git
