@@ -867,6 +867,11 @@ class HWASystem : public System::Builder::HWA::System
         _usbConnectionHandler = std::move(usbConnectionHandler);
     }
 
+    void disconnectUSB() override
+    {
+        Board::USB::deInit();
+    }
+
     private:
     static constexpr uint32_t                USB_CONN_CHECK_TIME   = 2000;
     System::Instance::usbConnectionHandler_t _usbConnectionHandler = nullptr;

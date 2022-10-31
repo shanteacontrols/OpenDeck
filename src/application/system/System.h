@@ -65,6 +65,7 @@ namespace System
             virtual void update()                                                                      = 0;
             virtual void reboot(FwSelector::fwType_t type)                                             = 0;
             virtual void registerOnUSBconnectionHandler(usbConnectionHandler_t&& usbConnectionHandler) = 0;
+            virtual void disconnectUSB()                                                               = 0;
         };
 
         class Components

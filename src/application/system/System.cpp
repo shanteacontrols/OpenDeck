@@ -550,7 +550,7 @@ void Instance::DBhandlers::initialized()
 
 void Instance::DBhandlers::factoryResetStart()
 {
-    // nothing to do here
+    _system._hwa.disconnectUSB();
 }
 
 void Instance::DBhandlers::factoryResetDone()
