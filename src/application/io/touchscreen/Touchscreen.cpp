@@ -521,6 +521,11 @@ std::optional<uint8_t> Touchscreen::sysConfigSet(System::Config::Section::touchs
 
         case static_cast<size_t>(IO::Touchscreen::setting_t::CDC_PASSTHROUGH):
         {
+            if (!_cdcPassthrough.supported())
+            {
+                return System::Config::status_t::ERROR_NOT_SUPPORTED;
+            }
+
             if (_cdcPassthrough.allocated(IO::Common::Allocatable::interface_t::CDC))
             {
                 return System::Config::status_t::CDC_ALLOCATED_ERROR;

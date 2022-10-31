@@ -38,6 +38,11 @@ class HWATouchscreenCDCPassthrough : public IO::Touchscreen::CDCPassthrough
     public:
     HWATouchscreenCDCPassthrough() = default;
 
+    bool supported() override
+    {
+        return true;
+    }
+
     bool init() override
     {
         return true;

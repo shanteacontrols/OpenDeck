@@ -581,11 +581,50 @@ class HWATouchscreen : public System::Builder::HWA::IO::Touchscreen
 #endif
     }
 } _hwaTouchscreen;
+#else
+class HWATouchscreenStub : public System::Builder::HWA::IO::Touchscreen
+{
+    public:
+    HWATouchscreenStub() = default;
 
+    bool init() override
+    {
+        return false;
+    }
+
+    bool deInit() override
+    {
+        return false;
+    }
+
+    bool write(uint8_t value) override
+    {
+        return false;
+    }
+
+    bool read(uint8_t& value) override
+    {
+        return false;
+    }
+
+    bool allocated(IO::Common::Allocatable::interface_t interface) override
+    {
+        return false;
+    }
+} _hwaTouchscreen;
+#endif
+
+#if defined(HW_SUPPORT_TOUCHSCREEN) && !defined(HW_USB_OVER_SERIAL)
+// USB link MCUs don't implement USB-CDC<->UART passthrough
 class HWACDCPassthrough : public System::Builder::HWA::IO::CDCPassthrough
 {
     public:
     HWACDCPassthrough() = default;
+
+    bool supported() override
+    {
+        return true;
+    }
 
     bool init() override
     {
@@ -675,41 +714,15 @@ class HWACDCPassthrough : public System::Builder::HWA::IO::CDCPassthrough
     bool _passThroughState = false;
 } _hwaCDCPassthrough;
 #else
-class HWATouchscreenStub : public System::Builder::HWA::IO::Touchscreen
-{
-    public:
-    HWATouchscreenStub() = default;
-
-    bool init() override
-    {
-        return false;
-    }
-
-    bool deInit() override
-    {
-        return false;
-    }
-
-    bool write(uint8_t value) override
-    {
-        return false;
-    }
-
-    bool read(uint8_t& value) override
-    {
-        return false;
-    }
-
-    bool allocated(IO::Common::Allocatable::interface_t interface) override
-    {
-        return false;
-    }
-} _hwaTouchscreen;
-
 class HWACDCPassthroughStub : public System::Builder::HWA::IO::CDCPassthrough
 {
     public:
     HWACDCPassthroughStub() = default;
+
+    bool supported() override
+    {
+        return false;
+    }
 
     bool init() override
     {
@@ -954,7 +967,7 @@ class HWABuilder : public ::System::Builder::HWA
     } _hwaProtocol;
 } _hwa;
 
-#ifdef HW_SUPPORT_TOUCHSCREEN
+#if defined(HW_SUPPORT_TOUCHSCREEN) && !defined(HW_USB_OVER_SERIAL)
 namespace Board::USB
 {
     void onCDCsetLineEncoding(uint32_t baudRate)

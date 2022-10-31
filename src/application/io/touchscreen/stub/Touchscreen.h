@@ -112,6 +112,7 @@ namespace IO
             public:
             virtual ~CDCPassthrough() = default;
 
+            virtual bool supported()                                                  = 0;
             virtual bool init()                                                       = 0;
             virtual bool deInit()                                                     = 0;
             virtual bool uartRead(uint8_t& value)                                     = 0;
