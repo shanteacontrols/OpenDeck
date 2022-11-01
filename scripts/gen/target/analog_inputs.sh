@@ -192,6 +192,77 @@ then
             printf "%s\n" "DEFINES += HW_NR_OF_MUX_INPUTS=8"
             printf "%s\n" "DEFINES += HW_NR_OF_ADC_CHANNELS=$number_of_mux"
         } >> "$out_makefile"
+    elif [[ $analog_in_type == "muxonmux" ]]
+    then
+        printf "%s\n" "DEFINES += HW_DRIVER_ANALOG_INPUT_MUXONMUX" >> "$out_makefile"
+
+        port=$($yaml_parser "$yaml_file" analog.pins.controller.z.port)
+        index=$($yaml_parser "$yaml_file" analog.pins.controller.z.index)
+
+        {
+            printf "%s\n" "#define PIN_PORT_MUX_CTRL_INPUT CORE_MCU_IO_PIN_PORT_DEF(${port})"
+            printf "%s\n" "#define PIN_INDEX_MUX_CTRL_INPUT CORE_MCU_IO_PIN_INDEX_DEF(${index})"
+            printf "%s\n" "namespace gen {"
+            printf "%s\n" "constexpr inline core::mcu::io::pin_t ADC_PIN[HW_NR_OF_ADC_CHANNELS] = {"
+            printf "%s\n" "core::mcu::io::pin_t{PIN_PORT_MUX_CTRL_INPUT, PIN_INDEX_MUX_CTRL_INPUT}," >> "$out_header"
+            printf "%s\n" "};"
+            printf "%s\n" "}"
+        } >> "$out_header"
+
+        for ((i=0; i<4; i++))
+        do
+            port=$($yaml_parser "$yaml_file" analog.pins.nodes.s"$i".port)
+            index=$($yaml_parser "$yaml_file" analog.pins.nodes.s"$i".index)
+
+            if [[ ($port == "null") || ($index == "null") ]]
+            then
+                echo "ERROR: Pin s${i} for multiplexer nodes undefined"
+                exit 1
+            fi
+
+            {
+                printf "%s\n" "#define PIN_PORT_MUX_NODE_S${i} CORE_MCU_IO_PIN_PORT_DEF(${port})"
+                printf "%s\n" "#define PIN_INDEX_MUX_NODE_S${i} CORE_MCU_IO_PIN_INDEX_DEF(${index})"
+            } >> "$out_header"
+        done
+
+        declare -i number_of_mux
+        declare -i number_of_ctrl_pins
+
+        for ((i=0; i<4; i++))
+        do
+            port=$($yaml_parser "$yaml_file" analog.pins.controller.s"$i".port)
+            index=$($yaml_parser "$yaml_file" analog.pins.controller.s"$i".index)
+
+            # For controller multiplexer, at least two pins are expected
+            if [[ $i -lt 2 ]]
+            then
+                if [[ ($port == "null") || ($index == "null") ]]
+                then
+                    echo "ERROR: Pin s${i} for multiplexer nodes undefined"
+                    exit 1
+                fi
+            fi
+
+            if [[ ($port != "null") && ($index != "null") ]]
+            then
+                {
+                    printf "%s\n" "#define PIN_PORT_MUX_CTRL_S${i} CORE_MCU_IO_PIN_PORT_DEF(${port})"
+                    printf "%s\n" "#define PIN_INDEX_MUX_CTRL_S${i} CORE_MCU_IO_PIN_INDEX_DEF(${index})"
+                } >> "$out_header"
+
+                ((number_of_ctrl_pins++))
+            fi
+        done
+
+        number_of_mux=$((2**"$number_of_ctrl_pins"))
+        nr_of_analog_inputs=$((16 * "$number_of_mux"))
+
+        {
+            printf "%s\n" "DEFINES += HW_NR_OF_MUX=$number_of_mux"
+            printf "%s\n" "DEFINES += HW_NR_OF_MUX_INPUTS=16"
+            printf "%s\n" "DEFINES += HW_NR_OF_ADC_CHANNELS=1"
+        } >> "$out_makefile"
     fi
 
     printf "%s\n" "DEFINES += HW_MAX_NR_OF_ANALOG_INPUTS=$nr_of_analog_inputs" >> "$out_makefile"
