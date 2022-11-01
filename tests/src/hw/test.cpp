@@ -65,7 +65,7 @@ namespace
             powerOff();
         }
 
-        const std::string flash_cmd = "make -C ../src flash";
+        const std::string flash_cmd = "make --no-print-directory -C ../src flash ";
 
         enum class powerCycleType_t : uint8_t
         {
