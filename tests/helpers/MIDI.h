@@ -405,14 +405,14 @@ class MIDIHelper
         return cmdResponse;
     }
 
-    bool devicePresent(bool silent = false)
+    bool devicePresent(bool silent, bool bootloader = false)
     {
         if (!silent)
         {
             LOG(INFO) << "Checking if OpenDeck MIDI device is available";
         }
 
-        auto port = amidiPort(OPENDECK_MIDI_DEVICE_NAME);
+        auto port = bootloader ? amidiPort(OPENDECK_DFU_MIDI_DEVICE_NAME) : amidiPort(OPENDECK_MIDI_DEVICE_NAME);
 
         if (port == "")
         {

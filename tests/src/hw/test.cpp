@@ -30,7 +30,12 @@ namespace
 #ifdef TEST_FLASHING
             if (!flashed)
             {
+                LOG(INFO) << "Device not flashed. Starting flashing procedure.";
                 cyclePower(powerCycleType_t::standard);
+
+                LOG(INFO) << "Waiting " << turn_on_delay_ms << " ms to ensure target and programmer are available.";
+                test::sleepMs(turn_on_delay_ms);
+
                 flash();
                 flashed = true;
             }
@@ -76,100 +81,94 @@ namespace
         enum class softRebootType_t : uint8_t
         {
             standard,
-            factoryReset
+            factoryReset,
+            bootloader,
         };
 
         void powerOn()
         {
             // Send newline to arduino controller to make sure on/off commands
             // are properly parsed.
-            ASSERT_EQ(0, test::wsystem("echo > /dev/actl"));
+            // Add slight delay between power commands to avoid issues.
+            ASSERT_EQ(0, test::wsystem("echo > /dev/actl && sleep 1"));
 
-            if (!powerStatus)
-            {
-                LOG(INFO) << "Turning USB devices on";
-                ASSERT_EQ(0, test::wsystem(usb_power_on_cmd));
-
-                LOG(INFO) << "Waiting " << startup_delay_ms << " ms";
-                test::sleepMs(startup_delay_ms);
-
-                powerStatus = true;
-            }
-            else
-            {
-                LOG(INFO) << "Power already turned on, skipping";
-            }
+            LOG(INFO) << "Turning USB devices on";
+            ASSERT_EQ(0, test::wsystem(usb_power_on_cmd));
         }
 
         void powerOff()
         {
             // Send newline to arduino controller to make sure on/off commands
             // are properly parsed.
-            ASSERT_EQ(0, test::wsystem("echo > /dev/actl"));
+            // Add slight delay between power commands to avoid issues.
+            ASSERT_EQ(0, test::wsystem("echo > /dev/actl && sleep 1"));
+
+            LOG(INFO) << "Turning USB devices off";
+            ASSERT_EQ(0, test::wsystem(usb_power_off_cmd));
+        }
+
+        void cyclePower(powerCycleType_t powerCycleType)
+        {
+            LOG(INFO) << "Cycling power";
 
             if (powerStatus)
             {
-                LOG(INFO) << "Turning USB devices off";
-                ASSERT_EQ(0, test::wsystem(usb_power_off_cmd));
-
-                LOG(INFO) << "Waiting " << startup_delay_ms / 2 << " ms";
-                test::sleepMs(startup_delay_ms / 2);
-
+                powerOff();
                 powerStatus = false;
             }
             else
             {
                 LOG(INFO) << "Power already turned off, skipping";
             }
-        }
 
-        void cyclePower(powerCycleType_t powerCycleType)
-        {
-            auto cycle = [&]()
-            {
-                powerOff();
-                powerOn();
-            };
+            powerOn();
 
-            if (powerCycleType != powerCycleType_t::standardWithDeviceCheck)
+            if (powerCycleType == powerCycleType_t::standardWithDeviceCheck)
             {
-                LOG(INFO) << "Cycling power without device check";
-                cycle();
-            }
-            else
-            {
-                LOG(INFO) << "Cycling power with device check";
+                LOG(INFO) << "Checking for device availability";
 
                 // ensure the device is present
-                do
+                auto startTime = test::millis();
+
+                while (!_helper.devicePresent(true))
                 {
-                    cycle();
-                } while (!_helper.devicePresent());
+                    if ((test::millis() - startTime) > max_connect_delay_ms)
+                    {
+                        LOG(ERROR) << "Device didn't connect in " << max_connect_delay_ms << " ms.";
+                        FAIL();
+                    }
+                }
             }
         }
 
         void handshake()
         {
-            LOG(INFO) << "Sending handshake";
+            LOG(INFO) << "Ensuring the device is available for handshake request...";
+            auto startTime = test::millis();
 
-            if (handshake_ack != _helper.sendRawSysEx(handshake_req))
+            while (!_helper.devicePresent(true))
             {
-                LOG(ERROR) << "OpenDeck device not responding to handshake, attempting power cycle";
-                cyclePower(powerCycleType_t::standardWithDeviceCheck);
-
-                if (!_helper.devicePresent())
+                if ((test::millis() - startTime) > max_connect_delay_ms)
                 {
-                    LOG(ERROR) << "OpenDeck device not found after power cycle";
+                    LOG(ERROR) << "Device not available - waited " << max_connect_delay_ms << " ms.";
                     FAIL();
                 }
-                else
+            }
+
+            LOG(INFO) << "Device available, attempting to send handshake";
+
+            startTime = test::millis();
+
+            while (handshake_ack != _helper.sendRawSysEx(handshake_req))
+            {
+                if ((test::millis() - startTime) > max_connect_delay_ms)
                 {
-                    if (handshake_ack != _helper.sendRawSysEx(handshake_req))
-                    {
-                        LOG(ERROR) << "OpenDeck device not responding to handshake even after power cycle";
-                        FAIL();
-                    }
+                    LOG(ERROR) << "Device didn't respond to handshake in " << max_connect_delay_ms << " ms.";
+                    FAIL();
                 }
+
+                LOG(ERROR) << "OpenDeck device not responding to handshake - trying again in " << handshake_retry_delay_ms << " ms";
+                test::sleepMs(2000);
             }
         }
 
@@ -177,10 +176,36 @@ namespace
         {
             handshake();
 
-            LOG(INFO) << "Sending " << std::string(type == softRebootType_t::standard ? "reboot" : "factory reset") << " request to the device";
-            const auto& cmd = type == softRebootType_t::standard ? reboot_req : factory_reset_req;
+            const std::string* cmd;
 
-            ASSERT_EQ(std::string(""), _helper.sendRawSysEx(cmd, false));
+            switch (type)
+            {
+            case softRebootType_t::standard:
+            {
+                LOG(INFO) << "Sending reboot request to the device";
+                cmd = &reboot_req;
+            }
+            break;
+
+            case softRebootType_t::factoryReset:
+            {
+                LOG(INFO) << "Sending factory reset request to the device";
+                cmd = &factory_reset_req;
+            }
+            break;
+
+            case softRebootType_t::bootloader:
+            {
+                LOG(INFO) << "Sending bootloader request to the device";
+                cmd = &btldr_req;
+            }
+            break;
+
+            default:
+                return;
+            }
+
+            ASSERT_EQ(std::string(""), _helper.sendRawSysEx(*cmd, false));
 
             auto startTime = test::millis();
 
@@ -188,36 +213,43 @@ namespace
 
             while (_helper.devicePresent(true))
             {
-                if ((test::millis() - startTime) > (startup_delay_ms * 2))
+                if ((test::millis() - startTime) > max_disconnect_delay_ms)
                 {
-                    LOG(ERROR) << "Device didn't disconnect in " << startup_delay_ms * 2 << " ms.";
+                    LOG(ERROR) << "Device didn't disconnect in " << max_disconnect_delay_ms << " ms.";
                     FAIL();
                 }
             }
 
-            LOG(INFO) << "Device disconnected. Waiting for the device to connect again.";
+            LOG(INFO) << "Device disconnected.";
 
-            startTime = test::millis();
-
-            while (!_helper.devicePresent(true))
+            if (type != softRebootType_t::bootloader)
             {
-                if ((test::millis() - startTime) > startup_delay_ms)
+                handshake();
+                _helper.flush();
+            }
+            else
+            {
+                auto startTime = test::millis();
+
+                while (!_helper.devicePresent(true, true))
                 {
-                    LOG(ERROR) << "Device didn't connect in " << startup_delay_ms << " ms.";
-                    FAIL();
+                    if ((test::millis() - startTime) > max_connect_delay_ms)
+                    {
+                        LOG(ERROR) << "Device not available - waited " << max_connect_delay_ms << " ms.";
+                        FAIL();
+                    }
                 }
             }
-
-            LOG(INFO) << "Device connected. Waiting " << startup_delay_ms / 2 << " milliseconds for the device to initialize";
-            test::sleepMs(startup_delay_ms / 2);
-
-            handshake();
-            _helper.flush();
         }
 
         void factoryReset()
         {
             reboot(softRebootType_t::factoryReset);
+        }
+
+        void bootloader()
+        {
+            reboot(softRebootType_t::bootloader);
         }
 
         void flash()
@@ -254,11 +286,6 @@ namespace
             LOG(INFO) << "Flashing USB Link MCU";
             flash(std::string(USB_LINK_TARGET), std::string(FLASH_ARGS_USB_LINK));
 #endif
-
-            LOG(INFO) << "Waiting " << startup_delay_ms << " ms";
-            test::sleepMs(startup_delay_ms);
-
-            cyclePower(powerCycleType_t::standardWithDeviceCheck);
         }
 
         size_t cleanupMIDIResponse(std::string& response)
@@ -277,22 +304,24 @@ namespace
         TestDatabase _database;
         MIDIHelper   _helper = MIDIHelper(true);
 
-        const std::string handshake_req           = "F0 00 53 43 00 00 01 F7";
-        const std::string reboot_req              = "F0 00 53 43 00 00 7F F7";
-        const std::string handshake_ack           = "F0 00 53 43 01 00 01 F7";
-        const std::string factory_reset_req       = "F0 00 53 43 00 00 44 F7";
-        const std::string btldr_req               = "F0 00 53 43 00 00 55 F7";
-        const std::string backup_req              = "F0 00 53 43 00 00 1B F7";
-        const std::string usb_power_off_cmd       = "echo write_high 1 > /dev/actl";
-        const std::string usb_power_on_cmd        = "echo write_low 1 > /dev/actl";
-        const uint32_t    startup_delay_ms        = 10000;
-        const std::string fw_build_dir            = "../src/build/";
-        const std::string fw_build_type_subdir    = "release/";
-        const std::string temp_midi_data_location = "/tmp/temp_midi_data";
-        const std::string backup_file_location    = "/tmp/backup.txt";
-        bool              powerStatus             = false;
+        const std::string handshake_req            = "F0 00 53 43 00 00 01 F7";
+        const std::string handshake_ack            = "F0 00 53 43 01 00 01 F7";
+        const std::string reboot_req               = "F0 00 53 43 00 00 7F F7";
+        const std::string factory_reset_req        = "F0 00 53 43 00 00 44 F7";
+        const std::string btldr_req                = "F0 00 53 43 00 00 55 F7";
+        const std::string backup_req               = "F0 00 53 43 00 00 1B F7";
+        const std::string usb_power_off_cmd        = "echo write_high 1 > /dev/actl";
+        const std::string usb_power_on_cmd         = "echo write_low 1 > /dev/actl";
+        const uint32_t    turn_on_delay_ms         = 10000;
+        const uint32_t    max_connect_delay_ms     = 25000;
+        const uint32_t    max_disconnect_delay_ms  = 3000;
+        const uint32_t    handshake_retry_delay_ms = 2000;
+        const std::string fw_build_dir             = "../src/build/";
+        const std::string fw_build_type_subdir     = "release/";
+        const std::string temp_midi_data_location  = "/tmp/temp_midi_data";
+        const std::string backup_file_location     = "/tmp/backup.txt";
+        bool              powerStatus              = false;
     };
-
 }    // namespace
 
 TEST_F(HWTest, DatabaseInitialValues)
@@ -637,21 +666,11 @@ TEST_F(HWTest, DatabaseInitialValues)
 TEST_F(HWTest, FwUpdate)
 {
     LOG(INFO) << "Entering bootloader mode";
-    ASSERT_EQ(std::string(""), _helper.sendRawSysEx(btldr_req, false));
-
-    LOG(INFO) << "Waiting " << startup_delay_ms / 2 << " ms";
-    test::sleepMs(startup_delay_ms / 2);
+    bootloader();
 
     std::string cmd = flash_cmd + std::string(" FLASH_TOOL=opendeck TARGET=") + std::string(BOARD_STRING);
     ASSERT_EQ(0, test::wsystem(cmd));
-    LOG(INFO) << "Firmware file sent successfully, waiting " << startup_delay_ms << " ms";
-    test::sleepMs(startup_delay_ms);
-
-    if (!_helper.devicePresent())
-    {
-        LOG(ERROR) << "OpenDeck device not found after firmware update, aborting";
-        FAIL();
-    }
+    LOG(INFO) << "Firmware file sent successfully, verifying that device responds to handshake";
 
     handshake();
 }
@@ -724,14 +743,7 @@ TEST_F(HWTest, BackupAndRestore)
         }
     }
 
-    LOG(INFO) << "Backup file sent successfully, waiting " << startup_delay_ms << " ms";
-    test::sleepMs(startup_delay_ms);
-
-    if (!_helper.devicePresent())
-    {
-        LOG(ERROR) << "OpenDeck device not found after restore procedure, aborting";
-        FAIL();
-    }
+    LOG(INFO) << "Backup file sent successfully";
 
     handshake();
 
