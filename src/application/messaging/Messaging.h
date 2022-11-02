@@ -46,7 +46,10 @@ namespace Messaging
         PRESET_CHANGE_INC_REQ,
         PRESET_CHANGE_DEC_REQ,
         PRESET_CHANGE_DIRECT_REQ,
-        PRESET_CHANGED
+        PRESET_CHANGED,
+        BACKUP,
+        RESTORE_START,
+        RESTORE_END
     };
 
     struct event_t

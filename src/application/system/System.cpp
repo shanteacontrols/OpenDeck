@@ -478,6 +478,15 @@ uint8_t Instance::SysExDataHandler::customRequest(uint16_t request, CustomRespon
     {
         // no response here, just set flag internally that backup needs to be done
         _system._backupRestoreState = backupRestoreState_t::BACKUP;
+
+        Messaging::event_t event;
+        event.componentIndex = 0;
+        event.channel        = 0;
+        event.index          = 0;
+        event.value          = 0;
+        event.systemMessage  = Messaging::systemMessage_t::BACKUP;
+
+        MIDIDispatcher.notify(Messaging::eventType_t::SYSTEM, event);
     }
     break;
 
@@ -485,6 +494,15 @@ uint8_t Instance::SysExDataHandler::customRequest(uint16_t request, CustomRespon
     {
         _system._backupRestoreState = backupRestoreState_t::RESTORE;
         _system._sysExConf.setUserErrorIgnoreMode(true);
+
+        Messaging::event_t event;
+        event.componentIndex = 0;
+        event.channel        = 0;
+        event.index          = 0;
+        event.value          = 0;
+        event.systemMessage  = Messaging::systemMessage_t::RESTORE_START;
+
+        MIDIDispatcher.notify(Messaging::eventType_t::SYSTEM, event);
     }
     break;
 
@@ -492,6 +510,15 @@ uint8_t Instance::SysExDataHandler::customRequest(uint16_t request, CustomRespon
     {
         _system._backupRestoreState = backupRestoreState_t::NONE;
         _system._sysExConf.setUserErrorIgnoreMode(false);
+
+        Messaging::event_t event;
+        event.componentIndex = 0;
+        event.channel        = 0;
+        event.index          = 0;
+        event.value          = 0;
+        event.systemMessage  = Messaging::systemMessage_t::RESTORE_END;
+
+        MIDIDispatcher.notify(Messaging::eventType_t::SYSTEM, event);
     }
     break;
 
