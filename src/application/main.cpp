@@ -55,7 +55,32 @@ bool CDCLocker::_locked = false;
 class HWADatabase : public System::Builder::HWA::Database
 {
     public:
-    HWADatabase() = default;
+    HWADatabase()
+    {
+        MIDIDispatcher.listen(Messaging::eventType_t::SYSTEM,
+                              [this](const Messaging::event_t& event)
+                              {
+                                  switch (event.systemMessage)
+                                  {
+                                  case Messaging::systemMessage_t::RESTORE_START:
+                                  {
+                                      _writeToCache = true;
+                                  }
+                                  break;
+
+                                  case Messaging::systemMessage_t::RESTORE_END:
+                                  {
+                                      Board::USB::deInit();
+                                      Board::NVM::writeCacheToFlash();
+                                      Board::reboot();
+                                  }
+                                  break;
+
+                                  default:
+                                      break;
+                                  }
+                              });
+    }
 
     bool init() override
     {
@@ -86,7 +111,7 @@ class HWADatabase : public System::Builder::HWA::Database
 
     bool write(uint32_t address, uint32_t value, Database::Admin::sectionParameterType_t type) override
     {
-        return Board::NVM::write(address, value, boardParamType(type));
+        return Board::NVM::write(address, value, boardParamType(type), _writeToCache);
     }
 
     private:
@@ -104,6 +129,8 @@ class HWADatabase : public System::Builder::HWA::Database
             return Board::NVM::parameterType_t::BYTE;
         }
     }
+
+    bool _writeToCache = false;
 } _hwaDatabase;
 
 #ifdef LEDS_SUPPORTED

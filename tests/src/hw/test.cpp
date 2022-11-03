@@ -713,8 +713,27 @@ TEST_F(HWTest, BackupAndRestore)
 
     while (getline(backupStream, line))
     {
-        ASSERT_NE(_helper.sendRawSysEx(line), std::string(""));
+        // restore end indicator will reboot the board
+        if (line.find("F0 00 53 43 00 00 1D F7") == std::string::npos)
+        {
+            ASSERT_NE(_helper.sendRawSysEx(line), std::string(""));
+        }
+        else
+        {
+            _helper.sendRawSysEx(line, false);
+        }
     }
+
+    LOG(INFO) << "Backup file sent successfully, waiting " << startup_delay_ms << " ms";
+    test::sleepMs(startup_delay_ms);
+
+    if (!_helper.devicePresent())
+    {
+        LOG(ERROR) << "OpenDeck device not found after restore procedure, aborting";
+        FAIL();
+    }
+
+    handshake();
 
     LOG(INFO) << "Verifying that the custom values are active again";
 
