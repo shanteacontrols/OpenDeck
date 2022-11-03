@@ -336,11 +336,18 @@ namespace Board
         bool read(uint32_t address, uint32_t& value, parameterType_t type);
 
         /// Used to write value to memory provided by specific board.
-        /// param [in]: address Memory address in which new value is being written.
-        /// param [in]: value   Value to write.
-        /// param [in]: type    Type of parameter which is being written.
+        /// param [in]: address     Memory address in which new value is being written.
+        /// param [in]: value       Value to write.
+        /// param [in]: type        Type of parameter which is being written.
+        /// param [in]: cacheOnly   If set to true, data will be written only to in-memory cache,
+        ///                         without writing to flash, but only if supported by target.
+        ///                         Otherwise the argument will be ignored.
         /// returns: True on success, false otherwise.
-        bool write(uint32_t address, uint32_t value, parameterType_t type);
+        bool write(uint32_t address, uint32_t value, parameterType_t type, bool cacheOnly = false);
+
+        /// Used to write the contents of cache memory to flash.
+        /// Should be used only if write was called with cacheOnly argument set to true.
+        void writeCacheToFlash();
     }    // namespace NVM
 
     namespace BLE

@@ -145,7 +145,7 @@ namespace Board::NVM
         return true;
     }
 
-    bool write(uint32_t address, uint32_t value, parameterType_t type)
+    bool write(uint32_t address, uint32_t value, parameterType_t type, bool cacheOnly)
     {
         uint16_t tempData;
 
@@ -156,7 +156,7 @@ namespace Board::NVM
         {
             tempData = value;
 
-            if (_emuEEPROM.write(address, tempData) != EmuEEPROM::writeStatus_t::OK)
+            if (_emuEEPROM.write(address, tempData, cacheOnly) != EmuEEPROM::writeStatus_t::OK)
             {
                 return false;
             }
@@ -174,5 +174,10 @@ namespace Board::NVM
     bool clear(uint32_t start, uint32_t end)
     {
         return _emuEEPROM.format();
+    }
+
+    void writeCacheToFlash()
+    {
+        _emuEEPROM.writeCacheToFlash();
     }
 }    // namespace Board::NVM

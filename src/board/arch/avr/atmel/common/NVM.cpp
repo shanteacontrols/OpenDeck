@@ -60,7 +60,7 @@ namespace Board::NVM
         return true;
     }
 
-    bool write(uint32_t address, uint32_t value, parameterType_t type)
+    bool write(uint32_t address, uint32_t value, parameterType_t type, bool cacheOnly)
     {
         switch (type)
         {
@@ -94,5 +94,9 @@ namespace Board::NVM
         }
 
         return true;
+    }
+
+    void writeCacheToFlash()
+    {
     }
 }    // namespace Board::NVM
