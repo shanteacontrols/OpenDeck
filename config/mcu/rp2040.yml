@@ -7,9 +7,9 @@
       factory-page:
         page: 72
       page1:
-        page: 104
-      page2:
         page: 136
+      page2:
+        page: 200
   adc:
     prescaler: 6
     samples: 16
