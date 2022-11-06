@@ -836,7 +836,30 @@ class HWADisplayStub : public sys::Builder::HWA::IO::Display
 class HWASystem : public sys::Builder::HWA::System
 {
     public:
-    HWASystem() = default;
+    HWASystem()
+    {
+        MIDIDispatcher.listen(messaging::eventType_t::SYSTEM,
+                              [](const messaging::event_t& event)
+                              {
+                                  switch (event.systemMessage)
+                                  {
+                                  case messaging::systemMessage_t::FACTORY_RESET_START:
+                                  {
+                                      board::usb::deInit();
+                                  }
+                                  break;
+
+                                  case messaging::systemMessage_t::FACTORY_RESET_END:
+                                  {
+                                      board::reboot();
+                                  }
+                                  break;
+
+                                  default:
+                                      break;
+                                  }
+                              });
+    }
 
     bool init() override
     {
@@ -892,11 +915,6 @@ class HWASystem : public sys::Builder::HWA::System
     void registerOnUSBconnectionHandler(sys::Instance::usbConnectionHandler_t&& usbConnectionHandler) override
     {
         _usbConnectionHandler = std::move(usbConnectionHandler);
-    }
-
-    void disconnectUSB() override
-    {
-        board::usb::deInit();
     }
 
     private:

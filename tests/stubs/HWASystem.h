@@ -23,8 +23,4 @@ class HWASystem : public sys::Instance::HWA
     void registerOnUSBconnectionHandler(sys::Instance::usbConnectionHandler_t&& usbConnectionHandler) override
     {
     }
-
-    void disconnectUSB() override
-    {
-    }
 };

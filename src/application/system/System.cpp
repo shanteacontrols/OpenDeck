@@ -577,15 +577,24 @@ void Instance::DBhandlers::initialized()
 
 void Instance::DBhandlers::factoryResetStart()
 {
-    _system._hwa.disconnectUSB();
+    messaging::event_t event;
+    event.componentIndex = 0;
+    event.channel        = 0;
+    event.index          = 0;
+    event.value          = 0;
+    event.systemMessage  = messaging::systemMessage_t::FACTORY_RESET_START;
+
+    MIDIDispatcher.notify(messaging::eventType_t::SYSTEM, event);
 }
 
 void Instance::DBhandlers::factoryResetDone()
 {
-    // Don't run this if database isn't fully initialized yet
-    // to avoid MCU reset if factory reset is needed on first run.
-    if (_system._components.database().isInitialized())
-    {
-        _system._hwa.reboot(FwSelector::fwType_t::APPLICATION);
-    }
+    messaging::event_t event;
+    event.componentIndex = 0;
+    event.channel        = 0;
+    event.index          = 0;
+    event.value          = 0;
+    event.systemMessage  = messaging::systemMessage_t::FACTORY_RESET_END;
+
+    MIDIDispatcher.notify(messaging::eventType_t::SYSTEM, event);
 }

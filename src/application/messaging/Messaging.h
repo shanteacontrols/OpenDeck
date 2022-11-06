@@ -49,7 +49,9 @@ namespace messaging
         PRESET_CHANGED,
         BACKUP,
         RESTORE_START,
-        RESTORE_END
+        RESTORE_END,
+        FACTORY_RESET_START,
+        FACTORY_RESET_END
     };
 
     struct event_t
