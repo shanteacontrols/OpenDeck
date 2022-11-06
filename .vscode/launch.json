@@ -182,5 +182,25 @@
             ],
             "preLaunchTask": "[Debug] opendeck3a"
         },
+        {
+            "name": "[Launch] opendeck31/Application/pyocd",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "pyocd",
+            "cwd": "${workspaceRoot}",
+            "executable": "./src/build/opendeck31/debug/merged/opendeck31.hex",
+            "interface": "swd",
+            "device": "rp2040",
+            "preLaunchTask": "[Debug] opendeck31",
+            "serverArgs": [
+                "--target",
+                "rp2040",
+                "--probe",
+                "D96350115F735837"
+            ],
+            "preLaunchCommands": [
+                "add-symbol-file ${workspaceRoot}/src/build/opendeck31/debug/application/opendeck31.elf",
+            ],
+        },
     ]
 }

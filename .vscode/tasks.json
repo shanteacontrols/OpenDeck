@@ -77,6 +77,17 @@
             }
         },
         {
+            "label": "[Debug] opendeck31",
+            "command": "cd ./src && make TARGET=opendeck31 DEBUG=1",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+            }
+        },
+        {
             "label": "[Flashgen] Build",
             "command": "cd ./src && make pre-build TARGET=${input:target} && make TARGET=${input:target} TYPE=flashgen DEBUG=1 binary && cp ./build/${input:target}/debug/flashgen/${input:target}.elf ./build/flashgen.elf",
             "type": "shell",
