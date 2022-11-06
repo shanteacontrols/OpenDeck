@@ -48,16 +48,40 @@ limitations under the License.
         LED_OFF(INDICATOR_PORT_OUT(type), INDICATOR_INDEX_OUT(type)); \
     } while (0)
 
-#define INDICATOR_TYPE_ON(type)                                      \
+#define ALL_INDICATOR_TYPE_ON(type)                                  \
     do                                                               \
     {                                                                \
         LED_ON(INDICATOR_PORT_IN(type), INDICATOR_INDEX_IN(type));   \
         LED_ON(INDICATOR_PORT_OUT(type), INDICATOR_INDEX_OUT(type)); \
     } while (0)
 
-#define INDICATOR_TYPE_OFF(type)                                      \
+#define ALL_INDICATOR_TYPE_OFF(type)                                  \
     do                                                                \
     {                                                                 \
         LED_OFF(INDICATOR_PORT_IN(type), INDICATOR_INDEX_IN(type));   \
+        LED_OFF(INDICATOR_PORT_OUT(type), INDICATOR_INDEX_OUT(type)); \
+    } while (0)
+
+#define IN_INDICATOR_TYPE_ON(type)                                 \
+    do                                                             \
+    {                                                              \
+        LED_ON(INDICATOR_PORT_IN(type), INDICATOR_INDEX_IN(type)); \
+    } while (0)
+
+#define IN_INDICATOR_TYPE_OFF(type)                                 \
+    do                                                              \
+    {                                                               \
+        LED_OFF(INDICATOR_PORT_IN(type), INDICATOR_INDEX_IN(type)); \
+    } while (0)
+
+#define OUT_INDICATOR_TYPE_ON(type)                                  \
+    do                                                               \
+    {                                                                \
+        LED_ON(INDICATOR_PORT_OUT(type), INDICATOR_INDEX_OUT(type)); \
+    } while (0)
+
+#define OUT_INDICATOR_TYPE_OFF(type)                                  \
+    do                                                                \
+    {                                                                 \
         LED_OFF(INDICATOR_PORT_OUT(type), INDICATOR_INDEX_OUT(type)); \
     } while (0)
