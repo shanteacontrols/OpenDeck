@@ -1,66 +1,67 @@
-NRF52_SDK_VERSION        := nRF5_SDK_17.1.0_ddde560
-NRF52_SDK_LINK           := https://www.nordicsemi.com/-/media/Software-and-other-downloads/SDKs/nRF5/Binaries/$(NRF52_SDK_VERSION).zip
+NRF52_SDK_VERSION        := 17.1.0_ddde560
+NRF52_SDK_LINK           := https://nsscprodmedia.blob.core.windows.net/prod/software-and-other-downloads/sdks/nrf5/binaries/nrf5_sdk_$(NRF52_SDK_VERSION).zip
 NRF52_SDK_FILENAME       := $(shell basename $(NRF52_SDK_LINK))
 NRF52_SDK_ZIP_PATH       := $(DEPS_DIR)/$(NRF52_SDK_FILENAME)
-NRF52_SOFTDEVICE_PATH    := $(DEPS_DIR)/$(shell basename $(NRF52_SDK_FILENAME) .zip)/components/softdevice/s140/hex/s140_nrf52_7.2.0_softdevice.hex
 NRF52_SDK_DL_MARKER_PATH := $(NRF52_SDK_ZIP_PATH).downloaded
+NRF52_SDK_PATH           := $(shell $(FIND) $(DEPS_DIR) -maxdepth 1 -type d -iname "*nrf*")
+NRF52_SOFTDEVICE_PATH    := $(NRF52_SDK_PATH)/components/softdevice/s140/hex/s140_nrf52_7.2.0_softdevice.hex
 
 ifeq (,$(findstring gen,$(TYPE)))
     INCLUDE_FILES += \
     -include "board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/common/nrfx_config.h"
 
     INCLUDE_DIRS += \
-    -I"deps/$(NRF52_SDK_VERSION)/components/softdevice/s140/headers" \
-    -I"deps/$(NRF52_SDK_VERSION)/components/softdevice/s140/headers/nrf52" \
-    -I"deps/$(NRF52_SDK_VERSION)/components/softdevice/common" \
-    -I"deps/$(NRF52_SDK_VERSION)/components/libraries/util" \
-    -I"deps/$(NRF52_SDK_VERSION)/components/libraries/experimental_section_vars" \
-    -I"deps/$(NRF52_SDK_VERSION)/components/libraries/log" \
-    -I"deps/$(NRF52_SDK_VERSION)/components/libraries/log/src" \
-    -I"deps/$(NRF52_SDK_VERSION)/components/libraries/strerror" \
-    -I"deps/$(NRF52_SDK_VERSION)/components/ble/nrf_ble_qwr" \
-    -I"deps/$(NRF52_SDK_VERSION)/components/ble/nrf_ble_gatt" \
-    -I"deps/$(NRF52_SDK_VERSION)/components/ble/common" \
-    -I"deps/$(NRF52_SDK_VERSION)/components/ble/ble_advertising" \
-    -I"deps/$(NRF52_SDK_VERSION)/components/libraries/timer" \
-    -I"deps/$(NRF52_SDK_VERSION)/components/libraries/atomic" \
-    -I"deps/$(NRF52_SDK_VERSION)/components/libraries/delay" \
-    -I"deps/$(NRF52_SDK_VERSION)/components/ble/peer_manager" \
-    -I"deps/$(NRF52_SDK_VERSION)/components/libraries/fds" \
-    -I"deps/$(NRF52_SDK_VERSION)/components/libraries/atomic_fifo" \
-    -I"deps/$(NRF52_SDK_VERSION)/components/libraries/fstorage" \
-    -I"deps/$(NRF52_SDK_VERSION)/components/libraries/atomic_flags" \
-    -I"deps/$(NRF52_SDK_VERSION)/components/libraries/mutex" \
-    -I"deps/$(NRF52_SDK_VERSION)/modules/nrfx/hal"
+    -I"$(NRF52_SDK_PATH)/components/softdevice/s140/headers" \
+    -I"$(NRF52_SDK_PATH)/components/softdevice/s140/headers/nrf52" \
+    -I"$(NRF52_SDK_PATH)/components/softdevice/common" \
+    -I"$(NRF52_SDK_PATH)/components/libraries/util" \
+    -I"$(NRF52_SDK_PATH)/components/libraries/experimental_section_vars" \
+    -I"$(NRF52_SDK_PATH)/components/libraries/log" \
+    -I"$(NRF52_SDK_PATH)/components/libraries/log/src" \
+    -I"$(NRF52_SDK_PATH)/components/libraries/strerror" \
+    -I"$(NRF52_SDK_PATH)/components/ble/nrf_ble_qwr" \
+    -I"$(NRF52_SDK_PATH)/components/ble/nrf_ble_gatt" \
+    -I"$(NRF52_SDK_PATH)/components/ble/common" \
+    -I"$(NRF52_SDK_PATH)/components/ble/ble_advertising" \
+    -I"$(NRF52_SDK_PATH)/components/libraries/timer" \
+    -I"$(NRF52_SDK_PATH)/components/libraries/atomic" \
+    -I"$(NRF52_SDK_PATH)/components/libraries/delay" \
+    -I"$(NRF52_SDK_PATH)/components/ble/peer_manager" \
+    -I"$(NRF52_SDK_PATH)/components/libraries/fds" \
+    -I"$(NRF52_SDK_PATH)/components/libraries/atomic_fifo" \
+    -I"$(NRF52_SDK_PATH)/components/libraries/fstorage" \
+    -I"$(NRF52_SDK_PATH)/components/libraries/atomic_flags" \
+    -I"$(NRF52_SDK_PATH)/components/libraries/mutex" \
+    -I"$(NRF52_SDK_PATH)/modules/nrfx/hal"
 
     SOURCES += \
-    deps/$(NRF52_SDK_VERSION)/components/libraries/experimental_section_vars/nrf_section_iter.c \
-    deps/$(NRF52_SDK_VERSION)/components/libraries/atomic_fifo/nrf_atfifo.c \
-    deps/$(NRF52_SDK_VERSION)/components/libraries/atomic/nrf_atomic.c \
-    deps/$(NRF52_SDK_VERSION)/components/libraries/util/app_error.c \
-    deps/$(NRF52_SDK_VERSION)/components/libraries/util/app_error_weak.c \
-    deps/$(NRF52_SDK_VERSION)/components/libraries/util/app_error_handler_gcc.c \
-    deps/$(NRF52_SDK_VERSION)/components/libraries/util/app_util_platform.c \
-    deps/$(NRF52_SDK_VERSION)/components/softdevice/common/nrf_sdh_ble.c \
-    deps/$(NRF52_SDK_VERSION)/components/softdevice/common/nrf_sdh_soc.c \
-    deps/$(NRF52_SDK_VERSION)/components/softdevice/common/nrf_sdh.c \
-    deps/$(NRF52_SDK_VERSION)/components/libraries/timer/app_timer.c
+    $(NRF52_SDK_PATH)/components/libraries/experimental_section_vars/nrf_section_iter.c \
+    $(NRF52_SDK_PATH)/components/libraries/atomic_fifo/nrf_atfifo.c \
+    $(NRF52_SDK_PATH)/components/libraries/atomic/nrf_atomic.c \
+    $(NRF52_SDK_PATH)/components/libraries/util/app_error.c \
+    $(NRF52_SDK_PATH)/components/libraries/util/app_error_weak.c \
+    $(NRF52_SDK_PATH)/components/libraries/util/app_error_handler_gcc.c \
+    $(NRF52_SDK_PATH)/components/libraries/util/app_util_platform.c \
+    $(NRF52_SDK_PATH)/components/softdevice/common/nrf_sdh_ble.c \
+    $(NRF52_SDK_PATH)/components/softdevice/common/nrf_sdh_soc.c \
+    $(NRF52_SDK_PATH)/components/softdevice/common/nrf_sdh.c \
+    $(NRF52_SDK_PATH)/components/libraries/timer/app_timer.c
 
-    SOURCES += $(shell $(FIND) deps/$(NRF52_SDK_VERSION)/components/libraries/fstorage -type f -name "*.c")
+    SOURCES += $(shell $(FIND) $(NRF52_SDK_PATH)/components/libraries/fstorage -type f -name "*.c")
 
     ifeq ($(TYPE),application)
         SOURCES += \
-        deps/$(NRF52_SDK_VERSION)/components/ble/nrf_ble_qwr/nrf_ble_qwr.c \
-        deps/$(NRF52_SDK_VERSION)/components/ble/nrf_ble_gatt/nrf_ble_gatt.c \
-        deps/$(NRF52_SDK_VERSION)/components/ble/ble_advertising/ble_advertising.c \
-        deps/$(NRF52_SDK_VERSION)/components/ble/common/ble_advdata.c \
-        deps/$(NRF52_SDK_VERSION)/components/ble/common/ble_conn_params.c \
-        deps/$(NRF52_SDK_VERSION)/components/ble/common/ble_srv_common.c \
-        deps/$(NRF52_SDK_VERSION)/components/libraries/fds/fds.c \
-        deps/$(NRF52_SDK_VERSION)/components/ble/common/ble_conn_state.c \
-        deps/$(NRF52_SDK_VERSION)/components/libraries/atomic_flags/nrf_atflags.c \
+        $(NRF52_SDK_PATH)/components/ble/nrf_ble_qwr/nrf_ble_qwr.c \
+        $(NRF52_SDK_PATH)/components/ble/nrf_ble_gatt/nrf_ble_gatt.c \
+        $(NRF52_SDK_PATH)/components/ble/ble_advertising/ble_advertising.c \
+        $(NRF52_SDK_PATH)/components/ble/common/ble_advdata.c \
+        $(NRF52_SDK_PATH)/components/ble/common/ble_conn_params.c \
+        $(NRF52_SDK_PATH)/components/ble/common/ble_srv_common.c \
+        $(NRF52_SDK_PATH)/components/libraries/fds/fds.c \
+        $(NRF52_SDK_PATH)/components/ble/common/ble_conn_state.c \
+        $(NRF52_SDK_PATH)/components/libraries/atomic_flags/nrf_atflags.c \
 
-        SOURCES += $(shell $(FIND) deps/$(NRF52_SDK_VERSION)/components/ble/peer_manager -type f -name "*.c")
+        SOURCES += $(shell $(FIND) $(NRF52_SDK_PATH)/components/ble/peer_manager -type f -name "*.c")
         SOURCES += $(shell $(FIND) board/arch/arm/nordic/variants/nrf52/ble -type f -name "*.cpp")
     endif
 endif
