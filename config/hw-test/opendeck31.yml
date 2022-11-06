@@ -1,0 +1,6 @@
+---
+flash:
+  args: "FLASH_TOOL=pyocd PROBE_ID=D96350115F735837"
+dinMidi:
+  in: "ESI MIDIMATE eX MIDI 2"
+  out: "ESI MIDIMATE eX MIDI 1"
