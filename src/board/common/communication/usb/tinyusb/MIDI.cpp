@@ -22,7 +22,7 @@ limitations under the License.
 #include "board/Board.h"
 #include "tusb.h"
 
-namespace Board::USB
+namespace board::usb
 {
     bool readMIDI(midiPacket_t& packet)
     {
@@ -49,7 +49,7 @@ namespace Board::USB
 
         return true;
     }
-}    // namespace Board::USB
+}    // namespace board::usb
 
 #endif
 #endif

@@ -20,7 +20,7 @@ limitations under the License.
 #include "board/Internal.h"
 #include "core/src/util/Util.h"
 
-namespace Board::detail::IO
+namespace board::detail::io
 {
     void init()
     {
@@ -36,4 +36,4 @@ namespace Board::detail::IO
         unused::init();
 #endif
     }
-}    // namespace Board::detail::IO
+}    // namespace board::detail::io

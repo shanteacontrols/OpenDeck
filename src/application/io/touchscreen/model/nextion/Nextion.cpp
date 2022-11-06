@@ -25,12 +25,12 @@ limitations under the License.
 #include "core/src/Timing.h"
 #include "io/touchscreen/Touchscreen.h"
 
-using namespace IO;
+using namespace io;
 
-Nextion::Nextion(IO::Touchscreen::HWA& hwa)
+Nextion::Nextion(io::Touchscreen::HWA& hwa)
     : _hwa(hwa)
 {
-    IO::Touchscreen::registerModel(IO::Touchscreen::model_t::NEXTION, this);
+    io::Touchscreen::registerModel(io::Touchscreen::model_t::NEXTION, this);
 }
 
 bool Nextion::init()

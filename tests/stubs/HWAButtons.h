@@ -2,7 +2,7 @@
 
 #include "io/buttons/Buttons.h"
 
-class HWAButtons : public IO::Buttons::HWA
+class HWAButtons : public io::Buttons::HWA
 {
     public:
     HWAButtons() = default;

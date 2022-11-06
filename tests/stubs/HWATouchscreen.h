@@ -2,7 +2,7 @@
 
 #include "io/touchscreen/Touchscreen.h"
 
-class HWATouchscreen : public IO::Touchscreen::HWA
+class HWATouchscreen : public io::Touchscreen::HWA
 {
     public:
     HWATouchscreen() = default;
@@ -27,13 +27,13 @@ class HWATouchscreen : public IO::Touchscreen::HWA
         return true;
     }
 
-    bool allocated(IO::Common::Allocatable::interface_t interface) override
+    bool allocated(io::common::Allocatable::interface_t interface) override
     {
         return false;
     }
 };
 
-class HWATouchscreenCDCPassthrough : public IO::Touchscreen::CDCPassthrough
+class HWATouchscreenCDCPassthrough : public io::Touchscreen::CDCPassthrough
 {
     public:
     HWATouchscreenCDCPassthrough() = default;
@@ -73,7 +73,7 @@ class HWATouchscreenCDCPassthrough : public IO::Touchscreen::CDCPassthrough
         return true;
     }
 
-    bool allocated(IO::Common::Allocatable::interface_t interface) override
+    bool allocated(io::common::Allocatable::interface_t interface) override
     {
         return false;
     }

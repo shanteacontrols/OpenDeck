@@ -28,9 +28,9 @@ limitations under the License.
 #include "core/src/util/RingBuffer.h"
 #include <Target.h>
 
-using namespace Board::IO::digitalIn;
-using namespace Board::detail;
-using namespace Board::detail::IO::digitalIn;
+using namespace board::io::digitalIn;
+using namespace board::detail;
+using namespace board::detail::io::digitalIn;
 
 namespace
 {
@@ -73,7 +73,7 @@ namespace
     }
 }    // namespace
 
-namespace Board::detail::IO::digitalIn
+namespace board::detail::io::digitalIn
 {
     void init()
     {
@@ -94,9 +94,9 @@ namespace Board::detail::IO::digitalIn
 #endif
         }
     }
-}    // namespace Board::detail::IO::digitalIn
+}    // namespace board::detail::io::digitalIn
 
-namespace Board::IO::digitalIn
+namespace board::io::digitalIn
 {
     bool state(size_t index, readings_t& readings)
     {
@@ -131,7 +131,7 @@ namespace Board::IO::digitalIn
 
         return index + 1;
     }
-}    // namespace Board::IO::digitalIn
+}    // namespace board::io::digitalIn
 
 #include "Common.cpp.include"
 

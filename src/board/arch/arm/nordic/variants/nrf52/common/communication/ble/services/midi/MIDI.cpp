@@ -243,7 +243,7 @@ NRF_SDH_BLE_OBSERVER(_midi_obs,
                      onBleEvent,
                      &_midiService);
 
-namespace Board::BLE::MIDI
+namespace board::ble::midi
 {
     bool read(uint8_t* buffer, size_t& size, const size_t maxSize)
     {
@@ -318,9 +318,9 @@ namespace Board::BLE::MIDI
 
         return retVal == NRF_SUCCESS;
     }
-}    // namespace Board::BLE::MIDI
+}    // namespace board::ble::midi
 
-namespace Board::detail::BLE::MIDI
+namespace board::detail::ble::midi
 {
     bool init()
     {
@@ -358,6 +358,6 @@ namespace Board::detail::BLE::MIDI
 
         return true;
     }
-}    // namespace Board::detail::BLE::MIDI
+}    // namespace board::detail::ble::midi
 
 #endif

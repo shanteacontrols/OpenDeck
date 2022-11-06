@@ -25,9 +25,9 @@ limitations under the License.
 #include "core/src/util/Util.h"
 #include <Target.h>
 
-using namespace Board::IO::digitalOut;
-using namespace Board::detail;
-using namespace Board::detail::IO::digitalOut;
+using namespace board::io::digitalOut;
+using namespace board::detail;
+using namespace board::detail::io::digitalOut;
 
 namespace
 {
@@ -35,7 +35,7 @@ namespace
     core::mcu::io::portWidth_t _portState[HW_NR_OF_DIGITAL_OUTPUT_PORTS][static_cast<uint8_t>(ledBrightness_t::B100)];
 }    // namespace
 
-namespace Board::detail::IO::digitalOut
+namespace board::detail::io::digitalOut
 {
     void init()
     {
@@ -67,9 +67,9 @@ namespace Board::detail::IO::digitalOut
             _pwmCounter = 0;
         }
     }
-}    // namespace Board::detail::IO::digitalOut
+}    // namespace board::detail::io::digitalOut
 
-namespace Board::IO::digitalOut
+namespace board::io::digitalOut
 {
     void writeLEDstate(size_t index, ledBrightness_t ledBrightness)
     {
@@ -118,7 +118,7 @@ namespace Board::IO::digitalOut
     {
         return index * 3 + static_cast<uint8_t>(component);
     }
-}    // namespace Board::IO::digitalOut
+}    // namespace board::io::digitalOut
 
 #endif
 #endif

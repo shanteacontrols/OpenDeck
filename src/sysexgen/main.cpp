@@ -34,7 +34,7 @@ namespace
 
     void appendSysExID(std::vector<uint8_t>& vec)
     {
-        using namespace System;
+        using namespace sys;
 
         vec.push_back(Config::SYSEX_MANUFACTURER_ID_0);
         vec.push_back(Config::SYSEX_MANUFACTURER_ID_1);
@@ -76,7 +76,7 @@ namespace
 
             for (size_t i = 0; i < commandArray.size(); i++)
             {
-                auto split = Util::Conversion::Split14bit(commandArray.at(i));
+                auto split = util::Conversion::Split14bit(commandArray.at(i));
 
                 output.push_back(split.high());
                 output.push_back(split.low());
@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
 
     for (size_t i = 0; i < 4; i++)
     {
-        auto split = Util::Conversion::Split14bit(contents.size() >> (8 * i) & 0xFF);
+        auto split = util::Conversion::Split14bit(contents.size() >> (8 * i) & 0xFF);
 
         output.push_back(split.high());
         output.push_back(split.low());
@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
 
     for (size_t i = 0; i < 4; i++)
     {
-        auto split = Util::Conversion::Split14bit(FW_UID >> (8 * i) & 0xFF);
+        auto split = util::Conversion::Split14bit(FW_UID >> (8 * i) & 0xFF);
 
         output.push_back(split.high());
         output.push_back(split.low());
@@ -147,7 +147,7 @@ int main(int argc, char* argv[])
             lastByteSet = 0;
         }
 
-        auto split = Util::Conversion::Split14bit(contents.at(i));
+        auto split = util::Conversion::Split14bit(contents.at(i));
 
         output.push_back(split.high());
         output.push_back(split.low());

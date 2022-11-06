@@ -19,7 +19,7 @@ limitations under the License.
 #include "Scheduler.h"
 #include "core/src/Timing.h"
 
-using namespace Util;
+using namespace util;
 
 Scheduler::Scheduler()
 {

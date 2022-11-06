@@ -25,9 +25,9 @@ limitations under the License.
 #include "core/src/util/Util.h"
 #include <Target.h>
 
-using namespace Board::IO::digitalOut;
-using namespace Board::detail;
-using namespace Board::detail::IO::digitalOut;
+using namespace board::io::digitalOut;
+using namespace board::detail;
+using namespace board::detail::io::digitalOut;
 
 namespace
 {
@@ -54,7 +54,7 @@ namespace
                                           core::util::BIT_READ(byte, bit));
 
                     CORE_MCU_IO_SET_LOW(PIN_PORT_MAX7219_CLK, PIN_INDEX_MAX7219_CLK);
-                    Board::detail::IO::spiWait();
+                    board::detail::io::spiWait();
                     CORE_MCU_IO_SET_HIGH(PIN_PORT_MAX7219_CLK, PIN_INDEX_MAX7219_CLK);
                 }
             };
@@ -67,7 +67,7 @@ namespace
     }
 }    // namespace
 
-namespace Board::detail::IO::digitalOut
+namespace board::detail::io::digitalOut
 {
     void init()
     {
@@ -107,9 +107,9 @@ namespace Board::detail::IO::digitalOut
         // normal operation - start up
         sendCommand(MAX7219_REG_SHUTDOWN, 1);
     }
-}    // namespace Board::detail::IO::digitalOut
+}    // namespace board::detail::io::digitalOut
 
-namespace Board::IO::digitalOut
+namespace board::io::digitalOut
 {
     void writeLEDstate(size_t index, ledBrightness_t ledBrightness)
     {
@@ -162,7 +162,7 @@ namespace Board::IO::digitalOut
 
         return 0;
     }
-}    // namespace Board::IO::digitalOut
+}    // namespace board::io::digitalOut
 
 #endif
 #endif

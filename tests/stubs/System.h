@@ -34,7 +34,7 @@ class TestSystem
     HWAMIDIBLE                   _hwaMIDIBLE;
 
     private:
-    class HWABuilder : public ::System::Builder::HWA
+    class HWABuilder : public ::sys::Builder::HWA
     {
         public:
         HWABuilder(TestSystem& testSystem)
@@ -43,64 +43,64 @@ class TestSystem
             , _protocol(testSystem)
         {}
 
-        ::System::Builder::HWA::IO& io() override
+        ::sys::Builder::HWA::IO& io() override
         {
             return _io;
         }
 
-        ::System::Builder::HWA::Protocol& protocol() override
+        ::sys::Builder::HWA::Protocol& protocol() override
         {
             return _protocol;
         }
 
-        ::System::Builder::HWA::System& system() override
+        ::sys::Builder::HWA::System& system() override
         {
             return _testSystem._hwaSystem;
         }
 
-        ::System::Builder::HWA::Database& database() override
+        ::sys::Builder::HWA::Database& database() override
         {
             return _testSystem._hwaDatabase;
         }
 
-        class HWAIO : public ::System::Builder::HWA::IO
+        class HWAIO : public ::sys::Builder::HWA::IO
         {
             public:
             HWAIO(TestSystem& testSystem)
                 : _testSystem(testSystem)
             {}
 
-            ::System::Builder::HWA::IO::LEDs& leds() override
+            ::sys::Builder::HWA::IO::LEDs& leds() override
             {
                 return _testSystem._hwaLEDs;
             }
 
-            ::System::Builder::HWA::IO::Analog& analog() override
+            ::sys::Builder::HWA::IO::Analog& analog() override
             {
                 return _testSystem._hwaAnalog;
             }
 
-            ::System::Builder::HWA::IO::Buttons& buttons() override
+            ::sys::Builder::HWA::IO::Buttons& buttons() override
             {
                 return _testSystem._hwaButtons;
             }
 
-            ::System::Builder::HWA::IO::Encoders& encoders() override
+            ::sys::Builder::HWA::IO::Encoders& encoders() override
             {
                 return _testSystem._hwaEncoders;
             }
 
-            ::System::Builder::HWA::IO::Touchscreen& touchscreen() override
+            ::sys::Builder::HWA::IO::Touchscreen& touchscreen() override
             {
                 return _testSystem._hwaTouchscreen;
             }
 
-            ::System::Builder::HWA::IO::CDCPassthrough& cdcPassthrough() override
+            ::sys::Builder::HWA::IO::CDCPassthrough& cdcPassthrough() override
             {
                 return _testSystem._hwaCDCPassthrough;
             }
 
-            ::System::Builder::HWA::IO::Display& display() override
+            ::sys::Builder::HWA::IO::Display& display() override
             {
                 return _testSystem._hwaDisplay;
             }
@@ -109,36 +109,36 @@ class TestSystem
             TestSystem& _testSystem;
         };
 
-        class HWAProtocol : public ::System::Builder::HWA::Protocol
+        class HWAProtocol : public ::sys::Builder::HWA::Protocol
         {
             public:
             HWAProtocol(TestSystem& testSystem)
                 : _hwaMIDI(testSystem)
             {}
 
-            ::System::Builder::HWA::Protocol::MIDI& midi()
+            ::sys::Builder::HWA::Protocol::MIDI& midi()
             {
                 return _hwaMIDI;
             }
 
-            class HWAProtocolMIDI : public ::System::Builder::HWA::Protocol::MIDI
+            class HWAProtocolMIDI : public ::sys::Builder::HWA::Protocol::MIDI
             {
                 public:
                 HWAProtocolMIDI(TestSystem& testSystem)
                     : _testSystem(testSystem)
                 {}
 
-                ::System::Builder::HWA::Protocol::MIDI::USB& usb() override
+                ::sys::Builder::HWA::Protocol::MIDI::USB& usb() override
                 {
                     return _testSystem._hwaMIDIUSB;
                 }
 
-                ::System::Builder::HWA::Protocol::MIDI::DIN& din() override
+                ::sys::Builder::HWA::Protocol::MIDI::DIN& din() override
                 {
                     return _testSystem._hwaMIDIDIN;
                 }
 
-                ::System::Builder::HWA::Protocol::MIDI::BLE& ble() override
+                ::sys::Builder::HWA::Protocol::MIDI::BLE& ble() override
                 {
                     return _testSystem._hwaMIDIBLE;
                 }
@@ -156,9 +156,9 @@ class TestSystem
         HWAProtocol _protocol;
     };
 
-    HWABuilder      _hwa;
-    System::Builder _builder = System::Builder(_hwa);
+    HWABuilder   _hwa;
+    sys::Builder _builder = sys::Builder(_hwa);
 
     public:
-    ::System::Instance _instance = ::System::Instance(_builder.hwa(), _builder.components());
+    ::sys::Instance _instance = ::sys::Instance(_builder.hwa(), _builder.components());
 };

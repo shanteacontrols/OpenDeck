@@ -25,7 +25,7 @@ limitations under the License.
 #include "nextion/Nextion.h"
 #include "viewtech/Viewtech.h"
 
-namespace IO
+namespace io
 {
     class TouchscreenModelBuilder
     {
@@ -36,7 +36,7 @@ namespace IO
         Nextion  _nextion;
         Viewtech _viewtech;
     };
-}    // namespace IO
+}    // namespace io
 #else
 #include "stub/Builder.h"
 #endif

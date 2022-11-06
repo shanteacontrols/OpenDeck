@@ -23,14 +23,14 @@ limitations under the License.
 #include "io/encoders/Encoders.h"
 #include "core/src/util/Util.h"
 
-namespace IO
+namespace io
 {
-    class EncodersFilter : public IO::Encoders::Filter
+    class EncodersFilter : public io::Encoders::Filter
     {
         public:
         bool isFiltered(size_t                    index,
-                        IO::Encoders::position_t  position,
-                        IO::Encoders::position_t& filteredPosition,
+                        io::Encoders::position_t  position,
+                        io::Encoders::position_t& filteredPosition,
                         uint32_t                  sampleTakenTime) override
         {
             filteredPosition = position;
@@ -42,7 +42,7 @@ namespace IO
                 reset(index);
             }
 
-            if (position != IO::Encoders::position_t::STOPPED)
+            if (position != io::Encoders::position_t::STOPPED)
             {
                 if (_debounceCounter[index] != ENCODERS_DEBOUNCE_COUNT)
                 {
@@ -63,7 +63,7 @@ namespace IO
                 _lastDirection[index]    = position;
                 _lastMovementTime[index] = sampleTakenTime;
 
-                if (_debounceDirection[index] != IO::Encoders::position_t::STOPPED)
+                if (_debounceDirection[index] != io::Encoders::position_t::STOPPED)
                 {
                     filteredPosition = _debounceDirection[index];
                 }
@@ -77,7 +77,7 @@ namespace IO
         void reset(size_t index) override
         {
             _debounceCounter[index]   = 0;
-            _debounceDirection[index] = IO::Encoders::position_t::STOPPED;
+            _debounceDirection[index] = io::Encoders::position_t::STOPPED;
         }
 
         uint32_t lastMovementTime(size_t index) override
@@ -97,10 +97,10 @@ namespace IO
         static constexpr uint8_t ENCODERS_DEBOUNCE_COUNT = 4;
 
         /// Array holding previous encoder direction for all encoders.
-        IO::Encoders::position_t _lastDirection[IO::Encoders::Collection::SIZE()] = {};
+        io::Encoders::position_t _lastDirection[io::Encoders::Collection::SIZE()] = {};
 
         /// Array holding current debounced direction for all encoders.
-        IO::Encoders::position_t _debounceDirection[IO::Encoders::Collection::SIZE()] = {};
+        io::Encoders::position_t _debounceDirection[io::Encoders::Collection::SIZE()] = {};
 
         /// Used to detect constant rotation in single direction.
         /// Once n consecutive movements in same direction are detected,
@@ -108,12 +108,12 @@ namespace IO
         /// encoder stops moving for ENCODERS_DEBOUNCE_RESET_TIME milliseconds *or*
         /// n new consecutive movements are made in the opposite direction.
         /// n = ENCODERS_DEBOUNCE_COUNT (defined in Constants.h)
-        uint8_t _debounceCounter[IO::Encoders::Collection::SIZE()] = {};
+        uint8_t _debounceCounter[io::Encoders::Collection::SIZE()] = {};
 
         /// Array holding last movement time for all encoders.
-        uint32_t _lastMovementTime[IO::Encoders::Collection::SIZE()] = {};
+        uint32_t _lastMovementTime[io::Encoders::Collection::SIZE()] = {};
     };
-}    // namespace IO
+}    // namespace io
 
 #else
 #include "stub/Filter.h"

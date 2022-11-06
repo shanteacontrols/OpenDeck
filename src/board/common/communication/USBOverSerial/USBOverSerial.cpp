@@ -21,7 +21,7 @@ limitations under the License.
 #include "USBOverSerial.h"
 #include "board/Board.h"
 
-namespace Board::USBOverSerial
+namespace board::usbOverSerial
 {
     class USBPacketUpdater
     {
@@ -158,7 +158,7 @@ namespace Board::USBOverSerial
 
         uint8_t value;
 
-        while (Board::UART::read(channel, value))
+        while (board::uart::read(channel, value))
         {
             USBPacketUpdater updater(packet);
 
@@ -178,20 +178,20 @@ namespace Board::USBOverSerial
             if (!initial && (value == static_cast<uint8_t>(USBPacketUpdater::framing_t::BOUNDARY)))
             {
                 // send escape first
-                if (!Board::UART::write(channel, static_cast<uint8_t>(USBPacketUpdater::framing_t::ESCAPE)))
+                if (!board::uart::write(channel, static_cast<uint8_t>(USBPacketUpdater::framing_t::ESCAPE)))
                 {
                     return false;
                 }
             }
 
-            if (!Board::UART::write(channel, value))
+            if (!board::uart::write(channel, value))
             {
                 return false;
             }
 
             if (value == static_cast<uint8_t>(USBPacketUpdater::framing_t::ESCAPE))
             {
-                if (!Board::UART::write(channel, static_cast<uint8_t>(USBPacketUpdater::framing_t::ESCAPE_VALUE_SUFFIX)))
+                if (!board::uart::write(channel, static_cast<uint8_t>(USBPacketUpdater::framing_t::ESCAPE_VALUE_SUFFIX)))
                 {
                     return false;
                 }
@@ -249,6 +249,6 @@ namespace Board::USBOverSerial
 
         return true;
     }
-}    // namespace Board::USBOverSerial
+}    // namespace board::usbOverSerial
 
 #endif

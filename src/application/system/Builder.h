@@ -33,7 +33,7 @@ limitations under the License.
 #include "protocol/midi/MIDI.h"
 #include "database/Layout.h"
 
-namespace System
+namespace sys
 {
     class Builder
     {
@@ -45,13 +45,13 @@ namespace System
             {
                 // these are just renames of existing HWAs in order to have them in the same namespace
                 public:
-                using Analog         = ::IO::Analog::HWA;
-                using Buttons        = ::IO::Buttons::HWA;
-                using CDCPassthrough = ::IO::Touchscreen::CDCPassthrough;
-                using Display        = ::IO::I2C::Peripheral::HWA;
-                using Encoders       = ::IO::Encoders::HWA;
-                using LEDs           = ::IO::LEDs::HWA;
-                using Touchscreen    = ::IO::Touchscreen::HWA;
+                using Analog         = ::io::Analog::HWA;
+                using Buttons        = ::io::Buttons::HWA;
+                using CDCPassthrough = ::io::Touchscreen::CDCPassthrough;
+                using Display        = ::io::I2C::Peripheral::HWA;
+                using Encoders       = ::io::Encoders::HWA;
+                using LEDs           = ::io::LEDs::HWA;
+                using Touchscreen    = ::io::Touchscreen::HWA;
 
                 virtual ~IO() = default;
 
@@ -70,9 +70,9 @@ namespace System
                 class MIDI
                 {
                     public:
-                    using USB = ::Protocol::MIDI::HWAUSB;
-                    using DIN = ::Protocol::MIDI::HWADIN;
-                    using BLE = ::Protocol::MIDI::HWABLE;
+                    using USB = ::protocol::MIDI::HWAUSB;
+                    using DIN = ::protocol::MIDI::HWADIN;
+                    using BLE = ::protocol::MIDI::HWABLE;
 
                     virtual ~MIDI() = default;
 
@@ -86,8 +86,8 @@ namespace System
                 virtual MIDI& midi() = 0;
             };
 
-            using Database = ::Database::Admin::StorageAccess;
-            using System   = ::System::Instance::HWA;
+            using Database = ::database::Admin::StorageAccess;
+            using System   = ::sys::Instance::HWA;
 
             virtual ~HWA() = default;
 
@@ -101,70 +101,70 @@ namespace System
             : _hwa(hwa)
             , _components(*this)
         {
-            _io.at(static_cast<size_t>(::IO::ioComponent_t::BUTTONS))     = &_buttons;
-            _io.at(static_cast<size_t>(::IO::ioComponent_t::ENCODERS))    = &_encoders;
-            _io.at(static_cast<size_t>(::IO::ioComponent_t::ANALOG))      = &_analog;
-            _io.at(static_cast<size_t>(::IO::ioComponent_t::LEDS))        = &_leds;
-            _io.at(static_cast<size_t>(::IO::ioComponent_t::I2C))         = &_i2c;
-            _io.at(static_cast<size_t>(::IO::ioComponent_t::TOUCHSCREEN)) = &_touchscreen;
+            _io.at(static_cast<size_t>(::io::ioComponent_t::BUTTONS))     = &_buttons;
+            _io.at(static_cast<size_t>(::io::ioComponent_t::ENCODERS))    = &_encoders;
+            _io.at(static_cast<size_t>(::io::ioComponent_t::ANALOG))      = &_analog;
+            _io.at(static_cast<size_t>(::io::ioComponent_t::LEDS))        = &_leds;
+            _io.at(static_cast<size_t>(::io::ioComponent_t::I2C))         = &_i2c;
+            _io.at(static_cast<size_t>(::io::ioComponent_t::TOUCHSCREEN)) = &_touchscreen;
 
-            _protocol.at(static_cast<size_t>(::Protocol::protocol_t::MIDI)) = &_midi;
+            _protocol.at(static_cast<size_t>(::protocol::protocol_t::MIDI)) = &_midi;
         }
 
-        System::Instance::Components& components()
+        sys::Instance::Components& components()
         {
             return _components;
         }
 
-        System::Instance::HWA& hwa()
+        sys::Instance::HWA& hwa()
         {
             return _hwa.system();
         }
 
         private:
         HWA&                                                                           _hwa;
-        Database::AppLayout                                                            _dbLayout;
-        Database::Admin                                                                _database            = Database::Admin(_hwa.database(), _dbLayout, DATABASE_INIT_DATA);
-        IO::Buttons::Database                                                          _buttonsDatabase     = IO::Buttons::Database(_database);
-        IO::Analog::Database                                                           _analogDatabase      = IO::Analog::Database(_database);
-        IO::Encoders::Database                                                         _encodersDatabase    = IO::Encoders::Database(_database);
-        IO::LEDs::Database                                                             _ledsDatabase        = IO::LEDs::Database(_database);
-        IO::Touchscreen::Database                                                      _touchscreenDatabase = IO::Touchscreen::Database(_database);
-        IO::I2CPeripheralBuilder::DisplayDatabase                                      _displayDatabase     = IO::I2CPeripheralBuilder::DisplayDatabase(_database);
-        Protocol::MIDI::Database                                                       _midiDatabase        = Protocol::MIDI::Database(_database);
-        IO::EncodersFilter                                                             _encodersFilter;
-        IO::ButtonsFilter                                                              _buttonsFilter;
-        IO::AnalogFilter                                                               _analogFilter;
-        IO::Analog                                                                     _analog            = IO::Analog(_hwa.io().analog(), _analogFilter, _analogDatabase);
-        IO::Buttons                                                                    _buttons           = IO::Buttons(_hwa.io().buttons(), _buttonsFilter, _buttonsDatabase);
-        IO::LEDs                                                                       _leds              = IO::LEDs(_hwa.io().leds(), _ledsDatabase);
-        IO::Encoders                                                                   _encoders          = IO::Encoders(_hwa.io().encoders(), _encodersFilter, _encodersDatabase, 1);
-        IO::Touchscreen                                                                _touchscreen       = IO::Touchscreen(_hwa.io().touchscreen(), _touchscreenDatabase, _hwa.io().cdcPassthrough());
-        IO::TouchscreenModelBuilder                                                    _touchscreenModels = IO::TouchscreenModelBuilder(_hwa.io().touchscreen());
-        IO::I2C                                                                        _i2c;
-        IO::I2CPeripheralBuilder                                                       _i2cPeripherals = IO::I2CPeripheralBuilder(_hwa.io().display(), _displayDatabase);
-        Protocol::MIDI                                                                 _midi           = Protocol::MIDI(_hwa.protocol().midi().usb(), _hwa.protocol().midi().din(), _hwa.protocol().midi().ble(), _midiDatabase);
-        std::array<IO::Base*, static_cast<size_t>(IO::ioComponent_t::AMOUNT)>          _io             = {};
-        std::array<Protocol::Base*, static_cast<size_t>(Protocol::protocol_t::AMOUNT)> _protocol       = {};
+        database::AppLayout                                                            _dbLayout;
+        database::Admin                                                                _database            = database::Admin(_hwa.database(), _dbLayout, DATABASE_INIT_DATA);
+        io::Buttons::Database                                                          _buttonsDatabase     = io::Buttons::Database(_database);
+        io::Analog::Database                                                           _analogDatabase      = io::Analog::Database(_database);
+        io::Encoders::Database                                                         _encodersDatabase    = io::Encoders::Database(_database);
+        io::LEDs::Database                                                             _ledsDatabase        = io::LEDs::Database(_database);
+        io::Touchscreen::Database                                                      _touchscreenDatabase = io::Touchscreen::Database(_database);
+        io::I2CPeripheralBuilder::DisplayDatabase                                      _displayDatabase     = io::I2CPeripheralBuilder::DisplayDatabase(_database);
+        protocol::MIDI::Database                                                       _midiDatabase        = protocol::MIDI::Database(_database);
+        io::EncodersFilter                                                             _encodersFilter;
+        io::ButtonsFilter                                                              _buttonsFilter;
+        io::AnalogFilter                                                               _analogFilter;
+        io::Analog                                                                     _analog            = io::Analog(_hwa.io().analog(), _analogFilter, _analogDatabase);
+        io::Buttons                                                                    _buttons           = io::Buttons(_hwa.io().buttons(), _buttonsFilter, _buttonsDatabase);
+        io::LEDs                                                                       _leds              = io::LEDs(_hwa.io().leds(), _ledsDatabase);
+        io::Encoders                                                                   _encoders          = io::Encoders(_hwa.io().encoders(), _encodersFilter, _encodersDatabase, 1);
+        io::Touchscreen                                                                _touchscreen       = io::Touchscreen(_hwa.io().touchscreen(), _touchscreenDatabase, _hwa.io().cdcPassthrough());
+        io::TouchscreenModelBuilder                                                    _touchscreenModels = io::TouchscreenModelBuilder(_hwa.io().touchscreen());
+        io::I2C                                                                        _i2c;
+        io::I2CPeripheralBuilder                                                       _i2cPeripherals = io::I2CPeripheralBuilder(_hwa.io().display(), _displayDatabase);
+        protocol::MIDI                                                                 _midi           = protocol::MIDI(_hwa.protocol().midi().usb(), _hwa.protocol().midi().din(), _hwa.protocol().midi().ble(), _midiDatabase);
+        std::array<io::Base*, static_cast<size_t>(io::ioComponent_t::AMOUNT)>          _io             = {};
+        std::array<protocol::Base*, static_cast<size_t>(protocol::protocol_t::AMOUNT)> _protocol       = {};
 
-        class Components : public System::Instance::Components
+        class Components : public sys::Instance::Components
         {
             public:
             Components(Builder& builder)
                 : _builder(builder)
             {}
 
-            std::array<IO::Base*, static_cast<size_t>(IO::ioComponent_t::AMOUNT)>& io() override
+            std::array<io::Base*, static_cast<size_t>(io::ioComponent_t::AMOUNT)>& io() override
             {
                 return _builder._io;
             }
 
-            std::array<Protocol::Base*, static_cast<size_t>(Protocol::protocol_t::AMOUNT)>& protocol() override
+            std::array<protocol::Base*, static_cast<size_t>(protocol::protocol_t::AMOUNT)>& protocol() override
             {
                 return _builder._protocol;
             }
 
-            Database::Admin& database() override
+            database::Admin& database() override
             {
                 return _builder._database;
             }
@@ -175,4 +175,4 @@ namespace System
 
         Components _components;
     };
-}    // namespace System
+}    // namespace sys

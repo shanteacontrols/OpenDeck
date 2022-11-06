@@ -28,7 +28,7 @@ limitations under the License.
 #include "core/src/util/Filters.h"
 #include "core/src/MCU.h"
 
-namespace IO
+namespace io
 {
     class AnalogFilter : public Analog::Filter
     {
@@ -39,7 +39,7 @@ namespace IO
             : _adcConfig(CORE_MCU_ADC_MAX_VALUE == 1023 ? _adc10bit : _adc12bit)
             , STEP_DIFF_7BIT((_adcConfig.ADC_MAX_VALUE - _adcConfig.ADC_MIN_VALUE) / 128)
         {
-            for (size_t i = 0; i < IO::Analog::Collection::SIZE(); i++)
+            for (size_t i = 0; i < io::Analog::Collection::SIZE(); i++)
             {
                 _lastStableValue[i] = 0xFFFF;
             }
@@ -160,7 +160,7 @@ namespace IO
 
         uint16_t lastValue(size_t index) override
         {
-            if (index < IO::Analog::Collection::SIZE())
+            if (index < io::Analog::Collection::SIZE())
             {
                 return _lastStableValue[index];
             }
@@ -170,7 +170,7 @@ namespace IO
 
         void reset(size_t index) override
         {
-            if (index < IO::Analog::Collection::SIZE())
+            if (index < io::Analog::Collection::SIZE())
             {
 #ifdef ANALOG_FILTER_MEDIAN
                 _medianFilter[index].reset();
@@ -261,20 +261,20 @@ namespace IO
 
 // some filtering is needed for adc only
 #ifdef ANALOG_FILTER_EMA
-        core::util::EMAFilter<uint16_t, 50> _emaFilter[IO::Analog::Collection::SIZE()];
+        core::util::EMAFilter<uint16_t, 50> _emaFilter[io::Analog::Collection::SIZE()];
 #endif
 
 #ifdef ANALOG_FILTER_MEDIAN
-        core::util::MedianFilter<uint16_t, 3> _medianFilter[IO::Analog::Collection::SIZE()];
+        core::util::MedianFilter<uint16_t, 3> _medianFilter[io::Analog::Collection::SIZE()];
 #else
         uint16_t _analogSample[IO::Analog::Collection::SIZE()] = {};
 #endif
-        uint32_t _lastStableMovementTime[IO::Analog::Collection::SIZE()] = {};
+        uint32_t _lastStableMovementTime[io::Analog::Collection::SIZE()] = {};
 
-        uint8_t  _lastStableDirection[IO::Analog::Collection::SIZE() / 8 + 1] = {};
-        uint16_t _lastStableValue[IO::Analog::Collection::SIZE()]             = {};
-    };    // namespace IO
-}    // namespace IO
+        uint8_t  _lastStableDirection[io::Analog::Collection::SIZE() / 8 + 1] = {};
+        uint16_t _lastStableValue[io::Analog::Collection::SIZE()]             = {};
+    };
+}    // namespace io
 
 #else
 #include "stub/Filter.h"

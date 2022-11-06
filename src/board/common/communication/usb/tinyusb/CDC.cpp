@@ -31,10 +31,10 @@ namespace
 extern "C" void tud_cdc_line_coding_cb(uint8_t itf, cdc_line_coding_t const* pLineCoding)
 {
     _baudRate = pLineCoding->bit_rate;
-    Board::USB::onCDCsetLineEncoding(_baudRate);
+    board::usb::onCDCsetLineEncoding(_baudRate);
 }
 
-namespace Board::USB
+namespace board::usb
 {
     bool readCDC(uint8_t* buffer, size_t& size, const size_t maxSize)
     {
@@ -70,7 +70,7 @@ namespace Board::USB
     {
         return writeCDC(&value, 1);
     }
-}    // namespace Board::USB
+}    // namespace board::usb
 
 #endif
 #endif

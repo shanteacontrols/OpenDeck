@@ -102,7 +102,7 @@ namespace
     EmuEEPROM    _emuEEPROM(_emuEEPROMHWA, true);
 }    // namespace
 
-namespace Board::NVM
+namespace board::nvm
 {
     bool init()
     {
@@ -180,4 +180,4 @@ namespace Board::NVM
     {
         _emuEEPROM.writeCacheToFlash();
     }
-}    // namespace Board::NVM
+}    // namespace board::nvm

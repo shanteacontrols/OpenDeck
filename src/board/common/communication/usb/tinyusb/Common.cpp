@@ -37,14 +37,14 @@ void core::mcu::isr::usb()
 extern "C" uint8_t const* tud_descriptor_device_cb(void)
 {
     uint16_t size = 0;
-    auto     desc = Board::detail::USB::deviceDescriptor(&size);
+    auto     desc = board::detail::usb::deviceDescriptor(&size);
     return (uint8_t const*)desc;
 }
 
 extern "C" uint8_t const* tud_descriptor_configuration_cb(uint8_t index)
 {
     uint16_t size = 0;
-    auto     desc = Board::detail::USB::cfgDescriptor(&size);
+    auto     desc = board::detail::usb::cfgDescriptor(&size);
     return (uint8_t const*)desc;
 }
 
@@ -56,21 +56,21 @@ extern "C" uint16_t const* tud_descriptor_string_cb(uint8_t index, uint16_t lang
     {
     case USB_STRING_ID_LANGUAGE:
     {
-        auto desc = Board::detail::USB::languageString(&length);
+        auto desc = board::detail::usb::languageString(&length);
         return (uint16_t*)desc;
     }
     break;
 
     case USB_STRING_ID_MANUFACTURER:
     {
-        auto desc = Board::detail::USB::manufacturerString(&length);
+        auto desc = board::detail::usb::manufacturerString(&length);
         return (uint16_t*)desc;
     }
     break;
 
     case USB_STRING_ID_PRODUCT:
     {
-        auto desc = Board::detail::USB::productString(&length);
+        auto desc = board::detail::usb::productString(&length);
         return (uint16_t*)desc;
     }
     break;
@@ -80,7 +80,7 @@ extern "C" uint16_t const* tud_descriptor_string_cb(uint8_t index, uint16_t lang
         core::mcu::uniqueID_t uid;
         core::mcu::uniqueID(uid);
 
-        auto desc = Board::detail::USB::serialIDString(&length, &uid[0]);
+        auto desc = board::detail::usb::serialIDString(&length, &uid[0]);
         return (uint16_t*)desc;
     }
     break;
@@ -100,17 +100,17 @@ extern "C" void tud_umount_cb(void)
     _usbConnected = false;
 }
 
-namespace Board
+namespace board
 {
-    namespace USB
+    namespace usb
     {
         bool isUSBconnected()
         {
             return _usbConnected;
         }
-    }    // namespace USB
+    }    // namespace usb
 
-    namespace detail::USB
+    namespace detail::usb
     {
         void deInit()
         {
@@ -119,13 +119,13 @@ namespace Board
 
         void update()
         {
-            if (Board::USB::isInitialized())
+            if (board::usb::isInitialized())
             {
                 tud_task();
             }
         }
-    }    // namespace detail::USB
-}    // namespace Board
+    }    // namespace detail::usb
+}    // namespace board
 
 #endif
 #endif

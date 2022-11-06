@@ -18,12 +18,12 @@ limitations under the License.
 
 #pragma once
 
-namespace IO
+namespace io
 {
-    class LEDs : public IO::Base
+    class LEDs : public io::Base
     {
         public:
-        class Collection : public Common::BaseCollection<0>
+        class Collection : public common::BaseCollection<0>
         {
             public:
             Collection() = delete;
@@ -111,8 +111,8 @@ namespace IO
             virtual size_t rgbComponentFromRGB(size_t index, LEDs::rgbComponent_t component) = 0;
         };
 
-        using Database = Database::User<Database::Config::Section::leds_t,
-                                        Database::Config::Section::global_t>;
+        using Database = database::User<database::Config::Section::leds_t,
+                                        database::Config::Section::global_t>;
 
         LEDs(HWA&      hwa,
              Database& database)
@@ -136,4 +136,4 @@ namespace IO
             return 0;
         }
     };
-}    // namespace IO
+}    // namespace io

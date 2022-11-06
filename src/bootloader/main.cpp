@@ -42,39 +42,39 @@ class BTLDRWriter : public Updater::BTLDRWriter
     public:
     uint32_t pageSize(size_t index) override
     {
-        return Board::bootloader::pageSize(index);
+        return board::bootloader::pageSize(index);
     }
 
     void erasePage(size_t index) override
     {
-        Board::bootloader::erasePage(index);
+        board::bootloader::erasePage(index);
     }
 
     void fillPage(size_t index, uint32_t address, uint32_t value) override
     {
-        Board::bootloader::fillPage(index, address, value);
+        board::bootloader::fillPage(index, address, value);
     }
 
     void commitPage(size_t index) override
     {
-        Board::bootloader::commitPage(index);
+        board::bootloader::commitPage(index);
     }
 
     void apply() override
     {
 #ifndef HW_SUPPORT_USB
-        Board::UART::write(HW_UART_CHANNEL_USB_LINK, TARGET_FW_UPDATE_DONE);
+        board::uart::write(HW_UART_CHANNEL_USB_LINK, TARGET_FW_UPDATE_DONE);
 #endif
-        Board::reboot();
+        board::reboot();
     }
 
     void onFirmwareUpdateStart() override
     {
 #ifndef HW_SUPPORT_USB
-        Board::UART::write(HW_UART_CHANNEL_USB_LINK, TARGET_FW_UPDATE_STARTED);
+        board::uart::write(HW_UART_CHANNEL_USB_LINK, TARGET_FW_UPDATE_STARTED);
 #endif
 
-        Board::IO::indicators::indicateFirmwareUpdateStart();
+        board::io::indicators::indicateFirmwareUpdateStart();
     }
 };
 
@@ -83,12 +83,12 @@ class HWAFwSelector : public FwSelector::HWA
     public:
     uint8_t magicBootValue() override
     {
-        return Board::bootloader::magicBootValue();
+        return board::bootloader::magicBootValue();
     }
 
     void setMagicBootValue(uint8_t value) override
     {
-        Board::bootloader::setMagicBootValue(value);
+        board::bootloader::setMagicBootValue(value);
     }
 
     void load(FwSelector::fwType_t fwType) override
@@ -97,7 +97,7 @@ class HWAFwSelector : public FwSelector::HWA
         {
         case FwSelector::fwType_t::BOOTLOADER:
         {
-            Board::bootloader::runBootloader();
+            board::bootloader::runBootloader();
         }
         break;
 
@@ -108,26 +108,26 @@ class HWAFwSelector : public FwSelector::HWA
             // on non-usb supported board, send magic value to USB link so that link
             // knows whether the target MCU has entered application
             // if link MCU doesn't receive this, bootloader should be entered
-            Board::UART::write(HW_UART_CHANNEL_USB_LINK, USB_LINK_MAGIC_VAL_APP);
+            board::uart::write(HW_UART_CHANNEL_USB_LINK, USB_LINK_MAGIC_VAL_APP);
             core::timing::waitMs(1);
-            Board::bootloader::runApplication();
+            board::bootloader::runApplication();
 #elif defined(HW_USB_OVER_SERIAL_HOST)
             // wait a bit first
             core::timing::waitMs(1500);
             uint8_t data;
 
-            while (Board::UART::read(HW_UART_CHANNEL_USB_LINK, data))
+            while (board::uart::read(HW_UART_CHANNEL_USB_LINK, data))
             {
                 if (data == USB_LINK_MAGIC_VAL_APP)
                 {
                     // everything fine, proceed with app load
-                    Board::bootloader::runApplication();
+                    board::bootloader::runApplication();
                 }
             }
 
-            Board::bootloader::runBootloader();
+            board::bootloader::runBootloader();
 #else
-            Board::bootloader::runApplication();
+            board::bootloader::runApplication();
 #endif
         }
         break;
@@ -136,17 +136,17 @@ class HWAFwSelector : public FwSelector::HWA
 
     void appAddrBoundary(uint32_t& first, uint32_t& last) override
     {
-        Board::bootloader::appAddrBoundary(first, last);
+        board::bootloader::appAddrBoundary(first, last);
     }
 
     bool isHWtriggerActive() override
     {
-        return Board::bootloader::isHWtriggerActive();
+        return board::bootloader::isHWtriggerActive();
     }
 
     uint8_t readFlash(uint32_t address) override
     {
-        return Board::bootloader::readFlash(address);
+        return board::bootloader::readFlash(address);
     }
 };
 
@@ -160,7 +160,7 @@ class Reader
     {
         uint8_t value = 0;
 
-        if (Board::USB::readMIDI(_usbMIDIpacket))
+        if (board::usb::readMIDI(_usbMIDIpacket))
         {
             if (_sysExParser.isValidMessage(_usbMIDIpacket))
             {
@@ -173,10 +173,10 @@ class Reader
                         if (_sysExParser.value(i, value))
                         {
 #ifdef HW_USB_OVER_SERIAL_HOST
-                            Board::UART::write(HW_UART_CHANNEL_USB_LINK, value);
+                            board::uart::write(HW_UART_CHANNEL_USB_LINK, value);
 
                             // expect ACK but ignore the value
-                            while (!Board::UART::read(HW_UART_CHANNEL_USB_LINK, value))
+                            while (!board::uart::read(HW_UART_CHANNEL_USB_LINK, value))
                             {
                                 ;
                             }
@@ -190,18 +190,18 @@ class Reader
         }
 
 #ifdef HW_USB_OVER_SERIAL_HOST
-        if (Board::UART::read(HW_UART_CHANNEL_USB_LINK, value))
+        if (board::uart::read(HW_UART_CHANNEL_USB_LINK, value))
         {
             if (value == TARGET_FW_UPDATE_DONE)
             {
                 // To avoid compiling the entire parser to figure out the end
                 // of the FW stream (if won't fit into 4k space), wait for TARGET_FW_UPDATE_DONE
                 // byte on UART sent by target MCU (this is done in BTLDRWriter::apply())
-                Board::reboot();
+                board::reboot();
             }
             else if (value == TARGET_FW_UPDATE_STARTED)
             {
-                Board::IO::indicators::indicateFirmwareUpdateStart();
+                board::io::indicators::indicateFirmwareUpdateStart();
             }
         }
 #endif
@@ -211,10 +211,10 @@ class Reader
     {
         uint8_t value;
 
-        if (Board::UART::read(HW_UART_CHANNEL_USB_LINK, value))
+        if (board::uart::read(HW_UART_CHANNEL_USB_LINK, value))
         {
             // send USB_LINK_MAGIC_VAL_APP for ACK so that USB link can proceed with next byte
-            Board::UART::write(HW_UART_CHANNEL_USB_LINK, USB_LINK_MAGIC_VAL_APP);
+            board::uart::write(HW_UART_CHANNEL_USB_LINK, USB_LINK_MAGIC_VAL_APP);
             _updater.feed(value);
         }
     }
@@ -241,7 +241,7 @@ namespace
 
 int main()
 {
-    Board::init();
+    board::init();
     fwSelector.select();
 
     // everything beyond this point means bootloader is active
@@ -249,7 +249,7 @@ int main()
 
     while (1)
     {
-        Board::update();
+        board::update();
         reader.read();
     }
 }

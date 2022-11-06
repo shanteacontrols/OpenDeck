@@ -18,7 +18,7 @@ limitations under the License.
 
 #pragma once
 
-namespace Board::detail::map
+namespace board::detail::map
 {
 #ifdef HW_SUPPORT_ADC
     constexpr const core::mcu::io::pin_t& ADC_PIN(uint8_t index)
@@ -108,7 +108,7 @@ namespace Board::detail::map
     }
 
 #ifdef HW_NR_OF_UNUSED_IO
-    constexpr const Board::detail::IO::unused::unusedIO_t& UNUSED_PIN(uint8_t index)
+    constexpr const board::detail::io::unused::unusedIO_t& UNUSED_PIN(uint8_t index)
     {
         return gen::UNUSED_PIN[index];
     }
@@ -147,4 +147,4 @@ namespace Board::detail::map
     }
 #endif
 #endif
-}    // namespace Board::detail::map
+}    // namespace board::detail::map

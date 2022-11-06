@@ -30,7 +30,7 @@ namespace
     core::mcu::uart::Channel<BUFFER_SIZE_UART_TX, BUFFER_SIZE_UART_RX> _channels[CORE_MCU_MAX_UART_INTERFACES];
 }    // namespace
 
-namespace Board::UART
+namespace board::uart
 {
     initStatus_t init(uint8_t channel, uint32_t baudRate, bool force)
     {
@@ -55,7 +55,7 @@ namespace Board::UART
                                        core::mcu::uart::Config::type_t::RX_TX
 #ifdef CORE_MCU_CUSTOM_PERIPHERAL_PINS
                                        ,
-                                       Board::detail::map::UART_PINS(channel)
+                                       board::detail::map::UART_PINS(channel)
 #endif
         );
 
@@ -96,6 +96,6 @@ namespace Board::UART
     {
         return _channels[channel].setLoopbackState(state);
     }
-}    // namespace Board::UART
+}    // namespace board::uart
 
 #endif

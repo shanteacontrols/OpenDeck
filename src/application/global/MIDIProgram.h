@@ -24,7 +24,7 @@ limitations under the License.
 #include "util/incdec/IncDec.h"
 #include "messaging/Messaging.h"
 
-namespace Global
+namespace global
 {
     class MIDIProgram
     {
@@ -140,11 +140,11 @@ namespace Global
         {
             _offset = offset;
 
-            Messaging::event_t event;
-            event.systemMessage = Messaging::systemMessage_t::MIDI_PROGRAM_OFFSET_CHANGE;
+            messaging::event_t event;
+            event.systemMessage = messaging::systemMessage_t::MIDI_PROGRAM_OFFSET_CHANGE;
             event.value         = offset;
 
-            MIDIDispatcher.notify(Messaging::eventType_t::SYSTEM, event);
+            MIDIDispatcher.notify(messaging::eventType_t::SYSTEM, event);
         }
 
         uint8_t offset()
@@ -155,13 +155,13 @@ namespace Global
         private:
         MIDIProgram() = default;
 
-        using ProgramIncDec = Util::IncDec<uint8_t, 0, 127>;
-        using OffsetIncDec  = Util::IncDec<uint8_t, 0, 127>;
+        using ProgramIncDec = util::IncDec<uint8_t, 0, 127>;
+        using OffsetIncDec  = util::IncDec<uint8_t, 0, 127>;
 
         // channels use 1-16 range
         std::array<uint8_t, 17> _program;
         uint8_t                 _offset = 0;
     };
-}    // namespace Global
+}    // namespace global
 
-#define MIDIProgram Global::MIDIProgram::instance()
+#define MIDIProgram global::MIDIProgram::instance()

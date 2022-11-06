@@ -2,7 +2,7 @@
 
 #include "protocol/midi/MIDI.h"
 
-using namespace Protocol;
+using namespace protocol;
 
 template<class Inherit, typename T>
 class WriteParserHWA : public Inherit
@@ -100,7 +100,7 @@ class WriteParser
     Inherit                                  _base = Inherit(_writeParserHWA);
 };
 
-class HWAMIDIUSB : public Protocol::MIDI::HWAUSB
+class HWAMIDIUSB : public protocol::MIDI::HWAUSB
 {
     public:
     HWAMIDIUSB() = default;
@@ -153,7 +153,7 @@ class HWAMIDIUSB : public Protocol::MIDI::HWAUSB
     WriteParser<MIDIlib::USBMIDI, MIDI::usbMIDIPacket_t> _writeParser;
 };
 
-class HWAMIDIDIN : public Protocol::MIDI::HWADIN
+class HWAMIDIDIN : public protocol::MIDI::HWADIN
 {
     public:
     HWAMIDIDIN() = default;
@@ -190,7 +190,7 @@ class HWAMIDIDIN : public Protocol::MIDI::HWADIN
         return true;
     }
 
-    bool allocated(IO::Common::Allocatable::interface_t interface) override
+    bool allocated(io::common::Allocatable::interface_t interface) override
     {
         return false;
     }
@@ -210,7 +210,7 @@ class HWAMIDIDIN : public Protocol::MIDI::HWADIN
     WriteParser<MIDIlib::SerialMIDI, uint8_t> _writeParser;
 };
 
-class HWAMIDIBLE : public Protocol::MIDI::HWABLE
+class HWAMIDIBLE : public protocol::MIDI::HWABLE
 {
     public:
     HWAMIDIBLE() = default;

@@ -26,7 +26,7 @@ namespace
     constexpr uint32_t LOOPS = 150 / (((1.0 / CORE_MCU_CPU_FREQ_MHZ * 1000000)) * 1000000000);
 }    // namespace
 
-namespace Board::detail::IO
+namespace board::detail::io
 {
     void spiWait()
     {
@@ -35,4 +35,4 @@ namespace Board::detail::IO
             CORE_MCU_NOP();
         }
     }
-}    // namespace Board::detail::IO
+}    // namespace board::detail::io

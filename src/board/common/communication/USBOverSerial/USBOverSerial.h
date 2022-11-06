@@ -21,7 +21,7 @@ limitations under the License.
 #include <cinttypes>
 #include <cstddef>
 
-namespace Board::USBOverSerial
+namespace board::usbOverSerial
 {
     class USBPacketUpdater;
 
@@ -171,4 +171,4 @@ namespace Board::USBOverSerial
     /// param [in]: packet          Reference to structure in which data to write is stored.
     /// returns: True on success, false otherwise.
     bool write(uint8_t channel, USBWritePacket& packet);
-}    // namespace Board::USBOverSerial
+}    // namespace board::usbOverSerial

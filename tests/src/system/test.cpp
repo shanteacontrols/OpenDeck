@@ -6,7 +6,7 @@
 #include "helpers/MIDI.h"
 #include "util/configurable/Configurable.h"
 
-using namespace IO;
+using namespace io;
 
 namespace
 {
@@ -70,7 +70,7 @@ namespace
         {
             // preset change will be reported after PRESET_CHANGE_NOTIFY_DELAY ms
             // fake the passage of time here
-            core::timing::detail::ms = core::timing::detail::ms + System::Instance::PRESET_CHANGE_NOTIFY_DELAY;
+            core::timing::detail::ms = core::timing::detail::ms + sys::Instance::PRESET_CHANGE_NOTIFY_DELAY;
 
             // clear out everything before running to parse with clean state
             _system._hwaMIDIUSB.clear();
@@ -87,8 +87,8 @@ namespace
 
 TEST_F(SystemTest, ForcedResendOnPresetChange)
 {
-    MIDIDispatcher.listen(Messaging::eventType_t::TOUCHSCREEN_LED,
-                          [this](const Messaging::event_t& dispatchMessage)
+    MIDIDispatcher.listen(messaging::eventType_t::TOUCHSCREEN_LED,
+                          [this](const messaging::event_t& dispatchMessage)
                           {
                               _listener.messageListener(dispatchMessage);
                           });
@@ -118,13 +118,13 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
     handshake();
 
     static constexpr size_t ANALOG_INDEX              = 0;
-    static constexpr size_t ENABLED_ANALOG_COMPONENTS = IO::Analog::Collection::SIZE(IO::Analog::GROUP_ANALOG_INPUTS) ? 1 : 0;
+    static constexpr size_t ENABLED_ANALOG_COMPONENTS = io::Analog::Collection::SIZE(io::Analog::GROUP_ANALOG_INPUTS) ? 1 : 0;
 
     auto enableAnalog = [&]()
     {
         if (ENABLED_ANALOG_COMPONENTS)
         {
-            ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::analog_t::ENABLE, ANALOG_INDEX, 1));
+            ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::analog_t::ENABLE, ANALOG_INDEX, 1));
         }
     };
 
@@ -142,8 +142,8 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
 
     uint8_t newPreset = 1;
 
-    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::global_t::PRESETS,
-                                      Database::Config::presetSetting_t::ACTIVE_PRESET,
+    ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::global_t::PRESETS,
+                                      database::Config::presetSetting_t::ACTIVE_PRESET,
                                       newPreset));
 
     enableAnalog();
@@ -156,8 +156,8 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
 
     // loopback shouldn't be changed
 
-    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::global_t::MIDI_SETTINGS,
-                                      Protocol::MIDI::setting_t::DIN_ENABLED,
+    ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::global_t::MIDI_SETTINGS,
+                                      protocol::MIDI::setting_t::DIN_ENABLED,
                                       1));
 #endif
 
@@ -199,8 +199,8 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
 
     newPreset = 0;
 
-    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::global_t::PRESETS,
-                                      Database::Config::presetSetting_t::ACTIVE_PRESET,
+    ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::global_t::PRESETS,
+                                      database::Config::presetSetting_t::ACTIVE_PRESET,
                                       newPreset));
 
     // LEDs will be refreshed - they are all off
@@ -242,8 +242,8 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
 
     newPreset = 1;
 
-    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::global_t::PRESETS,
-                                      Database::Config::presetSetting_t::ACTIVE_PRESET,
+    ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::global_t::PRESETS,
+                                      database::Config::presetSetting_t::ACTIVE_PRESET,
                                       newPreset));
 
     // LEDs will be refreshed - they are all off
@@ -290,8 +290,8 @@ TEST_F(SystemTest, PresetChangeIndicatedOnLEDs)
         return;
     }
 
-    MIDIDispatcher.listen(Messaging::eventType_t::TOUCHSCREEN_LED,
-                          [this](const Messaging::event_t& dispatchMessage)
+    MIDIDispatcher.listen(messaging::eventType_t::TOUCHSCREEN_LED,
+                          [this](const messaging::event_t& dispatchMessage)
                           {
                               _listener.messageListener(dispatchMessage);
                           });
@@ -335,21 +335,21 @@ TEST_F(SystemTest, PresetChangeIndicatedOnLEDs)
     // Configure the first LED to indicate current preset.
     // Its activation ID is 0 so it should be on only in first preset.
 
-    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::leds_t::CONTROL_TYPE,
+    ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::leds_t::CONTROL_TYPE,
                                       LED_INDEX,
                                       LEDs::controlType_t::PRESET));
 
     // also configure second led
 
-    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::leds_t::CONTROL_TYPE,
+    ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::leds_t::CONTROL_TYPE,
                                       LED_INDEX + 1,
                                       LEDs::controlType_t::PRESET));
 
     // switch preset
     uint8_t newPreset = 1;
 
-    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::global_t::PRESETS,
-                                      Database::Config::presetSetting_t::ACTIVE_PRESET,
+    ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::global_t::PRESETS,
+                                      database::Config::presetSetting_t::ACTIVE_PRESET,
                                       newPreset));
 
     // all leds should be off in new preset
@@ -364,32 +364,32 @@ TEST_F(SystemTest, PresetChangeIndicatedOnLEDs)
 
     // verify the leds are off
 
-    ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
-    ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1));
+    ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
+    ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1));
 
     // configure those same two leds to indicate preset in this preset as well
 
-    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::leds_t::CONTROL_TYPE,
+    ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::leds_t::CONTROL_TYPE,
                                       LED_INDEX,
                                       LEDs::controlType_t::PRESET));
 
     // also configure second led
 
-    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::leds_t::CONTROL_TYPE,
+    ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::leds_t::CONTROL_TYPE,
                                       LED_INDEX + 1,
                                       LEDs::controlType_t::PRESET));
 
     // now switch to preset 0 and expect only the first LED to be on
     newPreset = 0;
 
-    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::global_t::PRESETS,
-                                      Database::Config::presetSetting_t::ACTIVE_PRESET,
+    ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::global_t::PRESETS,
+                                      database::Config::presetSetting_t::ACTIVE_PRESET,
                                       newPreset));
 
     // the LEDs should still be off since the timeout hasn't passed
 
-    ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
-    ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1));
+    ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
+    ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1));
 
 #ifdef HW_SUPPORT_DIGITAL_OUTPUTS
     {
@@ -445,19 +445,19 @@ TEST_F(SystemTest, PresetChangeIndicatedOnLEDs)
     }
 
     // also verify through sysex
-    ASSERT_EQ(1, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
-    ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1));
+    ASSERT_EQ(1, _helper.readFromSystem(sys::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
+    ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1));
 
     // switch to preset 1 and verify that the first LED is off and second is on
     newPreset = 1;
 
-    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::global_t::PRESETS,
-                                      Database::Config::presetSetting_t::ACTIVE_PRESET,
+    ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::global_t::PRESETS,
+                                      database::Config::presetSetting_t::ACTIVE_PRESET,
                                       newPreset));
 
     // timeout hasn't occured yet
-    ASSERT_EQ(1, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
-    ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1));
+    ASSERT_EQ(1, _helper.readFromSystem(sys::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
+    ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1));
 
 #ifdef HW_SUPPORT_DIGITAL_OUTPUTS
     {
@@ -527,8 +527,8 @@ TEST_F(SystemTest, PresetChangeIndicatedOnLEDs)
     handshake();
 
     // initially the state should be off
-    ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
-    ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1));
+    ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
+    ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1));
 
 #ifdef HW_SUPPORT_DIGITAL_OUTPUTS
     {
@@ -554,8 +554,8 @@ TEST_F(SystemTest, PresetChangeIndicatedOnLEDs)
     fakeTimeAndRunSystem();
 
     // verify with sysex
-    ASSERT_EQ(1, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
-    ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1));
+    ASSERT_EQ(1, _helper.readFromSystem(sys::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
+    ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1));
 }
 
 TEST_F(SystemTest, ProgramIndicatedOnStartup)
@@ -578,12 +578,12 @@ TEST_F(SystemTest, ProgramIndicatedOnStartup)
     // configure the first LED to indicate program change
     // its activation ID is 0 so it should be on only for program 0
 
-    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::leds_t::CONTROL_TYPE,
+    ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::leds_t::CONTROL_TYPE,
                                       LED_INDEX,
                                       LEDs::controlType_t::PC_SINGLE_VAL));
 
     // led should be off for now
-    ASSERT_EQ(0, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
+    ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
 
     // reinit the system again
 
@@ -609,7 +609,7 @@ TEST_F(SystemTest, ProgramIndicatedOnStartup)
     handshake();
 
     // also verify with sysex
-    ASSERT_EQ(1, _helper.readFromSystem(System::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
+    ASSERT_EQ(1, _helper.readFromSystem(sys::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
 }
 #endif
 
@@ -634,17 +634,17 @@ TEST_F(SystemTest, UsbThruDin)
     EXPECT_CALL(_system._hwaMIDIDIN, init())
         .WillOnce(Return(true));
 
-    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::global_t::MIDI_SETTINGS,
-                                      Protocol::MIDI::setting_t::DIN_ENABLED,
+    ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::global_t::MIDI_SETTINGS,
+                                      protocol::MIDI::setting_t::DIN_ENABLED,
                                       1));
 
-    ASSERT_TRUE(_helper.writeToSystem(System::Config::Section::global_t::MIDI_SETTINGS,
-                                      Protocol::MIDI::setting_t::USB_THRU_DIN,
+    ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::global_t::MIDI_SETTINGS,
+                                      protocol::MIDI::setting_t::USB_THRU_DIN,
                                       1));
 
     // generate incoming USB message
 
-    Messaging::event_t event;
+    messaging::event_t event;
 
     event.channel = 1;
     event.index   = 0;

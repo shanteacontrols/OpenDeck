@@ -28,7 +28,7 @@ namespace
     uint32_t _fwEntryType __attribute__((section(".noinit"))) __attribute__((used));
 }    // namespace
 
-namespace Board::bootloader
+namespace board::bootloader
 {
     uint8_t magicBootValue()
     {
@@ -52,4 +52,4 @@ namespace Board::bootloader
             ;
         }
     }
-}    // namespace Board::bootloader
+}    // namespace board::bootloader

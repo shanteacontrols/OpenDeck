@@ -23,9 +23,9 @@ limitations under the License.
 #include "core/src/util/Util.h"
 #include <Target.h>
 
-using namespace Board::detail;
+using namespace board::detail;
 
-namespace Board::detail::IO::unused
+namespace board::detail::io::unused
 {
     void init()
     {
@@ -44,6 +44,6 @@ namespace Board::detail::IO::unused
             }
         }
     }
-}    // namespace Board::detail::IO::unused
+}    // namespace board::detail::io::unused
 
 #endif

@@ -2,12 +2,12 @@
 
 #include "io/encoders/Filter.h"
 
-class EncodersFilterStub : public IO::Encoders::Filter
+class EncodersFilterStub : public io::Encoders::Filter
 {
     public:
     bool isFiltered(size_t                    index,
-                    IO::Encoders::position_t  position,
-                    IO::Encoders::position_t& filteredPosition,
+                    io::Encoders::position_t  position,
+                    io::Encoders::position_t& filteredPosition,
                     uint32_t                  sampleTakenTime) override
     {
         return true;

@@ -22,12 +22,12 @@ limitations under the License.
 #include "core/src/Timing.h"
 #include "core/src/util/Util.h"
 
-using namespace IO;
+using namespace io;
 
-Viewtech::Viewtech(IO::Touchscreen::HWA& hwa)
+Viewtech::Viewtech(io::Touchscreen::HWA& hwa)
     : _hwa(hwa)
 {
-    IO::Touchscreen::registerModel(IO::Touchscreen::model_t::VIEWTECH, this);
+    io::Touchscreen::registerModel(io::Touchscreen::model_t::VIEWTECH, this);
 }
 
 bool Viewtech::init()

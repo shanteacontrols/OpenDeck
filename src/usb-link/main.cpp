@@ -23,15 +23,15 @@ limitations under the License.
 #include "core/src/MCU.h"
 #include "protocol/midi/MIDI.h"
 
-using namespace Board;
-using namespace Protocol;
+using namespace board;
+using namespace protocol;
 
 namespace
 {
     /// Time in milliseconds after which USB connection state should be checked
     constexpr uint32_t           USB_CONN_CHECK_TIME = 2000;
     uint8_t                      uartReadBuffer[BUFFER_SIZE_USB_OVER_SERIAL];
-    USBOverSerial::USBReadPacket readPacket(uartReadBuffer, BUFFER_SIZE_USB_OVER_SERIAL);
+    usbOverSerial::USBReadPacket readPacket(uartReadBuffer, BUFFER_SIZE_USB_OVER_SERIAL);
     MIDI::usbMIDIPacket_t        usbMIDIPacket;
 
     void checkUSBconnection()
@@ -41,20 +41,20 @@ namespace
 
         if (core::timing::ms() - lastCheckTime > USB_CONN_CHECK_TIME)
         {
-            bool newState = USB::isUSBconnected();
+            bool newState = usb::isUSBconnected();
 
             if (lastConnectionState != newState)
             {
                 uint8_t data[2] = {
-                    static_cast<uint8_t>(USBLink::internalCMD_t::USB_STATE),
+                    static_cast<uint8_t>(usbLink::internalCMD_t::USB_STATE),
                     newState,
                 };
 
-                USBOverSerial::USBWritePacket packet(USBOverSerial::packetType_t::INTERNAL,
+                usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::INTERNAL,
                                                      data,
                                                      2,
                                                      BUFFER_SIZE_USB_OVER_SERIAL);
-                USBOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
+                usbOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
 
                 lastConnectionState = newState;
             }
@@ -69,7 +69,7 @@ namespace
         core::mcu::uniqueID(uniqueID);
 
         uint8_t data[11] = {
-            static_cast<uint8_t>(USBLink::internalCMD_t::UNIQUE_ID),
+            static_cast<uint8_t>(usbLink::internalCMD_t::UNIQUE_ID),
             uniqueID[0],
             uniqueID[1],
             uniqueID[2],
@@ -82,18 +82,18 @@ namespace
             uniqueID[9],
         };
 
-        USBOverSerial::USBWritePacket packet(USBOverSerial::packetType_t::INTERNAL,
+        usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::INTERNAL,
                                              data,
                                              11,
                                              BUFFER_SIZE_USB_OVER_SERIAL);
-        USBOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
+        usbOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
     }
 }    // namespace
 
 int main()
 {
-    Board::init();
-    Board::USB::init();
+    board::init();
+    board::usb::init();
 
     // make sure device is ready before sending unique id
     core::timing::waitMs(50);
@@ -102,48 +102,48 @@ int main()
     while (1)
     {
         // USB MIDI -> UART
-        if (USB::readMIDI(usbMIDIPacket))
+        if (usb::readMIDI(usbMIDIPacket))
         {
-            USBOverSerial::USBWritePacket packet(USBOverSerial::packetType_t::MIDI,
+            usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::MIDI,
                                                  &usbMIDIPacket[0],
                                                  4,
                                                  BUFFER_SIZE_USB_OVER_SERIAL);
 
-            if (USBOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet))
+            if (usbOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet))
             {
-                Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::USB,
-                                                       Board::IO::indicators::direction_t::INCOMING);
+                board::io::indicators::indicateTraffic(board::io::indicators::source_t::USB,
+                                                       board::io::indicators::direction_t::INCOMING);
             }
         }
 
         // UART -> USB
-        if (USBOverSerial::read(HW_UART_CHANNEL_USB_LINK, readPacket))
+        if (usbOverSerial::read(HW_UART_CHANNEL_USB_LINK, readPacket))
         {
-            if (readPacket.type() == USBOverSerial::packetType_t::MIDI)
+            if (readPacket.type() == usbOverSerial::packetType_t::MIDI)
             {
                 for (size_t i = 0; i < sizeof(usbMIDIPacket); i++)
                 {
                     usbMIDIPacket[i] = readPacket[i];
                 }
 
-                if (USB::writeMIDI(usbMIDIPacket))
+                if (usb::writeMIDI(usbMIDIPacket))
                 {
-                    Board::IO::indicators::indicateTraffic(Board::IO::indicators::source_t::USB,
-                                                           Board::IO::indicators::direction_t::OUTGOING);
+                    board::io::indicators::indicateTraffic(board::io::indicators::source_t::USB,
+                                                           board::io::indicators::direction_t::OUTGOING);
                 }
             }
-            else if (readPacket.type() == USBOverSerial::packetType_t::INTERNAL)
+            else if (readPacket.type() == usbOverSerial::packetType_t::INTERNAL)
             {
                 // internal command
-                if (readPacket[0] == static_cast<uint8_t>(USBLink::internalCMD_t::REBOOT_BTLDR))
+                if (readPacket[0] == static_cast<uint8_t>(usbLink::internalCMD_t::REBOOT_BTLDR))
                 {
                     // use received data as the magic bootloader value
                     bootloader::setMagicBootValue(readPacket[1]);
                     reboot();
                 }
-                else if (readPacket[0] == static_cast<uint8_t>(USBLink::internalCMD_t::DISCONNECT_USB))
+                else if (readPacket[0] == static_cast<uint8_t>(usbLink::internalCMD_t::DISCONNECT_USB))
                 {
-                    Board::USB::deInit();
+                    board::usb::deInit();
                 }
             }
 

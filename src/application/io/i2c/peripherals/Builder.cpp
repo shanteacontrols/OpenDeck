@@ -20,7 +20,7 @@ limitations under the License.
 
 #include "Builder.h"
 
-using namespace IO;
+using namespace io;
 
 I2CPeripheralBuilder::I2CPeripheralBuilder(I2C::Peripheral::HWA& displayHWA,
                                            DisplayDatabase&      database)

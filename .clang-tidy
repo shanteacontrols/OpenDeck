@@ -45,3 +45,7 @@ CheckOptions:
     value:           'camelBack'
   - key:             readability-identifier-naming.LocalVariableCase
     value:           'camelBack'
+  - key:             readability-identifier-naming.NamespaceCase
+    value:           'camelBack'
+  - key:             readability-identifier-naming.NamespaceIgnoredRegexp
+    value:           'i2c'

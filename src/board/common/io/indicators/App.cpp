@@ -27,7 +27,7 @@ limitations under the License.
 
 #include "Indicators.h"
 
-namespace Board::detail::IO::indicators
+namespace board::detail::io::indicators
 {
     void init()
     {
@@ -54,9 +54,9 @@ namespace Board::detail::IO::indicators
         UPDATE_UART_INDICATOR();
         UPDATE_BLE_INDICATOR();
     }
-}    // namespace Board::detail::IO::indicators
+}    // namespace board::detail::io::indicators
 
-namespace Board::IO::indicators
+namespace board::io::indicators
 {
     void indicateTraffic(source_t source, direction_t direction)
     {
@@ -84,7 +84,7 @@ namespace Board::IO::indicators
             break;
         }
     }
-}    // namespace Board::IO::indicators
+}    // namespace board::io::indicators
 
 #endif
 #endif

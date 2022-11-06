@@ -5,7 +5,7 @@
 
 #ifdef ENCODERS_SUPPORTED
 
-using namespace IO;
+using namespace io;
 
 namespace
 {
@@ -21,14 +21,14 @@ namespace
             // set known state
             for (size_t i = 0; i < Encoders::Collection::SIZE(); i++)
             {
-                ASSERT_TRUE(_encoders._database.update(Database::Config::Section::encoder_t::ENABLE, i, 1));
-                ASSERT_TRUE(_encoders._database.update(Database::Config::Section::encoder_t::INVERT, i, 0));
-                ASSERT_TRUE(_encoders._database.update(Database::Config::Section::encoder_t::MODE, i, Encoders::type_t::CONTROL_CHANGE_7FH01H));
-                ASSERT_TRUE(_encoders._database.update(Database::Config::Section::encoder_t::PULSES_PER_STEP, i, 1));
+                ASSERT_TRUE(_encoders._database.update(database::Config::Section::encoder_t::ENABLE, i, 1));
+                ASSERT_TRUE(_encoders._database.update(database::Config::Section::encoder_t::INVERT, i, 0));
+                ASSERT_TRUE(_encoders._database.update(database::Config::Section::encoder_t::MODE, i, Encoders::type_t::CONTROL_CHANGE_7FH01H));
+                ASSERT_TRUE(_encoders._database.update(database::Config::Section::encoder_t::PULSES_PER_STEP, i, 1));
             }
 
-            MIDIDispatcher.listen(Messaging::eventType_t::ENCODER,
-                                  [this](const Messaging::event_t& dispatchMessage)
+            MIDIDispatcher.listen(messaging::eventType_t::ENCODER,
+                                  [this](const messaging::event_t& dispatchMessage)
                                   {
                                       _listener.messageListener(dispatchMessage);
                                   });
@@ -198,7 +198,7 @@ TEST_F(EncodersTest, StateDecoding)
     // this time configure 4 pulses per step
     for (size_t i = 0; i < Encoders::Collection::SIZE(); i++)
     {
-        ASSERT_TRUE(_encoders._database.update(Database::Config::Section::encoder_t::PULSES_PER_STEP, i, 4));
+        ASSERT_TRUE(_encoders._database.update(database::Config::Section::encoder_t::PULSES_PER_STEP, i, 4));
         _encoders._instance.reset(i);
     }
 

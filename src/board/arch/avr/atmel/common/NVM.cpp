@@ -20,7 +20,7 @@ limitations under the License.
 #include "core/src/MCU.h"
 #include <avr/eeprom.h>
 
-namespace Board::NVM
+namespace board::nvm
 {
     bool init()
     {
@@ -99,4 +99,4 @@ namespace Board::NVM
     void writeCacheToFlash()
     {
     }
-}    // namespace Board::NVM
+}    // namespace board::nvm

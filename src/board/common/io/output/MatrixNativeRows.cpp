@@ -25,9 +25,9 @@ limitations under the License.
 #include "core/src/util/Util.h"
 #include <Target.h>
 
-using namespace Board::IO::digitalOut;
-using namespace Board::detail;
-using namespace Board::detail::IO::digitalOut;
+using namespace board::io::digitalOut;
+using namespace board::detail;
+using namespace board::detail::io::digitalOut;
 
 namespace
 {
@@ -60,7 +60,7 @@ namespace
     }
 }    // namespace
 
-namespace Board::detail::IO::digitalOut
+namespace board::detail::io::digitalOut
 {
     void init()
     {
@@ -151,9 +151,9 @@ namespace Board::detail::IO::digitalOut
             core::util::BIT_READ(_ledState[arrayIndex][_pwmCounter], bit) ? ledRowOn(i) : ledRowOff(i);
         }
     }
-}    // namespace Board::detail::IO::digitalOut
+}    // namespace board::detail::io::digitalOut
 
-namespace Board::IO::digitalOut
+namespace board::io::digitalOut
 {
     void writeLEDstate(size_t index, ledBrightness_t ledBrightness)
     {
@@ -215,7 +215,7 @@ namespace Board::IO::digitalOut
 
         return 0;
     }
-}    // namespace Board::IO::digitalOut
+}    // namespace board::io::digitalOut
 
 #endif
 #endif

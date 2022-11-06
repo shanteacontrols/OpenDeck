@@ -20,7 +20,7 @@ limitations under the License.
 
 #include <inttypes.h>
 
-namespace Protocol
+namespace protocol
 {
     enum class protocol_t : uint8_t
     {
@@ -37,4 +37,4 @@ namespace Protocol
         virtual bool deInit() = 0;
         virtual void read()   = 0;
     };
-}    // namespace Protocol
+}    // namespace protocol

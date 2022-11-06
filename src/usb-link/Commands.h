@@ -20,7 +20,7 @@ limitations under the License.
 
 #include <inttypes.h>
 
-namespace USBLink
+namespace usbLink
 {
     /// List of all internal commands when using USB MIDI over Serial protocol
     /// Enumeration value should be placed in Event field of USB MIDI packet
@@ -32,4 +32,4 @@ namespace USBLink
         UNIQUE_ID,
         DISCONNECT_USB
     };
-}    // namespace USBLink
+}    // namespace usbLink

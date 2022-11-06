@@ -33,7 +33,7 @@ extern "C" void power_event_handler(nrfx_power_usb_evt_t event)
     tusb_hal_nrf_power_event((uint32_t)event);
 }
 
-namespace Board::detail::USB
+namespace board::detail::usb
 {
     void init()
     {
@@ -76,8 +76,8 @@ namespace Board::detail::USB
         }
 
         tusb_init();
-        detail::registerUpdateHook(&Board::detail::USB::update);
+        detail::registerUpdateHook(&board::detail::usb::update);
     }
-}    // namespace Board::detail::USB
+}    // namespace board::detail::usb
 
 #endif

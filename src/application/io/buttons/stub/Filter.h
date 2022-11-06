@@ -20,9 +20,9 @@ limitations under the License.
 
 #include "io/buttons/Buttons.h"
 
-namespace IO
+namespace io
 {
-    class ButtonsFilter : public IO::Buttons::Filter
+    class ButtonsFilter : public io::Buttons::Filter
     {
         public:
         ButtonsFilter() = default;
@@ -32,4 +32,4 @@ namespace IO
             return false;
         }
     };
-}    // namespace IO
+}    // namespace io

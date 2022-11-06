@@ -22,7 +22,7 @@ limitations under the License.
 #include "core/src/Timing.h"
 #include "database/Database.h"
 
-namespace Util
+namespace util
 {
     class ComponentInfo
     {
@@ -34,12 +34,12 @@ namespace Util
         void registerHandler(cinfoHandler_t&& handler);
 
         private:
-        void send(Database::Config::block_t block, size_t index);
+        void send(database::Config::block_t block, size_t index);
 
         /// Minimum time difference in milliseconds between sending two component info messages.
         static constexpr uint32_t COMPONENT_INFO_TIMEOUT = 500;
 
         cinfoHandler_t _handler                                                                   = nullptr;
-        uint32_t       _lastCinfoMsgTime[static_cast<uint8_t>(Database::Config::block_t::AMOUNT)] = {};
+        uint32_t       _lastCinfoMsgTime[static_cast<uint8_t>(database::Config::block_t::AMOUNT)] = {};
     };
-}    // namespace Util
+}    // namespace util

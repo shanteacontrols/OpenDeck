@@ -24,7 +24,7 @@ limitations under the License.
 #include "util/conversion/Conversion.h"
 #include "util/configurable/Configurable.h"
 
-using namespace IO;
+using namespace io;
 
 std::array<Touchscreen::Model*, static_cast<size_t>(Touchscreen::model_t::AMOUNT)> Touchscreen::_models;
 
@@ -35,18 +35,18 @@ Touchscreen::Touchscreen(HWA&            hwa,
     , _database(database)
     , _cdcPassthrough(cdcPassthrough)
 {
-    MIDIDispatcher.listen(Messaging::eventType_t::TOUCHSCREEN_LED,
-                          [this](const Messaging::event_t& event)
+    MIDIDispatcher.listen(messaging::eventType_t::TOUCHSCREEN_LED,
+                          [this](const messaging::event_t& event)
                           {
                               setIconState(event.componentIndex, event.value);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::SYSTEM,
-                          [this](const Messaging::event_t& event)
+    MIDIDispatcher.listen(messaging::eventType_t::SYSTEM,
+                          [this](const messaging::event_t& event)
                           {
                               switch (event.systemMessage)
                               {
-                              case Messaging::systemMessage_t::PRESET_CHANGED:
+                              case messaging::systemMessage_t::PRESET_CHANGED:
                               {
                                   if (!init(mode_t::NORMAL))
                                   {
@@ -61,17 +61,17 @@ Touchscreen::Touchscreen(HWA&            hwa,
                           });
 
     ConfigHandler.registerConfig(
-        System::Config::block_t::TOUCHSCREEN,
+        sys::Config::block_t::TOUCHSCREEN,
         // read
         [this](uint8_t section, size_t index, uint16_t& value)
         {
-            return sysConfigGet(static_cast<System::Config::Section::touchscreen_t>(section), index, value);
+            return sysConfigGet(static_cast<sys::Config::Section::touchscreen_t>(section), index, value);
         },
 
         // write
         [this](uint8_t section, size_t index, uint16_t value)
         {
-            return sysConfigSet(static_cast<System::Config::Section::touchscreen_t>(section), index, value);
+            return sysConfigSet(static_cast<sys::Config::Section::touchscreen_t>(section), index, value);
         });
 }
 
@@ -94,9 +94,9 @@ bool Touchscreen::init(mode_t mode)
     {
     case mode_t::NORMAL:
     {
-        if (_database.read(Database::Config::Section::touchscreen_t::SETTING, Touchscreen::setting_t::ENABLE))
+        if (_database.read(database::Config::Section::touchscreen_t::SETTING, Touchscreen::setting_t::ENABLE))
         {
-            auto dbModel = static_cast<model_t>(_database.read(Database::Config::Section::touchscreen_t::SETTING,
+            auto dbModel = static_cast<model_t>(_database.read(database::Config::Section::touchscreen_t::SETTING,
                                                                Touchscreen::setting_t::MODEL));
 
             if (_initialized)
@@ -125,10 +125,10 @@ bool Touchscreen::init(mode_t mode)
 
                 if (_initialized)
                 {
-                    setScreen(_database.read(Database::Config::Section::touchscreen_t::SETTING,
+                    setScreen(_database.read(database::Config::Section::touchscreen_t::SETTING,
                                              Touchscreen::setting_t::INITIAL_SCREEN));
 
-                    setBrightness(static_cast<brightness_t>(_database.read(Database::Config::Section::touchscreen_t::SETTING,
+                    setBrightness(static_cast<brightness_t>(_database.read(database::Config::Section::touchscreen_t::SETTING,
                                                                            Touchscreen::setting_t::BRIGHTNESS)));
 
                     _mode = mode;
@@ -316,8 +316,8 @@ void Touchscreen::setIconState(size_t index, bool state)
 
     icon_t icon;
 
-    icon.onScreen  = _database.read(Database::Config::Section::touchscreen_t::ON_SCREEN, index);
-    icon.offScreen = _database.read(Database::Config::Section::touchscreen_t::OFF_SCREEN, index);
+    icon.onScreen  = _database.read(database::Config::Section::touchscreen_t::ON_SCREEN, index);
+    icon.offScreen = _database.read(database::Config::Section::touchscreen_t::OFF_SCREEN, index);
 
     if (icon.onScreen == icon.offScreen)
     {
@@ -329,10 +329,10 @@ void Touchscreen::setIconState(size_t index, bool state)
         return;    // don't allow setting icon on wrong screen
     }
 
-    icon.xPos   = _database.read(Database::Config::Section::touchscreen_t::X_POS, index);
-    icon.yPos   = _database.read(Database::Config::Section::touchscreen_t::Y_POS, index);
-    icon.width  = _database.read(Database::Config::Section::touchscreen_t::WIDTH, index);
-    icon.height = _database.read(Database::Config::Section::touchscreen_t::HEIGHT, index);
+    icon.xPos   = _database.read(database::Config::Section::touchscreen_t::X_POS, index);
+    icon.yPos   = _database.read(database::Config::Section::touchscreen_t::Y_POS, index);
+    icon.width  = _database.read(database::Config::Section::touchscreen_t::WIDTH, index);
+    icon.height = _database.read(database::Config::Section::touchscreen_t::HEIGHT, index);
 
     modelInstance(_activeModel)->setIconState(icon, state);
 }
@@ -342,10 +342,10 @@ void Touchscreen::processButton(const size_t buttonID, const bool state)
     bool   changeScreen = false;
     size_t newScreen    = 0;
 
-    if (_database.read(Database::Config::Section::touchscreen_t::PAGE_SWITCH_ENABLED, buttonID))
+    if (_database.read(database::Config::Section::touchscreen_t::PAGE_SWITCH_ENABLED, buttonID))
     {
         changeScreen = true;
-        newScreen    = _database.read(Database::Config::Section::touchscreen_t::PAGE_SWITCH_INDEX, buttonID);
+        newScreen    = _database.read(database::Config::Section::touchscreen_t::PAGE_SWITCH_INDEX, buttonID);
     }
 
     buttonHandler(buttonID, state);
@@ -396,43 +396,43 @@ Touchscreen::Model* Touchscreen::modelInstance(model_t model)
 
 void Touchscreen::buttonHandler(size_t index, bool state)
 {
-    Messaging::event_t event;
+    messaging::event_t event;
 
     event.componentIndex = index;
     event.value          = state;
 
     // mark this as forwarding message type - further action/processing is required
-    MIDIDispatcher.notify(Messaging::eventType_t::TOUCHSCREEN_BUTTON, event);
+    MIDIDispatcher.notify(messaging::eventType_t::TOUCHSCREEN_BUTTON, event);
 }
 
 void Touchscreen::screenChangeHandler(size_t screenID)
 {
-    Messaging::event_t event;
+    messaging::event_t event;
 
     event.componentIndex = screenID;
 
     // mark this as forwarding message type - further action/processing is required
-    MIDIDispatcher.notify(Messaging::eventType_t::TOUCHSCREEN_SCREEN, event);
+    MIDIDispatcher.notify(messaging::eventType_t::TOUCHSCREEN_SCREEN, event);
 }
 
-std::optional<uint8_t> Touchscreen::sysConfigGet(System::Config::Section::touchscreen_t section, size_t index, uint16_t& value)
+std::optional<uint8_t> Touchscreen::sysConfigGet(sys::Config::Section::touchscreen_t section, size_t index, uint16_t& value)
 {
-    if (!isInitialized() && _hwa.allocated(IO::Common::Allocatable::interface_t::UART))
+    if (!isInitialized() && _hwa.allocated(io::common::Allocatable::interface_t::UART))
     {
-        return System::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
+        return sys::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
     }
 
     switch (section)
     {
-    case System::Config::Section::touchscreen_t::SETTING:
+    case sys::Config::Section::touchscreen_t::SETTING:
     {
         switch (index)
         {
         case static_cast<size_t>(setting_t::CDC_PASSTHROUGH):
         {
-            if (_cdcPassthrough.allocated(IO::Common::Allocatable::interface_t::CDC))
+            if (_cdcPassthrough.allocated(io::common::Allocatable::interface_t::CDC))
             {
-                return System::Config::status_t::CDC_ALLOCATED_ERROR;
+                return sys::Config::status_t::CDC_ALLOCATED_ERROR;
             }
         }
         break;
@@ -449,28 +449,28 @@ std::optional<uint8_t> Touchscreen::sysConfigGet(System::Config::Section::touchs
 
     uint32_t readValue;
 
-    auto result = _database.read(Util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
-                      ? System::Config::status_t::ACK
-                      : System::Config::status_t::ERROR_READ;
+    auto result = _database.read(util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
+                      ? sys::Config::status_t::ACK
+                      : sys::Config::status_t::ERROR_READ;
 
     value = readValue;
     return result;
 }
 
-std::optional<uint8_t> Touchscreen::sysConfigSet(System::Config::Section::touchscreen_t section, size_t index, uint16_t value)
+std::optional<uint8_t> Touchscreen::sysConfigSet(sys::Config::Section::touchscreen_t section, size_t index, uint16_t value)
 {
-    if (!isInitialized() && _hwa.allocated(IO::Common::Allocatable::interface_t::UART))
+    if (!isInitialized() && _hwa.allocated(io::common::Allocatable::interface_t::UART))
     {
-        return System::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
+        return sys::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
     }
 
-    auto initAction = Common::initAction_t::AS_IS;
+    auto initAction = common::initAction_t::AS_IS;
     auto mode       = mode_t::NORMAL;
     bool writeToDb  = true;
 
     switch (section)
     {
-    case System::Config::Section::touchscreen_t::SETTING:
+    case sys::Config::Section::touchscreen_t::SETTING:
     {
         switch (index)
         {
@@ -478,11 +478,11 @@ std::optional<uint8_t> Touchscreen::sysConfigSet(System::Config::Section::touchs
         {
             if (value)
             {
-                initAction = Common::initAction_t::INIT;
+                initAction = common::initAction_t::INIT;
             }
             else
             {
-                initAction = Common::initAction_t::DE_INIT;
+                initAction = common::initAction_t::DE_INIT;
             }
         }
         break;
@@ -491,10 +491,10 @@ std::optional<uint8_t> Touchscreen::sysConfigSet(System::Config::Section::touchs
         {
             if (value >= static_cast<size_t>(model_t::AMOUNT))
             {
-                return System::Config::status_t::ERROR_NEW_VALUE;
+                return sys::Config::status_t::ERROR_NEW_VALUE;
             }
 
-            initAction = Common::initAction_t::INIT;
+            initAction = common::initAction_t::INIT;
         }
         break;
 
@@ -504,7 +504,7 @@ std::optional<uint8_t> Touchscreen::sysConfigSet(System::Config::Section::touchs
             {
                 if (!setBrightness(static_cast<brightness_t>(value)))
                 {
-                    return System::Config::status_t::ERROR_WRITE;
+                    return sys::Config::status_t::ERROR_WRITE;
                 }
             }
         }
@@ -519,20 +519,20 @@ std::optional<uint8_t> Touchscreen::sysConfigSet(System::Config::Section::touchs
         }
         break;
 
-        case static_cast<size_t>(IO::Touchscreen::setting_t::CDC_PASSTHROUGH):
+        case static_cast<size_t>(io::Touchscreen::setting_t::CDC_PASSTHROUGH):
         {
             if (!_cdcPassthrough.supported())
             {
-                return System::Config::status_t::ERROR_NOT_SUPPORTED;
+                return sys::Config::status_t::ERROR_NOT_SUPPORTED;
             }
 
-            if (_cdcPassthrough.allocated(IO::Common::Allocatable::interface_t::CDC))
+            if (_cdcPassthrough.allocated(io::common::Allocatable::interface_t::CDC))
             {
-                return System::Config::status_t::CDC_ALLOCATED_ERROR;
+                return sys::Config::status_t::CDC_ALLOCATED_ERROR;
             }
 
             mode       = mode_t::CDC_PASSTHROUGH;
-            initAction = value ? Common::initAction_t::INIT : Common::initAction_t::DE_INIT;
+            initAction = value ? common::initAction_t::INIT : common::initAction_t::DE_INIT;
             writeToDb  = false;
         }
         break;
@@ -551,24 +551,24 @@ std::optional<uint8_t> Touchscreen::sysConfigSet(System::Config::Section::touchs
 
     if (writeToDb)
     {
-        result = _database.update(Util::Conversion::SYS_2_DB_SECTION(section), index, value);
+        result = _database.update(util::Conversion::SYS_2_DB_SECTION(section), index, value);
     }
 
     if (result)
     {
-        if (initAction == Common::initAction_t::INIT)
+        if (initAction == common::initAction_t::INIT)
         {
             init(mode);
         }
-        else if (initAction == Common::initAction_t::DE_INIT)
+        else if (initAction == common::initAction_t::DE_INIT)
         {
             deInit(mode);
         }
 
-        return System::Config::status_t::ACK;
+        return sys::Config::status_t::ACK;
     }
 
-    return System::Config::status_t::ERROR_WRITE;
+    return sys::Config::status_t::ERROR_WRITE;
 }
 
 #endif

@@ -24,7 +24,7 @@ namespace
         public:
         uint32_t pageSize(size_t index) override
         {
-            return Board::detail::map::FLASH_PAGE_DESCRIPTOR(index).size;
+            return board::detail::map::FLASH_PAGE_DESCRIPTOR(index).size;
         }
 
         void erasePage(size_t index) override

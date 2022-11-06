@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-namespace Board::detail::IO::digitalIn
+namespace board::detail::io::digitalIn
 {
     void update()
     {
@@ -33,4 +33,4 @@ namespace Board::detail::IO::digitalIn
             }
         }
     }
-}    // namespace Board::detail::IO
+}    // namespace board::detail::io

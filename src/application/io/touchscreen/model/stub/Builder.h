@@ -20,7 +20,7 @@ limitations under the License.
 
 #include "io/touchscreen/Touchscreen.h"
 
-namespace IO
+namespace io
 {
     class TouchscreenModelBuilder
     {
@@ -28,4 +28,4 @@ namespace IO
         TouchscreenModelBuilder(Touchscreen::HWA& hwa)
         {}
     };
-}    // namespace IO
+}    // namespace io

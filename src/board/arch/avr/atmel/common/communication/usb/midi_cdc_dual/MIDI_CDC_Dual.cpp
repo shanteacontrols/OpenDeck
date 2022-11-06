@@ -32,8 +32,8 @@ namespace
     constexpr uint32_t                     USB_TX_TIMEOUT_MS = 2000;
     USB_ClassInfo_CDC_Device_t             _cdcInterface;
     USB_ClassInfo_MIDI_Device_t            _midiInterface;
-    volatile Board::detail::USB::txState_t _txStateCDC;
-    volatile Board::detail::USB::txState_t _txStateMIDI;
+    volatile board::detail::usb::txState_t _txStateCDC;
+    volatile board::detail::usb::txState_t _txStateMIDI;
 }    // namespace
 
 /// Event handler for the USB_ConfigurationChanged event.
@@ -62,13 +62,13 @@ extern "C" uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue, const uint
     {
     case core::mcu::usb::DESC_TYPE_DEVICE:
     {
-        address = Board::detail::USB::deviceDescriptor(&size);
+        address = board::detail::usb::deviceDescriptor(&size);
     }
     break;
 
     case core::mcu::usb::DESC_TYPE_CONFIGURATION:
     {
-        address = Board::detail::USB::cfgDescriptor(&size);
+        address = board::detail::usb::cfgDescriptor(&size);
     }
     break;
 
@@ -78,19 +78,19 @@ extern "C" uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue, const uint
         {
         case USB_STRING_ID_LANGUAGE:
         {
-            address = Board::detail::USB::languageString(&size);
+            address = board::detail::usb::languageString(&size);
         }
         break;
 
         case USB_STRING_ID_MANUFACTURER:
         {
-            address = Board::detail::USB::manufacturerString(&size);
+            address = board::detail::usb::manufacturerString(&size);
         }
         break;
 
         case USB_STRING_ID_PRODUCT:
         {
-            address = Board::detail::USB::productString(&size);
+            address = board::detail::usb::productString(&size);
         }
         break;
 
@@ -122,12 +122,12 @@ extern "C" void EVENT_USB_Device_ControlRequest(void)
 
 extern "C" void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCInterfaceInfo)
 {
-    Board::USB::onCDCsetLineEncoding(CDCInterfaceInfo->State.LineEncoding.BaudRateBPS);
+    board::usb::onCDCsetLineEncoding(CDCInterfaceInfo->State.LineEncoding.BaudRateBPS);
 }
 
-namespace Board
+namespace board
 {
-    namespace detail::USB
+    namespace detail::usb
     {
         void init()
         {
@@ -156,9 +156,9 @@ namespace Board
         {
             USB_Disable();
         }
-    }    // namespace detail::USB
+    }    // namespace detail::usb
 
-    namespace USB
+    namespace usb
     {
         bool isUSBconnected()
         {
@@ -204,14 +204,14 @@ namespace Board
             }
 
             // once the transfer fails, wait USB_TX_TIMEOUT_MS ms before trying again
-            if (_txStateMIDI != Board::detail::USB::txState_t::DONE)
+            if (_txStateMIDI != board::detail::usb::txState_t::DONE)
             {
                 if ((core::timing::ms() - timeout) < USB_TX_TIMEOUT_MS)
                 {
                     return false;
                 }
 
-                _txStateMIDI = Board::detail::USB::txState_t::DONE;
+                _txStateMIDI = board::detail::usb::txState_t::DONE;
                 timeout      = 0;
             }
 
@@ -219,11 +219,11 @@ namespace Board
 
             uint8_t ErrorCode;
 
-            _txStateMIDI = Board::detail::USB::txState_t::SENDING;
+            _txStateMIDI = board::detail::usb::txState_t::SENDING;
 
             if ((ErrorCode = Endpoint_Write_Stream_LE(&packet[0], sizeof(packet), NULL)) != ENDPOINT_RWSTREAM_NoError)
             {
-                _txStateMIDI = Board::detail::USB::txState_t::WAITING;
+                _txStateMIDI = board::detail::usb::txState_t::WAITING;
                 return false;
             }
 
@@ -234,7 +234,7 @@ namespace Board
 
             MIDI_Device_Flush(&_midiInterface);
 
-            _txStateMIDI = Board::detail::USB::txState_t::DONE;
+            _txStateMIDI = board::detail::usb::txState_t::DONE;
             return true;
         }
 
@@ -288,29 +288,29 @@ namespace Board
             }
 
             // once the transfer fails, wait USB_TX_TIMEOUT_MS ms before trying again
-            if (_txStateCDC != Board::detail::USB::txState_t::DONE)
+            if (_txStateCDC != board::detail::usb::txState_t::DONE)
             {
                 if ((core::timing::ms() - timeout) < USB_TX_TIMEOUT_MS)
                 {
                     return false;
                 }
 
-                _txStateCDC = Board::detail::USB::txState_t::DONE;
+                _txStateCDC = board::detail::usb::txState_t::DONE;
                 timeout     = 0;
             }
 
             for (size_t i = 0; i < size; i++)
             {
-                _txStateCDC = Board::detail::USB::txState_t::SENDING;
+                _txStateCDC = board::detail::usb::txState_t::SENDING;
 
                 if (CDC_Device_SendByte(&_cdcInterface, (uint8_t)buffer[i]) != ENDPOINT_READYWAIT_NoError)
                 {
-                    _txStateCDC = Board::detail::USB::txState_t::WAITING;
+                    _txStateCDC = board::detail::usb::txState_t::WAITING;
                     return false;
                 }
             }
 
-            _txStateCDC = Board::detail::USB::txState_t::DONE;
+            _txStateCDC = board::detail::usb::txState_t::DONE;
             return true;
         }
 
@@ -318,8 +318,8 @@ namespace Board
         {
             return writeCDC(&value, 1);
         }
-    }    // namespace USB
-}    // namespace Board
+    }    // namespace usb
+}    // namespace board
 
 #endif
 #endif

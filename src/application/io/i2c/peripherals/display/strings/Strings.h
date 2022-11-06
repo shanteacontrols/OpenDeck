@@ -21,7 +21,7 @@ limitations under the License.
 #include <inttypes.h>
 #include "protocol/midi/MIDI.h"
 
-using namespace Protocol;
+using namespace protocol;
 
 class Strings
 {

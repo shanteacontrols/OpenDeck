@@ -28,8 +28,8 @@ limitations under the License.
 #include "global/MIDIProgram.h"
 #include <Target.h>
 
-using namespace IO;
-using namespace System;
+using namespace io;
+using namespace sys;
 
 Instance::Instance(HWA&        hwa,
                    Components& components)
@@ -41,8 +41,8 @@ Instance::Instance(HWA&        hwa,
           _sysExDataHandler,
           SYS_EX_MID)
 {
-    MIDIDispatcher.listen(Messaging::eventType_t::MIDI_IN,
-                          [this](const Messaging::event_t& event)
+    MIDIDispatcher.listen(messaging::eventType_t::MIDI_IN,
+                          [this](const messaging::event_t& event)
                           {
                               switch (event.message)
                               {
@@ -68,24 +68,24 @@ Instance::Instance(HWA&        hwa,
                               }
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::SYSTEM,
-                          [this](const Messaging::event_t& event)
+    MIDIDispatcher.listen(messaging::eventType_t::SYSTEM,
+                          [this](const messaging::event_t& event)
                           {
                               switch (event.systemMessage)
                               {
-                              case Messaging::systemMessage_t::PRESET_CHANGE_INC_REQ:
+                              case messaging::systemMessage_t::PRESET_CHANGE_INC_REQ:
                               {
                                   _components.database().setPreset(_components.database().getPreset() + 1);
                               }
                               break;
 
-                              case Messaging::systemMessage_t::PRESET_CHANGE_DEC_REQ:
+                              case messaging::systemMessage_t::PRESET_CHANGE_DEC_REQ:
                               {
                                   _components.database().setPreset(_components.database().getPreset() - 1);
                               }
                               break;
 
-                              case Messaging::systemMessage_t::PRESET_CHANGE_DIRECT_REQ:
+                              case messaging::systemMessage_t::PRESET_CHANGE_DIRECT_REQ:
                               {
                                   _components.database().setPreset(event.index);
                               }
@@ -112,7 +112,7 @@ bool Instance::init()
                                        0
                                    };
 
-                                   auto split = Util::Conversion::Split14bit(index);
+                                   auto split = util::Conversion::Split14bit(index);
 
                                    cInfoMessage[2] = split.high();
                                    cInfoMessage[3] = split.low();
@@ -167,7 +167,7 @@ bool Instance::init()
     // on startup, indicate current program for all channels
     for (int i = 1; i <= 16; i++)
     {
-        Messaging::event_t event;
+        messaging::event_t event;
 
         event.componentIndex = 0;
         event.channel        = i;
@@ -175,7 +175,7 @@ bool Instance::init()
         event.value          = 0;
         event.message        = MIDI::messageType_t::PROGRAM_CHANGE;
 
-        MIDIDispatcher.notify(Messaging::eventType_t::PROGRAM, event);
+        MIDIDispatcher.notify(messaging::eventType_t::PROGRAM, event);
     }
 
     return true;
@@ -218,8 +218,8 @@ void Instance::backup()
     uint16_t presetChangeRequest[] = {
         static_cast<uint8_t>(SysExConf::wish_t::SET),
         static_cast<uint8_t>(SysExConf::amount_t::SINGLE),
-        static_cast<uint8_t>(System::Config::block_t::GLOBAL),
-        static_cast<uint8_t>(System::Config::Section::global_t::PRESETS),
+        static_cast<uint8_t>(sys::Config::block_t::GLOBAL),
+        static_cast<uint8_t>(sys::Config::Section::global_t::PRESETS),
         0x00,    // index 0 (active preset) MSB
         0x00,    // index 0 (active preset) LSB
         0x00,    // preset value MSB - always 0
@@ -257,9 +257,9 @@ void Instance::backup()
                 // some sections are irrelevant for backup and should therefore be skipped
 
                 if (
-                    (block == static_cast<uint8_t>(System::Config::block_t::LEDS)) &&
-                    ((section == static_cast<uint8_t>(System::Config::Section::leds_t::TEST_COLOR)) ||
-                     (section == static_cast<uint8_t>(System::Config::Section::leds_t::TEST_BLINK))))
+                    (block == static_cast<uint8_t>(sys::Config::block_t::LEDS)) &&
+                    ((section == static_cast<uint8_t>(sys::Config::Section::leds_t::TEST_COLOR)) ||
+                     (section == static_cast<uint8_t>(sys::Config::Section::leds_t::TEST_BLINK))))
                 {
                     continue;
                 }
@@ -373,27 +373,27 @@ void Instance::forceComponentRefresh()
     // in that case this would get called
     if (_backupRestoreState == backupRestoreState_t::NONE)
     {
-        Messaging::event_t event;
-        event.systemMessage = Messaging::systemMessage_t::FORCE_IO_REFRESH;
+        messaging::event_t event;
+        event.systemMessage = messaging::systemMessage_t::FORCE_IO_REFRESH;
 
-        MIDIDispatcher.notify(Messaging::eventType_t::SYSTEM, event);
+        MIDIDispatcher.notify(messaging::eventType_t::SYSTEM, event);
     }
 }
 
 void Instance::SysExDataHandler::sendResponse(uint8_t* array, uint16_t size)
 {
-    Messaging::event_t event;
-    event.systemMessage = Messaging::systemMessage_t::SYS_EX_RESPONSE;
+    messaging::event_t event;
+    event.systemMessage = messaging::systemMessage_t::SYS_EX_RESPONSE;
     event.message       = MIDI::messageType_t::SYS_EX;
     event.sysEx         = array;
     event.sysExLength   = size;
 
-    MIDIDispatcher.notify(Messaging::eventType_t::SYSTEM, event);
+    MIDIDispatcher.notify(messaging::eventType_t::SYSTEM, event);
 }
 
 uint8_t Instance::SysExDataHandler::customRequest(uint16_t request, CustomResponse& customResponse)
 {
-    uint8_t result = System::Config::status_t::ACK;
+    uint8_t result = sys::Config::status_t::ACK;
 
     auto appendSW = [&customResponse]()
     {
@@ -479,14 +479,14 @@ uint8_t Instance::SysExDataHandler::customRequest(uint16_t request, CustomRespon
         // no response here, just set flag internally that backup needs to be done
         _system._backupRestoreState = backupRestoreState_t::BACKUP;
 
-        Messaging::event_t event;
+        messaging::event_t event;
         event.componentIndex = 0;
         event.channel        = 0;
         event.index          = 0;
         event.value          = 0;
-        event.systemMessage  = Messaging::systemMessage_t::BACKUP;
+        event.systemMessage  = messaging::systemMessage_t::BACKUP;
 
-        MIDIDispatcher.notify(Messaging::eventType_t::SYSTEM, event);
+        MIDIDispatcher.notify(messaging::eventType_t::SYSTEM, event);
     }
     break;
 
@@ -495,14 +495,14 @@ uint8_t Instance::SysExDataHandler::customRequest(uint16_t request, CustomRespon
         _system._backupRestoreState = backupRestoreState_t::RESTORE;
         _system._sysExConf.setUserErrorIgnoreMode(true);
 
-        Messaging::event_t event;
+        messaging::event_t event;
         event.componentIndex = 0;
         event.channel        = 0;
         event.index          = 0;
         event.value          = 0;
-        event.systemMessage  = Messaging::systemMessage_t::RESTORE_START;
+        event.systemMessage  = messaging::systemMessage_t::RESTORE_START;
 
-        MIDIDispatcher.notify(Messaging::eventType_t::SYSTEM, event);
+        MIDIDispatcher.notify(messaging::eventType_t::SYSTEM, event);
     }
     break;
 
@@ -511,20 +511,20 @@ uint8_t Instance::SysExDataHandler::customRequest(uint16_t request, CustomRespon
         _system._backupRestoreState = backupRestoreState_t::NONE;
         _system._sysExConf.setUserErrorIgnoreMode(false);
 
-        Messaging::event_t event;
+        messaging::event_t event;
         event.componentIndex = 0;
         event.channel        = 0;
         event.index          = 0;
         event.value          = 0;
-        event.systemMessage  = Messaging::systemMessage_t::RESTORE_END;
+        event.systemMessage  = messaging::systemMessage_t::RESTORE_END;
 
-        MIDIDispatcher.notify(Messaging::eventType_t::SYSTEM, event);
+        MIDIDispatcher.notify(messaging::eventType_t::SYSTEM, event);
     }
     break;
 
     default:
     {
-        result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+        result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
     }
     break;
     }
@@ -537,7 +537,7 @@ uint8_t Instance::SysExDataHandler::get(uint8_t   block,
                                         uint16_t  index,
                                         uint16_t& value)
 {
-    return ConfigHandler.get(static_cast<System::Config::block_t>(block), section, index, value);
+    return ConfigHandler.get(static_cast<sys::Config::block_t>(block), section, index, value);
 }
 
 uint8_t Instance::SysExDataHandler::set(uint8_t  block,
@@ -545,7 +545,7 @@ uint8_t Instance::SysExDataHandler::set(uint8_t  block,
                                         uint16_t index,
                                         uint16_t value)
 {
-    return ConfigHandler.set(static_cast<System::Config::block_t>(block), section, index, value);
+    return ConfigHandler.set(static_cast<sys::Config::block_t>(block), section, index, value);
 }
 
 void Instance::DBhandlers::presetChange(uint8_t preset)
@@ -556,14 +556,14 @@ void Instance::DBhandlers::presetChange(uint8_t preset)
                                           PRESET_CHANGE_NOTIFY_DELAY,
                                           [&]()
                                           {
-                                              Messaging::event_t event;
+                                              messaging::event_t event;
                                               event.componentIndex = 0;
                                               event.channel        = 0;
                                               event.index          = _system._components.database().getPreset();
                                               event.value          = 0;
-                                              event.systemMessage  = Messaging::systemMessage_t::PRESET_CHANGED;
+                                              event.systemMessage  = messaging::systemMessage_t::PRESET_CHANGED;
 
-                                              MIDIDispatcher.notify(Messaging::eventType_t::SYSTEM, event);
+                                              MIDIDispatcher.notify(messaging::eventType_t::SYSTEM, event);
 
                                               _system.forceComponentRefresh();
                                           } });

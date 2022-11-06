@@ -18,14 +18,14 @@ limitations under the License.
 
 void core::mcu::isr::adc(uint32_t value)
 {
-    Board::detail::IO::analog::isr(value);
+    board::detail::io::analog::isr(value);
 }
 
-using namespace Board::IO::analog;
-using namespace Board::detail;
-using namespace Board::detail::IO::analog;
+using namespace board::io::analog;
+using namespace board::detail;
+using namespace board::detail::io::analog;
 
-namespace Board::IO::analog
+namespace board::io::analog
 {
     bool value(size_t index, uint16_t& value)
     {
@@ -50,4 +50,4 @@ namespace Board::IO::analog
 
         return false;
     }
-}    // namespace Board::IO
+}    // namespace board::io

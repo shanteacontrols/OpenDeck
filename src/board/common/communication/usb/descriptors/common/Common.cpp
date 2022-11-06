@@ -28,7 +28,7 @@ namespace
     core::mcu::usb::descriptorUIDString_t _signatureDescriptorInternal;
 }
 
-namespace Board::detail::USB
+namespace board::detail::usb
 {
     const void* serialIDString(uint16_t* size, uint8_t* uid)
     {
@@ -58,6 +58,6 @@ namespace Board::detail::USB
         *size = sizeof(core::mcu::usb::descriptorUIDString_t);
         return &_signatureDescriptorInternal;
     }
-}    // namespace Board::detail::USB
+}    // namespace board::detail::usb
 
 #endif

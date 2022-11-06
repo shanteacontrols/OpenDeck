@@ -23,7 +23,7 @@ limitations under the License.
 #include "core/src/Timing.h"
 #include "core/src/MCU.h"
 
-namespace Board::bootloader
+namespace board::bootloader
 {
     /// Location at which reboot type is written in EEPROM when initiating software reset.
     constexpr uint32_t REBOOT_VALUE_EEPROM_LOCATION = CORE_MCU_EEPROM_SIZE - 1;
@@ -46,4 +46,4 @@ namespace Board::bootloader
             "clr r31\n"
             "ijmp\n");
     }
-}    // namespace Board::bootloader
+}    // namespace board::bootloader

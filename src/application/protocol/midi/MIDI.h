@@ -28,9 +28,9 @@ limitations under the License.
 #include "protocol/ProtocolBase.h"
 #include "messaging/Messaging.h"
 
-namespace Protocol
+namespace protocol
 {
-    class MIDI : public Protocol::Base
+    class MIDI : public protocol::Base
     {
         public:
         // alias some types and functions from base midi class for easier access
@@ -80,7 +80,7 @@ namespace Protocol
             virtual bool supported() = 0;
         };
 
-        class HWADIN : public IO::Common::Allocatable, public MIDIlib::SerialMIDI::HWA
+        class HWADIN : public io::common::Allocatable, public MIDIlib::SerialMIDI::HWA
         {
             public:
             virtual ~HWADIN() = default;
@@ -97,7 +97,7 @@ namespace Protocol
             virtual bool supported() = 0;
         };
 
-        using Database = Database::User<Database::Config::Section::global_t>;
+        using Database = database::User<database::Config::Section::global_t>;
 
         MIDI(HWAUSB&   hwaUSB,
              HWADIN&   hwaDIN,
@@ -119,9 +119,9 @@ namespace Protocol
 
         bool                   isSettingEnabled(setting_t feature);
         bool                   isDinLoopbackRequired();
-        std::optional<uint8_t> sysConfigGet(System::Config::Section::global_t section, size_t index, uint16_t& value);
-        std::optional<uint8_t> sysConfigSet(System::Config::Section::global_t section, size_t index, uint16_t value);
-        void                   sendMIDI(Messaging::eventType_t source, const Messaging::event_t& event);
+        std::optional<uint8_t> sysConfigGet(sys::Config::Section::global_t section, size_t index, uint16_t& value);
+        std::optional<uint8_t> sysConfigSet(sys::Config::Section::global_t section, size_t index, uint16_t value);
+        void                   sendMIDI(messaging::eventType_t source, const messaging::event_t& event);
         void                   setNoteOffMode(noteOffType_t type);
         bool                   setupUSBMIDI();
         bool                   setupDINMIDI();
@@ -137,4 +137,4 @@ namespace Protocol
         Database&                                    _database;
         std::array<MIDIlib::Base*, INTERFACE_AMOUNT> _midiInterface;
     };
-}    // namespace Protocol
+}    // namespace protocol

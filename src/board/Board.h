@@ -22,7 +22,7 @@ limitations under the License.
 #include <inttypes.h>
 #include <array>
 
-namespace Board
+namespace board
 {
     enum class initStatus_t : uint8_t
     {
@@ -40,7 +40,7 @@ namespace Board
     /// Used to continuously perform board-specific tasks if needed.
     void update();
 
-    namespace USB
+    namespace usb
     {
         using midiPacket_t = std::array<uint8_t, 4>;
 
@@ -95,9 +95,9 @@ namespace Board
         /// Should be overriden by user application for proper functionality.
         /// param [in]: baudRate    Baudrate value specified in USB request.
         void onCDCsetLineEncoding(uint32_t baudRate);
-    }    // namespace USB
+    }    // namespace usb
 
-    namespace UART
+    namespace uart
     {
         /// Initializes UART peripheral.
         /// param [in]: channel     UART channel on MCU.
@@ -149,9 +149,9 @@ namespace Board
         /// param [in]: channel UART channel on MCU.
         /// param [in]: state   New state of loopback functionality (true/enabled, false/disabled).
         void setLoopbackState(uint8_t channel, bool state);
-    }    // namespace UART
+    }    // namespace uart
 
-    namespace I2C
+    namespace i2c
     {
         enum class clockSpeed_t : uint32_t
         {
@@ -187,9 +187,9 @@ namespace Board
         /// param [in]: address     7-bit slave address without R/W bit.
         /// returns: True if device is present, false otherwise.
         bool deviceAvailable(uint8_t channel, uint8_t address);
-    }    // namespace I2C
+    }    // namespace i2c
 
-    namespace IO
+    namespace io
     {
         void init();
 
@@ -304,9 +304,9 @@ namespace Board
             /// This will blink all the internal LEDs continuously until update is done.
             void indicateFirmwareUpdateStart();
         }    // namespace indicators
-    }        // namespace IO
+    }        // namespace io
 
-    namespace NVM
+    namespace nvm
     {
         // NVM: non-volatile memory
 
@@ -348,9 +348,9 @@ namespace Board
         /// Used to write the contents of cache memory to flash.
         /// Should be used only if write was called with cacheOnly argument set to true.
         void writeCacheToFlash();
-    }    // namespace NVM
+    }    // namespace nvm
 
-    namespace BLE
+    namespace ble
     {
         /// Initializes and prepares BLE stack on board as well as all registered services.
         // Advertising will be started as well.
@@ -362,7 +362,7 @@ namespace Board
         /// Checks if the device is connected to a central.
         bool isConnected();
 
-        namespace MIDI
+        namespace midi
         {
             /// Used to read MIDI data from BLE interface.
             /// param [in]: buffer  Pointer to array in which read data will be stored if available.
@@ -376,8 +376,8 @@ namespace Board
             /// param [in]: size    Amount of bytes in provided buffer.
             /// returns: True if transfer has succeded, false otherwise.
             bool write(uint8_t* buffer, size_t size);
-        }    // namespace MIDI
-    }        // namespace BLE
+        }    // namespace midi
+    }        // namespace ble
 
     namespace bootloader
     {
@@ -396,4 +396,4 @@ namespace Board
         uint8_t readFlash(uint32_t address);
 #endif
     }    // namespace bootloader
-};       // namespace Board
+};       // namespace board

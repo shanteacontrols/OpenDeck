@@ -21,15 +21,15 @@ limitations under the License.
 #include "io/i2c/I2C.h"
 #include "database/Database.h"
 
-namespace IO
+namespace io
 {
     class I2CPeripheralBuilder
     {
         public:
-        using DisplayDatabase = Database::User<Database::Config::Section::i2c_t>;
+        using DisplayDatabase = database::User<database::Config::Section::i2c_t>;
 
         I2CPeripheralBuilder(I2C::Peripheral::HWA& displayHWA,
                              DisplayDatabase&      database)
         {}
     };
-}    // namespace IO
+}    // namespace io

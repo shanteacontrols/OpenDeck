@@ -25,7 +25,7 @@ limitations under the License.
 
 #include "display/Display.h"
 
-namespace IO
+namespace io
 {
     class I2CPeripheralBuilder
     {
@@ -38,7 +38,7 @@ namespace IO
         private:
         Display _display;
     };
-}    // namespace IO
+}    // namespace io
 
 #else
 #include "stub/Builder.h"

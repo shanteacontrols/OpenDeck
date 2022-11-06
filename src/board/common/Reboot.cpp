@@ -25,7 +25,7 @@ limitations under the License.
 #include "usb-link/Commands.h"
 #endif
 
-namespace Board
+namespace board
 {
     void reboot()
     {
@@ -33,22 +33,22 @@ namespace Board
         // signal to usb link to reboot as well
 
         uint8_t data[2] = {
-            static_cast<uint8_t>(USBLink::internalCMD_t::REBOOT_BTLDR),
-            Board::bootloader::magicBootValue()
+            static_cast<uint8_t>(usbLink::internalCMD_t::REBOOT_BTLDR),
+            board::bootloader::magicBootValue()
         };
 
-        USBOverSerial::USBWritePacket packet(USBOverSerial::packetType_t::INTERNAL,
+        usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::INTERNAL,
                                              data,
                                              2,
                                              BUFFER_SIZE_USB_OVER_SERIAL);
-        USBOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
+        usbOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
 #endif
 
         // In case the indicator LEDs were on before this command was issued, this will make sure
         // they are off before the reboot.
         // Double the delay time to avoid "sharp" transition between traffic event and bootloader indication.
-        core::timing::waitMs(IO::indicators::LED_TRAFFIC_INDICATOR_TIMEOUT * 2);
+        core::timing::waitMs(io::indicators::LED_TRAFFIC_INDICATOR_TIMEOUT * 2);
 
         core::mcu::reset();
     }
-}    // namespace Board
+}    // namespace board

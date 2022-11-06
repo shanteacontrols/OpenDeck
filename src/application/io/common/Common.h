@@ -21,7 +21,7 @@ limitations under the License.
 #include <inttypes.h>
 #include <stddef.h>
 
-namespace IO::Common
+namespace io::common
 {
     enum class initAction_t : uint8_t
     {
@@ -78,4 +78,4 @@ namespace IO::Common
 
         virtual bool allocated(interface_t interface) = 0;
     };
-}    // namespace IO::Common
+}    // namespace io::common

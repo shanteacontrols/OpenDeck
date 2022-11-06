@@ -122,7 +122,7 @@ bool SysExParser::value(size_t index, uint8_t& data)
         return false;
     }
 
-    auto merged = Util::Conversion::Merge14bit(_sysExArray[arrayIndex], _sysExArray[arrayIndex + 1]);
+    auto merged = util::Conversion::Merge14bit(_sysExArray[arrayIndex], _sysExArray[arrayIndex + 1]);
     data        = merged.value() & 0xFF;
 
     return true;
@@ -130,7 +130,7 @@ bool SysExParser::value(size_t index, uint8_t& data)
 
 bool SysExParser::verify()
 {
-    using namespace System;
+    using namespace sys;
 
     if (_sysExArray[1] != Config::SYSEX_MANUFACTURER_ID_0)
     {

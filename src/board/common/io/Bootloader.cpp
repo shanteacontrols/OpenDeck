@@ -23,7 +23,7 @@ limitations under the License.
 #include "core/src/util/Util.h"
 #include <Target.h>
 
-namespace Board::detail::IO::bootloader
+namespace board::detail::io::bootloader
 {
     void init()
     {
@@ -39,6 +39,6 @@ namespace Board::detail::IO::bootloader
                          core::mcu::io::pullMode_t::UP);
 #endif
     }
-}    // namespace Board::detail::IO::bootloader
+}    // namespace board::detail::io::bootloader
 
 #endif

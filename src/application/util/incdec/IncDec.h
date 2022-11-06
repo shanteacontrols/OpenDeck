@@ -22,7 +22,7 @@ limitations under the License.
 #include <functional>
 #include <stddef.h>
 
-namespace Util
+namespace util
 {
     template<typename T, T minValue, T maxValue>
     class IncDec
@@ -68,4 +68,4 @@ namespace Util
             return value - steps;
         }
     };
-}    // namespace Util
+}    // namespace util

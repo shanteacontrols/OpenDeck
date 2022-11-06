@@ -25,17 +25,17 @@ limitations under the License.
 #include "system/Config.h"
 #include "io/IOBase.h"
 
-using namespace Protocol;
+using namespace protocol;
 
 #if defined(HW_SUPPORT_DIGITAL_INPUTS) || defined(HW_SUPPORT_TOUCHSCREEN) || defined(HW_SUPPORT_ADC)
 #define BUTTONS_SUPPORTED
 
-namespace IO
+namespace io
 {
-    class Buttons : public IO::Base
+    class Buttons : public io::Base
     {
         public:
-        class Collection : public Common::BaseCollection<HW_SUPPORTED_NR_OF_DIGITAL_INPUTS,
+        class Collection : public common::BaseCollection<HW_SUPPORTED_NR_OF_DIGITAL_INPUTS,
                                                          HW_SUPPORTED_NR_OF_ANALOG_INPUTS,
                                                          HW_SUPPORTED_NR_OF_TOUCHSCREEN_COMPONENTS>
         {
@@ -106,8 +106,8 @@ namespace IO
             virtual bool isFiltered(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
         };
 
-        using Database = Database::User<Database::Config::Section::button_t,
-                                        Database::Config::Section::encoder_t>;
+        using Database = database::User<database::Config::Section::button_t,
+                                        database::Config::Section::encoder_t>;
 
         Buttons(HWA&      hwa,
                 Filter&   filter,
@@ -124,12 +124,12 @@ namespace IO
         {
             type_t             type        = type_t::MOMENTARY;
             messageType_t      messageType = messageType_t::NOTE;
-            Messaging::event_t event;
+            messaging::event_t event;
 
             buttonDescriptor_t() = default;
         };
 
-        using ValueIncDecMIDI7Bit = Util::IncDec<uint8_t, 0, ::MIDI::MIDI_7BIT_VALUE_MAX>;
+        using ValueIncDecMIDI7Bit = util::IncDec<uint8_t, 0, ::MIDI::MIDI_7BIT_VALUE_MAX>;
 
         bool                   state(size_t index);
         bool                   state(size_t index, uint8_t& numberOfReadings, uint32_t& states);
@@ -139,8 +139,8 @@ namespace IO
         void                   setState(size_t index, bool state);
         void                   setLatchingState(size_t index, bool state);
         bool                   latchingState(size_t index);
-        std::optional<uint8_t> sysConfigGet(System::Config::Section::button_t section, size_t index, uint16_t& value);
-        std::optional<uint8_t> sysConfigSet(System::Config::Section::button_t section, size_t index, uint16_t value);
+        std::optional<uint8_t> sysConfigGet(sys::Config::Section::button_t section, size_t index, uint16_t& value);
+        std::optional<uint8_t> sysConfigSet(sys::Config::Section::button_t section, size_t index, uint16_t value);
 
         HWA&               _hwa;
         Filter&            _filter;
@@ -179,7 +179,7 @@ namespace IO
             MIDI::messageType_t::INVALID,                         // PROGRAM_CHANGE_OFFSET_DEC
         };
     };
-}    // namespace IO
+}    // namespace io
 
 #else
 #include "stub/Buttons.h"

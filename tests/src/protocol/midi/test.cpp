@@ -3,7 +3,7 @@
 #include "framework/Framework.h"
 #include "stubs/MIDI.h"
 
-using namespace IO;
+using namespace io;
 
 namespace
 {
@@ -31,7 +31,7 @@ namespace
 TEST_F(MIDITest, OmniChannel)
 {
     // simulate button event
-    Messaging::event_t event;
+    messaging::event_t event;
 
     event.componentIndex = 0;
     event.channel        = 1;
@@ -39,7 +39,7 @@ TEST_F(MIDITest, OmniChannel)
     event.value          = 127;
     event.message        = MIDI::messageType_t::NOTE_ON;
 
-    MIDIDispatcher.notify(Messaging::eventType_t::BUTTON, event);
+    MIDIDispatcher.notify(messaging::eventType_t::BUTTON, event);
 
     // only 1 message should be written out
     ASSERT_EQ(1, _midi._hwaMIDIUSB._writeParser.totalWrittenChannelMessages());
@@ -49,7 +49,7 @@ TEST_F(MIDITest, OmniChannel)
     _midi._hwaMIDIUSB.clear();
     event.channel = MIDI::MIDI_CHANNEL_OMNI;
 
-    MIDIDispatcher.notify(Messaging::eventType_t::BUTTON, event);
+    MIDIDispatcher.notify(messaging::eventType_t::BUTTON, event);
 
     ASSERT_EQ(16, _midi._hwaMIDIUSB._writeParser.totalWrittenChannelMessages());
 

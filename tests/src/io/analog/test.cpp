@@ -6,7 +6,7 @@
 #include "io/buttons/Buttons.h"
 #include "util/configurable/Configurable.h"
 
-using namespace IO;
+using namespace io;
 
 namespace
 {
@@ -22,12 +22,12 @@ namespace
 
             for (size_t i = 0; i < Analog::Collection::SIZE(Analog::GROUP_ANALOG_INPUTS); i++)
             {
-                ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::ENABLE, i, 1));
-                ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::CHANNEL, i, 1));
+                ASSERT_TRUE(_analog._database.update(database::Config::Section::analog_t::ENABLE, i, 1));
+                ASSERT_TRUE(_analog._database.update(database::Config::Section::analog_t::CHANNEL, i, 1));
             }
 
-            MIDIDispatcher.listen(Messaging::eventType_t::ANALOG,
-                                  [this](const Messaging::event_t& dispatchMessage)
+            MIDIDispatcher.listen(messaging::eventType_t::ANALOG,
+                                  [this](const messaging::event_t& dispatchMessage)
                                   {
                                       _listener.messageListener(dispatchMessage);
                                   });
@@ -127,7 +127,7 @@ TEST_F(AnalogTest, PitchBendTest)
     for (size_t i = 0; i < Analog::Collection::SIZE(Analog::GROUP_ANALOG_INPUTS); i++)
     {
         // configure all analog components as potentiometers with Pitch Bend MIDI message
-        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::TYPE, i, Analog::type_t::PITCH_BEND));
+        ASSERT_TRUE(_analog._database.update(database::Config::Section::analog_t::TYPE, i, Analog::type_t::PITCH_BEND));
     }
 
     for (int i = 0; i <= 16383; i++)
@@ -186,7 +186,7 @@ TEST_F(AnalogTest, Inversion)
     // enable inversion
     for (size_t i = 0; i < Analog::Collection::SIZE(Analog::GROUP_ANALOG_INPUTS); i++)
     {
-        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::INVERT, i, 1));
+        ASSERT_TRUE(_analog._database.update(database::Config::Section::analog_t::INVERT, i, 1));
     }
 
     for (int i = 0; i <= 127; i++)
@@ -219,9 +219,9 @@ TEST_F(AnalogTest, Inversion)
 
     for (size_t i = 0; i < Analog::Collection::SIZE(Analog::GROUP_ANALOG_INPUTS); i++)
     {
-        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::INVERT, i, 1));
-        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::LOWER_LIMIT, i, 127));
-        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::UPPER_LIMIT, i, 0));
+        ASSERT_TRUE(_analog._database.update(database::Config::Section::analog_t::INVERT, i, 1));
+        ASSERT_TRUE(_analog._database.update(database::Config::Section::analog_t::LOWER_LIMIT, i, 127));
+        ASSERT_TRUE(_analog._database.update(database::Config::Section::analog_t::UPPER_LIMIT, i, 0));
 
         _analog._instance.reset(i);
     }
@@ -254,7 +254,7 @@ TEST_F(AnalogTest, Inversion)
 
     for (size_t i = 0; i < Analog::Collection::SIZE(Analog::GROUP_ANALOG_INPUTS); i++)
     {
-        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::INVERT, i, 0));
+        ASSERT_TRUE(_analog._database.update(database::Config::Section::analog_t::INVERT, i, 0));
         _analog._instance.reset(i);
     }
 
@@ -293,8 +293,8 @@ TEST_F(AnalogTest, Scaling)
     // set known state
     for (size_t i = 0; i < Analog::Collection::SIZE(Analog::GROUP_ANALOG_INPUTS); i++)
     {
-        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::LOWER_LIMIT, i, 0));
-        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::UPPER_LIMIT, i, SCALED_UPPER));
+        ASSERT_TRUE(_analog._database.update(database::Config::Section::analog_t::LOWER_LIMIT, i, 0));
+        ASSERT_TRUE(_analog._database.update(database::Config::Section::analog_t::UPPER_LIMIT, i, SCALED_UPPER));
     }
 
     for (int i = 0; i <= 127; i++)
@@ -317,7 +317,7 @@ TEST_F(AnalogTest, Scaling)
     // now scale minimum value as well
     for (size_t i = 0; i < Analog::Collection::SIZE(Analog::GROUP_ANALOG_INPUTS); i++)
     {
-        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::LOWER_LIMIT, i, SCALED_LOWER));
+        ASSERT_TRUE(_analog._database.update(database::Config::Section::analog_t::LOWER_LIMIT, i, SCALED_LOWER));
     }
 
     _listener._event.clear();
@@ -339,7 +339,7 @@ TEST_F(AnalogTest, Scaling)
     // now enable inversion
     for (size_t i = 0; i < Analog::Collection::SIZE(Analog::GROUP_ANALOG_INPUTS); i++)
     {
-        ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::INVERT, i, 1));
+        ASSERT_TRUE(_analog._database.update(database::Config::Section::analog_t::INVERT, i, 1));
         _analog._instance.reset(i);
     }
 
@@ -369,25 +369,25 @@ TEST_F(AnalogTest, ButtonForwarding)
     static constexpr uint8_t BUTTON_MIDI_CHANNEL = 2;
     static constexpr uint8_t BUTTON_VELOCITY     = 100;
 
-    ASSERT_TRUE(_analog._database.update(Database::Config::Section::analog_t::TYPE, BUTTON_INDEX, Analog::type_t::BUTTON) == true);
+    ASSERT_TRUE(_analog._database.update(database::Config::Section::analog_t::TYPE, BUTTON_INDEX, Analog::type_t::BUTTON) == true);
 
     // configure button with the same index (+offset) to certain parameters
-    ASSERT_TRUE(_analog._databaseAdmin.update(Database::Config::Section::button_t::TYPE, Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, Buttons::type_t::MOMENTARY));
-    ASSERT_TRUE(_analog._databaseAdmin.update(Database::Config::Section::button_t::CHANNEL, Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, BUTTON_MIDI_CHANNEL));
-    ASSERT_TRUE(_analog._databaseAdmin.update(Database::Config::Section::button_t::MESSAGE_TYPE, Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, Buttons::messageType_t::CONTROL_CHANGE_RESET));
-    ASSERT_TRUE(_analog._databaseAdmin.update(Database::Config::Section::button_t::VALUE, Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, BUTTON_VELOCITY));
+    ASSERT_TRUE(_analog._databaseAdmin.update(database::Config::Section::button_t::TYPE, Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, Buttons::type_t::MOMENTARY));
+    ASSERT_TRUE(_analog._databaseAdmin.update(database::Config::Section::button_t::CHANNEL, Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, BUTTON_MIDI_CHANNEL));
+    ASSERT_TRUE(_analog._databaseAdmin.update(database::Config::Section::button_t::MESSAGE_TYPE, Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, Buttons::messageType_t::CONTROL_CHANGE_RESET));
+    ASSERT_TRUE(_analog._databaseAdmin.update(database::Config::Section::button_t::VALUE, Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, BUTTON_VELOCITY));
 
-    std::vector<Messaging::event_t> dispatchMessageAnalogFwd;
-    std::vector<Messaging::event_t> dispatchMessageButtons;
+    std::vector<messaging::event_t> dispatchMessageAnalogFwd;
+    std::vector<messaging::event_t> dispatchMessageButtons;
 
-    MIDIDispatcher.listen(Messaging::eventType_t::ANALOG_BUTTON,
-                          [&](const Messaging::event_t& dispatchMessage)
+    MIDIDispatcher.listen(messaging::eventType_t::ANALOG_BUTTON,
+                          [&](const messaging::event_t& dispatchMessage)
                           {
                               dispatchMessageAnalogFwd.push_back(dispatchMessage);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::BUTTON,
-                          [&](const Messaging::event_t& dispatchMessage)
+    MIDIDispatcher.listen(messaging::eventType_t::BUTTON,
+                          [&](const messaging::event_t& dispatchMessage)
                           {
                               dispatchMessageButtons.push_back(dispatchMessage);
                           });
@@ -435,7 +435,7 @@ TEST_F(AnalogTest, ButtonForwarding)
     dispatchMessageButtons.clear();
     dispatchMessageAnalogFwd.clear();
 
-    ASSERT_TRUE(_analog._databaseAdmin.update(Database::Config::Section::button_t::MESSAGE_TYPE, Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, Buttons::messageType_t::CONTROL_CHANGE));
+    ASSERT_TRUE(_analog._databaseAdmin.update(database::Config::Section::button_t::MESSAGE_TYPE, Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, Buttons::messageType_t::CONTROL_CHANGE));
 
     stateChangeRegister(0xFFFF);
 

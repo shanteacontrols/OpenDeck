@@ -18,12 +18,12 @@ limitations under the License.
 
 #pragma once
 
-namespace IO
+namespace io
 {
-    class Encoders : public IO::Base
+    class Encoders : public io::Base
     {
         public:
-        class Collection : public Common::BaseCollection<0>
+        class Collection : public common::BaseCollection<0>
         {
             public:
             Collection() = delete;
@@ -73,16 +73,16 @@ namespace IO
             virtual ~Filter() = default;
 
             virtual bool isFiltered(size_t                    index,
-                                    IO::Encoders::position_t  position,
-                                    IO::Encoders::position_t& filteredPosition,
+                                    io::Encoders::position_t  position,
+                                    io::Encoders::position_t& filteredPosition,
                                     uint32_t                  sampleTakenTime) = 0;
 
             virtual void     reset(size_t index)            = 0;
             virtual uint32_t lastMovementTime(size_t index) = 0;
         };
 
-        using Database = Database::User<Database::Config::Section::encoder_t,
-                                        Database::Config::Section::global_t>;
+        using Database = database::User<database::Config::Section::encoder_t,
+                                        database::Config::Section::global_t>;
 
         Encoders(HWA&      hwa,
                  Filter&   filter,
@@ -108,4 +108,4 @@ namespace IO
             return 0;
         }
     };
-}    // namespace IO
+}    // namespace io

@@ -5,7 +5,7 @@
 
 #ifdef LEDS_SUPPORTED
 
-using namespace IO;
+using namespace io;
 
 namespace
 {
@@ -313,7 +313,7 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
 
     for (size_t i = 0; i < LEDs::Collection::SIZE(); i++)
     {
-        ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::MIDI_IN_NOTE_MULTI_VAL));
+        ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::MIDI_IN_NOTE_MULTI_VAL));
     }
 
     for (uint8_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
@@ -328,7 +328,7 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
             EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(value)))
                 .Times(1);
 
-            MIDIDispatcher.notify(Messaging::eventType_t::MIDI_IN,
+            MIDIDispatcher.notify(messaging::eventType_t::MIDI_IN,
                                   { 0,               // componentIndex - irrelevant
                                     MIDI_CHANNEL,    // midiChannel
                                     led,             // midiIndex
@@ -346,7 +346,7 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
 
     for (size_t i = 0; i < LEDs::Collection::SIZE(); i++)
     {
-        ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::MIDI_IN_CC_MULTI_VAL));
+        ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::MIDI_IN_CC_MULTI_VAL));
     }
 
     for (uint8_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
@@ -361,7 +361,7 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
             EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(value)))
                 .Times(1);
 
-            MIDIDispatcher.notify(Messaging::eventType_t::MIDI_IN,
+            MIDIDispatcher.notify(messaging::eventType_t::MIDI_IN,
                                   { 0,               // componentIndex - irrelevant
                                     MIDI_CHANNEL,    // midiChannel
                                     led,             // midiIndex
@@ -379,7 +379,7 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
 
     for (size_t i = 0; i < LEDs::Collection::SIZE(); i++)
     {
-        ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::LOCAL_NOTE_MULTI_VAL));
+        ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::LOCAL_NOTE_MULTI_VAL));
     }
 
     for (uint8_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
@@ -394,7 +394,7 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
             EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(value)))
                 .Times(1);
 
-            MIDIDispatcher.notify(Messaging::eventType_t::BUTTON,
+            MIDIDispatcher.notify(messaging::eventType_t::BUTTON,
                                   { 0,               // componentIndex - irrelevant
                                     MIDI_CHANNEL,    // midiChannel
                                     led,             // midiIndex
@@ -420,7 +420,7 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
             EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(value)))
                 .Times(1);
 
-            MIDIDispatcher.notify(Messaging::eventType_t::ANALOG,
+            MIDIDispatcher.notify(messaging::eventType_t::ANALOG,
                                   { 0,               // componentIndex - irrelevant
                                     MIDI_CHANNEL,    // midiChannel
                                     led,             // midiIndex
@@ -438,7 +438,7 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
 
     for (size_t i = 0; i < LEDs::Collection::SIZE(); i++)
     {
-        ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::LOCAL_CC_MULTI_VAL));
+        ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::LOCAL_CC_MULTI_VAL));
     }
 
     for (uint8_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
@@ -453,7 +453,7 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
             EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(value)))
                 .Times(1);
 
-            MIDIDispatcher.notify(Messaging::eventType_t::BUTTON,
+            MIDIDispatcher.notify(messaging::eventType_t::BUTTON,
                                   { 0,               // componentIndex - irrelevant
                                     MIDI_CHANNEL,    // midiChannel
                                     led,             // midiIndex
@@ -478,7 +478,7 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
             EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(value)))
                 .Times(1);
 
-            MIDIDispatcher.notify(Messaging::eventType_t::ANALOG,
+            MIDIDispatcher.notify(messaging::eventType_t::ANALOG,
                                   { 0,               // componentIndex - irrelevant
                                     MIDI_CHANNEL,    // midiChannel
                                     led,             // midiIndex
@@ -506,7 +506,7 @@ TEST_F(LEDsTest, SingleLEDstate)
     EXPECT_CALL(_leds._hwa, setState(MIDI_ID, LEDs::brightness_t::B100))
         .Times(1);
 
-    MIDIDispatcher.notify(Messaging::eventType_t::MIDI_IN,
+    MIDIDispatcher.notify(messaging::eventType_t::MIDI_IN,
                           {
                               0,
                               MIDI_CHANNEL,
@@ -521,7 +521,7 @@ TEST_F(LEDsTest, SingleLEDstate)
         .Times(1);
 
     // now turn the LED off
-    MIDIDispatcher.notify(Messaging::eventType_t::MIDI_IN,
+    MIDIDispatcher.notify(messaging::eventType_t::MIDI_IN,
                           {
                               0,
                               MIDI_CHANNEL,
@@ -538,7 +538,7 @@ TEST_F(LEDsTest, SingleLEDstate)
     }
 
     // configure RGB LED 0
-    ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::RGB_ENABLE, 0, 1));
+    ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::RGB_ENABLE, 0, 1));
 
     // now turn it on - expect three LEDs to be on
 
@@ -551,7 +551,7 @@ TEST_F(LEDsTest, SingleLEDstate)
     EXPECT_CALL(_leds._hwa, setState(_leds._hwa.rgbComponentFromRGB(0, LEDs::rgbComponent_t::B), LEDs::brightness_t::B100))
         .Times(1);
 
-    MIDIDispatcher.notify(Messaging::eventType_t::MIDI_IN,
+    MIDIDispatcher.notify(messaging::eventType_t::MIDI_IN,
                           {
                               0,
                               MIDI_CHANNEL,
@@ -575,7 +575,7 @@ TEST_F(LEDsTest, ProgramChangeWithOffset)
 
     for (size_t i = 0; i < PC_LEDS; i++)
     {
-        ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::PC_SINGLE_VAL));
+        ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::PC_SINGLE_VAL));
     }
 
     // notify program change
@@ -588,7 +588,7 @@ TEST_F(LEDsTest, ProgramChangeWithOffset)
     EXPECT_CALL(_leds._hwa, setState(_, LEDs::brightness_t::OFF))
         .Times(3);
 
-    MIDIDispatcher.notify(Messaging::eventType_t::PROGRAM,
+    MIDIDispatcher.notify(messaging::eventType_t::PROGRAM,
                           {
                               0,
                               MIDI_CHANNEL,
@@ -615,7 +615,7 @@ TEST_F(LEDsTest, ProgramChangeWithOffset)
     EXPECT_CALL(_leds._hwa, setState(3, LEDs::brightness_t::OFF))
         .Times(1);
 
-    MIDIDispatcher.notify(Messaging::eventType_t::PROGRAM,
+    MIDIDispatcher.notify(messaging::eventType_t::PROGRAM,
                           {
                               0,
                               MIDI_CHANNEL,
@@ -643,7 +643,7 @@ TEST_F(LEDsTest, ProgramChangeWithOffset)
     EXPECT_CALL(_leds._hwa, setState(3, LEDs::brightness_t::OFF))
         .Times(1);
 
-    MIDIDispatcher.notify(Messaging::eventType_t::PROGRAM,
+    MIDIDispatcher.notify(messaging::eventType_t::PROGRAM,
                           {
                               0,
                               MIDI_CHANNEL,
@@ -655,7 +655,7 @@ TEST_F(LEDsTest, ProgramChangeWithOffset)
                           });
 
     // enable LED sync with offset
-    ASSERT_TRUE(_leds._database.update(Database::Config::Section::leds_t::GLOBAL, LEDs::setting_t::USE_MIDI_PROGRAM_OFFSET, 1));
+    ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::GLOBAL, LEDs::setting_t::USE_MIDI_PROGRAM_OFFSET, 1));
 
     // notify the program 1 again
     // this time, due to the offset, first LED should be on, and the rest should be off
@@ -666,7 +666,7 @@ TEST_F(LEDsTest, ProgramChangeWithOffset)
     EXPECT_CALL(_leds._hwa, setState(_, LEDs::brightness_t::OFF))
         .Times(3);
 
-    MIDIDispatcher.notify(Messaging::eventType_t::PROGRAM,
+    MIDIDispatcher.notify(messaging::eventType_t::PROGRAM,
                           {
                               0,
                               MIDI_CHANNEL,

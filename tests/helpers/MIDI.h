@@ -19,7 +19,7 @@
 #include <HWTestDefines.h>
 #endif
 
-using namespace Protocol;
+using namespace protocol;
 
 class MIDIHelper
 {
@@ -39,7 +39,7 @@ class MIDIHelper
 
     std::vector<MIDI::usbMIDIPacket_t> rawSysExToUSBPackets(std::vector<uint8_t>& raw)
     {
-        Messaging::event_t event;
+        messaging::event_t event;
         event.sysEx       = &raw[0];
         event.sysExLength = raw.size();
         event.message     = MIDI::messageType_t::SYS_EX;
@@ -47,7 +47,7 @@ class MIDIHelper
         return midiToUsbPackets(event);
     }
 
-    std::vector<MIDI::usbMIDIPacket_t> midiToUsbPackets(Messaging::event_t event)
+    std::vector<MIDI::usbMIDIPacket_t> midiToUsbPackets(messaging::event_t event)
     {
         class HWAWriteToUSB : public MIDIlib::USBMIDI::HWA
         {
@@ -225,10 +225,10 @@ class MIDIHelper
     template<typename T>
     std::vector<uint8_t> generateSysExGetReq(T section, size_t index)
     {
-        using namespace System;
+        using namespace sys;
 
         auto blockIndex = BLOCK(section);
-        auto split      = Util::Conversion::Split14bit(index);
+        auto split      = util::Conversion::Split14bit(index);
 
         std::vector<uint8_t> request = {
             0xF0,
@@ -254,11 +254,11 @@ class MIDIHelper
     template<typename S, typename I, typename V>
     std::vector<uint8_t> generateSysExSetReq(S section, I index, V value)
     {
-        using namespace System;
+        using namespace sys;
 
         auto blockIndex = BLOCK(section);
-        auto splitIndex = Util::Conversion::Split14bit(static_cast<uint16_t>(index));
-        auto splitValue = Util::Conversion::Split14bit(static_cast<uint16_t>(value));
+        auto splitIndex = util::Conversion::Split14bit(static_cast<uint16_t>(index));
+        auto splitValue = util::Conversion::Split14bit(static_cast<uint16_t>(value));
 
         std::vector<uint8_t> request = {
             0xF0,
@@ -467,7 +467,7 @@ class MIDIHelper
 
         std::cout << std::endl;
 
-        Messaging::event_t event;
+        messaging::event_t event;
         event.sysEx       = &request[0];
         event.sysExLength = request.size();
         event.message     = MIDI::messageType_t::SYS_EX;
@@ -493,7 +493,7 @@ class MIDIHelper
         return responseVec;
     }
 
-    void processIncoming(Messaging::event_t event)
+    void processIncoming(messaging::event_t event)
     {
         if (_system == nullptr)
         {
@@ -562,7 +562,7 @@ class MIDIHelper
         if (wish == SysExConf::wish_t::GET)
         {
             // last two bytes are result
-            auto merged = Util::Conversion::Merge14bit(responseUint8.at(responseUint8.size() - 3), responseUint8.at(responseUint8.size() - 2));
+            auto merged = util::Conversion::Merge14bit(responseUint8.at(responseUint8.size() - 3), responseUint8.at(responseUint8.size() - 2));
             return merged.value();
         }
 
@@ -578,7 +578,7 @@ class MIDIHelper
         if (wish == SysExConf::wish_t::GET)
         {
             // last two bytes are result
-            auto merged = Util::Conversion::Merge14bit(response.at(response.size() - 3), response.at(response.size() - 2));
+            auto merged = util::Conversion::Merge14bit(response.at(response.size() - 3), response.at(response.size() - 2));
             return merged.value();
         }
 
@@ -586,39 +586,39 @@ class MIDIHelper
         return response.at(4);
     }
 
-    static constexpr System::Config::block_t BLOCK(System::Config::Section::global_t section)
+    static constexpr sys::Config::block_t BLOCK(sys::Config::Section::global_t section)
     {
-        return System::Config::block_t::GLOBAL;
+        return sys::Config::block_t::GLOBAL;
     }
 
-    static constexpr System::Config::block_t BLOCK(System::Config::Section::button_t section)
+    static constexpr sys::Config::block_t BLOCK(sys::Config::Section::button_t section)
     {
-        return System::Config::block_t::BUTTONS;
+        return sys::Config::block_t::BUTTONS;
     }
 
-    static constexpr System::Config::block_t BLOCK(System::Config::Section::encoder_t section)
+    static constexpr sys::Config::block_t BLOCK(sys::Config::Section::encoder_t section)
     {
-        return System::Config::block_t::ENCODERS;
+        return sys::Config::block_t::ENCODERS;
     }
 
-    static constexpr System::Config::block_t BLOCK(System::Config::Section::analog_t section)
+    static constexpr sys::Config::block_t BLOCK(sys::Config::Section::analog_t section)
     {
-        return System::Config::block_t::ANALOG;
+        return sys::Config::block_t::ANALOG;
     }
 
-    static constexpr System::Config::block_t BLOCK(System::Config::Section::leds_t section)
+    static constexpr sys::Config::block_t BLOCK(sys::Config::Section::leds_t section)
     {
-        return System::Config::block_t::LEDS;
+        return sys::Config::block_t::LEDS;
     }
 
-    static constexpr System::Config::block_t BLOCK(System::Config::Section::i2c_t section)
+    static constexpr sys::Config::block_t BLOCK(sys::Config::Section::i2c_t section)
     {
-        return System::Config::block_t::I2C;
+        return sys::Config::block_t::I2C;
     }
 
-    static constexpr System::Config::block_t BLOCK(System::Config::Section::touchscreen_t section)
+    static constexpr sys::Config::block_t BLOCK(sys::Config::Section::touchscreen_t section)
     {
-        return System::Config::block_t::TOUCHSCREEN;
+        return sys::Config::block_t::TOUCHSCREEN;
     }
 
     TestSystem* _system = nullptr;

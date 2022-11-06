@@ -51,7 +51,7 @@ limitations under the License.
 #define INDICATE_TRAFFIC_TYPE(type, direction)                           \
     do                                                                   \
     {                                                                    \
-        using namespace Board::IO::indicators;                           \
+        using namespace board::io::indicators;                           \
         switch (direction)                                               \
         {                                                                \
         case direction_t::INCOMING:                                      \

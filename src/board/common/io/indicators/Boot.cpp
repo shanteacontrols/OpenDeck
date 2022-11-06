@@ -34,7 +34,7 @@ namespace
     bool              _fwUpdateIndicatorState;
 }    // namespace
 
-namespace Board::detail::IO::indicators
+namespace board::detail::io::indicators
 {
     void init()
     {
@@ -49,7 +49,7 @@ namespace Board::detail::IO::indicators
 
     void update()
     {
-        using namespace Board::IO::indicators;
+        using namespace board::io::indicators;
 
         if (_fwUpdateInProgress)
         {
@@ -69,15 +69,15 @@ namespace Board::detail::IO::indicators
             }
         }
     }
-}    // namespace Board::detail::IO::indicators
+}    // namespace board::detail::io::indicators
 
-namespace Board::IO::indicators
+namespace board::io::indicators
 {
     void indicateFirmwareUpdateStart()
     {
         _fwUpdateInProgress = true;
     }
-}    // namespace Board::IO::indicators
+}    // namespace board::io::indicators
 
 #endif
 #endif

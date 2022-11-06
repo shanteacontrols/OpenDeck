@@ -18,12 +18,12 @@ limitations under the License.
 
 #pragma once
 
-namespace IO
+namespace io
 {
-    class Touchscreen : public IO::Base
+    class Touchscreen : public io::Base
     {
         public:
-        class Collection : public Common::BaseCollection<0>
+        class Collection : public common::BaseCollection<0>
         {
             public:
             Collection() = delete;
@@ -96,7 +96,7 @@ namespace IO
             AMOUNT
         };
 
-        class HWA : public ::IO::Common::Allocatable
+        class HWA : public ::io::common::Allocatable
         {
             public:
             virtual ~HWA() = default;
@@ -107,7 +107,7 @@ namespace IO
             virtual bool read(uint8_t& value) = 0;
         };
 
-        class CDCPassthrough : public Common::Allocatable
+        class CDCPassthrough : public common::Allocatable
         {
             public:
             virtual ~CDCPassthrough() = default;
@@ -134,7 +134,7 @@ namespace IO
             virtual bool      setBrightness(brightness_t brightness) = 0;
         };
 
-        using Database = Database::User<Database::Config::Section::touchscreen_t>;
+        using Database = database::User<database::Config::Section::touchscreen_t>;
 
         Touchscreen(HWA&            hwa,
                     Database&       database,
@@ -159,4 +159,4 @@ namespace IO
             return 0;
         }
     };
-}    // namespace IO
+}    // namespace io

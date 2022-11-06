@@ -20,7 +20,7 @@ limitations under the License.
 
 #include <inttypes.h>
 
-namespace Board::detail::BLE::MIDI
+namespace board::detail::ble::midi
 {
     bool init();
 }

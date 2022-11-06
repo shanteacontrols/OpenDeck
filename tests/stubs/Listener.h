@@ -7,10 +7,10 @@ class Listener
     public:
     Listener() = default;
 
-    void messageListener(const Messaging::event_t& event)
+    void messageListener(const messaging::event_t& event)
     {
         _event.push_back(event);
     }
 
-    std::vector<Messaging::event_t> _event = {};
+    std::vector<messaging::event_t> _event = {};
 };

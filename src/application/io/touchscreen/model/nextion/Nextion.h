@@ -22,17 +22,17 @@ limitations under the License.
 #include "io/touchscreen/Touchscreen.h"
 #include "core/src/util/RingBuffer.h"
 
-class Nextion : public IO::Touchscreen::Model
+class Nextion : public io::Touchscreen::Model
 {
     public:
-    Nextion(IO::Touchscreen::HWA& hwa);
+    Nextion(io::Touchscreen::HWA& hwa);
 
     bool                       init() override;
     bool                       deInit() override;
     bool                       setScreen(size_t screenID) override;
-    IO::Touchscreen::tsEvent_t update(IO::Touchscreen::tsData_t& data) override;
-    void                       setIconState(IO::Touchscreen::icon_t& icon, bool state) override;
-    bool                       setBrightness(IO::Touchscreen::brightness_t brightness) override;
+    io::Touchscreen::tsEvent_t update(io::Touchscreen::tsData_t& data) override;
+    void                       setIconState(io::Touchscreen::icon_t& icon, bool state) override;
+    bool                       setBrightness(io::Touchscreen::brightness_t brightness) override;
 
     private:
     enum class responseID_t : uint8_t
@@ -49,11 +49,11 @@ class Nextion : public IO::Touchscreen::Model
 
     bool                       writeCommand(const char* line, ...);
     bool                       endCommand();
-    IO::Touchscreen::tsEvent_t response(IO::Touchscreen::tsData_t& data);
+    io::Touchscreen::tsEvent_t response(io::Touchscreen::tsData_t& data);
 
-    IO::Touchscreen::HWA& _hwa;
+    io::Touchscreen::HWA& _hwa;
 
-    char   _commandBuffer[IO::Touchscreen::Model::BUFFER_SIZE];
+    char   _commandBuffer[io::Touchscreen::Model::BUFFER_SIZE];
     size_t _endCounter = 0;
 
     static constexpr responseDescriptor_t RESPONSES[static_cast<size_t>(responseID_t::AMOUNT)] = {

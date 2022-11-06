@@ -24,7 +24,7 @@ limitations under the License.
 #include <optional>
 #include "sysex/src/SysExConf.h"
 
-namespace System
+namespace sys
 {
     class Config
     {
@@ -162,4 +162,4 @@ namespace System
             };
         };
     };
-}    // namespace System
+}    // namespace sys

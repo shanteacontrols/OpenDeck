@@ -20,7 +20,7 @@ limitations under the License.
 
 #include "Builder.h"
 
-using namespace IO;
+using namespace io;
 
 TouchscreenModelBuilder::TouchscreenModelBuilder(Touchscreen::HWA& hwa)
     : _nextion(hwa)

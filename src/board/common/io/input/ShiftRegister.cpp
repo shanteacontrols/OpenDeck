@@ -28,9 +28,9 @@ limitations under the License.
 #include "core/src/util/RingBuffer.h"
 #include <Target.h>
 
-using namespace Board::IO::digitalIn;
-using namespace Board::detail;
-using namespace Board::detail::IO::digitalIn;
+using namespace board::io::digitalIn;
+using namespace board::detail;
+using namespace board::detail::io::digitalIn;
 
 namespace
 {
@@ -40,7 +40,7 @@ namespace
     {
         CORE_MCU_IO_SET_LOW(PIN_PORT_SR_IN_CLK, PIN_INDEX_SR_IN_CLK);
         CORE_MCU_IO_SET_LOW(PIN_PORT_SR_IN_LATCH, PIN_INDEX_SR_IN_LATCH);
-        IO::spiWait();
+        io::spiWait();
 
         CORE_MCU_IO_SET_HIGH(PIN_PORT_SR_IN_LATCH, PIN_INDEX_SR_IN_LATCH);
 
@@ -51,7 +51,7 @@ namespace
                 //  register shifts out MSB first
                 size_t index = (shiftRegister * 8) + (7 - input);
                 CORE_MCU_IO_SET_LOW(PIN_PORT_SR_IN_CLK, PIN_INDEX_SR_IN_CLK);
-                IO::spiWait();
+                io::spiWait();
 
                 _digitalInBuffer[index].readings <<= 1;
                 _digitalInBuffer[index].readings |= !CORE_MCU_IO_READ(PIN_PORT_SR_IN_DATA, PIN_INDEX_SR_IN_DATA);
@@ -67,7 +67,7 @@ namespace
     }
 }    // namespace
 
-namespace Board::detail::IO::digitalIn
+namespace board::detail::io::digitalIn
 {
     void init()
     {
@@ -86,9 +86,9 @@ namespace Board::detail::IO::digitalIn
         CORE_MCU_IO_SET_LOW(PIN_PORT_SR_IN_CLK, PIN_INDEX_SR_IN_CLK);
         CORE_MCU_IO_SET_HIGH(PIN_PORT_SR_IN_LATCH, PIN_INDEX_SR_IN_LATCH);
     }
-}    // namespace Board::detail::IO::digitalIn
+}    // namespace board::detail::io::digitalIn
 
-namespace Board::IO::digitalIn
+namespace board::io::digitalIn
 {
     bool state(size_t index, readings_t& readings)
     {
@@ -125,7 +125,7 @@ namespace Board::IO::digitalIn
 
         return index + 1;
     }
-}    // namespace Board::IO::digitalIn
+}    // namespace board::io::digitalIn
 
 #include "Common.cpp.include"
 

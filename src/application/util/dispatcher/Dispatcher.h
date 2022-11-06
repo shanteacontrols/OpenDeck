@@ -21,7 +21,7 @@ limitations under the License.
 #include <vector>
 #include <functional>
 
-namespace Util
+namespace util
 {
     template<typename Source, typename Event>
     class Dispatcher
@@ -70,4 +70,4 @@ namespace Util
 
         std::vector<listener_t> _listener = {};
     };
-}    // namespace Util
+}    // namespace util

@@ -2,14 +2,14 @@
 
 #include "io/leds/LEDs.h"
 
-class HWALEDs : public IO::LEDs::HWA
+class HWALEDs : public io::LEDs::HWA
 {
     public:
     HWALEDs() = default;
 
-    MOCK_METHOD2(setState, void(size_t index, IO::LEDs::brightness_t brightness));
+    MOCK_METHOD2(setState, void(size_t index, io::LEDs::brightness_t brightness));
 
-    size_t rgbComponentFromRGB(size_t index, IO::LEDs::rgbComponent_t component) override
+    size_t rgbComponentFromRGB(size_t index, io::LEDs::rgbComponent_t component) override
     {
         return index * 3 + static_cast<uint8_t>(component);
     }

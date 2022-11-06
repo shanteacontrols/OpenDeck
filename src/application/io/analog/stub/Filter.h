@@ -22,7 +22,7 @@ limitations under the License.
 #include <stdlib.h>
 #include "io/analog/Analog.h"
 
-namespace IO
+namespace io
 {
     class AnalogFilter : public Analog::Filter
     {
@@ -43,4 +43,4 @@ namespace IO
         {
         }
     };
-}    // namespace IO
+}    // namespace io

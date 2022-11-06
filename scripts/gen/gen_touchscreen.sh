@@ -32,7 +32,7 @@ total_components=$($json_parser "$json_file" components --length)
 
 {
     printf "%s\n\n" "#include \"database/Database.h\""
-    printf "%s\n" "void Database::Admin::customInitTouchscreen()"
+    printf "%s\n" "void database::Admin::customInitTouchscreen()"
     printf "%s\n" "{"
 } > "$out_file"
 
@@ -53,16 +53,16 @@ do
         {
             if [[ $address != "null" ]]
             then
-                printf "    %s\n" "update(Database::Config::Section::touchscreen_t::X_POS, $i, $address);"
+                printf "    %s\n" "update(database::Config::Section::touchscreen_t::X_POS, $i, $address);"
             else
-                printf "    %s\n" "update(Database::Config::Section::touchscreen_t::X_POS, $i, $xPos);"
-                printf "    %s\n" "update(Database::Config::Section::touchscreen_t::Y_POS, $i, $yPos);"
-                printf "    %s\n" "update(Database::Config::Section::touchscreen_t::WIDTH, $i, $width);"
-                printf "    %s\n" "update(Database::Config::Section::touchscreen_t::HEIGHT, $i, $height);"
+                printf "    %s\n" "update(database::Config::Section::touchscreen_t::X_POS, $i, $xPos);"
+                printf "    %s\n" "update(database::Config::Section::touchscreen_t::Y_POS, $i, $yPos);"
+                printf "    %s\n" "update(database::Config::Section::touchscreen_t::WIDTH, $i, $width);"
+                printf "    %s\n" "update(database::Config::Section::touchscreen_t::HEIGHT, $i, $height);"
             fi
 
-            printf "    %s\n" "update(Database::Config::Section::touchscreen_t::ON_SCREEN, $i, $onScreen);"
-            printf "    %s\n\n" "update(Database::Config::Section::touchscreen_t::OFF_SCREEN, $i, $offScreen);"
+            printf "    %s\n" "update(database::Config::Section::touchscreen_t::ON_SCREEN, $i, $onScreen);"
+            printf "    %s\n\n" "update(database::Config::Section::touchscreen_t::OFF_SCREEN, $i, $offScreen);"
         } >> "$out_file"
 
         convert "$input_dir"/"$onScreen".bmp -crop "$width"x"$height"+"$xPos"+"$yPos" "$gen_dir"/"$i".ico
@@ -76,8 +76,8 @@ do
         screenIndex=$($json_parser "$json_file" components.[${i}].button.screenToSwitch)
 
         {
-            printf "    %s\n" "update(Database::Config::Section::touchscreen_t::PAGE_SWITCH_ENABLED, $i, $switchesScreen);"
-            printf "    %s\n\n" "update(Database::Config::Section::touchscreen_t::PAGE_SWITCH_INDEX, $i, $screenIndex);"
+            printf "    %s\n" "update(database::Config::Section::touchscreen_t::PAGE_SWITCH_ENABLED, $i, $switchesScreen);"
+            printf "    %s\n\n" "update(database::Config::Section::touchscreen_t::PAGE_SWITCH_INDEX, $i, $screenIndex);"
         } >> "$out_file"
     fi
 done

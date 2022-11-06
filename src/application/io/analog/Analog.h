@@ -27,14 +27,14 @@ limitations under the License.
 
 #ifdef HW_SUPPORT_ADC
 
-using namespace Protocol;
+using namespace protocol;
 
-namespace IO
+namespace io
 {
-    class Analog : public IO::Base
+    class Analog : public io::Base
     {
         public:
-        class Collection : public Common::BaseCollection<HW_SUPPORTED_NR_OF_ANALOG_INPUTS>
+        class Collection : public common::BaseCollection<HW_SUPPORTED_NR_OF_ANALOG_INPUTS>
         {
             public:
             Collection() = delete;
@@ -93,7 +93,7 @@ namespace IO
             virtual void     reset(size_t index)                                = 0;
         };
 
-        using Database = Database::User<Database::Config::Section::analog_t>;
+        using Database = database::User<database::Config::Section::analog_t>;
 
         Analog(HWA&      hwa,
                Filter&   filter,
@@ -115,7 +115,7 @@ namespace IO
             uint8_t            lowerOffset = 0;
             uint8_t            upperOffset = 0;
             uint16_t           maxValue    = 127;
-            Messaging::event_t event;
+            messaging::event_t event;
 
             analogDescriptor_t() = default;
         };
@@ -127,8 +127,8 @@ namespace IO
         void                   sendMessage(size_t index, analogDescriptor_t& descriptor);
         void                   setFSRstate(size_t index, bool state);
         bool                   fsrState(size_t index);
-        std::optional<uint8_t> sysConfigGet(System::Config::Section::analog_t section, size_t index, uint16_t& value);
-        std::optional<uint8_t> sysConfigSet(System::Config::Section::analog_t section, size_t index, uint16_t value);
+        std::optional<uint8_t> sysConfigGet(sys::Config::Section::analog_t section, size_t index, uint16_t& value);
+        std::optional<uint8_t> sysConfigSet(sys::Config::Section::analog_t section, size_t index, uint16_t value);
 
         HWA&      _hwa;
         Filter&   _filter;
@@ -147,7 +147,7 @@ namespace IO
             MIDI::messageType_t::CONTROL_CHANGE_14BIT,
         };
     };
-}    // namespace IO
+}    // namespace io
 
 #else
 #include "stub/Analog.h"

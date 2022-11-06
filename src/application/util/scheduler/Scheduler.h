@@ -22,7 +22,7 @@ limitations under the License.
 #include <functional>
 #include <stddef.h>
 
-namespace Util
+namespace util
 {
     // a simple scheduler used to run one-off tasks specified time from now
     class Scheduler
@@ -53,4 +53,4 @@ namespace Util
         static constexpr size_t MAX_TASKS         = 10;
         task_t                  _tasks[MAX_TASKS] = {};
     };
-}    // namespace Util
+}    // namespace util

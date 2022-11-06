@@ -262,8 +262,8 @@ class TestDatabase
 
     private:
     DBstorageMock       _dbStorageMock;
-    Database::AppLayout _layout;
+    database::AppLayout _layout;
 
     public:
-    Database::Admin _instance = Database::Admin(_dbStorageMock, _layout, true);
+    database::Admin _instance = database::Admin(_dbStorageMock, _layout, true);
 };

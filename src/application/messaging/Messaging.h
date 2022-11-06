@@ -21,7 +21,7 @@ limitations under the License.
 #include "util/dispatcher/Dispatcher.h"
 #include "midi/src/MIDI.h"
 
-namespace Messaging
+namespace messaging
 {
     enum class eventType_t : uint8_t
     {
@@ -81,6 +81,6 @@ namespace Messaging
 
         event_t() = default;
     };
-}    // namespace Messaging
+}    // namespace messaging
 
-#define MIDIDispatcher Util::Dispatcher<Messaging::eventType_t, Messaging::event_t>::instance()
+#define MIDIDispatcher util::Dispatcher<messaging::eventType_t, messaging::event_t>::instance()

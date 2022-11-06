@@ -24,7 +24,7 @@ limitations under the License.
 #include <optional>
 #include "system/Config.h"
 
-namespace Util
+namespace util
 {
     class Configurable
     {
@@ -38,9 +38,9 @@ namespace Util
             return instance;
         }
 
-        void    registerConfig(System::Config::block_t block, getHandler_t&& getHandler, setHandler_t&& setHandler);
-        uint8_t get(System::Config::block_t block, uint8_t section, size_t index, uint16_t& value);
-        uint8_t set(System::Config::block_t block, uint8_t section, size_t index, uint16_t value);
+        void    registerConfig(sys::Config::block_t block, getHandler_t&& getHandler, setHandler_t&& setHandler);
+        uint8_t get(sys::Config::block_t block, uint8_t section, size_t index, uint16_t& value);
+        uint8_t set(sys::Config::block_t block, uint8_t section, size_t index, uint16_t value);
         void    clear();
 
         private:
@@ -48,19 +48,19 @@ namespace Util
 
         struct getHandlerInternal_t
         {
-            System::Config::block_t block   = System::Config::block_t::GLOBAL;
-            getHandler_t            handler = nullptr;
+            sys::Config::block_t block   = sys::Config::block_t::GLOBAL;
+            getHandler_t         handler = nullptr;
         };
 
         struct setHandlerInternal_t
         {
-            System::Config::block_t block   = System::Config::block_t::GLOBAL;
-            setHandler_t            handler = nullptr;
+            sys::Config::block_t block   = sys::Config::block_t::GLOBAL;
+            setHandler_t         handler = nullptr;
         };
 
         std::vector<getHandlerInternal_t> _getters = {};
         std::vector<setHandlerInternal_t> _setters = {};
     };
-}    // namespace Util
+}    // namespace util
 
-#define ConfigHandler Util::Configurable::instance()
+#define ConfigHandler util::Configurable::instance()

@@ -22,13 +22,13 @@ limitations under the License.
 // Stub functions are used so that firmware can be compiled without
 // resorting to ifdef mess if something isn't supported
 
-namespace Board
+namespace board
 {
     __attribute__((weak)) void update()
     {
     }
 
-    namespace IO
+    namespace io
     {
         namespace digitalIn
         {
@@ -83,9 +83,9 @@ namespace Board
             {
             }
         }    // namespace indicators
-    }        // namespace IO
+    }        // namespace io
 
-    namespace detail::IO
+    namespace detail::io
     {
         __attribute__((weak)) void init()
         {
@@ -156,12 +156,12 @@ namespace Board
             {
             }
         }    // namespace bootloader
-    }        // namespace detail::IO
+    }        // namespace detail::io
 
-    namespace USB
+    namespace usb
     {
         __attribute__((weak)) void onCDCsetLineEncoding(uint32_t baudRate)
         {
         }
-    }    // namespace USB
-}    // namespace Board
+    }    // namespace usb
+}    // namespace board

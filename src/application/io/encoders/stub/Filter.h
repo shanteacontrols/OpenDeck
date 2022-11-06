@@ -20,16 +20,16 @@ limitations under the License.
 
 #include "io/encoders/Encoders.h"
 
-namespace IO
+namespace io
 {
-    class EncodersFilter : public IO::Encoders::Filter
+    class EncodersFilter : public io::Encoders::Filter
     {
         public:
         EncodersFilter() = default;
 
         bool isFiltered(size_t                    index,
-                        IO::Encoders::position_t  position,
-                        IO::Encoders::position_t& filteredPosition,
+                        io::Encoders::position_t  position,
+                        io::Encoders::position_t& filteredPosition,
                         uint32_t                  sampleTakenTime) override
         {
             return false;
@@ -44,4 +44,4 @@ namespace IO
             return 0;
         }
     };
-}    // namespace IO
+}    // namespace io

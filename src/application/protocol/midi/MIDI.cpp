@@ -24,9 +24,9 @@ limitations under the License.
 #include "logger/Logger.h"
 #include "global/MIDIProgram.h"
 
-using namespace IO;
+using namespace io;
 
-Protocol::MIDI::MIDI(HWAUSB&   hwaUSB,
+protocol::MIDI::MIDI(HWAUSB&   hwaUSB,
                      HWADIN&   hwaDIN,
                      HWABLE&   hwaBLE,
                      Database& database)
@@ -40,42 +40,42 @@ Protocol::MIDI::MIDI(HWAUSB&   hwaUSB,
     _midiInterface[INTERFACE_DIN] = &_dinMIDI;
     _midiInterface[INTERFACE_BLE] = &_bleMIDI;
 
-    MIDIDispatcher.listen(Messaging::eventType_t::ANALOG,
-                          [this](const Messaging::event_t& event)
+    MIDIDispatcher.listen(messaging::eventType_t::ANALOG,
+                          [this](const messaging::event_t& event)
                           {
-                              sendMIDI(Messaging::eventType_t::ANALOG, event);
+                              sendMIDI(messaging::eventType_t::ANALOG, event);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::BUTTON,
-                          [this](const Messaging::event_t& event)
+    MIDIDispatcher.listen(messaging::eventType_t::BUTTON,
+                          [this](const messaging::event_t& event)
                           {
-                              sendMIDI(Messaging::eventType_t::BUTTON, event);
+                              sendMIDI(messaging::eventType_t::BUTTON, event);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::ENCODER,
-                          [this](const Messaging::event_t& event)
+    MIDIDispatcher.listen(messaging::eventType_t::ENCODER,
+                          [this](const messaging::event_t& event)
                           {
-                              sendMIDI(Messaging::eventType_t::ENCODER, event);
+                              sendMIDI(messaging::eventType_t::ENCODER, event);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::TOUCHSCREEN_BUTTON,
-                          [this](const Messaging::event_t& event)
+    MIDIDispatcher.listen(messaging::eventType_t::TOUCHSCREEN_BUTTON,
+                          [this](const messaging::event_t& event)
                           {
-                              sendMIDI(Messaging::eventType_t::TOUCHSCREEN_BUTTON, event);
+                              sendMIDI(messaging::eventType_t::TOUCHSCREEN_BUTTON, event);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::SYSTEM,
-                          [this](const Messaging::event_t& event)
+    MIDIDispatcher.listen(messaging::eventType_t::SYSTEM,
+                          [this](const messaging::event_t& event)
                           {
                               switch (event.systemMessage)
                               {
-                              case Messaging::systemMessage_t::SYS_EX_RESPONSE:
+                              case messaging::systemMessage_t::SYS_EX_RESPONSE:
                               {
-                                  sendMIDI(Messaging::eventType_t::SYSTEM, event);
+                                  sendMIDI(messaging::eventType_t::SYSTEM, event);
                               }
                               break;
 
-                              case Messaging::systemMessage_t::PRESET_CHANGED:
+                              case messaging::systemMessage_t::PRESET_CHANGED:
                               {
                                   init();
                               }
@@ -87,21 +87,21 @@ Protocol::MIDI::MIDI(HWAUSB&   hwaUSB,
                           });
 
     ConfigHandler.registerConfig(
-        System::Config::block_t::GLOBAL,
+        sys::Config::block_t::GLOBAL,
         // read
         [this](uint8_t section, size_t index, uint16_t& value)
         {
-            return sysConfigGet(static_cast<System::Config::Section::global_t>(section), index, value);
+            return sysConfigGet(static_cast<sys::Config::Section::global_t>(section), index, value);
         },
 
         // write
         [this](uint8_t section, size_t index, uint16_t value)
         {
-            return sysConfigSet(static_cast<System::Config::Section::global_t>(section), index, value);
+            return sysConfigSet(static_cast<sys::Config::Section::global_t>(section), index, value);
         });
 }
 
-bool Protocol::MIDI::init()
+bool protocol::MIDI::init()
 {
     if (!setupUSBMIDI())
     {
@@ -126,7 +126,7 @@ bool Protocol::MIDI::init()
     return true;
 }
 
-bool Protocol::MIDI::deInit()
+bool protocol::MIDI::deInit()
 {
     if (!_dinMIDI.deInit())
     {
@@ -146,7 +146,7 @@ bool Protocol::MIDI::deInit()
     return true;
 }
 
-bool Protocol::MIDI::setupUSBMIDI()
+bool protocol::MIDI::setupUSBMIDI()
 {
     if (!_usbMIDI.init())
     {
@@ -157,7 +157,7 @@ bool Protocol::MIDI::setupUSBMIDI()
     return true;
 }
 
-bool Protocol::MIDI::setupDINMIDI()
+bool protocol::MIDI::setupDINMIDI()
 {
     if (isSettingEnabled(setting_t::DIN_ENABLED))
     {
@@ -174,7 +174,7 @@ bool Protocol::MIDI::setupDINMIDI()
     return true;
 }
 
-bool Protocol::MIDI::setupBLEMIDI()
+bool protocol::MIDI::setupBLEMIDI()
 {
     if (isSettingEnabled(setting_t::BLE_ENABLED))
     {
@@ -190,7 +190,7 @@ bool Protocol::MIDI::setupBLEMIDI()
     return true;
 }
 
-bool Protocol::MIDI::setupThru()
+bool protocol::MIDI::setupThru()
 {
     if (isSettingEnabled(setting_t::DIN_THRU_DIN))
     {
@@ -276,7 +276,7 @@ bool Protocol::MIDI::setupThru()
     return true;
 }
 
-void Protocol::MIDI::read()
+void protocol::MIDI::read()
 {
     for (size_t i = 0; i < _midiInterface.size(); i++)
     {
@@ -291,7 +291,7 @@ void Protocol::MIDI::read()
         {
             LOG_INFO("Received MIDI message on interface index %d", static_cast<int>(i));
 
-            Messaging::event_t event;
+            messaging::event_t event;
 
             event.componentIndex = 0;
             event.channel        = interfaceInstance->channel();
@@ -328,17 +328,17 @@ void Protocol::MIDI::read()
                 break;
             }
 
-            MIDIDispatcher.notify(Messaging::eventType_t::MIDI_IN, event);
+            MIDIDispatcher.notify(messaging::eventType_t::MIDI_IN, event);
         }
     }
 }
 
-bool Protocol::MIDI::isSettingEnabled(setting_t feature)
+bool protocol::MIDI::isSettingEnabled(setting_t feature)
 {
-    return _database.read(Database::Config::Section::global_t::MIDI_SETTINGS, feature);
+    return _database.read(database::Config::Section::global_t::MIDI_SETTINGS, feature);
 }
 
-bool Protocol::MIDI::isDinLoopbackRequired()
+bool protocol::MIDI::isDinLoopbackRequired()
 {
     return (isSettingEnabled(setting_t::DIN_ENABLED) &&
             isSettingEnabled(setting_t::DIN_THRU_DIN) &&
@@ -346,13 +346,13 @@ bool Protocol::MIDI::isDinLoopbackRequired()
             !isSettingEnabled(setting_t::DIN_THRU_BLE));
 }
 
-void Protocol::MIDI::sendMIDI(Messaging::eventType_t source, const Messaging::event_t& event)
+void protocol::MIDI::sendMIDI(messaging::eventType_t source, const messaging::event_t& event)
 {
-    using namespace Protocol;
+    using namespace protocol;
 
     // if omni channel is defined, send the message on each midi channel
-    const uint8_t GLOBAL_CHANNEL = _database.read(Database::Config::Section::global_t::MIDI_SETTINGS, setting_t::GLOBAL_CHANNEL);
-    const uint8_t CHANNEL        = _database.read(Database::Config::Section::global_t::MIDI_SETTINGS,
+    const uint8_t GLOBAL_CHANNEL = _database.read(database::Config::Section::global_t::MIDI_SETTINGS, setting_t::GLOBAL_CHANNEL);
+    const uint8_t CHANNEL        = _database.read(database::Config::Section::global_t::MIDI_SETTINGS,
                                            setting_t::USE_GLOBAL_CHANNEL)
                                        ? GLOBAL_CHANNEL
                                        : event.channel;
@@ -600,7 +600,7 @@ void Protocol::MIDI::sendMIDI(Messaging::eventType_t source, const Messaging::ev
 
         case MIDI::messageType_t::SYS_EX:
         {
-            if (source == Messaging::eventType_t::SYSTEM)
+            if (source == messaging::eventType_t::SYSTEM)
             {
                 if (i != INTERFACE_USB)
                 {
@@ -620,7 +620,7 @@ void Protocol::MIDI::sendMIDI(Messaging::eventType_t source, const Messaging::ev
 }
 
 // helper function used to apply note off to all available interfaces
-void Protocol::MIDI::setNoteOffMode(noteOffType_t type)
+void protocol::MIDI::setNoteOffMode(noteOffType_t type)
 {
     for (size_t i = 0; i < _midiInterface.size(); i++)
     {
@@ -628,14 +628,14 @@ void Protocol::MIDI::setNoteOffMode(noteOffType_t type)
     }
 }
 
-std::optional<uint8_t> Protocol::MIDI::sysConfigGet(System::Config::Section::global_t section, size_t index, uint16_t& value)
+std::optional<uint8_t> protocol::MIDI::sysConfigGet(sys::Config::Section::global_t section, size_t index, uint16_t& value)
 {
     [[maybe_unused]] uint32_t readValue = 0;
-    [[maybe_unused]] uint8_t  result    = System::Config::status_t::ERROR_READ;
+    [[maybe_unused]] uint8_t  result    = sys::Config::status_t::ERROR_READ;
 
     switch (section)
     {
-    case System::Config::Section::global_t::MIDI_SETTINGS:
+    case sys::Config::Section::global_t::MIDI_SETTINGS:
     {
         auto feature = static_cast<setting_t>(index);
 
@@ -643,9 +643,9 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigGet(System::Config::Section::glo
         {
         case setting_t::STANDARD_NOTE_OFF:
         {
-            result = _database.read(Util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
-                         ? System::Config::status_t::ACK
-                         : System::Config::status_t::ERROR_READ;
+            result = _database.read(util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
+                         ? sys::Config::status_t::ACK
+                         : sys::Config::status_t::ERROR_READ;
         }
         break;
 
@@ -657,20 +657,20 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigGet(System::Config::Section::glo
         {
             if (_hwaDIN.supported())
             {
-                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(IO::Common::Allocatable::interface_t::UART))
+                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(io::common::Allocatable::interface_t::UART))
                 {
-                    result = System::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
+                    result = sys::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
                 }
                 else
                 {
-                    result = _database.read(Util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
-                                 ? System::Config::status_t::ACK
-                                 : System::Config::status_t::ERROR_READ;
+                    result = _database.read(util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
+                                 ? sys::Config::status_t::ACK
+                                 : sys::Config::status_t::ERROR_READ;
                 }
             }
             else
             {
-                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
             }
         }
         break;
@@ -682,13 +682,13 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigGet(System::Config::Section::glo
         {
             if (_hwaBLE.supported())
             {
-                result = _database.read(Util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
-                             ? System::Config::status_t::ACK
-                             : System::Config::status_t::ERROR_READ;
+                result = _database.read(util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
+                             ? sys::Config::status_t::ACK
+                             : sys::Config::status_t::ERROR_READ;
             }
             else
             {
-                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
             }
         }
         break;
@@ -698,36 +698,36 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigGet(System::Config::Section::glo
         {
             if (_hwaDIN.supported())
             {
-                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(IO::Common::Allocatable::interface_t::UART))
+                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(io::common::Allocatable::interface_t::UART))
                 {
-                    result = System::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
+                    result = sys::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
                 }
                 else
                 {
                     if (_hwaBLE.supported())
                     {
-                        result = _database.read(Util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
-                                     ? System::Config::status_t::ACK
-                                     : System::Config::status_t::ERROR_READ;
+                        result = _database.read(util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
+                                     ? sys::Config::status_t::ACK
+                                     : sys::Config::status_t::ERROR_READ;
                     }
                     else
                     {
-                        result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+                        result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
                     }
                 }
             }
             else
             {
-                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
             }
         }
         break;
 
         default:
         {
-            result = _database.read(Util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
-                         ? System::Config::status_t::ACK
-                         : System::Config::status_t::ERROR_READ;
+            result = _database.read(util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
+                         ? sys::Config::status_t::ACK
+                         : sys::Config::status_t::ERROR_READ;
         }
         break;
         }
@@ -742,17 +742,17 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigGet(System::Config::Section::glo
     return result;
 }
 
-std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::global_t section, size_t index, uint16_t value)
+std::optional<uint8_t> protocol::MIDI::sysConfigSet(sys::Config::Section::global_t section, size_t index, uint16_t value)
 {
-    [[maybe_unused]] uint8_t result            = System::Config::status_t::ERROR_WRITE;
+    [[maybe_unused]] uint8_t result            = sys::Config::status_t::ERROR_WRITE;
     [[maybe_unused]] bool    writeToDb         = true;
-    [[maybe_unused]] auto    dinMIDIinitAction = Common::initAction_t::AS_IS;
-    [[maybe_unused]] auto    bleMIDIinitAction = Common::initAction_t::AS_IS;
+    [[maybe_unused]] auto    dinMIDIinitAction = common::initAction_t::AS_IS;
+    [[maybe_unused]] auto    bleMIDIinitAction = common::initAction_t::AS_IS;
     [[maybe_unused]] bool    checkDINLoopback  = false;
 
     switch (section)
     {
-    case System::Config::Section::global_t::MIDI_SETTINGS:
+    case sys::Config::Section::global_t::MIDI_SETTINGS:
     {
         auto setting = static_cast<setting_t>(index);
 
@@ -763,19 +763,19 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
             // this setting applies to din midi only
             if (_hwaDIN.supported())
             {
-                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(IO::Common::Allocatable::interface_t::UART))
+                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(io::common::Allocatable::interface_t::UART))
                 {
-                    result = System::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
+                    result = sys::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
                 }
                 else
                 {
                     _dinMIDI.setRunningStatusState(value);
-                    result = System::Config::status_t::ACK;
+                    result = sys::Config::status_t::ACK;
                 }
             }
             else
             {
-                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
             }
         }
         break;
@@ -783,7 +783,7 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
         case setting_t::STANDARD_NOTE_OFF:
         {
             setNoteOffMode(value ? noteOffType_t::STANDARD_NOTE_OFF : noteOffType_t::NOTE_ON_ZERO_VEL);
-            result = System::Config::status_t::ACK;
+            result = sys::Config::status_t::ACK;
         }
         break;
 
@@ -791,27 +791,27 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
         {
             if (_hwaDIN.supported())
             {
-                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(IO::Common::Allocatable::interface_t::UART))
+                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(io::common::Allocatable::interface_t::UART))
                 {
-                    result = System::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
+                    result = sys::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
                 }
                 else
                 {
                     if (value)
                     {
-                        dinMIDIinitAction = Common::initAction_t::INIT;
+                        dinMIDIinitAction = common::initAction_t::INIT;
                     }
                     else
                     {
-                        dinMIDIinitAction = Common::initAction_t::DE_INIT;
+                        dinMIDIinitAction = common::initAction_t::DE_INIT;
                     }
 
-                    result = System::Config::status_t::ACK;
+                    result = sys::Config::status_t::ACK;
                 }
             }
             else
             {
-                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
             }
         }
         break;
@@ -822,18 +822,18 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
             {
                 if (value)
                 {
-                    bleMIDIinitAction = Common::initAction_t::INIT;
+                    bleMIDIinitAction = common::initAction_t::INIT;
                 }
                 else
                 {
-                    bleMIDIinitAction = Common::initAction_t::DE_INIT;
+                    bleMIDIinitAction = common::initAction_t::DE_INIT;
                 }
 
-                result = System::Config::status_t::ACK;
+                result = sys::Config::status_t::ACK;
             }
             else
             {
-                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
             }
         }
         break;
@@ -851,12 +851,12 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
                     _dinMIDI.unregisterThruInterface(_dinMIDI.transport());
                 }
 
-                result           = System::Config::status_t::ACK;
+                result           = sys::Config::status_t::ACK;
                 checkDINLoopback = true;
             }
             else
             {
-                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
             }
         }
         break;
@@ -874,12 +874,12 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
                     _dinMIDI.unregisterThruInterface(_usbMIDI.transport());
                 }
 
-                result           = System::Config::status_t::ACK;
+                result           = sys::Config::status_t::ACK;
                 checkDINLoopback = true;
             }
             else
             {
-                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
             }
         }
         break;
@@ -888,9 +888,9 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
         {
             if (_hwaDIN.supported())
             {
-                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(IO::Common::Allocatable::interface_t::UART))
+                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(io::common::Allocatable::interface_t::UART))
                 {
-                    result = System::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
+                    result = sys::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
                 }
                 else
                 {
@@ -905,18 +905,18 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
                             _dinMIDI.unregisterThruInterface(_bleMIDI.transport());
                         }
 
-                        result           = System::Config::status_t::ACK;
+                        result           = sys::Config::status_t::ACK;
                         checkDINLoopback = true;
                     }
                     else
                     {
-                        result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+                        result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
                     }
                 }
             }
             else
             {
-                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
             }
         }
         break;
@@ -934,11 +934,11 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
                     _usbMIDI.unregisterThruInterface(_dinMIDI.transport());
                 }
 
-                result = System::Config::status_t::ACK;
+                result = sys::Config::status_t::ACK;
             }
             else
             {
-                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
             }
         }
         break;
@@ -954,7 +954,7 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
                 _usbMIDI.unregisterThruInterface(_usbMIDI.transport());
             }
 
-            result = System::Config::status_t::ACK;
+            result = sys::Config::status_t::ACK;
         }
         break;
 
@@ -971,11 +971,11 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
                     _usbMIDI.unregisterThruInterface(_bleMIDI.transport());
                 }
 
-                result = System::Config::status_t::ACK;
+                result = sys::Config::status_t::ACK;
             }
             else
             {
-                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
             }
         }
         break;
@@ -984,9 +984,9 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
         {
             if (_hwaDIN.supported())
             {
-                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(IO::Common::Allocatable::interface_t::UART))
+                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(io::common::Allocatable::interface_t::UART))
                 {
-                    result = System::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
+                    result = sys::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
                 }
                 else
                 {
@@ -1001,17 +1001,17 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
                             _bleMIDI.unregisterThruInterface(_dinMIDI.transport());
                         }
 
-                        result = System::Config::status_t::ACK;
+                        result = sys::Config::status_t::ACK;
                     }
                     else
                     {
-                        result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+                        result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
                     }
                 }
             }
             else
             {
-                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
             }
         }
         break;
@@ -1029,11 +1029,11 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
                     _bleMIDI.unregisterThruInterface(_usbMIDI.transport());
                 }
 
-                result = System::Config::status_t::ACK;
+                result = sys::Config::status_t::ACK;
             }
             else
             {
-                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
             }
         }
         break;
@@ -1051,11 +1051,11 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
                     _bleMIDI.unregisterThruInterface(_bleMIDI.transport());
                 }
 
-                result = System::Config::status_t::ACK;
+                result = sys::Config::status_t::ACK;
             }
             else
             {
-                result = System::Config::status_t::ERROR_NOT_SUPPORTED;
+                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
             }
         }
         break;
@@ -1065,17 +1065,17 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
             if ((value < 1) || (value > MIDI_CHANNEL_OMNI))
             {
                 // invalid channel
-                result = System::Config::status_t::ERROR_NEW_VALUE;
+                result = sys::Config::status_t::ERROR_NEW_VALUE;
                 break;
             }
 
-            result = System::Config::status_t::ACK;
+            result = sys::Config::status_t::ACK;
         }
         break;
 
         default:
         {
-            result = System::Config::status_t::ACK;
+            result = sys::Config::status_t::ACK;
         }
         break;
         }
@@ -1086,21 +1086,21 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
         return std::nullopt;
     }
 
-    if ((result == System::Config::status_t::ACK) && writeToDb)
+    if ((result == sys::Config::status_t::ACK) && writeToDb)
     {
-        result = _database.update(Util::Conversion::SYS_2_DB_SECTION(section), index, value)
-                     ? System::Config::status_t::ACK
-                     : System::Config::status_t::ERROR_WRITE;
+        result = _database.update(util::Conversion::SYS_2_DB_SECTION(section), index, value)
+                     ? sys::Config::status_t::ACK
+                     : sys::Config::status_t::ERROR_WRITE;
 
         switch (dinMIDIinitAction)
         {
-        case Common::initAction_t::INIT:
+        case common::initAction_t::INIT:
         {
             _dinMIDI.init();
         }
         break;
 
-        case Common::initAction_t::DE_INIT:
+        case common::initAction_t::DE_INIT:
         {
             _dinMIDI.deInit();
         }
@@ -1112,13 +1112,13 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
 
         switch (bleMIDIinitAction)
         {
-        case Common::initAction_t::INIT:
+        case common::initAction_t::INIT:
         {
             _bleMIDI.init();
         }
         break;
 
-        case Common::initAction_t::DE_INIT:
+        case common::initAction_t::DE_INIT:
         {
             _bleMIDI.deInit();
         }
@@ -1130,7 +1130,7 @@ std::optional<uint8_t> Protocol::MIDI::sysConfigSet(System::Config::Section::glo
     }
 
     // no need to check this if init/deinit has been already called for DIN
-    if (result && checkDINLoopback && dinMIDIinitAction == Common::initAction_t::AS_IS)
+    if (result && checkDINLoopback && dinMIDIinitAction == common::initAction_t::AS_IS)
     {
         // Special consideration for DIN MIDI:
         // To make DIN to DIN thruing as fast as possible,

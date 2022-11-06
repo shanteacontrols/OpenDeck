@@ -38,7 +38,7 @@ limitations under the License.
 // This is used by the bootloader to verify the CRC of application.
 uint32_t _flashSize __attribute__((section(".fwMetadata"))) __attribute__((used)) = 0;
 
-namespace Board::bootloader
+namespace board::bootloader
 {
     void appAddrBoundary(uint32_t& first, uint32_t& last)
     {
@@ -89,7 +89,7 @@ namespace Board::bootloader
     void runBootloader()
     {
         core::mcu::timers::startAll();
-        Board::USB::init();
-        detail::IO::indicators::indicateBootloaderLoad();
+        board::usb::init();
+        detail::io::indicators::indicateBootloaderLoad();
     }
-}    // namespace Board::bootloader
+}    // namespace board::bootloader

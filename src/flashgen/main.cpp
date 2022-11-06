@@ -268,8 +268,8 @@ namespace
         }
     } _storageAccess;
 
-    Database::AppLayout _layout;
-    Database::Admin     _database(_storageAccess, _layout, true);
+    database::AppLayout _layout;
+    database::Admin     _database(_storageAccess, _layout, true);
 }    // namespace
 
 int main(int argc, char* argv[])

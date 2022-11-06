@@ -19,12 +19,12 @@ limitations under the License.
 #pragma once
 
 #include "io/IOBase.h"
-namespace IO
+namespace io
 {
-    class Analog : public IO::Base
+    class Analog : public io::Base
     {
         public:
-        class Collection : public Common::BaseCollection<0>
+        class Collection : public common::BaseCollection<0>
         {
             public:
             Collection() = delete;
@@ -82,7 +82,7 @@ namespace IO
         };
 
         using buttonHandler_t = std::function<void(size_t index, bool state)>;
-        using Database        = Database::User<Database::Config::Section::analog_t>;
+        using Database        = database::User<database::Config::Section::analog_t>;
 
         Analog(HWA&      hwa,
                Filter&   filter,
@@ -106,5 +106,5 @@ namespace IO
         {
             return 0;
         }
-    };    // namespace IO
-}    // namespace IO
+    };
+}    // namespace io

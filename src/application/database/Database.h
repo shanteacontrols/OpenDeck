@@ -23,7 +23,7 @@ limitations under the License.
 #include "system/Config.h"
 #include "Config.h"
 
-namespace Database
+namespace database
 {
     class Admin : public LESSDB
     {
@@ -156,8 +156,8 @@ namespace Database
         bool                   isSignatureValid();
         bool                   setUID();
         bool                   setPresetInternal(uint8_t preset);
-        std::optional<uint8_t> sysConfigGet(System::Config::Section::global_t section, size_t index, uint16_t& value);
-        std::optional<uint8_t> sysConfigSet(System::Config::Section::global_t section, size_t index, uint16_t value);
+        std::optional<uint8_t> sysConfigGet(sys::Config::Section::global_t section, size_t index, uint16_t& value);
+        std::optional<uint8_t> sysConfigSet(sys::Config::Section::global_t section, size_t index, uint16_t value);
 
         Handlers* _handlers = nullptr;
         Layout&   _layout;
@@ -191,7 +191,7 @@ namespace Database
             : _admin(admin)
         {}
 
-        using Config = Database::Config;
+        using Config = database::Config;
 
         template<typename T, typename I>
         typename std::enable_if<(std::is_same_v<T, sections> || ...), uint32_t>::type
@@ -232,4 +232,4 @@ namespace Database
         private:
         Admin& _admin;
     };
-}    // namespace Database
+}    // namespace database

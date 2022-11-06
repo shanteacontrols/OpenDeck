@@ -20,7 +20,7 @@ limitations under the License.
 
 #include "I2C.h"
 
-using namespace IO;
+using namespace io;
 
 std::array<I2C::Peripheral*, I2C::MAX_PERIPHERALS> I2C::_peripherals;
 size_t                                             I2C::_peripheralCounter;

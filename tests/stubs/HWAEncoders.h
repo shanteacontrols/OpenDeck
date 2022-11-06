@@ -2,7 +2,7 @@
 
 #include "io/encoders/Encoders.h"
 
-class HWAEncoders : public IO::Encoders::HWA
+class HWAEncoders : public io::Encoders::HWA
 {
     public:
     HWAEncoders() = default;

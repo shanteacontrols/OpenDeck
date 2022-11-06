@@ -25,9 +25,9 @@ limitations under the License.
 #include "core/src/util/Util.h"
 #include <Target.h>
 
-using namespace Board::IO::digitalOut;
-using namespace Board::detail;
-using namespace Board::detail::IO::digitalOut;
+using namespace board::io::digitalOut;
+using namespace board::detail;
+using namespace board::detail::io::digitalOut;
 
 namespace
 {
@@ -35,7 +35,7 @@ namespace
     volatile uint8_t _ledState[(HW_MAX_NR_OF_DIGITAL_OUTPUTS / 8) + 1][static_cast<uint8_t>(ledBrightness_t::B100)];
 }    // namespace
 
-namespace Board::detail::IO::digitalOut
+namespace board::detail::io::digitalOut
 {
     void init()
     {
@@ -84,7 +84,7 @@ namespace Board::detail::IO::digitalOut
                     : EXT_LED_OFF(PIN_PORT_SR_OUT_DATA, PIN_INDEX_SR_OUT_DATA);
 
                 CORE_MCU_IO_SET_LOW(PIN_PORT_SR_OUT_CLK, PIN_INDEX_SR_OUT_CLK);
-                detail::IO::spiWait();
+                detail::io::spiWait();
                 CORE_MCU_IO_SET_HIGH(PIN_PORT_SR_OUT_CLK, PIN_INDEX_SR_OUT_CLK);
             }
         }
@@ -96,9 +96,9 @@ namespace Board::detail::IO::digitalOut
             _pwmCounter = 0;
         }
     }
-}    // namespace Board::detail::IO::digitalOut
+}    // namespace board::detail::io::digitalOut
 
-namespace Board::IO::digitalOut
+namespace board::io::digitalOut
 {
     void writeLEDstate(size_t index, ledBrightness_t ledBrightness)
     {
@@ -137,7 +137,7 @@ namespace Board::IO::digitalOut
     {
         return index * 3 + static_cast<uint8_t>(component);
     }
-}    // namespace Board::IO::digitalOut
+}    // namespace board::io::digitalOut
 
 #endif
 #endif

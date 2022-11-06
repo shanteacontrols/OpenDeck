@@ -26,7 +26,7 @@ limitations under the License.
 #endif
 #include "core/src/MCU.h"
 
-namespace Board::detail
+namespace board::detail
 {
     // some boards/SDKs might require periodic calls to certain APIs:
     // enable only if needed
@@ -40,7 +40,7 @@ namespace Board::detail
         void bootloader();
     }    // namespace setup
 
-    namespace USB
+    namespace usb
     {
         /// Used to indicate current state of TX (data in in USB terminology) transfers.
         enum class txState_t : uint32_t
@@ -61,13 +61,13 @@ namespace Board::detail
         /// received data is internal packet.
         /// param [in,out] cmd  Reference to variable in which read internal command is stored.
         /// returns True if internal command is read, false otherwise.
-        bool readInternal(USBLink::internalCMD_t& cmd);
+        bool readInternal(usbLink::internalCMD_t& cmd);
 
         /// Reads the buffered data already received from UART channel on which USB host is located and checks if
         /// received data is internal packet.
         /// param [in,out] cmd  Reference to variable in which read internal command is stored.
         /// returns True if internal command is read, false otherwise.
-        bool checkInternal(USBLink::internalCMD_t& cmd);
+        bool checkInternal(usbLink::internalCMD_t& cmd);
 #endif
 
         const void* cfgDescriptor(uint16_t* size);
@@ -76,9 +76,9 @@ namespace Board::detail
         const void* manufacturerString(uint16_t* size);
         const void* productString(uint16_t* size);
         const void* serialIDString(uint16_t* size, uint8_t* uid);
-    }    // namespace USB
+    }    // namespace usb
 
-    namespace IO
+    namespace io
     {
         void init();
 
@@ -88,7 +88,7 @@ namespace Board::detail
         namespace digitalIn
         {
             // constant used to easily access maximum amount of previous readings for a given digital input
-            constexpr inline size_t MAX_READING_COUNT = (8 * sizeof(((Board::IO::digitalIn::readings_t*)0)->readings));
+            constexpr inline size_t MAX_READING_COUNT = (8 * sizeof(((board::io::digitalIn::readings_t*)0)->readings));
 
             void init();
 
@@ -147,5 +147,5 @@ namespace Board::detail
         {
             void init();
         }    // namespace bootloader
-    }        // namespace IO
-}    // namespace Board::detail
+    }        // namespace io
+}    // namespace board::detail

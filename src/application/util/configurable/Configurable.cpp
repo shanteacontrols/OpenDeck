@@ -19,15 +19,15 @@ limitations under the License.
 #include "Configurable.h"
 #include <cstddef>
 
-using namespace Util;
+using namespace util;
 
-void Configurable::registerConfig(System::Config::block_t block, getHandler_t&& getHandler, setHandler_t&& setHandler)
+void Configurable::registerConfig(sys::Config::block_t block, getHandler_t&& getHandler, setHandler_t&& setHandler)
 {
     _getters.push_back({ block, std::move(getHandler) });
     _setters.push_back({ block, std::move(setHandler) });
 }
 
-uint8_t Configurable::get(System::Config::block_t block, uint8_t section, size_t index, uint16_t& value)
+uint8_t Configurable::get(sys::Config::block_t block, uint8_t section, size_t index, uint16_t& value)
 {
     for (size_t i = 0; i < _getters.size(); i++)
     {
@@ -45,10 +45,10 @@ uint8_t Configurable::get(System::Config::block_t block, uint8_t section, size_t
         }
     }
 
-    return System::Config::status_t::ERROR_NOT_SUPPORTED;
+    return sys::Config::status_t::ERROR_NOT_SUPPORTED;
 }
 
-uint8_t Configurable::set(System::Config::block_t block, uint8_t section, size_t index, uint16_t value)
+uint8_t Configurable::set(sys::Config::block_t block, uint8_t section, size_t index, uint16_t value)
 {
     for (size_t i = 0; i < _setters.size(); i++)
     {
@@ -66,7 +66,7 @@ uint8_t Configurable::set(System::Config::block_t block, uint8_t section, size_t
         }
     }
 
-    return System::Config::status_t::ERROR_NOT_SUPPORTED;
+    return sys::Config::status_t::ERROR_NOT_SUPPORTED;
 }
 
 void Configurable::clear()

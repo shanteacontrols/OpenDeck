@@ -20,7 +20,7 @@ limitations under the License.
 #include "Pins.h"
 #include <Arduino.h>
 
-void Board::setup()
+void board::setup()
 {
     pinMode(SR_OUT_CLK_PIN, OUTPUT);
     pinMode(SR_OUT_LATCH_PIN, OUTPUT);
@@ -57,10 +57,12 @@ void Board::setup()
     write(output_t::pwr, true);
 }
 
-void Board::updateOutSR(uint8_t output, bool state)
+void board::updateOutSR(uint8_t output, bool state)
 {
     if (output >= 8)
+    {
         return;
+    }
 
     bitWrite(outSrState, output, state);
 
@@ -77,7 +79,7 @@ void Board::updateOutSR(uint8_t output, bool state)
     digitalWrite(SR_OUT_LATCH_PIN, HIGH);
 }
 
-void Board::updateInSR()
+void board::updateInSR()
 {
     digitalWrite(SR_IN_CLK_PIN, LOW);
     digitalWrite(SR_IN_LATCH_PIN, LOW);

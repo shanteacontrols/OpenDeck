@@ -39,7 +39,7 @@ namespace
     bool _usbInitialized;
 }    // namespace
 
-namespace Board
+namespace board
 {
     void init()
     {
@@ -51,12 +51,12 @@ namespace Board
         core::mcu::timers::allocate(mainTimerIndex, []()
                                     {
                                         core::timing::detail::ms++;
-                                        detail::IO::indicators::update();
+                                        detail::io::indicators::update();
 #ifndef HW_USB_OVER_SERIAL_HOST
-                                        detail::IO::digitalIn::update();
+                                        detail::io::digitalIn::update();
 #ifndef BOARD_USE_FAST_SOFT_PWM_TIMER
 #if HW_MAX_NR_OF_DIGITAL_OUTPUTS > 0
-                                        detail::IO::digitalOut::update();
+                                        detail::io::digitalOut::update();
 #endif
 #endif
 #endif
@@ -73,7 +73,7 @@ namespace Board
 #ifdef FW_APP
 #ifndef HW_USB_OVER_SERIAL_HOST
 #if HW_MAX_NR_OF_DIGITAL_OUTPUTS > 0
-                                        detail::IO::digitalOut::update();
+                                        detail::io::digitalOut::update();
 #endif
 #endif
 #endif
@@ -90,7 +90,7 @@ namespace Board
         core::mcu::timers::allocate(mainTimerIndex, []()
                                     {
                                         core::timing::detail::ms++;
-                                        detail::IO::indicators::update();
+                                        detail::io::indicators::update();
                                     });
 
         // don't start the timers yet - if the app will be run immediately, it's not needed
@@ -98,14 +98,14 @@ namespace Board
 #endif
     }
 
-    namespace USB
+    namespace usb
     {
         initStatus_t init()
         {
             // allow usb init only once
             if (!_usbInitialized)
             {
-                detail::USB::init();
+                detail::usb::init();
                 _usbInitialized = true;
 
                 return initStatus_t::OK;
@@ -118,7 +118,7 @@ namespace Board
         {
             if (_usbInitialized)
             {
-                detail::USB::deInit();
+                detail::usb::deInit();
                 _usbInitialized = false;
             }
         }
@@ -127,7 +127,7 @@ namespace Board
         {
             return _usbInitialized;
         }
-    }    // namespace USB
+    }    // namespace usb
 
     namespace detail::setup
     {
@@ -137,10 +137,10 @@ namespace Board
 
             core::mcu::init(core::mcu::initType_t::BOOT);
             core::mcu::timers::init();
-            detail::IO::init();
+            detail::io::init();
 
 #ifdef HW_USB_OVER_SERIAL
-            Board::UART::init(HW_UART_CHANNEL_USB_LINK, Board::detail::USB::USB_OVER_SERIAL_BAUDRATE);
+            board::uart::init(HW_UART_CHANNEL_USB_LINK, board::detail::usb::USB_OVER_SERIAL_BAUDRATE);
 #endif
         }
 
@@ -148,26 +148,26 @@ namespace Board
         {
             core::mcu::init(core::mcu::initType_t::APP);
             core::mcu::timers::init();
-            detail::IO::init();
-            detail::IO::indicators::indicateApplicationLoad();
+            detail::io::init();
+            detail::io::indicators::indicateApplicationLoad();
 
 #ifdef HW_USB_OVER_SERIAL
-            Board::UART::init(HW_UART_CHANNEL_USB_LINK, Board::detail::USB::USB_OVER_SERIAL_BAUDRATE);
+            board::uart::init(HW_UART_CHANNEL_USB_LINK, board::detail::usb::USB_OVER_SERIAL_BAUDRATE);
 #endif
 
 #ifdef HW_USB_OVER_SERIAL_DEVICE
             // wait for unique id from usb host
             // this is to make sure host and the device share the same unique id
-            USBLink::internalCMD_t cmd;
+            usbLink::internalCMD_t cmd;
 
             while (1)
             {
-                while (!detail::USB::readInternal(cmd))
+                while (!detail::usb::readInternal(cmd))
                 {
                     ;
                 }
 
-                if (cmd == USBLink::internalCMD_t::UNIQUE_ID)
+                if (cmd == usbLink::internalCMD_t::UNIQUE_ID)
                 {
                     break;
                 }
@@ -175,4 +175,4 @@ namespace Board
 #endif
         }
     }    // namespace detail::setup
-}    // namespace Board
+}    // namespace board

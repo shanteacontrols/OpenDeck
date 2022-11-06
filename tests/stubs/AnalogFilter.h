@@ -2,12 +2,12 @@
 
 #include "io/analog/Filter.h"
 
-class AnalogFilterStub : public IO::Analog::Filter
+class AnalogFilterStub : public io::Analog::Filter
 {
     public:
     AnalogFilterStub()
     {
-        for (size_t i = 0; i < IO::Analog::Collection::SIZE(); i++)
+        for (size_t i = 0; i < io::Analog::Collection::SIZE(); i++)
         {
             _lastStableValue[i] = 0xFFFF;
         }
@@ -20,7 +20,7 @@ class AnalogFilterStub : public IO::Analog::Filter
 
     uint16_t lastValue(size_t index) override
     {
-        if (index < IO::Analog::Collection::SIZE())
+        if (index < io::Analog::Collection::SIZE())
         {
             return _lastStableValue[index];
         }
@@ -30,7 +30,7 @@ class AnalogFilterStub : public IO::Analog::Filter
 
     void reset(size_t index) override
     {
-        if (index < IO::Analog::Collection::SIZE())
+        if (index < io::Analog::Collection::SIZE())
         {
             _lastStableValue[index] = 0xFFFF;
         }
@@ -38,12 +38,12 @@ class AnalogFilterStub : public IO::Analog::Filter
 
     void updateLastValue(size_t index, uint16_t value)
     {
-        if (index < IO::Analog::Collection::SIZE())
+        if (index < io::Analog::Collection::SIZE())
         {
             _lastStableValue[index] = value;
         }
     }
 
     private:
-    uint16_t _lastStableValue[IO::Analog::Collection::SIZE()] = {};
+    uint16_t _lastStableValue[io::Analog::Collection::SIZE()] = {};
 };

@@ -18,9 +18,9 @@ limitations under the License.
 
 #pragma once
 
-namespace IO
+namespace io
 {
-    class I2C : public IO::Base
+    class I2C : public io::Base
     {
         public:
         class Peripheral
@@ -62,4 +62,4 @@ namespace IO
             return 0;
         }
     };
-}    // namespace IO
+}    // namespace io

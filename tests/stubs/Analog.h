@@ -11,7 +11,7 @@ class TestAnalog
 
     void updateLastFilterValue(uint16_t value)
     {
-        for (size_t i = 0; i < IO::Analog::Collection::SIZE(); i++)
+        for (size_t i = 0; i < io::Analog::Collection::SIZE(); i++)
         {
             _filter.updateLastValue(i, value);
         }
@@ -21,9 +21,9 @@ class TestAnalog
     TestDatabase _testDatabase;
 
     public:
-    Database::Admin&     _databaseAdmin = _testDatabase._instance;
-    IO::Analog::Database _database      = IO::Analog::Database(_testDatabase._instance);
+    database::Admin&     _databaseAdmin = _testDatabase._instance;
+    io::Analog::Database _database      = io::Analog::Database(_testDatabase._instance);
     HWAAnalog            _hwa;
     AnalogFilterStub     _filter;
-    IO::Analog           _instance = IO::Analog(_hwa, _filter, _database);
+    io::Analog           _instance = io::Analog(_hwa, _filter, _database);
 };

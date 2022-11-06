@@ -2,7 +2,7 @@
 
 #include "system/System.h"
 
-class HWASystem : public System::Instance::HWA
+class HWASystem : public sys::Instance::HWA
 {
     public:
     HWASystem() = default;
@@ -20,7 +20,7 @@ class HWASystem : public System::Instance::HWA
     {
     }
 
-    void registerOnUSBconnectionHandler(System::Instance::usbConnectionHandler_t&& usbConnectionHandler) override
+    void registerOnUSBconnectionHandler(sys::Instance::usbConnectionHandler_t&& usbConnectionHandler) override
     {
     }
 

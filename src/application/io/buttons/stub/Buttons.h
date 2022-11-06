@@ -18,12 +18,12 @@ limitations under the License.
 
 #pragma once
 
-namespace IO
+namespace io
 {
-    class Buttons : public IO::Base
+    class Buttons : public io::Base
     {
         public:
-        class Collection : public Common::BaseCollection<0>
+        class Collection : public common::BaseCollection<0>
         {
             public:
             Collection() = delete;
@@ -89,8 +89,8 @@ namespace IO
             virtual bool isFiltered(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
         };
 
-        using Database = Database::User<Database::Config::Section::button_t,
-                                        Database::Config::Section::encoder_t>;
+        using Database = database::User<database::Config::Section::button_t,
+                                        database::Config::Section::encoder_t>;
 
         Buttons(HWA&      hwa,
                 Filter&   filter,
@@ -119,4 +119,4 @@ namespace IO
         {
         }
     };
-}    // namespace IO
+}    // namespace io

@@ -22,13 +22,13 @@ limitations under the License.
 #include "tusb.h"
 #include "core/src/MCU.h"
 
-namespace Board::detail::USB
+namespace board::detail::usb
 {
     void init()
     {
         tusb_init();
-        detail::registerUpdateHook(&Board::detail::USB::update);
+        detail::registerUpdateHook(&board::detail::usb::update);
     }
-}    // namespace Board::detail::USB
+}    // namespace board::detail::usb
 
 #endif

@@ -29,12 +29,12 @@ limitations under the License.
 
 #ifdef HW_SUPPORT_TOUCHSCREEN
 
-namespace IO
+namespace io
 {
-    class Touchscreen : public IO::Base
+    class Touchscreen : public io::Base
     {
         public:
-        class Collection : public Common::BaseCollection<HW_SUPPORTED_NR_OF_TOUCHSCREEN_COMPONENTS>
+        class Collection : public common::BaseCollection<HW_SUPPORTED_NR_OF_TOUCHSCREEN_COMPONENTS>
         {
             public:
             Collection() = delete;
@@ -106,7 +106,7 @@ namespace IO
             AMOUNT
         };
 
-        class HWA : public ::IO::Common::Allocatable
+        class HWA : public ::io::common::Allocatable
         {
             public:
             virtual ~HWA() = default;
@@ -117,7 +117,7 @@ namespace IO
             virtual bool read(uint8_t& value) = 0;
         };
 
-        class CDCPassthrough : public Common::Allocatable
+        class CDCPassthrough : public common::Allocatable
         {
             public:
             virtual ~CDCPassthrough() = default;
@@ -149,7 +149,7 @@ namespace IO
             static size_t           _bufferCount;
         };
 
-        using Database = Database::User<Database::Config::Section::touchscreen_t>;
+        using Database = database::User<database::Config::Section::touchscreen_t>;
 
         Touchscreen(HWA&            hwa,
                     Database&       database,
@@ -176,8 +176,8 @@ namespace IO
         void                   processButton(const size_t buttonID, const bool state);
         void                   buttonHandler(size_t index, bool state);
         void                   screenChangeHandler(size_t screenID);
-        std::optional<uint8_t> sysConfigGet(System::Config::Section::touchscreen_t section, size_t index, uint16_t& value);
-        std::optional<uint8_t> sysConfigSet(System::Config::Section::touchscreen_t section, size_t index, uint16_t value);
+        std::optional<uint8_t> sysConfigGet(sys::Config::Section::touchscreen_t section, size_t index, uint16_t& value);
+        std::optional<uint8_t> sysConfigSet(sys::Config::Section::touchscreen_t section, size_t index, uint16_t value);
 
         HWA&                                                            _hwa;
         Database&                                                       _database;
@@ -190,7 +190,7 @@ namespace IO
         uint8_t                                                         _rxBuffer[BUFFER_SIZE_TSCREEN_CDC_PASSTHROUGH] = {};
         static std::array<Model*, static_cast<size_t>(model_t::AMOUNT)> _models;
     };
-}    // namespace IO
+}    // namespace io
 
 #else
 #include "stub/Touchscreen.h"

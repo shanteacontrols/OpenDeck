@@ -2,7 +2,7 @@
 
 #include "io/i2c/I2C.h"
 
-class HWADisplay : public IO::I2C::Peripheral::HWA
+class HWADisplay : public io::I2C::Peripheral::HWA
 {
     public:
     HWADisplay() = default;

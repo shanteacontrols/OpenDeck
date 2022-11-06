@@ -22,17 +22,17 @@ limitations under the License.
 #include "io/touchscreen/Touchscreen.h"
 #include "core/src/util/RingBuffer.h"
 
-class Viewtech : public IO::Touchscreen::Model
+class Viewtech : public io::Touchscreen::Model
 {
     public:
-    Viewtech(IO::Touchscreen::HWA& hwa);
+    Viewtech(io::Touchscreen::HWA& hwa);
 
     bool                       init() override;
     bool                       deInit() override;
     bool                       setScreen(size_t screenID) override;
-    IO::Touchscreen::tsEvent_t update(IO::Touchscreen::tsData_t& data) override;
-    void                       setIconState(IO::Touchscreen::icon_t& icon, bool state) override;
-    bool                       setBrightness(IO::Touchscreen::brightness_t brightness) override;
+    io::Touchscreen::tsEvent_t update(io::Touchscreen::tsData_t& data) override;
+    void                       setIconState(io::Touchscreen::icon_t& icon, bool state) override;
+    bool                       setBrightness(io::Touchscreen::brightness_t brightness) override;
 
     private:
     enum class response_t : uint32_t
@@ -40,7 +40,7 @@ class Viewtech : public IO::Touchscreen::Model
         BUTTON_STATE_CHANGE = 0x05820002
     };
 
-    IO::Touchscreen::HWA& _hwa;
+    io::Touchscreen::HWA& _hwa;
 
     // there are 7 levels of brighness - scale them to available range (0-64)
     static constexpr uint8_t BRIGHTNESS_MAPPING[7] = {

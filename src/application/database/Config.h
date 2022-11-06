@@ -21,7 +21,7 @@ limitations under the License.
 #include <inttypes.h>
 #include <stddef.h>
 
-namespace Database
+namespace database
 {
     class Config
     {
@@ -137,4 +137,4 @@ namespace Database
             AMOUNT
         };
     };
-}    // namespace Database
+}    // namespace database

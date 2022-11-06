@@ -25,9 +25,9 @@ limitations under the License.
 #include "system/Config.h"
 #include "io/i2c/I2C.h"
 
-namespace IO
+namespace io
 {
-    class Display : public IO::I2C::Peripheral
+    class Display : public io::I2C::Peripheral
     {
         public:
         enum eventType_t : uint8_t
@@ -63,7 +63,7 @@ namespace IO
             AMOUNT
         };
 
-        using Database = Database::User<Database::Config::Section::i2c_t>;
+        using Database = database::User<database::Config::Section::i2c_t>;
 
         Display(I2C::Peripheral::HWA& hwa,
                 Database&             database);
@@ -76,15 +76,15 @@ namespace IO
         bool                   deInit();
         void                   setAlternateNoteDisplay(bool state);
         void                   setRetentionTime(uint32_t retentionTime);
-        void                   displayEvent(eventType_t type, const Messaging::event_t& event);
+        void                   displayEvent(eventType_t type, const messaging::event_t& event);
         void                   displayWelcomeMessage();
         void                   updateText(uint8_t row, uint8_t startIndex);
         uint8_t                getTextCenter(uint8_t textSize);
         int8_t                 normalizeOctave(uint8_t octave, int8_t normalization);
         void                   buildString(const char* text, ...);
         void                   clearEvent(eventType_t type);
-        std::optional<uint8_t> sysConfigGet(System::Config::Section::i2c_t section, size_t index, uint16_t& value);
-        std::optional<uint8_t> sysConfigSet(System::Config::Section::i2c_t section, size_t index, uint16_t value);
+        std::optional<uint8_t> sysConfigGet(sys::Config::Section::i2c_t section, size_t index, uint16_t& value);
+        std::optional<uint8_t> sysConfigSet(sys::Config::Section::i2c_t section, size_t index, uint16_t value);
 
         Database&                    _database;
         u8x8_t                       _u8x8;
@@ -179,4 +179,4 @@ namespace IO
         size_t  _rows               = 0;
         size_t  _columns            = 0;
     };
-}    // namespace IO
+}    // namespace io

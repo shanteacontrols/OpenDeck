@@ -28,9 +28,9 @@ limitations under the License.
 #include "core/src/util/RingBuffer.h"
 #include <Target.h>
 
-using namespace Board::IO::digitalIn;
-using namespace Board::detail;
-using namespace Board::detail::IO::digitalIn;
+using namespace board::io::digitalIn;
+using namespace board::detail;
+using namespace board::detail::io::digitalIn;
 
 namespace
 {
@@ -74,7 +74,7 @@ namespace
     }
 }    // namespace
 
-namespace Board::detail::IO::digitalIn
+namespace board::detail::io::digitalIn
 {
     void init()
     {
@@ -108,9 +108,9 @@ namespace Board::detail::IO::digitalIn
         CORE_MCU_IO_SET_LOW(PIN_PORT_DEC_BM_A1, PIN_INDEX_DEC_BM_A1);
         CORE_MCU_IO_SET_LOW(PIN_PORT_DEC_BM_A2, PIN_INDEX_DEC_BM_A2);
     }
-}    // namespace Board::detail::IO::digitalIn
+}    // namespace board::detail::io::digitalIn
 
-namespace Board::IO::digitalIn
+namespace board::io::digitalIn
 {
     bool state(size_t index, readings_t& readings)
     {
@@ -157,7 +157,7 @@ namespace Board::IO::digitalIn
 
         return index + HW_NR_OF_BUTTON_COLUMNS;
     }
-}    // namespace Board::IO::digitalIn
+}    // namespace board::io::digitalIn
 
 #include "Common.cpp.include"
 

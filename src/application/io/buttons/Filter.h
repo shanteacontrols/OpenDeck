@@ -22,9 +22,9 @@ limitations under the License.
 
 #include "io/buttons/Buttons.h"
 
-namespace IO
+namespace io
 {
-    class ButtonsFilter : public IO::Buttons::Filter
+    class ButtonsFilter : public io::Buttons::Filter
     {
         public:
         ButtonsFilter() = default;
@@ -40,7 +40,7 @@ namespace IO
 
             numberOfReadings = 1;
 
-            if (index >= IO::Buttons::Collection::SIZE(IO::Buttons::GROUP_DIGITAL_INPUTS))
+            if (index >= io::Buttons::Collection::SIZE(io::Buttons::GROUP_DIGITAL_INPUTS))
             {
                 // don't debounce analog inputs and touchscreen buttons
                 states = states & 0x01;
@@ -65,7 +65,7 @@ namespace IO
             return true;
         }
     };
-}    // namespace IO
+}    // namespace io
 
 #else
 #include "stub/Filter.h"

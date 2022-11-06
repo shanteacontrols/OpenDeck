@@ -28,8 +28,8 @@ limitations under the License.
 #include "util/conversion/Conversion.h"
 #include "util/configurable/Configurable.h"
 
-using namespace IO;
-using namespace Protocol;
+using namespace io;
+using namespace protocol;
 
 namespace
 {
@@ -48,26 +48,26 @@ Display::Display(I2C::Peripheral::HWA& hwa,
 {
     _hwa = &hwa;
 
-    MIDIDispatcher.listen(Messaging::eventType_t::ANALOG,
-                          [this](const Messaging::event_t& event)
+    MIDIDispatcher.listen(messaging::eventType_t::ANALOG,
+                          [this](const messaging::event_t& event)
                           {
                               displayEvent(Display::eventType_t::OUT, event);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::BUTTON,
-                          [this](const Messaging::event_t& event)
+    MIDIDispatcher.listen(messaging::eventType_t::BUTTON,
+                          [this](const messaging::event_t& event)
                           {
                               displayEvent(Display::eventType_t::OUT, event);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::ENCODER,
-                          [this](const Messaging::event_t& event)
+    MIDIDispatcher.listen(messaging::eventType_t::ENCODER,
+                          [this](const messaging::event_t& event)
                           {
                               displayEvent(Display::eventType_t::OUT, event);
                           });
 
-    MIDIDispatcher.listen(Messaging::eventType_t::MIDI_IN,
-                          [this](const Messaging::event_t& event)
+    MIDIDispatcher.listen(messaging::eventType_t::MIDI_IN,
+                          [this](const messaging::event_t& event)
                           {
                               if (event.message != MIDI::messageType_t::SYS_EX)
                               {
@@ -76,17 +76,17 @@ Display::Display(I2C::Peripheral::HWA& hwa,
                           });
 
     ConfigHandler.registerConfig(
-        System::Config::block_t::I2C,
+        sys::Config::block_t::I2C,
         // read
         [this](uint8_t section, size_t index, uint16_t& value)
         {
-            return sysConfigGet(static_cast<System::Config::Section::i2c_t>(section), index, value);
+            return sysConfigGet(static_cast<sys::Config::Section::i2c_t>(section), index, value);
         },
 
         // write
         [this](uint8_t section, size_t index, uint16_t value)
         {
-            return sysConfigSet(static_cast<System::Config::Section::i2c_t>(section), index, value);
+            return sysConfigSet(static_cast<sys::Config::Section::i2c_t>(section), index, value);
         });
 
     I2C::registerPeripheral(this);
@@ -116,10 +116,10 @@ bool Display::init()
         return false;
     }
 
-    if (_database.read(Database::Config::Section::i2c_t::DISPLAY, setting_t::ENABLE))
+    if (_database.read(database::Config::Section::i2c_t::DISPLAY, setting_t::ENABLE))
     {
-        auto controller = static_cast<displayController_t>(_database.read(Database::Config::Section::i2c_t::DISPLAY, setting_t::CONTROLLER));
-        auto resolution = static_cast<displayResolution_t>(_database.read(Database::Config::Section::i2c_t::DISPLAY, setting_t::RESOLUTION));
+        auto controller = static_cast<displayController_t>(_database.read(database::Config::Section::i2c_t::DISPLAY, setting_t::CONTROLLER));
+        auto resolution = static_cast<displayResolution_t>(_database.read(database::Config::Section::i2c_t::DISPLAY, setting_t::RESOLUTION));
 
         if (initU8X8(_selectedI2Caddress, controller, resolution))
         {
@@ -140,13 +140,13 @@ bool Display::init()
 
             if (!_startupInfoShown)
             {
-                if (_database.read(Database::Config::Section::i2c_t::DISPLAY, setting_t::DEVICE_INFO_MSG) && !_startupInfoShown)
+                if (_database.read(database::Config::Section::i2c_t::DISPLAY, setting_t::DEVICE_INFO_MSG) && !_startupInfoShown)
                 {
                     displayWelcomeMessage();
                 }
             }
 
-            setRetentionTime(_database.read(Database::Config::Section::i2c_t::DISPLAY, setting_t::EVENT_TIME) * 1000);
+            setRetentionTime(_database.read(database::Config::Section::i2c_t::DISPLAY, setting_t::EVENT_TIME) * 1000);
 
             clearEvent(eventType_t::IN);
             clearEvent(eventType_t::OUT);
@@ -445,7 +445,7 @@ void Display::displayWelcomeMessage()
     core::timing::waitMs(2000);
 }
 
-void Display::displayEvent(eventType_t type, const Messaging::event_t& event)
+void Display::displayEvent(eventType_t type, const messaging::event_t& event)
 {
     if (!_initialized)
     {
@@ -464,7 +464,7 @@ void Display::displayEvent(eventType_t type, const Messaging::event_t& event)
     case MIDI::messageType_t::NOTE_OFF:
     case MIDI::messageType_t::NOTE_ON:
     {
-        if (!_database.read(Database::Config::Section::i2c_t::DISPLAY, setting_t::MIDI_NOTES_ALTERNATE))
+        if (!_database.read(database::Config::Section::i2c_t::DISPLAY, setting_t::MIDI_NOTES_ALTERNATE))
         {
             _stringBuilder.overwrite("%d", event.index);
         }
@@ -574,36 +574,36 @@ void Display::clearEvent(eventType_t type)
     _messageDisplayed[type] = false;
 }
 
-std::optional<uint8_t> Display::sysConfigGet(System::Config::Section::i2c_t section, size_t index, uint16_t& value)
+std::optional<uint8_t> Display::sysConfigGet(sys::Config::Section::i2c_t section, size_t index, uint16_t& value)
 {
-    if (section != System::Config::Section::i2c_t::DISPLAY)
+    if (section != sys::Config::Section::i2c_t::DISPLAY)
     {
         return std::nullopt;
     }
 
     uint32_t readValue;
 
-    auto result = _database.read(Util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
-                      ? System::Config::status_t::ACK
-                      : System::Config::status_t::ERROR_READ;
+    auto result = _database.read(util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
+                      ? sys::Config::status_t::ACK
+                      : sys::Config::status_t::ERROR_READ;
 
     value = readValue;
 
     return result;
 }
 
-std::optional<uint8_t> Display::sysConfigSet(System::Config::Section::i2c_t section, size_t index, uint16_t value)
+std::optional<uint8_t> Display::sysConfigSet(sys::Config::Section::i2c_t section, size_t index, uint16_t value)
 {
-    if (section != System::Config::Section::i2c_t::DISPLAY)
+    if (section != sys::Config::Section::i2c_t::DISPLAY)
     {
         return std::nullopt;
     }
 
-    auto initAction = Common::initAction_t::AS_IS;
+    auto initAction = common::initAction_t::AS_IS;
 
     switch (section)
     {
-    case System::Config::Section::i2c_t::DISPLAY:
+    case sys::Config::Section::i2c_t::DISPLAY:
     {
         auto setting = static_cast<setting_t>(index);
 
@@ -611,7 +611,7 @@ std::optional<uint8_t> Display::sysConfigSet(System::Config::Section::i2c_t sect
         {
         case setting_t::ENABLE:
         {
-            initAction = value ? Common::initAction_t::INIT : Common::initAction_t::DE_INIT;
+            initAction = value ? common::initAction_t::INIT : common::initAction_t::DE_INIT;
         }
         break;
 
@@ -619,7 +619,7 @@ std::optional<uint8_t> Display::sysConfigSet(System::Config::Section::i2c_t sect
         {
             if ((value <= static_cast<uint8_t>(displayController_t::AMOUNT)) && (value >= 0))
             {
-                initAction = Common::initAction_t::INIT;
+                initAction = common::initAction_t::INIT;
             }
         }
         break;
@@ -628,7 +628,7 @@ std::optional<uint8_t> Display::sysConfigSet(System::Config::Section::i2c_t sect
         {
             if ((value <= static_cast<uint8_t>(displayResolution_t::AMOUNT)) && (value >= 0))
             {
-                initAction = Common::initAction_t::INIT;
+                initAction = common::initAction_t::INIT;
             }
         }
         break;
@@ -649,17 +649,17 @@ std::optional<uint8_t> Display::sysConfigSet(System::Config::Section::i2c_t sect
         break;
     }
 
-    auto result = _database.update(Util::Conversion::SYS_2_DB_SECTION(section), index, value)
-                      ? System::Config::status_t::ACK
-                      : System::Config::status_t::ERROR_WRITE;
+    auto result = _database.update(util::Conversion::SYS_2_DB_SECTION(section), index, value)
+                      ? sys::Config::status_t::ACK
+                      : sys::Config::status_t::ERROR_WRITE;
 
-    if (result == System::Config::status_t::ACK)
+    if (result == sys::Config::status_t::ACK)
     {
-        if (initAction == Common::initAction_t::INIT)
+        if (initAction == common::initAction_t::INIT)
         {
             init();
         }
-        else if (initAction == Common::initAction_t::DE_INIT)
+        else if (initAction == common::initAction_t::DE_INIT)
         {
             deInit();
         }

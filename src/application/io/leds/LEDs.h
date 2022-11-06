@@ -24,17 +24,17 @@ limitations under the License.
 #include "system/Config.h"
 #include "io/IOBase.h"
 
-using namespace Protocol;
+using namespace protocol;
 
 #if defined(HW_SUPPORT_DIGITAL_OUTPUTS) || defined(HW_SUPPORT_TOUCHSCREEN)
 #define LEDS_SUPPORTED
 
-namespace IO
+namespace io
 {
-    class LEDs : public IO::Base
+    class LEDs : public io::Base
     {
         public:
-        class Collection : public Common::BaseCollection<HW_SUPPORTED_NR_OF_DIGITAL_OUTPUTS,
+        class Collection : public common::BaseCollection<HW_SUPPORTED_NR_OF_DIGITAL_OUTPUTS,
                                                          HW_SUPPORTED_NR_OF_TOUCHSCREEN_COMPONENTS>
         {
             public:
@@ -124,8 +124,8 @@ namespace IO
             virtual size_t rgbComponentFromRGB(size_t index, LEDs::rgbComponent_t component) = 0;
         };
 
-        using Database = Database::User<Database::Config::Section::leds_t,
-                                        Database::Config::Section::global_t>;
+        using Database = database::User<database::Config::Section::leds_t,
+                                        database::Config::Section::global_t>;
 
         LEDs(HWA&      hwa,
              Database& database);
@@ -164,10 +164,10 @@ namespace IO
         brightness_t           valueToBrightness(uint8_t value);
         void                   startUpAnimation();
         bool                   isControlTypeMatched(MIDI::messageType_t midiMessage, controlType_t controlType);
-        void                   midiToState(const Messaging::event_t& event, Messaging::eventType_t source);
+        void                   midiToState(const messaging::event_t& event, messaging::eventType_t source);
         void                   setState(size_t index, brightness_t brightness);
-        std::optional<uint8_t> sysConfigGet(System::Config::Section::leds_t section, size_t index, uint16_t& value);
-        std::optional<uint8_t> sysConfigSet(System::Config::Section::leds_t section, size_t index, uint16_t value);
+        std::optional<uint8_t> sysConfigGet(sys::Config::Section::leds_t section, size_t index, uint16_t& value);
+        std::optional<uint8_t> sysConfigSet(sys::Config::Section::leds_t section, size_t index, uint16_t value);
 
         HWA&      _hwa;
         Database& _database;
@@ -229,7 +229,7 @@ namespace IO
             MIDI::messageType_t::CONTROL_CHANGE,    // localCCMultiVal,
         };
     };
-}    // namespace IO
+}    // namespace io
 
 #else
 #include "stub/LEDs.h"

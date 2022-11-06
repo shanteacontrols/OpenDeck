@@ -23,10 +23,10 @@ limitations under the License.
 
 namespace
 {
-    std::vector<Board::detail::updateHook_t> updateHooks;
+    std::vector<board::detail::updateHook_t> updateHooks;
 }    // namespace
 
-namespace Board
+namespace board
 {
     void update()
     {
@@ -45,6 +45,6 @@ namespace Board
             updateHooks.push_back(hook);
         }
     }    // namespace detail
-}    // namespace Board
+}    // namespace board
 
 #endif

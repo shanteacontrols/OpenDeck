@@ -2,7 +2,7 @@
 
 #include "io/analog/Analog.h"
 
-class HWAAnalog : public IO::Analog::HWA
+class HWAAnalog : public io::Analog::HWA
 {
     public:
     HWAAnalog() = default;

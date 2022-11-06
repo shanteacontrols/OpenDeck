@@ -246,7 +246,7 @@ namespace
 
         CORE_ERROR_CHECK(nrf_ble_qwr_init(&_qwr, &qwrInit), NRF_SUCCESS);
 
-        if (!Board::detail::BLE::MIDI::init())
+        if (!board::detail::ble::midi::init())
         {
             return false;
         }
@@ -332,7 +332,7 @@ namespace
     }
 }    // namespace
 
-namespace Board::BLE
+namespace board::ble
 {
     bool init()
     {
@@ -380,6 +380,6 @@ namespace Board::BLE
 
         return true;
     }
-}    // namespace Board::BLE
+}    // namespace board::ble
 
 #endif

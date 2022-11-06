@@ -246,7 +246,7 @@ namespace
     const core::mcu::usb::descriptorString_t _productString      = CORE_MCU_USB_STRING_DESCRIPTOR(USB_PRODUCT_NAME);
 }    // namespace
 
-namespace Board::detail::USB
+namespace board::detail::usb
 {
     const void* cfgDescriptor(uint16_t* size)
     {
@@ -277,7 +277,7 @@ namespace Board::detail::USB
         *size = _productString.header.size;
         return &_productString;
     }
-}    // namespace Board::detail::USB
+}    // namespace board::detail::usb
 
 #endif
 #endif

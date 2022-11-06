@@ -24,9 +24,9 @@ limitations under the License.
 #include "board/Internal.h"
 #include <Target.h>
 
-using namespace Board::IO::analog;
-using namespace Board::detail;
-using namespace Board::detail::IO::analog;
+using namespace board::io::analog;
+using namespace board::detail;
+using namespace board::detail::io::analog;
 
 static_assert(HW_ADC_SAMPLES > 0, "At least 1 ADC sample required");
 
@@ -40,7 +40,7 @@ namespace
     volatile uint8_t  _sampleCounter;
 }    // namespace
 
-namespace Board::detail::IO::analog
+namespace board::detail::io::analog
 {
     void init()
     {
@@ -70,7 +70,7 @@ namespace Board::detail::IO::analog
         }
 
         core::mcu::adc::setActivePin(map::ADC_PIN(0));
-        core::mcu::adc::enableIt(Board::detail::IO::analog::ISR_PRIORITY);
+        core::mcu::adc::enableIt(board::detail::io::analog::ISR_PRIORITY);
         core::mcu::adc::startItConversion();
     }
 
@@ -105,7 +105,7 @@ namespace Board::detail::IO::analog
 
         core::mcu::adc::startItConversion();
     }
-}    // namespace Board::detail::IO::analog
+}    // namespace board::detail::io::analog
 
 #include "Common.cpp.include"
 

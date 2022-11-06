@@ -26,9 +26,9 @@ limitations under the License.
 
 #ifdef HW_SUPPORT_I2C
 
-namespace IO
+namespace io
 {
-    class I2C : public IO::Base
+    class I2C : public io::Base
     {
         public:
         class Peripheral
@@ -64,7 +64,7 @@ namespace IO
         static size_t                                   _peripheralCounter;
         static std::array<Peripheral*, MAX_PERIPHERALS> _peripherals;
     };
-}    // namespace IO
+}    // namespace io
 
 #else
 #include "stub/I2C.h"

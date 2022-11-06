@@ -23,42 +23,42 @@ limitations under the License.
 
 // each new group of components should have their IDs start from 0
 
-void Database::Admin::customInitGlobal()
+void database::Admin::customInitGlobal()
 {
     // set global channel to 1
-    update(Database::Config::Section::global_t::MIDI_SETTINGS, MIDI::setting_t::GLOBAL_CHANNEL, 1);
+    update(database::Config::Section::global_t::MIDI_SETTINGS, MIDI::setting_t::GLOBAL_CHANNEL, 1);
 }
 
-void Database::Admin::customInitButtons()
+void database::Admin::customInitButtons()
 {
-    for (size_t group = 0; group < IO::Buttons::Collection::GROUPS(); group++)
+    for (size_t group = 0; group < io::Buttons::Collection::GROUPS(); group++)
     {
-        for (size_t i = 0; i < IO::Buttons::Collection::SIZE(group); i++)
+        for (size_t i = 0; i < io::Buttons::Collection::SIZE(group); i++)
         {
-            update(Database::Config::Section::button_t::MIDI_ID, i + IO::Buttons::Collection::START_INDEX(group), i);
+            update(database::Config::Section::button_t::MIDI_ID, i + io::Buttons::Collection::START_INDEX(group), i);
         }
     }
 }
 
-void Database::Admin::customInitAnalog()
+void database::Admin::customInitAnalog()
 {
-    for (size_t group = 0; group < IO::Analog::Collection::GROUPS(); group++)
+    for (size_t group = 0; group < io::Analog::Collection::GROUPS(); group++)
     {
-        for (size_t i = 0; i < IO::Analog::Collection::SIZE(group); i++)
+        for (size_t i = 0; i < io::Analog::Collection::SIZE(group); i++)
         {
-            update(Database::Config::Section::analog_t::MIDI_ID, i + IO::Analog::Collection::START_INDEX(group), i);
+            update(database::Config::Section::analog_t::MIDI_ID, i + io::Analog::Collection::START_INDEX(group), i);
         }
     }
 }
 
-void Database::Admin::customInitLEDs()
+void database::Admin::customInitLEDs()
 {
-    for (size_t group = 0; group < IO::LEDs::Collection::GROUPS(); group++)
+    for (size_t group = 0; group < io::LEDs::Collection::GROUPS(); group++)
     {
-        for (size_t i = 0; i < IO::LEDs::Collection::SIZE(group); i++)
+        for (size_t i = 0; i < io::LEDs::Collection::SIZE(group); i++)
         {
-            update(Database::Config::Section::leds_t::ACTIVATION_ID, i + IO::LEDs::Collection::START_INDEX(group), i);
-            update(Database::Config::Section::leds_t::CONTROL_TYPE, i + IO::LEDs::Collection::START_INDEX(group), IO::LEDs::controlType_t::MIDI_IN_NOTE_MULTI_VAL);
+            update(database::Config::Section::leds_t::ACTIVATION_ID, i + io::LEDs::Collection::START_INDEX(group), i);
+            update(database::Config::Section::leds_t::CONTROL_TYPE, i + io::LEDs::Collection::START_INDEX(group), io::LEDs::controlType_t::MIDI_IN_NOTE_MULTI_VAL);
         }
     }
 }

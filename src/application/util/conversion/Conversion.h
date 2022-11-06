@@ -22,7 +22,7 @@ limitations under the License.
 #include "system/Config.h"
 #include "sysex/src/SysExConf.h"
 
-namespace Util
+namespace util
 {
     // Various helper functions used to convert between system config sections to
     // database sections.
@@ -35,108 +35,108 @@ namespace Util
         using Split14bit = SysExConf::Split14bit;
         using Merge14bit = SysExConf::Merge14bit;
 
-        static constexpr Database::Config::Section::global_t SYS_2_DB_SECTION(System::Config::Section::global_t section)
+        static constexpr database::Config::Section::global_t SYS_2_DB_SECTION(sys::Config::Section::global_t section)
         {
             return SYS_EX2_DB_GLOBAL[static_cast<uint8_t>(section)];
         }
 
-        static constexpr Database::Config::Section::button_t SYS_2_DB_SECTION(System::Config::Section::button_t section)
+        static constexpr database::Config::Section::button_t SYS_2_DB_SECTION(sys::Config::Section::button_t section)
         {
             return SYS_EX2_DB_BUTTON[static_cast<uint8_t>(section)];
         }
 
-        static constexpr Database::Config::Section::encoder_t SYS_2_DB_SECTION(System::Config::Section::encoder_t section)
+        static constexpr database::Config::Section::encoder_t SYS_2_DB_SECTION(sys::Config::Section::encoder_t section)
         {
             return SYS_EX2_DB_ENCODER[static_cast<uint8_t>(section)];
         }
 
-        static constexpr Database::Config::Section::analog_t SYS_2_DB_SECTION(System::Config::Section::analog_t section)
+        static constexpr database::Config::Section::analog_t SYS_2_DB_SECTION(sys::Config::Section::analog_t section)
         {
             return SYS_EX2_DB_ANALOG[static_cast<uint8_t>(section)];
         }
 
-        static constexpr Database::Config::Section::leds_t SYS_2_DB_SECTION(System::Config::Section::leds_t section)
+        static constexpr database::Config::Section::leds_t SYS_2_DB_SECTION(sys::Config::Section::leds_t section)
         {
             return SYS_EX2_DB_LEDS[static_cast<uint8_t>(section)];
         }
 
-        static constexpr Database::Config::Section::i2c_t SYS_2_DB_SECTION(System::Config::Section::i2c_t section)
+        static constexpr database::Config::Section::i2c_t SYS_2_DB_SECTION(sys::Config::Section::i2c_t section)
         {
             return SYS_EX2_DB_I2C[static_cast<uint8_t>(section)];
         }
 
-        static constexpr Database::Config::Section::touchscreen_t SYS_2_DB_SECTION(System::Config::Section::touchscreen_t section)
+        static constexpr database::Config::Section::touchscreen_t SYS_2_DB_SECTION(sys::Config::Section::touchscreen_t section)
         {
             return SYS_EX2_DB_TOUCHSCREEN[static_cast<uint8_t>(section)];
         }
 
         private:
-        static constexpr Database::Config::Section::global_t SYS_EX2_DB_GLOBAL[static_cast<uint8_t>(System::Config::Section::global_t::AMOUNT)] = {
-            Database::Config::Section::global_t::MIDI_SETTINGS,
-            Database::Config::Section::global_t::AMOUNT,    // blank/reserved
-            Database::Config::Section::global_t::AMOUNT,    // unused
+        static constexpr database::Config::Section::global_t SYS_EX2_DB_GLOBAL[static_cast<uint8_t>(sys::Config::Section::global_t::AMOUNT)] = {
+            database::Config::Section::global_t::MIDI_SETTINGS,
+            database::Config::Section::global_t::AMOUNT,    // blank/reserved
+            database::Config::Section::global_t::AMOUNT,    // unused
         };
 
-        static constexpr Database::Config::Section::button_t SYS_EX2_DB_BUTTON[static_cast<uint8_t>(System::Config::Section::button_t::AMOUNT)] = {
-            Database::Config::Section::button_t::TYPE,
-            Database::Config::Section::button_t::MESSAGE_TYPE,
-            Database::Config::Section::button_t::MIDI_ID,
-            Database::Config::Section::button_t::VALUE,
-            Database::Config::Section::button_t::CHANNEL
+        static constexpr database::Config::Section::button_t SYS_EX2_DB_BUTTON[static_cast<uint8_t>(sys::Config::Section::button_t::AMOUNT)] = {
+            database::Config::Section::button_t::TYPE,
+            database::Config::Section::button_t::MESSAGE_TYPE,
+            database::Config::Section::button_t::MIDI_ID,
+            database::Config::Section::button_t::VALUE,
+            database::Config::Section::button_t::CHANNEL
         };
 
-        static constexpr Database::Config::Section::encoder_t SYS_EX2_DB_ENCODER[static_cast<uint8_t>(System::Config::Section::encoder_t::AMOUNT)] = {
-            Database::Config::Section::encoder_t::ENABLE,
-            Database::Config::Section::encoder_t::INVERT,
-            Database::Config::Section::encoder_t::MODE,
-            Database::Config::Section::encoder_t::MIDI_ID,
-            Database::Config::Section::encoder_t::CHANNEL,
-            Database::Config::Section::encoder_t::PULSES_PER_STEP,
-            Database::Config::Section::encoder_t::ACCELERATION,
-            Database::Config::Section::encoder_t::MIDI_ID,
-            Database::Config::Section::encoder_t::REMOTE_SYNC
+        static constexpr database::Config::Section::encoder_t SYS_EX2_DB_ENCODER[static_cast<uint8_t>(sys::Config::Section::encoder_t::AMOUNT)] = {
+            database::Config::Section::encoder_t::ENABLE,
+            database::Config::Section::encoder_t::INVERT,
+            database::Config::Section::encoder_t::MODE,
+            database::Config::Section::encoder_t::MIDI_ID,
+            database::Config::Section::encoder_t::CHANNEL,
+            database::Config::Section::encoder_t::PULSES_PER_STEP,
+            database::Config::Section::encoder_t::ACCELERATION,
+            database::Config::Section::encoder_t::MIDI_ID,
+            database::Config::Section::encoder_t::REMOTE_SYNC
         };
 
-        static constexpr Database::Config::Section::analog_t SYS_EX2_DB_ANALOG[static_cast<uint8_t>(System::Config::Section::analog_t::AMOUNT)] = {
-            Database::Config::Section::analog_t::ENABLE,
-            Database::Config::Section::analog_t::INVERT,
-            Database::Config::Section::analog_t::TYPE,
-            Database::Config::Section::analog_t::MIDI_ID,
-            Database::Config::Section::analog_t::MIDI_ID,
-            Database::Config::Section::analog_t::LOWER_LIMIT,
-            Database::Config::Section::analog_t::LOWER_LIMIT,
-            Database::Config::Section::analog_t::UPPER_LIMIT,
-            Database::Config::Section::analog_t::UPPER_LIMIT,
-            Database::Config::Section::analog_t::CHANNEL,
-            Database::Config::Section::analog_t::LOWER_OFFSET,
-            Database::Config::Section::analog_t::UPPER_OFFSET,
+        static constexpr database::Config::Section::analog_t SYS_EX2_DB_ANALOG[static_cast<uint8_t>(sys::Config::Section::analog_t::AMOUNT)] = {
+            database::Config::Section::analog_t::ENABLE,
+            database::Config::Section::analog_t::INVERT,
+            database::Config::Section::analog_t::TYPE,
+            database::Config::Section::analog_t::MIDI_ID,
+            database::Config::Section::analog_t::MIDI_ID,
+            database::Config::Section::analog_t::LOWER_LIMIT,
+            database::Config::Section::analog_t::LOWER_LIMIT,
+            database::Config::Section::analog_t::UPPER_LIMIT,
+            database::Config::Section::analog_t::UPPER_LIMIT,
+            database::Config::Section::analog_t::CHANNEL,
+            database::Config::Section::analog_t::LOWER_OFFSET,
+            database::Config::Section::analog_t::UPPER_OFFSET,
         };
 
-        static constexpr Database::Config::Section::leds_t SYS_EX2_DB_LEDS[static_cast<uint8_t>(System::Config::Section::leds_t::AMOUNT)] = {
-            Database::Config::Section::leds_t::AMOUNT,
-            Database::Config::Section::leds_t::AMOUNT,
-            Database::Config::Section::leds_t::GLOBAL,
-            Database::Config::Section::leds_t::ACTIVATION_ID,
-            Database::Config::Section::leds_t::RGB_ENABLE,
-            Database::Config::Section::leds_t::CONTROL_TYPE,
-            Database::Config::Section::leds_t::ACTIVATION_VALUE,
-            Database::Config::Section::leds_t::CHANNEL,
+        static constexpr database::Config::Section::leds_t SYS_EX2_DB_LEDS[static_cast<uint8_t>(sys::Config::Section::leds_t::AMOUNT)] = {
+            database::Config::Section::leds_t::AMOUNT,
+            database::Config::Section::leds_t::AMOUNT,
+            database::Config::Section::leds_t::GLOBAL,
+            database::Config::Section::leds_t::ACTIVATION_ID,
+            database::Config::Section::leds_t::RGB_ENABLE,
+            database::Config::Section::leds_t::CONTROL_TYPE,
+            database::Config::Section::leds_t::ACTIVATION_VALUE,
+            database::Config::Section::leds_t::CHANNEL,
         };
 
-        static constexpr Database::Config::Section::i2c_t SYS_EX2_DB_I2C[static_cast<uint8_t>(System::Config::Section::i2c_t::AMOUNT)] = {
-            Database::Config::Section::i2c_t::DISPLAY,
+        static constexpr database::Config::Section::i2c_t SYS_EX2_DB_I2C[static_cast<uint8_t>(sys::Config::Section::i2c_t::AMOUNT)] = {
+            database::Config::Section::i2c_t::DISPLAY,
         };
 
-        static constexpr Database::Config::Section::touchscreen_t SYS_EX2_DB_TOUCHSCREEN[static_cast<uint8_t>(System::Config::Section::touchscreen_t::AMOUNT)] = {
-            Database::Config::Section::touchscreen_t::SETTING,
-            Database::Config::Section::touchscreen_t::X_POS,
-            Database::Config::Section::touchscreen_t::Y_POS,
-            Database::Config::Section::touchscreen_t::WIDTH,
-            Database::Config::Section::touchscreen_t::HEIGHT,
-            Database::Config::Section::touchscreen_t::ON_SCREEN,
-            Database::Config::Section::touchscreen_t::OFF_SCREEN,
-            Database::Config::Section::touchscreen_t::PAGE_SWITCH_ENABLED,
-            Database::Config::Section::touchscreen_t::PAGE_SWITCH_INDEX,
+        static constexpr database::Config::Section::touchscreen_t SYS_EX2_DB_TOUCHSCREEN[static_cast<uint8_t>(sys::Config::Section::touchscreen_t::AMOUNT)] = {
+            database::Config::Section::touchscreen_t::SETTING,
+            database::Config::Section::touchscreen_t::X_POS,
+            database::Config::Section::touchscreen_t::Y_POS,
+            database::Config::Section::touchscreen_t::WIDTH,
+            database::Config::Section::touchscreen_t::HEIGHT,
+            database::Config::Section::touchscreen_t::ON_SCREEN,
+            database::Config::Section::touchscreen_t::OFF_SCREEN,
+            database::Config::Section::touchscreen_t::PAGE_SWITCH_ENABLED,
+            database::Config::Section::touchscreen_t::PAGE_SWITCH_INDEX,
         };
     };
-}    // namespace Util
+}    // namespace util

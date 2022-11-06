@@ -12,12 +12,12 @@ class TestMIDI
     TestDatabase _testDatabase;
 
     public:
-    Database::Admin&         _databaseAdmin = _testDatabase._instance;
-    Protocol::MIDI::Database _database      = Protocol::MIDI::Database(_testDatabase._instance);
+    database::Admin&         _databaseAdmin = _testDatabase._instance;
+    protocol::MIDI::Database _database      = protocol::MIDI::Database(_testDatabase._instance);
     HWAMIDIUSB               _hwaMIDIUSB;
     HWAMIDIDIN               _hwaMIDIDIN;
     HWAMIDIBLE               _hwaMIDIBLE;
-    Protocol::MIDI           _instance = Protocol::MIDI(_hwaMIDIUSB,
+    protocol::MIDI           _instance = protocol::MIDI(_hwaMIDIUSB,
                                               _hwaMIDIDIN,
                                               _hwaMIDIBLE,
                                               _database);
