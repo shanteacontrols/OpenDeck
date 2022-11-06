@@ -20,6 +20,7 @@ limitations under the License.
 #include "board/Internal.h"
 #include "core/src/Timing.h"
 #include "core/src/MCU.h"
+#include "board/common/communication/USBOverSerial/USBOverSerial.h"
 
 namespace core::timing::detail
 {
@@ -131,6 +132,37 @@ namespace board
 
     namespace detail::setup
     {
+#ifdef HW_USB_OVER_SERIAL_DEVICE
+        void waitUsbLink()
+        {
+            usbLink::internalCMD_t cmd;
+
+            uint8_t data[1] = {
+                static_cast<uint8_t>(usbLink::internalCMD_t::LINK_READY),
+            };
+
+            usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::INTERNAL,
+                                                 data,
+                                                 1,
+                                                 BUFFER_SIZE_USB_OVER_SERIAL);
+
+            while (1)
+            {
+                usbOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
+
+                if (detail::usb::readInternal(cmd))
+                {
+                    if (cmd == usbLink::internalCMD_t::LINK_READY)
+                    {
+                        break;
+                    }
+                }
+
+                core::timing::waitMs(50);
+            }
+        }
+#endif
+
         void bootloader()
         {
             // partial initialization - init the rest in runBootloader() if it's determined that bootloader should really run
@@ -156,22 +188,8 @@ namespace board
 #endif
 
 #ifdef HW_USB_OVER_SERIAL_DEVICE
-            // wait for unique id from usb host
-            // this is to make sure host and the device share the same unique id
-            usbLink::internalCMD_t cmd;
-
-            while (1)
-            {
-                while (!detail::usb::readInternal(cmd))
-                {
-                    ;
-                }
-
-                if (cmd == usbLink::internalCMD_t::UNIQUE_ID)
-                {
-                    break;
-                }
-            }
+            // do not proceed with application load until usb link is ready
+            waitUsbLink();
 #endif
         }
     }    // namespace detail::setup

@@ -30,6 +30,8 @@ namespace usbLink
         USB_STATE,
         BAUDRATE_CHANGE,
         UNIQUE_ID,
-        DISCONNECT_USB
+        DISCONNECT_USB,
+        CONNECT_USB,
+        LINK_READY
     };
 }    // namespace usbLink

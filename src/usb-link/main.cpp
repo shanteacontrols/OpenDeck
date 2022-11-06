@@ -88,16 +88,24 @@ namespace
                                              BUFFER_SIZE_USB_OVER_SERIAL);
         usbOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
     }
+
+    void sendLinkReady()
+    {
+        uint8_t data[1] = {
+            static_cast<uint8_t>(usbLink::internalCMD_t::LINK_READY),
+        };
+
+        usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::INTERNAL,
+                                             data,
+                                             1,
+                                             BUFFER_SIZE_USB_OVER_SERIAL);
+        usbOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
+    }
 }    // namespace
 
 int main()
 {
     board::init();
-    board::usb::init();
-
-    // make sure device is ready before sending unique id
-    core::timing::waitMs(50);
-    sendUniqueID();
 
     while (1)
     {
@@ -149,6 +157,27 @@ int main()
                 case usbLink::internalCMD_t::DISCONNECT_USB:
                 {
                     board::usb::deInit();
+                }
+                break;
+
+                case usbLink::internalCMD_t::CONNECT_USB:
+                {
+                    if (!usb::isUSBconnected())
+                    {
+                        board::usb::init();
+                    }
+                }
+                break;
+
+                case usbLink::internalCMD_t::UNIQUE_ID:
+                {
+                    sendUniqueID();
+                }
+                break;
+
+                case usbLink::internalCMD_t::LINK_READY:
+                {
+                    sendLinkReady();
                 }
                 break;
 

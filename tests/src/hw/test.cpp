@@ -280,12 +280,12 @@ namespace
                 return result;
             };
 
-            ASSERT_EQ(0, flash(std::string(BOARD_STRING), std::string(FLASH_ARGS)));
-
 #ifndef HW_SUPPORT_USB
             LOG(INFO) << "Flashing USB Link MCU";
             flash(std::string(USB_LINK_TARGET), std::string(FLASH_ARGS_USB_LINK));
 #endif
+
+            ASSERT_EQ(0, flash(std::string(BOARD_STRING), std::string(FLASH_ARGS)));
         }
 
         size_t cleanupMIDIResponse(std::string& response)

@@ -29,6 +29,7 @@ namespace
 {
     /// Holds the USB state received from USB link MCU
     bool                                _usbConnectionState = false;
+    bool                                _uniqueIDReceived;
     uint8_t                             _readBuffer[BUFFER_SIZE_USB_OVER_SERIAL];
     board::usbOverSerial::USBReadPacket _readPacket(_readBuffer, BUFFER_SIZE_USB_OVER_SERIAL);
     core::mcu::uniqueID_t               _uidUSBDevice;
@@ -38,6 +39,32 @@ namespace board
 {
     void uniqueID(core::mcu::uniqueID_t& uid)
     {
+        if (!_uniqueIDReceived)
+        {
+            uint8_t data[1] = {
+                static_cast<uint8_t>(usbLink::internalCMD_t::UNIQUE_ID),
+            };
+
+            usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::INTERNAL,
+                                                 data,
+                                                 1,
+                                                 BUFFER_SIZE_USB_OVER_SERIAL);
+
+            usbOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
+
+            usbLink::internalCMD_t cmd;
+
+            while (!detail::usb::readInternal(cmd))
+            {
+                ;
+            }
+
+            if (cmd == usbLink::internalCMD_t::UNIQUE_ID)
+            {
+                _uniqueIDReceived = true;
+            }
+        }
+
         for (size_t i = 0; i < CORE_MCU_UID_BITS / 8; i++)
         {
             uid[i] = _uidUSBDevice[i];
@@ -155,6 +182,16 @@ namespace board
     {
         void init()
         {
+            uint8_t data[1] = {
+                static_cast<uint8_t>(usbLink::internalCMD_t::CONNECT_USB),
+            };
+
+            usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::INTERNAL,
+                                                 data,
+                                                 1,
+                                                 BUFFER_SIZE_USB_OVER_SERIAL);
+
+            usbOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
         }
 
         void deInit()
@@ -213,6 +250,12 @@ namespace board
                 case static_cast<uint8_t>(usbLink::internalCMD_t::DISCONNECT_USB):
                 {
                     board::usb::deInit();
+                }
+                break;
+
+                case static_cast<uint8_t>(usbLink::internalCMD_t::LINK_READY):
+                {
+                    // nothing to do
                 }
                 break;
 
