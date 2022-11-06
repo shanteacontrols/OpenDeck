@@ -846,6 +846,7 @@ class HWASystem : public sys::Builder::HWA::System
                                   case messaging::systemMessage_t::FACTORY_RESET_START:
                                   {
                                       board::usb::deInit();
+                                      board::io::indicators::indicateFactoryReset();
                                   }
                                   break;
 
