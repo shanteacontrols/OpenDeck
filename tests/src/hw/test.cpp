@@ -31,7 +31,7 @@ namespace
             if (!flashed)
             {
                 LOG(INFO) << "Device not flashed. Starting flashing procedure.";
-                cyclePower(powerCycleType_t::standard);
+                cyclePower(powerCycleType_t::STANDARD);
 
                 LOG(INFO) << "Waiting " << turn_on_delay_ms << " ms to ensure target and programmer are available.";
                 test::sleepMs(turn_on_delay_ms);
@@ -42,7 +42,7 @@ namespace
             else
 #endif
             {
-                cyclePower(powerCycleType_t::standardWithDeviceCheck);
+                cyclePower(powerCycleType_t::STANDARD_WITH_DEVICE_CHECK);
             }
 
             factoryReset();
@@ -74,15 +74,15 @@ namespace
 
         enum class powerCycleType_t : uint8_t
         {
-            standard,
-            standardWithDeviceCheck
+            STANDARD,
+            STANDARD_WITH_DEVICE_CHECK
         };
 
         enum class softRebootType_t : uint8_t
         {
-            standard,
-            factoryReset,
-            bootloader,
+            STANDARD,
+            FACTORY_RESET,
+            BOOTLOADER,
         };
 
         void powerOn()
@@ -123,7 +123,7 @@ namespace
 
             powerOn();
 
-            if (powerCycleType == powerCycleType_t::standardWithDeviceCheck)
+            if (powerCycleType == powerCycleType_t::STANDARD_WITH_DEVICE_CHECK)
             {
                 LOG(INFO) << "Checking for device availability";
 
@@ -172,7 +172,7 @@ namespace
             }
         }
 
-        void reboot(softRebootType_t type = softRebootType_t::standard)
+        void reboot(softRebootType_t type = softRebootType_t::STANDARD)
         {
             handshake();
 
@@ -180,21 +180,21 @@ namespace
 
             switch (type)
             {
-            case softRebootType_t::standard:
+            case softRebootType_t::STANDARD:
             {
                 LOG(INFO) << "Sending reboot request to the device";
                 cmd = &reboot_req;
             }
             break;
 
-            case softRebootType_t::factoryReset:
+            case softRebootType_t::FACTORY_RESET:
             {
                 LOG(INFO) << "Sending factory reset request to the device";
                 cmd = &factory_reset_req;
             }
             break;
 
-            case softRebootType_t::bootloader:
+            case softRebootType_t::BOOTLOADER:
             {
                 LOG(INFO) << "Sending bootloader request to the device";
                 cmd = &btldr_req;
@@ -222,7 +222,7 @@ namespace
 
             LOG(INFO) << "Device disconnected.";
 
-            if (type != softRebootType_t::bootloader)
+            if (type != softRebootType_t::BOOTLOADER)
             {
                 handshake();
                 _helper.flush();
@@ -244,12 +244,12 @@ namespace
 
         void factoryReset()
         {
-            reboot(softRebootType_t::factoryReset);
+            reboot(softRebootType_t::FACTORY_RESET);
         }
 
         void bootloader()
         {
-            reboot(softRebootType_t::bootloader);
+            reboot(softRebootType_t::BOOTLOADER);
         }
 
         void flash()
@@ -268,7 +268,7 @@ namespace
                     if (result)
                     {
                         LOG(ERROR) << "Flashing failed";
-                        cyclePower(powerCycleType_t::standard);
+                        cyclePower(powerCycleType_t::STANDARD);
                     }
                     else
                     {
