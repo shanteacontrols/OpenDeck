@@ -134,16 +134,26 @@ int main()
             }
             else if (readPacket.type() == usbOverSerial::packetType_t::INTERNAL)
             {
-                // internal command
-                if (readPacket[0] == static_cast<uint8_t>(usbLink::internalCMD_t::REBOOT_BTLDR))
+                auto cmd = static_cast<usbLink::internalCMD_t>(readPacket[0]);
+
+                switch (cmd)
+                {
+                case usbLink::internalCMD_t::REBOOT_BTLDR:
                 {
                     // use received data as the magic bootloader value
                     bootloader::setMagicBootValue(readPacket[1]);
                     reboot();
                 }
-                else if (readPacket[0] == static_cast<uint8_t>(usbLink::internalCMD_t::DISCONNECT_USB))
+                break;
+
+                case usbLink::internalCMD_t::DISCONNECT_USB:
                 {
                     board::usb::deInit();
+                }
+                break;
+
+                default:
+                    break;
                 }
             }
 
