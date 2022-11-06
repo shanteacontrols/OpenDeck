@@ -82,6 +82,10 @@ namespace board
             __attribute__((weak)) void indicateFirmwareUpdateStart()
             {
             }
+
+            __attribute__((weak)) void indicateFactoryReset()
+            {
+            }
         }    // namespace indicators
     }        // namespace io
 

@@ -295,6 +295,10 @@ namespace board
             /// Blinking starts once indicateFirmwareUpdateStart() is called.
             constexpr inline uint32_t LED_DFU_INDICATOR_TIMEOUT = 500;
 
+            /// Blinking time in milliseconds for indicator LEDs to indicate that the factory reset is in progress.
+            /// Blinking starts once indicateFactoryReset() is called.
+            constexpr inline uint32_t LED_FACTORY_RESET_INDICATOR_TIMEOUT = 250;
+
             /// Used to indicate that the data event (UART, USB etc.) has occured using built-in LEDs on board.
             /// param [source]      Source of data. Depending on the source corresponding LEDs will be turned on.
             /// param [direction]   Direction of data.
@@ -303,6 +307,10 @@ namespace board
             /// Used to indicate that the firmware update is in progress.
             /// This will blink all the internal LEDs continuously until update is done.
             void indicateFirmwareUpdateStart();
+
+            /// Used to indicate that factory reset is in progress.
+            /// This will turn on input indicators first and then output ones continuously until factory reset is done.
+            void indicateFactoryReset();
         }    // namespace indicators
     }        // namespace io
 

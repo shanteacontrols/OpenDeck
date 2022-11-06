@@ -181,6 +181,12 @@ int main()
                 }
                 break;
 
+                case usbLink::internalCMD_t::FACTORY_RESET:
+                {
+                    board::io::indicators::indicateFactoryReset();
+                }
+                break;
+
                 default:
                     break;
                 }

@@ -32,6 +32,7 @@ namespace usbLink
         UNIQUE_ID,
         DISCONNECT_USB,
         CONNECT_USB,
-        LINK_READY
+        LINK_READY,
+        FACTORY_RESET
     };
 }    // namespace usbLink

@@ -71,6 +71,25 @@ namespace board
         }
     }
 
+#ifndef HW_SUPPORT_USB_INDICATORS
+    namespace io::indicators
+    {
+        void indicateFactoryReset()
+        {
+            uint8_t data[1] = {
+                static_cast<uint8_t>(usbLink::internalCMD_t::FACTORY_RESET),
+            };
+
+            usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::INTERNAL,
+                                                 data,
+                                                 1,
+                                                 BUFFER_SIZE_USB_OVER_SERIAL);
+
+            usbOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
+        }
+    }    // namespace io::indicators
+#endif
+
     namespace usb
     {
         bool isUSBconnected()
