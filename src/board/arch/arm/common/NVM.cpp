@@ -123,7 +123,7 @@ namespace board::nvm
         case parameterType_t::BYTE:
         case parameterType_t::WORD:
         {
-            auto readStatus = _emuEEPROM.readCached(address, tempData);
+            auto readStatus = _emuEEPROM.read(address, tempData);
             value           = tempData;
 
             if (readStatus == EmuEEPROM::readStatus_t::OK)
