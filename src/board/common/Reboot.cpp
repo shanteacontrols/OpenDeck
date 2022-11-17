@@ -29,6 +29,8 @@ namespace board
 {
     void reboot()
     {
+        usb::deInit();
+
 #ifndef HW_SUPPORT_USB
         // signal to usb link to reboot as well
 
