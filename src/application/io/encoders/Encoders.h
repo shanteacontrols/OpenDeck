@@ -54,6 +54,7 @@ namespace io
             NRPN_7BIT,
             NRPN_14BIT,
             CONTROL_CHANGE_14BIT,
+            RESERVED,
             AMOUNT
         };
 
@@ -219,6 +220,7 @@ namespace io
             MIDI::messageType_t::NRPN_7BIT,               // NRPN_7BIT
             MIDI::messageType_t::NRPN_14BIT,              // NRPN_14BIT
             MIDI::messageType_t::CONTROL_CHANGE_14BIT,    // CONTROL_CHANGE_14BIT
+            MIDI::messageType_t::INVALID,                 // RESERVED
         };
     };
 }    // namespace io

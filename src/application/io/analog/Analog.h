@@ -56,6 +56,7 @@ namespace io
             NRPN_14BIT,
             PITCH_BEND,
             CONTROL_CHANGE_14BIT,
+            RESERVED,
             AMOUNT
         };
 
@@ -137,14 +138,15 @@ namespace io
         uint8_t _fsrPressed[Collection::SIZE() / 8 + 1] = {};
 
         static constexpr MIDI::messageType_t INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(type_t::AMOUNT)] = {
-            MIDI::messageType_t::CONTROL_CHANGE,
-            MIDI::messageType_t::NOTE_ON,
-            MIDI::messageType_t::NOTE_ON,    // fsr: set to off when appropriate
-            MIDI::messageType_t::INVALID,    // button: let other listeners handle this
-            MIDI::messageType_t::NRPN_7BIT,
-            MIDI::messageType_t::NRPN_14BIT,
-            MIDI::messageType_t::PITCH_BEND,
-            MIDI::messageType_t::CONTROL_CHANGE_14BIT,
+            MIDI::messageType_t::CONTROL_CHANGE,          // POTENTIOMETER_CONTROL_CHANGE
+            MIDI::messageType_t::NOTE_ON,                 // POTENTIOMETER_NOTE
+            MIDI::messageType_t::NOTE_ON,                 // FSR (set to note off when appropriate)
+            MIDI::messageType_t::INVALID,                 // BUTTON (let other listeners handle this)
+            MIDI::messageType_t::NRPN_7BIT,               // NRPN_7BIT
+            MIDI::messageType_t::NRPN_14BIT,              // NRPN_14BIT
+            MIDI::messageType_t::PITCH_BEND,              // PITCH_BEND
+            MIDI::messageType_t::CONTROL_CHANGE_14BIT,    // CONTROL_CHANGE_14BIT
+            MIDI::messageType_t::INVALID,                 // RESERVED
         };
     };
 }    // namespace io

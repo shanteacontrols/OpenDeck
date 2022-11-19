@@ -67,6 +67,7 @@ namespace io
             MULTI_VAL_INC_DEC_CC,
             NOTE_OFF_ONLY,
             CONTROL_CHANGE0_ONLY,
+            RESERVED,
             PROGRAM_CHANGE_OFFSET_INC,
             PROGRAM_CHANGE_OFFSET_DEC,
             AMOUNT
