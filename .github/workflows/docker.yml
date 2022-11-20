@@ -19,6 +19,7 @@ jobs:
       - name: Push to docker hub
         uses: docker/build-push-action@v2
         with:
-          context: .devcontainer
+          context: .
+          file: .devcontainer/Dockerfile
           push: true
           tags: paradajz168/opendeck-dev:latest
