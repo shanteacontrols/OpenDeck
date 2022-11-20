@@ -665,6 +665,26 @@ TEST_F(HWTest, DatabaseInitialValues)
 #ifdef HW_SUPPORT_BOOTLOADER
 TEST_F(HWTest, FwUpdate)
 {
+    LOG(INFO) << "Setting few random values in each available preset";
+
+    for (int preset = 0; preset < _database._instance.getSupportedPresets(); preset++)
+    {
+        ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::global_t::PRESETS, static_cast<int>(database::Config::presetSetting_t::ACTIVE_PRESET), preset));
+        ASSERT_EQ(preset, _helper.readFromSystem(sys::Config::Section::global_t::PRESETS, static_cast<int>(database::Config::presetSetting_t::ACTIVE_PRESET)));
+
+        ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::analog_t::MIDI_ID, 4, 15 + preset));
+#ifdef ENCODERS_SUPPORTED
+        ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::encoder_t::CHANNEL, 1, 2 + preset));
+#endif
+        ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::button_t::VALUE, 0, 90 + preset));
+
+        ASSERT_EQ(15 + preset, _helper.readFromSystem(sys::Config::Section::analog_t::MIDI_ID, 4));
+#ifdef ENCODERS_SUPPORTED
+        ASSERT_EQ(2 + preset, _helper.readFromSystem(sys::Config::Section::encoder_t::CHANNEL, 1));
+#endif
+        ASSERT_EQ(90 + preset, _helper.readFromSystem(sys::Config::Section::button_t::VALUE, 0));
+    }
+
     LOG(INFO) << "Entering bootloader mode";
     bootloader();
 
@@ -673,6 +693,20 @@ TEST_F(HWTest, FwUpdate)
     LOG(INFO) << "Firmware file sent successfully, verifying that device responds to handshake";
 
     handshake();
+
+    LOG(INFO) << "Verifying that the custom values are still active after FW update";
+
+    for (int preset = 0; preset < _database._instance.getSupportedPresets(); preset++)
+    {
+        ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::global_t::PRESETS, static_cast<int>(database::Config::presetSetting_t::ACTIVE_PRESET), preset));
+        ASSERT_EQ(preset, _helper.readFromSystem(sys::Config::Section::global_t::PRESETS, static_cast<int>(database::Config::presetSetting_t::ACTIVE_PRESET)));
+
+        ASSERT_EQ(15 + preset, _helper.readFromSystem(sys::Config::Section::analog_t::MIDI_ID, 4));
+#ifdef ENCODERS_SUPPORTED
+        ASSERT_EQ(2 + preset, _helper.readFromSystem(sys::Config::Section::encoder_t::CHANNEL, 1));
+#endif
+        ASSERT_EQ(90 + preset, _helper.readFromSystem(sys::Config::Section::button_t::VALUE, 0));
+    }
 }
 #endif
 
