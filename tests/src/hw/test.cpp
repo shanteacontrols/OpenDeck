@@ -286,6 +286,7 @@ namespace
 #endif
 
             ASSERT_EQ(0, flash(std::string(BOARD_STRING), std::string(FLASH_ARGS)));
+            cyclePower(powerCycleType_t::STANDARD_WITH_DEVICE_CHECK);
         }
 
         size_t cleanupMIDIResponse(std::string& response)
