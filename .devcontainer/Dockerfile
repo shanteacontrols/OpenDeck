@@ -139,3 +139,6 @@ RUN \
 sudo update-alternatives --install /usr/local/bin/clang-format clang-format /usr/bin/clang-format-15 20 && \
 sudo update-alternatives --install /usr/local/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-15 20 && \
 sudo update-alternatives --install /usr/local/bin/run-clang-tidy run-clang-tidy /usr/bin/run-clang-tidy-15 20
+
+ADD .devcontainer/.git_branch_bash /home/$user/.git_branch_bash
+RUN echo "source ~/.git_branch_bash" >> ~/.bashrc

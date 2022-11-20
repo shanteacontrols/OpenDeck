@@ -1,0 +1,24 @@
+GIT_BRANCH_COLOR_CLEAN=$(tput setaf 2)
+GIT_BRANCH_COLOR_DIRTY=$(tput setaf 1)
+BOLD=$(tput bold)
+NORM=$(tput sgr0)
+NO_COLOR=$(tput sgr0)
+
+parse_git_branch()
+{
+    branch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ \1/')
+
+    if [[ -n $branch ]]
+    then
+        if [ -n "$(git status --untracked-files=no --porcelain)" ]
+        then
+            # Uncommitted changes
+            branch+='*'
+            echo "${GIT_BRANCH_COLOR_DIRTY}${BOLD}${branch}${NORM}${NO_COLOR}"
+        else
+            echo "${GIT_BRANCH_COLOR_CLEAN}${branch}${NO_COLOR}"
+        fi
+    fi
+}
+
+export PS1="\[\033[01;32m\]\u@\h\[\033[00m\]\[\033[01;34m\] \w\[\$(parse_git_branch)\]\[\e[00m\]\n> "
