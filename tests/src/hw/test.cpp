@@ -85,6 +85,12 @@ namespace
             BOOTLOADER,
         };
 
+        enum class flashType_t : uint8_t
+        {
+            DEVELOPMENT,
+            RELEASE,
+        };
+
         void powerOn()
         {
             // Send newline to arduino controller to make sure on/off commands
@@ -252,18 +258,29 @@ namespace
             reboot(softRebootType_t::BOOTLOADER);
         }
 
-        void flash()
+        void flash(flashType_t flashType = flashType_t::DEVELOPMENT)
         {
-            auto flash = [this](std::string target, std::string args)
+            auto flash = [&](std::string target, std::string args)
             {
                 const size_t ALLOWED_REPEATS = 2;
                 int          result          = -1;
                 std::string  flashTarget     = " TARGET=" + target;
+                std::string  extraArgs       = "";
+
+                if (flashType == flashType_t::RELEASE)
+                {
+                    LOG(INFO) << "Flashing release binary";
+                    extraArgs += " FLASH_BINARY_DIR=" + latest_github_release_dir + " ";
+                }
+                else
+                {
+                    LOG(INFO) << "Flashing development binary";
+                }
 
                 for (size_t i = 0; i < ALLOWED_REPEATS; i++)
                 {
                     LOG(INFO) << "Flashing the device, attempt " << i + 1;
-                    result = test::wsystem(flash_cmd + flashTarget + " " + args);
+                    result = test::wsystem(flash_cmd + flashTarget + " " + args + extraArgs);
 
                     if (result)
                     {
@@ -305,23 +322,24 @@ namespace
         TestDatabase _database;
         MIDIHelper   _helper = MIDIHelper(true);
 
-        const std::string handshake_req            = "F0 00 53 43 00 00 01 F7";
-        const std::string handshake_ack            = "F0 00 53 43 01 00 01 F7";
-        const std::string reboot_req               = "F0 00 53 43 00 00 7F F7";
-        const std::string factory_reset_req        = "F0 00 53 43 00 00 44 F7";
-        const std::string btldr_req                = "F0 00 53 43 00 00 55 F7";
-        const std::string backup_req               = "F0 00 53 43 00 00 1B F7";
-        const std::string usb_power_off_cmd        = "echo write_high 1 > /dev/actl";
-        const std::string usb_power_on_cmd         = "echo write_low 1 > /dev/actl";
-        const uint32_t    turn_on_delay_ms         = 10000;
-        const uint32_t    max_connect_delay_ms     = 25000;
-        const uint32_t    max_disconnect_delay_ms  = 3000;
-        const uint32_t    handshake_retry_delay_ms = 2000;
-        const std::string fw_build_dir             = "../src/build/";
-        const std::string fw_build_type_subdir     = "release/";
-        const std::string temp_midi_data_location  = "/tmp/temp_midi_data";
-        const std::string backup_file_location     = "/tmp/backup.txt";
-        bool              powerStatus              = false;
+        const std::string handshake_req             = "F0 00 53 43 00 00 01 F7";
+        const std::string handshake_ack             = "F0 00 53 43 01 00 01 F7";
+        const std::string reboot_req                = "F0 00 53 43 00 00 7F F7";
+        const std::string factory_reset_req         = "F0 00 53 43 00 00 44 F7";
+        const std::string btldr_req                 = "F0 00 53 43 00 00 55 F7";
+        const std::string backup_req                = "F0 00 53 43 00 00 1B F7";
+        const std::string usb_power_off_cmd         = "echo write_high 1 > /dev/actl";
+        const std::string usb_power_on_cmd          = "echo write_low 1 > /dev/actl";
+        const uint32_t    turn_on_delay_ms          = 10000;
+        const uint32_t    max_connect_delay_ms      = 25000;
+        const uint32_t    max_disconnect_delay_ms   = 3000;
+        const uint32_t    handshake_retry_delay_ms  = 2000;
+        const std::string fw_build_dir              = "../src/build/";
+        const std::string fw_build_type_subdir      = "release/";
+        const std::string temp_midi_data_location   = "/tmp/temp_midi_data";
+        const std::string backup_file_location      = "/tmp/backup.txt";
+        const std::string latest_github_release_dir = "/tmp/latest_github_release";
+        bool              powerStatus               = false;
     };
 }    // namespace
 
@@ -686,7 +704,6 @@ TEST_F(HWTest, FwUpdate)
         ASSERT_EQ(90 + preset, _helper.readFromSystem(sys::Config::Section::button_t::VALUE, 0));
     }
 
-    LOG(INFO) << "Entering bootloader mode";
     bootloader();
 
     std::string cmd = flash_cmd + std::string(" FLASH_TOOL=opendeck TARGET=") + std::string(BOARD_STRING);
@@ -708,6 +725,18 @@ TEST_F(HWTest, FwUpdate)
 #endif
         ASSERT_EQ(90 + preset, _helper.readFromSystem(sys::Config::Section::button_t::VALUE, 0));
     }
+}
+
+TEST_F(HWTest, FwUpdateFromLastRelease)
+{
+    flash(flashType_t::RELEASE);
+    bootloader();
+
+    std::string cmd = flash_cmd + std::string(" FLASH_TOOL=opendeck TARGET=") + std::string(BOARD_STRING);
+    ASSERT_EQ(0, test::wsystem(cmd));
+    LOG(INFO) << "Firmware file sent successfully, verifying that device responds to handshake";
+
+    handshake();
 }
 #endif
 

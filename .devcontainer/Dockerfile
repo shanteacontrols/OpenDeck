@@ -30,6 +30,7 @@ software-properties-common \
 python3-pip \
 gcc-multilib \
 gpg-agent \
+curl \
 && rm -rf /var/lib/apt/lists/*
 
 RUN \
