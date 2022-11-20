@@ -2,6 +2,7 @@ version: '3.7'
 
 services:
   opendeck:
+    container_name: opendeck
     image: paradajz168/opendeck-dev
     volumes:
       - $PWD:/home/opendeck/OpenDeck

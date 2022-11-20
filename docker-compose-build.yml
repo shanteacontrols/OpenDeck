@@ -1,0 +1,21 @@
+version: '3.7'
+
+services:
+  opendeck:
+    container_name: opendeck
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - $PWD:/home/opendeck/OpenDeck
+      - $HOME/.ssh:/home/opendeck/.ssh
+      - /dev:/dev
+      - cache:/build_cache
+    hostname: localhost
+    network_mode: host
+    working_dir: /home/opendeck/OpenDeck
+    command: tail -f /dev/null
+    privileged: true
+
+volumes:
+  cache:
