@@ -48,7 +48,8 @@ LDFLAGS := \
 -lglog \
 -lpthread \
 -lgmock \
--lgtest
+-lgtest \
+-no-pie
 
 .DEFAULT_GOAL := test
 
