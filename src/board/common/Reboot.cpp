@@ -34,14 +34,19 @@ namespace board
 #ifndef HW_SUPPORT_USB
         // signal to usb link to reboot as well
 
-        uint8_t data[2] = {
+        uint32_t magicVal = board::bootloader::magicBootValue();
+
+        uint8_t data[5] = {
             static_cast<uint8_t>(usbLink::internalCMD_t::REBOOT_BTLDR),
-            board::bootloader::magicBootValue()
+            static_cast<uint8_t>(magicVal >> 24 & 0xFF),
+            static_cast<uint8_t>(magicVal >> 16 & 0xFF),
+            static_cast<uint8_t>(magicVal >> 8 & 0xFF),
+            static_cast<uint8_t>(magicVal >> 0 & 0xFF),
         };
 
         usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::INTERNAL,
                                              data,
-                                             2,
+                                             sizeof(data),
                                              BUFFER_SIZE_USB_OVER_SERIAL);
         usbOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
 #endif

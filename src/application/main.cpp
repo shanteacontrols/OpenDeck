@@ -907,7 +907,7 @@ class HWASystem : public sys::Builder::HWA::System
 
     void reboot(FwSelector::fwType_t type) override
     {
-        auto value = static_cast<uint8_t>(type);
+        auto value = static_cast<uint32_t>(type);
 
         board::bootloader::setMagicBootValue(value);
         board::reboot();

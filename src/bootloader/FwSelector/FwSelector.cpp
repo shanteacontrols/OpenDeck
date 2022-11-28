@@ -29,11 +29,11 @@ void FwSelector::select()
     }
     else
     {
-        uint8_t magicValue = _hwa.magicBootValue();
+        auto magicValue = _hwa.magicBootValue();
 
         switch (magicValue)
         {
-        case static_cast<uint8_t>(fwType_t::BOOTLOADER):
+        case static_cast<uint32_t>(fwType_t::BOOTLOADER):
         {
             fwType = fwType_t::BOOTLOADER;
         }

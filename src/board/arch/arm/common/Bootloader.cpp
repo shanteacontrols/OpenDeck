@@ -30,14 +30,14 @@ namespace
 
 namespace board::bootloader
 {
-    uint8_t magicBootValue()
+    uint32_t magicBootValue()
     {
         return _fwEntryType;
     }
 
-    void setMagicBootValue(uint8_t value)
+    void setMagicBootValue(uint32_t value)
     {
-        _fwEntryType = static_cast<uint32_t>(value);
+        _fwEntryType = value;
     }
 
     void runApplication()

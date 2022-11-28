@@ -30,8 +30,8 @@ namespace board::nvm
 
     uint32_t size()
     {
-        // last eeprom address stores type of firmware to boot once in bootloader
-        return CORE_MCU_EEPROM_SIZE - 1;
+        // last 4 bytes in eeprom are reserved for the type of firmware to boot once in bootloader
+        return CORE_MCU_EEPROM_SIZE - 4;
     }
 
     bool read(uint32_t address, uint32_t& value, parameterType_t type)

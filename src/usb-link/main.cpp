@@ -149,7 +149,15 @@ int main()
                 case usbLink::internalCMD_t::REBOOT_BTLDR:
                 {
                     // use received data as the magic bootloader value
-                    bootloader::setMagicBootValue(readPacket[1]);
+                    uint32_t magicVal = readPacket[1];
+                    magicVal <<= 8;
+                    magicVal |= readPacket[2];
+                    magicVal <<= 8;
+                    magicVal |= readPacket[3];
+                    magicVal <<= 8;
+                    magicVal |= readPacket[4];
+
+                    bootloader::setMagicBootValue(magicVal);
                     reboot();
                 }
                 break;

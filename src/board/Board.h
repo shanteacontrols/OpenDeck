@@ -389,8 +389,8 @@ namespace board
 
     namespace bootloader
     {
-        uint8_t  magicBootValue();
-        void     setMagicBootValue(uint8_t value);
+        uint32_t magicBootValue();
+        void     setMagicBootValue(uint32_t value);
         void     runBootloader();
         void     runApplication();
         void     appAddrBoundary(uint32_t& first, uint32_t& last);

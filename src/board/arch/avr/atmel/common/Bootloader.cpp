@@ -26,16 +26,16 @@ limitations under the License.
 namespace board::bootloader
 {
     /// Location at which reboot type is written in EEPROM when initiating software reset.
-    constexpr uint32_t REBOOT_VALUE_EEPROM_LOCATION = CORE_MCU_EEPROM_SIZE - 1;
+    constexpr uint32_t REBOOT_VALUE_EEPROM_LOCATION = CORE_MCU_EEPROM_SIZE - 4;
 
-    uint8_t magicBootValue()
+    uint32_t magicBootValue()
     {
-        return eeprom_read_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION);
+        return eeprom_read_dword((uint32_t*)REBOOT_VALUE_EEPROM_LOCATION);
     }
 
-    void setMagicBootValue(uint8_t value)
+    void setMagicBootValue(uint32_t value)
     {
-        eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, static_cast<uint8_t>(value));
+        eeprom_update_dword((uint32_t*)REBOOT_VALUE_EEPROM_LOCATION, value);
     }
 
     void runApplication()

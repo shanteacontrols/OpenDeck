@@ -28,19 +28,19 @@ class FwSelector
     /// Location of this value is board-specific.
     enum class fwType_t : uint32_t
     {
-        APPLICATION = 0xFF,
-        BOOTLOADER  = 0x47
+        APPLICATION = 0xFFFFFFFF,
+        BOOTLOADER  = 0x47474747
     };
 
     class HWA
     {
         public:
-        virtual uint8_t magicBootValue()                                 = 0;
-        virtual void    setMagicBootValue(uint8_t value)                 = 0;
-        virtual void    load(fwType_t fwType)                            = 0;
-        virtual void    appAddrBoundary(uint32_t& first, uint32_t& last) = 0;
-        virtual bool    isHWtriggerActive()                              = 0;
-        virtual uint8_t readFlash(uint32_t address)                      = 0;
+        virtual uint32_t magicBootValue()                                 = 0;
+        virtual void     setMagicBootValue(uint32_t value)                = 0;
+        virtual void     load(fwType_t fwType)                            = 0;
+        virtual void     appAddrBoundary(uint32_t& first, uint32_t& last) = 0;
+        virtual bool     isHWtriggerActive()                              = 0;
+        virtual uint8_t  readFlash(uint32_t address)                      = 0;
     };
 
     FwSelector(HWA& hwa)

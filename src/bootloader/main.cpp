@@ -81,12 +81,12 @@ class BTLDRWriter : public Updater::BTLDRWriter
 class HWAFwSelector : public FwSelector::HWA
 {
     public:
-    uint8_t magicBootValue() override
+    uint32_t magicBootValue() override
     {
         return board::bootloader::magicBootValue();
     }
 
-    void setMagicBootValue(uint8_t value) override
+    void setMagicBootValue(uint32_t value) override
     {
         board::bootloader::setMagicBootValue(value);
     }
