@@ -37,14 +37,16 @@ If the feature you want isn't supported yet, don't feel discouraged. Open up a [
 
 ![](https://raw.githubusercontent.com/shanteacontrols/website/master/images/opendeck3-header.png)
 
-The official board currently comes in A and B variant: A variant is based on Arduino Nano 33 BLE with nRF52840 MCU and B variant on STM32F4 Black Pill with STM32F411 MCU. A variant supports BLE MIDI and supports few more presets due to larger flash memory - everything else is the same. The board features the following:
+The official board is based on Raspberry Pi RP2040 microcontroller and features the following:
 
 * 128 digital inputs
 * 64 digital outputs
 * 64 analog inputs
 * DIN MIDI
 * USB MIDI
-* Bluetooth on A variant
+* Connector for touchscreen
+* Connector for I2C OLED display
+* Additional connectors with 3V+GND and 5V+GND connections
 
 The board is available on [Tindie](https://www.tindie.com/products/paradajz/opendeck-diy-midi-platform-v3/).
 
