@@ -8,13 +8,11 @@ INCLUDE_DIRS += \
 -I"./" \
 -I"$(BOARD_GEN_DIR_MCU_BASE)/$(CORE_MCU_MODEL)" \
 -I"$(BOARD_GEN_DIR_TARGET)/" \
--I"application/" \
 -I"board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/common" \
 -I"board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/common" \
 -I"../modules/core/src/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/common" \
 -I"../modules/core/src/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/common" \
 -I"board/common" \
--I"bootloader/" \
 -I"../modules/"
 
 ifneq (,$(findstring USE_TINYUSB,$(DEFINES)))

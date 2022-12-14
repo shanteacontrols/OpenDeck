@@ -14,6 +14,9 @@ else
     OPT := -O3
 endif
 
+INCLUDE_DIRS += \
+-I"application"
+
 ifeq ($(CORE_MCU_ARCH),arm)
     SOURCES += $(shell $(FIND) application/database -type f -name "*.cpp")
     SOURCES += $(shell $(FIND) ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")

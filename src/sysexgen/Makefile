@@ -16,6 +16,10 @@ endif
 
 DEFINES += CORE_MCU_STUB
 
+INCLUDE_DIRS += \
+-I"application" \
+-I"bootloader"
+
 ifneq (,$(findstring HW_SUPPORT_BOOTLOADER,$(DEFINES)))
     SOURCES += sysexgen/main.cpp
 endif
