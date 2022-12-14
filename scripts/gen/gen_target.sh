@@ -7,26 +7,34 @@ gen_dir=$3
 yaml_parser="dasel -n -p yaml --plain -f"
 out_header="$gen_dir"/Target.h
 out_makefile="$gen_dir"/Makefile
-
-echo "Generating target definitions..."
+mcu=$($yaml_parser "$yaml_file" mcu)
+target_name=$(basename "$yaml_file" .yml)
+mcu_gen_dir=$(dirname "$gen_dir")/../mcu/$mcu
+hw_test_yaml_file=$(dirname "$yaml_file")/../hw-test/$target_name.yml
 
 mkdir -p "$gen_dir"
 echo "" > "$out_header"
 echo "" > "$out_makefile"
 
-{
-    printf "%s\n\n" "#pragma once"
-    printf "%s\n" "#include \"board/Internal.h\""
-    printf "%s\n" "#include \"core/src/MCU.h\""
-    printf "%s\n" "#include \"core/src/arch/common/UART.h\""
-    printf "%s\n" "#include \"core/src/arch/common/I2C.h\""
-} >> "$out_header"
+if [[ ! -d $mcu_gen_dir ]]
+then
+    if ! "$script_dir"/gen_mcu.sh "$mcu" "$mcu_gen_dir"
+    then
+        exit 1
+    fi
+fi
 
-source "$script_dir"/target/core.sh
-source "$script_dir"/target/peripherals.sh
-source "$script_dir"/target/digital_inputs.sh
-source "$script_dir"/target/digital_outputs.sh
-source "$script_dir"/target/analog_inputs.sh
-source "$script_dir"/target/unused_io.sh
+echo "Generating target definitions..."
 
-printf "\n%s" "#include \"board/common/Map.h.include\"" >> "$out_header"
+source "$script_dir"/target/main.sh
+
+if [[ -f $hw_test_yaml_file ]]
+then
+    # HW config files go into the same dir as target ones
+    if ! "$script_dir"/gen_hwconfig.sh "$project" "$hw_test_yaml_file" "$gen_dir"
+    then
+        exit 1
+    else
+        printf "%s\n" "DEFINES += TESTS_HW_SUPPORT" >> "$out_makefile"
+    fi
+fi

@@ -53,7 +53,7 @@ for test in $binaries
 do
     if [ "$hw_testing" == "1" ]
     then
-        board=$(echo "$test" | cut -d/ -f3)
+        board=$(echo "$test" | rev | cut -d/ -f4 | rev)
 
         if [[ -f ../config/hw-test/"$board".yml ]]
         then
