@@ -39,7 +39,7 @@ fi
     printf "%s%s\n" '-include $(MAKEFILE_INCLUDE_PREFIX)$(BOARD_GEN_DIR_MCU_BASE)/' "$mcu/MCU.mk"
 } >> "$out_makefile"
 
-# Normally, ext clock freq is generated in MCU.mk file by core module, however, various OpenDeck boards
+# Normally, ext clock freq is generated in MCU.mk file by core module, however, various boards
 # can use the same MCU with different clock speed. Therefore, define this in target makefile.
 extClockMhz=$($yaml_parser "$yaml_file" extClockMhz)
 

@@ -21,7 +21,7 @@ fi
 
 echo "Generating MCU configuration..."
 
-printf "%s\n" "### OPENDECK ADDITIONS ###" >> "$out_makefile"
+printf "%s\n" "### gen_mcu.sh ADDITIONS ###" >> "$out_makefile"
 
 mkdir -p "$gen_dir"
 
