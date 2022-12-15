@@ -8,6 +8,7 @@
 #include "board/Internal.h"
 #include "helpers/MIDI.h"
 
+#include <filesystem>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -67,8 +68,20 @@ namespace
 
 TEST(Bootloader, FwUpdate)
 {
-    const std::string SYX_PATH    = fw_build_dir + BOARD_STRING + "/" + fw_build_type_subdir + "merged/" + BOARD_STRING + ".sysex.syx";
-    const std::string BINARY_PATH = fw_build_dir + BOARD_STRING + "/" + fw_build_type_subdir + "merged/" + BOARD_STRING + "_sysex.bin";
+    const std::filesystem::path SYX_PATH    = std::string(fw_build_dir + BOARD_STRING + "/" + fw_build_type_subdir + "merged/" + BOARD_STRING + ".sysex.syx");
+    const std::filesystem::path BINARY_PATH = std::string(fw_build_dir + BOARD_STRING + "/" + fw_build_type_subdir + "merged/" + BOARD_STRING + "_sysex.bin");
+
+    if (!std::filesystem::exists(SYX_PATH))
+    {
+        LOG(ERROR) << SYX_PATH << " doesn't exist";
+        ASSERT_TRUE(true == false);
+    }
+
+    if (!std::filesystem::exists(BINARY_PATH))
+    {
+        LOG(ERROR) << BINARY_PATH << " doesn't exist";
+        ASSERT_TRUE(true == false);
+    }
 
     std::ifstream        sysExStream(SYX_PATH, std::ios::in | std::ios::binary);
     std::vector<uint8_t> sysExVector((std::istreambuf_iterator<char>(sysExStream)), std::istreambuf_iterator<char>());
