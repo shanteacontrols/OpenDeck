@@ -7,11 +7,10 @@ Documentation/*
 *Objects.mk
 *.cortex-debug*
 **/tests/test_run/*
-**/board/gen/*
+**/generated/*
 *.profraw
 **/cubemx/**/*
 !**/cubemx/**/*.ioc
-src/application/gen/*
 **/*.ico
 **/.clangd/*
 **/clangd/*

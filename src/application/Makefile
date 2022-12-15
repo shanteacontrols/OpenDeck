@@ -66,8 +66,8 @@ ifneq (,$(findstring HW_USB_OVER_SERIAL_HOST,$(DEFINES)))
     # FW for USB hosts uses different set of sources than other targets
     SOURCES += $(shell find usb-link -type f -name "*.cpp")
 else
-    SOURCES += $(shell $(FIND) application -type f -not -path "*$(APP_GEN_DIR_BASE)*" -regex '.*\.\(s\|c\|cpp\)')
-    SOURCES += $(shell $(FIND) $(APP_GEN_DIR_TARGET) -type f -regex '.*\.\(s\|c\|cpp\)')
+    SOURCES += $(shell $(FIND) application -type f -not -path "*$(GENERATED_SUBDIR_BASE)*" -regex '.*\.\(s\|c\|cpp\)')
+    SOURCES += $(shell $(FIND) $(APPLICATION_GEN_DIR_TARGET) -type f -regex '.*\.\(s\|c\|cpp\)')
     SOURCES += $(shell $(FIND) ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
     SOURCES += $(shell $(FIND) ../modules/midi/src -type f -name "*.cpp" | sed "s|^\.\./||")
     SOURCES += $(shell $(FIND) ../modules/sysex/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")

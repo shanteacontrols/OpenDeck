@@ -1,16 +1,16 @@
 # Important - do not change the order of inclusion!
 
 include ../src/Toolchain.mk
-include Setup.mk
 include ../src/Setup.mk
--include ../src/$(BOARD_GEN_DIR_TARGET)/Makefile
+-include $(BOARD_GEN_DIR_TARGET)/Makefile
 -include ../src/board/arch/$(CORE_MCU_ARCH)/Makefile
 -include ../src/board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/Makefile
 -include ../src/board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/Makefile
 -include ../src/board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/$(CORE_MCU_MODEL)/Makefile
 -include ../src/$(TYPE)/Makefile
 include ../src/Defines.mk
--include $(MAKEFILE_INCLUDE_PREFIX)$(BOARD_GEN_DIR_TARGET)/HWTestDefines.mk
+include Setup.mk
+-include $(BOARD_GEN_DIR_TARGET)/HWTestDefines.mk
 include Defines.mk
 include Sources.mk
 -include Objects.mk

@@ -6,7 +6,7 @@ vpath modules/%.S ../
 # Common include dirs
 INCLUDE_DIRS += \
 -I"./" \
--I"$(BOARD_GEN_DIR_MCU_BASE)/$(CORE_MCU_MODEL)" \
+-I"$(BOARD_GEN_DIR_MCU)" \
 -I"$(BOARD_GEN_DIR_TARGET)/" \
 -I"board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/common" \
 -I"board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/common" \
@@ -26,8 +26,10 @@ LINKER_FILE       := ../modules/core/src/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR
 TARGET_GEN_HEADER := $(BOARD_GEN_DIR_TARGET)/Target.h
 
 ifneq (,$(wildcard $(DEF_FILE_TSCREEN)))
-    TSCREEN_GEN_SOURCE += $(APP_GEN_DIR_TARGET)/Touchscreen.cpp
+    TSCREEN_GEN_SOURCE := $(APPLICATION_GEN_DIR_TARGET)/Touchscreen.cpp
 endif
+
+SYSEX_BINARY_SUFFIX := _sysex
 
 GEN_FILES += \
 $(TARGET_GEN_HEADER) \

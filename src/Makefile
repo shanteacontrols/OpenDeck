@@ -168,7 +168,8 @@ $(BUILD_DIR)/%.S.o: %.S
 format:
 	@echo Checking code formatting...
 	@$(FIND) . -regex '.*\.\(cpp\|hpp\|h\|cc\|cxx\|c\)' \
-	-not -path "**/deps/**/*" \
+	-not -path "**/$(DEPS_SUBDIR_BASE)/**/*" \
+	-not -path "**/$(GENERATED_SUBDIR_BASE)/**/*" \
 	-exec $(CLANG_FORMAT) -style=file -i {} +
 ifeq ($(CF_FAIL_ON_DIFF), 1)
 	git diff
@@ -191,7 +192,11 @@ endif
 
 clean:
 	@echo Cleaning up.
-	@rm -rf $(BUILD_DIR_BASE) $(BOARD_GEN_DIR_BASE) $(APP_GEN_DIR) compile_commands.json
+	@rm -rf \
+	$(BUILD_DIR_BASE) \
+	$(BOARD_GEN_DIR_BASE) \
+	$(APPLICATION_GEN_DIR_BASE) \
+	compile_commands.json
 
 # Debugging
 print-%:
