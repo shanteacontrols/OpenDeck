@@ -1,0 +1,263 @@
+---
+  mcu: "rp2040"
+  usb: true
+  uart:
+    dinMIDI:
+      pins:
+        rx:
+          port: "0"
+          index: 17
+        tx:
+          port: "0"
+          index: 16
+    touchscreen:
+      pins:
+        rx:
+          port: "0"
+          index: 9
+        tx:
+          port: "0"
+          index: 8
+      components: 64
+  i2c:
+    display:
+      pins:
+        sda:
+          port: "0"
+          index: 10
+        scl:
+          port: "0"
+          index: 11
+  buttons:
+    type: "matrix"
+    rows:
+      type: "shiftRegister"
+      shiftRegisters: 1
+      pins:
+        data:
+          port: "0"
+          index: 7
+        clock:
+          port: "0"
+          index: 6
+        latch:
+          port: "0"
+          index: 5
+    columns:
+      type: "decoder"
+      pins:
+        decA0:
+          port: "0"
+          index: 1
+        decA1:
+          port: "0"
+          index: 2
+        decA2:
+          port: "0"
+          index: 3
+    indexing:
+      - 59
+      - 60
+      - 62
+      - 61
+      - 63
+      - 56
+      - 57
+      - 58
+      - 51
+      - 52
+      - 54
+      - 53
+      - 55
+      - 48
+      - 49
+      - 50
+      - 43
+      - 44
+      - 46
+      - 45
+      - 47
+      - 40
+      - 41
+      - 42
+      - 35
+      - 36
+      - 38
+      - 37
+      - 39
+      - 32
+      - 33
+      - 34
+      - 3
+      - 4
+      - 6
+      - 5
+      - 7
+      - 0
+      - 1
+      - 2
+      - 11
+      - 12
+      - 14
+      - 13
+      - 15
+      - 8
+      - 9
+      - 10
+      - 19
+      - 20
+      - 22
+      - 21
+      - 23
+      - 16
+      - 17
+      - 18
+      - 27
+      - 28
+      - 30
+      - 29
+      - 31
+      - 24
+      - 25
+      - 26
+  analog:
+    type: "4067"
+    inputVoltage: "3.3"
+    multiplexers: 2
+    pins:
+      s0:
+        port: "0"
+        index: 14
+      s1:
+        port: "0"
+        index: 15
+      s2:
+        port: "0"
+        index: 12
+      s3:
+        port: "0"
+        index: 13
+      z0:
+        port: "0"
+        index: 27
+      z1:
+        port: "0"
+        index: 26
+    indexing:
+      - 8
+      - 9
+      - 10
+      - 11
+      - 12
+      - 13
+      - 14
+      - 15
+      - 7
+      - 6
+      - 5
+      - 4
+      - 3
+      - 2
+      - 1
+      - 0
+      - 24
+      - 25
+      - 26
+      - 27
+      - 28
+      - 29
+      - 30
+      - 31
+      - 23
+      - 22
+      - 21
+      - 20
+      - 19
+      - 18
+      - 17
+      - 16
+  leds:
+    internal:
+      invert: false
+      pins:
+        usb:
+          rx:
+            port: "0"
+            index: 28
+          tx:
+            port: "0"
+            index: 29
+        uart:
+          rx:
+            port: "0"
+            index: 28
+          tx:
+            port: "0"
+            index: 29
+    external:
+      invert: true
+      type: "max7219"
+      pins:
+        data:
+          port: "0"
+          index: 20
+        clock:
+          port: "0"
+          index: 18
+        latch:
+          port: "0"
+          index: 19
+      indexing:
+      - 24
+      - 28
+      - 30
+      - 26
+      - 27
+      - 31
+      - 29
+      - 25
+      - 56
+      - 60
+      - 62
+      - 58
+      - 59
+      - 63
+      - 61
+      - 57
+      - 16
+      - 20
+      - 22
+      - 18
+      - 19
+      - 23
+      - 21
+      - 17
+      - 32
+      - 36
+      - 38
+      - 34
+      - 35
+      - 39
+      - 37
+      - 33
+      - 0
+      - 4
+      - 6
+      - 2
+      - 3
+      - 7
+      - 5
+      - 1
+      - 40
+      - 44
+      - 46
+      - 42
+      - 43
+      - 47
+      - 45
+      - 41
+  bootloader:
+    button:
+      port: "0"
+      index: 4
+      activeState: "low"
