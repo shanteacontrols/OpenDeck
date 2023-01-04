@@ -33,22 +33,42 @@ OpenDeck supports sending of both 7-bit and 14-bit Non-Registered Part Numbers (
 
 If the feature you want isn't supported yet, don't feel discouraged. Open up a [discussion thread](https://github.com/shanteacontrols/OpenDeck/discussions) and let's talk about it.
 
-## Official board
+## Official boards
 
-![](https://raw.githubusercontent.com/shanteacontrols/website/master/images/opendeck3-header.png)
+Currently, there are two official boards: M and L variants. "M" stands for "middle" and "L" for "large". Both boards are available on [Tindie store](https://www.tindie.com/stores/paradajz/).
 
-The official board is based on Raspberry Pi RP2040 microcontroller and features the following:
+### M board
+
+![](https://cdn.tindiemedia.com/images/resize/8pSVbF6aLfZEHLi4QT2-eta-3x0=/p/full-fit-in/1782x1336/i/302101/products/2022-12-27T12%3A12%3A36.249Z-IMG_5883.jpg?1672114383)
+
+This board is based on Raspberry Pi RP2040 microcontroller and features the following:
+
+* 64 digital inputs
+* 48 digital outputs
+* 32 analog inputs
+* DIN MIDI
+* USB MIDI (USB C)
+* Connector for touchscreen
+* Connector for I2C OLED display
+
+The board is available on [Tindie](https://www.tindie.com/products/paradajz/opendeck-diy-midi-platform-m/).
+
+### L board
+
+![](https://cdn.tindiemedia.com/images/resize/EA-umrsQVGdmqw7M0p83zl3f_iE=/p/full-fit-in/1782x1336/i/302101/products/2022-11-28T21%3A31%3A35.971Z-IMG_5694-removebg_res.png?1669642489)
+
+This board is based on Raspberry Pi RP2040 microcontroller and features the following:
 
 * 128 digital inputs
 * 64 digital outputs
 * 64 analog inputs
 * DIN MIDI
-* USB MIDI
+* USB MIDI (USB C)
 * Connector for touchscreen
 * Connector for I2C OLED display
 * Additional connectors with 3V+GND and 5V+GND connections
 
-The board is available on [Tindie](https://www.tindie.com/products/paradajz/opendeck-diy-midi-platform-v3/).
+The board is available on [Tindie](https://www.tindie.com/products/paradajz/opendeck-diy-midi-platform-l/).
 
 ## Supported boards
 
