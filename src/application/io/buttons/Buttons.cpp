@@ -186,39 +186,26 @@ void Buttons::processButton(size_t index, bool reading, buttonDescriptor_t& desc
     {
         bool send = true;
 
-        if (descriptor.messageType == messageType_t::PRESET_CHANGE)
+        if (descriptor.type == type_t::LATCHING)
         {
-            // change preset only on press
+            // act on press only
             if (reading)
             {
-                // don't send off message once the preset is switched (in case this button has standard message type in switched preset)
-                // pretend the button is already released
-                setState(index, false);
-            }
-        }
-        else
-        {
-            if (descriptor.type == type_t::LATCHING)
-            {
-                // act on press only
-                if (reading)
+                if (latchingState(index))
                 {
-                    if (latchingState(index))
-                    {
-                        setLatchingState(index, false);
-                        // overwrite before processing
-                        reading = false;
-                    }
-                    else
-                    {
-                        setLatchingState(index, true);
-                        reading = true;
-                    }
+                    setLatchingState(index, false);
+                    // overwrite before processing
+                    reading = false;
                 }
                 else
                 {
-                    send = false;
+                    setLatchingState(index, true);
+                    reading = true;
                 }
+            }
+            else
+            {
+                send = false;
             }
         }
 
