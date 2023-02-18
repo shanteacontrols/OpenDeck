@@ -1,0 +1,145 @@
+---
+  mcu: "rp2040"
+  usb: true
+  buttons:
+    type: "shiftRegister"
+    shiftRegisters: 2
+    pins:
+      data:
+        port: "0"
+        index: 8
+      clock:
+        port: "0"
+        index: 7
+      latch:
+        port: "0"
+        index: 6
+    indexing:
+    - 15
+    - 14
+    - 13
+    - 12
+    - 11
+    - 10
+    - 9
+    - 8
+    - 3
+    - 2
+    - 1
+    - 0
+  analog:
+    type: "muxonmux"
+    inputVoltage: "3.3"
+    multiplexers: 4
+    pins:
+      controller:
+        s0:
+          port: "0"
+          index: 22
+        s1:
+          port: "0"
+          index: 21
+        z:
+          port: "0"
+          index: 27
+      nodes:
+        s0:
+          port: "0"
+          index: 18
+        s1:
+          port: "0"
+          index: 16
+        s2:
+          port: "0"
+          index: 17
+        s3:
+          port: "0"
+          index: 19
+    indexing:
+    - 5
+    - 4
+    - 3
+    - 2
+    - 56
+    - 7
+    - 6
+    - 1
+    - 0
+    - 57
+    - 8
+    - 9
+    - 14
+    - 15
+    - 58
+    - 10
+    - 11
+    - 12
+    - 13
+    - 59
+    - 21
+    - 20
+    - 19
+    - 18
+    - 60
+    - 23
+    - 22
+    - 17
+    - 16
+    - 61
+    - 24
+    - 25
+    - 30
+    - 31
+    - 62
+    - 26
+    - 27
+    - 28
+    - 29
+    - 63
+    - 37
+    - 36
+    - 35
+    - 34
+    - 54
+    - 39
+    - 38
+    - 33
+    - 32
+    - 53
+    - 40
+    - 41
+    - 46
+    - 47
+    - 52
+    - 42
+    - 43
+    - 44
+    - 45
+    - 55
+  leds:
+    external:
+      type: "max7219"
+      invert: true
+      pins:
+        data:
+          port: "0"
+          index: 5
+        clock:
+          port: "0"
+          index: 3
+        latch:
+          port: "0"
+          index: 4
+      indexing:
+      - 48
+      - 49
+      - 50
+      - 51
+      - 40
+      - 41
+      - 42
+      - 43
+      - 32
+      - 33
+      - 34
+      - 35
