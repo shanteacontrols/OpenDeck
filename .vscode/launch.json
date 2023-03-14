@@ -202,5 +202,18 @@
                 "add-symbol-file ${workspaceRoot}/src/build/opendeck31/debug/application/opendeck31.elf",
             ],
         },
+        {
+            "name": "[Launch] opendeck22/Bootloader/BMP",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "bmp",
+            "cwd": "${workspaceRoot}",
+            "executable": "./src/build/opendeck22/debug/bootloader/opendeck22.elf",
+            "interface": "swd",
+            "device": "rp2040",
+            "BMPGDBSerialPort": "/dev/ttyBmpGdb",
+            "preLaunchTask": "[Debug] opendeck22",
+            "runToEntryPoint": "main"
+        },
     ]
 }
