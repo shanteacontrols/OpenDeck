@@ -44,7 +44,7 @@ mkdir /opendeck-deps
 
 RUN \
 cd /opendeck-deps && \
-wget ${WGET_ARGS} https://github.com/TomWright/dasel/releases/download/v1.22.1/dasel_linux_amd64 && \
+wget ${WGET_ARGS} https://github.com/TomWright/dasel/releases/download/v1.27.3/dasel_linux_amd64 && \
 chmod +x dasel_linux_amd64 && \
 mv $(pwd)/dasel_linux_amd64 /usr/local/bin/dasel
 
