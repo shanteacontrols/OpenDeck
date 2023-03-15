@@ -23,6 +23,9 @@ namespace
     void glogPrefix(std::ostream& s, const google::LogMessageInfo& l, void*)
     {
         s << "["
+          << std::string(BOARD_STRING)
+          << "] "
+             "["
           << l.severity
           << "] "
           << "["
