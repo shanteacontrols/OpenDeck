@@ -11,4 +11,7 @@ endif
 	-ex 'load' \
 	-ex 'compare-sections' \
 	-ex 'kill' \
-	$(FLASH_BINARY_DIR)/$(TARGET).hex
+	$(FLASH_BINARY_DIR)/$(TARGET).hex | tee $(FLASH_BINARY_DIR)/gdb_output
+	@if grep -q "MIS-MATCHED" $(FLASH_BINARY_DIR)/gdb_output; then \
+	false; \
+	fi
