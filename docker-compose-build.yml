@@ -12,7 +12,6 @@ services:
       - /dev:/dev
       - cache:/build_cache
     hostname: localhost
-    network_mode: host
     working_dir: /home/opendeck/OpenDeck
     command: tail -f /dev/null
     privileged: true
