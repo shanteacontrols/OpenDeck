@@ -352,9 +352,8 @@ TEST_F(AnalogTest, Scaling)
         stateChangeRegister(i);
     }
 
-    // since the values are scaled, verify that all the messages aren't received
     LOG(INFO) << "Received " << _listener._event.size() << " messages";
-    ASSERT_TRUE((Analog::Collection::SIZE(Analog::GROUP_ANALOG_INPUTS) * 128) > _listener._event.size());
+    ASSERT_EQ((Analog::Collection::SIZE(Analog::GROUP_ANALOG_INPUTS) * (SCALED_UPPER + 1)), _listener._event.size());
 
     // first value should be 0
     // last value should match the configured scaled value (SCALED_UPPER)
@@ -372,13 +371,13 @@ TEST_F(AnalogTest, Scaling)
 
     _listener._event.clear();
 
-    for (int i = 0; i <= 127; i++)
+    for (int i = 126; i >= 0; i--)
     {
         stateChangeRegister(i);
     }
 
     LOG(INFO) << "Received " << _listener._event.size() << " messages";
-    ASSERT_TRUE((Analog::Collection::SIZE(Analog::GROUP_ANALOG_INPUTS) * 128) > _listener._event.size());
+    ASSERT_EQ((Analog::Collection::SIZE(Analog::GROUP_ANALOG_INPUTS) * (SCALED_UPPER - SCALED_LOWER)), _listener._event.size());
 
     for (size_t i = 0; i < Analog::Collection::SIZE(Analog::GROUP_ANALOG_INPUTS); i++)
     {

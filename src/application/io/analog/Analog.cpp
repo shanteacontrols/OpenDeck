@@ -304,20 +304,83 @@ void Analog::sendMessage(size_t index, analogDescriptor_t& descriptor)
     auto eventType         = messaging::eventType_t::ANALOG;
     descriptor.event.value = descriptor.newValue;
 
-    auto send = [&]()
+    auto sendSingle = [&]()
     {
         MIDIDispatcher.notify(eventType, descriptor.event);
+    };
+
+    auto sendRange = [&](const size_t step)
+    {
+        bool ascending = descriptor.newValue > descriptor.oldValue;
+
+        if (ascending)
+        {
+            const int START_VALUE = descriptor.oldValue + 1;
+
+            for (int value = START_VALUE;
+                 true;
+                 value = core::util::CONSTRAIN(value + static_cast<int>(step),
+                                               START_VALUE,
+                                               static_cast<int>(descriptor.newValue)))
+            {
+                descriptor.event.value = value;
+                sendSingle();
+
+                if (value == static_cast<int>(descriptor.newValue))
+                {
+                    break;
+                }
+            }
+        }
+        else
+        {
+            const int START_VALUE = descriptor.oldValue - 1;
+
+            for (int value = START_VALUE;
+                 true;
+                 value = core::util::CONSTRAIN(value - static_cast<int>(step),
+                                               static_cast<int>(descriptor.newValue),
+                                               START_VALUE))
+            {
+                descriptor.event.value = value;
+                sendSingle();
+
+                if (value == static_cast<int>(descriptor.newValue))
+                {
+                    break;
+                }
+            }
+        }
     };
 
     switch (descriptor.type)
     {
     case type_t::POTENTIOMETER_CONTROL_CHANGE:
     case type_t::POTENTIOMETER_NOTE:
+    {
+        if ((descriptor.newValue != descriptor.oldValue) && descriptor.oldValue != 0xFFFF)
+        {
+            sendRange(STEP_DIFF_SEND_7_BIT);
+        }
+        else
+        {
+            sendSingle();
+        }
+    }
+    break;
+
     case type_t::PITCH_BEND:
     case type_t::NRPN_7BIT:
     case type_t::NRPN_14BIT:
     {
-        send();
+        if ((descriptor.newValue != descriptor.oldValue) && descriptor.oldValue != 0xFFFF)
+        {
+            sendRange(STEP_DIFF_SEND_14_BIT);
+        }
+        else
+        {
+            sendSingle();
+        }
     }
     break;
 
@@ -328,14 +391,14 @@ void Analog::sendMessage(size_t index, analogDescriptor_t& descriptor)
             descriptor.event.message = MIDI::messageType_t::NOTE_OFF;
         }
 
-        send();
+        sendSingle();
     }
     break;
 
     case type_t::BUTTON:
     {
         eventType = messaging::eventType_t::ANALOG_BUTTON;
-        send();
+        sendSingle();
     }
     break;
 
@@ -347,7 +410,14 @@ void Analog::sendMessage(size_t index, analogDescriptor_t& descriptor)
             return;
         }
 
-        send();
+        if ((descriptor.newValue != descriptor.oldValue) && descriptor.oldValue != 0xFFFF)
+        {
+            sendRange(STEP_DIFF_SEND_14_BIT);
+        }
+        else
+        {
+            sendSingle();
+        }
     }
     break;
 

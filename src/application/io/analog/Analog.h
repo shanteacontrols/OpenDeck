@@ -93,6 +93,9 @@ namespace io
             virtual void reset(size_t index)                                = 0;
         };
 
+        static constexpr size_t STEP_DIFF_SEND_7_BIT  = 1;
+        static constexpr size_t STEP_DIFF_SEND_14_BIT = 16;
+
         using Database = database::User<database::Config::Section::analog_t>;
 
         Analog(HWA&      hwa,
