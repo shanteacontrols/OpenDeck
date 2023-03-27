@@ -146,7 +146,7 @@
                 "database",
                 "encoders",
                 "usb_over_serial",
-                "potentiometer",
+                "analog",
                 "ringbuffer",
                 "system",
                 "leds",
