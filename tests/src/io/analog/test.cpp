@@ -120,6 +120,56 @@ TEST_F(AnalogTest, CC)
     EXPECT_EQ(0, _listener._event.size());
 }
 
+TEST_F(AnalogTest, NRPN7bit)
+{
+    // set known state
+    for (size_t i = 0; i < Analog::Collection::SIZE(Analog::GROUP_ANALOG_INPUTS); i++)
+    {
+        // configure all analog components as potentiometers with 7-bit NRPN MIDI message
+        ASSERT_TRUE(_analog._database.update(database::Config::Section::analog_t::TYPE, i, Analog::type_t::NRPN_7BIT));
+    }
+
+    // feed all the values from minimum to maximum
+
+    for (int i = 0; i <= 127; i++)
+    {
+        stateChangeRegister(i);
+    }
+
+    EXPECT_EQ((Analog::Collection::SIZE(Analog::GROUP_ANALOG_INPUTS) * 128), _listener._event.size());
+
+    // all received messages should be NRPN
+    for (size_t i = 0; i < _listener._event.size(); i++)
+    {
+        EXPECT_EQ(MIDI::messageType_t::NRPN_7BIT, _listener._event.at(i).message);
+    }
+}
+
+TEST_F(AnalogTest, NRPN14bit)
+{
+    // set known state
+    for (size_t i = 0; i < Analog::Collection::SIZE(Analog::GROUP_ANALOG_INPUTS); i++)
+    {
+        // configure all analog components as potentiometers with 14-bit NRPN MIDI message
+        ASSERT_TRUE(_analog._database.update(database::Config::Section::analog_t::TYPE, i, Analog::type_t::NRPN_14BIT));
+    }
+
+    // feed all the values from minimum to maximum
+
+    for (int i = 0; i <= 127; i++)
+    {
+        stateChangeRegister(i);
+    }
+
+    EXPECT_EQ((Analog::Collection::SIZE(Analog::GROUP_ANALOG_INPUTS) * 128), _listener._event.size());
+
+    // all received messages should be NRPN
+    for (size_t i = 0; i < _listener._event.size(); i++)
+    {
+        EXPECT_EQ(MIDI::messageType_t::NRPN_14BIT, _listener._event.at(i).message);
+    }
+}
+
 TEST_F(AnalogTest, PitchBendTest)
 {
     // set known state

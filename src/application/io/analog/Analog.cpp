@@ -314,6 +314,8 @@ void Analog::sendMessage(size_t index, analogDescriptor_t& descriptor)
     case type_t::POTENTIOMETER_CONTROL_CHANGE:
     case type_t::POTENTIOMETER_NOTE:
     case type_t::PITCH_BEND:
+    case type_t::NRPN_7BIT:
+    case type_t::NRPN_14BIT:
     {
         send();
     }
