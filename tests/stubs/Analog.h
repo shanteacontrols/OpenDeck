@@ -9,14 +9,6 @@ class TestAnalog
     public:
     TestAnalog() = default;
 
-    void updateLastFilterValue(uint16_t value)
-    {
-        for (size_t i = 0; i < io::Analog::Collection::SIZE(); i++)
-        {
-            _filter.updateLastValue(i, value);
-        }
-    }
-
     private:
     TestDatabase _testDatabase;
 

@@ -89,9 +89,8 @@ namespace io
 
             virtual ~Filter() = default;
 
-            virtual bool     isFiltered(size_t index, descriptor_t& descriptor) = 0;
-            virtual uint16_t lastValue(size_t index)                            = 0;
-            virtual void     reset(size_t index)                                = 0;
+            virtual bool isFiltered(size_t index, descriptor_t& descriptor) = 0;
+            virtual void reset(size_t index)                                = 0;
         };
 
         using Database = database::User<database::Config::Section::analog_t>;
@@ -116,6 +115,8 @@ namespace io
             uint8_t            lowerOffset = 0;
             uint8_t            upperOffset = 0;
             uint16_t           maxValue    = 127;
+            uint16_t           newValue    = 0;
+            uint16_t           oldValue    = 0;
             messaging::event_t event;
 
             analogDescriptor_t() = default;
@@ -135,7 +136,8 @@ namespace io
         Filter&   _filter;
         Database& _database;
 
-        uint8_t _fsrPressed[Collection::SIZE() / 8 + 1] = {};
+        uint8_t  _fsrPressed[Collection::SIZE() / 8 + 1] = {};
+        uint16_t _lastValue[Collection::SIZE()]          = {};
 
         static constexpr MIDI::messageType_t INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(type_t::AMOUNT)] = {
             MIDI::messageType_t::CONTROL_CHANGE,          // POTENTIOMETER_CONTROL_CHANGE

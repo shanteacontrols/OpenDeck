@@ -18,29 +18,11 @@ class AnalogFilterStub : public io::Analog::Filter
         return true;
     }
 
-    uint16_t lastValue(size_t index) override
-    {
-        if (index < io::Analog::Collection::SIZE())
-        {
-            return _lastStableValue[index];
-        }
-
-        return 0;
-    }
-
     void reset(size_t index) override
     {
         if (index < io::Analog::Collection::SIZE())
         {
             _lastStableValue[index] = 0xFFFF;
-        }
-    }
-
-    void updateLastValue(size_t index, uint16_t value)
-    {
-        if (index < io::Analog::Collection::SIZE())
-        {
-            _lastStableValue[index] = value;
         }
     }
 

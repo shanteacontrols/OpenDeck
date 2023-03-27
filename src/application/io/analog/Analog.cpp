@@ -100,7 +100,10 @@ void Analog::updateSingle(size_t index, bool forceRefresh)
         {
             analogDescriptor_t descriptor;
             fillAnalogDescriptor(index, descriptor);
-            descriptor.event.value = _filter.lastValue(index);
+
+            descriptor.newValue = _lastValue[index];
+            descriptor.oldValue = _lastValue[index];
+
             sendMessage(index, descriptor);
         }
     }
@@ -144,7 +147,9 @@ void Analog::processReading(size_t index, uint16_t value)
         return;
     }
 
-    analogDescriptor.event.value = filterDescriptor.value;
+    // assumption for now
+    analogDescriptor.newValue = filterDescriptor.value;
+    analogDescriptor.oldValue = _lastValue[index];
 
     bool send = false;
 
@@ -186,6 +191,7 @@ void Analog::processReading(size_t index, uint16_t value)
     if (send)
     {
         sendMessage(index, analogDescriptor);
+        _lastValue[index] = analogDescriptor.newValue;
     }
 }
 
@@ -213,7 +219,7 @@ bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descripto
     break;
     }
 
-    if (descriptor.event.value > descriptor.maxValue)
+    if (descriptor.newValue > descriptor.maxValue)
     {
         return false;
     }
@@ -252,15 +258,14 @@ bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descripto
         return scaled;
     };
 
-    auto scaledNew = scale(descriptor.event.value);
-    auto scaledOld = scale(_filter.lastValue(index));
+    auto scaled = scale(descriptor.newValue);
 
-    if (scaledNew == scaledOld)
+    if (scaled == descriptor.oldValue)
     {
         return false;
     }
 
-    descriptor.event.value = scaledNew;
+    descriptor.newValue = scaled;
 
     return true;
 }
@@ -273,7 +278,7 @@ bool Analog::checkFSRvalue(size_t index, analogDescriptor_t& descriptor)
         return false;
     }
 
-    if (descriptor.event.value > 0)
+    if (descriptor.newValue > 0)
     {
         if (!fsrState(index))
         {
@@ -296,29 +301,39 @@ bool Analog::checkFSRvalue(size_t index, analogDescriptor_t& descriptor)
 
 void Analog::sendMessage(size_t index, analogDescriptor_t& descriptor)
 {
-    bool send      = true;
-    auto eventType = messaging::eventType_t::ANALOG;
+    auto eventType         = messaging::eventType_t::ANALOG;
+    descriptor.event.value = descriptor.newValue;
+
+    auto send = [&]()
+    {
+        MIDIDispatcher.notify(eventType, descriptor.event);
+    };
 
     switch (descriptor.type)
     {
     case type_t::POTENTIOMETER_CONTROL_CHANGE:
     case type_t::POTENTIOMETER_NOTE:
     case type_t::PITCH_BEND:
-        break;
+    {
+        send();
+    }
+    break;
 
     case type_t::FSR:
     {
-        if (!fsrState(index))
+        if (!descriptor.newValue)
         {
-            descriptor.event.value   = 0;
             descriptor.event.message = MIDI::messageType_t::NOTE_OFF;
         }
+
+        send();
     }
     break;
 
     case type_t::BUTTON:
     {
         eventType = messaging::eventType_t::ANALOG_BUTTON;
+        send();
     }
     break;
 
@@ -327,22 +342,15 @@ void Analog::sendMessage(size_t index, analogDescriptor_t& descriptor)
         if (descriptor.event.index >= 96)
         {
             // not allowed
-            send = false;
-            break;
+            return;
         }
+
+        send();
     }
     break;
 
     default:
-    {
-        send = false;
-    }
-    break;
-    }
-
-    if (send)
-    {
-        MIDIDispatcher.notify(eventType, descriptor.event);
+        break;
     }
 }
 
@@ -350,6 +358,7 @@ void Analog::reset(size_t index)
 {
     setFSRstate(index, false);
     _filter.reset(index);
+    _lastValue[index] = 0xFFFF;
 }
 
 void Analog::setFSRstate(size_t index, bool state)

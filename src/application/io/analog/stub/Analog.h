@@ -77,9 +77,8 @@ namespace io
 
             virtual ~Filter() = default;
 
-            virtual bool     isFiltered(size_t index, descriptor_t& descriptor) = 0;
-            virtual uint16_t lastValue(size_t index)                            = 0;
-            virtual void     reset(size_t index)                                = 0;
+            virtual bool isFiltered(size_t index, descriptor_t& descriptor) = 0;
+            virtual void reset(size_t index)                                = 0;
         };
 
         using buttonHandler_t = std::function<void(size_t index, bool state)>;

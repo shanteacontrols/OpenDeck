@@ -158,16 +158,6 @@ namespace io
             return true;
         }
 
-        uint16_t lastValue(size_t index) override
-        {
-            if (index < io::Analog::Collection::SIZE())
-            {
-                return _lastStableValue[index];
-            }
-
-            return 0;
-        }
-
         void reset(size_t index) override
         {
             if (index < io::Analog::Collection::SIZE())

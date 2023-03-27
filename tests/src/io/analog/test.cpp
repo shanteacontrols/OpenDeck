@@ -47,7 +47,6 @@ namespace
                                       Return(true)));
 
             _analog._instance.updateAll();
-            _analog.updateLastFilterValue(value);
         }
 
         Listener   _listener;

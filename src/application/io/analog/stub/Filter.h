@@ -34,11 +34,6 @@ namespace io
             return false;
         }
 
-        uint16_t lastValue(size_t index) override
-        {
-            return 0;
-        }
-
         void reset(size_t index) override
         {
         }
