@@ -19,6 +19,7 @@ namespace
             ASSERT_TRUE(_analog._databaseAdmin.factoryReset());
             ASSERT_EQ(0, _analog._databaseAdmin.getPreset());
             ASSERT_TRUE(_analog._databaseAdmin.init());
+            ASSERT_TRUE(_analog._instance.init());
 
             for (size_t i = 0; i < Analog::Collection::SIZE(Analog::GROUP_ANALOG_INPUTS); i++)
             {
