@@ -1,6 +1,6 @@
 ---
 flash:
-  args: "FLASH_TOOL=stlink PROBE_ID=530047001400004150514E4E"
+  args: "FLASH_TOOL=bmp PORT=bmp_blackpill401ce"
 dinMidi:
   in: "ESI M4U eX MIDI 1"
   out: "ESI M4U eX MIDI 2"
