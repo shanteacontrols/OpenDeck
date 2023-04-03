@@ -46,10 +46,17 @@ namespace test
         return system(in.c_str());
     }
 
-    inline std::string& trimNewline(std::string& s)
+    inline std::string trimWhitespace(const std::string& s)
     {
-        s.erase(std::remove(s.begin(), s.end(), '\n'), s.end());
-        return s;
+        auto trimmed = s;
+
+        trimmed.erase(std::remove_if(trimmed.begin(), trimmed.end(), [](char c)
+                                     {
+                                         return std::isspace(static_cast<unsigned char>(c));
+                                     }),
+                      trimmed.end());
+
+        return trimmed;
     }
 
     inline size_t wordsInString(std::string& s)
@@ -94,5 +101,36 @@ namespace test
         struct timespec now;
         timespec_get(&now, TIME_UTC);
         return (static_cast<int64_t>(now.tv_sec)) * 1000 + (static_cast<int64_t>(now.tv_nsec)) / 1000000;
+    }
+
+    std::vector<uint8_t> hexStringToVector(const std::string& string)
+    {
+        std::vector<unsigned char> vector;
+
+        for (size_t i = 0; i < string.length(); i += 2)
+        {
+            std::string byteString = string.substr(i, 2);
+            auto        byte       = static_cast<unsigned char>(strtol(byteString.c_str(), NULL, 16));
+            vector.push_back(byte);
+        }
+
+        return vector;
+    }
+
+    std::string vectorToHexString(std::vector<uint8_t> request)
+    {
+        // convert uint8_t vector to string so it can be passed as command line argument
+        std::stringstream requestString;
+        requestString << std::hex << std::setfill('0') << std::uppercase;
+
+        auto first = std::begin(request);
+        auto last  = std::end(request);
+
+        while (first != last)
+        {
+            requestString << std::setw(2) << static_cast<int>(*first++);
+        }
+
+        return requestString.str();
     }
 }    // namespace test

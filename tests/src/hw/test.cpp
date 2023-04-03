@@ -13,37 +13,55 @@
 
 namespace
 {
+    std::vector<uint8_t> handshake_req             = { 0xF0, 0x00, 0x53, 0x43, 0x00, 0x00, 0x01, 0xF7 };
+    std::vector<uint8_t> handshake_ack             = { 0xF0, 0x00, 0x53, 0x43, 0x01, 0x00, 0x01, 0xF7 };
+    std::vector<uint8_t> reboot_req                = { 0xF0, 0x00, 0x53, 0x43, 0x00, 0x00, 0x7F, 0xF7 };
+    std::vector<uint8_t> factory_reset_req         = { 0xF0, 0x00, 0x53, 0x43, 0x00, 0x00, 0x44, 0xF7 };
+    std::vector<uint8_t> btldr_req                 = { 0xF0, 0x00, 0x53, 0x43, 0x00, 0x00, 0x55, 0xF7 };
+    std::vector<uint8_t> backup_req                = { 0xF0, 0x00, 0x53, 0x43, 0x00, 0x00, 0x1B, 0xF7 };
+    std::vector<uint8_t> restore_start_indicator   = { 0xF0, 0x00, 0x53, 0x43, 0x00, 0x00, 0x1C, 0xF7 };
+    std::vector<uint8_t> restore_end_indicator     = { 0xF0, 0x00, 0x53, 0x43, 0x00, 0x00, 0x1D, 0xF7 };
+    const std::string    usb_power_off_cmd         = "echo write_high 1 > /dev/actl";
+    const std::string    usb_power_on_cmd          = "echo write_low 1 > /dev/actl";
+    const std::string    flash_cmd                 = "make --no-print-directory -C ../src flash ";
+    const std::string    temp_midi_data_location   = "/tmp/temp_midi_data";
+    const std::string    backup_file_location      = "/tmp/backup.txt";
+    const std::string    latest_github_release_dir = "/tmp/latest_github_release";
+    const uint32_t       max_conn_delay_ms         = 25000;
+    const uint32_t       handshake_retry_delay_ms  = 2000;
+    const uint32_t       flash_retry_delay_ms      = 2000;
+    const uint32_t       disconnect_retry_delay_ms = 2000;
+
     class HWTest : public ::testing::Test
     {
         protected:
-        void SetUp()
+        static void SetUpTestSuite()
         {
-            LOG(INFO) << "Setting up test";
+            powerOn();
+            LOG(INFO) << "Waiting " << max_conn_delay_ms << " ms to ensure target and programmer are available.";
+            test::sleepMs(max_conn_delay_ms);
 
 #ifdef TEST_FLASHING
-            static bool flashed = false;
+            LOG(INFO) << "Device not flashed. Starting flashing procedure.";
+            flashed = flash();
 #endif
+        }
+
+        static void TearDownTestSuite()
+        {
+            powerOff();
+        }
+
+        void SetUp()
+        {
+#ifdef TEST_FLASHING
+            ASSERT_TRUE(flashed);
+#endif
+
+            LOG(INFO) << "Setting up test";
 
             // dummy db - used only to retrieve correct amount of supported presets
             ASSERT_TRUE(_database._instance.init());
-
-#ifdef TEST_FLASHING
-            if (!flashed)
-            {
-                LOG(INFO) << "Device not flashed. Starting flashing procedure.";
-                cyclePower(powerCycleType_t::STANDARD);
-
-                LOG(INFO) << "Waiting " << turn_on_delay_ms << " ms to ensure target and programmer are available.";
-                test::sleepMs(turn_on_delay_ms);
-
-                flash();
-                flashed = true;
-            }
-            else
-#endif
-            {
-                cyclePower(powerCycleType_t::STANDARD_WITH_DEVICE_CHECK);
-            }
 
             factoryReset();
         }
@@ -66,16 +84,13 @@ namespace
                 while (test::wsystem("pgrep ssterm", cmdResponse) == 0)
                     ;
             }
-
-            powerOff();
         }
-
-        const std::string flash_cmd = "make --no-print-directory -C ../src flash ";
 
         enum class powerCycleType_t : uint8_t
         {
             STANDARD,
-            STANDARD_WITH_DEVICE_CHECK
+            STANDARD_WITH_DEVICE_CHECK,
+            STANDARD_WITH_DEVICE_CHECK_IF_NOT_PRESENT,
         };
 
         enum class softRebootType_t : uint8_t
@@ -91,7 +106,7 @@ namespace
             RELEASE,
         };
 
-        void powerOn()
+        static void powerOn()
         {
             // Send newline to arduino controller to make sure on/off commands
             // are properly parsed.
@@ -102,7 +117,7 @@ namespace
             ASSERT_EQ(0, test::wsystem(usb_power_on_cmd));
         }
 
-        void powerOff()
+        static void powerOff()
         {
             // Send newline to arduino controller to make sure on/off commands
             // are properly parsed.
@@ -113,51 +128,84 @@ namespace
             ASSERT_EQ(0, test::wsystem(usb_power_off_cmd));
         }
 
-        void cyclePower(powerCycleType_t powerCycleType)
+        static void cyclePower(powerCycleType_t powerCycleType)
         {
-            LOG(INFO) << "Cycling power";
-
-            if (powerStatus)
+            auto cycle = []()
             {
+                LOG(INFO) << "Cycling power";
                 powerOff();
-                powerStatus = false;
-            }
-            else
-            {
-                LOG(INFO) << "Power already turned off, skipping";
-            }
+                powerOn();
+            };
 
-            powerOn();
-
-            if (powerCycleType == powerCycleType_t::STANDARD_WITH_DEVICE_CHECK)
+            auto checkPresence = []()
             {
                 LOG(INFO) << "Checking for device availability";
 
                 // ensure the device is present
                 auto startTime = test::millis();
 
-                while (!_helper.devicePresent(true))
+                while (!MIDIHelper::devicePresent(true))
                 {
-                    if ((test::millis() - startTime) > max_connect_delay_ms)
+                    if ((test::millis() - startTime) > max_conn_delay_ms)
                     {
-                        LOG(ERROR) << "Device didn't connect in " << max_connect_delay_ms << " ms.";
+                        LOG(ERROR) << "Device didn't connect in " << max_conn_delay_ms << " ms.";
+                        return false;
+                    }
+                }
+
+                return true;
+            };
+
+            // power cycle first if needed
+            switch (powerCycleType)
+            {
+            case powerCycleType_t::STANDARD:
+            {
+                cycle();
+            }
+            break;
+
+            case powerCycleType_t::STANDARD_WITH_DEVICE_CHECK:
+            {
+                cycle();
+
+                if (!checkPresence())
+                {
+                    FAIL();
+                }
+            }
+            break;
+
+            case powerCycleType_t::STANDARD_WITH_DEVICE_CHECK_IF_NOT_PRESENT:
+            {
+                if (!checkPresence())
+                {
+                    cycle();
+
+                    if (!checkPresence())
+                    {
                         FAIL();
                     }
                 }
             }
+            break;
+
+            default:
+                break;
+            }
         }
 
-        void handshake()
+        static bool handshake()
         {
             LOG(INFO) << "Ensuring the device is available for handshake request...";
             auto startTime = test::millis();
 
-            while (!_helper.devicePresent(true))
+            while (!MIDIHelper::devicePresent(true))
             {
-                if ((test::millis() - startTime) > max_connect_delay_ms)
+                if ((test::millis() - startTime) > max_conn_delay_ms)
                 {
-                    LOG(ERROR) << "Device not available - waited " << max_connect_delay_ms << " ms.";
-                    FAIL();
+                    LOG(ERROR) << "Device not available - waited " << max_conn_delay_ms << " ms.";
+                    return false;
                 }
             }
 
@@ -165,45 +213,47 @@ namespace
 
             startTime = test::millis();
 
-            while (handshake_ack != _helper.sendRawSysEx(handshake_req))
+            while (handshake_ack != MIDIHelper::sendRawSysExToDevice(handshake_req))
             {
-                if ((test::millis() - startTime) > max_connect_delay_ms)
+                if ((test::millis() - startTime) > max_conn_delay_ms)
                 {
-                    LOG(ERROR) << "Device didn't respond to handshake in " << max_connect_delay_ms << " ms.";
-                    FAIL();
+                    LOG(ERROR) << "Device didn't respond to handshake in " << max_conn_delay_ms << " ms.";
+                    return false;
                 }
 
                 LOG(ERROR) << "OpenDeck device not responding to handshake - trying again in " << handshake_retry_delay_ms << " ms";
                 test::sleepMs(2000);
             }
+
+            return true;
         }
 
         void reboot(softRebootType_t type = softRebootType_t::STANDARD)
         {
-            handshake();
+            ASSERT_TRUE(handshake());
 
-            const std::string* cmd;
+            std::vector<uint8_t> cmd;
 
             switch (type)
             {
             case softRebootType_t::STANDARD:
             {
                 LOG(INFO) << "Sending reboot request to the device";
-                cmd = &reboot_req;
+                cmd = reboot_req;
             }
             break;
 
             case softRebootType_t::FACTORY_RESET:
             {
                 LOG(INFO) << "Sending factory reset request to the device";
-                cmd = &factory_reset_req;
+                cmd = factory_reset_req;
             }
             break;
 
             case softRebootType_t::BOOTLOADER:
             {
                 LOG(INFO) << "Sending bootloader request to the device";
-                cmd = &btldr_req;
+                cmd = btldr_req;
             }
             break;
 
@@ -211,37 +261,50 @@ namespace
                 return;
             }
 
-            ASSERT_EQ(std::string(""), _helper.sendRawSysEx(*cmd, false));
+            const size_t ALLOWED_REPEATS = 2;
+            bool         disconnected    = false;
 
-            auto startTime = test::millis();
-
-            LOG(INFO) << "Request sent. Waiting for the device to disconnect.";
-
-            while (_helper.devicePresent(true))
+            for (size_t i = 0; i < ALLOWED_REPEATS; i++)
             {
-                if ((test::millis() - startTime) > max_disconnect_delay_ms)
+                LOG(INFO) << "Attempting to reboot the device, attempt " << i + 1;
+                auto ret = _helper.sendRawSysExToDevice(cmd, false);
+                ASSERT_TRUE(ret.empty());
+                auto startTime = test::millis();
+                LOG(INFO) << "Request sent. Waiting for the device to disconnect.";
+
+                while (MIDIHelper::devicePresent(true))
                 {
-                    LOG(ERROR) << "Device didn't disconnect in " << max_disconnect_delay_ms << " ms.";
-                    FAIL();
+                    if ((test::millis() - startTime) > disconnect_retry_delay_ms)
+                    {
+                        LOG(ERROR) << "Device didn't disconnect in " << disconnect_retry_delay_ms << " ms.";
+                        break;
+                    }
+                }
+
+                if (!MIDIHelper::devicePresent(true))
+                {
+                    disconnected = true;
+                    break;
                 }
             }
 
+            ASSERT_TRUE(disconnected);
             LOG(INFO) << "Device disconnected.";
 
             if (type != softRebootType_t::BOOTLOADER)
             {
-                handshake();
-                _helper.flush();
+                ASSERT_TRUE(handshake());
+                MIDIHelper::flush();
             }
             else
             {
                 auto startTime = test::millis();
 
-                while (!_helper.devicePresent(true, true))
+                while (!MIDIHelper::devicePresent(true, true))
                 {
-                    if ((test::millis() - startTime) > max_connect_delay_ms)
+                    if ((test::millis() - startTime) > max_conn_delay_ms)
                     {
-                        LOG(ERROR) << "Device not available - waited " << max_connect_delay_ms << " ms.";
+                        LOG(ERROR) << "Device not available - waited " << max_conn_delay_ms << " ms.";
                         FAIL();
                     }
                 }
@@ -258,7 +321,7 @@ namespace
             reboot(softRebootType_t::BOOTLOADER);
         }
 
-        void flash(flashType_t flashType = flashType_t::DEVELOPMENT)
+        static bool flash(flashType_t flashType = flashType_t::DEVELOPMENT)
         {
             auto flash = [&](std::string target, std::string args)
             {
@@ -285,7 +348,7 @@ namespace
                     if (result)
                     {
                         LOG(ERROR) << "Flashing failed";
-                        cyclePower(powerCycleType_t::STANDARD);
+                        test::sleepMs(flash_retry_delay_ms);
                     }
                     else
                     {
@@ -294,54 +357,50 @@ namespace
                     }
                 }
 
-                return result;
+                return result == 0;
             };
+
+            bool ret = false;
 
 #ifndef HW_SUPPORT_USB
             LOG(INFO) << "Flashing USB Link MCU";
-            flash(std::string(USB_LINK_TARGET), std::string(FLASH_ARGS_USB_LINK));
+            ret = flash(std::string(USB_LINK_TARGET), std::string(FLASH_ARGS_USB_LINK));
+
+            if (ret)
+            {
 #endif
 
-            ASSERT_EQ(0, flash(std::string(BOARD_STRING), std::string(FLASH_ARGS)));
-            cyclePower(powerCycleType_t::STANDARD_WITH_DEVICE_CHECK);
+                ret = flash(std::string(BOARD_STRING), std::string(FLASH_ARGS));
+
+                if (ret)
+                {
+                    // check handshake - if that doesn't work, try cycling the power
+
+                    if (!handshake())
+                    {
+                        cyclePower(powerCycleType_t::STANDARD_WITH_DEVICE_CHECK);
+                        ret = handshake();
+                    }
+                }
+
+#ifndef HW_SUPPORT_USB
+            }
+#endif
+
+            return ret;
         }
-
-        size_t cleanupMIDIResponse(std::string& response)
-        {
-            // drop empty lines, remove sysex, place each new channel midi message in new line
-            std::string cleanupFile = "clean_response";
-            test::wsystem("cat " + temp_midi_data_location + " | xargs | sed 's/F7 /F7\\n/g' | sed 's/F0/\\nF0/g' | grep -v '^F0' | xargs | sed 's/ /&\\n/3;P;D' > " + cleanupFile, response);
-            test::wsystem("grep -c . " + cleanupFile, response);
-            const auto receivedMessages = stoi(response);
-            test::wsystem("cat " + cleanupFile, response);
-            test::wsystem("rm " + cleanupFile + " " + temp_midi_data_location);
-
-            return receivedMessages;
-        };
 
         TestDatabase _database;
         MIDIHelper   _helper = MIDIHelper(true);
-
-        const std::string handshake_req             = "F0 00 53 43 00 00 01 F7";
-        const std::string handshake_ack             = "F0 00 53 43 01 00 01 F7";
-        const std::string reboot_req                = "F0 00 53 43 00 00 7F F7";
-        const std::string factory_reset_req         = "F0 00 53 43 00 00 44 F7";
-        const std::string btldr_req                 = "F0 00 53 43 00 00 55 F7";
-        const std::string backup_req                = "F0 00 53 43 00 00 1B F7";
-        const std::string usb_power_off_cmd         = "echo write_high 1 > /dev/actl";
-        const std::string usb_power_on_cmd          = "echo write_low 1 > /dev/actl";
-        const uint32_t    turn_on_delay_ms          = 10000;
-        const uint32_t    max_connect_delay_ms      = 25000;
-        const uint32_t    max_disconnect_delay_ms   = 3000;
-        const uint32_t    handshake_retry_delay_ms  = 2000;
-        const std::string fw_build_dir              = "../src/build/";
-        const std::string fw_build_type_subdir      = "release/";
-        const std::string temp_midi_data_location   = "/tmp/temp_midi_data";
-        const std::string backup_file_location      = "/tmp/backup.txt";
-        const std::string latest_github_release_dir = "/tmp/latest_github_release";
-        bool              powerStatus               = false;
+#ifdef TEST_FLASHING
+        static bool flashed;
+#endif
     };
 }    // namespace
+
+#ifdef TEST_FLASHING
+bool HWTest::flashed = false;
+#endif
 
 TEST_F(HWTest, DatabaseInitialValues)
 {
@@ -351,8 +410,8 @@ TEST_F(HWTest, DatabaseInitialValues)
     for (int preset = 0; preset < _database._instance.getSupportedPresets(); preset += (_database._instance.getSupportedPresets() - 1))
     {
         LOG(INFO) << "Checking initial values for preset " << preset + 1;
-        ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::global_t::PRESETS, 0, preset));
-        ASSERT_EQ(preset, _helper.readFromSystem(sys::Config::Section::global_t::PRESETS, 0));
+        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::PRESETS, 0, preset));
+        ASSERT_EQ(preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::global_t::PRESETS, 0));
 
         // MIDI block
         //----------------------------------
@@ -386,13 +445,13 @@ TEST_F(HWTest, DatabaseInitialValues)
             case static_cast<size_t>(protocol::MIDI::setting_t::USB_THRU_USB):
             case static_cast<size_t>(protocol::MIDI::setting_t::USE_GLOBAL_CHANNEL):
             {
-                ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::global_t::MIDI_SETTINGS, i));
+                ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::global_t::MIDI_SETTINGS, i));
             }
             break;
 
             case static_cast<size_t>(protocol::MIDI::setting_t::GLOBAL_CHANNEL):
             {
-                ASSERT_EQ(1, _helper.readFromSystem(sys::Config::Section::global_t::MIDI_SETTINGS, i));
+                ASSERT_EQ(1, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::global_t::MIDI_SETTINGS, i));
             }
             break;
 
@@ -407,14 +466,14 @@ TEST_F(HWTest, DatabaseInitialValues)
         // all values should be set to 0 (default type)
         for (size_t i = 0; i < io::Buttons::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::button_t::TYPE, i));
+            ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::button_t::TYPE, i));
         }
 
         // midi message section
         // all values should be set to 0 (default/note)
         for (size_t i = 0; i < io::Buttons::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::button_t::MESSAGE_TYPE, i));
+            ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::button_t::MESSAGE_TYPE, i));
         }
 
         // midi id section
@@ -423,7 +482,7 @@ TEST_F(HWTest, DatabaseInitialValues)
         {
             for (size_t i = 0; i < io::Buttons::Collection::SIZE(group); i += PARAM_SKIP)
             {
-                ASSERT_EQ(i, _helper.readFromSystem(sys::Config::Section::button_t::MIDI_ID, i + io::Buttons::Collection::START_INDEX(group)));
+                ASSERT_EQ(i, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::button_t::MIDI_ID, i + io::Buttons::Collection::START_INDEX(group)));
             }
         }
 
@@ -431,14 +490,14 @@ TEST_F(HWTest, DatabaseInitialValues)
         // all values should be set to 127
         for (size_t i = 0; i < io::Buttons::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(127, _helper.readFromSystem(sys::Config::Section::button_t::VALUE, i));
+            ASSERT_EQ(127, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::button_t::VALUE, i));
         }
 
         // midi channel section
         // all values should be set to 1
         for (size_t i = 0; i < io::Buttons::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(1, _helper.readFromSystem(sys::Config::Section::button_t::CHANNEL, i));
+            ASSERT_EQ(1, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::button_t::CHANNEL, i));
         }
 
         // encoders block
@@ -447,41 +506,41 @@ TEST_F(HWTest, DatabaseInitialValues)
         // all values should be set to 0
         for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::encoder_t::ENABLE, i));
+            ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::ENABLE, i));
         }
 
         // invert section
         // all values should be set to 0
         for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::encoder_t::INVERT, i));
+            ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::INVERT, i));
         }
 
         // mode section
         // all values should be set to 0
         for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::encoder_t::MODE, i));
+            ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::MODE, i));
         }
 
         // midi id section
         for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(i, _helper.readFromSystem(sys::Config::Section::encoder_t::MIDI_ID, i));
+            ASSERT_EQ(i, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::MIDI_ID, i));
         }
 
         // midi channel section
         // all values should be set to 1
         for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(1, _helper.readFromSystem(sys::Config::Section::encoder_t::CHANNEL, i));
+            ASSERT_EQ(1, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::CHANNEL, i));
         }
 
         // pulses per step section
         // all values should be set to 4
         for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(4, _helper.readFromSystem(sys::Config::Section::encoder_t::PULSES_PER_STEP, i));
+            ASSERT_EQ(4, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::PULSES_PER_STEP, i));
         }
 
         // analog block
@@ -490,21 +549,21 @@ TEST_F(HWTest, DatabaseInitialValues)
         // all values should be set to 0
         for (size_t i = 0; i < io::Analog::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::analog_t::ENABLE, i));
+            ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::ENABLE, i));
         }
 
         // invert section
         // all values should be set to 0
         for (size_t i = 0; i < io::Analog::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::analog_t::INVERT, i));
+            ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::INVERT, i));
         }
 
         // type section
         // all values should be set to 0
         for (size_t i = 0; i < io::Analog::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::analog_t::INVERT, i));
+            ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::INVERT, i));
         }
 
         // midi id section
@@ -513,7 +572,7 @@ TEST_F(HWTest, DatabaseInitialValues)
         {
             for (size_t i = 0; i < io::Analog::Collection::SIZE(group); i += PARAM_SKIP)
             {
-                ASSERT_EQ(i, _helper.readFromSystem(sys::Config::Section::analog_t::MIDI_ID, i + io::Analog::Collection::START_INDEX(group)));
+                ASSERT_EQ(i, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::MIDI_ID, i + io::Analog::Collection::START_INDEX(group)));
             }
         }
 
@@ -521,35 +580,35 @@ TEST_F(HWTest, DatabaseInitialValues)
         // all values should be set to 0
         for (size_t i = 0; i < io::Analog::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::analog_t::LOWER_LIMIT, i));
+            ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::LOWER_LIMIT, i));
         }
 
         // upper limit section
         // all values should be set to 16383
         for (size_t i = 0; i < io::Analog::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(16383, _helper.readFromSystem(sys::Config::Section::analog_t::UPPER_LIMIT, i));
+            ASSERT_EQ(16383, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::UPPER_LIMIT, i));
         }
 
         // midi channel section
         // all values should be set to 1
         for (size_t i = 0; i < io::Analog::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(1, _helper.readFromSystem(sys::Config::Section::analog_t::CHANNEL, i));
+            ASSERT_EQ(1, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::CHANNEL, i));
         }
 
         // lower offset section
         // all values should be set to 0
         for (size_t i = 0; i < io::Analog::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::analog_t::LOWER_OFFSET, i));
+            ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::LOWER_OFFSET, i));
         }
 
         // upper offset section
         // all values should be set to 0
         for (size_t i = 0; i < io::Analog::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::analog_t::UPPER_OFFSET, i));
+            ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::UPPER_OFFSET, i));
         }
 
         // LED block
@@ -558,7 +617,7 @@ TEST_F(HWTest, DatabaseInitialValues)
         // all values should be set to 0
         for (size_t i = 0; i < static_cast<uint8_t>(io::LEDs::setting_t::AMOUNT); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::leds_t::GLOBAL, i));
+            ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::leds_t::GLOBAL, i));
         }
 
         // activation id section
@@ -567,7 +626,7 @@ TEST_F(HWTest, DatabaseInitialValues)
         {
             for (size_t i = 0; i < io::LEDs::Collection::SIZE(group); i += PARAM_SKIP)
             {
-                ASSERT_EQ(i, _helper.readFromSystem(sys::Config::Section::leds_t::ACTIVATION_ID, i + io::LEDs::Collection::START_INDEX(group)));
+                ASSERT_EQ(i, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::leds_t::ACTIVATION_ID, i + io::LEDs::Collection::START_INDEX(group)));
             }
         }
 
@@ -575,41 +634,41 @@ TEST_F(HWTest, DatabaseInitialValues)
         // all values should be set to 0
         for (size_t i = 0; i < io::LEDs::Collection::SIZE() / 3 + (io::Touchscreen::Collection::SIZE() / 3); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::leds_t::RGB_ENABLE, i));
+            ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::leds_t::RGB_ENABLE, i));
         }
 
         // control type section
         // all values should be set to MIDI_IN_NOTE_MULTI_VAL
         for (size_t i = 0; i < io::LEDs::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(static_cast<uint32_t>(io::LEDs::controlType_t::MIDI_IN_NOTE_MULTI_VAL), _helper.readFromSystem(sys::Config::Section::leds_t::CONTROL_TYPE, i));
+            ASSERT_EQ(static_cast<uint32_t>(io::LEDs::controlType_t::MIDI_IN_NOTE_MULTI_VAL), _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::leds_t::CONTROL_TYPE, i));
         }
 
         // activation value section
         // all values should be set to 127
         for (size_t i = 0; i < io::LEDs::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(127, _helper.readFromSystem(sys::Config::Section::leds_t::ACTIVATION_VALUE, i));
+            ASSERT_EQ(127, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::leds_t::ACTIVATION_VALUE, i));
         }
 
         // midi channel section
         // all values should be set to 1
         for (size_t i = 0; i < io::LEDs::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(1, _helper.readFromSystem(sys::Config::Section::leds_t::CHANNEL, i));
+            ASSERT_EQ(1, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::leds_t::CHANNEL, i));
         }
 
 #ifdef HW_SUPPORT_I2C
         // i2c block
         //----------------------------------
         // display section
-        ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::Display::setting_t::ENABLE)));
-        ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::Display::setting_t::DEVICE_INFO_MSG)));
-        ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::Display::setting_t::CONTROLLER)));
-        ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::Display::setting_t::RESOLUTION)));
-        ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::Display::setting_t::EVENT_TIME)));
-        ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::Display::setting_t::MIDI_NOTES_ALTERNATE)));
-        ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::Display::setting_t::OCTAVE_NORMALIZATION)));
+        ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::Display::setting_t::ENABLE)));
+        ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::Display::setting_t::DEVICE_INFO_MSG)));
+        ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::Display::setting_t::CONTROLLER)));
+        ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::Display::setting_t::RESOLUTION)));
+        ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::Display::setting_t::EVENT_TIME)));
+        ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::Display::setting_t::MIDI_NOTES_ALTERNATE)));
+        ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::Display::setting_t::OCTAVE_NORMALIZATION)));
 #endif
 
 #ifdef HW_SUPPORT_TOUCHSCREEN
@@ -619,63 +678,63 @@ TEST_F(HWTest, DatabaseInitialValues)
         // all values should be set to 0
         for (size_t i = 0; i < static_cast<uint8_t>(io::Touchscreen::setting_t::AMOUNT); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::touchscreen_t::SETTING, i));
+            ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::touchscreen_t::SETTING, i));
         }
 
         // x position section
         // all values should be set to 0
         for (size_t i = 0; i < io::Touchscreen::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::touchscreen_t::X_POS, i));
+            ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::touchscreen_t::X_POS, i));
         }
 
         // y position section
         // all values should be set to 0
         for (size_t i = 0; i < io::Touchscreen::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::touchscreen_t::Y_POS, i));
+            ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::touchscreen_t::Y_POS, i));
         }
 
         // WIDTH section
         // all values should be set to 0
         for (size_t i = 0; i < io::Touchscreen::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::touchscreen_t::WIDTH, i));
+            ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::touchscreen_t::WIDTH, i));
         }
 
         // HEIGHT section
         // all values should be set to 0
         for (size_t i = 0; i < io::Touchscreen::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::touchscreen_t::HEIGHT, i));
+            ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::touchscreen_t::HEIGHT, i));
         }
 
         // on screen section
         // all values should be set to 0
         for (size_t i = 0; i < io::Touchscreen::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::touchscreen_t::ON_SCREEN, i));
+            ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::touchscreen_t::ON_SCREEN, i));
         }
 
         // off screen section
         // all values should be set to 0
         for (size_t i = 0; i < io::Touchscreen::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::touchscreen_t::OFF_SCREEN, i));
+            ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::touchscreen_t::OFF_SCREEN, i));
         }
 
         // page switch enabled section
         // all values should be set to 0
         for (size_t i = 0; i < io::Touchscreen::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::touchscreen_t::PAGE_SWITCH_ENABLED, i));
+            ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::touchscreen_t::PAGE_SWITCH_ENABLED, i));
         }
 
         // page switch index section
         // all values should be set to 0
         for (size_t i = 0; i < io::Touchscreen::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(0, _helper.readFromSystem(sys::Config::Section::touchscreen_t::PAGE_SWITCH_INDEX, i));
+            ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::touchscreen_t::PAGE_SWITCH_INDEX, i));
         }
 #endif
     }
@@ -688,20 +747,20 @@ TEST_F(HWTest, FwUpdate)
 
     for (int preset = 0; preset < _database._instance.getSupportedPresets(); preset++)
     {
-        ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::global_t::PRESETS, static_cast<int>(database::Config::presetSetting_t::ACTIVE_PRESET), preset));
-        ASSERT_EQ(preset, _helper.readFromSystem(sys::Config::Section::global_t::PRESETS, static_cast<int>(database::Config::presetSetting_t::ACTIVE_PRESET)));
+        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::PRESETS, database::Config::presetSetting_t::ACTIVE_PRESET, preset));
+        ASSERT_EQ(preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::global_t::PRESETS, database::Config::presetSetting_t::ACTIVE_PRESET));
 
-        ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::analog_t::MIDI_ID, 4, 15 + preset));
+        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::analog_t::MIDI_ID, 4, 15 + preset));
 #ifdef ENCODERS_SUPPORTED
-        ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::encoder_t::CHANNEL, 1, 2 + preset));
+        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::encoder_t::CHANNEL, 1, 2 + preset));
 #endif
-        ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::button_t::VALUE, 0, 90 + preset));
+        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::button_t::VALUE, 0, 90 + preset));
 
-        ASSERT_EQ(15 + preset, _helper.readFromSystem(sys::Config::Section::analog_t::MIDI_ID, 4));
+        ASSERT_EQ(15 + preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::MIDI_ID, 4));
 #ifdef ENCODERS_SUPPORTED
-        ASSERT_EQ(2 + preset, _helper.readFromSystem(sys::Config::Section::encoder_t::CHANNEL, 1));
+        ASSERT_EQ(2 + preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::CHANNEL, 1));
 #endif
-        ASSERT_EQ(90 + preset, _helper.readFromSystem(sys::Config::Section::button_t::VALUE, 0));
+        ASSERT_EQ(90 + preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::button_t::VALUE, 0));
     }
 
     bootloader();
@@ -710,20 +769,20 @@ TEST_F(HWTest, FwUpdate)
     ASSERT_EQ(0, test::wsystem(cmd));
     LOG(INFO) << "Firmware file sent successfully, verifying that device responds to handshake";
 
-    handshake();
+    ASSERT_TRUE(handshake());
 
     LOG(INFO) << "Verifying that the custom values are still active after FW update";
 
     for (int preset = 0; preset < _database._instance.getSupportedPresets(); preset++)
     {
-        ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::global_t::PRESETS, static_cast<int>(database::Config::presetSetting_t::ACTIVE_PRESET), preset));
-        ASSERT_EQ(preset, _helper.readFromSystem(sys::Config::Section::global_t::PRESETS, static_cast<int>(database::Config::presetSetting_t::ACTIVE_PRESET)));
+        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::PRESETS, database::Config::presetSetting_t::ACTIVE_PRESET, preset));
+        ASSERT_EQ(preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::global_t::PRESETS, database::Config::presetSetting_t::ACTIVE_PRESET));
 
-        ASSERT_EQ(15 + preset, _helper.readFromSystem(sys::Config::Section::analog_t::MIDI_ID, 4));
+        ASSERT_EQ(15 + preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::MIDI_ID, 4));
 #ifdef ENCODERS_SUPPORTED
-        ASSERT_EQ(2 + preset, _helper.readFromSystem(sys::Config::Section::encoder_t::CHANNEL, 1));
+        ASSERT_EQ(2 + preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::CHANNEL, 1));
 #endif
-        ASSERT_EQ(90 + preset, _helper.readFromSystem(sys::Config::Section::button_t::VALUE, 0));
+        ASSERT_EQ(90 + preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::button_t::VALUE, 0));
     }
 }
 
@@ -736,7 +795,7 @@ TEST_F(HWTest, FwUpdateFromLastRelease)
     ASSERT_EQ(0, test::wsystem(cmd));
     LOG(INFO) << "Firmware file sent successfully, verifying that device responds to handshake";
 
-    handshake();
+    ASSERT_TRUE(handshake());
 }
 #endif
 
@@ -746,24 +805,28 @@ TEST_F(HWTest, BackupAndRestore)
 
     for (int preset = 0; preset < _database._instance.getSupportedPresets(); preset++)
     {
-        ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::global_t::PRESETS, static_cast<int>(database::Config::presetSetting_t::ACTIVE_PRESET), preset));
-        ASSERT_EQ(preset, _helper.readFromSystem(sys::Config::Section::global_t::PRESETS, static_cast<int>(database::Config::presetSetting_t::ACTIVE_PRESET)));
+        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::PRESETS, database::Config::presetSetting_t::ACTIVE_PRESET, preset));
 
-        ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::analog_t::MIDI_ID, 4, 15 + preset));
-#ifdef ENCODERS_SUPPORTED
-        ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::encoder_t::CHANNEL, 1, 2 + preset));
-#endif
-        ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::button_t::VALUE, 0, 90 + preset));
+        const size_t ANALOG_ID      = 4;
+        const size_t ANALOG_MIDI_ID = 15 + preset;
 
-        ASSERT_EQ(15 + preset, _helper.readFromSystem(sys::Config::Section::analog_t::MIDI_ID, 4));
+        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::analog_t::MIDI_ID, ANALOG_ID, ANALOG_MIDI_ID));
+
 #ifdef ENCODERS_SUPPORTED
-        ASSERT_EQ(2 + preset, _helper.readFromSystem(sys::Config::Section::encoder_t::CHANNEL, 1));
+        const size_t ENCODER_COMPONENT = 1;
+        const size_t ENCODER_MIDI_ID   = 2 + preset;
+
+        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::encoder_t::CHANNEL, ENCODER_COMPONENT, ENCODER_MIDI_ID));
 #endif
-        ASSERT_EQ(90 + preset, _helper.readFromSystem(sys::Config::Section::button_t::VALUE, 0));
+
+        const size_t BUTTON_COMPONENT = 0;
+        const size_t BUTTON_MIDI_ID   = 90 + preset;
+
+        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::button_t::VALUE, BUTTON_COMPONENT, BUTTON_MIDI_ID));
     }
 
     LOG(INFO) << "Sending backup request";
-    std::string cmd = std::string("amidi -p ") + _helper.amidiPort(OPENDECK_MIDI_DEVICE_NAME) + " -S \"" + backup_req + "\" -d -t 4 > " + backup_file_location;
+    std::string cmd = std::string("amidi -p ") + _helper.amidiPort(OPENDECK_MIDI_DEVICE_NAME) + " -S \"" + test::vectorToHexString(backup_req) + "\" -d -t 4 > " + backup_file_location;
     ASSERT_EQ(0, test::wsystem(cmd));
 
     factoryReset();
@@ -772,23 +835,24 @@ TEST_F(HWTest, BackupAndRestore)
 
     for (int preset = 0; preset < _database._instance.getSupportedPresets(); preset++)
     {
-        ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::global_t::PRESETS, static_cast<int>(database::Config::presetSetting_t::ACTIVE_PRESET), preset));
-        ASSERT_EQ(preset, _helper.readFromSystem(sys::Config::Section::global_t::PRESETS, static_cast<int>(database::Config::presetSetting_t::ACTIVE_PRESET)));
+        LOG(INFO) << "Checking values in preset " << preset;
 
-        ASSERT_EQ(4, _helper.readFromSystem(sys::Config::Section::analog_t::MIDI_ID, 4));
+        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::PRESETS, database::Config::presetSetting_t::ACTIVE_PRESET, preset));
+        ASSERT_EQ(preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::global_t::PRESETS, database::Config::presetSetting_t::ACTIVE_PRESET));
+        ASSERT_EQ(4, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::MIDI_ID, 4));
 #ifdef ENCODERS_SUPPORTED
-        ASSERT_EQ(1, _helper.readFromSystem(sys::Config::Section::encoder_t::CHANNEL, 1));
+        ASSERT_EQ(1, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::CHANNEL, 1));
 #endif
-        ASSERT_EQ(127, _helper.readFromSystem(sys::Config::Section::button_t::VALUE, 0));
+        ASSERT_EQ(127, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::button_t::VALUE, 0));
     }
 
     LOG(INFO) << "Restoring backup";
 
     // remove everything before the restore start indicator
-    ASSERT_EQ(0, test::wsystem("sed -n -i '/^F0 00 53 43 00 00 1C F7$/,$p' " + backup_file_location));
+    ASSERT_EQ(0, test::wsystem("sed -n -i '/^" + test::vectorToHexString(restore_start_indicator) + "$/,$p' " + backup_file_location));
 
-    //...and also after the restore end indicator
-    ASSERT_EQ(0, test::wsystem("sed -i '/^F0 00 53 43 00 00 1D F7$/q' " + backup_file_location));
+    // ...and also after the restore end indicator
+    ASSERT_EQ(0, test::wsystem("sed -i '/^" + test::vectorToHexString(restore_end_indicator) + "$/q' " + backup_file_location));
 
     // send backup
     std::ifstream backupStream(backup_file_location);
@@ -796,33 +860,34 @@ TEST_F(HWTest, BackupAndRestore)
 
     while (getline(backupStream, line))
     {
-        // restore end indicator will reboot the board
-        if (line.find("F0 00 53 43 00 00 1D F7") == std::string::npos)
+        // restore end indicator will reboot the board - in that case don't expect any response
+        if (line.find(test::vectorToHexString(restore_end_indicator)) == std::string::npos)
         {
-            ASSERT_NE(_helper.sendRawSysEx(line), std::string(""));
+            auto ret = _helper.sendRawSysExToDevice(test::hexStringToVector(line));
+            ASSERT_FALSE(ret.empty());
         }
         else
         {
-            _helper.sendRawSysEx(line, false);
+            _helper.sendRawSysExToDevice(test::hexStringToVector(line), false);
         }
     }
 
     LOG(INFO) << "Backup file sent successfully";
 
-    handshake();
+    ASSERT_TRUE(handshake());
 
     LOG(INFO) << "Verifying that the custom values are active again";
 
     for (int preset = 0; preset < _database._instance.getSupportedPresets(); preset++)
     {
-        ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::global_t::PRESETS, static_cast<int>(database::Config::presetSetting_t::ACTIVE_PRESET), preset));
-        ASSERT_EQ(preset, _helper.readFromSystem(sys::Config::Section::global_t::PRESETS, static_cast<int>(database::Config::presetSetting_t::ACTIVE_PRESET)));
+        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::PRESETS, database::Config::presetSetting_t::ACTIVE_PRESET, preset));
+        ASSERT_EQ(preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::global_t::PRESETS, database::Config::presetSetting_t::ACTIVE_PRESET));
 
-        ASSERT_EQ(15 + preset, _helper.readFromSystem(sys::Config::Section::analog_t::MIDI_ID, 4));
+        ASSERT_EQ(15 + preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::MIDI_ID, 4));
 #ifdef ENCODERS_SUPPORTED
-        ASSERT_EQ(2 + preset, _helper.readFromSystem(sys::Config::Section::encoder_t::CHANNEL, 1));
+        ASSERT_EQ(2 + preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::CHANNEL, 1));
 #endif
-        ASSERT_EQ(90 + preset, _helper.readFromSystem(sys::Config::Section::button_t::VALUE, 0));
+        ASSERT_EQ(90 + preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::button_t::VALUE, 0));
     }
 }
 
@@ -834,14 +899,16 @@ TEST_F(HWTest, USBMIDIData)
     auto changePreset = [&]()
     {
         LOG(INFO) << "Switching preset";
-        cmd = std::string("amidi -p ") + _helper.amidiPort(OPENDECK_MIDI_DEVICE_NAME) + " -S \"F0 00 53 43 00 00 01 00 00 02 00 00 00 00 F7\" -d -t 3 > " + temp_midi_data_location;
+        const size_t PRESET     = 0;
+        auto         preset0Req = _helper.generateSysExSetReq(sys::Config::Section::global_t::PRESETS, database::Config::presetSetting_t::ACTIVE_PRESET, PRESET);
+        cmd                     = std::string("amidi -p ") + _helper.amidiPort(OPENDECK_MIDI_DEVICE_NAME) + " -S \"" + test::vectorToHexString(preset0Req) + "\" -d -t 3 > " + temp_midi_data_location;
         ASSERT_EQ(0, test::wsystem(cmd, response));
+        test::wsystem("cat " + temp_midi_data_location, response);
     };
 
     changePreset();
-    auto receivedMessages = cleanupMIDIResponse(response);
-    LOG(INFO) << "Received " << receivedMessages << " USB messages after preset change:\n"
-              << response;
+    auto receivedMessages = _helper.totalChannelMessages(response);
+    LOG(INFO) << "Received " << receivedMessages << " USB messages after preset change";
     ASSERT_EQ(io::Buttons::Collection::SIZE(io::Buttons::GROUP_DIGITAL_INPUTS), receivedMessages);
 }
 
@@ -855,7 +922,9 @@ TEST_F(HWTest, DINMIDIData)
     auto changePreset = [&]()
     {
         LOG(INFO) << "Switching preset";
-        cmd = std::string("amidi -p ") + _helper.amidiPort(OPENDECK_MIDI_DEVICE_NAME) + " -S \"F0 00 53 43 00 00 01 00 00 02 00 00 00 00 F7\" -d -t 3";
+        const size_t PRESET     = 0;
+        auto         preset0Req = _helper.generateSysExSetReq(sys::Config::Section::global_t::PRESETS, database::Config::presetSetting_t::ACTIVE_PRESET, PRESET);
+        cmd                     = std::string("amidi -p ") + _helper.amidiPort(OPENDECK_MIDI_DEVICE_NAME) + " -S \"" + test::vectorToHexString(preset0Req) + "\" -d -t 3";
         ASSERT_EQ(0, test::wsystem(cmd, response));
     };
 
@@ -872,40 +941,40 @@ TEST_F(HWTest, DINMIDIData)
         }
     };
 
-    auto stopMonitoring = []()
+    auto stopMonitoring = [&]()
     {
         test::wsystem("killall amidi > /dev/null");
+        test::wsystem("cat " + temp_midi_data_location, response);
     };
 
     monitor();
     changePreset();
     stopMonitoring();
-    auto receivedMessages = cleanupMIDIResponse(response);
+    auto receivedMessages = _helper.totalChannelMessages(response);
 
     LOG(INFO) << "Verifying that no data reached DIN MIDI interface due to the DIN MIDI being disabled";
     ASSERT_EQ(0, receivedMessages);
 
     LOG(INFO) << "Enabling DIN MIDI";
-    ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::global_t::MIDI_SETTINGS, protocol::MIDI::setting_t::DIN_ENABLED, 1));
+    ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::MIDI_SETTINGS, protocol::MIDI::setting_t::DIN_ENABLED, 1));
     monitor();
     changePreset();
     stopMonitoring();
-    receivedMessages = cleanupMIDIResponse(response);
-    LOG(INFO) << "Received " << receivedMessages << " DIN MIDI messages after preset change:\n"
-              << response;
+    receivedMessages = _helper.totalChannelMessages(response);
+    LOG(INFO) << "Received " << receivedMessages << " DIN MIDI messages after preset change";
     ASSERT_EQ(io::Buttons::Collection::SIZE(io::Buttons::GROUP_DIGITAL_INPUTS), receivedMessages);
 
     // enable DIN MIDI passthrough, send data to DIN MIDI in to device and expect the same message passed to output port
     LOG(INFO) << "Enabling DIN to DIN thru";
-    ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::global_t::MIDI_SETTINGS, protocol::MIDI::setting_t::DIN_THRU_DIN, 1));
+    ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::MIDI_SETTINGS, protocol::MIDI::setting_t::DIN_THRU_DIN, 1));
 
     // having DIN to USB thru activated should not influence din to din thruing
     LOG(INFO) << "Enabling DIN to USB thru";
-    ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::global_t::MIDI_SETTINGS, protocol::MIDI::setting_t::DIN_THRU_USB, 1));
+    ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::MIDI_SETTINGS, protocol::MIDI::setting_t::DIN_THRU_USB, 1));
 
     // monitor usb as well so that outgoing usb messages aren't "stuck"
     monitor(true);
-    std::string  msg              = "90 00 7F";
+    std::string  msg              = "90007F";
     const size_t MESSAGES_TO_SEND = 100;
 
     LOG(INFO) << "Sending data to DIN MIDI interface " << IN_DIN_MIDI_PORT;
@@ -920,9 +989,8 @@ TEST_F(HWTest, DINMIDIData)
 
     test::sleepMs(1000);
     stopMonitoring();
-    receivedMessages = cleanupMIDIResponse(response);
-    LOG(INFO) << "Received " << receivedMessages << " DIN MIDI messages on passthrough interface:\n"
-              << response;
+    receivedMessages = _helper.totalChannelMessages(response);
+    LOG(INFO) << "Received " << receivedMessages << " DIN MIDI messages on passthrough interface";
     ASSERT_EQ(MESSAGES_TO_SEND, receivedMessages);
     ASSERT_NE(response.find(msg), std::string::npos);
 }
@@ -941,22 +1009,35 @@ TEST_F(HWTest, InputOutput)
         ASSERT_EQ(0, test::wsystem(cmd));
     };
 
-    auto stopMonitoring = []()
+    auto stopMonitoring = [&]()
     {
         test::wsystem("killall amidi > /dev/null");
+        test::wsystem("cat " + temp_midi_data_location, response);
     };
 
 #ifdef TEST_IO_ANALOG
     for (size_t i = 0; i < hwTestAnalogDescriptor.size(); i++)
     {
         LOG(INFO) << "Enabling analog input " << hwTestAnalogDescriptor.at(i).index;
-        ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::analog_t::ENABLE, hwTestAnalogDescriptor.at(i).index, 1));
+        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::analog_t::ENABLE, hwTestAnalogDescriptor.at(i).index, 1));
+
+        LOG(INFO) << "Resetting analog input " << hwTestAnalogDescriptor.at(i).index << " to default state";
+        test::wsystem(std::string("echo write_low ") + std::to_string(hwTestAnalogDescriptor.at(i).pin) + " > /dev/actl");
+        test::sleepMs(1000);
     }
 #endif
 
     monitor();
 
 #ifdef TEST_IO_SWITCHES
+    // reset the state first
+    for (size_t i = 0; i < hwTestSwDescriptor.size(); i++)
+    {
+        LOG(INFO) << "Resetting switch " << hwTestSwDescriptor.at(i).index << " to default state";
+        test::wsystem(std::string("echo write_low ") + std::to_string(hwTestSwDescriptor.at(i).pin) + " > /dev/actl");
+        test::sleepMs(1000);
+    }
+
     for (size_t i = 0; i < hwTestSwDescriptor.size(); i++)
     {
         LOG(INFO) << "Toggling switch " << hwTestSwDescriptor.at(i).index;
@@ -969,6 +1050,7 @@ TEST_F(HWTest, InputOutput)
 #endif
 
 #ifdef TEST_IO_ANALOG
+
     for (size_t i = 0; i < hwTestAnalogDescriptor.size(); i++)
     {
         LOG(INFO) << "Toggling analog input " << hwTestAnalogDescriptor.at(i).index;
@@ -982,8 +1064,7 @@ TEST_F(HWTest, InputOutput)
 
     stopMonitoring();
 
-    LOG(INFO) << "Printing response";
-    test::wsystem("cat " + temp_midi_data_location + " | grep -v '^F0'");
+    _helper.totalChannelMessages(response);
 
     LOG(INFO) << "Verifying if received messages are valid";
 
@@ -993,14 +1074,14 @@ TEST_F(HWTest, InputOutput)
         std::stringstream sstream;
         sstream << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << hwTestSwDescriptor.at(i).index;
 
-        std::string msgOn  = "90 " + sstream.str() + " 00";
-        std::string msgOff = "90 " + sstream.str() + " 7F";
+        std::string msgOn  = "90" + sstream.str() + "00";
+        std::string msgOff = "90" + sstream.str() + "7F";
 
         LOG(INFO) << "Searching for: " << msgOn;
-        ASSERT_EQ(0, test::wsystem("cat " + temp_midi_data_location + " | grep \"" + msgOn + "\"", response));
+        ASSERT_TRUE(response.find(msgOn) != std::string::npos);
 
         LOG(INFO) << "Searching for: " << msgOff;
-        ASSERT_EQ(0, test::wsystem("cat " + temp_midi_data_location + " | grep \"" + msgOff + "\"", response));
+        ASSERT_TRUE(response.find(msgOff) != std::string::npos);
     }
 #endif
 
@@ -1008,16 +1089,51 @@ TEST_F(HWTest, InputOutput)
     for (size_t i = 0; i < hwTestAnalogDescriptor.size(); i++)
     {
         std::stringstream sstream;
+        bool              atLeast1Match;
         sstream << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << hwTestAnalogDescriptor.at(i).index;
 
-        std::string msgOn  = "B0 " + sstream.str() + " 00";
-        std::string msgOff = "B0 " + sstream.str() + " 7F";
+        // allow some variance for analog inputs
+        std::vector<std::string> msgOn = {
+            { "B0" + sstream.str() + "00" },
+            { "B0" + sstream.str() + "01" },
+            { "B0" + sstream.str() + "02" },
+        };
 
-        LOG(INFO) << "Searching for: " << msgOn;
-        ASSERT_EQ(0, test::wsystem("cat " + temp_midi_data_location + " | grep \"" + msgOn + "\"", response));
+        std::vector<std::string> msgOff = {
+            { "B0" + sstream.str() + "7D" },
+            { "B0" + sstream.str() + "7E" },
+            { "B0" + sstream.str() + "7F" },
+        };
 
-        LOG(INFO) << "Searching for: " << msgOff;
-        ASSERT_EQ(0, test::wsystem("cat " + temp_midi_data_location + " | grep \"" + msgOff + "\"", response));
+        atLeast1Match = false;
+
+        for (size_t i = 0; i < msgOn.size(); i++)
+        {
+            LOG(INFO) << "Searching for: " << msgOn.at(i);
+
+            if (response.find(msgOn.at(i)) != std::string::npos)
+            {
+                atLeast1Match = true;
+                break;
+            }
+        }
+
+        ASSERT_TRUE(atLeast1Match);
+
+        atLeast1Match = false;
+
+        for (size_t i = 0; i < msgOff.size(); i++)
+        {
+            LOG(INFO) << "Searching for: " << msgOff.at(i);
+
+            if (response.find(msgOff.at(i)) != std::string::npos)
+            {
+                atLeast1Match = true;
+                break;
+            }
+        }
+
+        ASSERT_TRUE(atLeast1Match);
     }
 #endif
 
@@ -1027,7 +1143,7 @@ TEST_F(HWTest, InputOutput)
     for (size_t i = 0; i < hwTestLEDDescriptor.size(); i++)
     {
         LOG(INFO) << "Toggling LED " << hwTestLEDDescriptor.at(i).index << " on";
-        ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::leds_t::TEST_COLOR, hwTestLEDDescriptor.at(i).index, 1));
+        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::leds_t::TEST_COLOR, hwTestLEDDescriptor.at(i).index, 1));
         test::sleepMs(1000);
 
         LOG(INFO) << "Verifying that the LED is turned on";
@@ -1052,7 +1168,7 @@ TEST_F(HWTest, InputOutput)
         ASSERT_EQ(0, test::wsystem("cat " + temp_midi_data_location + " | grep \"" + ledOn + "\"", response));
 
         LOG(INFO) << "Toggling LED " << hwTestLEDDescriptor.at(i).index << " off";
-        ASSERT_TRUE(_helper.writeToSystem(sys::Config::Section::leds_t::TEST_COLOR, hwTestLEDDescriptor.at(i).index, 0));
+        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::leds_t::TEST_COLOR, hwTestLEDDescriptor.at(i).index, 0));
         test::sleepMs(1000);
 
         LOG(INFO) << "Verifying that the LED is turned off";

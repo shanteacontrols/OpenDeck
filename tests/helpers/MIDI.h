@@ -222,13 +222,13 @@ class MIDIHelper
         return hwaWriteToUSB._buffer;
     }
 
-    template<typename T>
-    std::vector<uint8_t> generateSysExGetReq(T section, size_t index)
+    template<typename S, typename I>
+    std::vector<uint8_t> generateSysExGetReq(S section, I index)
     {
         using namespace sys;
 
         auto blockIndex = BLOCK(section);
-        auto split      = util::Conversion::Split14bit(index);
+        auto split      = util::Conversion::Split14bit(static_cast<size_t>(index));
 
         std::vector<uint8_t> request = {
             0xF0,
@@ -281,8 +281,8 @@ class MIDIHelper
         return request;
     }
 
-    template<typename T>
-    uint16_t readFromSystem(T section, size_t index)
+    template<typename S, typename I>
+    uint16_t databaseReadFromSystemViaSysEx(S section, I index)
     {
         auto request = generateSysExGetReq(section, index);
 
@@ -291,13 +291,17 @@ class MIDIHelper
         {
             return sendRequestToDevice(request, SysExConf::wish_t::GET);
         }
-#endif
-
+        else
+        {
+            return sendRequestToStub(request, SysExConf::wish_t::GET);
+        }
+#else
         return sendRequestToStub(request, SysExConf::wish_t::GET);
+#endif
     }
 
     template<typename S, typename I, typename V>
-    bool writeToSystem(S section, I index, V value)
+    bool databaseWriteToSystemViaSysEx(S section, I index, V value)
     {
         auto request = generateSysExSetReq(section, index, value);
 
@@ -306,13 +310,17 @@ class MIDIHelper
         {
             return sendRequestToDevice(request, SysExConf::wish_t::SET);
         }
-#endif
-
+        else
+        {
+            return sendRequestToStub(request, SysExConf::wish_t::SET);
+        }
+#else
         return sendRequestToStub(request, SysExConf::wish_t::SET);
+#endif
     }
 
 #ifdef TESTS_HW_SUPPORT
-    void flush()
+    static void flush()
     {
         LOG(INFO) << "Flushing all incoming data from the OpenDeck device";
         std::string cmdResponse;
@@ -328,84 +336,105 @@ class MIDIHelper
 #endif
     }
 
-    std::string sendRawSysEx(std::string req, bool expectResponse = true)
+    static std::vector<uint8_t> sendRawSysExToDevice(std::vector<uint8_t> request, bool expectResponse = true)
     {
-        std::string cmdResponse;
-        std::string lastResponseFileLocation = "/tmp/midi_in_data.txt";
+        std::vector<uint8_t> ret;
+        std::string          cmdResponse;
+        std::string          lastResponseFileLocation = "/tmp/midi_in_data.txt";
+        auto                 hexRequest               = test::vectorToHexString(request);
 
-        test::wsystem("rm -f " + lastResponseFileLocation, cmdResponse);
-        LOG(INFO) << "req: " << req;
+        test::wsystem("rm -f " + lastResponseFileLocation);
+        LOG(INFO) << "req: " << hexRequest;
 
-        std::string cmd = std::string("stdbuf -i0 -o0 -e0 amidi -p ") + amidiPort(OPENDECK_MIDI_DEVICE_NAME) + std::string(" -S '") + req + "' -d | stdbuf -i0 -o0 -e0 tr -d '\\n' > " + lastResponseFileLocation + " &";
+        std::string cmd = std::string("stdbuf -i0 -o0 -e0 amidi -p ") + amidiPort(OPENDECK_MIDI_DEVICE_NAME) + std::string(" -S '") + hexRequest + "' -d | stdbuf -i0 -o0 -e0 tr -d '\\n' > " + lastResponseFileLocation + " &";
         test::wsystem(cmd, cmdResponse);
 
-        if (test::wordsInString(req) < SysExConf::SPECIAL_REQ_MSG_SIZE)
-        {
-            LOG(ERROR) << "Invalid request";
-            return "";
-        }
-
-        static constexpr uint32_t WAIT_TIME_MS       = 10;
-        static constexpr uint32_t STOP_WAIT_AFTER_MS = 2000;
-        uint32_t                  totalWaitTime      = 0;
+        static constexpr uint32_t STOP_WAIT_AFTER_MS = 3000;
 
         if (expectResponse)
         {
-            // change status byte to ack
-            req[13] = '1';
+            // parse the response with midi library
+            // convert the response to u8 vector first
+            HWAMIDIDIN _hwaMIDIDIN;
 
-            // remove everything after request/wish byte
-            std::string pattern = req.substr(0, 20) + ".*F7";
+            cmd                                  = "cat " + lastResponseFileLocation + " | tr -d '[:space:]'";
+            std::vector<uint8_t> responsePattern = { 0xF0, 0x00, 0x53, 0x43, 0x01 };
 
-            cmd = "cat " + lastResponseFileLocation + " | xargs | sed 's/F7/F7\\n/g' | sed 's/F0/\\nF0/g' | grep -m 1 -E '" + pattern + "'";
+            // copy message part and wish to pattern as well
+            responsePattern.push_back(request.at(5));
+            responsePattern.push_back(request.at(6));
 
-            while (test::wsystem(cmd, cmdResponse))
+            auto startTime = test::millis();
+
+            while (true)
             {
-                test::sleepMs(WAIT_TIME_MS);
-                totalWaitTime += WAIT_TIME_MS;
-
-                if (totalWaitTime == STOP_WAIT_AFTER_MS)
+                auto check = [&]()
                 {
-                    LOG(ERROR) << "Failed to find valid response to request. Outputting response:";
-                    test::wsystem("cat " + lastResponseFileLocation, cmdResponse);
-                    LOG(INFO) << cmdResponse << "\n"
-                                                "Search pattern was: "
-                              << pattern;
+                    bool matched = false;
+                    test::wsystem(cmd, cmdResponse);
+                    auto vector                     = test::hexStringToVector(test::trimWhitespace(cmdResponse));
+                    _hwaMIDIDIN._readPackets        = vector;
+                    MIDIlib::SerialMIDI _serialMIDI = MIDIlib::SerialMIDI(_hwaMIDIDIN);
 
-                    test::wsystem("killall amidi > /dev/null 2>&1");
-                    return "";
+                    while (_hwaMIDIDIN._readPackets.size())
+                    {
+                        if (!_serialMIDI.read())
+                        {
+                            continue;
+                        }
+
+                        if (_serialMIDI.type() == MIDIlib::Base::messageType_t::SYS_EX)
+                        {
+                            std::vector<uint8_t> sysex(_serialMIDI.sysExArray(), _serialMIDI.sysExArray() + _serialMIDI.length());
+
+                            // verify if it matches pattern
+                            if (sysex.size() > responsePattern.size())
+                            {
+                                bool patternMatch = true;
+
+                                for (size_t i = 0; i < responsePattern.size(); i++)
+                                {
+                                    if (sysex.at(i) != responsePattern.at(i))
+                                    {
+                                        patternMatch = false;
+                                        break;
+                                    }
+                                }
+
+                                if (patternMatch)
+                                {
+                                    ret     = sysex;
+                                    matched = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    return matched;
+                };
+
+                if ((test::millis() - startTime) > STOP_WAIT_AFTER_MS)
+                {
+                    LOG(ERROR)
+                        << "Failed to find valid response to request. Printing raw response:\n"
+                        << cmdResponse;
+
+                    break;
                 }
-            }
-
-            test::wsystem("killall amidi > /dev/null 2>&1");
-            test::trimNewline(cmdResponse);
-            LOG(INFO) << "res: " << cmdResponse;
-
-            return cmdResponse;
-        }
-
-        cmd         = "[ -s " + lastResponseFileLocation + " ]";
-        cmdResponse = "";
-
-        while (totalWaitTime < STOP_WAIT_AFTER_MS)
-        {
-            test::sleepMs(WAIT_TIME_MS);
-            totalWaitTime += WAIT_TIME_MS;
-
-            if (test::wsystem(cmd) == 0)
-            {
-                LOG(ERROR) << "Got response while expecting none. Outputting response:";
-                test::wsystem("cat " + lastResponseFileLocation, cmdResponse);
-                LOG(INFO) << cmdResponse;
-                break;
+                else if (check())
+                {
+                    break;
+                }
             }
         }
 
         test::wsystem("killall amidi > /dev/null 2>&1");
-        return cmdResponse;
+        LOG(INFO) << "res: " << test::vectorToHexString(ret);
+        return ret;
     }
 
-    bool devicePresent(bool silent, bool bootloader = false)
+    static bool devicePresent(bool silent, bool bootloader = false)
     {
         if (!silent)
         {
@@ -444,17 +473,17 @@ class MIDIHelper
         return false;
     }
 
-    std::string amidiPort(std::string midiDevice)
+    static std::string amidiPort(std::string midiDevice)
     {
         std::string cmd = "amidi -l | grep \"" + midiDevice + "\" | grep -Eo 'hw:\\S*'";
         std::string cmdResponse;
 
         test::wsystem(cmd, cmdResponse);
-        return test::trimNewline(cmdResponse);
+        return test::trimWhitespace(cmdResponse);
     }
 #endif
 
-    std::vector<uint8_t> sendRawSysEx(std::vector<uint8_t> request)
+    std::vector<uint8_t> sendRawSysExToStub(std::vector<uint8_t> request)
     {
         LOG(INFO) << "Sending request to system: ";
 
@@ -521,59 +550,62 @@ class MIDIHelper
         }
     }
 
-    private:
-#ifdef TESTS_HW_SUPPORT
-    uint16_t sendRequestToDevice(std::vector<uint8_t>& requestUint8, SysExConf::wish_t wish)
+    size_t totalChannelMessages(const std::string& input)
     {
-        // convert uint8_t vector to string so it can be passed as command line argument
-        std::stringstream requestString;
-        requestString << std::hex << std::setfill('0') << std::uppercase;
+        LOG(INFO) << "Checking total number of channel messages for the following input:\n"
+                  << input;
 
-        auto first = std::begin(requestUint8);
-        auto last  = std::end(requestUint8);
+        // for a given input, extract all channel midi messages and return total count
+        auto vector = test::hexStringToVector(test::trimWhitespace(input));
 
-        while (first != last)
+        // now count total number of channel messages
+        size_t              totalChannelMessages = 0;
+        HWAMIDIDIN          _hwaMIDIDIN;
+        MIDIlib::SerialMIDI _serialMIDI = MIDIlib::SerialMIDI(_hwaMIDIDIN);
+        _hwaMIDIDIN._readPackets        = vector;
+
+        while (_hwaMIDIDIN._readPackets.size())
         {
-            requestString << std::setw(2) << static_cast<int>(*first++);
-
-            if (first != last)
+            if (!_serialMIDI.read())
             {
-                requestString << " ";
+                continue;
+            }
+
+            if (_serialMIDI.isChannelMessage(_serialMIDI.type()))
+            {
+                totalChannelMessages++;
             }
         }
 
-        std::string responseString = sendRawSysEx(requestString.str());
+        return totalChannelMessages;
+    }
 
-        if (responseString == "")
+    private:
+#ifdef TESTS_HW_SUPPORT
+    int32_t sendRequestToDevice(std::vector<uint8_t>& request, SysExConf::wish_t wish)
+    {
+        auto response = sendRawSysExToDevice(request);
+
+        if (response.empty())
         {
-            return 0;    // invalid response
-        }
-
-        // convert response back to uint8 vector
-        std::vector<uint8_t> responseUint8;
-
-        for (size_t i = 0; i < responseString.length(); i += 3)
-        {
-            std::string byteString = responseString.substr(i, 2);
-            char        byte       = (char)strtol(byteString.c_str(), NULL, 16);
-            responseUint8.push_back(byte);
+            return -1;    // invalid response
         }
 
         if (wish == SysExConf::wish_t::GET)
         {
             // last two bytes are result
-            auto merged = util::Conversion::Merge14bit(responseUint8.at(responseUint8.size() - 3), responseUint8.at(responseUint8.size() - 2));
+            auto merged = util::Conversion::Merge14bit(response.at(response.size() - 3), response.at(response.size() - 2));
             return merged.value();
         }
 
         // read status byte
-        return responseUint8.at(4);
+        return response.at(4);
     }
 #endif
 
     uint16_t sendRequestToStub(std::vector<uint8_t>& request, SysExConf::wish_t wish, bool customReq = false)
     {
-        auto response = sendRawSysEx(request);
+        auto response = sendRawSysExToStub(request);
 
         if (wish == SysExConf::wish_t::GET)
         {
