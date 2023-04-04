@@ -1,6 +1,6 @@
 ---
 flash:
-  args: "FLASH_TOOL=bmp PORT=bmp_opendeck22"
+  args: "FLASH_TOOL=pyocd PROBE_ID=E661410403613732"
 dinMidi:
   in: "ESI M4U eX MIDI 7"
   out: "ESI M4U eX MIDI 8"
