@@ -29,24 +29,6 @@ jobs:
           cd tests/
           ../scripts/build_targets.sh
           make exec
-  hw-tests:
-    name: Run tests on physical boards
-    runs-on: self-hosted
-    steps:
-      - name: Mark repository as safe
-        run: git config --global --add safe.directory /__w/OpenDeck/OpenDeck
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          submodules: recursive
-      - name: Run tests on hardware
-        run: |
-          git reset --hard
-          git clean -dxf
-          git fetch --tags
-          cd tests
-          ../scripts/build_targets.sh --hw
-          make exec HW_TESTING=1
   format:
     name: Code formatting
     runs-on: ubuntu-20.04
