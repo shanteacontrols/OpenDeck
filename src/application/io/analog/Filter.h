@@ -22,11 +22,11 @@ limitations under the License.
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "core/src/Timing.h"
+#include "core/Timing.h"
 #include "io/analog/Analog.h"
-#include "core/src/util/Util.h"
-#include "core/src/util/Filters.h"
-#include "core/src/MCU.h"
+#include "core/util/Util.h"
+#include "core/util/Filters.h"
+#include "core/MCU.h"
 
 namespace io
 {

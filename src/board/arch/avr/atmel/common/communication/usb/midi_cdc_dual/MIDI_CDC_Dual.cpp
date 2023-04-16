@@ -25,7 +25,7 @@ limitations under the License.
 #include "board/common/communication/usb/descriptors/midi_cdc_dual/Descriptors.h"
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "core/src/Timing.h"
+#include "core/Timing.h"
 
 namespace
 {

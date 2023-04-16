@@ -20,9 +20,9 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "core/src/util/RingBuffer.h"
-#include "core/src/util/Util.h"
-#include "core/src/MCU.h"
+#include "core/util/RingBuffer.h"
+#include "core/util/Util.h"
+#include "core/MCU.h"
 #include <Target.h>
 
 namespace

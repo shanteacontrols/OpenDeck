@@ -1,5 +1,5 @@
 #include "framework/Framework.h"
-#include "core/src/util/RingBuffer.h"
+#include "core/util/RingBuffer.h"
 
 namespace
 {

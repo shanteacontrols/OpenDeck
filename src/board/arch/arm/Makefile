@@ -16,35 +16,23 @@ ifeq (,$(findstring gen,$(TYPE)))
     endif
 
     CPPFLAGS += \
-    -mcpu=$(CORE_MCU_CPU) \
     -mthumb \
     -mno-unaligned-access
 
     ifneq (,$(findstring clang,$(CC_ARM)))
         CPPFLAGS += -target arm-none-eabi
     endif
-
-    LDFLAGS += \
-    -mcpu=$(CORE_MCU_CPU) \
-    -mthumb \
-    -specs=nano.specs \
-    -specs=nosys.specs
-
-    ifneq ($(CORE_MCU_FPU),)
-        CPPFLAGS += -mfpu=$(CORE_MCU_FPU)
-        LDFLAGS  += -mfpu=$(CORE_MCU_FPU)
-    endif
-
-    ifneq ($(CORE_MCU_FLOAT_ABI),)
-        CPPFLAGS += -mfloat-abi=$(CORE_MCU_FLOAT_ABI)
-        LDFLAGS  += -mfloat-abi=$(CORE_MCU_FLOAT_ABI)
-    endif
 endif
 
 DEFINES += \
+USE_TINYUSB \
+LIB_TINYUSB_DEVICE=1 \
 EMUEEPROM_INCLUDE_CONFIG \
 BOARD_USE_FAST_SOFT_PWM_TIMER \
 CORE_MCU_BTLDR_CACHE_WORDS_USER=8192
+
+INCLUDE_DIRS += \
+-I"board/common/communication/usb/tinyusb"
 
 CC        := arm-none-eabi-gcc
 CXX       := arm-none-eabi-g++

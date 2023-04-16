@@ -40,7 +40,7 @@ limitations under the License.
 #include "ble_config.h"
 #include "services/midi/MIDI.h"
 #include "logger/Logger.h"
-#include "core/src/ErrorHandler.h"
+#include "core/ErrorHandler.h"
 #include <Target.h>
 
 namespace

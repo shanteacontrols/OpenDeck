@@ -1,4 +1,4 @@
 -specs=nano.specs
 -mrelax
 -funsigned-bitfields
--DCORE_ARCH_AVR
+-DCORE_MCU_ARCH_AVR

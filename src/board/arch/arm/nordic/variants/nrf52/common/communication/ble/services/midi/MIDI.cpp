@@ -27,8 +27,8 @@ limitations under the License.
 #include "nrf_log.h"
 #include "nrf_sdh_ble.h"
 #include "logger/Logger.h"
-#include "core/src/util/RingBuffer.h"
-#include "core/src/ErrorHandler.h"
+#include "core/util/RingBuffer.h"
+#include "core/ErrorHandler.h"
 
 namespace
 {

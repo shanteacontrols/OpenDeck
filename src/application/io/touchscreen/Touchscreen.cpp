@@ -19,8 +19,8 @@ limitations under the License.
 #ifdef HW_SUPPORT_TOUCHSCREEN
 
 #include "Touchscreen.h"
-#include "core/src/util/Util.h"
-#include "core/src/Timing.h"
+#include "core/util/Util.h"
+#include "core/Timing.h"
 #include "util/conversion/Conversion.h"
 #include "util/configurable/Configurable.h"
 

@@ -22,7 +22,7 @@ limitations under the License.
 #include "sysex/src/SysExConf.h"
 #include "system/Config.h"
 
-#include "core/src/util/Util.h"
+#include "core/util/Util.h"
 #include "util/conversion/Conversion.h"
 #include "util/configurable/Configurable.h"
 

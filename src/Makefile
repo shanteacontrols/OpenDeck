@@ -2,6 +2,7 @@
 include Toolchain.mk
 include Setup.mk
 -include $(BOARD_GEN_DIR_TARGET)/Makefile
+-include board/arch/common/Makefile
 -include board/arch/$(CORE_MCU_ARCH)/Makefile
 -include board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/Makefile
 -include board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/Makefile

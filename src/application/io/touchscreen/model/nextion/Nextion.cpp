@@ -22,7 +22,7 @@ limitations under the License.
 #include <stdio.h>
 #include <string.h>
 #include "Nextion.h"
-#include "core/src/Timing.h"
+#include "core/Timing.h"
 #include "io/touchscreen/Touchscreen.h"
 
 using namespace io;

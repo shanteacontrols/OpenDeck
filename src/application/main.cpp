@@ -16,8 +16,8 @@ limitations under the License.
 
 */
 
-#include "core/src/Timing.h"
-#include "core/src/MCU.h"
+#include "core/Timing.h"
+#include "core/MCU.h"
 #include "board/Board.h"
 #include "io/common/Common.h"
 #include "system/System.h"

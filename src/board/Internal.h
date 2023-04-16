@@ -24,7 +24,7 @@ limitations under the License.
 #ifdef HW_USB_OVER_SERIAL
 #include "usb-link/Commands.h"
 #endif
-#include "core/src/MCU.h"
+#include "core/MCU.h"
 
 namespace board::detail
 {

@@ -22,7 +22,7 @@ limitations under the License.
 #include "board/Internal.h"
 #include "board/common/communication/usb/descriptors/common/Common.h"
 #include "tusb.h"
-#include "core/src/MCU.h"
+#include "core/MCU.h"
 
 namespace
 {

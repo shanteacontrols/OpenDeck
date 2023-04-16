@@ -18,7 +18,7 @@ limitations under the License.
 
 #pragma once
 
-#include "core/src/MCU.h"
+#include "core/MCU.h"
 
 #define USB_VENDOR_ID 0x1209
 

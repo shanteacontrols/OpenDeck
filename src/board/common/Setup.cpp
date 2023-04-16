@@ -18,8 +18,8 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "core/src/Timing.h"
-#include "core/src/MCU.h"
+#include "core/Timing.h"
+#include "core/MCU.h"
 #include "board/common/communication/USBOverSerial/USBOverSerial.h"
 
 namespace core::timing::detail

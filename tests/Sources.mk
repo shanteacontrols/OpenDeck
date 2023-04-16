@@ -40,6 +40,7 @@ INCLUDE_DIRS_COMMON := \
 -I"./" \
 -I"./stubs" \
 -I"../modules/" \
+-I"../modules/core/src" \
 -I"../src/" \
 -I"../src/bootloader/" \
 -I"../src/application/" \

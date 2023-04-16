@@ -19,7 +19,7 @@ limitations under the License.
 #ifdef HW_SUPPORT_ADC
 #ifdef HW_DRIVER_ANALOG_INPUT_MULTIPLEXER
 
-#include "core/src/util/Util.h"
+#include "core/util/Util.h"
 #include "board/Board.h"
 #include "board/Internal.h"
 #include <Target.h>

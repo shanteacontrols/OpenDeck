@@ -29,7 +29,7 @@ then
             "in-pull")
                 {
                     printf "%s\n" "{ .pin = { .port = UNUSED_PORT_${i}, .index = UNUSED_PIN_${i}",
-                    printf "\n%s\n" "#ifdef CORE_ARCH_AVR"
+                    printf "\n%s\n" "#ifdef CORE_MCU_ARCH_AVR"
                     printf "%s\n" ".mode = core::mcu::io::pinMode_t::INPUT, },"
                     printf "%s\n" "#else"
                     printf "%s\n" ".mode = core::mcu::io::pinMode_t::INPUT, .pull = core::mcu::io::pullMode_t::UP, },"
@@ -41,7 +41,7 @@ then
             "out-low")
                 {
                     printf "%s\n" "{ .pin = { .port = UNUSED_PORT_${i}, .index = UNUSED_PIN_${i}",
-                    printf "\n%s\n" "#ifdef CORE_ARCH_AVR"
+                    printf "\n%s\n" "#ifdef CORE_MCU_ARCH_AVR"
                     printf "%s\n" ".mode = core::mcu::io::pinMode_t::OUTPUT, },"
                     printf "%s\n" "#else"
                     printf "%s\n" ".mode = core::mcu::io::pinMode_t::OUTPUT_PP, .pull = core::mcu::io::pullMode_t::NONE, },"
@@ -53,7 +53,7 @@ then
             "out-high")
                 {
                     printf "%s\n" "{ .pin = { .port = UNUSED_PORT_${i}, .index = UNUSED_PIN_${i}",
-                    printf "\n%s\n" "#ifdef CORE_ARCH_AVR"
+                    printf "\n%s\n" "#ifdef CORE_MCU_ARCH_AVR"
                     printf "%s\n" ".mode = core::mcu::io::pinMode_t::OUTPUT, },"
                     printf "%s\n" "#else"
                     printf "%s\n" ".mode = core::mcu::io::pinMode_t::OUTPUT_PP, .pull = core::mcu::io::pullMode_t::NONE, }," >> "$out_header"

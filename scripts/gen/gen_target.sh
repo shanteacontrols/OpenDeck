@@ -11,6 +11,7 @@ mcu=$($yaml_parser "$yaml_file" mcu)
 target_name=$(basename "$yaml_file" .yml)
 mcu_gen_dir=$(dirname "$gen_dir")/../mcu/$mcu
 hw_test_yaml_file=$(dirname "$yaml_file")/../hw-test/$target_name.yml
+extClockMhz=$($yaml_parser "$yaml_file" extClockMhz)
 
 mkdir -p "$gen_dir"
 echo "" > "$out_header"
@@ -18,7 +19,7 @@ echo "" > "$out_makefile"
 
 if [[ ! -d $mcu_gen_dir ]]
 then
-    if ! "$script_dir"/gen_mcu.sh "$mcu" "$mcu_gen_dir"
+    if ! "$script_dir"/gen_mcu.sh "$mcu" "$mcu_gen_dir" "$extClockMhz"
     then
         exit 1
     fi

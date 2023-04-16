@@ -20,7 +20,7 @@ limitations under the License.
 #include "updater/Updater.h"
 #include "SysExParser/SysExParser.h"
 #include "FwSelector/FwSelector.h"
-#include "core/src/Timing.h"
+#include "core/Timing.h"
 #include <Target.h>
 
 namespace

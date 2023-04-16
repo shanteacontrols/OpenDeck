@@ -20,7 +20,7 @@ limitations under the License.
 
 #include "board/Internal.h"
 #include "tusb.h"
-#include "core/src/MCU.h"
+#include "core/MCU.h"
 
 namespace board::detail::usb
 {

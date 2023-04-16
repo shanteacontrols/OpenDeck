@@ -21,8 +21,8 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "core/src/util/Util.h"
-#include "core/src/Timing.h"
+#include "core/util/Util.h"
+#include "core/Timing.h"
 #include <Target.h>
 
 #include "Indicators.h"

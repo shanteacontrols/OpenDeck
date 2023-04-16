@@ -16,9 +16,13 @@ endif
 
 DEFINES += CORE_MCU_STUB
 
+INCLUDE_DIRS := $(filter-out %avr-libstdcpp/include",$(INCLUDE_DIRS))
+
 INCLUDE_DIRS += \
 -I"application" \
 -I"bootloader"
+
+SOURCES :=
 
 ifneq (,$(findstring HW_SUPPORT_BOOTLOADER,$(DEFINES)))
     SOURCES += sysexgen/main.cpp

@@ -14,8 +14,12 @@ else
     OPT := -O3
 endif
 
+INCLUDE_DIRS := $(filter-out %avr-libstdcpp/include",$(INCLUDE_DIRS))
+
 INCLUDE_DIRS += \
 -I"application"
+
+SOURCES :=
 
 ifeq ($(CORE_MCU_ARCH),arm)
     SOURCES += $(shell $(FIND) application/database -type f -name "*.cpp")

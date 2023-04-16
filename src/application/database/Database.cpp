@@ -17,7 +17,7 @@ limitations under the License.
 */
 
 #include <inttypes.h>
-#include "core/src/util/Util.h"
+#include "core/util/Util.h"
 #include "util/conversion/Conversion.h"
 #include "util/configurable/Configurable.h"
 

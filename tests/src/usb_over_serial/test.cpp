@@ -3,7 +3,7 @@
 #include "framework/Framework.h"
 #include "board/Board.h"
 #include "board/common/communication/USBOverSerial/USBOverSerial.h"
-#include "core/src/util/RingBuffer.h"
+#include "core/util/RingBuffer.h"
 #include "protocol/midi/MIDI.h"
 
 using namespace protocol;

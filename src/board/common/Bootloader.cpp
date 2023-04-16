@@ -18,7 +18,7 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "core/src/Timing.h"
+#include "core/Timing.h"
 #include <Target.h>
 
 #ifdef HW_SUPPORT_BOOTLOADER_BUTTON

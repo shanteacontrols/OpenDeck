@@ -23,10 +23,10 @@ limitations under the License.
 #include <stdio.h>
 #include "board/Internal.h"
 #include "Descriptors.h"
-#include "core/src/MCU.h"
+#include "core/MCU.h"
 #include "board/common/communication/usb/Constants.h"
 #include "board/common/communication/usb/descriptors/common/Common.h"
-#include "core/src/util/Util.h"
+#include "core/util/Util.h"
 #include <Target.h>
 
 namespace

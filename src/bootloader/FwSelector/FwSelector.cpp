@@ -17,7 +17,7 @@ limitations under the License.
 */
 
 #include "FwSelector.h"
-#include "core/src/util/Util.h"
+#include "core/util/Util.h"
 
 void FwSelector::select()
 {

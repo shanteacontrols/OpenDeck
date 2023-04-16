@@ -22,7 +22,7 @@ limitations under the License.
 #include "board/Board.h"
 #include "Helpers.h"
 #include "board/Internal.h"
-#include "core/src/util/Util.h"
+#include "core/util/Util.h"
 #include <Target.h>
 
 using namespace board::io::digitalOut;

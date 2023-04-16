@@ -20,7 +20,7 @@ limitations under the License.
 
 #include <inttypes.h>
 #include "io/touchscreen/Touchscreen.h"
-#include "core/src/util/RingBuffer.h"
+#include "core/util/RingBuffer.h"
 
 class Viewtech : public io::Touchscreen::Model
 {

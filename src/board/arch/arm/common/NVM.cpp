@@ -19,8 +19,8 @@ limitations under the License.
 #include "board/Board.h"
 #include "board/Internal.h"
 #include "EmuEEPROM/src/EmuEEPROM.h"
-#include "core/src/Timing.h"
-#include "core/src/MCU.h"
+#include "core/Timing.h"
+#include "core/MCU.h"
 
 namespace
 {

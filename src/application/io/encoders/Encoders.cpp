@@ -20,8 +20,8 @@ limitations under the License.
 
 #ifdef ENCODERS_SUPPORTED
 
-#include "core/src/Timing.h"
-#include "core/src/util/Util.h"
+#include "core/Timing.h"
+#include "core/util/Util.h"
 #include "util/conversion/Conversion.h"
 #include "util/configurable/Configurable.h"
 
