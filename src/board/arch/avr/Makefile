@@ -16,7 +16,6 @@ endif
 FLASH_TOOL := arduino
 
 DEFINES += \
-USE_CUSTOM_USB_ENDPOINTS \
 BOARD_I2C_CUSTOM_IMPL
 
 ifeq ($(TYPE),bootloader)

@@ -15,3 +15,45 @@
     prescaler: 1
     # Internal oversampling used, take one sample only
     samples: 1
+  usb:
+    endpoints:
+      midi:
+        in: 0x81
+        out: 0x02
+        size:
+          in-out: 32
+          control: 64
+      midi-cdc-dual:
+        cdc-in: 0x81
+        cdc-out: 0x01
+        cdc-notification: 0x83
+        midi-in: 0x82
+        midi-out: 0x02
+        size:
+          midi-in-out: 32
+          cdc-in-out: 32
+          cdc-notification: 8
+          control: 64
+    buffers:
+      midi:
+        tx: 4096
+        rx: 4096
+      cdc:
+        tx: 2048
+        rx: 2048
+  ble:
+    buffers:
+      midi: 128
+  include-dirs:
+    - "src/board/common/communication/usb/tinyusb"
+    - "src/board/arch/arm/nordic/variants/nrf52/common"
+  define-symbols:
+    - "NRF_SDH_BLE_GATT_MAX_MTU_SIZE=131"
+  uart:
+    buffers:
+      tx: 128
+      rx: 128
+  i2c:
+    buffers:
+      tx: 64
+      rx: 64

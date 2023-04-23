@@ -132,21 +132,21 @@ namespace board
         void init()
         {
             _cdcInterface.Config.ControlInterfaceNumber       = USB_INTERFACE_ID_CDC_CCI;
-            _cdcInterface.Config.DataINEndpoint.Address       = USB_ENDPOINT_ADDR_CDC_IN;
-            _cdcInterface.Config.DataINEndpoint.Size          = USB_ENDPOINT_SIZE_CDC_IN_OUT;
+            _cdcInterface.Config.DataINEndpoint.Address       = USB_ENDPOINT_MIDI_CDC_DUAL_ADDR_CDC_IN;
+            _cdcInterface.Config.DataINEndpoint.Size          = USB_ENDPOINT_MIDI_CDC_DUAL_SIZE_CDC_IN_OUT;
             _cdcInterface.Config.DataINEndpoint.Banks         = 1;
-            _cdcInterface.Config.DataOUTEndpoint.Address      = USB_ENDPOINT_ADDR_CDC_OUT;
-            _cdcInterface.Config.DataOUTEndpoint.Size         = USB_ENDPOINT_SIZE_CDC_IN_OUT;
+            _cdcInterface.Config.DataOUTEndpoint.Address      = USB_ENDPOINT_MIDI_CDC_DUAL_ADDR_CDC_OUT;
+            _cdcInterface.Config.DataOUTEndpoint.Size         = USB_ENDPOINT_MIDI_CDC_DUAL_SIZE_CDC_IN_OUT;
             _cdcInterface.Config.DataOUTEndpoint.Banks        = 1;
-            _cdcInterface.Config.NotificationEndpoint.Address = USB_ENDPOINT_ADDR_CDC_NOTIFICATION;
-            _cdcInterface.Config.NotificationEndpoint.Size    = USB_ENDPOINT_SIZE_CDC_NOTIFICATION;
+            _cdcInterface.Config.NotificationEndpoint.Address = USB_ENDPOINT_MIDI_CDC_DUAL_ADDR_CDC_NOTIFICATION;
+            _cdcInterface.Config.NotificationEndpoint.Size    = USB_ENDPOINT_MIDI_CDC_DUAL_SIZE_CDC_NOTIFICATION;
             _cdcInterface.Config.NotificationEndpoint.Banks   = 1;
             _midiInterface.Config.StreamingInterfaceNumber    = USB_INTERFACE_ID_AUDIO_STREAM;
-            _midiInterface.Config.DataINEndpoint.Address      = USB_ENDPOINT_ADDR_MIDI_IN;
-            _midiInterface.Config.DataINEndpoint.Size         = USB_ENDPOINT_SIZE_MIDI_IN_OUT;
+            _midiInterface.Config.DataINEndpoint.Address      = USB_ENDPOINT_MIDI_CDC_DUAL_ADDR_MIDI_IN;
+            _midiInterface.Config.DataINEndpoint.Size         = USB_ENDPOINT_MIDI_CDC_DUAL_SIZE_MIDI_IN_OUT;
             _midiInterface.Config.DataINEndpoint.Banks        = 1;
-            _midiInterface.Config.DataOUTEndpoint.Address     = USB_ENDPOINT_ADDR_MIDI_OUT;
-            _midiInterface.Config.DataOUTEndpoint.Size        = USB_ENDPOINT_SIZE_MIDI_IN_OUT;
+            _midiInterface.Config.DataOUTEndpoint.Address     = USB_ENDPOINT_MIDI_CDC_DUAL_ADDR_MIDI_OUT;
+            _midiInterface.Config.DataOUTEndpoint.Size        = USB_ENDPOINT_MIDI_CDC_DUAL_SIZE_MIDI_IN_OUT;
             _midiInterface.Config.DataOUTEndpoint.Banks       = 1;
 
             USB_Init();
@@ -174,7 +174,7 @@ namespace board
             }
 
             // select the MIDI OUT stream
-            Endpoint_SelectEndpoint(USB_ENDPOINT_ADDR_MIDI_OUT);
+            Endpoint_SelectEndpoint(USB_ENDPOINT_MIDI_CDC_DUAL_ADDR_MIDI_OUT);
 
             // check if a MIDI command has been received
             if (Endpoint_IsOUTReceived())

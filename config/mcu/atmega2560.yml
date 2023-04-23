@@ -10,3 +10,11 @@
   adc:
     prescaler: 128
     samples: 1
+  uart:
+    buffers:
+      tx: 128
+      rx: 128
+  i2c:
+    buffers:
+      tx: 64
+      rx: 64

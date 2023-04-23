@@ -31,9 +31,6 @@ EMUEEPROM_INCLUDE_CONFIG \
 BOARD_USE_FAST_SOFT_PWM_TIMER \
 CORE_MCU_BTLDR_CACHE_WORDS_USER=8192
 
-INCLUDE_DIRS += \
--I"board/common/communication/usb/tinyusb"
-
 CC        := arm-none-eabi-gcc
 CXX       := arm-none-eabi-g++
 LD        := arm-none-eabi-g++

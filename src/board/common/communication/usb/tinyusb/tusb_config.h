@@ -20,14 +20,6 @@ limitations under the License.
 
 #pragma once
 
-#ifdef FW_APP
-#include "board/common/communication/usb/descriptors/midi_cdc_dual/Endpoints.h"
-#define CFG_TUD_CDC 1
-#else
-#include "board/common/communication/usb/descriptors/midi/Endpoints.h"
-#define CFG_TUD_CDC 0
-#endif
-
 #ifdef __cplusplus
 extern "C"
 {
@@ -41,21 +33,29 @@ extern "C"
 #define CFG_TUSB_MEM_ALIGN __attribute__((aligned(4)))
 #endif
 
+#ifdef FW_APP
+#define CFG_TUD_CDC             1
+#define CFG_TUD_ENDPOINT0_SIZE  USB_ENDPOINT_MIDI_CDC_DUAL_SIZE_CONTROL
+#define CFG_TUD_CDC_EP_BUFSIZE  USB_ENDPOINT_MIDI_CDC_DUAL_SIZE_CDC_IN_OUT
+#define CFG_TUD_MIDI_EP_BUFSIZE USB_ENDPOINT_MIDI_CDC_DUAL_SIZE_MIDI_IN_OUT
+#else
+#define CFG_TUD_CDC             0
+#define CFG_TUD_ENDPOINT0_SIZE  USB_ENDPOINT_MIDI_SIZE_CONTROL
+#define CFG_TUD_MIDI_EP_BUFSIZE USB_ENDPOINT_MIDI_SIZE_IN_OUT
+#endif
+
 #define BOARD_DEVICE_RHPORT_NUM   0
 #define BOARD_DEVICE_RHPORT_SPEED OPT_MODE_FULL_SPEED
 #define CFG_TUSB_RHPORT0_MODE     (OPT_MODE_DEVICE | BOARD_DEVICE_RHPORT_SPEED)
 #define CFG_TUSB_OS               OPT_OS_NONE
-#define CFG_TUD_ENDPOINT0_SIZE    USB_ENDPOINT_SIZE_CONTROL
-#define CFG_TUD_CDC_EP_BUFSIZE    USB_ENDPOINT_SIZE_CDC_IN_OUT
-#define CFG_TUD_MIDI_EP_BUFSIZE   USB_ENDPOINT_SIZE_MIDI_IN_OUT
-#define CFG_TUD_MIDI_TX_BUFSIZE   BUFFER_SIZE_USB_MIDI_TX
-#define CFG_TUD_MIDI_RX_BUFSIZE   BUFFER_SIZE_USB_MIDI_RX
-#define CFG_TUD_CDC_TX_BUFSIZE    BUFFER_SIZE_USB_CDC_TX
-#define CFG_TUD_CDC_RX_BUFSIZE    BUFFER_SIZE_USB_CDC_RX
 #define CFG_TUD_MSC               0
 #define CFG_TUD_HID               0
 #define CFG_TUD_MIDI              1
 #define CFG_TUD_VENDOR            0
+#define CFG_TUD_MIDI_TX_BUFSIZE   USB_BUFFER_SIZE_MIDI_TX
+#define CFG_TUD_MIDI_RX_BUFSIZE   USB_BUFFER_SIZE_MIDI_RX
+#define CFG_TUD_CDC_TX_BUFSIZE    USB_BUFFER_SIZE_CDC_TX
+#define CFG_TUD_CDC_RX_BUFSIZE    USB_BUFFER_SIZE_CDC_RX
 
 #ifdef __cplusplus
 }
