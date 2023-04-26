@@ -41,6 +41,7 @@ INCLUDE_DIRS_COMMON := \
 -I"./stubs" \
 -I"../modules/" \
 -I"../modules/core/src" \
+-I"../modules/EmuEEPROM/include" \
 -I"../src/" \
 -I"../src/bootloader/" \
 -I"../src/application/" \

@@ -8,7 +8,8 @@ INCLUDE_DIRS += \
 -I"./" \
 -I"$(MCU_GEN_DIR)" \
 -I"$(TARGET_GEN_DIR)/" \
--I"../modules/"
+-I"../modules/" \
+-I"../modules/EmuEEPROM/include"
 
 TARGET_GEN_HEADER := $(TARGET_GEN_DIR)/Target.h
 

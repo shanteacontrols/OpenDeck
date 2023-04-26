@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef EMUEEPROM_INCLUDE_CONFIG
-#include "EmuEEPROM/src/EmuEEPROM.h"
+#include "EmuEEPROM/EmuEEPROM.h"
 #endif
 #include "database/Database.h"
 #include "database/Layout.h"
