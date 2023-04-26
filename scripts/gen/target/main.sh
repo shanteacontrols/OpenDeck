@@ -2,7 +2,7 @@
 
 {
     printf "%s\n\n" "#pragma once"
-    printf "%s\n" "#include \"board/Internal.h\""
+    printf "%s\n" "#include \"board/src/Internal.h\""
     printf "%s\n" "#include \"core/MCU.h\""
     printf "%s\n" "#include \"core/arch/common/UART.h\""
     printf "%s\n" "#include \"core/arch/common/I2C.h\""
@@ -30,4 +30,4 @@ do
     fi
 done
 
-printf "\n%s" "#include \"board/common/Map.h.include\"" >> "$out_header"
+printf "\n%s" "#include \"board/src/common/Map.h.include\"" >> "$out_header"

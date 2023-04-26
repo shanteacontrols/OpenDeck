@@ -3,10 +3,10 @@
 include ../src/Toolchain.mk
 include ../src/Setup.mk
 -include $(BOARD_GEN_DIR)/Makefile
--include ../src/board/arch/$(CORE_MCU_ARCH)/Makefile
--include ../src/board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/Makefile
--include ../src/board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/Makefile
--include ../src/board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/$(CORE_MCU_MODEL)/Makefile
+-include ../src/board/src/arch/$(CORE_MCU_ARCH)/Makefile
+-include ../src/board/src/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/Makefile
+-include ../src/board/src/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/Makefile
+-include ../src/board/src/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/$(CORE_MCU_MODEL)/Makefile
 -include ../src/$(TYPE)/Makefile
 include ../src/Defines.mk
 include Setup.mk

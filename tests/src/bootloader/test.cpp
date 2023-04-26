@@ -5,7 +5,7 @@
 #include "SysExParser/SysExParser.h"
 #include "updater/Updater.h"
 #include "board/Board.h"
-#include "board/Internal.h"
+#include "board/src/Internal.h"
 #include "helpers/MIDI.h"
 
 #include <filesystem>

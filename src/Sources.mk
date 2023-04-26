@@ -8,7 +8,6 @@ INCLUDE_DIRS += \
 -I"./" \
 -I"$(MCU_GEN_DIR)" \
 -I"$(BOARD_GEN_DIR)/" \
--I"board/common" \
 -I"../modules/"
 
 TARGET_GEN_HEADER := $(BOARD_GEN_DIR)/Target.h
