@@ -1,12 +1,7 @@
 # Important - do not change the order of inclusion!
 include Toolchain.mk
 include Setup.mk
--include $(BOARD_GEN_DIR)/Makefile
--include board/arch/common/Makefile
--include board/arch/$(CORE_MCU_ARCH)/Makefile
--include board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/Makefile
--include board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/Makefile
--include board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/$(CORE_MCU_MODEL)/Makefile
+-include board/Makefile
 -include $(TYPE)/Makefile
 include Defines.mk
 include Sources.mk
