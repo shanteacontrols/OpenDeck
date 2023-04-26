@@ -48,7 +48,7 @@ extra_args=()
 # is then missing. To bypass this, generated MCU file is added via include
 # flag, and CORE_MCU_STUB symbol is explicitly defined so that only stub
 # implementations from core are available.
-extra_args+=(-extra-arg="-include$script_dir/../src/board/generated/mcu/$mcu/CoreMCUGenerated.h")
+extra_args+=(-extra-arg="-include$script_dir/../src/mcu/generated/$mcu/CoreMCUGenerated.h")
 extra_args+=(-extra-arg="-DCORE_MCU_STUB")
 
 case $compiler in

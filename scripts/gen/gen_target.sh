@@ -1,15 +1,32 @@
 #!/usr/bin/env bash
 
+for arg in "$@"; do
+    case "$arg" in
+        --project=*)
+            project=${arg#--project=}
+            ;;
+
+        --target-config=*)
+            yaml_file=${arg#--target-config=}
+            ;;
+
+        --gen-dir-target=*)
+            gen_dir=${arg#--gen-dir-target=}
+            ;;
+
+        --base-gen-dir-mcu=*)
+            base_mcu_gen_dir=${arg#--base-gen-dir-mcu=}
+            ;;
+    esac
+done
+
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
-project=$1
-yaml_file=$2
-gen_dir=$3
 yaml_parser="dasel -n -p yaml --plain -f"
 out_header="$gen_dir"/Target.h
 out_makefile="$gen_dir"/Makefile
 mcu=$($yaml_parser "$yaml_file" mcu)
 target_name=$(basename "$yaml_file" .yml)
-mcu_gen_dir=$(dirname "$gen_dir")/../mcu/$mcu
+mcu_gen_dir=$base_mcu_gen_dir/$mcu
 hw_test_yaml_file=$(dirname "$yaml_file")/../hw-test/$target_name.yml
 extClockMhz=$($yaml_parser "$yaml_file" extClockMhz)
 

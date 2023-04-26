@@ -2,7 +2,7 @@
 
 include ../src/Toolchain.mk
 include ../src/Setup.mk
--include $(BOARD_GEN_DIR_TARGET)/Makefile
+-include $(BOARD_GEN_DIR)/Makefile
 -include ../src/board/arch/$(CORE_MCU_ARCH)/Makefile
 -include ../src/board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/Makefile
 -include ../src/board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/Makefile
@@ -10,7 +10,7 @@ include ../src/Setup.mk
 -include ../src/$(TYPE)/Makefile
 include ../src/Defines.mk
 include Setup.mk
--include $(BOARD_GEN_DIR_TARGET)/HWTestDefines.mk
+-include $(BOARD_GEN_DIR)/HWTestDefines.mk
 include Defines.mk
 include Sources.mk
 -include Objects.mk

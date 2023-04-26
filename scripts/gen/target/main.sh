@@ -9,7 +9,7 @@
 } >> "$out_header"
 
 {
-    printf "%s%s\n" '-include $(BOARD_GEN_DIR_MCU_BASE)/' "$mcu/MCU.mk"
+    printf "%s%s\n" '-include $(MCU_GEN_DIR_BASE)/' "$mcu/CoreMCUGenerated.mk"
 } >> "$out_makefile"
 
 board_name=$($yaml_parser "$yaml_file" boardNameOverride)

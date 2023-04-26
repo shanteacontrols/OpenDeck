@@ -6,12 +6,12 @@ vpath modules/%.S ../
 # Common include dirs
 INCLUDE_DIRS += \
 -I"./" \
--I"$(BOARD_GEN_DIR_MCU)" \
--I"$(BOARD_GEN_DIR_TARGET)/" \
+-I"$(MCU_GEN_DIR)" \
+-I"$(BOARD_GEN_DIR)/" \
 -I"board/common" \
 -I"../modules/"
 
-TARGET_GEN_HEADER := $(BOARD_GEN_DIR_TARGET)/Target.h
+TARGET_GEN_HEADER := $(BOARD_GEN_DIR)/Target.h
 
 ifneq (,$(wildcard $(DEF_FILE_TSCREEN)))
     TSCREEN_GEN_SOURCE := $(APPLICATION_GEN_DIR_TARGET)/Touchscreen.cpp

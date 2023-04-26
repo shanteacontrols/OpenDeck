@@ -1,7 +1,7 @@
 # Important - do not change the order of inclusion!
 include Toolchain.mk
 include Setup.mk
--include $(BOARD_GEN_DIR_TARGET)/Makefile
+-include $(BOARD_GEN_DIR)/Makefile
 -include board/arch/common/Makefile
 -include board/arch/$(CORE_MCU_ARCH)/Makefile
 -include board/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/Makefile
@@ -129,7 +129,11 @@ ifeq ($(USE_UF2),1)
 endif
 
 $(TARGET_GEN_HEADER): $(DEF_FILE_TARGET)
-	$(Q)$(SCRIPTS_DIR)/gen/gen_target.sh $(PROJECT) $(DEF_FILE_TARGET) $(BOARD_GEN_DIR_TARGET)
+	$(Q)$(SCRIPTS_DIR)/gen/gen_target.sh \
+	--project=$(PROJECT) \
+	--target-config=$(DEF_FILE_TARGET) \
+	--gen-dir-target=$(BOARD_GEN_DIR) \
+	--base-gen-dir-mcu=$(MCU_GEN_DIR_BASE)
 
 $(TSCREEN_GEN_SOURCE): $(DEF_FILE_TSCREEN)
 	$(Q)$(SCRIPTS_DIR)/gen/gen_touchscreen.sh $< $@
@@ -196,6 +200,7 @@ clean:
 	@rm -rf \
 	$(BUILD_DIR_BASE) \
 	$(BOARD_GEN_DIR_BASE) \
+	$(MCU_GEN_DIR_BASE) \
 	$(APPLICATION_GEN_DIR_BASE) \
 	compile_commands.json
 
