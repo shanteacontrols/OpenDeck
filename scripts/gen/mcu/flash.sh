@@ -79,13 +79,16 @@ fi
 
 {
     printf "%s%x\n" "FLASH_ADDR_APP_START := 0x" "$app_start_address"
+    printf "%s\n" "DEFINES += FLASH_ADDR_APP_START=$app_start_address"
     printf "%s\n" 'FLASH_ADDR_FW_METADATA := $(shell printf "0x%x" $$(( $(FLASH_ADDR_APP_START) + $(CORE_MCU_FW_METADATA_OFFSET) )) )'
+    printf "%s\n" 'DEFINES += FLASH_ADDR_FW_METADATA=$(FLASH_ADDR_FW_METADATA)'
 } >> "$out_makefile"
 
 if [[ $boot_supported -ne 0 ]]
 then
     {
         printf "%s%x\n" "FLASH_ADDR_BOOT_START := 0x" "$boot_start_address"
+        printf "%s\n" "DEFINES += FLASH_ADDR_BOOT_START=$boot_start_address"
     } >> "$out_makefile"
 fi
 
