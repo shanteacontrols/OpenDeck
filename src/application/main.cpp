@@ -196,6 +196,11 @@ class HWAAnalog : public sys::Builder::HWA::IO::Analog
     {
         return board::io::analog::value(index, value);
     }
+
+    uint8_t adcBits() override
+    {
+        return CORE_MCU_ADC_MAX_VALUE == 1023 ? 10 : 12;
+    }
 } _hwaAnalog;
 
 #else
@@ -207,6 +212,11 @@ class HWAAnalogStub : public sys::Builder::HWA::IO::Analog
     bool value(size_t index, uint16_t& value) override
     {
         return false;
+    }
+
+    uint8_t adcBits() override
+    {
+        return 10;
     }
 } _hwaAnalog;
 #endif

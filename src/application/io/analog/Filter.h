@@ -26,17 +26,14 @@ limitations under the License.
 #include "io/analog/Analog.h"
 #include "core/util/Util.h"
 #include "core/util/Filters.h"
-#include "core/MCU.h"
 
 namespace io
 {
     class AnalogFilter : public Analog::Filter
     {
         public:
-        static_assert(CORE_MCU_ADC_MAX_VALUE == 1023 || CORE_MCU_ADC_MAX_VALUE == 4095, "Unsupported ADC resolution");
-
-        AnalogFilter()
-            : _adcConfig(CORE_MCU_ADC_MAX_VALUE == 1023 ? _adc10bit : _adc12bit)
+        AnalogFilter(uint8_t adcBits)
+            : _adcConfig(adcBits == 12 ? _adc12bit : _adc10bit)
             , STEP_DIFF_7BIT((_adcConfig.ADC_MAX_VALUE - _adcConfig.ADC_MIN_VALUE) / 128)
         {
             for (size_t i = 0; i < io::Analog::Collection::SIZE(); i++)

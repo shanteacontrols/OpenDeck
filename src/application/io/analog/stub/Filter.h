@@ -27,7 +27,8 @@ namespace io
     class AnalogFilter : public Analog::Filter
     {
         public:
-        AnalogFilter() = default;
+        AnalogFilter(uint8_t adcBits)
+        {}
 
         bool isFiltered(size_t index, descriptor_t& descriptor) override
         {

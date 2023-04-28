@@ -45,7 +45,12 @@ namespace sys
             {
                 // these are just renames of existing HWAs in order to have them in the same namespace
                 public:
-                using Analog         = ::io::Analog::HWA;
+                class Analog : public ::io::Analog::HWA
+                {
+                    public:
+                    virtual uint8_t adcBits() = 0;
+                };
+
                 using Buttons        = ::io::Buttons::HWA;
                 using CDCPassthrough = ::io::Touchscreen::CDCPassthrough;
                 using Display        = ::io::I2C::Peripheral::HWA;
@@ -139,7 +144,7 @@ namespace sys
         protocol::MIDI::Database                                                       _midiDatabase        = protocol::MIDI::Database(_database);
         io::EncodersFilter                                                             _encodersFilter;
         io::ButtonsFilter                                                              _buttonsFilter;
-        io::AnalogFilter                                                               _analogFilter;
+        io::AnalogFilter                                                               _analogFilter      = io::AnalogFilter(_hwa.io().analog().adcBits());
         io::Analog                                                                     _analog            = io::Analog(_hwa.io().analog(), _analogFilter, _analogDatabase);
         io::Buttons                                                                    _buttons           = io::Buttons(_hwa.io().buttons(), _buttonsFilter, _buttonsDatabase);
         io::LEDs                                                                       _leds              = io::LEDs(_hwa.io().leds(), _ledsDatabase);
