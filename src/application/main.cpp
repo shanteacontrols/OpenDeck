@@ -114,6 +114,11 @@ class HWADatabase : public sys::Builder::HWA::Database
         return board::nvm::write(address, value, boardParamType(type), _writeToCache);
     }
 
+    bool initializeDatabase() override
+    {
+        return DATABASE_INIT_DATA;
+    }
+
     private:
     board::nvm::parameterType_t boardParamType(database::Admin::sectionParameterType_t type)
     {

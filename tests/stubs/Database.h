@@ -3,11 +3,11 @@
 #ifdef EMUEEPROM_INCLUDE_CONFIG
 #include "EmuEEPROM/EmuEEPROM.h"
 #endif
-#include "database/Database.h"
 #include "database/Layout.h"
 #include "framework/Framework.h"
+#include "system/Builder.h"
 
-class DBstorageMock : public LESSDB::StorageAccess
+class DBstorageMock : public ::sys::Builder::HWA::Database
 {
     public:
     DBstorageMock() = default;
@@ -166,6 +166,11 @@ class DBstorageMock : public LESSDB::StorageAccess
 
         return true;
 #endif
+    }
+
+    bool initializeDatabase() override
+    {
+        return true;
     }
 
     private:

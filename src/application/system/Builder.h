@@ -86,8 +86,13 @@ namespace sys
                 virtual MIDI& midi() = 0;
             };
 
-            using Database = ::database::Admin::StorageAccess;
-            using System   = ::sys::Instance::HWA;
+            class Database : public ::database::Admin::StorageAccess
+            {
+                public:
+                virtual bool initializeDatabase() = 0;
+            };
+
+            using System = ::sys::Instance::HWA;
 
             virtual ~HWA() = default;
 
@@ -124,7 +129,7 @@ namespace sys
         private:
         HWA&                                                                           _hwa;
         database::AppLayout                                                            _dbLayout;
-        database::Admin                                                                _database            = database::Admin(_hwa.database(), _dbLayout, DATABASE_INIT_DATA);
+        database::Admin                                                                _database            = database::Admin(_hwa.database(), _dbLayout, _hwa.database().initializeDatabase());
         io::Buttons::Database                                                          _buttonsDatabase     = io::Buttons::Database(_database);
         io::Analog::Database                                                           _analogDatabase      = io::Analog::Database(_database);
         io::Encoders::Database                                                         _encodersDatabase    = io::Encoders::Database(_database);
