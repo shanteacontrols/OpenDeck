@@ -20,7 +20,7 @@ limitations under the License.
 
 namespace board::detail::map
 {
-#ifdef HW_SUPPORT_ADC
+#ifdef PROJECT_TARGET_SUPPORT_ADC
     constexpr const core::mcu::io::pin_t& ADC_PIN(uint8_t index)
     {
         return gen::ADC_PIN[index];
@@ -28,7 +28,7 @@ namespace board::detail::map
 
     constexpr uint8_t ADC_INDEX(uint8_t index)
     {
-#ifndef INDEXING_ANALOG
+#ifndef PROJECT_TARGET_INDEXING_ANALOG
         return index;
 #else
         return gen::ADC_INDEX[index];
@@ -36,14 +36,14 @@ namespace board::detail::map
     }
 #endif
 
-#if defined(HW_DRIVER_DIGITAL_INPUT_NATIVE) || defined(HW_DRIVER_DIGITAL_INPUT_MATRIX_NATIVE_ROWS)
+#if defined(PROJECT_TARGET_DRIVER_DIGITAL_INPUT_NATIVE) || defined(PROJECT_TARGET_DRIVER_DIGITAL_INPUT_MATRIX_NATIVE_ROWS)
     constexpr const core::mcu::io::pin_t& BUTTON_PIN(uint8_t index)
     {
         return gen::BUTTON_PIN[index];
     }
 #endif
 
-#if defined(HW_DRIVER_DIGITAL_INPUT_NATIVE)
+#if defined(PROJECT_TARGET_DRIVER_DIGITAL_INPUT_NATIVE)
     constexpr const core::mcu::io::pinPort_t DIGITAL_IN_PORT(uint8_t index)
     {
         return gen::DIGITAL_IN_PORT[index];
@@ -62,21 +62,21 @@ namespace board::detail::map
 
     constexpr uint8_t BUTTON_INDEX(uint8_t index)
     {
-#ifndef INDEXING_BUTTONS
+#ifndef PROJECT_TARGET_INDEXING_BUTTONS
         return index;
 #else
         return gen::BUTTON_INDEX[index];
 #endif
     }
 
-#if defined(HW_DRIVER_DIGITAL_OUTPUT_NATIVE) || defined(HW_DRIVER_DIGITAL_OUTPUT_MATRIX_NATIVE_ROWS)
+#if defined(PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_NATIVE) || defined(PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_MATRIX_NATIVE_ROWS)
     constexpr const core::mcu::io::pin_t& LED_PIN(uint8_t index)
     {
         return gen::LED_PIN[index];
     }
 #endif
 
-#if defined(HW_DRIVER_DIGITAL_OUTPUT_NATIVE)
+#if defined(PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_NATIVE)
     constexpr const core::mcu::io::pinPort_t DIGITAL_OUT_PORT(uint8_t index)
     {
         return gen::DIGITAL_OUT_PORT[index];
@@ -100,14 +100,14 @@ namespace board::detail::map
 
     constexpr uint8_t LED_INDEX(uint8_t index)
     {
-#ifndef INDEXING_LEDS
+#ifndef PROJECT_TARGET_INDEXING_LEDS
         return index;
 #else
         return gen::LED_INDEX[index];
 #endif
     }
 
-#ifdef HW_NR_OF_UNUSED_IO
+#ifdef PROJECT_TARGET_NR_OF_UNUSED_IO
     constexpr const board::detail::io::unused::unusedIO_t& UNUSED_PIN(uint8_t index)
     {
         return gen::UNUSED_PIN[index];
@@ -133,14 +133,14 @@ namespace board::detail::map
     }
 
 #ifdef CORE_MCU_CUSTOM_PERIPHERAL_PINS
-#ifdef HW_SUPPORT_UART
+#ifdef PROJECT_TARGET_SUPPORT_UART
     constexpr const core::mcu::uart::Config::pins_t& UART_PINS(size_t channel)
     {
         return gen::UART_PINS[channel];
     }
 #endif
 
-#ifdef HW_SUPPORT_I2C
+#ifdef PROJECT_TARGET_SUPPORT_I2C
     constexpr const core::mcu::i2c::Config::pins_t& I2C_PINS(size_t channel)
     {
         return gen::I2C_PINS[channel];

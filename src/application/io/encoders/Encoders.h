@@ -29,7 +29,7 @@ limitations under the License.
 
 using namespace protocol;
 
-#if defined(HW_SUPPORT_DIGITAL_INPUTS) && (HW_SUPPORTED_NR_OF_DIGITAL_INPUTS > 1)
+#if defined(PROJECT_TARGET_SUPPORT_DIGITAL_INPUTS) && (PROJECT_TARGET_SUPPORTED_NR_OF_DIGITAL_INPUTS > 1)
 #define ENCODERS_SUPPORTED
 
 namespace io
@@ -37,7 +37,7 @@ namespace io
     class Encoders : public io::Base
     {
         public:
-        class Collection : public common::BaseCollection<HW_SUPPORTED_NR_OF_DIGITAL_INPUTS / 2>
+        class Collection : public common::BaseCollection<PROJECT_TARGET_SUPPORTED_NR_OF_DIGITAL_INPUTS / 2>
         {
             public:
             Collection() = delete;

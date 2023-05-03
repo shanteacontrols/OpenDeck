@@ -16,8 +16,8 @@ limitations under the License.
 
 */
 
-#ifdef HW_SUPPORT_DIGITAL_INPUTS
-#ifdef HW_DRIVER_DIGITAL_INPUT_MATRIX_SHIFT_REGISTER_ROWS
+#ifdef PROJECT_TARGET_SUPPORT_DIGITAL_INPUTS
+#ifdef PROJECT_TARGET_DRIVER_DIGITAL_INPUT_MATRIX_SHIFT_REGISTER_ROWS
 
 #include <math.h>
 #include <stdio.h>
@@ -34,7 +34,7 @@ using namespace board::detail::io::digitalIn;
 
 namespace
 {
-    volatile readings_t _digitalInBuffer[HW_MAX_NR_OF_DIGITAL_INPUTS];
+    volatile readings_t _digitalInBuffer[PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS];
     volatile uint8_t    _activeInColumn;
 
     inline void activateInputColumn()
@@ -43,7 +43,7 @@ namespace
         CORE_MCU_IO_SET_STATE(PIN_PORT_DEC_BM_A1, PIN_INDEX_DEC_BM_A1, core::util::BIT_READ(_activeInColumn, 1));
         CORE_MCU_IO_SET_STATE(PIN_PORT_DEC_BM_A2, PIN_INDEX_DEC_BM_A2, core::util::BIT_READ(_activeInColumn, 2));
 
-        if (++_activeInColumn == HW_NR_OF_BUTTON_COLUMNS)
+        if (++_activeInColumn == PROJECT_TARGET_NR_OF_BUTTON_COLUMNS)
         {
             _activeInColumn = 0;
         }
@@ -51,7 +51,7 @@ namespace
 
     inline void storeDigitalIn()
     {
-        for (uint8_t column = 0; column < HW_NR_OF_BUTTON_COLUMNS; column++)
+        for (uint8_t column = 0; column < PROJECT_TARGET_NR_OF_BUTTON_COLUMNS; column++)
         {
             activateInputColumn();
 
@@ -62,10 +62,10 @@ namespace
 
             CORE_MCU_IO_SET_HIGH(PIN_PORT_SR_IN_LATCH, PIN_INDEX_SR_IN_LATCH);
 
-            for (uint8_t row = 0; row < HW_NR_OF_BUTTON_ROWS; row++)
+            for (uint8_t row = 0; row < PROJECT_TARGET_NR_OF_BUTTON_ROWS; row++)
             {
                 // this register shifts out MSB first
-                size_t index = ((((HW_NR_OF_IN_SR * 8) - 1) - row) * HW_NR_OF_BUTTON_COLUMNS) + column;
+                size_t index = ((((PROJECT_TARGET_NR_OF_IN_SR * 8) - 1) - row) * PROJECT_TARGET_NR_OF_BUTTON_COLUMNS) + column;
                 CORE_MCU_IO_SET_LOW(PIN_PORT_SR_IN_CLK, PIN_INDEX_SR_IN_CLK);
                 io::spiWait();
 
@@ -127,7 +127,7 @@ namespace board::io::digitalIn
 {
     bool state(size_t index, readings_t& readings)
     {
-        if (index >= HW_MAX_NR_OF_DIGITAL_INPUTS)
+        if (index >= PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS)
         {
             return false;
         }
@@ -146,29 +146,29 @@ namespace board::io::digitalIn
 
     size_t encoderFromInput(size_t index)
     {
-        uint8_t row    = index / HW_NR_OF_BUTTON_COLUMNS;
-        uint8_t column = index % HW_NR_OF_BUTTON_COLUMNS;
+        uint8_t row    = index / PROJECT_TARGET_NR_OF_BUTTON_COLUMNS;
+        uint8_t column = index % PROJECT_TARGET_NR_OF_BUTTON_COLUMNS;
 
         if (row % 2)
         {
             row -= 1;    // uneven row, get info from previous (even) row
         }
 
-        return (row * HW_NR_OF_BUTTON_COLUMNS) / 2 + column;
+        return (row * PROJECT_TARGET_NR_OF_BUTTON_COLUMNS) / 2 + column;
     }
 
     size_t encoderComponentFromEncoder(size_t index, encoderComponent_t component)
     {
-        uint8_t column = index % HW_NR_OF_BUTTON_COLUMNS;
-        uint8_t row    = (index / HW_NR_OF_BUTTON_COLUMNS) * 2;
-        index          = row * HW_NR_OF_BUTTON_COLUMNS + column;
+        uint8_t column = index % PROJECT_TARGET_NR_OF_BUTTON_COLUMNS;
+        uint8_t row    = (index / PROJECT_TARGET_NR_OF_BUTTON_COLUMNS) * 2;
+        index          = row * PROJECT_TARGET_NR_OF_BUTTON_COLUMNS + column;
 
         if (component == encoderComponent_t::A)
         {
             return index;
         }
 
-        return index + HW_NR_OF_BUTTON_COLUMNS;
+        return index + PROJECT_TARGET_NR_OF_BUTTON_COLUMNS;
     }
 }    // namespace board::io::digitalIn
 

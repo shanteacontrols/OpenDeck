@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef HW_SUPPORT_DISPLAY
+#ifdef PROJECT_TARGET_SUPPORT_DISPLAY
 
 #include <string.h>
 #include "Display.h"
@@ -438,7 +438,7 @@ void Display::displayWelcomeMessage()
     if (showBoard)
     {
         startRow++;
-        _stringBuilder.overwrite("HW: %s", Strings::board());
+        _stringBuilder.overwrite("HW: %s", Strings::target());
         writeString(_stringBuilder.string(), startRow);
     }
 

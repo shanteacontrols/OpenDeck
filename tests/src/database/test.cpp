@@ -1,4 +1,4 @@
-#ifndef HW_USB_OVER_SERIAL_HOST
+#ifndef PROJECT_TARGET_USB_OVER_SERIAL_HOST
 
 #include "framework/Framework.h"
 #include "stubs/Database.h"
@@ -267,7 +267,7 @@ TEST_F(DatabaseTest, ReadInitialValues)
             DB_READ_VERIFY(1, database::Config::Section::leds_t::CHANNEL, i);
         }
 
-#ifdef HW_SUPPORT_I2C
+#ifdef PROJECT_TARGET_SUPPORT_I2C
         // i2c block
         //----------------------------------
         // display section
@@ -280,7 +280,7 @@ TEST_F(DatabaseTest, ReadInitialValues)
         DB_READ_VERIFY(0, database::Config::Section::i2c_t::DISPLAY, io::Display::setting_t::OCTAVE_NORMALIZATION);
 #endif
 
-#ifdef HW_SUPPORT_TOUCHSCREEN
+#ifdef PROJECT_TARGET_SUPPORT_TOUCHSCREEN
         // touchscreen block
         //----------------------------------
         // setting section
@@ -400,7 +400,7 @@ TEST_F(DatabaseTest, FactoryReset)
     ASSERT_TRUE(_database._instance.update(database::Config::Section::encoder_t::CHANNEL, 0, 11));
 #endif
 
-#ifdef HW_SUPPORT_I2C
+#ifdef PROJECT_TARGET_SUPPORT_I2C
     ASSERT_TRUE(_database._instance.update(database::Config::Section::i2c_t::DISPLAY,
                                            io::Display::setting_t::CONTROLLER,
                                            io::Display::displayController_t::SSD1306));
@@ -418,7 +418,7 @@ TEST_F(DatabaseTest, FactoryReset)
     DB_READ_VERIFY(1, database::Config::Section::encoder_t::CHANNEL, 0);
 #endif
 
-#ifdef HW_SUPPORT_I2C
+#ifdef PROJECT_TARGET_SUPPORT_I2C
     DB_READ_VERIFY(static_cast<int32_t>(io::Display::displayController_t::INVALID),
                    database::Config::Section::i2c_t::DISPLAY,
                    io::Display::setting_t::CONTROLLER);

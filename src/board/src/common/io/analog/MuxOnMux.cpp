@@ -16,8 +16,8 @@ limitations under the License.
 
 */
 
-#ifdef HW_SUPPORT_ADC
-#ifdef HW_DRIVER_ANALOG_INPUT_MUXONMUX
+#ifdef PROJECT_TARGET_SUPPORT_ADC
+#ifdef PROJECT_TARGET_DRIVER_ANALOG_INPUT_MUXONMUX
 
 #include "core/util/Util.h"
 #include "board/Board.h"
@@ -32,7 +32,7 @@ static_assert(PROJECT_MCU_ADC_SAMPLES > 0, "At least 1 ADC sample required");
 
 namespace
 {
-    constexpr size_t ANALOG_IN_BUFFER_SIZE = HW_MAX_NR_OF_ANALOG_INPUTS;
+    constexpr size_t ANALOG_IN_BUFFER_SIZE = PROJECT_TARGET_MAX_NR_OF_ANALOG_INPUTS;
 
     uint8_t           _analogIndex;
     volatile uint16_t _analogBuffer[ANALOG_IN_BUFFER_SIZE];
@@ -70,9 +70,9 @@ namespace board::detail::io::analog
         core::mcu::adc::conf_t adcConfiguration;
 
         adcConfiguration.prescaler = PROJECT_MCU_ADC_PRESCALER;
-        adcConfiguration.voltage   = HW_ADC_INPUT_VOLTAGE;
+        adcConfiguration.voltage   = PROJECT_TARGET_ADC_INPUT_VOLTAGE;
 
-#ifdef ADC_EXT_REF
+#ifdef PROJECT_TARGET_ADC_EXT_REF
         adcConfiguration.externalRef = true;
 #else
         adcConfiguration.externalRef = false;
@@ -158,14 +158,14 @@ namespace board::detail::io::analog
                 _analogIndex++;
                 _activeMuxInput++;
 
-                bool switchMux = (_activeMuxInput == HW_NR_OF_MUX_INPUTS);
+                bool switchMux = (_activeMuxInput == PROJECT_TARGET_NR_OF_MUX_INPUTS);
 
                 if (switchMux)
                 {
                     _activeMuxInput = 0;
                     _activeMux++;
 
-                    if (_activeMux == HW_NR_OF_MUX)
+                    if (_activeMux == PROJECT_TARGET_NR_OF_MUX)
                     {
                         _activeMux   = 0;
                         _analogIndex = 0;

@@ -1,7 +1,7 @@
 ---
   mcu: "atmega16u2"
   extClockMhz: 16
-  boardNameOverride: "mega2560"
+  targetNameOverride: "mega2560"
   usb: true
   uart:
     usbLink:

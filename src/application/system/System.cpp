@@ -26,7 +26,6 @@ limitations under the License.
 #include "util/configurable/Configurable.h"
 #include "util/conversion/Conversion.h"
 #include "global/MIDIProgram.h"
-#include <Target.h>
 
 using namespace io;
 using namespace sys;
@@ -404,10 +403,10 @@ uint8_t Instance::SysExDataHandler::customRequest(uint16_t request, CustomRespon
 
     auto appendHW = [&customResponse]()
     {
-        customResponse.append((FW_UID >> 24) & static_cast<uint32_t>(0xFF));
-        customResponse.append((FW_UID >> 16) & static_cast<uint32_t>(0xFF));
-        customResponse.append((FW_UID >> 8) & static_cast<uint32_t>(0xFF));
-        customResponse.append(FW_UID & static_cast<uint32_t>(0xFF));
+        customResponse.append((PROJECT_TARGET_UID >> 24) & static_cast<uint32_t>(0xFF));
+        customResponse.append((PROJECT_TARGET_UID >> 16) & static_cast<uint32_t>(0xFF));
+        customResponse.append((PROJECT_TARGET_UID >> 8) & static_cast<uint32_t>(0xFF));
+        customResponse.append(PROJECT_TARGET_UID & static_cast<uint32_t>(0xFF));
     };
 
     switch (request)

@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef HW_SUPPORT_UART
+#ifdef PROJECT_TARGET_SUPPORT_UART
 
 #include "board/Board.h"
 #include "board/src/Internal.h"

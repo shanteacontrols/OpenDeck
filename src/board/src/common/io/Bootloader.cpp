@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef HW_SUPPORT_BOOTLOADER_BUTTON
+#ifdef PROJECT_TARGET_SUPPORT_BOOTLOADER_BUTTON
 
 #include "board/Board.h"
 #include "board/src/Internal.h"
@@ -27,7 +27,7 @@ namespace board::detail::io::bootloader
 {
     void init()
     {
-#ifdef HW_BOOTLOADER_BUTTON_ACTIVE_HIGH
+#ifdef PROJECT_TARGET_BOOTLOADER_BUTTON_ACTIVE_HIGH
         CORE_MCU_IO_INIT(PIN_PORT_BTLDR_BUTTON,
                          PIN_INDEX_BTLDR_BUTTON,
                          core::mcu::io::pinMode_t::INPUT,

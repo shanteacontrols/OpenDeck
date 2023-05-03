@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef HW_SUPPORT_USB
+#ifdef PROJECT_TARGET_SUPPORT_USB
 #ifdef FW_BOOT
 
 #include <avr/pgmspace.h>

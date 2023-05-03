@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
 
     for (size_t i = 0; i < 4; i++)
     {
-        auto split = util::Conversion::Split14bit(FW_UID >> (8 * i) & 0xFF);
+        auto split = util::Conversion::Split14bit(PROJECT_TARGET_UID >> (8 * i) & 0xFF);
 
         output.push_back(split.high());
         output.push_back(split.low());

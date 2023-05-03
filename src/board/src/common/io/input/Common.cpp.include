@@ -27,7 +27,7 @@ namespace board::detail::io::digitalIn
     {
         CORE_MCU_ATOMIC_SECTION
         {
-            for (size_t i = 0; i < HW_MAX_NR_OF_DIGITAL_INPUTS; i++)
+            for (size_t i = 0; i < PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS; i++)
             {
                 _digitalInBuffer[i].count = 0;
             }

@@ -16,8 +16,8 @@ limitations under the License.
 
 */
 
-#ifdef HW_SUPPORT_ADC
-#ifdef HW_DRIVER_ANALOG_INPUT_NATIVE
+#ifdef PROJECT_TARGET_SUPPORT_ADC
+#ifdef PROJECT_TARGET_DRIVER_ANALOG_INPUT_NATIVE
 
 #include "core/util/Util.h"
 #include "board/Board.h"
@@ -32,7 +32,7 @@ static_assert(PROJECT_MCU_ADC_SAMPLES > 0, "At least 1 ADC sample required");
 
 namespace
 {
-    constexpr size_t ANALOG_IN_BUFFER_SIZE = HW_MAX_NR_OF_ANALOG_INPUTS;
+    constexpr size_t ANALOG_IN_BUFFER_SIZE = PROJECT_TARGET_MAX_NR_OF_ANALOG_INPUTS;
 
     uint8_t           _analogIndex;
     volatile uint16_t _analogBuffer[ANALOG_IN_BUFFER_SIZE];
@@ -47,9 +47,9 @@ namespace board::detail::io::analog
         core::mcu::adc::conf_t adcConfiguration;
 
         adcConfiguration.prescaler = PROJECT_MCU_ADC_PRESCALER;
-        adcConfiguration.voltage   = HW_ADC_INPUT_VOLTAGE;
+        adcConfiguration.voltage   = PROJECT_TARGET_ADC_INPUT_VOLTAGE;
 
-#ifdef ADC_EXT_REF
+#ifdef PROJECT_TARGET_ADC_EXT_REF
         adcConfiguration.externalRef = true;
 #else
         adcConfiguration.externalRef = false;
@@ -57,7 +57,7 @@ namespace board::detail::io::analog
 
         core::mcu::adc::init(adcConfiguration);
 
-        for (size_t i = 0; i < HW_NR_OF_ADC_CHANNELS; i++)
+        for (size_t i = 0; i < PROJECT_TARGET_NR_OF_ADC_CHANNELS; i++)
         {
             auto pin = map::ADC_PIN(i);
             core::mcu::adc::initPin(pin);
@@ -93,7 +93,7 @@ namespace board::detail::io::analog
                 _sampleCounter = 0;
                 _analogIndex++;
 
-                if (_analogIndex == HW_MAX_NR_OF_ANALOG_INPUTS)
+                if (_analogIndex == PROJECT_TARGET_MAX_NR_OF_ANALOG_INPUTS)
                 {
                     _analogIndex = 0;
                 }

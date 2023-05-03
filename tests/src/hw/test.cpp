@@ -1,5 +1,5 @@
-#ifndef HW_USB_OVER_SERIAL_HOST
-#ifdef TESTS_HW_SUPPORT
+#ifndef PROJECT_TARGET_USB_OVER_SERIAL_HOST
+#ifdef PROJECT_TARGET_SUPPORT_HW_TESTS
 
 #include "framework/Framework.h"
 #include <string>
@@ -362,7 +362,7 @@ namespace
 
             bool ret = false;
 
-#ifndef HW_SUPPORT_USB
+#ifndef PROJECT_TARGET_SUPPORT_USB
             LOG(INFO) << "Flashing USB Link MCU";
             ret = flash(std::string(USB_LINK_TARGET), std::string(FLASH_ARGS_USB_LINK));
 
@@ -370,7 +370,7 @@ namespace
             {
 #endif
 
-                ret = flash(std::string(BOARD_STRING), std::string(FLASH_ARGS));
+                ret = flash(std::string(PROJECT_TARGET_NAME), std::string(FLASH_ARGS));
 
                 if (ret)
                 {
@@ -383,7 +383,7 @@ namespace
                     }
                 }
 
-#ifndef HW_SUPPORT_USB
+#ifndef PROJECT_TARGET_SUPPORT_USB
             }
 #endif
 
@@ -421,21 +421,21 @@ TEST_F(HWTest, DatabaseInitialValues)
         {
             switch (i)
             {
-#ifdef HW_SUPPORT_DIN_MIDI
+#ifdef PROJECT_TARGET_SUPPORT_DIN_MIDI
             case static_cast<size_t>(protocol::MIDI::setting_t::DIN_ENABLED):
             case static_cast<size_t>(protocol::MIDI::setting_t::DIN_THRU_USB):
             case static_cast<size_t>(protocol::MIDI::setting_t::USB_THRU_DIN):
             case static_cast<size_t>(protocol::MIDI::setting_t::DIN_THRU_DIN):
 #endif
 
-#ifdef HW_SUPPORT_BLE
+#ifdef PROJECT_TARGET_SUPPORT_BLE
             case static_cast<size_t>(protocol::MIDI::setting_t::BLE_ENABLED):
             case static_cast<size_t>(protocol::MIDI::setting_t::BLE_THRU_USB):
             case static_cast<size_t>(protocol::MIDI::setting_t::BLE_THRU_BLE):
             case static_cast<size_t>(protocol::MIDI::setting_t::USB_THRU_BLE):
 #endif
 
-#if defined(HW_SUPPORT_DIN_MIDI) && defined(HW_SUPPORT_BLE)
+#if defined(PROJECT_TARGET_SUPPORT_DIN_MIDI) && defined(PROJECT_TARGET_SUPPORT_BLE)
             case static_cast<size_t>(protocol::MIDI::setting_t::DIN_THRU_BLE):
             case static_cast<size_t>(protocol::MIDI::setting_t::BLE_THRU_DIN):
 #endif
@@ -658,7 +658,7 @@ TEST_F(HWTest, DatabaseInitialValues)
             ASSERT_EQ(1, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::leds_t::CHANNEL, i));
         }
 
-#ifdef HW_SUPPORT_I2C
+#ifdef PROJECT_TARGET_SUPPORT_I2C
         // i2c block
         //----------------------------------
         // display section
@@ -671,7 +671,7 @@ TEST_F(HWTest, DatabaseInitialValues)
         ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::Display::setting_t::OCTAVE_NORMALIZATION)));
 #endif
 
-#ifdef HW_SUPPORT_TOUCHSCREEN
+#ifdef PROJECT_TARGET_SUPPORT_TOUCHSCREEN
         // touchscreen block
         //----------------------------------
         // setting section
@@ -765,7 +765,7 @@ TEST_F(HWTest, FwUpdate)
 
     bootloader();
 
-    std::string cmd = flash_cmd + std::string(" FLASH_TOOL=opendeck TARGET=") + std::string(BOARD_STRING);
+    std::string cmd = flash_cmd + std::string(" FLASH_TOOL=opendeck TARGET=") + std::string(PROJECT_TARGET_NAME);
     ASSERT_EQ(0, test::wsystem(cmd));
     LOG(INFO) << "Firmware file sent successfully, verifying that device responds to handshake";
 
@@ -791,7 +791,7 @@ TEST_F(HWTest, FwUpdateFromLastRelease)
     flash(flashType_t::RELEASE);
     bootloader();
 
-    std::string cmd = flash_cmd + std::string(" FLASH_TOOL=opendeck TARGET=") + std::string(BOARD_STRING);
+    std::string cmd = flash_cmd + std::string(" FLASH_TOOL=opendeck TARGET=") + std::string(PROJECT_TARGET_NAME);
     ASSERT_EQ(0, test::wsystem(cmd));
     LOG(INFO) << "Firmware file sent successfully, verifying that device responds to handshake";
 
@@ -912,7 +912,7 @@ TEST_F(HWTest, USBMIDIData)
     ASSERT_EQ(io::Buttons::Collection::SIZE(io::Buttons::GROUP_DIGITAL_INPUTS), receivedMessages);
 }
 
-#ifdef HW_SUPPORT_DIN_MIDI
+#ifdef PROJECT_TARGET_SUPPORT_DIN_MIDI
 #ifdef TEST_DIN_MIDI
 TEST_F(HWTest, DINMIDIData)
 {
@@ -1149,7 +1149,7 @@ TEST_F(HWTest, InputOutput)
         LOG(INFO) << "Verifying that the LED is turned on";
         std::string ledOn = "read " + std::to_string(hwTestLEDDescriptor.at(i).pin);
 
-#ifdef HW_LEDS_EXT_INVERT
+#ifdef PROJECT_TARGET_LEDS_EXT_INVERT
         ledOn += " ok: 0";
 #else
         ledOn += " ok: 1";
@@ -1174,7 +1174,7 @@ TEST_F(HWTest, InputOutput)
         LOG(INFO) << "Verifying that the LED is turned off";
         std::string ledOff = "read " + std::to_string(hwTestLEDDescriptor.at(i).pin);
 
-#ifdef HW_LEDS_EXT_INVERT
+#ifdef PROJECT_TARGET_LEDS_EXT_INVERT
         ledOff += " ok: 1";
 #else
         ledOff += " ok: 0";

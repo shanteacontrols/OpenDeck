@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef HW_SUPPORT_LED_INDICATORS
+#ifdef PROJECT_TARGET_SUPPORT_LED_INDICATORS
 #ifdef FW_BOOT
 
 #include "board/Board.h"

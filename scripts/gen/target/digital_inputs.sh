@@ -2,7 +2,7 @@
 
 if [[ "$($yaml_parser "$yaml_file" buttons)" != "null" ]]
 then
-    printf "%s\n" "DEFINES += HW_SUPPORT_DIGITAL_INPUTS" >> "$out_makefile"
+    printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_DIGITAL_INPUTS" >> "$out_makefile"
 
     digital_in_type=$($yaml_parser "$yaml_file" buttons.type)
 
@@ -11,7 +11,7 @@ then
 
     if [[ $digital_in_type == native ]]
     then
-        printf "%s\n" "DEFINES += HW_DRIVER_DIGITAL_INPUT_NATIVE" >> "$out_makefile"
+        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_DRIVER_DIGITAL_INPUT_NATIVE" >> "$out_makefile"
 
         nr_of_digital_inputs=$($yaml_parser "$yaml_file" buttons.pins --length)
 
@@ -45,11 +45,11 @@ then
             port_duplicates["$port"]=1
         done
 
-        printf "%s\n" "#define HW_NR_OF_DIGITAL_INPUT_PORTS ${#port_array_unique[@]}" >> "$out_header"
+        printf "%s\n" "#define PROJECT_TARGET_NR_OF_DIGITAL_INPUT_PORTS ${#port_array_unique[@]}" >> "$out_header"
 
         {
             printf "%s\n" "namespace gen {"
-            printf "%s\n" "constexpr inline core::mcu::io::pinPort_t DIGITAL_IN_PORT[HW_NR_OF_DIGITAL_INPUT_PORTS] = {"
+            printf "%s\n" "constexpr inline core::mcu::io::pinPort_t DIGITAL_IN_PORT[PROJECT_TARGET_NR_OF_DIGITAL_INPUT_PORTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<${#port_array_unique[@]}; i++))
@@ -61,7 +61,7 @@ then
 
         {
             printf "%s\n" "};"
-            printf "%s\n" "constexpr inline core::mcu::io::pin_t BUTTON_PIN[HW_MAX_NR_OF_DIGITAL_INPUTS] = {"
+            printf "%s\n" "constexpr inline core::mcu::io::pin_t BUTTON_PIN[PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_inputs; i++))
@@ -74,7 +74,7 @@ then
         } >> "$out_header"
 
         {
-            printf "%s\n" "constexpr inline uint8_t BUTTON_PORT_INDEX[HW_MAX_NR_OF_DIGITAL_INPUTS] = {"
+            printf "%s\n" "constexpr inline uint8_t BUTTON_PORT_INDEX[PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_inputs; i++))
@@ -90,7 +90,7 @@ then
 
         {
             printf "%s\n" "};" >> "$out_header"
-            printf "%s\n" "constexpr inline uint8_t BUTTON_PIN_INDEX[HW_MAX_NR_OF_DIGITAL_INPUTS] = {"
+            printf "%s\n" "constexpr inline uint8_t BUTTON_PIN_INDEX[PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_inputs; i++))
@@ -105,11 +105,11 @@ then
 
         if [[ "$($yaml_parser "$yaml_file" buttons.extPullups)" == "true" ]]
         then
-            printf "%s\n" "DEFINES += HW_BUTTONS_EXT_PULLUPS" >> "$out_makefile"
+            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_BUTTONS_EXT_PULLUPS" >> "$out_makefile"
         fi
     elif [[ $digital_in_type == shiftRegister ]]
     then
-        printf "%s\n" "DEFINES += HW_DRIVER_DIGITAL_INPUT_SHIFT_REGISTER" >> "$out_makefile"
+        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_DRIVER_DIGITAL_INPUT_SHIFT_REGISTER" >> "$out_makefile"
 
         port=$($yaml_parser "$yaml_file" buttons.pins.data.port)
         index=$($yaml_parser "$yaml_file" buttons.pins.data.index)
@@ -138,7 +138,7 @@ then
         number_of_in_sr=$($yaml_parser "$yaml_file" buttons.shiftRegisters)
         nr_of_digital_inputs=$(( 8 * "$number_of_in_sr"))
 
-        printf "%s\n" "DEFINES += HW_NR_OF_IN_SR=$number_of_in_sr" >> "$out_makefile"
+        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_IN_SR=$number_of_in_sr" >> "$out_makefile"
     elif [[ $digital_in_type == matrix ]]
     then
         number_of_rows=0
@@ -146,7 +146,7 @@ then
 
         if [[ $($yaml_parser "$yaml_file" buttons.rows.type) == "shiftRegister" ]]
         then
-            printf "%s\n" "DEFINES += HW_DRIVER_DIGITAL_INPUT_MATRIX_SHIFT_REGISTER_ROWS" >> "$out_makefile"
+            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_DRIVER_DIGITAL_INPUT_MATRIX_SHIFT_REGISTER_ROWS" >> "$out_makefile"
 
             number_of_in_sr=$($yaml_parser "$yaml_file" buttons.rows.shiftRegisters)
             number_of_rows=$((8 * number_of_in_sr))
@@ -175,10 +175,10 @@ then
                 printf "%s\n" "#define PIN_INDEX_SR_IN_LATCH CORE_MCU_IO_PIN_INDEX_DEF(${index})"
             } >> "$out_header"
 
-            printf "%s\n" "DEFINES += HW_NR_OF_IN_SR=$number_of_in_sr" >> "$out_makefile"
+            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_IN_SR=$number_of_in_sr" >> "$out_makefile"
         elif [[ $($yaml_parser "$yaml_file" buttons.rows.type) == "native" ]]
         then
-            printf "%s\n" "DEFINES += HW_DRIVER_DIGITAL_INPUT_MATRIX_NATIVE_ROWS" >> "$out_makefile"
+            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_DRIVER_DIGITAL_INPUT_MATRIX_NATIVE_ROWS" >> "$out_makefile"
 
             number_of_rows=$($yaml_parser "$yaml_file" buttons.rows.pins --length)
 
@@ -195,7 +195,7 @@ then
 
             {
                 printf "%s\n" "namespace gen {"
-                printf "%s\n" "constexpr inline core::mcu::io::pin_t BUTTON_PIN[HW_NR_OF_BUTTON_ROWS] = {"
+                printf "%s\n" "constexpr inline core::mcu::io::pin_t BUTTON_PIN[PROJECT_TARGET_NR_OF_BUTTON_ROWS] = {"
             } >> "$out_header"
 
             for ((i=0; i<number_of_rows; i++))
@@ -234,12 +234,12 @@ then
         nr_of_digital_inputs=$(("$number_of_columns" * "$number_of_rows"))
 
         {
-            printf "%s\n" "DEFINES += HW_NR_OF_BUTTON_COLUMNS=$number_of_columns"
-            printf "%s\n" "DEFINES += HW_NR_OF_BUTTON_ROWS=$number_of_rows"
+            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_BUTTON_COLUMNS=$number_of_columns"
+            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_BUTTON_ROWS=$number_of_rows"
         } >> "$out_makefile"
     fi
 
-    printf "%s\n" "DEFINES += HW_MAX_NR_OF_DIGITAL_INPUTS=$nr_of_digital_inputs" >> "$out_makefile"
+    printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS=$nr_of_digital_inputs" >> "$out_makefile"
 
     if [[ "$($yaml_parser "$yaml_file" buttons.indexing)" != "null" ]]
     then
@@ -247,7 +247,7 @@ then
 
         {
             printf "%s\n" "namespace gen {"
-            printf "%s\n" "constexpr inline uint8_t BUTTON_INDEX[HW_MAX_NR_OF_DIGITAL_INPUTS] = {" 
+            printf "%s\n" "constexpr inline uint8_t BUTTON_INDEX[PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS] = {" 
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_inputs; i++))
@@ -262,15 +262,15 @@ then
         } >> "$out_header"
 
         {
-            printf "%s\n" "DEFINES += INDEXING_BUTTONS"
-            printf "%s\n" "DEFINES += HW_SUPPORTED_NR_OF_DIGITAL_INPUTS=$nr_of_digital_inputs"
+            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_INDEXING_BUTTONS"
+            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORTED_NR_OF_DIGITAL_INPUTS=$nr_of_digital_inputs"
         } >> "$out_makefile"
     else
-        printf "%s\n" "DEFINES += HW_SUPPORTED_NR_OF_DIGITAL_INPUTS=$nr_of_digital_inputs" >> "$out_makefile"
+        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORTED_NR_OF_DIGITAL_INPUTS=$nr_of_digital_inputs" >> "$out_makefile"
     fi
 else
     {
-        printf "%s\n" "DEFINES += HW_MAX_NR_OF_DIGITAL_INPUTS=0"
-        printf "%s\n" "DEFINES += HW_SUPPORTED_NR_OF_DIGITAL_INPUTS=0"
+        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS=0"
+        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORTED_NR_OF_DIGITAL_INPUTS=0"
     } >> "$out_makefile"
 fi

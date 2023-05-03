@@ -27,14 +27,14 @@ limitations under the License.
 #include "messaging/Messaging.h"
 #include "io/IOBase.h"
 
-#ifdef HW_SUPPORT_TOUCHSCREEN
+#ifdef PROJECT_TARGET_SUPPORT_TOUCHSCREEN
 
 namespace io
 {
     class Touchscreen : public io::Base
     {
         public:
-        class Collection : public common::BaseCollection<HW_SUPPORTED_NR_OF_TOUCHSCREEN_COMPONENTS>
+        class Collection : public common::BaseCollection<PROJECT_TARGET_SUPPORTED_NR_OF_TOUCHSCREEN_COMPONENTS>
         {
             public:
             Collection() = delete;

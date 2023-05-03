@@ -54,7 +54,7 @@ namespace
                                                      data,
                                                      2,
                                                      BUFFER_SIZE_USB_OVER_SERIAL);
-                usbOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
+                usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
 
                 lastConnectionState = newState;
             }
@@ -86,7 +86,7 @@ namespace
                                              data,
                                              11,
                                              BUFFER_SIZE_USB_OVER_SERIAL);
-        usbOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
+        usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
     }
 
     void sendLinkReady()
@@ -99,7 +99,7 @@ namespace
                                              data,
                                              1,
                                              BUFFER_SIZE_USB_OVER_SERIAL);
-        usbOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
+        usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
     }
 }    // namespace
 
@@ -117,7 +117,7 @@ int main()
                                                  4,
                                                  BUFFER_SIZE_USB_OVER_SERIAL);
 
-            if (usbOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet))
+            if (usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet))
             {
                 board::io::indicators::indicateTraffic(board::io::indicators::source_t::USB,
                                                        board::io::indicators::direction_t::INCOMING);
@@ -125,7 +125,7 @@ int main()
         }
 
         // UART -> USB
-        if (usbOverSerial::read(HW_UART_CHANNEL_USB_LINK, readPacket))
+        if (usbOverSerial::read(PROJECT_TARGET_UART_CHANNEL_USB_LINK, readPacket))
         {
             if (readPacket.type() == usbOverSerial::packetType_t::MIDI)
             {

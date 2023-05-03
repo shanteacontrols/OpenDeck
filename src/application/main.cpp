@@ -94,7 +94,7 @@ class HWADatabase : public sys::Builder::HWA::Database
 
     bool clear() override
     {
-#ifdef HW_SUPPORT_LED_INDICATORS
+#ifdef PROJECT_TARGET_SUPPORT_LED_INDICATORS
         // It's possible that LED indicators are still on since
         // this command is most likely given via USB.
         // Wait until all indicators are turned off
@@ -186,7 +186,7 @@ class HWALEDsStub : public sys::Builder::HWA::IO::LEDs
 } _hwaLEDs;
 #endif
 
-#ifdef HW_SUPPORT_ADC
+#ifdef PROJECT_TARGET_SUPPORT_ADC
 class HWAAnalog : public sys::Builder::HWA::IO::Analog
 {
     public:
@@ -394,7 +394,7 @@ class HWAMIDIUSB : public sys::Builder::HWA::Protocol::MIDI::USB
     }
 } _hwaMIDIUSB;
 
-#ifdef HW_SUPPORT_DIN_MIDI
+#ifdef PROJECT_TARGET_SUPPORT_DIN_MIDI
 class HWAMIDIDIN : public sys::Builder::HWA::Protocol::MIDI::DIN
 {
     public:
@@ -408,24 +408,24 @@ class HWAMIDIDIN : public sys::Builder::HWA::Protocol::MIDI::DIN
     bool init() override
     {
         static constexpr uint32_t BAUDRATE = 31250;
-        return board::uart::init(HW_UART_CHANNEL_DIN, BAUDRATE) == board::initStatus_t::OK;
+        return board::uart::init(PROJECT_TARGET_UART_CHANNEL_DIN, BAUDRATE) == board::initStatus_t::OK;
     }
 
     bool deInit() override
     {
-        board::uart::deInit(HW_UART_CHANNEL_DIN);
+        board::uart::deInit(PROJECT_TARGET_UART_CHANNEL_DIN);
         return true;
     }
 
     bool setLoopback(bool state) override
     {
-        board::uart::setLoopbackState(HW_UART_CHANNEL_DIN, state);
+        board::uart::setLoopbackState(PROJECT_TARGET_UART_CHANNEL_DIN, state);
         return true;
     }
 
     bool read(uint8_t& value) override
     {
-        if (board::uart::read(HW_UART_CHANNEL_DIN, value))
+        if (board::uart::read(PROJECT_TARGET_UART_CHANNEL_DIN, value))
         {
             board::io::indicators::indicateTraffic(board::io::indicators::source_t::UART,
                                                    board::io::indicators::direction_t::INCOMING);
@@ -438,7 +438,7 @@ class HWAMIDIDIN : public sys::Builder::HWA::Protocol::MIDI::DIN
 
     bool write(uint8_t& value) override
     {
-        if (board::uart::write(HW_UART_CHANNEL_DIN, value))
+        if (board::uart::write(PROJECT_TARGET_UART_CHANNEL_DIN, value))
         {
             board::io::indicators::indicateTraffic(board::io::indicators::source_t::UART,
                                                    board::io::indicators::direction_t::OUTGOING);
@@ -453,7 +453,7 @@ class HWAMIDIDIN : public sys::Builder::HWA::Protocol::MIDI::DIN
     {
         if (interface == io::common::Allocatable::interface_t::UART)
         {
-            return board::uart::isInitialized(HW_UART_CHANNEL_DIN);
+            return board::uart::isInitialized(PROJECT_TARGET_UART_CHANNEL_DIN);
         }
 
         return false;
@@ -502,7 +502,7 @@ class HWAMIDIDINStub : public sys::Builder::HWA::Protocol::MIDI::DIN
 } _hwaMIDIDIN;
 #endif
 
-#ifdef HW_SUPPORT_BLE
+#ifdef PROJECT_TARGET_SUPPORT_BLE
 class HWAMIDIBLE : public sys::Builder::HWA::Protocol::MIDI::BLE
 {
     public:
@@ -587,7 +587,7 @@ class HWAMIDIBLEStub : public sys::Builder::HWA::Protocol::MIDI::BLE
 } _hwaMIDIBLE;
 #endif
 
-#ifdef HW_SUPPORT_TOUCHSCREEN
+#ifdef PROJECT_TARGET_SUPPORT_TOUCHSCREEN
 class HWATouchscreen : public sys::Builder::HWA::IO::Touchscreen
 {
     public:
@@ -596,28 +596,28 @@ class HWATouchscreen : public sys::Builder::HWA::IO::Touchscreen
     bool init() override
     {
         static constexpr uint32_t BAUDRATE = 38400;
-        return board::uart::init(HW_UART_CHANNEL_TOUCHSCREEN, BAUDRATE) == board::initStatus_t::OK;
+        return board::uart::init(PROJECT_TARGET_UART_CHANNEL_TOUCHSCREEN, BAUDRATE) == board::initStatus_t::OK;
     }
 
     bool deInit() override
     {
-        return board::uart::deInit(HW_UART_CHANNEL_TOUCHSCREEN);
+        return board::uart::deInit(PROJECT_TARGET_UART_CHANNEL_TOUCHSCREEN);
     }
 
     bool write(uint8_t value) override
     {
-        return board::uart::write(HW_UART_CHANNEL_TOUCHSCREEN, value);
+        return board::uart::write(PROJECT_TARGET_UART_CHANNEL_TOUCHSCREEN, value);
     }
 
     bool read(uint8_t& value) override
     {
-        return board::uart::read(HW_UART_CHANNEL_TOUCHSCREEN, value);
+        return board::uart::read(PROJECT_TARGET_UART_CHANNEL_TOUCHSCREEN, value);
     }
 
     bool allocated(io::common::Allocatable::interface_t interface) override
     {
-#ifdef HW_UART_CHANNEL_TOUCHSCREEN
-        return board::uart::isInitialized(HW_UART_CHANNEL_TOUCHSCREEN);
+#ifdef PROJECT_TARGET_UART_CHANNEL_TOUCHSCREEN
+        return board::uart::isInitialized(PROJECT_TARGET_UART_CHANNEL_TOUCHSCREEN);
 #else
         return false;
 #endif
@@ -656,7 +656,7 @@ class HWATouchscreenStub : public sys::Builder::HWA::IO::Touchscreen
 } _hwaTouchscreen;
 #endif
 
-#if defined(HW_SUPPORT_TOUCHSCREEN) && !defined(HW_USB_OVER_SERIAL)
+#if defined(PROJECT_TARGET_SUPPORT_TOUCHSCREEN) && !defined(PROJECT_TARGET_USB_OVER_SERIAL)
 // USB link MCUs don't implement USB-CDC<->UART passthrough
 class HWACDCPassthrough : public sys::Builder::HWA::IO::CDCPassthrough
 {
@@ -689,7 +689,7 @@ class HWACDCPassthrough : public sys::Builder::HWA::IO::CDCPassthrough
 
     bool uartRead(uint8_t& value) override
     {
-        if (board::uart::read(HW_UART_CHANNEL_TOUCHSCREEN, value))
+        if (board::uart::read(PROJECT_TARGET_UART_CHANNEL_TOUCHSCREEN, value))
         {
             board::io::indicators::indicateTraffic(board::io::indicators::source_t::UART,
                                                    board::io::indicators::direction_t::INCOMING);
@@ -702,7 +702,7 @@ class HWACDCPassthrough : public sys::Builder::HWA::IO::CDCPassthrough
 
     bool uartWrite(uint8_t value) override
     {
-        if (board::uart::write(HW_UART_CHANNEL_TOUCHSCREEN, value))
+        if (board::uart::write(PROJECT_TARGET_UART_CHANNEL_TOUCHSCREEN, value))
         {
             board::io::indicators::indicateTraffic(board::io::indicators::source_t::UART,
                                                    board::io::indicators::direction_t::OUTGOING);
@@ -743,7 +743,7 @@ class HWACDCPassthrough : public sys::Builder::HWA::IO::CDCPassthrough
     {
         if (_passThroughState)
         {
-            board::uart::init(HW_UART_CHANNEL_TOUCHSCREEN, baudRate, true);
+            board::uart::init(PROJECT_TARGET_UART_CHANNEL_TOUCHSCREEN, baudRate, true);
         }
     }
 
@@ -803,7 +803,7 @@ class HWACDCPassthroughStub : public sys::Builder::HWA::IO::CDCPassthrough
 } _hwaCDCPassthrough;
 #endif
 
-#ifdef HW_SUPPORT_DISPLAY
+#ifdef PROJECT_TARGET_SUPPORT_DISPLAY
 class HWADisplay : public sys::Builder::HWA::IO::Display
 {
     public:
@@ -812,17 +812,17 @@ class HWADisplay : public sys::Builder::HWA::IO::Display
     bool init() override
     {
         // for i2c, consider ALREADY_INIT status a success
-        return board::i2c::init(HW_I2C_CHANNEL_DISPLAY, board::i2c::clockSpeed_t::S400K) != board::initStatus_t::ERROR;
+        return board::i2c::init(PROJECT_TARGET_I2C_CHANNEL_DISPLAY, board::i2c::clockSpeed_t::S400K) != board::initStatus_t::ERROR;
     }
 
     bool write(uint8_t address, uint8_t* buffer, size_t size) override
     {
-        return board::i2c::write(HW_I2C_CHANNEL_DISPLAY, address, buffer, size);
+        return board::i2c::write(PROJECT_TARGET_I2C_CHANNEL_DISPLAY, address, buffer, size);
     }
 
     bool deviceAvailable(uint8_t address) override
     {
-        return board::i2c::deviceAvailable(HW_I2C_CHANNEL_DISPLAY, address);
+        return board::i2c::deviceAvailable(PROJECT_TARGET_I2C_CHANNEL_DISPLAY, address);
     }
 } _hwaDisplay;
 #else
@@ -1033,7 +1033,7 @@ class HWABuilder : public ::sys::Builder::HWA
     } _hwaProtocol;
 } _hwa;
 
-#if defined(HW_SUPPORT_TOUCHSCREEN) && !defined(HW_USB_OVER_SERIAL)
+#if defined(PROJECT_TARGET_SUPPORT_TOUCHSCREEN) && !defined(PROJECT_TARGET_USB_OVER_SERIAL)
 namespace board::usb
 {
     void onCDCsetLineEncoding(uint32_t baudRate)

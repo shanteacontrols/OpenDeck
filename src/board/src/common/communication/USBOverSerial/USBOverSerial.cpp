@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef HW_USB_OVER_SERIAL
+#ifdef PROJECT_TARGET_USB_OVER_SERIAL
 
 #include "USBOverSerial.h"
 #include "board/Board.h"

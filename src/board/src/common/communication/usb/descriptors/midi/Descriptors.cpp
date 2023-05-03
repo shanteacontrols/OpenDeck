@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef HW_SUPPORT_USB
+#ifdef PROJECT_TARGET_SUPPORT_USB
 #ifdef FW_BOOT
 
 #include <string.h>
@@ -243,7 +243,7 @@ namespace
 
     const core::mcu::usb::descriptorString_t _languageString     = CORE_MCU_USB_STRING_DESCRIPTOR_ARRAY(core::mcu::usb::LANGUAGE_ID_ENG);
     const core::mcu::usb::descriptorString_t _manufacturerString = CORE_MCU_USB_STRING_DESCRIPTOR(USB_MANUFACTURER_NAME);
-    const core::mcu::usb::descriptorString_t _productString      = CORE_MCU_USB_STRING_DESCRIPTOR(USB_PRODUCT_NAME);
+    const core::mcu::usb::descriptorString_t _productString      = CORE_MCU_USB_STRING_DESCRIPTOR(PROJECT_TARGET_USB_NAME);
 }    // namespace
 
 namespace board::detail::usb

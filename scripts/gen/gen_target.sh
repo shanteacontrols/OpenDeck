@@ -53,6 +53,6 @@ then
     then
         exit 1
     else
-        printf "%s\n" "DEFINES += TESTS_HW_SUPPORT" >> "$out_makefile"
+        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_HW_TESTS" >> "$out_makefile"
     fi
 fi

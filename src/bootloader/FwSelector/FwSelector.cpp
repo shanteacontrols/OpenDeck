@@ -55,7 +55,7 @@ void FwSelector::select()
 
 bool FwSelector::isAppValid()
 {
-#ifdef BOOTLOADER_NO_VERIFY_CRC
+#ifdef PROJECT_TARGET_BOOTLOADER_NO_VERIFY_CRC
     return true;
 #else
     // verify app crc

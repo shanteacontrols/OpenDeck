@@ -18,7 +18,7 @@ limitations under the License.
 
 #pragma once
 
-#ifdef HW_SUPPORT_ADC
+#ifdef PROJECT_TARGET_SUPPORT_ADC
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -86,14 +86,14 @@ namespace io
 
             if (abs(static_cast<int16_t>(descriptor.value) - static_cast<int16_t>(_lastStableValue[index])) < stepDiff)
             {
-#ifdef ANALOG_FILTER_MEDIAN
+#ifdef PROJECT_TARGET_ANALOG_FILTER_MEDIAN
                 _medianFilter[index].reset();
 #endif
 
                 return false;
             }
 
-#ifdef ANALOG_FILTER_MEDIAN
+#ifdef PROJECT_TARGET_ANALOG_FILTER_MEDIAN
             if (!FAST_FILTER)
             {
                 auto median = _medianFilter[index].value(descriptor.value);
@@ -109,7 +109,7 @@ namespace io
             }
 #endif
 
-#ifdef ANALOG_FILTER_EMA
+#ifdef PROJECT_TARGET_ANALOG_FILTER_EMA
             descriptor.value = _emaFilter[index].value(descriptor.value);
 #endif
 
@@ -159,7 +159,7 @@ namespace io
         {
             if (index < io::Analog::Collection::SIZE())
             {
-#ifdef ANALOG_FILTER_MEDIAN
+#ifdef PROJECT_TARGET_ANALOG_FILTER_MEDIAN
                 _medianFilter[index].reset();
 #endif
                 _lastStableMovementTime[index] = 0;
@@ -247,11 +247,11 @@ namespace io
         static constexpr size_t   MEDIAN_MIDDLE_VALUE         = 1;
 
 // some filtering is needed for adc only
-#ifdef ANALOG_FILTER_EMA
+#ifdef PROJECT_TARGET_ANALOG_FILTER_EMA
         core::util::EMAFilter<uint16_t, 50> _emaFilter[io::Analog::Collection::SIZE()];
 #endif
 
-#ifdef ANALOG_FILTER_MEDIAN
+#ifdef PROJECT_TARGET_ANALOG_FILTER_MEDIAN
         core::util::MedianFilter<uint16_t, 3> _medianFilter[io::Analog::Collection::SIZE()];
 #else
         uint16_t _analogSample[IO::Analog::Collection::SIZE()] = {};

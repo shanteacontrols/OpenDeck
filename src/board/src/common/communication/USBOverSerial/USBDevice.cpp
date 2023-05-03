@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef HW_USB_OVER_SERIAL_DEVICE
+#ifdef PROJECT_TARGET_USB_OVER_SERIAL_DEVICE
 
 // simulated USB interface via UART - make this transparent to the application
 
@@ -50,7 +50,7 @@ namespace board
                                                  1,
                                                  BUFFER_SIZE_USB_OVER_SERIAL);
 
-            usbOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
+            usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
 
             usbLink::internalCMD_t cmd;
 
@@ -71,7 +71,7 @@ namespace board
         }
     }
 
-#ifndef HW_SUPPORT_USB_INDICATORS
+#ifndef PROJECT_TARGET_SUPPORT_USB_INDICATORS
     namespace io::indicators
     {
         void indicateFactoryReset()
@@ -85,7 +85,7 @@ namespace board
                                                  1,
                                                  BUFFER_SIZE_USB_OVER_SERIAL);
 
-            usbOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
+            usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
         }
     }    // namespace io::indicators
 #endif
@@ -104,14 +104,14 @@ namespace board
                                                       sizeof(packet),
                                                       BUFFER_SIZE_USB_OVER_SERIAL);
 
-            return usbOverSerial::write(HW_UART_CHANNEL_USB_LINK, writePacket);
+            return usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, writePacket);
         }
 
         bool readMIDI(midiPacket_t& packet)
         {
             bool retVal = false;
 
-            if (usbOverSerial::read(HW_UART_CHANNEL_USB_LINK, _readPacket))
+            if (usbOverSerial::read(PROJECT_TARGET_UART_CHANNEL_USB_LINK, _readPacket))
             {
                 if (_readPacket.type() == usbOverSerial::packetType_t::MIDI)
                 {
@@ -140,7 +140,7 @@ namespace board
                                                  size,
                                                  BUFFER_SIZE_USB_OVER_SERIAL);
 
-            return usbOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
+            return usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
         }
 
         bool writeCDC(uint8_t value)
@@ -150,12 +150,12 @@ namespace board
                                                  1,
                                                  BUFFER_SIZE_USB_OVER_SERIAL);
 
-            return usbOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
+            return usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
         }
 
         bool readCDC(uint8_t* buffer, size_t& size, const size_t maxSize)
         {
-            if (usbOverSerial::read(HW_UART_CHANNEL_USB_LINK, _readPacket))
+            if (usbOverSerial::read(PROJECT_TARGET_UART_CHANNEL_USB_LINK, _readPacket))
             {
                 if (_readPacket.type() == usbOverSerial::packetType_t::CDC)
                 {
@@ -179,7 +179,7 @@ namespace board
 
         bool readCDC(uint8_t& value)
         {
-            if (usbOverSerial::read(HW_UART_CHANNEL_USB_LINK, _readPacket))
+            if (usbOverSerial::read(PROJECT_TARGET_UART_CHANNEL_USB_LINK, _readPacket))
             {
                 if (_readPacket.type() == usbOverSerial::packetType_t::CDC)
                 {
@@ -210,7 +210,7 @@ namespace board
                                                  1,
                                                  BUFFER_SIZE_USB_OVER_SERIAL);
 
-            usbOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
+            usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
         }
 
         void deInit()
@@ -224,7 +224,7 @@ namespace board
                                                  1,
                                                  BUFFER_SIZE_USB_OVER_SERIAL);
 
-            usbOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
+            usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
         }
 
         bool checkInternal(usbLink::internalCMD_t& cmd)
@@ -298,7 +298,7 @@ namespace board
 
         bool readInternal(usbLink::internalCMD_t& cmd)
         {
-            if (usbOverSerial::read(HW_UART_CHANNEL_USB_LINK, _readPacket))
+            if (usbOverSerial::read(PROJECT_TARGET_UART_CHANNEL_USB_LINK, _readPacket))
             {
                 if (_readPacket.type() == usbOverSerial::packetType_t::INTERNAL)
                 {

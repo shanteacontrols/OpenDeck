@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef HW_SUPPORT_DISPLAY
+#ifdef PROJECT_TARGET_SUPPORT_DISPLAY
 
 #include "Strings.h"
 #include <string.h>
@@ -25,7 +25,7 @@ limitations under the License.
 
 namespace
 {
-    const char boardName_string[]         = BOARD_STRING;
+    const char targetName_string[]        = PROJECT_TARGET_NAME;
     const char eventNoteOff_string[]      = "Note Off";
     const char eventNoteOn_string[]       = "Note On";
     const char eventCC_string[]           = "CC";
@@ -80,9 +80,9 @@ namespace
     char                    tempBuffer[BUFFER_SIZE];
 }    // namespace
 
-const char* Strings::board()
+const char* Strings::target()
 {
-    strncpy(tempBuffer, boardName_string, BUFFER_SIZE);
+    strncpy(tempBuffer, targetName_string, BUFFER_SIZE);
     return tempBuffer;
 }
 

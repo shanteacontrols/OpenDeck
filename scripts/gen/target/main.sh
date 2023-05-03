@@ -12,15 +12,17 @@
     printf "%s%s\n" '-include $(MCU_GEN_DIR_BASE)/' "$mcu/CoreMCUGenerated.mk"
 } >> "$out_makefile"
 
-board_name=$($yaml_parser "$yaml_file" boardNameOverride)
+target_name_string=$($yaml_parser "$yaml_file" targetNameOverride)
 
-if [[ $board_name == "null" ]]
+if [[ $target_name_string == "null" ]]
 then
-    board_name=$target_name
+    target_name_string=$target_name
 fi
 
-printf "%s\n" "#define BOARD_STRING \"$board_name\"" >> "$out_header"
-printf "%s\n" "DEFINES += FW_UID=$($script_dir/gen_fw_uid.sh "$target_name")" >> "$out_makefile"
+{
+    printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NAME=\\\"$target_name_string\\\""
+    printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_UID=$($script_dir/gen_fw_uid.sh "$target_name")"
+} >> "$out_makefile"
 
 for FILE in "$script_dir"/target/*
 do

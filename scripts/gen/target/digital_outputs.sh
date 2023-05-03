@@ -2,7 +2,7 @@
 
 if [[ "$($yaml_parser "$yaml_file" leds.external)" != "null" ]]
 then
-    printf "%s\n" "DEFINES += HW_SUPPORT_DIGITAL_OUTPUTS" >> "$out_makefile"
+    printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_DIGITAL_OUTPUTS" >> "$out_makefile"
 
     digital_out_type=$($yaml_parser "$yaml_file" leds.external.type)
 
@@ -14,9 +14,9 @@ then
         nr_of_digital_outputs=$($yaml_parser "$yaml_file" leds.external.pins --length)
 
         {
-            printf "%s\n" "DEFINES += HW_DRIVER_DIGITAL_OUTPUT_NATIVE"
-            printf "%s\n" "DEFINES += HW_NR_OF_RGB_LEDS=$((nr_of_digital_outputs/3))"
-            printf "%s\n" "DEFINES += HW_SUPPORT_SOFT_PWM"
+            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_NATIVE"
+            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_RGB_LEDS=$((nr_of_digital_outputs/3))"
+            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_SOFT_PWM"
         } >> "$out_makefile"
 
         unset port_duplicates
@@ -50,9 +50,9 @@ then
         done
 
         {
-            printf "%s\n" "#define HW_NR_OF_DIGITAL_OUTPUT_PORTS ${#port_array_unique[@]}"
+            printf "%s\n" "#define PROJECT_TARGET_NR_OF_DIGITAL_OUTPUT_PORTS ${#port_array_unique[@]}"
             printf "%s\n" "namespace gen {"
-            printf "%s\n" "constexpr inline core::mcu::io::pinPort_t DIGITAL_OUT_PORT[HW_NR_OF_DIGITAL_OUTPUT_PORTS] = {"
+            printf "%s\n" "constexpr inline core::mcu::io::pinPort_t DIGITAL_OUT_PORT[PROJECT_TARGET_NR_OF_DIGITAL_OUTPUT_PORTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<${#port_array_unique[@]}; i++))
@@ -64,7 +64,7 @@ then
 
         {
             printf "%s\n" "};"
-            printf "%s\n" "constexpr inline core::mcu::io::portWidth_t DIGITAL_OUT_PORT_CLEAR_MASK[HW_NR_OF_DIGITAL_OUTPUT_PORTS] = {"
+            printf "%s\n" "constexpr inline core::mcu::io::portWidth_t DIGITAL_OUT_PORT_CLEAR_MASK[PROJECT_TARGET_NR_OF_DIGITAL_OUTPUT_PORTS] = {"
         } >> "$out_header"
 
         for ((port=0; port<${#port_array_unique[@]}; port++))
@@ -86,7 +86,7 @@ then
 
         {
             printf "%s\n" "};"
-            printf "%s\n" "constexpr inline core::mcu::io::pin_t LED_PIN[HW_MAX_NR_OF_DIGITAL_OUTPUTS] = {"
+            printf "%s\n" "constexpr inline core::mcu::io::pin_t LED_PIN[PROJECT_TARGET_MAX_NR_OF_DIGITAL_OUTPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_outputs; i++))
@@ -96,7 +96,7 @@ then
 
         {
             printf "%s\n" "};" >> "$out_header"
-            printf "%s\n" "constexpr inline uint8_t LED_PORT_INDEX[HW_MAX_NR_OF_DIGITAL_OUTPUTS] = {"
+            printf "%s\n" "constexpr inline uint8_t LED_PORT_INDEX[PROJECT_TARGET_MAX_NR_OF_DIGITAL_OUTPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_outputs; i++))
@@ -112,7 +112,7 @@ then
 
         {
             printf "%s\n" "};" >> "$out_header"
-            printf "%s\n" "constexpr inline uint8_t LED_PIN_INDEX[HW_MAX_NR_OF_DIGITAL_OUTPUTS] = {"
+            printf "%s\n" "constexpr inline uint8_t LED_PIN_INDEX[PROJECT_TARGET_MAX_NR_OF_DIGITAL_OUTPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_outputs; i++))
@@ -126,7 +126,7 @@ then
         } >> "$out_header"
     elif [[ $digital_out_type == shiftRegister ]]
     then
-        printf "%s\n" "DEFINES += HW_DRIVER_DIGITAL_OUTPUT_SHIFT_REGISTER" >> "$out_makefile"
+        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_SHIFT_REGISTER" >> "$out_makefile"
 
         port=$($yaml_parser "$yaml_file" leds.external.pins.data.port)
         index=$($yaml_parser "$yaml_file" leds.external.pins.data.index)
@@ -164,9 +164,9 @@ then
         nr_of_digital_outputs=$((number_of_out_sr * 8))
 
         {
-            printf "%s\n" "DEFINES += HW_NR_OF_RGB_LEDS=$((nr_of_digital_outputs/3))"
-            printf "%s\n" "DEFINES += HW_NR_OF_OUT_SR=$number_of_out_sr"
-            printf "%s\n" "DEFINES += HW_SUPPORT_SOFT_PWM"
+            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_RGB_LEDS=$((nr_of_digital_outputs/3))"
+            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_OUT_SR=$number_of_out_sr"
+            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_SOFT_PWM"
         } >> "$out_makefile"
     elif [[ $digital_out_type == matrix ]]
     then
@@ -174,8 +174,8 @@ then
         number_of_led_rows=$($yaml_parser "$yaml_file" leds.external.rows.pins --length)
 
         {
-            printf "%s\n" "DEFINES += HW_DRIVER_DIGITAL_OUTPUT_MATRIX_NATIVE_ROWS"
-            printf "%s\n" "DEFINES += HW_NR_OF_RGB_LEDS=$(((number_of_led_rows/3) * number_of_led_columns))"
+            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_MATRIX_NATIVE_ROWS"
+            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_RGB_LEDS=$(((number_of_led_rows/3) * number_of_led_columns))"
         } >> "$out_makefile"
 
         for ((i=0; i<3; i++))
@@ -202,7 +202,7 @@ then
 
         {
             printf "%s\n" "namespace gen {"
-            printf "%s\n" "constexpr inline core::mcu::io::pin_t LED_PIN[HW_NR_OF_LED_ROWS] = {"
+            printf "%s\n" "constexpr inline core::mcu::io::pin_t LED_PIN[PROJECT_TARGET_NR_OF_LED_ROWS] = {"
         } >> "$out_header"
 
         for ((i=0; i<"$number_of_led_rows"; i++))
@@ -218,9 +218,9 @@ then
         nr_of_digital_outputs=$(("$number_of_led_columns" * "$number_of_led_rows"))
 
         {
-            printf "%s\n" "DEFINES += HW_NR_OF_LED_COLUMNS=$number_of_led_columns"
-            printf "%s\n" "DEFINES += HW_NR_OF_LED_ROWS=$number_of_led_rows"
-            printf "%s\n" "DEFINES += HW_SUPPORT_SOFT_PWM"
+            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_LED_COLUMNS=$number_of_led_columns"
+            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_LED_ROWS=$number_of_led_rows"
+            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_SOFT_PWM"
         } >> "$out_makefile"
     elif [[ $digital_out_type == max7219 ]]
     then
@@ -228,8 +228,8 @@ then
         nr_of_digital_outputs=64
 
         {
-            printf "%s\n" "DEFINES += HW_DRIVER_DIGITAL_OUTPUT_MAX7219"
-            printf "%s\n" "DEFINES += HW_NR_OF_RGB_LEDS=16"
+            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_MAX7219"
+            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_RGB_LEDS=16"
         } >> "$out_makefile"
 
 
@@ -258,7 +258,7 @@ then
         } >> "$out_header"
     fi
 
-    printf "%s\n" "DEFINES += HW_MAX_NR_OF_DIGITAL_OUTPUTS=$nr_of_digital_outputs" >> "$out_makefile"
+    printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_MAX_NR_OF_DIGITAL_OUTPUTS=$nr_of_digital_outputs" >> "$out_makefile"
 
     if [[ "$($yaml_parser "$yaml_file" leds.external.indexing)" != "null" ]]
     then
@@ -266,7 +266,7 @@ then
 
         {
             printf "%s\n" "namespace gen {"
-            printf "%s\n" "constexpr inline uint8_t LED_INDEX[HW_MAX_NR_OF_DIGITAL_OUTPUTS] = {"
+            printf "%s\n" "constexpr inline uint8_t LED_INDEX[PROJECT_TARGET_MAX_NR_OF_DIGITAL_OUTPUTS] = {"
         } >> "$out_header"
 
         for ((i=0; i<nr_of_digital_outputs; i++))
@@ -281,36 +281,36 @@ then
         } >> "$out_header"
 
         {
-            printf "%s\n" "DEFINES += INDEXING_LEDS"
-            printf "%s\n" "DEFINES += HW_SUPPORTED_NR_OF_DIGITAL_OUTPUTS=$nr_of_digital_outputs"
+            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_INDEXING_LEDS"
+            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORTED_NR_OF_DIGITAL_OUTPUTS=$nr_of_digital_outputs"
         } >> "$out_makefile"
     else
-        printf "%s\n" "DEFINES += HW_SUPPORTED_NR_OF_DIGITAL_OUTPUTS=$nr_of_digital_outputs" >> "$out_makefile"
+        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORTED_NR_OF_DIGITAL_OUTPUTS=$nr_of_digital_outputs" >> "$out_makefile"
     fi
 
     if [[ "$($yaml_parser "$yaml_file" leds.external.invert)" == "true" ]]
     then
-        printf "%s\n" "DEFINES += HW_LEDS_EXT_INVERT" >> "$out_makefile"
+        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_LEDS_EXT_INVERT" >> "$out_makefile"
     fi
 else
     {
-        printf "%s\n" "DEFINES += HW_MAX_NR_OF_DIGITAL_OUTPUTS=0"
-        printf "%s\n" "DEFINES += HW_SUPPORTED_NR_OF_DIGITAL_OUTPUTS=0"
+        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_MAX_NR_OF_DIGITAL_OUTPUTS=0"
+        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORTED_NR_OF_DIGITAL_OUTPUTS=0"
     } >> "$out_makefile"
 fi
 
 if [[ "$($yaml_parser "$yaml_file" leds.internal)" != "null" ]]
 then
-    printf "%s\n" "DEFINES += HW_SUPPORT_LED_INDICATORS" >> "$out_makefile"
+    printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_LED_INDICATORS" >> "$out_makefile"
 
     if [[ "$($yaml_parser "$yaml_file" leds.internal.invert)" == "true" ]]
     then
-        printf "%s\n" "DEFINES += HW_LEDS_INT_INVERT" >> "$out_makefile"
+        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_LEDS_INT_INVERT" >> "$out_makefile"
     fi
 
     if [[ $($yaml_parser "$yaml_file" leds.internal.pins.usb) != "null" ]]
     then
-        printf "%s\n" "DEFINES += HW_SUPPORT_USB_INDICATORS" >> "$out_makefile"
+        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_USB_INDICATORS" >> "$out_makefile"
 
         port=$($yaml_parser "$yaml_file" leds.internal.pins.usb.rx.port)
         index=$($yaml_parser "$yaml_file" leds.internal.pins.usb.rx.index)
@@ -331,7 +331,7 @@ then
 
     if [[ $($yaml_parser "$yaml_file" leds.internal.pins.uart) != "null" ]]
     then
-        printf "%s\n" "DEFINES += HW_SUPPORT_UART_INDICATORS" >> "$out_makefile"
+        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_UART_INDICATORS" >> "$out_makefile"
 
         port=$($yaml_parser "$yaml_file" leds.internal.pins.uart.rx.port)
         index=$($yaml_parser "$yaml_file" leds.internal.pins.uart.rx.index)
@@ -352,7 +352,7 @@ then
 
     if [[ $($yaml_parser "$yaml_file" leds.internal.pins.ble) != "null" ]]
     then
-        printf "%s\n" "DEFINES += HW_SUPPORT_BLE_INDICATORS" >> "$out_makefile"
+        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_BLE_INDICATORS" >> "$out_makefile"
 
         port=$($yaml_parser "$yaml_file" leds.internal.pins.ble.rx.port)
         index=$($yaml_parser "$yaml_file" leds.internal.pins.ble.rx.index)

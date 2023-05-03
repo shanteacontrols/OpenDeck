@@ -1,4 +1,4 @@
-#ifdef HW_SUPPORT_ADC
+#ifdef PROJECT_TARGET_SUPPORT_ADC
 
 #include "framework/Framework.h"
 #include "stubs/Analog.h"

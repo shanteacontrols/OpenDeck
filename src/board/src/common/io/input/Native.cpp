@@ -16,8 +16,8 @@ limitations under the License.
 
 */
 
-#ifdef HW_SUPPORT_DIGITAL_INPUTS
-#ifdef HW_DRIVER_DIGITAL_INPUT_NATIVE
+#ifdef PROJECT_TARGET_SUPPORT_DIGITAL_INPUTS
+#ifdef PROJECT_TARGET_DRIVER_DIGITAL_INPUT_NATIVE
 
 #include <math.h>
 #include <stdio.h>
@@ -34,13 +34,13 @@ using namespace board::detail::io::digitalIn;
 
 namespace
 {
-    volatile readings_t                                                   _digitalInBuffer[HW_MAX_NR_OF_DIGITAL_INPUTS];
-    core::util::RingBuffer<core::mcu::io::portWidth_t, MAX_READING_COUNT> _portBuffer[HW_NR_OF_DIGITAL_INPUT_PORTS];
+    volatile readings_t                                                   _digitalInBuffer[PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS];
+    core::util::RingBuffer<core::mcu::io::portWidth_t, MAX_READING_COUNT> _portBuffer[PROJECT_TARGET_NR_OF_DIGITAL_INPUT_PORTS];
 
     inline void storeDigitalIn()
     {
         // read all input ports instead of reading pin by pin to reduce the time spent in ISR
-        for (uint8_t portIndex = 0; portIndex < HW_NR_OF_DIGITAL_INPUT_PORTS; portIndex++)
+        for (uint8_t portIndex = 0; portIndex < PROJECT_TARGET_NR_OF_DIGITAL_INPUT_PORTS; portIndex++)
         {
             _portBuffer[portIndex].insert(CORE_MCU_IO_READ_IN_PORT(map::DIGITAL_IN_PORT(portIndex)));
         }
@@ -56,7 +56,7 @@ namespace
 
         while (_portBuffer[portIndex].remove(portValue))
         {
-            for (size_t i = 0; i < HW_MAX_NR_OF_DIGITAL_INPUTS; i++)
+            for (size_t i = 0; i < PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS; i++)
             {
                 if (map::BUTTON_PORT_INDEX(i) == portIndex)
                 {
@@ -77,11 +77,11 @@ namespace board::detail::io::digitalIn
 {
     void init()
     {
-        for (size_t i = 0; i < HW_MAX_NR_OF_DIGITAL_INPUTS; i++)
+        for (size_t i = 0; i < PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS; i++)
         {
             auto pin = detail::map::BUTTON_PIN(i);
 
-#ifndef HW_BUTTONS_EXT_PULLUPS
+#ifndef PROJECT_TARGET_BUTTONS_EXT_PULLUPS
             CORE_MCU_IO_INIT(pin.port,
                              pin.index,
                              core::mcu::io::pinMode_t::INPUT,
@@ -100,7 +100,7 @@ namespace board::io::digitalIn
 {
     bool state(size_t index, readings_t& readings)
     {
-        if (index >= HW_MAX_NR_OF_DIGITAL_INPUTS)
+        if (index >= PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS)
         {
             return false;
         }

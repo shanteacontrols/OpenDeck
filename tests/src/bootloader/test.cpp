@@ -1,4 +1,4 @@
-#ifndef HW_USB_OVER_SERIAL_HOST
+#ifndef PROJECT_TARGET_USB_OVER_SERIAL_HOST
 #ifdef PROJECT_MCU_SUPPORT_BOOTLOADER
 
 #include "framework/Framework.h"
@@ -62,14 +62,14 @@ namespace
 
     SysExParser _sysExParser;
     BTLDRWriter _btldrWriter;
-    Updater     _updater = Updater(_btldrWriter, FW_UID);
+    Updater     _updater = Updater(_btldrWriter, PROJECT_TARGET_UID);
     MIDIHelper  _helper;
 }    // namespace
 
 TEST(Bootloader, FwUpdate)
 {
-    const std::filesystem::path SYX_PATH    = std::string(fw_build_dir + BOARD_STRING + "/" + fw_build_type_subdir + "merged/" + BOARD_STRING + ".sysex.syx");
-    const std::filesystem::path BINARY_PATH = std::string(fw_build_dir + BOARD_STRING + "/" + fw_build_type_subdir + "merged/" + BOARD_STRING + "_sysex.bin");
+    const std::filesystem::path SYX_PATH    = std::string(fw_build_dir + PROJECT_TARGET_NAME + "/" + fw_build_type_subdir + "merged/" + PROJECT_TARGET_NAME + ".sysex.syx");
+    const std::filesystem::path BINARY_PATH = std::string(fw_build_dir + PROJECT_TARGET_NAME + "/" + fw_build_type_subdir + "merged/" + PROJECT_TARGET_NAME + "_sysex.bin");
 
     if (!std::filesystem::exists(SYX_PATH))
     {

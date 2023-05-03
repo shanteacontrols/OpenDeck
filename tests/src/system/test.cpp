@@ -1,4 +1,4 @@
-#ifndef HW_USB_OVER_SERIAL_HOST
+#ifndef PROJECT_TARGET_USB_OVER_SERIAL_HOST
 
 #include "framework/Framework.h"
 #include "stubs/System.h"
@@ -148,7 +148,7 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
 
     enableAnalog();
 
-#ifdef HW_SUPPORT_DIN_MIDI
+#ifdef PROJECT_TARGET_SUPPORT_DIN_MIDI
     // enable DIN midi as well - same data needs to be sent there
 
     EXPECT_CALL(_system._hwaMIDIDIN, init())
@@ -189,7 +189,7 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
     ASSERT_EQ((Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS)) + ENABLED_ANALOG_COMPONENTS,
               _system._hwaMIDIUSB._writeParser.totalWrittenChannelMessages());
 
-#ifdef HW_SUPPORT_DIN_MIDI
+#ifdef PROJECT_TARGET_SUPPORT_DIN_MIDI
     ASSERT_EQ((Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS)) + ENABLED_ANALOG_COMPONENTS,
               _system._hwaMIDIDIN._writeParser.totalWrittenChannelMessages());
 #endif
@@ -211,7 +211,7 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
     EXPECT_CALL(_system._hwaMIDIDIN, setLoopback(false))
         .WillOnce(Return(true));
 
-#ifdef HW_SUPPORT_DIN_MIDI
+#ifdef PROJECT_TARGET_SUPPORT_DIN_MIDI
     // din midi isn't enabled in first preset so it will be disabled
     EXPECT_CALL(_system._hwaMIDIDIN, deInit())
         .WillOnce(Return(true));
@@ -233,7 +233,7 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
     ASSERT_EQ((Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS)) + ENABLED_ANALOG_COMPONENTS,
               _system._hwaMIDIUSB._writeParser.totalWrittenChannelMessages());
 
-#ifdef HW_SUPPORT_DIN_MIDI
+#ifdef PROJECT_TARGET_SUPPORT_DIN_MIDI
     ASSERT_EQ(0, _system._hwaMIDIDIN._writeParser.totalWrittenChannelMessages());
 #endif
 
@@ -254,7 +254,7 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
     EXPECT_CALL(_system._hwaMIDIDIN, setLoopback(false))
         .WillOnce(Return(true));
 
-#ifdef HW_SUPPORT_DIN_MIDI
+#ifdef PROJECT_TARGET_SUPPORT_DIN_MIDI
     // din midi is enabled now
     EXPECT_CALL(_system._hwaMIDIDIN, init())
         .WillOnce(Return(true));
@@ -276,7 +276,7 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
     ASSERT_EQ((Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS)) + ENABLED_ANALOG_COMPONENTS,
               _system._hwaMIDIUSB._writeParser.totalWrittenChannelMessages());
 
-#ifdef HW_SUPPORT_DIN_MIDI
+#ifdef PROJECT_TARGET_SUPPORT_DIN_MIDI
     ASSERT_EQ((Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS)) + ENABLED_ANALOG_COMPONENTS,
               _system._hwaMIDIDIN._writeParser.totalWrittenChannelMessages());
 #endif
@@ -391,7 +391,7 @@ TEST_F(SystemTest, PresetChangeIndicatedOnLEDs)
     ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
     ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1));
 
-#ifdef HW_SUPPORT_DIGITAL_OUTPUTS
+#ifdef PROJECT_TARGET_SUPPORT_DIGITAL_OUTPUTS
     {
         InSequence s;
 
@@ -459,7 +459,7 @@ TEST_F(SystemTest, PresetChangeIndicatedOnLEDs)
     ASSERT_EQ(1, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
     ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1));
 
-#ifdef HW_SUPPORT_DIGITAL_OUTPUTS
+#ifdef PROJECT_TARGET_SUPPORT_DIGITAL_OUTPUTS
     {
         InSequence s;
 
@@ -530,7 +530,7 @@ TEST_F(SystemTest, PresetChangeIndicatedOnLEDs)
     ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::leds_t::TEST_COLOR, LED_INDEX));
     ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::leds_t::TEST_COLOR, LED_INDEX + 1));
 
-#ifdef HW_SUPPORT_DIGITAL_OUTPUTS
+#ifdef PROJECT_TARGET_SUPPORT_DIGITAL_OUTPUTS
     {
         InSequence s;
 
@@ -587,7 +587,7 @@ TEST_F(SystemTest, ProgramIndicatedOnStartup)
 
     // reinit the system again
 
-#ifdef HW_SUPPORT_DIGITAL_OUTPUTS
+#ifdef PROJECT_TARGET_SUPPORT_DIGITAL_OUTPUTS
     {
         InSequence s;
 
@@ -613,7 +613,7 @@ TEST_F(SystemTest, ProgramIndicatedOnStartup)
 }
 #endif
 
-#ifdef HW_SUPPORT_DIN_MIDI
+#ifdef PROJECT_TARGET_SUPPORT_DIN_MIDI
 TEST_F(SystemTest, UsbThruDin)
 {
     // on init, all LEDs are turned off by calling hwa interface - irrelevant here
@@ -658,7 +658,7 @@ TEST_F(SystemTest, UsbThruDin)
     // again with note on - one of the LEDs should turn on as well
     event.message = MIDI::messageType_t::NOTE_ON;
 
-#ifdef HW_SUPPORT_DIGITAL_OUTPUTS
+#ifdef PROJECT_TARGET_SUPPORT_DIGITAL_OUTPUTS
     EXPECT_CALL(_system._hwaLEDs, setState(event.index, LEDs::brightness_t::B100))
         .Times(1);
 #endif

@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef HW_SUPPORT_TOUCHSCREEN
+#ifdef PROJECT_TARGET_SUPPORT_TOUCHSCREEN
 
 #include "Touchscreen.h"
 #include "core/util/Util.h"

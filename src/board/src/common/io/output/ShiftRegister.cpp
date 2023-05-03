@@ -16,8 +16,8 @@ limitations under the License.
 
 */
 
-#ifdef HW_SUPPORT_DIGITAL_OUTPUTS
-#ifdef HW_DRIVER_DIGITAL_OUTPUT_SHIFT_REGISTER
+#ifdef PROJECT_TARGET_SUPPORT_DIGITAL_OUTPUTS
+#ifdef PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_SHIFT_REGISTER
 
 #include "board/Board.h"
 #include "Helpers.h"
@@ -32,7 +32,7 @@ using namespace board::detail::io::digitalOut;
 namespace
 {
     uint8_t          _pwmCounter;
-    volatile uint8_t _ledState[(HW_MAX_NR_OF_DIGITAL_OUTPUTS / 8) + 1][static_cast<uint8_t>(ledBrightness_t::B100)];
+    volatile uint8_t _ledState[(PROJECT_TARGET_MAX_NR_OF_DIGITAL_OUTPUTS / 8) + 1][static_cast<uint8_t>(ledBrightness_t::B100)];
 }    // namespace
 
 namespace board::detail::io::digitalOut
@@ -71,7 +71,7 @@ namespace board::detail::io::digitalOut
     {
         CORE_MCU_IO_SET_LOW(PIN_PORT_SR_OUT_LATCH, PIN_INDEX_SR_OUT_LATCH);
 
-        for (uint8_t shiftRegister = 0; shiftRegister < HW_NR_OF_OUT_SR; shiftRegister++)
+        for (uint8_t shiftRegister = 0; shiftRegister < PROJECT_TARGET_NR_OF_OUT_SR; shiftRegister++)
         {
             for (uint8_t output = 0; output < 8; output++)
             {
@@ -102,7 +102,7 @@ namespace board::io::digitalOut
 {
     void writeLEDstate(size_t index, ledBrightness_t ledBrightness)
     {
-        if (index >= HW_MAX_NR_OF_DIGITAL_OUTPUTS)
+        if (index >= PROJECT_TARGET_MAX_NR_OF_DIGITAL_OUTPUTS)
         {
             return;
         }
@@ -125,9 +125,9 @@ namespace board::io::digitalOut
     {
         uint8_t result = index / 3;
 
-        if (result >= HW_NR_OF_RGB_LEDS)
+        if (result >= PROJECT_TARGET_NR_OF_RGB_LEDS)
         {
-            return HW_NR_OF_RGB_LEDS - 1;
+            return PROJECT_TARGET_NR_OF_RGB_LEDS - 1;
         }
 
         return result;

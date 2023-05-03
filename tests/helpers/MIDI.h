@@ -15,7 +15,7 @@
 #include "system/Config.h"
 #include <glog/logging.h>
 
-#ifdef TESTS_HW_SUPPORT
+#ifdef PROJECT_TARGET_SUPPORT_HW_TESTS
 #include <HWTestDefines.h>
 #endif
 
@@ -286,7 +286,7 @@ class MIDIHelper
     {
         auto request = generateSysExGetReq(section, index);
 
-#ifdef TESTS_HW_SUPPORT
+#ifdef PROJECT_TARGET_SUPPORT_HW_TESTS
         if (USE_HARDWARE)
         {
             return sendRequestToDevice(request, SysExConf::wish_t::GET);
@@ -305,7 +305,7 @@ class MIDIHelper
     {
         auto request = generateSysExSetReq(section, index, value);
 
-#ifdef TESTS_HW_SUPPORT
+#ifdef PROJECT_TARGET_SUPPORT_HW_TESTS
         if (USE_HARDWARE)
         {
             return sendRequestToDevice(request, SysExConf::wish_t::SET);
@@ -319,7 +319,7 @@ class MIDIHelper
 #endif
     }
 
-#ifdef TESTS_HW_SUPPORT
+#ifdef PROJECT_TARGET_SUPPORT_HW_TESTS
     static void flush()
     {
         LOG(INFO) << "Flushing all incoming data from the OpenDeck device";
@@ -581,7 +581,7 @@ class MIDIHelper
     }
 
     private:
-#ifdef TESTS_HW_SUPPORT
+#ifdef PROJECT_TARGET_SUPPORT_HW_TESTS
     int32_t sendRequestToDevice(std::vector<uint8_t>& request, SysExConf::wish_t wish)
     {
         auto response = sendRawSysExToDevice(request);

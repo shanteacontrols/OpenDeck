@@ -32,7 +32,7 @@ namespace
 {
     constexpr uint32_t MAIN_TIMER_TIMEOUT_US = 1000;
 #ifdef FW_APP
-#if defined(BOARD_USE_FAST_SOFT_PWM_TIMER) && defined(HW_SUPPORT_SOFT_PWM)
+#if defined(BOARD_USE_FAST_SOFT_PWM_TIMER) && defined(PROJECT_TARGET_SUPPORT_SOFT_PWM)
     constexpr uint32_t SOFT_PWM_TIMER_TIMEOUT_US = 200;
 #endif
 #endif
@@ -53,10 +53,10 @@ namespace board
                                     {
                                         core::timing::detail::ms++;
                                         detail::io::indicators::update();
-#ifndef HW_USB_OVER_SERIAL_HOST
+#ifndef PROJECT_TARGET_USB_OVER_SERIAL_HOST
                                         detail::io::digitalIn::update();
 #ifndef BOARD_USE_FAST_SOFT_PWM_TIMER
-#if HW_MAX_NR_OF_DIGITAL_OUTPUTS > 0
+#if PROJECT_TARGET_MAX_NR_OF_DIGITAL_OUTPUTS > 0
                                         detail::io::digitalOut::update();
 #endif
 #endif
@@ -66,14 +66,14 @@ namespace board
         core::mcu::timers::setPeriod(mainTimerIndex, MAIN_TIMER_TIMEOUT_US);
         core::mcu::timers::start(mainTimerIndex);
 
-#if defined(BOARD_USE_FAST_SOFT_PWM_TIMER) && defined(HW_SUPPORT_SOFT_PWM)
+#if defined(BOARD_USE_FAST_SOFT_PWM_TIMER) && defined(PROJECT_TARGET_SUPPORT_SOFT_PWM)
         size_t pwmTimerIndex = 0;
 
         core::mcu::timers::allocate(pwmTimerIndex, []()
                                     {
 #ifdef FW_APP
-#ifndef HW_USB_OVER_SERIAL_HOST
-#if HW_MAX_NR_OF_DIGITAL_OUTPUTS > 0
+#ifndef PROJECT_TARGET_USB_OVER_SERIAL_HOST
+#if PROJECT_TARGET_MAX_NR_OF_DIGITAL_OUTPUTS > 0
                                         detail::io::digitalOut::update();
 #endif
 #endif
@@ -132,7 +132,7 @@ namespace board
 
     namespace detail::setup
     {
-#ifdef HW_USB_OVER_SERIAL_DEVICE
+#ifdef PROJECT_TARGET_USB_OVER_SERIAL_DEVICE
         void waitUsbLink()
         {
             usbLink::internalCMD_t cmd;
@@ -148,7 +148,7 @@ namespace board
 
             while (1)
             {
-                usbOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
+                usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
 
                 if (detail::usb::readInternal(cmd))
                 {
@@ -171,8 +171,8 @@ namespace board
             core::mcu::timers::init();
             detail::io::init();
 
-#ifdef HW_USB_OVER_SERIAL
-            board::uart::init(HW_UART_CHANNEL_USB_LINK, board::detail::usb::USB_OVER_SERIAL_BAUDRATE);
+#ifdef PROJECT_TARGET_USB_OVER_SERIAL
+            board::uart::init(PROJECT_TARGET_UART_CHANNEL_USB_LINK, board::detail::usb::USB_OVER_SERIAL_BAUDRATE);
 #endif
         }
 
@@ -183,11 +183,11 @@ namespace board
             detail::io::init();
             detail::io::indicators::indicateApplicationLoad();
 
-#ifdef HW_USB_OVER_SERIAL
-            board::uart::init(HW_UART_CHANNEL_USB_LINK, board::detail::usb::USB_OVER_SERIAL_BAUDRATE);
+#ifdef PROJECT_TARGET_USB_OVER_SERIAL
+            board::uart::init(PROJECT_TARGET_UART_CHANNEL_USB_LINK, board::detail::usb::USB_OVER_SERIAL_BAUDRATE);
 #endif
 
-#ifdef HW_USB_OVER_SERIAL_DEVICE
+#ifdef PROJECT_TARGET_USB_OVER_SERIAL_DEVICE
             // do not proceed with application load until usb link is ready
             waitUsbLink();
 #endif

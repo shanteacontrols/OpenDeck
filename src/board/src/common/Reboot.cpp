@@ -20,7 +20,7 @@ limitations under the License.
 #include "board/src/Internal.h"
 #include "core/Timing.h"
 #include "core/MCU.h"
-#ifdef HW_USB_OVER_SERIAL
+#ifdef PROJECT_TARGET_USB_OVER_SERIAL
 #include "board/src/common/communication/USBOverSerial/USBOverSerial.h"
 #include "usb-link/Commands.h"
 #endif
@@ -31,7 +31,7 @@ namespace board
     {
         usb::deInit();
 
-#ifndef HW_SUPPORT_USB
+#ifndef PROJECT_TARGET_SUPPORT_USB
         // signal to usb link to reboot as well
 
         uint32_t magicVal = board::bootloader::magicBootValue();
@@ -48,7 +48,7 @@ namespace board
                                              data,
                                              sizeof(data),
                                              BUFFER_SIZE_USB_OVER_SERIAL);
-        usbOverSerial::write(HW_UART_CHANNEL_USB_LINK, packet);
+        usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
 #endif
 
         // In case the indicator LEDs were on before this command was issued, this will make sure

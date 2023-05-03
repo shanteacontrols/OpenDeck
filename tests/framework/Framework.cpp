@@ -23,7 +23,7 @@ namespace
     void glogPrefix(std::ostream& s, const google::LogMessageInfo& l, void*)
     {
         s << "["
-          << std::string(BOARD_STRING)
+          << std::string(PROJECT_TARGET_NAME)
           << "] "
              "["
           << l.severity
@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
     google::InitGoogleLogging(argv[0], &glogPrefix);
     ::testing::InitGoogleTest(&argc, argv);
 
-    LOG(INFO) << "Running tests for " << std::string(BOARD_STRING) << " board";
+    LOG(INFO) << "Running tests for " << std::string(PROJECT_TARGET_NAME) << " target";
 
     return RUN_ALL_TESTS();
 }
