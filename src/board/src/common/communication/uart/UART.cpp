@@ -27,7 +27,7 @@ limitations under the License.
 
 namespace
 {
-    core::mcu::uart::Channel<BUFFER_SIZE_UART_TX, BUFFER_SIZE_UART_RX> _channels[CORE_MCU_MAX_UART_INTERFACES];
+    core::mcu::uart::Channel<PROJECT_MCU_BUFFER_SIZE_UART_TX, PROJECT_MCU_BUFFER_SIZE_UART_RX> _channels[CORE_MCU_MAX_UART_INTERFACES];
 }    // namespace
 
 namespace board::uart

@@ -42,8 +42,8 @@ namespace board::bootloader
 {
     void appAddrBoundary(uint32_t& first, uint32_t& last)
     {
-        first = FLASH_ADDR_APP_START;
-        core::mcu::flash::read32(FLASH_ADDR_FW_METADATA, last);
+        first = PROJECT_MCU_FLASH_ADDR_APP_START;
+        core::mcu::flash::read32(PROJECT_MCU_FLASH_ADDR_FW_METADATA, last);
     }
 
     bool isHWtriggerActive()
@@ -56,22 +56,22 @@ namespace board::bootloader
 
     uint32_t pageSize(size_t index)
     {
-        return core::mcu::flash::pageSize(index + FLASH_PAGE_APP);
+        return core::mcu::flash::pageSize(index + PROJECT_MCU_FLASH_PAGE_APP);
     }
 
     void erasePage(size_t index)
     {
-        core::mcu::bootloader::erasePage(index + FLASH_PAGE_APP);
+        core::mcu::bootloader::erasePage(index + PROJECT_MCU_FLASH_PAGE_APP);
     }
 
     void fillPage(size_t index, uint32_t address, uint32_t value)
     {
-        core::mcu::bootloader::fillPage(index + FLASH_PAGE_APP, address, value);
+        core::mcu::bootloader::fillPage(index + PROJECT_MCU_FLASH_PAGE_APP, address, value);
     }
 
     void commitPage(size_t index)
     {
-        core::mcu::bootloader::commitPage(index + FLASH_PAGE_APP);
+        core::mcu::bootloader::commitPage(index + PROJECT_MCU_FLASH_PAGE_APP);
     }
 
     uint8_t readFlash(uint32_t address)

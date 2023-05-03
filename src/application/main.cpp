@@ -116,7 +116,7 @@ class HWADatabase : public sys::Builder::HWA::Database
 
     bool initializeDatabase() override
     {
-        return DATABASE_INIT_DATA;
+        return PROJECT_MCU_DATABASE_INIT_DATA;
     }
 
     private:

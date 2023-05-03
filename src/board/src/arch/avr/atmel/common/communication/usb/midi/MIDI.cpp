@@ -36,8 +36,8 @@ namespace
 
 extern "C" void EVENT_USB_Device_ConfigurationChanged(void)
 {
-    Endpoint_ConfigureEndpoint(USB_ENDPOINT_MIDI_ADDR_IN, core::mcu::usb::ENDPOINT_TYPE_BULK, USB_ENDPOINT_SIZE_MIDI_IN_OUT, 1);
-    Endpoint_ConfigureEndpoint(USB_ENDPOINT_MIDI_ADDR_OUT, core::mcu::usb::ENDPOINT_TYPE_BULK, USB_ENDPOINT_SIZE_MIDI_IN_OUT, 1);
+    Endpoint_ConfigureEndpoint(PROJECT_MCU_USB_ENDPOINT_MIDI_ADDR_IN, core::mcu::usb::ENDPOINT_TYPE_BULK, PROJECT_MCU_USB_ENDPOINT_SIZE_MIDI_IN_OUT, 1);
+    Endpoint_ConfigureEndpoint(PROJECT_MCU_USB_ENDPOINT_MIDI_ADDR_OUT, core::mcu::usb::ENDPOINT_TYPE_BULK, PROJECT_MCU_USB_ENDPOINT_SIZE_MIDI_IN_OUT, 1);
 }
 
 extern "C" uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue, const uint16_t wIndex, const void** const descriptorAddress)
@@ -111,11 +111,11 @@ namespace board
         void init()
         {
             _midiInterface.Config.StreamingInterfaceNumber = USB_INTERFACE_ID_AUDIO_STREAM;
-            _midiInterface.Config.DataINEndpoint.Address   = USB_ENDPOINT_MIDI_ADDR_IN;
-            _midiInterface.Config.DataINEndpoint.Size      = USB_ENDPOINT_SIZE_MIDI_IN_OUT;
+            _midiInterface.Config.DataINEndpoint.Address   = PROJECT_MCU_USB_ENDPOINT_MIDI_ADDR_IN;
+            _midiInterface.Config.DataINEndpoint.Size      = PROJECT_MCU_USB_ENDPOINT_SIZE_MIDI_IN_OUT;
             _midiInterface.Config.DataINEndpoint.Banks     = 1;
-            _midiInterface.Config.DataOUTEndpoint.Address  = USB_ENDPOINT_MIDI_ADDR_OUT;
-            _midiInterface.Config.DataOUTEndpoint.Size     = USB_ENDPOINT_SIZE_MIDI_IN_OUT;
+            _midiInterface.Config.DataOUTEndpoint.Address  = PROJECT_MCU_USB_ENDPOINT_MIDI_ADDR_OUT;
+            _midiInterface.Config.DataOUTEndpoint.Size     = PROJECT_MCU_USB_ENDPOINT_SIZE_MIDI_IN_OUT;
             _midiInterface.Config.DataOUTEndpoint.Banks    = 1;
 
             USB_Init();
@@ -143,7 +143,7 @@ namespace board
             }
 
             // select the MIDI OUT stream
-            Endpoint_SelectEndpoint(USB_ENDPOINT_MIDI_ADDR_OUT);
+            Endpoint_SelectEndpoint(PROJECT_MCU_USB_ENDPOINT_MIDI_ADDR_OUT);
 
             // check if a MIDI command has been received
             if (Endpoint_IsOUTReceived())

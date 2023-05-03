@@ -167,9 +167,9 @@ namespace
                     .type = core::mcu::usb::DESC_TYPE_ENDPOINT,
                 },
 
-                .endpointAddress   = USB_ENDPOINT_MIDI_ADDR_OUT,
+                .endpointAddress   = PROJECT_MCU_USB_ENDPOINT_MIDI_ADDR_OUT,
                 .attributes        = (core::mcu::usb::ENDPOINT_TYPE_BULK | core::mcu::usb::ENDPOINT_ATTR_NO_SYNC | core::mcu::usb::ENDPOINT_USAGE_DATA),
-                .endpointSize      = USB_ENDPOINT_SIZE_MIDI_IN_OUT,
+                .endpointSize      = PROJECT_MCU_USB_ENDPOINT_SIZE_MIDI_IN_OUT,
                 .pollingIntervalMs = 0x05,
             },
 
@@ -197,9 +197,9 @@ namespace
                     .type = core::mcu::usb::DESC_TYPE_ENDPOINT,
                 },
 
-                .endpointAddress   = USB_ENDPOINT_MIDI_ADDR_IN,
+                .endpointAddress   = PROJECT_MCU_USB_ENDPOINT_MIDI_ADDR_IN,
                 .attributes        = (core::mcu::usb::ENDPOINT_TYPE_BULK | core::mcu::usb::ENDPOINT_ATTR_NO_SYNC | core::mcu::usb::ENDPOINT_USAGE_DATA),
-                .endpointSize      = USB_ENDPOINT_SIZE_MIDI_IN_OUT,
+                .endpointSize      = PROJECT_MCU_USB_ENDPOINT_SIZE_MIDI_IN_OUT,
                 .pollingIntervalMs = 0x05,
             },
 
@@ -231,7 +231,7 @@ namespace
         .classId                = core::mcu::usb::CSCP_NO_DEVICE_CLASS,
         .subClassId             = core::mcu::usb::CSCP_NO_DEVICE_SUBCLASS,
         .protocol               = core::mcu::usb::CSCP_NO_DEVICE_PROTOCOL,
-        .endpoint0Size          = USB_ENDPOINT_SIZE_CONTROL,
+        .endpoint0Size          = PROJECT_MCU_USB_ENDPOINT_SIZE_CONTROL,
         .vendorId               = USB_VENDOR_ID,
         .productId              = USB_PRODUCT_ID,
         .releaseNumber          = core::mcu::usb::VERSION_BCD(0, 0, 1),

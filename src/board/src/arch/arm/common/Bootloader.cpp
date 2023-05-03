@@ -44,7 +44,7 @@ namespace board::bootloader
     {
         core::mcu::deInit();
 
-        auto appEntry = (appEntry_t) * (volatile uint32_t*)(FLASH_ADDR_APP_START + FLASH_OFFSET_APP_JUMP_FROM_BOOTLOADER);
+        auto appEntry = (appEntry_t) * (volatile uint32_t*)(PROJECT_MCU_FLASH_ADDR_APP_START + PROJECT_MCU_FLASH_OFFSET_APP_JUMP_FROM_BOOTLOADER);
         appEntry();
 
         while (true)

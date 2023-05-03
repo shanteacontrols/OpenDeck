@@ -30,11 +30,11 @@ limitations under the License.
 
 namespace
 {
-    constexpr uint8_t                                   TWCR_CLR_MASK = 0x0F;
-    core::util::RingBuffer<uint8_t, BUFFER_SIZE_I2C_TX> _txBuffer;
-    uint8_t                                             _address;
-    volatile bool                                       _txBusy;
-    bool                                                _initialized;
+    constexpr uint8_t                                               TWCR_CLR_MASK = 0x0F;
+    core::util::RingBuffer<uint8_t, PROJECT_MCU_BUFFER_SIZE_I2C_TX> _txBuffer;
+    uint8_t                                                         _address;
+    volatile bool                                                   _txBusy;
+    bool                                                            _initialized;
 
     inline void sendByteInt(uint8_t data)
     {
@@ -98,7 +98,7 @@ namespace board::i2c
             return false;
         }
 
-        if (size >= BUFFER_SIZE_I2C_TX)
+        if (size >= PROJECT_MCU_BUFFER_SIZE_I2C_TX)
         {
             return false;
         }

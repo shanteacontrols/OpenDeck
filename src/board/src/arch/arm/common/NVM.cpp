@@ -43,9 +43,9 @@ namespace
 
             case EmuEEPROM::page_t::PAGE_2:
             {
-                for (size_t i = 0; i < FLASH_PAGE_EEPROM_2 - FLASH_PAGE_EEPROM_1; i++)
+                for (size_t i = 0; i < PROJECT_MCU_FLASH_PAGE_EEPROM_2 - PROJECT_MCU_FLASH_PAGE_EEPROM_1; i++)
                 {
-                    if (!core::mcu::flash::erasePage(FLASH_PAGE_EEPROM_2 + i))
+                    if (!core::mcu::flash::erasePage(PROJECT_MCU_FLASH_PAGE_EEPROM_2 + i))
                     {
                         return false;
                     }
@@ -57,9 +57,9 @@ namespace
 
             default:
             {
-                for (size_t i = 0; i < FLASH_PAGE_EEPROM_2 - FLASH_PAGE_EEPROM_1; i++)
+                for (size_t i = 0; i < PROJECT_MCU_FLASH_PAGE_EEPROM_2 - PROJECT_MCU_FLASH_PAGE_EEPROM_1; i++)
                 {
-                    if (!core::mcu::flash::erasePage(FLASH_PAGE_EEPROM_1 + i))
+                    if (!core::mcu::flash::erasePage(PROJECT_MCU_FLASH_PAGE_EEPROM_1 + i))
                     {
                         return false;
                     }
@@ -87,13 +87,13 @@ namespace
             switch (page)
             {
             case EmuEEPROM::page_t::PAGE_FACTORY:
-                return CORE_MCU_FLASH_PAGE_ADDR(FLASH_PAGE_FACTORY);
+                return CORE_MCU_FLASH_PAGE_ADDR(PROJECT_MCU_FLASH_PAGE_FACTORY);
 
             case EmuEEPROM::page_t::PAGE_2:
-                return CORE_MCU_FLASH_PAGE_ADDR(FLASH_PAGE_EEPROM_2);
+                return CORE_MCU_FLASH_PAGE_ADDR(PROJECT_MCU_FLASH_PAGE_EEPROM_2);
 
             default:
-                return CORE_MCU_FLASH_PAGE_ADDR(FLASH_PAGE_EEPROM_1);
+                return CORE_MCU_FLASH_PAGE_ADDR(PROJECT_MCU_FLASH_PAGE_EEPROM_1);
             }
         }
     };

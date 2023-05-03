@@ -24,6 +24,6 @@ INCLUDE_DIRS += \
 
 SOURCES :=
 
-ifneq (,$(findstring HW_SUPPORT_BOOTLOADER,$(DEFINES)))
+ifneq (,$(findstring PROJECT_MCU_SUPPORT_BOOTLOADER,$(DEFINES)))
     SOURCES += sysexgen/main.cpp
 endif

@@ -20,8 +20,8 @@ ifeq (,$(findstring gen,$(TYPE)))
 	$(Q)objcopy --gap-fill 0xFF -O ihex $(OUTPUT).elf $(OUTPUT).hex
 ifeq ($(TYPE),application)
 # Append metadata only for application if bootloader is supported
-ifneq (,$(findstring HW_SUPPORT_BOOTLOADER,$(DEFINES)))
-	$(Q)srec_cat $(OUTPUT).hex -Intel -exclude $(FLASH_ADDR_FW_METADATA) $$(($(FLASH_ADDR_FW_METADATA) + $(FW_METADATA_SIZE))) -MAximum_Little_Endian $(FLASH_ADDR_FW_METADATA) -o $(OUTPUT).hex -Intel
+ifneq (,$(findstring PROJECT_MCU_SUPPORT_BOOTLOADER,$(DEFINES)))
+	$(Q)srec_cat $(OUTPUT).hex -Intel -exclude $(PROJECT_MCU_FLASH_ADDR_FW_METADATA) $$(($(PROJECT_MCU_FLASH_ADDR_FW_METADATA) + $(FW_METADATA_SIZE))) -MAximum_Little_Endian $(PROJECT_MCU_FLASH_ADDR_FW_METADATA) -o $(OUTPUT).hex -Intel
 	$(Q)srec_cat $(OUTPUT).hex -Intel -Cyclic_Redundancy_Check_16_Little_Endian -MAximum-Address $(OUTPUT).hex -Intel -Cyclic_Redundancy_Check_16_XMODEM -Output $(OUTPUT).hex -Intel
 endif
 endif
@@ -56,11 +56,11 @@ all:
 
 concat: $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin
 	$(Q)mkdir -p $(BUILD_DIR)
-# If DATABASE_INIT_DATA is set to 1, DB data will be initialized in firmware.
+# If PROJECT_MCU_DATABASE_INIT_DATA is set to 1, DB data will be initialized in firmware.
 # Otherwise, initial DB data is read from generated binary file appended
 # to application binary.
-ifneq (,$(findstring DATABASE_INIT_DATA=1,$(DEFINES)))
-ifneq (,$(findstring HW_SUPPORT_BOOTLOADER,$(DEFINES)))
+ifneq (,$(findstring PROJECT_MCU_DATABASE_INIT_DATA=1,$(DEFINES)))
+ifneq (,$(findstring PROJECT_MCU_SUPPORT_BOOTLOADER,$(DEFINES)))
 	$(Q)srec_cat \
 	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/application/$(TARGET).hex -Intel \
 	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/bootloader/$(TARGET).hex -Intel \
@@ -77,7 +77,7 @@ else
 # Define FACTORY_IMAGE_START_ADDR variable as shell variable instead of make variable:
 # when this recipe is started, generated_flash.bin_offset doesn't exist yet, so make will
 # complain that it cannot find it if it were defined like this: $(shell cat $(BUILD_DIR_BASE)/flashgen/$(TARGET)/release/generated_flash.bin_offset).
-ifneq (,$(findstring HW_SUPPORT_BOOTLOADER,$(DEFINES)))
+ifneq (,$(findstring PROJECT_MCU_SUPPORT_BOOTLOADER,$(DEFINES)))
 	$(Q)FACTORY_IMAGE_START_ADDR=$$(cat $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin_offset) && \
 	srec_cat \
 	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/bootloader/$(TARGET).hex -Intel \
@@ -101,7 +101,7 @@ endif
 	$(Q)objcopy -I ihex "$(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex" --gap-fill 0xFF -O binary "$(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).bin"
 	$(Q)rm $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex
 	$(Q)echo Merged binary created: $(BUILD_DIR)/$(TARGET).hex
-ifneq (,$(findstring HW_SUPPORT_BOOTLOADER,$(DEFINES)))
+ifneq (,$(findstring PROJECT_MCU_SUPPORT_BOOTLOADER,$(DEFINES)))
 	$(Q)echo Creating SysEx file...
 # Raw syx file for use with amidi
 	$(Q)$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/sysexgen/$(TARGET).elf $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).bin $(BUILD_DIR)/$(TARGET).sysex.syx

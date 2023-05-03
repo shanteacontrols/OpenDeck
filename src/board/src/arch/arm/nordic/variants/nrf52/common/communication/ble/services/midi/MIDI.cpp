@@ -87,8 +87,8 @@ namespace
         uint16_t                 connHandle = 0;
     };
 
-    midiService_t                                                _midiService;
-    core::util::RingBuffer<uint8_t, BUFFER_SIZE_BLE_MIDI_PACKET> _rxBuffer;
+    midiService_t                                                            _midiService;
+    core::util::RingBuffer<uint8_t, PROJECT_MCU_BUFFER_SIZE_BLE_MIDI_PACKET> _rxBuffer;
 
     uint32_t dataIOcharAdd(midiService_t& midiService)
     {
@@ -137,7 +137,7 @@ namespace
         attrCharValue.p_attr_md = &attrMetadata;
         attrCharValue.init_len  = sizeof(uint8_t);
         attrCharValue.init_offs = 0;
-        attrCharValue.max_len   = BUFFER_SIZE_BLE_MIDI_PACKET;
+        attrCharValue.max_len   = PROJECT_MCU_BUFFER_SIZE_BLE_MIDI_PACKET;
         attrCharValue.p_value   = NULL;
 
         return sd_ble_gatts_characteristic_add(midiService.serviceHandle, &charMetadata, &attrCharValue, &midiService.dataIOcharHandles);
@@ -247,7 +247,7 @@ namespace board::ble::midi
 {
     bool read(uint8_t* buffer, size_t& size, const size_t maxSize)
     {
-        if (maxSize > BUFFER_SIZE_BLE_MIDI_PACKET)
+        if (maxSize > PROJECT_MCU_BUFFER_SIZE_BLE_MIDI_PACKET)
         {
             return false;
         }

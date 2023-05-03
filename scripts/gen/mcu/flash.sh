@@ -39,7 +39,7 @@ fi
 if [[ $boot_supported -ne 0 ]]
 then
     {
-        printf "%s\n" "DEFINES += HW_SUPPORT_BOOTLOADER"
+        printf "%s\n" "PROJECT_MCU_DEFINES += PROJECT_MCU_SUPPORT_BOOTLOADER"
     } >> "$out_makefile"
 else
     # No bootloader, start at first page
@@ -47,7 +47,7 @@ else
 fi
 
 {
-    printf "%s\n" "DEFINES += FLASH_PAGE_APP=$app_start_page"
+    printf "%s\n" "PROJECT_MCU_DEFINES += PROJECT_MCU_FLASH_PAGE_APP=$app_start_page"
 } >> "$out_makefile"
 
 if [[ $($yaml_parser "$core_yaml_file" flash.pages) != "null" ]]
@@ -78,17 +78,17 @@ else
 fi
 
 {
-    printf "%s%x\n" "FLASH_ADDR_APP_START := 0x" "$app_start_address"
-    printf "%s\n" "DEFINES += FLASH_ADDR_APP_START=$app_start_address"
-    printf "%s\n" 'FLASH_ADDR_FW_METADATA := $(shell printf "0x%x" $$(( $(FLASH_ADDR_APP_START) + $(CORE_MCU_FW_METADATA_OFFSET) )) )'
-    printf "%s\n" 'DEFINES += FLASH_ADDR_FW_METADATA=$(FLASH_ADDR_FW_METADATA)'
+    printf "%s%x\n" "PROJECT_MCU_FLASH_ADDR_APP_START := 0x" "$app_start_address"
+    printf "%s\n" "PROJECT_MCU_DEFINES += PROJECT_MCU_FLASH_ADDR_APP_START=$app_start_address"
+    printf "%s%s\n" 'PROJECT_MCU_FLASH_ADDR_FW_METADATA := $(shell printf "0x%x" $$(( $(' 'PROJECT_MCU_FLASH_ADDR_APP_START) + $(CORE_MCU_FW_METADATA_OFFSET) )) )'
+    printf "%s\n" 'PROJECT_MCU_DEFINES += PROJECT_MCU_FLASH_ADDR_FW_METADATA=$(PROJECT_MCU_FLASH_ADDR_FW_METADATA)'
 } >> "$out_makefile"
 
 if [[ $boot_supported -ne 0 ]]
 then
     {
-        printf "%s%x\n" "FLASH_ADDR_BOOT_START := 0x" "$boot_start_address"
-        printf "%s\n" "DEFINES += FLASH_ADDR_BOOT_START=$boot_start_address"
+        printf "%s%x\n" "PROJECT_MCU_FLASH_ADDR_BOOT_START := 0x" "$boot_start_address"
+        printf "%s\n" "PROJECT_MCU_DEFINES += PROJECT_MCU_FLASH_ADDR_BOOT_START=$boot_start_address"
     } >> "$out_makefile"
 fi
 
@@ -105,22 +105,22 @@ then
     fi
 
     {
-        printf "%s\n" "FLASH_PAGE_FACTORY := $factory_flash_page"
-        printf "%s\n" "FLASH_PAGE_EEPROM_1 := $eeprom_flash_page_1"
-        printf "%s\n" "FLASH_PAGE_EEPROM_2 := $eeprom_flash_page_2"
-        printf "%s\n" 'DEFINES += FLASH_PAGE_FACTORY=$(FLASH_PAGE_FACTORY)'
-        printf "%s\n" 'DEFINES += FLASH_PAGE_EEPROM_1=$(FLASH_PAGE_EEPROM_1)'
-        printf "%s\n" 'DEFINES += FLASH_PAGE_EEPROM_2=$(FLASH_PAGE_EEPROM_2)'
+        printf "%s\n" "PROJECT_MCU_FLASH_PAGE_FACTORY := $factory_flash_page"
+        printf "%s\n" "PROJECT_MCU_FLASH_PAGE_EEPROM_1 := $eeprom_flash_page_1"
+        printf "%s\n" "PROJECT_MCU_FLASH_PAGE_EEPROM_2 := $eeprom_flash_page_2"
+        printf "%s\n" 'PROJECT_MCU_DEFINES += PROJECT_MCU_FLASH_PAGE_FACTORY=$(PROJECT_MCU_FLASH_PAGE_FACTORY)'
+        printf "%s\n" 'PROJECT_MCU_DEFINES += PROJECT_MCU_FLASH_PAGE_EEPROM_1=$(PROJECT_MCU_FLASH_PAGE_EEPROM_1)'
+        printf "%s\n" 'PROJECT_MCU_DEFINES += PROJECT_MCU_FLASH_PAGE_EEPROM_2=$(PROJECT_MCU_FLASH_PAGE_EEPROM_2)'
     } >> "$out_makefile"
 
     if [[ $($yaml_parser "$core_yaml_file" flash.pages) == "null" ]]
     then
         # Common flash page size
         {
-            printf "%s\n" 'EMU_EEPROM_PAGE_SIZE := $(shell echo $$(( ($(FLASH_PAGE_EEPROM_2) - $(FLASH_PAGE_EEPROM_1)) * $(CORE_MCU_FLASH_PAGE_SIZE_COMMON) )) )'
-            printf "%s\n" 'DEFINES += EMU_EEPROM_PAGE_SIZE=$(EMU_EEPROM_PAGE_SIZE)'
+            printf "%s\n" 'PROJECT_MCU_EMU_EEPROM_PAGE_SIZE := $(shell echo $$(( ($(PROJECT_MCU_FLASH_PAGE_EEPROM_2) - $(PROJECT_MCU_FLASH_PAGE_EEPROM_1)) * $(CORE_MCU_FLASH_PAGE_SIZE_COMMON) )) )'
+            printf "%s\n" 'PROJECT_MCU_DEFINES += EMU_EEPROM_PAGE_SIZE=$(PROJECT_MCU_EMU_EEPROM_PAGE_SIZE)'
             # Offset is never used when flash pages have the same size
-            printf "%s\n" 'EMU_EEPROM_FLASH_USAGE := $(shell echo $$(( $(EMU_EEPROM_PAGE_SIZE) * 3 )) )'
+            printf "%s\n" 'PROJECT_MCU_EMU_EEPROM_FLASH_USAGE := $(shell echo $$(( $(PROJECT_MCU_EMU_EEPROM_PAGE_SIZE) * 3 )) )'
         } >> "$out_makefile"
     else
         emueeprom_factory_size=$($yaml_parser "$core_yaml_file" flash.pages.["$factory_flash_page"].size)
@@ -132,26 +132,26 @@ then
         emueeprom_flash_usage=$((emueeprom_page_size + emueeprom_page1_size + emueeprom_page2_size))
 
         {
-            printf "%s\n" "EMU_EEPROM_PAGE_SIZE := $emueeprom_page_size"
-            printf "%s\n" 'DEFINES += EMU_EEPROM_PAGE_SIZE=$(EMU_EEPROM_PAGE_SIZE)'
-            printf "%s\n" "EMU_EEPROM_FLASH_USAGE := $emueeprom_flash_usage"
+            printf "%s\n" "PROJECT_MCU_EMU_EEPROM_PAGE_SIZE := $emueeprom_page_size"
+            printf "%s\n" 'PROJECT_MCU_DEFINES += EMU_EEPROM_PAGE_SIZE=$(PROJECT_MCU_EMU_EEPROM_PAGE_SIZE)'
+            printf "%s\n" "PROJECT_MCU_EMU_EEPROM_FLASH_USAGE := $emueeprom_flash_usage"
         } >> "$out_makefile"
     fi
 
     # When emulated EEPROM is used, one of the pages is factory page with
     # default settings. Database shouldn't be formatted in this case.
     # The values from factory page should be used as initial ones.
-    printf "%s\n" "DEFINES += DATABASE_INIT_DATA=0" >> "$out_makefile"
+    printf "%s\n" "PROJECT_MCU_DEFINES += PROJECT_MCU_DATABASE_INIT_DATA=0" >> "$out_makefile"
 else
     {
-        printf "%s\n" "EMU_EEPROM_FLASH_USAGE := 0"
-        printf "%s\n" "DEFINES += DATABASE_INIT_DATA=1"
+        printf "%s\n" "PROJECT_MCU_EMU_EEPROM_FLASH_USAGE := 0"
+        printf "%s\n" "PROJECT_MCU_DEFINES += PROJECT_MCU_DATABASE_INIT_DATA=1"
     } >> "$out_makefile"
 fi
 
 if [[ $app_boot_jump_offset != "null" ]]
 then
-    printf "%s\n" "DEFINES += FLASH_OFFSET_APP_JUMP_FROM_BOOTLOADER=$app_boot_jump_offset" >> "$out_makefile"
+    printf "%s\n" "PROJECT_MCU_DEFINES += PROJECT_MCU_FLASH_OFFSET_APP_JUMP_FROM_BOOTLOADER=$app_boot_jump_offset" >> "$out_makefile"
 fi
 
 # Calculate boot size
@@ -186,9 +186,9 @@ then
     fi
 
     {
-        printf "%s%s\n" "BOOT_SIZE := " "$boot_size"
-        printf "%s%s\n" "APP_SIZE := " '$(shell echo $$(( $(CORE_MCU_FLASH_SIZE) - $(BOOT_SIZE) - $(EMU_EEPROM_FLASH_USAGE) )) )'
+        printf "%s\n" "PROJECT_MCU_FLASH_BOOT_SIZE := $boot_size"
+        printf "%s\n" 'PROJECT_MCU_FLASH_APP_SIZE := $(shell echo $$(( $(CORE_MCU_FLASH_SIZE) - $(PROJECT_MCU_FLASH_BOOT_SIZE) - $(PROJECT_MCU_EMU_EEPROM_FLASH_USAGE) )) )'
     } >> "$out_makefile"
 else
-    printf "%s%s\n" "APP_SIZE := " '$(shell echo $$(( $(CORE_MCU_FLASH_SIZE) - $(EMU_EEPROM_FLASH_USAGE) )) )' >> "$out_makefile"
+    printf "%s\n" 'PROJECT_MCU_FLASH_APP_SIZE := $(shell echo $$(( $(CORE_MCU_FLASH_SIZE) - $(PROJECT_MCU_EMU_EEPROM_FLASH_USAGE) )) )' >> "$out_makefile"
 fi

@@ -740,7 +740,7 @@ TEST_F(HWTest, DatabaseInitialValues)
     }
 }
 
-#ifdef HW_SUPPORT_BOOTLOADER
+#ifdef PROJECT_MCU_SUPPORT_BOOTLOADER
 TEST_F(HWTest, FwUpdate)
 {
     LOG(INFO) << "Setting few random values in each available preset";

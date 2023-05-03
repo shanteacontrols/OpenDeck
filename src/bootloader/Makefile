@@ -48,12 +48,12 @@ INCLUDE_DIRS += \
 -I"application" \
 -I"bootloader/"
 
-ifneq (,$(findstring HW_SUPPORT_BOOTLOADER,$(DEFINES)))
+ifneq (,$(findstring PROJECT_MCU_SUPPORT_BOOTLOADER,$(DEFINES)))
     SOURCES += $(shell find bootloader -type f -name "*.cpp")
 
     DEFINES += FW_BOOT
-    FLASH_START_ADDR := $(FLASH_ADDR_BOOT_START)
-    CORE_MCU_FLASH_SIZE_USER := $(BOOT_SIZE)
+    FLASH_START_ADDR := $(PROJECT_MCU_FLASH_ADDR_BOOT_START)
+    CORE_MCU_FLASH_SIZE_USER := $(PROJECT_MCU_FLASH_BOOT_SIZE)
 else
     SOURCES :=
 endif

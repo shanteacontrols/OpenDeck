@@ -7,6 +7,6 @@ then
     for ((i=0;i<total_symbols;i++))
     do
         symbol=$($yaml_parser "$project_yaml_file" define-symbols.["$i"])
-        printf "%s\n" "CORE_MCU_DEFINES += $symbol" >> "$out_makefile"
+        printf "%s\n" "PROJECT_MCU_DEFINES += $symbol" >> "$out_makefile"
     done
 fi

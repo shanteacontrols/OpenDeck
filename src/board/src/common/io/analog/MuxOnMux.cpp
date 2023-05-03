@@ -28,7 +28,7 @@ using namespace board::io::analog;
 using namespace board::detail;
 using namespace board::detail::io::analog;
 
-static_assert(HW_ADC_SAMPLES > 0, "At least 1 ADC sample required");
+static_assert(PROJECT_MCU_ADC_SAMPLES > 0, "At least 1 ADC sample required");
 
 namespace
 {
@@ -69,7 +69,7 @@ namespace board::detail::io::analog
     {
         core::mcu::adc::conf_t adcConfiguration;
 
-        adcConfiguration.prescaler = HW_ADC_PRESCALER;
+        adcConfiguration.prescaler = PROJECT_MCU_ADC_PRESCALER;
         adcConfiguration.voltage   = HW_ADC_INPUT_VOLTAGE;
 
 #ifdef ADC_EXT_REF
@@ -148,9 +148,9 @@ namespace board::detail::io::analog
                 _sample += adcValue;
             }
 
-            if (++_sampleCounter == (HW_ADC_SAMPLES + 1))
+            if (++_sampleCounter == (PROJECT_MCU_ADC_SAMPLES + 1))
             {
-                _sample /= HW_ADC_SAMPLES;
+                _sample /= PROJECT_MCU_ADC_SAMPLES;
                 _analogBuffer[_analogIndex] = _sample;
                 _analogBuffer[_analogIndex] |= ADC_NEW_READING_FLAG;
                 _sample        = 0;

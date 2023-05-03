@@ -173,7 +173,7 @@ namespace
 
             if (file.is_open())
             {
-                file << CORE_MCU_FLASH_PAGE_ADDR(FLASH_PAGE_FACTORY);
+                file << CORE_MCU_FLASH_PAGE_ADDR(PROJECT_MCU_FLASH_PAGE_FACTORY);
                 file.close();
 
                 return true;
