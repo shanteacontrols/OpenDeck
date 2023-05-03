@@ -21,5 +21,5 @@
     "editor.mouseWheelZoom": true,
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "xaver.clang-format",
-    "git.mergeEditor": true
+    "git.mergeEditor": false
 }
