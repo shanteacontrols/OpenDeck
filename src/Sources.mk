@@ -7,10 +7,10 @@ vpath modules/%.S ../
 INCLUDE_DIRS += \
 -I"./" \
 -I"$(MCU_GEN_DIR)" \
--I"$(BOARD_GEN_DIR)/" \
+-I"$(TARGET_GEN_DIR)/" \
 -I"../modules/"
 
-TARGET_GEN_HEADER := $(BOARD_GEN_DIR)/Target.h
+TARGET_GEN_HEADER := $(TARGET_GEN_DIR)/Target.h
 
 ifneq (,$(wildcard $(DEF_FILE_TSCREEN)))
     TSCREEN_GEN_SOURCE := $(APPLICATION_GEN_DIR_TARGET)/Touchscreen.cpp

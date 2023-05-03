@@ -47,4 +47,4 @@ INCLUDE_DIRS_COMMON := \
 -I"../src/board/include" \
 -I"../src/board/src/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)" \
 -I"$(MCU_GEN_DIR)" \
--I"$(BOARD_GEN_DIR)"
+-I"$(TARGET_GEN_DIR)"

@@ -127,7 +127,7 @@ $(TARGET_GEN_HEADER): $(DEF_FILE_TARGET)
 	$(Q)$(SCRIPTS_DIR)/gen/gen_target.sh \
 	--project=$(PROJECT) \
 	--target-config=$(DEF_FILE_TARGET) \
-	--gen-dir-target=$(BOARD_GEN_DIR) \
+	--gen-dir-target=$(TARGET_GEN_DIR) \
 	--base-gen-dir-mcu=$(MCU_GEN_DIR_BASE)
 
 $(TSCREEN_GEN_SOURCE): $(DEF_FILE_TSCREEN)
@@ -194,7 +194,7 @@ clean:
 	@echo Cleaning up.
 	@rm -rf \
 	$(BUILD_DIR_BASE) \
-	$(BOARD_GEN_DIR_BASE) \
+	$(TARGET_GEN_DIR_BASE) \
 	$(MCU_GEN_DIR_BASE) \
 	$(APPLICATION_GEN_DIR_BASE) \
 	compile_commands.json
