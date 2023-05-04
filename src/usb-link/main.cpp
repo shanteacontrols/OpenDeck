@@ -29,9 +29,11 @@ using namespace protocol;
 namespace
 {
     /// Time in milliseconds after which USB connection state should be checked
-    constexpr uint32_t           USB_CONN_CHECK_TIME = 2000;
-    uint8_t                      uartReadBuffer[BUFFER_SIZE_USB_OVER_SERIAL];
-    usbOverSerial::USBReadPacket readPacket(uartReadBuffer, BUFFER_SIZE_USB_OVER_SERIAL);
+    constexpr uint32_t USB_CONN_CHECK_TIME = 2000;
+    constexpr size_t   READ_BUFFER_SIZE    = 16;
+
+    uint8_t                      uartReadBuffer[READ_BUFFER_SIZE];
+    usbOverSerial::USBReadPacket readPacket(uartReadBuffer, READ_BUFFER_SIZE);
     MIDI::usbMIDIPacket_t        usbMIDIPacket;
 
     void checkUSBconnection()
@@ -53,7 +55,7 @@ namespace
                 usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::INTERNAL,
                                                      data,
                                                      2,
-                                                     BUFFER_SIZE_USB_OVER_SERIAL);
+                                                     2);
                 usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
 
                 lastConnectionState = newState;
@@ -85,7 +87,7 @@ namespace
         usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::INTERNAL,
                                              data,
                                              11,
-                                             BUFFER_SIZE_USB_OVER_SERIAL);
+                                             11);
         usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
     }
 
@@ -98,7 +100,7 @@ namespace
         usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::INTERNAL,
                                              data,
                                              1,
-                                             BUFFER_SIZE_USB_OVER_SERIAL);
+                                             1);
         usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
     }
 }    // namespace
@@ -115,7 +117,7 @@ int main()
             usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::MIDI,
                                                  &usbMIDIPacket[0],
                                                  4,
-                                                 BUFFER_SIZE_USB_OVER_SERIAL);
+                                                 4);
 
             if (usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet))
             {

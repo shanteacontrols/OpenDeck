@@ -144,7 +144,7 @@ namespace board
             usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::INTERNAL,
                                                  data,
                                                  1,
-                                                 BUFFER_SIZE_USB_OVER_SERIAL);
+                                                 1);
 
             while (1)
             {

@@ -28,10 +28,11 @@ limitations under the License.
 namespace
 {
     /// Holds the USB state received from USB link MCU
+    constexpr size_t                    READ_BUFFER_SIZE    = 16;
     bool                                _usbConnectionState = false;
     bool                                _uniqueIDReceived;
-    uint8_t                             _readBuffer[BUFFER_SIZE_USB_OVER_SERIAL];
-    board::usbOverSerial::USBReadPacket _readPacket(_readBuffer, BUFFER_SIZE_USB_OVER_SERIAL);
+    uint8_t                             _readBuffer[READ_BUFFER_SIZE];
+    board::usbOverSerial::USBReadPacket _readPacket(_readBuffer, READ_BUFFER_SIZE);
     core::mcu::uniqueID_t               _uidUSBDevice;
 }    // namespace
 
@@ -48,7 +49,7 @@ namespace board
             usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::INTERNAL,
                                                  data,
                                                  1,
-                                                 BUFFER_SIZE_USB_OVER_SERIAL);
+                                                 1);
 
             usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
 
@@ -83,7 +84,7 @@ namespace board
             usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::INTERNAL,
                                                  data,
                                                  1,
-                                                 BUFFER_SIZE_USB_OVER_SERIAL);
+                                                 1);
 
             usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
         }
@@ -102,7 +103,7 @@ namespace board
             usbOverSerial::USBWritePacket writePacket(usbOverSerial::packetType_t::MIDI,
                                                       &packet[0],
                                                       sizeof(packet),
-                                                      BUFFER_SIZE_USB_OVER_SERIAL);
+                                                      sizeof(packet));
 
             return usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, writePacket);
         }
@@ -138,7 +139,7 @@ namespace board
             usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::CDC,
                                                  buffer,
                                                  size,
-                                                 BUFFER_SIZE_USB_OVER_SERIAL);
+                                                 size);
 
             return usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
         }
@@ -148,7 +149,7 @@ namespace board
             usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::CDC,
                                                  &value,
                                                  1,
-                                                 BUFFER_SIZE_USB_OVER_SERIAL);
+                                                 1);
 
             return usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
         }
@@ -208,7 +209,7 @@ namespace board
             usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::INTERNAL,
                                                  data,
                                                  1,
-                                                 BUFFER_SIZE_USB_OVER_SERIAL);
+                                                 1);
 
             usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
         }
@@ -222,7 +223,7 @@ namespace board
             usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::INTERNAL,
                                                  data,
                                                  1,
-                                                 BUFFER_SIZE_USB_OVER_SERIAL);
+                                                 1);
 
             usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
         }

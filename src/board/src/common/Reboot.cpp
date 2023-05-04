@@ -47,7 +47,7 @@ namespace board
         usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::INTERNAL,
                                              data,
                                              sizeof(data),
-                                             BUFFER_SIZE_USB_OVER_SERIAL);
+                                             sizeof(data));
         usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
 #endif
 
