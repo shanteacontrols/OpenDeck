@@ -233,7 +233,7 @@ void Touchscreen::updateAll(bool forceRefresh)
         {
             uint32_t size = 0;
 
-            for (size = 0; size < BUFFER_SIZE_TSCREEN_CDC_PASSTHROUGH; size++)
+            for (size = 0; size < _txBuffer.size(); size++)
             {
                 uint8_t value;
 
@@ -249,7 +249,7 @@ void Touchscreen::updateAll(bool forceRefresh)
 
             if (size)
             {
-                _cdcPassthrough.cdcWrite(_txBuffer, size);
+                _cdcPassthrough.cdcWrite(&_txBuffer[0], size);
             }
         };
 
@@ -257,7 +257,7 @@ void Touchscreen::updateAll(bool forceRefresh)
         {
             size_t size = 0;
 
-            while (_cdcPassthrough.cdcRead(_rxBuffer, size, BUFFER_SIZE_TSCREEN_CDC_PASSTHROUGH))
+            while (_cdcPassthrough.cdcRead(&_rxBuffer[0], size, _rxBuffer.size()))
             {
                 for (size_t i = 0; i < size; i++)
                 {

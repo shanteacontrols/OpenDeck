@@ -164,6 +164,8 @@ namespace io
         static void registerModel(model_t model, Model* instance);
 
         private:
+        static constexpr size_t CDC_PASSTHROUGH_BUFFER_SIZE = 16;
+
         Model*                 modelInstance(model_t model);
         bool                   init(mode_t mode);
         bool                   deInit(mode_t mode);
@@ -182,12 +184,12 @@ namespace io
         HWA&                                                            _hwa;
         Database&                                                       _database;
         CDCPassthrough&                                                 _cdcPassthrough;
-        size_t                                                          _activeScreenID                                = 0;
-        bool                                                            _initialized                                   = false;
-        mode_t                                                          _mode                                          = mode_t::NORMAL;
-        model_t                                                         _activeModel                                   = model_t::AMOUNT;
-        uint8_t                                                         _txBuffer[BUFFER_SIZE_TSCREEN_CDC_PASSTHROUGH] = {};
-        uint8_t                                                         _rxBuffer[BUFFER_SIZE_TSCREEN_CDC_PASSTHROUGH] = {};
+        size_t                                                          _activeScreenID = 0;
+        bool                                                            _initialized    = false;
+        mode_t                                                          _mode           = mode_t::NORMAL;
+        model_t                                                         _activeModel    = model_t::AMOUNT;
+        std::array<uint8_t, CDC_PASSTHROUGH_BUFFER_SIZE>                _txBuffer       = {};
+        std::array<uint8_t, CDC_PASSTHROUGH_BUFFER_SIZE>                _rxBuffer       = {};
         static std::array<Model*, static_cast<size_t>(model_t::AMOUNT)> _models;
     };
 }    // namespace io
