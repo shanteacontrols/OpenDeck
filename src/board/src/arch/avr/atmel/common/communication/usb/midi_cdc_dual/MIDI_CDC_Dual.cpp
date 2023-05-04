@@ -19,7 +19,6 @@ limitations under the License.
 #ifdef PROJECT_TARGET_SUPPORT_USB
 #ifdef FW_APP
 
-#include <avr/pgmspace.h>
 #include "LUFA/Drivers/USB/USB.h"
 #include "board/src/common/communication/usb/descriptors/common/Common.h"
 #include "board/src/common/communication/usb/descriptors/midi_cdc_dual/Descriptors.h"
