@@ -23,8 +23,3 @@ endif
 ifeq ($(LOG), 1)
     DEFINES += USE_LOGGER
 endif
-
-ifneq (,$(findstring USE_TINYUSB,$(DEFINES)))
-    DEFINES += \
-    BOARD_USE_UPDATE_HOOKS
-endif
