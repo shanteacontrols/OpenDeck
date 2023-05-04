@@ -1,2 +1,0 @@
-CPPFLAGS += -flto
-LDFLAGS  += -flto

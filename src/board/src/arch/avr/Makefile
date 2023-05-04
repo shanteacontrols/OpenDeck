@@ -3,12 +3,14 @@ ifeq (,$(findstring gen,$(TYPE)))
     -fpack-struct
 
     CPPFLAGS += \
+    -flto \
     -mrelax \
     -funsigned-char \
     -funsigned-bitfields \
     -fno-jump-tables
 
     LDFLAGS += \
+    -flto \
     -mrelax
 endif
 
