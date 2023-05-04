@@ -21,7 +21,7 @@ limitations under the License.
 #include "util/conversion/Conversion.h"
 #include "messaging/Messaging.h"
 #include "util/configurable/Configurable.h"
-#include "logger/Logger.h"
+#include "util/logger/Logger.h"
 #include "global/MIDIProgram.h"
 
 using namespace io;

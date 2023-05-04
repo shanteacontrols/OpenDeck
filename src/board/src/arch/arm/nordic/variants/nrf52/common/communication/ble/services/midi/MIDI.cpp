@@ -26,7 +26,7 @@ limitations under the License.
 #include "app_util.h"
 #include "nrf_log.h"
 #include "nrf_sdh_ble.h"
-#include "logger/Logger.h"
+#include "util/logger/Logger.h"
 #include "core/util/RingBuffer.h"
 #include "core/ErrorHandler.h"
 

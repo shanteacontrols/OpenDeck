@@ -39,7 +39,7 @@ limitations under the License.
 #include "fds.h"
 #include "ble_config.h"
 #include "services/midi/MIDI.h"
-#include "logger/Logger.h"
+#include "util/logger/Logger.h"
 #include "core/ErrorHandler.h"
 #include <Target.h>
 

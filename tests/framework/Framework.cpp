@@ -2,7 +2,7 @@
 #include <Target.h>
 
 #ifdef USE_LOGGER
-#include "logger/Logger.h"
+#include "util/logger/Logger.h"
 
 class LoggerWriter : public Logger::StreamWriter
 {

@@ -28,7 +28,7 @@ ifeq (,$(findstring PROJECT_TARGET_USB_OVER_SERIAL_HOST,$(DEFINES)))
     stubs/Core.cpp \
     application/util/configurable/Configurable.cpp \
     application/util/scheduler/Scheduler.cpp \
-    application/logger/Logger.cpp
+    application/util/logger/Logger.cpp
 endif
 
 ifeq ($(CORE_MCU_ARCH),arm)
