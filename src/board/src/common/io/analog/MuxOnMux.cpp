@@ -54,11 +54,11 @@ namespace
     {
         CORE_MCU_IO_SET_STATE(PIN_PORT_MUX_CTRL_S0, PIN_INDEX_MUX_CTRL_S0, core::util::BIT_READ(_activeMux, 0));
         CORE_MCU_IO_SET_STATE(PIN_PORT_MUX_CTRL_S1, PIN_INDEX_MUX_CTRL_S1, core::util::BIT_READ(_activeMux, 1));
-#ifdef PIN_PORT_MUX_NODE_S2
-        CORE_MCU_IO_SET_STATE(PIN_PORT_MUX_NODE_S2, PIN_INDEX_MUX_NODE_S2, core::util::BIT_READ(_activeMux, 2));
+#ifdef PIN_PORT_MUX_CTRL_S2
+        CORE_MCU_IO_SET_STATE(PIN_PORT_MUX_CTRL_S2, PIN_INDEX_MUX_CTRL_S2, core::util::BIT_READ(_activeMux, 2));
 #endif
-#ifdef PIN_PORT_MUX_NODE_S3
-        CORE_MCU_IO_SET_STATE(PIN_PORT_MUX_NODE_S3, PIN_INDEX_MUX_NODE_S3, core::util::BIT_READ(_activeMux, 3));
+#ifdef PIN_PORT_MUX_CTRL_S3
+        CORE_MCU_IO_SET_STATE(PIN_PORT_MUX_CTRL_S3, PIN_INDEX_MUX_CTRL_S3, core::util::BIT_READ(_activeMux, 3));
 #endif
     }
 }    // namespace
