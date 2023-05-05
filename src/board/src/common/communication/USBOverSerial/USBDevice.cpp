@@ -21,7 +21,6 @@ limitations under the License.
 // simulated USB interface via UART - make this transparent to the application
 
 #include "board/src/Internal.h"
-#include "usb-link/Commands.h"
 #include "USBOverSerial.h"
 #include "core/MCU.h"
 
@@ -43,7 +42,7 @@ namespace board
         if (!_uniqueIDReceived)
         {
             uint8_t data[1] = {
-                static_cast<uint8_t>(usbLink::internalCMD_t::UNIQUE_ID),
+                static_cast<uint8_t>(usbOverSerial::internalCMD_t::UNIQUE_ID),
             };
 
             usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::INTERNAL,
@@ -53,14 +52,14 @@ namespace board
 
             usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
 
-            usbLink::internalCMD_t cmd;
+            usbOverSerial::internalCMD_t cmd;
 
             while (!detail::usb::readInternal(cmd))
             {
                 ;
             }
 
-            if (cmd == usbLink::internalCMD_t::UNIQUE_ID)
+            if (cmd == usbOverSerial::internalCMD_t::UNIQUE_ID)
             {
                 _uniqueIDReceived = true;
             }
@@ -78,7 +77,7 @@ namespace board
         void indicateFactoryReset()
         {
             uint8_t data[1] = {
-                static_cast<uint8_t>(usbLink::internalCMD_t::FACTORY_RESET),
+                static_cast<uint8_t>(usbOverSerial::internalCMD_t::FACTORY_RESET),
             };
 
             usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::INTERNAL,
@@ -126,7 +125,7 @@ namespace board
                 }
                 else
                 {
-                    usbLink::internalCMD_t cmd;
+                    usbOverSerial::internalCMD_t cmd;
                     board::detail::usb::checkInternal(cmd);
                 }
             }
@@ -171,7 +170,7 @@ namespace board
                     return true;
                 }
 
-                usbLink::internalCMD_t cmd;
+                usbOverSerial::internalCMD_t cmd;
                 board::detail::usb::checkInternal(cmd);
             }
 
@@ -190,7 +189,7 @@ namespace board
                     return true;
                 }
 
-                usbLink::internalCMD_t cmd;
+                usbOverSerial::internalCMD_t cmd;
                 board::detail::usb::checkInternal(cmd);
             }
 
@@ -203,7 +202,7 @@ namespace board
         void init()
         {
             uint8_t data[1] = {
-                static_cast<uint8_t>(usbLink::internalCMD_t::CONNECT_USB),
+                static_cast<uint8_t>(usbOverSerial::internalCMD_t::CONNECT_USB),
             };
 
             usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::INTERNAL,
@@ -217,7 +216,7 @@ namespace board
         void deInit()
         {
             uint8_t data[1] = {
-                static_cast<uint8_t>(usbLink::internalCMD_t::DISCONNECT_USB),
+                static_cast<uint8_t>(usbOverSerial::internalCMD_t::DISCONNECT_USB),
             };
 
             usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::INTERNAL,
@@ -228,7 +227,7 @@ namespace board
             usbOverSerial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
         }
 
-        bool checkInternal(usbLink::internalCMD_t& cmd)
+        bool checkInternal(usbOverSerial::internalCMD_t& cmd)
         {
             bool validCmd = true;
 
@@ -236,13 +235,13 @@ namespace board
             {
                 switch (_readPacket[0])
                 {
-                case static_cast<uint8_t>(usbLink::internalCMD_t::USB_STATE):
+                case static_cast<uint8_t>(usbOverSerial::internalCMD_t::USB_STATE):
                 {
                     _usbConnectionState = _readPacket[1];
                 }
                 break;
 
-                case static_cast<uint8_t>(usbLink::internalCMD_t::BAUDRATE_CHANGE):
+                case static_cast<uint8_t>(usbOverSerial::internalCMD_t::BAUDRATE_CHANGE):
                 {
                     uint32_t baudRate = 0;
 
@@ -258,7 +257,7 @@ namespace board
                 }
                 break;
 
-                case static_cast<uint8_t>(usbLink::internalCMD_t::UNIQUE_ID):
+                case static_cast<uint8_t>(usbOverSerial::internalCMD_t::UNIQUE_ID):
                 {
                     for (size_t i = 0; i < CORE_MCU_UID_BITS / 8; i++)
                     {
@@ -267,13 +266,13 @@ namespace board
                 }
                 break;
 
-                case static_cast<uint8_t>(usbLink::internalCMD_t::DISCONNECT_USB):
+                case static_cast<uint8_t>(usbOverSerial::internalCMD_t::DISCONNECT_USB):
                 {
                     board::usb::deInit();
                 }
                 break;
 
-                case static_cast<uint8_t>(usbLink::internalCMD_t::LINK_READY):
+                case static_cast<uint8_t>(usbOverSerial::internalCMD_t::LINK_READY):
                 {
                     // nothing to do
                 }
@@ -288,7 +287,7 @@ namespace board
 
                 if (validCmd)
                 {
-                    cmd = static_cast<usbLink::internalCMD_t>(_readPacket[0]);
+                    cmd = static_cast<usbOverSerial::internalCMD_t>(_readPacket[0]);
                 }
 
                 _readPacket.reset();
@@ -297,7 +296,7 @@ namespace board
             return validCmd;
         }
 
-        bool readInternal(usbLink::internalCMD_t& cmd)
+        bool readInternal(usbOverSerial::internalCMD_t& cmd)
         {
             if (usbOverSerial::read(PROJECT_TARGET_UART_CHANNEL_USB_LINK, _readPacket))
             {

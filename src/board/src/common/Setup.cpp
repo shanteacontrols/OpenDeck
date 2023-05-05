@@ -135,10 +135,10 @@ namespace board
 #ifdef PROJECT_TARGET_USB_OVER_SERIAL_DEVICE
         void waitUsbLink()
         {
-            usbLink::internalCMD_t cmd;
+            usbOverSerial::internalCMD_t cmd;
 
             uint8_t data[1] = {
-                static_cast<uint8_t>(usbLink::internalCMD_t::LINK_READY),
+                static_cast<uint8_t>(usbOverSerial::internalCMD_t::LINK_READY),
             };
 
             usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::INTERNAL,
@@ -152,7 +152,7 @@ namespace board
 
                 if (detail::usb::readInternal(cmd))
                 {
-                    if (cmd == usbLink::internalCMD_t::LINK_READY)
+                    if (cmd == usbOverSerial::internalCMD_t::LINK_READY)
                     {
                         break;
                     }

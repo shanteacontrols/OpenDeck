@@ -18,7 +18,6 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/src/common/communication/USBOverSerial/USBOverSerial.h"
-#include "Commands.h"
 #include "core/Timing.h"
 #include "core/MCU.h"
 #include "protocol/midi/MIDI.h"
@@ -43,12 +42,13 @@ namespace
 
         if (core::timing::ms() - lastCheckTime > USB_CONN_CHECK_TIME)
         {
+            using namespace board;
             bool newState = usb::isUSBconnected();
 
             if (lastConnectionState != newState)
             {
                 uint8_t data[2] = {
-                    static_cast<uint8_t>(usbLink::internalCMD_t::USB_STATE),
+                    static_cast<uint8_t>(usbOverSerial::internalCMD_t::USB_STATE),
                     newState,
                 };
 
@@ -67,11 +67,12 @@ namespace
 
     void sendUniqueID()
     {
+        using namespace board;
         core::mcu::uniqueID_t uniqueID;
         core::mcu::uniqueID(uniqueID);
 
         uint8_t data[11] = {
-            static_cast<uint8_t>(usbLink::internalCMD_t::UNIQUE_ID),
+            static_cast<uint8_t>(usbOverSerial::internalCMD_t::UNIQUE_ID),
             uniqueID[0],
             uniqueID[1],
             uniqueID[2],
@@ -93,8 +94,9 @@ namespace
 
     void sendLinkReady()
     {
+        using namespace board;
         uint8_t data[1] = {
-            static_cast<uint8_t>(usbLink::internalCMD_t::LINK_READY),
+            static_cast<uint8_t>(usbOverSerial::internalCMD_t::LINK_READY),
         };
 
         usbOverSerial::USBWritePacket packet(usbOverSerial::packetType_t::INTERNAL,
@@ -144,11 +146,12 @@ int main()
             }
             else if (readPacket.type() == usbOverSerial::packetType_t::INTERNAL)
             {
-                auto cmd = static_cast<usbLink::internalCMD_t>(readPacket[0]);
+                using namespace board;
+                auto cmd = static_cast<usbOverSerial::internalCMD_t>(readPacket[0]);
 
                 switch (cmd)
                 {
-                case usbLink::internalCMD_t::REBOOT_BTLDR:
+                case usbOverSerial::internalCMD_t::REBOOT_BTLDR:
                 {
                     // use received data as the magic bootloader value
                     uint32_t magicVal = readPacket[1];
@@ -164,13 +167,13 @@ int main()
                 }
                 break;
 
-                case usbLink::internalCMD_t::DISCONNECT_USB:
+                case usbOverSerial::internalCMD_t::DISCONNECT_USB:
                 {
                     board::usb::deInit();
                 }
                 break;
 
-                case usbLink::internalCMD_t::CONNECT_USB:
+                case usbOverSerial::internalCMD_t::CONNECT_USB:
                 {
                     if (!usb::isUSBconnected())
                     {
@@ -179,19 +182,19 @@ int main()
                 }
                 break;
 
-                case usbLink::internalCMD_t::UNIQUE_ID:
+                case usbOverSerial::internalCMD_t::UNIQUE_ID:
                 {
                     sendUniqueID();
                 }
                 break;
 
-                case usbLink::internalCMD_t::LINK_READY:
+                case usbOverSerial::internalCMD_t::LINK_READY:
                 {
                     sendLinkReady();
                 }
                 break;
 
-                case usbLink::internalCMD_t::FACTORY_RESET:
+                case usbOverSerial::internalCMD_t::FACTORY_RESET:
                 {
                     board::io::indicators::indicateFactoryReset();
                 }

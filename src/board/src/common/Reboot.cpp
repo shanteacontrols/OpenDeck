@@ -22,7 +22,6 @@ limitations under the License.
 #include "core/MCU.h"
 #ifdef PROJECT_TARGET_USB_OVER_SERIAL
 #include "board/src/common/communication/USBOverSerial/USBOverSerial.h"
-#include "usb-link/Commands.h"
 #endif
 
 namespace board
@@ -37,7 +36,7 @@ namespace board
         uint32_t magicVal = board::bootloader::magicBootValue();
 
         uint8_t data[5] = {
-            static_cast<uint8_t>(usbLink::internalCMD_t::REBOOT_BTLDR),
+            static_cast<uint8_t>(usbOverSerial::internalCMD_t::REBOOT_BTLDR),
             static_cast<uint8_t>(magicVal >> 24 & 0xFF),
             static_cast<uint8_t>(magicVal >> 16 & 0xFF),
             static_cast<uint8_t>(magicVal >> 8 & 0xFF),

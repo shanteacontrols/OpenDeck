@@ -33,6 +33,18 @@ namespace board::usbOverSerial
         CDC,         ///< CDC packet in OpenDeck format.
     };
 
+    enum class internalCMD_t : uint8_t
+    {
+        REBOOT_BTLDR,
+        USB_STATE,
+        BAUDRATE_CHANGE,
+        UNIQUE_ID,
+        DISCONNECT_USB,
+        CONNECT_USB,
+        LINK_READY,
+        FACTORY_RESET
+    };
+
     class USBPacketBase
     {
         public:

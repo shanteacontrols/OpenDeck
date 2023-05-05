@@ -22,7 +22,7 @@ limitations under the License.
 #include <inttypes.h>
 #include "board/Board.h"
 #ifdef PROJECT_TARGET_USB_OVER_SERIAL
-#include "usb-link/Commands.h"
+#include "board/src/common/communication/USBOverSerial/USBOverSerial.h"
 #endif
 #include "core/MCU.h"
 
@@ -61,13 +61,13 @@ namespace board::detail
         /// received data is internal packet.
         /// param [in,out] cmd  Reference to variable in which read internal command is stored.
         /// returns True if internal command is read, false otherwise.
-        bool readInternal(usbLink::internalCMD_t& cmd);
+        bool readInternal(usbOverSerial::internalCMD_t& cmd);
 
         /// Reads the buffered data already received from UART channel on which USB host is located and checks if
         /// received data is internal packet.
         /// param [in,out] cmd  Reference to variable in which read internal command is stored.
         /// returns True if internal command is read, false otherwise.
-        bool checkInternal(usbLink::internalCMD_t& cmd);
+        bool checkInternal(usbOverSerial::internalCMD_t& cmd);
 #endif
 
         const void* cfgDescriptor(uint16_t* size);
