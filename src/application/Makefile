@@ -31,8 +31,8 @@ ASFLAGS += \
 LDFLAGS += \
 -Wl,--gc-sections \
 -Wl,-Map="$(OUTPUT).map",--cref \
--Xlinker --defsym=CORE_MCU_FLASH_START_ADDR_USER=$(FLASH_START_ADDR) \
--Xlinker --defsym=CORE_MCU_FLASH_SIZE_USER=$(CORE_MCU_FLASH_SIZE_USER) \
+-Xlinker --defsym=CORE_MCU_FLASH_START_ADDR_USER=$(PROJECT_MCU_FLASH_ADDR_APP_START) \
+-Xlinker --defsym=CORE_MCU_FLASH_SIZE_USER=$(PROJECT_MCU_FLASH_APP_SIZE) \
 -Wl,--print-memory-usage
 
 # Optimization level
@@ -75,5 +75,3 @@ else
 endif
 
 DEFINES += FW_APP
-FLASH_START_ADDR := $(PROJECT_MCU_FLASH_ADDR_APP_START)
-CORE_MCU_FLASH_SIZE_USER := $(PROJECT_MCU_FLASH_APP_SIZE)

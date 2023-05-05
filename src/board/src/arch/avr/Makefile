@@ -9,7 +9,6 @@ ifeq (,$(findstring gen,$(TYPE)))
     -fno-jump-tables
 
     LDFLAGS += \
-    -Wl,--section-start=.text=$(FLASH_START_ADDR) \
     -mrelax
 endif
 
