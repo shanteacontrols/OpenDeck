@@ -18,16 +18,4 @@ limitations under the License.
 
 #pragma once
 
-enum usbStringDescriptors_t
-{
-    USB_STRING_ID_LANGUAGE     = 0,
-    USB_STRING_ID_MANUFACTURER = 1,
-    USB_STRING_ID_PRODUCT      = 2,
-    USB_STRING_ID_UID          = 3
-};
-
-#ifdef FW_APP
-#define PROJECT_TARGET_USB_NAME CORE_MCU_USB_STRING("OpenDeck | " PROJECT_TARGET_NAME)
-#else
-#define PROJECT_TARGET_USB_NAME CORE_MCU_USB_STRING("OpenDeck DFU | " PROJECT_TARGET_NAME)
-#endif
+#define PROJECT_TARGET_BLE_NAME "OpenDeck BLE | " PROJECT_TARGET_NAME

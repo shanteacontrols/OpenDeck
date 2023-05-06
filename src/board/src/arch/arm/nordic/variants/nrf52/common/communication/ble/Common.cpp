@@ -41,7 +41,7 @@ limitations under the License.
 #include "services/midi/MIDI.h"
 #include "util/logger/Logger.h"
 #include "core/ErrorHandler.h"
-#include <Target.h>
+#include "Common.h"
 
 namespace
 {

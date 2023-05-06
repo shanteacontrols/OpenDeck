@@ -3,20 +3,11 @@
 if [[ $($yaml_parser "$yaml_file" usb) == "true" ]]
 then
     printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_USB" >> "$out_makefile"
-
-    {
-        printf "%s\n" "#if defined(FW_APP)"
-        printf "%s\n" "#define PROJECT_TARGET_USB_NAME CORE_MCU_USB_STRING(\"$project | $target_name_string\")"
-        printf "%s\n" "#elif defined(FW_BOOT)"
-        printf "%s\n" "#define PROJECT_TARGET_USB_NAME CORE_MCU_USB_STRING(\"$project DFU | $target_name_string\")"
-        printf "%s\n" "#endif"
-    } >> "$out_header"
 fi
 
 if [[ $($yaml_parser "$yaml_file" ble) == "true" ]]
 then
     printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_BLE" >> "$out_makefile"
-    printf "%s\n" "#define PROJECT_TARGET_BLE_NAME \"$project BLE | $target_name_string\"" >> "$out_header"
 fi
 
 if [[ "$($yaml_parser "$yaml_file" uart)" != "null" ]]
