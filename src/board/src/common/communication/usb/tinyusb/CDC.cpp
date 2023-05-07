@@ -17,7 +17,7 @@ limitations under the License.
 */
 
 #ifdef PROJECT_TARGET_SUPPORT_USB
-#ifdef USE_TINYUSB
+#ifdef BOARD_USE_TINYUSB
 #ifdef FW_APP
 
 #include "board/Board.h"
