@@ -37,8 +37,6 @@
       cdc:
         tx: 2048
         rx: 2048
-  include-dirs:
-    - "src/board/src/common/communication/usb/tinyusb"
   uart:
     buffers:
       tx: 128

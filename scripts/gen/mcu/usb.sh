@@ -15,6 +15,13 @@ then
             printf "%s\n" "PROJECT_MCU_DEFINES += PROJECT_MCU_USB_ENDPOINT_SIZE_CDC_IN_OUT=$usb_endpoint_size_cdc_in_out"
             printf "%s\n" "PROJECT_MCU_DEFINES += PROJECT_MCU_USB_ENDPOINT_SIZE_CDC_NOTIFICATION=$usb_endpoint_size_cdc_notification"
         } >> "$out_makefile"
+
+        # tinyusb only
+        {
+            printf "%s\n" "PROJECT_MCU_DEFINES += CFG_TUD_ENDPOINT0_SIZE=$usb_endpoint_size_control"
+            printf "%s\n" "PROJECT_MCU_DEFINES += CFG_TUD_MIDI_EP_BUFSIZE=$usb_endpoint_size_midi_in_out"
+            printf "%s\n" "PROJECT_MCU_DEFINES += CFG_TUD_CDC_EP_BUFSIZE=$usb_endpoint_size_cdc_in_out"
+        } >> "$out_makefile"
     fi
 
     if [[ $($yaml_parser "$project_yaml_file" usb.endpoints.midi) != "null" ]]
@@ -57,6 +64,14 @@ then
             printf "%s\n" "PROJECT_MCU_DEFINES += PROJECT_MCU_USB_BUFFER_SIZE_MIDI_RX=$usb_buffer_midi_rx"
             printf "%s\n" "PROJECT_MCU_DEFINES += PROJECT_MCU_USB_BUFFER_SIZE_CDC_TX=$usb_buffer_cdc_tx"
             printf "%s\n" "PROJECT_MCU_DEFINES += PROJECT_MCU_USB_BUFFER_SIZE_CDC_RX=$usb_buffer_cdc_rx"
+        } >> "$out_makefile"
+
+        # tinyusb only
+        {
+            printf "%s\n" "PROJECT_MCU_DEFINES += CFG_TUD_MIDI_TX_BUFSIZE=$usb_buffer_midi_tx"
+            printf "%s\n" "PROJECT_MCU_DEFINES += CFG_TUD_MIDI_RX_BUFSIZE=$usb_buffer_midi_rx"
+            printf "%s\n" "PROJECT_MCU_DEFINES += CFG_TUD_CDC_TX_BUFSIZE=$usb_buffer_cdc_tx"
+            printf "%s\n" "PROJECT_MCU_DEFINES += CFG_TUD_CDC_RX_BUFSIZE=$usb_buffer_cdc_rx"
         } >> "$out_makefile"
     fi
 fi
