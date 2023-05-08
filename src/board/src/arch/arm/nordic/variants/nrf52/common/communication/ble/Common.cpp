@@ -37,7 +37,7 @@ limitations under the License.
 #include "ble_conn_params.h"
 #include "nrf_nvmc.h"
 #include "fds.h"
-#include "ble_config.h"
+#include "Config.h"
 #include "services/midi/MIDI.h"
 #include "util/logger/Logger.h"
 #include "core/ErrorHandler.h"
