@@ -41,8 +41,6 @@
   ble:
     buffers:
       midi: 128
-  include-dirs:
-    - "src/board/src/arch/arm/nordic/variants/nrf52/common"
   define-symbols:
     - "NRF_SDH_BLE_GATT_MAX_MTU_SIZE=131"
   uart:
