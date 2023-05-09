@@ -1,21 +1,13 @@
 #include "Framework.h"
+#include "util/logger/Logger.h"
 #include <Target.h>
 
-#ifdef USE_LOGGER
-#include "util/logger/Logger.h"
-
-class LoggerWriter : public Logger::StreamWriter
-{
-    public:
-    LoggerWriter() = default;
-
-    bool write(const char* message) override
-    {
-        std::cout << message;
-        return true;
-    }
-} _loggerWriter;
-Logger logger = Logger(_loggerWriter, Logger::lineEnding_t::CRLF);
+#ifdef APP_USE_LOGGER
+CORE_LOGGER_CREATE(APP_LOGGER, [](const char* message)
+                   {
+                       std::cout << message;
+                       return true;
+                   });
 #endif
 
 namespace

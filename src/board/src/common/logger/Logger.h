@@ -19,14 +19,15 @@ limitations under the License.
 #pragma once
 
 #include "core/util/Logger.h"
+#include "board/Board.h"
 
-#ifdef APP_USE_LOGGER
+#ifdef BOARD_USE_LOGGER
 #ifdef FW_APP
-CORE_LOGGER_DECLARE(APP_LOGGER, LOGGER_BUFFER_SIZE);
+CORE_LOGGER_DECLARE(BOARD_LOGGER, LOGGER_BUFFER_SIZE);
 
-#define LOG_INFO(...)  CORE_LOG_INFO(APP_LOGGER, __VA_ARGS__)
-#define LOG_WARN(...)  CORE_LOG_WARN(APP_LOGGER, __VA_ARGS__)
-#define LOG_ERROR(...) CORE_LOG_ERROR(APP_LOGGER, __VA_ARGS__)
+#define LOG_INFO(...)  CORE_LOG_INFO(BOARD_LOGGER, __VA_ARGS__)
+#define LOG_WARN(...)  CORE_LOG_WARN(BOARD_LOGGER, __VA_ARGS__)
+#define LOG_ERROR(...) CORE_LOG_ERROR(BOARD_LOGGER, __VA_ARGS__)
 #else
 #define LOG_INFO(...)
 #define LOG_WARN(...)

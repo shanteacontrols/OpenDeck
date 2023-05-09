@@ -39,7 +39,7 @@ limitations under the License.
 #include "fds.h"
 #include "Config.h"
 #include "services/midi/MIDI.h"
-#include "util/logger/Logger.h"
+#include "board/src/common/logger/Logger.h"
 #include "core/ErrorHandler.h"
 #include "Common.h"
 

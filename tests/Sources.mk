@@ -27,8 +27,7 @@ ifeq (,$(findstring PROJECT_TARGET_USB_OVER_SERIAL_HOST,$(DEFINES)))
     modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c \
     stubs/Core.cpp \
     application/util/configurable/Configurable.cpp \
-    application/util/scheduler/Scheduler.cpp \
-    application/util/logger/Logger.cpp
+    application/util/scheduler/Scheduler.cpp
 endif
 
 ifeq ($(CORE_MCU_ARCH),arm)

@@ -1,6 +1,6 @@
 /*
 
-Copyright 2015-2022 Igor Petrovic
+Copyright 2015-2023 Igor Petrovic
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,24 +16,15 @@ limitations under the License.
 
 */
 
-#pragma once
-
-#include "core/util/Logger.h"
-
-#ifdef APP_USE_LOGGER
+#ifdef BOARD_USE_LOGGER
 #ifdef FW_APP
-CORE_LOGGER_DECLARE(APP_LOGGER, LOGGER_BUFFER_SIZE);
 
-#define LOG_INFO(...)  CORE_LOG_INFO(APP_LOGGER, __VA_ARGS__)
-#define LOG_WARN(...)  CORE_LOG_WARN(APP_LOGGER, __VA_ARGS__)
-#define LOG_ERROR(...) CORE_LOG_ERROR(APP_LOGGER, __VA_ARGS__)
-#else
-#define LOG_INFO(...)
-#define LOG_WARN(...)
-#define LOG_ERROR(...)
+#include <string.h>
+#include "Logger.h"
+
+CORE_LOGGER_CREATE(BOARD_LOGGER, [](const char* message)
+                   {
+                       return board::usb::writeCDC((uint8_t*)&message[0], strlen(message));
+                   });
 #endif
-#else
-#define LOG_INFO(...)
-#define LOG_WARN(...)
-#define LOG_ERROR(...)
 #endif
