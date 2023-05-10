@@ -1,6 +1,5 @@
-vpath application/%.cpp ../src
-vpath bootloader/%.cpp ../src
-vpath common/%.cpp ../src
+vpath application/%.cpp ../src/firmware
+vpath bootloader/%.cpp ../src/firmware/
 
 ifeq (,$(findstring PROJECT_TARGET_USB_OVER_SERIAL_HOST,$(DEFINES)))
     SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) := \

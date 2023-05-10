@@ -45,13 +45,13 @@ ifeq ($(DEBUG), 1)
 endif
 
 INCLUDE_DIRS += \
--I"application/"
+-I"firmware/application/"
 
 ifneq (,$(findstring PROJECT_TARGET_USB_OVER_SERIAL_HOST,$(DEFINES)))
     # FW for USB hosts uses different set of sources than other targets
-    SOURCES += $(shell find usb-link -type f -name "*.cpp")
+    SOURCES += $(shell find firmware/usb-link -type f -name "*.cpp")
 else
-    SOURCES += $(shell $(FIND) application -type f -not -path "*$(GENERATED_SUBDIR_BASE)*" -regex '.*\.\(s\|c\|cpp\)')
+    SOURCES += $(shell $(FIND) firmware/application -type f -not -path "*$(GENERATED_SUBDIR_BASE)*" -regex '.*\.\(s\|c\|cpp\)')
     SOURCES += $(shell $(FIND) $(APPLICATION_GEN_DIR_TARGET) -type f -regex '.*\.\(s\|c\|cpp\)')
     SOURCES += $(shell $(FIND) ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
     SOURCES += $(shell $(FIND) ../modules/midi/src -type f -name "*.cpp" | sed "s|^\.\./||")

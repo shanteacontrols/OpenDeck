@@ -17,16 +17,16 @@ endif
 INCLUDE_DIRS := $(filter-out %avr-libstdcpp/include",$(INCLUDE_DIRS))
 
 INCLUDE_DIRS += \
--I"application"
+-I"firmware/application"
 
 SOURCES :=
 
 ifeq ($(CORE_MCU_ARCH),arm)
-    SOURCES += $(shell $(FIND) application/database -type f -name "*.cpp")
+    SOURCES += $(shell $(FIND) firmware/application/database -type f -name "*.cpp")
     SOURCES += $(shell $(FIND) ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
     SOURCES += $(TSCREEN_GEN_SOURCE)
-    SOURCES += application/util/configurable/Configurable.cpp
-    SOURCES += flashgen/main.cpp
+    SOURCES += firmware/application/util/configurable/Configurable.cpp
+    SOURCES += tools/flashgen/main.cpp
     SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
 endif
 

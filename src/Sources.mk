@@ -5,7 +5,7 @@ vpath modules/%.S ../
 
 # Common include dirs
 INCLUDE_DIRS += \
--I"./" \
+-I"firmware" \
 -I"$(MCU_GEN_DIR)" \
 -I"$(TARGET_GEN_DIR)/" \
 -I"../modules/" \

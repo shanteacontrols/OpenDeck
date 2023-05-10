@@ -1,8 +1,9 @@
 # Important - do not change the order of inclusion!
 include Toolchain.mk
 include Setup.mk
--include board/Makefile
--include $(TYPE)/Makefile
+-include firmware/board/Makefile
+-include firmware/$(TYPE)/Makefile
+-include tools/$(TYPE)/Makefile
 include Defines.mk
 include Sources.mk
 -include flashing/$(FLASH_TOOL).mk
@@ -134,7 +135,7 @@ $(TSCREEN_GEN_SOURCE): $(DEF_FILE_TSCREEN)
 	$(Q)$(SCRIPTS_DIR)/gen/gen_touchscreen.sh $< $@
 
 ifeq ($(CORE_MCU_ARCH),arm)
-$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin: $(DEF_FILE_TARGET) $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/application/application/database/Database.cpp.o $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/application/application/database/CustomInit.cpp.o
+$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin: $(DEF_FILE_TARGET) $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/application/firmware/application/database/Database.cpp.o $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/application/firmware/application/database/CustomInit.cpp.o
 	$(Q)$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/$(TARGET).elf $@
 else
 $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin:
@@ -194,8 +195,8 @@ clean:
 	@echo Cleaning up.
 	@rm -rf \
 	$(BUILD_DIR_BASE) \
-	$(TARGET_GEN_DIR_BASE) \
 	$(MCU_GEN_DIR_BASE) \
+	$(TARGET_GEN_DIR_BASE) \
 	$(APPLICATION_GEN_DIR_BASE) \
 	compile_commands.json
 

@@ -1,5 +1,4 @@
-vpath application/%.cpp ../src
-vpath common/%.cpp ../src
+vpath application/%.cpp ../src/firmware
 vpath modules/%.cpp ../
 vpath modules/%.c ../
 
@@ -41,10 +40,10 @@ INCLUDE_DIRS_COMMON := \
 -I"../modules/" \
 -I"../modules/core/src" \
 -I"../modules/EmuEEPROM/include" \
--I"../src/" \
--I"../src/bootloader/" \
--I"../src/application/" \
--I"../src/board/include" \
--I"../src/board/src/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)" \
+-I"../src/firmware" \
+-I"../src/firmware/bootloader/" \
+-I"../src/firmware/application/" \
+-I"../src/firmware/board/include" \
+-I"../src/firmware/board/src/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)" \
 -I"$(MCU_GEN_DIR)" \
 -I"$(TARGET_GEN_DIR)"

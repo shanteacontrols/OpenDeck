@@ -1,5 +1,4 @@
-vpath application/%.cpp ../src
-vpath common/%.cpp ../src
+vpath application/%.cpp ../src/firmware
 vpath modules/%.cpp ../
 
 ifeq (,$(findstring PROJECT_TARGET_USB_OVER_SERIAL_HOST,$(DEFINES)))

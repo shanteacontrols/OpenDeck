@@ -3,11 +3,11 @@
 include ../src/Toolchain.mk
 include ../src/Setup.mk
 -include $(TARGET_GEN_DIR)/Makefile
--include ../src/board/src/arch/$(CORE_MCU_ARCH)/Makefile
--include ../src/board/src/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/Makefile
--include ../src/board/src/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/Makefile
--include ../src/board/src/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/$(CORE_MCU_MODEL)/Makefile
--include ../src/$(TYPE)/Makefile
+-include ../src/firmware/board/src/arch/$(CORE_MCU_ARCH)/Makefile
+-include ../src/firmware/board/src/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/Makefile
+-include ../src/firmware/board/src/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/Makefile
+-include ../src/firmware/board/src/arch/$(CORE_MCU_ARCH)/$(CORE_MCU_VENDOR)/variants/$(CORE_MCU_FAMILY)/$(CORE_MCU_MODEL)/Makefile
+-include ../src/firmware/$(TYPE)/Makefile
 include ../src/Defines.mk
 include Setup.mk
 -include $(TARGET_GEN_DIR)/HWTestDefines.mk

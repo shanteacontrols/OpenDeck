@@ -45,11 +45,11 @@ ifeq ($(DEBUG), 1)
 endif
 
 INCLUDE_DIRS += \
--I"application" \
--I"bootloader/"
+-I"firmware/application" \
+-I"firmware/bootloader/"
 
 ifneq (,$(findstring PROJECT_MCU_SUPPORT_BOOTLOADER,$(DEFINES)))
-    SOURCES += $(shell find bootloader -type f -name "*.cpp")
+    SOURCES += $(shell find firmware/bootloader -type f -name "*.cpp")
     DEFINES += FW_BOOT
 else
     SOURCES :=
