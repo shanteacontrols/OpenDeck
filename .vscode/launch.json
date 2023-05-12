@@ -36,7 +36,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/src/build/flashgen.elf",
             "args": [
-                "${workspaceFolder}/src/build/generated_flash.bin"
+                "${workspaceFolder}/src/build/generated_flash"
             ],
             "stopAtEntry": true,
             "environment": [],

@@ -127,8 +127,9 @@ namespace
         bool writeToFile()
         {
             std::fstream file;
+            std::string  BIN_SUFFIX = ".bin";
 
-            file.open(_filename.c_str(), std::ios::trunc | std::ios::in | std::ios::out | std::ios::binary);
+            file.open(std::string(_filename + BIN_SUFFIX).c_str(), std::ios::trunc | std::ios::in | std::ios::out | std::ios::binary);
             file.unsetf(std::ios::skipws);
 
             if (file.is_open())
@@ -166,27 +167,23 @@ namespace
                 return false;
             }
 
-            _filename += "_offset";
+            // convert to hex
+            std::string cmd = "srec_cat " +
+                              _filename +
+                              BIN_SUFFIX +
+                              " -binary -offset " +
+                              std::to_string(CORE_MCU_FLASH_PAGE_ADDR(PROJECT_MCU_FLASH_PAGE_FACTORY)) +
+                              " -o " +
+                              _filename +
+                              " -Intel";
 
-            // also create a file containing the offset at which to write generated flash
-            file.open(_filename.c_str(), std::ios::trunc | std::ios::out);
-
-            if (file.is_open())
-            {
-                file << CORE_MCU_FLASH_PAGE_ADDR(PROJECT_MCU_FLASH_PAGE_FACTORY);
-                file.close();
-
-                return true;
-            }
-
-            return false;
+            return system(cmd.c_str()) == 0;
         }
 
         private:
         std::array<std::array<uint8_t, EMU_EEPROM_PAGE_SIZE>, 2> _pageArray;
         std::string                                              _filename;
         EmuEEPROM::page_t                                        _activePageWrite = EmuEEPROM::page_t::PAGE_1;
-
     } _emuEEPROMstorage;
 
     EmuEEPROM _emuEEPROM(_emuEEPROMstorage, false);

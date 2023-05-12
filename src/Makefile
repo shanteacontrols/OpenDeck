@@ -55,7 +55,7 @@ all:
 	$(MAKE) --no-print-directory TARGET=$(TARGET) DEBUG=$(DEBUG) post-build V=$(V); \
 	fi
 
-concat: $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin
+concat: $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.hex
 	$(Q)mkdir -p $(BUILD_DIR)
 # If PROJECT_MCU_DATABASE_INIT_DATA is set to 1, DB data will be initialized in firmware.
 # Otherwise, initial DB data is read from generated binary file appended
@@ -75,27 +75,21 @@ endif
 	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/application/$(TARGET).hex -Intel \
 	-o $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex
 else
-# Define FACTORY_IMAGE_START_ADDR variable as shell variable instead of make variable:
-# when this recipe is started, generated_flash.bin_offset doesn't exist yet, so make will
-# complain that it cannot find it if it were defined like this: $(shell cat $(BUILD_DIR_BASE)/flashgen/$(TARGET)/release/generated_flash.bin_offset).
 ifneq (,$(findstring PROJECT_MCU_SUPPORT_BOOTLOADER,$(DEFINES)))
-	$(Q)FACTORY_IMAGE_START_ADDR=$$(cat $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin_offset) && \
-	srec_cat \
+	$(Q)srec_cat \
 	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/bootloader/$(TARGET).hex -Intel \
 	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/application/$(TARGET).hex -Intel \
-	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
+	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.hex -Intel \
 	-o $(BUILD_DIR)/$(TARGET).hex -Intel
 else
-	$(Q)FACTORY_IMAGE_START_ADDR=$$(cat $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin_offset) && \
-	srec_cat \
+	$(Q)srec_cat \
 	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/application/$(TARGET).hex -Intel \
-	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
+	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.hex -Intel \
 	-o $(BUILD_DIR)/$(TARGET).hex -Intel
 endif
-	$(Q)FACTORY_IMAGE_START_ADDR=$$(cat $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin_offset) && \
-	srec_cat \
+	$(Q)srec_cat \
 	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/application/$(TARGET).hex -Intel \
-	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
+	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.hex -Intel \
 	-o $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex
 endif
 	$(Q)objcopy -I ihex "$(BUILD_DIR)/$(TARGET).hex" --gap-fill 0xFF -O binary "$(BUILD_DIR)/$(TARGET).bin"
@@ -135,10 +129,10 @@ $(TSCREEN_GEN_SOURCE): $(DEF_FILE_TSCREEN)
 	$(Q)$(SCRIPTS_DIR)/gen/gen_touchscreen.sh $< $@
 
 ifeq ($(CORE_MCU_ARCH),arm)
-$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin: $(DEF_FILE_TARGET) $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/application/firmware/application/database/Database.cpp.o $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/application/firmware/application/database/CustomInit.cpp.o
+$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.hex: $(DEF_FILE_TARGET) $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/application/firmware/application/database/Database.cpp.o $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/application/firmware/application/database/CustomInit.cpp.o
 	$(Q)$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/$(TARGET).elf $@
 else
-$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.bin:
+$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.hex:
 # Just create dummy binary
 	$(Q)mkdir -p $(@D)
 	$(Q)touch $@
