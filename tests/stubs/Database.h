@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef EMUEEPROM_INCLUDE_CONFIG
+#if __has_include(<EmuEEPROMConfig.h>)
 #include "EmuEEPROM/EmuEEPROM.h"
 #endif
 #include "database/Layout.h"
@@ -14,7 +14,7 @@ class DBstorageMock : public ::sys::Builder::HWA::Database
 
     bool init() override
     {
-#ifdef EMUEEPROM_INCLUDE_CONFIG
+#if __has_include(<EmuEEPROMConfig.h>)
         _emuEEPROM.init();
 #endif
         return true;
@@ -22,7 +22,7 @@ class DBstorageMock : public ::sys::Builder::HWA::Database
 
     uint32_t size() override
     {
-#ifdef EMUEEPROM_INCLUDE_CONFIG
+#if __has_include(<EmuEEPROMConfig.h>)
         return _emuEEPROM.maxAddress();
 #else
         return _memoryArray.size();
@@ -31,17 +31,50 @@ class DBstorageMock : public ::sys::Builder::HWA::Database
 
     bool clear() override
     {
-#ifndef EMUEEPROM_INCLUDE_CONFIG
+#if __has_include(<EmuEEPROMConfig.h>)
+        return _emuEEPROM.format();
+#else
         std::fill(_memoryArray.begin(), _memoryArray.end(), 0x00);
         return true;
-#else
-        return _emuEEPROM.format();
 #endif
     }
 
     bool read(uint32_t address, uint32_t& value, LESSDB::sectionParameterType_t type) override
     {
-#ifndef EMUEEPROM_INCLUDE_CONFIG
+#if __has_include(<EmuEEPROMConfig.h>)
+        uint16_t tempData;
+
+        switch (type)
+        {
+        case LESSDB::sectionParameterType_t::BIT:
+        case LESSDB::sectionParameterType_t::BYTE:
+        case LESSDB::sectionParameterType_t::HALF_BYTE:
+        case LESSDB::sectionParameterType_t::WORD:
+        {
+            auto readStatus = _emuEEPROM.read(address, tempData);
+
+            if (readStatus == EmuEEPROM::readStatus_t::OK)
+            {
+                value = tempData;
+            }
+            else if (readStatus == EmuEEPROM::readStatus_t::NO_VAR)
+            {
+                // variable with this address doesn't exist yet - set value to 0
+                value = 0;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        break;
+
+        default:
+            return false;
+        }
+
+        return true;
+#else
         switch (type)
         {
         case LESSDB::sectionParameterType_t::BIT:
@@ -75,7 +108,12 @@ class DBstorageMock : public ::sys::Builder::HWA::Database
         }
 
         return true;
-#else
+#endif
+    }
+
+    bool write(uint32_t address, uint32_t value, LESSDB::sectionParameterType_t type) override
+    {
+#if __has_include(<EmuEEPROMConfig.h>)
         uint16_t tempData;
 
         switch (type)
@@ -85,21 +123,10 @@ class DBstorageMock : public ::sys::Builder::HWA::Database
         case LESSDB::sectionParameterType_t::HALF_BYTE:
         case LESSDB::sectionParameterType_t::WORD:
         {
-            auto readStatus = _emuEEPROM.read(address, tempData);
+            tempData = value;
 
-            if (readStatus == EmuEEPROM::readStatus_t::OK)
-            {
-                value = tempData;
-            }
-            else if (readStatus == EmuEEPROM::readStatus_t::NO_VAR)
-            {
-                // variable with this address doesn't exist yet - set value to 0
-                value = 0;
-            }
-            else
-            {
+            if (_emuEEPROM.write(address, tempData) != EmuEEPROM::writeStatus_t::OK)
                 return false;
-            }
         }
         break;
 
@@ -108,12 +135,7 @@ class DBstorageMock : public ::sys::Builder::HWA::Database
         }
 
         return true;
-#endif
-    }
-
-    bool write(uint32_t address, uint32_t value, LESSDB::sectionParameterType_t type) override
-    {
-#ifndef EMUEEPROM_INCLUDE_CONFIG
+#else
         switch (type)
         {
         case LESSDB::sectionParameterType_t::BIT:
@@ -143,28 +165,6 @@ class DBstorageMock : public ::sys::Builder::HWA::Database
         }
 
         return true;
-#else
-        uint16_t tempData;
-
-        switch (type)
-        {
-        case LESSDB::sectionParameterType_t::BIT:
-        case LESSDB::sectionParameterType_t::BYTE:
-        case LESSDB::sectionParameterType_t::HALF_BYTE:
-        case LESSDB::sectionParameterType_t::WORD:
-        {
-            tempData = value;
-
-            if (_emuEEPROM.write(address, tempData) != EmuEEPROM::writeStatus_t::OK)
-                return false;
-        }
-        break;
-
-        default:
-            return false;
-        }
-
-        return true;
 #endif
     }
 
@@ -174,7 +174,7 @@ class DBstorageMock : public ::sys::Builder::HWA::Database
     }
 
     private:
-#ifdef EMUEEPROM_INCLUDE_CONFIG
+#if __has_include(<EmuEEPROMConfig.h>)
     class EmuEEPROMStorageAccess : public EmuEEPROM::StorageAccess
     {
         public:

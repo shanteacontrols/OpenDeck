@@ -118,7 +118,6 @@ then
         # Common flash page size
         {
             printf "%s\n" 'PROJECT_MCU_EMU_EEPROM_PAGE_SIZE := $(shell echo $$(( ($(PROJECT_MCU_FLASH_PAGE_EEPROM_2) - $(PROJECT_MCU_FLASH_PAGE_EEPROM_1)) * $(CORE_MCU_FLASH_PAGE_SIZE_COMMON) )) )'
-            printf "%s\n" 'PROJECT_MCU_DEFINES += EMU_EEPROM_PAGE_SIZE=$(PROJECT_MCU_EMU_EEPROM_PAGE_SIZE)'
             # Offset is never used when flash pages have the same size
             printf "%s\n" 'PROJECT_MCU_EMU_EEPROM_FLASH_USAGE := $(shell echo $$(( $(PROJECT_MCU_EMU_EEPROM_PAGE_SIZE) * 3 )) )'
         } >> "$out_makefile"
@@ -133,7 +132,6 @@ then
 
         {
             printf "%s\n" "PROJECT_MCU_EMU_EEPROM_PAGE_SIZE := $emueeprom_page_size"
-            printf "%s\n" 'PROJECT_MCU_DEFINES += EMU_EEPROM_PAGE_SIZE=$(PROJECT_MCU_EMU_EEPROM_PAGE_SIZE)'
             printf "%s\n" "PROJECT_MCU_EMU_EEPROM_FLASH_USAGE := $emueeprom_flash_usage"
         } >> "$out_makefile"
     fi
