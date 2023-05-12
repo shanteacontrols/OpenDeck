@@ -25,7 +25,7 @@ limitations under the License.
 #include "database/Database.h"
 #include "database/Layout.h"
 #include "EmuEEPROM/EmuEEPROM.h"
-#include "core/MCU.h"
+#include "CoreMCUGenerated.h"
 
 namespace
 {
