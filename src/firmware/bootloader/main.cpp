@@ -21,7 +21,6 @@ limitations under the License.
 #include "SysExParser/SysExParser.h"
 #include "FwSelector/FwSelector.h"
 #include "core/Timing.h"
-#include <Target.h>
 
 namespace
 {
