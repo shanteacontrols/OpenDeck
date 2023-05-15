@@ -43,7 +43,7 @@ namespace board::bootloader
     void appAddrBoundary(uint32_t& first, uint32_t& last)
     {
         first = PROJECT_MCU_FLASH_ADDR_APP_START;
-        core::mcu::flash::read32(PROJECT_MCU_FLASH_ADDR_FW_METADATA, last);
+        core::mcu::flash::read32(PROJECT_MCU_FLASH_ADDR_FW_METADATA_START, last);
     }
 
     bool isHWtriggerActive()

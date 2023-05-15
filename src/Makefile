@@ -22,7 +22,7 @@ ifeq (,$(findstring gen,$(TYPE)))
 ifeq ($(TYPE),application)
 # Append metadata only for application if bootloader is supported
 ifneq (,$(findstring PROJECT_MCU_SUPPORT_BOOTLOADER,$(DEFINES)))
-	$(Q)srec_cat $(OUTPUT).hex -Intel -exclude $(PROJECT_MCU_FLASH_ADDR_FW_METADATA) $$(($(PROJECT_MCU_FLASH_ADDR_FW_METADATA) + $(FW_METADATA_SIZE))) -MAximum_Little_Endian $(PROJECT_MCU_FLASH_ADDR_FW_METADATA) -o $(OUTPUT).hex -Intel
+	$(Q)srec_cat $(OUTPUT).hex -Intel -exclude $(PROJECT_MCU_FLASH_ADDR_FW_METADATA_START) $(PROJECT_MCU_FLASH_ADDR_FW_METADATA_END) -MAximum_Little_Endian $(PROJECT_MCU_FLASH_ADDR_FW_METADATA_START) -o $(OUTPUT).hex -Intel
 	$(Q)srec_cat $(OUTPUT).hex -Intel -Cyclic_Redundancy_Check_16_Little_Endian -MAximum-Address $(OUTPUT).hex -Intel -Cyclic_Redundancy_Check_16_XMODEM -Output $(OUTPUT).hex -Intel
 endif
 endif
