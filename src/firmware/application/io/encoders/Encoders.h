@@ -195,14 +195,14 @@ namespace io
         /// Array used for easier access to current encoder value in 7Fh01h and 3Fh41h modes.
         /// Matched with type_t and position_t
         static constexpr uint8_t ENC_VALUE[2][3] = {
-            // controlChange7Fh01h
+            // CONTROL_CHANGE_7FH01H
             {
                 0,      // stopped
                 127,    // ccw
                 1       // cw
             },
 
-            // controlChange3Fh41h
+            // CONTROL_CHANGE_3FH41H
             {
                 0,     // stopped
                 63,    // ccw
