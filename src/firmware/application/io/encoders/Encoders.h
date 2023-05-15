@@ -54,7 +54,7 @@ namespace io
             NRPN_7BIT,
             NRPN_14BIT,
             CONTROL_CHANGE_14BIT,
-            RESERVED,
+            CONTROL_CHANGE_41H01H,
             AMOUNT
         };
 
@@ -204,6 +204,12 @@ namespace io
             65     // CW
         };
 
+        static constexpr uint8_t VAL_CONTROL_CHANGE_41H01H[3] = {
+            0,     // STOPPED
+            65,    // CCW
+            1      // CW
+        };
+
         static constexpr std::array<MIDI::messageType_t, static_cast<uint8_t>(type_t::AMOUNT)> INTERNAL_MSG_TO_MIDI_TYPE = {
             MIDI::messageType_t::CONTROL_CHANGE,          // CONTROL_CHANGE_7FH01H
             MIDI::messageType_t::CONTROL_CHANGE,          // CONTROL_CHANGE_3FH41H
@@ -214,7 +220,7 @@ namespace io
             MIDI::messageType_t::NRPN_7BIT,               // NRPN_7BIT
             MIDI::messageType_t::NRPN_14BIT,              // NRPN_14BIT
             MIDI::messageType_t::CONTROL_CHANGE_14BIT,    // CONTROL_CHANGE_14BIT
-            MIDI::messageType_t::INVALID,                 // RESERVED
+            MIDI::messageType_t::CONTROL_CHANGE,          // RESERVED
         };
     };
 }    // namespace io

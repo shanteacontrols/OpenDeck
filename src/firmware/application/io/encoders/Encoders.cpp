@@ -229,6 +229,12 @@ void Encoders::sendMessage(size_t index, position_t encoderState, encoderDescrip
     }
     break;
 
+    case type_t::CONTROL_CHANGE_41H01H:
+    {
+        descriptor.event.value = VAL_CONTROL_CHANGE_41H01H[static_cast<uint8_t>(encoderState)];
+    }
+    break;
+
     case type_t::PROGRAM_CHANGE:
     {
         if (encoderState == position_t::CCW)

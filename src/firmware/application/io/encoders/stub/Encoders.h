@@ -40,7 +40,7 @@ namespace io
             NRPN_7BIT,
             NRPN_14BIT,
             CONTROL_CHANGE_14BIT,
-            RESERVED,
+            CONTROL_CHANGE_41H01H,
             AMOUNT
         };
 
