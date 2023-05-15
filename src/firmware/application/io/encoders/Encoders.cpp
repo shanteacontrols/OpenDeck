@@ -218,9 +218,14 @@ void Encoders::sendMessage(size_t index, position_t encoderState, encoderDescrip
     switch (descriptor.type)
     {
     case type_t::CONTROL_CHANGE_7FH01H:
+    {
+        descriptor.event.value = VAL_CONTROL_CHANGE_7FH01H[static_cast<uint8_t>(encoderState)];
+    }
+    break;
+
     case type_t::CONTROL_CHANGE_3FH41H:
     {
-        descriptor.event.value = ENC_VALUE[static_cast<uint8_t>(descriptor.type)][static_cast<uint8_t>(encoderState)];
+        descriptor.event.value = VAL_CONTROL_CHANGE_3FH41H[static_cast<uint8_t>(encoderState)];
     }
     break;
 

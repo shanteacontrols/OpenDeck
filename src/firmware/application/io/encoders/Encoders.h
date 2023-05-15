@@ -192,22 +192,16 @@ namespace io
             100
         };
 
-        /// Array used for easier access to current encoder value in 7Fh01h and 3Fh41h modes.
-        /// Matched with type_t and position_t
-        static constexpr uint8_t ENC_VALUE[2][3] = {
-            // CONTROL_CHANGE_7FH01H
-            {
-                0,      // stopped
-                127,    // ccw
-                1       // cw
-            },
+        static constexpr uint8_t VAL_CONTROL_CHANGE_7FH01H[3] = {
+            0,      // STOPPED
+            127,    // CCW
+            1       // CW
+        };
 
-            // CONTROL_CHANGE_3FH41H
-            {
-                0,     // stopped
-                63,    // ccw
-                65     // cw
-            }
+        static constexpr uint8_t VAL_CONTROL_CHANGE_3FH41H[3] = {
+            0,     // STOPPED
+            63,    // CCW
+            65     // CW
         };
 
         static constexpr std::array<MIDI::messageType_t, static_cast<uint8_t>(type_t::AMOUNT)> INTERNAL_MSG_TO_MIDI_TYPE = {
