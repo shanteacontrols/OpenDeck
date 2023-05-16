@@ -51,9 +51,6 @@
     -
       port: "0"
       index: 28
-    -
-      port: "0"
-      index: 29
   leds:
     internal:
       invert: true
