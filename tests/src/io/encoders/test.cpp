@@ -53,6 +53,13 @@ namespace
             _encoders._instance.updateAll();
         }
 
+        static constexpr std::array<uint8_t, 4> ENCODER_STATE = {
+            0b00,
+            0b10,
+            0b11,
+            0b01
+        };
+
         Listener     _listener;
         TestEncoders _encoders;
     };
@@ -60,6 +67,11 @@ namespace
 
 TEST_F(EncodersTest, StateDecoding)
 {
+    if (!Encoders::Collection::SIZE())
+    {
+        return;
+    }
+
     auto verifyValue = [&](MIDI::messageType_t message, uint16_t value)
     {
         for (size_t i = 0; i < Encoders::Collection::SIZE(); i++)
@@ -259,6 +271,88 @@ TEST_F(EncodersTest, StateDecoding)
     stateChangeRegister(0b00);
     ASSERT_EQ(Encoders::Collection::SIZE(), _listener._event.size());
     verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 127);
+}
+
+TEST_F(EncodersTest, Messages)
+{
+    if (!Encoders::Collection::SIZE())
+    {
+        return;
+    }
+
+    constexpr size_t PULSES_PER_STEP = 4;
+
+    auto setup = [&](Encoders::type_t type)
+    {
+        for (size_t i = 0; i < Encoders::Collection::SIZE(); i++)
+        {
+            ASSERT_TRUE(_encoders._database.update(database::Config::Section::encoder_t::PULSES_PER_STEP, i, PULSES_PER_STEP));
+            ASSERT_TRUE(_encoders._database.update(database::Config::Section::encoder_t::MODE, i, type));
+            _encoders._instance.reset(i);
+
+            // simulate initial reading
+            stateChangeRegister(0b00);
+        }
+    };
+
+    auto verifyValue = [&](MIDI::messageType_t message, uint16_t value)
+    {
+        for (size_t i = 0; i < Encoders::Collection::SIZE(); i++)
+        {
+            ASSERT_EQ(message, _listener._event.at(i).message);
+            ASSERT_EQ(value, _listener._event.at(i).value);
+        }
+    };
+
+    auto rotate = [this](bool clockwise)
+    {
+        // skip the initial state
+        size_t stateIndex = 0;
+
+        auto nextValue = [&]()
+        {
+            if (clockwise)
+            {
+                stateIndex++;
+            }
+            else
+            {
+                stateIndex--;
+            }
+
+            stateIndex %= ENCODER_STATE.size();
+            return ENCODER_STATE.at(stateIndex);
+        };
+
+        for (size_t pulse = 0; pulse < PULSES_PER_STEP; pulse++)
+        {
+            stateChangeRegister(nextValue());
+        }
+    };
+
+    setup(Encoders::type_t::CONTROL_CHANGE_7FH01H);
+    rotate(true);
+    ASSERT_EQ(Encoders::Collection::SIZE(), _listener._event.size());
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 1);
+    rotate(false);
+    ASSERT_EQ(Encoders::Collection::SIZE(), _listener._event.size());
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 127);
+
+    setup(Encoders::type_t::CONTROL_CHANGE_3FH41H);
+    rotate(true);
+    ASSERT_EQ(Encoders::Collection::SIZE(), _listener._event.size());
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 65);
+    rotate(false);
+    ASSERT_EQ(Encoders::Collection::SIZE(), _listener._event.size());
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 63);
+
+    setup(Encoders::type_t::CONTROL_CHANGE_41H01H);
+    rotate(true);
+    ASSERT_EQ(Encoders::Collection::SIZE(), _listener._event.size());
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 1);
+    rotate(false);
+    ASSERT_EQ(Encoders::Collection::SIZE(), _listener._event.size());
+    verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 65);
 }
 
 #endif
