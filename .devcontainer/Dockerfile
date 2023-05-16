@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 ARG user=opendeck
 ARG WGET_ARGS="-q --show-progress --progress=bar:force:noscroll"
@@ -18,6 +18,7 @@ xz-utils \
 gcc \
 g++ \
 bsdmainutils \
+bzip2 \
 clang \
 ca-certificates \
 sudo \
@@ -31,6 +32,7 @@ python3-pip \
 gcc-multilib \
 gpg-agent \
 curl \
+tzdata \
 && rm -rf /var/lib/apt/lists/*
 
 RUN \
