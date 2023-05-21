@@ -118,7 +118,7 @@ ifeq ($(USE_UF2),1)
 	$(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/merged/$(TARGET).bin
 endif
 
-$(TARGET_GEN_HEADER): $(DEF_FILE_TARGET)
+$(TARGET_GEN_HEADER):
 	$(Q)$(SCRIPTS_DIR)/gen/gen_target.sh \
 	--project=$(PROJECT) \
 	--target-config=$(DEF_FILE_TARGET) \

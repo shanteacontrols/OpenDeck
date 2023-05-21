@@ -30,10 +30,6 @@ mcu_gen_dir=$base_mcu_gen_dir/$mcu
 hw_test_yaml_file=$(dirname "$yaml_file")/../hw-test/$target_name.yml
 extClockMhz=$($yaml_parser "$yaml_file" extClockMhz)
 
-mkdir -p "$gen_dir"
-echo "" > "$out_header"
-echo "" > "$out_makefile"
-
 if [[ ! -d $mcu_gen_dir ]]
 then
     if ! "$script_dir"/gen_mcu.sh "$mcu" "$mcu_gen_dir" "$extClockMhz"
@@ -42,17 +38,24 @@ then
     fi
 fi
 
-echo "Generating target definitions..."
-
-source "$script_dir"/target/main.sh
-
-if [[ -f $hw_test_yaml_file ]]
+if [[ ! -d $gen_dir ]]
 then
-    # HW config files go into the same dir as target ones
-    if ! "$script_dir"/gen_hwconfig.sh "$project" "$hw_test_yaml_file" "$gen_dir"
+    echo "Generating target definitions..."
+
+    mkdir -p "$gen_dir"
+    echo "" > "$out_header"
+    echo "" > "$out_makefile"
+
+    source "$script_dir"/target/main.sh
+
+    if [[ -f $hw_test_yaml_file ]]
     then
-        exit 1
-    else
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_HW_TESTS" >> "$out_makefile"
+        # HW config files go into the same dir as target ones
+        if ! "$script_dir"/gen_hwconfig.sh "$project" "$hw_test_yaml_file" "$gen_dir"
+        then
+            exit 1
+        else
+            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_HW_TESTS" >> "$out_makefile"
+        fi
     fi
 fi
