@@ -5,7 +5,7 @@ on: [push]
 jobs:
   build_and_test_ubuntu:
     name: Build/Test [Ubuntu]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     container:
       image: paradajz168/opendeck-dev:latest
       options: --user root
@@ -31,7 +31,7 @@ jobs:
           make exec
   format:
     name: Code formatting
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     container:
       image: paradajz168/opendeck-dev:latest
       options: --user root
@@ -52,7 +52,7 @@ jobs:
           make format CF_FAIL_ON_DIFF=1
   lint:
     name: Code linting
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     container:
       image: paradajz168/opendeck-dev:latest
       options: --user root

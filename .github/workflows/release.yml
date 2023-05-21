@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     name: Attach firmware to release
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     container:
       image: paradajz168/opendeck-dev:latest
       options: --user root
