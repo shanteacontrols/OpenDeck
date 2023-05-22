@@ -19,6 +19,6 @@ then
     exit 1
 fi
 
-echo "Generating MCU configuration..."
+echo "Generating project MCU definitions..."
 
 source "$script_dir"/mcu/main.sh
