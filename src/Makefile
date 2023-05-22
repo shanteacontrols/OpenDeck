@@ -123,13 +123,10 @@ $(TARGET_GEN_HEADER):
 	--project=$(PROJECT) \
 	--target-config=$(DEF_FILE_TARGET) \
 	--gen-dir-target=$(TARGET_GEN_DIR) \
+	--touchscreen-config=$(DEF_FILE_TSCREEN) \
+	--gen-dir-touchscreen=$(APPLICATION_GEN_DIR_TARGET) \
+	--touchscreen-img-dir=$(ROOT_MAKEFILE_DIR)/../bin/touchscreen/img/$(TARGET) \
 	--base-gen-dir-mcu=$(MCU_GEN_DIR_BASE)
-
-$(TSCREEN_GEN_SOURCE):
-	$(Q)$(SCRIPTS_DIR)/gen/gen_touchscreen.sh \
-	--config=$(DEF_FILE_TSCREEN) \
-	--gen-dir=$(APPLICATION_GEN_DIR_TARGET) \
-	--img-dir=$(ROOT_MAKEFILE_DIR)/../bin/touchscreen/img/$(TARGET)
 
 ifeq ($(CORE_MCU_ARCH),arm)
 $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/flashgen/generated_flash.hex: $(DEF_FILE_TARGET) $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/application/firmware/application/database/Database.cpp.o $(BUILD_DIR_BASE)/$(TARGET)/$(BUILD_TYPE)/application/firmware/application/database/CustomInit.cpp.o

@@ -13,15 +13,10 @@ INCLUDE_DIRS += \
 
 TARGET_GEN_HEADER := $(TARGET_GEN_DIR)/Target.h
 
-ifneq (,$(wildcard $(DEF_FILE_TSCREEN)))
-    TSCREEN_GEN_SOURCE := $(APPLICATION_GEN_DIR_TARGET)/Touchscreen.cpp
-endif
-
 SYSEX_BINARY_SUFFIX := _sysex
 
 GEN_FILES += \
-$(TARGET_GEN_HEADER) \
-$(TSCREEN_GEN_SOURCE)
+$(TARGET_GEN_HEADER)
 
 # Make sure all objects are located in build directory
 OBJECTS := $(addprefix $(BUILD_DIR)/,$(SOURCES))

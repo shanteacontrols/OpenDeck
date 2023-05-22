@@ -24,7 +24,7 @@ SOURCES :=
 ifeq ($(CORE_MCU_ARCH),arm)
     SOURCES += $(shell $(FIND) firmware/application/database -type f -name "*.cpp")
     SOURCES += $(shell $(FIND) ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
-    SOURCES += $(TSCREEN_GEN_SOURCE)
+    SOURCES += $(shell $(FIND) $(APPLICATION_GEN_DIR_TARGET) -type f -name "*.cpp")
     SOURCES += firmware/application/util/configurable/Configurable.cpp
     SOURCES += tools/flashgen/main.cpp
     SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp

@@ -14,6 +14,18 @@ for arg in "$@"; do
             gen_dir=${arg#--gen-dir-target=}
             ;;
 
+        --touchscreen-config=*)
+            touchscreen_config=${arg#--touchscreen-config=}
+            ;;
+
+        --gen-dir-touchscreen=*)
+            gen_dir_touchscreen=${arg#--gen-dir-touchscreen=}
+            ;;
+
+        --touchscreen-img-dir=*)
+            touchscreen_img_dir=${arg#--touchscreen-img-dir=}
+            ;;
+
         --base-gen-dir-mcu=*)
             base_mcu_gen_dir=${arg#--base-gen-dir-mcu=}
             ;;
@@ -58,4 +70,12 @@ then
             printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_HW_TESTS" >> "$out_makefile"
         fi
     fi
+fi
+
+if [[ -f $touchscreen_config ]]
+then
+    "$script_dir"/gen_touchscreen.sh \
+    --config="$touchscreen_config" \
+    --gen-dir="$gen_dir_touchscreen"\
+    --img-dir="$touchscreen_img_dir"
 fi
