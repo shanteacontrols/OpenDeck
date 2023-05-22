@@ -18,7 +18,6 @@ limitations under the License.
 
 #ifdef PROJECT_TARGET_USB_OVER_SERIAL
 
-#include "USBOverSerial.h"
 #include "board/Board.h"
 
 namespace board::usbOverSerial

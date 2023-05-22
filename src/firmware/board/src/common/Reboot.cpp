@@ -20,9 +20,6 @@ limitations under the License.
 #include "board/src/Internal.h"
 #include "core/Timing.h"
 #include "core/MCU.h"
-#ifdef PROJECT_TARGET_USB_OVER_SERIAL
-#include "board/src/common/communication/USBOverSerial/USBOverSerial.h"
-#endif
 
 namespace board
 {

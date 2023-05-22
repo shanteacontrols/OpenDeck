@@ -20,8 +20,8 @@ limitations under the License.
 
 // simulated USB interface via UART - make this transparent to the application
 
+#include "board/Board.h"
 #include "board/src/Internal.h"
-#include "USBOverSerial.h"
 #include "core/MCU.h"
 
 namespace

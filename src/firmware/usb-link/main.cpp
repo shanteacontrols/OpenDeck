@@ -17,7 +17,6 @@ limitations under the License.
 */
 
 #include "board/Board.h"
-#include "board/src/common/communication/USBOverSerial/USBOverSerial.h"
 #include "core/Timing.h"
 #include "core/MCU.h"
 #include "protocol/midi/MIDI.h"

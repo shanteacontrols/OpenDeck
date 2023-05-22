@@ -21,9 +21,6 @@ limitations under the License.
 #include <stddef.h>
 #include <inttypes.h>
 #include "board/Board.h"
-#ifdef PROJECT_TARGET_USB_OVER_SERIAL
-#include "board/src/common/communication/USBOverSerial/USBOverSerial.h"
-#endif
 #include "core/MCU.h"
 
 namespace board::detail

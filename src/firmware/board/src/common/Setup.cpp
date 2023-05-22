@@ -20,7 +20,6 @@ limitations under the License.
 #include "board/src/Internal.h"
 #include "core/Timing.h"
 #include "core/MCU.h"
-#include "board/src/common/communication/USBOverSerial/USBOverSerial.h"
 
 namespace core::timing::detail
 {

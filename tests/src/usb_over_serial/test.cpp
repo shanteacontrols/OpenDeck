@@ -2,7 +2,6 @@
 
 #include "framework/Framework.h"
 #include "board/Board.h"
-#include "board/src/common/communication/USBOverSerial/USBOverSerial.h"
 #include "core/util/RingBuffer.h"
 #include "protocol/midi/MIDI.h"
 
