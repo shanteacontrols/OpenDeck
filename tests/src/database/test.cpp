@@ -1,7 +1,7 @@
 #ifndef PROJECT_TARGET_USB_OVER_SERIAL_HOST
 
-#include "framework/Framework.h"
-#include "stubs/Database.h"
+#include "tests/Common.h"
+#include "tests/stubs/Database.h"
 #include "database/Database.h"
 #include "io/buttons/Buttons.h"
 #include "io/buttons/Filter.h"

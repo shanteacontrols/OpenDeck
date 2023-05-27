@@ -1,9 +1,9 @@
 #ifndef PROJECT_TARGET_USB_OVER_SERIAL_HOST
 
-#include "framework/Framework.h"
-#include "stubs/System.h"
-#include "stubs/Listener.h"
-#include "helpers/MIDI.h"
+#include "tests/Common.h"
+#include "tests/stubs/System.h"
+#include "tests/stubs/Listener.h"
+#include "tests/helpers/MIDI.h"
 #include "util/configurable/Configurable.h"
 
 using namespace io;

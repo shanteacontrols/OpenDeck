@@ -1,8 +1,8 @@
 #ifdef PROJECT_TARGET_SUPPORT_ADC
 
-#include "framework/Framework.h"
-#include "stubs/Analog.h"
-#include "stubs/Listener.h"
+#include "tests/Common.h"
+#include "tests/stubs/Analog.h"
+#include "tests/stubs/Listener.h"
 #include "io/buttons/Buttons.h"
 #include "util/configurable/Configurable.h"
 

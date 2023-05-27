@@ -1,7 +1,7 @@
 #pragma once
 
 #include "HWALEDs.h"
-#include "stubs/Database.h"
+#include "tests/stubs/Database.h"
 
 class TestLEDs
 {

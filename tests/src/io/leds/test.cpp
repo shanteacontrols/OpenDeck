@@ -1,6 +1,6 @@
-#include "framework/Framework.h"
-#include "stubs/LEDs.h"
-#include "stubs/Listener.h"
+#include "tests/Common.h"
+#include "tests/stubs/LEDs.h"
+#include "tests/stubs/Listener.h"
 #include "util/configurable/Configurable.h"
 
 #ifdef LEDS_SUPPORTED

@@ -1,12 +1,12 @@
 #ifndef PROJECT_TARGET_USB_OVER_SERIAL_HOST
 #ifdef PROJECT_TARGET_SUPPORT_HW_TESTS
 
-#include "framework/Framework.h"
 #include <string>
 #include <filesystem>
-#include "helpers/Misc.h"
-#include "helpers/MIDI.h"
-#include "stubs/Database.h"
+#include "tests/Common.h"
+#include "tests/helpers/Misc.h"
+#include "tests/helpers/MIDI.h"
+#include "tests/stubs/Database.h"
 #include <HWTestDefines.h>
 #include <Target.h>
 #include "system/Builder.h"

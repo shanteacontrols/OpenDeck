@@ -4,7 +4,7 @@
 #include "EmuEEPROM/EmuEEPROM.h"
 #endif
 #include "database/Layout.h"
-#include "framework/Framework.h"
+#include "tests/Common.h"
 #include "system/Builder.h"
 
 class DBstorageMock : public ::sys::Builder::HWA::Database

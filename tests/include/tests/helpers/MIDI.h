@@ -11,7 +11,7 @@
 #include "util/conversion/Conversion.h"
 #include "system/System.h"
 #include "Misc.h"
-#include "stubs/System.h"
+#include "tests/stubs/System.h"
 #include "system/Config.h"
 #include <glog/logging.h>
 

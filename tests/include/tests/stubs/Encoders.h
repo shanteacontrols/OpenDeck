@@ -2,7 +2,7 @@
 
 #include "EncodersFilter.h"
 #include "HWAEncoders.h"
-#include "stubs/Database.h"
+#include "tests/stubs/Database.h"
 
 class TestEncoders
 {

@@ -1,6 +1,6 @@
 #ifdef PROJECT_TARGET_USB_OVER_SERIAL
 
-#include "framework/Framework.h"
+#include "tests/Common.h"
 #include "board/Board.h"
 #include "core/util/RingBuffer.h"
 #include "protocol/midi/MIDI.h"

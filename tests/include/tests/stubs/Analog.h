@@ -2,7 +2,7 @@
 
 #include "AnalogFilter.h"
 #include "HWAAnalog.h"
-#include "stubs/Database.h"
+#include "tests/stubs/Database.h"
 
 class TestAnalog
 {

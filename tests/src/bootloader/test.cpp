@@ -1,12 +1,12 @@
 #ifndef PROJECT_TARGET_USB_OVER_SERIAL_HOST
 #ifdef PROJECT_MCU_SUPPORT_BOOTLOADER
 
-#include "framework/Framework.h"
+#include "tests/Common.h"
 #include "SysExParser/SysExParser.h"
 #include "updater/Updater.h"
 #include "board/Board.h"
 #include "board/src/Internal.h"
-#include "helpers/MIDI.h"
+#include "tests/helpers/MIDI.h"
 
 #include <filesystem>
 #include <iostream>

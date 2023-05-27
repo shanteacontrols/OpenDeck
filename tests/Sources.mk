@@ -24,7 +24,6 @@ ifeq (,$(findstring PROJECT_TARGET_USB_OVER_SERIAL_HOST,$(DEFINES)))
     modules/u8g2/csrc/u8x8_gpio.c \
     modules/u8g2/csrc/u8x8_d_ssd1306_128x64_noname.c \
     modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c \
-    stubs/Core.cpp \
     application/util/configurable/Configurable.cpp \
     application/util/scheduler/Scheduler.cpp
 endif
@@ -35,8 +34,7 @@ endif
 
 # Common include dirs
 INCLUDE_DIRS_COMMON := \
--I"./" \
--I"./stubs" \
+-I"./include" \
 -I"../modules/" \
 -I"../modules/core/src" \
 -I"../modules/EmuEEPROM/include" \

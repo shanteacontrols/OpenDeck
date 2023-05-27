@@ -1,4 +1,5 @@
-#include "Framework.h"
+#include "tests/Common.h"
+#include "core/Timing.h"
 #include "util/logger/Logger.h"
 #include <Target.h>
 
@@ -27,6 +28,11 @@ namespace
           << "]";
     }
 }    // namespace
+
+namespace core::timing::detail
+{
+    volatile uint32_t ms;
+}    // namespace core::timing::detail
 
 int main(int argc, char* argv[])
 {

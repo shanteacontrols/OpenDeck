@@ -1,7 +1,7 @@
 #ifndef PROJECT_TARGET_USB_OVER_SERIAL_HOST
 
-#include "framework/Framework.h"
-#include "stubs/MIDI.h"
+#include "tests/Common.h"
+#include "tests/stubs/MIDI.h"
 
 using namespace io;
 
