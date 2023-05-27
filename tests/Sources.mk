@@ -36,7 +36,7 @@ endif
 INCLUDE_DIRS_COMMON := \
 -I"./include" \
 -I"../modules/" \
--I"../modules/core/src" \
+-I"../modules/core/include" \
 -I"../modules/EmuEEPROM/include" \
 -I"../src/firmware" \
 -I"../src/firmware/bootloader/" \
