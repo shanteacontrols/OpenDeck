@@ -4,8 +4,6 @@
 #include "tests/Common.h"
 #include "SysExParser/SysExParser.h"
 #include "updater/Updater.h"
-#include "board/Board.h"
-#include "board/src/Internal.h"
 #include "tests/helpers/MIDI.h"
 
 #include <filesystem>
@@ -16,7 +14,7 @@
 #include <iterator>
 #include <string>
 #include <cstddef>
-#include <Target.h>
+#include <CoreMCUGenerated.h>
 
 namespace
 {
@@ -25,7 +23,7 @@ namespace
         public:
         uint32_t pageSize(size_t index) override
         {
-            return board::detail::map::FLASH_PAGE_DESCRIPTOR(index).size;
+            return CORE_MCU_FLASH_PAGE_SIZE(index);
         }
 
         void erasePage(size_t index) override
