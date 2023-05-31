@@ -6,35 +6,35 @@ ARG WGET_ARGS="-q --show-progress --progress=bar:force:noscroll"
 RUN \
 apt-get update && \
 DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
-make \
-srecord \
-git \
-git-lfs \
-wget \
-gdb \
-imagemagick \
-dfu-util \
-xz-utils \
-gcc \
-g++ \
+bash-completion \
 bsdmainutils \
 bzip2 \
+ca-certificates \
+ccache \
 clang \
 clang-format \
 clang-tidy \
-ca-certificates \
-sudo \
-bash-completion \
-ccache \
-unzip \
 cmake \
-lsb-release \
-software-properties-common \
-python3-pip \
-gcc-multilib \
-gpg-agent \
 curl \
+dfu-util \
+g++ \
+gcc \
+gcc-multilib \
+gdb \
+git \
+git-lfs \
+gpg-agent \
+imagemagick \
+lsb-release \
+make \
+python3-pip \
+software-properties-common \
+srecord \
+sudo \
 tzdata \
+unzip \
+wget \
+xz-utils \
 && rm -rf /var/lib/apt/lists/*
 
 RUN \
