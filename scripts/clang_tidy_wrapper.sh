@@ -52,7 +52,7 @@ extra_args+=(-extra-arg="-include$script_dir/../src/generated/mcu/$mcu/CoreMCUGe
 extra_args+=(-extra-arg="-DCORE_MCU_STUB")
 
 case $compiler in
-    arm-none-eabi-gcc)
+    *arm-none-eabi-gcc)
       toolchain_dir=$(dirname "$(which arm-none-eabi-gcc)" | rev | cut -d/ -f2- | rev)
       toolchain_ver=$(find "$toolchain_dir"/arm-none-eabi/include/c++ -mindepth 1 -maxdepth 1 | rev | cut -d/ -f 1 | rev)
       extra_args+=(-extra-arg="-I$toolchain_dir/arm-none-eabi/include/c++/$toolchain_ver")
@@ -65,7 +65,7 @@ case $compiler in
       extra_args+=(-extra-arg="-Wno-unknown-attributes")
     ;;
 
-    avr-gcc)
+    *avr-gcc)
       toolchain_dir=$(dirname "$(which avr-gcc)" | rev | cut -d/ -f2- | rev)
       extra_args+=(-extra-arg="-I$toolchain_dir/avr/include/avr")
       extra_args+=(-extra-arg="-I$toolchain_dir/avr/include")
