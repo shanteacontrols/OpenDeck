@@ -303,7 +303,7 @@ namespace
             .subType            = core::mcu::usb::AUDIO_DSUBTYPE_CS_ENDPOINT_GENERAL,
             .totalEmbeddedJacks = 0x01,
             .associatedJackId   = {
-                0x01,
+                  0x01,
             },
         },
 
@@ -333,7 +333,7 @@ namespace
             .subType            = core::mcu::usb::AUDIO_DSUBTYPE_CS_ENDPOINT_GENERAL,
             .totalEmbeddedJacks = 0x01,
             .associatedJackId   = {
-                0x03,
+                  0x03,
             },
         }
     };
