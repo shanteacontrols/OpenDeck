@@ -39,7 +39,7 @@ extern "C" void EVENT_USB_Device_ConfigurationChanged(void)
     Endpoint_ConfigureEndpoint(PROJECT_MCU_USB_ENDPOINT_MIDI_ADDR_OUT, core::mcu::usb::ENDPOINT_TYPE_BULK, PROJECT_MCU_USB_ENDPOINT_SIZE_MIDI_IN_OUT, 1);
 }
 
-extern "C" uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue, const uint16_t wIndex, const void** const descriptorAddress)
+extern "C" uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue, const uint16_t wIndex, const void** const DescriptorAddress)    // NOLINT
 {
     const uint8_t DESCRIPTOR_TYPE   = (wValue >> 8);
     const uint8_t DESCRIPTOR_NUMBER = (wValue & 0xFF);
@@ -99,7 +99,7 @@ extern "C" uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue, const uint
         break;
     }
 
-    *descriptorAddress = address;
+    *DescriptorAddress = address;
     return size;
 }
 
@@ -185,11 +185,9 @@ namespace board
 
             Endpoint_SelectEndpoint(_midiInterface.Config.DataINEndpoint.Address);
 
-            uint8_t ErrorCode;
-
             _txStateMIDI = board::detail::usb::txState_t::SENDING;
 
-            if ((ErrorCode = Endpoint_Write_Stream_LE(&packet[0], sizeof(packet), NULL)) != ENDPOINT_RWSTREAM_NoError)
+            if (Endpoint_Write_Stream_LE(&packet[0], sizeof(packet), NULL) != ENDPOINT_RWSTREAM_NoError)
             {
                 _txStateMIDI = board::detail::usb::txState_t::WAITING;
                 return false;

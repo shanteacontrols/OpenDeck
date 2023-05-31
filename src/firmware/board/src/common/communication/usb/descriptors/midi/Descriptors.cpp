@@ -278,6 +278,5 @@ namespace board::detail::usb
         return &_productString;
     }
 }    // namespace board::detail::usb
-
 #endif
 #endif

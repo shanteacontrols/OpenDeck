@@ -27,18 +27,22 @@ namespace board::detail::usb
     void init()
     {
         auto descriptor = core::mcu::peripherals::usbDescriptor();
-        descriptor->enableClock();
 
-        for (size_t i = 0; i < descriptor->pins().size(); i++)
+        if (descriptor != nullptr)
         {
-            CORE_MCU_IO_INIT(descriptor->pins().at(i));
+            descriptor->enableClock();
+
+            for (size_t i = 0; i < descriptor->pins().size(); i++)
+            {
+                CORE_MCU_IO_INIT(descriptor->pins().at(i));
+            }
+
+            // disable VBUS sensing
+            USB_OTG_FS->GCCFG |= USB_OTG_GCCFG_NOVBUSSENS;
+
+            tusb_init();
+            detail::registerUpdateHook(&board::detail::usb::update);
         }
-
-        // disable VBUS sensing
-        USB_OTG_FS->GCCFG |= USB_OTG_GCCFG_NOVBUSSENS;
-
-        tusb_init();
-        detail::registerUpdateHook(&board::detail::usb::update);
     }
 }    // namespace board::detail::usb
 

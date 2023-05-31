@@ -49,7 +49,7 @@ extern "C" void EVENT_USB_Device_ConfigurationChanged(void)
 /// to the USB library. When the device receives a Get Descriptor request on the control endpoint, this function
 /// is called so that the descriptor details can be passed back and the appropriate descriptor sent back to the
 /// USB host.
-extern "C" uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue, const uint16_t wIndex, const void** const descriptorAddress)
+extern "C" uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue, const uint16_t wIndex, const void** const DescriptorAddress)    // NOLINT
 {
     const uint8_t DESCRIPTOR_TYPE   = (wValue >> 8);
     const uint8_t DESCRIPTOR_NUMBER = (wValue & 0xFF);
@@ -109,7 +109,7 @@ extern "C" uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue, const uint
         break;
     }
 
-    *descriptorAddress = address;
+    *DescriptorAddress = address;
     return size;
 }
 
@@ -119,7 +119,7 @@ extern "C" void EVENT_USB_Device_ControlRequest(void)
     MIDI_Device_ProcessControlRequest(&_midiInterface);
 }
 
-extern "C" void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCInterfaceInfo)
+extern "C" void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCInterfaceInfo)    // NOLINT
 {
     board::usb::onCDCsetLineEncoding(CDCInterfaceInfo->State.LineEncoding.BaudRateBPS);
 }
@@ -216,11 +216,9 @@ namespace board
 
             Endpoint_SelectEndpoint(_midiInterface.Config.DataINEndpoint.Address);
 
-            uint8_t ErrorCode;
-
             _txStateMIDI = board::detail::usb::txState_t::SENDING;
 
-            if ((ErrorCode = Endpoint_Write_Stream_LE(&packet[0], sizeof(packet), NULL)) != ENDPOINT_RWSTREAM_NoError)
+            if (Endpoint_Write_Stream_LE(&packet[0], sizeof(packet), NULL) != ENDPOINT_RWSTREAM_NoError)
             {
                 _txStateMIDI = board::detail::usb::txState_t::WAITING;
                 return false;
