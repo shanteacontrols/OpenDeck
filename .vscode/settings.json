@@ -1,9 +1,7 @@
 // Workspace settings
 {
     "files.exclude": {
-        "**/build/*": true,
         "bin/": true,
-        "**/compile_commands.json": true,
         "**/ipch*": true,
         "**/*cortex-debug*": true,
         "**/*.clangd*": true,
