@@ -85,14 +85,7 @@ rm hub-linux-amd64-2.14.2.tgz && \
 cp hub-linux-amd64-2.14.2/bin/hub /usr/bin/hub && \
 rm -rf hub-linux-amd64-2.14.2
 
-RUN \
-cd /opt && \
-wget ${WGET_ARGS} https://github.com/facebook/infer/releases/download/v1.1.0/infer-linux64-v1.1.0.tar.xz && \
-tar -xf infer-linux64-v1.1.0.tar.xz && \
-rm infer-linux64-v1.1.0.tar.xz && \
-cp $(find /lib/clang -mindepth 1 -maxdepth 1 -type d | sort -r | head -1)/lib/linux/libclang_rt.profile-x86_64.a /opt/infer-linux64-v1.1.0/lib/infer/facebook-clang-plugins/clang/install/lib/clang/11.1.0/lib/linux
-
-ENV PATH="/opt/infer-linux64-v1.1.0/bin:/opendeck-deps/arduino-1.8.19/hardware/tools/avr/bin:/opendeck-deps/gcc-arm-none-eabi-10.3-2021.10/bin:$PATH"
+ENV PATH="/opendeck-deps/arduino-1.8.19/hardware/tools/avr/bin:/opendeck-deps/gcc-arm-none-eabi-10.3-2021.10/bin:$PATH"
 
 #setup gtest/gmock
 RUN \
