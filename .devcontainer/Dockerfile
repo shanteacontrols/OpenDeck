@@ -83,7 +83,6 @@ rm -rf hub-linux-amd64-2.14.2
 
 ENV PATH="/opendeck-deps/arduino-1.8.19/hardware/tools/avr/bin:/opendeck-deps/gcc-arm-none-eabi-10.3-2021.10/bin:$PATH"
 
-#setup gtest/gmock
 RUN \
 cd /opendeck-deps && \
 git clone https://github.com/google/googletest.git -b release-1.11.0 && \
@@ -96,7 +95,6 @@ make install && \
 cd ../../ && \
 rm -rf googletest
 
-#use newer version of glog
 RUN \
 cd /opendeck-deps && \
 git clone https://github.com/google/glog.git && \
@@ -112,18 +110,18 @@ ldconfig
 RUN \
 pip install compiledb
 
-#don't run as root!
+# Don't run as root!
 RUN adduser --disabled-password --gecos '' $user
 
-#add user to sudo group
+# Add user to sudo group
 RUN adduser $user sudo
 
-#disable password prompt for sudo commands
+# Disable password prompt for sudo commands
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 RUN echo "alias mkc='make clean'" >> /home/$user/.bashrc
 RUN echo "export MAKEFLAGS=-j$(nproc)" >> /home/$user/.bashrc
 
-#run everything below as $user
+# Run everything below as $user
 USER $user
 WORKDIR /home/$user
 
