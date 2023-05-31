@@ -8,6 +8,7 @@ for arg in "$@"; do
     case "$arg" in
         --build)
             compose_file=docker-compose-build.yml
+            build=1
             ;;
     esac
 done
@@ -26,7 +27,14 @@ then
     echo "Attaching to $container..."
 else
     echo "Creating new container"
-    docker-compose -f $compose_file build
+
+    if [[ "$build" -eq 1 ]]
+    then
+        docker-compose -f $compose_file build
+    else
+        docker-compose -f $compose_file pull
+    fi
+
     docker-compose -f $compose_file up -d
 fi
 
