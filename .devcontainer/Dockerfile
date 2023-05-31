@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:23.04
 
 ARG user=opendeck
 ARG WGET_ARGS="-q --show-progress --progress=bar:force:noscroll"
