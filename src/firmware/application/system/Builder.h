@@ -18,20 +18,20 @@ limitations under the License.
 
 #pragma once
 
-#include "system/System.h"
-#include "io/buttons/Buttons.h"
-#include "io/buttons/Filter.h"
-#include "io/encoders/Encoders.h"
-#include "io/encoders/Filter.h"
-#include "io/analog/Analog.h"
-#include "io/analog/Filter.h"
-#include "io/leds/LEDs.h"
-#include "io/i2c/I2C.h"
-#include "io/i2c/peripherals/Builder.h"
-#include "io/touchscreen/Touchscreen.h"
-#include "io/touchscreen/model/Builder.h"
-#include "protocol/midi/MIDI.h"
-#include "database/Layout.h"
+#include "application/system/System.h"
+#include "application/io/buttons/Buttons.h"
+#include "application/io/buttons/Filter.h"
+#include "application/io/encoders/Encoders.h"
+#include "application/io/encoders/Filter.h"
+#include "application/io/analog/Analog.h"
+#include "application/io/analog/Filter.h"
+#include "application/io/leds/LEDs.h"
+#include "application/io/i2c/I2C.h"
+#include "application/io/i2c/peripherals/Builder.h"
+#include "application/io/touchscreen/Touchscreen.h"
+#include "application/io/touchscreen/model/Builder.h"
+#include "application/protocol/midi/MIDI.h"
+#include "application/database/Layout.h"
 
 namespace sys
 {

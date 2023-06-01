@@ -18,8 +18,8 @@ limitations under the License.
 
 #pragma once
 
-#include "io/i2c/I2C.h"
-#include "database/Database.h"
+#include "application/io/i2c/I2C.h"
+#include "application/database/Database.h"
 
 namespace io
 {

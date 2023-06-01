@@ -36,7 +36,7 @@ then
     total_components=$($json_parser "$config" components --length)
 
     {
-        printf "%s\n\n" "#include \"database/Database.h\""
+        printf "%s\n\n" "#include \"application/database/Database.h\""
         printf "%s\n" "void database::Admin::customInitTouchscreen()"
         printf "%s\n" "{"
     } > "$out_src"

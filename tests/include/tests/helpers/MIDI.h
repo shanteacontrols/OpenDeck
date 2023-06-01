@@ -6,13 +6,13 @@
 #include <iomanip>
 #include <iostream>
 #include <fstream>
-#include "protocol/midi/MIDI.h"
+#include "application/protocol/midi/MIDI.h"
 #include "sysex/src/SysExConf.h"
-#include "util/conversion/Conversion.h"
-#include "system/System.h"
+#include "application/util/conversion/Conversion.h"
+#include "application/system/System.h"
 #include "Misc.h"
 #include "tests/stubs/System.h"
-#include "system/Config.h"
+#include "application/system/Config.h"
 #include <glog/logging.h>
 
 #ifdef PROJECT_TARGET_SUPPORT_HW_TESTS

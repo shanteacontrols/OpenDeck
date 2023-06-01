@@ -23,7 +23,7 @@ limitations under the License.
 #include <stdio.h>
 #include <stdlib.h>
 #include "core/Timing.h"
-#include "io/analog/Analog.h"
+#include "application/io/analog/Analog.h"
 #include "core/util/Util.h"
 #include "core/util/Filters.h"
 

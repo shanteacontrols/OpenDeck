@@ -1,7 +1,7 @@
 #include "tests/Common.h"
 #include "tests/stubs/Encoders.h"
 #include "tests/stubs/Listener.h"
-#include "util/configurable/Configurable.h"
+#include "application/util/configurable/Configurable.h"
 
 #ifdef ENCODERS_SUPPORTED
 

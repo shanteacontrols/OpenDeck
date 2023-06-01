@@ -18,7 +18,7 @@ limitations under the License.
 
 #pragma once
 
-#include "util/dispatcher/Dispatcher.h"
+#include "application/util/dispatcher/Dispatcher.h"
 #include "midi/src/MIDI.h"
 
 namespace messaging

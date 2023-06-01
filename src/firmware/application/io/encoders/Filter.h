@@ -20,7 +20,7 @@ limitations under the License.
 
 #ifdef ENCODERS_SUPPORTED
 
-#include "io/encoders/Encoders.h"
+#include "application/io/encoders/Encoders.h"
 #include "core/util/Util.h"
 
 namespace io

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "io/i2c/I2C.h"
+#include "application/io/i2c/I2C.h"
 
 class HWADisplay : public io::I2C::Peripheral::HWA
 {

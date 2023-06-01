@@ -20,7 +20,7 @@ limitations under the License.
 
 #include <functional>
 #include "core/Timing.h"
-#include "database/Database.h"
+#include "application/database/Database.h"
 
 namespace util
 {

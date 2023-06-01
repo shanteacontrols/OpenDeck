@@ -18,15 +18,15 @@ limitations under the License.
 
 #pragma once
 
-#include "io/common/Common.h"
+#include "application/io/common/Common.h"
 #include "midi/src/transport/usb/USB.h"
 #include "midi/src/transport/serial/Serial.h"
 #include "midi/src/transport/ble/BLE.h"
-#include "protocol/ProtocolBase.h"
-#include "database/Database.h"
-#include "system/Config.h"
-#include "protocol/ProtocolBase.h"
-#include "messaging/Messaging.h"
+#include "application/protocol/ProtocolBase.h"
+#include "application/database/Database.h"
+#include "application/system/Config.h"
+#include "application/protocol/ProtocolBase.h"
+#include "application/messaging/Messaging.h"
 
 namespace protocol
 {

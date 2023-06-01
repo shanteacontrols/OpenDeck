@@ -19,9 +19,9 @@ limitations under the License.
 #include "core/Timing.h"
 #include "core/MCU.h"
 #include "board/Board.h"
-#include "io/common/Common.h"
-#include "system/System.h"
-#include "system/Builder.h"
+#include "application/io/common/Common.h"
+#include "application/system/System.h"
+#include "application/system/Builder.h"
 #ifdef APP_USE_LOGGER
 #include "logger/Logger.h"
 #endif

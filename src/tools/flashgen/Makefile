@@ -16,9 +16,6 @@ endif
 
 INCLUDE_DIRS := $(filter-out %avr-libstdcpp/include",$(INCLUDE_DIRS))
 
-INCLUDE_DIRS += \
--I"firmware/application"
-
 SOURCES :=
 
 ifeq ($(CORE_MCU_ARCH),arm)

@@ -18,8 +18,8 @@ limitations under the License.
 
 #pragma once
 
-#include "database/Database.h"
-#include "system/Config.h"
+#include "application/database/Database.h"
+#include "application/system/Config.h"
 #include "sysex/src/SysExConf.h"
 
 namespace util

@@ -21,8 +21,8 @@ limitations under the License.
 #include <inttypes.h>
 #include <stddef.h>
 #include <array>
-#include "util/incdec/IncDec.h"
-#include "messaging/Messaging.h"
+#include "application/util/incdec/IncDec.h"
+#include "application/messaging/Messaging.h"
 
 namespace global
 {

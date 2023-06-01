@@ -4,7 +4,7 @@
 #include "tests/stubs/System.h"
 #include "tests/stubs/Listener.h"
 #include "tests/helpers/MIDI.h"
-#include "util/configurable/Configurable.h"
+#include "application/util/configurable/Configurable.h"
 
 using namespace io;
 

@@ -23,9 +23,9 @@ limitations under the License.
 #include <iterator>
 #include <string>
 #include <cstddef>
-#include "util/conversion/Conversion.h"
-#include "updater/Updater.h"
-#include "system/Config.h"
+#include "application/util/conversion/Conversion.h"
+#include "bootloader/updater/Updater.h"
+#include "application/system/Config.h"
 
 namespace
 {

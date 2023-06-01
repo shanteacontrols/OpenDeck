@@ -3,9 +3,9 @@
 #if __has_include(<EmuEEPROMConfig.h>)
 #include "EmuEEPROM/EmuEEPROM.h"
 #endif
-#include "database/Layout.h"
+#include "application/database/Layout.h"
 #include "tests/Common.h"
-#include "system/Builder.h"
+#include "application/system/Builder.h"
 
 class DBstorageMock : public ::sys::Builder::HWA::Database
 {

@@ -22,8 +22,8 @@ limitations under the License.
 #include <array>
 #include <iterator>
 #include <string>
-#include "database/Database.h"
-#include "database/Layout.h"
+#include "application/database/Database.h"
+#include "application/database/Layout.h"
 #include "EmuEEPROM/EmuEEPROM.h"
 #include "CoreMCUGenerated.h"
 

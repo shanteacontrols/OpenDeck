@@ -3,7 +3,7 @@
 
 #include "tests/Common.h"
 #include "SysExParser/SysExParser.h"
-#include "updater/Updater.h"
+#include "bootloader/updater/Updater.h"
 #include "tests/helpers/MIDI.h"
 
 #include <filesystem>

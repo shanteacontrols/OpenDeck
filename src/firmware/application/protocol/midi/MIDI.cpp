@@ -17,12 +17,12 @@ limitations under the License.
 */
 
 #include "MIDI.h"
-#include "system/Config.h"
-#include "util/conversion/Conversion.h"
-#include "messaging/Messaging.h"
-#include "util/configurable/Configurable.h"
-#include "util/logger/Logger.h"
-#include "global/MIDIProgram.h"
+#include "application/system/Config.h"
+#include "application/util/conversion/Conversion.h"
+#include "application/messaging/Messaging.h"
+#include "application/util/configurable/Configurable.h"
+#include "application/util/logger/Logger.h"
+#include "application/global/MIDIProgram.h"
 
 using namespace io;
 

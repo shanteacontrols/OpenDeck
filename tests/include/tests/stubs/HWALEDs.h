@@ -1,6 +1,6 @@
 #pragma once
 
-#include "io/leds/LEDs.h"
+#include "application/io/leds/LEDs.h"
 
 class HWALEDs : public io::LEDs::HWA
 {

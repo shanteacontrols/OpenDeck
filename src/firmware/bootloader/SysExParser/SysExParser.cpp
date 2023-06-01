@@ -17,8 +17,8 @@ limitations under the License.
 */
 
 #include "SysExParser.h"
-#include "util/conversion/Conversion.h"
-#include "system/Config.h"
+#include "application/util/conversion/Conversion.h"
+#include "application/system/Config.h"
 
 bool SysExParser::isValidMessage(MIDI::usbMIDIPacket_t& packet)
 {

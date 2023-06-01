@@ -21,11 +21,11 @@ limitations under the License.
 #include <inttypes.h>
 #include <stdlib.h>
 #include <array>
-#include "database/Database.h"
-#include "io/common/Common.h"
-#include "system/Config.h"
-#include "messaging/Messaging.h"
-#include "io/IOBase.h"
+#include "application/database/Database.h"
+#include "application/io/common/Common.h"
+#include "application/system/Config.h"
+#include "application/messaging/Messaging.h"
+#include "application/io/IOBase.h"
 
 #ifdef PROJECT_TARGET_SUPPORT_TOUCHSCREEN
 

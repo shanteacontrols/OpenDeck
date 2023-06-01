@@ -20,10 +20,10 @@ limitations under the License.
 
 #include "u8g2/csrc/u8x8.h"
 #include "core/util/StringBuilder.h"
-#include "database/Database.h"
-#include "messaging/Messaging.h"
-#include "system/Config.h"
-#include "io/i2c/I2C.h"
+#include "application/database/Database.h"
+#include "application/messaging/Messaging.h"
+#include "application/system/Config.h"
+#include "application/io/i2c/I2C.h"
 
 namespace io
 {

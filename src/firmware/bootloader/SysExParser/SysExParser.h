@@ -20,7 +20,7 @@ limitations under the License.
 
 #include <stddef.h>
 #include <inttypes.h>
-#include "protocol/midi/MIDI.h"
+#include "application/protocol/midi/MIDI.h"
 
 using namespace protocol;
 

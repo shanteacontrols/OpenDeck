@@ -1,6 +1,6 @@
 #include "tests/Common.h"
 #include "core/Timing.h"
-#include "util/logger/Logger.h"
+#include "application/util/logger/Logger.h"
 
 #ifdef APP_USE_LOGGER
 CORE_LOGGER_CREATE(APP_LOGGER, [](const char* message)

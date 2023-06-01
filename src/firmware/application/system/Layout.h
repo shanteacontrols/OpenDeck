@@ -18,15 +18,15 @@
 
 #pragma once
 
-#include "database/Database.h"
+#include "application/database/Database.h"
 #include "sysex/src/SysExConf.h"
-#include "io/buttons/Buttons.h"
-#include "io/encoders/Encoders.h"
-#include "io/analog/Analog.h"
-#include "io/leds/LEDs.h"
-#include "io/i2c/peripherals/display/Display.h"
-#include "io/touchscreen/Touchscreen.h"
-#include "protocol/midi/MIDI.h"
+#include "application/io/buttons/Buttons.h"
+#include "application/io/encoders/Encoders.h"
+#include "application/io/analog/Analog.h"
+#include "application/io/leds/LEDs.h"
+#include "application/io/i2c/peripherals/display/Display.h"
+#include "application/io/touchscreen/Touchscreen.h"
+#include "application/protocol/midi/MIDI.h"
 
 namespace sys
 {

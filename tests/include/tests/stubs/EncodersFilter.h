@@ -1,6 +1,6 @@
 #pragma once
 
-#include "io/encoders/Filter.h"
+#include "application/io/encoders/Filter.h"
 
 class EncodersFilterStub : public io::Encoders::Filter
 {

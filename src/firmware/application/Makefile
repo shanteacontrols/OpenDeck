@@ -44,9 +44,6 @@ ifeq ($(DEBUG), 1)
     OPT      := -Og
 endif
 
-INCLUDE_DIRS += \
--I"firmware/application/"
-
 ifneq (,$(findstring PROJECT_TARGET_USB_OVER_SERIAL_HOST,$(DEFINES)))
     # FW for USB hosts uses different set of sources than other targets
     SOURCES += $(shell find firmware/usb-link -type f -name "*.cpp")

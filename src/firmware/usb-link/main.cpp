@@ -19,7 +19,7 @@ limitations under the License.
 #include "board/Board.h"
 #include "core/Timing.h"
 #include "core/MCU.h"
-#include "protocol/midi/MIDI.h"
+#include "application/protocol/midi/MIDI.h"
 
 using namespace board;
 using namespace protocol;

@@ -16,10 +16,10 @@ limitations under the License.
 
 */
 
-#include "database/Database.h"
-#include "io/buttons/Buttons.h"
-#include "io/analog/Analog.h"
-#include "io/leds/LEDs.h"
+#include "application/database/Database.h"
+#include "application/io/buttons/Buttons.h"
+#include "application/io/analog/Analog.h"
+#include "application/io/leds/LEDs.h"
 
 // each new group of components should have their IDs start from 0
 

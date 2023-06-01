@@ -21,8 +21,8 @@ limitations under the License.
 #include <array>
 #include <stddef.h>
 #include <inttypes.h>
-#include "io/IOBase.h"
-#include "io/common/Common.h"
+#include "application/io/IOBase.h"
+#include "application/io/common/Common.h"
 
 #ifdef PROJECT_TARGET_SUPPORT_I2C
 

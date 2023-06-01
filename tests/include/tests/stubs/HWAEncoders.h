@@ -1,6 +1,6 @@
 #pragma once
 
-#include "io/encoders/Encoders.h"
+#include "application/io/encoders/Encoders.h"
 
 class HWAEncoders : public io::Encoders::HWA
 {

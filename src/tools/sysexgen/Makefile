@@ -18,10 +18,6 @@ DEFINES += CORE_MCU_STUB
 
 INCLUDE_DIRS := $(filter-out %avr-libstdcpp/include",$(INCLUDE_DIRS))
 
-INCLUDE_DIRS += \
--I"firmware/application" \
--I"firmware/bootloader"
-
 SOURCES :=
 
 ifneq (,$(findstring PROJECT_MCU_SUPPORT_BOOTLOADER,$(DEFINES)))

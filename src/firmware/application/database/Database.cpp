@@ -18,8 +18,8 @@ limitations under the License.
 
 #include <inttypes.h>
 #include "core/util/Util.h"
-#include "util/conversion/Conversion.h"
-#include "util/configurable/Configurable.h"
+#include "application/util/conversion/Conversion.h"
+#include "application/util/configurable/Configurable.h"
 
 /// Helper macro for easier entry and exit from system block.
 /// Important: ::init must called before trying to use this macro.

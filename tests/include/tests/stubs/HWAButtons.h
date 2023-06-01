@@ -1,6 +1,6 @@
 #pragma once
 
-#include "io/buttons/Buttons.h"
+#include "application/io/buttons/Buttons.h"
 
 class HWAButtons : public io::Buttons::HWA
 {

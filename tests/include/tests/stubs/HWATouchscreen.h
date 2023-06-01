@@ -1,6 +1,6 @@
 #pragma once
 
-#include "io/touchscreen/Touchscreen.h"
+#include "application/io/touchscreen/Touchscreen.h"
 
 class HWATouchscreen : public io::Touchscreen::HWA
 {

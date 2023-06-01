@@ -19,7 +19,7 @@ limitations under the License.
 #pragma once
 
 #include <inttypes.h>
-#include "protocol/midi/MIDI.h"
+#include "application/protocol/midi/MIDI.h"
 
 using namespace protocol;
 

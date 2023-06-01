@@ -17,7 +17,7 @@ limitations under the License.
 */
 
 #include "CInfo.h"
-#include "messaging/Messaging.h"
+#include "application/messaging/Messaging.h"
 
 using namespace util;
 

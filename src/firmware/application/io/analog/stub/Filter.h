@@ -20,7 +20,7 @@ limitations under the License.
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "io/analog/Analog.h"
+#include "application/io/analog/Analog.h"
 
 namespace io
 {

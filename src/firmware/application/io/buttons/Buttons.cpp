@@ -18,15 +18,15 @@ limitations under the License.
 
 #include "Buttons.h"
 #include "sysex/src/SysExConf.h"
-#include "system/Config.h"
-#include "global/MIDIProgram.h"
+#include "application/system/Config.h"
+#include "application/global/MIDIProgram.h"
 
 #ifdef BUTTONS_SUPPORTED
 
 #include "core/util/Util.h"
 #include "core/Timing.h"
-#include "util/conversion/Conversion.h"
-#include "util/configurable/Configurable.h"
+#include "application/util/conversion/Conversion.h"
+#include "application/util/configurable/Configurable.h"
 
 using namespace io;
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "system/System.h"
+#include "application/system/System.h"
 
 class HWASystem : public sys::Instance::HWA
 {

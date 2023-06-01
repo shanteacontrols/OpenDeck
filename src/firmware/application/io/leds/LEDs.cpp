@@ -17,15 +17,15 @@ limitations under the License.
 */
 
 #include "LEDs.h"
-#include "messaging/Messaging.h"
-#include "global/MIDIProgram.h"
+#include "application/messaging/Messaging.h"
+#include "application/global/MIDIProgram.h"
 
 #ifdef LEDS_SUPPORTED
 
 #include "core/Timing.h"
 #include "core/util/Util.h"
-#include "util/conversion/Conversion.h"
-#include "util/configurable/Configurable.h"
+#include "application/util/conversion/Conversion.h"
+#include "application/util/configurable/Configurable.h"
 
 using namespace io;
 

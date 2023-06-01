@@ -17,7 +17,7 @@ limitations under the License.
 */
 
 #include "board/Board.h"
-#include "updater/Updater.h"
+#include "bootloader/updater/Updater.h"
 #include "SysExParser/SysExParser.h"
 #include "FwSelector/FwSelector.h"
 #include "core/Timing.h"

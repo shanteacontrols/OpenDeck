@@ -22,8 +22,8 @@ limitations under the License.
 
 #include "core/Timing.h"
 #include "core/util/Util.h"
-#include "util/conversion/Conversion.h"
-#include "util/configurable/Configurable.h"
+#include "application/util/conversion/Conversion.h"
+#include "application/util/configurable/Configurable.h"
 
 using namespace io;
 

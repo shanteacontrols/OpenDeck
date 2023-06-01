@@ -1,6 +1,6 @@
 #pragma once
 
-#include "system/Builder.h"
+#include "application/system/Builder.h"
 
 class HWAAnalog : public ::sys::Builder::HWA::IO::Analog
 {

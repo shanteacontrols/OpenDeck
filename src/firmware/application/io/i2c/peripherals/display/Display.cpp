@@ -21,12 +21,12 @@ limitations under the License.
 #include <string.h>
 #include "Display.h"
 #include "strings/Strings.h"
-#include "protocol/midi/MIDI.h"
+#include "application/protocol/midi/MIDI.h"
 #include "core/Timing.h"
 #include "core/util/Util.h"
-#include "io/common/Common.h"
-#include "util/conversion/Conversion.h"
-#include "util/configurable/Configurable.h"
+#include "application/io/common/Common.h"
+#include "application/util/conversion/Conversion.h"
+#include "application/util/configurable/Configurable.h"
 
 using namespace io;
 using namespace protocol;

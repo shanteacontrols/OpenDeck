@@ -18,12 +18,12 @@ limitations under the License.
 
 #pragma once
 
-#include "database/Database.h"
-#include "messaging/Messaging.h"
-#include "io/common/Common.h"
-#include "system/Config.h"
-#include "io/IOBase.h"
-#include "protocol/midi/MIDI.h"
+#include "application/database/Database.h"
+#include "application/messaging/Messaging.h"
+#include "application/io/common/Common.h"
+#include "application/system/Config.h"
+#include "application/io/IOBase.h"
+#include "application/protocol/midi/MIDI.h"
 
 #ifdef PROJECT_TARGET_SUPPORT_ADC
 

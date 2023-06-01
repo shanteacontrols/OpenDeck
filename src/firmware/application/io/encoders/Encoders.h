@@ -19,13 +19,13 @@ limitations under the License.
 #pragma once
 
 #include <array>
-#include "database/Database.h"
-#include "io/IOBase.h"
-#include "messaging/Messaging.h"
-#include "global/MIDIProgram.h"
-#include "system/Config.h"
-#include "io/IOBase.h"
-#include "protocol/midi/MIDI.h"
+#include "application/database/Database.h"
+#include "application/io/IOBase.h"
+#include "application/messaging/Messaging.h"
+#include "application/global/MIDIProgram.h"
+#include "application/system/Config.h"
+#include "application/io/IOBase.h"
+#include "application/protocol/midi/MIDI.h"
 
 using namespace protocol;
 

@@ -3,8 +3,8 @@
 #include "tests/Common.h"
 #include "tests/stubs/Analog.h"
 #include "tests/stubs/Listener.h"
-#include "io/buttons/Buttons.h"
-#include "util/configurable/Configurable.h"
+#include "application/io/buttons/Buttons.h"
+#include "application/util/configurable/Configurable.h"
 
 using namespace io;
 

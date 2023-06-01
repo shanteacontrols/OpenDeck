@@ -20,7 +20,7 @@ limitations under the License.
 
 #ifdef BUTTONS_SUPPORTED
 
-#include "io/buttons/Buttons.h"
+#include "application/io/buttons/Buttons.h"
 
 namespace io
 {

@@ -18,7 +18,8 @@ limitations under the License.
 
 #pragma once
 
-#include "io/IOBase.h"
+#include "application/io/IOBase.h"
+
 namespace io
 {
     class Analog : public io::Base

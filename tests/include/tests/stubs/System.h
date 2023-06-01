@@ -9,8 +9,8 @@
 #include "HWADisplay.h"
 #include "HWAMIDI.h"
 #include "Database.h"
-#include "system/Builder.h"
-#include "system/System.h"
+#include "application/system/Builder.h"
+#include "application/system/System.h"
 
 class TestSystem
 {

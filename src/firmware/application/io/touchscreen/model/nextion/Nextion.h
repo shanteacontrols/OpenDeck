@@ -19,7 +19,7 @@ limitations under the License.
 #pragma once
 
 #include <inttypes.h>
-#include "io/touchscreen/Touchscreen.h"
+#include "application/io/touchscreen/Touchscreen.h"
 #include "core/util/RingBuffer.h"
 
 class Nextion : public io::Touchscreen::Model

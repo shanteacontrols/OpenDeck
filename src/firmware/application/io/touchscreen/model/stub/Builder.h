@@ -18,7 +18,7 @@ limitations under the License.
 
 #pragma once
 
-#include "io/touchscreen/Touchscreen.h"
+#include "application/io/touchscreen/Touchscreen.h"
 
 namespace io
 {

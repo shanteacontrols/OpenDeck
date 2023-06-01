@@ -20,7 +20,7 @@ limitations under the License.
 
 #include <type_traits>
 #include "dbms/src/LESSDB.h"
-#include "system/Config.h"
+#include "application/system/Config.h"
 #include "Config.h"
 
 namespace database
