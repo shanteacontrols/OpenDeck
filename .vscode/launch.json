@@ -10,17 +10,11 @@
             "request": "launch",
             "program": "${workspaceFolder}/tests/build/test.out",
             "args": [],
-            "stopAtEntry": false,
+            "stopAtEntry": true,
             "environment": [],
             "externalConsole": false,
-            "linux": {
-                "cwd": "${workspaceFolder}",
-                "MIMode": "gdb"
-            },
-            "osx": {
-                "cwd": "${workspaceFolder}",
-                "MIMode": "lldb"
-            },
+            "cwd": "${workspaceFolder}",
+            "MIMode": "gdb",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",

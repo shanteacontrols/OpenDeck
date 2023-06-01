@@ -25,3 +25,4 @@ Documentation/*
 *-bak
 *.kicad_prl
 **/infer-out/*
+release/*

@@ -74,5 +74,5 @@ then
         printf "%s\n" "}"
     } >> "$out_header"
 
-    printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_UNUSED_IO=$unused_pins" >> "$out_makefile"
+    printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_UNUSED_IO=$unused_pins)" >> "$out_cmakelists"
 fi

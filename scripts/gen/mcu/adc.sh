@@ -8,10 +8,10 @@ adc_samples=$($yaml_parser "$project_yaml_file" adc.samples)
 
 if [[ $adc_prescaler != "null" ]]
 then
-    printf "%s\n" "PROJECT_MCU_DEFINES += PROJECT_MCU_ADC_PRESCALER=$adc_prescaler" >> "$out_makefile"
+    printf "%s\n" "list(APPEND $cmake_mcu_defines_var PROJECT_MCU_ADC_PRESCALER=$adc_prescaler)" >> "$out_cmakelists"
 fi
 
 if [[ $adc_samples != "null" ]]
 then
-    printf "%s\n" "PROJECT_MCU_DEFINES += PROJECT_MCU_ADC_SAMPLES=$adc_samples" >> "$out_makefile"
+    printf "%s\n" "list(APPEND $cmake_mcu_defines_var PROJECT_MCU_ADC_SAMPLES=$adc_samples)" >> "$out_cmakelists"
 fi

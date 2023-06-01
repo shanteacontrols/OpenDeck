@@ -55,8 +55,9 @@ namespace
         bool                 updated      = false;
     };
 
-    const std::string fw_build_dir         = "../src/build/";
     const std::string fw_build_type_subdir = "release/";
+    const std::string FW_UPDATE_FILE_SYSEX = "firmware.syx";
+    const std::string FW_UPDATE_FILE_BIN   = "firmware.bin";
 
     SysExParser _sysExParser;
     BTLDRWriter _btldrWriter;
@@ -66,31 +67,28 @@ namespace
 
 TEST(Bootloader, FwUpdate)
 {
-    const std::filesystem::path SYX_PATH    = std::string(fw_build_dir + PROJECT_TARGET_NAME + "/" + fw_build_type_subdir + "merged/" + PROJECT_TARGET_NAME + ".sysex.syx");
-    const std::filesystem::path BINARY_PATH = std::string(fw_build_dir + PROJECT_TARGET_NAME + "/" + fw_build_type_subdir + "merged/" + PROJECT_TARGET_NAME + "_sysex.bin");
-
-    if (!std::filesystem::exists(SYX_PATH))
+    if (!std::filesystem::exists(FW_UPDATE_FILE_SYSEX))
     {
-        LOG(ERROR) << SYX_PATH << " doesn't exist";
+        LOG(ERROR) << FW_UPDATE_FILE_SYSEX << " doesn't exist";
         ASSERT_TRUE(true == false);
     }
 
-    if (!std::filesystem::exists(BINARY_PATH))
+    if (!std::filesystem::exists(FW_UPDATE_FILE_BIN))
     {
-        LOG(ERROR) << BINARY_PATH << " doesn't exist";
+        LOG(ERROR) << FW_UPDATE_FILE_SYSEX << " doesn't exist";
         ASSERT_TRUE(true == false);
     }
 
-    std::ifstream        sysExStream(SYX_PATH, std::ios::in | std::ios::binary);
+    std::ifstream        sysExStream(FW_UPDATE_FILE_SYSEX, std::ios::in | std::ios::binary);
     std::vector<uint8_t> sysExVector((std::istreambuf_iterator<char>(sysExStream)), std::istreambuf_iterator<char>());
-    std::ifstream        binaryStream(BINARY_PATH, std::ios::in | std::ios::binary);
+    std::ifstream        binaryStream(FW_UPDATE_FILE_BIN, std::ios::in | std::ios::binary);
     std::vector<uint8_t> binaryVector((std::istreambuf_iterator<char>(binaryStream)), std::istreambuf_iterator<char>());
 
     std::vector<uint8_t>               singleSysExMsg = {};
     std::vector<MIDI::usbMIDIPacket_t> packets        = {};
 
-    // Go over the entire .syx file.
-    // Upon reaching the end of single sysex message, convert it
+    // Go over the entire SysEx file.
+    // Upon reaching the end of single SysEx message, convert it
     // into series of USB MIDI packets.
     for (size_t i = 0; i < sysExVector.size(); i++)
     {
@@ -129,7 +127,7 @@ TEST(Bootloader, FwUpdate)
     // once all data has been fed into updater, firmware update procedure should be complete
     ASSERT_TRUE(_btldrWriter.updated);
 
-    // written content should also match the original binary file from which .syx file has been created
+    // written content should also match the original binary file from which SysEx file has been created
     // verify only until binaryVector.size() -> writtenBytes vector could be slightly larger due to padding
     for (size_t i = 0; i < binaryVector.size(); i++)
     {

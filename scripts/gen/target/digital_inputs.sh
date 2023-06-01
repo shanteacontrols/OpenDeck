@@ -2,7 +2,7 @@
 
 if [[ "$($yaml_parser "$yaml_file" buttons)" != "null" ]]
 then
-    printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_DIGITAL_INPUTS" >> "$out_makefile"
+    printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORT_DIGITAL_INPUTS)" >> "$out_cmakelists"
 
     digital_in_type=$($yaml_parser "$yaml_file" buttons.type)
 
@@ -11,7 +11,7 @@ then
 
     if [[ $digital_in_type == native ]]
     then
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_DRIVER_DIGITAL_INPUT_NATIVE" >> "$out_makefile"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_DRIVER_DIGITAL_INPUT_NATIVE)" >> "$out_cmakelists"
 
         nr_of_digital_inputs=$($yaml_parser "$yaml_file" buttons.pins --length)
 
@@ -89,7 +89,7 @@ then
         done
 
         {
-            printf "%s\n" "};" >> "$out_header"
+            printf "%s\n" "};"
             printf "%s\n" "constexpr inline uint8_t BUTTON_PIN_INDEX[PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS] = {"
         } >> "$out_header"
 
@@ -105,11 +105,11 @@ then
 
         if [[ "$($yaml_parser "$yaml_file" buttons.extPullups)" == "true" ]]
         then
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_BUTTONS_EXT_PULLUPS" >> "$out_makefile"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_BUTTONS_EXT_PULLUPS)" >> "$out_cmakelists"
         fi
     elif [[ $digital_in_type == shiftRegister ]]
     then
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_DRIVER_DIGITAL_INPUT_SHIFT_REGISTER" >> "$out_makefile"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_DRIVER_DIGITAL_INPUT_SHIFT_REGISTER)" >> "$out_cmakelists"
 
         port=$($yaml_parser "$yaml_file" buttons.pins.data.port)
         index=$($yaml_parser "$yaml_file" buttons.pins.data.index)
@@ -138,7 +138,7 @@ then
         number_of_in_sr=$($yaml_parser "$yaml_file" buttons.shiftRegisters)
         nr_of_digital_inputs=$(( 8 * "$number_of_in_sr"))
 
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_IN_SR=$number_of_in_sr" >> "$out_makefile"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_IN_SR=$number_of_in_sr)" >> "$out_cmakelists"
     elif [[ $digital_in_type == matrix ]]
     then
         number_of_rows=0
@@ -146,7 +146,7 @@ then
 
         if [[ $($yaml_parser "$yaml_file" buttons.rows.type) == "shiftRegister" ]]
         then
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_DRIVER_DIGITAL_INPUT_MATRIX_SHIFT_REGISTER_ROWS" >> "$out_makefile"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_DRIVER_DIGITAL_INPUT_MATRIX_SHIFT_REGISTER_ROWS)" >> "$out_cmakelists"
 
             number_of_in_sr=$($yaml_parser "$yaml_file" buttons.rows.shiftRegisters)
             number_of_rows=$((8 * number_of_in_sr))
@@ -175,10 +175,10 @@ then
                 printf "%s\n" "#define PIN_INDEX_SR_IN_LATCH CORE_MCU_IO_PIN_INDEX_DEF(${index})"
             } >> "$out_header"
 
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_IN_SR=$number_of_in_sr" >> "$out_makefile"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_IN_SR=$number_of_in_sr)" >> "$out_cmakelists"
         elif [[ $($yaml_parser "$yaml_file" buttons.rows.type) == "native" ]]
         then
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_DRIVER_DIGITAL_INPUT_MATRIX_NATIVE_ROWS" >> "$out_makefile"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_DRIVER_DIGITAL_INPUT_MATRIX_NATIVE_ROWS)" >> "$out_cmakelists"
 
             number_of_rows=$($yaml_parser "$yaml_file" buttons.rows.pins --length)
 
@@ -234,12 +234,12 @@ then
         nr_of_digital_inputs=$(("$number_of_columns" * "$number_of_rows"))
 
         {
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_BUTTON_COLUMNS=$number_of_columns"
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_BUTTON_ROWS=$number_of_rows"
-        } >> "$out_makefile"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_BUTTON_COLUMNS=$number_of_columns)"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_BUTTON_ROWS=$number_of_rows)"
+        } >> "$out_cmakelists"
     fi
 
-    printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS=$nr_of_digital_inputs" >> "$out_makefile"
+    printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS=$nr_of_digital_inputs)" >> "$out_cmakelists"
 
     if [[ "$($yaml_parser "$yaml_file" buttons.indexing)" != "null" ]]
     then
@@ -262,15 +262,15 @@ then
         } >> "$out_header"
 
         {
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_INDEXING_BUTTONS"
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORTED_NR_OF_DIGITAL_INPUTS=$nr_of_digital_inputs"
-        } >> "$out_makefile"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_INDEXING_BUTTONS)"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORTED_NR_OF_DIGITAL_INPUTS=$nr_of_digital_inputs)"
+        } >> "$out_cmakelists"
     else
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORTED_NR_OF_DIGITAL_INPUTS=$nr_of_digital_inputs" >> "$out_makefile"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORTED_NR_OF_DIGITAL_INPUTS=$nr_of_digital_inputs)" >> "$out_cmakelists"
     fi
 else
     {
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS=0"
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORTED_NR_OF_DIGITAL_INPUTS=0"
-    } >> "$out_makefile"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS=0)"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORTED_NR_OF_DIGITAL_INPUTS=0)"
+    } >> "$out_cmakelists"
 fi

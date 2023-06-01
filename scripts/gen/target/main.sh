@@ -2,15 +2,11 @@
 
 {
     printf "%s\n\n" "#pragma once"
-    printf "%s\n" "#include \"board/src/Internal.h\""
+    printf "%s\n" "#include \"Internal.h\""
     printf "%s\n" "#include \"core/MCU.h\""
     printf "%s\n" "#include \"core/arch/common/UART.h\""
     printf "%s\n" "#include \"core/arch/common/I2C.h\""
 } >> "$out_header"
-
-{
-    printf "%s%s\n" '-include $(MCU_GEN_DIR_BASE)/' "$mcu/CoreMCUGenerated.mk"
-} >> "$out_makefile"
 
 target_name_string=$($yaml_parser "$yaml_file" targetNameOverride)
 
@@ -20,9 +16,12 @@ then
 fi
 
 {
-    printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NAME=\\\"$target_name_string\\\""
-    printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_UID=$($script_dir/gen_fw_uid.sh "$target_name")"
-} >> "$out_makefile"
+    printf "%s\n" "include(${mcu_gen_dir}/CMakeLists.txt)"
+    printf "%s\n" "set(PROJECT_TARGET_MCU ${mcu})"
+    printf "%s\n" "set(${cmake_defines_var} \"\")"
+    printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NAME=\\\"$target_name_string\\\")"
+    printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_UID=$($script_dir/gen_fw_uid.sh "$target_name"))"
+}  > "$out_cmakelists"
 
 for FILE in "$script_dir"/target/*
 do
@@ -32,4 +31,4 @@ do
     fi
 done
 
-printf "\n%s" "#include \"board/src/common/Map.h.include\"" >> "$out_header"
+printf "\n%s" "#include \"common/Map.h.include\"" >> "$out_header"

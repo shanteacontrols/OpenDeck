@@ -1,0 +1,50 @@
+cmake_minimum_required(VERSION 3.22)
+set(TARGET "" CACHE STRING "Target name")
+
+project(flashgen)
+enable_language(CXX)
+
+set(PROJECT_ROOT ${CMAKE_CURRENT_LIST_DIR}/../../../)
+
+include(${PROJECT_ROOT}/modules/core/cmake/ccache.cmake)
+include(${PROJECT_ROOT}/src/generated/target/${TARGET}/CMakeLists.txt)
+
+add_executable(flashgen)
+add_subdirectory(${PROJECT_ROOT}/modules/EmuEEPROM ${CMAKE_CURRENT_BINARY_DIR}/modules/EmuEEPROM)
+
+target_compile_definitions(emueeprom
+    PUBLIC
+    EMU_EEPROM_PAGE_SIZE=${EMU_EEPROM_PAGE_SIZE}
+)
+
+target_include_directories(emueeprom
+    PUBLIC
+    ${PROJECT_ROOT}/src/generated/mcu/${PROJECT_TARGET_MCU}
+)
+
+target_compile_definitions(flashgen
+    PUBLIC
+    ${PROJECT_TARGET_DEFINES}
+    PROJECT_MCU_FLASH_PAGE_FACTORY=${PROJECT_MCU_FLASH_PAGE_FACTORY}
+)
+
+target_include_directories(flashgen
+    PUBLIC
+    ${PROJECT_ROOT}/src/firmware
+    ${PROJECT_ROOT}/modules
+    ${PROJECT_ROOT}/modules/core/include
+)
+
+target_sources(flashgen
+    PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/main.cpp
+    ${PROJECT_ROOT}/src/firmware/application/database/CustomInit.cpp
+    ${PROJECT_ROOT}/src/firmware/application/database/Database.cpp
+    ${PROJECT_ROOT}/src/firmware/application/util/configurable/Configurable.cpp
+    ${PROJECT_ROOT}/modules/dbms/src/LESSDB.cpp
+)
+
+target_link_libraries(flashgen
+    PUBLIC
+    emueeprom
+)

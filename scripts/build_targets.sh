@@ -4,117 +4,85 @@ set -e
 
 function usage
 {
-    echo -e "\nUsage: ./$(basename "$0") --type [--hw]"
+    echo -e "\nUsage: ./$(basename "$0") --type"
 
     echo -e "
-    This script is used to build specific set of targets from targets.yml file
-    located in the root directory of OpenDeck repository.
-    If the script is launched from src directory, all available firmwares for all targets will be built.
-    If the script is launched from tests directory, all tests for all targets will be built."
+    This script is used to build all available targets present in config/target subdirectory.
+    This script can be launched with different --type options:
 
-    echo -e "\n--hw
-    If set, only tests which run on physical boards will be compiled. Otherwise, this flag is ignored."
+    --type=build
+    This option will build the firmware for all the targets.
 
-    echo -e "\n--clean
-    If set, all build artifacts will be cleaned before running the build."
+    --type=test
+    This option will build and run the tests for all the targets. Hardware tests will not be run.
+
+    --type=hw-test
+    This option will build and run just hardware tests for all the targets.
+
+    --type=lint
+    This option will build the firmware for all the targets and then perform static analysis.
+    "
 
     echo -e "\n--help
     Displays script usage"
 }
 
-run_dir_src="OpenDeck/src"
-run_dir_tests="OpenDeck/tests"
-
-if [[ $(pwd) != *"$run_dir_src" && $(pwd) != *"$run_dir_tests" ]]
-then
-    echo "ERROR: Script must be run either from src or tests directory!"
-    usage
-    exit 1
-fi
-
 if [[ ("$*" == "--help") ]]
 then
     usage
-    exit 1
+    exit 0
 fi
 
-for i in "$@"; do
-    case "$i" in
-        --hw)
-            hw=1
-            ;;
-
-        --clean)
-            clean=1
+for arg in "$@"; do
+    case "$arg" in
+        --type=*)
+            type=${arg#--type=}
             ;;
     esac
 done
 
-run_dir=$(basename "$(pwd)")
-
-case $run_dir in
-  src)
-    type="fw"
-    ;;
-
-  tests)
-    type="tests"
-    ;;
-
-  *)
-    exit 1
-    ;;
-esac
-
-if [[ -n "$clean" ]]
-then
-    make clean
-fi
-
+script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+project_root="$(realpath "${script_dir}"/..)"
 targets=()
 
-if [[ "$type" == "tests" ]]
-then
-    make generate
-fi
-
-if [[ "$type" == "tests" && -n "$hw" ]]
-then
-    for target in ../config/hw-test/*.yml;
-    do
-        targets+=("$(basename "$target" .yml)")
-    done
-else
-    for target in ../config/target/*.yml;
-    do
-        targets+=("$(basename "$target" .yml)")
-    done
-fi
+for target in "$project_root"/config/target/*.yml;
+do
+    targets+=("$(basename "$target" .yml)")
+done
 
 len_targets=${#targets[@]}
 
-for (( i=0; i<len_targets; i++ ))
-do
-    if [[ "$type" != "tests" ]]
-    then
-        make TARGET="${targets[$i]}" DEBUG=0
-    else
-        # Binaries, sysex files and defines are needed for tests, compile that as well
-        make --no-print-directory -C ../src TARGET="${targets[$i]}" DEBUG=0
+case $type in
+    build)
+        for (( i=0; i<len_targets; i++ ))
+        do
+            make TARGET="${targets[$i]}"
+        done
+    ;;
 
-        if [[ -n "$hw" ]]
-        then
-            make TARGET="${targets[$i]}" DEBUG=0 TESTS=hw
+    test)
+        for (( i=0; i<len_targets; i++ ))
+        do
+            make TARGET="${targets[$i]}" test
+        done
+    ;;
 
-            # Download latest binaries from github - used later in tests
-            latest_github_release=$(curl -L -s -H 'Accept: application/json' https://github.com/shanteacontrols/OpenDeck/releases/latest | dasel -p json --plain tag_name)
-            dl_dir=/tmp/latest_github_release
-            mkdir -p $dl_dir
+    hw-test)
+        for (( i=0; i<len_targets; i++ ))
+        do
+            make TARGET="${targets[$i]}" hw-test
+        done
+    ;;
 
-            curl -L https://github.com/shanteacontrols/OpenDeck/releases/download/"$latest_github_release"/"${targets[$i]}".bin -o $dl_dir/"${targets[$i]}".bin
-            curl -L https://github.com/shanteacontrols/OpenDeck/releases/download/"$latest_github_release"/"${targets[$i]}".hex -o $dl_dir/"${targets[$i]}".hex
-        else
-            make TARGET="${targets[$i]}" DEBUG=0
-        fi
-    fi
-done
+    lint)
+        for (( i=0; i<len_targets; i++ ))
+        do
+            make TARGET="${targets[$i]}" lint
+        done
+    ;;
+
+    *)
+      echo "ERROR: Invalid build type specified".
+      usage
+    ;;
+esac

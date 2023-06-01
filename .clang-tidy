@@ -1,7 +1,6 @@
 ---
 Checks:          'clang-analyzer-*,readability-braces-around-statements,readability-else-after-return,readability-inconsistent-declaration-parameter-name,modernize-use-equals-default,modernize-use-using,modernize-redundant-void-arg,modernize-concat-nested-namespaces,misc-redundant-expression,readability-static-accessed-through-instance,readability-static-accessed-through-instance,performance-inefficient-vector-operation,readability-identifier-naming'
 WarningsAsErrors: ''
-HeaderFilterRegex: 'application/.*|board/.*|bootloader/.*|flashgen/.*|sysexgen/.*|usblink/.*'
 AnalyzeTemporaryDtors: false
 FormatStyle:     file
 CheckOptions:

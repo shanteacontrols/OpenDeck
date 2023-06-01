@@ -1,6 +1,6 @@
 #pragma once
 
-#if __has_include(<EmuEEPROMConfig.h>)
+#ifdef PROJECT_MCU_USE_EMU_EEPROM
 #include "EmuEEPROM/EmuEEPROM.h"
 #endif
 #include "application/database/Layout.h"
@@ -14,7 +14,7 @@ class DBstorageMock : public ::sys::Builder::HWA::Database
 
     bool init() override
     {
-#if __has_include(<EmuEEPROMConfig.h>)
+#ifdef PROJECT_MCU_USE_EMU_EEPROM
         _emuEEPROM.init();
 #endif
         return true;
@@ -22,7 +22,7 @@ class DBstorageMock : public ::sys::Builder::HWA::Database
 
     uint32_t size() override
     {
-#if __has_include(<EmuEEPROMConfig.h>)
+#ifdef PROJECT_MCU_USE_EMU_EEPROM
         return _emuEEPROM.maxAddress();
 #else
         return _memoryArray.size();
@@ -31,7 +31,7 @@ class DBstorageMock : public ::sys::Builder::HWA::Database
 
     bool clear() override
     {
-#if __has_include(<EmuEEPROMConfig.h>)
+#ifdef PROJECT_MCU_USE_EMU_EEPROM
         return _emuEEPROM.format();
 #else
         std::fill(_memoryArray.begin(), _memoryArray.end(), 0x00);
@@ -41,7 +41,7 @@ class DBstorageMock : public ::sys::Builder::HWA::Database
 
     bool read(uint32_t address, uint32_t& value, LESSDB::sectionParameterType_t type) override
     {
-#if __has_include(<EmuEEPROMConfig.h>)
+#ifdef PROJECT_MCU_USE_EMU_EEPROM
         uint16_t tempData;
 
         switch (type)
@@ -113,7 +113,7 @@ class DBstorageMock : public ::sys::Builder::HWA::Database
 
     bool write(uint32_t address, uint32_t value, LESSDB::sectionParameterType_t type) override
     {
-#if __has_include(<EmuEEPROMConfig.h>)
+#ifdef PROJECT_MCU_USE_EMU_EEPROM
         uint16_t tempData;
 
         switch (type)
@@ -174,7 +174,7 @@ class DBstorageMock : public ::sys::Builder::HWA::Database
     }
 
     private:
-#if __has_include(<EmuEEPROMConfig.h>)
+#ifdef PROJECT_MCU_USE_EMU_EEPROM
     class EmuEEPROMStorageAccess : public EmuEEPROM::StorageAccess
     {
         public:
@@ -256,7 +256,7 @@ class DBstorageMock : public ::sys::Builder::HWA::Database
     EmuEEPROMStorageAccess _storageMock;
     EmuEEPROM              _emuEEPROM = EmuEEPROM(_storageMock, false);
 #else
-    std::array<uint8_t, CORE_MCU_EEPROM_SIZE - 1> _memoryArray = {};
+    std::array<uint8_t, PROJECT_MCU_EEPROM_SIZE - 1> _memoryArray = {};
 #endif
 };
 

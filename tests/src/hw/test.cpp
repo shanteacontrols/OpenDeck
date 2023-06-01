@@ -22,10 +22,10 @@ namespace
     std::vector<uint8_t> restore_end_indicator     = { 0xF0, 0x00, 0x53, 0x43, 0x00, 0x00, 0x1D, 0xF7 };
     const std::string    usb_power_off_cmd         = "echo write_high 1 > /dev/actl";
     const std::string    usb_power_on_cmd          = "echo write_low 1 > /dev/actl";
-    const std::string    flash_cmd                 = "make --no-print-directory -C ../src flash ";
+    const std::string    flash_cmd                 = "make --no-print-directory flash ";
     const std::string    temp_midi_data_location   = "/tmp/temp_midi_data";
     const std::string    backup_file_location      = "/tmp/backup.txt";
-    const std::string    latest_github_release_dir = "/tmp/latest_github_release";
+    const std::string    latest_github_release_dir = "/tmp/latest_github_release/" + std::string(PROJECT_TARGET_NAME);
     const uint32_t       max_conn_delay_ms         = 25000;
     const uint32_t       handshake_retry_delay_ms  = 2000;
     const uint32_t       flash_retry_delay_ms      = 2000;

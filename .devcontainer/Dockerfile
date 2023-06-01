@@ -27,7 +27,6 @@ gpg-agent \
 imagemagick \
 lsb-release \
 make \
-python3-pip \
 software-properties-common \
 srecord \
 sudo \
@@ -81,6 +80,14 @@ rm hub-linux-amd64-2.14.2.tgz && \
 cp hub-linux-amd64-2.14.2/bin/hub /usr/bin/hub && \
 rm -rf hub-linux-amd64-2.14.2
 
+RUN \
+cd && \
+wget ${WGET_ARGS} https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-linux.zip && \
+unzip ninja-linux && \
+rm ninja-linux.zip && \
+chmod a+x ninja && \
+mv ninja /usr/local/bin/ninja
+
 ENV PATH="/opendeck-deps/arduino-1.8.19/hardware/tools/avr/bin:/opendeck-deps/gcc-arm-none-eabi-10.3-2021.10/bin:$PATH"
 
 RUN \
@@ -106,9 +113,6 @@ cmake --build build --target install && \
 cd ../ && \
 rm -rf glog && \
 ldconfig
-
-RUN \
-pip install compiledb
 
 # Don't run as root!
 RUN adduser --disabled-password --gecos '' $user

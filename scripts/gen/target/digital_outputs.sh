@@ -2,7 +2,7 @@
 
 if [[ "$($yaml_parser "$yaml_file" leds.external)" != "null" ]]
 then
-    printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_DIGITAL_OUTPUTS" >> "$out_makefile"
+    printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORT_DIGITAL_OUTPUTS)" >> "$out_cmakelists"
 
     digital_out_type=$($yaml_parser "$yaml_file" leds.external.type)
 
@@ -14,10 +14,10 @@ then
         nr_of_digital_outputs=$($yaml_parser "$yaml_file" leds.external.pins --length)
 
         {
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_NATIVE"
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_RGB_LEDS=$((nr_of_digital_outputs/3))"
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_SOFT_PWM"
-        } >> "$out_makefile"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_NATIVE)"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_RGB_LEDS=$((nr_of_digital_outputs/3)))"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORT_SOFT_PWM)"
+        } >> "$out_cmakelists"
 
         unset port_duplicates
         unset port_array
@@ -126,7 +126,7 @@ then
         } >> "$out_header"
     elif [[ $digital_out_type == shiftRegister ]]
     then
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_SHIFT_REGISTER" >> "$out_makefile"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_SHIFT_REGISTER)" >> "$out_cmakelists"
 
         port=$($yaml_parser "$yaml_file" leds.external.pins.data.port)
         index=$($yaml_parser "$yaml_file" leds.external.pins.data.index)
@@ -164,19 +164,19 @@ then
         nr_of_digital_outputs=$((number_of_out_sr * 8))
 
         {
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_RGB_LEDS=$((nr_of_digital_outputs/3))"
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_OUT_SR=$number_of_out_sr"
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_SOFT_PWM"
-        } >> "$out_makefile"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_RGB_LEDS=$((nr_of_digital_outputs/3)))"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_OUT_SR=$number_of_out_sr)"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORT_SOFT_PWM)"
+        } >> "$out_cmakelists"
     elif [[ $digital_out_type == matrix ]]
     then
         number_of_led_columns=8
         number_of_led_rows=$($yaml_parser "$yaml_file" leds.external.rows.pins --length)
 
         {
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_MATRIX_NATIVE_ROWS"
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_RGB_LEDS=$(((number_of_led_rows/3) * number_of_led_columns))"
-        } >> "$out_makefile"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_MATRIX_NATIVE_ROWS)"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_RGB_LEDS=$(((number_of_led_rows/3) * number_of_led_columns)))"
+        } >> "$out_cmakelists"
 
         for ((i=0; i<3; i++))
         do
@@ -218,20 +218,19 @@ then
         nr_of_digital_outputs=$(("$number_of_led_columns" * "$number_of_led_rows"))
 
         {
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_LED_COLUMNS=$number_of_led_columns"
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_LED_ROWS=$number_of_led_rows"
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_SOFT_PWM"
-        } >> "$out_makefile"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_LED_COLUMNS=$number_of_led_columns)"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_LED_ROWS=$number_of_led_rows)"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORT_SOFT_PWM)"
+        } >> "$out_cmakelists"
     elif [[ $digital_out_type == max7219 ]]
     then
         # Hardcode LED amounts for now
         nr_of_digital_outputs=64
 
         {
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_MAX7219"
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_RGB_LEDS=16"
-        } >> "$out_makefile"
-
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_MAX7219)"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_RGB_LEDS=16)"
+        } >> "$out_cmakelists"
 
         port=$($yaml_parser "$yaml_file" leds.external.pins.data.port)
         index=$($yaml_parser "$yaml_file" leds.external.pins.data.index)
@@ -258,7 +257,7 @@ then
         } >> "$out_header"
     fi
 
-    printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_MAX_NR_OF_DIGITAL_OUTPUTS=$nr_of_digital_outputs" >> "$out_makefile"
+    printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_MAX_NR_OF_DIGITAL_OUTPUTS=$nr_of_digital_outputs)" >> "$out_cmakelists"
 
     if [[ "$($yaml_parser "$yaml_file" leds.external.indexing)" != "null" ]]
     then
@@ -281,36 +280,36 @@ then
         } >> "$out_header"
 
         {
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_INDEXING_LEDS"
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORTED_NR_OF_DIGITAL_OUTPUTS=$nr_of_digital_outputs"
-        } >> "$out_makefile"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_INDEXING_LEDS)"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORTED_NR_OF_DIGITAL_OUTPUTS=$nr_of_digital_outputs)"
+        } >> "$out_cmakelists"
     else
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORTED_NR_OF_DIGITAL_OUTPUTS=$nr_of_digital_outputs" >> "$out_makefile"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORTED_NR_OF_DIGITAL_OUTPUTS=$nr_of_digital_outputs)" >> "$out_cmakelists"
     fi
 
     if [[ "$($yaml_parser "$yaml_file" leds.external.invert)" == "true" ]]
     then
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_LEDS_EXT_INVERT" >> "$out_makefile"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_LEDS_EXT_INVERT)" >> "$out_cmakelists"
     fi
 else
     {
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_MAX_NR_OF_DIGITAL_OUTPUTS=0"
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORTED_NR_OF_DIGITAL_OUTPUTS=0"
-    } >> "$out_makefile"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_MAX_NR_OF_DIGITAL_OUTPUTS=0)"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORTED_NR_OF_DIGITAL_OUTPUTS=0)"
+    } >> "$out_cmakelists"
 fi
 
 if [[ "$($yaml_parser "$yaml_file" leds.internal)" != "null" ]]
 then
-    printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_LED_INDICATORS" >> "$out_makefile"
+    printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORT_LED_INDICATORS)" >> "$out_cmakelists"
 
     if [[ "$($yaml_parser "$yaml_file" leds.internal.invert)" == "true" ]]
     then
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_LEDS_INT_INVERT" >> "$out_makefile"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_LEDS_INT_INVERT)" >> "$out_cmakelists"
     fi
 
     if [[ $($yaml_parser "$yaml_file" leds.internal.pins.usb) != "null" ]]
     then
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_USB_INDICATORS" >> "$out_makefile"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORT_USB_INDICATORS)" >> "$out_cmakelists"
 
         port=$($yaml_parser "$yaml_file" leds.internal.pins.usb.rx.port)
         index=$($yaml_parser "$yaml_file" leds.internal.pins.usb.rx.index)
@@ -331,7 +330,7 @@ then
 
     if [[ $($yaml_parser "$yaml_file" leds.internal.pins.uart) != "null" ]]
     then
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_UART_INDICATORS" >> "$out_makefile"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORT_UART_INDICATORS)" >> "$out_cmakelists"
 
         port=$($yaml_parser "$yaml_file" leds.internal.pins.uart.rx.port)
         index=$($yaml_parser "$yaml_file" leds.internal.pins.uart.rx.index)
@@ -352,7 +351,7 @@ then
 
     if [[ $($yaml_parser "$yaml_file" leds.internal.pins.ble) != "null" ]]
     then
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_BLE_INDICATORS" >> "$out_makefile"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORT_BLE_INDICATORS)" >> "$out_cmakelists"
 
         port=$($yaml_parser "$yaml_file" leds.internal.pins.ble.rx.port)
         index=$($yaml_parser "$yaml_file" leds.internal.pins.ble.rx.index)

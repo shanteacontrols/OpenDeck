@@ -35,12 +35,13 @@ done
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 yaml_parser="dasel -n -p yaml --plain -f"
 out_header="$gen_dir"/Target.h
-out_makefile="$gen_dir"/Makefile
 mcu=$($yaml_parser "$yaml_file" mcu)
 target_name=$(basename "$yaml_file" .yml)
 mcu_gen_dir=$base_mcu_gen_dir/$mcu
 hw_test_yaml_file=$(dirname "$yaml_file")/../hw-test/$target_name.yml
 extClockMhz=$($yaml_parser "$yaml_file" extClockMhz)
+out_cmakelists="$gen_dir"/CMakeLists.txt
+cmake_defines_var=PROJECT_TARGET_DEFINES
 
 if [[ ! -d $mcu_gen_dir ]]
 then
@@ -56,7 +57,6 @@ then
 
     mkdir -p "$gen_dir"
     echo "" > "$out_header"
-    echo "" > "$out_makefile"
 
     source "$script_dir"/target/main.sh
 
@@ -67,7 +67,7 @@ then
         then
             exit 1
         else
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_HW_TESTS" >> "$out_makefile"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORT_HW_TESTS)" >> "$out_cmakelists"
         fi
     fi
 fi

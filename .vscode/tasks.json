@@ -3,7 +3,7 @@
     "tasks": [
         {
             "label": "[Tests] Build",
-            "command": "cd ./tests && make TARGET=${input:target} TESTS=${input:test} && cp $(../scripts/test_dir_get.sh ${input:target} ${input:test})/${input:test}.out build/test.out",
+            "command": "make TARGET=${input:target} test TEST_EXECUTE=0 && cp $(./scripts/test_path_get.sh ${input:target} ${input:test}) build/test.out",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"

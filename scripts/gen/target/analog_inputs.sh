@@ -2,17 +2,17 @@
 
 if [[ "$($yaml_parser "$yaml_file" analog)" != "null" ]]
 then
-    printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORT_ADC" >> "$out_makefile"
+    printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORT_ADC)" >> "$out_cmakelists"
 
     if [[ "$($yaml_parser "$yaml_file" analog.extReference)" == "true" ]]
     then
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_ADC_EXT_REF" >> "$out_makefile"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_ADC_EXT_REF)" >> "$out_cmakelists"
     fi
 
     if [[ "$($yaml_parser "$yaml_file" analog.inputVoltage)" != "null" ]]
     then
         input_voltage=$($yaml_parser "$yaml_file" analog.inputVoltage | sed 's/\.//g')
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_ADC_INPUT_VOLTAGE=$input_voltage" >> "$out_makefile"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_ADC_INPUT_VOLTAGE=$input_voltage)" >> "$out_cmakelists"
     fi
 
     analog_filter_median=$($yaml_parser "$yaml_file" analog.filter.median)
@@ -21,12 +21,12 @@ then
     # use filters by default if not specified
     if [[ $analog_filter_median != "false" ]]
     then
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_ANALOG_FILTER_MEDIAN" >> "$out_makefile"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_ANALOG_FILTER_MEDIAN)" >> "$out_cmakelists"
     fi
 
     if [[ $analog_filter_ema != "false" ]]
     then
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_ANALOG_FILTER_EMA" >> "$out_makefile"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_ANALOG_FILTER_EMA)" >> "$out_cmakelists"
     fi
 
     analog_in_type=$($yaml_parser "$yaml_file" analog.type)
@@ -36,7 +36,7 @@ then
 
     if [[ $analog_in_type == "native" ]]
     then
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_DRIVER_ANALOG_INPUT_NATIVE" >> "$out_makefile"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_DRIVER_ANALOG_INPUT_NATIVE)" >> "$out_cmakelists"
 
         nr_of_analog_inputs=$($yaml_parser "$yaml_file" analog.pins --length)
 
@@ -67,10 +67,10 @@ then
             printf "%s\n" "}"
         } >> "$out_header"
 
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_ADC_CHANNELS=$nr_of_analog_inputs" >> "$out_makefile"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_ADC_CHANNELS=$nr_of_analog_inputs)" >> "$out_cmakelists"
     elif [[ $analog_in_type == 4067 ]]
     then
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_DRIVER_ANALOG_INPUT_MULTIPLEXER" >> "$out_makefile"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_DRIVER_ANALOG_INPUT_MULTIPLEXER)" >> "$out_cmakelists"
 
         for ((i=0; i<4; i++))
         do
@@ -126,13 +126,13 @@ then
         nr_of_analog_inputs=$((16 * "$number_of_mux"))
 
         {
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_MUX=$number_of_mux"
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_MUX_INPUTS=16"
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_ADC_CHANNELS=$number_of_mux"
-        } >> "$out_makefile"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_MUX=$number_of_mux)"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_MUX_INPUTS=16)"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_ADC_CHANNELS=$number_of_mux)"
+        } >> "$out_cmakelists"
     elif [[ $analog_in_type == 4051 ]]
     then
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_DRIVER_ANALOG_INPUT_MULTIPLEXER" >> "$out_makefile"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_DRIVER_ANALOG_INPUT_MULTIPLEXER)"
 
         for ((i=0; i<3; i++))
         do
@@ -188,14 +188,12 @@ then
         nr_of_analog_inputs=$((8 * "$number_of_mux"))
 
         {
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_MUX=$number_of_mux"
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_MUX_INPUTS=8"
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_ADC_CHANNELS=$number_of_mux"
-        } >> "$out_makefile"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_MUX=$number_of_mux)"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_MUX_INPUTS=8)"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_ADC_CHANNELS=$number_of_mux)"
+        } >> "$out_cmakelists"
     elif [[ $analog_in_type == "muxonmux" ]]
     then
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_DRIVER_ANALOG_INPUT_MUXONMUX" >> "$out_makefile"
-
         port=$($yaml_parser "$yaml_file" analog.pins.controller.z.port)
         index=$($yaml_parser "$yaml_file" analog.pins.controller.z.index)
 
@@ -259,13 +257,13 @@ then
         nr_of_analog_inputs=$((16 * "$number_of_mux"))
 
         {
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_MUX=$number_of_mux"
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_MUX_INPUTS=16"
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_ADC_CHANNELS=1"
-        } >> "$out_makefile"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_MUX=$number_of_mux)"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_MUX_INPUTS=16)"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_ADC_CHANNELS=1)"
+        } >> "$out_cmakelists"
     fi
 
-    printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_MAX_NR_OF_ANALOG_INPUTS=$nr_of_analog_inputs" >> "$out_makefile"
+    printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_MAX_NR_OF_ANALOG_INPUTS=$nr_of_analog_inputs)" >> "$out_cmakelists"
 
     if [[ "$($yaml_parser "$yaml_file" analog.indexing)" != "null" ]]
     then
@@ -288,16 +286,16 @@ then
         } >> "$out_header"
 
         {
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_INDEXING_ANALOG"
-            printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORTED_NR_OF_ANALOG_INPUTS=$nr_of_analog_inputs"
-        } >> "$out_makefile"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_INDEXING_ANALOG)"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORTED_NR_OF_ANALOG_INPUTS=$nr_of_analog_inputs)"
+        } >> "$out_cmakelists"
     else
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORTED_NR_OF_ANALOG_INPUTS=$nr_of_analog_inputs" >> "$out_makefile"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORTED_NR_OF_ANALOG_INPUTS=$nr_of_analog_inputs)" >> "$out_cmakelists"
     fi
 else
     {
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_MAX_NR_OF_ANALOG_INPUTS=0"
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_SUPPORTED_NR_OF_ANALOG_INPUTS=0"
-        printf "%s\n" "PROJECT_TARGET_DEFINES += PROJECT_TARGET_NR_OF_ADC_CHANNELS=0" 
-    } >> "$out_makefile"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_MAX_NR_OF_ANALOG_INPUTS=0)"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORTED_NR_OF_ANALOG_INPUTS=0)"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_ADC_CHANNELS=0)"
+    } >> "$out_cmakelists"
 fi

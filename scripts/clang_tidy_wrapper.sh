@@ -111,4 +111,11 @@ run-clang-tidy \
 -export-fixes "$output_file" \
 "$ignore_regex"
 
+if [[ -s "$output_file" ]]
+then
+    echo "Lint issues found:"
+    cat "$output_file"
+    exit 1
+fi
+
 exit 0

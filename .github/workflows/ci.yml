@@ -17,18 +17,10 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
-      - name: Build targets
+      - name: Build and test targets
         run: |
-          export MAKEFLAGS=-j$(nproc)
           git fetch --tags
-          cd src/
-          ../scripts/build_targets.sh
-      - name: Test targets
-        run: |
-          export MAKEFLAGS=-j$(nproc)
-          cd tests/
-          ../scripts/build_targets.sh
-          make exec
+          ./scripts/build_targets.sh --type=test
   format:
     name: Code formatting
     runs-on: ubuntu-22.04
@@ -42,14 +34,9 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
-      - name: Source formatting
+      - name: Check formatting
         run: |
-          cd src
-          make format CF_FAIL_ON_DIFF=1
-      - name: Test formatting
-        run: |
-          cd tests
-          make format CF_FAIL_ON_DIFF=1
+          make format
   lint:
     name: Code linting
     runs-on: ubuntu-22.04
@@ -65,4 +52,4 @@ jobs:
           submodules: recursive
       - name: Lint
         run: |
-          ./scripts/lint.sh
+          ./scripts/build_targets.sh --type=lint
