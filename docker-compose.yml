@@ -5,6 +5,6 @@ services:
     container_name: opendeck
     image: paradajz168/opendeck-dev
     volumes:
-      - $PWD:/home/opendeck/OpenDeck
-    working_dir: /home/opendeck/OpenDeck
+      - $PWD:/home/ubuntu/OpenDeck
+    working_dir: /home/ubuntu/OpenDeck
     command: tail -f /dev/null

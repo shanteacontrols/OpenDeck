@@ -1,6 +1,5 @@
 FROM ubuntu:23.04
 
-ARG user=opendeck
 ARG WGET_ARGS="-q --show-progress --progress=bar:force:noscroll"
 
 RUN \
@@ -114,20 +113,14 @@ cd ../ && \
 rm -rf glog && \
 ldconfig
 
-# Don't run as root!
-RUN adduser --disabled-password --gecos '' $user
-
-# Add user to sudo group
-RUN adduser $user sudo
-
 # Disable password prompt for sudo commands
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
-RUN echo "alias mkc='make clean'" >> /home/$user/.bashrc
-RUN echo "export MAKEFLAGS=-j$(nproc)" >> /home/$user/.bashrc
+RUN echo "alias mkc='make clean'" >> /home/ubuntu/.bashrc
+RUN echo "export MAKEFLAGS=-j$(nproc)" >> /home/ubuntu/.bashrc
 
 # Run everything below as $user
-USER $user
-WORKDIR /home/$user
+USER ubuntu
+WORKDIR /home/ubuntu
 
-ADD .devcontainer/.git_branch_bash /home/$user/.git_branch_bash
+ADD .devcontainer/.git_branch_bash /home/ubuntu/.git_branch_bash
 RUN echo "source ~/.git_branch_bash" >> ~/.bashrc
