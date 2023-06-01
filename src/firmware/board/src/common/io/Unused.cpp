@@ -19,7 +19,7 @@ limitations under the License.
 #ifdef PROJECT_TARGET_NR_OF_UNUSED_IO
 
 #include "board/Board.h"
-#include "board/src/Internal.h"
+#include "Internal.h"
 #include "core/util/Util.h"
 #include <Target.h>
 

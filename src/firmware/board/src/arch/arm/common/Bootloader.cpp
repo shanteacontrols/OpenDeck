@@ -17,7 +17,7 @@ limitations under the License.
 */
 
 #include "board/Board.h"
-#include "board/src/Internal.h"
+#include "Internal.h"
 #include "core/MCU.h"
 
 using appEntry_t = void (*)();

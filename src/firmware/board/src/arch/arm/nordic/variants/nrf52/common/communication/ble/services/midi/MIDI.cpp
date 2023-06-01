@@ -20,13 +20,13 @@ limitations under the License.
 
 #include "MIDI.h"
 #include "board/Board.h"
-#include "board/src/Internal.h"
+#include "Internal.h"
 #include "nordic_common.h"
 #include "ble_srv_common.h"
 #include "app_util.h"
 #include "nrf_log.h"
 #include "nrf_sdh_ble.h"
-#include "board/src/common/logger/Logger.h"
+#include "common/logger/Logger.h"
 #include "core/util/RingBuffer.h"
 #include "core/ErrorHandler.h"
 

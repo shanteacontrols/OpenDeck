@@ -19,7 +19,7 @@ limitations under the License.
 #ifdef BOARD_USE_UPDATE_HOOKS
 
 #include <vector>
-#include "board/src/Internal.h"
+#include "Internal.h"
 
 namespace
 {

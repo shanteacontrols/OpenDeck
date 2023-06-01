@@ -20,7 +20,7 @@ limitations under the License.
 #ifdef FW_BOOT
 
 #include "board/Board.h"
-#include "board/src/Internal.h"
+#include "Internal.h"
 #include "core/util/Util.h"
 #include "core/Timing.h"
 #include <Target.h>

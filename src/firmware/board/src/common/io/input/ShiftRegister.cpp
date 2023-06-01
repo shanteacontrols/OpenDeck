@@ -23,7 +23,7 @@ limitations under the License.
 #include <stdio.h>
 #include <stdlib.h>
 #include "board/Board.h"
-#include "board/src/Internal.h"
+#include "Internal.h"
 #include "core/util/Util.h"
 #include "core/util/RingBuffer.h"
 #include <Target.h>

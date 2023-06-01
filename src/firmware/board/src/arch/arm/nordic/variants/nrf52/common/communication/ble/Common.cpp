@@ -19,7 +19,7 @@ limitations under the License.
 #ifdef FW_APP
 
 #include "board/Board.h"
-#include "board/src/Internal.h"
+#include "Internal.h"
 #include "nrfx.h"
 #include "nrf_sdm.h"
 #include "nrf_sdh.h"
@@ -39,7 +39,7 @@ limitations under the License.
 #include "fds.h"
 #include "Config.h"
 #include "services/midi/MIDI.h"
-#include "board/src/common/logger/Logger.h"
+#include "common/logger/Logger.h"
 #include "core/ErrorHandler.h"
 #include "Common.h"
 

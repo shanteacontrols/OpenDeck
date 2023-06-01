@@ -17,7 +17,7 @@ limitations under the License.
 */
 
 #include "board/Board.h"
-#include "board/src/Internal.h"
+#include "Internal.h"
 #include "core/util/Util.h"
 
 namespace board::detail::io

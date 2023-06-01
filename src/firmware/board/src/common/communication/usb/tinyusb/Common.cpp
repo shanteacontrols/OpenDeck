@@ -19,8 +19,8 @@ limitations under the License.
 #ifdef PROJECT_TARGET_SUPPORT_USB
 #ifdef BOARD_USE_TINYUSB
 
-#include "board/src/Internal.h"
-#include "board/src/common/communication/usb/descriptors/common/Common.h"
+#include "Internal.h"
+#include "common/communication/usb/descriptors/common/Common.h"
 #include "tusb.h"
 #include "core/MCU.h"
 

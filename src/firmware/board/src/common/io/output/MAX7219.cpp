@@ -21,7 +21,7 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "Helpers.h"
-#include "board/src/Internal.h"
+#include "Internal.h"
 #include "core/util/Util.h"
 #include <Target.h>
 

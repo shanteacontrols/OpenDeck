@@ -20,10 +20,10 @@ limitations under the License.
 #ifdef FW_APP
 
 #include "LUFA/Drivers/USB/USB.h"
-#include "board/src/common/communication/usb/descriptors/common/Common.h"
-#include "board/src/common/communication/usb/descriptors/midi_cdc_dual/Descriptors.h"
+#include "common/communication/usb/descriptors/common/Common.h"
+#include "common/communication/usb/descriptors/midi_cdc_dual/Descriptors.h"
 #include "board/Board.h"
-#include "board/src/Internal.h"
+#include "Internal.h"
 #include "core/Timing.h"
 
 namespace

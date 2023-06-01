@@ -20,7 +20,7 @@ limitations under the License.
 
 #include <string.h>
 #include <stdio.h>
-#include "board/src/Internal.h"
+#include "Internal.h"
 #include "core/MCU.h"
 
 namespace

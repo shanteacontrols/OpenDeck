@@ -17,7 +17,7 @@ limitations under the License.
 */
 
 #include "board/Board.h"
-#include "board/src/Internal.h"
+#include "Internal.h"
 
 // Stub functions are used so that firmware can be compiled without
 // resorting to ifdef mess if something isn't supported

@@ -21,11 +21,11 @@ limitations under the License.
 
 #include <string.h>
 #include <stdio.h>
-#include "board/src/Internal.h"
+#include "Internal.h"
 #include "Descriptors.h"
 #include "core/MCU.h"
-#include "board/src/common/communication/usb/Constants.h"
-#include "board/src/common/communication/usb/descriptors/common/Common.h"
+#include "common/communication/usb/Constants.h"
+#include "common/communication/usb/descriptors/common/Common.h"
 #include "core/util/Util.h"
 #include <Target.h>
 

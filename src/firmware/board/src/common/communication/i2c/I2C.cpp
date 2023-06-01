@@ -20,7 +20,7 @@ limitations under the License.
 #ifndef BOARD_I2C_CUSTOM_IMPL
 
 #include "board/Board.h"
-#include "board/src/Internal.h"
+#include "Internal.h"
 #include <Target.h>
 
 namespace

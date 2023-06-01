@@ -18,7 +18,7 @@ limitations under the License.
 
 #ifdef PROJECT_TARGET_SUPPORT_USB
 
-#include "board/src/Internal.h"
+#include "Internal.h"
 #include "tusb.h"
 #include "nrfx_power.h"
 #include "nrf_sdh.h"

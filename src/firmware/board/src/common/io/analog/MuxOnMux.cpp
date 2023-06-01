@@ -21,7 +21,7 @@ limitations under the License.
 
 #include "core/util/Util.h"
 #include "board/Board.h"
-#include "board/src/Internal.h"
+#include "Internal.h"
 #include <Target.h>
 
 using namespace board::io::analog;

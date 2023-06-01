@@ -19,7 +19,7 @@ limitations under the License.
 #ifdef PROJECT_TARGET_SUPPORT_UART
 
 #include "board/Board.h"
-#include "board/src/Internal.h"
+#include "Internal.h"
 #include "core/util/RingBuffer.h"
 #include "core/util/Util.h"
 #include "core/MCU.h"

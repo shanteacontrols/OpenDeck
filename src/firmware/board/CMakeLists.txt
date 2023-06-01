@@ -30,7 +30,6 @@ target_include_directories(board_application
     ${PROJECT_ROOT}/src/generated/target/${TARGET}
     PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/src
-    ${CMAKE_CURRENT_LIST_DIR}/../
 )
 
 target_compile_definitions(board_application
@@ -107,7 +106,6 @@ if("PROJECT_MCU_SUPPORT_BOOTLOADER" IN_LIST PROJECT_MCU_DEFINES)
         ${PROJECT_ROOT}/src/generated/target/${TARGET}
         PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/src
-        ${CMAKE_CURRENT_LIST_DIR}/../
     )
 
     target_compile_definitions(board_bootloader
