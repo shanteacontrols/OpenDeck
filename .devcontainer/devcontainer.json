@@ -5,11 +5,15 @@
     ],
     "service": "opendeck",
     "workspaceFolder": "/home/opendeck/OpenDeck",
-    "extensions": [
-        "ms-vscode.cpptools",
-        "llvm-vs-code-extensions.vscode-clangd",
-        "eamodio.gitlens",
-        "xaver.clang-format",
-        "timonwong.shellcheck"
-    ]
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cpptools",
+                "llvm-vs-code-extensions.vscode-clangd",
+                "eamodio.gitlens",
+                "xaver.clang-format",
+                "timonwong.shellcheck"
+            ]
+        }
+    }
 }
