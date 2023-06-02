@@ -320,6 +320,7 @@ namespace
             reboot(softRebootType_t::BOOTLOADER);
         }
 
+#ifdef TEST_FLASHING
         static bool flash(flashType_t flashType = flashType_t::DEVELOPMENT)
         {
             auto flash = [&](std::string target, std::string args)
@@ -388,6 +389,7 @@ namespace
 
             return ret;
         }
+#endif
 
         TestDatabase _database;
         MIDIHelper   _helper = MIDIHelper(true);
@@ -785,6 +787,7 @@ TEST_F(HWTest, FwUpdate)
     }
 }
 
+#ifdef TEST_FLASHING
 TEST_F(HWTest, FwUpdateFromLastRelease)
 {
     flash(flashType_t::RELEASE);
@@ -796,6 +799,7 @@ TEST_F(HWTest, FwUpdateFromLastRelease)
 
     ASSERT_TRUE(handshake());
 }
+#endif
 #endif
 
 TEST_F(HWTest, BackupAndRestore)
