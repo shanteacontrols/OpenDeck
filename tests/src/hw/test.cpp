@@ -832,6 +832,9 @@ TEST_F(HWTest, BackupAndRestore)
     std::string cmd = std::string("amidi -p ") + _helper.amidiPort(OPENDECK_MIDI_DEVICE_NAME) + " -S \"" + test::vectorToHexString(backup_req) + "\" -d -t 4 > " + backup_file_location;
     ASSERT_EQ(0, test::wsystem(cmd));
 
+    // remove all the potential spaces in a response
+    ASSERT_EQ(0, test::wsystem("sed -i 's/ //g' " + backup_file_location));
+
     factoryReset();
 
     LOG(INFO) << "Verifying that the default values are active again";
