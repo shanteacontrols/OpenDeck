@@ -1,4 +1,5 @@
 ---
+hw-controller: true
 flash:
   args: "FLASH_TOOL=bmp PORT=bmp_blackpill401ce"
 dinMidi:

@@ -36,9 +36,11 @@ namespace
         protected:
         static void SetUpTestSuite()
         {
+#ifdef HW_TEST_HW_CONTROLLER_SUPPORTED
             powerOn();
             LOG(INFO) << "Waiting " << max_conn_delay_ms << " ms to ensure target and programmer are available.";
             test::sleepMs(max_conn_delay_ms);
+#endif
 
 #ifdef TEST_FLASHING
             LOG(INFO) << "Device not flashed. Starting flashing procedure.";
@@ -48,7 +50,9 @@ namespace
 
         static void TearDownTestSuite()
         {
+#ifdef HW_TEST_HW_CONTROLLER_SUPPORTED
             powerOff();
+#endif
         }
 
         void SetUp()
@@ -105,6 +109,7 @@ namespace
             RELEASE,
         };
 
+#ifdef HW_TEST_HW_CONTROLLER_SUPPORTED
         static void powerOn()
         {
             // Send newline to arduino controller to make sure on/off commands
@@ -193,6 +198,7 @@ namespace
                 break;
             }
         }
+#endif
 
         static bool handshake()
         {
@@ -378,8 +384,10 @@ namespace
 
                     if (!handshake())
                     {
+#ifdef HW_TEST_HW_CONTROLLER_SUPPORTED
                         cyclePower(powerCycleType_t::STANDARD_WITH_DEVICE_CHECK);
                         ret = handshake();
+#endif
                     }
                 }
 

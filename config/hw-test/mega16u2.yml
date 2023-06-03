@@ -1,3 +1,4 @@
 ---
+hw-controller: true
 flash:
   args: "FLASH_TOOL=arduino PORT=isp_16u2"

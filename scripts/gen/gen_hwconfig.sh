@@ -18,6 +18,13 @@ echo "Generating HW test config..."
     printf "%s\n" "std::string OPENDECK_DFU_MIDI_DEVICE_NAME=\"$project DFU | $target_name\";"
 } >> "$out_header"
 
+hw_controller=$($yaml_parser "$yaml_file" hw-controller)
+
+if [[ $hw_controller == "true" ]]
+then
+    printf "%s\n" "#define HW_TEST_HW_CONTROLLER_SUPPORTED" >> "$out_header"
+fi
+
 if [[ $($yaml_parser "$yaml_file" flash) != "null" ]]
 then
     flash_args=$($yaml_parser "$yaml_file" flash.args)

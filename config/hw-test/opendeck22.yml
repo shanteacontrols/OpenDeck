@@ -1,4 +1,5 @@
 ---
+hw-controller: true
 flash:
   args: "FLASH_TOOL=pyocd PROBE_ID=E661410403613732"
 dinMidi:
