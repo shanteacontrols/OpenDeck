@@ -63,11 +63,11 @@ then
     if [[ -f $hw_test_yaml_file ]]
     then
         # HW config files go into the same dir as target ones
-        if ! "$script_dir"/gen_hwconfig.sh "$project" "$hw_test_yaml_file" "$gen_dir"
+        if ! "$script_dir"/gen_hw_test_config.sh "$project" "$hw_test_yaml_file" "$gen_dir"
         then
             exit 1
         else
-            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORT_HW_TESTS)" >> "$out_cmakelists"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_HW_TESTS_SUPPORTED)" >> "$out_cmakelists"
         fi
     fi
 fi

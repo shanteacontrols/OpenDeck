@@ -14,8 +14,8 @@ echo "Generating HW test config..."
 
 {
     printf "%s\n\n" "#pragma once"
-    printf "%s\n" "std::string OPENDECK_MIDI_DEVICE_NAME=\"$project | $target_name\";"
-    printf "%s\n" "std::string OPENDECK_DFU_MIDI_DEVICE_NAME=\"$project DFU | $target_name\";"
+    printf "%s\n" "std::string HW_TEST_USB_DEVICE_NAME_APP=\"$project | $target_name\";"
+    printf "%s\n" "std::string HW_TEST_USB_DEVICE_NAME_BOOT=\"$project DFU | $target_name\";"
 } >> "$out_header"
 
 hw_controller=$($yaml_parser "$yaml_file" hw-controller)
@@ -30,8 +30,8 @@ then
     flash_args=$($yaml_parser "$yaml_file" flash.args)
 
     {
-        printf "%s\n" "#define TEST_FLASHING"
-        printf "%s\n" "std::string FLASH_ARGS=\"$flash_args\";"
+        printf "%s\n" "#define HW_TEST_FLASHING_SUPPORTED"
+        printf "%s\n" "std::string HW_TEST_FLASH_ARGS=\"$flash_args\";"
     } >> "$out_header"
 fi
 
@@ -41,9 +41,9 @@ then
     out_din_midi_port=$($yaml_parser "$yaml_file" dinMidi.out)
 
     {
-        printf "%s\n" "#define TEST_DIN_MIDI"
-        printf "%s\n" "std::string IN_DIN_MIDI_PORT=\"$in_din_midi_port\";"
-        printf "%s\n" "std::string OUT_DIN_MIDI_PORT=\"$out_din_midi_port\";"
+        printf "%s\n" "#define HW_TEST_DIN_MIDI_SUPPORTED"
+        printf "%s\n" "std::string HW_TEST_DIN_MIDI_IN_PORT=\"$in_din_midi_port\";"
+        printf "%s\n" "std::string HW_TEST_DIN_MIDI_OUT_PORT=\"$out_din_midi_port\";"
     } >> "$out_header"
 fi
 
@@ -55,14 +55,14 @@ then
     usb_link_flash_args=$($yaml_parser "$usb_link_yaml_file" flash.args)
 
     {
-        printf "%s\n" "std::string FLASH_ARGS_USB_LINK=\"$usb_link_flash_args\";"
-        printf "%s\n" "std::string USB_LINK_TARGET=\"$usb_link_target\";"
+        printf "%s\n" "std::string HW_TEST_FLASH_ARGS_USB_LINK=\"$usb_link_flash_args\";"
+        printf "%s\n" "std::string HW_TEST_USB_LINK_TARGET=\"$usb_link_target\";"
     } >> "$out_header"
 fi
 
 if [[ $($yaml_parser "$yaml_file" io) != "null" ]]
 then
-    printf "%s\n" "#define TEST_IO" >> "$out_header"
+    printf "%s\n" "#define HW_TEST_IO_SUPPORTED" >> "$out_header"
 
     declare -i nr_of_switches
     declare -i nr_of_analog
@@ -77,7 +77,7 @@ then
     if [[ $nr_of_switches -ne 0 ]]
     then
         {
-            printf "%s\n" "#define TEST_IO_SWITCHES"
+            printf "%s\n" "#define HW_TEST_IO_SWITCHES_SUPPORTED"
             printf "%s\n" "std::vector<hwTestDescriptor_t> hwTestSwDescriptor = {"
         } >> "$out_header"
 
@@ -97,7 +97,7 @@ then
     if [[ $nr_of_analog -ne 0 ]]
     then
         {
-            printf "%s\n" "#define TEST_IO_ANALOG"
+            printf "%s\n" "#define HW_TEST_IO_ANALOG_SUPPORTED"
             printf "%s\n" "std::vector<hwTestDescriptor_t> hwTestAnalogDescriptor = {"
         } >> "$out_header"
 
@@ -117,7 +117,7 @@ then
     if [[ $nr_of_leds -ne 0 ]]
     then
         {
-            printf "%s\n" "#define TEST_IO_LEDS"
+            printf "%s\n" "#define HW_TEST_IO_LEDS_SUPPORTED"
             printf "%s\n" "std::vector<hwTestDescriptor_t> hwTestLEDDescriptor = {"
         } >> "$out_header"
 

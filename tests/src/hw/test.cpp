@@ -1,5 +1,5 @@
 #ifndef PROJECT_TARGET_USB_OVER_SERIAL_HOST
-#ifdef PROJECT_TARGET_SUPPORT_HW_TESTS
+#ifdef PROJECT_TARGET_HW_TESTS_SUPPORTED
 
 #include <string>
 #include <filesystem>
@@ -42,7 +42,7 @@ namespace
             test::sleepMs(max_conn_delay_ms);
 #endif
 
-#ifdef TEST_FLASHING
+#ifdef HW_TEST_FLASHING_SUPPORTED
             LOG(INFO) << "Device not flashed. Starting flashing procedure.";
             flashed = flash();
 #endif
@@ -57,7 +57,7 @@ namespace
 
         void SetUp()
         {
-#ifdef TEST_FLASHING
+#ifdef HW_TEST_FLASHING_SUPPORTED
             ASSERT_TRUE(flashed);
 #endif
 
@@ -326,7 +326,7 @@ namespace
             reboot(softRebootType_t::BOOTLOADER);
         }
 
-#ifdef TEST_FLASHING
+#ifdef HW_TEST_FLASHING_SUPPORTED
         static bool flash(flashType_t flashType = flashType_t::DEVELOPMENT)
         {
             auto flash = [&](std::string target, std::string args)
@@ -370,13 +370,13 @@ namespace
 
 #ifndef PROJECT_TARGET_SUPPORT_USB
             LOG(INFO) << "Flashing USB Link MCU";
-            ret = flash(std::string(USB_LINK_TARGET), std::string(FLASH_ARGS_USB_LINK));
+            ret = flash(std::string(HW_TEST_USB_LINK_TARGET), std::string(HW_TEST_FLASH_ARGS_USB_LINK));
 
             if (ret)
             {
 #endif
 
-                ret = flash(std::string(PROJECT_TARGET_NAME), std::string(FLASH_ARGS));
+                ret = flash(std::string(PROJECT_TARGET_NAME), std::string(HW_TEST_FLASH_ARGS));
 
                 if (ret)
                 {
@@ -401,13 +401,13 @@ namespace
 
         TestDatabase _database;
         MIDIHelper   _helper = MIDIHelper(true);
-#ifdef TEST_FLASHING
+#ifdef HW_TEST_FLASHING_SUPPORTED
         static bool flashed;
 #endif
     };
 }    // namespace
 
-#ifdef TEST_FLASHING
+#ifdef HW_TEST_FLASHING_SUPPORTED
 bool HWTest::flashed = false;
 #endif
 
@@ -795,7 +795,7 @@ TEST_F(HWTest, FwUpdate)
     }
 }
 
-#ifdef TEST_FLASHING
+#ifdef HW_TEST_FLASHING_SUPPORTED
 TEST_F(HWTest, FwUpdateFromLastRelease)
 {
     flash(flashType_t::RELEASE);
@@ -837,7 +837,7 @@ TEST_F(HWTest, BackupAndRestore)
     }
 
     LOG(INFO) << "Sending backup request";
-    std::string cmd = std::string("amidi -p ") + _helper.amidiPort(OPENDECK_MIDI_DEVICE_NAME) + " -S \"" + test::vectorToHexString(backup_req) + "\" -d -t 4 > " + backup_file_location;
+    std::string cmd = std::string("amidi -p ") + _helper.amidiPort(HW_TEST_USB_DEVICE_NAME_APP) + " -S \"" + test::vectorToHexString(backup_req) + "\" -d -t 4 > " + backup_file_location;
     ASSERT_EQ(0, test::wsystem(cmd));
 
     // remove all the potential spaces in a response
@@ -915,7 +915,7 @@ TEST_F(HWTest, USBMIDIData)
         LOG(INFO) << "Switching preset";
         const size_t PRESET     = 0;
         auto         preset0Req = _helper.generateSysExSetReq(sys::Config::Section::global_t::PRESETS, database::Config::presetSetting_t::ACTIVE_PRESET, PRESET);
-        cmd                     = std::string("amidi -p ") + _helper.amidiPort(OPENDECK_MIDI_DEVICE_NAME) + " -S \"" + test::vectorToHexString(preset0Req) + "\" -d -t 3 > " + temp_midi_data_location;
+        cmd                     = std::string("amidi -p ") + _helper.amidiPort(HW_TEST_USB_DEVICE_NAME_APP) + " -S \"" + test::vectorToHexString(preset0Req) + "\" -d -t 3 > " + temp_midi_data_location;
         ASSERT_EQ(0, test::wsystem(cmd, response));
         test::wsystem("cat " + temp_midi_data_location, response);
     };
@@ -927,7 +927,7 @@ TEST_F(HWTest, USBMIDIData)
 }
 
 #ifdef PROJECT_TARGET_SUPPORT_DIN_MIDI
-#ifdef TEST_DIN_MIDI
+#ifdef HW_TEST_DIN_MIDI_SUPPORTED
 TEST_F(HWTest, DINMIDIData)
 {
     std::string cmd;
@@ -938,19 +938,19 @@ TEST_F(HWTest, DINMIDIData)
         LOG(INFO) << "Switching preset";
         const size_t PRESET     = 0;
         auto         preset0Req = _helper.generateSysExSetReq(sys::Config::Section::global_t::PRESETS, database::Config::presetSetting_t::ACTIVE_PRESET, PRESET);
-        cmd                     = std::string("amidi -p ") + _helper.amidiPort(OPENDECK_MIDI_DEVICE_NAME) + " -S \"" + test::vectorToHexString(preset0Req) + "\" -d -t 3";
+        cmd                     = std::string("amidi -p ") + _helper.amidiPort(HW_TEST_USB_DEVICE_NAME_APP) + " -S \"" + test::vectorToHexString(preset0Req) + "\" -d -t 3";
         ASSERT_EQ(0, test::wsystem(cmd, response));
     };
 
     auto monitor = [&](bool usbMonitoring = false)
     {
-        LOG(INFO) << "Monitoring DIN MIDI interface " << OUT_DIN_MIDI_PORT;
-        cmd = std::string("amidi -p ") + _helper.amidiPort(OUT_DIN_MIDI_PORT) + " -d > " + temp_midi_data_location + " &";
+        LOG(INFO) << "Monitoring DIN MIDI interface " << HW_TEST_DIN_MIDI_OUT_PORT;
+        cmd = std::string("amidi -p ") + _helper.amidiPort(HW_TEST_DIN_MIDI_OUT_PORT) + " -d > " + temp_midi_data_location + " &";
         ASSERT_EQ(0, test::wsystem(cmd));
 
         if (usbMonitoring)
         {
-            cmd = std::string("amidi -p ") + _helper.amidiPort(OPENDECK_MIDI_DEVICE_NAME) + " -d & ";
+            cmd = std::string("amidi -p ") + _helper.amidiPort(HW_TEST_USB_DEVICE_NAME_APP) + " -d & ";
             ASSERT_EQ(0, test::wsystem(cmd));
         }
     };
@@ -991,10 +991,10 @@ TEST_F(HWTest, DINMIDIData)
     std::string  msg              = "90007F";
     const size_t MESSAGES_TO_SEND = 100;
 
-    LOG(INFO) << "Sending data to DIN MIDI interface " << IN_DIN_MIDI_PORT;
+    LOG(INFO) << "Sending data to DIN MIDI interface " << HW_TEST_DIN_MIDI_IN_PORT;
     LOG(INFO) << "Message: " << msg;
 
-    cmd = "amidi -p " + _helper.amidiPort(IN_DIN_MIDI_PORT) + " -S \"" + msg + "\"";
+    cmd = "amidi -p " + _helper.amidiPort(HW_TEST_DIN_MIDI_IN_PORT) + " -S \"" + msg + "\"";
 
     for (size_t i = 0; i < MESSAGES_TO_SEND; i++)
     {
@@ -1011,7 +1011,7 @@ TEST_F(HWTest, DINMIDIData)
 #endif
 #endif
 
-#ifdef TEST_IO
+#ifdef HW_TEST_IO_SUPPORTED
 TEST_F(HWTest, InputOutput)
 {
     std::string response;
@@ -1019,7 +1019,7 @@ TEST_F(HWTest, InputOutput)
     auto monitor = [&]()
     {
         LOG(INFO) << "Monitoring USB MIDI interface";
-        auto cmd = std::string("amidi -p ") + _helper.amidiPort(OPENDECK_MIDI_DEVICE_NAME) + " -d > " + temp_midi_data_location + " &";
+        auto cmd = std::string("amidi -p ") + _helper.amidiPort(HW_TEST_USB_DEVICE_NAME_APP) + " -d > " + temp_midi_data_location + " &";
         ASSERT_EQ(0, test::wsystem(cmd));
     };
 
@@ -1029,7 +1029,7 @@ TEST_F(HWTest, InputOutput)
         test::wsystem("cat " + temp_midi_data_location, response);
     };
 
-#ifdef TEST_IO_ANALOG
+#ifdef HW_TEST_IO_ANALOG_SUPPORTED
     for (size_t i = 0; i < hwTestAnalogDescriptor.size(); i++)
     {
         LOG(INFO) << "Enabling analog input " << hwTestAnalogDescriptor.at(i).index;
@@ -1043,7 +1043,7 @@ TEST_F(HWTest, InputOutput)
 
     monitor();
 
-#ifdef TEST_IO_SWITCHES
+#ifdef HW_TEST_IO_SWITCHES_SUPPORTED
     // reset the state first
     for (size_t i = 0; i < hwTestSwDescriptor.size(); i++)
     {
@@ -1063,7 +1063,7 @@ TEST_F(HWTest, InputOutput)
     }
 #endif
 
-#ifdef TEST_IO_ANALOG
+#ifdef HW_TEST_IO_ANALOG_SUPPORTED
 
     for (size_t i = 0; i < hwTestAnalogDescriptor.size(); i++)
     {
@@ -1082,7 +1082,7 @@ TEST_F(HWTest, InputOutput)
 
     LOG(INFO) << "Verifying if received messages are valid";
 
-#ifdef TEST_IO_SWITCHES
+#ifdef HW_TEST_IO_SWITCHES_SUPPORTED
     for (size_t i = 0; i < hwTestSwDescriptor.size(); i++)
     {
         std::stringstream sstream;
@@ -1099,7 +1099,7 @@ TEST_F(HWTest, InputOutput)
     }
 #endif
 
-#ifdef TEST_IO_ANALOG
+#ifdef HW_TEST_IO_ANALOG_SUPPORTED
     for (size_t i = 0; i < hwTestAnalogDescriptor.size(); i++)
     {
         std::stringstream sstream;
@@ -1151,7 +1151,7 @@ TEST_F(HWTest, InputOutput)
     }
 #endif
 
-#ifdef TEST_IO_LEDS
+#ifdef HW_TEST_IO_LEDS_SUPPORTED
     LOG(INFO) << "Checking LED output";
 
     for (size_t i = 0; i < hwTestLEDDescriptor.size(); i++)

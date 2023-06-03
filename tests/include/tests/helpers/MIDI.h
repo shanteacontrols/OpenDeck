@@ -15,7 +15,7 @@
 #include "application/system/Config.h"
 #include <glog/logging.h>
 
-#ifdef PROJECT_TARGET_SUPPORT_HW_TESTS
+#ifdef PROJECT_TARGET_HW_TESTS_SUPPORTED
 #include <HWTestDefines.h>
 #endif
 
@@ -286,7 +286,7 @@ class MIDIHelper
     {
         auto request = generateSysExGetReq(section, index);
 
-#ifdef PROJECT_TARGET_SUPPORT_HW_TESTS
+#ifdef PROJECT_TARGET_HW_TESTS_SUPPORTED
         if (USE_HARDWARE)
         {
             return sendRequestToDevice(request, SysExConf::wish_t::GET);
@@ -305,7 +305,7 @@ class MIDIHelper
     {
         auto request = generateSysExSetReq(section, index, value);
 
-#ifdef PROJECT_TARGET_SUPPORT_HW_TESTS
+#ifdef PROJECT_TARGET_HW_TESTS_SUPPORTED
         if (USE_HARDWARE)
         {
             return sendRequestToDevice(request, SysExConf::wish_t::SET);
@@ -319,19 +319,19 @@ class MIDIHelper
 #endif
     }
 
-#ifdef PROJECT_TARGET_SUPPORT_HW_TESTS
+#ifdef PROJECT_TARGET_HW_TESTS_SUPPORTED
     static void flush()
     {
         LOG(INFO) << "Flushing all incoming data from the OpenDeck device";
         std::string cmdResponse;
 
-        std::string cmd = std::string("amidi -p ") + amidiPort(OPENDECK_MIDI_DEVICE_NAME) + std::string(" -d -t 3");
+        std::string cmd = std::string("amidi -p ") + amidiPort(HW_TEST_USB_DEVICE_NAME_APP) + std::string(" -d -t 3");
         test::wsystem(cmd, cmdResponse);
 
 // do the same for din interface if present
-#ifdef TEST_DIN_MIDI
+#ifdef HW_TEST_DIN_MIDI_SUPPORTED
         LOG(INFO) << "Flushing all incoming data from the DIN MIDI interface on device";
-        cmd = std::string("amidi -p ") + amidiPort(OUT_DIN_MIDI_PORT) + std::string(" -d -t 3");
+        cmd = std::string("amidi -p ") + amidiPort(HW_TEST_DIN_MIDI_OUT_PORT) + std::string(" -d -t 3");
         test::wsystem(cmd, cmdResponse);
 #endif
     }
@@ -346,7 +346,7 @@ class MIDIHelper
         test::wsystem("rm -f " + lastResponseFileLocation);
         LOG(INFO) << "req: " << hexRequest;
 
-        std::string cmd = std::string("stdbuf -i0 -o0 -e0 amidi -p ") + amidiPort(OPENDECK_MIDI_DEVICE_NAME) + std::string(" -S '") + hexRequest + "' -d | stdbuf -i0 -o0 -e0 tr -d '\\n' > " + lastResponseFileLocation + " &";
+        std::string cmd = std::string("stdbuf -i0 -o0 -e0 amidi -p ") + amidiPort(HW_TEST_USB_DEVICE_NAME_APP) + std::string(" -S '") + hexRequest + "' -d | stdbuf -i0 -o0 -e0 tr -d '\\n' > " + lastResponseFileLocation + " &";
         test::wsystem(cmd, cmdResponse);
 
         static constexpr uint32_t STOP_WAIT_AFTER_MS = 3000;
@@ -441,7 +441,7 @@ class MIDIHelper
             LOG(INFO) << "Checking if OpenDeck MIDI device is available";
         }
 
-        auto port = bootloader ? amidiPort(OPENDECK_DFU_MIDI_DEVICE_NAME) : amidiPort(OPENDECK_MIDI_DEVICE_NAME);
+        auto port = bootloader ? amidiPort(HW_TEST_USB_DEVICE_NAME_BOOT) : amidiPort(HW_TEST_USB_DEVICE_NAME_APP);
 
         if (port == "")
         {
@@ -581,7 +581,7 @@ class MIDIHelper
     }
 
     private:
-#ifdef PROJECT_TARGET_SUPPORT_HW_TESTS
+#ifdef PROJECT_TARGET_HW_TESTS_SUPPORTED
     int32_t sendRequestToDevice(std::vector<uint8_t>& request, SysExConf::wish_t wish)
     {
         auto response = sendRawSysExToDevice(request);
