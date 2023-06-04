@@ -20,101 +20,15 @@
                 "kind": "build",
             }
         },
-        {
-            "label": "[Debug] blackpill401ce",
-            "command": "cd ./src && make TARGET=blackpill401ce DEBUG=1",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-            }
-        },
-        {
-            "label": "[Debug] discovery",
-            "command": "cd ./src && make TARGET=discovery DEBUG=1",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "[Debug] nrf52840dk",
-            "command": "cd ./src && make TARGET=nrf52840dk DEBUG=1",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-            }
-        },
-        {
-            "label": "[Debug] opendeck2",
-            "command": "cd ./src && make TARGET=opendeck2 DEBUG=1",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-            }
-        },
-        {
-            "label": "[Debug] opendeck3a",
-            "command": "cd ./src && make TARGET=opendeck3a DEBUG=1",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-            }
-        },
-        {
-            "label": "[Debug] opendeck31",
-            "command": "cd ./src && make TARGET=opendeck31 DEBUG=1",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-            }
-        },
-        {
-            "label": "[Debug] opendeck22",
-            "command": "cd ./src && make TARGET=opendeck22 DEBUG=1",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-            }
-        },
-        {
-            "label": "[Flashgen] Build",
-            "command": "cd ./src && make pre-build TARGET=${input:target} && make TARGET=${input:target} TYPE=flashgen DEBUG=1 binary && cp ./build/${input:target}/debug/flashgen/${input:target}.elf ./build/flashgen.elf",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ]
-        }
     ],
     "inputs": [
         {
             "id": "target",
             "type": "pickString",
-            "default": "discovery",
-            "description": "Select target for which to build:",
+            "default": "af_ib_nrf52840",
+            "description": "Select target:",
             "options": [
-                "adafruit_ib_nrf52840",
+                "af_ib_nrf52840",
                 "bergamot",
                 "blackpill401ce",
                 "blackpill401cc",
@@ -122,37 +36,50 @@
                 "cardamom",
                 "discovery",
                 "dubfocus12",
+                "dubfocus12sr",
+                "dubfocus16",
                 "dubfocus16c",
                 "dubfocus16",
-                "hugo_cc24",
                 "mega16u2",
                 "mega2560_muxsh2",
                 "mega2560",
+                "nano33ble",
                 "nrf52840dk",
-                "opendeck2",
-                "rooibos",
-                "teensy2pp",
                 "opendeck_mini",
+                "opendeck2",
+                "opendeck3a",
+                "opendeck3b",
+                "opendeck21",
+                "opendeck22",
+                "opendeck31",
+                "pico",
+                "rooibos",
+                "stm32f4ve",
+                "teensy2pp",
+                "tpyboard",
+                "ws_core405r",
                 "ws_core407i",
+                "ws_core407v",
+                "xiao_nrf52840",
+                "xiao_rp2040",
             ]
         },
         {
             "id": "test",
             "type": "pickString",
             "default": "database",
-            "description": "Select test to build:",
+            "description": "Select test:",
             "options": [
+                "analog",
+                "bootloader",
                 "buttons",
                 "database",
                 "encoders",
-                "usb_over_serial",
-                "analog",
-                "ringbuffer",
-                "system",
-                "leds",
                 "hw",
-                "bootloader",
-                "midi"
+                "leds",
+                "midi",
+                "system",
+                "usb_over_serial",
             ]
         }
     ]
