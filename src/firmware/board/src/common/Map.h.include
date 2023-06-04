@@ -114,24 +114,6 @@ namespace board::detail::map
     }
 #endif
 
-    constexpr core::mcu::flash::flashPage_t FLASH_PAGE_DESCRIPTOR(size_t pageIndex)
-    {
-        core::mcu::flash::flashPage_t descriptor = {};
-
-        if (pageIndex < CORE_MCU_TOTAL_FLASH_PAGES)
-        {
-            descriptor.address = CORE_MCU_FLASH_PAGE_ADDR(pageIndex);
-
-#ifdef CORE_MCU_FLASH_PAGE_SIZE_COMMON
-            descriptor.size = CORE_MCU_FLASH_PAGE_SIZE_COMMON;
-#else
-            descriptor.size = CORE_MCU_FLASH_PAGE_SIZE(pageIndex);
-#endif
-        }
-
-        return descriptor;
-    }
-
 #ifdef CORE_MCU_CUSTOM_PERIPHERAL_PINS
 #ifdef PROJECT_TARGET_SUPPORT_UART
     constexpr const core::mcu::uart::Config::pins_t& UART_PINS(size_t channel)
