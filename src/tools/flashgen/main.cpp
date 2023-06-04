@@ -25,7 +25,7 @@ limitations under the License.
 #include "application/database/Database.h"
 #include "application/database/Layout.h"
 #include "EmuEEPROM/EmuEEPROM.h"
-#include "CoreMCUGenerated.h"
+#include <CoreMCUGenerated.h>
 
 namespace
 {
@@ -172,7 +172,7 @@ namespace
                               _filename +
                               BIN_SUFFIX +
                               " -binary -offset " +
-                              std::to_string(CORE_MCU_FLASH_PAGE_ADDR(PROJECT_MCU_FLASH_PAGE_FACTORY)) +
+                              std::to_string(core::mcu::flash::pageAddress(PROJECT_MCU_FLASH_PAGE_FACTORY)) +
                               " -o " +
                               _filename +
                               " -Intel";

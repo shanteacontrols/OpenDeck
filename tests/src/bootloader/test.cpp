@@ -14,7 +14,13 @@
 #include <iterator>
 #include <string>
 #include <cstddef>
+
+// Force the generated flash functions into test namespace to avoid clashes with
+// stub functions (since stub MCU is used for tests)
+namespace test
+{
 #include <CoreMCUGenerated.h>
+}
 
 namespace
 {
@@ -23,7 +29,7 @@ namespace
         public:
         uint32_t pageSize(size_t index) override
         {
-            return CORE_MCU_FLASH_PAGE_SIZE(index);
+            return test::core::mcu::flash::pageSize(index);
         }
 
         void erasePage(size_t index) override

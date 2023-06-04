@@ -2,4 +2,3 @@
 -mrelax
 -funsigned-bitfields
 -fno-fat-lto-objects
--DCORE_MCU_ARCH_AVR
