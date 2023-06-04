@@ -19,7 +19,6 @@ limitations under the License.
 #pragma once
 
 #include <functional>
-#include "core/Timing.h"
 #include "application/database/Database.h"
 
 namespace util
