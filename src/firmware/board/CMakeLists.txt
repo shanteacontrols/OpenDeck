@@ -80,13 +80,13 @@ elseif (TARGET usb)
     list(APPEND BOARD_APPLICATION_LIBRARIES usb)
 endif()
 
-if (TARGET emueeprom)
+if (TARGET emueeprom-lib)
     target_link_libraries(board_application
         PUBLIC
-        emueeprom
+        emueeprom-lib
     )
 
-    list(APPEND BOARD_APPLICATION_LIBRARIES emueeprom)
+    list(APPEND BOARD_APPLICATION_LIBRARIES emueeprom-lib)
 endif()
 
 target_link_options(board_application
@@ -147,12 +147,12 @@ if("PROJECT_MCU_SUPPORT_BOOTLOADER" IN_LIST PROJECT_MCU_DEFINES)
 
     list(APPEND BOARD_BOOTLOADER_LIBRARIES mcu)
 
-    if (TARGET emueeprom)
+    if (TARGET emueeprom-lib)
         target_link_libraries(board_bootloader
-            PUBLIC emueeprom
+            PUBLIC emueeprom-lib
         )
 
-        list(APPEND BOARD_BOOTLOADER_LIBRARIES emueeprom)
+        list(APPEND BOARD_BOOTLOADER_LIBRARIES emueeprom-lib)
     endif()
 
     target_link_options(board_bootloader

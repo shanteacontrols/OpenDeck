@@ -62,14 +62,14 @@ target_link_libraries(common
 if("PROJECT_MCU_USE_EMU_EEPROM" IN_LIST PROJECT_MCU_DEFINES)
     add_subdirectory(${PROJECT_ROOT}/modules/EmuEEPROM ${CMAKE_CURRENT_BINARY_DIR}/modules/EmuEEPROM)
 
-    target_compile_definitions(emueeprom
+    target_compile_definitions(emueeprom-lib
         PUBLIC
         EMU_EEPROM_PAGE_SIZE=${EMU_EEPROM_PAGE_SIZE}
     )
 
     target_link_libraries(common
         PUBLIC
-        emueeprom
+        emueeprom-lib
     )
 endif()
 

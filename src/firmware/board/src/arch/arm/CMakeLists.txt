@@ -11,17 +11,17 @@ list(APPEND BOARD_DEFINES
 
 add_subdirectory(${PROJECT_ROOT}/modules/EmuEEPROM ${CMAKE_CURRENT_BINARY_DIR}/modules/EmuEEPROM)
 
-target_compile_definitions(emueeprom
+target_compile_definitions(emueeprom-lib
     PUBLIC
     EMU_EEPROM_PAGE_SIZE=${EMU_EEPROM_PAGE_SIZE}
 )
 
-target_link_options(emueeprom
+target_link_options(emueeprom-lib
     PUBLIC
     "$<TARGET_PROPERTY:mcu,LINK_OPTIONS>"
 )
 
-target_compile_options(emueeprom
+target_compile_options(emueeprom-lib
     PUBLIC
     "$<TARGET_PROPERTY:mcu,COMPILE_OPTIONS>"
 )

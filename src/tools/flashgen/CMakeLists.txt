@@ -12,12 +12,12 @@ include(${PROJECT_ROOT}/src/generated/target/${TARGET}/CMakeLists.txt)
 add_executable(flashgen)
 add_subdirectory(${PROJECT_ROOT}/modules/EmuEEPROM ${CMAKE_CURRENT_BINARY_DIR}/modules/EmuEEPROM)
 
-target_compile_definitions(emueeprom
+target_compile_definitions(emueeprom-lib
     PUBLIC
     EMU_EEPROM_PAGE_SIZE=${EMU_EEPROM_PAGE_SIZE}
 )
 
-target_include_directories(emueeprom
+target_include_directories(emueeprom-lib
     PUBLIC
     ${PROJECT_ROOT}/src/generated/mcu/${PROJECT_TARGET_MCU}
 )
@@ -46,5 +46,5 @@ target_sources(flashgen
 
 target_link_libraries(flashgen
     PUBLIC
-    emueeprom
+    emueeprom-lib
 )

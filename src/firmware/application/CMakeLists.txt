@@ -100,7 +100,7 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
         $<TARGET_FILE:application>.hex
     )
 
-    if (TARGET emueeprom)
+    if (TARGET emueeprom-lib)
         set(FLASHGEN_BIN_CONF_NAME generated_config.hex)
         set(FLASHGEN_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/flashgen)
 
