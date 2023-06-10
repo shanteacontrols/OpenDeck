@@ -6,14 +6,11 @@ add_library(common)
 
 add_module(LESSDB)
 add_module(SysExConf)
+add_module(MIDI)
 
 target_sources(common
     PRIVATE
     main.cpp
-    ${PROJECT_ROOT}/modules/midi/src/MIDI.cpp
-    ${PROJECT_ROOT}/modules/midi/src/transport/usb/USB.cpp
-    ${PROJECT_ROOT}/modules/midi/src/transport/serial/Serial.cpp
-    ${PROJECT_ROOT}/modules/midi/src/transport/ble/BLE.cpp
     ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_string.c
     ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_setup.c
     ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_u8toa.c
@@ -60,6 +57,7 @@ target_link_libraries(common
     gmock
     lessdb-lib
     sysexconf-lib
+    midi-lib
 )
 
 if("PROJECT_MCU_USE_EMU_EEPROM" IN_LIST PROJECT_MCU_DEFINES)

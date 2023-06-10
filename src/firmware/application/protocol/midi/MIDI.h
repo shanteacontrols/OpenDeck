@@ -19,9 +19,9 @@ limitations under the License.
 #pragma once
 
 #include "application/io/common/Common.h"
-#include "midi/src/transport/usb/USB.h"
-#include "midi/src/transport/serial/Serial.h"
-#include "midi/src/transport/ble/BLE.h"
+#include "MIDI/transport/USB.h"
+#include "MIDI/transport/Serial.h"
+#include "MIDI/transport/BLE.h"
 #include "application/protocol/ProtocolBase.h"
 #include "application/database/Database.h"
 #include "application/system/Config.h"

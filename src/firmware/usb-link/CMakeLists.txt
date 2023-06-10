@@ -8,6 +8,7 @@ if("PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
         ${PROJECT_ROOT}/modules
         ${PROJECT_ROOT}/modules/LESSDB/include
         ${PROJECT_ROOT}/modules/SysExConf/include
+        ${PROJECT_ROOT}/modules/MIDI/include
     )
 
     target_sources(usb_link

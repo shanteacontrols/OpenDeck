@@ -1,5 +1,5 @@
 [submodule "modules/midi"]
-	path = modules/midi
+	path = modules/MIDI
 	url = https://github.com/shanteacontrols/midi-lib.git
 	branch = master
 [submodule "modules/LESSDB"]

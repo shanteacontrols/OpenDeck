@@ -23,6 +23,7 @@ target_include_directories(emueeprom-lib
     PUBLIC
     ${PROJECT_ROOT}/src/generated/mcu/${PROJECT_TARGET_MCU}
     ${PROJECT_ROOT}/modules/SysExConf/include
+    ${PROJECT_ROOT}/modules/MIDI/include
 )
 
 target_compile_definitions(flashgen

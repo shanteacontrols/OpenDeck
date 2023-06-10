@@ -19,7 +19,7 @@ limitations under the License.
 #pragma once
 
 #include "application/util/dispatcher/Dispatcher.h"
-#include "midi/src/MIDI.h"
+#include "MIDI/MIDI.h"
 
 namespace messaging
 {
