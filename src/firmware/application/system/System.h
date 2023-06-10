@@ -23,7 +23,7 @@ limitations under the License.
 #include <functional>
 #include "application/util/cinfo/CInfo.h"
 #include "application/util/scheduler/Scheduler.h"
-#include "sysex/src/SysExConf.h"
+#include "SysExConf/SysExConf.h"
 #include "CustomIDs.h"
 #include "application/database/Database.h"
 #include "application/protocol/ProtocolBase.h"

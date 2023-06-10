@@ -22,6 +22,7 @@ target_compile_definitions(emueeprom-lib
 target_include_directories(emueeprom-lib
     PUBLIC
     ${PROJECT_ROOT}/src/generated/mcu/${PROJECT_TARGET_MCU}
+    ${PROJECT_ROOT}/modules/SysExConf/include
 )
 
 target_compile_definitions(flashgen

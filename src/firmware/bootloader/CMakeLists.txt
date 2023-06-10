@@ -7,6 +7,7 @@ if("PROJECT_MCU_SUPPORT_BOOTLOADER" IN_LIST PROJECT_MCU_DEFINES)
         ${PROJECT_ROOT}/src/firmware
         ${PROJECT_ROOT}/modules
         ${PROJECT_ROOT}/modules/LESSDB/include
+        ${PROJECT_ROOT}/modules/SysExConf/include
     )
 
     target_sources(bootloader

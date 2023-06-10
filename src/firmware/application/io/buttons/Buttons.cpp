@@ -17,7 +17,7 @@ limitations under the License.
 */
 
 #include "Buttons.h"
-#include "sysex/src/SysExConf.h"
+#include "SysExConf/SysExConf.h"
 #include "application/system/Config.h"
 #include "application/global/MIDIProgram.h"
 

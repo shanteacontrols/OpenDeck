@@ -7,7 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include "application/protocol/midi/MIDI.h"
-#include "sysex/src/SysExConf.h"
+#include "SysExConf/SysExConf.h"
 #include "application/util/conversion/Conversion.h"
 #include "application/system/System.h"
 #include "Misc.h"

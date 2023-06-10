@@ -20,7 +20,7 @@ limitations under the License.
 
 #include "application/database/Database.h"
 #include "application/system/Config.h"
-#include "sysex/src/SysExConf.h"
+#include "SysExConf/SysExConf.h"
 
 namespace util
 {

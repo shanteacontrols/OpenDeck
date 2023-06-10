@@ -22,7 +22,7 @@ limitations under the License.
 #include <vector>
 #include <functional>
 #include <optional>
-#include "sysex/src/SysExConf.h"
+#include "SysExConf/SysExConf.h"
 
 namespace sys
 {

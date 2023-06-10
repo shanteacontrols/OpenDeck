@@ -7,7 +7,7 @@
 	url = https://github.com/paradajz/LESS-DB.git
 	branch = master
 [submodule "modules/sysex"]
-	path = modules/sysex
+	path = modules/SysExConf
 	url = https://github.com/shanteacontrols/sysex-conf.git
 	branch = master
 [submodule "modules/u8g2"]

@@ -35,7 +35,6 @@ if("PROJECT_TARGET_HW_TESTS_SUPPORTED" IN_LIST PROJECT_TARGET_DEFINES)
         ${PROJECT_ROOT}/src/firmware/application/io/encoders/Encoders.cpp
         ${PROJECT_ROOT}/src/firmware/application/io/leds/LEDs.cpp
         ${PROJECT_ROOT}/src/firmware/application/io/analog/Analog.cpp
-        ${PROJECT_ROOT}/modules/sysex/src/SysExConf.cpp
     )
 
     target_compile_definitions(hw

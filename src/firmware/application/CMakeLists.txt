@@ -41,6 +41,9 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
     add_module(LESSDB)
     add_mcu_library(lessdb-lib)
 
+    add_module(SysExConf)
+    add_mcu_library(sysexconf-lib)
+
     target_sources(application
         PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/io/buttons/Buttons.cpp
@@ -67,7 +70,6 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
         ${PROJECT_ROOT}/modules/midi/src/transport/ble/BLE.cpp
         ${PROJECT_ROOT}/modules/midi/src/transport/serial/Serial.cpp
         ${PROJECT_ROOT}/modules/midi/src/transport/usb/USB.cpp
-        ${PROJECT_ROOT}/modules/sysex/src/SysExConf.cpp
         ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_string.c
         ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_setup.c
         ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_u8toa.c
@@ -87,6 +89,7 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
         PRIVATE
         ${BOARD_APPLICATION_LIBRARIES}
         lessdb-lib
+        sysexconf-lib
     )
 
     add_custom_command(

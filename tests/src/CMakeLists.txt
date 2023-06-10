@@ -5,6 +5,7 @@ include(${PROJECT_ROOT}/src/generated/target/${TARGET}/CMakeLists.txt)
 add_library(common)
 
 add_module(LESSDB)
+add_module(SysExConf)
 
 target_sources(common
     PRIVATE
@@ -58,6 +59,7 @@ target_link_libraries(common
     gtest
     gmock
     lessdb-lib
+    sysexconf-lib
 )
 
 if("PROJECT_MCU_USE_EMU_EEPROM" IN_LIST PROJECT_MCU_DEFINES)

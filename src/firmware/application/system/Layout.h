@@ -19,7 +19,7 @@
 #pragma once
 
 #include "application/database/Database.h"
-#include "sysex/src/SysExConf.h"
+#include "SysExConf/SysExConf.h"
 #include "application/io/buttons/Buttons.h"
 #include "application/io/encoders/Encoders.h"
 #include "application/io/analog/Analog.h"
