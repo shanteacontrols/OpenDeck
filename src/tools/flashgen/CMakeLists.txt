@@ -35,7 +35,7 @@ target_compile_definitions(flashgen
 target_include_directories(flashgen
     PUBLIC
     ${PROJECT_ROOT}/src/firmware
-    ${PROJECT_ROOT}/modules
+    ${PROJECT_ROOT}/modules/u8g2/csrc
     ${PROJECT_ROOT}/modules/core/include
 )
 

@@ -31,7 +31,7 @@ target_include_directories(common
     PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/../include
     ${PROJECT_ROOT}/modules/core/include
-    ${PROJECT_ROOT}/modules
+    ${PROJECT_ROOT}/modules/u8g2/csrc
     ${PROJECT_ROOT}/src/firmware
     ${PROJECT_ROOT}/src/firmware/application
     ${PROJECT_ROOT}/src/firmware/bootloader

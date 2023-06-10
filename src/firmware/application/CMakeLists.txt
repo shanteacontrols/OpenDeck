@@ -24,7 +24,7 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
     target_include_directories(application
         PRIVATE
         ${PROJECT_ROOT}/src/firmware
-        ${PROJECT_ROOT}/modules
+        ${PROJECT_ROOT}/modules/u8g2/csrc
     )
 
     target_compile_definitions(application

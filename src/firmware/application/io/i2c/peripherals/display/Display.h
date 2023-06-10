@@ -18,7 +18,7 @@ limitations under the License.
 
 #pragma once
 
-#include "u8g2/csrc/u8x8.h"
+#include <u8x8.h>
 #include "core/util/StringBuilder.h"
 #include "application/database/Database.h"
 #include "application/messaging/Messaging.h"

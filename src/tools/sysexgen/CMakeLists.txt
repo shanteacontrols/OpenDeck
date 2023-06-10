@@ -14,7 +14,6 @@ add_executable(sysexgen)
 target_include_directories(sysexgen
     PRIVATE
     ${PROJECT_ROOT}/src/firmware
-    ${PROJECT_ROOT}/modules
     ${PROJECT_ROOT}/modules/LESSDB/include
     ${PROJECT_ROOT}/modules/SysExConf/include
 )
