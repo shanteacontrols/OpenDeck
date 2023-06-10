@@ -32,7 +32,6 @@ target_include_directories(common
     PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/../include
     ${PROJECT_ROOT}/modules/core/include
-    ${PROJECT_ROOT}/modules/EmuEEPROM/include
     ${PROJECT_ROOT}/modules
     ${PROJECT_ROOT}/src/firmware
     ${PROJECT_ROOT}/src/firmware/application
