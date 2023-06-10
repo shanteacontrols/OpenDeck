@@ -34,6 +34,12 @@ CheckOptions:
     value:           'UPPER_CASE'
   - key:             readability-identifier-naming.LocalConstantCase
     value:           'UPPER_CASE'
+  - key:             readability-identifier-naming.GlobalConstantCase
+    value:           'UPPER_CASE'
+  - key:             readability-identifier-naming.GlobalPointerCase
+    value:           'UPPER_CASE'
+  - key:             readability-identifier-naming.LocalConstantPointerCase
+    value:           'UPPER_CASE'
   - key:             readability-identifier-naming.ParameterCase
     value:           'camelBack'
   - key:             readability-identifier-naming.VirtualMethodCase

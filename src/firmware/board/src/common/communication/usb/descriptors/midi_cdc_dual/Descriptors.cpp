@@ -33,7 +33,7 @@ namespace
 {
     constexpr uint8_t USB_CDC_POLLING_TIME = 5;
 
-    const usbDescriptorConfiguration_t PROGMEM _configurationDescriptor = {
+    const usbDescriptorConfiguration_t PROGMEM CONFIGURATION_DESCRIPTOR = {
         .config = {
             .header = {
                 .size = sizeof(core::mcu::usb::descriptorConfigurationHeader_t),
@@ -303,7 +303,7 @@ namespace
             .subType            = core::mcu::usb::AUDIO_DSUBTYPE_CS_ENDPOINT_GENERAL,
             .totalEmbeddedJacks = 0x01,
             .associatedJackId   = {
-                  0x01,
+                0x01,
             },
         },
 
@@ -333,12 +333,12 @@ namespace
             .subType            = core::mcu::usb::AUDIO_DSUBTYPE_CS_ENDPOINT_GENERAL,
             .totalEmbeddedJacks = 0x01,
             .associatedJackId   = {
-                  0x03,
+                0x03,
             },
         }
     };
 
-    const core::mcu::usb::descriptorDevice_t PROGMEM _deviceDescriptor = {
+    const core::mcu::usb::descriptorDevice_t PROGMEM DEVICE_DESCRIPTOR = {
         .header = {
             .size = sizeof(core::mcu::usb::descriptorDevice_t),
             .type = core::mcu::usb::DESC_TYPE_DEVICE,
@@ -358,9 +358,9 @@ namespace
         .numberOfConfigurations = 1
     };
 
-    const core::mcu::usb::descriptorString_t PROGMEM _languageString     = CORE_MCU_USB_STRING_DESCRIPTOR_ARRAY(core::mcu::usb::LANGUAGE_ID_ENG);
-    const core::mcu::usb::descriptorString_t PROGMEM _manufacturerString = CORE_MCU_USB_STRING_DESCRIPTOR(USB_MANUFACTURER_NAME);
-    const core::mcu::usb::descriptorString_t PROGMEM _productString      = CORE_MCU_USB_STRING_DESCRIPTOR(PROJECT_TARGET_USB_NAME);
+    const core::mcu::usb::descriptorString_t PROGMEM LANGUAGE_STRING     = CORE_MCU_USB_STRING_DESCRIPTOR_ARRAY(core::mcu::usb::LANGUAGE_ID_ENG);
+    const core::mcu::usb::descriptorString_t PROGMEM MANUFACTURER_STRING = CORE_MCU_USB_STRING_DESCRIPTOR(USB_MANUFACTURER_NAME);
+    const core::mcu::usb::descriptorString_t PROGMEM PRODUCT_STRING      = CORE_MCU_USB_STRING_DESCRIPTOR(PROJECT_TARGET_USB_NAME);
 }    // namespace
 
 namespace board::detail::usb
@@ -368,31 +368,31 @@ namespace board::detail::usb
     const void* cfgDescriptor(uint16_t* size)
     {
         *size = sizeof(usbDescriptorConfiguration_t);
-        return &_configurationDescriptor;
+        return &CONFIGURATION_DESCRIPTOR;
     }
 
     const void* deviceDescriptor(uint16_t* size)
     {
         *size = sizeof(core::mcu::usb::descriptorDevice_t);
-        return &_deviceDescriptor;
+        return &DEVICE_DESCRIPTOR;
     }
 
     const void* languageString(uint16_t* size)
     {
-        *size = CORE_UTIL_READ_PROGMEM_BYTE(_languageString.header.size);
-        return &_languageString;
+        *size = CORE_UTIL_READ_PROGMEM_BYTE(LANGUAGE_STRING.header.size);
+        return &LANGUAGE_STRING;
     }
 
     const void* manufacturerString(uint16_t* size)
     {
-        *size = CORE_UTIL_READ_PROGMEM_BYTE(_manufacturerString.header.size);
-        return &_manufacturerString;
+        *size = CORE_UTIL_READ_PROGMEM_BYTE(MANUFACTURER_STRING.header.size);
+        return &MANUFACTURER_STRING;
     }
 
     const void* productString(uint16_t* size)
     {
-        *size = CORE_UTIL_READ_PROGMEM_BYTE(_productString.header.size);
-        return &_productString;
+        *size = CORE_UTIL_READ_PROGMEM_BYTE(PRODUCT_STRING.header.size);
+        return &PRODUCT_STRING;
     }
 }    // namespace board::detail::usb
 #endif
