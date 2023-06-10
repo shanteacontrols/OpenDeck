@@ -11,7 +11,7 @@ set(FIRMWARE_MERGED_UF2 ${CMAKE_CURRENT_BINARY_DIR}/merged.uf2)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(ExternalProject)
-include(${CMAKE_CURRENT_LIST_DIR}/cmake/include/helpers.cmake)
+include(${PROJECT_ROOT}/cmake/include/helpers.cmake)
 
 check_required_executables(
     awk
@@ -24,20 +24,20 @@ check_required_executables(
 
 execute_process(
     COMMAND
-    "${CMAKE_CURRENT_LIST_DIR}/scripts/gen/gen_target.sh"
+    "${PROJECT_ROOT}/scripts/gen/gen_target.sh"
     "--project=${PROJECT_NAME}"
-    "--target-config=${CMAKE_CURRENT_LIST_DIR}/config/target/${TARGET}.yml"
-    "--gen-dir-target=${CMAKE_CURRENT_LIST_DIR}/src/generated/target/${TARGET}"
-    "--touchscreen-config=${CMAKE_CURRENT_LIST_DIR}/config/touchscreen/${TARGET}.json"
-    "--gen-dir-touchscreen=${CMAKE_CURRENT_LIST_DIR}/src/generated/application/${TARGET}"
-    "--touchscreen-img-dir=${CMAKE_CURRENT_LIST_DIR}/bin/touchscreen/img/${TARGET}"
-    "--base-gen-dir-mcu=${CMAKE_CURRENT_LIST_DIR}/src/generated/mcu"
+    "--target-config=${PROJECT_ROOT}/config/target/${TARGET}.yml"
+    "--gen-dir-target=${PROJECT_ROOT}/src/generated/target/${TARGET}"
+    "--touchscreen-config=${PROJECT_ROOT}/config/touchscreen/${TARGET}.json"
+    "--gen-dir-touchscreen=${PROJECT_ROOT}/src/generated/application/${TARGET}"
+    "--touchscreen-img-dir=${PROJECT_ROOT}/bin/touchscreen/img/${TARGET}"
+    "--base-gen-dir-mcu=${PROJECT_ROOT}/src/generated/mcu"
 )
 
-include(${CMAKE_CURRENT_LIST_DIR}/src/firmware/board/CMakeLists.txt)
-include(${CMAKE_CURRENT_LIST_DIR}/src/firmware/bootloader/CMakeLists.txt)
-include(${CMAKE_CURRENT_LIST_DIR}/src/firmware/application/CMakeLists.txt)
-include(${CMAKE_CURRENT_LIST_DIR}/src/firmware/usb-link/CMakeLists.txt)
+include(${PROJECT_ROOT}/src/firmware/board/CMakeLists.txt)
+include(${PROJECT_ROOT}/src/firmware/bootloader/CMakeLists.txt)
+include(${PROJECT_ROOT}/src/firmware/application/CMakeLists.txt)
+include(${PROJECT_ROOT}/src/firmware/usb-link/CMakeLists.txt)
 
 project(${PROJECT_NAME})
 enable_language(C CXX ASM)
@@ -46,7 +46,7 @@ add_custom_command(
     DEPENDS ${FIRMWARE_TARGETS} # ensure re-merge once all firmware targets change
     OUTPUT ${FIRMWARE_MERGED_HEX}
     OUTPUT ${FIRMWARE_MERGED_BIN}
-    COMMAND ${CMAKE_COMMAND} -DFIRMWARE_MERGED_HEX=${FIRMWARE_MERGED_HEX} -DFIRMWARE_MERGED_BIN=${FIRMWARE_MERGED_BIN} -DFIRMWARE_HEX_LIST="${FIRMWARE_HEX_LIST}" -P ${CMAKE_CURRENT_LIST_DIR}/cmake/scripts/merge_fw_binaries.cmake
+    COMMAND ${CMAKE_COMMAND} -DFIRMWARE_MERGED_HEX=${FIRMWARE_MERGED_HEX} -DFIRMWARE_MERGED_BIN=${FIRMWARE_MERGED_BIN} -DFIRMWARE_HEX_LIST="${FIRMWARE_HEX_LIST}" -P ${PROJECT_ROOT}/cmake/scripts/merge_fw_binaries.cmake
 )
 
 add_custom_target(merge_firmware_binaries
@@ -72,7 +72,7 @@ if(CORE_MCU_UF2_ID)
 endif()
 
 add_custom_target(flash
-    COMMAND ${CMAKE_COMMAND} -DTARGET=${TARGET} -P ${CMAKE_CURRENT_LIST_DIR}/cmake/scripts/flash.cmake
+    COMMAND ${CMAKE_COMMAND} -DTARGET=${TARGET} -P ${PROJECT_ROOT}/cmake/scripts/flash.cmake
 )
 
 set_target_properties(flash PROPERTIES EXCLUDE_FROM_ALL TRUE)
@@ -88,7 +88,7 @@ add_custom_target(format
 set_target_properties(format PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 add_custom_target(lint
-    COMMAND ${PROJECT_ROOT}/scripts/clang_tidy_wrapper.sh --mcu=${PROJECT_TARGET_MCU} --output=${CMAKE_CURRENT_BINARY_DIR}/clang-tidy-fixes.yml --compiler=${CMAKE_C_COMPILER} --option-files-dir=${CMAKE_CURRENT_LIST_DIR}
+    COMMAND ${PROJECT_ROOT}/scripts/clang_tidy_wrapper.sh --mcu=${PROJECT_TARGET_MCU} --output=${CMAKE_CURRENT_BINARY_DIR}/clang-tidy-fixes.yml --compiler=${CMAKE_C_COMPILER} --option-files-dir=${PROJECT_ROOT}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
@@ -96,7 +96,7 @@ set_target_properties(lint PROPERTIES EXCLUDE_FROM_ALL TRUE)
 add_dependencies(lint merge_firmware_binaries)
 
 ExternalProject_Add(tests
-    SOURCE_DIR      ${CMAKE_CURRENT_LIST_DIR}/tests
+    SOURCE_DIR      ${PROJECT_ROOT}/tests
     CMAKE_ARGS      -DTARGET=${TARGET}
     CMAKE_ARGS      -DMCU_CMAKE_DISABLE_CORE_INCLUSION=1
     CMAKE_ARGS      -DFW_BUILD_DIR=${CMAKE_CURRENT_BINARY_DIR}
