@@ -60,7 +60,7 @@ target_link_libraries(common
 )
 
 if("PROJECT_MCU_USE_EMU_EEPROM" IN_LIST PROJECT_MCU_DEFINES)
-    add_subdirectory(${PROJECT_ROOT}/modules/EmuEEPROM ${CMAKE_CURRENT_BINARY_DIR}/modules/EmuEEPROM)
+    add_module(EmuEEPROM)
 
     target_compile_definitions(emueeprom-lib
         PUBLIC

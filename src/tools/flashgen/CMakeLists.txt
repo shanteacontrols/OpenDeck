@@ -6,11 +6,12 @@ enable_language(CXX)
 
 set(PROJECT_ROOT ${CMAKE_CURRENT_LIST_DIR}/../../../)
 
+include(${PROJECT_ROOT}/cmake/include/helpers.cmake)
 include(${PROJECT_ROOT}/modules/core/cmake/ccache.cmake)
 include(${PROJECT_ROOT}/src/generated/target/${TARGET}/CMakeLists.txt)
 
 add_executable(flashgen)
-add_subdirectory(${PROJECT_ROOT}/modules/EmuEEPROM ${CMAKE_CURRENT_BINARY_DIR}/modules/EmuEEPROM)
+add_module(EmuEEPROM)
 
 target_compile_definitions(emueeprom-lib
     PUBLIC
