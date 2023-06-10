@@ -17,12 +17,12 @@ execute_process(
     COMMAND
     "${CMAKE_CURRENT_LIST_DIR}/scripts/gen/gen_target.sh"
     "--project=${PROJECT_NAME}"
-    "--target-config=${CMAKE_CURRENT_LIST_DIR}/config/target/${TARGET}.yml"
-    "--gen-dir-target=${CMAKE_CURRENT_LIST_DIR}/src/generated/target/${TARGET}"
-    "--touchscreen-config=${CMAKE_CURRENT_LIST_DIR}/config/touchscreen/${TARGET}.json"
-    "--gen-dir-touchscreen=${CMAKE_CURRENT_LIST_DIR}/src/generated/application/${TARGET}"
-    "--touchscreen-img-dir=${CMAKE_CURRENT_LIST_DIR}/bin/touchscreen/img/${TARGET}"
-    "--base-gen-dir-mcu=${CMAKE_CURRENT_LIST_DIR}/src/generated/mcu"
+    "--target-config=${PROJECT_ROOT}/config/target/${TARGET}.yml"
+    "--gen-dir-target=${PROJECT_ROOT}/src/generated/target/${TARGET}"
+    "--touchscreen-config=${PROJECT_ROOT}/config/touchscreen/${TARGET}.json"
+    "--gen-dir-touchscreen=${PROJECT_ROOT}/src/generated/application/${TARGET}"
+    "--touchscreen-img-dir=${PROJECT_ROOT}/bin/touchscreen/img/${TARGET}"
+    "--base-gen-dir-mcu=${PROJECT_ROOT}/src/generated/mcu"
 )
 
 project(${PROJECT_NAME})
