@@ -12,6 +12,7 @@ include(${PROJECT_ROOT}/src/generated/target/${TARGET}/CMakeLists.txt)
 
 add_executable(flashgen)
 add_module(EmuEEPROM)
+add_module(LESSDB)
 
 target_compile_definitions(emueeprom-lib
     PUBLIC
@@ -42,10 +43,10 @@ target_sources(flashgen
     ${PROJECT_ROOT}/src/firmware/application/database/CustomInit.cpp
     ${PROJECT_ROOT}/src/firmware/application/database/Database.cpp
     ${PROJECT_ROOT}/src/firmware/application/util/configurable/Configurable.cpp
-    ${PROJECT_ROOT}/modules/dbms/src/LESSDB.cpp
 )
 
 target_link_libraries(flashgen
     PUBLIC
     emueeprom-lib
+    lessdb-lib
 )

@@ -6,6 +6,7 @@ if("PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
         PRIVATE
         ${PROJECT_ROOT}/src/firmware
         ${PROJECT_ROOT}/modules
+        ${PROJECT_ROOT}/modules/LESSDB/include
     )
 
     target_sources(usb_link

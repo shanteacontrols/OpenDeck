@@ -15,6 +15,7 @@ target_include_directories(sysexgen
     PRIVATE
     ${PROJECT_ROOT}/src/firmware
     ${PROJECT_ROOT}/modules
+    ${PROJECT_ROOT}/modules/LESSDB/include
 )
 
 target_sources(sysexgen

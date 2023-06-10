@@ -6,6 +6,7 @@ if("PROJECT_MCU_SUPPORT_BOOTLOADER" IN_LIST PROJECT_MCU_DEFINES)
         PRIVATE
         ${PROJECT_ROOT}/src/firmware
         ${PROJECT_ROOT}/modules
+        ${PROJECT_ROOT}/modules/LESSDB/include
     )
 
     target_sources(bootloader

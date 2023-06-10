@@ -2,8 +2,8 @@
 	path = modules/midi
 	url = https://github.com/shanteacontrols/midi-lib.git
 	branch = master
-[submodule "modules/dbms"]
-	path = modules/dbms
+[submodule "modules/LESSDB"]
+	path = modules/LESSDB
 	url = https://github.com/paradajz/LESS-DB.git
 	branch = master
 [submodule "modules/sysex"]

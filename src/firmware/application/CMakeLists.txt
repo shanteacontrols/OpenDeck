@@ -38,6 +38,9 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
         ${PROJECT_ROOT}/src/generated/application/${TARGET}/*.cpp
     )
 
+    add_module(LESSDB)
+    add_mcu_library(lessdb-lib)
+
     target_sources(application
         PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/io/buttons/Buttons.cpp
@@ -60,7 +63,6 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
         ${CMAKE_CURRENT_LIST_DIR}/util/cinfo/CInfo.cpp
         ${CMAKE_CURRENT_LIST_DIR}/util/configurable/Configurable.cpp
         ${CMAKE_CURRENT_LIST_DIR}/main.cpp
-        ${PROJECT_ROOT}/modules/dbms/src/LESSDB.cpp
         ${PROJECT_ROOT}/modules/midi/src/MIDI.cpp
         ${PROJECT_ROOT}/modules/midi/src/transport/ble/BLE.cpp
         ${PROJECT_ROOT}/modules/midi/src/transport/serial/Serial.cpp
@@ -81,7 +83,11 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
         ${APP_GENERATED_SOURCES}
     )
 
-    target_link_libraries(application ${BOARD_APPLICATION_LIBRARIES})
+    target_link_libraries(application
+        PRIVATE
+        ${BOARD_APPLICATION_LIBRARIES}
+        lessdb-lib
+    )
 
     add_custom_command(
         TARGET application

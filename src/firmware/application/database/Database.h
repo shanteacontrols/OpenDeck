@@ -19,7 +19,7 @@ limitations under the License.
 #pragma once
 
 #include <type_traits>
-#include "dbms/src/LESSDB.h"
+#include "LESSDB/LESSDB.h"
 #include "application/system/Config.h"
 #include "Config.h"
 

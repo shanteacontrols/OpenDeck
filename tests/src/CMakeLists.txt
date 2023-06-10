@@ -4,10 +4,11 @@ include(${PROJECT_ROOT}/src/generated/target/${TARGET}/CMakeLists.txt)
 
 add_library(common)
 
+add_module(LESSDB)
+
 target_sources(common
     PRIVATE
     main.cpp
-    ${PROJECT_ROOT}/modules/dbms/src/LESSDB.cpp
     ${PROJECT_ROOT}/modules/midi/src/MIDI.cpp
     ${PROJECT_ROOT}/modules/midi/src/transport/usb/USB.cpp
     ${PROJECT_ROOT}/modules/midi/src/transport/serial/Serial.cpp
@@ -56,6 +57,7 @@ target_link_libraries(common
     glog::glog
     gtest
     gmock
+    lessdb-lib
 )
 
 if("PROJECT_MCU_USE_EMU_EEPROM" IN_LIST PROJECT_MCU_DEFINES)
