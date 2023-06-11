@@ -17,12 +17,14 @@ target_compile_definitions(emueeprom-lib
     EMU_EEPROM_PAGE_SIZE=${EMU_EEPROM_PAGE_SIZE}
 )
 
-# tinyusb
-target_compile_definitions(usb
-    PUBLIC
-    CFG_TUD_MSC=0
-    CFG_TUD_HID=0
-    CFG_TUD_MIDI=1
-    CFG_TUD_CDC=1
-    CFG_TUD_VENDOR=0
-)
+if (TARGET usb)
+    # tinyusb
+    target_compile_definitions(usb
+        PUBLIC
+        CFG_TUD_MSC=0
+        CFG_TUD_HID=0
+        CFG_TUD_MIDI=1
+        CFG_TUD_CDC=1
+        CFG_TUD_VENDOR=0
+    )
+endif()
