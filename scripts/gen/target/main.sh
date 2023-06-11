@@ -2,7 +2,6 @@
 
 {
     printf "%s\n\n" "#pragma once"
-    printf "%s\n" "#include \"Internal.h\""
     printf "%s\n" "#include \"core/MCU.h\""
     printf "%s\n" "#include \"core/arch/common/UART.h\""
     printf "%s\n" "#include \"core/arch/common/I2C.h\""
