@@ -179,12 +179,13 @@ namespace board
         {
             core::mcu::init(core::mcu::initType_t::APP);
             core::mcu::timers::init();
-            detail::io::init();
-            detail::io::indicators::indicateApplicationLoad();
 
 #ifdef PROJECT_TARGET_USB_OVER_SERIAL
             board::uart::init(PROJECT_TARGET_UART_CHANNEL_USB_LINK, board::detail::usb::USB_OVER_SERIAL_BAUDRATE);
 #endif
+
+            detail::io::init();
+            detail::io::indicators::indicateApplicationLoad();
 
 #ifdef PROJECT_TARGET_USB_OVER_SERIAL_DEVICE
             // do not proceed with application load until usb link is ready
