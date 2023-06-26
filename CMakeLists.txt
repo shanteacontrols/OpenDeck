@@ -80,9 +80,8 @@ add_dependencies(flash merge_firmware_binaries)
 
 add_custom_target(format
     COMMAND echo Checking code formatting...
-    COMMAND find . -regex '.*\.\(cpp\|hpp\|h\|cc\|cxx\|c\)' -not -path '**CMakeFiles/**/*' -not -path '**generated/**/*' -not -path '**/modules/**/*' -exec clang-format -style=file -i {} +
-    COMMAND git diff
-    COMMAND git diff -s --exit-code
+    COMMAND ${PROJECT_ROOT}/scripts/code_format.sh
+    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
 )
 
 set_target_properties(format PROPERTIES EXCLUDE_FROM_ALL TRUE)
