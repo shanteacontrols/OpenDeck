@@ -301,7 +301,7 @@ namespace
     };
 }    // namespace
 
-TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
+TEST_F(LEDsTest, MultiValue)
 {
     if (!LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS))
     {
@@ -488,6 +488,162 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
                                     MIDI::messageType_t::CONTROL_CHANGE });
 
             ASSERT_EQ(expectedBlinkSpeedValue.at(value), _leds._instance.blinkSpeed(led));
+        }
+    }
+}
+
+TEST_F(LEDsTest, SingleValue)
+{
+    if (!LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS))
+    {
+        return;
+    }
+
+    // MIDI_IN_NOTE_SINGLE_VAL
+    //----------------------------------
+
+    for (uint8_t activationValue = 0; activationValue < 128; activationValue++)
+    {
+        for (size_t i = 0; i < LEDs::Collection::SIZE(); i++)
+        {
+            ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::MIDI_IN_NOTE_SINGLE_VAL));
+            ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::ACTIVATION_VALUE, i, activationValue));
+        }
+
+        for (uint8_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
+        {
+            EXPECT_CALL(_leds._hwa, setState(_, LEDs::brightness_t::OFF))
+                .Times(LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS));
+
+            _leds._instance.setAllOff();
+
+            for (uint8_t value = 0; value < 128; value++)
+            {
+                EXPECT_CALL(_leds._hwa, setState(_, value == activationValue ? LEDs::brightness_t::B100 : LEDs::brightness_t::OFF))
+                    .Times(1);
+
+                MIDIDispatcher.notify(messaging::eventType_t::MIDI_IN,
+                                      { 0,               // componentIndex - irrelevant
+                                        MIDI_CHANNEL,    // midiChannel
+                                        led,             // midiIndex
+                                        value,           // midiValue
+                                        0,               // sysEx
+                                        0,               // sysExLength
+                                        MIDI::messageType_t::NOTE_ON });
+
+                ASSERT_EQ(LEDs::blinkSpeed_t::NO_BLINK, _leds._instance.blinkSpeed(led));
+            }
+        }
+    }
+
+    // MIDI_IN_CC_SINGLE_VAL
+    //----------------------------------
+
+    for (uint8_t activationValue = 0; activationValue < 128; activationValue++)
+    {
+        for (size_t i = 0; i < LEDs::Collection::SIZE(); i++)
+        {
+            ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::MIDI_IN_CC_SINGLE_VAL));
+            ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::ACTIVATION_VALUE, i, activationValue));
+        }
+
+        for (uint8_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
+        {
+            EXPECT_CALL(_leds._hwa, setState(_, LEDs::brightness_t::OFF))
+                .Times(LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS));
+
+            _leds._instance.setAllOff();
+
+            for (uint8_t value = 0; value < 128; value++)
+            {
+                EXPECT_CALL(_leds._hwa, setState(_, value == activationValue ? LEDs::brightness_t::B100 : LEDs::brightness_t::OFF))
+                    .Times(1);
+
+                MIDIDispatcher.notify(messaging::eventType_t::MIDI_IN,
+                                      { 0,               // componentIndex - irrelevant
+                                        MIDI_CHANNEL,    // midiChannel
+                                        led,             // midiIndex
+                                        value,           // midiValue
+                                        0,               // sysEx
+                                        0,               // sysExLength
+                                        MIDI::messageType_t::CONTROL_CHANGE });
+
+                ASSERT_EQ(LEDs::blinkSpeed_t::NO_BLINK, _leds._instance.blinkSpeed(led));
+            }
+        }
+    }
+
+    // LOCAL_NOTE_SINGLE_VAL
+    //----------------------------------
+
+    for (uint8_t activationValue = 0; activationValue < 128; activationValue++)
+    {
+        for (size_t i = 0; i < LEDs::Collection::SIZE(); i++)
+        {
+            ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::LOCAL_NOTE_SINGLE_VAL));
+            ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::ACTIVATION_VALUE, i, activationValue));
+        }
+
+        for (uint8_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
+        {
+            EXPECT_CALL(_leds._hwa, setState(_, LEDs::brightness_t::OFF))
+                .Times(LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS));
+
+            _leds._instance.setAllOff();
+
+            for (uint8_t value = 0; value < 128; value++)
+            {
+                EXPECT_CALL(_leds._hwa, setState(_, value == activationValue ? LEDs::brightness_t::B100 : LEDs::brightness_t::OFF))
+                    .Times(1);
+
+                MIDIDispatcher.notify(messaging::eventType_t::BUTTON,
+                                      { 0,               // componentIndex - irrelevant
+                                        MIDI_CHANNEL,    // midiChannel
+                                        led,             // midiIndex
+                                        value,           // midiValue
+                                        0,               // sysEx
+                                        0,               // sysExLength
+                                        MIDI::messageType_t::NOTE_ON });
+
+                ASSERT_EQ(LEDs::blinkSpeed_t::NO_BLINK, _leds._instance.blinkSpeed(led));
+            }
+        }
+    }
+
+    // LOCAL_CC_SINGLE_VAL
+    //----------------------------------
+
+    for (uint8_t activationValue = 0; activationValue < 128; activationValue++)
+    {
+        for (size_t i = 0; i < LEDs::Collection::SIZE(); i++)
+        {
+            ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::LOCAL_CC_SINGLE_VAL));
+            ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::ACTIVATION_VALUE, i, activationValue));
+        }
+
+        for (uint8_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
+        {
+            EXPECT_CALL(_leds._hwa, setState(_, LEDs::brightness_t::OFF))
+                .Times(LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS));
+
+            _leds._instance.setAllOff();
+
+            for (uint8_t value = 0; value < 128; value++)
+            {
+                EXPECT_CALL(_leds._hwa, setState(_, value == activationValue ? LEDs::brightness_t::B100 : LEDs::brightness_t::OFF))
+                    .Times(1);
+
+                MIDIDispatcher.notify(messaging::eventType_t::BUTTON,
+                                      { 0,               // componentIndex - irrelevant
+                                        MIDI_CHANNEL,    // midiChannel
+                                        led,             // midiIndex
+                                        value,           // midiValue
+                                        0,               // sysEx
+                                        0,               // sysExLength
+                                        MIDI::messageType_t::CONTROL_CHANGE });
+
+                ASSERT_EQ(LEDs::blinkSpeed_t::NO_BLINK, _leds._instance.blinkSpeed(led));
+            }
         }
     }
 }
