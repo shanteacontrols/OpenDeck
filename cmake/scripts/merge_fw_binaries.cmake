@@ -19,7 +19,7 @@ foreach(item IN LISTS FIRMWARE_HEX_LIST)
     math(EXPR index "${index} + 1")
 endforeach()
 
-message(STATUS "Converting mergex hex file to bin")
+message(STATUS "Converting merged hex file to bin")
 
 execute_process(
     COMMAND objcopy -I ihex ${FIRMWARE_MERGED_HEX} --gap-fill 0xFF -O binary ${FIRMWARE_MERGED_BIN}
