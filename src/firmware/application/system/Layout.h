@@ -266,7 +266,7 @@ namespace sys
                 0,
             },
 
-            // activation note section
+            // activation id section
             {
                 io::LEDs::Collection::SIZE(),
                 0,
@@ -287,7 +287,7 @@ namespace sys
                 static_cast<uint16_t>(io::LEDs::controlType_t::AMOUNT) - 1,
             },
 
-            // single led velocity value section
+            // single led activation value section
             {
                 io::LEDs::Collection::SIZE(),
                 1,

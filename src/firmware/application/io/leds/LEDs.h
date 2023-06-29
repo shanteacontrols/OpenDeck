@@ -217,16 +217,16 @@ namespace io
         uint32_t _lastLEDblinkUpdateTime = 0;
 
         static constexpr MIDI::messageType_t CONTROL_TYPE_TO_MIDI_MESSAGE[static_cast<uint8_t>(controlType_t::AMOUNT)] = {
-            MIDI::messageType_t::NOTE_ON,           // midiInNoteSingleVal,
-            MIDI::messageType_t::NOTE_ON,           // localNoteSingleVal,
-            MIDI::messageType_t::CONTROL_CHANGE,    // midiInCCSingleVal,
-            MIDI::messageType_t::CONTROL_CHANGE,    // localCCSingleVal,
-            MIDI::messageType_t::PROGRAM_CHANGE,    // pcSingleVal,
-            MIDI::messageType_t::PROGRAM_CHANGE,    // preset,
-            MIDI::messageType_t::NOTE_ON,           // midiInNoteMultiVal,
-            MIDI::messageType_t::NOTE_ON,           // localNoteMultiVal,
-            MIDI::messageType_t::CONTROL_CHANGE,    // midiInCCMultiVal,
-            MIDI::messageType_t::CONTROL_CHANGE,    // localCCMultiVal,
+            MIDI::messageType_t::NOTE_ON,           // MIDI_IN_NOTE_SINGLE_VAL,
+            MIDI::messageType_t::NOTE_ON,           // LOCAL_NOTE_SINGLE_VAL,
+            MIDI::messageType_t::CONTROL_CHANGE,    // MIDI_IN_CC_SINGLE_VAL,
+            MIDI::messageType_t::CONTROL_CHANGE,    // LOCAL_CC_SINGLE_VAL,
+            MIDI::messageType_t::PROGRAM_CHANGE,    // PC_SINGLE_VAL,
+            MIDI::messageType_t::PROGRAM_CHANGE,    // PRESET,
+            MIDI::messageType_t::NOTE_ON,           // MIDI_IN_NOTE_MULTI_VAL,
+            MIDI::messageType_t::NOTE_ON,           // LOCAL_NOTE_MULTI_VAL,
+            MIDI::messageType_t::CONTROL_CHANGE,    // MIDI_IN_CC_MULTI_VAL,
+            MIDI::messageType_t::CONTROL_CHANGE,    // LOCAL_CC_MULTI_VAL,
         };
     };
 }    // namespace io

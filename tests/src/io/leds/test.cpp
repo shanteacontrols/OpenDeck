@@ -433,7 +433,7 @@ TEST_F(LEDsTest, VerifyBrightnessAndBlinkSpeed)
         }
     }
 
-    // localCCMultiVal
+    // LOCAL_CC_MULTI_VAL
     //----------------------------------
 
     for (size_t i = 0; i < LEDs::Collection::SIZE(); i++)

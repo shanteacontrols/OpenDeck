@@ -320,7 +320,7 @@ namespace database
                 0,
             },
 
-            // single velocity value section
+            // single led activation value section
             {
                 io::LEDs::Collection::SIZE(),
                 LESSDB::sectionParameterType_t::BYTE,
