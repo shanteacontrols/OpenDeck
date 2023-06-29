@@ -166,7 +166,7 @@ then
 
             {
                 printf "%s\n" "#define PIN_PORT_MUX_INPUT_${i} CORE_MCU_IO_PIN_PORT_DEF(${port})"
-                printf "%s\n" "#define PIN_PORT_MUX_INPUT_${i} CORE_MCU_IO_PIN_INDEX_DEF(${index})"
+                printf "%s\n" "#define PIN_INDEX_MUX_INPUT_${i} CORE_MCU_IO_PIN_INDEX_DEF(${index})"
             } >> "$out_header"
         done
 
