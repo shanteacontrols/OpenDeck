@@ -290,7 +290,7 @@ namespace sys
             // single led activation value section
             {
                 io::LEDs::Collection::SIZE(),
-                1,
+                0,
                 127,
             },
 
