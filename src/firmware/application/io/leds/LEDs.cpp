@@ -696,6 +696,11 @@ void LEDs::setColor(uint8_t ledID, color_t color, brightness_t brightness)
 
 io::LEDs::blinkSpeed_t LEDs::blinkSpeed(uint8_t ledID)
 {
+    if (!bit(ledID, ledBit_t::BLINK_ON))
+    {
+        return blinkSpeed_t::NO_BLINK;
+    }
+
     return static_cast<blinkSpeed_t>(_blinkTimer[ledID]);
 }
 
