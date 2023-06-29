@@ -316,7 +316,7 @@ TEST_F(LEDsTest, MultiValue)
         ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::MIDI_IN_NOTE_MULTI_VAL));
     }
 
-    for (uint8_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
+    for (size_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
     {
         EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(0)))
             .Times(LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS));
@@ -349,7 +349,7 @@ TEST_F(LEDsTest, MultiValue)
         ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::MIDI_IN_CC_MULTI_VAL));
     }
 
-    for (uint8_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
+    for (size_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
     {
         EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(0)))
             .Times(LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS));
@@ -382,7 +382,7 @@ TEST_F(LEDsTest, MultiValue)
         ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::LOCAL_NOTE_MULTI_VAL));
     }
 
-    for (uint8_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
+    for (size_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
     {
         EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(0)))
             .Times(LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS));
@@ -408,7 +408,7 @@ TEST_F(LEDsTest, MultiValue)
     }
 
     // same test for analog components
-    for (uint8_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
+    for (size_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
     {
         EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(0)))
             .Times(LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS));
@@ -441,7 +441,7 @@ TEST_F(LEDsTest, MultiValue)
         ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::CONTROL_TYPE, i, LEDs::controlType_t::LOCAL_CC_MULTI_VAL));
     }
 
-    for (uint8_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
+    for (size_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
     {
         EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(0)))
             .Times(LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS));
@@ -466,7 +466,7 @@ TEST_F(LEDsTest, MultiValue)
         }
     }
 
-    for (uint8_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
+    for (size_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
     {
         EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(0)))
             .Times(LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS));
@@ -510,7 +510,7 @@ TEST_F(LEDsTest, SingleValue)
             ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::ACTIVATION_VALUE, i, activationValue));
         }
 
-        for (uint8_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
+        for (size_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
         {
             EXPECT_CALL(_leds._hwa, setState(_, LEDs::brightness_t::OFF))
                 .Times(LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS));
@@ -547,7 +547,7 @@ TEST_F(LEDsTest, SingleValue)
             ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::ACTIVATION_VALUE, i, activationValue));
         }
 
-        for (uint8_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
+        for (size_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
         {
             EXPECT_CALL(_leds._hwa, setState(_, LEDs::brightness_t::OFF))
                 .Times(LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS));
@@ -584,7 +584,7 @@ TEST_F(LEDsTest, SingleValue)
             ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::ACTIVATION_VALUE, i, activationValue));
         }
 
-        for (uint8_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
+        for (size_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
         {
             EXPECT_CALL(_leds._hwa, setState(_, LEDs::brightness_t::OFF))
                 .Times(LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS));
@@ -621,7 +621,7 @@ TEST_F(LEDsTest, SingleValue)
             ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::ACTIVATION_VALUE, i, activationValue));
         }
 
-        for (uint8_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
+        for (size_t led = 0; led < LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS); led++)
         {
             EXPECT_CALL(_leds._hwa, setState(_, LEDs::brightness_t::OFF))
                 .Times(LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS));
