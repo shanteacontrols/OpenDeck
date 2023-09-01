@@ -194,6 +194,8 @@ then
         } >> "$out_cmakelists"
     elif [[ $analog_in_type == "muxonmux" ]]
     then
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_DRIVER_ANALOG_INPUT_MUXONMUX)" >> "$out_cmakelists"
+
         port=$($yaml_parser "$yaml_file" analog.pins.controller.z.port)
         index=$($yaml_parser "$yaml_file" analog.pins.controller.z.index)
 
