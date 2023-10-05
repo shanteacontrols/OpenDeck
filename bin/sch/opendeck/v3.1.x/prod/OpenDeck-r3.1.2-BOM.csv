@@ -26,7 +26,7 @@ Comment,Designator,Footprint,LCSC
 "5.1k","R29,R30","Resistor_SMD:R_0402_1005Metric","C25905"
 "27","R32,R33","Resistor_SMD:R_0402_1005Metric","C25100"
 "10k","R26,R34,R35","Resistor_SMD:R_0402_1005Metric","C25744"
-"74HC4067","U1,U2,U3,U7","Package_SO:SOIC-24W_7.5x15.4mm_P1.27mm","C496123"
+"74HC4067","U1,U2,U3,U7","Package_SO:TSSOP-24_4.4x7.8mm_P0.65mm","C179326"
 "TLP2362","U10","Package_SO:SO-5_4.4x3.6mm_P1.27mm","C37658"
 "W25Q128JVS","U15","Package_SO:SOIC-8_5.23x5.23mm_P1.27mm","C97521"
 "SPX3819M5","U14,U16","Package_TO_SOT_SMD:SOT-23-5","C9055"

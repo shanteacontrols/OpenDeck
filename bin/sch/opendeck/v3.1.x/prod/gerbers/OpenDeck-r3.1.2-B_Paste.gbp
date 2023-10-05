@@ -1,12 +1,12 @@
-G04 #@! TF.GenerationSoftware,KiCad,Pcbnew,6.0.9*
-G04 #@! TF.CreationDate,2022-11-14T17:03:07+01:00*
-G04 #@! TF.ProjectId,OpenDeck-r3.1.0,4f70656e-4465-4636-9b2d-72332e312e30,rev?*
+G04 #@! TF.GenerationSoftware,KiCad,Pcbnew,7.0.8*
+G04 #@! TF.CreationDate,2023-10-07T11:33:10+02:00*
+G04 #@! TF.ProjectId,OpenDeck-r3.1.2,4f70656e-4465-4636-9b2d-72332e312e32,rev?*
 G04 #@! TF.SameCoordinates,Original*
 G04 #@! TF.FileFunction,Paste,Bot*
 G04 #@! TF.FilePolarity,Positive*
 %FSLAX46Y46*%
 G04 Gerber Fmt 4.6, Leading zero omitted, Abs format (unit mm)*
-G04 Created by KiCad (PCBNEW 6.0.9) date 2022-11-14 17:03:07*
+G04 Created by KiCad (PCBNEW 7.0.8) date 2023-10-07 11:33:10*
 %MOMM*%
 %LPD*%
 G01*
