@@ -22,20 +22,6 @@ limitations under the License.
 #include "FwSelector/FwSelector.h"
 #include "core/Timing.h"
 
-namespace
-{
-#ifdef PROJECT_TARGET_USB_OVER_SERIAL
-    /// Value sent from non-USB target to USB link before loading application
-    constexpr uint8_t USB_LINK_MAGIC_VAL_APP = 0x55;
-
-    /// Value sent from non-USB target to USB link after the firmware update is started
-    constexpr uint8_t TARGET_FW_UPDATE_STARTED = 0xFC;
-
-    /// Value sent from non-USB target to USB link after the firmware update is done
-    constexpr uint8_t TARGET_FW_UPDATE_DONE = 0xFD;
-#endif
-}    // namespace
-
 class BTLDRWriter : public Updater::BTLDRWriter
 {
     public:
@@ -61,18 +47,11 @@ class BTLDRWriter : public Updater::BTLDRWriter
 
     void apply() override
     {
-#ifndef PROJECT_TARGET_SUPPORT_USB
-        board::uart::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, TARGET_FW_UPDATE_DONE);
-#endif
         board::reboot();
     }
 
     void onFirmwareUpdateStart() override
     {
-#ifndef PROJECT_TARGET_SUPPORT_USB
-        board::uart::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, TARGET_FW_UPDATE_STARTED);
-#endif
-
         board::io::indicators::indicateFirmwareUpdateStart();
     }
 };
@@ -103,31 +82,7 @@ class HWAFwSelector : public FwSelector::HWA
         case FwSelector::fwType_t::APPLICATION:
         default:
         {
-#if !defined(PROJECT_TARGET_SUPPORT_USB)
-            // on non-usb supported board, send magic value to USB link so that link
-            // knows whether the target MCU has entered application
-            // if link MCU doesn't receive this, bootloader should be entered
-            board::uart::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, USB_LINK_MAGIC_VAL_APP);
-            core::timing::waitMs(1);
             board::bootloader::runApplication();
-#elif defined(PROJECT_TARGET_USB_OVER_SERIAL_HOST)
-            // wait a bit first
-            core::timing::waitMs(1500);
-            uint8_t data;
-
-            while (board::uart::read(PROJECT_TARGET_UART_CHANNEL_USB_LINK, data))
-            {
-                if (data == USB_LINK_MAGIC_VAL_APP)
-                {
-                    // everything fine, proceed with app load
-                    board::bootloader::runApplication();
-                }
-            }
-
-            board::bootloader::runBootloader();
-#else
-            board::bootloader::runApplication();
-#endif
         }
         break;
         }
@@ -154,7 +109,6 @@ class Reader
     public:
     Reader() = default;
 
-#ifdef PROJECT_TARGET_SUPPORT_USB
     void read()
     {
         uint8_t value = 0;
@@ -171,64 +125,19 @@ class Reader
                     {
                         if (_sysExParser.value(i, value))
                         {
-#ifdef PROJECT_TARGET_USB_OVER_SERIAL_HOST
-                            board::uart::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, value);
-
-                            // expect ACK but ignore the value
-                            while (!board::uart::read(PROJECT_TARGET_UART_CHANNEL_USB_LINK, value))
-                            {
-                                ;
-                            }
-#else
                             _updater.feed(value);
-#endif
                         }
                     }
                 }
             }
         }
-
-#ifdef PROJECT_TARGET_USB_OVER_SERIAL_HOST
-        if (board::uart::read(PROJECT_TARGET_UART_CHANNEL_USB_LINK, value))
-        {
-            if (value == TARGET_FW_UPDATE_DONE)
-            {
-                // To avoid compiling the entire parser to figure out the end
-                // of the FW stream (if won't fit into 4k space), wait for TARGET_FW_UPDATE_DONE
-                // byte on UART sent by target MCU (this is done in BTLDRWriter::apply())
-                board::reboot();
-            }
-            else if (value == TARGET_FW_UPDATE_STARTED)
-            {
-                board::io::indicators::indicateFirmwareUpdateStart();
-            }
-        }
-#endif
     }
-#else
-    void read()
-    {
-        uint8_t value;
-
-        if (board::uart::read(PROJECT_TARGET_UART_CHANNEL_USB_LINK, value))
-        {
-            // send USB_LINK_MAGIC_VAL_APP for ACK so that USB link can proceed with next byte
-            board::uart::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, USB_LINK_MAGIC_VAL_APP);
-            _updater.feed(value);
-        }
-    }
-#endif
 
     private:
-#ifndef PROJECT_TARGET_USB_OVER_SERIAL_HOST
-    BTLDRWriter _btldrWriter;
-    Updater     _updater = Updater(_btldrWriter, PROJECT_TARGET_UID);
-#endif
-
-#ifdef PROJECT_TARGET_SUPPORT_USB
+    BTLDRWriter           _btldrWriter;
+    Updater               _updater = Updater(_btldrWriter, PROJECT_TARGET_UID);
     MIDI::usbMIDIPacket_t _usbMIDIpacket;
     SysExParser           _sysExParser;
-#endif
 };
 
 namespace
