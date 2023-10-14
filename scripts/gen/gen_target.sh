@@ -76,6 +76,5 @@ if [[ -f $touchscreen_config ]]
 then
     "$script_dir"/gen_touchscreen.sh \
     --config="$touchscreen_config" \
-    --gen-dir="$gen_dir_touchscreen"\
-    --img-dir="$touchscreen_img_dir"
+    --gen-dir="$gen_dir_touchscreen"
 fi

@@ -9,18 +9,8 @@ for arg in "$@"; do
         --gen-dir=*)
             gen_dir=${arg#--gen-dir=}
             ;;
-
-        --img-dir=*)
-            img_dir=${arg#--img-dir=}
-            ;;
     esac
 done
-
-if [[ "$(command -v convert)" == "" ]]
-then
-    echo "ERROR: imagemagick not installed"
-    exit 1
-fi
 
 json_parser="dasel -n -p json --plain -f"
 out_src=$gen_dir/Touchscreen.cpp
@@ -69,10 +59,6 @@ then
                 printf "    %s\n" "update(database::Config::Section::touchscreen_t::ON_SCREEN, $i, $onScreen);"
                 printf "    %s\n\n" "update(database::Config::Section::touchscreen_t::OFF_SCREEN, $i, $offScreen);"
             } >> "$out_src"
-
-            convert "$img_dir"/"$onScreen".bmp -crop "$width"x"$height"+"$xPos"+"$yPos" "$gen_dir"/"$i".ico
-        else
-            convert -size 1x1 xc:black "$gen_dir"/"$i".ico
         fi
 
         if [[ $($json_parser "$config" components.[${i}].button) != "null" ]]

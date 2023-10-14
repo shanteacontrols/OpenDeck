@@ -23,7 +23,6 @@ gdb \
 git \
 git-lfs \
 gpg-agent \
-imagemagick \
 lsb-release \
 make \
 software-properties-common \
