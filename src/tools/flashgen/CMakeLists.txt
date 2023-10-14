@@ -39,12 +39,17 @@ target_include_directories(flashgen
     ${PROJECT_ROOT}/modules/core/include
 )
 
+file(GLOB_RECURSE APP_GENERATED_SOURCES
+    ${PROJECT_ROOT}/src/generated/application/${TARGET}/*.cpp
+)
+
 target_sources(flashgen
     PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/main.cpp
     ${PROJECT_ROOT}/src/firmware/application/database/CustomInit.cpp
     ${PROJECT_ROOT}/src/firmware/application/database/Database.cpp
     ${PROJECT_ROOT}/src/firmware/application/util/configurable/Configurable.cpp
+    ${APP_GENERATED_SOURCES}
 )
 
 target_link_libraries(flashgen
