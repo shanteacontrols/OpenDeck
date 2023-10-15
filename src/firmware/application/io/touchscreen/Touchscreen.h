@@ -102,7 +102,6 @@ namespace io
         enum class model_t : uint8_t
         {
             NEXTION,
-            VIEWTECH,
             AMOUNT
         };
 

@@ -50,7 +50,6 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
     target_sources(application
         PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/io/buttons/Buttons.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/io/touchscreen/model/viewtech/Viewtech.cpp
         ${CMAKE_CURRENT_LIST_DIR}/io/touchscreen/model/Builder.cpp
         ${CMAKE_CURRENT_LIST_DIR}/io/touchscreen/model/nextion/Nextion.cpp
         ${CMAKE_CURRENT_LIST_DIR}/io/touchscreen/Touchscreen.cpp

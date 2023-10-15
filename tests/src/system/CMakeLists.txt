@@ -20,7 +20,6 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
         ${PROJECT_ROOT}/src/firmware/application/io/touchscreen/Touchscreen.cpp
         ${PROJECT_ROOT}/src/firmware/application/io/touchscreen/model/Builder.cpp
         ${PROJECT_ROOT}/src/firmware/application/io/touchscreen/model/nextion/Nextion.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/touchscreen/model/viewtech/Viewtech.cpp
     )
 
     target_compile_definitions(system

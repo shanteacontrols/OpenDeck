@@ -27,7 +27,7 @@ The following components are supported:
 * Potentiometers
 * FSRs (force-sensitive resistors)
 * LCD/OLED displays
-* Touchscreen displays (Nextion and Viewtech/Stone)
+* Touchscreen displays (Nextion)
 
 OpenDeck supports sending of both 7-bit and 14-bit Non-Registered Part Numbers (NRPN), latching messages on buttons, various encoding modes for quadrature encoders, LED control using MIDI In, configurable MIDI channels for each component individually, Bluetooth MIDI etc. Full list of supported features can be found [here](https://github.com/shanteacontrols/OpenDeck/wiki/Configurable-features).
 
