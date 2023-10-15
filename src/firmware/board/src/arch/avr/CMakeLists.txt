@@ -1,8 +1,3 @@
-target_compile_definitions(mcu
-    PUBLIC
-    CORE_USE_C_TIMER_CALLBACK
-)
-
 list(APPEND BOARD_DEFINES
     BOARD_I2C_CUSTOM_IMPL
 )
