@@ -20,6 +20,7 @@ limitations under the License.
 #include "SysExConf/SysExConf.h"
 #include "application/system/Config.h"
 #include "application/global/MIDIProgram.h"
+#include "application/global/BPM.h"
 
 #ifdef BUTTONS_SUPPORTED
 
@@ -400,6 +401,32 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
         }
         break;
 
+        case messageType_t::BPM_INC:
+        {
+            descriptor.event.value = 0;
+
+            if (!BPM.increment(1))
+            {
+                send = false;
+            }
+
+            descriptor.event.index = BPM.value();
+        }
+        break;
+
+        case messageType_t::BPM_DEC:
+        {
+            descriptor.event.value = 0;
+
+            if (!BPM.decrement(1))
+            {
+                send = false;
+            }
+
+            descriptor.event.index = BPM.value();
+        }
+        break;
+
         default:
         {
             send = false;
@@ -536,6 +563,8 @@ void Buttons::fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor)
     case messageType_t::PROGRAM_CHANGE_OFFSET_DEC:
     case messageType_t::NOTE_OFF_ONLY:
     case messageType_t::CONTROL_CHANGE0_ONLY:
+    case messageType_t::BPM_INC:
+    case messageType_t::BPM_DEC:
     {
         descriptor.type = type_t::MOMENTARY;
     }

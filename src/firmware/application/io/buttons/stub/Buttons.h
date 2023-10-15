@@ -70,6 +70,8 @@ namespace io
             RESERVED,
             PROGRAM_CHANGE_OFFSET_INC,
             PROGRAM_CHANGE_OFFSET_DEC,
+            BPM_INC,
+            BPM_DEC,
             AMOUNT
         };
 

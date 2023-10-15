@@ -17,12 +17,14 @@ limitations under the License.
 */
 
 #include "MIDI.h"
+#include "core/MCU.h"
 #include "application/system/Config.h"
 #include "application/util/conversion/Conversion.h"
 #include "application/messaging/Messaging.h"
 #include "application/util/configurable/Configurable.h"
 #include "application/util/logger/Logger.h"
 #include "application/global/MIDIProgram.h"
+#include "application/global/BPM.h"
 
 using namespace io;
 
@@ -78,6 +80,16 @@ protocol::MIDI::MIDI(HWAUSB&   hwaUSB,
                               case messaging::systemMessage_t::PRESET_CHANGED:
                               {
                                   init();
+                              }
+                              break;
+
+                              case messaging::systemMessage_t::MIDI_BPM_CHANGE:
+                              {
+                                  if (isSettingEnabled(setting_t::DIN_ENABLED) && _clockTimerAllocated)
+                                  {
+                                      core::mcu::timers::setPeriod(_clockTimerIndex, BPM.bpmToUsec(BPM.value()));
+                                      core::mcu::timers::start(_clockTimerIndex);
+                                  }
                               }
                               break;
 
@@ -170,6 +182,24 @@ bool protocol::MIDI::setupDINMIDI()
 
     _dinMIDI.setNoteOffMode(isSettingEnabled(setting_t::STANDARD_NOTE_OFF) ? noteOffType_t::STANDARD_NOTE_OFF : noteOffType_t::NOTE_ON_ZERO_VEL);
     _hwaDIN.setLoopback(isDinLoopbackRequired());
+
+    if (!_clockTimerAllocated)
+    {
+        if (core::mcu::timers::allocate(_clockTimerIndex, [this]()
+                                        {
+                                            _dinMIDI.sendRealTime(messageType_t::SYS_REAL_TIME_CLOCK);
+                                        }))
+        {
+            _clockTimerAllocated = true;
+
+            core::mcu::timers::setPeriod(_clockTimerIndex, BPM.bpmToUsec(BPM.value()));
+
+            if (isSettingEnabled(setting_t::SEND_MIDI_CLOCK_DIN))
+            {
+                core::mcu::timers::start(_clockTimerIndex);
+            }
+        }
+    }
 
     return true;
 }
@@ -723,6 +753,21 @@ std::optional<uint8_t> protocol::MIDI::sysConfigGet(sys::Config::Section::global
         }
         break;
 
+        case setting_t::SEND_MIDI_CLOCK_DIN:
+        {
+            if (!_clockTimerAllocated)
+            {
+                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
+            }
+            else
+            {
+                result = _database.read(util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
+                             ? sys::Config::status_t::ACK
+                             : sys::Config::status_t::ERROR_READ;
+            }
+        }
+        break;
+
         default:
         {
             result = _database.read(util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
@@ -1070,6 +1115,20 @@ std::optional<uint8_t> protocol::MIDI::sysConfigSet(sys::Config::Section::global
             }
 
             result = sys::Config::status_t::ACK;
+        }
+        break;
+
+        case setting_t::SEND_MIDI_CLOCK_DIN:
+        {
+            if (!_clockTimerAllocated)
+            {
+                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
+            }
+            else
+            {
+                value ? core::mcu::timers::start(_clockTimerIndex) : core::mcu::timers::stop(_clockTimerIndex);
+                result = sys::Config::status_t::ACK;
+            }
         }
         break;
 

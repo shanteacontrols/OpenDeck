@@ -51,7 +51,8 @@ namespace messaging
         RESTORE_START,
         RESTORE_END,
         FACTORY_RESET_START,
-        FACTORY_RESET_END
+        FACTORY_RESET_END,
+        MIDI_BPM_CHANGE,
     };
 
     struct event_t

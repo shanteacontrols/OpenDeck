@@ -86,6 +86,8 @@ namespace io
             RESERVED,
             PROGRAM_CHANGE_OFFSET_INC,
             PROGRAM_CHANGE_OFFSET_DEC,
+            BPM_INC,
+            BPM_DEC,
             AMOUNT
         };
 
@@ -179,6 +181,8 @@ namespace io
             MIDI::messageType_t::INVALID,                         // RESERVED
             MIDI::messageType_t::INVALID,                         // PROGRAM_CHANGE_OFFSET_INC
             MIDI::messageType_t::INVALID,                         // PROGRAM_CHANGE_OFFSET_DEC
+            MIDI::messageType_t::INVALID,                         // BPM_INC
+            MIDI::messageType_t::INVALID,                         // BPM_DEC
         };
     };
 }    // namespace io

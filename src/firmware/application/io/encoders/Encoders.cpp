@@ -24,6 +24,7 @@ limitations under the License.
 #include "core/util/Util.h"
 #include "application/util/conversion/Conversion.h"
 #include "application/util/configurable/Configurable.h"
+#include "application/global/BPM.h"
 
 using namespace io;
 
@@ -324,6 +325,27 @@ void Encoders::sendMessage(size_t index, position_t encoderState, encoderDescrip
         descriptor.event.systemMessage = (encoderState == position_t::CW)
                                              ? messaging::systemMessage_t::PRESET_CHANGE_INC_REQ
                                              : messaging::systemMessage_t::PRESET_CHANGE_DEC_REQ;
+    }
+    break;
+
+    case type_t::BPM_CHANGE:
+    {
+        if (encoderState == position_t::CCW)
+        {
+            if (!BPM.increment(1))
+            {
+                send = false;    // edge value reached, nothing more to send
+            }
+        }
+        else
+        {
+            if (!BPM.decrement(1))
+            {
+                send = false;    // edge value reached, nothing more to send
+            }
+        }
+
+        descriptor.event.value = BPM.value();
     }
     break;
 

@@ -69,6 +69,7 @@ namespace protocol
             BLE_THRU_BLE,
             USE_GLOBAL_CHANNEL,
             GLOBAL_CHANNEL,
+            SEND_MIDI_CLOCK_DIN,
             AMOUNT
         };
 
@@ -136,5 +137,7 @@ namespace protocol
         MIDIlib::BLEMIDI                             _bleMIDI = MIDIlib::BLEMIDI(_hwaBLE);
         Database&                                    _database;
         std::array<MIDIlib::Base*, INTERFACE_AMOUNT> _midiInterface;
+        bool                                         _clockTimerAllocated = false;
+        size_t                                       _clockTimerIndex     = 0;
     };
 }    // namespace protocol
