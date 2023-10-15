@@ -23,6 +23,7 @@ gdb \
 git \
 git-lfs \
 gpg-agent \
+hub \
 lsb-release \
 make \
 software-properties-common \
