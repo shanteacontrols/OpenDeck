@@ -45,7 +45,10 @@ cmake_defines_var=PROJECT_TARGET_DEFINES
 
 if [[ ! -d $mcu_gen_dir ]]
 then
-    if ! "$script_dir"/gen_mcu.sh "$mcu" "$mcu_gen_dir" "$extClockMhz"
+    if ! "$script_dir"/gen_mcu.sh \
+    --mcu="$mcu" \
+    --gen-dir="$mcu_gen_dir" \
+    --extClockMhz="$extClockMhz"
     then
         exit 1
     fi

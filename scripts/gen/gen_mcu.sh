@@ -4,15 +4,28 @@
 # This script is used to provide additional project-specific
 # configuration on top of base configuration if required.
 
+for arg in "$@"; do
+    case "$arg" in
+        --mcu=*)
+            mcu=${arg#--mcu=}
+            ;;
+
+        --gen-dir=*)
+            gen_dir=${arg#--gen-dir=}
+            ;;
+
+        --extClockMhz=*)
+            extClockMhz=${arg#--extClockMhz=}
+            ;;
+    esac
+done
+
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
-mcu=$1
-core_yaml_file=$(make --no-print-directory -C "$script_dir"/../../modules/core MCU="$mcu" print-MCU_YML_FILE)
-project_yaml_file=${script_dir}/../../config/mcu/$mcu.yml
-gen_dir=$2
-extClockMhz=$3
 yaml_parser="dasel -n -p yaml --plain -f"
+core_yaml_file=$(make --no-print-directory -C "$script_dir"/../../modules/core MCU="$mcu" print-MCU_YML_FILE)
 out_header="$gen_dir"/MCU.h
 out_cmakelists="$gen_dir"/CMakeLists.txt
+project_yaml_file=${script_dir}/../../config/mcu/$mcu.yml
 cmake_mcu_defines_var=PROJECT_MCU_DEFINES
 cmake_usb_defines_var=PROJECT_USB_DEFINES
 
