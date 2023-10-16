@@ -15,7 +15,7 @@ include(${PROJECT_ROOT}/modules/core/cmake/ccache.cmake)
 
 execute_process(
     COMMAND
-    "${CMAKE_CURRENT_LIST_DIR}/scripts/gen/gen_target.sh"
+    "${PROJECT_ROOT}/scripts/gen/gen_target.sh"
     "--project=${PROJECT_NAME}"
     "--target-config=${PROJECT_ROOT}/config/target/${TARGET}.yml"
     "--gen-dir-target=${PROJECT_ROOT}/src/generated/target/${TARGET}"
