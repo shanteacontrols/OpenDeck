@@ -29,13 +29,16 @@ project_yaml_file=${script_dir}/../../config/mcu/$mcu.yml
 cmake_mcu_defines_var=PROJECT_MCU_DEFINES
 cmake_usb_defines_var=PROJECT_USB_DEFINES
 
-if ! make --no-print-directory -C "$script_dir"/../../modules/core MCU="$mcu" MCU_GEN_DIR="$gen_dir" MCU_GEN_USB=1 MCU_EXT_CLOCK_MHZ="$extClockMhz"
+if [[ ! -d $gen_dir ]]
 then
-    exit 1
-fi
+    if ! make --no-print-directory -C "$script_dir"/../../modules/core MCU="$mcu" MCU_GEN_DIR="$gen_dir" MCU_GEN_USB=1 MCU_EXT_CLOCK_MHZ="$extClockMhz"
+    then
+        exit 1
+    fi
 
-if [[ $mcu != "stub" ]]
-then
-    echo "Generating project MCU definitions..."
-    source "$script_dir"/mcu/main.sh
+    if [[ $mcu != "stub" ]]
+    then
+        echo "Generating project MCU definitions..."
+        source "$script_dir"/mcu/main.sh
+    fi
 fi
