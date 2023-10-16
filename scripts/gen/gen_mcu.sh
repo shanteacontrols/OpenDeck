@@ -34,6 +34,8 @@ then
     exit 1
 fi
 
-echo "Generating project MCU definitions..."
-
-source "$script_dir"/mcu/main.sh
+if [[ $mcu != "stub" ]]
+then
+    echo "Generating project MCU definitions..."
+    source "$script_dir"/mcu/main.sh
+fi

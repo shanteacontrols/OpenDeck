@@ -19,9 +19,8 @@ limitations under the License.
 #include <avr/eeprom.h>
 #include "board/Board.h"
 #include "Internal.h"
-#include "core/util/Util.h"
-#include "core/Timing.h"
 #include "core/MCU.h"
+#include "core/util/Util.h"
 
 namespace board::bootloader
 {

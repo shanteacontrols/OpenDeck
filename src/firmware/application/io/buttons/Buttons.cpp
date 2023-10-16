@@ -23,8 +23,8 @@ limitations under the License.
 
 #ifdef BUTTONS_SUPPORTED
 
+#include "core/MCU.h"
 #include "core/util/Util.h"
-#include "core/Timing.h"
 #include "application/util/conversion/Conversion.h"
 #include "application/util/configurable/Configurable.h"
 

@@ -17,7 +17,7 @@ limitations under the License.
 */
 
 #include "CInfo.h"
-#include "core/Timing.h"
+#include "core/MCU.h"
 #include "application/messaging/Messaging.h"
 
 using namespace util;
@@ -62,13 +62,13 @@ void ComponentInfo::registerHandler(cinfoHandler_t&& handler)
 
 void ComponentInfo::send(database::Config::block_t block, size_t index)
 {
-    if ((core::timing::ms() - _lastCinfoMsgTime[static_cast<size_t>(block)]) > COMPONENT_INFO_TIMEOUT)
+    if ((core::mcu::timing::ms() - _lastCinfoMsgTime[static_cast<size_t>(block)]) > COMPONENT_INFO_TIMEOUT)
     {
         if (_handler != nullptr)
         {
             _handler(static_cast<size_t>(block), index);
         }
 
-        _lastCinfoMsgTime[static_cast<size_t>(block)] = core::timing::ms();
+        _lastCinfoMsgTime[static_cast<size_t>(block)] = core::mcu::timing::ms();
     }
 }

@@ -16,7 +16,6 @@ limitations under the License.
 
 */
 
-#include "core/Timing.h"
 #include "core/MCU.h"
 #include "board/Board.h"
 #include "application/io/common/Common.h"
@@ -98,7 +97,7 @@ class HWADatabase : public sys::Builder::HWA::Database
         // It's possible that LED indicators are still on since
         // this command is most likely given via USB.
         // Wait until all indicators are turned off
-        core::timing::waitMs(board::io::indicators::LED_TRAFFIC_INDICATOR_TIMEOUT);
+        core::mcu::timing::waitMs(board::io::indicators::LED_TRAFFIC_INDICATOR_TIMEOUT);
 #endif
 
         return board::nvm::clear(0, board::nvm::size());
@@ -546,7 +545,7 @@ class HWAMIDIBLE : public sys::Builder::HWA::Protocol::MIDI::BLE
 
     uint32_t time() override
     {
-        return core::timing::ms();
+        return core::mcu::timing::ms();
     }
 } _hwaMIDIBLE;
 #else
@@ -890,7 +889,7 @@ class HWASystem : public sys::Builder::HWA::System
         static uint32_t lastCheckTime       = 0;
         static bool     lastConnectionState = false;
 
-        if (core::timing::ms() - lastCheckTime > USB_CONN_CHECK_TIME)
+        if (core::mcu::timing::ms() - lastCheckTime > USB_CONN_CHECK_TIME)
         {
             bool newState = board::usb::isUSBconnected();
 
@@ -906,7 +905,7 @@ class HWASystem : public sys::Builder::HWA::System
             }
 
             lastConnectionState = newState;
-            lastCheckTime       = core::timing::ms();
+            lastCheckTime       = core::mcu::timing::ms();
         }
 
         if (!CDCLocker::locked())

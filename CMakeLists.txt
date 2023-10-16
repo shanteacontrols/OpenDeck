@@ -22,6 +22,14 @@ check_required_executables(
     sha256sum
 )
 
+# Needed for tools and tests
+execute_process(
+    COMMAND
+    "${PROJECT_ROOT}/scripts/gen/gen_mcu.sh"
+    "--mcu=stub"
+    "--gen-dir=${PROJECT_ROOT}/src/generated/mcu/stub"
+)
+
 execute_process(
     COMMAND
     "${PROJECT_ROOT}/scripts/gen/gen_target.sh"
@@ -97,7 +105,7 @@ add_dependencies(lint merge_firmware_binaries)
 ExternalProject_Add(tests
     SOURCE_DIR      ${PROJECT_ROOT}/tests
     CMAKE_ARGS      -DTARGET=${TARGET}
-    CMAKE_ARGS      -DMCU_CMAKE_DISABLE_CORE_INCLUSION=1
+    CMAKE_ARGS      -DCMAKE_USE_STUB_MCU=1
     CMAKE_ARGS      -DFW_BUILD_DIR=${CMAKE_CURRENT_BINARY_DIR}
     CMAKE_ARGS      -DCMAKE_BUILD_TYPE=Debug
     BINARY_DIR      ${CMAKE_CURRENT_BINARY_DIR}/tests

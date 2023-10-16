@@ -24,7 +24,7 @@ limitations under the License.
 #include "common/communication/usb/descriptors/midi/Descriptors.h"
 #include "board/Board.h"
 #include "Internal.h"
-#include "core/Timing.h"
+#include "core/MCU.h"
 
 namespace
 {
@@ -174,7 +174,7 @@ namespace board
             // once the transfer fails, wait USB_TX_TIMEOUT_MS ms before trying again
             if (_txStateMIDI != board::detail::usb::txState_t::DONE)
             {
-                if ((core::timing::ms() - timeout) < USB_TX_TIMEOUT_MS)
+                if ((core::mcu::timing::ms() - timeout) < USB_TX_TIMEOUT_MS)
                 {
                     return false;
                 }

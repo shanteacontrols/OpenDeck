@@ -22,7 +22,7 @@ limitations under the License.
 #include "Display.h"
 #include "strings/Strings.h"
 #include "application/protocol/midi/MIDI.h"
-#include "core/Timing.h"
+#include "core/MCU.h"
 #include "core/util/Util.h"
 #include "application/io/common/Common.h"
 #include "application/util/conversion/Conversion.h"
@@ -270,7 +270,7 @@ void Display::update()
         return;
     }
 
-    if ((core::timing::ms() - _lastLCDupdateTime) < LCD_REFRESH_TIME)
+    if ((core::mcu::timing::ms() - _lastLCDupdateTime) < LCD_REFRESH_TIME)
     {
         return;    // we don't need to update lcd in real time
     }
@@ -306,7 +306,7 @@ void Display::update()
         _charChange[i] = 0;
     }
 
-    _lastLCDupdateTime = core::timing::ms();
+    _lastLCDupdateTime = core::mcu::timing::ms();
 
     // check if in/out messages need to be cleared
     if (_messageRetentionTime)
@@ -314,7 +314,7 @@ void Display::update()
         for (int i = 0; i < 2; i++)
         {
             // 0 = in, 1 = out
-            if ((core::timing::ms() - _lasMessageDisplayTime[i] > _messageRetentionTime) && _messageDisplayed[i])
+            if ((core::mcu::timing::ms() - _lasMessageDisplayTime[i] > _messageRetentionTime) && _messageDisplayed[i])
             {
                 clearEvent(static_cast<eventType_t>(i));
             }
@@ -378,8 +378,8 @@ void Display::setRetentionTime(uint32_t retentionTime)
     _messageRetentionTime = retentionTime;
 
     // reset last update time
-    _lasMessageDisplayTime[eventType_t::IN]  = core::timing::ms();
-    _lasMessageDisplayTime[eventType_t::OUT] = core::timing::ms();
+    _lasMessageDisplayTime[eventType_t::IN]  = core::mcu::timing::ms();
+    _lasMessageDisplayTime[eventType_t::OUT] = core::mcu::timing::ms();
 }
 
 /// Adds normalization to a given octave.
@@ -442,7 +442,7 @@ void Display::displayWelcomeMessage()
         writeString(_stringBuilder.string(), startRow);
     }
 
-    core::timing::waitMs(2000);
+    core::mcu::timing::waitMs(2000);
 }
 
 void Display::displayEvent(eventType_t type, const messaging::event_t& event)
@@ -528,7 +528,7 @@ void Display::displayEvent(eventType_t type, const messaging::event_t& event)
         break;
     }
 
-    _lasMessageDisplayTime[type] = core::timing::ms();
+    _lasMessageDisplayTime[type] = core::mcu::timing::ms();
     _messageDisplayed[type]      = true;
 }
 

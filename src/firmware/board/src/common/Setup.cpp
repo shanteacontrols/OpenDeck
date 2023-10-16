@@ -18,14 +18,7 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "Internal.h"
-#include "core/Timing.h"
 #include "core/MCU.h"
-
-namespace core::timing::detail
-{
-    /// Implementation of core variable used to keep track of run time in milliseconds.
-    volatile uint32_t ms;
-}    // namespace core::timing::detail
 
 namespace
 {
@@ -50,7 +43,6 @@ namespace board
 
         core::mcu::timers::allocate(mainTimerIndex, []()
                                     {
-                                        core::timing::detail::ms++;
                                         detail::io::indicators::update();
 #ifndef PROJECT_TARGET_USB_OVER_SERIAL_HOST
                                         detail::io::digitalIn::update();
@@ -89,7 +81,6 @@ namespace board
 
         core::mcu::timers::allocate(mainTimerIndex, []()
                                     {
-                                        core::timing::detail::ms++;
                                         detail::io::indicators::update();
                                     });
 
@@ -157,7 +148,7 @@ namespace board
                     }
                 }
 
-                core::timing::waitMs(50);
+                core::mcu::timing::waitMs(50);
             }
         }
 #endif
@@ -167,7 +158,6 @@ namespace board
             // partial initialization - init the rest in runBootloader() if it's determined that bootloader should really run
 
             core::mcu::init(core::mcu::initType_t::BOOT);
-            core::mcu::timers::init();
             detail::io::init();
 
 #ifdef PROJECT_TARGET_USB_OVER_SERIAL
@@ -178,7 +168,6 @@ namespace board
         void application()
         {
             core::mcu::init(core::mcu::initType_t::APP);
-            core::mcu::timers::init();
 
 #ifdef PROJECT_TARGET_USB_OVER_SERIAL
             board::uart::init(PROJECT_TARGET_UART_CHANNEL_USB_LINK, board::detail::usb::USB_OVER_SERIAL_BAUDRATE);

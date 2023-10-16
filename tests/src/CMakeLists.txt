@@ -58,6 +58,7 @@ target_link_libraries(common
     lessdb-lib
     sysexconf-lib
     midi-lib
+    mcu
 )
 
 if("PROJECT_MCU_USE_EMU_EEPROM" IN_LIST PROJECT_MCU_DEFINES)

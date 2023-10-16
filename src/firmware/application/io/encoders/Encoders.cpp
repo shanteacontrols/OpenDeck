@@ -20,7 +20,7 @@ limitations under the License.
 
 #ifdef ENCODERS_SUPPORTED
 
-#include "core/Timing.h"
+#include "core/MCU.h"
 #include "core/util/Util.h"
 #include "application/util/conversion/Conversion.h"
 #include "application/util/configurable/Configurable.h"
@@ -131,7 +131,7 @@ void Encoders::updateSingle(size_t index, bool forceRefresh)
         return;
     }
 
-    uint32_t currentTime = core::timing::ms();
+    uint32_t currentTime = core::mcu::timing::ms();
 
     for (uint8_t reading = 0; reading < numberOfReadings; reading++)
     {

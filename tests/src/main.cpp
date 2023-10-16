@@ -1,5 +1,5 @@
 #include "tests/Common.h"
-#include "core/Timing.h"
+#include "core/MCU.h"
 #include "application/util/logger/Logger.h"
 
 #ifdef APP_USE_LOGGER
@@ -27,11 +27,6 @@ namespace
           << "]";
     }
 }    // namespace
-
-namespace core::timing::detail
-{
-    volatile uint32_t ms;
-}    // namespace core::timing::detail
 
 int main(int argc, char* argv[])
 {

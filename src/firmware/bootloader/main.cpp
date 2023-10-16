@@ -20,7 +20,7 @@ limitations under the License.
 #include "bootloader/updater/Updater.h"
 #include "SysExParser/SysExParser.h"
 #include "FwSelector/FwSelector.h"
-#include "core/Timing.h"
+#include "core/MCU.h"
 
 class BTLDRWriter : public Updater::BTLDRWriter
 {

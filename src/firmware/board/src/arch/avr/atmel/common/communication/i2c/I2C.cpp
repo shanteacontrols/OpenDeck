@@ -20,9 +20,8 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "core/util/Util.h"
-#include "core/Timing.h"
-#include "core/util/RingBuffer.h"
 #include "core/MCU.h"
+#include "core/util/RingBuffer.h"
 
 // note: on AVR, only 1 I2C channel is supported with the index 0
 // I2C implementation in core module uses blocking I2C. Here, interrupt

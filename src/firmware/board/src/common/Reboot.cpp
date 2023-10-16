@@ -18,7 +18,6 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "Internal.h"
-#include "core/Timing.h"
 #include "core/MCU.h"
 
 namespace board
@@ -50,7 +49,7 @@ namespace board
         // In case the indicator LEDs were on before this command was issued, this will make sure
         // they are off before the reboot.
         // Double the delay time to avoid "sharp" transition between traffic event and bootloader indication.
-        core::timing::waitMs(io::indicators::LED_TRAFFIC_INDICATOR_TIMEOUT * 2);
+        core::mcu::timing::waitMs(io::indicators::LED_TRAFFIC_INDICATOR_TIMEOUT * 2);
 
         core::mcu::reset();
     }

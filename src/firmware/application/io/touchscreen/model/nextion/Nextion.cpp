@@ -22,7 +22,7 @@ limitations under the License.
 #include <stdio.h>
 #include <string.h>
 #include "Nextion.h"
-#include "core/Timing.h"
+#include "core/MCU.h"
 #include "application/io/touchscreen/Touchscreen.h"
 
 using namespace io;
@@ -40,7 +40,7 @@ bool Nextion::init()
     if (_hwa.init())
     {
         // add slight delay to ensure display can receive commands after power on
-        core::timing::waitMs(1000);
+        core::mcu::timing::waitMs(1000);
 
         endCommand();
         writeCommand("sendxy=1");

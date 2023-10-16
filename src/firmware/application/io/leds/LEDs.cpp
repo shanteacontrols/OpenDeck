@@ -22,7 +22,7 @@ limitations under the License.
 
 #ifdef LEDS_SUPPORTED
 
-#include "core/Timing.h"
+#include "core/MCU.h"
 #include "core/util/Util.h"
 #include "application/util/conversion/Conversion.h"
 #include "application/util/configurable/Configurable.h"
@@ -189,12 +189,12 @@ void LEDs::updateAll(bool forceRefresh)
     {
     case blinkType_t::TIMER:
     {
-        if ((core::timing::ms() - _lastLEDblinkUpdateTime) < LED_BLINK_TIMER_TYPE_CHECK_TIME)
+        if ((core::mcu::timing::ms() - _lastLEDblinkUpdateTime) < LED_BLINK_TIMER_TYPE_CHECK_TIME)
         {
             return;
         }
 
-        _lastLEDblinkUpdateTime = core::timing::ms();
+        _lastLEDblinkUpdateTime = core::mcu::timing::ms();
     }
     break;
 
@@ -251,24 +251,24 @@ __attribute__((weak)) void LEDs::startUpAnimation()
     // turn all leds on first
     setAllOn();
 
-    core::timing::waitMs(1000);
+    core::mcu::timing::waitMs(1000);
 
     for (size_t i = 0; i < Collection::SIZE(GROUP_DIGITAL_OUTPUTS); i++)
     {
         setState(i, brightness_t::OFF);
-        core::timing::waitMs(35);
+        core::mcu::timing::waitMs(35);
     }
 
     for (size_t i = 0; i < Collection::SIZE(GROUP_DIGITAL_OUTPUTS); i++)
     {
         setState(Collection::SIZE(GROUP_DIGITAL_OUTPUTS) - 1 - i, brightness_t::B100);
-        core::timing::waitMs(35);
+        core::mcu::timing::waitMs(35);
     }
 
     for (size_t i = 0; i < Collection::SIZE(GROUP_DIGITAL_OUTPUTS); i++)
     {
         setState(i, brightness_t::OFF);
-        core::timing::waitMs(35);
+        core::mcu::timing::waitMs(35);
     }
 
     // turn all off again

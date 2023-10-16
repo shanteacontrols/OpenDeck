@@ -22,7 +22,7 @@ limitations under the License.
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "core/Timing.h"
+#include "core/MCU.h"
 #include "application/io/analog/Analog.h"
 #include "core/util/Util.h"
 #include "core/util/Filters.h"
@@ -70,7 +70,7 @@ namespace io
                 return true;
             }
 
-            const bool FAST_FILTER    = (core::timing::ms() - _lastStableMovementTime[index]) < FAST_FILTER_ENABLE_AFTER_MS;
+            const bool FAST_FILTER    = (core::mcu::timing::ms() - _lastStableMovementTime[index]) < FAST_FILTER_ENABLE_AFTER_MS;
             const bool DIRECTION      = descriptor.value >= _lastStableValue[index];
             const auto OLD_MIDI_VALUE = core::util::MAP_RANGE(static_cast<uint32_t>(_lastStableValue[index]),
                                                               static_cast<uint32_t>(ADC_MIN_VALUE),
@@ -134,7 +134,7 @@ namespace io
             }
             else
             {
-                _lastStableMovementTime[index] = core::timing::ms();
+                _lastStableMovementTime[index] = core::mcu::timing::ms();
             }
 
             if (descriptor.type == Analog::type_t::FSR)

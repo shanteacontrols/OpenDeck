@@ -22,7 +22,6 @@ limitations under the License.
 #include "board/Board.h"
 #include "Internal.h"
 #include "core/util/Util.h"
-#include "core/Timing.h"
 #include <Target.h>
 
 #include "Indicators.h"
@@ -49,9 +48,9 @@ namespace board::detail::io::indicators
         for (size_t flash = 0; flash < TOTAL_FLASHES; flash++)
         {
             ALL_INDICATORS_ON();
-            core::timing::waitMs(LED_INDICATOR_STARTUP_DELAY);
+            core::mcu::timing::waitMs(LED_INDICATOR_STARTUP_DELAY);
             ALL_INDICATORS_OFF();
-            core::timing::waitMs(LED_INDICATOR_STARTUP_DELAY);
+            core::mcu::timing::waitMs(LED_INDICATOR_STARTUP_DELAY);
         }
     }
 

@@ -18,7 +18,6 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "Internal.h"
-#include "core/Timing.h"
 #include <Target.h>
 
 #ifdef PROJECT_TARGET_SUPPORT_BOOTLOADER_BUTTON
@@ -49,7 +48,7 @@ namespace board::bootloader
     bool isHWtriggerActive()
     {
         // add some delay before reading the pins to avoid incorrect state detection
-        core::timing::waitMs(100);
+        core::mcu::timing::waitMs(100);
 
         return IS_BTLDR_ACTIVE();
     }

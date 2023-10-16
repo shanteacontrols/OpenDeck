@@ -17,7 +17,6 @@ limitations under the License.
 */
 
 #include "board/Board.h"
-#include "core/Timing.h"
 #include "core/MCU.h"
 #include "application/protocol/midi/MIDI.h"
 
@@ -39,7 +38,7 @@ namespace
         static uint32_t lastCheckTime       = 0;
         static bool     lastConnectionState = false;
 
-        if (core::timing::ms() - lastCheckTime > USB_CONN_CHECK_TIME)
+        if (core::mcu::timing::ms() - lastCheckTime > USB_CONN_CHECK_TIME)
         {
             using namespace board;
             bool newState = usb::isUSBconnected();
@@ -60,7 +59,7 @@ namespace
                 lastConnectionState = newState;
             }
 
-            lastCheckTime = core::timing::ms();
+            lastCheckTime = core::mcu::timing::ms();
         }
     }
 

@@ -19,7 +19,7 @@ limitations under the License.
 #include "System.h"
 #include "Layout.h"
 #include "bootloader/FwSelector/FwSelector.h"
-#include "core/Timing.h"
+#include "core/MCU.h"
 #include "core/util/Util.h"
 #include "application/system/Config.h"
 #include "application/messaging/Messaging.h"
