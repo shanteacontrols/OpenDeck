@@ -56,7 +56,7 @@ fi
 
 if [[ ! -d $gen_dir ]]
 then
-    echo "Generating target definitions..."
+    echo "Generating configuration for target: $target_name"
 
     mkdir -p "$gen_dir"
     echo "" > "$out_header"

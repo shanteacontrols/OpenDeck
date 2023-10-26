@@ -38,7 +38,7 @@ then
 
     if [[ $mcu != "stub" ]]
     then
-        echo "Generating project MCU definitions..."
+        echo "Generating project-specific configuration for MCU: $mcu"
         source "$script_dir"/mcu/main.sh
     fi
 fi
