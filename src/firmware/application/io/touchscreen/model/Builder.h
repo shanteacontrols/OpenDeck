@@ -23,6 +23,7 @@ limitations under the License.
 #ifdef PROJECT_TARGET_SUPPORT_TOUCHSCREEN
 
 #include "nextion/Nextion.h"
+#include "viewtech/Viewtech.h"
 
 namespace io
 {
@@ -32,7 +33,8 @@ namespace io
         TouchscreenModelBuilder(Touchscreen::HWA& hwa);
 
         private:
-        Nextion _nextion;
+        Nextion  _nextion;
+        Viewtech _viewtech;
     };
 }    // namespace io
 #else

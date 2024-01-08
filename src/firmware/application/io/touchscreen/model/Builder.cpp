@@ -24,6 +24,7 @@ using namespace io;
 
 TouchscreenModelBuilder::TouchscreenModelBuilder(Touchscreen::HWA& hwa)
     : _nextion(hwa)
+    , _viewtech(hwa)
 {}
 
 uint8_t Touchscreen::Model::_rxBuffer[Touchscreen::Model::BUFFER_SIZE];
