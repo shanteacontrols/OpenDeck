@@ -89,7 +89,7 @@ namespace sys
             {
                 io::Buttons::Collection::SIZE(),
                 1,
-                16,
+                17,
             }
         };
 
@@ -126,7 +126,7 @@ namespace sys
             {
                 io::Encoders::Collection::SIZE(),
                 1,
-                16,
+                17,
             },
 
             // pulses per step section
@@ -226,7 +226,7 @@ namespace sys
             {
                 io::Analog::Collection::SIZE(),
                 1,
-                16,
+                17,
             },
 
             // lower adc percentage offset
@@ -298,7 +298,7 @@ namespace sys
             {
                 io::LEDs::Collection::SIZE(),
                 1,
-                16,
+                17,
             }
         };
 
