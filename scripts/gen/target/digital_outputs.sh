@@ -224,12 +224,12 @@ then
         } >> "$out_cmakelists"
     elif [[ $digital_out_type == max7219 ]]
     then
-        # Hardcode LED amounts for now
-        nr_of_digital_outputs=64
+        number_of_drivers=$($yaml_parser "$yaml_file" leds.external.drivers)
+        nr_of_digital_outputs=$((64 * number_of_drivers))
 
         {
             printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_MAX7219)"
-            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_RGB_LEDS=16)"
+            printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_NR_OF_RGB_LEDS=$((nr_of_digital_outputs / 3)))"
         } >> "$out_cmakelists"
 
         port=$($yaml_parser "$yaml_file" leds.external.pins.data.port)

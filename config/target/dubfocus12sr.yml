@@ -119,6 +119,7 @@
   leds:
     external:
       type: "max7219"
+      drivers: 1
       invert: true
       pins:
         data:

@@ -306,6 +306,7 @@
             index: 16
     external:
       type: "max7219"
+      drivers: 1
       invert: false
       pins:
         data:

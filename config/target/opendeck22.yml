@@ -197,6 +197,7 @@
     external:
       invert: true
       type: "max7219"
+      drivers: 1
       pins:
         data:
           port: "0"
