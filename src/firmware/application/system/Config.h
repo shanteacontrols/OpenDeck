@@ -23,6 +23,7 @@ limitations under the License.
 #include <functional>
 #include <optional>
 #include "SysExConf/SysExConf.h"
+#include "application/database/Config.h"
 
 namespace sys
 {
@@ -135,6 +136,14 @@ namespace sys
                 PAGE_SWITCH_INDEX,
                 AMOUNT
             };
+        };
+
+        enum class systemSetting_t : uint8_t
+        {
+            ACTIVE_PRESET                              = static_cast<uint8_t>(database::Config::systemSetting_t::ACTIVE_PRESET),
+            PRESET_PRESERVE                            = static_cast<uint8_t>(database::Config::systemSetting_t::PRESET_PRESERVE),
+            DISABLE_FORCED_REFRESH_AFTER_PRESET_CHANGE = static_cast<uint8_t>(database::Config::systemSetting_t::CUSTOM_SYSTEM_SETTING_START),
+            AMOUNT
         };
 
         struct status_t

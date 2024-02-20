@@ -419,8 +419,8 @@ TEST_F(HWTest, DatabaseInitialValues)
     for (int preset = 0; preset < _database._instance.getSupportedPresets(); preset += (_database._instance.getSupportedPresets() - 1))
     {
         LOG(INFO) << "Checking initial values for preset " << preset + 1;
-        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, 0, preset));
-        ASSERT_EQ(preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, 0));
+        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, sys::Config::systemSetting_t::ACTIVE_PRESET, preset));
+        ASSERT_EQ(preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, sys::Config::systemSetting_t::ACTIVE_PRESET));
 
         // system block
         //----------------------------------
@@ -429,11 +429,11 @@ TEST_F(HWTest, DatabaseInitialValues)
         {
             if (i == static_cast<int>(database::Config::systemSetting_t::ACTIVE_PRESET))
             {
-                ASSERT_EQ(preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::system_t::SYSTEM_SETTINGS, i));
+                ASSERT_EQ(preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, i));
             }
             else
             {
-                ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::system_t::SYSTEM_SETTINGS, i));
+                ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, i));
             }
         }
 
@@ -785,8 +785,8 @@ TEST_F(HWTest, FwUpdate)
 
     for (int preset = 0; preset < _database._instance.getSupportedPresets(); preset++)
     {
-        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, database::Config::systemSetting_t::ACTIVE_PRESET, preset));
-        ASSERT_EQ(preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, database::Config::systemSetting_t::ACTIVE_PRESET));
+        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, sys::Config::systemSetting_t::ACTIVE_PRESET, preset));
+        ASSERT_EQ(preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, sys::Config::systemSetting_t::ACTIVE_PRESET));
 
         ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::analog_t::MIDI_ID, 4, 15 + preset));
 #ifdef ENCODERS_SUPPORTED
@@ -813,8 +813,8 @@ TEST_F(HWTest, FwUpdate)
 
     for (int preset = 0; preset < _database._instance.getSupportedPresets(); preset++)
     {
-        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, database::Config::systemSetting_t::ACTIVE_PRESET, preset));
-        ASSERT_EQ(preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, database::Config::systemSetting_t::ACTIVE_PRESET));
+        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, sys::Config::systemSetting_t::ACTIVE_PRESET, preset));
+        ASSERT_EQ(preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, sys::Config::systemSetting_t::ACTIVE_PRESET));
 
         ASSERT_EQ(15 + preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::MIDI_ID, 4));
 #ifdef ENCODERS_SUPPORTED
@@ -845,7 +845,7 @@ TEST_F(HWTest, BackupAndRestore)
 
     for (int preset = 0; preset < _database._instance.getSupportedPresets(); preset++)
     {
-        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, database::Config::systemSetting_t::ACTIVE_PRESET, preset));
+        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, sys::Config::systemSetting_t::ACTIVE_PRESET, preset));
 
         const size_t ANALOG_ID      = 4;
         const size_t ANALOG_MIDI_ID = 15 + preset;
@@ -880,8 +880,8 @@ TEST_F(HWTest, BackupAndRestore)
     {
         LOG(INFO) << "Checking values in preset " << preset;
 
-        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, database::Config::systemSetting_t::ACTIVE_PRESET, preset));
-        ASSERT_EQ(preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, database::Config::systemSetting_t::ACTIVE_PRESET));
+        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, sys::Config::systemSetting_t::ACTIVE_PRESET, preset));
+        ASSERT_EQ(preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, sys::Config::systemSetting_t::ACTIVE_PRESET));
         ASSERT_EQ(4, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::MIDI_ID, 4));
 #ifdef ENCODERS_SUPPORTED
         ASSERT_EQ(1, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::CHANNEL, 1));
@@ -923,8 +923,8 @@ TEST_F(HWTest, BackupAndRestore)
 
     for (int preset = 0; preset < _database._instance.getSupportedPresets(); preset++)
     {
-        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, database::Config::systemSetting_t::ACTIVE_PRESET, preset));
-        ASSERT_EQ(preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, database::Config::systemSetting_t::ACTIVE_PRESET));
+        ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, sys::Config::systemSetting_t::ACTIVE_PRESET, preset));
+        ASSERT_EQ(preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, sys::Config::systemSetting_t::ACTIVE_PRESET));
 
         ASSERT_EQ(15 + preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::MIDI_ID, 4));
 #ifdef ENCODERS_SUPPORTED
@@ -943,7 +943,7 @@ TEST_F(HWTest, USBMIDIData)
     {
         LOG(INFO) << "Switching preset";
         const size_t PRESET     = 0;
-        auto         preset0Req = _helper.generateSysExSetReq(sys::Config::Section::global_t::SYSTEM_SETTINGS, database::Config::systemSetting_t::ACTIVE_PRESET, PRESET);
+        auto         preset0Req = _helper.generateSysExSetReq(sys::Config::Section::global_t::SYSTEM_SETTINGS, sys::Config::systemSetting_t::ACTIVE_PRESET, PRESET);
         cmd                     = std::string("amidi -p ") + _helper.amidiPort(HW_TEST_USB_DEVICE_NAME_APP) + " -S \"" + test::vectorToHexString(preset0Req) + "\" -d -t 3 > " + temp_midi_data_location;
         ASSERT_EQ(0, test::wsystem(cmd, response));
         test::wsystem("cat " + temp_midi_data_location, response);
@@ -966,7 +966,7 @@ TEST_F(HWTest, DINMIDIData)
     {
         LOG(INFO) << "Switching preset";
         const size_t PRESET     = 0;
-        auto         preset0Req = _helper.generateSysExSetReq(sys::Config::Section::global_t::SYSTEM_SETTINGS, database::Config::systemSetting_t::ACTIVE_PRESET, PRESET);
+        auto         preset0Req = _helper.generateSysExSetReq(sys::Config::Section::global_t::SYSTEM_SETTINGS, sys::Config::systemSetting_t::ACTIVE_PRESET, PRESET);
         cmd                     = std::string("amidi -p ") + _helper.amidiPort(HW_TEST_USB_DEVICE_NAME_APP) + " -S \"" + test::vectorToHexString(preset0Req) + "\" -d -t 3";
         ASSERT_EQ(0, test::wsystem(cmd, response));
     };

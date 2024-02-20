@@ -122,10 +122,12 @@ namespace sys
             SCHEDULED_TASK_FORCED_REFRESH,
         };
 
-        io::ioComponent_t checkComponents();
-        void              checkProtocols();
-        void              backup();
-        void              forceComponentRefresh();
+        io::ioComponent_t      checkComponents();
+        void                   checkProtocols();
+        void                   backup();
+        void                   forceComponentRefresh();
+        std::optional<uint8_t> sysConfigGet(sys::Config::Section::global_t section, size_t index, uint16_t& value);
+        std::optional<uint8_t> sysConfigSet(sys::Config::Section::global_t section, size_t index, uint16_t value);
 
         HWA&                _hwa;
         Components&         _components;

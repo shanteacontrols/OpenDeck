@@ -94,6 +94,20 @@ Instance::Instance(HWA&        hwa,
                                   break;
                               }
                           });
+
+    ConfigHandler.registerConfig(
+        sys::Config::block_t::GLOBAL,
+        // read
+        [this](uint8_t section, size_t index, uint16_t& value)
+        {
+            return sysConfigGet(static_cast<sys::Config::Section::global_t>(section), index, value);
+        },
+
+        // write
+        [this](uint8_t section, size_t index, uint16_t value)
+        {
+            return sysConfigSet(static_cast<sys::Config::Section::global_t>(section), index, value);
+        });
 }
 
 bool Instance::init()
@@ -368,15 +382,23 @@ void Instance::checkProtocols()
 
 void Instance::forceComponentRefresh()
 {
+    if (_components.database().read(database::Config::Section::system_t::SYSTEM_SETTINGS,
+                                    Config::systemSetting_t::DISABLE_FORCED_REFRESH_AFTER_PRESET_CHANGE))
+    {
+        return;
+    }
+
     // extra check here - it's possible that preset was changed and then backup/restore procedure started
     // in that case this would get called
-    if (_backupRestoreState == backupRestoreState_t::NONE)
+    if (_backupRestoreState != backupRestoreState_t::NONE)
     {
-        messaging::event_t event;
-        event.systemMessage = messaging::systemMessage_t::FORCE_IO_REFRESH;
-
-        MIDIDispatcher.notify(messaging::eventType_t::SYSTEM, event);
+        return;
     }
+
+    messaging::event_t event;
+    event.systemMessage = messaging::systemMessage_t::FORCE_IO_REFRESH;
+
+    MIDIDispatcher.notify(messaging::eventType_t::SYSTEM, event);
 }
 
 void Instance::SysExDataHandler::sendResponse(uint8_t* array, uint16_t size)
@@ -596,4 +618,46 @@ void Instance::DBhandlers::factoryResetDone()
     event.systemMessage  = messaging::systemMessage_t::FACTORY_RESET_END;
 
     MIDIDispatcher.notify(messaging::eventType_t::SYSTEM, event);
+}
+
+std::optional<uint8_t> Instance::sysConfigGet(sys::Config::Section::global_t section, size_t index, uint16_t& value)
+{
+    if (section != sys::Config::Section::global_t::SYSTEM_SETTINGS)
+    {
+        return std::nullopt;
+    }
+
+    if (index != static_cast<size_t>(sys::Config::systemSetting_t::DISABLE_FORCED_REFRESH_AFTER_PRESET_CHANGE))
+    {
+        return std::nullopt;
+    }
+
+    uint32_t readValue;
+
+    auto result = _components.database().read(database::Config::Section::system_t::SYSTEM_SETTINGS, index, readValue)
+                      ? sys::Config::status_t::ACK
+                      : sys::Config::status_t::ERROR_READ;
+
+    value = readValue;
+
+    return result;
+}
+
+std::optional<uint8_t> Instance::sysConfigSet(sys::Config::Section::global_t section, size_t index, uint16_t value)
+{
+    if (section != sys::Config::Section::global_t::SYSTEM_SETTINGS)
+    {
+        return std::nullopt;
+    }
+
+    if (index != static_cast<size_t>(sys::Config::systemSetting_t::DISABLE_FORCED_REFRESH_AFTER_PRESET_CHANGE))
+    {
+        return std::nullopt;
+    }
+
+    auto result = _components.database().update(database::Config::Section::system_t::SYSTEM_SETTINGS, index, value)
+                      ? sys::Config::status_t::ACK
+                      : sys::Config::status_t::ERROR_WRITE;
+
+    return result;
 }

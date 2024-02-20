@@ -50,7 +50,7 @@ namespace sys
 
             // system settings section
             {
-                static_cast<uint16_t>(database::Config::systemSetting_t::AMOUNT),
+                static_cast<uint16_t>(Config::systemSetting_t::AMOUNT),
                 0,
                 0,
             },
