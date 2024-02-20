@@ -262,6 +262,7 @@ void Encoders::sendMessage(size_t index, position_t encoderState, encoderDescrip
     case type_t::NRPN_7BIT:
     case type_t::NRPN_14BIT:
     case type_t::CONTROL_CHANGE_14BIT:
+    case type_t::NOTE:
     {
         const bool USE_14BIT =
             ((descriptor.type == type_t::PITCH_BEND) || (descriptor.type == type_t::NRPN_14BIT) || (descriptor.type == type_t::CONTROL_CHANGE_14BIT));
@@ -284,6 +285,7 @@ void Encoders::sendMessage(size_t index, position_t encoderState, encoderDescrip
             {
             case type_t::CONTROL_CHANGE:
             case type_t::NRPN_7BIT:
+            case type_t::NOTE:
             {
                 _value[index] = ValueIncDecMIDI7Bit::increment(_value[index],
                                                                steps,

@@ -42,6 +42,7 @@ namespace io
             CONTROL_CHANGE_14BIT,
             CONTROL_CHANGE_41H01H,
             BPM_CHANGE,
+            NOTE,
             AMOUNT
         };
 

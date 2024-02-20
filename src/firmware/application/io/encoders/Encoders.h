@@ -56,6 +56,7 @@ namespace io
             CONTROL_CHANGE_14BIT,
             CONTROL_CHANGE_41H01H,
             BPM_CHANGE,
+            NOTE,
             AMOUNT
         };
 
@@ -223,6 +224,7 @@ namespace io
             MIDI::messageType_t::CONTROL_CHANGE_14BIT,    // CONTROL_CHANGE_14BIT
             MIDI::messageType_t::CONTROL_CHANGE,          // RESERVED
             MIDI::messageType_t::INVALID,                 // BPM_CHANGE
+            MIDI::messageType_t::NOTE_ON,                 // NOTE
         };
     };
 }    // namespace io

@@ -353,6 +353,14 @@ TEST_F(EncodersTest, Messages)
     rotate(false);
     ASSERT_EQ(Encoders::Collection::SIZE(), _listener._event.size());
     verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 65);
+
+    setup(Encoders::type_t::NOTE);
+    rotate(true);
+    ASSERT_EQ(Encoders::Collection::SIZE(), _listener._event.size());
+    verifyValue(MIDI::messageType_t::NOTE_ON, 1);
+    rotate(false);
+    ASSERT_EQ(Encoders::Collection::SIZE(), _listener._event.size());
+    verifyValue(MIDI::messageType_t::NOTE_ON, 0);
 }
 
 #endif
