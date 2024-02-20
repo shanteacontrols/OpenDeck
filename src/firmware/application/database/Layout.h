@@ -49,19 +49,10 @@ namespace database
         private:
         // not user accessible
         std::vector<LESSDB::Section> _systemSections = {
-            // uid section
+            // system section
             {
-                1,
+                static_cast<uint8_t>(database::Config::systemSetting_t::AMOUNT),
                 LESSDB::sectionParameterType_t::WORD,
-                LESSDB::preserveSetting_t::DISABLE,
-                LESSDB::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-
-            // presets
-            {
-                static_cast<uint8_t>(database::Config::presetSetting_t::AMOUNT),
-                LESSDB::sectionParameterType_t::BYTE,
                 LESSDB::preserveSetting_t::DISABLE,
                 LESSDB::autoIncrementSetting_t::DISABLE,
                 0,

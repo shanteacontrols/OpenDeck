@@ -218,7 +218,7 @@ void Instance::backup()
         static_cast<uint8_t>(SysExConf::wish_t::SET),
         static_cast<uint8_t>(SysExConf::amount_t::SINGLE),
         static_cast<uint8_t>(sys::Config::block_t::GLOBAL),
-        static_cast<uint8_t>(sys::Config::Section::global_t::PRESETS),
+        static_cast<uint8_t>(sys::Config::Section::global_t::SYSTEM_SETTINGS),
         0x00,    // index 0 (active preset) MSB
         0x00,    // index 0 (active preset) LSB
         0x00,    // preset value MSB - always 0

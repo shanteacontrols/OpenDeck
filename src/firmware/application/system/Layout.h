@@ -48,9 +48,9 @@ namespace sys
                 1,
             },
 
-            // preset section
+            // system settings section
             {
-                static_cast<uint16_t>(database::Config::presetSetting_t::AMOUNT),
+                static_cast<uint16_t>(database::Config::systemSetting_t::AMOUNT),
                 0,
                 0,
             },

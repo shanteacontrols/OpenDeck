@@ -142,8 +142,8 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
 
     uint8_t newPreset = 1;
 
-    ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::PRESETS,
-                                                      database::Config::presetSetting_t::ACTIVE_PRESET,
+    ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS,
+                                                      database::Config::systemSetting_t::ACTIVE_PRESET,
                                                       newPreset));
 
     enableAnalog();
@@ -199,8 +199,8 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
 
     newPreset = 0;
 
-    ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::PRESETS,
-                                                      database::Config::presetSetting_t::ACTIVE_PRESET,
+    ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS,
+                                                      database::Config::systemSetting_t::ACTIVE_PRESET,
                                                       newPreset));
 
     // LEDs will be refreshed - they are all off
@@ -242,8 +242,8 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
 
     newPreset = 1;
 
-    ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::PRESETS,
-                                                      database::Config::presetSetting_t::ACTIVE_PRESET,
+    ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS,
+                                                      database::Config::systemSetting_t::ACTIVE_PRESET,
                                                       newPreset));
 
     // LEDs will be refreshed - they are all off
@@ -348,8 +348,8 @@ TEST_F(SystemTest, PresetChangeIndicatedOnLEDs)
     // switch preset
     uint8_t newPreset = 1;
 
-    ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::PRESETS,
-                                                      database::Config::presetSetting_t::ACTIVE_PRESET,
+    ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS,
+                                                      database::Config::systemSetting_t::ACTIVE_PRESET,
                                                       newPreset));
 
     // all leds should be off in new preset
@@ -382,8 +382,8 @@ TEST_F(SystemTest, PresetChangeIndicatedOnLEDs)
     // now switch to preset 0 and expect only the first LED to be on
     newPreset = 0;
 
-    ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::PRESETS,
-                                                      database::Config::presetSetting_t::ACTIVE_PRESET,
+    ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS,
+                                                      database::Config::systemSetting_t::ACTIVE_PRESET,
                                                       newPreset));
 
     // the LEDs should still be off since the timeout hasn't passed
@@ -451,8 +451,8 @@ TEST_F(SystemTest, PresetChangeIndicatedOnLEDs)
     // switch to preset 1 and verify that the first LED is off and second is on
     newPreset = 1;
 
-    ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::PRESETS,
-                                                      database::Config::presetSetting_t::ACTIVE_PRESET,
+    ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS,
+                                                      database::Config::systemSetting_t::ACTIVE_PRESET,
                                                       newPreset));
 
     // timeout hasn't occured yet

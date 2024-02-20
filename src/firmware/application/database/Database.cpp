@@ -102,8 +102,7 @@ bool database::Admin::init()
     }
     else
     {
-        _activePreset = readSystemBlock(static_cast<uint8_t>(Config::Section::system_t::PRESETS),
-                                        static_cast<size_t>(Config::presetSetting_t::ACTIVE_PRESET));
+        _activePreset = readSystemBlock(static_cast<size_t>(Config::systemSetting_t::ACTIVE_PRESET));
 
         if (getPresetPreserveState())
         {
@@ -231,8 +230,7 @@ bool database::Admin::setPreset(uint8_t preset)
 
     _activePreset = preset;
 
-    auto retVal = updateSystemBlock(static_cast<uint8_t>(Config::Section::system_t::PRESETS),
-                                    static_cast<size_t>(Config::presetSetting_t::ACTIVE_PRESET),
+    auto retVal = updateSystemBlock(static_cast<size_t>(Config::systemSetting_t::ACTIVE_PRESET),
                                     preset);
 
     if (retVal)
@@ -281,8 +279,7 @@ uint8_t database::Admin::getSupportedPresets()
 /// Otherwise, first preset will be loaded instead.
 bool database::Admin::setPresetPreserveState(bool state)
 {
-    return updateSystemBlock(static_cast<uint8_t>(Config::Section::system_t::PRESETS),
-                             static_cast<size_t>(Config::presetSetting_t::PRESET_PRESERVE),
+    return updateSystemBlock(static_cast<size_t>(Config::systemSetting_t::PRESET_PRESERVE),
                              state);
 }
 
@@ -290,16 +287,14 @@ bool database::Admin::setPresetPreserveState(bool state)
 /// returns: True if preset preservation is enabled, false otherwise.
 bool database::Admin::getPresetPreserveState()
 {
-    return readSystemBlock(static_cast<uint8_t>(Config::Section::system_t::PRESETS),
-                           static_cast<size_t>(Config::presetSetting_t::PRESET_PRESERVE));
+    return readSystemBlock(static_cast<size_t>(Config::systemSetting_t::PRESET_PRESERVE));
 }
 
 /// Checks if database has been already initialized by checking DB_BLOCK_ID.
 /// returns: True if valid, false otherwise.
 bool database::Admin::isSignatureValid()
 {
-    uint16_t signature = readSystemBlock(static_cast<uint8_t>(Config::Section::system_t::UID),
-                                         0);
+    uint16_t signature = readSystemBlock(static_cast<size_t>(Config::systemSetting_t::UID));
 
     return _uid == signature;
 }
@@ -308,9 +303,7 @@ bool database::Admin::isSignatureValid()
 /// UID is written to first two database locations.
 bool database::Admin::setUID()
 {
-    return updateSystemBlock(static_cast<uint8_t>(Config::Section::system_t::UID),
-                             0,
-                             _uid);
+    return updateSystemBlock(static_cast<size_t>(Config::systemSetting_t::UID), _uid);
 }
 
 void database::Admin::registerHandlers(Handlers& handlers)
@@ -320,7 +313,12 @@ void database::Admin::registerHandlers(Handlers& handlers)
 
 std::optional<uint8_t> database::Admin::sysConfigGet(sys::Config::Section::global_t section, size_t index, uint16_t& value)
 {
-    if (section != sys::Config::Section::global_t::PRESETS)
+    if (section != sys::Config::Section::global_t::SYSTEM_SETTINGS)
+    {
+        return std::nullopt;
+    }
+
+    if (index >= static_cast<uint8_t>(Config::systemSetting_t::CUSTOM_SYSTEM_SETTING_START))
     {
         return std::nullopt;
     }
@@ -328,18 +326,18 @@ std::optional<uint8_t> database::Admin::sysConfigGet(sys::Config::Section::globa
     uint32_t readValue = 0;
     uint8_t  result    = sys::Config::status_t::ERROR_READ;
 
-    auto setting = static_cast<Config::presetSetting_t>(index);
+    auto setting = static_cast<Config::systemSetting_t>(index);
 
     switch (setting)
     {
-    case Config::presetSetting_t::ACTIVE_PRESET:
+    case Config::systemSetting_t::ACTIVE_PRESET:
     {
         readValue = getPreset();
         result    = sys::Config::status_t::ACK;
     }
     break;
 
-    case Config::presetSetting_t::PRESET_PRESERVE:
+    case Config::systemSetting_t::PRESET_PRESERVE:
     {
         readValue = getPresetPreserveState();
         result    = sys::Config::status_t::ACK;
@@ -356,17 +354,22 @@ std::optional<uint8_t> database::Admin::sysConfigGet(sys::Config::Section::globa
 
 std::optional<uint8_t> database::Admin::sysConfigSet(sys::Config::Section::global_t section, size_t index, uint16_t value)
 {
-    if (section != sys::Config::Section::global_t::PRESETS)
+    if (section != sys::Config::Section::global_t::SYSTEM_SETTINGS)
+    {
+        return std::nullopt;
+    }
+
+    if (index >= static_cast<uint8_t>(Config::systemSetting_t::CUSTOM_SYSTEM_SETTING_START))
     {
         return std::nullopt;
     }
 
     uint8_t result  = sys::Config::status_t::ERROR_WRITE;
-    auto    setting = static_cast<Config::presetSetting_t>(index);
+    auto    setting = static_cast<Config::systemSetting_t>(index);
 
     switch (setting)
     {
-    case Config::presetSetting_t::ACTIVE_PRESET:
+    case Config::systemSetting_t::ACTIVE_PRESET:
     {
         if (value < getSupportedPresets())
         {
@@ -380,7 +383,7 @@ std::optional<uint8_t> database::Admin::sysConfigSet(sys::Config::Section::globa
     }
     break;
 
-    case Config::presetSetting_t::PRESET_PRESERVE:
+    case Config::systemSetting_t::PRESET_PRESERVE:
     {
         if ((value <= 1) && (value >= 0))
         {
@@ -391,30 +394,30 @@ std::optional<uint8_t> database::Admin::sysConfigSet(sys::Config::Section::globa
     break;
 
     default:
-        break;
+        return std::nullopt;
     }
 
     return result;
 }
 
-uint16_t database::Admin::readSystemBlock(uint8_t section, size_t index)
+uint16_t database::Admin::readSystemBlock(size_t index)
 {
     uint16_t value = 0;
 
     SYSTEM_BLOCK_ENTER(
         value = read(0,
-                     static_cast<uint8_t>(Config::Section::system_t::PRESETS),
-                     static_cast<size_t>(Config::presetSetting_t::ACTIVE_PRESET));)
+                     static_cast<uint8_t>(Config::Section::system_t::SYSTEM_SETTINGS),
+                     index);)
 
     return value;
 }
 
-bool database::Admin::updateSystemBlock(uint8_t section, size_t index, uint16_t value)
+bool database::Admin::updateSystemBlock(size_t index, uint16_t value)
 {
     bool retVal = false;
 
     SYSTEM_BLOCK_ENTER(
-        retVal = update(0, section, index, preset);)
+        retVal = update(0, static_cast<uint8_t>(Config::Section::system_t::SYSTEM_SETTINGS), index, value);)
 
     return retVal;
 }

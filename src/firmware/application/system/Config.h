@@ -56,7 +56,7 @@ namespace sys
             {
                 MIDI_SETTINGS,
                 RESERVED,    // compatibility
-                PRESETS,
+                SYSTEM_SETTINGS,
                 AMOUNT
             };
 
