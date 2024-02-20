@@ -552,6 +552,20 @@ TEST_F(HWTest, DatabaseInitialValues)
             ASSERT_EQ(4, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::PULSES_PER_STEP, i));
         }
 
+        // lower limit section
+        // all values should be set to 0
+        for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i += PARAM_SKIP)
+        {
+            ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::LOWER_LIMIT, i));
+        }
+
+        // upper limit section
+        // all values should be set to 16383
+        for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i += PARAM_SKIP)
+        {
+            ASSERT_EQ(16383, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::UPPER_LIMIT, i));
+        }
+
         // analog block
         //----------------------------------
         // enable section

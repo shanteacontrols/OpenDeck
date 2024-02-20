@@ -156,6 +156,20 @@ namespace sys
                 0,
                 1,
             },
+
+            // lower value limit
+            {
+                io::Encoders::Collection::SIZE(),
+                0,
+                16383,
+            },
+
+            // upper value limit
+            {
+                io::Encoders::Collection::SIZE(),
+                0,
+                16383,
+            },
         };
 
         std::vector<SysExConf::Section> _analogSections = {

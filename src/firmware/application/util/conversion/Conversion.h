@@ -94,7 +94,9 @@ namespace util
             database::Config::Section::encoder_t::PULSES_PER_STEP,
             database::Config::Section::encoder_t::ACCELERATION,
             database::Config::Section::encoder_t::MIDI_ID,
-            database::Config::Section::encoder_t::REMOTE_SYNC
+            database::Config::Section::encoder_t::REMOTE_SYNC,
+            database::Config::Section::encoder_t::LOWER_LIMIT,
+            database::Config::Section::encoder_t::UPPER_LIMIT,
         };
 
         static constexpr database::Config::Section::analog_t SYS_EX2_DB_ANALOG[static_cast<uint8_t>(sys::Config::Section::analog_t::AMOUNT)] = {

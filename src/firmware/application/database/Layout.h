@@ -198,6 +198,24 @@ namespace database
                 LESSDB::autoIncrementSetting_t::DISABLE,
                 0,
             },
+
+            // lower value limit
+            {
+                io::Encoders::Collection::SIZE(),
+                LESSDB::sectionParameterType_t::WORD,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
+                0,
+            },
+
+            // upper value limit
+            {
+                io::Encoders::Collection::SIZE(),
+                LESSDB::sectionParameterType_t::WORD,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
+                16383,
+            },
         };
 
         std::vector<LESSDB::Section> _analogSections = {

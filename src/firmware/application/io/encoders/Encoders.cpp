@@ -308,6 +308,10 @@ void Encoders::sendMessage(size_t index, position_t encoderState, encoderDescrip
             }
         }
 
+        _value[index] = core::util::CONSTRAIN(static_cast<uint16_t>(_value[index]),
+                                              static_cast<uint16_t>(_database.read(database::Config::Section::encoder_t::LOWER_LIMIT, index)),
+                                              static_cast<uint16_t>(_database.read(database::Config::Section::encoder_t::UPPER_LIMIT, index)));
+
         if (descriptor.type == type_t::CONTROL_CHANGE_14BIT)
         {
             if (descriptor.event.index >= 96)

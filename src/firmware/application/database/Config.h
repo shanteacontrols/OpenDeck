@@ -81,6 +81,8 @@ namespace database
                 PULSES_PER_STEP,
                 ACCELERATION,
                 REMOTE_SYNC,
+                LOWER_LIMIT,
+                UPPER_LIMIT,
                 AMOUNT
             };
 

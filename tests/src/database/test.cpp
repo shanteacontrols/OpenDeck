@@ -152,6 +152,20 @@ TEST_F(DatabaseTest, ReadInitialValues)
             DB_READ_VERIFY(4, database::Config::Section::encoder_t::PULSES_PER_STEP, i);
         }
 
+        // lower limit section
+        // all values should be set to 0
+        for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i++)
+        {
+            DB_READ_VERIFY(0, database::Config::Section::encoder_t::LOWER_LIMIT, i);
+        }
+
+        // upper limit section
+        // all values should be set to 16383
+        for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i++)
+        {
+            DB_READ_VERIFY(16383, database::Config::Section::encoder_t::UPPER_LIMIT, i);
+        }
+
         // analog block
         //----------------------------------
         // enable section

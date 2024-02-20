@@ -81,6 +81,8 @@ namespace sys
                 ACCELERATION,
                 MIDI_ID_MSB,
                 REMOTE_SYNC,
+                LOWER_LIMIT,
+                UPPER_LIMIT,
                 AMOUNT
             };
 
