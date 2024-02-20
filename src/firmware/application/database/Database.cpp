@@ -386,10 +386,8 @@ std::optional<uint8_t> database::Admin::sysConfigSet(sys::Config::Section::globa
         return std::nullopt;
     }
 
-    uint8_t result    = sys::Config::status_t::ERROR_WRITE;
-    bool    writeToDb = true;
-
-    auto setting = static_cast<Config::presetSetting_t>(index);
+    uint8_t result  = sys::Config::status_t::ERROR_WRITE;
+    auto    setting = static_cast<Config::presetSetting_t>(index);
 
     switch (setting)
     {
@@ -398,8 +396,7 @@ std::optional<uint8_t> database::Admin::sysConfigSet(sys::Config::Section::globa
         if (value < getSupportedPresets())
         {
             setPreset(value);
-            result    = sys::Config::status_t::ACK;
-            writeToDb = false;
+            result = sys::Config::status_t::ACK;
         }
         else
         {
@@ -413,19 +410,13 @@ std::optional<uint8_t> database::Admin::sysConfigSet(sys::Config::Section::globa
         if ((value <= 1) && (value >= 0))
         {
             setPresetPreserveState(value);
-            result    = sys::Config::status_t::ACK;
-            writeToDb = false;
+            result = sys::Config::status_t::ACK;
         }
     }
     break;
 
     default:
         break;
-    }
-
-    if ((result == sys::Config::status_t::ACK) && writeToDb)
-    {
-        result = update(util::Conversion::SYS_2_DB_SECTION(section), index, value) ? sys::Config::status_t::ACK : sys::Config::status_t::ERROR_WRITE;
     }
 
     return result;
