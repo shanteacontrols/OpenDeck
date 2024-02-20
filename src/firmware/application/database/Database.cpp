@@ -405,9 +405,9 @@ uint16_t database::Admin::readSystemBlock(size_t index)
     uint16_t value = 0;
 
     SYSTEM_BLOCK_ENTER(
-        value = read(0,
-                     static_cast<uint8_t>(Config::Section::system_t::SYSTEM_SETTINGS),
-                     index);)
+        value = LESSDB::read(0,
+                             static_cast<uint8_t>(Config::Section::system_t::SYSTEM_SETTINGS),
+                             index);)
 
     return value;
 }
@@ -417,7 +417,7 @@ bool database::Admin::updateSystemBlock(size_t index, uint16_t value)
     bool retVal = false;
 
     SYSTEM_BLOCK_ENTER(
-        retVal = update(0, static_cast<uint8_t>(Config::Section::system_t::SYSTEM_SETTINGS), index, value);)
+        retVal = LESSDB::update(0, static_cast<uint8_t>(Config::Section::system_t::SYSTEM_SETTINGS), index, value);)
 
     return retVal;
 }
