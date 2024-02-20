@@ -156,6 +156,8 @@ namespace database
         bool                   isSignatureValid();
         bool                   setUID();
         bool                   setPresetInternal(uint8_t preset);
+        uint16_t               readSystemBlock(uint8_t section, size_t index);
+        bool                   updateSystemBlock(uint8_t section, size_t index, uint16_t value);
         std::optional<uint8_t> sysConfigGet(sys::Config::Section::global_t section, size_t index, uint16_t& value);
         std::optional<uint8_t> sysConfigSet(sys::Config::Section::global_t section, size_t index, uint16_t value);
 

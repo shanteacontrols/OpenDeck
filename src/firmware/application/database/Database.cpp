@@ -102,10 +102,8 @@ bool database::Admin::init()
     }
     else
     {
-        SYSTEM_BLOCK_ENTER(
-            _activePreset = read(0,
-                                 static_cast<uint8_t>(Config::Section::system_t::PRESETS),
-                                 static_cast<size_t>(Config::presetSetting_t::ACTIVE_PRESET));)
+        _activePreset = readSystemBlock(static_cast<uint8_t>(Config::Section::system_t::PRESETS),
+                                        static_cast<size_t>(Config::presetSetting_t::ACTIVE_PRESET));
 
         if (getPresetPreserveState())
         {
@@ -233,13 +231,9 @@ bool database::Admin::setPreset(uint8_t preset)
 
     _activePreset = preset;
 
-    bool retVal;
-
-    SYSTEM_BLOCK_ENTER(
-        retVal = update(0,
-                        static_cast<uint8_t>(Config::Section::system_t::PRESETS),
-                        static_cast<size_t>(Config::presetSetting_t::ACTIVE_PRESET),
-                        preset);)
+    auto retVal = updateSystemBlock(static_cast<uint8_t>(Config::Section::system_t::PRESETS),
+                                    static_cast<size_t>(Config::presetSetting_t::ACTIVE_PRESET),
+                                    preset);
 
     if (retVal)
     {
@@ -287,41 +281,25 @@ uint8_t database::Admin::getSupportedPresets()
 /// Otherwise, first preset will be loaded instead.
 bool database::Admin::setPresetPreserveState(bool state)
 {
-    bool retVal;
-
-    SYSTEM_BLOCK_ENTER(
-        retVal = update(0,
-                        static_cast<uint8_t>(Config::Section::system_t::PRESETS),
-                        static_cast<size_t>(Config::presetSetting_t::PRESET_PRESERVE),
-                        state);)
-
-    return retVal;
+    return updateSystemBlock(static_cast<uint8_t>(Config::Section::system_t::PRESETS),
+                             static_cast<size_t>(Config::presetSetting_t::PRESET_PRESERVE),
+                             state);
 }
 
 /// Checks if preset preservation setting is enabled or disabled.
 /// returns: True if preset preservation is enabled, false otherwise.
 bool database::Admin::getPresetPreserveState()
 {
-    bool retVal;
-
-    SYSTEM_BLOCK_ENTER(
-        retVal = read(0,
-                      static_cast<uint8_t>(Config::Section::system_t::PRESETS),
-                      static_cast<size_t>(Config::presetSetting_t::PRESET_PRESERVE));)
-
-    return retVal;
+    return readSystemBlock(static_cast<uint8_t>(Config::Section::system_t::PRESETS),
+                           static_cast<size_t>(Config::presetSetting_t::PRESET_PRESERVE));
 }
 
 /// Checks if database has been already initialized by checking DB_BLOCK_ID.
 /// returns: True if valid, false otherwise.
 bool database::Admin::isSignatureValid()
 {
-    uint16_t signature;
-
-    SYSTEM_BLOCK_ENTER(
-        signature = read(0,
-                         static_cast<uint8_t>(Config::Section::system_t::UID),
-                         0);)
+    uint16_t signature = readSystemBlock(static_cast<uint8_t>(Config::Section::system_t::UID),
+                                         0);
 
     return _uid == signature;
 }
@@ -330,12 +308,9 @@ bool database::Admin::isSignatureValid()
 /// UID is written to first two database locations.
 bool database::Admin::setUID()
 {
-    bool retVal;
-
-    SYSTEM_BLOCK_ENTER(
-        retVal = update(0, static_cast<uint8_t>(Config::Section::system_t::UID), 0, _uid);)
-
-    return retVal;
+    return updateSystemBlock(static_cast<uint8_t>(Config::Section::system_t::UID),
+                             0,
+                             _uid);
 }
 
 void database::Admin::registerHandlers(Handlers& handlers)
@@ -420,6 +395,28 @@ std::optional<uint8_t> database::Admin::sysConfigSet(sys::Config::Section::globa
     }
 
     return result;
+}
+
+uint16_t database::Admin::readSystemBlock(uint8_t section, size_t index)
+{
+    uint16_t value = 0;
+
+    SYSTEM_BLOCK_ENTER(
+        value = read(0,
+                     static_cast<uint8_t>(Config::Section::system_t::PRESETS),
+                     static_cast<size_t>(Config::presetSetting_t::ACTIVE_PRESET));)
+
+    return value;
+}
+
+bool database::Admin::updateSystemBlock(uint8_t section, size_t index, uint16_t value)
+{
+    bool retVal = false;
+
+    SYSTEM_BLOCK_ENTER(
+        retVal = update(0, section, index, preset);)
+
+    return retVal;
 }
 
 __attribute__((weak)) void database::Admin::customInitGlobal()
