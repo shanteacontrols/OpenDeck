@@ -103,6 +103,7 @@ set_target_properties(lint PROPERTIES EXCLUDE_FROM_ALL TRUE)
 add_dependencies(lint merge_firmware_binaries)
 
 ExternalProject_Add(tests
+    BUILD_ALWAYS    TRUE
     SOURCE_DIR      ${PROJECT_ROOT}/tests
     CMAKE_ARGS      -DTARGET=${TARGET}
     CMAKE_ARGS      -DCMAKE_USE_STUB_MCU=1
