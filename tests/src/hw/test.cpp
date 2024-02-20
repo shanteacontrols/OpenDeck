@@ -422,6 +422,21 @@ TEST_F(HWTest, DatabaseInitialValues)
         ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, 0, preset));
         ASSERT_EQ(preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::global_t::SYSTEM_SETTINGS, 0));
 
+        // system block
+        //----------------------------------
+        // system settings section
+        for (int i = 0; i < static_cast<uint8_t>(database::Config::systemSetting_t::CUSTOM_SYSTEM_SETTING_END); i++)
+        {
+            if (i == static_cast<int>(database::Config::systemSetting_t::ACTIVE_PRESET))
+            {
+                ASSERT_EQ(preset, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::system_t::SYSTEM_SETTINGS, i));
+            }
+            else
+            {
+                ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::system_t::SYSTEM_SETTINGS, i));
+            }
+        }
+
         // MIDI block
         //----------------------------------
         // settings section

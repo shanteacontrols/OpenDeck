@@ -48,7 +48,6 @@ namespace database
             public:
             Section() = delete;
 
-            // internal
             enum class system_t : uint8_t
             {
                 SYSTEM_SETTINGS,

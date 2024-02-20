@@ -77,6 +77,12 @@ namespace database
             return value;
         }
 
+        template<typename I>
+        uint32_t read(Config::Section::system_t section, I index)
+        {
+            return readSystemBlock(static_cast<size_t>(index));
+        }
+
         template<typename T, typename I>
         bool read(T section, I index, uint32_t& value)
         {
@@ -85,6 +91,13 @@ namespace database
                                 static_cast<uint8_t>(section),
                                 static_cast<size_t>(index),
                                 value);
+        }
+
+        template<typename I>
+        bool read(Config::Section::system_t section, I index, uint32_t& value)
+        {
+            value = readSystemBlock(static_cast<size_t>(index));
+            return true;
         }
 
         template<typename T, typename I, typename V>
@@ -97,6 +110,17 @@ namespace database
                                   static_cast<uint8_t>(section),
                                   static_cast<size_t>(index),
                                   newValue);
+        }
+
+        template<typename I, typename V>
+        bool update(Config::Section::system_t section, I index, V value)
+        {
+            if (static_cast<uint8_t>(index) < static_cast<uint8_t>(Config::systemSetting_t::CUSTOM_SYSTEM_SETTING_START))
+            {
+                return false;
+            }
+
+            return updateSystemBlock(static_cast<size_t>(index), value);
         }
 
         bool    init();

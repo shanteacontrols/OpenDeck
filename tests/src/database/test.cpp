@@ -53,6 +53,21 @@ TEST_F(DatabaseTest, ReadInitialValues)
     {
         ASSERT_TRUE(_database._instance.setPreset(preset));
 
+        // system block
+        //----------------------------------
+        // system settings section
+        for (int i = 0; i < static_cast<uint8_t>(database::Config::systemSetting_t::CUSTOM_SYSTEM_SETTING_END); i++)
+        {
+            if (i == static_cast<int>(database::Config::systemSetting_t::ACTIVE_PRESET))
+            {
+                DB_READ_VERIFY(preset, database::Config::Section::system_t::SYSTEM_SETTINGS, i);
+            }
+            else
+            {
+                DB_READ_VERIFY(0, database::Config::Section::system_t::SYSTEM_SETTINGS, i);
+            }
+        }
+
         // global block
         //----------------------------------
         // MIDI settings section

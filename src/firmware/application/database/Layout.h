@@ -47,7 +47,6 @@ namespace database
         }
 
         private:
-        // not user accessible
         std::vector<LESSDB::Section> _systemSections = {
             // system section
             {
