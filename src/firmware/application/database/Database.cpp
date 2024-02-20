@@ -345,39 +345,34 @@ void database::Admin::registerHandlers(Handlers& handlers)
 
 std::optional<uint8_t> database::Admin::sysConfigGet(sys::Config::Section::global_t section, size_t index, uint16_t& value)
 {
+    if (section != sys::Config::Section::global_t::PRESETS)
+    {
+        return std::nullopt;
+    }
+
     uint32_t readValue = 0;
     uint8_t  result    = sys::Config::status_t::ERROR_READ;
 
-    switch (section)
+    auto setting = static_cast<Config::presetSetting_t>(index);
+
+    switch (setting)
     {
-    case sys::Config::Section::global_t::PRESETS:
+    case Config::presetSetting_t::ACTIVE_PRESET:
     {
-        auto setting = static_cast<Config::presetSetting_t>(index);
+        readValue = getPreset();
+        result    = sys::Config::status_t::ACK;
+    }
+    break;
 
-        switch (setting)
-        {
-        case Config::presetSetting_t::ACTIVE_PRESET:
-        {
-            readValue = getPreset();
-            result    = sys::Config::status_t::ACK;
-        }
-        break;
-
-        case Config::presetSetting_t::PRESET_PRESERVE:
-        {
-            readValue = getPresetPreserveState();
-            result    = sys::Config::status_t::ACK;
-        }
-        break;
-
-        default:
-            break;
-        }
+    case Config::presetSetting_t::PRESET_PRESERVE:
+    {
+        readValue = getPresetPreserveState();
+        result    = sys::Config::status_t::ACK;
     }
     break;
 
     default:
-        return std::nullopt;
+        break;
     }
 
     value = readValue;
@@ -386,52 +381,46 @@ std::optional<uint8_t> database::Admin::sysConfigGet(sys::Config::Section::globa
 
 std::optional<uint8_t> database::Admin::sysConfigSet(sys::Config::Section::global_t section, size_t index, uint16_t value)
 {
+    if (section != sys::Config::Section::global_t::PRESETS)
+    {
+        return std::nullopt;
+    }
+
     uint8_t result    = sys::Config::status_t::ERROR_WRITE;
     bool    writeToDb = true;
 
-    switch (section)
+    auto setting = static_cast<Config::presetSetting_t>(index);
+
+    switch (setting)
     {
-    case sys::Config::Section::global_t::PRESETS:
+    case Config::presetSetting_t::ACTIVE_PRESET:
     {
-        auto setting = static_cast<Config::presetSetting_t>(index);
-
-        switch (setting)
+        if (value < getSupportedPresets())
         {
-        case Config::presetSetting_t::ACTIVE_PRESET:
+            setPreset(value);
+            result    = sys::Config::status_t::ACK;
+            writeToDb = false;
+        }
+        else
         {
-            if (value < getSupportedPresets())
-            {
-                setPreset(value);
-                result    = sys::Config::status_t::ACK;
-                writeToDb = false;
-            }
-            else
-            {
-                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
-            }
+            result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
         }
-        break;
+    }
+    break;
 
-        case Config::presetSetting_t::PRESET_PRESERVE:
+    case Config::presetSetting_t::PRESET_PRESERVE:
+    {
+        if ((value <= 1) && (value >= 0))
         {
-            if ((value <= 1) && (value >= 0))
-            {
-                setPresetPreserveState(value);
-                result    = sys::Config::status_t::ACK;
-                writeToDb = false;
-            }
+            setPresetPreserveState(value);
+            result    = sys::Config::status_t::ACK;
+            writeToDb = false;
         }
-        break;
-
-        default:
-            break;
-        }
-        break;
     }
     break;
 
     default:
-        return std::nullopt;
+        break;
     }
 
     if ((result == sys::Config::status_t::ACK) && writeToDb)

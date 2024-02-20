@@ -660,127 +660,122 @@ void protocol::MIDI::setNoteOffMode(noteOffType_t type)
 
 std::optional<uint8_t> protocol::MIDI::sysConfigGet(sys::Config::Section::global_t section, size_t index, uint16_t& value)
 {
+    if (section != sys::Config::Section::global_t::MIDI_SETTINGS)
+    {
+        return std::nullopt;
+    }
+
     [[maybe_unused]] uint32_t readValue = 0;
     [[maybe_unused]] uint8_t  result    = sys::Config::status_t::ERROR_READ;
 
-    switch (section)
-    {
-    case sys::Config::Section::global_t::MIDI_SETTINGS:
-    {
-        auto feature = static_cast<setting_t>(index);
+    auto feature = static_cast<setting_t>(index);
 
-        switch (feature)
+    switch (feature)
+    {
+    case setting_t::STANDARD_NOTE_OFF:
+    {
+        result = _database.read(util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
+                     ? sys::Config::status_t::ACK
+                     : sys::Config::status_t::ERROR_READ;
+    }
+    break;
+
+    case setting_t::RUNNING_STATUS:
+    case setting_t::DIN_ENABLED:
+    case setting_t::DIN_THRU_DIN:
+    case setting_t::DIN_THRU_USB:
+    case setting_t::USB_THRU_DIN:
+    {
+        if (_hwaDIN.supported())
         {
-        case setting_t::STANDARD_NOTE_OFF:
+            if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(io::common::Allocatable::interface_t::UART))
+            {
+                result = sys::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
+            }
+            else
+            {
+                result = _database.read(util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
+                             ? sys::Config::status_t::ACK
+                             : sys::Config::status_t::ERROR_READ;
+            }
+        }
+        else
+        {
+            result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
+        }
+    }
+    break;
+
+    case setting_t::BLE_ENABLED:
+    case setting_t::BLE_THRU_USB:
+    case setting_t::BLE_THRU_BLE:
+    case setting_t::USB_THRU_BLE:
+    {
+        if (_hwaBLE.supported())
         {
             result = _database.read(util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
                          ? sys::Config::status_t::ACK
                          : sys::Config::status_t::ERROR_READ;
         }
-        break;
-
-        case setting_t::RUNNING_STATUS:
-        case setting_t::DIN_ENABLED:
-        case setting_t::DIN_THRU_DIN:
-        case setting_t::DIN_THRU_USB:
-        case setting_t::USB_THRU_DIN:
+        else
         {
-            if (_hwaDIN.supported())
+            result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
+        }
+    }
+    break;
+
+    case setting_t::DIN_THRU_BLE:
+    case setting_t::BLE_THRU_DIN:
+    {
+        if (_hwaDIN.supported())
+        {
+            if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(io::common::Allocatable::interface_t::UART))
             {
-                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(io::common::Allocatable::interface_t::UART))
-                {
-                    result = sys::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
-                }
-                else
+                result = sys::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
+            }
+            else
+            {
+                if (_hwaBLE.supported())
                 {
                     result = _database.read(util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
                                  ? sys::Config::status_t::ACK
                                  : sys::Config::status_t::ERROR_READ;
                 }
-            }
-            else
-            {
-                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
-            }
-        }
-        break;
-
-        case setting_t::BLE_ENABLED:
-        case setting_t::BLE_THRU_USB:
-        case setting_t::BLE_THRU_BLE:
-        case setting_t::USB_THRU_BLE:
-        {
-            if (_hwaBLE.supported())
-            {
-                result = _database.read(util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
-                             ? sys::Config::status_t::ACK
-                             : sys::Config::status_t::ERROR_READ;
-            }
-            else
-            {
-                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
-            }
-        }
-        break;
-
-        case setting_t::DIN_THRU_BLE:
-        case setting_t::BLE_THRU_DIN:
-        {
-            if (_hwaDIN.supported())
-            {
-                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(io::common::Allocatable::interface_t::UART))
-                {
-                    result = sys::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
-                }
                 else
                 {
-                    if (_hwaBLE.supported())
-                    {
-                        result = _database.read(util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
-                                     ? sys::Config::status_t::ACK
-                                     : sys::Config::status_t::ERROR_READ;
-                    }
-                    else
-                    {
-                        result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
-                    }
+                    result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
                 }
             }
-            else
-            {
-                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
-            }
         }
-        break;
-
-        case setting_t::SEND_MIDI_CLOCK_DIN:
+        else
         {
-            if (!_clockTimerAllocated)
-            {
-                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
-            }
-            else
-            {
-                result = _database.read(util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
-                             ? sys::Config::status_t::ACK
-                             : sys::Config::status_t::ERROR_READ;
-            }
+            result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
         }
-        break;
+    }
+    break;
 
-        default:
+    case setting_t::SEND_MIDI_CLOCK_DIN:
+    {
+        if (!_clockTimerAllocated)
+        {
+            result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
+        }
+        else
         {
             result = _database.read(util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
                          ? sys::Config::status_t::ACK
                          : sys::Config::status_t::ERROR_READ;
         }
-        break;
-        }
     }
     break;
 
     default:
-        return std::nullopt;
+    {
+        result = _database.read(util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
+                     ? sys::Config::status_t::ACK
+                     : sys::Config::status_t::ERROR_READ;
+    }
+    break;
     }
 
     value = readValue;
@@ -789,360 +784,355 @@ std::optional<uint8_t> protocol::MIDI::sysConfigGet(sys::Config::Section::global
 
 std::optional<uint8_t> protocol::MIDI::sysConfigSet(sys::Config::Section::global_t section, size_t index, uint16_t value)
 {
+    if (section != sys::Config::Section::global_t::MIDI_SETTINGS)
+    {
+        return std::nullopt;
+    }
+
     [[maybe_unused]] uint8_t result            = sys::Config::status_t::ERROR_WRITE;
     [[maybe_unused]] bool    writeToDb         = true;
     [[maybe_unused]] auto    dinMIDIinitAction = common::initAction_t::AS_IS;
     [[maybe_unused]] auto    bleMIDIinitAction = common::initAction_t::AS_IS;
     [[maybe_unused]] bool    checkDINLoopback  = false;
 
-    switch (section)
-    {
-    case sys::Config::Section::global_t::MIDI_SETTINGS:
-    {
-        auto setting = static_cast<setting_t>(index);
+    auto setting = static_cast<setting_t>(index);
 
-        switch (setting)
+    switch (setting)
+    {
+    case setting_t::RUNNING_STATUS:
+    {
+        // this setting applies to din midi only
+        if (_hwaDIN.supported())
         {
-        case setting_t::RUNNING_STATUS:
-        {
-            // this setting applies to din midi only
-            if (_hwaDIN.supported())
+            if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(io::common::Allocatable::interface_t::UART))
             {
-                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(io::common::Allocatable::interface_t::UART))
-                {
-                    result = sys::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
-                }
-                else
-                {
-                    _dinMIDI.setRunningStatusState(value);
-                    result = sys::Config::status_t::ACK;
-                }
+                result = sys::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
             }
             else
             {
-                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
+                _dinMIDI.setRunningStatusState(value);
+                result = sys::Config::status_t::ACK;
             }
         }
-        break;
-
-        case setting_t::STANDARD_NOTE_OFF:
+        else
         {
-            setNoteOffMode(value ? noteOffType_t::STANDARD_NOTE_OFF : noteOffType_t::NOTE_ON_ZERO_VEL);
-            result = sys::Config::status_t::ACK;
+            result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
         }
-        break;
+    }
+    break;
 
-        case setting_t::DIN_ENABLED:
+    case setting_t::STANDARD_NOTE_OFF:
+    {
+        setNoteOffMode(value ? noteOffType_t::STANDARD_NOTE_OFF : noteOffType_t::NOTE_ON_ZERO_VEL);
+        result = sys::Config::status_t::ACK;
+    }
+    break;
+
+    case setting_t::DIN_ENABLED:
+    {
+        if (_hwaDIN.supported())
         {
-            if (_hwaDIN.supported())
+            if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(io::common::Allocatable::interface_t::UART))
             {
-                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(io::common::Allocatable::interface_t::UART))
-                {
-                    result = sys::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
-                }
-                else
-                {
-                    if (value)
-                    {
-                        dinMIDIinitAction = common::initAction_t::INIT;
-                    }
-                    else
-                    {
-                        dinMIDIinitAction = common::initAction_t::DE_INIT;
-                    }
-
-                    result = sys::Config::status_t::ACK;
-                }
+                result = sys::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
             }
             else
-            {
-                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
-            }
-        }
-        break;
-
-        case setting_t::BLE_ENABLED:
-        {
-            if (_hwaBLE.supported())
             {
                 if (value)
                 {
-                    bleMIDIinitAction = common::initAction_t::INIT;
+                    dinMIDIinitAction = common::initAction_t::INIT;
                 }
                 else
                 {
-                    bleMIDIinitAction = common::initAction_t::DE_INIT;
+                    dinMIDIinitAction = common::initAction_t::DE_INIT;
                 }
 
                 result = sys::Config::status_t::ACK;
             }
-            else
-            {
-                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
-            }
         }
-        break;
-
-        case setting_t::DIN_THRU_DIN:
+        else
         {
-            if (_hwaDIN.supported())
-            {
-                if (value)
-                {
-                    _dinMIDI.registerThruInterface(_dinMIDI.transport());
-                }
-                else
-                {
-                    _dinMIDI.unregisterThruInterface(_dinMIDI.transport());
-                }
-
-                result           = sys::Config::status_t::ACK;
-                checkDINLoopback = true;
-            }
-            else
-            {
-                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
-            }
+            result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
         }
-        break;
+    }
+    break;
 
-        case setting_t::DIN_THRU_USB:
-        {
-            if (_hwaDIN.supported())
-            {
-                if (value)
-                {
-                    _dinMIDI.registerThruInterface(_usbMIDI.transport());
-                }
-                else
-                {
-                    _dinMIDI.unregisterThruInterface(_usbMIDI.transport());
-                }
-
-                result           = sys::Config::status_t::ACK;
-                checkDINLoopback = true;
-            }
-            else
-            {
-                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
-            }
-        }
-        break;
-
-        case setting_t::DIN_THRU_BLE:
-        {
-            if (_hwaDIN.supported())
-            {
-                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(io::common::Allocatable::interface_t::UART))
-                {
-                    result = sys::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
-                }
-                else
-                {
-                    if (_hwaBLE.supported())
-                    {
-                        if (value)
-                        {
-                            _dinMIDI.registerThruInterface(_bleMIDI.transport());
-                        }
-                        else
-                        {
-                            _dinMIDI.unregisterThruInterface(_bleMIDI.transport());
-                        }
-
-                        result           = sys::Config::status_t::ACK;
-                        checkDINLoopback = true;
-                    }
-                    else
-                    {
-                        result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
-                    }
-                }
-            }
-            else
-            {
-                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
-            }
-        }
-        break;
-
-        case setting_t::USB_THRU_DIN:
-        {
-            if (_hwaDIN.supported())
-            {
-                if (value)
-                {
-                    _usbMIDI.registerThruInterface(_dinMIDI.transport());
-                }
-                else
-                {
-                    _usbMIDI.unregisterThruInterface(_dinMIDI.transport());
-                }
-
-                result = sys::Config::status_t::ACK;
-            }
-            else
-            {
-                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
-            }
-        }
-        break;
-
-        case setting_t::USB_THRU_USB:
+    case setting_t::BLE_ENABLED:
+    {
+        if (_hwaBLE.supported())
         {
             if (value)
             {
-                _usbMIDI.registerThruInterface(_usbMIDI.transport());
+                bleMIDIinitAction = common::initAction_t::INIT;
             }
             else
             {
-                _usbMIDI.unregisterThruInterface(_usbMIDI.transport());
+                bleMIDIinitAction = common::initAction_t::DE_INIT;
             }
 
             result = sys::Config::status_t::ACK;
         }
-        break;
-
-        case setting_t::USB_THRU_BLE:
+        else
         {
-            if (_hwaBLE.supported())
-            {
-                if (value)
-                {
-                    _usbMIDI.registerThruInterface(_bleMIDI.transport());
-                }
-                else
-                {
-                    _usbMIDI.unregisterThruInterface(_bleMIDI.transport());
-                }
+            result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
+        }
+    }
+    break;
 
-                result = sys::Config::status_t::ACK;
+    case setting_t::DIN_THRU_DIN:
+    {
+        if (_hwaDIN.supported())
+        {
+            if (value)
+            {
+                _dinMIDI.registerThruInterface(_dinMIDI.transport());
             }
             else
             {
-                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
+                _dinMIDI.unregisterThruInterface(_dinMIDI.transport());
             }
+
+            result           = sys::Config::status_t::ACK;
+            checkDINLoopback = true;
         }
-        break;
-
-        case setting_t::BLE_THRU_DIN:
+        else
         {
-            if (_hwaDIN.supported())
-            {
-                if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(io::common::Allocatable::interface_t::UART))
-                {
-                    result = sys::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
-                }
-                else
-                {
-                    if (_hwaBLE.supported())
-                    {
-                        if (value)
-                        {
-                            _bleMIDI.registerThruInterface(_dinMIDI.transport());
-                        }
-                        else
-                        {
-                            _bleMIDI.unregisterThruInterface(_dinMIDI.transport());
-                        }
+            result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
+        }
+    }
+    break;
 
-                        result = sys::Config::status_t::ACK;
+    case setting_t::DIN_THRU_USB:
+    {
+        if (_hwaDIN.supported())
+        {
+            if (value)
+            {
+                _dinMIDI.registerThruInterface(_usbMIDI.transport());
+            }
+            else
+            {
+                _dinMIDI.unregisterThruInterface(_usbMIDI.transport());
+            }
+
+            result           = sys::Config::status_t::ACK;
+            checkDINLoopback = true;
+        }
+        else
+        {
+            result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
+        }
+    }
+    break;
+
+    case setting_t::DIN_THRU_BLE:
+    {
+        if (_hwaDIN.supported())
+        {
+            if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(io::common::Allocatable::interface_t::UART))
+            {
+                result = sys::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
+            }
+            else
+            {
+                if (_hwaBLE.supported())
+                {
+                    if (value)
+                    {
+                        _dinMIDI.registerThruInterface(_bleMIDI.transport());
                     }
                     else
                     {
-                        result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
+                        _dinMIDI.unregisterThruInterface(_bleMIDI.transport());
                     }
-                }
-            }
-            else
-            {
-                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
-            }
-        }
-        break;
 
-        case setting_t::BLE_THRU_USB:
-        {
-            if (_hwaBLE.supported())
-            {
-                if (value)
-                {
-                    _bleMIDI.registerThruInterface(_usbMIDI.transport());
+                    result           = sys::Config::status_t::ACK;
+                    checkDINLoopback = true;
                 }
                 else
                 {
-                    _bleMIDI.unregisterThruInterface(_usbMIDI.transport());
+                    result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
                 }
+            }
+        }
+        else
+        {
+            result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
+        }
+    }
+    break;
 
-                result = sys::Config::status_t::ACK;
+    case setting_t::USB_THRU_DIN:
+    {
+        if (_hwaDIN.supported())
+        {
+            if (value)
+            {
+                _usbMIDI.registerThruInterface(_dinMIDI.transport());
             }
             else
             {
-                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
-            }
-        }
-        break;
-
-        case setting_t::BLE_THRU_BLE:
-        {
-            if (_hwaBLE.supported())
-            {
-                if (value)
-                {
-                    _bleMIDI.registerThruInterface(_bleMIDI.transport());
-                }
-                else
-                {
-                    _bleMIDI.unregisterThruInterface(_bleMIDI.transport());
-                }
-
-                result = sys::Config::status_t::ACK;
-            }
-            else
-            {
-                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
-            }
-        }
-        break;
-
-        case setting_t::GLOBAL_CHANNEL:
-        {
-            if ((value < 1) || (value > MIDI_CHANNEL_OMNI))
-            {
-                // invalid channel
-                result = sys::Config::status_t::ERROR_NEW_VALUE;
-                break;
+                _usbMIDI.unregisterThruInterface(_dinMIDI.transport());
             }
 
             result = sys::Config::status_t::ACK;
         }
-        break;
-
-        case setting_t::SEND_MIDI_CLOCK_DIN:
+        else
         {
-            if (!_clockTimerAllocated)
+            result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
+        }
+    }
+    break;
+
+    case setting_t::USB_THRU_USB:
+    {
+        if (value)
+        {
+            _usbMIDI.registerThruInterface(_usbMIDI.transport());
+        }
+        else
+        {
+            _usbMIDI.unregisterThruInterface(_usbMIDI.transport());
+        }
+
+        result = sys::Config::status_t::ACK;
+    }
+    break;
+
+    case setting_t::USB_THRU_BLE:
+    {
+        if (_hwaBLE.supported())
+        {
+            if (value)
             {
-                result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
+                _usbMIDI.registerThruInterface(_bleMIDI.transport());
             }
             else
             {
-                value ? core::mcu::timers::start(_clockTimerIndex) : core::mcu::timers::stop(_clockTimerIndex);
-                result = sys::Config::status_t::ACK;
+                _usbMIDI.unregisterThruInterface(_bleMIDI.transport());
             }
-        }
-        break;
 
-        default:
-        {
             result = sys::Config::status_t::ACK;
         }
-        break;
+        else
+        {
+            result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
+        }
+    }
+    break;
+
+    case setting_t::BLE_THRU_DIN:
+    {
+        if (_hwaDIN.supported())
+        {
+            if (!isSettingEnabled(setting_t::DIN_ENABLED) && _hwaDIN.allocated(io::common::Allocatable::interface_t::UART))
+            {
+                result = sys::Config::status_t::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
+            }
+            else
+            {
+                if (_hwaBLE.supported())
+                {
+                    if (value)
+                    {
+                        _bleMIDI.registerThruInterface(_dinMIDI.transport());
+                    }
+                    else
+                    {
+                        _bleMIDI.unregisterThruInterface(_dinMIDI.transport());
+                    }
+
+                    result = sys::Config::status_t::ACK;
+                }
+                else
+                {
+                    result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
+                }
+            }
+        }
+        else
+        {
+            result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
+        }
+    }
+    break;
+
+    case setting_t::BLE_THRU_USB:
+    {
+        if (_hwaBLE.supported())
+        {
+            if (value)
+            {
+                _bleMIDI.registerThruInterface(_usbMIDI.transport());
+            }
+            else
+            {
+                _bleMIDI.unregisterThruInterface(_usbMIDI.transport());
+            }
+
+            result = sys::Config::status_t::ACK;
+        }
+        else
+        {
+            result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
+        }
+    }
+    break;
+
+    case setting_t::BLE_THRU_BLE:
+    {
+        if (_hwaBLE.supported())
+        {
+            if (value)
+            {
+                _bleMIDI.registerThruInterface(_bleMIDI.transport());
+            }
+            else
+            {
+                _bleMIDI.unregisterThruInterface(_bleMIDI.transport());
+            }
+
+            result = sys::Config::status_t::ACK;
+        }
+        else
+        {
+            result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
+        }
+    }
+    break;
+
+    case setting_t::GLOBAL_CHANNEL:
+    {
+        if ((value < 1) || (value > MIDI_CHANNEL_OMNI))
+        {
+            // invalid channel
+            result = sys::Config::status_t::ERROR_NEW_VALUE;
+            break;
+        }
+
+        result = sys::Config::status_t::ACK;
+    }
+    break;
+
+    case setting_t::SEND_MIDI_CLOCK_DIN:
+    {
+        if (!_clockTimerAllocated)
+        {
+            result = sys::Config::status_t::ERROR_NOT_SUPPORTED;
+        }
+        else
+        {
+            value ? core::mcu::timers::start(_clockTimerIndex) : core::mcu::timers::stop(_clockTimerIndex);
+            result = sys::Config::status_t::ACK;
         }
     }
     break;
 
     default:
-        return std::nullopt;
+    {
+        result = sys::Config::status_t::ACK;
+    }
+    break;
     }
 
     if ((result == sys::Config::status_t::ACK) && writeToDb)
