@@ -43,9 +43,11 @@ done
 
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 project_root="$(realpath "${script_dir}"/..)"
+targets_dir="$project_root"/config/target
+yaml_parser="dasel -n -p yaml --plain -f"
 targets=()
 
-for target in "$project_root"/config/target/*.yml;
+for target in "$targets_dir"/*.yml;
 do
     targets+=("$(basename "$target" .yml)")
 done
@@ -63,7 +65,10 @@ case $type in
     test)
         for (( i=0; i<len_targets; i++ ))
         do
-            make TARGET="${targets[$i]}" test
+            if [[ $($yaml_parser "$targets_dir"/"${targets[$i]}".yml test) == "true" ]]
+            then
+                make TARGET="${targets[$i]}" test
+            fi
         done
     ;;
 

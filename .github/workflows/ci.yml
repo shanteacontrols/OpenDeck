@@ -24,6 +24,7 @@ jobs:
       - name: Build and test targets
         run: |
           git fetch --tags
+          ./scripts/build_targets.sh --type=build
           ./scripts/build_targets.sh --type=test
   format:
     name: Code formatting
