@@ -7,7 +7,7 @@ jobs:
     name: Build/Test [Ubuntu]
     runs-on: ubuntu-22.04
     container:
-      image: paradajz168/opendeck-dev:latest
+      image: ghcr.io/shanteacontrols/opendeck:latest
       options: --user root
     steps:
       - name: Mark repository as safe
@@ -25,7 +25,7 @@ jobs:
     name: Code formatting
     runs-on: ubuntu-22.04
     container:
-      image: paradajz168/opendeck-dev:latest
+      image: ghcr.io/shanteacontrols/opendeck:latest
       options: --user root
     steps:
       - name: Mark repository as safe
@@ -41,7 +41,7 @@ jobs:
     name: Code linting
     runs-on: ubuntu-22.04
     container:
-      image: paradajz168/opendeck-dev:latest
+      image: ghcr.io/shanteacontrols/opendeck:latest
       options: --user root
     steps:
       - name: Mark repository as safe

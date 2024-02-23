@@ -3,7 +3,7 @@ version: '3.7'
 services:
   opendeck:
     container_name: opendeck
-    image: paradajz168/opendeck-dev
+    image: ghcr.io/shanteacontrols/opendeck
     volumes:
       - $PWD:/home/ubuntu/OpenDeck
     working_dir: /home/ubuntu/OpenDeck
