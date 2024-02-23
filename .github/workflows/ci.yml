@@ -2,6 +2,10 @@ name: CI
 
 on: [push]
 
+defaults:
+  run:
+    shell: bash -leo pipefail {0}
+
 jobs:
   build_and_test_ubuntu:
     name: Build/Test [Ubuntu]
@@ -13,7 +17,7 @@ jobs:
       - name: Mark repository as safe
         run: git config --global --add safe.directory /__w/OpenDeck/OpenDeck
       - name: Pull the repository and submodules
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: recursive
@@ -30,7 +34,7 @@ jobs:
     steps:
       - name: Mark repository as safe
         run: git config --global --add safe.directory /__w/OpenDeck/OpenDeck
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: recursive
@@ -46,7 +50,7 @@ jobs:
     steps:
       - name: Mark repository as safe
         run: git config --global --add safe.directory /__w/OpenDeck/OpenDeck
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: recursive
