@@ -10,11 +10,7 @@ services:
       - $PWD:/home/ubuntu/OpenDeck
       - $HOME/.ssh:/home/ubuntu/.ssh
       - /dev:/dev
-      - cache:/build_cache
     hostname: localhost
     working_dir: /home/ubuntu/OpenDeck
     command: tail -f /dev/null
     privileged: true
-
-volumes:
-  cache:
