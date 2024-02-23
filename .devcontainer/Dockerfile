@@ -5,6 +5,13 @@ ARG deps_dir=/opendeck-deps
 ARG arduino_dir=${deps_dir}/arduino
 ARG arduino_version=1.8.6
 ARG user=ubuntu
+ARG workspace_dir=/home/${user}/workspace
+ARG project_name=OpenDeck
+ARG project_dir=${workspace_dir}/${project_name}
+ARG ccache_dir=${project_dir}/ccache
+
+ENV CCACHE_DIR=${ccache_dir}
+ENV WORKSPACE_DIR=${workspace_dir}
 
 RUN \
 apt-get update && \
@@ -39,6 +46,7 @@ make \
 nano \
 ninja-build \
 openssh-client \
+python3-venv \
 software-properties-common \
 srecord \
 sudo \
@@ -46,8 +54,6 @@ tzdata \
 unzip \
 wget \
 xz-utils
-
-ENV CCACHE_DIR=/home/${user}/OpenDeck/ccache
 
 RUN \
 mkdir ${deps_dir}
@@ -82,7 +88,33 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # Run everything below as $user
 USER ${user}
-WORKDIR /home/${user}
+WORKDIR ${workspace_dir}
+
+# Initialize the base projects/modules specified in west.yml when building the
+# image not to do it every time the container is created.
+# This is done with west init using -l flag which tells it to initialize
+# workspace from local west.yml instead of from remote repository.
+# This involves temporarily copying west.yml manifest file from the repository
+# to the image during build, then running west init/update. Finally, make sure
+# to set the correct west.yml paths in west config so that west update works
+# once the repository is mounted to the container. Since the repository
+# should be mounted under directory specified in project_dir variable,
+# rename the path accordingly.
+
+ADD west.yml ${workspace_dir}/west.yml
+
+RUN \
+python3 -m venv ${workspace_dir}/.venv && \
+. ${workspace_dir}/.venv/bin/activate && \
+pip install west && \
+mkdir -p ${workspace_dir}/temp && \
+cd ${workspace_dir}/temp && \
+west init --mf ../west.yml -l . && \
+west update && \
+west config manifest.path ${project_name} && \
+west config manifest.file west.yml && \
+cd ${workspace_dir} && \
+rm -rf temp west.yml
 
 ADD .devcontainer/.git_branch_bash /home/${user}/.git_branch_bash
 

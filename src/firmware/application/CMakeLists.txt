@@ -24,7 +24,7 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
     target_include_directories(application
         PRIVATE
         ${PROJECT_ROOT}/src/firmware
-        ${PROJECT_ROOT}/modules/u8g2/csrc
+        ${WORKSPACE_ROOT}/modules/u8g2/csrc
     )
 
     target_compile_definitions(application
@@ -69,18 +69,18 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
         ${CMAKE_CURRENT_LIST_DIR}/util/cinfo/CInfo.cpp
         ${CMAKE_CURRENT_LIST_DIR}/util/configurable/Configurable.cpp
         ${CMAKE_CURRENT_LIST_DIR}/main.cpp
-        ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_string.c
-        ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_setup.c
-        ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_u8toa.c
-        ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_8x8.c
-        ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_u16toa.c
-        ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_display.c
-        ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_fonts.c
-        ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_byte.c
-        ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_cad.c
-        ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_gpio.c
-        ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_d_ssd1306_128x64_noname.c
-        ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
+        ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_string.c
+        ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_setup.c
+        ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_u8toa.c
+        ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_8x8.c
+        ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_u16toa.c
+        ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_display.c
+        ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_fonts.c
+        ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_byte.c
+        ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_cad.c
+        ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_gpio.c
+        ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_d_ssd1306_128x64_noname.c
+        ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
         ${APP_GENERATED_SOURCES}
     )
 

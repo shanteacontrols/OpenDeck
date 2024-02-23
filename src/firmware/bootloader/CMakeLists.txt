@@ -5,10 +5,10 @@ if("PROJECT_MCU_SUPPORT_BOOTLOADER" IN_LIST PROJECT_MCU_DEFINES)
     target_include_directories(bootloader
         PRIVATE
         ${PROJECT_ROOT}/src/firmware
-        ${PROJECT_ROOT}/modules/u8g2/csrc
-        ${PROJECT_ROOT}/modules/LESSDB/include
-        ${PROJECT_ROOT}/modules/SysExConf/include
-        ${PROJECT_ROOT}/modules/MIDI/include
+        ${WORKSPACE_ROOT}/modules/u8g2/csrc
+        ${WORKSPACE_ROOT}/modules/LESSDB/include
+        ${WORKSPACE_ROOT}/modules/SysExConf/include
+        ${WORKSPACE_ROOT}/modules/MIDI/include
     )
 
     target_sources(bootloader

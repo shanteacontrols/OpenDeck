@@ -4,10 +4,11 @@ set(TARGET "" CACHE STRING "Target name")
 project(flashgen)
 enable_language(CXX)
 
+set(WORKSPACE_ROOT $ENV{WORKSPACE_DIR})
 set(PROJECT_ROOT ${CMAKE_CURRENT_LIST_DIR}/../../../)
 
 include(${PROJECT_ROOT}/cmake/include/helpers.cmake)
-include(${PROJECT_ROOT}/modules/core/cmake/ccache.cmake)
+include(${WORKSPACE_ROOT}/modules/core/cmake/ccache.cmake)
 include(${PROJECT_ROOT}/src/generated/target/${TARGET}/CMakeLists.txt)
 
 add_executable(flashgen)
@@ -22,8 +23,8 @@ target_compile_definitions(emueeprom-lib
 target_include_directories(emueeprom-lib
     PUBLIC
     ${PROJECT_ROOT}/src/generated/mcu/${PROJECT_TARGET_MCU}
-    ${PROJECT_ROOT}/modules/SysExConf/include
-    ${PROJECT_ROOT}/modules/MIDI/include
+    ${WORKSPACE_ROOT}/modules/SysExConf/include
+    ${WORKSPACE_ROOT}/modules/MIDI/include
 )
 
 target_compile_definitions(flashgen
@@ -35,8 +36,8 @@ target_compile_definitions(flashgen
 target_include_directories(flashgen
     PUBLIC
     ${PROJECT_ROOT}/src/firmware
-    ${PROJECT_ROOT}/modules/u8g2/csrc
-    ${PROJECT_ROOT}/modules/core/include
+    ${WORKSPACE_ROOT}/modules/u8g2/csrc
+    ${WORKSPACE_ROOT}/modules/core/include
 )
 
 file(GLOB_RECURSE APP_GENERATED_SOURCES

@@ -11,18 +11,18 @@ add_module(MIDI)
 target_sources(common
     PRIVATE
     main.cpp
-    ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_string.c
-    ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_setup.c
-    ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_u8toa.c
-    ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_8x8.c
-    ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_u16toa.c
-    ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_display.c
-    ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_fonts.c
-    ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_byte.c
-    ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_cad.c
-    ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_gpio.c
-    ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_d_ssd1306_128x64_noname.c
-    ${PROJECT_ROOT}/modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
+    ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_string.c
+    ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_setup.c
+    ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_u8toa.c
+    ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_8x8.c
+    ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_u16toa.c
+    ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_display.c
+    ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_fonts.c
+    ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_byte.c
+    ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_cad.c
+    ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_gpio.c
+    ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_d_ssd1306_128x64_noname.c
+    ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
     ${PROJECT_ROOT}/src/firmware/application/util/configurable/Configurable.cpp
     ${PROJECT_ROOT}/src/firmware/application/util/scheduler/Scheduler.cpp
 )
@@ -30,8 +30,8 @@ target_sources(common
 target_include_directories(common
     PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/../include
-    ${PROJECT_ROOT}/modules/core/include
-    ${PROJECT_ROOT}/modules/u8g2/csrc
+    ${WORKSPACE_ROOT}/modules/core/include
+    ${WORKSPACE_ROOT}/modules/u8g2/csrc
     ${PROJECT_ROOT}/src/firmware
     ${PROJECT_ROOT}/src/firmware/application
     ${PROJECT_ROOT}/src/firmware/bootloader

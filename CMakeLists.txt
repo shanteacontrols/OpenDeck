@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.22)
 set(TARGET "" CACHE STRING "Target name")
 
 set(PROJECT_NAME "OpenDeck")
+set(WORKSPACE_ROOT $ENV{WORKSPACE_DIR})
 set(PROJECT_ROOT ${CMAKE_CURRENT_LIST_DIR})
 set(FIRMWARE_TARGETS "")
 set(FIRMWARE_HEX_LIST "")
@@ -68,7 +69,7 @@ if(CORE_MCU_UF2_ID)
     add_custom_command(
         DEPENDS ${FIRMWARE_MERGED_BIN}
         OUTPUT ${FIRMWARE_MERGED_UF2}
-        COMMAND ${PROJECT_ROOT}/modules/core/modules/tinyusb/tools/uf2/utils/uf2conv.py -b ${CORE_MCU_FLASH_START_ADDR} -f ${CORE_MCU_UF2_ID} -o ${FIRMWARE_MERGED_UF2} -c ${FIRMWARE_MERGED_BIN}
+        COMMAND ${WORKSPACE_ROOT}/modules/core/modules/tinyusb/tools/uf2/utils/uf2conv.py -b ${CORE_MCU_FLASH_START_ADDR} -f ${CORE_MCU_UF2_ID} -o ${FIRMWARE_MERGED_UF2} -c ${FIRMWARE_MERGED_BIN}
     )
 
     add_custom_target(create_uf2_binary

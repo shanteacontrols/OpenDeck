@@ -7,10 +7,10 @@ services:
       context: .
       dockerfile: .devcontainer/Dockerfile
     volumes:
-      - $PWD:/home/ubuntu/OpenDeck
+      - $PWD:/home/ubuntu/workspace/OpenDeck
       - $HOME/.ssh:/home/ubuntu/.ssh
       - /dev:/dev
     hostname: localhost
-    working_dir: /home/ubuntu/OpenDeck
+    working_dir: /home/ubuntu/workspace/OpenDeck
     command: tail -f /dev/null
     privileged: true

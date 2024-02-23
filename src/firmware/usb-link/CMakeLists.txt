@@ -5,9 +5,9 @@ if("PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
     target_include_directories(usb_link
         PRIVATE
         ${PROJECT_ROOT}/src/firmware
-        ${PROJECT_ROOT}/modules/LESSDB/include
-        ${PROJECT_ROOT}/modules/SysExConf/include
-        ${PROJECT_ROOT}/modules/MIDI/include
+        ${WORKSPACE_ROOT}/modules/LESSDB/include
+        ${WORKSPACE_ROOT}/modules/SysExConf/include
+        ${WORKSPACE_ROOT}/modules/MIDI/include
     )
 
     target_sources(usb_link

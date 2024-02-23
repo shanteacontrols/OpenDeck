@@ -5,6 +5,7 @@ on:
     branches:
       - "*"
     paths:
+      - 'west.yml'
       - '.devcontainer/Dockerfile'
 
 jobs:

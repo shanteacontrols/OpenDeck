@@ -1,0 +1,40 @@
+manifest:
+  remotes:
+    - name: paradajz
+      url-base: https://github.com/paradajz
+    - name: shanteacontrols
+      url-base: https://github.com/shanteacontrols
+    - name: olikraus
+      url-base: https://github.com/olikraus
+
+  projects:
+    - name: core
+      remote: paradajz
+      revision: 7141967c54b51e0f8d94a989344d6846333d9daa
+      path: modules/core
+      submodules: true
+    - name: midi-lib
+      remote: shanteacontrols
+      revision: 887007e07a575b452907200f0a2cb18051feffb8
+      path: modules/MIDI
+      submodules: true
+    - name: LESS-DB
+      remote: paradajz
+      revision: 3204fce9c48c93538fc9f70e96cd710550027a8e
+      path: modules/LESSDB
+      submodules: true
+    - name: EmuEEPROM
+      remote: paradajz
+      revision: dc55817594fe34841d0aba0c386e48400fc9234f
+      path: modules/EmuEEPROM
+      submodules: true
+    - name: sysex-conf
+      remote: shanteacontrols
+      revision: 19eb3cf1b88761c93ca7a1dc4c35b75b3db8ad5c
+      path: modules/SysExConf
+      submodules: true
+    - name: u8g2
+      remote: olikraus
+      revision: 8430f65c9e2bc7ca393bf0e9d8cf58a84ae081d7
+      path: modules/u8g2
+      submodules: true

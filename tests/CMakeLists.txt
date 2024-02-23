@@ -6,12 +6,13 @@ set(CMAKE_EXECUTABLE_SUFFIX_CXX ".elf")
 set(CMAKE_EXECUTABLE_SUFFIX_ASM ".elf")
 
 set(PROJECT_NAME "OpenDeck")
+set(WORKSPACE_ROOT $ENV{WORKSPACE_DIR})
 set(PROJECT_ROOT ${CMAKE_CURRENT_LIST_DIR}/..)
 
 include(ExternalProject)
 include(FetchContent)
 include(${PROJECT_ROOT}/cmake/include/helpers.cmake)
-include(${PROJECT_ROOT}/modules/core/cmake/ccache.cmake)
+include(${WORKSPACE_ROOT}/modules/core/cmake/ccache.cmake)
 
 execute_process(
     COMMAND

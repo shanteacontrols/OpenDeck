@@ -4,7 +4,7 @@
         "../docker-compose.yml",
     ],
     "service": "opendeck",
-    "workspaceFolder": "/home/ubuntu/OpenDeck",
+    "workspaceFolder": "/home/ubuntu/workspace/OpenDeck",
     "customizations": {
         "vscode": {
             "extensions": [
