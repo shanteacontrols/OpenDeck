@@ -40,15 +40,11 @@ extra_args+=(-extra-arg="-DCORE_MCU_STUB")
 
 case $compiler in
     *arm-none-eabi-gcc)
-      toolchain_dir=$(dirname "$(which arm-none-eabi-gcc)" | rev | cut -d/ -f2- | rev)
-      toolchain_ver=$(find "$toolchain_dir"/arm-none-eabi/include/c++ -mindepth 1 -maxdepth 1 | rev | cut -d/ -f 1 | rev)
-      extra_args+=(-extra-arg="-I$toolchain_dir/arm-none-eabi/include/c++/$toolchain_ver")
-      extra_args+=(-extra-arg="-I$toolchain_dir/arm-none-eabi/include/c++/$toolchain_ver/arm-none-eabi")
-      extra_args+=(-extra-arg="-I$toolchain_dir/arm-none-eabi/include/c++/$toolchain_ver/backward")
-      extra_args+=(-extra-arg="-I$toolchain_dir/lib/gcc/arm-none-eabi/$toolchain_ver/include")
-      extra_args+=(-extra-arg="-I$toolchain_dir/lib/gcc/arm-none-eabi/$toolchain_ver/include-fixed")
-      extra_args+=(-extra-arg="-I$toolchain_dir/arm-none-eabi/sys-include")
-      extra_args+=(-extra-arg="-I$toolchain_dir/arm-none-eabi/include")
+      newlib_lib_dir="/usr/include/newlib"
+      toolchain_ver=$(find "$newlib_lib_dir"/c++ -mindepth 1 -maxdepth 1 | rev | cut -d/ -f 1 | rev)
+      extra_args+=(-extra-arg="-I$newlib_lib_dir")
+      extra_args+=(-extra-arg="-I$newlib_lib_dir/c++/$toolchain_ver/")
+      extra_args+=(-extra-arg="-I$newlib_lib_dir/c++/$toolchain_ver/arm-none-eabi")
       extra_args+=(-extra-arg="-Wno-unknown-attributes")
     ;;
 
@@ -57,6 +53,7 @@ case $compiler in
       extra_args+=(-extra-arg="-I$toolchain_dir/avr/include/avr")
       extra_args+=(-extra-arg="-I$toolchain_dir/avr/include")
       extra_args+=(-extra-arg="-I$toolchain_dir/lib/gcc/avr/7.3.0/include")
+      extra_args+=(-extra-arg="-I$toolchain_dir/lib/gcc/avr/7.3.0/include-fixed")
       extra_args+=(-extra-arg="-Wno-unknown-attributes")
       extra_args+=(-extra-arg="--target=avr")
     ;;
