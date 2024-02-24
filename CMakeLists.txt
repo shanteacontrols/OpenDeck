@@ -14,15 +14,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(ExternalProject)
 include(${PROJECT_ROOT}/cmake/include/helpers.cmake)
 
-check_required_executables(
-    awk
-    git
-    srec_cat
-    objcopy
-    dasel
-    sha256sum
-)
-
 # Needed for tools and tests
 execute_process(
     COMMAND
