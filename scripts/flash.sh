@@ -16,8 +16,7 @@ fi
 
 echo -n "Please type the serial port on which ArduinoISP is connected, without /dev/ part.
 Port name usually has the following pattern, where X is number representing the port:
-    * Linux: ttyACMX (or ttyUSBX)
-    * macOS: cu.usbmodemXXX
+    * ttyACMX (or ttyUSBX)
 If unsure, open Arduino IDE and check where your Arduino as an programmer is connected to under Tools/Port.
 Port: "
 
