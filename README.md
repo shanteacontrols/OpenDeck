@@ -35,7 +35,7 @@ If the feature you want isn't supported yet, don't feel discouraged. Open up a [
 
 ## Official boards
 
-Currently, there are two official boards: M and L variants. "M" stands for "middle" and "L" for "large". Both boards are available on [Tindie store](https://www.tindie.com/stores/paradajz/).
+Currently, there are two official boards: M and L variants. "M" stands for "middle" and "L" for "large". M board is currently out of production, but the L board is available on [Tindie store](https://www.tindie.com/products/paradajz/opendeck-diy-midi-platform-l/).
 
 ### M board
 
@@ -51,8 +51,6 @@ This board is based on Raspberry Pi RP2040 microcontroller and features the foll
 * Connector for touchscreen
 * Connector for I2C OLED display
 
-The board is available on [Tindie](https://www.tindie.com/products/paradajz/opendeck-diy-midi-platform-m/).
-
 ### L board
 
 ![](https://cdn.tindiemedia.com/images/resize/EA-umrsQVGdmqw7M0p83zl3f_iE=/p/full-fit-in/1782x1336/i/302101/products/2022-11-28T21%3A31%3A35.971Z-IMG_5694-removebg_res.png?1669642489)
@@ -67,8 +65,6 @@ This board is based on Raspberry Pi RP2040 microcontroller and features the foll
 * Connector for touchscreen
 * Connector for I2C OLED display
 * Additional connectors with 3V+GND and 5V+GND connections
-
-The board is available on [Tindie](https://www.tindie.com/products/paradajz/opendeck-diy-midi-platform-l/).
 
 ## Supported boards
 
@@ -102,7 +98,7 @@ The firmware supports various other boards, both small and large:
 
 ![](https://github.com/shanteacontrols/OpenDeck/wiki/img/boards.jpg)
 
-For more details on supported boards, check the dedicated [wiki page](https://github.com/shanteacontrols/OpenDeck/wiki/Connecting-components-to-OpenDeck). A page with [instructions on how to flash OpenDeck firmware](https://github.com/shanteacontrols/OpenDeck/wiki/Flashing-the-OpenDeck-firmware) to supported boards is also available. Support for custom boards can be easily added using [YAML descriptors](https://github.com/shanteacontrols/OpenDeck/wiki/Creating-custom-board-variant).
+For more details on supported boards, check the [wiki page](https://github.com/shanteacontrols/OpenDeck/wiki). A page with [instructions on how to flash OpenDeck firmware](https://github.com/shanteacontrols/OpenDeck/wiki/Flashing-the-OpenDeck-firmware) to supported boards is also available. Support for custom boards can be easily added using [YAML descriptors](https://github.com/shanteacontrols/OpenDeck/wiki/Creating-custom-board-variant).
 
 ## Documentation
 
