@@ -4,7 +4,7 @@
 
 set -e
 
-arm-none-eabi-gdb -nx --batch \
+gdb -nx --batch \
 -ex "target extended-remote /dev/${PORT}" \
 -ex "monitor swdp_scan" \
 -ex "attach 1" \
