@@ -60,7 +60,7 @@ if(CORE_MCU_UF2_ID)
     add_custom_command(
         DEPENDS ${FIRMWARE_MERGED_BIN}
         OUTPUT ${FIRMWARE_MERGED_UF2}
-        COMMAND ${WORKSPACE_ROOT}/modules/core/modules/tinyusb/tools/uf2/utils/uf2conv.py -b ${CORE_MCU_FLASH_START_ADDR} -f ${CORE_MCU_UF2_ID} -o ${FIRMWARE_MERGED_UF2} -c ${FIRMWARE_MERGED_BIN}
+        COMMAND ${WORKSPACE_ROOT}/modules/tinyusb/tools/uf2/utils/uf2conv.py -b ${CORE_MCU_FLASH_START_ADDR} -f ${CORE_MCU_UF2_ID} -o ${FIRMWARE_MERGED_UF2} -c ${FIRMWARE_MERGED_BIN}
     )
 
     add_custom_target(create_uf2_binary
