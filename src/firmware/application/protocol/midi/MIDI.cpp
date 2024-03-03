@@ -398,7 +398,11 @@ void protocol::MIDI::sendMIDI(messaging::eventType_t source, const messaging::ev
             continue;
         }
 
-        LOG_INFO("Sending MIDI message in interface index %d", static_cast<int>(i));
+        LOG_INFO("MIDI interface: #%d, channel: %d, event.index: %d, event.value: %d",
+                 static_cast<int>(i),
+                 CHANNEL,
+                 event.index,
+                 event.value);
 
         switch (event.message)
         {
