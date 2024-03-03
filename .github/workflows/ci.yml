@@ -6,6 +6,9 @@ defaults:
   run:
     shell: bash -leo pipefail {0}
 
+env:
+  CCACHE_DIR: /__w/OpenDeck/OpenDeck/ccache
+
 jobs:
   build_and_test_ubuntu:
     name: Build/Test [Ubuntu]
@@ -21,11 +24,23 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
+      - name: Restore ccache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ccache
+          key: ccache-key
       - name: Build and test targets
         run: |
           git fetch --tags
           ./scripts/build_targets.sh --type=build
           ./scripts/build_targets.sh --type=test
+      - name: Save ccache
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ccache
+          key: ccache-key
   format:
     name: Code formatting
     runs-on: ubuntu-22.04
