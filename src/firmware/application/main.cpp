@@ -22,7 +22,7 @@ limitations under the License.
 #include "application/system/System.h"
 #include "application/system/Builder.h"
 #ifdef APP_USE_LOGGER
-#include "logger/Logger.h"
+#include "application/util/logger/Logger.h"
 #endif
 
 class CDCLocker
