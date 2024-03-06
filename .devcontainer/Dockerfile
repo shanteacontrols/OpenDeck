@@ -81,6 +81,24 @@ wget ${wget_args} https://github.com/TomWright/dasel/releases/download/v1.27.3/d
 chmod +x dasel
 
 RUN \
+ARCH="$(dpkg --print-architecture)" && \
+if [ "$ARCH" = "amd64" ]; then \
+PACKAGE_VARIANT="x86_64"; \
+elif [ "$ARCH" = "arm64" ]; then \
+PACKAGE_VARIANT="arm64"; \
+else echo "Unsupported architecture"; false; \
+fi; \
+cd ${deps_dir} && \
+wget ${wget_args} \
+-O nrfclt.deb \
+https://nsscprodmedia.blob.core.windows.net/prod/software-and-other-downloads/desktop-software/nrf-command-line-tools/sw/versions-10-x-x/10-24-0/nrf-command-line-tools_10.24.0_${ARCH}.deb && \
+dpkg -i nrfclt.deb && \
+rm nrfclt.deb && \
+echo '#!/bin/bash\necho not running udevadm "$@"' > /usr/bin/udevadm && chmod +x /usr/bin/udevadm && \
+apt-get install --no-install-recommends -y \
+/opt/nrf-command-line-tools/share/JLink_Linux_V794e_${PACKAGE_VARIANT}.deb --fix-broken
+
+RUN \
 echo "PATH=${deps_dir}:$(dirname $(find "$(pwd)" -type f -name "*avr-g++")):${PATH}" | tee -a /etc/profile.d/opendeck-deps.sh
 
 # Disable password prompt for sudo commands
