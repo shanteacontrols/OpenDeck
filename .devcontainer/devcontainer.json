@@ -12,7 +12,8 @@
                 "llvm-vs-code-extensions.vscode-clangd",
                 "eamodio.gitlens",
                 "xaver.clang-format",
-                "timonwong.shellcheck"
+                "timonwong.shellcheck",
+                "marus25.cortex-debug"
             ]
         }
     }
