@@ -110,19 +110,7 @@ bool Display::init()
 
         if (initU8X8(_selectedI2Caddress, controller, resolution))
         {
-            _resolution = resolution;
-
-            // init char arrays
-            for (int i = 0; i < LCD_HEIGHT_MAX; i++)
-            {
-                for (int j = 0; j < LCD_STRING_BUFFER_SIZE - 2; j++)
-                {
-                    _lcdRowText[i][j] = ' ';
-                }
-
-                _lcdRowText[i][LCD_STRING_BUFFER_SIZE - 1] = '\0';
-            }
-
+            _resolution  = resolution;
             _initialized = true;
 
             if (!_startupInfoShown)
@@ -130,6 +118,7 @@ bool Display::init()
                 if (_database.read(database::Config::Section::i2c_t::DISPLAY, setting_t::DEVICE_INFO_MSG) && !_startupInfoShown)
                 {
                     displayWelcomeMessage();
+                    u8x8_ClearDisplay(&_u8x8);
                 }
             }
 
@@ -261,32 +250,22 @@ void Display::update()
         return;    // we don't need to update lcd in real time
     }
 
-    // use char pointer to point to line we're going to print
-    char* charPointer;
-
-    for (int i = 0; i < LCD_HEIGHT_MAX; i++)
+    for (int i = 0; i < MAX_ROWS; i++)
     {
-        charPointer = _lcdRowText[i];
-
         if (!_charChange[i])
         {
             continue;
         }
 
-        int8_t stringLen = strlen(charPointer) > LCD_WIDTH_MAX ? LCD_WIDTH_MAX : strlen(charPointer);
+        auto&     row      = _lcdRowText[i];
+        const int STR_SIZE = strlen(&row[0]);
 
-        for (int j = 0; j < stringLen; j++)
+        for (int j = 0; j < STR_SIZE; j++)
         {
             if (core::util::BIT_READ(_charChange[i], j))
             {
-                u8x8_DrawGlyph(&_u8x8, j, ROW_MAP[_resolution][i], charPointer[j]);
+                u8x8_DrawGlyph(&_u8x8, j, ROW_MAP[_resolution][i], row[j]);
             }
-        }
-
-        // now fill remaining columns with spaces
-        for (uint16_t j = stringLen; j < LCD_WIDTH_MAX; j++)
-        {
-            u8x8_DrawGlyph(&_u8x8, j, ROW_MAP[_resolution][i], ' ');
         }
 
         _charChange[i] = 0;
@@ -312,8 +291,7 @@ void Display::update()
 /// This function only updates internal buffers with received text, actual updating is done in update() function.
 /// Text isn't passed directly, instead, value from string builder is used.
 /// param [in]: row             Row which is being updated.
-/// param [in]: startIndex      Index on which received text should on specified row.
-void Display::updateText(uint8_t row, uint8_t startIndex)
+void Display::updateText(uint8_t row)
 {
     if (!_initialized)
     {
@@ -323,19 +301,14 @@ void Display::updateText(uint8_t row, uint8_t startIndex)
     auto string = _stringBuilder.string();
     auto size   = strlen(string);
 
-    if ((size + startIndex) >= (LCD_STRING_BUFFER_SIZE - 2))
-    {
-        size = LCD_STRING_BUFFER_SIZE - 2 - startIndex;    // trim string
-    }
-
     for (size_t i = 0; i < size; i++)
     {
-        if (_lcdRowText[row][startIndex + i] != string[i])
+        if (_lcdRowText[row][i] != string[i])
         {
-            core::util::BIT_SET(_charChange[row], startIndex + i);
+            core::util::BIT_SET(_charChange[row], i);
         }
 
-        _lcdRowText[row][startIndex + i] = string[i];
+        _lcdRowText[row][i] = string[i];
     }
 }
 
@@ -438,12 +411,17 @@ void Display::displayEvent(eventType_t type, const messaging::event_t& event)
         return;
     }
 
-    uint8_t startRow    = (type == Display::eventType_t::IN) ? ROW_START_IN_MESSAGE : ROW_START_OUT_MESSAGE;
-    uint8_t startColumn = (type == Display::eventType_t::IN) ? COLUMN_START_IN_MESSAGE : COLUMN_START_OUT_MESSAGE;
+    uint8_t startRow = (type == Display::eventType_t::IN) ? ROW_START_IN_MESSAGE : ROW_START_OUT_MESSAGE;
 
-    _stringBuilder.overwrite("%s", Strings::MIDI_MESSAGE(event.message));
-    _stringBuilder.fillUntil(MAX_COLUMNS - startColumn - strlen(_stringBuilder.string()));
-    updateText(startRow, startColumn);
+    _stringBuilder.overwrite("%s%s",
+                             (type == Display::eventType_t::IN)
+                                 ? Strings::IN_EVENT_STRING
+                                 : Strings::OUT_EVENT_STRING,
+                             Strings::MIDI_MESSAGE(event.message));
+    _stringBuilder.fillUntil((type == Display::eventType_t::IN)
+                                 ? MAX_COLUMNS_IN_MESSAGE
+                                 : MAX_COLUMNS_OUT_MESSAGE);
+    updateText(startRow);
 
     switch (event.message)
     {
@@ -462,16 +440,16 @@ void Display::displayEvent(eventType_t type, const messaging::event_t& event)
         }
 
         _stringBuilder.append(" v%d CH%d", event.value, event.channel);
-        _stringBuilder.fillUntil(MAX_COLUMNS - strlen(_stringBuilder.string()));
-        updateText(startRow + 1, 0);
+        _stringBuilder.fillUntil(MAX_COLUMNS);
+        updateText(startRow + 1);
     }
     break;
 
     case MIDI::messageType_t::PROGRAM_CHANGE:
     {
         _stringBuilder.overwrite("%d CH%d", event.index, event.channel);
-        _stringBuilder.fillUntil(MAX_COLUMNS - strlen(_stringBuilder.string()));
-        updateText(startRow + 1, 0);
+        _stringBuilder.fillUntil(MAX_COLUMNS);
+        updateText(startRow + 1);
     }
     break;
 
@@ -481,8 +459,8 @@ void Display::displayEvent(eventType_t type, const messaging::event_t& event)
     case MIDI::messageType_t::NRPN_14BIT:
     {
         _stringBuilder.overwrite("%d %d CH%d", event.index, event.value, event.channel);
-        _stringBuilder.fillUntil(MAX_COLUMNS - strlen(_stringBuilder.string()));
-        updateText(startRow + 1, 0);
+        _stringBuilder.fillUntil(MAX_COLUMNS);
+        updateText(startRow + 1);
     }
     break;
 
@@ -493,8 +471,8 @@ void Display::displayEvent(eventType_t type, const messaging::event_t& event)
     case MIDI::messageType_t::MMC_PAUSE:
     {
         _stringBuilder.overwrite("CH%d", event.index);
-        _stringBuilder.fillUntil(MAX_COLUMNS - strlen(_stringBuilder.string()));
-        updateText(startRow + 1, 0);
+        _stringBuilder.fillUntil(MAX_COLUMNS);
+        updateText(startRow + 1);
     }
     break;
 
@@ -508,7 +486,7 @@ void Display::displayEvent(eventType_t type, const messaging::event_t& event)
     {
         _stringBuilder.overwrite("");
         _stringBuilder.fillUntil(MAX_COLUMNS);
-        updateText(startRow + 1, 0);
+        updateText(startRow + 1);
     }
     break;
 
@@ -533,12 +511,12 @@ void Display::clearEvent(eventType_t type)
     {
         // first row
         _stringBuilder.overwrite(Strings::IN_EVENT_STRING);
-        _stringBuilder.fillUntil(MAX_COLUMNS - strlen(_stringBuilder.string()));
-        updateText(ROW_START_IN_MESSAGE, 0);
+        _stringBuilder.fillUntil(MAX_COLUMNS_IN_MESSAGE);
+        updateText(ROW_START_IN_MESSAGE);
         // second row
         _stringBuilder.overwrite("");
-        _stringBuilder.fillUntil(MAX_COLUMNS - strlen(_stringBuilder.string()));
-        updateText(ROW_START_IN_MESSAGE + 1, 0);
+        _stringBuilder.fillUntil(MAX_COLUMNS);
+        updateText(ROW_START_IN_MESSAGE + 1);
     }
     break;
 
@@ -546,12 +524,12 @@ void Display::clearEvent(eventType_t type)
     {
         // first row
         _stringBuilder.overwrite(Strings::OUT_EVENT_STRING);
-        _stringBuilder.fillUntil(MAX_COLUMNS - strlen(_stringBuilder.string()));
-        updateText(ROW_START_OUT_MESSAGE, 0);
+        _stringBuilder.fillUntil(MAX_COLUMNS_IN_MESSAGE);
+        updateText(ROW_START_OUT_MESSAGE);
         // second row
         _stringBuilder.overwrite("");
-        _stringBuilder.fillUntil(MAX_COLUMNS - strlen(_stringBuilder.string()));
-        updateText(ROW_START_OUT_MESSAGE + 1, 0);
+        _stringBuilder.fillUntil(MAX_COLUMNS);
+        updateText(ROW_START_OUT_MESSAGE + 1);
     }
     break;
 

@@ -80,7 +80,7 @@ namespace io
         void                   setRetentionTime(uint32_t retentionTime);
         void                   displayEvent(eventType_t type, const messaging::event_t& event);
         void                   displayWelcomeMessage();
-        void                   updateText(uint8_t row, uint8_t startIndex);
+        void                   updateText(uint8_t row);
         uint8_t                getTextCenter(uint8_t textSize);
         int8_t                 normalizeOctave(uint8_t octave, int8_t normalization);
         void                   buildString(const char* text, ...);
@@ -97,32 +97,23 @@ namespace io
             0x3D
         };
 
-        /// Size of buffer used to build text string on display in bytes.
-        static constexpr uint8_t LCD_STRING_BUFFER_SIZE = 40;
-
         /// Length of temporary (message) text on display in milliseconds.
         static constexpr uint16_t LCD_MESSAGE_DURATION = 1500;
 
         /// Time in milliseconds after text on display is being refreshed.
         static constexpr uint16_t LCD_REFRESH_TIME = 30;
 
-        /// Maximum amount of characters displayed in single LCD row.
-        /// Real width is determined later based on display type.
-        static constexpr uint16_t LCD_WIDTH_MAX = 32;
-
-        /// Maximum number of LCD rows.
-        /// Real height is determined later based on display type.
-        static constexpr uint8_t LCD_HEIGHT_MAX = 4;
-
-        static constexpr auto MAX_COLUMNS              = 16;
-        static constexpr auto COLUMN_START_IN_MESSAGE  = std::char_traits<char>::length(Strings::IN_EVENT_STRING);
-        static constexpr auto COLUMN_START_OUT_MESSAGE = std::char_traits<char>::length(Strings::OUT_EVENT_STRING);
-
-        static constexpr uint8_t ROW_START_IN_MESSAGE  = 0;
-        static constexpr uint8_t ROW_START_OUT_MESSAGE = 2;
-
-        // u8x8 lib doesn't send packets larger than 32 bytes
-        static constexpr size_t U8X8_BUFFER_SIZE = 32;
+        static constexpr uint8_t MAX_ROWS                 = 4;
+        static constexpr uint8_t MAX_COLUMNS              = 16;
+        static constexpr uint8_t TEXT_BUFFER_SIZE         = MAX_COLUMNS + 1;
+        static constexpr auto    COLUMN_START_IN_MESSAGE  = std::char_traits<char>::length(Strings::IN_EVENT_STRING);
+        static constexpr auto    COLUMN_START_OUT_MESSAGE = std::char_traits<char>::length(Strings::OUT_EVENT_STRING);
+        static constexpr auto    COLUMN_START_PRESET      = 12;
+        static constexpr auto    MAX_COLUMNS_IN_MESSAGE   = COLUMN_START_PRESET;
+        static constexpr auto    MAX_COLUMNS_OUT_MESSAGE  = COLUMN_START_PRESET;
+        static constexpr uint8_t ROW_START_IN_MESSAGE     = 0;
+        static constexpr uint8_t ROW_START_OUT_MESSAGE    = 2;
+        static constexpr size_t  U8X8_BUFFER_SIZE         = 32;
 
         uint8_t _u8x8Buffer[U8X8_BUFFER_SIZE] = {};
         size_t  _u8x8Counter                  = 0;
@@ -144,11 +135,12 @@ namespace io
         uint32_t _lastLCDupdateTime = 0;
 
         /// Array holding LCD text for each LCD row.
-        char _lcdRowText[LCD_HEIGHT_MAX][LCD_STRING_BUFFER_SIZE] = {};
+        using textArray_t       = std::array<std::array<char, TEXT_BUFFER_SIZE>, MAX_ROWS>;
+        textArray_t _lcdRowText = {};
 
         /// Array holding true of false value representing the change of character at specific location on LCD row.
         /// \warning This variables assume there can be no more than 32 characters per LCD row.
-        uint32_t _charChange[LCD_HEIGHT_MAX] = {};
+        uint32_t _charChange[MAX_ROWS] = {};
 
         /// Holds value by which actual octave is being subtracted when showing octave on display.
         int8_t _octaveNormalization = 0;
@@ -160,12 +152,12 @@ namespace io
         bool _initialized = false;
 
         /// Object used for easier string manipulation on display.
-        core::util::StringBuilder<LCD_STRING_BUFFER_SIZE> _stringBuilder;
+        core::util::StringBuilder<TEXT_BUFFER_SIZE> _stringBuilder;
 
         /// Array holding remapped values of LCD rows.
         /// Used to increase readability.
         /// Matched with displayResolution_t enum.
-        static constexpr uint8_t ROW_MAP[static_cast<uint8_t>(displayResolution_t::AMOUNT)][LCD_HEIGHT_MAX] = {
+        static constexpr uint8_t ROW_MAP[static_cast<uint8_t>(displayResolution_t::AMOUNT)][MAX_ROWS] = {
             // 128x32
             {
                 0,
