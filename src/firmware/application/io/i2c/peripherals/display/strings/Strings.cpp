@@ -42,8 +42,8 @@ namespace
     const char EVENT_MMC_PLAY_STRING[]       = "MMC Play";
     const char EVENT_MMC_STOP_STRING[]       = "MMC Stop";
     const char EVENT_MMC_PAUSE_STRING[]      = "MMC Pause";
-    const char EVENT_MMC_RECORD_ON_STRING[]  = "MMC Record On";
-    const char EVENT_MMC_RECORD_OFF_STRING[] = "MMC Record Off";
+    const char EVENT_MMC_RECORD_ON_STRING[]  = "MMC Rec On";
+    const char EVENT_MMC_RECORD_OFF_STRING[] = "MMC Rec Off";
     const char EVENT_NRPN_STRING[]           = "NRPN";
     const char EVENT_INVALID_STRING[]        = "";
 
