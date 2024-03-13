@@ -31,23 +31,11 @@ limitations under the License.
 using namespace io;
 using namespace protocol;
 
-namespace
-{
-    // u8x8 lib doesn't send packets larger than 32 bytes
-    constexpr size_t U8X8_BUFFER_SIZE = 32;
-    uint8_t          u8x8Buffer[U8X8_BUFFER_SIZE];
-    size_t           u8x8Counter;
-}    // namespace
-
-// hwa needs to be static since it is used in callback for C library
-I2C::Peripheral::HWA* Display::_hwa;
-
 Display::Display(I2C::Peripheral::HWA& hwa,
                  Database&             database)
-    : _database(database)
+    : _hwa(hwa)
+    , _database(database)
 {
-    _hwa = &hwa;
-
     MIDIDispatcher.listen(messaging::eventType_t::ANALOG,
                           [this](const messaging::event_t& event)
                           {
@@ -94,7 +82,7 @@ Display::Display(I2C::Peripheral::HWA& hwa,
 
 bool Display::init()
 {
-    if (!_hwa->init())
+    if (!_hwa.init())
     {
         return false;
     }
@@ -103,7 +91,7 @@ bool Display::init()
 
     for (size_t address = 0; address < I2C_ADDRESS.size(); address++)
     {
-        if (_hwa->deviceAvailable(I2C_ADDRESS[address]))
+        if (_hwa.deviceAvailable(I2C_ADDRESS[address]))
         {
             addressFound        = true;
             _selectedI2Caddress = I2C_ADDRESS[address];
@@ -170,6 +158,7 @@ bool Display::initU8X8(uint8_t i2cAddress, displayController_t controller, displ
 
     // setup defaults
     u8x8_SetupDefaults(&_u8x8);
+    _u8x8.user_ptr = this;
 
     // i2c hw access
     auto gpioDelay = [](u8x8_t* u8x8, uint8_t msg, uint8_t argInt, U8X8_UNUSED void* argPtr) -> uint8_t
@@ -179,14 +168,15 @@ bool Display::initU8X8(uint8_t i2cAddress, displayController_t controller, displ
 
     auto i2cHWA = [](u8x8_t* u8x8, uint8_t msg, uint8_t argInt, void* argPtr) -> uint8_t
     {
-        auto* array = (uint8_t*)argPtr;
+        auto instance = static_cast<Display*>(u8x8->user_ptr);
+        auto data     = static_cast<uint8_t*>(argPtr);
 
         switch (msg)
         {
         case U8X8_MSG_BYTE_SEND:
         {
-            memcpy(&u8x8Buffer[u8x8Counter], array, argInt);
-            u8x8Counter += argInt;
+            memcpy(&instance->_u8x8Buffer[instance->_u8x8Counter], data, argInt);
+            instance->_u8x8Counter += argInt;
         }
         break;
 
@@ -195,12 +185,12 @@ bool Display::initU8X8(uint8_t i2cAddress, displayController_t controller, displ
 
         case U8X8_MSG_BYTE_START_TRANSFER:
         {
-            u8x8Counter = 0;
+            instance->_u8x8Counter = 0;
         }
         break;
 
         case U8X8_MSG_BYTE_END_TRANSFER:
-            return _hwa->write(u8x8_GetI2CAddress(u8x8), u8x8Buffer, u8x8Counter);
+            return instance->_hwa.write(u8x8_GetI2CAddress(u8x8), instance->_u8x8Buffer, instance->_u8x8Counter);
 
         default:
             return 0;

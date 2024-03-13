@@ -86,9 +86,9 @@ namespace io
         std::optional<uint8_t> sysConfigGet(sys::Config::Section::i2c_t section, size_t index, uint16_t& value);
         std::optional<uint8_t> sysConfigSet(sys::Config::Section::i2c_t section, size_t index, uint16_t value);
 
-        Database&                    _database;
-        u8x8_t                       _u8x8;
-        static I2C::Peripheral::HWA* _hwa;
+        I2C::Peripheral::HWA& _hwa;
+        Database&             _database;
+        u8x8_t                _u8x8;
 
         static constexpr std::array<uint8_t, 2> I2C_ADDRESS = {
             0x3C,
@@ -117,6 +117,12 @@ namespace io
 
         static constexpr uint8_t ROW_START_IN_MESSAGE  = 0;
         static constexpr uint8_t ROW_START_OUT_MESSAGE = 2;
+
+        // u8x8 lib doesn't send packets larger than 32 bytes
+        static constexpr size_t U8X8_BUFFER_SIZE = 32;
+
+        uint8_t _u8x8Buffer[U8X8_BUFFER_SIZE] = {};
+        size_t  _u8x8Counter                  = 0;
 
         /// Holds last time index message was shown for specific event type (in or out).
         uint32_t _lasMessageDisplayTime[2] = {};
