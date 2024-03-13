@@ -206,7 +206,6 @@ bool Display::initU8X8(uint8_t i2cAddress, displayController_t controller, displ
         _u8x8.byte_cb           = i2cHWA;
         _u8x8.gpio_and_delay_cb = gpioDelay;
         _rows                   = 4;
-        _columns                = 16;
         success                 = true;
     }
     else if ((resolution == displayResolution_t::R128X32) && (controller == displayController_t::SSD1306))
@@ -216,7 +215,6 @@ bool Display::initU8X8(uint8_t i2cAddress, displayController_t controller, displ
         _u8x8.byte_cb           = i2cHWA;
         _u8x8.gpio_and_delay_cb = gpioDelay;
         _rows                   = 2;
-        _columns                = 16;
         success                 = true;
     }
 
@@ -245,7 +243,6 @@ bool Display::deInit()
     u8x8_SetupDefaults(&_u8x8);
 
     _rows        = 0;
-    _columns     = 0;
     _initialized = false;
 
     return true;
@@ -347,7 +344,7 @@ void Display::updateText(uint8_t row, uint8_t startIndex)
 /// returns: Center position of text on display.
 uint8_t Display::getTextCenter(uint8_t textSize)
 {
-    return _columns / 2 - (textSize / 2);
+    return MAX_COLUMNS / 2 - (textSize / 2);
 }
 
 /// Sets new message retention time.
@@ -445,7 +442,7 @@ void Display::displayEvent(eventType_t type, const messaging::event_t& event)
     uint8_t startColumn = (type == Display::eventType_t::IN) ? COLUMN_START_IN_MESSAGE : COLUMN_START_OUT_MESSAGE;
 
     _stringBuilder.overwrite("%s", Strings::MIDI_MESSAGE(event.message));
-    _stringBuilder.fillUntil(_columns - startColumn - strlen(_stringBuilder.string()));
+    _stringBuilder.fillUntil(MAX_COLUMNS - startColumn - strlen(_stringBuilder.string()));
     updateText(startRow, startColumn);
 
     switch (event.message)
@@ -465,7 +462,7 @@ void Display::displayEvent(eventType_t type, const messaging::event_t& event)
         }
 
         _stringBuilder.append(" v%d CH%d", event.value, event.channel);
-        _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
+        _stringBuilder.fillUntil(MAX_COLUMNS - strlen(_stringBuilder.string()));
         updateText(startRow + 1, 0);
     }
     break;
@@ -473,7 +470,7 @@ void Display::displayEvent(eventType_t type, const messaging::event_t& event)
     case MIDI::messageType_t::PROGRAM_CHANGE:
     {
         _stringBuilder.overwrite("%d CH%d", event.index, event.channel);
-        _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
+        _stringBuilder.fillUntil(MAX_COLUMNS - strlen(_stringBuilder.string()));
         updateText(startRow + 1, 0);
     }
     break;
@@ -484,7 +481,7 @@ void Display::displayEvent(eventType_t type, const messaging::event_t& event)
     case MIDI::messageType_t::NRPN_14BIT:
     {
         _stringBuilder.overwrite("%d %d CH%d", event.index, event.value, event.channel);
-        _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
+        _stringBuilder.fillUntil(MAX_COLUMNS - strlen(_stringBuilder.string()));
         updateText(startRow + 1, 0);
     }
     break;
@@ -496,7 +493,7 @@ void Display::displayEvent(eventType_t type, const messaging::event_t& event)
     case MIDI::messageType_t::MMC_PAUSE:
     {
         _stringBuilder.overwrite("CH%d", event.index);
-        _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
+        _stringBuilder.fillUntil(MAX_COLUMNS - strlen(_stringBuilder.string()));
         updateText(startRow + 1, 0);
     }
     break;
@@ -510,7 +507,7 @@ void Display::displayEvent(eventType_t type, const messaging::event_t& event)
     case MIDI::messageType_t::SYS_EX:
     {
         _stringBuilder.overwrite("");
-        _stringBuilder.fillUntil(_columns);
+        _stringBuilder.fillUntil(MAX_COLUMNS);
         updateText(startRow + 1, 0);
     }
     break;
@@ -536,11 +533,11 @@ void Display::clearEvent(eventType_t type)
     {
         // first row
         _stringBuilder.overwrite(Strings::IN_EVENT_STRING);
-        _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
+        _stringBuilder.fillUntil(MAX_COLUMNS - strlen(_stringBuilder.string()));
         updateText(ROW_START_IN_MESSAGE, 0);
         // second row
         _stringBuilder.overwrite("");
-        _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
+        _stringBuilder.fillUntil(MAX_COLUMNS - strlen(_stringBuilder.string()));
         updateText(ROW_START_IN_MESSAGE + 1, 0);
     }
     break;
@@ -549,11 +546,11 @@ void Display::clearEvent(eventType_t type)
     {
         // first row
         _stringBuilder.overwrite(Strings::OUT_EVENT_STRING);
-        _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
+        _stringBuilder.fillUntil(MAX_COLUMNS - strlen(_stringBuilder.string()));
         updateText(ROW_START_OUT_MESSAGE, 0);
         // second row
         _stringBuilder.overwrite("");
-        _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
+        _stringBuilder.fillUntil(MAX_COLUMNS - strlen(_stringBuilder.string()));
         updateText(ROW_START_OUT_MESSAGE + 1, 0);
     }
     break;

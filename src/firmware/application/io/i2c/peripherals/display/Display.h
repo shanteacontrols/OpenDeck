@@ -114,6 +114,7 @@ namespace io
         /// Real height is determined later based on display type.
         static constexpr uint8_t LCD_HEIGHT_MAX = 4;
 
+        static constexpr auto MAX_COLUMNS              = 16;
         static constexpr auto COLUMN_START_IN_MESSAGE  = std::char_traits<char>::length(Strings::IN_EVENT_STRING);
         static constexpr auto COLUMN_START_OUT_MESSAGE = std::char_traits<char>::length(Strings::OUT_EVENT_STRING);
 
@@ -185,6 +186,5 @@ namespace io
         bool    _startupInfoShown   = false;
         uint8_t _selectedI2Caddress = 0;
         size_t  _rows               = 0;
-        size_t  _columns            = 0;
     };
 }    // namespace io
