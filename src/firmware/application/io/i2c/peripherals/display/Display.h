@@ -78,6 +78,7 @@ namespace io
         bool                   deInit();
         void                   setAlternateNoteDisplay(bool state);
         void                   setRetentionTime(uint32_t retentionTime);
+        void                   displayPreset(int preset);
         void                   displayEvent(eventType_t type, const messaging::event_t& event);
         void                   displayWelcomeMessage();
         void                   updateText(uint8_t row);
@@ -113,6 +114,7 @@ namespace io
         static constexpr auto    MAX_COLUMNS_OUT_MESSAGE  = COLUMN_START_PRESET;
         static constexpr uint8_t ROW_START_IN_MESSAGE     = 0;
         static constexpr uint8_t ROW_START_OUT_MESSAGE    = 2;
+        static constexpr uint8_t ROW_START_PRESET         = ROW_START_IN_MESSAGE;
         static constexpr size_t  U8X8_BUFFER_SIZE         = 32;
 
         uint8_t _u8x8Buffer[U8X8_BUFFER_SIZE] = {};

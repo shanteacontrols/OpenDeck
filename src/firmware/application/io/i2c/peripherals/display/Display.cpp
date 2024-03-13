@@ -62,6 +62,15 @@ Display::Display(I2C::Peripheral::HWA& hwa,
                               }
                           });
 
+    MIDIDispatcher.listen(messaging::eventType_t::SYSTEM,
+                          [this](const messaging::event_t& event)
+                          {
+                              if (event.systemMessage == messaging::systemMessage_t::PRESET_CHANGED)
+                              {
+                                  displayPreset(event.index + 1);
+                              }
+                          });
+
     ConfigHandler.registerConfig(
         sys::Config::block_t::I2C,
         // read
@@ -126,6 +135,7 @@ bool Display::init()
 
             clearEvent(eventType_t::IN);
             clearEvent(eventType_t::OUT);
+            displayPreset(_database.getPreset() + 1);
         }
         else
         {
@@ -402,6 +412,21 @@ void Display::displayWelcomeMessage()
     }
 
     core::mcu::timing::waitMs(2000);
+}
+
+void Display::displayPreset(int preset)
+{
+    if (!_initialized)
+    {
+        return;
+    }
+
+    _lcdRowText.at(ROW_START_PRESET).at(COLUMN_START_PRESET) = '\0';
+    _stringBuilder.overwrite(_lcdRowText[ROW_START_PRESET].data());
+    _stringBuilder.append("P%d", preset);
+    _stringBuilder.fillUntil(MAX_COLUMNS);
+
+    updateText(ROW_START_PRESET);
 }
 
 void Display::displayEvent(eventType_t type, const messaging::event_t& event)
