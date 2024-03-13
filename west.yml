@@ -10,7 +10,7 @@ manifest:
   projects:
     - name: core
       remote: paradajz
-      revision: 210c2411c232a06b70dd9bd269a93f001de933a8
+      revision: 26ea92d95926e2e98ffeab242c63987a2a9097f6
       path: modules/core
       submodules: true
       import: true
