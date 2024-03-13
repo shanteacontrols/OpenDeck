@@ -58,7 +58,6 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
         ${CMAKE_CURRENT_LIST_DIR}/io/leds/LEDs.cpp
         ${CMAKE_CURRENT_LIST_DIR}/io/i2c/I2C.cpp
         ${CMAKE_CURRENT_LIST_DIR}/io/i2c/peripherals/display/Display.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/io/i2c/peripherals/display/strings/Strings.cpp
         ${CMAKE_CURRENT_LIST_DIR}/io/i2c/peripherals/Builder.cpp
         ${CMAKE_CURRENT_LIST_DIR}/io/encoders/Encoders.cpp
         ${CMAKE_CURRENT_LIST_DIR}/io/analog/Analog.cpp

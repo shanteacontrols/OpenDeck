@@ -24,6 +24,8 @@ limitations under the License.
 #include "application/messaging/Messaging.h"
 #include "application/system/Config.h"
 #include "application/io/i2c/I2C.h"
+#include <bits/char_traits.h>
+#include "strings/Strings.h"
 
 namespace io
 {
@@ -112,8 +114,8 @@ namespace io
         /// Real height is determined later based on display type.
         static constexpr uint8_t LCD_HEIGHT_MAX = 4;
 
-        static constexpr uint8_t COLUMN_START_IN_MESSAGE  = 4;
-        static constexpr uint8_t COLUMN_START_OUT_MESSAGE = 5;
+        static constexpr auto COLUMN_START_IN_MESSAGE  = std::char_traits<char>::length(Strings::IN_EVENT_STRING);
+        static constexpr auto COLUMN_START_OUT_MESSAGE = std::char_traits<char>::length(Strings::OUT_EVENT_STRING);
 
         static constexpr uint8_t ROW_START_IN_MESSAGE  = 0;
         static constexpr uint8_t ROW_START_OUT_MESSAGE = 2;

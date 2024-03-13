@@ -20,7 +20,6 @@ limitations under the License.
 
 #include <string.h>
 #include "Display.h"
-#include "strings/Strings.h"
 #include "application/protocol/midi/MIDI.h"
 #include "core/MCU.h"
 #include "core/util/Util.h"
@@ -428,7 +427,7 @@ void Display::displayWelcomeMessage()
     if (showBoard)
     {
         startRow++;
-        _stringBuilder.overwrite("HW: %s", Strings::target());
+        _stringBuilder.overwrite("HW: %s", Strings::TARGET_NAME_STRING);
         writeString(_stringBuilder.string(), startRow);
     }
 
@@ -445,7 +444,7 @@ void Display::displayEvent(eventType_t type, const messaging::event_t& event)
     uint8_t startRow    = (type == Display::eventType_t::IN) ? ROW_START_IN_MESSAGE : ROW_START_OUT_MESSAGE;
     uint8_t startColumn = (type == Display::eventType_t::IN) ? COLUMN_START_IN_MESSAGE : COLUMN_START_OUT_MESSAGE;
 
-    _stringBuilder.overwrite("%s", Strings::midiMessage(event.message));
+    _stringBuilder.overwrite("%s", Strings::MIDI_MESSAGE(event.message));
     _stringBuilder.fillUntil(_columns - startColumn - strlen(_stringBuilder.string()));
     updateText(startRow, startColumn);
 
@@ -460,7 +459,9 @@ void Display::displayEvent(eventType_t type, const messaging::event_t& event)
         }
         else
         {
-            _stringBuilder.overwrite("%s%d", Strings::note(MIDI::NOTE_TO_TONIC(event.index)), normalizeOctave(MIDI::NOTE_TO_OCTAVE(event.value), _octaveNormalization));
+            _stringBuilder.overwrite("%s%d",
+                                     Strings::NOTE(MIDI::NOTE_TO_TONIC(event.index)),
+                                     normalizeOctave(MIDI::NOTE_TO_OCTAVE(event.value), _octaveNormalization));
         }
 
         _stringBuilder.append(" v%d CH%d", event.value, event.channel);
@@ -534,7 +535,7 @@ void Display::clearEvent(eventType_t type)
     case eventType_t::IN:
     {
         // first row
-        _stringBuilder.overwrite("In: ");
+        _stringBuilder.overwrite(Strings::IN_EVENT_STRING);
         _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
         updateText(ROW_START_IN_MESSAGE, 0);
         // second row
@@ -547,7 +548,7 @@ void Display::clearEvent(eventType_t type)
     case eventType_t::OUT:
     {
         // first row
-        _stringBuilder.overwrite("Out: ");
+        _stringBuilder.overwrite(Strings::OUT_EVENT_STRING);
         _stringBuilder.fillUntil(_columns - strlen(_stringBuilder.string()));
         updateText(ROW_START_OUT_MESSAGE, 0);
         // second row

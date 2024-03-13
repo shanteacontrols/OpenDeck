@@ -16,7 +16,6 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
         ${PROJECT_ROOT}/src/firmware/application/io/i2c/I2C.cpp
         ${PROJECT_ROOT}/src/firmware/application/io/i2c/peripherals/Builder.cpp
         ${PROJECT_ROOT}/src/firmware/application/io/i2c/peripherals/display/Display.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/i2c/peripherals/display/strings/Strings.cpp
         ${PROJECT_ROOT}/src/firmware/application/io/touchscreen/Touchscreen.cpp
         ${PROJECT_ROOT}/src/firmware/application/io/touchscreen/model/Builder.cpp
         ${PROJECT_ROOT}/src/firmware/application/io/touchscreen/model/nextion/Nextion.cpp
