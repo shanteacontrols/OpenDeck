@@ -255,6 +255,11 @@ namespace database
                                  newValue);
         }
 
+        uint8_t getPreset()
+        {
+            return _admin.getPreset();
+        }
+
         private:
         Admin& _admin;
     };
