@@ -176,7 +176,6 @@ namespace io
             }
         };
 
-        uint8_t _activePreset       = 0;
         bool    _startupInfoShown   = false;
         uint8_t _selectedI2Caddress = 0;
         size_t  _rows               = 0;
