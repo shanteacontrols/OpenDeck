@@ -22,7 +22,6 @@ limitations under the License.
 #include "Display.h"
 #include "application/protocol/midi/MIDI.h"
 #include "core/MCU.h"
-#include "core/util/Util.h"
 #include "application/io/common/Common.h"
 #include "application/util/conversion/Conversion.h"
 #include "application/util/configurable/Configurable.h"
@@ -35,42 +34,6 @@ Display::Display(I2C::Peripheral::HWA& hwa,
     : _hwa(hwa)
     , _database(database)
 {
-    MIDIDispatcher.listen(messaging::eventType_t::ANALOG,
-                          [this](const messaging::event_t& event)
-                          {
-                              displayEvent(Display::eventType_t::OUT, event);
-                          });
-
-    MIDIDispatcher.listen(messaging::eventType_t::BUTTON,
-                          [this](const messaging::event_t& event)
-                          {
-                              displayEvent(Display::eventType_t::OUT, event);
-                          });
-
-    MIDIDispatcher.listen(messaging::eventType_t::ENCODER,
-                          [this](const messaging::event_t& event)
-                          {
-                              displayEvent(Display::eventType_t::OUT, event);
-                          });
-
-    MIDIDispatcher.listen(messaging::eventType_t::MIDI_IN,
-                          [this](const messaging::event_t& event)
-                          {
-                              if (event.message != MIDI::messageType_t::SYS_EX)
-                              {
-                                  displayEvent(Display::eventType_t::IN, event);
-                              }
-                          });
-
-    MIDIDispatcher.listen(messaging::eventType_t::SYSTEM,
-                          [this](const messaging::event_t& event)
-                          {
-                              if (event.systemMessage == messaging::systemMessage_t::PRESET_CHANGED)
-                              {
-                                  displayPreset(event.index + 1);
-                              }
-                          });
-
     ConfigHandler.registerConfig(
         sys::Config::block_t::I2C,
         // read
@@ -131,11 +94,10 @@ bool Display::init()
                 }
             }
 
-            setRetentionTime(_database.read(database::Config::Section::i2c_t::DISPLAY, setting_t::EVENT_TIME) * 1000);
-
-            clearEvent(eventType_t::IN);
-            clearEvent(eventType_t::OUT);
-            displayPreset(_database.getPreset() + 1);
+            _elements._midiUpdater.useAlternateNote(_database.read(database::Config::Section::i2c_t::DISPLAY,
+                                                                   setting_t::MIDI_NOTES_ALTERNATE));
+            _elements._preset.setPreset(_database.getPreset());
+            _elements.setRetentionTime(_database.read(database::Config::Section::i2c_t::DISPLAY, setting_t::EVENT_TIME) * 1000);
         }
         else
         {
@@ -255,71 +217,7 @@ void Display::update()
         return;
     }
 
-    if ((core::mcu::timing::ms() - _lastLCDupdateTime) < LCD_REFRESH_TIME)
-    {
-        return;    // we don't need to update lcd in real time
-    }
-
-    for (int i = 0; i < MAX_ROWS; i++)
-    {
-        if (!_charChange[i])
-        {
-            continue;
-        }
-
-        auto&     row      = _lcdRowText[i];
-        const int STR_SIZE = strlen(&row[0]);
-
-        for (int j = 0; j < STR_SIZE; j++)
-        {
-            if (core::util::BIT_READ(_charChange[i], j))
-            {
-                u8x8_DrawGlyph(&_u8x8, j, ROW_MAP[_resolution][i], row[j]);
-            }
-        }
-
-        _charChange[i] = 0;
-    }
-
-    _lastLCDupdateTime = core::mcu::timing::ms();
-
-    // check if in/out messages need to be cleared
-    if (_messageRetentionTime)
-    {
-        for (int i = 0; i < 2; i++)
-        {
-            // 0 = in, 1 = out
-            if ((core::mcu::timing::ms() - _lasMessageDisplayTime[i] > _messageRetentionTime) && _messageDisplayed[i])
-            {
-                clearEvent(static_cast<eventType_t>(i));
-            }
-        }
-    }
-}
-
-/// Updates text to be shown on display.
-/// This function only updates internal buffers with received text, actual updating is done in update() function.
-/// Text isn't passed directly, instead, value from string builder is used.
-/// param [in]: row             Row which is being updated.
-void Display::updateText(uint8_t row)
-{
-    if (!_initialized)
-    {
-        return;
-    }
-
-    auto string = _stringBuilder.string();
-    auto size   = strlen(string);
-
-    for (size_t i = 0; i < size; i++)
-    {
-        if (_lcdRowText[row][i] != string[i])
-        {
-            core::util::BIT_SET(_charChange[row], i);
-        }
-
-        _lcdRowText[row][i] = string[i];
-    }
+    _elements.update();
 }
 
 /// Calculates position on which text needs to be set on display to be in center of display row.
@@ -330,33 +228,6 @@ uint8_t Display::getTextCenter(uint8_t textSize)
     return MAX_COLUMNS / 2 - (textSize / 2);
 }
 
-/// Sets new message retention time.
-/// param [in]: retentionTime New retention time in milliseconds.
-void Display::setRetentionTime(uint32_t retentionTime)
-{
-    if (retentionTime < _messageRetentionTime)
-    {
-        for (int i = 0; i < 2; i++)
-        {
-            // 0 = in, 1 = out
-            // make sure events are cleared immediately in next call of update()
-            _lasMessageDisplayTime[i] = 0;
-        }
-    }
-
-    _messageRetentionTime = retentionTime;
-
-    // reset last update time
-    _lasMessageDisplayTime[eventType_t::IN]  = core::mcu::timing::ms();
-    _lasMessageDisplayTime[eventType_t::OUT] = core::mcu::timing::ms();
-}
-
-/// Adds normalization to a given octave.
-int8_t Display::normalizeOctave(uint8_t octave, int8_t normalization)
-{
-    return static_cast<int8_t>(octave) + normalization;
-}
-
 void Display::displayWelcomeMessage()
 {
     if (!_initialized)
@@ -365,7 +236,7 @@ void Display::displayWelcomeMessage()
     }
 
     uint8_t startRow;
-    bool    showBoard = false;
+    bool    showBoard = _rows >= 4;
 
     u8x8_ClearDisplay(&_u8x8);
 
@@ -373,8 +244,7 @@ void Display::displayWelcomeMessage()
     {
     case 4:
     {
-        startRow  = 1;
-        showBoard = true;
+        startRow = 1;
     }
     break;
 
@@ -385,184 +255,37 @@ void Display::displayWelcomeMessage()
     break;
     }
 
-    auto writeString = [&](const char* string, uint8_t row)
+    auto writeString = [&](uint8_t row, const char* text, ...)
     {
-        uint8_t charIndex = 0;
-        uint8_t location  = getTextCenter(strlen(string));
+        char tempBuff[MAX_COLUMNS + 1] = {};
 
-        while (string[charIndex] != '\0')
+        va_list args;
+        va_start(args, text);
+        vsnprintf(tempBuff, sizeof(tempBuff), text, args);
+        va_end(args);
+
+        uint8_t charIndex = 0;
+        uint8_t location  = getTextCenter(strlen(tempBuff));
+
+        while (tempBuff[charIndex] != '\0')
         {
-            u8x8_DrawGlyph(&_u8x8, location + charIndex, ROW_MAP[_resolution][startRow], string[charIndex]);
+            u8x8_DrawGlyph(&_u8x8, location + charIndex, ROW_MAP[_resolution][startRow], tempBuff[charIndex]);
             charIndex++;
         }
     };
 
-    _stringBuilder.overwrite("OpenDeck");
-    writeString(_stringBuilder.string(), startRow);
+    writeString(startRow, "OpenDeck");
 
     startRow++;
-    _stringBuilder.overwrite("FW: v%d.%d.%d", SW_VERSION_MAJOR, SW_VERSION_MINOR, SW_VERSION_REVISION);
-    writeString(_stringBuilder.string(), startRow);
+    writeString(startRow, "FW: v%d.%d.%d", SW_VERSION_MAJOR, SW_VERSION_MINOR, SW_VERSION_REVISION);
 
     if (showBoard)
     {
         startRow++;
-        _stringBuilder.overwrite("HW: %s", Strings::TARGET_NAME_STRING);
-        writeString(_stringBuilder.string(), startRow);
+        writeString(startRow, "HW: %s", Strings::TARGET_NAME_STRING);
     }
 
     core::mcu::timing::waitMs(2000);
-}
-
-void Display::displayPreset(int preset)
-{
-    if (!_initialized)
-    {
-        return;
-    }
-
-    _lcdRowText.at(ROW_START_PRESET).at(COLUMN_START_PRESET) = '\0';
-    _stringBuilder.overwrite(_lcdRowText[ROW_START_PRESET].data());
-    _stringBuilder.append("P%d", preset);
-    _stringBuilder.fillUntil(MAX_COLUMNS);
-
-    updateText(ROW_START_PRESET);
-}
-
-void Display::displayEvent(eventType_t type, const messaging::event_t& event)
-{
-    if (!_initialized)
-    {
-        return;
-    }
-
-    uint8_t startRow = (type == Display::eventType_t::IN) ? ROW_START_IN_MESSAGE : ROW_START_OUT_MESSAGE;
-
-    _stringBuilder.overwrite("%s%s",
-                             (type == Display::eventType_t::IN)
-                                 ? Strings::IN_EVENT_STRING
-                                 : Strings::OUT_EVENT_STRING,
-                             Strings::MIDI_MESSAGE(event.message));
-    _stringBuilder.fillUntil((type == Display::eventType_t::IN)
-                                 ? MAX_COLUMNS_IN_MESSAGE
-                                 : MAX_COLUMNS_OUT_MESSAGE);
-    updateText(startRow);
-
-    switch (event.message)
-    {
-    case MIDI::messageType_t::NOTE_OFF:
-    case MIDI::messageType_t::NOTE_ON:
-    {
-        if (!_database.read(database::Config::Section::i2c_t::DISPLAY, setting_t::MIDI_NOTES_ALTERNATE))
-        {
-            _stringBuilder.overwrite("%d", event.index);
-        }
-        else
-        {
-            _stringBuilder.overwrite("%s%d",
-                                     Strings::NOTE(MIDI::NOTE_TO_TONIC(event.index)),
-                                     normalizeOctave(MIDI::NOTE_TO_OCTAVE(event.value), _octaveNormalization));
-        }
-
-        _stringBuilder.append(" v%d CH%d", event.value, event.channel);
-        _stringBuilder.fillUntil(MAX_COLUMNS);
-        updateText(startRow + 1);
-    }
-    break;
-
-    case MIDI::messageType_t::PROGRAM_CHANGE:
-    {
-        _stringBuilder.overwrite("%d CH%d", event.index, event.channel);
-        _stringBuilder.fillUntil(MAX_COLUMNS);
-        updateText(startRow + 1);
-    }
-    break;
-
-    case MIDI::messageType_t::CONTROL_CHANGE:
-    case MIDI::messageType_t::CONTROL_CHANGE_14BIT:
-    case MIDI::messageType_t::NRPN_7BIT:
-    case MIDI::messageType_t::NRPN_14BIT:
-    {
-        _stringBuilder.overwrite("%d %d CH%d", event.index, event.value, event.channel);
-        _stringBuilder.fillUntil(MAX_COLUMNS);
-        updateText(startRow + 1);
-    }
-    break;
-
-    case MIDI::messageType_t::MMC_PLAY:
-    case MIDI::messageType_t::MMC_STOP:
-    case MIDI::messageType_t::MMC_RECORD_START:
-    case MIDI::messageType_t::MMC_RECORD_STOP:
-    case MIDI::messageType_t::MMC_PAUSE:
-    {
-        _stringBuilder.overwrite("CH%d", event.index);
-        _stringBuilder.fillUntil(MAX_COLUMNS);
-        updateText(startRow + 1);
-    }
-    break;
-
-    case MIDI::messageType_t::SYS_REAL_TIME_CLOCK:
-    case MIDI::messageType_t::SYS_REAL_TIME_START:
-    case MIDI::messageType_t::SYS_REAL_TIME_CONTINUE:
-    case MIDI::messageType_t::SYS_REAL_TIME_STOP:
-    case MIDI::messageType_t::SYS_REAL_TIME_ACTIVE_SENSING:
-    case MIDI::messageType_t::SYS_REAL_TIME_SYSTEM_RESET:
-    case MIDI::messageType_t::SYS_EX:
-    {
-        _stringBuilder.overwrite("");
-        _stringBuilder.fillUntil(MAX_COLUMNS);
-        updateText(startRow + 1);
-    }
-    break;
-
-    default:
-        break;
-    }
-
-    _lasMessageDisplayTime[type] = core::mcu::timing::ms();
-    _messageDisplayed[type]      = true;
-}
-
-void Display::clearEvent(eventType_t type)
-{
-    if (!_initialized)
-    {
-        return;
-    }
-
-    switch (type)
-    {
-    case eventType_t::IN:
-    {
-        // first row
-        _stringBuilder.overwrite(Strings::IN_EVENT_STRING);
-        _stringBuilder.fillUntil(MAX_COLUMNS_IN_MESSAGE);
-        updateText(ROW_START_IN_MESSAGE);
-        // second row
-        _stringBuilder.overwrite("");
-        _stringBuilder.fillUntil(MAX_COLUMNS);
-        updateText(ROW_START_IN_MESSAGE + 1);
-    }
-    break;
-
-    case eventType_t::OUT:
-    {
-        // first row
-        _stringBuilder.overwrite(Strings::OUT_EVENT_STRING);
-        _stringBuilder.fillUntil(MAX_COLUMNS_IN_MESSAGE);
-        updateText(ROW_START_OUT_MESSAGE);
-        // second row
-        _stringBuilder.overwrite("");
-        _stringBuilder.fillUntil(MAX_COLUMNS);
-        updateText(ROW_START_OUT_MESSAGE + 1);
-    }
-    break;
-
-    default:
-        return;
-    }
-
-    _messageDisplayed[type] = false;
 }
 
 std::optional<uint8_t> Display::sysConfigGet(sys::Config::Section::i2c_t section, size_t index, uint16_t& value)
@@ -626,9 +349,14 @@ std::optional<uint8_t> Display::sysConfigSet(sys::Config::Section::i2c_t section
 
         case setting_t::EVENT_TIME:
         {
-            setRetentionTime(value * 1000);
+            _elements.setRetentionTime(value * 1000);
         }
         break;
+
+        case setting_t::MIDI_NOTES_ALTERNATE:
+        {
+            _elements._midiUpdater.useAlternateNote(value);
+        };
 
         default:
             break;
