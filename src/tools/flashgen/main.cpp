@@ -25,7 +25,15 @@ limitations under the License.
 #include "application/database/Database.h"
 #include "application/database/Layout.h"
 #include "EmuEEPROM/EmuEEPROM.h"
+
+// Here, generated MCU header for real MCU is included, however,
+// this application actually links with stub MCU. Because of this
+// multiple definition errors will occur unless this header is namespaced.
+
+namespace flashgen
+{
 #include <CoreMCUGenerated.h>
+}
 
 namespace
 {
@@ -172,7 +180,7 @@ namespace
                               _filename +
                               BIN_SUFFIX +
                               " -binary -offset " +
-                              std::to_string(core::mcu::flash::pageAddress(PROJECT_MCU_FLASH_PAGE_FACTORY)) +
+                              std::to_string(flashgen::core::mcu::flash::pageAddress(PROJECT_MCU_FLASH_PAGE_FACTORY)) +
                               " -o " +
                               _filename +
                               " -Intel";
