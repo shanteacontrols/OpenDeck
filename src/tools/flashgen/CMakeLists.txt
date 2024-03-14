@@ -57,4 +57,5 @@ target_link_libraries(flashgen
     PUBLIC
     emueeprom-lib
     lessdb-lib
+    mcu
 )
