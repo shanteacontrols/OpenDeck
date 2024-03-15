@@ -47,7 +47,11 @@ Instance::Instance(HWA&        hwa,
                               {
                               case MIDI::messageType_t::PROGRAM_CHANGE:
                               {
-                                  _components.database().setPreset(event.index);
+                                  if (_components.database().read(database::Config::Section::system_t::SYSTEM_SETTINGS,
+                                                                  Config::systemSetting_t::ENABLE_PRESET_CHANGE_WITH_PROGRAM_CHANGE_IN))
+                                  {
+                                      _components.database().setPreset(event.index);
+                                  }
                               }
                               break;
 
@@ -627,8 +631,13 @@ std::optional<uint8_t> Instance::sysConfigGet(sys::Config::Section::global_t sec
         return std::nullopt;
     }
 
-    if (index != static_cast<size_t>(sys::Config::systemSetting_t::DISABLE_FORCED_REFRESH_AFTER_PRESET_CHANGE))
+    switch (index)
     {
+    case static_cast<size_t>(sys::Config::systemSetting_t::DISABLE_FORCED_REFRESH_AFTER_PRESET_CHANGE):
+    case static_cast<size_t>(sys::Config::systemSetting_t::ENABLE_PRESET_CHANGE_WITH_PROGRAM_CHANGE_IN):
+        break;
+
+    default:
         return std::nullopt;
     }
 
@@ -650,8 +659,13 @@ std::optional<uint8_t> Instance::sysConfigSet(sys::Config::Section::global_t sec
         return std::nullopt;
     }
 
-    if (index != static_cast<size_t>(sys::Config::systemSetting_t::DISABLE_FORCED_REFRESH_AFTER_PRESET_CHANGE))
+    switch (index)
     {
+    case static_cast<size_t>(sys::Config::systemSetting_t::DISABLE_FORCED_REFRESH_AFTER_PRESET_CHANGE):
+    case static_cast<size_t>(sys::Config::systemSetting_t::ENABLE_PRESET_CHANGE_WITH_PROGRAM_CHANGE_IN):
+        break;
+
+    default:
         return std::nullopt;
     }
 
