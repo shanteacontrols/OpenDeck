@@ -106,22 +106,22 @@ void Display::Elements::MIDIUpdater::updateMIDIValue(DisplayTextControl& element
     {
         if (!_useAlternateNote)
         {
-            element.setText("%d v%d CH%d", event.index, event.value, event.channel);
+            element.setText("CH%d %d v%d", event.channel, event.index, event.value);
         }
         else
         {
-            element.setText("%s%d v%d CH%d",
+            element.setText("CH%d %s%d v%d",
+                            event.channel,
                             Strings::NOTE(MIDI::NOTE_TO_TONIC(event.index)),
                             MIDI::NOTE_TO_OCTAVE(event.value),
-                            event.value,
-                            event.channel);
+                            event.value);
         }
     }
     break;
 
     case MIDI::messageType_t::PROGRAM_CHANGE:
     {
-        element.setText("%d CH%d", event.index, event.channel);
+        element.setText("CH%d %d", event.channel, event.index);
     }
     break;
 
@@ -130,7 +130,7 @@ void Display::Elements::MIDIUpdater::updateMIDIValue(DisplayTextControl& element
     case MIDI::messageType_t::NRPN_7BIT:
     case MIDI::messageType_t::NRPN_14BIT:
     {
-        element.setText("%d %d CH%d", event.index, event.value, event.channel);
+        element.setText("CH%d %d %d", event.channel, event.index, event.value);
     }
     break;
 
