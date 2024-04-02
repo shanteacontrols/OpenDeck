@@ -46,6 +46,7 @@ make \
 nano \
 ninja-build \
 openssh-client \
+python3-dev \
 python3-venv \
 software-properties-common \
 srecord \
@@ -124,7 +125,7 @@ ADD west.yml ${workspace_dir}/west.yml
 RUN \
 python3 -m venv ${workspace_dir}/.venv && \
 . ${workspace_dir}/.venv/bin/activate && \
-pip install west && \
+pip install west pyocd && \
 mkdir -p ${workspace_dir}/temp && \
 cd ${workspace_dir}/temp && \
 west init --mf ../west.yml -l . && \
@@ -141,4 +142,5 @@ alias mkc='make clean'
 export MAKEFLAGS=-j$(nproc)
 source ~/.git_branch_bash
 source /etc/profile.d/opendeck-deps.sh
+source ${workspace_dir}/.venv/bin/activate
 EOF
