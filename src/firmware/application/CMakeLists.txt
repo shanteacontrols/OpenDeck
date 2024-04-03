@@ -155,33 +155,40 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
     endif()
 
     if (TARGET bootloader)
-        set(SYSEXGEN_FW_NAME_RAW_SYSEX firmware.raw)
-        set(SYSEXGEN_FW_NAME_ASCII_SYSEX firmware.sysex)
         set(SYSEX_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/sysexgen)
+        set(SYSEX_BINARY ${SYSEX_BINARY_DIR}/sysexgen)
+        set(SYSEXGEN_RAW_OUTPUT ${SYSEX_BINARY_DIR}/firmware.raw)
+        set(SYSEXGEN_ASCII_OUTPUT ${SYSEX_BINARY_DIR}/firmware.sysex)
 
         ExternalProject_Add(sysexgen
             SOURCE_DIR      ${PROJECT_ROOT}/src/tools/sysexgen
             CMAKE_ARGS      -DTARGET=${TARGET} -DCMAKE_USE_STUB_MCU=1
             BINARY_DIR      ${SYSEX_BINARY_DIR}
-            INSTALL_COMMAND "./sysexgen" "$<TARGET_FILE:application>.bin" "${SYSEXGEN_FW_NAME_RAW_SYSEX}"
+            INSTALL_COMMAND ""
+        )
+
+        add_custom_command(
+            DEPENDS sysexgen
+            OUTPUT ${SYSEXGEN_RAW_OUTPUT}
+            COMMAND ${SYSEX_BINARY} "$<TARGET_FILE:application>.bin" "${SYSEXGEN_RAW_OUTPUT}"
+        )
+
+        add_custom_command(
+            DEPENDS ${SYSEXGEN_RAW_OUTPUT}
+            OUTPUT ${SYSEXGEN_ASCII_OUTPUT}
+            COMMAND hexdump -v -e \'/1 \"%02x \"\' ${SYSEXGEN_RAW_OUTPUT} | sed 's\#f7\#f7\\n\#g' | sed 's\#^ *\#\#' | tr a-z A-Z > ${SYSEXGEN_ASCII_OUTPUT}
+        )
+
+        add_custom_target(
+            generate_sysex_firmware
+            DEPENDS application
+            DEPENDS ${SYSEXGEN_ASCII_OUTPUT}
         )
 
         if (TARGET flashgen)
-            add_dependencies(sysexgen flashgen)
+            add_dependencies(generate_sysex_firmware merge_app_with_flash_config)
         endif()
 
-        add_custom_command(
-            OUTPUT ${SYSEX_BINARY_DIR}/${SYSEXGEN_FW_NAME_ASCII_SYSEX}
-            COMMAND hexdump -v -e \'/1 \"%02x \"\' ${SYSEX_BINARY_DIR}/${SYSEXGEN_FW_NAME_RAW_SYSEX} | sed 's\#f7\#f7\\n\#g' | sed 's\#^ *\#\#' | tr a-z A-Z > ${SYSEX_BINARY_DIR}/${SYSEXGEN_FW_NAME_ASCII_SYSEX}
-        )
-
-        add_custom_target(raw_sysex_to_ascii
-            ALL
-            DEPENDS ${SYSEX_BINARY_DIR}/${SYSEXGEN_FW_NAME_ASCII_SYSEX}
-        )
-
-        add_dependencies(raw_sysex_to_ascii sysexgen)
-
-        list(APPEND FIRMWARE_TARGETS raw_sysex_to_ascii)
+        list(APPEND FIRMWARE_TARGETS generate_sysex_firmware)
     endif()
 endif()
