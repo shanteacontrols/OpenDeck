@@ -111,8 +111,9 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
     )
 
     if (TARGET emueeprom-lib)
-        set(FLASHGEN_BIN_CONF_NAME generated_config.hex)
         set(FLASHGEN_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/flashgen)
+        set(FLASHGEN_BINARY ${FLASHGEN_BINARY_DIR}/flashgen)
+        set(FLASHGEN_OUTPUT ${FLASHGEN_BINARY_DIR}/generated_config.hex)
 
         ExternalProject_Add(flashgen
             SOURCE_DIR      ${PROJECT_ROOT}/src/tools/flashgen
@@ -121,25 +122,34 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
             CMAKE_ARGS      -DPROJECT_MCU_FLASH_PAGE_FACTORY=${PROJECT_MCU_FLASH_PAGE_FACTORY}
             CMAKE_ARGS      -DEMU_EEPROM_PAGE_SIZE=${EMU_EEPROM_PAGE_SIZE}
             BINARY_DIR      ${FLASHGEN_BINARY_DIR}
-            INSTALL_COMMAND "./flashgen" "${FLASHGEN_BIN_CONF_NAME}"
+            INSTALL_COMMAND ""
+        )
+
+        add_custom_command(
+            DEPENDS flashgen
+            OUTPUT ${FLASHGEN_OUTPUT}
+            COMMAND ${FLASHGEN_BINARY} ${FLASHGEN_OUTPUT}
+        )
+
+        add_custom_target(
+            generate_flash_config
+            DEPENDS ${FLASHGEN_OUTPUT}
         )
 
         add_custom_command(
             DEPENDS application # ensure re-merge once application changes
+            DEPENDS generate_flash_config
             OUTPUT merged_app_with_flash_config # just an indicator
             COMMAND echo Merging application with generated flash config
-            COMMAND srec_cat $<TARGET_FILE:application>.hex -Intel ${FLASHGEN_BINARY_DIR}/${FLASHGEN_BIN_CONF_NAME} -Intel -o $<TARGET_FILE:application>.hex -Intel
+            COMMAND srec_cat $<TARGET_FILE:application>.hex -Intel ${FLASHGEN_OUTPUT} -Intel -o $<TARGET_FILE:application>.hex -Intel
             COMMAND objcopy -I ihex $<TARGET_FILE:application>.hex --gap-fill 0xFF -O binary $<TARGET_FILE:application>.bin
             COMMAND touch merged_app_with_flash_config
         )
 
         add_custom_target(
             merge_app_with_flash_config
-            ALL
             DEPENDS merged_app_with_flash_config
         )
-
-        add_dependencies(merge_app_with_flash_config flashgen application)
 
         list(APPEND FIRMWARE_TARGETS merge_app_with_flash_config)
     endif()
