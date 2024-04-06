@@ -16,6 +16,6 @@ fuse_ext=$($yaml_parser "$mcu_config" fuses.ext)
 fuse_high=$($yaml_parser "$mcu_config" fuses.high)
 fuse_low=$($yaml_parser "$mcu_config" fuses.low)
 
-avrdude -p "$mcu" -P /dev/"${PORT}" -b 19200 -c avrisp -C /etc/avrdude.conf -e -V -u -U lock:w:"$fuse_unlock":m -U efuse:w:"$fuse_ext":m -U hfuse:w:"$fuse_high":m -U lfuse:w:"$fuse_low":m
-avrdude -p "$mcu" -P /dev/"${PORT}" -b 19200 -c avrisp -C /etc/avrdude.conf -U flash:w:"$PWD"/merged.hex
-avrdude -p "$mcu" -P /dev/"${PORT}" -b 19200 -c avrisp -C /etc/avrdude.conf -V -u -U lock:w:"$fuse_lock":m
+sudo avrdude -p "$mcu" -P /dev/"${PORT}" -b 19200 -c avrisp -C /etc/avrdude.conf -e -V -u -U lock:w:"$fuse_unlock":m -U efuse:w:"$fuse_ext":m -U hfuse:w:"$fuse_high":m -U lfuse:w:"$fuse_low":m
+sudo avrdude -p "$mcu" -P /dev/"${PORT}" -b 19200 -c avrisp -C /etc/avrdude.conf -U flash:w:"$PWD"/merged.hex
+sudo avrdude -p "$mcu" -P /dev/"${PORT}" -b 19200 -c avrisp -C /etc/avrdude.conf -V -u -U lock:w:"$fuse_lock":m
