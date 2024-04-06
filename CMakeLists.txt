@@ -95,13 +95,13 @@ set_target_properties(lint PROPERTIES EXCLUDE_FROM_ALL TRUE)
 add_dependencies(lint merge_firmware_binaries)
 
 ExternalProject_Add(tests
-    BUILD_ALWAYS    TRUE
     SOURCE_DIR      ${PROJECT_ROOT}/tests
     CMAKE_ARGS      -DTARGET=${TARGET}
     CMAKE_ARGS      -DCMAKE_USE_STUB_MCU=1
     CMAKE_ARGS      -DFW_BUILD_DIR=${CMAKE_CURRENT_BINARY_DIR}
     CMAKE_ARGS      -DCMAKE_BUILD_TYPE=Debug
     BINARY_DIR      ${CMAKE_CURRENT_BINARY_DIR}/tests
+    BUILD_ALWAYS    TRUE
     INSTALL_COMMAND ""
 )
 
