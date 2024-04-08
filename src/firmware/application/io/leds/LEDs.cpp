@@ -975,7 +975,15 @@ std::optional<uint8_t> LEDs::sysConfigSet(sys::Config::Section::leds_t section, 
     case sys::Config::Section::leds_t::CONTROL_TYPE:
     case sys::Config::Section::leds_t::CHANNEL:
     {
-        // first, find out if RGB led is enabled for this led index
+        // first, turn the led off if control type is being changed
+        if (section == sys::Config::Section::leds_t::CONTROL_TYPE)
+        {
+            setColor(index,
+                     color_t::OFF,
+                     brightness_t::OFF);
+        }
+
+        // find out if RGB led is enabled for this led index
         if (_database.read(util::Conversion::SYS_2_DB_SECTION(sys::Config::Section::leds_t::RGB_ENABLE), _hwa.rgbFromOutput(index)))
         {
             // rgb led enabled - copy these settings to all three leds

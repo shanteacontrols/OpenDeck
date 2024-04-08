@@ -335,11 +335,19 @@ TEST_F(SystemTest, PresetChangeIndicatedOnLEDs)
     // Configure the first LED to indicate current preset.
     // Its activation ID is 0 so it should be on only in first preset.
 
+    // changing the led control type switches the led off
+    EXPECT_CALL(_system._hwaLEDs, setState(LED_INDEX, LEDs::brightness_t::OFF))
+        .Times(1);
+
     ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::leds_t::CONTROL_TYPE,
                                                       LED_INDEX,
                                                       LEDs::controlType_t::PRESET));
 
     // also configure second led
+
+    // changing the led control type switches the led off
+    EXPECT_CALL(_system._hwaLEDs, setState(LED_INDEX + 1, LEDs::brightness_t::OFF))
+        .Times(1);
 
     ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::leds_t::CONTROL_TYPE,
                                                       LED_INDEX + 1,
@@ -369,11 +377,19 @@ TEST_F(SystemTest, PresetChangeIndicatedOnLEDs)
 
     // configure those same two leds to indicate preset in this preset as well
 
+    // changing the led control type switches the led off
+    EXPECT_CALL(_system._hwaLEDs, setState(LED_INDEX, LEDs::brightness_t::OFF))
+        .Times(1);
+
     ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::leds_t::CONTROL_TYPE,
                                                       LED_INDEX,
                                                       LEDs::controlType_t::PRESET));
 
     // also configure second led
+
+    // changing the led control type switches the led off
+    EXPECT_CALL(_system._hwaLEDs, setState(LED_INDEX + 1, LEDs::brightness_t::OFF))
+        .Times(1);
 
     ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::leds_t::CONTROL_TYPE,
                                                       LED_INDEX + 1,
@@ -577,6 +593,10 @@ TEST_F(SystemTest, ProgramIndicatedOnStartup)
 
     // configure the first LED to indicate program change
     // its activation ID is 0 so it should be on only for program 0
+
+    // changing the led control type switches the led off
+    EXPECT_CALL(_system._hwaLEDs, setState(LED_INDEX, LEDs::brightness_t::OFF))
+        .Times(1);
 
     ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::leds_t::CONTROL_TYPE,
                                                       LED_INDEX,
