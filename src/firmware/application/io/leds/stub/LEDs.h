@@ -75,6 +75,7 @@ namespace io
             LOCAL_NOTE_MULTI_VAL,
             MIDI_IN_CC_MULTI_VAL,
             LOCAL_CC_MULTI_VAL,
+            STATIC,
             AMOUNT
         };
 

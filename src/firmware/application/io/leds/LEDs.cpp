@@ -168,6 +168,7 @@ bool LEDs::init()
     }
 
     setBlinkType(static_cast<blinkType_t>(_database.read(database::Config::Section::leds_t::GLOBAL, setting_t::BLINK_WITH_MIDI_CLOCK)));
+    setAllStaticOn();
 
     return true;
 }
@@ -608,6 +609,18 @@ void LEDs::setAllOn()
     }
 }
 
+void LEDs::setAllStaticOn()
+{
+    // turn on all static LEDs
+    for (size_t i = 0; i < Collection::SIZE(); i++)
+    {
+        if (_database.read(database::Config::Section::leds_t::CONTROL_TYPE, i) == static_cast<uint8_t>(controlType_t::STATIC))
+        {
+            setColor(i, color_t::RED, brightness_t::B100);
+        }
+    }
+}
+
 void LEDs::setAllOff()
 {
     // turn off all LEDs
@@ -979,8 +992,8 @@ std::optional<uint8_t> LEDs::sysConfigSet(sys::Config::Section::leds_t section, 
         if (section == sys::Config::Section::leds_t::CONTROL_TYPE)
         {
             setColor(index,
-                     color_t::OFF,
-                     brightness_t::OFF);
+                     value == static_cast<uint8_t>(controlType_t::STATIC) ? color_t::RED : color_t::OFF,
+                     value == static_cast<uint8_t>(controlType_t::STATIC) ? brightness_t::B100 : brightness_t::OFF);
         }
 
         // find out if RGB led is enabled for this led index

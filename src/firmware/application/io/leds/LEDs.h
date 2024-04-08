@@ -88,6 +88,7 @@ namespace io
             LOCAL_NOTE_MULTI_VAL,
             MIDI_IN_CC_MULTI_VAL,
             LOCAL_CC_MULTI_VAL,
+            STATIC,
             AMOUNT
         };
 
@@ -152,6 +153,7 @@ namespace io
         };
 
         void                   setAllOn();
+        void                   setAllStaticOn();
         void                   refresh();
         void                   setBlinkSpeed(uint8_t ledID, blinkSpeed_t state, bool updateState = true);
         void                   setBlinkType(blinkType_t blinkType);
@@ -227,6 +229,7 @@ namespace io
             MIDI::messageType_t::NOTE_ON,           // LOCAL_NOTE_MULTI_VAL,
             MIDI::messageType_t::CONTROL_CHANGE,    // MIDI_IN_CC_MULTI_VAL,
             MIDI::messageType_t::CONTROL_CHANGE,    // LOCAL_CC_MULTI_VAL,
+            MIDI::messageType_t::INVALID,           // STATIC
         };
     };
 }    // namespace io

@@ -834,4 +834,20 @@ TEST_F(LEDsTest, ProgramChangeWithOffset)
                           });
 }
 
+TEST_F(LEDsTest, StaticLEDsOnInitially)
+{
+    constexpr size_t LED_INDEX = 0;
+    ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::CONTROL_TYPE, LED_INDEX, LEDs::controlType_t::STATIC));
+
+    // Once init() is called, all LEDs should be turned off
+    EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(0)))
+        .Times(LEDs::Collection::SIZE(LEDs::GROUP_DIGITAL_OUTPUTS));
+
+    // LED_INDEX should be turned on
+    EXPECT_CALL(_leds._hwa, setState(LED_INDEX, LEDs::brightness_t::B100))
+        .Times(1);
+
+    _leds._instance.init();
+}
+
 #endif
