@@ -581,6 +581,13 @@ TEST_F(HWTest, DatabaseInitialValues)
             ASSERT_EQ(16383, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::UPPER_LIMIT, i));
         }
 
+        // repeated value section
+        // all values should be set to 127
+        for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i += PARAM_SKIP)
+        {
+            ASSERT_EQ(127, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::REPEATED_VALUE, i));
+        }
+
         // analog block
         //----------------------------------
         // enable section

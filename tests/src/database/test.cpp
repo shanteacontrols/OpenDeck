@@ -181,6 +181,13 @@ TEST_F(DatabaseTest, ReadInitialValues)
             DB_READ_VERIFY(16383, database::Config::Section::encoder_t::UPPER_LIMIT, i);
         }
 
+        // repeated value section
+        // all values should be set to 127
+        for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i++)
+        {
+            DB_READ_VERIFY(127, database::Config::Section::encoder_t::REPEATED_VALUE, i);
+        }
+
         // analog block
         //----------------------------------
         // enable section

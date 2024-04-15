@@ -97,6 +97,7 @@ namespace util
             database::Config::Section::encoder_t::REMOTE_SYNC,
             database::Config::Section::encoder_t::LOWER_LIMIT,
             database::Config::Section::encoder_t::UPPER_LIMIT,
+            database::Config::Section::encoder_t::REPEATED_VALUE,
         };
 
         static constexpr database::Config::Section::analog_t SYS_EX2_DB_ANALOG[static_cast<uint8_t>(sys::Config::Section::analog_t::AMOUNT)] = {

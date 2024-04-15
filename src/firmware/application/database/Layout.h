@@ -206,6 +206,15 @@ namespace database
                 LESSDB::autoIncrementSetting_t::DISABLE,
                 16383,
             },
+
+            // repeated value section
+            {
+                io::Encoders::Collection::SIZE(),
+                LESSDB::sectionParameterType_t::WORD,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::DISABLE,
+                127,
+            },
         };
 
         std::vector<LESSDB::Section> _analogSections = {

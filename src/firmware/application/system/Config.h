@@ -84,6 +84,7 @@ namespace sys
                 REMOTE_SYNC,
                 LOWER_LIMIT,
                 UPPER_LIMIT,
+                REPEATED_VALUE,
                 AMOUNT
             };
 

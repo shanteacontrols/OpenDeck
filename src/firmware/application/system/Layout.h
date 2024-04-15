@@ -170,6 +170,13 @@ namespace sys
                 0,
                 16383,
             },
+
+            // repeated value section
+            {
+                io::Encoders::Collection::SIZE(),
+                0,
+                16383,
+            },
         };
 
         std::vector<SysExConf::Section> _analogSections = {
