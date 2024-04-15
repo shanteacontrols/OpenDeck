@@ -157,14 +157,14 @@ namespace sys
                 1,
             },
 
-            // lower value limit
+            // upper value limit section
             {
                 io::Encoders::Collection::SIZE(),
                 0,
                 16383,
             },
 
-            // upper value limit
+            // upper value limit section
             {
                 io::Encoders::Collection::SIZE(),
                 0,
@@ -208,28 +208,28 @@ namespace sys
                 127,
             },
 
-            // lower value limit, lsb
+            // lower value limit section, lsb
             {
                 io::Analog::Collection::SIZE(),
                 0,
                 16383,
             },
 
-            // lower value limit, msb
+            // lower value limit section, msb
             {
                 io::Analog::Collection::SIZE(),
                 0,
                 127,
             },
 
-            // upper value limit, lsb
+            // upper value limit section, lsb
             {
                 io::Analog::Collection::SIZE(),
                 0,
                 16383,
             },
 
-            // upper value limit, msb
+            // upper value limit section, msb
             {
                 io::Analog::Collection::SIZE(),
                 0,
@@ -243,14 +243,14 @@ namespace sys
                 17,
             },
 
-            // lower adc percentage offset
+            // lower adc percentage offset section
             {
                 io::Analog::Collection::SIZE(),
                 0,
                 100,
             },
 
-            // upper adc percentage offset
+            // upper adc percentage offset section
             {
                 io::Analog::Collection::SIZE(),
                 0,

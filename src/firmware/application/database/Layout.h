@@ -189,7 +189,7 @@ namespace database
                 0,
             },
 
-            // lower value limit
+            // lower value limit section
             {
                 io::Encoders::Collection::SIZE(),
                 LESSDB::sectionParameterType_t::WORD,
@@ -198,7 +198,7 @@ namespace database
                 0,
             },
 
-            // upper value limit
+            // upper value limit section
             {
                 io::Encoders::Collection::SIZE(),
                 LESSDB::sectionParameterType_t::WORD,
@@ -245,7 +245,7 @@ namespace database
                 0,
             },
 
-            // lower value limit
+            // lower value limit section
             {
                 io::Analog::Collection::SIZE(),
                 LESSDB::sectionParameterType_t::WORD,
@@ -254,7 +254,7 @@ namespace database
                 0,
             },
 
-            // upper value limit
+            // upper value limit section
             {
                 io::Analog::Collection::SIZE(),
                 LESSDB::sectionParameterType_t::WORD,
@@ -272,7 +272,7 @@ namespace database
                 1,
             },
 
-            // lower adc percentage offset
+            // lower adc percentage offset section
             {
                 io::Analog::Collection::SIZE(),
                 LESSDB::sectionParameterType_t::BYTE,
@@ -281,7 +281,7 @@ namespace database
                 0,
             },
 
-            // upper adc percentage offset
+            // upper adc percentage offset section
             {
                 io::Analog::Collection::SIZE(),
                 LESSDB::sectionParameterType_t::BYTE,
