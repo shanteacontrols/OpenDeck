@@ -354,7 +354,7 @@ TEST_F(EncodersTest, Messages)
     ASSERT_EQ(Encoders::Collection::SIZE(), _listener._event.size());
     verifyValue(MIDI::messageType_t::CONTROL_CHANGE, 65);
 
-    setup(Encoders::type_t::NOTE);
+    setup(Encoders::type_t::SINGLE_NOTE_VARIABLE_VAL);
     rotate(true);
     ASSERT_EQ(Encoders::Collection::SIZE(), _listener._event.size());
     verifyValue(MIDI::messageType_t::NOTE_ON, 1);
