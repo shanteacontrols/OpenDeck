@@ -43,6 +43,8 @@ namespace io
             CONTROL_CHANGE_41H01H,
             BPM_CHANGE,
             SINGLE_NOTE_VARIABLE_VAL,
+            SINGLE_NOTE_FIXED_VAL_BOTH_DIR,
+            SINGLE_NOTE_FIXED_VAL_ONE_DIR_0_OTHER_DIR,
             AMOUNT
         };
 

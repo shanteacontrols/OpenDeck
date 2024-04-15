@@ -325,6 +325,21 @@ void Encoders::sendMessage(size_t index, position_t encoderState, encoderDescrip
     }
     break;
 
+    case type_t::SINGLE_NOTE_FIXED_VAL_BOTH_DIR:
+    case type_t::SINGLE_NOTE_FIXED_VAL_ONE_DIR_0_OTHER_DIR:
+    {
+        descriptor.event.value = _database.read(database::Config::Section::encoder_t::REPEATED_VALUE, index);
+
+        if (descriptor.type == type_t::SINGLE_NOTE_FIXED_VAL_ONE_DIR_0_OTHER_DIR)
+        {
+            if (encoderState == position_t::CCW)
+            {
+                descriptor.event.value = 0;
+            }
+        }
+    }
+    break;
+
     case type_t::PRESET_CHANGE:
     {
         eventType                      = messaging::eventType_t::SYSTEM;

@@ -57,6 +57,8 @@ namespace io
             CONTROL_CHANGE_41H01H,
             BPM_CHANGE,
             SINGLE_NOTE_VARIABLE_VAL,
+            SINGLE_NOTE_FIXED_VAL_BOTH_DIR,
+            SINGLE_NOTE_FIXED_VAL_ONE_DIR_0_OTHER_DIR,
             AMOUNT
         };
 
@@ -225,6 +227,8 @@ namespace io
             MIDI::messageType_t::CONTROL_CHANGE,          // RESERVED
             MIDI::messageType_t::INVALID,                 // BPM_CHANGE
             MIDI::messageType_t::NOTE_ON,                 // SINGLE_NOTE_VARIABLE_VAL
+            MIDI::messageType_t::NOTE_ON,                 // SINGLE_NOTE_FIXED_VAL_BOTH_DIR
+            MIDI::messageType_t::NOTE_ON,                 // SINGLE_NOTE_FIXED_VAL_ONE_DIR_0_OTHER_DIR
         };
     };
 }    // namespace io
