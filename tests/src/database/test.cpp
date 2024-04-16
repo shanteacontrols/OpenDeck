@@ -146,11 +146,11 @@ TEST_F(DatabaseTest, ReadInitialValues)
             DB_READ_VERIFY(0, database::Config::Section::encoder_t::MODE, i);
         }
 
-        // midi id section
+        // midi id 1 section
         // incremental values - first value should be 0, each successive value should be incremented by 1 for each group
         for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i++)
         {
-            DB_READ_VERIFY(i, database::Config::Section::encoder_t::MIDI_ID, i);
+            DB_READ_VERIFY(i, database::Config::Section::encoder_t::MIDI_ID_1, i);
         }
 
         // midi channel section
@@ -186,6 +186,13 @@ TEST_F(DatabaseTest, ReadInitialValues)
         for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i++)
         {
             DB_READ_VERIFY(127, database::Config::Section::encoder_t::REPEATED_VALUE, i);
+        }
+
+        // midi id 2 section
+        // incremental values - first value should be 0, each successive value should be incremented by 1 for each group
+        for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i++)
+        {
+            DB_READ_VERIFY(i, database::Config::Section::encoder_t::MIDI_ID_2, i);
         }
 
         // analog block

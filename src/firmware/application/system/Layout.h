@@ -115,7 +115,7 @@ namespace sys
                 static_cast<uint16_t>(io::Encoders::type_t::AMOUNT) - 1,
             },
 
-            // midi id section
+            // midi id 1 section
             {
                 io::Encoders::Collection::SIZE(),
                 0,
@@ -172,6 +172,13 @@ namespace sys
             },
 
             // repeated value section
+            {
+                io::Encoders::Collection::SIZE(),
+                0,
+                16383,
+            },
+
+            // midi id 2 section
             {
                 io::Encoders::Collection::SIZE(),
                 0,

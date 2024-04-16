@@ -547,10 +547,10 @@ TEST_F(HWTest, DatabaseInitialValues)
             ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::MODE, i));
         }
 
-        // midi id section
+        // midi id 1 section
         for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(i, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::MIDI_ID, i));
+            ASSERT_EQ(i, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::MIDI_ID_1, i));
         }
 
         // midi channel section
@@ -586,6 +586,12 @@ TEST_F(HWTest, DatabaseInitialValues)
         for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(127, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::REPEATED_VALUE, i));
+        }
+
+        // midi id 2 section
+        for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i += PARAM_SKIP)
+        {
+            ASSERT_EQ(i, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::MIDI_ID_2, i));
         }
 
         // analog block

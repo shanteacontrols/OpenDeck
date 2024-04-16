@@ -76,7 +76,7 @@ namespace sys
                 ENABLE,
                 INVERT,
                 MODE,
-                MIDI_ID,
+                MIDI_ID_1,
                 CHANNEL,
                 PULSES_PER_STEP,
                 ACCELERATION,
@@ -85,6 +85,7 @@ namespace sys
                 LOWER_LIMIT,
                 UPPER_LIMIT,
                 REPEATED_VALUE,
+                MIDI_ID_2,
                 AMOUNT
             };
 

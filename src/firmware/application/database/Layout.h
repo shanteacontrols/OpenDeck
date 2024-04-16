@@ -144,7 +144,7 @@ namespace database
                 0,
             },
 
-            // midi id section
+            // midi id 1 section
             {
                 io::Encoders::Collection::SIZE(),
                 LESSDB::sectionParameterType_t::WORD,
@@ -214,6 +214,15 @@ namespace database
                 LESSDB::preserveSetting_t::DISABLE,
                 LESSDB::autoIncrementSetting_t::DISABLE,
                 127,
+            },
+
+            // midi id 2 section
+            {
+                io::Encoders::Collection::SIZE(),
+                LESSDB::sectionParameterType_t::WORD,
+                LESSDB::preserveSetting_t::DISABLE,
+                LESSDB::autoIncrementSetting_t::ENABLE,
+                0,
             },
         };
 

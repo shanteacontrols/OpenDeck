@@ -72,7 +72,7 @@ Encoders::Encoders(HWA&      hwa,
                                           }
                                       }
 
-                                      if (_database.read(database::Config::Section::encoder_t::MIDI_ID, i) != event.index)
+                                      if (_database.read(database::Config::Section::encoder_t::MIDI_ID_1, i) != event.index)
                                       {
                                           continue;
                                       }
@@ -451,7 +451,7 @@ void Encoders::fillEncoderDescriptor(size_t index, encoderDescriptor_t& descript
     descriptor.type                 = static_cast<type_t>(_database.read(database::Config::Section::encoder_t::MODE, index));
     descriptor.event.componentIndex = index;
     descriptor.event.channel        = _database.read(database::Config::Section::encoder_t::CHANNEL, index);
-    descriptor.event.index          = _database.read(database::Config::Section::encoder_t::MIDI_ID, index);
+    descriptor.event.index          = _database.read(database::Config::Section::encoder_t::MIDI_ID_1, index);
     descriptor.event.message        = INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(descriptor.type)];
 }
 
