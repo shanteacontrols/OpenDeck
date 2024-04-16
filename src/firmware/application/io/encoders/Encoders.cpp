@@ -203,7 +203,7 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
             }
 
             encoderDescriptor_t descriptor;
-            fillEncoderDescriptor(index, descriptor);
+            fillEncoderDescriptor(index, encoderState, descriptor);
 
             sendMessage(index, encoderState, descriptor);
         }
@@ -327,6 +327,7 @@ void Encoders::sendMessage(size_t index, position_t encoderState, encoderDescrip
 
     case type_t::SINGLE_NOTE_FIXED_VAL_BOTH_DIR:
     case type_t::SINGLE_NOTE_FIXED_VAL_ONE_DIR_0_OTHER_DIR:
+    case type_t::TWO_NOTE_FIXED_VAL_BOTH_DIR:
     {
         descriptor.event.value = _database.read(database::Config::Section::encoder_t::REPEATED_VALUE, index);
 
@@ -446,12 +447,34 @@ Encoders::position_t Encoders::read(size_t index, uint8_t pairState)
     return retVal;
 }
 
-void Encoders::fillEncoderDescriptor(size_t index, encoderDescriptor_t& descriptor)
+void Encoders::fillEncoderDescriptor(size_t index, position_t encoderState, encoderDescriptor_t& descriptor)
 {
-    descriptor.type                 = static_cast<type_t>(_database.read(database::Config::Section::encoder_t::MODE, index));
+    descriptor.type = static_cast<type_t>(_database.read(database::Config::Section::encoder_t::MODE, index));
+
+    switch (descriptor.type)
+    {
+    case type_t::TWO_NOTE_FIXED_VAL_BOTH_DIR:
+    {
+        if (encoderState == position_t::CCW)
+        {
+            descriptor.event.index = _database.read(database::Config::Section::encoder_t::MIDI_ID_2, index);
+        }
+        else
+        {
+            descriptor.event.index = _database.read(database::Config::Section::encoder_t::MIDI_ID_1, index);
+        }
+    }
+    break;
+
+    default:
+    {
+        descriptor.event.index = _database.read(database::Config::Section::encoder_t::MIDI_ID_1, index);
+    }
+    break;
+    }
+
     descriptor.event.componentIndex = index;
     descriptor.event.channel        = _database.read(database::Config::Section::encoder_t::CHANNEL, index);
-    descriptor.event.index          = _database.read(database::Config::Section::encoder_t::MIDI_ID_1, index);
     descriptor.event.message        = INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(descriptor.type)];
 }
 

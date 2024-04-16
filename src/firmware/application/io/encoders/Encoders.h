@@ -59,6 +59,7 @@ namespace io
             SINGLE_NOTE_VARIABLE_VAL,
             SINGLE_NOTE_FIXED_VAL_BOTH_DIR,
             SINGLE_NOTE_FIXED_VAL_ONE_DIR_0_OTHER_DIR,
+            TWO_NOTE_FIXED_VAL_BOTH_DIR,
             AMOUNT
         };
 
@@ -124,7 +125,7 @@ namespace io
             encoderDescriptor_t() = default;
         };
 
-        void                   fillEncoderDescriptor(size_t index, encoderDescriptor_t& descriptor);
+        void                   fillEncoderDescriptor(size_t index, position_t encoderState, encoderDescriptor_t& descriptor);
         position_t             read(size_t index, uint8_t pairState);
         void                   processReading(size_t index, uint8_t pairValue, uint32_t sampleTime);
         void                   sendMessage(size_t index, position_t encoderState, encoderDescriptor_t& descriptor);
@@ -229,6 +230,7 @@ namespace io
             MIDI::messageType_t::NOTE_ON,                 // SINGLE_NOTE_VARIABLE_VAL
             MIDI::messageType_t::NOTE_ON,                 // SINGLE_NOTE_FIXED_VAL_BOTH_DIR
             MIDI::messageType_t::NOTE_ON,                 // SINGLE_NOTE_FIXED_VAL_ONE_DIR_0_OTHER_DIR
+            MIDI::messageType_t::NOTE_ON,                 // TWO_NOTE_FIXED_VAL_BOTH_DIR
         };
     };
 }    // namespace io
