@@ -465,7 +465,7 @@ std::optional<uint8_t> Encoders::sysConfigGet(sys::Config::Section::encoder_t se
 
     if (result == sys::Config::status_t::ACK)
     {
-        if (section == sys::Config::Section::encoder_t::MIDI_ID_MSB)
+        if (section == sys::Config::Section::encoder_t::RESERVED_1)
         {
             return sys::Config::status_t::ERROR_NOT_SUPPORTED;
         }
@@ -480,7 +480,7 @@ std::optional<uint8_t> Encoders::sysConfigSet(sys::Config::Section::encoder_t se
 {
     switch (section)
     {
-    case sys::Config::Section::encoder_t::MIDI_ID_MSB:
+    case sys::Config::Section::encoder_t::RESERVED_1:
         return sys::Config::status_t::ERROR_NOT_SUPPORTED;
 
     default:

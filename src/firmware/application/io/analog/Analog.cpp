@@ -420,9 +420,9 @@ std::optional<uint8_t> Analog::sysConfigGet(sys::Config::Section::analog_t secti
 
     switch (section)
     {
-    case sys::Config::Section::analog_t::MIDI_ID_MSB:
-    case sys::Config::Section::analog_t::LOWER_LIMIT_MSB:
-    case sys::Config::Section::analog_t::UPPER_LIMIT_MSB:
+    case sys::Config::Section::analog_t::RESERVED_1:
+    case sys::Config::Section::analog_t::RESERVED_2:
+    case sys::Config::Section::analog_t::RESERVED_3:
         return sys::Config::status_t::ERROR_NOT_SUPPORTED;
 
     default:
@@ -438,9 +438,9 @@ std::optional<uint8_t> Analog::sysConfigSet(sys::Config::Section::analog_t secti
 {
     switch (section)
     {
-    case sys::Config::Section::analog_t::MIDI_ID_MSB:
-    case sys::Config::Section::analog_t::LOWER_LIMIT_MSB:
-    case sys::Config::Section::analog_t::UPPER_LIMIT_MSB:
+    case sys::Config::Section::analog_t::RESERVED_1:
+    case sys::Config::Section::analog_t::RESERVED_2:
+    case sys::Config::Section::analog_t::RESERVED_3:
         return sys::Config::status_t::ERROR_NOT_SUPPORTED;
 
     case sys::Config::Section::analog_t::TYPE:

@@ -115,7 +115,7 @@ namespace sys
                 static_cast<uint16_t>(io::Encoders::type_t::AMOUNT) - 1,
             },
 
-            // midi id section, lsb
+            // midi id section
             {
                 io::Encoders::Collection::SIZE(),
                 0,
@@ -143,7 +143,7 @@ namespace sys
                 static_cast<uint16_t>(io::Encoders::acceleration_t::AMOUNT) - 1,
             },
 
-            // midi id section, msb
+            // unused, reserved for compatibility
             {
                 io::Encoders::Collection::SIZE(),
                 0,
@@ -201,42 +201,42 @@ namespace sys
                 static_cast<uint16_t>(io::Analog::type_t::AMOUNT) - 1,
             },
 
-            // midi id section, lsb
+            // midi id section
             {
                 io::Analog::Collection::SIZE(),
                 0,
                 16383,
             },
 
-            // midi id section, msb
+            // unused, reserved for compatibility
             {
                 io::Analog::Collection::SIZE(),
                 0,
                 127,
             },
 
-            // lower value limit section, lsb
+            // lower value limit section
             {
                 io::Analog::Collection::SIZE(),
                 0,
                 16383,
             },
 
-            // lower value limit section, msb
+            // unused, reserved for compatibility
             {
                 io::Analog::Collection::SIZE(),
                 0,
                 127,
             },
 
-            // upper value limit section, lsb
+            // upper value limit section
             {
                 io::Analog::Collection::SIZE(),
                 0,
                 16383,
             },
 
-            // upper value limit section, msb
+            // unused, reserved for compatibility
             {
                 io::Analog::Collection::SIZE(),
                 0,
