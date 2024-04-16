@@ -166,21 +166,21 @@ size_t Encoders::maxComponentUpdateIndex()
 
 void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTime)
 {
-    position_t encoderState = read(index, pairValue);
+    auto position = read(index, pairValue);
 
-    if (_filter.isFiltered(index, encoderState, encoderState, sampleTime))
+    if (_filter.isFiltered(index, position, position, sampleTime))
     {
-        if (encoderState != position_t::STOPPED)
+        if (position != position_t::STOPPED)
         {
             if (_database.read(database::Config::Section::encoder_t::INVERT, index))
             {
-                if (encoderState == position_t::CCW)
+                if (position == position_t::CCW)
                 {
-                    encoderState = position_t::CW;
+                    position = position_t::CW;
                 }
                 else
                 {
-                    encoderState = position_t::CCW;
+                    position = position_t::CCW;
                 }
             }
 
@@ -203,14 +203,14 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
             }
 
             encoderDescriptor_t descriptor;
-            fillEncoderDescriptor(index, encoderState, descriptor);
+            fillEncoderDescriptor(index, position, descriptor);
 
-            sendMessage(index, encoderState, descriptor);
+            sendMessage(index, position, descriptor);
         }
     }
 }
 
-void Encoders::sendMessage(size_t index, position_t encoderState, encoderDescriptor_t& descriptor)
+void Encoders::sendMessage(size_t index, position_t position, encoderDescriptor_t& descriptor)
 {
     auto    eventType = messaging::eventType_t::ENCODER;
     bool    send      = true;
@@ -220,25 +220,25 @@ void Encoders::sendMessage(size_t index, position_t encoderState, encoderDescrip
     {
     case type_t::CONTROL_CHANGE_7FH01H:
     {
-        descriptor.event.value = VAL_CONTROL_CHANGE_7FH01H[static_cast<uint8_t>(encoderState)];
+        descriptor.event.value = VAL_CONTROL_CHANGE_7FH01H[static_cast<uint8_t>(position)];
     }
     break;
 
     case type_t::CONTROL_CHANGE_3FH41H:
     {
-        descriptor.event.value = VAL_CONTROL_CHANGE_3FH41H[static_cast<uint8_t>(encoderState)];
+        descriptor.event.value = VAL_CONTROL_CHANGE_3FH41H[static_cast<uint8_t>(position)];
     }
     break;
 
     case type_t::CONTROL_CHANGE_41H01H:
     {
-        descriptor.event.value = VAL_CONTROL_CHANGE_41H01H[static_cast<uint8_t>(encoderState)];
+        descriptor.event.value = VAL_CONTROL_CHANGE_41H01H[static_cast<uint8_t>(position)];
     }
     break;
 
     case type_t::PROGRAM_CHANGE:
     {
-        if (encoderState == position_t::CCW)
+        if (position == position_t::CCW)
         {
             if (!MIDIProgram.incrementProgram(descriptor.event.channel, 1))
             {
@@ -272,7 +272,7 @@ void Encoders::sendMessage(size_t index, position_t encoderState, encoderDescrip
             steps <<= 2;
         }
 
-        if (encoderState == position_t::CCW)
+        if (position == position_t::CCW)
         {
             // ValueIncDecMIDI7Bit is used, but any type can be used when decrementing since the limit is 0 for all of them
             _value[index] = ValueIncDecMIDI7Bit::decrement(_value[index],
@@ -333,7 +333,7 @@ void Encoders::sendMessage(size_t index, position_t encoderState, encoderDescrip
 
         if (descriptor.type == type_t::SINGLE_NOTE_FIXED_VAL_ONE_DIR_0_OTHER_DIR)
         {
-            if (encoderState == position_t::CCW)
+            if (position == position_t::CCW)
             {
                 descriptor.event.value = 0;
             }
@@ -344,7 +344,7 @@ void Encoders::sendMessage(size_t index, position_t encoderState, encoderDescrip
     case type_t::PRESET_CHANGE:
     {
         eventType                      = messaging::eventType_t::SYSTEM;
-        descriptor.event.systemMessage = (encoderState == position_t::CW)
+        descriptor.event.systemMessage = (position == position_t::CW)
                                              ? messaging::systemMessage_t::PRESET_CHANGE_INC_REQ
                                              : messaging::systemMessage_t::PRESET_CHANGE_DEC_REQ;
     }
@@ -352,7 +352,7 @@ void Encoders::sendMessage(size_t index, position_t encoderState, encoderDescrip
 
     case type_t::BPM_CHANGE:
     {
-        if (encoderState == position_t::CCW)
+        if (position == position_t::CCW)
         {
             if (!BPM.increment(1))
             {
@@ -413,7 +413,7 @@ void Encoders::setValue(size_t index, uint16_t value)
 /// returns: Encoder direction. See position_t.
 Encoders::position_t Encoders::read(size_t index, uint8_t pairState)
 {
-    position_t retVal = position_t::STOPPED;
+    auto retVal = position_t::STOPPED;
     pairState &= 0x03;
 
     // add new data
@@ -447,7 +447,7 @@ Encoders::position_t Encoders::read(size_t index, uint8_t pairState)
     return retVal;
 }
 
-void Encoders::fillEncoderDescriptor(size_t index, position_t encoderState, encoderDescriptor_t& descriptor)
+void Encoders::fillEncoderDescriptor(size_t index, position_t position, encoderDescriptor_t& descriptor)
 {
     descriptor.type = static_cast<type_t>(_database.read(database::Config::Section::encoder_t::MODE, index));
 
@@ -455,7 +455,7 @@ void Encoders::fillEncoderDescriptor(size_t index, position_t encoderState, enco
     {
     case type_t::TWO_NOTE_FIXED_VAL_BOTH_DIR:
     {
-        if (encoderState == position_t::CCW)
+        if (position == position_t::CCW)
         {
             descriptor.event.index = _database.read(database::Config::Section::encoder_t::MIDI_ID_2, index);
         }

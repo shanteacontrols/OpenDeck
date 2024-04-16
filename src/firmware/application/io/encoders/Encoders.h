@@ -125,10 +125,10 @@ namespace io
             encoderDescriptor_t() = default;
         };
 
-        void                   fillEncoderDescriptor(size_t index, position_t encoderState, encoderDescriptor_t& descriptor);
+        void                   fillEncoderDescriptor(size_t index, position_t position, encoderDescriptor_t& descriptor);
         position_t             read(size_t index, uint8_t pairState);
         void                   processReading(size_t index, uint8_t pairValue, uint32_t sampleTime);
-        void                   sendMessage(size_t index, position_t encoderState, encoderDescriptor_t& descriptor);
+        void                   sendMessage(size_t index, position_t position, encoderDescriptor_t& descriptor);
         void                   setValue(size_t index, uint16_t value);
         std::optional<uint8_t> sysConfigGet(sys::Config::Section::encoder_t section, size_t index, uint16_t& value);
         std::optional<uint8_t> sysConfigSet(sys::Config::Section::encoder_t section, size_t index, uint16_t value);
