@@ -5,6 +5,7 @@
 set -e
 
 gdb -nx --batch \
+-ex "set pagination off" \
 -ex "target extended-remote /dev/${PORT}" \
 -ex "monitor swdp_scan" \
 -ex "attach 1" \
