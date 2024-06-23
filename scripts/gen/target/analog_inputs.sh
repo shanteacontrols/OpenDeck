@@ -132,7 +132,7 @@ then
         } >> "$out_cmakelists"
     elif [[ $analog_in_type == 4051 ]]
     then
-        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_DRIVER_ANALOG_INPUT_MULTIPLEXER)"
+        printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_DRIVER_ANALOG_INPUT_MULTIPLEXER)" >> "$out_cmakelists"
 
         for ((i=0; i<3; i++))
         do
