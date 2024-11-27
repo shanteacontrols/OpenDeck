@@ -31,12 +31,15 @@ namespace io
 
         bool isFiltered(size_t index, uint8_t& numberOfReadings, uint16_t& states) override
         {
-            // this is a board-optimized debouncer
-            // by the time processing of buttons takes place, more than 5ms has already passed
-            // 5ms is release debounce time
-            // take into account only two latest readings
-            // if any of those is 1 (pressed), consider the button pressed
-            // otherwise, button is considered released
+            /*
+                This filter makes use of the fact that the difference between digital readings is 1ms.
+                If the _debounceState is 0xFF or 0x00, the button is considered debounced. Since all bits
+                are used in a byte variable, and each reading takes 1ms, the debounce time is 8ms.
+
+                Technically, two readings are possible since maximum number of board readings is 16, and
+                full debounce cycle takes 8 readings. Assume the boards aren't that slow that the difference
+                between two calls of this function for the same button index is more than 8ms.
+             */
 
             numberOfReadings = 1;
 
@@ -47,23 +50,28 @@ namespace io
                 return true;
             }
 
-            states &= 0x03;
+            _debounceState[index] <<= numberOfReadings;
+            _debounceState[index] |= static_cast<uint8_t>(states);
 
-            if (numberOfReadings >= 2)
+            if (_debounceState[index] == 0xFF)
             {
-                if (states)
-                {
-                    // button is pressed
-                    states = 0x01;
-                }
+                states = 1;
+            }
+            else if (_debounceState[index] == 0)
+            {
+                states = 0;
             }
             else
             {
-                states &= 0x01;
+                // not debounced yet
+                return false;
             }
 
             return true;
         }
+
+        private:
+        uint8_t _debounceState[io::Buttons::Collection::SIZE(io::Buttons::GROUP_DIGITAL_INPUTS)] = {};
     };
 }    // namespace io
 
