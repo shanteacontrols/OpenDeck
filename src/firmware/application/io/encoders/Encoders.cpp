@@ -125,7 +125,7 @@ void Encoders::updateSingle(size_t index, bool forceRefresh)
     }
 
     uint8_t  numberOfReadings = 0;
-    uint32_t states           = 0;
+    uint16_t states           = 0;
 
     if (!_hwa.state(index, numberOfReadings, states))
     {

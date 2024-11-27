@@ -85,7 +85,7 @@ namespace io
             virtual ~HWA() = default;
 
             // should return true if the value has been refreshed, false otherwise
-            virtual bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
+            virtual bool state(size_t index, uint8_t& numberOfReadings, uint16_t& states) = 0;
         };
 
         class Filter

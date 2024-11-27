@@ -112,7 +112,7 @@ void Buttons::updateSingle(size_t index, bool forceRefresh)
     buttonDescriptor_t descriptor;
 
     uint8_t  numberOfReadings = 0;
-    uint32_t states           = 0;
+    uint16_t states           = 0;
 
     if (!forceRefresh)
     {
@@ -583,7 +583,7 @@ void Buttons::fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor)
     descriptor.event.message = INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(descriptor.messageType)];
 }
 
-bool Buttons::state(size_t index, uint8_t& numberOfReadings, uint32_t& states)
+bool Buttons::state(size_t index, uint8_t& numberOfReadings, uint16_t& states)
 {
     // if encoder under this index is enabled, just return false state each time
     if (_database.read(database::Config::Section::encoder_t::ENABLE, _hwa.buttonToEncoderIndex(index)))

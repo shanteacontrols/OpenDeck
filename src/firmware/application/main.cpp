@@ -229,7 +229,7 @@ class HWADigitalIn
     HWADigitalIn() = default;
 
 #ifdef BUTTONS_SUPPORTED
-    bool buttonState(size_t index, uint8_t& numberOfReadings, uint32_t& states)
+    bool buttonState(size_t index, uint8_t& numberOfReadings, uint16_t& states)
     {
         if (!board::io::digitalIn::state(index, _dInReadA))
         {
@@ -244,7 +244,7 @@ class HWADigitalIn
 #endif
 
 #ifdef ENCODERS_SUPPORTED
-    bool encoderState(size_t index, uint8_t& numberOfReadings, uint32_t& states)
+    bool encoderState(size_t index, uint8_t& numberOfReadings, uint16_t& states)
     {
         if (!board::io::digitalIn::state(board::io::digitalIn::encoderComponentFromEncoder(index,
                                                                                            board::io::digitalIn::encoderComponent_t::A),
@@ -292,7 +292,7 @@ class HWAButtons : public sys::Builder::HWA::IO::Buttons
     public:
     HWAButtons() = default;
 
-    bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
+    bool state(size_t index, uint8_t& numberOfReadings, uint16_t& states) override
     {
         return _hwaDigitalIn.buttonState(index, numberOfReadings, states);
     }
@@ -308,7 +308,7 @@ class HWAButtonsStub : public sys::Builder::HWA::IO::Buttons
     public:
     HWAButtonsStub() = default;
 
-    bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
+    bool state(size_t index, uint8_t& numberOfReadings, uint16_t& states) override
     {
         return false;
     }
@@ -327,7 +327,7 @@ class HWAEncoders : public sys::Builder::HWA::IO::Encoders
     public:
     HWAEncoders() = default;
 
-    bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
+    bool state(size_t index, uint8_t& numberOfReadings, uint16_t& states) override
     {
         return _hwaDigitalIn.encoderState(index, numberOfReadings, states);
     }
@@ -338,7 +338,7 @@ class HWAEncodersStub : public sys::Builder::HWA::IO::Encoders
     public:
     HWAEncodersStub() = default;
 
-    bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
+    bool state(size_t index, uint8_t& numberOfReadings, uint16_t& states) override
     {
         return false;
     }

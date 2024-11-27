@@ -80,7 +80,7 @@ namespace io
             public:
             virtual ~HWA() = default;
 
-            virtual bool   state(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
+            virtual bool   state(size_t index, uint8_t& numberOfReadings, uint16_t& states) = 0;
             virtual size_t buttonToEncoderIndex(size_t index)                               = 0;
         };
 
@@ -89,7 +89,7 @@ namespace io
             public:
             virtual ~Filter() = default;
 
-            virtual bool isFiltered(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
+            virtual bool isFiltered(size_t index, uint8_t& numberOfReadings, uint16_t& states) = 0;
         };
 
         using Database = database::User<database::Config::Section::button_t,

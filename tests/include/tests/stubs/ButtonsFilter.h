@@ -5,7 +5,7 @@
 class ButtonsFilterStub : public io::Buttons::Filter
 {
     public:
-    bool isFiltered(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
+    bool isFiltered(size_t index, uint8_t& numberOfReadings, uint16_t& states) override
     {
         return true;
     }

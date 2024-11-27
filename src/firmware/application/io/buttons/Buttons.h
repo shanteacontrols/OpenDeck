@@ -97,7 +97,7 @@ namespace io
             virtual ~HWA() = default;
 
             // should return true if the value has been refreshed, false otherwise
-            virtual bool   state(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
+            virtual bool   state(size_t index, uint8_t& numberOfReadings, uint16_t& states) = 0;
             virtual size_t buttonToEncoderIndex(size_t index)                               = 0;
         };
 
@@ -106,7 +106,7 @@ namespace io
             public:
             virtual ~Filter() = default;
 
-            virtual bool isFiltered(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
+            virtual bool isFiltered(size_t index, uint8_t& numberOfReadings, uint16_t& states) = 0;
         };
 
         using Database = database::User<database::Config::Section::button_t,
@@ -135,7 +135,7 @@ namespace io
         using ValueIncDecMIDI7Bit = util::IncDec<uint8_t, 0, ::MIDI::MIDI_7BIT_VALUE_MAX>;
 
         bool                   state(size_t index);
-        bool                   state(size_t index, uint8_t& numberOfReadings, uint32_t& states);
+        bool                   state(size_t index, uint8_t& numberOfReadings, uint16_t& states);
         void                   fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor);
         void                   processButton(size_t index, bool reading, buttonDescriptor_t& descriptor);
         void                   sendMessage(size_t index, bool state, buttonDescriptor_t& descriptor);
