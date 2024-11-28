@@ -8,6 +8,11 @@
     "workspaceFolder": "/home/ubuntu/workspace/OpenDeck",
     "mounts": [
         {
+            "source": "/dev",
+            "target": "/dev",
+            "type": "bind"
+        },
+        {
             "source": "${localEnv:HOME}/.gitconfig",
             "target": "/etc/gitconfig",
             "type": "bind"
@@ -23,6 +28,7 @@
         "--hostname=${localWorkspaceFolderBasename}"
     ],
     "containerUser": "ubuntu",
+    "privileged": true,
     "customizations": {
         "vscode": {
             "extensions": [
