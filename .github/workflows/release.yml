@@ -4,33 +4,42 @@ on:
   release:
     types: [created]
 
-defaults:
-  run:
-    shell: bash -leo pipefail {0}
-
 jobs:
   build:
     name: Attach firmware to release
-    runs-on: ubuntu-22.04
-    container:
-      image: ghcr.io/shanteacontrols/opendeck:latest
-      options: --user root
+    runs-on: ubuntu-latest
     steps:
-      - name: Mark repository as safe
-        run: git config --global --add safe.directory /__w/OpenDeck/OpenDeck
-      - name: Pull the repository and submodules
+      - name: Pull the repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          submodules: recursive
-      - name: Build
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Setup missing directories and files on the runner
         run: |
-          git fetch --tags
-          ./scripts/build_targets.sh --type=build
-          ./scripts/copy_release_binaries.sh --build-dir=build --copy-dir=release
-      - name: Upload
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          tag_name="${GITHUB_REF##*/}"
-          hub release edit $(find ./release -type f -printf "-a %p ") -m "" "$tag_name"
+          mkdir -p ~/.ssh
+          touch ~/.gitconfig
+      - name: Prepare container
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: opendeck # Local name only
+          imageTag: latest # Local tag only
+          push: never
+          env: |
+            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+      - name: Build and upload
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: opendeck
+          imageTag: latest
+          push: never
+          runCmd: |
+            git fetch --tags
+            ./scripts/build_targets.sh --type=build
+            ./scripts/copy_release_binaries.sh --build-dir=build --copy-dir=release
+            tag_name="${GITHUB_REF##*/}"
+            hub release edit $(find ./release -type f -printf "-a %p ") -m "" "$tag_name"

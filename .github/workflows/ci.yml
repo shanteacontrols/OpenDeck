@@ -2,74 +2,113 @@ name: CI
 
 on: [push]
 
-defaults:
-  run:
-    shell: bash -leo pipefail {0}
-
-env:
-  CCACHE_DIR: /__w/OpenDeck/OpenDeck/ccache
-
 jobs:
-  build_and_test_ubuntu:
-    name: Build/Test [Ubuntu]
-    runs-on: ubuntu-22.04
-    container:
-      image: ghcr.io/shanteacontrols/opendeck:latest
-      options: --user root
+  build:
+    name: Build/Test
+    runs-on: ubuntu-latest
     steps:
-      - name: Mark repository as safe
-        run: git config --global --add safe.directory /__w/OpenDeck/OpenDeck
-      - name: Pull the repository and submodules
+      - name: Pull the repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          submodules: recursive
       - name: Restore ccache
         uses: actions/cache/restore@v4
         with:
-          path: |
-            ccache
-          key: ccache-key
-      - name: Build and test targets
+          path: ccache
+          key: ccache-
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Setup missing directories and files on the runner
         run: |
-          git fetch --tags
-          ./scripts/build_targets.sh --type=build
-          ./scripts/build_targets.sh --type=test
+          mkdir -p ~/.ssh
+          touch ~/.gitconfig
+      - name: Prepare container
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: opendeck # Local name only
+          imageTag: latest # Local tag only
+          push: never
+      - name: Build and test targets
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: opendeck
+          imageTag: latest
+          push: never
+          runCmd: |
+            git fetch --tags
+            ./scripts/build_targets.sh --type=build
+            ./scripts/build_targets.sh --type=test
       - name: Save ccache
         uses: actions/cache/save@v4
+        if: always()
         with:
-          path: |
-            ccache
-          key: ccache-key
+          path: ccache
+          key: "ccache-${{ github.run_id }}"
   format:
     name: Code formatting
-    runs-on: ubuntu-22.04
-    container:
-      image: ghcr.io/shanteacontrols/opendeck:latest
-      options: --user root
+    runs-on: ubuntu-latest
     steps:
-      - name: Mark repository as safe
-        run: git config --global --add safe.directory /__w/OpenDeck/OpenDeck
-      - uses: actions/checkout@v4
+      - name: Pull the repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          submodules: recursive
-      - name: Check formatting
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Setup missing directories and files on the runner
         run: |
-          make format
+          mkdir -p ~/.ssh
+          touch ~/.gitconfig
+      - name: Prepare container
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: opendeck # Local name only
+          imageTag: latest # Local tag only
+          push: never
+      - name: Check formatting
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: opendeck
+          imageTag: latest
+          push: never
+          runCmd: |
+            make format
   lint:
     name: Code linting
-    runs-on: ubuntu-22.04
-    container:
-      image: ghcr.io/shanteacontrols/opendeck:latest
-      options: --user root
+    runs-on: ubuntu-latest
     steps:
-      - name: Mark repository as safe
-        run: git config --global --add safe.directory /__w/OpenDeck/OpenDeck
-      - uses: actions/checkout@v4
+      - name: Pull the repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          submodules: recursive
-      - name: Lint
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Setup missing directories and files on the runner
         run: |
-          ./scripts/build_targets.sh --type=lint
+          mkdir -p ~/.ssh
+          touch ~/.gitconfig
+      - name: Prepare container
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: opendeck # Local name only
+          imageTag: latest # Local tag only
+          push: never
+      - name: Check formatting
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: opendeck
+          imageTag: latest
+          push: never
+          runCmd: |
+            ./scripts/build_targets.sh --type=lint

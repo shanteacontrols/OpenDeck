@@ -1,10 +1,28 @@
 {
-    "name": "Existing Docker Compose (Extend)",
-    "dockerComposeFile": [
-        "../docker-compose.yml",
-    ],
-    "service": "opendeck",
+    "name": "${localWorkspaceFolderBasename}",
+    "build": {
+        "dockerfile": "Dockerfile.ghcr",
+        "context": "${localWorkspaceFolder}"
+    },
+    "workspaceMount": "src=${localWorkspaceFolder},dst=/home/ubuntu/workspace/OpenDeck,type=bind",
     "workspaceFolder": "/home/ubuntu/workspace/OpenDeck",
+    "mounts": [
+        {
+            "source": "${localEnv:HOME}/.gitconfig",
+            "target": "/etc/gitconfig",
+            "type": "bind"
+        },
+        {
+            "source": "${localEnv:HOME}/.ssh",
+            "target": "/home/ubuntu/.ssh",
+            "type": "bind"
+        }
+    ],
+    "runArgs": [
+        "--network=host",
+        "--hostname=${localWorkspaceFolderBasename}"
+    ],
+    "containerUser": "ubuntu",
     "customizations": {
         "vscode": {
             "extensions": [
