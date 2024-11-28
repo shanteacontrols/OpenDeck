@@ -87,7 +87,7 @@ namespace board
             {
             }
         }    // namespace indicators
-    }        // namespace io
+    }    // namespace io
 
     namespace detail::io
     {
@@ -160,7 +160,7 @@ namespace board
             {
             }
         }    // namespace bootloader
-    }        // namespace detail::io
+    }    // namespace detail::io
 
     namespace usb
     {

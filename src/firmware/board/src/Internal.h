@@ -144,5 +144,5 @@ namespace board::detail
         {
             void init();
         }    // namespace bootloader
-    }        // namespace io
+    }    // namespace io
 }    // namespace board::detail

@@ -476,7 +476,7 @@ namespace board
             /// This will turn on input indicators first and then output ones continuously until factory reset is done.
             void indicateFactoryReset();
         }    // namespace indicators
-    }        // namespace io
+    }    // namespace io
 
     namespace nvm
     {
@@ -549,7 +549,7 @@ namespace board
             /// returns: True if transfer has succeded, false otherwise.
             bool write(uint8_t* buffer, size_t size);
         }    // namespace midi
-    }        // namespace ble
+    }    // namespace ble
 
     namespace bootloader
     {
@@ -568,4 +568,4 @@ namespace board
         uint8_t readFlash(uint32_t address);
 #endif
     }    // namespace bootloader
-};       // namespace board
+}    // namespace board
