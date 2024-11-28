@@ -1,1 +1,1 @@
-FROM ghcr.io/shanteacontrols/opendeck:latest
+FROM ghcr.io/shanteacontrols/opendeck:381baf2ef11a606d36e5798c302d185ba0f165ee
