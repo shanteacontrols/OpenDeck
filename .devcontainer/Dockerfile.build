@@ -1,9 +1,10 @@
-FROM ubuntu:23.10
+FROM ubuntu:24.04
 
 ARG wget_args="-q --show-progress --progress=bar:force:noscroll"
 ARG deps_dir=/opendeck-deps
 ARG arduino_dir=${deps_dir}/arduino
 ARG arduino_version=1.8.6
+ARG dasel_version=1.27.3
 ARG user=ubuntu
 ARG workspace_dir=/home/${user}/workspace
 ARG project_name=OpenDeck
@@ -78,7 +79,7 @@ echo "Unsupported architecture"; false; \
 fi \
 && \
 echo "Downloading dasel for $PACKAGE_VARIANT arch" && \
-wget ${wget_args} https://github.com/TomWright/dasel/releases/download/v1.27.3/dasel_linux_${PACKAGE_VARIANT} -O dasel && \
+wget ${wget_args} https://github.com/TomWright/dasel/releases/download/v${dasel_version}/dasel_linux_${PACKAGE_VARIANT} -O dasel && \
 chmod +x dasel
 
 RUN \
@@ -92,7 +93,7 @@ fi; \
 cd ${deps_dir} && \
 wget ${wget_args} \
 -O nrfclt.deb \
-https://nsscprodmedia.blob.core.windows.net/prod/software-and-other-downloads/desktop-software/nrf-command-line-tools/sw/versions-10-x-x/10-24-0/nrf-command-line-tools_10.24.0_${ARCH}.deb && \
+https://nsscprodmedia.blob.core.windows.net/prod/software-and-other-downloads/desktop-software/nrf-command-line-tools/sw/versions-10-x-x/10-24-2/nrf-command-line-tools_10.24.2_${ARCH}.deb && \
 dpkg -i nrfclt.deb && \
 rm nrfclt.deb && \
 echo '#!/bin/bash\necho not running udevadm "$@"' > /usr/bin/udevadm && chmod +x /usr/bin/udevadm && \
