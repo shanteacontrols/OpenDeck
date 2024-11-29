@@ -54,20 +54,28 @@ namespace io
             // avoid filtering in this case for faster response
             if (descriptor.type == Analog::type_t::BUTTON)
             {
+                bool newValue = _lastStableValue[index];
+
                 if (descriptor.value < _adcConfig.DIGITAL_VALUE_THRESHOLD_OFF)
                 {
-                    descriptor.value = 1;
+                    newValue = false;
                 }
                 else if (descriptor.value > _adcConfig.DIGITAL_VALUE_THRESHOLD_ON)
                 {
-                    descriptor.value = 0;
+                    newValue = true;
                 }
                 else
                 {
-                    descriptor.value = 0;
+                    return false;
                 }
 
-                return true;
+                if (newValue != _lastStableValue[index])
+                {
+                    _lastStableValue[index] = newValue;
+                    return true;
+                }
+
+                return false;
             }
 
             const bool FAST_FILTER    = (core::mcu::timing::ms() - _lastStableMovementTime[index]) < FAST_FILTER_ENABLE_AFTER_MS;
