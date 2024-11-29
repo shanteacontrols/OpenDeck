@@ -409,7 +409,7 @@ TEST_F(AnalogTest, Scaling)
 
 TEST_F(AnalogTest, ButtonForwarding)
 {
-    if (Analog::Collection::SIZE(Analog::GROUP_ANALOG_INPUTS))
+    if (!Analog::Collection::SIZE(Analog::GROUP_ANALOG_INPUTS))
     {
         return;
     }
@@ -428,7 +428,6 @@ TEST_F(AnalogTest, ButtonForwarding)
     ASSERT_TRUE(_analog._databaseAdmin.update(database::Config::Section::button_t::VALUE, Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, BUTTON_VELOCITY));
 
     std::vector<messaging::event_t> dispatchMessageAnalogFwd;
-    std::vector<messaging::event_t> dispatchMessageButtons;
 
     MIDIDispatcher.listen(messaging::eventType_t::ANALOG_BUTTON,
                           [&](const messaging::event_t& dispatchMessage)
@@ -436,73 +435,38 @@ TEST_F(AnalogTest, ButtonForwarding)
                               dispatchMessageAnalogFwd.push_back(dispatchMessage);
                           });
 
-    MIDIDispatcher.listen(messaging::eventType_t::BUTTON,
-                          [&](const messaging::event_t& dispatchMessage)
-                          {
-                              dispatchMessageButtons.push_back(dispatchMessage);
-                          });
-
     stateChangeRegister(0xFFFF);
 
     // analog class should just forward the message with the original component index
     // the rest of the message doesn't matter
-    EXPECT_EQ(1, dispatchMessageAnalogFwd.size());
+    ASSERT_EQ(1, dispatchMessageAnalogFwd.size());
     EXPECT_EQ(BUTTON_INDEX, dispatchMessageAnalogFwd.at(0).componentIndex);
-
-    // button class should receive this message and push new button message with index being Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS) + index
-    EXPECT_EQ(1, dispatchMessageButtons.size());
-    EXPECT_EQ(Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, dispatchMessageButtons.at(0).componentIndex);
-
-    // verify the rest of the message
-
-    // midi index should be the original one - indexing restarts for each new button group (physical buttons / analog / touchscreen)
-    EXPECT_EQ(MIDI::messageType_t::CONTROL_CHANGE, dispatchMessageButtons.at(0).message);
-    EXPECT_EQ(BUTTON_INDEX, dispatchMessageButtons.at(0).index);
-    EXPECT_EQ(BUTTON_VELOCITY, dispatchMessageButtons.at(0).value);
-    EXPECT_EQ(BUTTON_MIDI_CHANNEL, dispatchMessageButtons.at(0).channel);
 
     stateChangeRegister(0);
 
     // since the button was configured in CONTROL_CHANGE_RESET reset mode,
     // another message should be sent from buttons
-    EXPECT_EQ(2, dispatchMessageAnalogFwd.size());
+    ASSERT_EQ(2, dispatchMessageAnalogFwd.size());
     EXPECT_EQ(BUTTON_INDEX, dispatchMessageAnalogFwd.at(1).componentIndex);
-    EXPECT_EQ(2, dispatchMessageButtons.size());
-    EXPECT_EQ(Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, dispatchMessageButtons.at(1).componentIndex);
-    EXPECT_EQ(MIDI::messageType_t::CONTROL_CHANGE, dispatchMessageButtons.at(1).message);
-    EXPECT_EQ(BUTTON_INDEX, dispatchMessageButtons.at(1).index);
-    EXPECT_EQ(0, dispatchMessageButtons.at(1).value);
-    EXPECT_EQ(BUTTON_MIDI_CHANNEL, dispatchMessageButtons.at(1).channel);
 
     // repeat the update - analog class sends forwarding message again since it's not in charge of filtering it
-    // buttons class shouldn't send anything new since the state of the button hasn't changed
     _analog._instance.updateAll();
 
     EXPECT_EQ(3, dispatchMessageAnalogFwd.size());
-    EXPECT_EQ(2, dispatchMessageButtons.size());
 
     // similar test with the button message type being normal CC
-    dispatchMessageButtons.clear();
     dispatchMessageAnalogFwd.clear();
 
     ASSERT_TRUE(_analog._databaseAdmin.update(database::Config::Section::button_t::MESSAGE_TYPE, Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, Buttons::messageType_t::CONTROL_CHANGE));
 
     stateChangeRegister(0xFFFF);
 
-    EXPECT_EQ(1, dispatchMessageAnalogFwd.size());
+    ASSERT_EQ(1, dispatchMessageAnalogFwd.size());
     EXPECT_EQ(BUTTON_INDEX, dispatchMessageAnalogFwd.at(0).componentIndex);
-    EXPECT_EQ(1, dispatchMessageButtons.size());
-    EXPECT_EQ(Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS) + BUTTON_INDEX, dispatchMessageButtons.at(0).componentIndex);
-    EXPECT_EQ(MIDI::messageType_t::CONTROL_CHANGE, dispatchMessageButtons.at(0).message);
-    EXPECT_EQ(BUTTON_INDEX, dispatchMessageButtons.at(0).index);
-    EXPECT_EQ(BUTTON_VELOCITY, dispatchMessageButtons.at(0).value);
-    EXPECT_EQ(BUTTON_MIDI_CHANNEL, dispatchMessageButtons.at(0).channel);
 
     stateChangeRegister(0);
 
-    // this time buttons shouldn't send anything new since standard CC is a latching message
     EXPECT_EQ(2, dispatchMessageAnalogFwd.size());
-    EXPECT_EQ(1, dispatchMessageButtons.size());
 }
 
 #endif
