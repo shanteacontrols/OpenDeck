@@ -100,6 +100,7 @@ void Analog::updateSingle(size_t index, bool forceRefresh)
         {
             analogDescriptor_t descriptor;
             fillAnalogDescriptor(index, descriptor);
+            descriptor.event.forcedRefresh = true;
 
             descriptor.newValue = _lastValue[index];
             descriptor.oldValue = _lastValue[index];

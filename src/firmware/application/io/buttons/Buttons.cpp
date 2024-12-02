@@ -45,8 +45,22 @@ Buttons::Buttons(HWA&      hwa,
                               buttonDescriptor_t descriptor;
                               fillButtonDescriptor(index, descriptor);
 
-                              // event.value in this case contains state information only
-                              processButton(index, event.value, descriptor);
+                              if (!event.forcedRefresh)
+                              {
+                                  // event.value in this case contains state information only
+                                  processButton(index, event.value, descriptor);
+                              }
+                              else
+                              {
+                                  if (descriptor.type == type_t::LATCHING)
+                                  {
+                                      sendMessage(index, latchingState(index), descriptor);
+                                  }
+                                  else
+                                  {
+                                      sendMessage(index, state(index), descriptor);
+                                  }
+                              }
                           });
 
     MIDIDispatcher.listen(messaging::eventType_t::TOUCHSCREEN_BUTTON,
