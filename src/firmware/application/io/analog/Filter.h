@@ -72,6 +72,7 @@ namespace io
                 if (newValue != _lastStableValue[index])
                 {
                     _lastStableValue[index] = newValue;
+                    descriptor.value        = newValue;
                     return true;
                 }
 
