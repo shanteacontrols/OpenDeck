@@ -66,22 +66,6 @@ namespace messaging
         MIDIlib::Base::messageType_t message        = MIDIlib::Base::messageType_t::INVALID;
         systemMessage_t              systemMessage  = systemMessage_t::FORCE_IO_REFRESH;
 
-        event_t(size_t                       componentIndex,
-                uint8_t                      channel,
-                uint16_t                     index,
-                uint16_t                     value,
-                uint8_t*                     sysEx,
-                size_t                       sysExLength,
-                MIDIlib::Base::messageType_t message)
-            : componentIndex(componentIndex)
-            , channel(channel)
-            , index(index)
-            , value(value)
-            , sysEx(sysEx)
-            , sysExLength(sysExLength)
-            , message(message)
-        {}
-
         event_t() = default;
     };
 }    // namespace messaging
