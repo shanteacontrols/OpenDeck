@@ -244,8 +244,8 @@ namespace io
             .FSR_MIN_VALUE               = 160,
             .FSR_MAX_VALUE               = 1360,
             .AFTERTOUCH_MAX_VALUE        = 2400,
-            .DIGITAL_VALUE_THRESHOLD_ON  = 3950,
-            .DIGITAL_VALUE_THRESHOLD_OFF = 2400,
+            .DIGITAL_VALUE_THRESHOLD_ON  = 3000,
+            .DIGITAL_VALUE_THRESHOLD_OFF = 1000,
         };
 
         adcConfig_t&              _adcConfig;
