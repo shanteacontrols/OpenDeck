@@ -63,6 +63,7 @@ namespace messaging
         uint16_t                     value          = 0;
         uint8_t*                     sysEx          = nullptr;
         size_t                       sysExLength    = 0;
+        bool                         forcedRefresh  = false;
         MIDIlib::Base::messageType_t message        = MIDIlib::Base::messageType_t::INVALID;
         systemMessage_t              systemMessage  = systemMessage_t::FORCE_IO_REFRESH;
 
