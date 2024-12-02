@@ -117,7 +117,7 @@ namespace io
             uint16_t           maxValue    = 127;
             uint16_t           newValue    = 0;
             uint16_t           oldValue    = 0;
-            messaging::event_t event;
+            messaging::event_t event       = {};
 
             analogDescriptor_t() = default;
         };

@@ -184,13 +184,12 @@ bool Instance::init()
     // on startup, indicate current program for all channels
     for (int i = 1; i <= 16; i++)
     {
-        messaging::event_t event;
-
-        event.componentIndex = 0;
-        event.channel        = i;
-        event.index          = MIDIProgram.program(i);
-        event.value          = 0;
-        event.message        = MIDI::messageType_t::PROGRAM_CHANGE;
+        messaging::event_t event = {};
+        event.componentIndex     = 0;
+        event.channel            = i;
+        event.index              = MIDIProgram.program(i);
+        event.value              = 0;
+        event.message            = MIDI::messageType_t::PROGRAM_CHANGE;
 
         MIDIDispatcher.notify(messaging::eventType_t::PROGRAM, event);
     }
@@ -399,19 +398,19 @@ void Instance::forceComponentRefresh()
         return;
     }
 
-    messaging::event_t event;
-    event.systemMessage = messaging::systemMessage_t::FORCE_IO_REFRESH;
+    messaging::event_t event = {};
+    event.systemMessage      = messaging::systemMessage_t::FORCE_IO_REFRESH;
 
     MIDIDispatcher.notify(messaging::eventType_t::SYSTEM, event);
 }
 
 void Instance::SysExDataHandler::sendResponse(uint8_t* array, uint16_t size)
 {
-    messaging::event_t event;
-    event.systemMessage = messaging::systemMessage_t::SYS_EX_RESPONSE;
-    event.message       = MIDI::messageType_t::SYS_EX;
-    event.sysEx         = array;
-    event.sysExLength   = size;
+    messaging::event_t event = {};
+    event.systemMessage      = messaging::systemMessage_t::SYS_EX_RESPONSE;
+    event.message            = MIDI::messageType_t::SYS_EX;
+    event.sysEx              = array;
+    event.sysExLength        = size;
 
     MIDIDispatcher.notify(messaging::eventType_t::SYSTEM, event);
 }
@@ -504,12 +503,12 @@ uint8_t Instance::SysExDataHandler::customRequest(uint16_t request, CustomRespon
         // no response here, just set flag internally that backup needs to be done
         _system._backupRestoreState = backupRestoreState_t::BACKUP;
 
-        messaging::event_t event;
-        event.componentIndex = 0;
-        event.channel        = 0;
-        event.index          = 0;
-        event.value          = 0;
-        event.systemMessage  = messaging::systemMessage_t::BACKUP;
+        messaging::event_t event = {};
+        event.componentIndex     = 0;
+        event.channel            = 0;
+        event.index              = 0;
+        event.value              = 0;
+        event.systemMessage      = messaging::systemMessage_t::BACKUP;
 
         MIDIDispatcher.notify(messaging::eventType_t::SYSTEM, event);
     }
@@ -520,12 +519,12 @@ uint8_t Instance::SysExDataHandler::customRequest(uint16_t request, CustomRespon
         _system._backupRestoreState = backupRestoreState_t::RESTORE;
         _system._sysExConf.setUserErrorIgnoreMode(true);
 
-        messaging::event_t event;
-        event.componentIndex = 0;
-        event.channel        = 0;
-        event.index          = 0;
-        event.value          = 0;
-        event.systemMessage  = messaging::systemMessage_t::RESTORE_START;
+        messaging::event_t event = {};
+        event.componentIndex     = 0;
+        event.channel            = 0;
+        event.index              = 0;
+        event.value              = 0;
+        event.systemMessage      = messaging::systemMessage_t::RESTORE_START;
 
         MIDIDispatcher.notify(messaging::eventType_t::SYSTEM, event);
     }
@@ -536,12 +535,12 @@ uint8_t Instance::SysExDataHandler::customRequest(uint16_t request, CustomRespon
         _system._backupRestoreState = backupRestoreState_t::NONE;
         _system._sysExConf.setUserErrorIgnoreMode(false);
 
-        messaging::event_t event;
-        event.componentIndex = 0;
-        event.channel        = 0;
-        event.index          = 0;
-        event.value          = 0;
-        event.systemMessage  = messaging::systemMessage_t::RESTORE_END;
+        messaging::event_t event = {};
+        event.componentIndex     = 0;
+        event.channel            = 0;
+        event.index              = 0;
+        event.value              = 0;
+        event.systemMessage      = messaging::systemMessage_t::RESTORE_END;
 
         MIDIDispatcher.notify(messaging::eventType_t::SYSTEM, event);
     }
@@ -581,12 +580,12 @@ void Instance::DBhandlers::presetChange(uint8_t preset)
                                           PRESET_CHANGE_NOTIFY_DELAY,
                                           [&]()
                                           {
-                                              messaging::event_t event;
-                                              event.componentIndex = 0;
-                                              event.channel        = 0;
-                                              event.index          = _system._components.database().getPreset();
-                                              event.value          = 0;
-                                              event.systemMessage  = messaging::systemMessage_t::PRESET_CHANGED;
+                                              messaging::event_t event = {};
+                                              event.componentIndex     = 0;
+                                              event.channel            = 0;
+                                              event.index              = _system._components.database().getPreset();
+                                              event.value              = 0;
+                                              event.systemMessage      = messaging::systemMessage_t::PRESET_CHANGED;
 
                                               MIDIDispatcher.notify(messaging::eventType_t::SYSTEM, event);
 
@@ -602,24 +601,24 @@ void Instance::DBhandlers::initialized()
 
 void Instance::DBhandlers::factoryResetStart()
 {
-    messaging::event_t event;
-    event.componentIndex = 0;
-    event.channel        = 0;
-    event.index          = 0;
-    event.value          = 0;
-    event.systemMessage  = messaging::systemMessage_t::FACTORY_RESET_START;
+    messaging::event_t event = {};
+    event.componentIndex     = 0;
+    event.channel            = 0;
+    event.index              = 0;
+    event.value              = 0;
+    event.systemMessage      = messaging::systemMessage_t::FACTORY_RESET_START;
 
     MIDIDispatcher.notify(messaging::eventType_t::SYSTEM, event);
 }
 
 void Instance::DBhandlers::factoryResetDone()
 {
-    messaging::event_t event;
-    event.componentIndex = 0;
-    event.channel        = 0;
-    event.index          = 0;
-    event.value          = 0;
-    event.systemMessage  = messaging::systemMessage_t::FACTORY_RESET_END;
+    messaging::event_t event = {};
+    event.componentIndex     = 0;
+    event.channel            = 0;
+    event.index              = 0;
+    event.value              = 0;
+    event.systemMessage      = messaging::systemMessage_t::FACTORY_RESET_END;
 
     MIDIDispatcher.notify(messaging::eventType_t::SYSTEM, event);
 }

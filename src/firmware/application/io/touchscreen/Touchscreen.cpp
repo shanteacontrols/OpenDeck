@@ -396,10 +396,9 @@ Touchscreen::Model* Touchscreen::modelInstance(model_t model)
 
 void Touchscreen::buttonHandler(size_t index, bool state)
 {
-    messaging::event_t event;
-
-    event.componentIndex = index;
-    event.value          = state;
+    messaging::event_t event = {};
+    event.componentIndex     = index;
+    event.value              = state;
 
     // mark this as forwarding message type - further action/processing is required
     MIDIDispatcher.notify(messaging::eventType_t::TOUCHSCREEN_BUTTON, event);
@@ -407,9 +406,8 @@ void Touchscreen::buttonHandler(size_t index, bool state)
 
 void Touchscreen::screenChangeHandler(size_t screenID)
 {
-    messaging::event_t event;
-
-    event.componentIndex = screenID;
+    messaging::event_t event = {};
+    event.componentIndex     = screenID;
 
     // mark this as forwarding message type - further action/processing is required
     MIDIDispatcher.notify(messaging::eventType_t::TOUCHSCREEN_SCREEN, event);

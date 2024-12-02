@@ -31,13 +31,12 @@ namespace
 TEST_F(MIDITest, OmniChannel)
 {
     // simulate button event
-    messaging::event_t event;
-
-    event.componentIndex = 0;
-    event.channel        = 1;
-    event.index          = 0;
-    event.value          = 127;
-    event.message        = MIDI::messageType_t::NOTE_ON;
+    messaging::event_t event = {};
+    event.componentIndex     = 0;
+    event.channel            = 1;
+    event.index              = 0;
+    event.value              = 127;
+    event.message            = MIDI::messageType_t::NOTE_ON;
 
     MIDIDispatcher.notify(messaging::eventType_t::BUTTON, event);
 

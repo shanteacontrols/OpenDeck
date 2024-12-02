@@ -664,12 +664,11 @@ TEST_F(SystemTest, UsbThruDin)
 
     // generate incoming USB message
 
-    messaging::event_t event;
-
-    event.channel = 1;
-    event.index   = 0;
-    event.value   = 127;
-    event.message = MIDI::messageType_t::CONTROL_CHANGE;
+    messaging::event_t event = {};
+    event.channel            = 1;
+    event.index              = 0;
+    event.value              = 127;
+    event.message            = MIDI::messageType_t::CONTROL_CHANGE;
 
     _helper.processIncoming(event);
 

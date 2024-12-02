@@ -83,9 +83,9 @@ namespace global
         {
             _bpm = bpm;
 
-            messaging::event_t event;
-            event.systemMessage = messaging::systemMessage_t::MIDI_BPM_CHANGE;
-            event.value         = bpm;
+            messaging::event_t event = {};
+            event.systemMessage      = messaging::systemMessage_t::MIDI_BPM_CHANGE;
+            event.value              = bpm;
 
             MIDIDispatcher.notify(messaging::eventType_t::SYSTEM, event);
         }

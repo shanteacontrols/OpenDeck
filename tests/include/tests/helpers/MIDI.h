@@ -39,10 +39,10 @@ class MIDIHelper
 
     std::vector<MIDI::usbMIDIPacket_t> rawSysExToUSBPackets(std::vector<uint8_t>& raw)
     {
-        messaging::event_t event;
-        event.sysEx       = &raw[0];
-        event.sysExLength = raw.size();
-        event.message     = MIDI::messageType_t::SYS_EX;
+        messaging::event_t event = {};
+        event.sysEx              = &raw[0];
+        event.sysExLength        = raw.size();
+        event.message            = MIDI::messageType_t::SYS_EX;
 
         return midiToUsbPackets(event);
     }
@@ -496,10 +496,10 @@ class MIDIHelper
 
         std::cout << std::endl;
 
-        messaging::event_t event;
-        event.sysEx       = &request[0];
-        event.sysExLength = request.size();
-        event.message     = MIDI::messageType_t::SYS_EX;
+        messaging::event_t event = {};
+        event.sysEx              = &request[0];
+        event.sysExLength        = request.size();
+        event.message            = MIDI::messageType_t::SYS_EX;
 
         processIncoming(event);
 

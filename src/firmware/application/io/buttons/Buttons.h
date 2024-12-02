@@ -127,7 +127,7 @@ namespace io
         {
             type_t             type        = type_t::MOMENTARY;
             messageType_t      messageType = messageType_t::NOTE;
-            messaging::event_t event;
+            messaging::event_t event       = {};
 
             buttonDescriptor_t() = default;
         };

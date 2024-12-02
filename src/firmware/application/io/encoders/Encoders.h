@@ -119,8 +119,8 @@ namespace io
         private:
         struct encoderDescriptor_t
         {
-            type_t             type = type_t::CONTROL_CHANGE_7FH01H;
-            messaging::event_t event;
+            type_t             type  = type_t::CONTROL_CHANGE_7FH01H;
+            messaging::event_t event = {};
 
             encoderDescriptor_t() = default;
         };

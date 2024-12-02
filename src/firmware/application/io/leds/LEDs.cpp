@@ -801,9 +801,9 @@ void LEDs::setState(size_t index, brightness_t brightness)
         // specified hwa interface only writes to physical leds
         // for touchscreen and other destinations, notify via dispatcher
 
-        messaging::event_t event;
-        event.componentIndex = index - Collection::START_INDEX(GROUP_TOUCHSCREEN_COMPONENTS);
-        event.value          = static_cast<uint16_t>(brightness);
+        messaging::event_t event = {};
+        event.componentIndex     = index - Collection::START_INDEX(GROUP_TOUCHSCREEN_COMPONENTS);
+        event.value              = static_cast<uint16_t>(brightness);
 
         MIDIDispatcher.notify(messaging::eventType_t::TOUCHSCREEN_LED, event);
     }

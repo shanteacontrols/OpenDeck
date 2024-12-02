@@ -140,9 +140,9 @@ namespace global
         {
             _offset = offset;
 
-            messaging::event_t event;
-            event.systemMessage = messaging::systemMessage_t::MIDI_PROGRAM_OFFSET_CHANGE;
-            event.value         = offset;
+            messaging::event_t event = {};
+            event.systemMessage      = messaging::systemMessage_t::MIDI_PROGRAM_OFFSET_CHANGE;
+            event.value              = offset;
 
             MIDIDispatcher.notify(messaging::eventType_t::SYSTEM, event);
         }

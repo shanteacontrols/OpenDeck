@@ -321,13 +321,12 @@ void protocol::MIDI::read()
         {
             LOG_INFO("Received MIDI message on interface index %d", static_cast<int>(i));
 
-            messaging::event_t event;
-
-            event.componentIndex = 0;
-            event.channel        = interfaceInstance->channel();
-            event.index          = interfaceInstance->data1();
-            event.value          = interfaceInstance->data2();
-            event.message        = interfaceInstance->type();
+            messaging::event_t event = {};
+            event.componentIndex     = 0;
+            event.channel            = interfaceInstance->channel();
+            event.index              = interfaceInstance->data1();
+            event.value              = interfaceInstance->data2();
+            event.message            = interfaceInstance->type();
 
             switch (event.message)
             {
