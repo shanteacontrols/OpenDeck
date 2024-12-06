@@ -37,7 +37,6 @@ gdb \
 git \
 git-lfs \
 gpg-agent \
-hub \
 libgmock-dev \
 libgoogle-glog-dev \
 libgtest-dev \
