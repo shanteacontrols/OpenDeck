@@ -41,7 +41,13 @@ jobs:
           runCmd: |
             git fetch --tags
             ./scripts/build_targets.sh --type=build
+            ./scripts/copy_release_binaries.sh --build-dir=build --copy-dir=release
             ./scripts/build_targets.sh --type=test
+      - name: Upload firmware artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: binaries
+          path: release/*
       - name: Save ccache
         uses: actions/cache/save@v4
         if: always()
