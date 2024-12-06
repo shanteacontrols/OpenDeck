@@ -52,3 +52,4 @@ jobs:
         with:
           artifacts: release/*
           allowUpdates: true
+          omitBody: false
