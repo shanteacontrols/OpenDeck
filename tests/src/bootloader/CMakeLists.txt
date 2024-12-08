@@ -4,8 +4,8 @@ if("PROJECT_MCU_SUPPORT_BOOTLOADER" IN_LIST PROJECT_MCU_DEFINES)
     target_sources(bootloader
         PRIVATE
         test.cpp
-        ${PROJECT_ROOT}/src/firmware/bootloader/SysExParser/SysExParser.cpp
-        ${PROJECT_ROOT}/src/firmware/bootloader/updater/Updater.cpp
+        ${PROJECT_ROOT}/src/firmware/bootloader/sysex_parser/sysex_parser.cpp
+        ${PROJECT_ROOT}/src/firmware/bootloader/updater/updater.cpp
     )
 
     target_link_libraries(bootloader

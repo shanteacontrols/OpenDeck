@@ -9,10 +9,10 @@ list(APPEND BOARD_DEFINES
     BOARD_USE_FAST_SOFT_PWM_TIMER
 )
 
-add_module(EmuEEPROM)
-add_mcu_library(emueeprom-lib)
+add_module(libemueeprom)
+add_mcu_library(libemueeprom)
 
-target_compile_definitions(emueeprom-lib
+target_compile_definitions(libemueeprom
     PUBLIC
     EMU_EEPROM_PAGE_SIZE=${EMU_EEPROM_PAGE_SIZE}
 )

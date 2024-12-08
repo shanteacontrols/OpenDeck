@@ -28,6 +28,7 @@ target_include_directories(board_application
     PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/include
     ${PROJECT_ROOT}/src/generated/target/${TARGET}
+    ${WORKSPACE_ROOT}/modules/libmidi/include
     PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/src
 )
@@ -80,13 +81,13 @@ elseif (TARGET usb)
     list(APPEND BOARD_APPLICATION_LIBRARIES usb)
 endif()
 
-if (TARGET emueeprom-lib)
+if (TARGET libemueeprom)
     target_link_libraries(board_application
         PUBLIC
-        emueeprom-lib
+        libemueeprom
     )
 
-    list(APPEND BOARD_APPLICATION_LIBRARIES emueeprom-lib)
+    list(APPEND BOARD_APPLICATION_LIBRARIES libemueeprom)
 endif()
 
 target_link_options(board_application
@@ -104,6 +105,7 @@ if("PROJECT_MCU_SUPPORT_BOOTLOADER" IN_LIST PROJECT_MCU_DEFINES)
         PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/include
         ${PROJECT_ROOT}/src/generated/target/${TARGET}
+        ${WORKSPACE_ROOT}/modules/libmidi/include
         PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/src
     )
@@ -147,12 +149,12 @@ if("PROJECT_MCU_SUPPORT_BOOTLOADER" IN_LIST PROJECT_MCU_DEFINES)
 
     list(APPEND BOARD_BOOTLOADER_LIBRARIES mcu)
 
-    if (TARGET emueeprom-lib)
+    if (TARGET libemueeprom)
         target_link_libraries(board_bootloader
-            PUBLIC emueeprom-lib
+            PUBLIC libemueeprom
         )
 
-        list(APPEND BOARD_BOOTLOADER_LIBRARIES emueeprom-lib)
+        list(APPEND BOARD_BOOTLOADER_LIBRARIES libemueeprom)
     endif()
 
     target_link_options(board_bootloader

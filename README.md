@@ -119,12 +119,12 @@ Most of the code is available under Apache Licence v2.0, with the following exce
 
 * `modules`:
   * `avr-libstdcpp`: GNU GPL v3 or later with GCC Runtime Library Exception 3.1
-  * `core`: MIT
-  * `dbms`: MIT
-  * `EmuEEPROM`: MIT
-  * `lufa`: Modified MIT, see `modules/core/modules/lufa/LUFA/Licence.txt` for details
-  * `midi`: MIT
-  * `sysex`: MIT
+  * `libcore`: MIT
+  * `liblessdb`: MIT
+  * `libemueeprom`: MIT
+  * `lufa`: Modified MIT, see `modules/libcore/modules/lufa/LUFA/Licence.txt` for details
+  * `libmidi`: MIT
+  * `libsysexconf`: MIT
   * `u8g2`: Two-clause BSD
   * `unity`: MIT
   * `tinyusb`: MIT, but many modules it uses are individually licenced, check for more details

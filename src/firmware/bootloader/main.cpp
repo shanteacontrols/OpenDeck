@@ -1,6 +1,6 @@
 /*
 
-Copyright 2015-2022 Igor Petrovic
+Copyright Igor Petrovic
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,93 +16,12 @@ limitations under the License.
 
 */
 
-#include "board/Board.h"
-#include "bootloader/updater/Updater.h"
-#include "SysExParser/SysExParser.h"
-#include "FwSelector/FwSelector.h"
-#include "core/MCU.h"
+#include "board/board.h"
+#include "bootloader/updater/builder_hw.h"
+#include "sysex_parser/sysex_parser.h"
+#include "fw_selector/builder_hw.h"
 
-class BTLDRWriter : public Updater::BTLDRWriter
-{
-    public:
-    uint32_t pageSize(size_t index) override
-    {
-        return board::bootloader::pageSize(index);
-    }
-
-    void erasePage(size_t index) override
-    {
-        board::bootloader::erasePage(index);
-    }
-
-    void fillPage(size_t index, uint32_t address, uint32_t value) override
-    {
-        board::bootloader::fillPage(index, address, value);
-    }
-
-    void commitPage(size_t index) override
-    {
-        board::bootloader::commitPage(index);
-    }
-
-    void apply() override
-    {
-        board::reboot();
-    }
-
-    void onFirmwareUpdateStart() override
-    {
-        board::io::indicators::indicateFirmwareUpdateStart();
-    }
-};
-
-class HWAFwSelector : public FwSelector::HWA
-{
-    public:
-    uint32_t magicBootValue() override
-    {
-        return board::bootloader::magicBootValue();
-    }
-
-    void setMagicBootValue(uint32_t value) override
-    {
-        board::bootloader::setMagicBootValue(value);
-    }
-
-    void load(FwSelector::fwType_t fwType) override
-    {
-        switch (fwType)
-        {
-        case FwSelector::fwType_t::BOOTLOADER:
-        {
-            board::bootloader::runBootloader();
-        }
-        break;
-
-        case FwSelector::fwType_t::APPLICATION:
-        default:
-        {
-            board::bootloader::runApplication();
-        }
-        break;
-        }
-    }
-
-    void appAddrBoundary(uint32_t& first, uint32_t& last) override
-    {
-        board::bootloader::appAddrBoundary(first, last);
-    }
-
-    bool isHWtriggerActive() override
-    {
-        return board::bootloader::isHWtriggerActive();
-    }
-
-    uint8_t readFlash(uint32_t address) override
-    {
-        return board::bootloader::readFlash(address);
-    }
-};
+#include "core/mcu.h"
 
 class Reader
 {
@@ -113,7 +32,7 @@ class Reader
     {
         uint8_t value = 0;
 
-        if (board::usb::readMIDI(_usbMIDIpacket))
+        if (board::usb::readMidi(_usbMIDIpacket))
         {
             if (_sysExParser.isValidMessage(_usbMIDIpacket))
             {
@@ -125,7 +44,7 @@ class Reader
                     {
                         if (_sysExParser.value(i, value))
                         {
-                            _updater.feed(value);
+                            _builderUpdater.instance().feed(value);
                         }
                     }
                 }
@@ -134,23 +53,21 @@ class Reader
     }
 
     private:
-    BTLDRWriter           _btldrWriter;
-    Updater               _updater = Updater(_btldrWriter, PROJECT_TARGET_UID);
-    MIDI::usbMIDIPacket_t _usbMIDIpacket;
-    SysExParser           _sysExParser;
+    updater::BuilderHw        _builderUpdater;
+    protocol::midi::UsbPacket _usbMIDIpacket;
+    sysex_parser::SysExParser _sysExParser;
 };
 
 namespace
 {
-    HWAFwSelector hwaFwSelector;
-    FwSelector    fwSelector(hwaFwSelector);
-    Reader        reader;
+    fw_selector::BuilderHw builderFwSelector;
+    Reader                 reader;
 }    // namespace
 
 int main()
 {
     board::init();
-    fwSelector.select();
+    builderFwSelector.instance().select();
 
     // everything beyond this point means bootloader is active
     // otherwise jump to other firmware would have already been made

@@ -34,7 +34,7 @@ done
 
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 yaml_parser="dasel -n -p yaml --plain -f"
-out_header="$gen_dir"/Target.h
+out_header="$gen_dir"/target.h
 mcu=$($yaml_parser "$yaml_file" mcu)
 target_name=$(basename "$yaml_file" .yml)
 mcu_gen_dir=$base_mcu_gen_dir/$mcu

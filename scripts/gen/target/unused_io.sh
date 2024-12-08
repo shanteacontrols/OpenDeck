@@ -18,7 +18,7 @@ then
 
     {
         printf "%s\n" "namespace gen {"
-        printf "%s\n" "constexpr inline board::detail::io::unused::unusedIO_t UNUSED_PIN[PROJECT_TARGET_NR_OF_UNUSED_IO] = {"
+        printf "%s\n" "constexpr inline board::detail::io::unused::UnusedIo UNUSED_PIN[PROJECT_TARGET_NR_OF_UNUSED_IO] = {"
     } >> "$out_header"
 
     for ((i=0; i<unused_pins; i++))

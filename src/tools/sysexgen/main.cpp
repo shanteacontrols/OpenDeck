@@ -1,6 +1,6 @@
 /*
 
-Copyright 2015-2022 Igor Petrovic
+Copyright Igor Petrovic
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,6 +16,10 @@ limitations under the License.
 
 */
 
+#include "application/util/conversion/conversion.h"
+#include "bootloader/updater/updater.h"
+#include "application/system/config.h"
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -23,15 +27,12 @@ limitations under the License.
 #include <iterator>
 #include <string>
 #include <cstddef>
-#include "application/util/conversion/Conversion.h"
-#include "bootloader/updater/Updater.h"
-#include "application/system/Config.h"
 
 namespace
 {
     constexpr size_t BYTES_PER_FW_MESSAGE = 32;
 
-    void appendSysExID(std::vector<uint8_t>& vec)
+    void appendSysExId(std::vector<uint8_t>& vec)
     {
         using namespace sys;
 
@@ -46,9 +47,9 @@ namespace
         {
             output.push_back(0xF0);
 
-            appendSysExID(output);
+            appendSysExId(output);
 
-            std::vector<uint8_t> commandArray;
+            std::vector<uint8_t> commandArray = {};
 
             if (bytes == 2)
             {
@@ -75,7 +76,7 @@ namespace
 
             for (size_t i = 0; i < commandArray.size(); i++)
             {
-                auto split = util::Conversion::Split14bit(commandArray.at(i));
+                auto split = util::Conversion::Split14Bit(commandArray.at(i));
 
                 output.push_back(split.high());
                 output.push_back(split.low());
@@ -98,8 +99,8 @@ int main(int argc, char* argv[])
 
     std::ifstream        stream(argv[1], std::ios::in | std::ios::binary);
     std::vector<uint8_t> contents((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
-    std::vector<uint8_t> output;
-    std::fstream         outputFile;
+    std::vector<uint8_t> output     = {};
+    std::fstream         outputFile = {};
 
     // make sure firmware size is multiple of 4 (parser operates on 4-byte values)
     while (contents.size() % 4)
@@ -111,14 +112,14 @@ int main(int argc, char* argv[])
               << contents.size() << " bytes. Generating SysEx file, please wait..."
               << std::endl;
 
-    appendCommand(Updater::START_COMMAND, 4, output);
+    appendCommand(updater::START_COMMAND, 4, output);
 
     output.push_back(0xF0);
-    appendSysExID(output);
+    appendSysExId(output);
 
     for (size_t i = 0; i < 4; i++)
     {
-        auto split = util::Conversion::Split14bit(contents.size() >> (8 * i) & 0xFF);
+        auto split = util::Conversion::Split14Bit(contents.size() >> (8 * i) & 0xFF);
 
         output.push_back(split.high());
         output.push_back(split.low());
@@ -126,7 +127,7 @@ int main(int argc, char* argv[])
 
     for (size_t i = 0; i < 4; i++)
     {
-        auto split = util::Conversion::Split14bit(PROJECT_TARGET_UID >> (8 * i) & 0xFF);
+        auto split = util::Conversion::Split14Bit(PROJECT_TARGET_UID >> (8 * i) & 0xFF);
 
         output.push_back(split.high());
         output.push_back(split.low());
@@ -142,11 +143,11 @@ int main(int argc, char* argv[])
         if (!byteCounter)
         {
             output.push_back(0xF0);
-            appendSysExID(output);
+            appendSysExId(output);
             lastByteSet = 0;
         }
 
-        auto split = util::Conversion::Split14bit(contents.at(i));
+        auto split = util::Conversion::Split14Bit(contents.at(i));
 
         output.push_back(split.high());
         output.push_back(split.low());
@@ -166,7 +167,7 @@ int main(int argc, char* argv[])
         output.push_back(0xF7);
     }
 
-    appendCommand(Updater::END_COMMAND, 2, output);
+    appendCommand(updater::END_COMMAND, 2, output);
 
     outputFile.open(argv[2], std::ios::trunc | std::ios::in | std::ios::out | std::ios::binary);
     outputFile.unsetf(std::ios::skipws);

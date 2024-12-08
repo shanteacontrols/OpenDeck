@@ -6,17 +6,17 @@ if("PROJECT_MCU_SUPPORT_BOOTLOADER" IN_LIST PROJECT_MCU_DEFINES)
         PRIVATE
         ${PROJECT_ROOT}/src/firmware
         ${WORKSPACE_ROOT}/modules/u8g2/csrc
-        ${WORKSPACE_ROOT}/modules/LESSDB/include
-        ${WORKSPACE_ROOT}/modules/SysExConf/include
-        ${WORKSPACE_ROOT}/modules/MIDI/include
+        ${WORKSPACE_ROOT}/modules/liblessdb/include
+        ${WORKSPACE_ROOT}/modules/libsysexconf/include
+        ${WORKSPACE_ROOT}/modules/libmidi/include
     )
 
     target_sources(bootloader
         PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/main.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/FwSelector/FwSelector.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/updater/Updater.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/SysExParser/SysExParser.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/fw_selector/fw_selector.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/updater/updater.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sysex_parser/sysex_parser.cpp
     )
 
     target_link_libraries(bootloader ${BOARD_BOOTLOADER_LIBRARIES})

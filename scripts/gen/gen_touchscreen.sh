@@ -13,7 +13,7 @@ for arg in "$@"; do
 done
 
 json_parser="dasel -n -p json --plain -f"
-out_src=$gen_dir/Touchscreen.cpp
+out_src=$gen_dir/touchscreen.cpp
 
 echo "Generating touchscreen coordinate file..."
 
@@ -26,7 +26,7 @@ then
     total_components=$($json_parser "$config" components --length)
 
     {
-        printf "%s\n\n" "#include \"application/database/Database.h\""
+        printf "%s\n\n" "#include \"application/database/database.h\""
         printf "%s\n" "void database::Admin::customInitTouchscreen()"
         printf "%s\n" "{"
     } > "$out_src"

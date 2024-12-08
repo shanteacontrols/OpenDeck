@@ -7,7 +7,7 @@ enable_language(CXX)
 set(WORKSPACE_ROOT $ENV{WORKSPACE_DIR})
 set(PROJECT_ROOT ${CMAKE_CURRENT_LIST_DIR}/../../../)
 
-include(${WORKSPACE_ROOT}/modules/core/cmake/ccache.cmake)
+include(${WORKSPACE_ROOT}/modules/libcore/cmake/ccache.cmake)
 include(${PROJECT_ROOT}/src/generated/target/${TARGET}/CMakeLists.txt)
 
 add_executable(sysexgen)
@@ -15,8 +15,8 @@ add_executable(sysexgen)
 target_include_directories(sysexgen
     PRIVATE
     ${PROJECT_ROOT}/src/firmware
-    ${WORKSPACE_ROOT}/modules/LESSDB/include
-    ${WORKSPACE_ROOT}/modules/SysExConf/include
+    ${WORKSPACE_ROOT}/modules/liblessdb/include
+    ${WORKSPACE_ROOT}/modules/libsysexconf/include
 )
 
 target_sources(sysexgen

@@ -1,0 +1,132 @@
+/*
+
+Copyright Igor Petrovic
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+*/
+
+#pragma once
+
+namespace board::detail::map
+{
+#ifdef PROJECT_TARGET_SUPPORT_ADC
+    constexpr const core::mcu::io::pin_t& ADC_PIN(uint8_t index)
+    {
+        return gen::ADC_PIN[index];
+    }
+
+    constexpr uint8_t ADC_INDEX(uint8_t index)
+    {
+#ifndef PROJECT_TARGET_INDEXING_ANALOG
+        return index;
+#else
+        return gen::ADC_INDEX[index];
+#endif
+    }
+#endif
+
+#if defined(PROJECT_TARGET_DRIVER_DIGITAL_INPUT_NATIVE) || defined(PROJECT_TARGET_DRIVER_DIGITAL_INPUT_MATRIX_NATIVE_ROWS)
+    constexpr const core::mcu::io::pin_t& BUTTON_PIN(uint8_t index)
+    {
+        return gen::BUTTON_PIN[index];
+    }
+#endif
+
+#if defined(PROJECT_TARGET_DRIVER_DIGITAL_INPUT_NATIVE)
+    constexpr const core::mcu::io::pinPort_t DIGITAL_IN_PORT(uint8_t index)
+    {
+        return gen::DIGITAL_IN_PORT[index];
+    }
+
+    constexpr const uint8_t BUTTON_PORT_INDEX(uint8_t index)
+    {
+        return gen::BUTTON_PORT_INDEX[index];
+    }
+
+    constexpr const uint8_t BUTTON_PIN_INDEX(uint8_t index)
+    {
+        return gen::BUTTON_PIN_INDEX[index];
+    }
+#endif
+
+    constexpr uint8_t BUTTON_INDEX(uint8_t index)
+    {
+#ifndef PROJECT_TARGET_INDEXING_BUTTONS
+        return index;
+#else
+        return gen::BUTTON_INDEX[index];
+#endif
+    }
+
+#if defined(PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_NATIVE) || defined(PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_MATRIX_NATIVE_ROWS)
+    constexpr const core::mcu::io::pin_t& LED_PIN(uint8_t index)
+    {
+        return gen::LED_PIN[index];
+    }
+#endif
+
+#if defined(PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_NATIVE)
+    constexpr const core::mcu::io::pinPort_t DIGITAL_OUT_PORT(uint8_t index)
+    {
+        return gen::DIGITAL_OUT_PORT[index];
+    }
+
+    constexpr const core::mcu::io::portWidth_t DIGITAL_OUT_PORT_CLEAR_MASK(uint8_t index)
+    {
+        return gen::DIGITAL_OUT_PORT_CLEAR_MASK[index];
+    }
+
+    constexpr const uint8_t LED_PORT_INDEX(uint8_t index)
+    {
+        return gen::LED_PORT_INDEX[index];
+    }
+
+    constexpr const uint8_t LED_PIN_INDEX(uint8_t index)
+    {
+        return gen::LED_PIN_INDEX[index];
+    }
+#endif
+
+    constexpr uint8_t LED_INDEX(uint8_t index)
+    {
+#ifndef PROJECT_TARGET_INDEXING_LEDS
+        return index;
+#else
+        return gen::LED_INDEX[index];
+#endif
+    }
+
+#ifdef PROJECT_TARGET_NR_OF_UNUSED_IO
+    constexpr const board::detail::io::unused::UnusedIo& UNUSED_PIN(uint8_t index)
+    {
+        return gen::UNUSED_PIN[index];
+    }
+#endif
+
+#ifdef CORE_MCU_CUSTOM_PERIPHERAL_PINS
+#ifdef PROJECT_TARGET_SUPPORT_UART
+    constexpr const core::mcu::uart::Config::pins_t& UART_PINS(size_t channel)
+    {
+        return gen::UART_PINS[channel];
+    }
+#endif
+
+#ifdef PROJECT_TARGET_SUPPORT_I2C
+    constexpr const core::mcu::i2c::Config::pins_t& I2C_PINS(size_t channel)
+    {
+        return gen::I2C_PINS[channel];
+    }
+#endif
+#endif
+}    // namespace board::detail::map

@@ -8,31 +8,31 @@ manifest:
       url-base: https://github.com/olikraus
 
   projects:
-    - name: core
+    - name: libcore
       remote: paradajz
-      revision: b51f9c1d0394b2ff5e14a48cd74ef9cfd8bfab1e
-      path: modules/core
+      revision: ca1dbff194f4ea6813c1a0c350bd43dedadea12d
+      path: modules/libcore
       submodules: true
       import: true
-    - name: midi-lib
+    - name: libmidi
       remote: shanteacontrols
-      revision: 887007e07a575b452907200f0a2cb18051feffb8
-      path: modules/MIDI
+      revision: 4b9c5973eac07007931b201727fd97d8367ac47d
+      path: modules/libmidi
       submodules: true
-    - name: LESS-DB
+    - name: liblessdb
       remote: paradajz
-      revision: 3204fce9c48c93538fc9f70e96cd710550027a8e
-      path: modules/LESSDB
+      revision: 0ad7716c7480b68fc3d79999b7cd30e80254103e
+      path: modules/liblessdb
       submodules: true
-    - name: EmuEEPROM
+    - name: libemueeprom
       remote: paradajz
-      revision: dc55817594fe34841d0aba0c386e48400fc9234f
-      path: modules/EmuEEPROM
+      revision: 62c9ae9412427075799bf1b94be47b56870acc25
+      path: modules/libemueeprom
       submodules: true
-    - name: sysex-conf
+    - name: libsysexconf
       remote: shanteacontrols
-      revision: 19eb3cf1b88761c93ca7a1dc4c35b75b3db8ad5c
-      path: modules/SysExConf
+      revision: 20973e56a382c72a434fb932eff6286afbd95dfc
+      path: modules/libsysexconf
       submodules: true
     - name: u8g2
       remote: olikraus

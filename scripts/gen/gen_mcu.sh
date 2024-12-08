@@ -22,7 +22,7 @@ done
 
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 yaml_parser="dasel -n -p yaml --plain -f"
-core_yaml_file=$(make --no-print-directory -C "$WORKSPACE_DIR"/modules/core MCU="$mcu" print-MCU_YML_FILE)
+core_yaml_file=$(make --no-print-directory -C "$WORKSPACE_DIR"/modules/libcore MCU="$mcu" print-MCU_YML_FILE)
 out_header="$gen_dir"/MCU.h
 out_cmakelists="$gen_dir"/CMakeLists.txt
 project_yaml_file=${script_dir}/../../config/mcu/$mcu.yml
@@ -31,7 +31,7 @@ cmake_usb_defines_var=PROJECT_USB_DEFINES
 
 if [[ ! -d $gen_dir ]]
 then
-    if ! make --no-print-directory -C "$WORKSPACE_DIR"/modules/core MCU="$mcu" MCU_GEN_DIR="$gen_dir" MCU_GEN_USB=1 MCU_EXT_CLOCK_MHZ="$extClockMhz"
+    if ! make --no-print-directory -C "$WORKSPACE_DIR"/modules/libcore MCU="$mcu" MCU_GEN_DIR="$gen_dir" MCU_GEN_USB=1 MCU_EXT_CLOCK_MHZ="$extClockMhz"
     then
         exit 1
     fi

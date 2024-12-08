@@ -1,14 +1,33 @@
+/*
+
+Copyright Igor Petrovic
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+*/
+
 #ifndef PROJECT_TARGET_USB_OVER_SERIAL_HOST
 #ifdef PROJECT_TARGET_HW_TESTS_SUPPORTED
 
+#include "tests/common.h"
+#include "tests/helpers/misc.h"
+#include "tests/helpers/midi.h"
+#include "application/database/builder_test.h"
+#include "application/system/builder_hw.h"
+#include <hw_test_defines.h>
+
 #include <string>
 #include <filesystem>
-#include "tests/Common.h"
-#include "tests/helpers/Misc.h"
-#include "tests/helpers/MIDI.h"
-#include "tests/stubs/Database.h"
-#include <HWTestDefines.h>
-#include "application/system/Builder.h"
 
 namespace
 {
@@ -148,7 +167,7 @@ namespace
                 // ensure the device is present
                 auto startTime = test::millis();
 
-                while (!MIDIHelper::devicePresent(true))
+                while (!test::MIDIHelper::devicePresent(true))
                 {
                     if ((test::millis() - startTime) > max_conn_delay_ms)
                     {
@@ -205,7 +224,7 @@ namespace
             LOG(INFO) << "Ensuring the device is available for handshake request...";
             auto startTime = test::millis();
 
-            while (!MIDIHelper::devicePresent(true))
+            while (!test::MIDIHelper::devicePresent(true))
             {
                 if ((test::millis() - startTime) > max_conn_delay_ms)
                 {
@@ -218,7 +237,7 @@ namespace
 
             startTime = test::millis();
 
-            while (handshake_ack != MIDIHelper::sendRawSysExToDevice(handshake_req))
+            while (handshake_ack != test::MIDIHelper::sendRawSysExToDevice(handshake_req))
             {
                 if ((test::millis() - startTime) > max_conn_delay_ms)
                 {
@@ -277,7 +296,7 @@ namespace
                 auto startTime = test::millis();
                 LOG(INFO) << "Request sent. Waiting for the device to disconnect.";
 
-                while (MIDIHelper::devicePresent(true))
+                while (test::MIDIHelper::devicePresent(true))
                 {
                     if ((test::millis() - startTime) > disconnect_retry_delay_ms)
                     {
@@ -286,7 +305,7 @@ namespace
                     }
                 }
 
-                if (!MIDIHelper::devicePresent(true))
+                if (!test::MIDIHelper::devicePresent(true))
                 {
                     disconnected = true;
                     break;
@@ -299,13 +318,13 @@ namespace
             if (type != softRebootType_t::BOOTLOADER)
             {
                 ASSERT_TRUE(handshake());
-                MIDIHelper::flush();
+                test::MIDIHelper::flush();
             }
             else
             {
                 auto startTime = test::millis();
 
-                while (!MIDIHelper::devicePresent(true, true))
+                while (!test::MIDIHelper::devicePresent(true, true))
                 {
                     if ((test::millis() - startTime) > max_conn_delay_ms)
                     {
@@ -399,8 +418,8 @@ namespace
         }
 #endif
 
-        TestDatabase _database;
-        MIDIHelper   _helper = MIDIHelper(true);
+        database::BuilderTest _database;
+        test::MIDIHelper      _helper = test::MIDIHelper(true);
 #ifdef HW_TEST_FLASHING_SUPPORTED
         static bool flashed;
 #endif
@@ -441,39 +460,39 @@ TEST_F(HWTest, DatabaseInitialValues)
         //----------------------------------
         // settings section
         // all values should be set to 0 except for the global channel which should be 1
-        for (size_t i = 0; i < static_cast<uint8_t>(protocol::MIDI::setting_t::AMOUNT); i++)
+        for (size_t i = 0; i < static_cast<uint8_t>(protocol::midi::setting_t::AMOUNT); i++)
         {
             switch (i)
             {
 #ifdef PROJECT_TARGET_SUPPORT_DIN_MIDI
-            case static_cast<size_t>(protocol::MIDI::setting_t::DIN_ENABLED):
-            case static_cast<size_t>(protocol::MIDI::setting_t::DIN_THRU_USB):
-            case static_cast<size_t>(protocol::MIDI::setting_t::USB_THRU_DIN):
-            case static_cast<size_t>(protocol::MIDI::setting_t::DIN_THRU_DIN):
+            case static_cast<size_t>(protocol::midi::setting_t::DIN_ENABLED):
+            case static_cast<size_t>(protocol::midi::setting_t::DIN_THRU_USB):
+            case static_cast<size_t>(protocol::midi::setting_t::USB_THRU_DIN):
+            case static_cast<size_t>(protocol::midi::setting_t::DIN_THRU_DIN):
 #endif
 
 #ifdef PROJECT_TARGET_SUPPORT_BLE
-            case static_cast<size_t>(protocol::MIDI::setting_t::BLE_ENABLED):
-            case static_cast<size_t>(protocol::MIDI::setting_t::BLE_THRU_USB):
-            case static_cast<size_t>(protocol::MIDI::setting_t::BLE_THRU_BLE):
-            case static_cast<size_t>(protocol::MIDI::setting_t::USB_THRU_BLE):
+            case static_cast<size_t>(protocol::midi::setting_t::BLE_ENABLED):
+            case static_cast<size_t>(protocol::midi::setting_t::BLE_THRU_USB):
+            case static_cast<size_t>(protocol::midi::setting_t::BLE_THRU_BLE):
+            case static_cast<size_t>(protocol::midi::setting_t::USB_THRU_BLE):
 #endif
 
 #if defined(PROJECT_TARGET_SUPPORT_DIN_MIDI) && defined(PROJECT_TARGET_SUPPORT_BLE)
-            case static_cast<size_t>(protocol::MIDI::setting_t::DIN_THRU_BLE):
-            case static_cast<size_t>(protocol::MIDI::setting_t::BLE_THRU_DIN):
+            case static_cast<size_t>(protocol::midi::setting_t::DIN_THRU_BLE):
+            case static_cast<size_t>(protocol::midi::setting_t::BLE_THRU_DIN):
 #endif
 
-            case static_cast<size_t>(protocol::MIDI::setting_t::STANDARD_NOTE_OFF):
-            case static_cast<size_t>(protocol::MIDI::setting_t::RUNNING_STATUS):
-            case static_cast<size_t>(protocol::MIDI::setting_t::USB_THRU_USB):
-            case static_cast<size_t>(protocol::MIDI::setting_t::USE_GLOBAL_CHANNEL):
+            case static_cast<size_t>(protocol::midi::setting_t::STANDARD_NOTE_OFF):
+            case static_cast<size_t>(protocol::midi::setting_t::RUNNING_STATUS):
+            case static_cast<size_t>(protocol::midi::setting_t::USB_THRU_USB):
+            case static_cast<size_t>(protocol::midi::setting_t::USE_GLOBAL_CHANNEL):
             {
                 ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::global_t::MIDI_SETTINGS, i));
             }
             break;
 
-            case static_cast<size_t>(protocol::MIDI::setting_t::GLOBAL_CHANNEL):
+            case static_cast<size_t>(protocol::midi::setting_t::GLOBAL_CHANNEL):
             {
                 ASSERT_EQ(1, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::global_t::MIDI_SETTINGS, i));
             }
@@ -488,38 +507,38 @@ TEST_F(HWTest, DatabaseInitialValues)
         //----------------------------------
         // type section
         // all values should be set to 0 (default type)
-        for (size_t i = 0; i < io::Buttons::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::buttons::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::button_t::TYPE, i));
         }
 
         // midi message section
         // all values should be set to 0 (default/note)
-        for (size_t i = 0; i < io::Buttons::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::buttons::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::button_t::MESSAGE_TYPE, i));
         }
 
         // midi id section
         // incremental values - first value should be 0, each successive value should be incremented by 1 for each group
-        for (size_t group = 0; group < io::Buttons::Collection::GROUPS(); group++)
+        for (size_t group = 0; group < io::buttons::Collection::GROUPS(); group++)
         {
-            for (size_t i = 0; i < io::Buttons::Collection::SIZE(group); i += PARAM_SKIP)
+            for (size_t i = 0; i < io::buttons::Collection::SIZE(group); i += PARAM_SKIP)
             {
-                ASSERT_EQ(i, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::button_t::MIDI_ID, i + io::Buttons::Collection::START_INDEX(group)));
+                ASSERT_EQ(i, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::button_t::MIDI_ID, i + io::buttons::Collection::START_INDEX(group)));
             }
         }
 
         // midi velocity section
         // all values should be set to 127
-        for (size_t i = 0; i < io::Buttons::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::buttons::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(127, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::button_t::VALUE, i));
         }
 
         // midi channel section
         // all values should be set to 1
-        for (size_t i = 0; i < io::Buttons::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::buttons::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(1, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::button_t::CHANNEL, i));
         }
@@ -528,68 +547,68 @@ TEST_F(HWTest, DatabaseInitialValues)
         //----------------------------------
         // enable section
         // all values should be set to 0
-        for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::encoders::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::ENABLE, i));
         }
 
         // invert section
         // all values should be set to 0
-        for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::encoders::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::INVERT, i));
         }
 
         // mode section
         // all values should be set to 0
-        for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::encoders::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::MODE, i));
         }
 
         // midi id 1 section
-        for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::encoders::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(i, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::MIDI_ID_1, i));
         }
 
         // midi channel section
         // all values should be set to 1
-        for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::encoders::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(1, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::CHANNEL, i));
         }
 
         // pulses per step section
         // all values should be set to 4
-        for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::encoders::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(4, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::PULSES_PER_STEP, i));
         }
 
         // lower limit section
         // all values should be set to 0
-        for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::encoders::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::LOWER_LIMIT, i));
         }
 
         // upper limit section
         // all values should be set to 16383
-        for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::encoders::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(16383, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::UPPER_LIMIT, i));
         }
 
         // repeated value section
         // all values should be set to 127
-        for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::encoders::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(127, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::REPEATED_VALUE, i));
         }
 
         // midi id 2 section
-        for (size_t i = 0; i < io::Encoders::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::encoders::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(i, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::encoder_t::MIDI_ID_2, i));
         }
@@ -598,66 +617,66 @@ TEST_F(HWTest, DatabaseInitialValues)
         //----------------------------------
         // enable section
         // all values should be set to 0
-        for (size_t i = 0; i < io::Analog::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::analog::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::ENABLE, i));
         }
 
         // invert section
         // all values should be set to 0
-        for (size_t i = 0; i < io::Analog::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::analog::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::INVERT, i));
         }
 
         // type section
         // all values should be set to 0
-        for (size_t i = 0; i < io::Analog::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::analog::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::INVERT, i));
         }
 
         // midi id section
         // incremental values - first value should be 0, each successive value should be incremented by 1 for each group
-        for (size_t group = 0; group < io::Analog::Collection::GROUPS(); group++)
+        for (size_t group = 0; group < io::analog::Collection::GROUPS(); group++)
         {
-            for (size_t i = 0; i < io::Analog::Collection::SIZE(group); i += PARAM_SKIP)
+            for (size_t i = 0; i < io::analog::Collection::SIZE(group); i += PARAM_SKIP)
             {
-                ASSERT_EQ(i, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::MIDI_ID, i + io::Analog::Collection::START_INDEX(group)));
+                ASSERT_EQ(i, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::MIDI_ID, i + io::analog::Collection::START_INDEX(group)));
             }
         }
 
         // lower limit section
         // all values should be set to 0
-        for (size_t i = 0; i < io::Analog::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::analog::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::LOWER_LIMIT, i));
         }
 
         // upper limit section
         // all values should be set to 16383
-        for (size_t i = 0; i < io::Analog::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::analog::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(16383, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::UPPER_LIMIT, i));
         }
 
         // midi channel section
         // all values should be set to 1
-        for (size_t i = 0; i < io::Analog::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::analog::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(1, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::CHANNEL, i));
         }
 
         // lower offset section
         // all values should be set to 0
-        for (size_t i = 0; i < io::Analog::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::analog::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::LOWER_OFFSET, i));
         }
 
         // upper offset section
         // all values should be set to 0
-        for (size_t i = 0; i < io::Analog::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::analog::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::analog_t::UPPER_OFFSET, i));
         }
@@ -666,45 +685,45 @@ TEST_F(HWTest, DatabaseInitialValues)
         //----------------------------------
         // global section
         // all values should be set to 0
-        for (size_t i = 0; i < static_cast<uint8_t>(io::LEDs::setting_t::AMOUNT); i += PARAM_SKIP)
+        for (size_t i = 0; i < static_cast<uint8_t>(io::leds::setting_t::AMOUNT); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::leds_t::GLOBAL, i));
         }
 
         // activation id section
         // incremental values - first value should be 0, each successive value should be incremented by 1 for each group
-        for (size_t group = 0; group < io::LEDs::Collection::GROUPS(); group++)
+        for (size_t group = 0; group < io::leds::Collection::GROUPS(); group++)
         {
-            for (size_t i = 0; i < io::LEDs::Collection::SIZE(group); i += PARAM_SKIP)
+            for (size_t i = 0; i < io::leds::Collection::SIZE(group); i += PARAM_SKIP)
             {
-                ASSERT_EQ(i, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::leds_t::ACTIVATION_ID, i + io::LEDs::Collection::START_INDEX(group)));
+                ASSERT_EQ(i, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::leds_t::ACTIVATION_ID, i + io::leds::Collection::START_INDEX(group)));
             }
         }
 
         // rgb enable section
         // all values should be set to 0
-        for (size_t i = 0; i < io::LEDs::Collection::SIZE() / 3 + (io::Touchscreen::Collection::SIZE() / 3); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::leds::Collection::SIZE() / 3 + (io::touchscreen::Collection::SIZE() / 3); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::leds_t::RGB_ENABLE, i));
         }
 
         // control type section
         // all values should be set to MIDI_IN_NOTE_MULTI_VAL
-        for (size_t i = 0; i < io::LEDs::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::leds::Collection::SIZE(); i += PARAM_SKIP)
         {
-            ASSERT_EQ(static_cast<uint32_t>(io::LEDs::controlType_t::MIDI_IN_NOTE_MULTI_VAL), _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::leds_t::CONTROL_TYPE, i));
+            ASSERT_EQ(static_cast<uint32_t>(io::leds::controlType_t::MIDI_IN_NOTE_MULTI_VAL), _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::leds_t::CONTROL_TYPE, i));
         }
 
         // activation value section
         // all values should be set to 127
-        for (size_t i = 0; i < io::LEDs::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::leds::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(127, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::leds_t::ACTIVATION_VALUE, i));
         }
 
         // midi channel section
         // all values should be set to 1
-        for (size_t i = 0; i < io::LEDs::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::leds::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(1, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::leds_t::CHANNEL, i));
         }
@@ -713,13 +732,13 @@ TEST_F(HWTest, DatabaseInitialValues)
         // i2c block
         //----------------------------------
         // display section
-        ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::Display::setting_t::ENABLE)));
-        ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::Display::setting_t::DEVICE_INFO_MSG)));
-        ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::Display::setting_t::CONTROLLER)));
-        ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::Display::setting_t::RESOLUTION)));
-        ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::Display::setting_t::EVENT_TIME)));
-        ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::Display::setting_t::MIDI_NOTES_ALTERNATE)));
-        ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::Display::setting_t::OCTAVE_NORMALIZATION)));
+        ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::i2c::display::setting_t::ENABLE)));
+        ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::i2c::display::setting_t::DEVICE_INFO_MSG)));
+        ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::i2c::display::setting_t::CONTROLLER)));
+        ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::i2c::display::setting_t::RESOLUTION)));
+        ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::i2c::display::setting_t::EVENT_TIME)));
+        ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::i2c::display::setting_t::MIDI_NOTES_ALTERNATE)));
+        ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::i2c_t::DISPLAY, static_cast<size_t>(io::i2c::display::setting_t::OCTAVE_NORMALIZATION)));
 #endif
 
 #ifdef PROJECT_TARGET_SUPPORT_TOUCHSCREEN
@@ -727,63 +746,63 @@ TEST_F(HWTest, DatabaseInitialValues)
         //----------------------------------
         // setting section
         // all values should be set to 0
-        for (size_t i = 0; i < static_cast<uint8_t>(io::Touchscreen::setting_t::AMOUNT); i += PARAM_SKIP)
+        for (size_t i = 0; i < static_cast<uint8_t>(io::touchscreen::setting_t::AMOUNT); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::touchscreen_t::SETTING, i));
         }
 
         // x position section
         // all values should be set to 0
-        for (size_t i = 0; i < io::Touchscreen::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::touchscreen::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::touchscreen_t::X_POS, i));
         }
 
         // y position section
         // all values should be set to 0
-        for (size_t i = 0; i < io::Touchscreen::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::touchscreen::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::touchscreen_t::Y_POS, i));
         }
 
         // WIDTH section
         // all values should be set to 0
-        for (size_t i = 0; i < io::Touchscreen::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::touchscreen::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::touchscreen_t::WIDTH, i));
         }
 
         // HEIGHT section
         // all values should be set to 0
-        for (size_t i = 0; i < io::Touchscreen::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::touchscreen::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::touchscreen_t::HEIGHT, i));
         }
 
         // on screen section
         // all values should be set to 0
-        for (size_t i = 0; i < io::Touchscreen::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::touchscreen::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::touchscreen_t::ON_SCREEN, i));
         }
 
         // off screen section
         // all values should be set to 0
-        for (size_t i = 0; i < io::Touchscreen::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::touchscreen::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::touchscreen_t::OFF_SCREEN, i));
         }
 
         // page switch enabled section
         // all values should be set to 0
-        for (size_t i = 0; i < io::Touchscreen::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::touchscreen::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::touchscreen_t::PAGE_SWITCH_ENABLED, i));
         }
 
         // page switch index section
         // all values should be set to 0
-        for (size_t i = 0; i < io::Touchscreen::Collection::SIZE(); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::touchscreen::Collection::SIZE(); i += PARAM_SKIP)
         {
             ASSERT_EQ(0, _helper.databaseReadFromSystemViaSysEx(sys::Config::Section::touchscreen_t::PAGE_SWITCH_INDEX, i));
         }
@@ -965,7 +984,7 @@ TEST_F(HWTest, USBMIDIData)
     changePreset();
     auto receivedMessages = _helper.totalChannelMessages(response);
     LOG(INFO) << "Received " << receivedMessages << " USB messages after preset change";
-    ASSERT_EQ(io::Buttons::Collection::SIZE(io::Buttons::GROUP_DIGITAL_INPUTS), receivedMessages);
+    ASSERT_EQ(io::buttons::Collection::SIZE(io::buttons::GROUP_DIGITAL_INPUTS), receivedMessages);
 }
 
 #ifdef PROJECT_TARGET_SUPPORT_DIN_MIDI
@@ -1012,21 +1031,21 @@ TEST_F(HWTest, DINMIDIData)
     ASSERT_EQ(0, receivedMessages);
 
     LOG(INFO) << "Enabling DIN MIDI";
-    ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::MIDI_SETTINGS, protocol::MIDI::setting_t::DIN_ENABLED, 1));
+    ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::MIDI_SETTINGS, protocol::midi::setting_t::DIN_ENABLED, 1));
     monitor();
     changePreset();
     stopMonitoring();
     receivedMessages = _helper.totalChannelMessages(response);
     LOG(INFO) << "Received " << receivedMessages << " DIN MIDI messages after preset change";
-    ASSERT_EQ(io::Buttons::Collection::SIZE(io::Buttons::GROUP_DIGITAL_INPUTS), receivedMessages);
+    ASSERT_EQ(io::buttons::Collection::SIZE(io::buttons::GROUP_DIGITAL_INPUTS), receivedMessages);
 
     // enable DIN MIDI passthrough, send data to DIN MIDI in to device and expect the same message passed to output port
     LOG(INFO) << "Enabling DIN to DIN thru";
-    ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::MIDI_SETTINGS, protocol::MIDI::setting_t::DIN_THRU_DIN, 1));
+    ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::MIDI_SETTINGS, protocol::midi::setting_t::DIN_THRU_DIN, 1));
 
     // having DIN to USB thru activated should not influence din to din thruing
     LOG(INFO) << "Enabling DIN to USB thru";
-    ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::MIDI_SETTINGS, protocol::MIDI::setting_t::DIN_THRU_USB, 1));
+    ASSERT_TRUE(_helper.databaseWriteToSystemViaSysEx(sys::Config::Section::global_t::MIDI_SETTINGS, protocol::midi::setting_t::DIN_THRU_USB, 1));
 
     // monitor usb as well so that outgoing usb messages aren't "stuck"
     monitor(true);

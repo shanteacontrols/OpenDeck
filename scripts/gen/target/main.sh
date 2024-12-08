@@ -2,9 +2,9 @@
 
 {
     printf "%s\n\n" "#pragma once"
-    printf "%s\n" "#include \"core/MCU.h\""
-    printf "%s\n" "#include \"core/arch/common/UART.h\""
-    printf "%s\n" "#include \"core/arch/common/I2C.h\""
+    printf "%s\n" "#include \"core/mcu.h\""
+    printf "%s\n" "#include \"core/arch/common/uart.h\""
+    printf "%s\n" "#include \"core/arch/common/i2c.h\""
 } >> "$out_header"
 
 target_name_string=$($yaml_parser "$yaml_file" targetNameOverride)
@@ -30,4 +30,4 @@ do
     fi
 done
 
-printf "\n%s" "#include \"common/Map.h.include\"" >> "$out_header"
+printf "\n%s" "#include \"common/map.h.include\"" >> "$out_header"

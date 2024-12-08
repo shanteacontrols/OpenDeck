@@ -12,7 +12,7 @@ set(PROJECT_ROOT ${CMAKE_CURRENT_LIST_DIR}/..)
 include(ExternalProject)
 include(FetchContent)
 include(${PROJECT_ROOT}/cmake/include/helpers.cmake)
-include(${WORKSPACE_ROOT}/modules/core/cmake/ccache.cmake)
+include(${WORKSPACE_ROOT}/modules/libcore/cmake/ccache.cmake)
 
 execute_process(
     COMMAND

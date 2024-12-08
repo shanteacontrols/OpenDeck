@@ -4,23 +4,21 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
     target_sources(system
         PRIVATE
         test.cpp
-        ${PROJECT_ROOT}/src/firmware/application/database/Database.cpp
-        ${PROJECT_ROOT}/src/firmware/application/database/CustomInit.cpp
-        ${PROJECT_ROOT}/src/firmware/application/system/System.cpp
-        ${PROJECT_ROOT}/src/firmware/application/util/cinfo/CInfo.cpp
-        ${PROJECT_ROOT}/src/firmware/application/protocol/midi/MIDI.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/buttons/Buttons.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/encoders/Encoders.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/leds/LEDs.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/analog/Analog.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/i2c/I2C.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/i2c/peripherals/Builder.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/i2c/peripherals/display/Display.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/i2c/peripherals/display/Elements.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/touchscreen/Touchscreen.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/touchscreen/model/Builder.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/touchscreen/model/nextion/Nextion.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/touchscreen/model/viewtech/Viewtech.cpp
+        ${PROJECT_ROOT}/src/firmware/application/database/database.cpp
+        ${PROJECT_ROOT}/src/firmware/application/database/custom_init.cpp
+        ${PROJECT_ROOT}/src/firmware/application/system/system.cpp
+        ${PROJECT_ROOT}/src/firmware/application/util/cinfo/cinfo.cpp
+        ${PROJECT_ROOT}/src/firmware/application/protocol/midi/midi.cpp
+        ${PROJECT_ROOT}/src/firmware/application/io/buttons/buttons.cpp
+        ${PROJECT_ROOT}/src/firmware/application/io/encoders/encoders.cpp
+        ${PROJECT_ROOT}/src/firmware/application/io/leds/leds.cpp
+        ${PROJECT_ROOT}/src/firmware/application/io/analog/analog.cpp
+        ${PROJECT_ROOT}/src/firmware/application/io/i2c/i2c.cpp
+        ${PROJECT_ROOT}/src/firmware/application/io/i2c/peripherals/display/display.cpp
+        ${PROJECT_ROOT}/src/firmware/application/io/i2c/peripherals/display/elements.cpp
+        ${PROJECT_ROOT}/src/firmware/application/io/touchscreen/touchscreen.cpp
+        ${PROJECT_ROOT}/src/firmware/application/io/touchscreen/models/nextion/nextion.cpp
+        ${PROJECT_ROOT}/src/firmware/application/io/touchscreen/models/viewtech/viewtech.cpp
     )
 
     target_compile_definitions(system

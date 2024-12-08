@@ -1,6 +1,6 @@
 /*
 
-Copyright 2015-2022 Igor Petrovic
+Copyright Igor Petrovic
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,15 +16,9 @@ limitations under the License.
 
 */
 
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <array>
-#include <iterator>
-#include <string>
-#include "application/database/Database.h"
-#include "application/database/Layout.h"
-#include "EmuEEPROM/EmuEEPROM.h"
+#include "application/database/database.h"
+#include "application/database/layout.h"
+#include "lib/emueeprom/emueeprom.h"
 
 // Here, generated MCU header for real MCU is included, however,
 // this application actually links with stub MCU. Because of this
@@ -32,15 +26,22 @@ limitations under the License.
 
 namespace flashgen
 {
-#include <CoreMCUGenerated.h>
+#include <core_mcu_generated.h>
 }
+
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <array>
+#include <iterator>
+#include <string>
 
 namespace
 {
-    class EmuEEPROMStorage : public EmuEEPROM::StorageAccess
+    class HwaEmuEeprom : public lib::emueeprom::Hwa
     {
         public:
-        EmuEEPROMStorage()
+        HwaEmuEeprom()
         {
             std::fill(_pageArray.at(0).begin(), _pageArray.at(0).end(), 0xFF);
             std::fill(_pageArray.at(1).begin(), _pageArray.at(1).end(), 0xFF);
@@ -51,22 +52,22 @@ namespace
             return true;
         }
 
-        bool erasePage(EmuEEPROM::page_t page) override
+        bool erasePage(lib::emueeprom::page_t page) override
         {
-            if (page == EmuEEPROM::page_t::PAGE_FACTORY)
+            if (page == lib::emueeprom::page_t::PAGE_FACTORY)
             {
                 return false;
             }
 
             switch (page)
             {
-            case EmuEEPROM::page_t::PAGE_1:
+            case lib::emueeprom::page_t::PAGE_1:
             {
                 std::fill(_pageArray.at(0).begin(), _pageArray.at(0).end(), 0xFF);
             }
             break;
 
-            case EmuEEPROM::page_t::PAGE_2:
+            case lib::emueeprom::page_t::PAGE_2:
             {
                 std::fill(_pageArray.at(1).begin(), _pageArray.at(1).end(), 0xFF);
             }
@@ -79,9 +80,9 @@ namespace
             return true;
         }
 
-        bool write32(EmuEEPROM::page_t page, uint32_t offset, uint32_t data) override
+        bool write32(lib::emueeprom::page_t page, uint32_t offset, uint32_t data) override
         {
-            if (page == EmuEEPROM::page_t::PAGE_FACTORY)
+            if (page == lib::emueeprom::page_t::PAGE_FACTORY)
             {
                 return false;
             }
@@ -89,14 +90,14 @@ namespace
             if (offset == 0)
             {
                 if (
-                    (data == static_cast<uint32_t>(EmuEEPROM::pageStatus_t::RECEIVING)) ||
-                    (data == static_cast<uint32_t>(EmuEEPROM::pageStatus_t::VALID)))
+                    (data == static_cast<uint32_t>(lib::emueeprom::pageStatus_t::RECEIVING)) ||
+                    (data == static_cast<uint32_t>(lib::emueeprom::pageStatus_t::VALID)))
                 {
                     _activePageWrite = page;
                 }
             }
 
-            auto& ref = page == EmuEEPROM::page_t::PAGE_1 ? _pageArray.at(0) : _pageArray.at(1);
+            auto& ref = page == lib::emueeprom::page_t::PAGE_1 ? _pageArray.at(0) : _pageArray.at(1);
 
             ref.at(offset + 0) = data >> 0 & static_cast<uint16_t>(0xFF);
             ref.at(offset + 1) = data >> 8 & static_cast<uint16_t>(0xFF);
@@ -106,15 +107,15 @@ namespace
             return true;
         }
 
-        bool read32(EmuEEPROM::page_t page, uint32_t offset, uint32_t& data) override
+        bool read32(lib::emueeprom::page_t page, uint32_t offset, uint32_t& data) override
         {
             // no factory page here
-            if (page == EmuEEPROM::page_t::PAGE_FACTORY)
+            if (page == lib::emueeprom::page_t::PAGE_FACTORY)
             {
                 return false;
             }
 
-            auto& ref = page == EmuEEPROM::page_t::PAGE_1 ? _pageArray.at(0) : _pageArray.at(1);
+            auto& ref = page == lib::emueeprom::page_t::PAGE_1 ? _pageArray.at(0) : _pageArray.at(1);
 
             data = ref.at(offset + 3);
             data <<= 8;
@@ -143,13 +144,12 @@ namespace
             if (file.is_open())
             {
                 size_t size = 0;
-
-                auto& ref = _activePageWrite == EmuEEPROM::page_t::PAGE_1 ? _pageArray.at(0) : _pageArray.at(1);
+                auto&  ref  = _activePageWrite == lib::emueeprom::page_t::PAGE_1 ? _pageArray.at(0) : _pageArray.at(1);
 
                 // get actual size of vector by finding first entry with content 0xFFFFFFFF
                 for (; size < ref.size(); size += 4)
                 {
-                    uint32_t data;
+                    uint32_t data = 0;
 
                     if (!read32(_activePageWrite, size, data))
                     {
@@ -191,49 +191,48 @@ namespace
         private:
         std::array<std::array<uint8_t, EMU_EEPROM_PAGE_SIZE>, 2> _pageArray;
         std::string                                              _filename;
-        EmuEEPROM::page_t                                        _activePageWrite = EmuEEPROM::page_t::PAGE_1;
-    } _emuEEPROMstorage;
+        lib::emueeprom::page_t                                   _activePageWrite = lib::emueeprom::page_t::PAGE_1;
+    } hwaEmuEeprom;
 
-    EmuEEPROM _emuEEPROM(_emuEEPROMstorage, false);
+    lib::emueeprom::EmuEEPROM emuEeprom(hwaEmuEeprom, false);
 
-    class StorageAccess : public LESSDB::StorageAccess
+    class HwaDatabase : public database::Hwa
     {
         public:
-        StorageAccess() = default;
+        HwaDatabase() = default;
 
         bool init() override
         {
-            return _emuEEPROM.init();
+            return emuEeprom.init();
         }
 
         uint32_t size() override
         {
-            return _emuEEPROM.maxAddress();
+            return emuEeprom.maxAddress();
         }
 
         bool clear() override
         {
-            return _emuEEPROM.format();
+            return emuEeprom.format();
         }
 
-        bool read(uint32_t address, uint32_t& value, LESSDB::sectionParameterType_t type) override
+        bool read(uint32_t address, uint32_t& value, lib::lessdb::sectionParameterType_t type) override
         {
             switch (type)
             {
-            case LESSDB::sectionParameterType_t::WORD:
-            case LESSDB::sectionParameterType_t::BYTE:
-            case LESSDB::sectionParameterType_t::HALF_BYTE:
-            case LESSDB::sectionParameterType_t::BIT:
+            case lib::lessdb::sectionParameterType_t::WORD:
+            case lib::lessdb::sectionParameterType_t::BYTE:
+            case lib::lessdb::sectionParameterType_t::HALF_BYTE:
+            case lib::lessdb::sectionParameterType_t::BIT:
             {
-                uint16_t tempData;
+                uint16_t tempData   = 0;
+                auto     readStatus = emuEeprom.read(address, tempData);
 
-                auto readStatus = _emuEEPROM.read(address, tempData);
-
-                if (readStatus == EmuEEPROM::readStatus_t::OK)
+                if (readStatus == lib::emueeprom::readStatus_t::OK)
                 {
                     value = tempData;
                 }
-                else if (readStatus == EmuEEPROM::readStatus_t::NO_VAR)
+                else if (readStatus == lib::emueeprom::readStatus_t::NO_VAR)
                 {
                     // variable with this address doesn't exist yet - set value to 0
                     value = 0;
@@ -252,18 +251,18 @@ namespace
             }
         }
 
-        bool write(uint32_t address, uint32_t value, LESSDB::sectionParameterType_t type) override
+        bool write(uint32_t address, uint32_t value, lib::lessdb::sectionParameterType_t type) override
         {
             switch (type)
             {
-            case LESSDB::sectionParameterType_t::WORD:
-            case LESSDB::sectionParameterType_t::BYTE:
-            case LESSDB::sectionParameterType_t::HALF_BYTE:
-            case LESSDB::sectionParameterType_t::BIT:
+            case lib::lessdb::sectionParameterType_t::WORD:
+            case lib::lessdb::sectionParameterType_t::BYTE:
+            case lib::lessdb::sectionParameterType_t::HALF_BYTE:
+            case lib::lessdb::sectionParameterType_t::BIT:
             {
                 uint16_t tempData = value;
 
-                return _emuEEPROM.write(address, tempData) == EmuEEPROM::writeStatus_t::OK;
+                return emuEeprom.write(address, tempData) == lib::emueeprom::writeStatus_t::OK;
             }
             break;
 
@@ -271,10 +270,15 @@ namespace
                 return false;
             }
         }
-    } _storageAccess;
+
+        constexpr bool initializeDatabase() override
+        {
+            return true;
+        }
+    } _hwaDatabase;
 
     database::AppLayout _layout;
-    database::Admin     _database(_storageAccess, _layout, true);
+    database::Admin     _database(_hwaDatabase, _layout);
 }    // namespace
 
 int main(int argc, char* argv[])
@@ -285,15 +289,15 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    _emuEEPROMstorage.setFilename(argv[1]);
+    hwaEmuEeprom.setFilename(argv[1]);
 
     if (_database.init())
     {
         // ensure that we have clean flash binary:
         // firmware also uses custom values after defaults have been written
-        _emuEEPROM.pageTransfer();
+        emuEeprom.pageTransfer();
 
-        return _emuEEPROMstorage.writeToFile() ? 0 : 1;
+        return hwaEmuEeprom.writeToFile() ? 0 : 1;
     }
 
     return 1;

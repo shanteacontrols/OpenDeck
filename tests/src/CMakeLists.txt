@@ -4,9 +4,9 @@ include(${PROJECT_ROOT}/src/generated/target/${TARGET}/CMakeLists.txt)
 
 add_library(common)
 
-add_module(LESSDB)
-add_module(SysExConf)
-add_module(MIDI)
+add_module(liblessdb)
+add_module(libsysexconf)
+add_module(libmidi)
 
 target_sources(common
     PRIVATE
@@ -23,14 +23,14 @@ target_sources(common
     ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_gpio.c
     ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_d_ssd1306_128x64_noname.c
     ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
-    ${PROJECT_ROOT}/src/firmware/application/util/configurable/Configurable.cpp
-    ${PROJECT_ROOT}/src/firmware/application/util/scheduler/Scheduler.cpp
+    ${PROJECT_ROOT}/src/firmware/application/util/configurable/configurable.cpp
+    ${PROJECT_ROOT}/src/firmware/application/util/scheduler/scheduler.cpp
 )
 
 target_include_directories(common
     PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/../include
-    ${WORKSPACE_ROOT}/modules/core/include
+    ${WORKSPACE_ROOT}/modules/libcore/include
     ${WORKSPACE_ROOT}/modules/u8g2/csrc
     ${PROJECT_ROOT}/src/firmware
     ${PROJECT_ROOT}/src/firmware/application
@@ -55,23 +55,23 @@ target_link_libraries(common
     glog::glog
     gtest
     gmock
-    lessdb-lib
-    sysexconf-lib
-    midi-lib
+    liblessdb
+    libsysexconf
+    libmidi
     mcu
 )
 
 if("PROJECT_MCU_USE_EMU_EEPROM" IN_LIST PROJECT_MCU_DEFINES)
-    add_module(EmuEEPROM)
+    add_module(libemueeprom)
 
-    target_compile_definitions(emueeprom-lib
+    target_compile_definitions(libemueeprom
         PUBLIC
         EMU_EEPROM_PAGE_SIZE=${EMU_EEPROM_PAGE_SIZE}
     )
 
     target_link_libraries(common
         PUBLIC
-        emueeprom-lib
+        libemueeprom
     )
 endif()
 

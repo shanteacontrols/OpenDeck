@@ -1,7 +1,25 @@
-#include "tests/Common.h"
-#include "tests/stubs/Buttons.h"
-#include "tests/stubs/Listener.h"
-#include "application/util/configurable/Configurable.h"
+/*
+
+Copyright Igor Petrovic
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+*/
+
+#include "tests/common.h"
+#include "tests/helpers/listener.h"
+#include "application/io/buttons/builder_test.h"
+#include "application/util/configurable/configurable.h"
 
 #ifdef BUTTONS_SUPPORTED
 
@@ -19,17 +37,17 @@ namespace
             ASSERT_EQ(0, _buttons._databaseAdmin.getPreset());
             ASSERT_TRUE(_buttons._databaseAdmin.init());
 
-            for (size_t i = 0; i < Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS); i++)
+            for (size_t i = 0; i < buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS); i++)
             {
-                ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::TYPE, i, Buttons::type_t::MOMENTARY));
-                ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::MESSAGE_TYPE, i, Buttons::messageType_t::NOTE));
+                ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::TYPE, i, buttons::type_t::MOMENTARY));
+                ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::MESSAGE_TYPE, i, buttons::messageType_t::NOTE));
                 ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::VALUE, i, 127));
 
                 _buttons._instance.reset(i);
             }
 
-            MIDIDispatcher.listen(messaging::eventType_t::BUTTON,
-                                  [this](const messaging::event_t& dispatchMessage)
+            MidiDispatcher.listen(messaging::eventType_t::BUTTON,
+                                  [this](const messaging::Event& dispatchMessage)
                                   {
                                       _listener.messageListener(dispatchMessage);
                                   });
@@ -38,7 +56,7 @@ namespace
         void TearDown() override
         {
             ConfigHandler.clear();
-            MIDIDispatcher.clear();
+            MidiDispatcher.clear();
             _listener._event.clear();
         }
 
@@ -66,14 +84,14 @@ namespace
             _buttons._instance.updateSingle(index);
         }
 
-        Listener    _listener;
-        TestButtons _buttons;
+        test::Listener       _listener;
+        buttons::BuilderTest _buttons;
     };
 }    // namespace
 
 TEST_F(ButtonsTest, Note)
 {
-    if (!Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS))
+    if (!buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS))
     {
         return;
     }
@@ -81,10 +99,10 @@ TEST_F(ButtonsTest, Note)
     auto test = [&](uint8_t channel, uint8_t velocity)
     {
         // set known state
-        for (size_t i = 0; i < Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS); i++)
+        for (size_t i = 0; i < buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS); i++)
         {
-            ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::TYPE, i, Buttons::type_t::MOMENTARY));
-            ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::MESSAGE_TYPE, i, Buttons::messageType_t::NOTE));
+            ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::TYPE, i, buttons::type_t::MOMENTARY));
+            ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::MESSAGE_TYPE, i, buttons::messageType_t::NOTE));
             ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::VALUE, i, velocity));
             ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::CHANNEL, i, channel));
 
@@ -94,15 +112,15 @@ TEST_F(ButtonsTest, Note)
         auto verifyValue = [&](bool state)
         {
             // verify all received messages
-            for (size_t i = 0; i < Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS); i++)
+            for (size_t i = 0; i < buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS); i++)
             {
                 if (state)
                 {
-                    ASSERT_EQ(MIDI::messageType_t::NOTE_ON, _listener._event.at(i).message);
+                    ASSERT_EQ(midi::messageType_t::NOTE_ON, _listener._event.at(i).message);
                 }
                 else
                 {
-                    ASSERT_EQ(MIDI::messageType_t::NOTE_OFF, _listener._event.at(i).message);
+                    ASSERT_EQ(midi::messageType_t::NOTE_OFF, _listener._event.at(i).message);
                 }
 
                 ASSERT_EQ(state ? velocity : 0, _listener._event.at(i).value);
@@ -116,22 +134,22 @@ TEST_F(ButtonsTest, Note)
 
         // simulate button press
         stateChangeRegisterAll(true);
-        ASSERT_EQ(Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
+        ASSERT_EQ(buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
         verifyValue(true);
 
         // simulate button release
         stateChangeRegisterAll(false);
-        ASSERT_EQ(Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
+        ASSERT_EQ(buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
         verifyValue(false);
 
         // try with the latching mode
-        for (size_t i = 0; i < Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS); i++)
+        for (size_t i = 0; i < buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS); i++)
         {
-            ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::TYPE, i, Buttons::type_t::LATCHING));
+            ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::TYPE, i, buttons::type_t::LATCHING));
         }
 
         stateChangeRegisterAll(true);
-        ASSERT_EQ(Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
+        ASSERT_EQ(buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
         verifyValue(true);
 
         // nothing should happen on release
@@ -155,7 +173,7 @@ TEST_F(ButtonsTest, Note)
 
 TEST_F(ButtonsTest, ProgramChange)
 {
-    if (!Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS))
+    if (!buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS))
     {
         return;
     }
@@ -163,10 +181,10 @@ TEST_F(ButtonsTest, ProgramChange)
     auto testProgramChange = [&](uint8_t channel)
     {
         // set known state
-        for (size_t i = 0; i < Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS); i++)
+        for (size_t i = 0; i < buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS); i++)
         {
-            ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::TYPE, i, Buttons::type_t::MOMENTARY));
-            ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::MESSAGE_TYPE, i, Buttons::messageType_t::PROGRAM_CHANGE));
+            ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::TYPE, i, buttons::type_t::MOMENTARY));
+            ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::MESSAGE_TYPE, i, buttons::messageType_t::PROGRAM_CHANGE));
             ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::CHANNEL, i, channel));
 
             _buttons._instance.reset(i);
@@ -175,9 +193,9 @@ TEST_F(ButtonsTest, ProgramChange)
         auto verifyMessage = [&]()
         {
             // verify all received messages are program change
-            for (size_t i = 0; i < Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS); i++)
+            for (size_t i = 0; i < buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS); i++)
             {
-                ASSERT_EQ(MIDI::messageType_t::PROGRAM_CHANGE, _listener._event.at(i).message);
+                ASSERT_EQ(midi::messageType_t::PROGRAM_CHANGE, _listener._event.at(i).message);
 
                 // program change value should always be set to 0
                 ASSERT_EQ(0, _listener._event.at(i).value);
@@ -193,7 +211,7 @@ TEST_F(ButtonsTest, ProgramChange)
 
         // simulate button press
         stateChangeRegisterAll(true);
-        ASSERT_EQ(Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
+        ASSERT_EQ(buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
         verifyMessage();
 
         // program change shouldn't be sent on release
@@ -202,13 +220,13 @@ TEST_F(ButtonsTest, ProgramChange)
 
         // repeat the entire test again, but with buttons configured as latching types
         // behaviour should be the same
-        for (size_t i = 0; i < Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS); i++)
+        for (size_t i = 0; i < buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS); i++)
         {
-            ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::TYPE, i, Buttons::type_t::LATCHING));
+            ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::TYPE, i, buttons::type_t::LATCHING));
         }
 
         stateChangeRegisterAll(true);
-        ASSERT_EQ(Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
+        ASSERT_EQ(buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
         verifyMessage();
 
         stateChangeRegisterAll(false);
@@ -227,11 +245,11 @@ TEST_F(ButtonsTest, ProgramChange)
 
     auto configurePCbutton = [&](size_t index, uint8_t channel, bool increase)
     {
-        ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::TYPE, index, Buttons::type_t::MOMENTARY));
-        ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::MESSAGE_TYPE, index, increase ? Buttons::messageType_t::PROGRAM_CHANGE_INC : Buttons::messageType_t::PROGRAM_CHANGE_DEC));
+        ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::TYPE, index, buttons::type_t::MOMENTARY));
+        ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::MESSAGE_TYPE, index, increase ? buttons::messageType_t::PROGRAM_CHANGE_INC : buttons::messageType_t::PROGRAM_CHANGE_DEC));
         ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::CHANNEL, index, channel));
 
-        for (size_t i = 0; i < Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS); i++)
+        for (size_t i = 0; i < buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS); i++)
         {
             _buttons._instance.reset(i);
         }
@@ -239,7 +257,7 @@ TEST_F(ButtonsTest, ProgramChange)
 
     auto verifyProgramChange = [&](size_t index, uint8_t channel, uint8_t program)
     {
-        ASSERT_EQ(MIDI::messageType_t::PROGRAM_CHANGE, _listener._event.at(index).message);
+        ASSERT_EQ(midi::messageType_t::PROGRAM_CHANGE, _listener._event.at(index).message);
 
         // program change value should always be set to 0
         ASSERT_EQ(0, _listener._event.at(index).value);
@@ -272,7 +290,7 @@ TEST_F(ButtonsTest, ProgramChange)
     // now, revert all buttons back to default
     _buttons._databaseAdmin.factoryReset();
 
-    if (Buttons::Collection::SIZE(io::Buttons::GROUP_DIGITAL_INPUTS) < 4)
+    if (buttons::Collection::SIZE(io::buttons::GROUP_DIGITAL_INPUTS) < 4)
     {
         return;
     }
@@ -367,7 +385,7 @@ TEST_F(ButtonsTest, ProgramChange)
 
     for (size_t i = 0; i < _listener._event.size(); i++)
     {
-        if (_listener._event.at(i).message == MIDI::messageType_t::PROGRAM_CHANGE)
+        if (_listener._event.at(i).message == midi::messageType_t::PROGRAM_CHANGE)
         {
             pcCounter++;
         }
@@ -390,7 +408,7 @@ TEST_F(ButtonsTest, ProgramChange)
 
 TEST_F(ButtonsTest, ProgramChangeWithOffset)
 {
-    if (Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS) < 3)
+    if (buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS) < 3)
     {
         return;
     }
@@ -406,7 +424,7 @@ TEST_F(ButtonsTest, ProgramChangeWithOffset)
         LOG(INFO) << "Verifiyng received MIDI Program Change message";
         LOG(INFO) << "Expecting channel " << static_cast<int>(channel) << ", program " << static_cast<int>(program);
 
-        ASSERT_EQ(MIDI::messageType_t::PROGRAM_CHANGE, _listener._event.at(index).message);
+        ASSERT_EQ(midi::messageType_t::PROGRAM_CHANGE, _listener._event.at(index).message);
 
         // program change value should always be set to 0
         ASSERT_EQ(0, _listener._event.at(index).value);
@@ -420,23 +438,23 @@ TEST_F(ButtonsTest, ProgramChangeWithOffset)
     auto toggleProgramChangeIncButton = [&]()
     {
         LOG(INFO) << "Incrementing MIDI Program Change offset by " << OFFSET_INC_DEC_AMOUNT;
-        LOG(INFO) << "Current offset is " << static_cast<int>(MIDIProgram.offset());
+        LOG(INFO) << "Current offset is " << static_cast<int>(MidiProgram.offset());
         stateChangeRegisterSingle(BUTTON_INDEX_OFFSET_INC, true);
-        ASSERT_TRUE(MIDIProgram.offset() >= 0);
-        ASSERT_TRUE(MIDIProgram.offset() <= 127);
+        ASSERT_TRUE(MidiProgram.offset() >= 0);
+        ASSERT_TRUE(MidiProgram.offset() <= 127);
         stateChangeRegisterSingle(BUTTON_INDEX_OFFSET_INC, false);
-        LOG(INFO) << "Offset after change is " << static_cast<int>(MIDIProgram.offset());
+        LOG(INFO) << "Offset after change is " << static_cast<int>(MidiProgram.offset());
     };
 
     auto toggleProgramChangeDecButton = [&]()
     {
         LOG(INFO) << "Decrementing MIDI Program Change offset by " << OFFSET_INC_DEC_AMOUNT;
-        LOG(INFO) << "Current offset is " << static_cast<int>(MIDIProgram.offset());
+        LOG(INFO) << "Current offset is " << static_cast<int>(MidiProgram.offset());
         stateChangeRegisterSingle(BUTTON_INDEX_OFFSET_DEC, true);
-        ASSERT_TRUE(MIDIProgram.offset() >= 0);
-        ASSERT_TRUE(MIDIProgram.offset() <= 127);
+        ASSERT_TRUE(MidiProgram.offset() >= 0);
+        ASSERT_TRUE(MidiProgram.offset() <= 127);
         stateChangeRegisterSingle(BUTTON_INDEX_OFFSET_DEC, false);
-        LOG(INFO) << "Offset after change is " << static_cast<int>(MIDIProgram.offset());
+        LOG(INFO) << "Offset after change is " << static_cast<int>(MidiProgram.offset());
     };
 
     auto toggleProgramChangeButton = [&]()
@@ -445,16 +463,16 @@ TEST_F(ButtonsTest, ProgramChangeWithOffset)
 
         stateChangeRegisterSingle(BUTTON_INDEX_PROGRAM, true);
         ASSERT_EQ(1, _listener._event.size());
-        verifyProgramChange(0, PROGRAM_CHANGE_CHANNEL, BUTTON_INDEX_PROGRAM + MIDIProgram.offset());
+        verifyProgramChange(0, PROGRAM_CHANGE_CHANNEL, BUTTON_INDEX_PROGRAM + MidiProgram.offset());
         stateChangeRegisterSingle(BUTTON_INDEX_PROGRAM, false);
     };
 
     // set known state
-    ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::MESSAGE_TYPE, BUTTON_INDEX_OFFSET_DEC, Buttons::messageType_t::PROGRAM_CHANGE_OFFSET_DEC));
+    ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::MESSAGE_TYPE, BUTTON_INDEX_OFFSET_DEC, buttons::messageType_t::PROGRAM_CHANGE_OFFSET_DEC));
     ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::VALUE, BUTTON_INDEX_OFFSET_DEC, OFFSET_INC_DEC_AMOUNT));
-    ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::MESSAGE_TYPE, BUTTON_INDEX_OFFSET_INC, Buttons::messageType_t::PROGRAM_CHANGE_OFFSET_INC));
+    ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::MESSAGE_TYPE, BUTTON_INDEX_OFFSET_INC, buttons::messageType_t::PROGRAM_CHANGE_OFFSET_INC));
     ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::VALUE, BUTTON_INDEX_OFFSET_INC, OFFSET_INC_DEC_AMOUNT));
-    ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::MESSAGE_TYPE, BUTTON_INDEX_PROGRAM, Buttons::messageType_t::PROGRAM_CHANGE));
+    ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::MESSAGE_TYPE, BUTTON_INDEX_PROGRAM, buttons::messageType_t::PROGRAM_CHANGE));
 
     _buttons._instance.reset(BUTTON_INDEX_OFFSET_DEC);
     _buttons._instance.reset(BUTTON_INDEX_OFFSET_INC);
@@ -473,14 +491,14 @@ TEST_F(ButtonsTest, ProgramChangeWithOffset)
     toggleProgramChangeButton();
 
     // verify that incrementing past the value of 127 isn't possible
-    while (MIDIProgram.offset() != 127)
+    while (MidiProgram.offset() != 127)
     {
         toggleProgramChangeIncButton();
     }
 
     // try again - nothing should change
     toggleProgramChangeIncButton();
-    ASSERT_EQ(127, MIDIProgram.offset());
+    ASSERT_EQ(127, MidiProgram.offset());
 
     // start decrementing offset
     for (size_t i = 0; i < 50; i++)
@@ -491,19 +509,19 @@ TEST_F(ButtonsTest, ProgramChangeWithOffset)
     toggleProgramChangeButton();
 
     LOG(INFO) << "Setting the offset to 0 manually";
-    MIDIProgram.setOffset(0);
-    ASSERT_EQ(0, MIDIProgram.offset());
+    MidiProgram.setOffset(0);
+    ASSERT_EQ(0, MidiProgram.offset());
 
     toggleProgramChangeButton();
 
     // decrement again - verify that nothing changes
     toggleProgramChangeDecButton();
-    ASSERT_EQ(0, MIDIProgram.offset());
+    ASSERT_EQ(0, MidiProgram.offset());
 }
 
 TEST_F(ButtonsTest, ControlChange)
 {
-    if (!Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS))
+    if (!buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS))
     {
         return;
     }
@@ -511,10 +529,10 @@ TEST_F(ButtonsTest, ControlChange)
     auto controlChangeTest = [&](uint8_t controlValue)
     {
         // set known state
-        for (size_t i = 0; i < Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS); i++)
+        for (size_t i = 0; i < buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS); i++)
         {
-            ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::TYPE, i, Buttons::type_t::MOMENTARY));
-            ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::MESSAGE_TYPE, i, Buttons::messageType_t::CONTROL_CHANGE));
+            ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::TYPE, i, buttons::type_t::MOMENTARY));
+            ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::MESSAGE_TYPE, i, buttons::messageType_t::CONTROL_CHANGE));
             ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::VALUE, i, controlValue));
 
             _buttons._instance.reset(i);
@@ -523,9 +541,9 @@ TEST_F(ButtonsTest, ControlChange)
         auto verifyMessage = [&](uint8_t midiValue)
         {
             // verify all received messages are control change
-            for (size_t i = 0; i < Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS); i++)
+            for (size_t i = 0; i < buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS); i++)
             {
-                ASSERT_EQ(MIDI::messageType_t::CONTROL_CHANGE, _listener._event.at(i).message);
+                ASSERT_EQ(midi::messageType_t::CONTROL_CHANGE, _listener._event.at(i).message);
                 ASSERT_EQ(midiValue, _listener._event.at(i).value);
                 ASSERT_EQ(1, _listener._event.at(i).channel);
                 ASSERT_EQ(i, _listener._event.at(i).index);
@@ -534,7 +552,7 @@ TEST_F(ButtonsTest, ControlChange)
 
         // simulate button press
         stateChangeRegisterAll(true);
-        ASSERT_EQ(Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
+        ASSERT_EQ(buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
         verifyMessage(controlValue);
 
@@ -545,13 +563,13 @@ TEST_F(ButtonsTest, ControlChange)
         // change to latching type
         // behaviour should be the same
 
-        for (size_t i = 0; i < Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS); i++)
+        for (size_t i = 0; i < buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS); i++)
         {
-            ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::TYPE, i, Buttons::type_t::LATCHING));
+            ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::TYPE, i, buttons::type_t::LATCHING));
         }
 
         stateChangeRegisterAll(true);
-        ASSERT_EQ(Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
+        ASSERT_EQ(buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
         verifyMessage(controlValue);
 
@@ -561,23 +579,23 @@ TEST_F(ButtonsTest, ControlChange)
         // change type to control change with 0 on reset, momentary mode
         // this means CC value 0 should be sent on release
 
-        for (size_t i = 0; i < Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS); i++)
+        for (size_t i = 0; i < buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS); i++)
         {
-            ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::TYPE, i, Buttons::type_t::MOMENTARY));
+            ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::TYPE, i, buttons::type_t::MOMENTARY));
         }
 
-        for (size_t i = 0; i < Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS); i++)
+        for (size_t i = 0; i < buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS); i++)
         {
-            ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::MESSAGE_TYPE, i, Buttons::messageType_t::CONTROL_CHANGE_RESET));
+            ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::MESSAGE_TYPE, i, buttons::messageType_t::CONTROL_CHANGE_RESET));
         }
 
         stateChangeRegisterAll(true);
-        ASSERT_EQ(Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
+        ASSERT_EQ(buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
         verifyMessage(controlValue);
 
         stateChangeRegisterAll(false);
-        ASSERT_EQ(Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
+        ASSERT_EQ(buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
         verifyMessage(0);
 
@@ -586,13 +604,13 @@ TEST_F(ButtonsTest, ControlChange)
         // on release, nothing should happen
         // on second press reset should be sent (CC with value 0)
 
-        for (size_t i = 0; i < Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS); i++)
+        for (size_t i = 0; i < buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS); i++)
         {
-            ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::TYPE, i, Buttons::type_t::LATCHING));
+            ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::TYPE, i, buttons::type_t::LATCHING));
         }
 
         stateChangeRegisterAll(true);
-        ASSERT_EQ(Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
+        ASSERT_EQ(buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
         verifyMessage(controlValue);
 
@@ -600,7 +618,7 @@ TEST_F(ButtonsTest, ControlChange)
         ASSERT_EQ(0, _listener._event.size());
 
         stateChangeRegisterAll(true);
-        ASSERT_EQ(Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
+        ASSERT_EQ(buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS), _listener._event.size());
 
         verifyMessage(0);
     };
@@ -615,16 +633,16 @@ TEST_F(ButtonsTest, ControlChange)
 
 TEST_F(ButtonsTest, NoMessages)
 {
-    if (!Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS))
+    if (!buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS))
     {
         return;
     }
 
     // configure all buttons to messageType_t::NONE so that messages aren't sent
 
-    for (size_t i = 0; i < Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS); i++)
+    for (size_t i = 0; i < buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS); i++)
     {
-        ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::MESSAGE_TYPE, i, Buttons::messageType_t::NONE));
+        ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::MESSAGE_TYPE, i, buttons::messageType_t::NONE));
 
         _buttons._instance.reset(i);
     }
@@ -635,9 +653,9 @@ TEST_F(ButtonsTest, NoMessages)
     stateChangeRegisterAll(false);
     ASSERT_EQ(0, _listener._event.size());
 
-    for (size_t i = 0; i < Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS); i++)
+    for (size_t i = 0; i < buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS); i++)
     {
-        ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::TYPE, i, Buttons::type_t::LATCHING));
+        ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::TYPE, i, buttons::type_t::LATCHING));
     }
 
     stateChangeRegisterAll(true);
@@ -660,13 +678,13 @@ TEST_F(ButtonsTest, PresetChange)
         return;
     }
 
-    if (!Buttons::Collection::SIZE(Buttons::GROUP_DIGITAL_INPUTS))
+    if (!buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS))
     {
         return;
     }
 
-    MIDIDispatcher.listen(messaging::eventType_t::SYSTEM,
-                          [this](const messaging::event_t& dispatchMessage)
+    MidiDispatcher.listen(messaging::eventType_t::SYSTEM,
+                          [this](const messaging::Event& dispatchMessage)
                           {
                               _listener.messageListener(dispatchMessage);
                           });
@@ -675,7 +693,7 @@ TEST_F(ButtonsTest, PresetChange)
     static constexpr size_t BUTTON_INDEX = 0;
 
     ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::MIDI_ID, BUTTON_INDEX, 1));
-    ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::MESSAGE_TYPE, BUTTON_INDEX, Buttons::messageType_t::PRESET_CHANGE));
+    ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::MESSAGE_TYPE, BUTTON_INDEX, buttons::messageType_t::PRESET_CHANGE));
     _buttons._instance.reset(BUTTON_INDEX);
 
     // simulate button press

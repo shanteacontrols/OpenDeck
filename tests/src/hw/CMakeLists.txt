@@ -26,15 +26,15 @@ if("PROJECT_TARGET_HW_TESTS_SUPPORTED" IN_LIST PROJECT_TARGET_DEFINES)
     target_sources(hw
         PRIVATE
         test.cpp
-        ${PROJECT_ROOT}/src/firmware/application/database/Database.cpp
-        ${PROJECT_ROOT}/src/firmware/application/database/CustomInit.cpp
-        ${PROJECT_ROOT}/src/firmware/application/system/System.cpp
-        ${PROJECT_ROOT}/src/firmware/application/util/cinfo/CInfo.cpp
-        ${PROJECT_ROOT}/src/firmware/application/protocol/midi/MIDI.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/buttons/Buttons.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/encoders/Encoders.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/leds/LEDs.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/analog/Analog.cpp
+        ${PROJECT_ROOT}/src/firmware/application/database/database.cpp
+        ${PROJECT_ROOT}/src/firmware/application/database/custom_init.cpp
+        ${PROJECT_ROOT}/src/firmware/application/system/system.cpp
+        ${PROJECT_ROOT}/src/firmware/application/util/cinfo/cinfo.cpp
+        ${PROJECT_ROOT}/src/firmware/application/protocol/midi/midi.cpp
+        ${PROJECT_ROOT}/src/firmware/application/io/buttons/buttons.cpp
+        ${PROJECT_ROOT}/src/firmware/application/io/encoders/encoders.cpp
+        ${PROJECT_ROOT}/src/firmware/application/io/leds/leds.cpp
+        ${PROJECT_ROOT}/src/firmware/application/io/analog/analog.cpp
     )
 
     target_compile_definitions(hw

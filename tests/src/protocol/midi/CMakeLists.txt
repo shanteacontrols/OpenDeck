@@ -4,9 +4,9 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
     target_sources(midi
         PRIVATE
         test.cpp
-        ${PROJECT_ROOT}/src/firmware/application/database/Database.cpp
-        ${PROJECT_ROOT}/src/firmware/application/database/CustomInit.cpp
-        ${PROJECT_ROOT}/src/firmware/application/protocol/midi/MIDI.cpp
+        ${PROJECT_ROOT}/src/firmware/application/database/database.cpp
+        ${PROJECT_ROOT}/src/firmware/application/database/custom_init.cpp
+        ${PROJECT_ROOT}/src/firmware/application/protocol/midi/midi.cpp
     )
 
     target_link_libraries(midi

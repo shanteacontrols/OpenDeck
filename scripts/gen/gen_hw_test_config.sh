@@ -5,7 +5,7 @@ yaml_file=$2
 gen_dir=$3
 yaml_parser="dasel -n -p yaml --plain -f"
 target_name=$(basename "$yaml_file" .yml)
-out_header="$gen_dir"/HWTestDefines.h
+out_header="$gen_dir"/hw_test_defines.h
 
 mkdir -p "$gen_dir"
 echo "" > "$out_header"

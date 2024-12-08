@@ -39,36 +39,34 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
         ${PROJECT_ROOT}/src/generated/application/${TARGET}/*.cpp
     )
 
-    add_module(LESSDB)
-    add_mcu_library(lessdb-lib)
+    add_module(liblessdb)
+    add_mcu_library(liblessdb)
 
-    add_module(SysExConf)
-    add_mcu_library(sysexconf-lib)
+    add_module(libsysexconf)
+    add_mcu_library(libsysexconf)
 
-    add_module(MIDI)
-    add_mcu_library(midi-lib)
+    add_module(libmidi)
+    add_mcu_library(libmidi)
 
     target_sources(application
         PRIVATE
-        ${CMAKE_CURRENT_LIST_DIR}/io/buttons/Buttons.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/io/touchscreen/model/viewtech/Viewtech.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/io/touchscreen/model/Builder.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/io/touchscreen/model/nextion/Nextion.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/io/touchscreen/Touchscreen.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/io/leds/LEDs.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/io/i2c/I2C.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/io/i2c/peripherals/display/Display.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/io/i2c/peripherals/display/Elements.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/io/i2c/peripherals/Builder.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/io/encoders/Encoders.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/io/analog/Analog.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/protocol/midi/MIDI.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/database/CustomInit.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/database/Database.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/system/System.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/util/scheduler/Scheduler.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/util/cinfo/CInfo.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/util/configurable/Configurable.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/io/buttons/buttons.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/io/touchscreen/models/viewtech/viewtech.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/io/touchscreen/models/nextion/nextion.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/io/touchscreen/touchscreen.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/io/leds/leds.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/io/i2c/i2c.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/io/i2c/peripherals/display/display.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/io/i2c/peripherals/display/elements.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/io/encoders/encoders.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/io/analog/analog.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/protocol/midi/midi.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/database/custom_init.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/database/database.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/system/system.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/util/scheduler/scheduler.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/util/cinfo/cinfo.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/util/configurable/configurable.cpp
         ${CMAKE_CURRENT_LIST_DIR}/main.cpp
         ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_string.c
         ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_setup.c
@@ -88,9 +86,9 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
     target_link_libraries(application
         PRIVATE
         ${BOARD_APPLICATION_LIBRARIES}
-        lessdb-lib
-        sysexconf-lib
-        midi-lib
+        liblessdb
+        libsysexconf
+        libmidi
     )
 
     add_custom_command(
@@ -110,7 +108,7 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
         $<TARGET_FILE:application>.hex
     )
 
-    if (TARGET emueeprom-lib)
+    if (TARGET libemueeprom)
         set(FLASHGEN_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/flashgen)
         set(FLASHGEN_BINARY ${FLASHGEN_BINARY_DIR}/flashgen)
         set(FLASHGEN_OUTPUT ${FLASHGEN_BINARY_DIR}/generated_config.hex)
