@@ -110,7 +110,7 @@ jobs:
           imageName: opendeck # Local name only
           imageTag: latest # Local tag only
           push: never
-      - name: Check formatting
+      - name: Check linting
         uses: devcontainers/ci@v0.3
         with:
           imageName: opendeck
