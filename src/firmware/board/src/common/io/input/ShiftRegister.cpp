@@ -34,7 +34,7 @@ using namespace board::detail::io::digitalIn;
 
 namespace
 {
-    volatile readings_t _digitalInBuffer[PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS];
+    volatile readings_t digitalInBuffer[PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS];
 
     inline void storeDigitalIn()
     {
@@ -53,12 +53,12 @@ namespace
                 CORE_MCU_IO_SET_LOW(PIN_PORT_SR_IN_CLK, PIN_INDEX_SR_IN_CLK);
                 io::spiWait();
 
-                _digitalInBuffer[index].readings <<= 1;
-                _digitalInBuffer[index].readings |= !CORE_MCU_IO_READ(PIN_PORT_SR_IN_DATA, PIN_INDEX_SR_IN_DATA);
+                digitalInBuffer[index].readings <<= 1;
+                digitalInBuffer[index].readings |= !CORE_MCU_IO_READ(PIN_PORT_SR_IN_DATA, PIN_INDEX_SR_IN_DATA);
 
-                if (++_digitalInBuffer[index].count > MAX_READING_COUNT)
+                if (++digitalInBuffer[index].count > MAX_READING_COUNT)
                 {
-                    _digitalInBuffer[index].count = MAX_READING_COUNT;
+                    digitalInBuffer[index].count = MAX_READING_COUNT;
                 }
 
                 CORE_MCU_IO_SET_HIGH(PIN_PORT_SR_IN_CLK, PIN_INDEX_SR_IN_CLK);
@@ -101,9 +101,9 @@ namespace board::io::digitalIn
 
         CORE_MCU_ATOMIC_SECTION
         {
-            readings.count                = _digitalInBuffer[index].count;
-            readings.readings             = _digitalInBuffer[index].readings;
-            _digitalInBuffer[index].count = 0;
+            readings.count               = digitalInBuffer[index].count;
+            readings.readings            = digitalInBuffer[index].readings;
+            digitalInBuffer[index].count = 0;
         }
 
         return readings.count > 0;

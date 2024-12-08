@@ -29,7 +29,7 @@ namespace
 #endif
 #endif
 
-    bool _usbInitialized;
+    bool usbInitialized;
 }    // namespace
 
 namespace board
@@ -94,10 +94,10 @@ namespace board
         initStatus_t init()
         {
             // allow usb init only once
-            if (!_usbInitialized)
+            if (!usbInitialized)
             {
                 detail::usb::init();
-                _usbInitialized = true;
+                usbInitialized = true;
 
                 return initStatus_t::OK;
             }
@@ -107,16 +107,16 @@ namespace board
 
         void deInit()
         {
-            if (_usbInitialized)
+            if (usbInitialized)
             {
                 detail::usb::deInit();
-                _usbInitialized = false;
+                usbInitialized = false;
             }
         }
 
         bool isInitialized()
         {
-            return _usbInitialized;
+            return usbInitialized;
         }
     }    // namespace usb
 

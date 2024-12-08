@@ -46,9 +46,9 @@ limitations under the License.
 namespace
 {
     // handle of the current connection
-    uint16_t _connHandle = BLE_CONN_HANDLE_INVALID;
+    uint16_t connHandle = BLE_CONN_HANDLE_INVALID;
 
-    ble_uuid_t _advUUIDs[] = {
+    ble_uuid_t advUuiDs[] = {
         {
             BLE_UUID_DEVICE_INFORMATION_SERVICE,
             BLE_UUID_TYPE_BLE,
@@ -66,8 +66,8 @@ namespace
         case BLE_GAP_EVT_CONNECTED:
         {
             LOG_INFO("Connected to peer");
-            _connHandle = event->evt.gap_evt.conn_handle;
-            CORE_ERROR_CHECK(nrf_ble_qwr_conn_handle_assign(&_qwr, _connHandle), NRF_SUCCESS);
+            connHandle = event->evt.gap_evt.conn_handle;
+            CORE_ERROR_CHECK(nrf_ble_qwr_conn_handle_assign(&_qwr, connHandle), NRF_SUCCESS);
         }
         break;
 
@@ -201,8 +201,8 @@ namespace
         init.advdata.name_type               = BLE_ADVDATA_FULL_NAME;
         init.advdata.include_appearance      = true;
         init.advdata.flags                   = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE;
-        init.advdata.uuids_complete.uuid_cnt = sizeof(_advUUIDs) / sizeof(_advUUIDs[0]);
-        init.advdata.uuids_complete.p_uuids  = _advUUIDs;
+        init.advdata.uuids_complete.uuid_cnt = sizeof(advUuiDs) / sizeof(advUuiDs[0]);
+        init.advdata.uuids_complete.p_uuids  = advUuiDs;
 
         init.config.ble_adv_fast_enabled  = true;
         init.config.ble_adv_fast_interval = APP_ADV_INTERVAL;
@@ -364,7 +364,7 @@ namespace board::ble
 
     bool deInit()
     {
-        if (_connHandle == BLE_CONN_HANDLE_INVALID)
+        if (connHandle == BLE_CONN_HANDLE_INVALID)
         {
             // not connected yet, stop advertising
             CORE_ERROR_CHECK(sd_ble_gap_adv_stop(_advertising.adv_handle), NRF_SUCCESS);
@@ -372,8 +372,8 @@ namespace board::ble
         else
         {
             // disconnect
-            CORE_ERROR_CHECK(sd_ble_gap_disconnect(_connHandle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE), NRF_SUCCESS);
-            _connHandle = BLE_CONN_HANDLE_INVALID;
+            CORE_ERROR_CHECK(sd_ble_gap_disconnect(connHandle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE), NRF_SUCCESS);
+            connHandle = BLE_CONN_HANDLE_INVALID;
         }
 
         CORE_ERROR_CHECK(nrf_sdh_disable_request(), NRF_SUCCESS);

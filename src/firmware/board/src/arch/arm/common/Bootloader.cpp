@@ -25,19 +25,19 @@ using appEntry_t = void (*)();
 namespace
 {
     /// Variable used to specify whether to enter bootloader or application.
-    uint32_t _fwEntryType __attribute__((section(".noinit"))) __attribute__((used));
+    uint32_t fwEntryType __attribute__((section(".noinit"))) __attribute__((used));
 }    // namespace
 
 namespace board::bootloader
 {
     uint32_t magicBootValue()
     {
-        return _fwEntryType;
+        return fwEntryType;
     }
 
     void setMagicBootValue(uint32_t value)
     {
-        _fwEntryType = value;
+        fwEntryType = value;
     }
 
     void runApplication()

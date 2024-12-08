@@ -31,8 +31,8 @@ using namespace board::detail::io::digitalOut;
 
 namespace
 {
-    uint8_t                    _pwmCounter;
-    core::mcu::io::portWidth_t _portState[PROJECT_TARGET_NR_OF_DIGITAL_OUTPUT_PORTS][static_cast<uint8_t>(ledBrightness_t::B100)];
+    uint8_t                    pwmCounter;
+    core::mcu::io::portWidth_t portState[PROJECT_TARGET_NR_OF_DIGITAL_OUTPUT_PORTS][static_cast<uint8_t>(ledBrightness_t::B100)];
 }    // namespace
 
 namespace board::detail::io::digitalOut
@@ -58,13 +58,13 @@ namespace board::detail::io::digitalOut
         {
             core::mcu::io::portWidth_t updatedPortState = CORE_MCU_IO_READ_OUT_PORT(map::DIGITAL_OUT_PORT(port));
             updatedPortState &= detail::map::DIGITAL_OUT_PORT_CLEAR_MASK(port);
-            updatedPortState |= _portState[port][_pwmCounter];
+            updatedPortState |= portState[port][pwmCounter];
             CORE_MCU_IO_SET_PORT_STATE(detail::map::DIGITAL_OUT_PORT(port), updatedPortState);
         }
 
-        if (++_pwmCounter >= static_cast<uint8_t>(ledBrightness_t::B100))
+        if (++pwmCounter >= static_cast<uint8_t>(ledBrightness_t::B100))
         {
-            _pwmCounter = 0;
+            pwmCounter = 0;
         }
     }
 }    // namespace board::detail::io::digitalOut
@@ -84,17 +84,17 @@ namespace board::io::digitalOut
         {
             for (uint8_t i = 0; i < static_cast<int>(ledBrightness_t::B100); i++)
             {
-                core::util::BIT_WRITE(_portState[map::LED_PORT_INDEX(index)][i], map::LED_PIN_INDEX(index), i < static_cast<int>(ledBrightness) ?
+                core::util::BIT_WRITE(portState[map::LED_PORT_INDEX(index)][i], map::LED_PIN_INDEX(index), i < static_cast<int>(ledBrightness) ?
 #ifndef PROJECT_TARGET_LEDS_EXT_INVERT
-                                                                                                                                                1
+                                                                                                                                               1
 #else
-                                                                                                                                                0
+                                                                                                                                               0
 #endif
-                                                                                                                                                :
+                                                                                                                                               :
 #ifndef PROJECT_TARGET_LEDS_EXT_INVERT
-                                                                                                                                                0
+                                                                                                                                               0
 #else
-                                                                                                                                                1
+                                                                                                                                               1
 #endif
 
                 );

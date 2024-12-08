@@ -26,7 +26,7 @@ limitations under the License.
 
 namespace
 {
-    volatile bool _usbConnected;
+    volatile bool usbConnected;
 }    // namespace
 
 void core::mcu::isr::usb()
@@ -92,12 +92,12 @@ extern "C" uint16_t const* tud_descriptor_string_cb(uint8_t index, uint16_t lang
 
 extern "C" void tud_mount_cb(void)
 {
-    _usbConnected = true;
+    usbConnected = true;
 }
 
 extern "C" void tud_umount_cb(void)
 {
-    _usbConnected = false;
+    usbConnected = false;
 }
 
 namespace board
@@ -106,7 +106,7 @@ namespace board
     {
         bool isUSBconnected()
         {
-            return _usbConnected;
+            return usbConnected;
         }
     }    // namespace usb
 

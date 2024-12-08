@@ -34,10 +34,10 @@ namespace
 {
     constexpr size_t ANALOG_IN_BUFFER_SIZE = PROJECT_TARGET_MAX_NR_OF_ANALOG_INPUTS;
 
-    uint8_t           _analogIndex;
-    volatile uint16_t _analogBuffer[ANALOG_IN_BUFFER_SIZE];
-    volatile uint16_t _sample;
-    volatile uint8_t  _sampleCounter;
+    uint8_t           analogIndex;
+    volatile uint16_t analogBuffer[ANALOG_IN_BUFFER_SIZE];
+    volatile uint16_t sample;
+    volatile uint8_t  sampleCounter;
 }    // namespace
 
 namespace board::detail::io::analog
@@ -79,27 +79,27 @@ namespace board::detail::io::analog
         if (adcValue <= CORE_MCU_ADC_MAX_VALUE)
         {
             // always ignore first sample
-            if (_sampleCounter)
+            if (sampleCounter)
             {
-                _sample += adcValue;
+                sample += adcValue;
             }
 
-            if (++_sampleCounter == (PROJECT_MCU_ADC_SAMPLES + 1))
+            if (++sampleCounter == (PROJECT_MCU_ADC_SAMPLES + 1))
             {
-                _sample /= PROJECT_MCU_ADC_SAMPLES;
-                _analogBuffer[_analogIndex] = _sample;
-                _analogBuffer[_analogIndex] |= ADC_NEW_READING_FLAG;
-                _sample        = 0;
-                _sampleCounter = 0;
-                _analogIndex++;
+                sample /= PROJECT_MCU_ADC_SAMPLES;
+                analogBuffer[analogIndex] = sample;
+                analogBuffer[analogIndex] |= ADC_NEW_READING_FLAG;
+                sample        = 0;
+                sampleCounter = 0;
+                analogIndex++;
 
-                if (_analogIndex == PROJECT_TARGET_MAX_NR_OF_ANALOG_INPUTS)
+                if (analogIndex == PROJECT_TARGET_MAX_NR_OF_ANALOG_INPUTS)
                 {
-                    _analogIndex = 0;
+                    analogIndex = 0;
                 }
 
                 // always switch to next read pin
-                core::mcu::adc::setActivePin(map::ADC_PIN(_analogIndex));
+                core::mcu::adc::setActivePin(map::ADC_PIN(analogIndex));
             }
         }
 

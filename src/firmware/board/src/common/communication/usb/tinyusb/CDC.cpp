@@ -25,13 +25,13 @@ limitations under the License.
 
 namespace
 {
-    volatile uint32_t _baudRate;
+    volatile uint32_t baudRate;
 }    // namespace
 
 extern "C" void tud_cdc_line_coding_cb(uint8_t itf, cdc_line_coding_t const* pLineCoding)
 {
-    _baudRate = pLineCoding->bit_rate;
-    board::usb::onCDCsetLineEncoding(_baudRate);
+    baudRate = pLineCoding->bit_rate;
+    board::usb::onCDCsetLineEncoding(baudRate);
 }
 
 namespace board::usb

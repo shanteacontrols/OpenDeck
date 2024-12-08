@@ -34,15 +34,15 @@ using namespace board::detail::io::digitalIn;
 
 namespace
 {
-    volatile readings_t                                                   _digitalInBuffer[PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS];
-    core::util::RingBuffer<core::mcu::io::portWidth_t, MAX_READING_COUNT> _portBuffer[PROJECT_TARGET_NR_OF_DIGITAL_INPUT_PORTS];
+    volatile readings_t                                                   digitalInBuffer[PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS];
+    core::util::RingBuffer<core::mcu::io::portWidth_t, MAX_READING_COUNT> portBuffer[PROJECT_TARGET_NR_OF_DIGITAL_INPUT_PORTS];
 
     inline void storeDigitalIn()
     {
         // read all input ports instead of reading pin by pin to reduce the time spent in ISR
         for (uint8_t portIndex = 0; portIndex < PROJECT_TARGET_NR_OF_DIGITAL_INPUT_PORTS; portIndex++)
         {
-            _portBuffer[portIndex].insert(CORE_MCU_IO_READ_IN_PORT(map::DIGITAL_IN_PORT(portIndex)));
+            portBuffer[portIndex].insert(CORE_MCU_IO_READ_IN_PORT(map::DIGITAL_IN_PORT(portIndex)));
         }
     }
 
@@ -54,18 +54,18 @@ namespace
         auto                       portIndex = map::BUTTON_PORT_INDEX(digitalInIndex);
         core::mcu::io::portWidth_t portValue = 0;
 
-        while (_portBuffer[portIndex].remove(portValue))
+        while (portBuffer[portIndex].remove(portValue))
         {
             for (size_t i = 0; i < PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS; i++)
             {
                 if (map::BUTTON_PORT_INDEX(i) == portIndex)
                 {
-                    _digitalInBuffer[i].readings <<= 1;
-                    _digitalInBuffer[i].readings |= !core::util::BIT_READ(portValue, map::BUTTON_PIN_INDEX(i));
+                    digitalInBuffer[i].readings <<= 1;
+                    digitalInBuffer[i].readings |= !core::util::BIT_READ(portValue, map::BUTTON_PIN_INDEX(i));
 
-                    if (++_digitalInBuffer[i].count > MAX_READING_COUNT)
+                    if (++digitalInBuffer[i].count > MAX_READING_COUNT)
                     {
-                        _digitalInBuffer[i].count = MAX_READING_COUNT;
+                        digitalInBuffer[i].count = MAX_READING_COUNT;
                     }
                 }
             }
@@ -108,9 +108,9 @@ namespace board::io::digitalIn
         fillBuffer(index);
 
         index                         = map::BUTTON_INDEX(index);
-        readings.count                = _digitalInBuffer[index].count;
-        readings.readings             = _digitalInBuffer[index].readings;
-        _digitalInBuffer[index].count = 0;
+        readings.count                = digitalInBuffer[index].count;
+        readings.readings             = digitalInBuffer[index].readings;
+        digitalInBuffer[index].count  = 0;
 
         return readings.count > 0;
     }

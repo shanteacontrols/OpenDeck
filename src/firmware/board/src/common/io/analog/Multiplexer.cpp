@@ -34,21 +34,21 @@ namespace
 {
     constexpr size_t ANALOG_IN_BUFFER_SIZE = PROJECT_TARGET_MAX_NR_OF_ANALOG_INPUTS;
 
-    uint8_t           _analogIndex;
-    volatile uint16_t _analogBuffer[ANALOG_IN_BUFFER_SIZE];
-    uint8_t           _activeMux;
-    uint8_t           _activeMuxInput;
-    volatile uint16_t _sample;
-    volatile uint8_t  _sampleCounter;
+    uint8_t           analogIndex;
+    volatile uint16_t analogBuffer[ANALOG_IN_BUFFER_SIZE];
+    uint8_t           activeMux;
+    uint8_t           activeMuxInput;
+    volatile uint16_t sample;
+    volatile uint8_t  sampleCounter;
 
     /// Configures one of 16 inputs/outputs on 4067 multiplexer.
     inline void setMuxInput()
     {
-        CORE_MCU_IO_SET_STATE(PIN_PORT_MUX_S0, PIN_INDEX_MUX_S0, core::util::BIT_READ(_activeMuxInput, 0));
-        CORE_MCU_IO_SET_STATE(PIN_PORT_MUX_S1, PIN_INDEX_MUX_S1, core::util::BIT_READ(_activeMuxInput, 1));
-        CORE_MCU_IO_SET_STATE(PIN_PORT_MUX_S2, PIN_INDEX_MUX_S2, core::util::BIT_READ(_activeMuxInput, 2));
+        CORE_MCU_IO_SET_STATE(PIN_PORT_MUX_S0, PIN_INDEX_MUX_S0, core::util::BIT_READ(activeMuxInput, 0));
+        CORE_MCU_IO_SET_STATE(PIN_PORT_MUX_S1, PIN_INDEX_MUX_S1, core::util::BIT_READ(activeMuxInput, 1));
+        CORE_MCU_IO_SET_STATE(PIN_PORT_MUX_S2, PIN_INDEX_MUX_S2, core::util::BIT_READ(activeMuxInput, 2));
 #ifdef PIN_PORT_MUX_S3
-        CORE_MCU_IO_SET_STATE(PIN_PORT_MUX_S3, PIN_INDEX_MUX_S3, core::util::BIT_READ(_activeMuxInput, 3));
+        CORE_MCU_IO_SET_STATE(PIN_PORT_MUX_S3, PIN_INDEX_MUX_S3, core::util::BIT_READ(activeMuxInput, 3));
 #endif
     }
 }    // namespace
@@ -113,36 +113,36 @@ namespace board::detail::io::analog
         if (adcValue <= CORE_MCU_ADC_MAX_VALUE)
         {
             // always ignore first sample
-            if (_sampleCounter)
+            if (sampleCounter)
             {
-                _sample += adcValue;
+                sample += adcValue;
             }
 
-            if (++_sampleCounter == (PROJECT_MCU_ADC_SAMPLES + 1))
+            if (++sampleCounter == (PROJECT_MCU_ADC_SAMPLES + 1))
             {
-                _sample /= PROJECT_MCU_ADC_SAMPLES;
-                _analogBuffer[_analogIndex] = _sample;
-                _analogBuffer[_analogIndex] |= ADC_NEW_READING_FLAG;
-                _sample        = 0;
-                _sampleCounter = 0;
-                _analogIndex++;
-                _activeMuxInput++;
+                sample /= PROJECT_MCU_ADC_SAMPLES;
+                analogBuffer[analogIndex] = sample;
+                analogBuffer[analogIndex] |= ADC_NEW_READING_FLAG;
+                sample        = 0;
+                sampleCounter = 0;
+                analogIndex++;
+                activeMuxInput++;
 
-                bool switchMux = (_activeMuxInput == PROJECT_TARGET_NR_OF_MUX_INPUTS);
+                bool switchMux = (activeMuxInput == PROJECT_TARGET_NR_OF_MUX_INPUTS);
 
                 if (switchMux)
                 {
-                    _activeMuxInput = 0;
-                    _activeMux++;
+                    activeMuxInput = 0;
+                    activeMux++;
 
-                    if (_activeMux == PROJECT_TARGET_NR_OF_MUX)
+                    if (activeMux == PROJECT_TARGET_NR_OF_MUX)
                     {
-                        _activeMux   = 0;
-                        _analogIndex = 0;
+                        activeMux   = 0;
+                        analogIndex = 0;
                     }
 
                     // switch to next mux once all mux inputs are read
-                    core::mcu::adc::setActivePin(map::ADC_PIN(_activeMux));
+                    core::mcu::adc::setActivePin(map::ADC_PIN(activeMux));
                 }
 
                 // always switch to next read pin

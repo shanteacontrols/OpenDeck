@@ -38,8 +38,8 @@ namespace board::io::analog
 
         CORE_MCU_ATOMIC_SECTION
         {
-            value = _analogBuffer[index];
-            _analogBuffer[index] &= ~ADC_NEW_READING_FLAG;
+            value = analogBuffer[index];
+            analogBuffer[index] &= ~ADC_NEW_READING_FLAG;
         }
 
         if (value & ADC_NEW_READING_FLAG)

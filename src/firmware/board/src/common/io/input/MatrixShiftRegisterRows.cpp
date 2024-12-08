@@ -34,18 +34,18 @@ using namespace board::detail::io::digitalIn;
 
 namespace
 {
-    volatile readings_t _digitalInBuffer[PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS];
-    volatile uint8_t    _activeInColumn;
+    volatile readings_t digitalInBuffer[PROJECT_TARGET_MAX_NR_OF_DIGITAL_INPUTS];
+    volatile uint8_t    activeInColumn;
 
     inline void activateInputColumn()
     {
-        CORE_MCU_IO_SET_STATE(PIN_PORT_DEC_BM_A0, PIN_INDEX_DEC_BM_A0, core::util::BIT_READ(_activeInColumn, 0));
-        CORE_MCU_IO_SET_STATE(PIN_PORT_DEC_BM_A1, PIN_INDEX_DEC_BM_A1, core::util::BIT_READ(_activeInColumn, 1));
-        CORE_MCU_IO_SET_STATE(PIN_PORT_DEC_BM_A2, PIN_INDEX_DEC_BM_A2, core::util::BIT_READ(_activeInColumn, 2));
+        CORE_MCU_IO_SET_STATE(PIN_PORT_DEC_BM_A0, PIN_INDEX_DEC_BM_A0, core::util::BIT_READ(activeInColumn, 0));
+        CORE_MCU_IO_SET_STATE(PIN_PORT_DEC_BM_A1, PIN_INDEX_DEC_BM_A1, core::util::BIT_READ(activeInColumn, 1));
+        CORE_MCU_IO_SET_STATE(PIN_PORT_DEC_BM_A2, PIN_INDEX_DEC_BM_A2, core::util::BIT_READ(activeInColumn, 2));
 
-        if (++_activeInColumn == PROJECT_TARGET_NR_OF_BUTTON_COLUMNS)
+        if (++activeInColumn == PROJECT_TARGET_NR_OF_BUTTON_COLUMNS)
         {
-            _activeInColumn = 0;
+            activeInColumn = 0;
         }
     }
 
@@ -69,12 +69,12 @@ namespace
                 CORE_MCU_IO_SET_LOW(PIN_PORT_SR_IN_CLK, PIN_INDEX_SR_IN_CLK);
                 io::spiWait();
 
-                _digitalInBuffer[index].readings <<= 1;
-                _digitalInBuffer[index].readings |= !CORE_MCU_IO_READ(PIN_PORT_SR_IN_DATA, PIN_INDEX_SR_IN_DATA);
+                digitalInBuffer[index].readings <<= 1;
+                digitalInBuffer[index].readings |= !CORE_MCU_IO_READ(PIN_PORT_SR_IN_DATA, PIN_INDEX_SR_IN_DATA);
 
-                if (++_digitalInBuffer[index].count > MAX_READING_COUNT)
+                if (++digitalInBuffer[index].count > MAX_READING_COUNT)
                 {
-                    _digitalInBuffer[index].count = MAX_READING_COUNT;
+                    digitalInBuffer[index].count = MAX_READING_COUNT;
                 }
 
                 CORE_MCU_IO_SET_HIGH(PIN_PORT_SR_IN_CLK, PIN_INDEX_SR_IN_CLK);
@@ -136,9 +136,9 @@ namespace board::io::digitalIn
 
         CORE_MCU_ATOMIC_SECTION
         {
-            readings.count                = _digitalInBuffer[index].count;
-            readings.readings             = _digitalInBuffer[index].readings;
-            _digitalInBuffer[index].count = 0;
+            readings.count               = digitalInBuffer[index].count;
+            readings.readings            = digitalInBuffer[index].readings;
+            digitalInBuffer[index].count = 0;
         }
 
         return readings.count > 0;

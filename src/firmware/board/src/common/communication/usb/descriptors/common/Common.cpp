@@ -25,15 +25,15 @@ limitations under the License.
 
 namespace
 {
-    core::mcu::usb::descriptorUIDString_t _signatureDescriptorInternal;
+    core::mcu::usb::descriptorUIDString_t signatureDescriptorInternal;
 }
 
 namespace board::detail::usb
 {
     const void* serialIDString(uint16_t* size, uint8_t* uid)
     {
-        _signatureDescriptorInternal.header.type = core::mcu::usb::DESC_TYPE_STRING;
-        _signatureDescriptorInternal.header.size = core::mcu::usb::STRING_LEN(CORE_MCU_UID_BITS / 4);
+        signatureDescriptorInternal.header.type = core::mcu::usb::DESC_TYPE_STRING;
+        signatureDescriptorInternal.header.size = core::mcu::usb::STRING_LEN(CORE_MCU_UID_BITS / 4);
 
         uint8_t uidIndex = 0;
 
@@ -52,11 +52,11 @@ namespace board::detail::usb
 
             uidByte &= 0x0F;
 
-            _signatureDescriptorInternal.unicodeString[i] = (uidByte >= 10) ? (('A' - 10) + uidByte) : ('0' + uidByte);
+            signatureDescriptorInternal.unicodeString[i] = (uidByte >= 10) ? (('A' - 10) + uidByte) : ('0' + uidByte);
         }
 
         *size = sizeof(core::mcu::usb::descriptorUIDString_t);
-        return &_signatureDescriptorInternal;
+        return &signatureDescriptorInternal;
     }
 }    // namespace board::detail::usb
 

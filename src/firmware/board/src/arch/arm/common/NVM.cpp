@@ -97,20 +97,20 @@ namespace
         }
     };
 
-    EmuEEPROMHWA _emuEEPROMHWA;
-    EmuEEPROM    _emuEEPROM(_emuEEPROMHWA, true);
+    EmuEEPROMHWA emuEepromhwa;
+    EmuEEPROM    emuEeprom(emuEepromhwa, true);
 }    // namespace
 
 namespace board::nvm
 {
     bool init()
     {
-        return _emuEEPROM.init();
+        return emuEeprom.init();
     }
 
     uint32_t size()
     {
-        return _emuEEPROM.maxAddress();
+        return emuEeprom.maxAddress();
     }
 
     bool read(uint32_t address, uint32_t& value, parameterType_t type)
@@ -122,7 +122,7 @@ namespace board::nvm
         case parameterType_t::BYTE:
         case parameterType_t::WORD:
         {
-            auto readStatus = _emuEEPROM.read(address, tempData);
+            auto readStatus = emuEeprom.read(address, tempData);
             value           = tempData;
 
             if (readStatus == EmuEEPROM::readStatus_t::OK)
@@ -155,7 +155,7 @@ namespace board::nvm
         {
             tempData = value;
 
-            if (_emuEEPROM.write(address, tempData, cacheOnly) != EmuEEPROM::writeStatus_t::OK)
+            if (emuEeprom.write(address, tempData, cacheOnly) != EmuEEPROM::writeStatus_t::OK)
             {
                 return false;
             }
@@ -172,11 +172,11 @@ namespace board::nvm
 
     bool clear(uint32_t start, uint32_t end)
     {
-        return _emuEEPROM.format();
+        return emuEeprom.format();
     }
 
     void writeCacheToFlash()
     {
-        _emuEEPROM.writeCacheToFlash();
+        emuEeprom.writeCacheToFlash();
     }
 }    // namespace board::nvm

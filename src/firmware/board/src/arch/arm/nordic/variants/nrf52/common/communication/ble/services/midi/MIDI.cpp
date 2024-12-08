@@ -32,7 +32,7 @@ limitations under the License.
 
 namespace
 {
-    static constexpr uint32_t BLE_MIDI_BLE_OBSERVER_PRIO = 2;
+    constexpr uint32_t BLE_MIDI_BLE_OBSERVER_PRIO = 2;
 
     const ble_uuid128_t BLE_UUID_MIDI_SERVICE_BASE_UUID = {
         {
@@ -76,10 +76,10 @@ namespace
         }
     };
 
-    static constexpr uint16_t BLE_UUID_MIDI_SERVICE_UUID      = 0x0E5A;
-    static constexpr uint16_t BLE_UUID_MIDI_DATA_IO_CHAR_UUID = 0xE5DB;
+    constexpr uint16_t BLE_UUID_MIDI_SERVICE_UUID      = 0x0E5A;
+    constexpr uint16_t BLE_UUID_MIDI_DATA_IO_CHAR_UUID = 0xE5DB;
 
-    struct midiService_t
+    struct MidiService
     {
         uint16_t                 serviceHandle = 0;
         ble_gatts_char_handles_t dataIOcharHandles;
@@ -87,10 +87,10 @@ namespace
         uint16_t                 connHandle = 0;
     };
 
-    midiService_t                                                            _midiService;
-    core::util::RingBuffer<uint8_t, PROJECT_MCU_BUFFER_SIZE_BLE_MIDI_PACKET> _rxBuffer;
+    MidiService                                                              midiService;
+    core::util::RingBuffer<uint8_t, PROJECT_MCU_BUFFER_SIZE_BLE_MIDI_PACKET> rxBuffer;
 
-    uint32_t dataIOcharAdd(midiService_t& midiService)
+    uint32_t dataIOcharAdd(MidiService& midiService)
     {
         ble_gatts_char_md_t charMetadata;
         ble_gatts_attr_md_t cccdMetadata;
@@ -119,7 +119,7 @@ namespace
         ble_uuid128_t baseUuid = BLE_UUID_MIDI_DATA_IO_CHAR_BASE_UUID;
         CORE_ERROR_CHECK(sd_ble_uuid_vs_add(&baseUuid, &midiService.uuidType), NRF_SUCCESS);
 
-        bleUUID.type = _midiService.uuidType;
+        bleUUID.type = midiService.uuidType;
         bleUUID.uuid = BLE_UUID_MIDI_DATA_IO_CHAR_UUID;
 
         // Configure the characteristic value's metadata
@@ -145,9 +145,9 @@ namespace
 
     void onBleEvent(ble_evt_t const* event, void* context)
     {
-        auto midiService = (midiService_t*)context;
+        auto midiServicePtr = (MidiService*)context;
 
-        if (midiService == NULL || event == NULL)
+        if (midiServicePtr == NULL || event == NULL)
         {
             return;
         }
@@ -157,14 +157,14 @@ namespace
         case BLE_GAP_EVT_CONNECTED:
         {
             LOG_INFO("Connected to peer");
-            _midiService.connHandle = event->evt.gap_evt.conn_handle;
+            midiService.connHandle = event->evt.gap_evt.conn_handle;
         }
         break;
 
         case BLE_GAP_EVT_DISCONNECTED:
         {
             LOG_INFO("Disconnected from peer");
-            _midiService.connHandle = BLE_CONN_HANDLE_INVALID;
+            midiService.connHandle = BLE_CONN_HANDLE_INVALID;
         }
         break;
 
@@ -174,7 +174,7 @@ namespace
             auto writeEvent = (ble_gatts_evt_write_t*)&event->evt.gatts_evt.params.write;
 
             // Check if the Custom value CCCD is written to and that the value is the appropriate length, i.e 2 bytes.
-            if (writeEvent->handle == _midiService.dataIOcharHandles.cccd_handle)
+            if (writeEvent->handle == midiService.dataIOcharHandles.cccd_handle)
             {
                 if (writeEvent->len == 2)
                 {
@@ -187,11 +187,11 @@ namespace
                     else
                     {
                         LOG_INFO("Notifications DISABLED on Data I/O Characteristic");
-                        _rxBuffer.reset();
+                        rxBuffer.reset();
                     }
                 }
             }
-            else if (writeEvent->handle == _midiService.dataIOcharHandles.value_handle)
+            else if (writeEvent->handle == midiService.dataIOcharHandles.value_handle)
             {
                 // midi data
                 LOG_INFO("Received %d bytes: ", writeEvent->len);
@@ -199,7 +199,7 @@ namespace
                 for (int i = 0; i < writeEvent->len; i++)
                 {
                     LOG_INFO("%d", writeEvent->data[i]);
-                    _rxBuffer.insert(writeEvent->data[i]);
+                    rxBuffer.insert(writeEvent->data[i]);
                 }
             }
         }
@@ -241,7 +241,7 @@ namespace
 NRF_SDH_BLE_OBSERVER(_midi_obs,
                      BLE_MIDI_BLE_OBSERVER_PRIO,
                      onBleEvent,
-                     &_midiService);
+                     &midiService);
 
 namespace board::ble::midi
 {
@@ -254,9 +254,9 @@ namespace board::ble::midi
 
         size = 0;
 
-        while (_rxBuffer.size())
+        while (rxBuffer.size())
         {
-            if (!_rxBuffer.remove(buffer[size++]))
+            if (!rxBuffer.remove(buffer[size++]))
             {
                 break;
             }
@@ -282,8 +282,8 @@ namespace board::ble::midi
         gattsValue.p_value = buffer;
 
         // Update database.
-        retVal = sd_ble_gatts_value_set(_midiService.connHandle,
-                                        _midiService.dataIOcharHandles.value_handle,
+        retVal = sd_ble_gatts_value_set(midiService.connHandle,
+                                        midiService.dataIOcharHandles.value_handle,
                                         &gattsValue);
         if (retVal != NRF_SUCCESS)
         {
@@ -291,19 +291,19 @@ namespace board::ble::midi
         }
 
         // Send value if connected and notifying.
-        if ((_midiService.connHandle != BLE_CONN_HANDLE_INVALID))
+        if ((midiService.connHandle != BLE_CONN_HANDLE_INVALID))
         {
             ble_gatts_hvx_params_t hvxParams;
 
             memset(&hvxParams, 0, sizeof(hvxParams));
 
-            hvxParams.handle = _midiService.dataIOcharHandles.value_handle;
+            hvxParams.handle = midiService.dataIOcharHandles.value_handle;
             hvxParams.type   = BLE_GATT_HVX_NOTIFICATION;
             hvxParams.offset = gattsValue.offset;
             hvxParams.p_len  = &gattsValue.len;
             hvxParams.p_data = gattsValue.p_value;
 
-            retVal = sd_ble_gatts_hvx(_midiService.connHandle, &hvxParams);
+            retVal = sd_ble_gatts_hvx(midiService.connHandle, &hvxParams);
 
             if (retVal != 0)
             {
@@ -328,28 +328,28 @@ namespace board::detail::ble::midi
         ble_uuid_t bleUUID;
 
         // Initialize service structure
-        _midiService.connHandle = BLE_CONN_HANDLE_INVALID;
+        midiService.connHandle = BLE_CONN_HANDLE_INVALID;
 
         // Add service
         ble_uuid128_t baseUuid = BLE_UUID_MIDI_SERVICE_BASE_UUID;
-        retVal                 = sd_ble_uuid_vs_add(&baseUuid, &_midiService.uuidType);
+        retVal                 = sd_ble_uuid_vs_add(&baseUuid, &midiService.uuidType);
 
         if (retVal != NRF_SUCCESS)
         {
             return false;
         }
 
-        bleUUID.type = _midiService.uuidType;
+        bleUUID.type = midiService.uuidType;
         bleUUID.uuid = BLE_UUID_MIDI_SERVICE_UUID;
 
-        retVal = sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY, &bleUUID, &_midiService.serviceHandle);
+        retVal = sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY, &bleUUID, &midiService.serviceHandle);
 
         if (retVal != NRF_SUCCESS)
         {
             return false;
         }
 
-        retVal = dataIOcharAdd(_midiService);
+        retVal = dataIOcharAdd(midiService);
 
         if (retVal != NRF_SUCCESS)
         {

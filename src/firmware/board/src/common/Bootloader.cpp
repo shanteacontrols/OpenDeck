@@ -35,7 +35,7 @@ limitations under the License.
 // Address where this variable is stored contains total firmware length.
 // After the last firmware address, CRC of firmware is stored.
 // This is used by the bootloader to verify the CRC of application.
-uint32_t _flashSize __attribute__((section(".fwMetadata"))) __attribute__((used)) = 0;
+uint32_t flashSize __attribute__((section(".fwMetadata"))) __attribute__((used)) = 0;
 
 namespace board::bootloader
 {

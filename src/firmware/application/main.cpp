@@ -25,36 +25,36 @@ limitations under the License.
 #include "application/util/logger/Logger.h"
 #endif
 
-class CDCLocker
+class CdcLocker
 {
     public:
-    CDCLocker() = default;
+    CdcLocker() = default;
 
     static bool locked()
     {
-        return _locked;
+        return isLocked;
     }
 
     static void lock()
     {
-        _locked = true;
+        isLocked = true;
     }
 
     static void unlock()
     {
-        _locked = false;
+        isLocked = false;
     }
 
     private:
-    static bool _locked;
+    static bool isLocked;
 };
 
-bool CDCLocker::_locked = false;
+bool CdcLocker::isLocked = false;
 
-class HWADatabase : public sys::Builder::HWA::Database
+class HwaDatabase : public sys::Builder::HWA::Database
 {
     public:
-    HWADatabase()
+    HwaDatabase()
     {
         MIDIDispatcher.listen(messaging::eventType_t::SYSTEM,
                               [this](const messaging::event_t& event)
@@ -135,13 +135,13 @@ class HWADatabase : public sys::Builder::HWA::Database
     }
 
     bool _writeToCache = false;
-} _hwaDatabase;
+} hwaDatabase;
 
 #ifdef LEDS_SUPPORTED
-class HWALEDs : public sys::Builder::HWA::IO::LEDs
+class HwaLeds : public sys::Builder::HWA::IO::LEDs
 {
     public:
-    HWALEDs() = default;
+    HwaLeds() = default;
 
     void setState(size_t index, io::LEDs::brightness_t brightness) override
     {
@@ -158,12 +158,12 @@ class HWALEDs : public sys::Builder::HWA::IO::LEDs
         return board::io::digitalOut::rgbComponentFromRGB(index,
                                                           static_cast<board::io::digitalOut::rgbComponent_t>(component));
     }
-} _hwaLEDs;
+} hwaLeDs;
 #else
-class HWALEDsStub : public sys::Builder::HWA::IO::LEDs
+class HwaLedsStub : public sys::Builder::HWA::IO::LEDs
 {
     public:
-    HWALEDsStub() = default;
+    HwaLedsStub() = default;
 
     void setState(size_t index, io::LEDs::brightness_t brightness) override
     {
@@ -182,14 +182,14 @@ class HWALEDsStub : public sys::Builder::HWA::IO::LEDs
     void registerHandler(void (*fptr)(size_t index, bool state))
     {
     }
-} _hwaLEDs;
+} hwaLEDs;
 #endif
 
 #ifdef PROJECT_TARGET_SUPPORT_ADC
-class HWAAnalog : public sys::Builder::HWA::IO::Analog
+class HwaAnalog : public sys::Builder::HWA::IO::Analog
 {
     public:
-    HWAAnalog() = default;
+    HwaAnalog() = default;
 
     bool value(size_t index, uint16_t& value) override
     {
@@ -200,13 +200,13 @@ class HWAAnalog : public sys::Builder::HWA::IO::Analog
     {
         return CORE_MCU_ADC_MAX_VALUE == 1023 ? 10 : 12;
     }
-} _hwaAnalog;
+} hwaAnalog;
 
 #else
-class HWAAnalogStub : public sys::Builder::HWA::IO::Analog
+class HwaAnalogStub : public sys::Builder::HWA::IO::Analog
 {
     public:
-    HWAAnalogStub() = default;
+    HwaAnalogStub() = default;
 
     bool value(size_t index, uint16_t& value) override
     {
@@ -217,16 +217,16 @@ class HWAAnalogStub : public sys::Builder::HWA::IO::Analog
     {
         return 10;
     }
-} _hwaAnalog;
+} hwaAnalog;
 #endif
 
 #if defined(BUTTONS_SUPPORTED) || defined(ENCODERS_SUPPORTED)
 // buttons and encoders have the same data source which is digital input
-// this helper class pulls the latest data from board and then feeds it into HWAButtons and HWAEncoders
-class HWADigitalIn
+// this helper class pulls the latest data from board and then feeds it into HwaButtons and HwaEncoders
+class HwaDigitalIn
 {
     public:
-    HWADigitalIn() = default;
+    HwaDigitalIn() = default;
 
 #ifdef BUTTONS_SUPPORTED
     bool buttonState(size_t index, uint8_t& numberOfReadings, uint16_t& states)
@@ -282,31 +282,31 @@ class HWADigitalIn
 #ifdef ENCODERS_SUPPORTED
     board::io::digitalIn::readings_t _dInReadB;
 #endif
-} _hwaDigitalIn;
+} hwaDigitalIn;
 #endif
 
 #ifdef BUTTONS_SUPPORTED
 
-class HWAButtons : public sys::Builder::HWA::IO::Buttons
+class HwaButtons : public sys::Builder::HWA::IO::Buttons
 {
     public:
-    HWAButtons() = default;
+    HwaButtons() = default;
 
     bool state(size_t index, uint8_t& numberOfReadings, uint16_t& states) override
     {
-        return _hwaDigitalIn.buttonState(index, numberOfReadings, states);
+        return hwaDigitalIn.buttonState(index, numberOfReadings, states);
     }
 
     size_t buttonToEncoderIndex(size_t index) override
     {
         return board::io::digitalIn::encoderFromInput(index);
     }
-} _hwaButtons;
+} hwaButtons;
 #else
-class HWAButtonsStub : public sys::Builder::HWA::IO::Buttons
+class HwaButtonsStub : public sys::Builder::HWA::IO::Buttons
 {
     public:
-    HWAButtonsStub() = default;
+    HwaButtonsStub() = default;
 
     bool state(size_t index, uint8_t& numberOfReadings, uint16_t& states) override
     {
@@ -317,38 +317,38 @@ class HWAButtonsStub : public sys::Builder::HWA::IO::Buttons
     {
         return 0;
     }
-} _hwaButtons;
+} hwaButtons;
 #endif
 
 #ifdef ENCODERS_SUPPORTED
 
-class HWAEncoders : public sys::Builder::HWA::IO::Encoders
+class HwaEncoders : public sys::Builder::HWA::IO::Encoders
 {
     public:
-    HWAEncoders() = default;
+    HwaEncoders() = default;
 
     bool state(size_t index, uint8_t& numberOfReadings, uint16_t& states) override
     {
-        return _hwaDigitalIn.encoderState(index, numberOfReadings, states);
+        return hwaDigitalIn.encoderState(index, numberOfReadings, states);
     }
-} _hwaEncoders;
+} hwaEncoders;
 #else
-class HWAEncodersStub : public sys::Builder::HWA::IO::Encoders
+class HwaEncodersStub : public sys::Builder::HWA::IO::Encoders
 {
     public:
-    HWAEncodersStub() = default;
+    HwaEncodersStub() = default;
 
     bool state(size_t index, uint8_t& numberOfReadings, uint16_t& states) override
     {
         return false;
     }
-} _hwaEncoders;
+} hwaEncoders;
 #endif
 
-class HWAMIDIUSB : public sys::Builder::HWA::Protocol::MIDI::USB
+class HwaMidiUsb : public sys::Builder::HWA::Protocol::MIDI::USB
 {
     public:
-    HWAMIDIUSB() = default;
+    HwaMidiUsb() = default;
 
     bool supported() override
     {
@@ -391,13 +391,13 @@ class HWAMIDIUSB : public sys::Builder::HWA::Protocol::MIDI::USB
 
         return false;
     }
-} _hwaMIDIUSB;
+} hwaMidiUsb;
 
 #ifdef PROJECT_TARGET_SUPPORT_DIN_MIDI
-class HWAMIDIDIN : public sys::Builder::HWA::Protocol::MIDI::DIN
+class HwaMidiDin : public sys::Builder::HWA::Protocol::MIDI::DIN
 {
     public:
-    HWAMIDIDIN() = default;
+    HwaMidiDin() = default;
 
     bool supported() override
     {
@@ -457,12 +457,12 @@ class HWAMIDIDIN : public sys::Builder::HWA::Protocol::MIDI::DIN
 
         return false;
     }
-} _hwaMIDIDIN;
+} hwaMidiDin;
 #else
-class HWAMIDIDINStub : public sys::Builder::HWA::Protocol::MIDI::DIN
+class HwaMidiDinStub : public sys::Builder::HWA::Protocol::MIDI::DIN
 {
     public:
-    HWAMIDIDINStub() = default;
+    HwaMidiDinStub() = default;
 
     bool supported() override
     {
@@ -498,14 +498,14 @@ class HWAMIDIDINStub : public sys::Builder::HWA::Protocol::MIDI::DIN
     {
         return false;
     }
-} _hwaMIDIDIN;
+} hwaMidiDin;
 #endif
 
 #ifdef PROJECT_TARGET_SUPPORT_BLE
-class HWAMIDIBLE : public sys::Builder::HWA::Protocol::MIDI::BLE
+class HwaMidiBle : public sys::Builder::HWA::Protocol::MIDI::BLE
 {
     public:
-    HWAMIDIBLE() = default;
+    HwaMidiBle() = default;
 
     bool supported() override
     {
@@ -547,12 +547,12 @@ class HWAMIDIBLE : public sys::Builder::HWA::Protocol::MIDI::BLE
     {
         return core::mcu::timing::ms();
     }
-} _hwaMIDIBLE;
+} hwaMidiBle;
 #else
-class HWAMIDIBLEStub : public sys::Builder::HWA::Protocol::MIDI::BLE
+class HwaMidiBleStub : public sys::Builder::HWA::Protocol::MIDI::BLE
 {
     public:
-    HWAMIDIBLEStub() = default;
+    HwaMidiBleStub() = default;
 
     bool supported() override
     {
@@ -583,14 +583,14 @@ class HWAMIDIBLEStub : public sys::Builder::HWA::Protocol::MIDI::BLE
     {
         return 0;
     }
-} _hwaMIDIBLE;
+} hwaMidiBle;
 #endif
 
 #ifdef PROJECT_TARGET_SUPPORT_TOUCHSCREEN
-class HWATouchscreen : public sys::Builder::HWA::IO::Touchscreen
+class HwaTouchscreen : public sys::Builder::HWA::IO::Touchscreen
 {
     public:
-    HWATouchscreen() = default;
+    HwaTouchscreen() = default;
 
     bool init() override
     {
@@ -621,12 +621,12 @@ class HWATouchscreen : public sys::Builder::HWA::IO::Touchscreen
         return false;
 #endif
     }
-} _hwaTouchscreen;
+} hwaTouchscreen;
 #else
-class HWATouchscreenStub : public sys::Builder::HWA::IO::Touchscreen
+class HwaTouchscreenStub : public sys::Builder::HWA::IO::Touchscreen
 {
     public:
-    HWATouchscreenStub() = default;
+    HwaTouchscreenStub() = default;
 
     bool init() override
     {
@@ -652,15 +652,15 @@ class HWATouchscreenStub : public sys::Builder::HWA::IO::Touchscreen
     {
         return false;
     }
-} _hwaTouchscreen;
+} hwaTouchscreen;
 #endif
 
 #if defined(PROJECT_TARGET_SUPPORT_TOUCHSCREEN) && !defined(PROJECT_TARGET_USB_OVER_SERIAL)
 // USB link MCUs don't implement USB-CDC<->UART passthrough
-class HWACDCPassthrough : public sys::Builder::HWA::IO::CDCPassthrough
+class HwaCdcPassthrough : public sys::Builder::HWA::IO::CDCPassthrough
 {
     public:
-    HWACDCPassthrough() = default;
+    HwaCdcPassthrough() = default;
 
     bool supported() override
     {
@@ -669,20 +669,20 @@ class HWACDCPassthrough : public sys::Builder::HWA::IO::CDCPassthrough
 
     bool init() override
     {
-        if (CDCLocker::locked())
+        if (CdcLocker::locked())
         {
             return false;
         }
 
         _passThroughState = true;
-        CDCLocker::lock();
+        CdcLocker::lock();
         return true;
     }
 
     bool deInit() override
     {
         _passThroughState = false;
-        CDCLocker::unlock();
+        CdcLocker::unlock();
         return true;
     }
 
@@ -748,17 +748,17 @@ class HWACDCPassthrough : public sys::Builder::HWA::IO::CDCPassthrough
 
     bool allocated(io::common::Allocatable::interface_t interface) override
     {
-        return CDCLocker::locked();
+        return CdcLocker::locked();
     }
 
     private:
     bool _passThroughState = false;
-} _hwaCDCPassthrough;
+} hwaCdcPassthrough;
 #else
-class HWACDCPassthroughStub : public sys::Builder::HWA::IO::CDCPassthrough
+class HwaCdcPassthroughStub : public sys::Builder::HWA::IO::CDCPassthrough
 {
     public:
-    HWACDCPassthroughStub() = default;
+    HwaCdcPassthroughStub() = default;
 
     bool supported() override
     {
@@ -799,14 +799,14 @@ class HWACDCPassthroughStub : public sys::Builder::HWA::IO::CDCPassthrough
     {
         return false;
     }
-} _hwaCDCPassthrough;
+} hwaCdcPassthrough;
 #endif
 
 #ifdef PROJECT_TARGET_SUPPORT_DISPLAY
-class HWADisplay : public sys::Builder::HWA::IO::Display
+class HwaDisplay : public sys::Builder::HWA::IO::Display
 {
     public:
-    HWADisplay() = default;
+    HwaDisplay() = default;
 
     bool init() override
     {
@@ -823,12 +823,12 @@ class HWADisplay : public sys::Builder::HWA::IO::Display
     {
         return board::i2c::deviceAvailable(PROJECT_TARGET_I2C_CHANNEL_DISPLAY, address);
     }
-} _hwaDisplay;
+} hwaDisplay;
 #else
-class HWADisplayStub : public sys::Builder::HWA::IO::Display
+class HwaDisplayStub : public sys::Builder::HWA::IO::Display
 {
     public:
-    HWADisplayStub() = default;
+    HwaDisplayStub() = default;
 
     bool init() override
     {
@@ -844,13 +844,13 @@ class HWADisplayStub : public sys::Builder::HWA::IO::Display
     {
         return false;
     }
-} _hwaDisplay;
+} hwaDisplay;
 #endif
 
-class HWASystem : public sys::Builder::HWA::System
+class HwaSystem : public sys::Builder::HWA::System
 {
     public:
-    HWASystem()
+    HwaSystem()
     {
         MIDIDispatcher.listen(messaging::eventType_t::SYSTEM,
                               [](const messaging::event_t& event)
@@ -908,7 +908,7 @@ class HWASystem : public sys::Builder::HWA::System
             lastCheckTime       = core::mcu::timing::ms();
         }
 
-        if (!CDCLocker::locked())
+        if (!CdcLocker::locked())
         {
             // nobody is using CDC, read it here to avoid lockups but ignore the data
             uint8_t dummy;
@@ -935,16 +935,16 @@ class HWASystem : public sys::Builder::HWA::System
     private:
     static constexpr uint32_t             USB_CONN_CHECK_TIME   = 2000;
     sys::Instance::usbConnectionHandler_t _usbConnectionHandler = nullptr;
-} _hwaSystem;
+} hwaSystem;
 
-class HWABuilder : public ::sys::Builder::HWA
+class HwaBuilder : public ::sys::Builder::HWA
 {
     public:
-    HWABuilder() = default;
+    HwaBuilder() = default;
 
     ::sys::Builder::HWA::IO& io() override
     {
-        return _hwaIO;
+        return _hwaIo;
     }
 
     ::sys::Builder::HWA::Protocol& protocol() override
@@ -954,60 +954,60 @@ class HWABuilder : public ::sys::Builder::HWA
 
     ::sys::Builder::HWA::System& system() override
     {
-        return _hwaSystem;
+        return hwaSystem;
     }
 
     ::sys::Builder::HWA::Database& database() override
     {
-        return _hwaDatabase;
+        return hwaDatabase;
     }
 
     private:
-    class HWAIO : public ::sys::Builder::HWA::IO
+    class HwaIo : public ::sys::Builder::HWA::IO
     {
         public:
         ::sys::Builder::HWA::IO::LEDs& leds() override
         {
-            return _hwaLEDs;
+            return hwaLeDs;
         }
 
         ::sys::Builder::HWA::IO::Analog& analog() override
         {
-            return _hwaAnalog;
+            return hwaAnalog;
         }
 
         ::sys::Builder::HWA::IO::Buttons& buttons() override
         {
-            return _hwaButtons;
+            return hwaButtons;
         }
 
         ::sys::Builder::HWA::IO::Encoders& encoders() override
         {
-            return _hwaEncoders;
+            return hwaEncoders;
         }
 
         ::sys::Builder::HWA::IO::Touchscreen& touchscreen() override
         {
-            return _hwaTouchscreen;
+            return hwaTouchscreen;
         }
 
         ::sys::Builder::HWA::IO::CDCPassthrough& cdcPassthrough() override
         {
-            return _hwaCDCPassthrough;
+            return hwaCdcPassthrough;
         }
 
         ::sys::Builder::HWA::IO::Display& display() override
         {
-            return _hwaDisplay;
+            return hwaDisplay;
         }
-    } _hwaIO;
+    } _hwaIo;
 
-    class HWAProtocol : public ::sys::Builder::HWA::Protocol
+    class HwaProtocol : public ::sys::Builder::HWA::Protocol
     {
         public:
         ::sys::Builder::HWA::Protocol::MIDI& midi() override
         {
-            return _hwaMIDI;
+            return _hwaMidi;
         }
 
         private:
@@ -1016,28 +1016,28 @@ class HWABuilder : public ::sys::Builder::HWA
             public:
             ::sys::Builder::HWA::Protocol::MIDI::USB& usb() override
             {
-                return _hwaMIDIUSB;
+                return hwaMidiUsb;
             }
 
             ::sys::Builder::HWA::Protocol::MIDI::DIN& din() override
             {
-                return _hwaMIDIDIN;
+                return hwaMidiDin;
             }
 
             ::sys::Builder::HWA::Protocol::MIDI::BLE& ble() override
             {
-                return _hwaMIDIBLE;
+                return hwaMidiBle;
             }
-        } _hwaMIDI;
+        } _hwaMidi;
     } _hwaProtocol;
-} _hwa;
+} hwa;
 
 #if defined(PROJECT_TARGET_SUPPORT_TOUCHSCREEN) && !defined(PROJECT_TARGET_USB_OVER_SERIAL)
 namespace board::usb
 {
     void onCDCsetLineEncoding(uint32_t baudRate)
     {
-        _hwaCDCPassthrough.onCDCsetLineEncoding(baudRate);
+        hwaCdcPassthrough.onCDCsetLineEncoding(baudRate);
     }
 }    // namespace board::usb
 #endif
@@ -1049,16 +1049,16 @@ CORE_LOGGER_CREATE(APP_LOGGER, [](const char* message)
                    });
 #endif
 
-sys::Builder  _builder(_hwa);
-sys::Instance _sys(_builder.hwa(), _builder.components());
+sys::Builder  builderInstance(hwa);
+sys::Instance systemInstance(builderInstance.hwa(), builderInstance.components());
 
 int main()
 {
-    _sys.init();
+    systemInstance.init();
 
     while (true)
     {
-        _sys.run();
+        systemInstance.run();
     }
 
     return 1;

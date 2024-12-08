@@ -25,7 +25,7 @@ limitations under the License.
 
 namespace
 {
-    bool _initialized[CORE_MCU_MAX_I2C_INTERFACES];
+    bool initialized[CORE_MCU_MAX_I2C_INTERFACES];
 }    // namespace
 
 namespace board::i2c
@@ -46,7 +46,7 @@ namespace board::i2c
 
         if (core::mcu::i2c::init(channel, config))
         {
-            _initialized[channel] = true;
+            initialized[channel] = true;
             return initStatus_t::OK;
         }
 
@@ -60,14 +60,14 @@ namespace board::i2c
             return false;
         }
 
-        return _initialized[channel];
+        return initialized[channel];
     }
 
     bool deInit(uint8_t channel)
     {
         if (core::mcu::i2c::deInit(channel))
         {
-            _initialized[channel] = false;
+            initialized[channel] = false;
             return true;
         }
 
