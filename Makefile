@@ -8,6 +8,8 @@ TARGET                     := $(shell basename $(shell $(FIND) $(TARGET_CONFIG_D
 TARGET_BUILD_DIR           := $(BUILD_DIR_BASE)/$(TARGET)
 TEST_EXECUTE               := 1
 CMAKE_CONFIG_ARGS          :=
+WEST_UPDATED_FILE          := .west-updated
+WEST_MANIFESTS             := west.yml
 
 ifneq (,$(shell which ninja))
     CMAKE_CONFIG_ARGS += -GNinja
@@ -27,7 +29,12 @@ CMAKE_CONFIG_ARGS += \
 
 .DEFAULT_GOAL := all
 
-cmake_config:
+$(WEST_UPDATED_FILE): $(WEST_MANIFESTS)
+	@echo "Running west update..."
+	@west update
+	@touch $@
+
+cmake_config: $(WEST_UPDATED_FILE)
 	@if [ ! -d $(TARGET_BUILD_DIR) ]; then \
 		echo "Generating CMake files"; \
 		cmake $(CMAKE_CONFIG_ARGS); \

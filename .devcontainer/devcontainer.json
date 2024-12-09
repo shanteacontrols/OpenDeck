@@ -40,5 +40,6 @@
                 "marus25.cortex-debug"
             ]
         }
-    }
+    },
+    "postStartCommand": "rm -f .west-updated && make clean"
 }

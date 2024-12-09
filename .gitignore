@@ -12,3 +12,4 @@
 build/
 ccache/*
 release/*
+.west-updated
