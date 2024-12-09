@@ -23,7 +23,6 @@ done
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 yaml_parser="dasel -n -p yaml --plain -f"
 core_yaml_file=$(make --no-print-directory -C "$WORKSPACE_DIR"/modules/libcore MCU="$mcu" print-MCU_YML_FILE)
-out_header="$gen_dir"/MCU.h
 out_cmakelists="$gen_dir"/CMakeLists.txt
 project_yaml_file=${script_dir}/../../config/mcu/$mcu.yml
 cmake_mcu_defines_var=PROJECT_MCU_DEFINES
