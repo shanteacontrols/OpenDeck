@@ -29,8 +29,8 @@ limitations under the License.
 using namespace io;
 using namespace sys;
 
-Instance::Instance(Hwa&        hwa,
-                   Components& components)
+System::System(Hwa&        hwa,
+               Components& components)
     : _hwa(hwa)
     , _components(components)
     , _DatabaseHandlers(*this)
@@ -113,7 +113,7 @@ Instance::Instance(Hwa&        hwa,
         });
 }
 
-bool Instance::init()
+bool System::init()
 {
     _scheduler.init();
 
@@ -200,7 +200,7 @@ bool Instance::init()
 // components aren't checked all at once, but
 // rather a single one for each run() call. This is
 // done to reduce the amount of spent time inside checkComponents.
-ioComponent_t Instance::run()
+ioComponent_t System::run()
 {
     _hwa.update();
     auto retVal = checkComponents();
@@ -210,7 +210,7 @@ ioComponent_t Instance::run()
     return retVal;
 }
 
-void Instance::backup()
+void System::backup()
 {
     uint8_t backupRequest[] = {
         0xF0,
@@ -301,7 +301,7 @@ void Instance::backup()
     _backupRestoreState = backupRestoreState_t::NONE;
 }
 
-ioComponent_t Instance::checkComponents()
+ioComponent_t System::checkComponents()
 {
     switch (_componentIndex)
     {
@@ -369,7 +369,7 @@ ioComponent_t Instance::checkComponents()
     return _componentIndex;
 }
 
-void Instance::checkProtocols()
+void System::checkProtocols()
 {
     for (size_t i = 0; i < _components.protocol().size(); i++)
     {
@@ -382,7 +382,7 @@ void Instance::checkProtocols()
     }
 }
 
-void Instance::forceComponentRefresh()
+void System::forceComponentRefresh()
 {
     if (_components.database().read(database::Config::Section::system_t::SYSTEM_SETTINGS,
                                     Config::systemSetting_t::DISABLE_FORCED_REFRESH_AFTER_PRESET_CHANGE))
@@ -403,7 +403,7 @@ void Instance::forceComponentRefresh()
     MidiDispatcher.notify(messaging::eventType_t::SYSTEM, event);
 }
 
-void Instance::SysExDataHandler::sendResponse(uint8_t* array, uint16_t size)
+void System::SysExDataHandler::sendResponse(uint8_t* array, uint16_t size)
 {
     messaging::Event event = {};
     event.systemMessage    = messaging::systemMessage_t::SYS_EX_RESPONSE;
@@ -414,7 +414,7 @@ void Instance::SysExDataHandler::sendResponse(uint8_t* array, uint16_t size)
     MidiDispatcher.notify(messaging::eventType_t::SYSTEM, event);
 }
 
-uint8_t Instance::SysExDataHandler::customRequest(uint16_t request, CustomResponse& customResponse)
+uint8_t System::SysExDataHandler::customRequest(uint16_t request, CustomResponse& customResponse)
 {
     uint8_t result = sys::Config::Status::ACK;
 
@@ -555,23 +555,23 @@ uint8_t Instance::SysExDataHandler::customRequest(uint16_t request, CustomRespon
     return result;
 }
 
-uint8_t Instance::SysExDataHandler::get(uint8_t   block,
-                                        uint8_t   section,
-                                        uint16_t  index,
-                                        uint16_t& value)
+uint8_t System::SysExDataHandler::get(uint8_t   block,
+                                      uint8_t   section,
+                                      uint16_t  index,
+                                      uint16_t& value)
 {
     return ConfigHandler.get(static_cast<sys::Config::block_t>(block), section, index, value);
 }
 
-uint8_t Instance::SysExDataHandler::set(uint8_t  block,
-                                        uint8_t  section,
-                                        uint16_t index,
-                                        uint16_t value)
+uint8_t System::SysExDataHandler::set(uint8_t  block,
+                                      uint8_t  section,
+                                      uint16_t index,
+                                      uint16_t value)
 {
     return ConfigHandler.set(static_cast<sys::Config::block_t>(block), section, index, value);
 }
 
-void Instance::DatabaseHandlers::presetChange(uint8_t preset)
+void System::DatabaseHandlers::presetChange(uint8_t preset)
 {
     if (_system._backupRestoreState == backupRestoreState_t::NONE)
     {
@@ -593,12 +593,12 @@ void Instance::DatabaseHandlers::presetChange(uint8_t preset)
     }
 }
 
-void Instance::DatabaseHandlers::initialized()
+void System::DatabaseHandlers::initialized()
 {
     // nothing to do here
 }
 
-void Instance::DatabaseHandlers::factoryResetStart()
+void System::DatabaseHandlers::factoryResetStart()
 {
     messaging::Event event = {};
     event.componentIndex   = 0;
@@ -610,7 +610,7 @@ void Instance::DatabaseHandlers::factoryResetStart()
     MidiDispatcher.notify(messaging::eventType_t::SYSTEM, event);
 }
 
-void Instance::DatabaseHandlers::factoryResetDone()
+void System::DatabaseHandlers::factoryResetDone()
 {
     messaging::Event event = {};
     event.componentIndex   = 0;
@@ -622,7 +622,7 @@ void Instance::DatabaseHandlers::factoryResetDone()
     MidiDispatcher.notify(messaging::eventType_t::SYSTEM, event);
 }
 
-std::optional<uint8_t> Instance::sysConfigGet(sys::Config::Section::global_t section, size_t index, uint16_t& value)
+std::optional<uint8_t> System::sysConfigGet(sys::Config::Section::global_t section, size_t index, uint16_t& value)
 {
     if (section != sys::Config::Section::global_t::SYSTEM_SETTINGS)
     {
@@ -650,7 +650,7 @@ std::optional<uint8_t> Instance::sysConfigGet(sys::Config::Section::global_t sec
     return result;
 }
 
-std::optional<uint8_t> Instance::sysConfigSet(sys::Config::Section::global_t section, size_t index, uint16_t value)
+std::optional<uint8_t> System::sysConfigSet(sys::Config::Section::global_t section, size_t index, uint16_t value)
 {
     if (section != sys::Config::Section::global_t::SYSTEM_SETTINGS)
     {

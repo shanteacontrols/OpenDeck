@@ -28,11 +28,11 @@ limitations under the License.
 
 namespace sys
 {
-    class Instance
+    class System
     {
         public:
-        Instance(Hwa&        hwa,
-                 Components& components);
+        System(Hwa&        hwa,
+               Components& components);
 
         bool              init();
         io::ioComponent_t run();
@@ -54,7 +54,7 @@ namespace sys
         class SysExDataHandler : public lib::sysexconf::DataHandler
         {
             public:
-            SysExDataHandler(Instance& system)
+            SysExDataHandler(System& system)
                 : _system(system)
             {}
 
@@ -64,13 +64,13 @@ namespace sys
             void    sendResponse(uint8_t* array, uint16_t size) override;
 
             private:
-            Instance& _system;
+            System& _system;
         };
 
         class DatabaseHandlers : public database::Handlers
         {
             public:
-            DatabaseHandlers(Instance& system)
+            DatabaseHandlers(System& system)
                 : _system(system)
             {}
 
@@ -80,7 +80,7 @@ namespace sys
             void initialized() override;
 
             private:
-            Instance& _system;
+            System& _system;
         };
 
         static constexpr lib::sysexconf::ManufacturerId SYS_EX_MID = {

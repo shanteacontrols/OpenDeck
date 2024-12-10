@@ -36,7 +36,7 @@ namespace sys
         public:
         BuilderHw() = default;
 
-        Instance& instance()
+        System& instance()
         {
             return _instance;
         }
@@ -86,6 +86,6 @@ namespace sys
 
         HwaHw        _hwa;
         ComponentsHw _components;
-        Instance     _instance = Instance(_hwa, _components);
+        System       _instance = System(_hwa, _components);
     };
 }    // namespace sys

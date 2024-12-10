@@ -80,6 +80,6 @@ namespace sys
 
         HwaTest        _hwa;
         ComponentsTest _components;
-        Instance       _instance = Instance(_hwa, _components);
+        System         _instance = System(_hwa, _components);
     };
 }    // namespace sys
