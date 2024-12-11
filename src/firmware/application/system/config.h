@@ -169,7 +169,6 @@ namespace sys
                 ERROR_NOT_SUPPORTED,     // 0x0D
                 ERROR_READ,              // 0x0E
                 SERIAL_PERIPHERAL_ALLOCATED_ERROR = 80,
-                CDC_ALLOCATED_ERROR               = 81,
             };
         };
     };
