@@ -29,7 +29,7 @@ namespace io::leds
     class Leds : public io::Base
     {
         public:
-        Leds(HWA&      hwa,
+        Leds(Hwa&      hwa,
              Database& database)
         {}
 
