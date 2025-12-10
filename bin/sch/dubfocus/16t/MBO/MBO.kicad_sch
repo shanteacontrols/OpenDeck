@@ -1,0 +1,1066 @@
+(kicad_sch
+	(version 20250114)
+	(generator "eeschema")
+	(generator_version "9.0")
+	(uuid "cc7cc33d-2f66-4a27-9eb5-3f2a56528b19")
+	(paper "A2")
+	(lib_symbols)
+	(label "MUX_S0"
+		(at 41.91 162.56 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "00eae16a-6159-47d9-8be8-aed7122279b4")
+	)
+	(label "SR_IN_DATA"
+		(at 41.91 105.41 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "0556eb72-dcdf-4456-8e16-3043b9d721a2")
+	)
+	(label "MUX_COMMON_5"
+		(at 41.91 78.74 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "06c53d46-2d39-4539-982d-4101a4c69fdd")
+	)
+	(label "MUX_S2"
+		(at 41.91 131.064 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "0b8cb0f5-3f05-4575-9986-8a7c367531b5")
+	)
+	(label "MUX_COMMON_5"
+		(at 41.91 123.444 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "0fe1fcaf-f960-4aaa-bd47-e7ac6eacc073")
+	)
+	(label "MUX_S2"
+		(at 41.91 167.64 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "13d21b0c-507b-4330-8dd5-9db87f86255d")
+	)
+	(label "MUX_S0"
+		(at 41.91 81.28 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "15d9c029-9346-4256-8c1b-93d3edb29292")
+	)
+	(label "MAX7219_CLK"
+		(at 41.91 93.98 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "22976925-c840-4766-a007-575e07e29d9d")
+	)
+	(label "MUX_COMMON_1"
+		(at 41.91 152.4 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "2553011c-2cff-46bf-bdd6-30cf395caa56")
+	)
+	(label "MUX_S3"
+		(at 41.91 88.9 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "343f2339-2600-4185-9aa3-30f796da73a5")
+	)
+	(label "USB_DP"
+		(at 41.91 114.3 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "3b46fd26-44b5-40d8-af10-5aebe1511296")
+	)
+	(label "MUX_S1"
+		(at 41.91 128.524 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "3e98e441-ce13-4dde-bf30-8174c101d8ac")
+	)
+	(label "USB_DM"
+		(at 41.91 194.31 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "3ebe0ce9-290f-46c4-98c4-713285781101")
+	)
+	(label "MUX_S1"
+		(at 41.91 165.1 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "44c4f10a-c144-4832-a30f-ce265d015a03")
+	)
+	(label "MUX_COMMON_2"
+		(at 41.91 71.12 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "450a8bf6-b2f1-45a9-9222-e2628897f705")
+	)
+	(label "MUX_COMMON_4"
+		(at 41.91 76.2 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "4e710d5a-8f25-467f-bddb-49d1aaa18c6e")
+	)
+	(label "SR_IN_LATCH"
+		(at 41.91 107.95 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "56adbbf1-9036-470d-8d80-9930a91a6f8c")
+	)
+	(label "MUX_S1"
+		(at 41.91 83.82 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "612a2d64-fc97-4cd6-9b4d-6b2815c16524")
+	)
+	(label "NRST"
+		(at 41.91 141.986 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "62f2f8c1-de84-4aad-b9a3-e07065df10ab")
+	)
+	(label "MUX_COMMON_3"
+		(at 41.91 157.48 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "6584b726-4319-45a6-9dc9-f8807639012c")
+	)
+	(label "MUX_COMMON_2"
+		(at 41.91 154.94 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "65f0f779-ac14-43fb-8ebb-a8de43616a8a")
+	)
+	(label "SR_IN_DATA"
+		(at 41.91 187.706 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "6e55080e-06d4-4ec1-a784-b74c05617fb2")
+	)
+	(label "MUX_S3"
+		(at 41.91 133.604 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "7e770324-ee1e-4943-9819-6a9a9eee17c4")
+	)
+	(label "MUX_S2"
+		(at 41.91 86.36 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "92e336b0-3624-4dc1-a4e3-76d7ab9757e9")
+	)
+	(label "MUX_COMMON_3"
+		(at 41.91 73.66 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "9516d604-c647-4286-82e7-e4f1904dae2d")
+	)
+	(label "MAX7219_DIN"
+		(at 41.91 96.52 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "9c3657ec-9e59-41bf-bb74-498c7fc77878")
+	)
+	(label "SWDIO"
+		(at 41.91 144.526 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "9c62f544-bab8-4167-81bb-494eefc1855b")
+	)
+	(label "MAX7219_LOAD"
+		(at 41.91 99.06 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "a599f0ba-ed72-4e5e-84c7-2f1246e544a0")
+	)
+	(label "MUX_S0"
+		(at 41.91 125.984 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "a7b6bc1d-b513-4c75-b6d9-5ff8ff466dee")
+	)
+	(label "SWDIO"
+		(at 41.91 62.23 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b806e25c-f95e-4314-8b2e-86c6b3407fa5")
+	)
+	(label "MUX_COMMON_4"
+		(at 41.91 160.02 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "bb5c1694-ec5c-40bb-949b-a31a07e1a5ef")
+	)
+	(label "SR_IN_CLOCK"
+		(at 41.91 185.166 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "beb0f01d-c91d-43b0-8d00-b9a789b0c600")
+	)
+	(label "USB_DP"
+		(at 41.91 196.85 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "c29e9d52-c702-4618-b448-677f39e0453d")
+	)
+	(label "MUX_S3"
+		(at 41.91 170.18 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "c3b81f5b-674a-4c1a-96c1-3622ecf1bde6")
+	)
+	(label "USB_DM"
+		(at 41.91 111.76 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "c81e9ff1-5f23-4ee7-9ef3-3d9c0ff9e4a6")
+	)
+	(label "MAX7219_CLK"
+		(at 41.91 175.006 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "cffed2aa-b713-4c96-bd6d-d89439b537c8")
+	)
+	(label "MAX7219_LOAD"
+		(at 41.91 180.086 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "d1332acf-f096-44fd-b747-2cba73d24e59")
+	)
+	(label "NRST"
+		(at 41.91 59.69 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "d7291727-13ca-457b-81cc-241da66353e9")
+	)
+	(label "MUX_COMMON_1"
+		(at 41.91 68.58 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "d7e9232f-8a6b-4a34-b5b6-d4b05e852120")
+	)
+	(label "SWDCLK"
+		(at 41.91 64.77 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "dbaae0b5-465e-4f81-a163-c078dad7d6a7")
+	)
+	(label "SR_IN_CLOCK"
+		(at 41.91 102.87 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "dfb7aa4f-0e0f-4a09-89df-93638fc7131f")
+	)
+	(label "MAX7219_DIN"
+		(at 41.91 177.546 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "f48d96e7-fa36-4e05-a46a-b63b3c6394da")
+	)
+	(label "SR_IN_LATCH"
+		(at 41.91 190.246 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "fc4ba37d-3834-4c91-805f-a2f076e73deb")
+	)
+	(label "SWDCLK"
+		(at 41.91 147.066 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "fd7b03eb-6dfb-4a56-8db3-b3b584b413bc")
+	)
+	(sheet
+		(at 41.91 139.7)
+		(size 26.162 59.182)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "5065a8b0-4ee8-45a8-b4c8-f3893db7f0fa")
+		(property "Sheetname" "Connections"
+			(at 41.91 138.9884 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Connections.kicad_sch"
+			(at 41.91 199.4666 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+				(hide yes)
+			)
+		)
+		(pin "NRST" input
+			(at 41.91 141.986 180)
+			(uuid "a1cf5187-6598-4997-829b-370af3ddc84c")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "SWDCLK" input
+			(at 41.91 147.066 180)
+			(uuid "81d147dd-df4a-49de-a232-1604841337d3")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "SWDIO" input
+			(at 41.91 144.526 180)
+			(uuid "492ecbc4-d530-4187-8c4f-33838a3d6832")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MUX_COMMON_1" input
+			(at 41.91 152.4 180)
+			(uuid "310e0f49-6c68-4ec1-9d29-e963b67be596")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MUX_COMMON_2" input
+			(at 41.91 154.94 180)
+			(uuid "1634a166-475d-4738-a180-952a0545d48b")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MUX_COMMON_3" input
+			(at 41.91 157.48 180)
+			(uuid "91aa3887-5c6e-436d-aa64-1724dae11bf8")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MUX_COMMON_4" input
+			(at 41.91 160.02 180)
+			(uuid "f238fab0-2134-4593-8806-1932f42a96a6")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MUX_S0" input
+			(at 41.91 162.56 180)
+			(uuid "266c3f33-db79-4a70-b74d-732eba3ae1ec")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MUX_S1" input
+			(at 41.91 165.1 180)
+			(uuid "159ec2ca-2dbb-4635-9fb6-01b13f41318b")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MUX_S2" input
+			(at 41.91 167.64 180)
+			(uuid "e20e7046-2f3f-4f6d-9675-8818560e0c5a")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MUX_S3" input
+			(at 41.91 170.18 180)
+			(uuid "5d0f665c-5683-4cc3-a24b-79d22e410d62")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MAX7219_CLK" input
+			(at 41.91 175.006 180)
+			(uuid "a8ebc348-9133-4cfe-8933-19bafb7d086b")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MAX7219_DIN" input
+			(at 41.91 177.546 180)
+			(uuid "af38a6fb-e8f5-4b5a-83a3-4cb2d1ab0afe")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MAX7219_LOAD" input
+			(at 41.91 180.086 180)
+			(uuid "6345c350-3b6c-4ca3-84a9-573ab7049c90")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "SR_IN_CLOCK" input
+			(at 41.91 185.166 180)
+			(uuid "f7c0b68e-9cc9-4709-8da5-093c45fbb227")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "SR_IN_DATA" input
+			(at 41.91 187.706 180)
+			(uuid "de7d4a80-b327-4458-ab40-9c7a9de273a3")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "SR_IN_LATCH" input
+			(at 41.91 190.246 180)
+			(uuid "f3a0df6f-c607-405b-94ee-4eab779c6978")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "USB_DM" input
+			(at 41.91 194.31 180)
+			(uuid "013a63c9-cfb2-4a31-8202-60d7e3eecef8")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "USB_DP" input
+			(at 41.91 196.85 180)
+			(uuid "8e403f3b-19ed-4525-8efb-0513c0f81e31")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(instances
+			(project "MBO"
+				(path "/cc7cc33d-2f66-4a27-9eb5-3f2a56528b19"
+					(page "5")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 41.91 55.88)
+		(size 25.146 60.706)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "ab68fcf2-c175-4dea-bc84-d23c7aa04106")
+		(property "Sheetname" "MCU"
+			(at 41.91 55.1684 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "MCU.kicad_sch"
+			(at 41.91 117.1706 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+				(hide yes)
+			)
+		)
+		(pin "SWDCLK" input
+			(at 41.91 64.77 180)
+			(uuid "f9243118-6fac-43a7-a48e-f44960d39ddf")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "SWDIO" input
+			(at 41.91 62.23 180)
+			(uuid "ca192b40-4d80-44d3-a920-391c4a19e7ad")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "NRST" input
+			(at 41.91 59.69 180)
+			(uuid "77739fb8-7809-4ee2-8965-c39ccdfd7365")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MUX_COMMON_1" input
+			(at 41.91 68.58 180)
+			(uuid "8725fa27-a9f6-4b43-87e1-f10443a82dab")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MUX_COMMON_2" input
+			(at 41.91 71.12 180)
+			(uuid "bce48f56-2423-4379-b746-7f2ec379642f")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MUX_COMMON_3" input
+			(at 41.91 73.66 180)
+			(uuid "7aeba941-4ff6-40c5-afcf-a63255b8ffd0")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MUX_COMMON_4" input
+			(at 41.91 76.2 180)
+			(uuid "9a732b28-ecbf-43e2-8e96-4becb6e6b215")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MUX_COMMON_5" input
+			(at 41.91 78.74 180)
+			(uuid "bbb454e9-a071-4cf0-97f2-da249dd69fdf")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MAX7219_CLK" input
+			(at 41.91 93.98 180)
+			(uuid "12291170-dd4d-4c67-8b11-6aac9197c7ef")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MAX7219_DIN" input
+			(at 41.91 96.52 180)
+			(uuid "2844d4fc-dbde-44f9-8407-70ac90a0e555")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "SR_IN_CLOCK" input
+			(at 41.91 102.87 180)
+			(uuid "8a18c4f3-3f7f-43e6-9139-68f0221b5628")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "SR_IN_DATA" input
+			(at 41.91 105.41 180)
+			(uuid "058962fe-ca28-462b-9242-e9179fab3587")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "SR_IN_LATCH" input
+			(at 41.91 107.95 180)
+			(uuid "70412aa2-5ed9-4ac6-ac36-7a5d65803181")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MAX7219_LOAD" input
+			(at 41.91 99.06 180)
+			(uuid "0dcb510f-d43f-4070-be24-8f2f1df7f18c")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MUX_S0" input
+			(at 41.91 81.28 180)
+			(uuid "25d6e5d9-bfcc-4042-ab2c-98349e1a8cad")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MUX_S1" input
+			(at 41.91 83.82 180)
+			(uuid "f99497c8-d117-4124-9bc5-226ff82dfd84")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MUX_S2" input
+			(at 41.91 86.36 180)
+			(uuid "5ba6d1b3-3abf-4bff-9d3d-588cc17f0439")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MUX_S3" input
+			(at 41.91 88.9 180)
+			(uuid "9eca9a56-e2a2-4c94-a3ac-72c45447da8b")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "USB_DM" input
+			(at 41.91 111.76 180)
+			(uuid "8610ce2a-dfc6-4893-b07b-394008498e96")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "USB_DP" input
+			(at 41.91 114.3 180)
+			(uuid "4dae98df-cf49-43d7-b3a7-db970a536ef5")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(instances
+			(project "MBO"
+				(path "/cc7cc33d-2f66-4a27-9eb5-3f2a56528b19"
+					(page "3")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 42.164 30.226)
+		(size 24.892 21.844)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "faf2ecb5-23b7-44d9-8be0-c229de976279")
+		(property "Sheetname" "Power"
+			(at 42.164 29.5144 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Power.kicad_sch"
+			(at 42.164 52.6546 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+				(hide yes)
+			)
+		)
+		(instances
+			(project "MBO"
+				(path "/cc7cc33d-2f66-4a27-9eb5-3f2a56528b19"
+					(page "2")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 41.91 120.65)
+		(size 25.146 14.986)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "fbeaec9f-6c7a-443a-9e6c-8297a609ac8e")
+		(property "Sheetname" "Pots"
+			(at 41.91 119.9384 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Pots.kicad_sch"
+			(at 41.91 136.2206 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+				(hide yes)
+			)
+		)
+		(pin "MUX_COMMON_5" input
+			(at 41.91 123.444 180)
+			(uuid "a4306424-fe59-4b3c-8d96-d9a9dc505097")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MUX_S0" input
+			(at 41.91 125.984 180)
+			(uuid "ebfb3e8c-4062-45e0-91ea-6071e4b3f2f8")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MUX_S1" input
+			(at 41.91 128.524 180)
+			(uuid "7bde80d3-6101-41aa-91ab-8d53bf81642f")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MUX_S2" input
+			(at 41.91 131.064 180)
+			(uuid "61677b3b-ca0f-429a-a6f7-bb5a46a79b1e")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MUX_S3" input
+			(at 41.91 133.604 180)
+			(uuid "fa47f862-364e-4bc3-aa77-b1a721bfe9d5")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(instances
+			(project "MBO"
+				(path "/cc7cc33d-2f66-4a27-9eb5-3f2a56528b19"
+					(page "4")
+				)
+			)
+		)
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+	(embedded_fonts no)
+)

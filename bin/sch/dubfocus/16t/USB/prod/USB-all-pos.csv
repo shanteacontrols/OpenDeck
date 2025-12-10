@@ -1,0 +1,7 @@
+Designator,Val,Package,Mid X,Mid Y,Rotation,Layer
+CONN2,Conn_01x04,CONN_SM04B-SRSS-TB_JST,265.625,-117.925,90,bottom
+D1,PRTR5V0U2X,SOT-143,257.075,-118.025,0,bottom
+FB1,FerriteBead,R_0805_2012Metric,250.95,-116.525,-90,bottom
+R1,5.1k,R_0402_1005Metric,253.1,-114.075,0,bottom
+R2,5.1k,R_0402_1005Metric,254.025,-121.55,180,bottom
+J1,USB_C_Receptacle_USB2.0_16P,USB_C_Receptacle_G-Switch_GT-USB-7051x,257,-117.8,0,top

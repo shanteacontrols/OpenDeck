@@ -1,0 +1,6 @@
+Comment,Designator,Footprint,LCSC
+"Conn_01x04","CONN2","Igor:CONN_SM04B-SRSS-TB_JST","C160404"
+"PRTR5V0U2X","D1","Package_TO_SOT_SMD:SOT-143","C2827688"
+"FerriteBead","FB1","Resistor_SMD:R_0805_2012Metric","C85840"
+"USB_C_Receptacle_USB2.0_16P","J1","Connector_USB:USB_C_Receptacle_G-Switch_GT-USB-7051x","C2843970"
+"5.1k","R1,R2","Resistor_SMD:R_0402_1005Metric","C25905"
