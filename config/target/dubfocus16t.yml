@@ -1,0 +1,70 @@
+---
+  mcu: "stm32f405rg"
+  extClockMhz: 8
+  usb: true
+  buttons:
+    type: "shiftRegister"
+    shiftRegisters: 4
+    encoders: false
+    pins:
+      data:
+        port: "C"
+        index: 7
+      clock:
+        port: "B"
+        index: 13
+      latch:
+        port: "B"
+        index: 14
+  analog:
+    type: "4067"
+    inputVoltage: "3.3"
+    multiplexers: 5
+    pins:
+      s0:
+        port: "A"
+        index: 9
+      s1:
+        port: "A"
+        index: 8
+      s2:
+        port: "C"
+        index: 9
+      s3:
+        port: "C"
+        index: 8
+      z0:
+        port: "A"
+        index: 3
+      z1:
+        port: "A"
+        index: 4
+      z2:
+        port: "A"
+        index: 5
+      z3:
+        port: "A"
+        index: 6
+      z4:
+        port: "A"
+        index: 7
+  leds:
+    external:
+      type: "max7219"
+      drivers: 1
+      invert: false
+      pins:
+        data:
+          port: "C"
+          index: 6
+        clock:
+          port: "B"
+          index: 12
+        latch:
+          port: "B"
+          index: 15
+  bootloader:
+    button:
+      port: "C"
+      index: 5
+      activeState: "low"
