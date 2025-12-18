@@ -22,10 +22,6 @@ for arg in "$@"; do
             gen_dir_touchscreen=${arg#--gen-dir-touchscreen=}
             ;;
 
-        --touchscreen-img-dir=*)
-            touchscreen_img_dir=${arg#--touchscreen-img-dir=}
-            ;;
-
         --base-gen-dir-mcu=*)
             base_mcu_gen_dir=${arg#--base-gen-dir-mcu=}
             ;;

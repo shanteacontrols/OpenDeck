@@ -22,7 +22,6 @@ execute_process(
     "--gen-dir-target=${PROJECT_ROOT}/src/generated/target/${TARGET}"
     "--touchscreen-config=${PROJECT_ROOT}/config/touchscreen/${TARGET}.json"
     "--gen-dir-touchscreen=${PROJECT_ROOT}/src/generated/application/${TARGET}"
-    "--touchscreen-img-dir=${PROJECT_ROOT}/bin/touchscreen/img/${TARGET}"
     "--base-gen-dir-mcu=${PROJECT_ROOT}/src/generated/mcu"
 )
 
