@@ -707,4 +707,41 @@ TEST_F(ButtonsTest, PresetChange)
     ASSERT_EQ(0, _listener._event.size());
 }
 
+TEST_F(ButtonsTest, MMCStartStop)
+{
+    if (!buttons::Collection::SIZE(buttons::GROUP_DIGITAL_INPUTS))
+    {
+        return;
+    }
+
+    MidiDispatcher.listen(messaging::eventType_t::SYSTEM,
+                          [this](const messaging::Event& dispatchMessage)
+                          {
+                              _listener.messageListener(dispatchMessage);
+                          });
+
+    // configure one button to MMC_PLAY_STOP message type
+    static constexpr size_t BUTTON_INDEX = 0;
+
+    ASSERT_TRUE(_buttons._database.update(database::Config::Section::button_t::MESSAGE_TYPE, BUTTON_INDEX, buttons::messageType_t::MMC_PLAY_STOP));
+    _buttons._instance.reset(BUTTON_INDEX);
+
+    // simulate button press
+    stateChangeRegisterSingle(BUTTON_INDEX, true);
+
+    ASSERT_EQ(1, _listener._event.size());
+    ASSERT_EQ(midi::messageType_t::MMC_PLAY, _listener._event.at(0).message);
+
+    // verify that no new events are generated on button release
+    stateChangeRegisterSingle(BUTTON_INDEX, false);
+    ASSERT_EQ(0, _listener._event.size());
+
+    // simulate a new button press
+    stateChangeRegisterSingle(BUTTON_INDEX, true);
+
+    // the message should be MMC_STOP now
+    ASSERT_EQ(1, _listener._event.size());
+    ASSERT_EQ(midi::messageType_t::MMC_STOP, _listener._event.at(0).message);
+}
+
 #endif

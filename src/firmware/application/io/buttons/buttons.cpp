@@ -256,6 +256,7 @@ void Buttons::sendMessage(size_t index, bool state, Descriptor& descriptor)
         case messageType_t::MMC_STOP:
         case messageType_t::MMC_PAUSE:
         case messageType_t::MMC_RECORD:
+        case messageType_t::MMC_PLAY_STOP:
             break;
 
         case messageType_t::PROGRAM_CHANGE:
@@ -470,6 +471,12 @@ void Buttons::sendMessage(size_t index, bool state, Descriptor& descriptor)
         }
         break;
 
+        case messageType_t::MMC_PLAY_STOP:
+        {
+            descriptor.event.message = midi::messageType_t::MMC_STOP;
+        }
+        break;
+
         default:
         {
             send = false;
@@ -584,6 +591,7 @@ void Buttons::fillDescriptor(size_t index, Descriptor& descriptor)
     break;
 
     case messageType_t::MMC_RECORD:
+    case messageType_t::MMC_PLAY_STOP:
     {
         descriptor.type = type_t::LATCHING;
     }

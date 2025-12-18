@@ -94,6 +94,7 @@ namespace io::buttons
             midi::messageType_t::INVALID,                         // PROGRAM_CHANGE_OFFSET_DEC
             midi::messageType_t::INVALID,                         // BPM_INC
             midi::messageType_t::INVALID,                         // BPM_DEC
+            midi::messageType_t::MMC_PLAY,                        // MMC_PLAY_STOP - modified to stop when needed
         };
 
         Hwa&      _hwa;

@@ -67,6 +67,7 @@ namespace io::buttons
         PROGRAM_CHANGE_OFFSET_DEC,
         BPM_INC,
         BPM_DEC,
+        MMC_PLAY_STOP,
         AMOUNT
     };
 }    // namespace io::buttons
