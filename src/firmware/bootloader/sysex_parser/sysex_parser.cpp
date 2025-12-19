@@ -17,8 +17,9 @@ limitations under the License.
 */
 
 #include "sysex_parser.h"
-#include "application/util/conversion/conversion.h"
 #include "application/system/config.h"
+
+#include "lib/sysexconf/sysexconf.h"
 
 using namespace sysex_parser;
 using namespace protocol;
@@ -125,7 +126,7 @@ bool SysExParser::value(size_t index, uint8_t& data)
         return false;
     }
 
-    auto merged = util::Conversion::Merge14Bit(_sysExArray[arrayIndex], _sysExArray[arrayIndex + 1]);
+    auto merged = lib::sysexconf::Merge14Bit(_sysExArray[arrayIndex], _sysExArray[arrayIndex + 1]);
     data        = merged.value() & 0xFF;
 
     return true;

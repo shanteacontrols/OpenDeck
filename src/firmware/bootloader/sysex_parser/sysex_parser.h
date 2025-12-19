@@ -18,7 +18,7 @@ limitations under the License.
 
 #pragma once
 
-#include "application/protocol/midi/midi.h"
+#include "application/protocol/midi/common.h"
 
 namespace sysex_parser
 {
