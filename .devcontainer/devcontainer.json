@@ -33,8 +33,6 @@
         "vscode": {
             "extensions": [
                 "ms-vscode.cpptools",
-                "llvm-vs-code-extensions.vscode-clangd",
-                "eamodio.gitlens",
                 "xaver.clang-format",
                 "timonwong.shellcheck",
                 "marus25.cortex-debug"
