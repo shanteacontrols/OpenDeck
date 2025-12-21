@@ -161,11 +161,4 @@ namespace board
             }
         }    // namespace bootloader
     }    // namespace detail::io
-
-    namespace usb
-    {
-        __attribute__((weak)) void onCdcSetLineEncoding(uint32_t baudRate)
-        {
-        }
-    }    // namespace usb
 }    // namespace board

@@ -20,15 +20,6 @@ limitations under the License.
 
 #include "core/mcu.h"
 
-#ifdef APP_USE_LOGGER
-#include "application/util/logger/logger.h"
-
-CORE_LOGGER_CREATE(APP_LOGGER, [](const char* message)
-                   {
-                       return board::usb::writeCdc((uint8_t*)&message[0], strlen(message));
-                   });
-#endif
-
 sys::BuilderHw builderSystem;
 
 int main()

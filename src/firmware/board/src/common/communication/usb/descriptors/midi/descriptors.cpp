@@ -17,7 +17,6 @@ limitations under the License.
 */
 
 #ifdef PROJECT_TARGET_SUPPORT_USB
-#ifdef FW_BOOT
 
 #include "internal.h"
 #include "descriptors.h"
@@ -279,5 +278,4 @@ namespace board::detail::usb
         return &PRODUCT_STRING;
     }
 }    // namespace board::detail::usb
-#endif
 #endif

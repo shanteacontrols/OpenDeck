@@ -86,14 +86,6 @@ namespace sys
                 lastConnectionState = newState;
                 lastCheckTime       = core::mcu::timing::ms();
             }
-
-            // nobody is using CDC, read it here to avoid lockups but ignore the data
-            uint8_t dummy = 0;
-
-            while (board::usb::readCdc(dummy))
-            {
-                ;
-            }
         }
 
         void reboot(fw_selector::fwType_t type) override

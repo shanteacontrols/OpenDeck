@@ -67,34 +67,6 @@ namespace board
         /// param [in]: packet   Reference to structure holding data to write.
         /// returns: True if transfer has succeded, false otherwise.
         bool writeMidi(lib::midi::usb::Packet& packet);
-
-        /// Used to read CDC data from USB interface.
-        /// param [in]: buffer  Pointer to array in which read data will be stored if available.
-        /// param [in]: size    Reference to variable in which amount of read bytes will be stored.
-        /// param [in]: maxSize Maximum amount of bytes which can be stored in provided buffer.
-        /// returns: True if data is available, false otherwise.
-        bool readCdc(uint8_t* buffer, size_t& size, const size_t maxSize);
-
-        /// Used to read single CDC value from USB interface.
-        /// param [in]: value  Reference to variable in which read data will be stored if available.
-        /// returns: True if data is available, false otherwise.
-        bool readCdc(uint8_t& value);
-
-        /// Used to write CDC data to USB interface.
-        /// param [in]: buffer  Pointer to array holding data to send.
-        /// param [in]: size    Amount of bytes in provided buffer.
-        /// returns: True if transfer has succeded, false otherwise.
-        bool writeCdc(uint8_t* buffer, size_t size);
-
-        /// Used to write single CDC value to USB interface.
-        /// param [in]: value   Value being sent.
-        /// returns: True if transfer has succeded, false otherwise.
-        bool writeCdc(uint8_t value);
-
-        /// Function called once set line encoding request has been received.
-        /// Should be overriden by user application for proper functionality.
-        /// param [in]: baudRate    Baudrate value specified in USB request.
-        void onCdcSetLineEncoding(uint32_t baudRate);
     }    // namespace usb
 
     namespace usb_over_serial
@@ -106,14 +78,12 @@ namespace board
             INVALID,     ///< Placeholder type used to indicate that the packet type isn't set.
             MIDI,        ///< MIDI packet in OpenDeck format.
             INTERNAL,    ///< Internal command used for target MCU <> USB link communication.
-            CDC,         ///< CDC packet in OpenDeck format.
         };
 
         enum class internalCmd_t : uint8_t
         {
             REBOOT_BTLDR,
             USB_STATE,
-            BAUDRATE_CHANGE,
             UNIQUE_ID,
             DISCONNECT_USB,
             CONNECT_USB,

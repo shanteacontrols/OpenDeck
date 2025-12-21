@@ -24,7 +24,6 @@ if (TARGET usb)
         CFG_TUD_MSC=0
         CFG_TUD_HID=0
         CFG_TUD_MIDI=1
-        CFG_TUD_CDC=1
         CFG_TUD_VENDOR=0
     )
 endif()

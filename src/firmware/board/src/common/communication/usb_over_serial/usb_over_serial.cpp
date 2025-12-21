@@ -139,7 +139,6 @@ namespace board::usb_over_serial
             {
             case static_cast<uint8_t>(packetType_t::MIDI):
             case static_cast<uint8_t>(packetType_t::INTERNAL):
-            case static_cast<uint8_t>(packetType_t::CDC):
                 return true;
 
             default:

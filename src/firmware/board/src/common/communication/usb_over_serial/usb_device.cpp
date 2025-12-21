@@ -133,69 +133,6 @@ namespace board
 
             return retVal;
         }
-
-        bool writeCdc(uint8_t* buffer, size_t size)
-        {
-            usb_over_serial::UsbWritePacket packet(usb_over_serial::packetType_t::CDC,
-                                                   buffer,
-                                                   size,
-                                                   size);
-
-            return usb_over_serial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
-        }
-
-        bool writeCdc(uint8_t value)
-        {
-            usb_over_serial::UsbWritePacket packet(usb_over_serial::packetType_t::CDC,
-                                                   &value,
-                                                   1,
-                                                   1);
-
-            return usb_over_serial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
-        }
-
-        bool readCdc(uint8_t* buffer, size_t& size, const size_t maxSize)
-        {
-            if (usb_over_serial::read(PROJECT_TARGET_UART_CHANNEL_USB_LINK, readPacket))
-            {
-                if (readPacket.type() == usb_over_serial::packetType_t::CDC)
-                {
-                    size = readPacket.size() > maxSize ? maxSize : readPacket.size();
-
-                    for (size_t i = 0; i < size; i++)
-                    {
-                        buffer[i] = readPacket[i];
-                    }
-
-                    readPacket.reset();
-                    return true;
-                }
-
-                usb_over_serial::internalCmd_t cmd;
-                board::detail::usb::checkInternal(cmd);
-            }
-
-            return false;
-        }
-
-        bool readCdc(uint8_t& value)
-        {
-            if (usb_over_serial::read(PROJECT_TARGET_UART_CHANNEL_USB_LINK, readPacket))
-            {
-                if (readPacket.type() == usb_over_serial::packetType_t::CDC)
-                {
-                    value = readPacket[0];
-
-                    readPacket.reset();
-                    return true;
-                }
-
-                usb_over_serial::internalCmd_t cmd;
-                board::detail::usb::checkInternal(cmd);
-            }
-
-            return false;
-        }
     }    // namespace usb
 
     namespace detail::usb
@@ -239,22 +176,6 @@ namespace board
                 case static_cast<uint8_t>(usb_over_serial::internalCmd_t::USB_STATE):
                 {
                     usbConnectionState = readPacket[1];
-                }
-                break;
-
-                case static_cast<uint8_t>(usb_over_serial::internalCmd_t::BAUDRATE_CHANGE):
-                {
-                    uint32_t baudRate = 0;
-
-                    baudRate = readPacket[4];
-                    baudRate <<= 8;
-                    baudRate |= readPacket[3];
-                    baudRate <<= 8;
-                    baudRate |= readPacket[2];
-                    baudRate <<= 8;
-                    baudRate |= readPacket[1];
-
-                    board::usb::onCdcSetLineEncoding(baudRate);
                 }
                 break;
 

@@ -71,7 +71,6 @@ namespace io::common
         enum class interface_t : uint8_t
         {
             UART,
-            CDC
         };
 
         virtual ~Allocatable() = default;

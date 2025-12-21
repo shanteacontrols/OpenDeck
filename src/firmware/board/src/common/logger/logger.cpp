@@ -25,7 +25,7 @@ limitations under the License.
 
 CORE_LOGGER_CREATE(BOARD_LOGGER, [](const char* message)
                    {
-                       return board::usb::writeCdc((uint8_t*)&message[0], strlen(message));
+                       // TODO
                    });
 #endif
 #endif

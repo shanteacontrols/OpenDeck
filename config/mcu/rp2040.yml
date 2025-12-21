@@ -18,24 +18,13 @@
       size:
         control: 64
         midi-in-out: 32
-        cdc-in-out: 32
-        cdc-notification: 8
       midi:
         in: 0x81
         out: 0x02
-      midi-cdc-dual:
-        cdc-in: 0x81
-        cdc-out: 0x01
-        cdc-notification: 0x83
-        midi-in: 0x82
-        midi-out: 0x02
     buffers:
       midi:
         tx: 4096
         rx: 4096
-      cdc:
-        tx: 2048
-        rx: 2048
   uart:
     buffers:
       tx: 128

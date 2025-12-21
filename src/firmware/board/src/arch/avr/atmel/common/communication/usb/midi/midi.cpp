@@ -17,7 +17,6 @@ limitations under the License.
 */
 
 #ifdef PROJECT_TARGET_SUPPORT_USB
-#ifdef FW_BOOT
 
 #include "board/board.h"
 #include "internal.h"
@@ -207,5 +206,4 @@ namespace board
     }    // namespace usb
 }    // namespace board
 
-#endif
 #endif

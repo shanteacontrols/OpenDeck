@@ -36,7 +36,7 @@ namespace protocol::midi
 
         bool init() override
         {
-            // usb has both MIDI and CDC interface - it might be already initialized
+            // usb might be already initialized
             return board::usb::init() != board::initStatus_t::ERROR;
         }
 
