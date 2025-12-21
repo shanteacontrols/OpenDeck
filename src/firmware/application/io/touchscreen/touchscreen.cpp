@@ -161,6 +161,11 @@ void Touchscreen::updateSingle(size_t index, bool forceRefresh)
 
 void Touchscreen::updateAll(bool forceRefresh)
 {
+    if (!isInitialized())
+    {
+        return;
+    }
+
     auto ptr = modelInstance(_activeModel);
 
     if (ptr == nullptr)
