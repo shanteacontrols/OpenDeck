@@ -23,6 +23,22 @@
                 }
             ],
             "preLaunchTask": "[Tests] Build"
-        }
+        },
+        {
+            "name": "blackpill411",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "jlink",
+            "cwd": "${workspaceRoot}",
+            "executable": "build/blackpill411/debug/merged.hex",
+            "serverpath": "/usr/bin/JLinkGDBServerCLExe",
+            "interface": "swd",
+            "device": "stm32f411ce",
+            "preLaunchTask": "[Debug] blackpill411",
+            "gdbPath": "/usr/bin/gdb-multiarch",
+            "preLaunchCommands": [
+                "add-symbol-file build/blackpill411/debug/application.elf",
+            ],
+        },
     ]
 }

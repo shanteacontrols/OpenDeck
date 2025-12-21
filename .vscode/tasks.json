@@ -10,8 +10,8 @@
             ]
         },
         {
-            "label": "[Debug] adafruit_ib_nrf52840",
-            "command": "cd ./src && make TARGET=adafruit_ib_nrf52840 DEBUG=1",
+            "label": "[Debug] blackpill411",
+            "command": "make TARGET=blackpill411 DEBUG=1",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
