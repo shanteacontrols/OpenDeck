@@ -3,9 +3,9 @@
 OpenDeck is a platform for building MIDI controllers. It is a firmware running on various boards which transforms them into class-compliant USB MIDI devices, making them compatible with any MIDI software on any operating system. OpenDeck is designed to solve two problems when building a MIDI controller:
 
 * Coding - there is no need to code anything in order to make changes to the controller or to make it work
-* Making the controller behave the way you want it to - the firmware supports huge number of configurable parameters, all configurable in a Web browser
+* Making the controller behave the way you want it to - the firmware supports a huge number of configurable parameters, all configurable in a Web browser
 
-Solving this two goals means you can forget about implementation details and focus on having your custom controller built as fast as possible.
+Solving these two goals means you can forget about implementation details and focus on having your custom controller built as fast as possible.
 
 *Click the image below for a demo video of the [OpenDeck configurator](https://config.shanteacontrols.com)*
 
@@ -29,7 +29,7 @@ The following components are supported:
 * LCD/OLED displays
 * Touchscreen displays (Nextion)
 
-OpenDeck supports sending of both 7-bit and 14-bit Non-Registered Part Numbers (NRPN), latching messages on buttons, various encoding modes for quadrature encoders, LED control using MIDI In, configurable MIDI channels for each component individually, Bluetooth MIDI etc. Full list of supported features can be found [here](https://github.com/shanteacontrols/OpenDeck/wiki/Configurable-features).
+OpenDeck supports sending of both 7-bit and 14-bit Non-Registered Parameter Numbers (NRPN), latching messages on buttons, various encoding modes for quadrature encoders, LED control using MIDI In, configurable MIDI channels for each component individually, Bluetooth MIDI etc. Full list of supported features can be found [here](https://github.com/shanteacontrols/OpenDeck/wiki/Configurable-features).
 
 If the feature you want isn't supported yet, don't feel discouraged. Open up a [discussion thread](https://github.com/shanteacontrols/OpenDeck/discussions) and let's talk about it.
 
@@ -106,16 +106,16 @@ Available on dedicated [Wiki section](https://github.com/shanteacontrols/OpenDec
 
 ## Discussion
 
-Need help? Want to show off your OpenDeck based builds? Head over to [Discussions](https://github.com/shanteacontrols/OpenDeck/discussions)!
+Need help? Want to show off your OpenDeck-based builds? Head over to [Discussions](https://github.com/shanteacontrols/OpenDeck/discussions)!
 
 ## Credits
 
 * Hardware MIDI source code based on [Arduino MIDI library v5.0.2](https://github.com/FortySevenEffects/arduino_midi_library/releases/tag/5.0.2) by Francois Best.
 * USB MIDI source code based on [LUFA USB framework](http://www.fourwalledcubicle.com/LUFA.php) by Dean Camera.
 
-## Licence
+## License
 
-Most of the code is available under Apache Licence v2.0, with the following exceptions:
+Most of the code is available under Apache License v2.0, with the following exceptions:
 
 * `modules`:
   * `avr-libstdcpp`: GNU GPL v3 or later with GCC Runtime Library Exception 3.1
@@ -127,4 +127,4 @@ Most of the code is available under Apache Licence v2.0, with the following exce
   * `libsysexconf`: MIT
   * `u8g2`: Two-clause BSD
   * `unity`: MIT
-  * `tinyusb`: MIT, but many modules it uses are individually licenced, check for more details
+  * `tinyusb`: MIT, but many modules it uses are individually licensed, check for more details
