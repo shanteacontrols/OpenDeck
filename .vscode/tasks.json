@@ -20,6 +20,28 @@
                 "kind": "build",
             }
         },
+        {
+            "label": "[Debug] nrf52840dk",
+            "command": "make TARGET=nrf52840dk DEBUG=1",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+            }
+        },
+        {
+            "label": "[Debug] bergamot",
+            "command": "make TARGET=bergamot DEBUG=1",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+            }
+        },
     ],
     "inputs": [
         {

@@ -40,5 +40,37 @@
                 "add-symbol-file build/blackpill411/debug/application.elf",
             ],
         },
+        {
+            "name": "nrf52840dk",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "jlink",
+            "cwd": "${workspaceRoot}",
+            "executable": "build/nrf52840dk/debug/merged.hex",
+            "serverpath": "/usr/bin/JLinkGDBServerCLExe",
+            "interface": "swd",
+            "device": "nrf52840_xxaa",
+            "preLaunchTask": "[Debug] nrf52840dk",
+            "gdbPath": "/usr/bin/gdb-multiarch",
+            "preLaunchCommands": [
+                "add-symbol-file build/nrf52840dk/debug/application.elf",
+            ],
+        },
+        {
+            "name": "bergamot",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "jlink",
+            "cwd": "${workspaceRoot}",
+            "executable": "build/bergamot/debug/merged.hex",
+            "serverpath": "/usr/bin/JLinkGDBServerCLExe",
+            "interface": "swd",
+            "device": "stm32f405rg",
+            "preLaunchTask": "[Debug] bergamot",
+            "gdbPath": "/usr/bin/gdb-multiarch",
+            "preLaunchCommands": [
+                "add-symbol-file build/bergamot/debug/application.elf",
+            ],
+        },
     ]
 }
