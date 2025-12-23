@@ -305,13 +305,9 @@ brightness_t Leds::valueToBrightness(uint8_t value)
 
 void Leds::midiToState(const messaging::Event& event, messaging::eventType_t source)
 {
-    const uint8_t GLOBAL_CHANNEL = _database.read(database::Config::Section::global_t::MIDI_SETTINGS, midi::setting_t::GLOBAL_CHANNEL);
-    const uint8_t CHANNEL        = _database.read(database::Config::Section::global_t::MIDI_SETTINGS,
-                                           midi::setting_t::USE_GLOBAL_CHANNEL)
-                                       ? GLOBAL_CHANNEL
-                                       : event.channel;
-
-    const bool USE_OMNI = CHANNEL == midi::OMNI_CHANNEL ? true : false;
+    const uint8_t GLOBAL_CHANNEL     = _database.read(database::Config::Section::global_t::MIDI_SETTINGS, midi::setting_t::GLOBAL_CHANNEL);
+    const uint8_t USE_GLOBAL_CHANNEL = _database.read(database::Config::Section::global_t::MIDI_SETTINGS,
+                                                      midi::setting_t::USE_GLOBAL_CHANNEL);
 
     auto eventToMessage = [](const messaging::Event& event)
     {
@@ -478,10 +474,14 @@ void Leds::midiToState(const messaging::Event& event, messaging::eventType_t sou
             }
         }
 
+        const auto DB_CHANNEL = _database.read(database::Config::Section::leds_t::CHANNEL, i);
+        const bool USE_OMNI   = (USE_GLOBAL_CHANNEL && (GLOBAL_CHANNEL == midi::OMNI_CHANNEL)) || (DB_CHANNEL == midi::OMNI_CHANNEL);
+
         if (checkChannel && !USE_OMNI)
         {
-            // no point in further checking if channel doesn't match
-            if (_database.read(database::Config::Section::leds_t::CHANNEL, i) != CHANNEL)
+            const auto CHECK_CHANNEL = USE_GLOBAL_CHANNEL ? GLOBAL_CHANNEL : DB_CHANNEL;
+
+            if (CHECK_CHANNEL != event.channel)
             {
                 continue;
             }

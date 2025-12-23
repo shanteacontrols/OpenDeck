@@ -922,4 +922,106 @@ TEST_F(LEDsTest, StaticLEDsOnInitially)
     _leds._instance.init();
 }
 
+TEST_F(LEDsTest, GlobalChannel)
+{
+    if (!leds::Collection::SIZE(leds::GROUP_DIGITAL_OUTPUTS))
+    {
+        return;
+    }
+
+    constexpr auto LED_INDEX       = 0;
+    const auto     DEFAULT_CHANNEL = _leds._database.read(database::Config::Section::leds_t::CHANNEL, LED_INDEX);
+    const auto     GLOBAL_CHANNEL  = DEFAULT_CHANNEL + 1;
+    constexpr auto ON_VALUE        = 127;
+    constexpr auto OFF_VALUE       = 0;
+
+    ASSERT_TRUE(_leds._database.update(database::Config::Section::global_t::MIDI_SETTINGS, midi::setting_t::GLOBAL_CHANNEL, GLOBAL_CHANNEL));
+    ASSERT_TRUE(_leds._database.update(database::Config::Section::global_t::MIDI_SETTINGS, midi::setting_t::USE_GLOBAL_CHANNEL, true));
+    ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::CONTROL_TYPE, LED_INDEX, leds::controlType_t::MIDI_IN_NOTE_MULTI_VAL));
+
+    EXPECT_CALL(_leds._hwa, setState(_, _))
+        .Times(0);
+
+    // this shouldn't turn the led on because global channel is used instead of the default one
+
+    MidiDispatcher.notify(messaging::eventType_t::MIDI_IN,
+                          {
+                              {},                              // componentIndex
+                              DEFAULT_CHANNEL,                 // channel
+                              LED_INDEX,                       // index
+                              ON_VALUE,                        // value
+                              {},                              // sysEx
+                              {},                              // sysExLength
+                              {},                              // forcedRefresh
+                              midi::messageType_t::NOTE_ON,    // message
+                              {},                              // systemMessage
+                          });
+
+    // verify that the led LED_INDEX is turned on with global channel
+    EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(ON_VALUE)))
+        .Times(1);
+
+    MidiDispatcher.notify(messaging::eventType_t::MIDI_IN,
+                          {
+                              {},                              // componentIndex
+                              GLOBAL_CHANNEL,                  // channel
+                              LED_INDEX,                       // index
+                              ON_VALUE,                        // value
+                              {},                              // sysEx
+                              {},                              // sysExLength
+                              {},                              // forcedRefresh
+                              midi::messageType_t::NOTE_ON,    // message
+                              {},                              // systemMessage
+                          });
+
+    // disable the global channel but now use omni channel instead
+    ASSERT_TRUE(_leds._database.update(database::Config::Section::global_t::MIDI_SETTINGS, midi::setting_t::USE_GLOBAL_CHANNEL, false));
+    ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::CHANNEL, LED_INDEX, midi::OMNI_CHANNEL));
+
+    for (size_t i = 0; i < 16; i++)
+    {
+        // the led should be turned on for every received channel
+        EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(ON_VALUE)))
+            .Times(1);
+
+        MidiDispatcher.notify(messaging::eventType_t::MIDI_IN,
+                              {
+                                  {},                              // componentIndex
+                                  i,                               // channel
+                                  LED_INDEX,                       // index
+                                  ON_VALUE,                        // value
+                                  {},                              // sysEx
+                                  {},                              // sysExLength
+                                  {},                              // forcedRefresh
+                                  midi::messageType_t::NOTE_ON,    // message
+                                  {},                              // systemMessage
+                              });
+    }
+
+    // same test, but this time use omni as global channel
+    ASSERT_TRUE(_leds._database.update(database::Config::Section::global_t::MIDI_SETTINGS, midi::setting_t::GLOBAL_CHANNEL, midi::OMNI_CHANNEL));
+    ASSERT_TRUE(_leds._database.update(database::Config::Section::global_t::MIDI_SETTINGS, midi::setting_t::USE_GLOBAL_CHANNEL, true));
+    ASSERT_TRUE(_leds._database.update(database::Config::Section::leds_t::CHANNEL, LED_INDEX, 1));
+
+    for (size_t i = 0; i < 16; i++)
+    {
+        // the led should be turned on for every received channel
+        EXPECT_CALL(_leds._hwa, setState(_, expectedBrightnessValue.at(ON_VALUE)))
+            .Times(1);
+
+        MidiDispatcher.notify(messaging::eventType_t::MIDI_IN,
+                              {
+                                  {},                              // componentIndex
+                                  i,                               // channel
+                                  LED_INDEX,                       // index
+                                  ON_VALUE,                        // value
+                                  {},                              // sysEx
+                                  {},                              // sysExLength
+                                  {},                              // forcedRefresh
+                                  midi::messageType_t::NOTE_ON,    // message
+                                  {},                              // systemMessage
+                              });
+    }
+}
+
 #endif
