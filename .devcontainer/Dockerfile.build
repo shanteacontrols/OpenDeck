@@ -34,6 +34,7 @@ g++ \
 gcc \
 gcc-arm-none-eabi \
 gdb \
+gdb-multiarch \
 git \
 git-lfs \
 gpg-agent \
