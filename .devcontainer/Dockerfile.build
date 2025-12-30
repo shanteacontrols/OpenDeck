@@ -126,7 +126,9 @@ ADD west.yml ${workspace_dir}/west.yml
 RUN \
 python3 -m venv ${workspace_dir}/.venv && \
 . ${workspace_dir}/.venv/bin/activate && \
-pip install west pyocd && \
+pip install pyocd && \
+pyocd pack install stm32f405 && \
+pip install west && \
 mkdir -p ${workspace_dir}/temp && \
 cd ${workspace_dir}/temp && \
 west init --mf ../west.yml -l . && \
