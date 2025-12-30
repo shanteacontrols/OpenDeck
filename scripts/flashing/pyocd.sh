@@ -9,4 +9,9 @@ target=$1
 target_config=$project_root/config/target/$target.yml
 mcu=$($yaml_parser "$target_config" mcu)
 
-pyocd load -u "${PROBE_ID}" -t "$mcu" "$PWD"/merged.hex
+if [[ -n $PROBE_ID ]]
+then
+    pyocd load -u "${PROBE_ID}" -t "$mcu" "$PWD"/merged.hex
+else
+    pyocd load -t "$mcu" "$PWD"/merged.hex
+fi
