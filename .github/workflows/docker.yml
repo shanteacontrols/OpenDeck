@@ -2,9 +2,13 @@ name: Docker
 
 on:
   push:
+    branches:
+      - '**'
     paths:
       - 'west.yml'
       - '.devcontainer/Dockerfile.build'
+    tags-ignore:
+      - '**'
 
 jobs:
   x86-64:
