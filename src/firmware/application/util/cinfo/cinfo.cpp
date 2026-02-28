@@ -19,6 +19,10 @@ limitations under the License.
 #include "cinfo.h"
 #include "application/messaging/messaging.h"
 
+#ifndef CORE_MCU_UID_BITS
+#define CORE_MCU_UID_BITS 32
+#endif
+
 #include "core/mcu.h"
 
 using namespace util;
