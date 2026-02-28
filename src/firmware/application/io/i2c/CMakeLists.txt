@@ -35,7 +35,6 @@ target_compile_definitions(i2c
 
 add_dependencies(i2c
     board_application
-    mcu
     version
     database
 )
@@ -43,7 +42,6 @@ add_dependencies(i2c
 target_link_libraries(i2c
     PUBLIC
     board_application
-    mcu
     libmidi
     version
     database

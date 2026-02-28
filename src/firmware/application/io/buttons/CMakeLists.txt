@@ -15,14 +15,12 @@ target_include_directories(buttons
 
 add_dependencies(buttons
     board_application
-    mcu
     database
 )
 
 target_link_libraries(buttons
     PUBLIC
     board_application
-    mcu
     libmidi
     database
 )

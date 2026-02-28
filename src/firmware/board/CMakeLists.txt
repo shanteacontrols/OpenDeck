@@ -1,7 +1,5 @@
 set(BOARD_DEFINES "")
-set(BOARD_APPLICATION_LIBRARIES "")
 
-include(${PROJECT_ROOT}/src/generated/target/${TARGET}/CMakeLists.txt)
 include(${CMAKE_CURRENT_LIST_DIR}/src/arch/${CORE_MCU_ARCH}/CMakeLists.txt OPTIONAL)
 include(${CMAKE_CURRENT_LIST_DIR}/src/arch/${CORE_MCU_ARCH}/${CORE_MCU_VENDOR}/CMakeLists.txt OPTIONAL)
 include(${CMAKE_CURRENT_LIST_DIR}/src/arch/${CORE_MCU_ARCH}/${CORE_MCU_VENDOR}/variants/${CORE_MCU_FAMILY}/CMakeLists.txt OPTIONAL)
@@ -20,8 +18,7 @@ target_compile_definitions(mcu
     ${PROJECT_MCU_DEFINES}
 )
 
-add_library(board_application OBJECT)
-list(APPEND BOARD_APPLICATION_LIBRARIES board_application)
+add_library(board_application)
 
 target_include_directories(board_application
     PUBLIC
@@ -50,8 +47,6 @@ target_link_libraries(board_application
     mcu
 )
 
-list(APPEND BOARD_APPLICATION_LIBRARIES mcu)
-
 if (TARGET usb)
     target_compile_definitions(usb
         PUBLIC
@@ -66,27 +61,21 @@ if (TARGET usb_application)
     )
 
     target_link_libraries(board_application
-        PUBLIC
+        PRIVATE
         usb_application
     )
-
-    list(APPEND BOARD_APPLICATION_LIBRARIES usb_application)
 elseif (TARGET usb)
     target_link_libraries(board_application
-        PUBLIC
+        PRIVATE
         usb
     )
-
-    list(APPEND BOARD_APPLICATION_LIBRARIES usb)
 endif()
 
 if (TARGET libemueeprom)
     target_link_libraries(board_application
-        PUBLIC
+        PRIVATE
         libemueeprom
     )
-
-    list(APPEND BOARD_APPLICATION_LIBRARIES libemueeprom)
 endif()
 
 target_link_options(board_application

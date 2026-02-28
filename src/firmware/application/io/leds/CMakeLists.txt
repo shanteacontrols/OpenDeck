@@ -15,14 +15,12 @@ target_include_directories(leds
 
 add_dependencies(leds
     board_application
-    mcu
     database
 )
 
 target_link_libraries(leds
     PUBLIC
     board_application
-    mcu
     libmidi
     database
 )

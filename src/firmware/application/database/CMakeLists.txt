@@ -16,13 +16,11 @@ target_include_directories(database
 
 add_dependencies(database
     board_application
-    mcu
     liblessdb
 )
 
 target_link_libraries(database
     PUBLIC
     board_application
-    mcu
     liblessdb
 )

@@ -15,13 +15,11 @@ target_include_directories(system
 
 add_dependencies(system
     board_application
-    mcu
 )
 
 target_link_libraries(system
     PUBLIC
     board_application
-    mcu
     libmidi
     libsysexconf
     version

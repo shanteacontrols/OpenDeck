@@ -15,14 +15,12 @@ target_include_directories(encoders
 
 add_dependencies(encoders
     board_application
-    mcu
     database
 )
 
 target_link_libraries(encoders
     PUBLIC
     board_application
-    mcu
     libmidi
     database
 )

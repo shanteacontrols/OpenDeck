@@ -6,7 +6,7 @@ set(PROJECT_ROOT ${WORKSPACE_ROOT}/OpenDeck)
 execute_process(
     COMMAND
     "${PROJECT_ROOT}/scripts/gen/gen_target.sh"
-    "--project=${PROJECT_NAME}"
+    "--project=OpenDeck"
     "--target-config=${PROJECT_ROOT}/config/target/${TARGET}.yml"
     "--gen-dir-target=${PROJECT_ROOT}/src/generated/target/${TARGET}"
     "--touchscreen-config=${PROJECT_ROOT}/config/touchscreen/${TARGET}.json"
@@ -15,10 +15,12 @@ execute_process(
 )
 
 include(${PROJECT_ROOT}/cmake/include/helpers.cmake)
-include(board/CMakeLists.txt)
+include(${PROJECT_ROOT}/src/generated/target/${TARGET}/CMakeLists.txt)
 
 project(firmware)
 enable_language(C CXX ASM)
+
+add_subdirectory(board)
 
 if("PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
     add_subdirectory(usb-link)

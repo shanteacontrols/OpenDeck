@@ -43,24 +43,8 @@ file(GLOB_RECURSE APP_GENERATED_SOURCES
 )
 
 add_module(liblessdb)
-add_mcu_library(liblessdb)
-
 add_module(libsysexconf)
-add_mcu_library(libsysexconf)
-
 add_module(libmidi)
-add_mcu_library(libmidi)
-
-add_mcu_library(database)
-add_mcu_library(util)
-add_mcu_library(midi)
-add_mcu_library(analog)
-add_mcu_library(buttons)
-add_mcu_library(encoders)
-add_mcu_library(i2c)
-add_mcu_library(leds)
-add_mcu_library(touchscreen)
-add_mcu_library(system)
 
 target_sources(application
     PRIVATE
@@ -70,7 +54,10 @@ target_sources(application
 
 target_link_libraries(application
     PRIVATE
-    ${BOARD_APPLICATION_LIBRARIES}
+    board_application
+    mcu
+    usb
+    libemueeprom
     liblessdb
     libsysexconf
     libmidi

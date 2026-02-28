@@ -15,12 +15,10 @@ target_include_directories(midi
 
 add_dependencies(midi
     board_application
-    mcu
 )
 
 target_link_libraries(midi
     PUBLIC
     board_application
-    mcu
     libmidi
 )

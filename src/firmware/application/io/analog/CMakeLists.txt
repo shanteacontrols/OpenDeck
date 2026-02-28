@@ -15,14 +15,12 @@ target_include_directories(analog
 
 add_dependencies(analog
     board_application
-    mcu
     database
 )
 
 target_link_libraries(analog
     PUBLIC
     board_application
-    mcu
     libmidi
     database
 )

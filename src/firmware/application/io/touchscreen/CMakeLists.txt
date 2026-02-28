@@ -17,14 +17,12 @@ target_include_directories(touchscreen
 
 add_dependencies(touchscreen
     board_application
-    mcu
     database
 )
 
 target_link_libraries(touchscreen
     PUBLIC
     board_application
-    mcu
     libmidi
     database
 )

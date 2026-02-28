@@ -8,11 +8,7 @@ generated_cmakelists_renamed=$gen_dir/core.cmake
 mv "$out_cmakelists" "$generated_cmakelists_renamed"
 
 {
-    printf "%s\n" "if(CMAKE_USE_STUB_MCU)"
-    printf "%s\n" "include($gen_dir/../stub/CMakeLists.txt)"
-    printf "%s\n" "else()"
     printf "%s\n" "include($generated_cmakelists_renamed)"
-    printf "%s\n" "endif()"
     printf "%s\n" "set(${cmake_mcu_defines_var} \"\")"
     printf "%s\n" "set(${cmake_usb_defines_var} \"\")"
 } >> "$out_cmakelists"

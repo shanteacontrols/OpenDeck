@@ -10,7 +10,7 @@ manifest:
   projects:
     - name: libcore
       remote: paradajz
-      revision: ca1dbff194f4ea6813c1a0c350bd43dedadea12d
+      revision: wip
       path: modules/libcore
       submodules: true
       import: true

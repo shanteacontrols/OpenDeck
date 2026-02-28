@@ -10,7 +10,6 @@ list(APPEND BOARD_DEFINES
 )
 
 add_module(libemueeprom)
-add_mcu_library(libemueeprom)
 
 target_compile_definitions(libemueeprom
     PUBLIC
