@@ -23,8 +23,8 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
 
     target_include_directories(application
         PRIVATE
-        ${PROJECT_ROOT}/src/firmware
-        ${WORKSPACE_ROOT}/modules/u8g2/csrc
+        $ENV{ZEPHYR_PROJECT}/src/firmware
+        $ENV{ZEPHYR_WS}/modules/u8g2/csrc
     )
 
     target_compile_definitions(application
@@ -36,7 +36,7 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
     )
 
     file(GLOB_RECURSE APP_GENERATED_SOURCES
-        ${PROJECT_ROOT}/src/generated/application/${TARGET}/*.cpp
+        $ENV{ZEPHYR_PROJECT}/src/generated/application/${TARGET}/*.cpp
     )
 
     add_module(liblessdb)
@@ -68,18 +68,18 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
         ${CMAKE_CURRENT_LIST_DIR}/util/cinfo/cinfo.cpp
         ${CMAKE_CURRENT_LIST_DIR}/util/configurable/configurable.cpp
         ${CMAKE_CURRENT_LIST_DIR}/main.cpp
-        ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_string.c
-        ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_setup.c
-        ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_u8toa.c
-        ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_8x8.c
-        ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_u16toa.c
-        ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_display.c
-        ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_fonts.c
-        ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_byte.c
-        ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_cad.c
-        ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_gpio.c
-        ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_d_ssd1306_128x64_noname.c
-        ${WORKSPACE_ROOT}/modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
+        $ENV{ZEPHYR_WS}/modules/u8g2/csrc/u8x8_string.c
+        $ENV{ZEPHYR_WS}/modules/u8g2/csrc/u8x8_setup.c
+        $ENV{ZEPHYR_WS}/modules/u8g2/csrc/u8x8_u8toa.c
+        $ENV{ZEPHYR_WS}/modules/u8g2/csrc/u8x8_8x8.c
+        $ENV{ZEPHYR_WS}/modules/u8g2/csrc/u8x8_u16toa.c
+        $ENV{ZEPHYR_WS}/modules/u8g2/csrc/u8x8_display.c
+        $ENV{ZEPHYR_WS}/modules/u8g2/csrc/u8x8_fonts.c
+        $ENV{ZEPHYR_WS}/modules/u8g2/csrc/u8x8_byte.c
+        $ENV{ZEPHYR_WS}/modules/u8g2/csrc/u8x8_cad.c
+        $ENV{ZEPHYR_WS}/modules/u8g2/csrc/u8x8_gpio.c
+        $ENV{ZEPHYR_WS}/modules/u8g2/csrc/u8x8_d_ssd1306_128x64_noname.c
+        $ENV{ZEPHYR_WS}/modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
         ${APP_GENERATED_SOURCES}
     )
 
@@ -114,7 +114,7 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
         set(FLASHGEN_OUTPUT ${FLASHGEN_BINARY_DIR}/generated_config.hex)
 
         ExternalProject_Add(flashgen
-            SOURCE_DIR      ${PROJECT_ROOT}/src/tools/flashgen
+            SOURCE_DIR      $ENV{ZEPHYR_PROJECT}/src/tools/flashgen
             CMAKE_ARGS      -DTARGET=${TARGET}
             CMAKE_ARGS      -DCMAKE_USE_STUB_MCU=1
             CMAKE_ARGS      -DPROJECT_MCU_FLASH_PAGE_FACTORY=${PROJECT_MCU_FLASH_PAGE_FACTORY}
@@ -160,7 +160,7 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
         set(SYSEXGEN_ASCII_OUTPUT ${SYSEX_BINARY_DIR}/firmware.sysex)
 
         ExternalProject_Add(sysexgen
-            SOURCE_DIR      ${PROJECT_ROOT}/src/tools/sysexgen
+            SOURCE_DIR      $ENV{ZEPHYR_PROJECT}/src/tools/sysexgen
             CMAKE_ARGS      -DTARGET=${TARGET} -DCMAKE_USE_STUB_MCU=1
             BINARY_DIR      ${SYSEX_BINARY_DIR}
             BUILD_ALWAYS    TRUE

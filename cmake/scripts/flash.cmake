@@ -8,8 +8,7 @@ if (NOT FLASH_BINARY_DIR)
     set(FLASH_BINARY_DIR ${CMAKE_BINARY_DIR})
 endif()
 
-set(PROJECT_ROOT ${CMAKE_CURRENT_LIST_DIR}/../..)
-set(FLASHING_SCRIPT ${PROJECT_ROOT}/scripts/flashing/${FLASH_TOOL}.sh)
+set(FLASHING_SCRIPT $ENV{ZEPHYR_PROJECT}/scripts/flashing/${FLASH_TOOL}.sh)
 
 if (EXISTS ${FLASHING_SCRIPT})
     execute_process(

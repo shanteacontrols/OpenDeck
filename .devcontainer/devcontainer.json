@@ -1,11 +1,10 @@
 {
     "name": "${localWorkspaceFolderBasename}",
     "build": {
-        "dockerfile": "Dockerfile.ghcr",
-        "context": "${localWorkspaceFolder}"
+        "dockerfile": "Dockerfile"
     },
-    "workspaceMount": "src=${localWorkspaceFolder},dst=/home/ubuntu/workspace/OpenDeck,type=bind",
-    "workspaceFolder": "/home/ubuntu/workspace/OpenDeck",
+    "workspaceMount": "src=${localWorkspaceFolder},dst=/home/ubuntu/zephyr_ws/project,type=bind",
+    "workspaceFolder": "/home/ubuntu/zephyr_ws/project",
     "mounts": [
         {
             "source": "/dev",
@@ -16,16 +15,7 @@
             "source": "${localEnv:HOME}/.gitconfig",
             "target": "/etc/gitconfig",
             "type": "bind"
-        },
-        {
-            "source": "${localEnv:HOME}/.ssh",
-            "target": "/home/ubuntu/.ssh",
-            "type": "bind"
         }
-    ],
-    "runArgs": [
-        "--network=host",
-        "--hostname=${localWorkspaceFolderBasename}"
     ],
     "containerUser": "ubuntu",
     "privileged": true,
@@ -39,5 +29,5 @@
             ]
         }
     },
-    "postStartCommand": "rm -f .west-updated && make clean"
+    "onCreateCommand": "/home/ubuntu/zephyr_ws/zenv/scripts/cleanup.sh"
 }

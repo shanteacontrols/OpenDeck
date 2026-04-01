@@ -4,12 +4,9 @@ set(TARGET "" CACHE STRING "Target name")
 project(flashgen)
 enable_language(CXX)
 
-set(WORKSPACE_ROOT $ENV{WORKSPACE_DIR})
-set(PROJECT_ROOT ${CMAKE_CURRENT_LIST_DIR}/../../../)
-
-include(${PROJECT_ROOT}/cmake/include/helpers.cmake)
-include(${WORKSPACE_ROOT}/modules/libcore/cmake/ccache.cmake)
-include(${PROJECT_ROOT}/src/generated/target/${TARGET}/CMakeLists.txt)
+include($ENV{ZEPHYR_PROJECT}/cmake/include/helpers.cmake)
+include($ENV{ZEPHYR_WS}/modules/libcore/cmake/ccache.cmake)
+include($ENV{ZEPHYR_PROJECT}/src/generated/target/${TARGET}/CMakeLists.txt)
 
 add_executable(flashgen)
 add_module(libemueeprom)
@@ -22,9 +19,9 @@ target_compile_definitions(libemueeprom
 
 target_include_directories(libemueeprom
     PUBLIC
-    ${PROJECT_ROOT}/src/generated/mcu/${PROJECT_TARGET_MCU}
-    ${WORKSPACE_ROOT}/modules/libsysexconf/include
-    ${WORKSPACE_ROOT}/modules/libmidi/include
+    $ENV{ZEPHYR_PROJECT}/src/generated/mcu/${PROJECT_TARGET_MCU}
+    $ENV{ZEPHYR_WS}/modules/libsysexconf/include
+    $ENV{ZEPHYR_WS}/modules/libmidi/include
 )
 
 target_compile_definitions(flashgen
@@ -35,21 +32,21 @@ target_compile_definitions(flashgen
 
 target_include_directories(flashgen
     PUBLIC
-    ${PROJECT_ROOT}/src/firmware
-    ${WORKSPACE_ROOT}/modules/u8g2/csrc
-    ${WORKSPACE_ROOT}/modules/libcore/include
+    $ENV{ZEPHYR_PROJECT}/src/firmware
+    $ENV{ZEPHYR_WS}/modules/u8g2/csrc
+    $ENV{ZEPHYR_WS}/modules/libcore/include
 )
 
 file(GLOB_RECURSE APP_GENERATED_SOURCES
-    ${PROJECT_ROOT}/src/generated/application/${TARGET}/*.cpp
+    $ENV{ZEPHYR_PROJECT}/src/generated/application/${TARGET}/*.cpp
 )
 
 target_sources(flashgen
     PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/main.cpp
-    ${PROJECT_ROOT}/src/firmware/application/database/custom_init.cpp
-    ${PROJECT_ROOT}/src/firmware/application/database/database.cpp
-    ${PROJECT_ROOT}/src/firmware/application/util/configurable/configurable.cpp
+    $ENV{ZEPHYR_PROJECT}/src/firmware/application/database/custom_init.cpp
+    $ENV{ZEPHYR_PROJECT}/src/firmware/application/database/database.cpp
+    $ENV{ZEPHYR_PROJECT}/src/firmware/application/util/configurable/configurable.cpp
     ${APP_GENERATED_SOURCES}
 )
 

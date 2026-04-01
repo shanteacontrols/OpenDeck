@@ -6,23 +6,21 @@ set(CMAKE_EXECUTABLE_SUFFIX_CXX ".elf")
 set(CMAKE_EXECUTABLE_SUFFIX_ASM ".elf")
 
 set(PROJECT_NAME "OpenDeck")
-set(WORKSPACE_ROOT $ENV{WORKSPACE_DIR})
-set(PROJECT_ROOT ${CMAKE_CURRENT_LIST_DIR}/..)
 
 include(ExternalProject)
 include(FetchContent)
-include(${PROJECT_ROOT}/cmake/include/helpers.cmake)
-include(${WORKSPACE_ROOT}/modules/libcore/cmake/ccache.cmake)
+include($ENV{ZEPHYR_PROJECT}/cmake/include/helpers.cmake)
+include($ENV{ZEPHYR_WS}/modules/libcore/cmake/ccache.cmake)
 
 execute_process(
     COMMAND
-    "${PROJECT_ROOT}/scripts/gen/gen_target.sh"
+    "$ENV{ZEPHYR_PROJECT}/scripts/gen/gen_target.sh"
     "--project=${PROJECT_NAME}"
-    "--target-config=${PROJECT_ROOT}/config/target/${TARGET}.yml"
-    "--gen-dir-target=${PROJECT_ROOT}/src/generated/target/${TARGET}"
-    "--touchscreen-config=${PROJECT_ROOT}/config/touchscreen/${TARGET}.json"
-    "--gen-dir-touchscreen=${PROJECT_ROOT}/src/generated/application/${TARGET}"
-    "--base-gen-dir-mcu=${PROJECT_ROOT}/src/generated/mcu"
+    "--target-config=$ENV{ZEPHYR_PROJECT}/config/target/${TARGET}.yml"
+    "--gen-dir-target=$ENV{ZEPHYR_PROJECT}/src/generated/target/${TARGET}"
+    "--touchscreen-config=$ENV{ZEPHYR_PROJECT}/config/touchscreen/${TARGET}.json"
+    "--gen-dir-touchscreen=$ENV{ZEPHYR_PROJECT}/src/generated/application/${TARGET}"
+    "--base-gen-dir-mcu=$ENV{ZEPHYR_PROJECT}/src/generated/mcu"
 )
 
 project(${PROJECT_NAME})

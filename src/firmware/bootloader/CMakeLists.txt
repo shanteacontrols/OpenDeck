@@ -4,9 +4,9 @@ if("PROJECT_MCU_SUPPORT_BOOTLOADER" IN_LIST PROJECT_MCU_DEFINES)
 
     target_include_directories(bootloader
         PRIVATE
-        ${PROJECT_ROOT}/src/firmware
-        ${WORKSPACE_ROOT}/modules/libsysexconf/include
-        ${WORKSPACE_ROOT}/modules/libmidi/include
+        $ENV{ZEPHYR_PROJECT}/src/firmware
+        $ENV{ZEPHYR_WS}/modules/libsysexconf/include
+        $ENV{ZEPHYR_WS}/modules/libmidi/include
     )
 
     target_sources(bootloader

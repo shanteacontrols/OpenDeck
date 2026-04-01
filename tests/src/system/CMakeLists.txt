@@ -4,19 +4,19 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
     target_sources(system
         PRIVATE
         test.cpp
-        ${PROJECT_ROOT}/src/firmware/application/database/database.cpp
-        ${PROJECT_ROOT}/src/firmware/application/database/custom_init.cpp
-        ${PROJECT_ROOT}/src/firmware/application/system/system.cpp
-        ${PROJECT_ROOT}/src/firmware/application/util/cinfo/cinfo.cpp
-        ${PROJECT_ROOT}/src/firmware/application/protocol/midi/midi.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/buttons/buttons.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/encoders/encoders.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/leds/leds.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/analog/analog.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/i2c/i2c.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/i2c/peripherals/display/display.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/i2c/peripherals/display/elements.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/touchscreen/touchscreen.cpp
+        $ENV{ZEPHYR_PROJECT}/src/firmware/application/database/database.cpp
+        $ENV{ZEPHYR_PROJECT}/src/firmware/application/database/custom_init.cpp
+        $ENV{ZEPHYR_PROJECT}/src/firmware/application/system/system.cpp
+        $ENV{ZEPHYR_PROJECT}/src/firmware/application/util/cinfo/cinfo.cpp
+        $ENV{ZEPHYR_PROJECT}/src/firmware/application/protocol/midi/midi.cpp
+        $ENV{ZEPHYR_PROJECT}/src/firmware/application/io/buttons/buttons.cpp
+        $ENV{ZEPHYR_PROJECT}/src/firmware/application/io/encoders/encoders.cpp
+        $ENV{ZEPHYR_PROJECT}/src/firmware/application/io/leds/leds.cpp
+        $ENV{ZEPHYR_PROJECT}/src/firmware/application/io/analog/analog.cpp
+        $ENV{ZEPHYR_PROJECT}/src/firmware/application/io/i2c/i2c.cpp
+        $ENV{ZEPHYR_PROJECT}/src/firmware/application/io/i2c/peripherals/display/display.cpp
+        $ENV{ZEPHYR_PROJECT}/src/firmware/application/io/i2c/peripherals/display/elements.cpp
+        $ENV{ZEPHYR_PROJECT}/src/firmware/application/io/touchscreen/touchscreen.cpp
     )
 
     target_compile_definitions(system

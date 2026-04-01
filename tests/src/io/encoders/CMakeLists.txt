@@ -4,10 +4,10 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
     target_sources(encoders
         PRIVATE
         test.cpp
-        ${PROJECT_ROOT}/src/firmware/application/database/database.cpp
-        ${PROJECT_ROOT}/src/firmware/application/database/custom_init.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/leds/leds.cpp
-        ${PROJECT_ROOT}/src/firmware/application/io/encoders/encoders.cpp
+        $ENV{ZEPHYR_PROJECT}/src/firmware/application/database/database.cpp
+        $ENV{ZEPHYR_PROJECT}/src/firmware/application/database/custom_init.cpp
+        $ENV{ZEPHYR_PROJECT}/src/firmware/application/io/leds/leds.cpp
+        $ENV{ZEPHYR_PROJECT}/src/firmware/application/io/encoders/encoders.cpp
     )
 
     target_link_libraries(encoders

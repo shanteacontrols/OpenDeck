@@ -4,8 +4,8 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
     target_sources(database
         PRIVATE
         test.cpp
-        ${PROJECT_ROOT}/src/firmware/application/database/database.cpp
-        ${PROJECT_ROOT}/src/firmware/application/database/custom_init.cpp
+        $ENV{ZEPHYR_PROJECT}/src/firmware/application/database/database.cpp
+        $ENV{ZEPHYR_PROJECT}/src/firmware/application/database/custom_init.cpp
     )
 
     target_link_libraries(database
