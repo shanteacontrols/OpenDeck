@@ -126,5 +126,4 @@ Most of the code is available under Apache License v2.0, with the following exce
   * `libmidi`: MIT
   * `libsysexconf`: MIT
   * `u8g2`: Two-clause BSD
-  * `unity`: MIT
   * `tinyusb`: MIT, but many modules it uses are individually licensed, check for more details
