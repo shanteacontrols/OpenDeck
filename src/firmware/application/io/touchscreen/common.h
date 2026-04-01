@@ -101,8 +101,8 @@ namespace io::touchscreen
         virtual bool      setBrightness(brightness_t brightness) = 0;
 
         protected:
-        static constexpr size_t BUFFER_SIZE = 50;
-        static uint8_t          _rxBuffer[BUFFER_SIZE];
-        static size_t           _bufferCount;
+        static constexpr size_t BUFFER_SIZE            = 50;
+        static inline uint8_t   _rxBuffer[BUFFER_SIZE] = {};
+        static inline size_t    _bufferCount           = 0;
     };
 }    // namespace io::touchscreen

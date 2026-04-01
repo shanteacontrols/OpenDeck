@@ -42,12 +42,12 @@ namespace io::touchscreen
         static void registerModel(model_t model, Model* instance);
 
         private:
-        Hwa&                                                            _hwa;
-        Database&                                                       _database;
-        size_t                                                          _activeScreenID = 0;
-        bool                                                            _initialized    = false;
-        model_t                                                         _activeModel    = model_t::AMOUNT;
-        static std::array<Model*, static_cast<size_t>(model_t::AMOUNT)> _models;
+        Hwa&                                                                   _hwa;
+        Database&                                                              _database;
+        size_t                                                                 _activeScreenID = 0;
+        bool                                                                   _initialized    = false;
+        model_t                                                                _activeModel    = model_t::AMOUNT;
+        static inline std::array<Model*, static_cast<size_t>(model_t::AMOUNT)> _models         = {};
 
         bool                   deInit();
         Model*                 modelInstance(model_t model);

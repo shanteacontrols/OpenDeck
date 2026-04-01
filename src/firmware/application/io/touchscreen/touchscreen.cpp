@@ -27,10 +27,6 @@ limitations under the License.
 
 using namespace io::touchscreen;
 
-std::array<Model*, static_cast<size_t>(model_t::AMOUNT)> Touchscreen::_models;
-uint8_t                                                  Model::_rxBuffer[Model::BUFFER_SIZE];
-size_t                                                   Model::_bufferCount;
-
 Touchscreen::Touchscreen(Hwa&      hwa,
                          Database& database)
     : _hwa(hwa)

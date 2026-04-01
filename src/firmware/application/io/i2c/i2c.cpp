@@ -22,9 +22,6 @@ limitations under the License.
 
 using namespace io::i2c;
 
-std::array<Peripheral*, I2c::MAX_PERIPHERALS> I2c::_peripherals;
-size_t                                        I2c::_peripheralCounter;
-
 I2c::~I2c()
 {
     for (size_t i = 0; i < I2c::MAX_PERIPHERALS; i++)

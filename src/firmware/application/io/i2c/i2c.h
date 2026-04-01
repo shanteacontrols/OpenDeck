@@ -42,7 +42,7 @@ namespace io::i2c
         private:
         static constexpr size_t MAX_PERIPHERALS = 5;
 
-        static size_t                                   _peripheralCounter;
-        static std::array<Peripheral*, MAX_PERIPHERALS> _peripherals;
+        static inline size_t                                   _peripheralCounter = 0;
+        static inline std::array<Peripheral*, MAX_PERIPHERALS> _peripherals       = {};
     };
 }    // namespace io::i2c
