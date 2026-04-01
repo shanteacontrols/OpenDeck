@@ -383,7 +383,7 @@ void Midi::send(messaging::eventType_t source, const messaging::Event& event)
     // if omni channel is defined, send the message on each midi channel
     const uint8_t GLOBAL_CHANNEL = _database.read(database::Config::Section::global_t::MIDI_SETTINGS, setting_t::GLOBAL_CHANNEL);
     const uint8_t CHANNEL        = _database.read(database::Config::Section::global_t::MIDI_SETTINGS,
-                                           setting_t::USE_GLOBAL_CHANNEL)
+                                                  setting_t::USE_GLOBAL_CHANNEL)
                                        ? GLOBAL_CHANNEL
                                        : event.channel;
 

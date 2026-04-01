@@ -42,8 +42,8 @@ namespace database
         {
             auto blockIndex = BLOCK(section);
             auto value      = lib::lessdb::LessDb::read(static_cast<uint8_t>(blockIndex),
-                                                   static_cast<uint8_t>(section),
-                                                   static_cast<size_t>(index));
+                                                        static_cast<uint8_t>(section),
+                                                        static_cast<size_t>(index));
 
             return value;
         }
@@ -191,8 +191,8 @@ namespace database
         {
             auto blockIndex = Admin::BLOCK(section);
             auto value      = _admin.read(static_cast<uint8_t>(blockIndex),
-                                     static_cast<uint8_t>(section),
-                                     static_cast<size_t>(index));
+                                          static_cast<uint8_t>(section),
+                                          static_cast<size_t>(index));
 
             return value;
         }

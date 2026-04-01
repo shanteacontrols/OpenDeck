@@ -43,7 +43,7 @@ Encoders::Encoders(Hwa&      hwa,
                           {
                               const uint8_t GLOBAL_CHANNEL = _database.read(database::Config::Section::global_t::MIDI_SETTINGS, midi::setting_t::GLOBAL_CHANNEL);
                               const uint8_t CHANNEL        = _database.read(database::Config::Section::global_t::MIDI_SETTINGS,
-                                                                     midi::setting_t::USE_GLOBAL_CHANNEL)
+                                                                            midi::setting_t::USE_GLOBAL_CHANNEL)
                                                                  ? GLOBAL_CHANNEL
                                                                  : event.channel;
 
