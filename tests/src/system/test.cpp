@@ -16,8 +16,6 @@ limitations under the License.
 
 */
 
-#ifndef PROJECT_TARGET_USB_OVER_SERIAL_HOST
-
 #include "tests/common.h"
 #include "tests/helpers/listener.h"
 #include "tests/helpers/midi.h"
@@ -706,6 +704,4 @@ TEST_F(SystemTest, UsbThruDin)
 
     ASSERT_EQ(1, _system._components._builderMidi._hwaSerial._writeParser.totalWrittenChannelMessages());
 }
-#endif
-
 #endif

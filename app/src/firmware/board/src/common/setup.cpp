@@ -45,12 +45,10 @@ namespace board
         core::mcu::timers::allocate(mainTimerIndex, []()
                                     {
                                         detail::io::indicators::update();
-#ifndef PROJECT_TARGET_USB_OVER_SERIAL_HOST
                                         detail::io::digital_in::update();
 #ifndef BOARD_USE_FAST_SOFT_PWM_TIMER
 #if PROJECT_TARGET_MAX_NR_OF_DIGITAL_OUTPUTS > 0
                                         detail::io::digital_out::update();
-#endif
 #endif
 #endif
                                     });
@@ -64,10 +62,8 @@ namespace board
         core::mcu::timers::allocate(pwmTimerIndex, []()
                                     {
 #ifdef OPENDECK_FW_APP
-#ifndef PROJECT_TARGET_USB_OVER_SERIAL_HOST
 #if PROJECT_TARGET_MAX_NR_OF_DIGITAL_OUTPUTS > 0
                                         detail::io::digital_out::update();
-#endif
 #endif
 #endif
                                     });
@@ -123,64 +119,20 @@ namespace board
 
     namespace detail::setup
     {
-#ifdef PROJECT_TARGET_USB_OVER_SERIAL_DEVICE
-        void waitUsbLink()
-        {
-            usb_over_serial::internalCmd_t cmd;
-
-            uint8_t data[1] = {
-                static_cast<uint8_t>(usb_over_serial::internalCmd_t::LINK_READY),
-            };
-
-            usb_over_serial::UsbWritePacket packet(usb_over_serial::packetType_t::INTERNAL,
-                                                   data,
-                                                   1,
-                                                   1);
-
-            while (1)
-            {
-                usb_over_serial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
-
-                if (detail::usb::readInternal(cmd))
-                {
-                    if (cmd == usb_over_serial::internalCmd_t::LINK_READY)
-                    {
-                        break;
-                    }
-                }
-
-                core::mcu::timing::waitMs(50);
-            }
-        }
-#endif
-
         void bootloader()
         {
             // partial initialization - init the rest in runBootloader() if it's determined that bootloader should really run
 
             core::mcu::init(core::mcu::initType_t::BOOT);
             detail::io::init();
-
-#ifdef PROJECT_TARGET_USB_OVER_SERIAL
-            board::uart::init(PROJECT_TARGET_UART_CHANNEL_USB_LINK, board::detail::usb::USB_OVER_SERIAL_BAUDRATE);
-#endif
         }
 
         void application()
         {
             core::mcu::init(core::mcu::initType_t::APP);
 
-#ifdef PROJECT_TARGET_USB_OVER_SERIAL
-            board::uart::init(PROJECT_TARGET_UART_CHANNEL_USB_LINK, board::detail::usb::USB_OVER_SERIAL_BAUDRATE);
-#endif
-
             detail::io::init();
             detail::io::indicators::indicateApplicationLoad();
-
-#ifdef PROJECT_TARGET_USB_OVER_SERIAL_DEVICE
-            // do not proceed with application load until usb link is ready
-            waitUsbLink();
-#endif
         }
     }    // namespace detail::setup
 }    // namespace board

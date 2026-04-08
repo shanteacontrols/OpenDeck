@@ -16,8 +16,6 @@ limitations under the License.
 
 */
 
-#ifndef PROJECT_TARGET_USB_OVER_SERIAL_HOST
-
 #include "tests/common.h"
 #include "application/protocol/midi/builder.h"
 
@@ -81,5 +79,3 @@ TEST_F(MIDITest, OmniChannel)
         ASSERT_EQ(127, _midi._hwaUsb._writeParser.writtenMessages().at(i).data2);
     }
 }
-
-#endif

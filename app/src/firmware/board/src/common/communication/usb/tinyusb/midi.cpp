@@ -16,7 +16,6 @@ limitations under the License.
 
 */
 
-#ifdef PROJECT_TARGET_SUPPORT_USB
 #ifdef BOARD_USE_TINYUSB
 
 #include "board/board.h"
@@ -52,5 +51,4 @@ namespace board::usb
     }
 }    // namespace board::usb
 
-#endif
 #endif

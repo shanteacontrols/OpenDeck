@@ -47,19 +47,6 @@ then
     } >> "$out_header"
 fi
 
-usb_link_target=$($yaml_parser "$yaml_file" usbLinkTarget)
-
-if [[ $usb_link_target != "null" ]]
-then
-    usb_link_yaml_file=$(dirname "$yaml_file")/$usb_link_target.yml
-    usb_link_flash_args=$($yaml_parser "$usb_link_yaml_file" flash.args)
-
-    {
-        printf "%s\n" "std::string HW_TEST_FLASH_ARGS_USB_LINK=\"$usb_link_flash_args\";"
-        printf "%s\n" "std::string HW_TEST_USB_LINK_TARGET=\"$usb_link_target\";"
-    } >> "$out_header"
-fi
-
 if [[ $($yaml_parser "$yaml_file" io) != "null" ]]
 then
     printf "%s\n" "#define HW_TEST_IO_SUPPORTED" >> "$out_header"

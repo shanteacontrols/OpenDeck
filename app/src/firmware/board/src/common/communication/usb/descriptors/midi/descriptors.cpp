@@ -16,8 +16,6 @@ limitations under the License.
 
 */
 
-#ifdef PROJECT_TARGET_SUPPORT_USB
-
 #include "internal.h"
 #include "descriptors.h"
 #include "common/communication/usb/constants.h"
@@ -278,4 +276,3 @@ namespace board::detail::usb
         return &PRODUCT_STRING;
     }
 }    // namespace board::detail::usb
-#endif

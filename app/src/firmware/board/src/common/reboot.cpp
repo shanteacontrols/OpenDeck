@@ -27,26 +27,6 @@ namespace board
     {
         usb::deInit();
 
-#ifndef PROJECT_TARGET_SUPPORT_USB
-        // signal to usb link to reboot as well
-
-        uint32_t magicVal = board::bootloader::magicBootValue();
-
-        uint8_t data[5] = {
-            static_cast<uint8_t>(usb_over_serial::internalCmd_t::REBOOT_BTLDR),
-            static_cast<uint8_t>(magicVal >> 24 & 0xFF),
-            static_cast<uint8_t>(magicVal >> 16 & 0xFF),
-            static_cast<uint8_t>(magicVal >> 8 & 0xFF),
-            static_cast<uint8_t>(magicVal >> 0 & 0xFF),
-        };
-
-        usb_over_serial::UsbWritePacket packet(usb_over_serial::packetType_t::INTERNAL,
-                                               data,
-                                               sizeof(data),
-                                               sizeof(data));
-        usb_over_serial::write(PROJECT_TARGET_UART_CHANNEL_USB_LINK, packet);
-#endif
-
         // In case the indicator LEDs were on before this command was issued, this will make sure
         // they are off before the reboot.
         // Double the delay time to avoid "sharp" transition between traffic event and bootloader indication.

@@ -101,7 +101,6 @@
                 "leds",
                 "midi",
                 "system",
-                "usb_over_serial",
             ]
         }
     ]

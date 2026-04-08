@@ -16,8 +16,6 @@ limitations under the License.
 
 */
 
-#ifdef PROJECT_TARGET_SUPPORT_USB
-
 #include "internal.h"
 
 #include "core/mcu.h"
@@ -61,5 +59,3 @@ namespace board::detail::usb
         return &signatureDescriptorInternal;
     }
 }    // namespace board::detail::usb
-
-#endif

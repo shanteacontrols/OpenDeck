@@ -118,7 +118,6 @@ Need help? Want to show off your OpenDeck-based builds? Head over to [Discussion
 Most of the code is available under Apache License v2.0, with the following exceptions:
 
 * `modules`:
-  * `avr-libstdcpp`: GNU GPL v3 or later with GCC Runtime Library Exception 3.1
   * `libcore`: MIT
   * `liblessdb`: MIT
   * `libemueeprom`: MIT

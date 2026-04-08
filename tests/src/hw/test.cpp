@@ -16,7 +16,6 @@ limitations under the License.
 
 */
 
-#ifndef PROJECT_TARGET_USB_OVER_SERIAL_HOST
 #ifdef PROJECT_TARGET_HW_TESTS_SUPPORTED
 
 #include "tests/common.h"
@@ -385,34 +384,20 @@ namespace
                 return result == 0;
             };
 
-            bool ret = false;
-
-#ifndef PROJECT_TARGET_SUPPORT_USB
-            LOG(INFO) << "Flashing USB Link MCU";
-            ret = flash(std::string(HW_TEST_USB_LINK_TARGET), std::string(HW_TEST_FLASH_ARGS_USB_LINK));
+            bool ret = flash(std::string(PROJECT_TARGET_NAME), std::string(HW_TEST_FLASH_ARGS));
 
             if (ret)
             {
-#endif
+                // check handshake - if that doesn't work, try cycling the power
 
-                ret = flash(std::string(PROJECT_TARGET_NAME), std::string(HW_TEST_FLASH_ARGS));
-
-                if (ret)
+                if (!handshake())
                 {
-                    // check handshake - if that doesn't work, try cycling the power
-
-                    if (!handshake())
-                    {
 #ifdef HW_TEST_HW_CONTROLLER_SUPPORTED
-                        cyclePower(powerCycleType_t::STANDARD_WITH_DEVICE_CHECK);
-                        ret = handshake();
+                    cyclePower(powerCycleType_t::STANDARD_WITH_DEVICE_CHECK);
+                    ret = handshake();
 #endif
-                    }
                 }
-
-#ifndef PROJECT_TARGET_SUPPORT_USB
             }
-#endif
 
             return ret;
         }
@@ -1271,5 +1256,4 @@ TEST_F(HWTest, InputOutput)
 }
 #endif
 
-#endif
 #endif

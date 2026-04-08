@@ -48,16 +48,6 @@ case $compiler in
       extra_args+=(-extra-arg="-Wno-unknown-attributes")
     ;;
 
-    *avr-gcc)
-      toolchain_dir=$(dirname "$(which avr-gcc)" | rev | cut -d/ -f2- | rev)
-      extra_args+=(-extra-arg="-I$toolchain_dir/avr/include/avr")
-      extra_args+=(-extra-arg="-I$toolchain_dir/avr/include")
-      extra_args+=(-extra-arg="-I$toolchain_dir/lib/gcc/avr/7.3.0/include")
-      extra_args+=(-extra-arg="-I$toolchain_dir/lib/gcc/avr/7.3.0/include-fixed")
-      extra_args+=(-extra-arg="-Wno-unknown-attributes")
-      extra_args+=(-extra-arg="--target=avr")
-    ;;
-
     *)
       # nothing to add
     ;;

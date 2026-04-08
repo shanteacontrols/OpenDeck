@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 
-if [[ $($yaml_parser "$yaml_file" usb) == "true" ]]
-then
-    printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORT_USB)" >> "$out_cmakelists"
-fi
-
 if [[ $($yaml_parser "$yaml_file" ble) == "true" ]]
 then
     printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORT_BLE)" >> "$out_cmakelists"
@@ -21,84 +16,12 @@ then
     use_custom_uart_pins=0
     total_uart_channels=0
 
-    if [[ "$($yaml_parser "$yaml_file" uart.usbLink)" != "null" ]]
-    then
-        if [[ "$($yaml_parser "$yaml_file" uart.usbLink.type)" != "null" ]]
-        then
-            uart_channel_usb_link=$($yaml_parser "$yaml_file" uart.usbLink.channel)
-            uart_usb_link_pins=$($yaml_parser "$yaml_file" uart.usbLink.pins)
-
-            if [[ $uart_channel_usb_link == "null" && $uart_usb_link_pins == "null" ]]
-            then
-                echo "USB link UART channel or pins left unspecified"
-                exit 1
-            fi
-
-            if [[ $uart_channel_usb_link != "null" ]]
-            then
-                printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_UART_CHANNEL_USB_LINK=$uart_channel_usb_link)" >> "$out_cmakelists"
-            elif [[ $uart_usb_link_pins != "null" ]]
-            then
-                use_custom_uart_pins=1
-
-                uart_usb_link_rx_port=$($yaml_parser "$yaml_file" uart.usbLink.pins.rx.port)
-                uart_usb_link_rx_index=$($yaml_parser "$yaml_file" uart.usbLink.pins.rx.index)
-                uart_usb_link_tx_port=$($yaml_parser "$yaml_file" uart.usbLink.pins.tx.port)
-                uart_usb_link_tx_index=$($yaml_parser "$yaml_file" uart.usbLink.pins.tx.index)
-
-                key=${uart_usb_link_rx_port}${uart_usb_link_rx_index}${uart_usb_link_tx_port}${uart_usb_link_tx_index}
-
-                if [[ -z "${uartChannelArray[$key]}" ]]
-                then
-                    # Unique (non-existing) channel found
-                    uartChannelArray[$key]=$total_uart_channels
-                    ((total_uart_channels++))
-                fi
-
-                uart_channel_usb_link=${uartChannelArray[$key]}
-                printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_UART_CHANNEL_USB_LINK=$uart_channel_usb_link)" >> "$out_cmakelists"
-
-                {
-                    printf "%s\n" "#define PIN_PORT_UART_CHANNEL_${uart_channel_usb_link}_RX CORE_MCU_IO_PIN_PORT_DEF(${uart_usb_link_rx_port})"
-                    printf "%s\n" "#define PIN_INDEX_UART_CHANNEL_${uart_channel_usb_link}_RX CORE_MCU_IO_PIN_INDEX_DEF(${uart_usb_link_rx_index})"
-                    printf "%s\n" "#define PIN_PORT_UART_CHANNEL_${uart_channel_usb_link}_TX CORE_MCU_IO_PIN_PORT_DEF(${uart_usb_link_tx_port})"
-                    printf "%s\n" "#define PIN_INDEX_UART_CHANNEL_${uart_channel_usb_link}_TX CORE_MCU_IO_PIN_INDEX_DEF(${uart_usb_link_tx_index})"
-                } >> "$out_header"
-            fi
-
-            if [[ "$($yaml_parser "$yaml_file" uart.usbLink.type)" == "host" ]]
-            then
-                {
-                    printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_USB_OVER_SERIAL)"
-                    printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_USB_OVER_SERIAL_HOST)"
-                    printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_BOOTLOADER_NO_VERIFY_CRC)"
-                    printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORT_USB)"
-                } >> "$out_cmakelists"
-            elif [[ "$($yaml_parser "$yaml_file" uart.usbLink.type)" == "device" ]]
-            then
-                {
-                    printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_USB_OVER_SERIAL)"
-                    printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_USB_OVER_SERIAL_DEVICE)"
-                } >> "$out_cmakelists"
-            fi
-        fi
-    fi
-
     if [[ "$($yaml_parser "$yaml_file" uart.dinMIDI)" != "null" ]]
     then
         printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_SUPPORT_DIN_MIDI)" >> "$out_cmakelists"
 
         uart_channel_din_midi=$($yaml_parser "$yaml_file" uart.dinMIDI.channel)
         uart_din_mini_pins=$($yaml_parser "$yaml_file" uart.dinMIDI.pins)
-
-        if [[ -n "$uart_channel_usb_link" ]]
-        then
-            if [[ $uart_channel_usb_link -eq $uart_channel_din_midi ]]
-            then
-                echo "USB link UART channel and DIN MIDI UART channel cannot be the same"
-                exit 1
-            fi
-        fi
 
         if [[ $uart_channel_din_midi == "null" && $uart_din_mini_pins == "null" ]]
         then
@@ -109,7 +32,7 @@ then
         if [[ $uart_channel_din_midi != "null" ]]
         then
             printf "%s\n" "list(APPEND $cmake_defines_var PROJECT_TARGET_UART_CHANNEL_DIN=$uart_channel_din_midi)" >> "$out_cmakelists"
-        elif [[ $uart_usb_link_pins != "null" ]]
+        elif [[ $uart_din_mini_pins != "null" ]]
         then
             use_custom_uart_pins=1
 
@@ -149,15 +72,6 @@ then
 
         uart_channel_touchscreen=$($yaml_parser "$yaml_file" uart.touchscreen.channel)
         uart_touchscreen_pins=$($yaml_parser "$yaml_file" uart.touchscreen.pins)
-
-        if [[ -n "$uart_channel_usb_link" ]]
-        then
-            if [[ $uart_channel_usb_link -eq $uart_channel_touchscreen ]]
-            then
-                echo "USB link UART channel and touchscreen UART channel cannot be the same"
-                exit 1
-            fi
-        fi
 
         if [[ $uart_channel_touchscreen == "null" && $uart_touchscreen_pins == "null" ]]
         then

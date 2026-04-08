@@ -16,7 +16,6 @@ limitations under the License.
 
 */
 
-#ifndef PROJECT_TARGET_USB_OVER_SERIAL_HOST
 #ifdef PROJECT_MCU_SUPPORT_BOOTLOADER
 
 #include "tests/common.h"
@@ -131,5 +130,4 @@ TEST(Bootloader, FwUpdate)
     }
 }
 
-#endif
 #endif

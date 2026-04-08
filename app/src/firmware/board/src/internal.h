@@ -53,22 +53,6 @@ namespace board::detail
         void deInit();
         void update();
 
-#ifdef PROJECT_TARGET_USB_OVER_SERIAL
-        constexpr inline uint32_t USB_OVER_SERIAL_BAUDRATE = 38400;
-
-        /// Reads the data from UART channel on which USB host is located and checks if
-        /// received data is internal packet.
-        /// param [in,out] cmd  Reference to variable in which read internal command is stored.
-        /// returns True if internal command is read, false otherwise.
-        bool readInternal(usb_over_serial::internalCmd_t& cmd);
-
-        /// Reads the buffered data already received from UART channel on which USB host is located and checks if
-        /// received data is internal packet.
-        /// param [in,out] cmd  Reference to variable in which read internal command is stored.
-        /// returns True if internal command is read, false otherwise.
-        bool checkInternal(usb_over_serial::internalCmd_t& cmd);
-#endif
-
         const void* cfgDescriptor(uint16_t* size);
         const void* deviceDescriptor(uint16_t* size);
         const void* languageString(uint16_t* size);

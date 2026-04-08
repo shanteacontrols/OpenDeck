@@ -34,7 +34,6 @@ execute_process(
 include($ENV{ZEPHYR_PROJECT}/app/src/firmware/board/CMakeLists.txt)
 include($ENV{ZEPHYR_PROJECT}/app/src/firmware/bootloader/CMakeLists.txt)
 include($ENV{ZEPHYR_PROJECT}/app/src/firmware/application/CMakeLists.txt)
-include($ENV{ZEPHYR_PROJECT}/app/src/firmware/usb-link/CMakeLists.txt)
 
 project(${PROJECT_NAME})
 enable_language(C CXX ASM)

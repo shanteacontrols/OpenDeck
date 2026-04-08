@@ -6,7 +6,6 @@ ARG arduino_version=1.8.6
 RUN \
 sudo apt-get update && \
 sudo apt-get install --no-install-recommends -y \
-avrdude \
 libgoogle-glog-dev \
 unzip \
 libfontconfig1 \
@@ -35,15 +34,6 @@ libxrender1 && \
 sudo rm -rf /var/lib/apt/lists/*
 
 RUN \
-sudo mkdir -p ${arduino_dir} && \
-sudo chmod -R 777 ${arduino_dir} && \
-cd ${arduino_dir} & \
-wget -qO- https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=${arduino_dir} sh && \
-${arduino_dir}/arduino-cli config init && \
-${arduino_dir}/arduino-cli config set directories.data ${arduino_dir} && \
-${arduino_dir}/arduino-cli core install arduino:avr@${arduino_version}
-
-RUN \
 ARCH="$(dpkg --print-architecture)" && \
 if [ "$ARCH" = "amd64" ]; then \
 PACKAGE_VARIANT="x86_64"; \
@@ -64,6 +54,3 @@ sudo apt-get install --no-install-recommends -y \
 
 ENV ARM_TOOLCHAIN_PATH=$ZEPHYR_SDK_INSTALL_DIR/arm-zephyr-eabi/bin
 ENV ARM_TOOLCHAIN_PREFIX=arm-zephyr-eabi-
-
-ENV AVR_TOOLCHAIN_PATH=${arduino_dir}/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/bin
-ENV AVR_TOOLCHAIN_PREFIX=avr-

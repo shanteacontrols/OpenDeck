@@ -16,8 +16,6 @@ limitations under the License.
 
 */
 
-#ifndef PROJECT_TARGET_USB_OVER_SERIAL_HOST
-
 #include "tests/common.h"
 #include "application/database/builder.h"
 #include "application/io/buttons/buttons.h"
@@ -502,5 +500,4 @@ TEST_F(DatabaseTest, LEDs)
         DB_READ_VERIFY(0, database::Config::Section::leds_t::RGB_ENABLE, i);
     }
 }
-#endif
 #endif

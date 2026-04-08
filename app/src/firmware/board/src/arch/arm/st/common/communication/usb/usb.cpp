@@ -16,8 +16,6 @@ limitations under the License.
 
 */
 
-#ifdef PROJECT_TARGET_SUPPORT_USB
-
 #include "internal.h"
 
 #include "tusb.h"
@@ -46,5 +44,3 @@ namespace board::detail::usb
         }
     }
 }    // namespace board::detail::usb
-
-#endif
