@@ -23,7 +23,7 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
 
     target_include_directories(application
         PRIVATE
-        $ENV{ZEPHYR_PROJECT}/src/firmware
+        $ENV{ZEPHYR_PROJECT}/app/src/firmware
         $ENV{ZEPHYR_WS}/modules/u8g2/csrc
     )
 
@@ -36,7 +36,7 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
     )
 
     file(GLOB_RECURSE APP_GENERATED_SOURCES
-        $ENV{ZEPHYR_PROJECT}/src/generated/application/${TARGET}/*.cpp
+        $ENV{ZEPHYR_PROJECT}/app/src/generated/application/${TARGET}/*.cpp
     )
 
     add_module(liblessdb)
@@ -114,7 +114,7 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
         set(FLASHGEN_OUTPUT ${FLASHGEN_BINARY_DIR}/generated_config.hex)
 
         ExternalProject_Add(flashgen
-            SOURCE_DIR      $ENV{ZEPHYR_PROJECT}/src/tools/flashgen
+            SOURCE_DIR      $ENV{ZEPHYR_PROJECT}/app/src/tools/flashgen
             CMAKE_ARGS      -DTARGET=${TARGET}
             CMAKE_ARGS      -DCMAKE_USE_STUB_MCU=1
             CMAKE_ARGS      -DPROJECT_MCU_FLASH_PAGE_FACTORY=${PROJECT_MCU_FLASH_PAGE_FACTORY}
@@ -160,7 +160,7 @@ if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
         set(SYSEXGEN_ASCII_OUTPUT ${SYSEX_BINARY_DIR}/firmware.sysex)
 
         ExternalProject_Add(sysexgen
-            SOURCE_DIR      $ENV{ZEPHYR_PROJECT}/src/tools/sysexgen
+            SOURCE_DIR      $ENV{ZEPHYR_PROJECT}/app/src/tools/sysexgen
             CMAKE_ARGS      -DTARGET=${TARGET} -DCMAKE_USE_STUB_MCU=1
             BINARY_DIR      ${SYSEX_BINARY_DIR}
             BUILD_ALWAYS    TRUE

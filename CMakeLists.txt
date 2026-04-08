@@ -17,7 +17,7 @@ execute_process(
     COMMAND
     "$ENV{ZEPHYR_PROJECT}/scripts/gen/gen_mcu.sh"
     "--mcu=stub"
-    "--gen-dir=$ENV{ZEPHYR_PROJECT}/src/generated/mcu/stub"
+    "--gen-dir=$ENV{ZEPHYR_PROJECT}/app/src/generated/mcu/stub"
 )
 
 execute_process(
@@ -25,16 +25,16 @@ execute_process(
     "$ENV{ZEPHYR_PROJECT}/scripts/gen/gen_target.sh"
     "--project=${PROJECT_NAME}"
     "--target-config=$ENV{ZEPHYR_PROJECT}/config/target/${TARGET}.yml"
-    "--gen-dir-target=$ENV{ZEPHYR_PROJECT}/src/generated/target/${TARGET}"
+    "--gen-dir-target=$ENV{ZEPHYR_PROJECT}/app/src/generated/target/${TARGET}"
     "--touchscreen-config=$ENV{ZEPHYR_PROJECT}/config/touchscreen/${TARGET}.json"
-    "--gen-dir-touchscreen=$ENV{ZEPHYR_PROJECT}/src/generated/application/${TARGET}"
-    "--base-gen-dir-mcu=$ENV{ZEPHYR_PROJECT}/src/generated/mcu"
+    "--gen-dir-touchscreen=$ENV{ZEPHYR_PROJECT}/app/src/generated/application/${TARGET}"
+    "--base-gen-dir-mcu=$ENV{ZEPHYR_PROJECT}/app/src/generated/mcu"
 )
 
-include($ENV{ZEPHYR_PROJECT}/src/firmware/board/CMakeLists.txt)
-include($ENV{ZEPHYR_PROJECT}/src/firmware/bootloader/CMakeLists.txt)
-include($ENV{ZEPHYR_PROJECT}/src/firmware/application/CMakeLists.txt)
-include($ENV{ZEPHYR_PROJECT}/src/firmware/usb-link/CMakeLists.txt)
+include($ENV{ZEPHYR_PROJECT}/app/src/firmware/board/CMakeLists.txt)
+include($ENV{ZEPHYR_PROJECT}/app/src/firmware/bootloader/CMakeLists.txt)
+include($ENV{ZEPHYR_PROJECT}/app/src/firmware/application/CMakeLists.txt)
+include($ENV{ZEPHYR_PROJECT}/app/src/firmware/usb-link/CMakeLists.txt)
 
 project(${PROJECT_NAME})
 enable_language(C CXX ASM)

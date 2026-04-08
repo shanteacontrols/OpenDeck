@@ -1,6 +1,6 @@
 find_package(glog 0.6.0 REQUIRED)
 
-include($ENV{ZEPHYR_PROJECT}/src/generated/target/${TARGET}/CMakeLists.txt)
+include($ENV{ZEPHYR_PROJECT}/app/src/generated/target/${TARGET}/CMakeLists.txt)
 
 add_library(common)
 
@@ -23,8 +23,8 @@ target_sources(common
     $ENV{ZEPHYR_WS}/modules/u8g2/csrc/u8x8_gpio.c
     $ENV{ZEPHYR_WS}/modules/u8g2/csrc/u8x8_d_ssd1306_128x64_noname.c
     $ENV{ZEPHYR_WS}/modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
-    $ENV{ZEPHYR_PROJECT}/src/firmware/application/util/configurable/configurable.cpp
-    $ENV{ZEPHYR_PROJECT}/src/firmware/application/util/scheduler/scheduler.cpp
+    $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/util/configurable/configurable.cpp
+    $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/util/scheduler/scheduler.cpp
 )
 
 target_include_directories(common
@@ -32,12 +32,12 @@ target_include_directories(common
     ${CMAKE_CURRENT_LIST_DIR}/../include
     $ENV{ZEPHYR_WS}/modules/libcore/include
     $ENV{ZEPHYR_WS}/modules/u8g2/csrc
-    $ENV{ZEPHYR_PROJECT}/src/firmware
-    $ENV{ZEPHYR_PROJECT}/src/firmware/application
-    $ENV{ZEPHYR_PROJECT}/src/firmware/bootloader
-    $ENV{ZEPHYR_PROJECT}/src/generated/target/${TARGET}
-    $ENV{ZEPHYR_PROJECT}/src/generated/mcu/${PROJECT_TARGET_MCU}
-    $ENV{ZEPHYR_PROJECT}/src/firmware/board/include
+    $ENV{ZEPHYR_PROJECT}/app/src/firmware
+    $ENV{ZEPHYR_PROJECT}/app/src/firmware/application
+    $ENV{ZEPHYR_PROJECT}/app/src/firmware/bootloader
+    $ENV{ZEPHYR_PROJECT}/app/src/generated/target/${TARGET}
+    $ENV{ZEPHYR_PROJECT}/app/src/generated/mcu/${PROJECT_TARGET_MCU}
+    $ENV{ZEPHYR_PROJECT}/app/src/firmware/board/include
 )
 
 target_compile_definitions(common

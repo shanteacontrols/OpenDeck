@@ -26,15 +26,15 @@ if("PROJECT_TARGET_HW_TESTS_SUPPORTED" IN_LIST PROJECT_TARGET_DEFINES)
     target_sources(hw
         PRIVATE
         test.cpp
-        $ENV{ZEPHYR_PROJECT}/src/firmware/application/database/database.cpp
-        $ENV{ZEPHYR_PROJECT}/src/firmware/application/database/custom_init.cpp
-        $ENV{ZEPHYR_PROJECT}/src/firmware/application/system/system.cpp
-        $ENV{ZEPHYR_PROJECT}/src/firmware/application/util/cinfo/cinfo.cpp
-        $ENV{ZEPHYR_PROJECT}/src/firmware/application/protocol/midi/midi.cpp
-        $ENV{ZEPHYR_PROJECT}/src/firmware/application/io/buttons/buttons.cpp
-        $ENV{ZEPHYR_PROJECT}/src/firmware/application/io/encoders/encoders.cpp
-        $ENV{ZEPHYR_PROJECT}/src/firmware/application/io/leds/leds.cpp
-        $ENV{ZEPHYR_PROJECT}/src/firmware/application/io/analog/analog.cpp
+        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/database/database.cpp
+        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/database/custom_init.cpp
+        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/system/system.cpp
+        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/util/cinfo/cinfo.cpp
+        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/protocol/midi/midi.cpp
+        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/buttons/buttons.cpp
+        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/encoders/encoders.cpp
+        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/leds/leds.cpp
+        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/analog/analog.cpp
     )
 
     target_compile_definitions(hw

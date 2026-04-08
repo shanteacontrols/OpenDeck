@@ -5,13 +5,13 @@ project(sysexgen)
 enable_language(CXX)
 
 include($ENV{ZEPHYR_WS}/modules/libcore/cmake/ccache.cmake)
-include($ENV{ZEPHYR_PROJECT}/src/generated/target/${TARGET}/CMakeLists.txt)
+include($ENV{ZEPHYR_PROJECT}/app/src/generated/target/${TARGET}/CMakeLists.txt)
 
 add_executable(sysexgen)
 
 target_include_directories(sysexgen
     PRIVATE
-    $ENV{ZEPHYR_PROJECT}/src/firmware
+    $ENV{ZEPHYR_PROJECT}/app/src/firmware
     $ENV{ZEPHYR_WS}/modules/liblessdb/include
     $ENV{ZEPHYR_WS}/modules/libsysexconf/include
 )

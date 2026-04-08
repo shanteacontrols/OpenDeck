@@ -1,7 +1,7 @@
 FIND                       := find 2>/dev/null
 ROOT_MAKEFILE_DIR          := $(realpath $(dir $(realpath $(lastword $(MAKEFILE_LIST)))))
 BUILD_DIR_BASE             := $(ROOT_MAKEFILE_DIR)/build
-GENERATED_DIR_BASE         := $(ROOT_MAKEFILE_DIR)/src/generated
+GENERATED_DIR_BASE         := $(ROOT_MAKEFILE_DIR)/app/src/generated
 CONFIG_DIR_BASE            := $(ROOT_MAKEFILE_DIR)/config
 TARGET_CONFIG_DIR_BASE     := $(CONFIG_DIR_BASE)/target
 TARGET                     := $(shell basename $(shell $(FIND) $(TARGET_CONFIG_DIR_BASE) -type f | sort | head -n 1) .yml)

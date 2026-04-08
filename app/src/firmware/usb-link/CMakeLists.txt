@@ -4,7 +4,7 @@ if("PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
 
     target_include_directories(usb_link
         PRIVATE
-        $ENV{ZEPHYR_PROJECT}/src/firmware
+        $ENV{ZEPHYR_PROJECT}/app/src/firmware
         $ENV{ZEPHYR_WS}/modules/liblessdb/include
         $ENV{ZEPHYR_WS}/modules/libsysexconf/include
         $ENV{ZEPHYR_WS}/modules/libmidi/include

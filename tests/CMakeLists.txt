@@ -17,10 +17,10 @@ execute_process(
     "$ENV{ZEPHYR_PROJECT}/scripts/gen/gen_target.sh"
     "--project=${PROJECT_NAME}"
     "--target-config=$ENV{ZEPHYR_PROJECT}/config/target/${TARGET}.yml"
-    "--gen-dir-target=$ENV{ZEPHYR_PROJECT}/src/generated/target/${TARGET}"
+    "--gen-dir-target=$ENV{ZEPHYR_PROJECT}/app/src/generated/target/${TARGET}"
     "--touchscreen-config=$ENV{ZEPHYR_PROJECT}/config/touchscreen/${TARGET}.json"
-    "--gen-dir-touchscreen=$ENV{ZEPHYR_PROJECT}/src/generated/application/${TARGET}"
-    "--base-gen-dir-mcu=$ENV{ZEPHYR_PROJECT}/src/generated/mcu"
+    "--gen-dir-touchscreen=$ENV{ZEPHYR_PROJECT}/app/src/generated/application/${TARGET}"
+    "--base-gen-dir-mcu=$ENV{ZEPHYR_PROJECT}/app/src/generated/mcu"
 )
 
 project(${PROJECT_NAME})

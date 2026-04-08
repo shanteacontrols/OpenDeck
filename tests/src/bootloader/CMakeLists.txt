@@ -4,8 +4,8 @@ if("PROJECT_MCU_SUPPORT_BOOTLOADER" IN_LIST PROJECT_MCU_DEFINES)
     target_sources(bootloader
         PRIVATE
         test.cpp
-        $ENV{ZEPHYR_PROJECT}/src/firmware/bootloader/sysex_parser/sysex_parser.cpp
-        $ENV{ZEPHYR_PROJECT}/src/firmware/bootloader/updater/updater.cpp
+        $ENV{ZEPHYR_PROJECT}/app/src/firmware/bootloader/sysex_parser/sysex_parser.cpp
+        $ENV{ZEPHYR_PROJECT}/app/src/firmware/bootloader/updater/updater.cpp
     )
 
     target_link_libraries(bootloader

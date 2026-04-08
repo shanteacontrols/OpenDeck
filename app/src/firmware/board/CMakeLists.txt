@@ -2,7 +2,7 @@ set(BOARD_DEFINES "")
 set(BOARD_BOOTLOADER_LIBRARIES "")
 set(BOARD_APPLICATION_LIBRARIES "")
 
-include($ENV{ZEPHYR_PROJECT}/src/generated/target/${TARGET}/CMakeLists.txt)
+include($ENV{ZEPHYR_PROJECT}/app/src/generated/target/${TARGET}/CMakeLists.txt)
 include(${CMAKE_CURRENT_LIST_DIR}/src/arch/${CORE_MCU_ARCH}/CMakeLists.txt OPTIONAL)
 include(${CMAKE_CURRENT_LIST_DIR}/src/arch/${CORE_MCU_ARCH}/${CORE_MCU_VENDOR}/CMakeLists.txt OPTIONAL)
 include(${CMAKE_CURRENT_LIST_DIR}/src/arch/${CORE_MCU_ARCH}/${CORE_MCU_VENDOR}/variants/${CORE_MCU_FAMILY}/CMakeLists.txt OPTIONAL)
@@ -27,7 +27,7 @@ list(APPEND BOARD_APPLICATION_LIBRARIES board_application)
 target_include_directories(board_application
     PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/include
-    $ENV{ZEPHYR_PROJECT}/src/generated/target/${TARGET}
+    $ENV{ZEPHYR_PROJECT}/app/src/generated/target/${TARGET}
     $ENV{ZEPHYR_WS}/modules/libmidi/include
     PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/src
@@ -104,7 +104,7 @@ if("PROJECT_MCU_SUPPORT_BOOTLOADER" IN_LIST PROJECT_MCU_DEFINES)
     target_include_directories(board_bootloader
         PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/include
-        $ENV{ZEPHYR_PROJECT}/src/generated/target/${TARGET}
+        $ENV{ZEPHYR_PROJECT}/app/src/generated/target/${TARGET}
         $ENV{ZEPHYR_WS}/modules/libmidi/include
         PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/src
