@@ -1,4 +1,3 @@
-// Workspace settings
 {
     "files.exclude": {
         "bin/": true,
@@ -6,18 +5,26 @@
         "**/*cortex-debug*": true,
         "**/*.clangd*": true,
         "**/*profraw": true,
+        "**/*ccache": true,
     },
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
     "C_Cpp.intelliSenseEngine": "disabled",
     "C_Cpp.autocomplete": "disabled",
     "C_Cpp.autoAddFileAssociations": false,
     "C_Cpp.configurationWarnings": "disabled",
-    "editor.renderWhitespace": "all",
+    "C_Cpp.errorSquiggles": "disabled",
     "diffEditor.ignoreTrimWhitespace": false,
-    "git.detectSubmodules": false,
-    "extensions.ignoreRecommendations": true,
-    "explorer.compactFolders": false,
-    "editor.mouseWheelZoom": true,
-    "editor.formatOnSave": true,
     "editor.defaultFormatter": "xaver.clang-format",
-    "git.mergeEditor": false
+    "editor.formatOnSave": true,
+    "editor.inlayHints.enabled": "off",
+    "editor.mouseWheelZoom": true,
+    "editor.renderWhitespace": "all",
+    "explorer.compactFolders": false,
+    "extensions.ignoreRecommendations": true,
+    "git.detectSubmodules": false,
+    "git.mergeEditor": false,
+    "clangd.enable": true,
+    "clangd.enableCodeCompletion": true,
+    "clang-format.style": "file:/home/ubuntu/zephyr_ws/zenv/clang-format/.clang-format",
 }
