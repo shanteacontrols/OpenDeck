@@ -24,6 +24,8 @@ limitations under the License.
 #include "lib/emueeprom/emueeprom.h"
 #endif
 
+#include <optional>
+
 namespace database
 {
     class HwaTest : public Hwa
@@ -58,17 +60,18 @@ namespace database
 #endif
         }
 
-        bool read(uint32_t address, uint32_t& value, lib::lessdb::sectionParameterType_t type) override
+        std::optional<uint32_t> read(uint32_t address, lib::lessdb::SectionParameterType type) override
         {
 #ifdef PROJECT_MCU_USE_EMU_EEPROM
             uint16_t tempData;
+            uint32_t value = 0;
 
             switch (type)
             {
-            case lib::lessdb::sectionParameterType_t::BIT:
-            case lib::lessdb::sectionParameterType_t::BYTE:
-            case lib::lessdb::sectionParameterType_t::HALF_BYTE:
-            case lib::lessdb::sectionParameterType_t::WORD:
+            case lib::lessdb::SectionParameterType::Bit:
+            case lib::lessdb::SectionParameterType::Byte:
+            case lib::lessdb::SectionParameterType::HalfByte:
+            case lib::lessdb::SectionParameterType::Word:
             {
                 auto readStatus = _emuEEPROM.read(address, tempData);
 
@@ -83,28 +86,30 @@ namespace database
                 }
                 else
                 {
-                    return false;
+                    return std::nullopt;
                 }
             }
             break;
 
             default:
-                return false;
+                return std::nullopt;
             }
 
-            return true;
+            return value;
 #else
+            uint32_t value = 0;
+
             switch (type)
             {
-            case lib::lessdb::sectionParameterType_t::BIT:
-            case lib::lessdb::sectionParameterType_t::BYTE:
-            case lib::lessdb::sectionParameterType_t::HALF_BYTE:
+            case lib::lessdb::SectionParameterType::Bit:
+            case lib::lessdb::SectionParameterType::Byte:
+            case lib::lessdb::SectionParameterType::HalfByte:
             {
                 value = _memoryArray.at(address);
             }
             break;
 
-            case lib::lessdb::sectionParameterType_t::WORD:
+            case lib::lessdb::SectionParameterType::Word:
             {
                 value = _memoryArray.at(address + 1);
                 value <<= 8;
@@ -114,7 +119,7 @@ namespace database
 
             default:
             {
-                // case lib::lessdb::sectionParameterType_t::DWORD:
+                // case lib::lessdb::SectionParameterType::Dword:
                 value = _memoryArray.at(address + 3);
                 value <<= 8;
                 value |= _memoryArray.at(address + 2);
@@ -126,21 +131,21 @@ namespace database
             break;
             }
 
-            return true;
+            return value;
 #endif
         }
 
-        bool write(uint32_t address, uint32_t value, lib::lessdb::sectionParameterType_t type) override
+        bool write(uint32_t address, uint32_t value, lib::lessdb::SectionParameterType type) override
         {
 #ifdef PROJECT_MCU_USE_EMU_EEPROM
             uint16_t tempData;
 
             switch (type)
             {
-            case lib::lessdb::sectionParameterType_t::BIT:
-            case lib::lessdb::sectionParameterType_t::BYTE:
-            case lib::lessdb::sectionParameterType_t::HALF_BYTE:
-            case lib::lessdb::sectionParameterType_t::WORD:
+            case lib::lessdb::SectionParameterType::Bit:
+            case lib::lessdb::SectionParameterType::Byte:
+            case lib::lessdb::SectionParameterType::HalfByte:
+            case lib::lessdb::SectionParameterType::Word:
             {
                 tempData = value;
 
@@ -159,15 +164,15 @@ namespace database
 #else
             switch (type)
             {
-            case lib::lessdb::sectionParameterType_t::BIT:
-            case lib::lessdb::sectionParameterType_t::BYTE:
-            case lib::lessdb::sectionParameterType_t::HALF_BYTE:
+            case lib::lessdb::SectionParameterType::Bit:
+            case lib::lessdb::SectionParameterType::Byte:
+            case lib::lessdb::SectionParameterType::HalfByte:
             {
                 _memoryArray.at(address) = value;
             }
             break;
 
-            case lib::lessdb::sectionParameterType_t::WORD:
+            case lib::lessdb::SectionParameterType::Word:
             {
                 _memoryArray.at(address + 0) = (value >> 0) & (uint16_t)0xFF;
                 _memoryArray.at(address + 1) = (value >> 8) & (uint16_t)0xFF;
@@ -176,7 +181,7 @@ namespace database
 
             default:
             {
-                // case lib::lessdb::sectionParameterType_t::DWORD:
+                // case lib::lessdb::SectionParameterType::Dword:
                 _memoryArray.at(address + 0) = (value >> 0) & (uint32_t)0xFF;
                 _memoryArray.at(address + 1) = (value >> 8) & (uint32_t)0xFF;
                 _memoryArray.at(address + 2) = (value >> 16) & (uint32_t)0xFF;

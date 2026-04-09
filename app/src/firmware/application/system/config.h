@@ -139,9 +139,9 @@ namespace sys
 
         enum class systemSetting_t : uint8_t
         {
-            ACTIVE_PRESET                              = static_cast<uint8_t>(database::Config::systemSetting_t::ACTIVE_PRESET),
-            PRESET_PRESERVE                            = static_cast<uint8_t>(database::Config::systemSetting_t::PRESET_PRESERVE),
-            DISABLE_FORCED_REFRESH_AFTER_PRESET_CHANGE = static_cast<uint8_t>(database::Config::systemSetting_t::CUSTOM_SYSTEM_SETTING_START),
+            ACTIVE_PRESET                              = static_cast<uint8_t>(database::Config::commonSetting_t::ACTIVE_PRESET),
+            PRESET_PRESERVE                            = static_cast<uint8_t>(database::Config::commonSetting_t::PRESET_PRESERVE),
+            DISABLE_FORCED_REFRESH_AFTER_PRESET_CHANGE = static_cast<uint8_t>(database::Config::commonSetting_t::CUSTOM_COMMON_SETTING_START),
             ENABLE_PRESET_CHANGE_WITH_PROGRAM_CHANGE_IN,
             AMOUNT
         };

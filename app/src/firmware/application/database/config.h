@@ -29,7 +29,7 @@ namespace database
         Config() = delete;
 
         static constexpr size_t MAX_PRESETS                = 10;
-        static constexpr size_t MAX_CUSTOM_SYSTEM_SETTINGS = 10;
+        static constexpr size_t MAX_CUSTOM_COMMON_SETTINGS = 10;
 
         enum class block_t : uint8_t
         {
@@ -48,9 +48,9 @@ namespace database
             public:
             Section() = delete;
 
-            enum class system_t : uint8_t
+            enum class common_t : uint8_t
             {
-                SYSTEM_SETTINGS,
+                COMMON_SETTINGS,
                 AMOUNT
             };
 
@@ -133,12 +133,12 @@ namespace database
             };
         };
 
-        enum class systemSetting_t : uint8_t
+        enum class commonSetting_t : uint8_t
         {
             ACTIVE_PRESET,
             PRESET_PRESERVE,
-            CUSTOM_SYSTEM_SETTING_START,
-            CUSTOM_SYSTEM_SETTING_END = CUSTOM_SYSTEM_SETTING_START + MAX_CUSTOM_SYSTEM_SETTINGS,
+            CUSTOM_COMMON_SETTING_START,
+            CUSTOM_COMMON_SETTING_END = CUSTOM_COMMON_SETTING_START + MAX_CUSTOM_COMMON_SETTINGS,
             UID,
             AMOUNT
         };

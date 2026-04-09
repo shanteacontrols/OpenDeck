@@ -47,7 +47,7 @@ System::System(Hwa&        hwa,
                               {
                               case midi::messageType_t::PROGRAM_CHANGE:
                               {
-                                  if (_components.database().read(database::Config::Section::system_t::SYSTEM_SETTINGS,
+                                  if (_components.database().read(database::Config::Section::common_t::COMMON_SETTINGS,
                                                                   Config::systemSetting_t::ENABLE_PRESET_CHANGE_WITH_PROGRAM_CHANGE_IN))
                                   {
                                       _components.database().setPreset(event.index);
@@ -385,7 +385,7 @@ void System::checkProtocols()
 
 void System::forceComponentRefresh()
 {
-    if (_components.database().read(database::Config::Section::system_t::SYSTEM_SETTINGS,
+    if (_components.database().read(database::Config::Section::common_t::COMMON_SETTINGS,
                                     Config::systemSetting_t::DISABLE_FORCED_REFRESH_AFTER_PRESET_CHANGE))
     {
         return;
@@ -642,7 +642,7 @@ std::optional<uint8_t> System::sysConfigGet(sys::Config::Section::global_t secti
 
     uint32_t readValue;
 
-    auto result = _components.database().read(database::Config::Section::system_t::SYSTEM_SETTINGS, index, readValue)
+    auto result = _components.database().read(database::Config::Section::common_t::COMMON_SETTINGS, index, readValue)
                       ? sys::Config::Status::ACK
                       : sys::Config::Status::ERROR_READ;
 
@@ -668,7 +668,7 @@ std::optional<uint8_t> System::sysConfigSet(sys::Config::Section::global_t secti
         return std::nullopt;
     }
 
-    auto result = _components.database().update(database::Config::Section::system_t::SYSTEM_SETTINGS, index, value)
+    auto result = _components.database().update(database::Config::Section::common_t::COMMON_SETTINGS, index, value)
                       ? sys::Config::Status::ACK
                       : sys::Config::Status::ERROR_WRITE;
 

@@ -39,3 +39,7 @@ manifest:
       revision: 8430f65c9e2bc7ca393bf0e9d8cf58a84ae081d7
       path: modules/u8g2
       submodules: true
+    - name: zlibs
+      remote: paradajz
+      revision: master
+      path: modules/zlibs

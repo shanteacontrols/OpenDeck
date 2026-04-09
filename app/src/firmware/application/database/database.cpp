@@ -25,15 +25,6 @@ limitations under the License.
 
 using namespace lib::lessdb;
 
-/// Helper macro for easier entry and exit from system block.
-/// Important: ::init must called before trying to use this macro.
-#define SYSTEM_BLOCK_ENTER(code)                                                                                                   \
-    {                                                                                                                              \
-        LessDb::setLayout(_layout.layout(Layout::type_t::SYSTEM));                                                                 \
-        code                                                                                                                       \
-            LessDb::setLayout(_layout.layout(Layout::type_t::USER), _userDataStartAddress + (_lastPresetAddress * _activePreset)); \
-    }
-
 database::Admin::Admin(Hwa&    hwa,
                        Layout& layout)
     : LessDb::LessDb(hwa)
@@ -68,34 +59,33 @@ bool database::Admin::init()
         return false;
     }
 
-    uint32_t systemBlockUsage = 0;
+    const uint32_t commonLayoutSize = _layout.commonLayoutSize();
 
-    // set only system block for now
-    if (!LessDb::setLayout(_layout.layout(Layout::type_t::SYSTEM)))
+    if (!LessDb::set_layout(_layout.commonLayout()))
     {
         return false;
     }
 
-    systemBlockUsage      = LessDb::currentDatabaseSize();
-    _userDataStartAddress = LessDb::nextParameterAddress();
+    _presetDataStartAddress = commonLayoutSize;
+    _activeContext          = Context::COMMON;
 
-    // now set the user layout
-    if (!LessDb::setLayout(_layout.layout(Layout::type_t::USER), _userDataStartAddress))
+    if (!LessDb::set_layout(_layout.presetLayout(), _presetDataStartAddress))
     {
         return false;
     }
 
-    _lastPresetAddress = LessDb::nextParameterAddress();
+    _presetLayoutSize = _layout.presetLayoutSize();
+    _activeContext    = Context::PRESET;
 
     // get theoretical maximum of presets
-    _supportedPresets = (LessDb::dbSize() - systemBlockUsage) / (LessDb::currentDatabaseSize() + systemBlockUsage);
+    _supportedPresets = _presetLayoutSize ? (LessDb::db_size() - commonLayoutSize) / _presetLayoutSize : 0;
 
     // limit by hardcoded limit
     _supportedPresets = core::util::CONSTRAIN(_supportedPresets,
                                               static_cast<size_t>(0),
                                               Config::MAX_PRESETS);
 
-    _uid = layoutUid(_layout.layout(Layout::type_t::USER), _supportedPresets);
+    _uid = _layout.presetUid();
 
     bool retVal = true;
 
@@ -105,7 +95,7 @@ bool database::Admin::init()
     }
     else
     {
-        _activePreset = readSystemBlock(static_cast<size_t>(Config::systemSetting_t::ACTIVE_PRESET));
+        _activePreset = readCommonBlock(static_cast<size_t>(Config::commonSetting_t::ACTIVE_PRESET));
 
         if (getPresetPreserveState())
         {
@@ -145,7 +135,6 @@ bool database::Admin::isInitialized()
     return _initialized;
 }
 
-/// Performs full factory reset of data in database.
 bool database::Admin::factoryReset()
 {
     if (_handlers != nullptr)
@@ -160,27 +149,24 @@ bool database::Admin::factoryReset()
 
     if (INITIALIZE_DATA)
     {
-        auto layoutDescriptor = _layout.layout(Layout::type_t::SYSTEM);
-
-        // system layout first
-        if (!LessDb::setLayout(_layout.layout(Layout::type_t::SYSTEM), 0))
+        if (!selectCommon())
         {
             return false;
         }
 
-        if (!initData(factoryResetType_t::FULL))
+        if (!init_data(FactoryResetType::Full))
         {
             return false;
         }
 
-        for (int i = _supportedPresets - 1; i >= 0; i--)
+        for (size_t i = _supportedPresets; i-- > 0;)
         {
             if (!setPresetInternal(i))
             {
                 return false;
             }
 
-            if (!initData(factoryResetType_t::FULL))
+            if (!init_data(FactoryResetType::Full))
             {
                 return false;
             }
@@ -221,9 +207,6 @@ bool database::Admin::factoryReset()
     return true;
 }
 
-/// Used to set new database layout (preset).
-/// param [in]: preset  New preset to set.
-/// returns: False if specified preset isn't supported, true otherwise.
 bool database::Admin::setPreset(uint8_t preset)
 {
     if (preset >= _supportedPresets)
@@ -231,9 +214,12 @@ bool database::Admin::setPreset(uint8_t preset)
         return false;
     }
 
-    _activePreset = preset;
+    if (!selectPreset(preset))
+    {
+        return false;
+    }
 
-    auto retVal = updateSystemBlock(static_cast<size_t>(Config::systemSetting_t::ACTIVE_PRESET),
+    auto retVal = updateCommonBlock(static_cast<size_t>(Config::commonSetting_t::ACTIVE_PRESET),
                                     preset);
 
     if (retVal)
@@ -247,66 +233,86 @@ bool database::Admin::setPreset(uint8_t preset)
     return retVal;
 }
 
-/// Used to set new database layout (preset) without writing to database.
-/// For internal use only.
-/// param [in]: preset  New preset to set.
-/// returns: False if specified preset isn't supported, true otherwise.
 bool database::Admin::setPresetInternal(uint8_t preset)
+{
+    return selectPreset(preset);
+}
+
+bool database::Admin::selectCommon()
+{
+    if (_activeContext == Context::COMMON)
+    {
+        return true;
+    }
+
+    if (!LessDb::set_layout(_layout.commonLayout(), 0))
+    {
+        return false;
+    }
+
+    _activeContext = Context::COMMON;
+    return true;
+}
+
+bool database::Admin::selectPreset(uint8_t preset)
 {
     if (preset >= _supportedPresets)
     {
         return false;
     }
 
-    _activePreset = preset;
-    LessDb::setLayout(_layout.layout(Layout::type_t::USER), _userDataStartAddress + (_lastPresetAddress * _activePreset));
+    if ((_activeContext == Context::PRESET) && (_activePreset == preset))
+    {
+        return true;
+    }
+
+    if (!LessDb::set_layout(_layout.presetLayout(), presetStartAddress(preset)))
+    {
+        return false;
+    }
+
+    _activePreset  = preset;
+    _activeContext = Context::PRESET;
 
     return true;
 }
 
-/// Retrieves currently active preset.
+uint32_t database::Admin::presetStartAddress(uint8_t preset) const
+{
+    return _presetDataStartAddress + (_presetLayoutSize * preset);
+}
+
 uint8_t database::Admin::getPreset()
 {
     return _activePreset;
 }
 
-/// Retrieves number of presets possible to store in database.
-/// Preset is simply another database layout copy.
 uint8_t database::Admin::getSupportedPresets()
 {
     return _supportedPresets;
 }
 
-/// Enables or disables preservation of preset setting.
-/// If preservation is enabled, configured preset will be loaded on board power on.
-/// Otherwise, first preset will be loaded instead.
 bool database::Admin::setPresetPreserveState(bool state)
 {
-    return updateSystemBlock(static_cast<size_t>(Config::systemSetting_t::PRESET_PRESERVE),
+    return updateCommonBlock(static_cast<size_t>(Config::commonSetting_t::PRESET_PRESERVE),
                              state);
 }
 
-/// Checks if preset preservation setting is enabled or disabled.
-/// returns: True if preset preservation is enabled, false otherwise.
 bool database::Admin::getPresetPreserveState()
 {
-    return readSystemBlock(static_cast<size_t>(Config::systemSetting_t::PRESET_PRESERVE));
+    return readCommonBlock(static_cast<size_t>(Config::commonSetting_t::PRESET_PRESERVE));
 }
 
-/// Checks if database has been already initialized by checking DB_BLOCK_ID.
-/// returns: True if valid, false otherwise.
 bool database::Admin::isSignatureValid()
 {
-    uint16_t signature = readSystemBlock(static_cast<size_t>(Config::systemSetting_t::UID));
+    uint16_t signature = readCommonBlock(static_cast<size_t>(Config::commonSetting_t::UID));
 
     return _uid == signature;
 }
 
-/// Updates unique database UID.
-/// UID is written to first two database locations.
 bool database::Admin::setUID()
 {
-    return updateSystemBlock(static_cast<size_t>(Config::systemSetting_t::UID), _uid);
+    return updateCommonBlock(static_cast<size_t>(Config::commonSetting_t::UID), _uid);
 }
 
 void database::Admin::registerHandlers(Handlers& handlers)
@@ -321,7 +327,7 @@ std::optional<uint8_t> database::Admin::sysConfigGet(sys::Config::Section::globa
         return std::nullopt;
     }
 
-    if (index >= static_cast<uint8_t>(Config::systemSetting_t::CUSTOM_SYSTEM_SETTING_START))
+    if (index >= static_cast<uint8_t>(Config::commonSetting_t::CUSTOM_COMMON_SETTING_START))
     {
         return std::nullopt;
     }
@@ -329,18 +335,18 @@ std::optional<uint8_t> database::Admin::sysConfigGet(sys::Config::Section::globa
     uint32_t readValue = 0;
     uint8_t  result    = sys::Config::Status::ERROR_READ;
 
-    auto setting = static_cast<Config::systemSetting_t>(index);
+    auto setting = static_cast<Config::commonSetting_t>(index);
 
     switch (setting)
     {
-    case Config::systemSetting_t::ACTIVE_PRESET:
+    case Config::commonSetting_t::ACTIVE_PRESET:
     {
         readValue = getPreset();
         result    = sys::Config::Status::ACK;
     }
     break;
 
-    case Config::systemSetting_t::PRESET_PRESERVE:
+    case Config::commonSetting_t::PRESET_PRESERVE:
     {
         readValue = getPresetPreserveState();
         result    = sys::Config::Status::ACK;
@@ -362,17 +368,17 @@ std::optional<uint8_t> database::Admin::sysConfigSet(sys::Config::Section::globa
         return std::nullopt;
     }
 
-    if (index >= static_cast<uint8_t>(Config::systemSetting_t::CUSTOM_SYSTEM_SETTING_START))
+    if (index >= static_cast<uint8_t>(Config::commonSetting_t::CUSTOM_COMMON_SETTING_START))
     {
         return std::nullopt;
     }
 
     uint8_t result  = sys::Config::Status::ERROR_WRITE;
-    auto    setting = static_cast<Config::systemSetting_t>(index);
+    auto    setting = static_cast<Config::commonSetting_t>(index);
 
     switch (setting)
     {
-    case Config::systemSetting_t::ACTIVE_PRESET:
+    case Config::commonSetting_t::ACTIVE_PRESET:
     {
         if (value < getSupportedPresets())
         {
@@ -386,7 +392,7 @@ std::optional<uint8_t> database::Admin::sysConfigSet(sys::Config::Section::globa
     }
     break;
 
-    case Config::systemSetting_t::PRESET_PRESERVE:
+    case Config::commonSetting_t::PRESET_PRESERVE:
     {
         if ((value <= 1) && (value >= 0))
         {
@@ -403,26 +409,30 @@ std::optional<uint8_t> database::Admin::sysConfigSet(sys::Config::Section::globa
     return result;
 }
 
-uint16_t database::Admin::readSystemBlock(size_t index)
+uint16_t database::Admin::readCommonBlock(size_t index)
 {
-    uint16_t value = 0;
+    if (!selectCommon())
+    {
+        return 0;
+    }
 
-    SYSTEM_BLOCK_ENTER(
-        value = LessDb::read(0,
-                             static_cast<uint8_t>(Config::Section::system_t::SYSTEM_SETTINGS),
-                             index);)
-
-    return value;
+    return LessDb::read(0,
+                        static_cast<uint8_t>(Config::Section::common_t::COMMON_SETTINGS),
+                        index)
+        .value_or(0);
 }
 
-bool database::Admin::updateSystemBlock(size_t index, uint16_t value)
+bool database::Admin::updateCommonBlock(size_t index, uint16_t value)
 {
-    bool retVal = false;
+    if (!selectCommon())
+    {
+        return false;
+    }
 
-    SYSTEM_BLOCK_ENTER(
-        retVal = LessDb::update(0, static_cast<uint8_t>(Config::Section::system_t::SYSTEM_SETTINGS), index, value);)
-
-    return retVal;
+    return LessDb::update(0,
+                          static_cast<uint8_t>(Config::Section::common_t::COMMON_SETTINGS),
+                          index,
+                          value);
 }
 
 __attribute__((weak)) void database::Admin::customInitGlobal()

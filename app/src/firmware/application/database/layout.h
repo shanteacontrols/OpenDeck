@@ -19,13 +19,15 @@ limitations under the License.
 #pragma once
 
 #include "deps.h"
+#include "application/io/analog/common.h"
 #include "application/io/buttons/common.h"
 #include "application/io/encoders/common.h"
-#include "application/io/analog/common.h"
-#include "application/io/leds/common.h"
 #include "application/io/i2c/peripherals/display/common.h"
+#include "application/io/leds/common.h"
 #include "application/io/touchscreen/common.h"
 #include "application/protocol/midi/common.h"
+
+#include <array>
 
 namespace database
 {
@@ -34,473 +36,299 @@ namespace database
         public:
         AppLayout() = default;
 
-        std::vector<lib::lessdb::Block>& layout(type_t type) override
+        std::span<const lib::lessdb::Block> commonLayout() const override
         {
-            switch (type)
-            {
-            case type_t::SYSTEM:
-                return _systemLayout;
+            return COMMON_LAYOUT;
+        }
 
-            default:
-                return _userLayout;
-            }
+        std::span<const lib::lessdb::Block> presetLayout() const override
+        {
+            return PRESET_LAYOUT;
+        }
+
+        constexpr uint32_t commonLayoutSize() const override
+        {
+            return lib::lessdb::LessDb::layout_size(COMMON_LAYOUT);
+        }
+
+        constexpr uint32_t presetLayoutSize() const override
+        {
+            return lib::lessdb::LessDb::layout_size(PRESET_LAYOUT);
+        }
+
+        constexpr uint16_t commonUid() const override
+        {
+            return static_cast<uint16_t>(lib::lessdb::LessDb::layout_uid(COMMON_LAYOUT));
+        }
+
+        constexpr uint16_t presetUid() const override
+        {
+            return static_cast<uint16_t>(lib::lessdb::LessDb::layout_uid(PRESET_LAYOUT));
         }
 
         private:
-        std::vector<lib::lessdb::Section> _systemSections = {
-            // system section
-            {
-                static_cast<uint8_t>(database::Config::systemSetting_t::AMOUNT),
-                lib::lessdb::sectionParameterType_t::WORD,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-        };
+        using Section = lib::lessdb::Section;
+        using Block   = lib::lessdb::Block;
 
-        std::vector<lib::lessdb::Section> _globalSections = {
-            // midi settings section
-            {
+        using SectionParameterType = lib::lessdb::SectionParameterType;
+        using PreserveSetting      = lib::lessdb::PreserveSetting;
+        using AutoIncrementSetting = lib::lessdb::AutoIncrementSetting;
+
+        inline static constexpr auto COMMON_SECTIONS = lib::lessdb::make_block(std::array{
+            Section(
+                static_cast<uint8_t>(database::Config::commonSetting_t::AMOUNT),
+                SectionParameterType::Word,
+                PreserveSetting::Disable,
+                AutoIncrementSetting::Disable,
+                0),
+        });
+
+        inline static constexpr auto GLOBAL_SECTIONS = lib::lessdb::make_block(std::array{
+            Section(
                 static_cast<uint8_t>(protocol::midi::setting_t::AMOUNT),
-                lib::lessdb::sectionParameterType_t::BYTE,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-        };
+                SectionParameterType::Byte,
+                PreserveSetting::Disable,
+                AutoIncrementSetting::Disable,
+                0),
+        });
 
-        std::vector<lib::lessdb::Section> _buttonSections = {
-            // type section
-            {
-                io::buttons::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::BIT,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
+        inline static constexpr auto BUTTON_SECTIONS = lib::lessdb::make_block(std::array{
+            Section(io::buttons::Collection::SIZE(),
+                    SectionParameterType::Bit,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section(io::buttons::Collection::SIZE(),
+                    SectionParameterType::Byte,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section(io::buttons::Collection::SIZE(),
+                    SectionParameterType::Byte,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section(io::buttons::Collection::SIZE(),
+                    SectionParameterType::Byte,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    127),
+            Section(io::buttons::Collection::SIZE(),
+                    SectionParameterType::Byte,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    1),
+        });
 
-            // message type section
-            {
-                io::buttons::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::BYTE,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
+        inline static constexpr auto ENCODER_SECTIONS = lib::lessdb::make_block(std::array{
+            Section(io::encoders::Collection::SIZE(),
+                    SectionParameterType::Bit,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section(io::encoders::Collection::SIZE(),
+                    SectionParameterType::Bit,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section(io::encoders::Collection::SIZE(),
+                    SectionParameterType::HalfByte,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section(io::encoders::Collection::SIZE(),
+                    SectionParameterType::Word,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Enable,
+                    0),
+            Section(io::encoders::Collection::SIZE(),
+                    SectionParameterType::Byte,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    1),
+            Section(io::encoders::Collection::SIZE(),
+                    SectionParameterType::HalfByte,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    4),
+            Section(io::encoders::Collection::SIZE(),
+                    SectionParameterType::HalfByte,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section(io::encoders::Collection::SIZE(),
+                    SectionParameterType::Bit,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section(io::encoders::Collection::SIZE(),
+                    SectionParameterType::Word,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section(io::encoders::Collection::SIZE(),
+                    SectionParameterType::Word,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    16383),
+            Section(io::encoders::Collection::SIZE(),
+                    SectionParameterType::Word,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    127),
+            Section(io::encoders::Collection::SIZE(),
+                    SectionParameterType::Word,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Enable,
+                    0),
+        });
 
-            // midi id section
-            {
-                io::buttons::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::BYTE,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
+        inline static constexpr auto ANALOG_SECTIONS = lib::lessdb::make_block(std::array{
+            Section(io::analog::Collection::SIZE(),
+                    SectionParameterType::Bit,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section(io::analog::Collection::SIZE(),
+                    SectionParameterType::Bit,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section(io::analog::Collection::SIZE(),
+                    SectionParameterType::HalfByte,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section(io::analog::Collection::SIZE(),
+                    SectionParameterType::Word,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Enable,
+                    0),
+            Section(io::analog::Collection::SIZE(),
+                    SectionParameterType::Word,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section(io::analog::Collection::SIZE(),
+                    SectionParameterType::Word,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    16383),
+            Section(io::analog::Collection::SIZE(),
+                    SectionParameterType::Byte,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    1),
+            Section(io::analog::Collection::SIZE(),
+                    SectionParameterType::Byte,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section(io::analog::Collection::SIZE(),
+                    SectionParameterType::Byte,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+        });
 
-            // value section
-            {
-                io::buttons::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::BYTE,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                127,
-            },
+        inline static constexpr auto LED_SECTIONS = lib::lessdb::make_block(std::array{
+            Section(static_cast<size_t>(io::leds::setting_t::AMOUNT),
+                    SectionParameterType::Byte,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section(io::leds::Collection::SIZE(),
+                    SectionParameterType::Byte,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section((io::leds::Collection::SIZE() / 3) + (io::touchscreen::Collection::SIZE() / 3),
+                    SectionParameterType::Bit,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section(io::leds::Collection::SIZE(),
+                    SectionParameterType::HalfByte,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section(io::leds::Collection::SIZE(),
+                    SectionParameterType::Byte,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    127),
+            Section(io::leds::Collection::SIZE(),
+                    SectionParameterType::Byte,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    1),
+        });
 
-            // channel section
-            {
-                io::buttons::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::BYTE,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                1,
-            },
-        };
-
-        std::vector<lib::lessdb::Section> _encoderSections = {
-            // encoder enabled section
-            {
-                io::encoders::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::BIT,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-
-            // encoder inverted section
-            {
-                io::encoders::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::BIT,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-
-            // encoding mode section
-            {
-                io::encoders::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::HALF_BYTE,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-
-            // midi id 1 section
-            {
-                io::encoders::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::WORD,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::ENABLE,
-                0,
-            },
-
-            // channel section
-            {
-                io::encoders::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::BYTE,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                1,
-            },
-
-            // pulses per step section
-            {
-                io::encoders::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::HALF_BYTE,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                4,
-            },
-
-            // acceleration section
-            {
-                io::encoders::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::HALF_BYTE,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-
-            // remote sync section
-            {
-                io::encoders::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::BIT,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-
-            // lower value limit section
-            {
-                io::encoders::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::WORD,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-
-            // upper value limit section
-            {
-                io::encoders::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::WORD,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                16383,
-            },
-
-            // repeated value section
-            {
-                io::encoders::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::WORD,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                127,
-            },
-
-            // midi id 2 section
-            {
-                io::encoders::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::WORD,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::ENABLE,
-                0,
-            },
-        };
-
-        std::vector<lib::lessdb::Section> _analogSections = {
-            // analog enabled section
-            {
-                io::analog::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::BIT,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-
-            // analog inverted section
-            {
-                io::analog::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::BIT,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-
-            // analog type section
-            {
-                io::analog::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::HALF_BYTE,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-
-            // midi id section
-            {
-                io::analog::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::WORD,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::ENABLE,
-                0,
-            },
-
-            // lower value limit section
-            {
-                io::analog::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::WORD,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-
-            // upper value limit section
-            {
-                io::analog::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::WORD,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                16383,
-            },
-
-            // channel section
-            {
-                io::analog::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::BYTE,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                1,
-            },
-
-            // lower adc percentage offset section
-            {
-                io::analog::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::BYTE,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-
-            // upper adc percentage offset section
-            {
-                io::analog::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::BYTE,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-        };
-
-        std::vector<lib::lessdb::Section> _ledSections = {
-            // global parameters section
-            {
-                static_cast<size_t>(io::leds::setting_t::AMOUNT),
-                lib::lessdb::sectionParameterType_t::BYTE,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-
-            // activation id section
-            {
-                io::leds::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::BYTE,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-
-            // rgb enabled section
-            {
-                (io::leds::Collection::SIZE() / 3) + (io::touchscreen::Collection::SIZE() / 3),
-                lib::lessdb::sectionParameterType_t::BIT,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-
-            // led control type section
-            {
-                io::leds::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::HALF_BYTE,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-
-            // single led activation value section
-            {
-                io::leds::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::BYTE,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                127,
-            },
-
-            // channel section
-            {
-                io::leds::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::BYTE,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                1,
-            },
-        };
-
-        std::vector<lib::lessdb::Section> _i2cSections = {
-            // display section
-            {
+        inline static constexpr auto I2C_SECTIONS = lib::lessdb::make_block(std::array{
+            Section(
                 static_cast<uint8_t>(io::i2c::display::setting_t::AMOUNT),
-                lib::lessdb::sectionParameterType_t::BYTE,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-        };
+                SectionParameterType::Byte,
+                PreserveSetting::Disable,
+                AutoIncrementSetting::Disable,
+                0),
+        });
 
-        std::vector<lib::lessdb::Section> _touchscreenSections = {
-            // setting section
-            {
-                static_cast<uint8_t>(io::touchscreen::setting_t::AMOUNT),
-                lib::lessdb::sectionParameterType_t::BYTE,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
+        inline static constexpr auto TOUCHSCREEN_SECTIONS = lib::lessdb::make_block(std::array{
+            Section(static_cast<uint8_t>(io::touchscreen::setting_t::AMOUNT), SectionParameterType::Byte, PreserveSetting::Disable, AutoIncrementSetting::Disable, 0),
+            Section(io::touchscreen::Collection::SIZE(),
+                    SectionParameterType::Word,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section(io::touchscreen::Collection::SIZE(),
+                    SectionParameterType::Word,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section(io::touchscreen::Collection::SIZE(),
+                    SectionParameterType::Word,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section(io::touchscreen::Collection::SIZE(),
+                    SectionParameterType::Word,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section(io::touchscreen::Collection::SIZE(),
+                    SectionParameterType::HalfByte,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section(io::touchscreen::Collection::SIZE(),
+                    SectionParameterType::HalfByte,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section(io::touchscreen::Collection::SIZE(),
+                    SectionParameterType::Bit,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+            Section(io::touchscreen::Collection::SIZE(),
+                    SectionParameterType::HalfByte,
+                    PreserveSetting::Disable,
+                    AutoIncrementSetting::Disable,
+                    0),
+        });
 
-            // x position section
-            {
-                io::touchscreen::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::WORD,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
+        inline static constexpr auto COMMON_LAYOUT = lib::lessdb::make_layout(std::array{
+            Block(COMMON_SECTIONS),
+        });
 
-            // y position section
-            {
-                io::touchscreen::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::WORD,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-
-            // width section
-            {
-                io::touchscreen::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::WORD,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-
-            // height section
-            {
-                io::touchscreen::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::WORD,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-
-            // on screen section
-            {
-                io::touchscreen::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::HALF_BYTE,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-
-            // off screen section
-            {
-                io::touchscreen::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::HALF_BYTE,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-
-            // page switch enabled section
-            {
-                io::touchscreen::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::BIT,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-
-            // page switch index section
-            {
-                io::touchscreen::Collection::SIZE(),
-                lib::lessdb::sectionParameterType_t::HALF_BYTE,
-                lib::lessdb::preserveSetting_t::DISABLE,
-                lib::lessdb::autoIncrementSetting_t::DISABLE,
-                0,
-            },
-        };
-
-        std::vector<lib::lessdb::Block> _systemLayout = {
-            // system block
-            {
-                _systemSections,
-            },
-        };
-
-        std::vector<lib::lessdb::Block> _userLayout = {
-            // global block
-            {
-                _globalSections,
-            },
-
-            // buttons block
-            {
-                _buttonSections,
-            },
-
-            // encoder block
-            {
-                _encoderSections,
-            },
-
-            // analog block
-            {
-                _analogSections,
-            },
-
-            // led block
-            {
-                _ledSections,
-            },
-
-            // display block
-            {
-                _i2cSections,
-            },
-
-            // touchscreen block
-            {
-                _touchscreenSections,
-            },
-        };
+        inline static constexpr auto PRESET_LAYOUT = lib::lessdb::make_layout(std::array{
+            Block(GLOBAL_SECTIONS),
+            Block(BUTTON_SECTIONS),
+            Block(ENCODER_SECTIONS),
+            Block(ANALOG_SECTIONS),
+            Block(LED_SECTIONS),
+            Block(I2C_SECTIONS),
+            Block(TOUCHSCREEN_SECTIONS),
+        });
     };
 }    // namespace database

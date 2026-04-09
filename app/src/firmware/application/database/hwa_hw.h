@@ -24,6 +24,8 @@ limitations under the License.
 
 #include "core/mcu.h"
 
+#include <optional>
+
 namespace database
 {
     class HwaHw : public Hwa
@@ -78,9 +80,16 @@ namespace database
             return board::nvm::clear(0, board::nvm::size());
         }
 
-        bool read(uint32_t address, uint32_t& value, database::Admin::sectionParameterType_t type) override
+        std::optional<uint32_t> read(uint32_t address, database::Admin::sectionParameterType_t type) override
         {
-            return board::nvm::read(address, value, boardParamType(type));
+            uint32_t value = 0;
+
+            if (!board::nvm::read(address, value, boardParamType(type)))
+            {
+                return std::nullopt;
+            }
+
+            return value;
         }
 
         bool write(uint32_t address, uint32_t value, database::Admin::sectionParameterType_t type) override
@@ -100,10 +109,10 @@ namespace database
         {
             switch (type)
             {
-            case database::Admin::sectionParameterType_t::WORD:
+            case database::Admin::sectionParameterType_t::Word:
                 return board::nvm::parameterType_t::WORD;
 
-            case database::Admin::sectionParameterType_t::DWORD:
+            case database::Admin::sectionParameterType_t::Dword:
                 return board::nvm::parameterType_t::DWORD;
 
             default:
