@@ -1,0 +1,9 @@
+description: OpenDeck display I2C configuration
+
+compatible: "opendeck,display-i2c"
+
+properties:
+  i2c:
+    type: phandle
+    required: false
+    description: I2C controller used for the display. Usually provided in firmware.overlay and required when the display is used.

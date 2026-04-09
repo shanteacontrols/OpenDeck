@@ -1,0 +1,14 @@
+description: OpenDeck touchscreen inventory
+
+compatible: "opendeck,touchscreen"
+
+properties:
+  component-count:
+    type: int
+    required: true
+    description: Number of logical touchscreen components exposed to the firmware.
+
+  uart:
+    type: phandle
+    required: false
+    description: UART device used to communicate with the touchscreen. Usually provided in firmware.overlay and required when the touchscreen is used.

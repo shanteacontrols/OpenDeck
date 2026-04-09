@@ -1,0 +1,11 @@
+---
+presets:
+  -
+    name: "default"
+    conf-files:
+      common:
+        - "common.conf"
+      release:
+        - "release.conf"
+      debug:
+        - "debug.conf"

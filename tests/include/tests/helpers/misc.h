@@ -1,20 +1,7 @@
 /*
-
-Copyright Igor Petrovic
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-*/
+ * Copyright (c) 2026 Igor Petrovic
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 #pragma once
 
@@ -29,22 +16,29 @@ limitations under the License.
 
 namespace test
 {
-    // simple wrapper for system call which takes string arg instead
+    /**
+     * @brief Executes a shell command and captures its standard output.
+     *
+     * @param in Shell command to execute.
+     * @param out Output string filled with captured command output.
+     *
+     * @return Process exit status, or `-1` when the command could not be started.
+     */
     inline int wsystem(std::string const& in, std::string& out)
     {
-        // std::cout << "[CMD]: " << in << std::endl;
-
         FILE* fpipe = popen(in.c_str(), "r");
 
         if (fpipe == NULL)
         {
-            throw std::runtime_error(std::string("Can't run ") + in);
+            out = "";
+            return -1;
         }
 
         out = "";
 
         static constexpr size_t BUFFER_SIZE = 256;
-        char                    buffer[BUFFER_SIZE];
+
+        char buffer[BUFFER_SIZE];
 
         while (!feof(fpipe))
         {
@@ -59,13 +53,26 @@ namespace test
         return status;
     }
 
+    /**
+     * @brief Executes a shell command without capturing its output.
+     *
+     * @param in Shell command to execute.
+     *
+     * @return Process exit status.
+     */
     inline int wsystem(std::string const& in)
     {
-        // std::cout << "[CMD]: " << in << std::endl;
         return system(in.c_str());
     }
 
-    inline std::string trimWhitespace(const std::string& s)
+    /**
+     * @brief Removes all whitespace characters from a string copy.
+     *
+     * @param s Input string.
+     *
+     * @return Copy of the input string with whitespace removed.
+     */
+    inline std::string trim_whitespace(const std::string& s)
     {
         auto trimmed = s;
 
@@ -78,7 +85,14 @@ namespace test
         return trimmed;
     }
 
-    inline size_t wordsInString(std::string& s)
+    /**
+     * @brief Counts spaces in a mutable string and returns one plus that count.
+     *
+     * @param s String to inspect.
+     *
+     * @return Number of spaces plus one.
+     */
+    inline size_t words_in_string(std::string& s)
     {
         size_t words = 0;
 
@@ -93,7 +107,14 @@ namespace test
         return words + 1;
     }
 
-    inline int sleepMs(long msec)
+    /**
+     * @brief Sleeps the current thread for the requested number of milliseconds.
+     *
+     * @param msec Duration to sleep in milliseconds.
+     *
+     * @return `0` on success, or `-1` when the argument is invalid.
+     */
+    inline int sleep_ms(long msec)
     {
         struct timespec ts;
         int             res;
@@ -115,6 +136,11 @@ namespace test
         return res;
     }
 
+    /**
+     * @brief Returns the current wall-clock time in milliseconds.
+     *
+     * @return Current timestamp in milliseconds.
+     */
     int64_t millis()
     {
         struct timespec now;
@@ -122,34 +148,47 @@ namespace test
         return (static_cast<int64_t>(now.tv_sec)) * 1000 + (static_cast<int64_t>(now.tv_nsec)) / 1000000;
     }
 
-    inline std::vector<uint8_t> hexStringToVector(const std::string& string)
+    /**
+     * @brief Converts an even-length hexadecimal string into a byte vector.
+     *
+     * @param string Hexadecimal string to parse.
+     *
+     * @return Parsed byte vector.
+     */
+    inline std::vector<uint8_t> hex_string_to_vector(const std::string& string)
     {
         std::vector<unsigned char> vector;
 
         for (size_t i = 0; i < string.length(); i += 2)
         {
-            std::string byteString = string.substr(i, 2);
-            auto        byte       = static_cast<unsigned char>(strtol(byteString.c_str(), NULL, 16));
+            std::string byte_string = string.substr(i, 2);
+            auto        byte        = static_cast<unsigned char>(strtol(byte_string.c_str(), NULL, 16));
             vector.push_back(byte);
         }
 
         return vector;
     }
 
-    inline std::string vectorToHexString(std::vector<uint8_t> request)
+    /**
+     * @brief Converts a byte vector into an uppercase hexadecimal string.
+     *
+     * @param request Byte vector to serialize.
+     *
+     * @return Uppercase hexadecimal string without separators.
+     */
+    inline std::string vector_to_hex_string(std::vector<uint8_t> request)
     {
-        // convert uint8_t vector to string so it can be passed as command line argument
-        std::stringstream requestString;
-        requestString << std::hex << std::setfill('0') << std::uppercase;
+        std::stringstream request_string;
+        request_string << std::hex << std::setfill('0') << std::uppercase;
 
         auto first = std::begin(request);
         auto last  = std::end(request);
 
         while (first != last)
         {
-            requestString << std::setw(2) << static_cast<int>(*first++);
+            request_string << std::setw(2) << static_cast<int>(*first++);
         }
 
-        return requestString.str();
+        return request_string.str();
     }
 }    // namespace test

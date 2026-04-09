@@ -21,7 +21,6 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Setup missing directories and files on the runner
         run: |
-          mkdir -p ~/.ssh
           touch ~/.gitconfig
       - name: Prepare container
         uses: devcontainers/ci@v0.3
@@ -39,10 +38,10 @@ jobs:
           push: never
           runCmd: |
             git fetch --tags
-            ./scripts/build_targets.sh --type=build
+            ./scripts/bulk_build.sh --type=app
             ./scripts/copy_release_binaries.sh --build-dir=build --copy-dir=release
       - name: Upload firmware artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: binaries
           path: release/*

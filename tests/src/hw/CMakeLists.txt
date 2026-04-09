@@ -1,57 +1,43 @@
-if("PROJECT_TARGET_HW_TESTS_SUPPORTED" IN_LIST PROJECT_TARGET_DEFINES)
-    add_executable(hw)
-    set(CURRENT_FW_RELEASE_DL_DIR /tmp/latest_github_release/${TARGET})
+cmake_minimum_required(VERSION 3.20)
+set(KCONFIG_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/Kconfig)
+list(APPEND CONF_FILE "${CMAKE_CURRENT_LIST_DIR}/prj.conf")
+list(APPEND DTS_ROOT "$ENV{ZEPHYR_PROJECT}/app")
+include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_test_target.cmake)
+opendeck_test_apply_target()
+include($ENV{ZEPHYR_WS}/zenv/cmake/test.cmake)
 
-    FetchContent_Declare(
-        current_fw_release_bin
-        URL https://github.com/shanteacontrols/OpenDeck/releases/latest/download/${TARGET}.bin
-        DOWNLOAD_DIR ${CURRENT_FW_RELEASE_DL_DIR}
-        DOWNLOAD_NO_EXTRACT ON
-        DOWNLOAD_NAME merged.bin
-    )
+project(test)
 
-    FetchContent_Declare(
-        current_fw_release_hex
-        URL https://github.com/shanteacontrols/OpenDeck/releases/latest/download/${TARGET}.hex
-        DOWNLOAD_DIR ${CURRENT_FW_RELEASE_DL_DIR}
-        DOWNLOAD_NO_EXTRACT ON
-        DOWNLOAD_NAME merged.hex
-    )
+add_compile_definitions(
+    OPENDECK_TEST
+    PROJECT_TARGET_HW_TESTS_SUPPORTED
+    CONFIG_OPENDECK_LOG_LEVEL=3
+)
 
-    FetchContent_MakeAvailable(
-        current_fw_release_bin
-        current_fw_release_hex
-    )
+add_subdirectory($ENV{ZEPHYR_PROJECT}/app/common/metadata ${CMAKE_CURRENT_BINARY_DIR}/metadata)
+add_subdirectory($ENV{ZEPHYR_PROJECT}/app/firmware/src/database ${CMAKE_CURRENT_BINARY_DIR}/database)
+add_subdirectory($ENV{ZEPHYR_PROJECT}/app/firmware/src/util/configurable ${CMAKE_CURRENT_BINARY_DIR}/configurable)
 
-    target_sources(hw
-        PRIVATE
-        test.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/database/database.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/database/custom_init.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/system/system.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/util/cinfo/cinfo.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/protocol/midi/midi.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/buttons/buttons.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/encoders/encoders.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/leds/leds.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/analog/analog.cpp
-    )
+target_sources(app
+    PRIVATE
+    hw_test.cpp
+)
 
-    target_compile_definitions(hw
-        PUBLIC
-        SW_VERSION_MAJOR=0
-        SW_VERSION_MINOR=0
-        SW_VERSION_REVISION=0
-    )
+target_include_directories(app
+    PRIVATE
+    $ENV{ZEPHYR_PROJECT}/app/firmware/src
+    $ENV{ZEPHYR_PROJECT}/app/bootloader/src
+)
 
-    target_link_libraries(hw
-        PUBLIC
-        common
-    )
+add_dependencies(app
+    metadata
+    database
+    configurable
+)
 
-    add_test(
-        NAME hw
-        COMMAND $<TARGET_FILE:hw>
-        WORKING_DIRECTORY $ENV{ZEPHYR_PROJECT}
-    )
-endif()
+target_link_libraries(app
+    PUBLIC
+    metadata
+    database
+    configurable
+)

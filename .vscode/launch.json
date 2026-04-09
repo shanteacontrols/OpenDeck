@@ -1,14 +1,10 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
     "configurations": [
         {
             "name": "Test",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/test.out",
+            "program": "${workspaceFolder}/build/tests/test_vscode.exe",
             "args": [],
             "stopAtEntry": true,
             "environment": [],
@@ -25,52 +21,18 @@
             "preLaunchTask": "[Tests] Build"
         },
         {
-            "name": "blackpill411",
+            "name": "Launch/app",
             "type": "cortex-debug",
             "request": "launch",
             "servertype": "jlink",
             "cwd": "${workspaceRoot}",
-            "executable": "build/blackpill411/debug/merged.hex",
-            "serverpath": "/usr/bin/JLinkGDBServerCLExe",
+            "executable": "${workspaceFolder}/build/app/nrf54h20/debug/app/zephyr/zephyr.elf",
             "interface": "swd",
-            "device": "stm32f411ce",
-            "preLaunchTask": "[Debug] blackpill411",
-            "gdbPath": "/usr/bin/gdb-multiarch",
-            "preLaunchCommands": [
-                "add-symbol-file build/blackpill411/debug/application.elf",
-            ],
-        },
-        {
-            "name": "nrf52840dk",
-            "type": "cortex-debug",
-            "request": "launch",
-            "servertype": "jlink",
-            "cwd": "${workspaceRoot}",
-            "executable": "build/nrf52840dk/debug/merged.hex",
-            "serverpath": "/usr/bin/JLinkGDBServerCLExe",
-            "interface": "swd",
-            "device": "nrf52840_xxaa",
-            "preLaunchTask": "[Debug] nrf52840dk",
-            "gdbPath": "/usr/bin/gdb-multiarch",
-            "preLaunchCommands": [
-                "add-symbol-file build/nrf52840dk/debug/application.elf",
-            ],
-        },
-        {
-            "name": "bergamot",
-            "type": "cortex-debug",
-            "request": "launch",
-            "servertype": "jlink",
-            "cwd": "${workspaceRoot}",
-            "executable": "build/bergamot/debug/merged.hex",
-            "serverpath": "/usr/bin/JLinkGDBServerCLExe",
-            "interface": "swd",
-            "device": "stm32f405rg",
-            "preLaunchTask": "[Debug] bergamot",
-            "gdbPath": "/usr/bin/gdb-multiarch",
-            "preLaunchCommands": [
-                "add-symbol-file build/bergamot/debug/application.elf",
-            ],
+            "device": "nRF52840_xxAA",
+            "runToEntryPoint": "main",
+            "preLaunchTask": "[Flash] [debug] nrf54h20",
+            "gdbPath": "${env:ZEPHYR_SDK_INSTALL_DIR}/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb",
+            "showDevDebugOutput": "both",
         },
     ]
 }

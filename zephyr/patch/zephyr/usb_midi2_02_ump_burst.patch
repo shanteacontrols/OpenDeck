@@ -1,0 +1,165 @@
+diff --git a/include/zephyr/usb/class/usbd_midi2.h b/include/zephyr/usb/class/usbd_midi2.h
+index e0354e17b90..a5e3bf569eb 100644
+--- a/include/zephyr/usb/class/usbd_midi2.h
++++ b/include/zephyr/usb/class/usbd_midi2.h
+@@ -7,6 +7,8 @@
+ #ifndef ZEPHYR_INCLUDE_USB_CLASS_USBD_MIDI_H_
+ #define ZEPHYR_INCLUDE_USB_CLASS_USBD_MIDI_H_
+ 
++#include <stddef.h>
++
+ #ifdef __cplusplus
+ extern "C" {
+ #endif
+@@ -54,6 +56,17 @@ struct usbd_midi_ops {
+  */
+ int usbd_midi_send(const struct device *dev, const struct midi_ump ump);
+ 
++/**
++ * @brief      Send multiple Universal MIDI Packets to the host in one burst
++ * @param[in]  dev    The MIDI2 device
++ * @param[in]  umps   Packets to send, in Universal MIDI Packet format
++ * @param[in]  count  Number of packets in `umps`
++ * @return     0 on success, all other values should be treated as error
++ *             -EIO if USB MIDI 2.0 is not enabled by the host
++ *             -ENOBUFS if there is not enough space in the TX buffer for the burst
++ */
++int usbd_midi_sendv(const struct device *dev, const struct midi_ump *umps, size_t count);
++
+ /**
+  * @brief Set the application event handlers on a USB MIDI device
+  * @param[in]  dev   The MIDI2 device
+diff --git a/subsys/usb/device_next/class/usbd_midi2.c b/subsys/usb/device_next/class/usbd_midi2.c
+index aca2fcbc54e..f61627f487b 100644
+--- a/subsys/usb/device_next/class/usbd_midi2.c
++++ b/subsys/usb/device_next/class/usbd_midi2.c
+@@ -7,6 +7,7 @@
+ #define DT_DRV_COMPAT zephyr_midi2_device
+ 
+ #include <zephyr/drivers/usb/udc.h>
++#include <zephyr/kernel.h>
+ #include <zephyr/sys/byteorder.h>
+ #include <zephyr/sys/ring_buffer.h>
+ #include <zephyr/usb/class/usbd_midi2.h>
+@@ -152,6 +153,7 @@ struct usbd_midi_data {
+ 	struct k_work tx_work;
+ 	uint8_t tx_queue_buf[MIDI_QUEUE_SIZE];
+ 	struct ring_buf tx_queue;
++	struct k_spinlock tx_lock;
+ 	uint8_t altsetting;
+ 	struct usbd_midi_ops ops;
+ };
+@@ -432,15 +434,28 @@ static void usbd_midi_tx_work(struct k_work *work)
+ {
+ 	struct usbd_midi_data *data = CONTAINER_OF(work, struct usbd_midi_data, tx_work);
+ 	struct net_buf *buf;
++	k_spinlock_key_t key;
++	size_t len;
+ 	int ret;
+ 
++	key = k_spin_lock(&data->tx_lock);
++	if (!ring_buf_size_get(&data->tx_queue)) {
++		k_spin_unlock(&data->tx_lock, key);
++		return;
++	}
++	k_spin_unlock(&data->tx_lock, key);
++
+ 	buf = usbd_midi_buf_alloc(usbd_midi_get_bulk_in(data->class_data));
+ 	if (buf == NULL) {
+ 		LOG_ERR("Unable to allocate Tx net_buf");
+ 		return;
+ 	}
+ 
+-	net_buf_add(buf, ring_buf_get(&data->tx_queue, buf->data, buf->size));
++	key = k_spin_lock(&data->tx_lock);
++	len = ring_buf_get(&data->tx_queue, buf->data, buf->size);
++	k_spin_unlock(&data->tx_lock, key);
++
++	net_buf_add(buf, len);
+ 	LOG_HEXDUMP_DBG(buf->data, buf->len, "MIDI2 - Tx DATA");
+ 
+ 	ret = usbd_ep_enqueue(data->class_data, buf);
+@@ -462,29 +477,72 @@ static int usbd_midi_preinit(const struct device *dev)
+ 	return 0;
+ }
+ 
++static int usbd_midi_queue_tx_locked(struct usbd_midi_data *data,
++				      const struct midi_ump *umps,
++				      size_t count,
++				      bool *schedule_tx)
++{
++	size_t buflen = 0U;
++	uint32_t word;
++
++	for (size_t packet_index = 0; packet_index < count; packet_index++) {
++		buflen += 4U * UMP_NUM_WORDS(umps[packet_index]);
++	}
++
++	if (buflen > ring_buf_space_get(&data->tx_queue)) {
++		LOG_WRN("Not enough space in tx queue for %u-byte burst", (unsigned int)buflen);
++		return -ENOBUFS;
++	}
++
++	*schedule_tx = ring_buf_size_get(&data->tx_queue) == 0U;
++
++	for (size_t packet_index = 0; packet_index < count; packet_index++) {
++		const struct midi_ump *ump = &umps[packet_index];
++		size_t words = UMP_NUM_WORDS(*ump);
++
++		for (size_t word_index = 0; word_index < words; word_index++) {
++			word = sys_cpu_to_le32(ump->data[word_index]);
++			ring_buf_put(&data->tx_queue, (const uint8_t *)&word, sizeof(word));
++		}
++	}
++
++	return 0;
++}
++
+ int usbd_midi_send(const struct device *dev, const struct midi_ump ump)
++{
++	return usbd_midi_sendv(dev, &ump, 1U);
++}
++
++int usbd_midi_sendv(const struct device *dev, const struct midi_ump *umps, size_t count)
+ {
+ 	struct usbd_midi_data *data = dev->data;
+-	size_t words = UMP_NUM_WORDS(ump);
+-	size_t buflen = 4 * words;
+-	uint32_t word;
++	k_spinlock_key_t key;
++	bool schedule_tx = false;
++	int ret;
++
++	if (count == 0U) {
++		return 0;
++	}
+ 
+-	LOG_DBG("Send MT=%X group=%X", UMP_MT(ump), UMP_GROUP(ump));
++	LOG_DBG("Send burst count=%u first MT=%X group=%X",
++		(unsigned int)count, UMP_MT(umps[0]), UMP_GROUP(umps[0]));
+ 	if (data->altsetting != MIDI2_ALTERNATE) {
+ 		LOG_WRN("MIDI2.0 is not enabled");
+ 		return -EIO;
+ 	}
+ 
+-	if (buflen > ring_buf_space_get(&data->tx_queue)) {
+-		LOG_WRN("Not enough space in tx queue");
+-		return -ENOBUFS;
++	key = k_spin_lock(&data->tx_lock);
++	ret = usbd_midi_queue_tx_locked(data, umps, count, &schedule_tx);
++	k_spin_unlock(&data->tx_lock, key);
++
++	if (ret) {
++		return ret;
+ 	}
+ 
+-	for (size_t i = 0; i < words; i++) {
+-		word = sys_cpu_to_le32(ump.data[i]);
+-		ring_buf_put(&data->tx_queue, (const uint8_t *)&word, 4);
++	if (schedule_tx) {
++		k_work_submit(&data->tx_work);
+ 	}
+-	k_work_submit(&data->tx_work);
+ 
+ 	return 0;
+ }

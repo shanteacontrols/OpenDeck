@@ -1,0 +1,6 @@
+macro(opendeck_library_named name)
+    set(ZEPHYR_CURRENT_LIBRARY ${name})
+    add_library(${name} STATIC "")
+    target_link_libraries(${name} PUBLIC zephyr_interface)
+    add_dependencies(${name} zephyr_generated_headers)
+endmacro()

@@ -1,21 +1,28 @@
-if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
-    add_executable(midi)
+cmake_minimum_required(VERSION 3.20)
+include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_test_suite.cmake)
+opendeck_test_bootstrap(APPLY_TARGET)
 
-    target_sources(midi
-        PRIVATE
-        test.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/database/database.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/database/custom_init.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/protocol/midi/midi.cpp
-    )
-
-    target_link_libraries(midi
-        PUBLIC
-        common
-    )
-
-    add_test(
-        NAME midi
-        COMMAND $<TARGET_FILE:midi>
-    )
+if(NOT TARGET zlibs-drivers-usb_hw)
+    add_library(zlibs-drivers-usb_hw INTERFACE)
 endif()
+
+if(NOT TARGET zlibs-drivers-uart_hw)
+    add_library(zlibs-drivers-uart_hw INTERFACE)
+endif()
+
+opendeck_test_add_modules(
+    metadata        "app/common/metadata"
+    database        "app/firmware/src/database"
+    configurable    "app/firmware/src/util/configurable"
+    protocol_midi   "app/firmware/src/protocol/midi"
+)
+
+target_sources(app
+    PRIVATE
+    midi_test.cpp
+)
+
+target_link_libraries(app
+    PUBLIC
+    kernel
+)

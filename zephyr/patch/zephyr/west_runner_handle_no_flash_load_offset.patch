@@ -1,0 +1,38 @@
+diff --git a/scripts/west_commands/runners/core.py b/scripts/west_commands/runners/core.py
+index ef90eee4b3f..b37a0cd7097 100644
+--- a/scripts/west_commands/runners/core.py
++++ b/scripts/west_commands/runners/core.py
+@@ -772,10 +772,32 @@ class ZephyrBinaryRunner(abc.ABC):
+         '''If CONFIG_HAS_FLASH_LOAD_OFFSET is n in build_conf,
+         return the CONFIG_FLASH_BASE_ADDRESS value. Otherwise, return
+         CONFIG_FLASH_BASE_ADDRESS + CONFIG_FLASH_LOAD_OFFSET.
++
++        Builds using zephyr,mapped-partition may not define
++        CONFIG_FLASH_LOAD_OFFSET at all. In that case, resolve the chosen
++        zephyr,code-partition address from edt.pickle.cmake instead.
+         '''
++        if build_conf.getboolean('CONFIG_FLASH_USES_MAPPED_PARTITION'):
++            edt_path = os.path.join(build_conf.build_dir, 'zephyr', 'edt.pickle.cmake')
++
++            try:
++                with open(edt_path, encoding='utf-8') as edt_file:
++                    edt_text = edt_file.read()
++
++                chosen_match = re.search(r'DT_CHOSEN\|zephyr,code-partition" "([^"]+)"',
++                                         edt_text)
++                if chosen_match:
++                    chosen_path = re.escape(chosen_match.group(1))
++                    addr_match = re.search(rf'DT_REG\|{chosen_path}\|ADDR" "([^"]+)"',
++                                           edt_text)
++                    if addr_match:
++                        return int(addr_match.group(1), 0)
++            except OSError:
++                pass
++
+         if build_conf.getboolean('CONFIG_HAS_FLASH_LOAD_OFFSET'):
+             return (build_conf['CONFIG_FLASH_BASE_ADDRESS'] +
+-                    build_conf['CONFIG_FLASH_LOAD_OFFSET'])
++                    build_conf.get('CONFIG_FLASH_LOAD_OFFSET', 0))
+         else:
+             return build_conf['CONFIG_FLASH_BASE_ADDRESS']
+ 

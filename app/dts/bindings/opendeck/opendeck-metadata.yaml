@@ -1,0 +1,14 @@
+description: OpenDeck target metadata
+
+compatible: "opendeck,metadata"
+
+properties:
+  zephyr-board:
+    type: string
+    required: true
+    description: Base upstream Zephyr board target used by this OpenDeck target.
+
+  board-name:
+    type: string
+    required: false
+    description: Optional override for the runtime-facing OpenDeck board name used for USB, BLE, and DFU device naming.

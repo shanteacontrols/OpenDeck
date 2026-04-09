@@ -1,0 +1,5 @@
+opendeck_uart_din_midi: &lpuart4 {};       /* Teensy pins 8 (TX4) / 7 (RX4) */
+
+opendeck_uart_touchscreen: &lpuart4 {};    /* Teensy pins 8 (TX4) / 7 (RX4) */
+
+opendeck_i2c_display: &lpi2c4 {};          /* Teensy pins 24 (SCL2) / 25 (SDA2) */

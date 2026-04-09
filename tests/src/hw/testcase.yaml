@@ -1,0 +1,9 @@
+tests:
+  hw.test:
+    build_only: false
+    platform_allow: native_sim/native/64
+    harness: gtest
+    timeout: 180
+    tags:
+      - hw
+      - preset

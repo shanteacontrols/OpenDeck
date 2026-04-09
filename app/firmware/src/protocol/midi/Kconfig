@@ -1,0 +1,12 @@
+menu "MIDI protocol"
+
+config PROJECT_PROTOCOL_MIDI_USB_TX_QUEUE_SIZE
+    int
+    default USBD_MIDI2_TX_QUEUE_SIZE if USBD_MIDI2_CLASS
+    default 256
+    help
+      Protocol-side mirror of the USB MIDI class TX queue size. The MIDI
+      handler uses this to keep USB bursts below the driver queue capacity,
+      and tests can use it without enabling the hardware USB MIDI class.
+
+endmenu

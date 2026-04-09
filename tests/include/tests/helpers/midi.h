@@ -1,237 +1,167 @@
 /*
-
-Copyright Igor Petrovic
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-*/
+ * Copyright (c) 2026 Igor Petrovic
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 #pragma once
 
 #include "misc.h"
-#include "application/system/builder.h"
-#include "application/protocol/midi/midi.h"
-#include "lib/sysexconf/sysexconf.h"
-#include "application/util/conversion/conversion.h"
-#include "application/system/system.h"
-#include "application/system/config.h"
+#include "system/builder.h"
+#include "system/config.h"
+#include "util/configurable/configurable.h"
+#include "util/conversion/conversion.h"
+#include "protocol/midi/common.h"
+#include "protocol/midi/midi.h"
+#include "zlibs/utils/midi/midi_common.h"
 
-#ifdef PROJECT_TARGET_HW_TESTS_SUPPORTED
-#include <hw_test_defines.h>
-#endif
+#include <zephyr/kernel.h>
 
-#include <glog/logging.h>
-
-#include <cinttypes>
-#include <vector>
-#include <sstream>
+#include <algorithm>
+#include <array>
+#include <cctype>
+#include <cstdio>
+#include <cstdlib>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <fstream>
+#include <optional>
+#include <regex>
+#include <sstream>
+#include <span>
+#include <string>
+#include <vector>
 
 namespace test
 {
+    /**
+     * @brief Describes one MIDI event fed into the test helper.
+     */
+    struct MIDIInputEvent
+    {
+        uint8_t                     channel       = 0;
+        uint16_t                    index         = 0;
+        uint16_t                    value         = 0;
+        protocol::midi::MessageType message       = protocol::midi::MessageType::Invalid;
+        const uint8_t*              sys_ex        = nullptr;
+        size_t                      sys_ex_length = 0;
+    };
+
+    /**
+     * @brief High-level helper used by tests to interact with firmware MIDI and SysEx flows.
+     */
     class MIDIHelper
     {
         public:
-        MIDIHelper()
-            : USE_HARDWARE(false)
+        /** @brief Expected USB MIDI device name used by hardware-backed tests. */
+        static constexpr const char* USB_MIDI_DEVICE_NAME = "Group 1 (OpenDeck)";
+        /** @brief Startup delay used after launching MIDI receive helpers. */
+        static constexpr uint32_t RECEIVE_STARTUP_DELAY_MS = 100;
+        /** @brief Timeout used while waiting for `receivemidi` to connect. */
+        static constexpr uint32_t RECEIVE_CONNECT_TIMEOUT_MS = 1000;
+        /** @brief Delay used to flush pending MIDI traffic. */
+        static constexpr uint32_t RECEIVE_FLUSH_DELAY_MS = 100;
+        /** @brief Poll delay used while waiting for helper-process output. */
+        static constexpr uint32_t RECEIVE_POLL_DELAY_MS = 10;
+        /** @brief Stability window used to decide when streamed responses are complete. */
+        static constexpr uint32_t RECEIVE_STABLE_TIME_MS = 60;
+        /** @brief Delay used after write-only hardware requests. */
+        static constexpr uint32_t WRITE_SETTLE_DELAY_MS = 15;
+        /** @brief Retry delay used by read-side helper loops. */
+        static constexpr uint32_t READ_RETRY_DELAY_MS = 20;
+        /** @brief Delay used before reading from a newly started MIDI receive helper. */
+        static constexpr uint32_t RECEIVE_SETTLE_DELAY_MS = 100;
+        /** @brief Timeout used while collecting streamed stub responses. */
+        static constexpr uint32_t STREAM_RESPONSE_TIMEOUT_MS = 5000;
+
+        /**
+         * @brief Constructs the helper for hardware-backed or stub-backed operation.
+         *
+         * @param use_hardware `true` to target a real device when supported, otherwise `false`.
+         */
+        explicit MIDIHelper(bool use_hardware)
+            : _use_hardware(use_hardware)
         {}
 
-        MIDIHelper(bool useHardware)
-            : USE_HARDWARE(useHardware)
-        {}
-
-        MIDIHelper(sys::Builder& system)
+        /**
+         * @brief Constructs the helper around a system-test builder.
+         *
+         * @param system System test builder used for stub-backed interaction.
+         */
+        explicit MIDIHelper(sys::Builder& system)
             : _system(&system)
-            , USE_HARDWARE(false)
+            , _use_hardware(false)
         {}
 
-        std::vector<protocol::midi::UsbPacket> rawSysExToUSBPackets(std::vector<uint8_t>& raw)
+        /**
+         * @brief Converts one logical MIDI input event into USB UMP packets.
+         *
+         * @param event Event to convert.
+         *
+         * @return Generated UMP packet sequence.
+         */
+        std::vector<midi_ump> midi_to_usb_packets(const MIDIInputEvent& event)
         {
-            messaging::Event event = {};
-            event.sysEx            = &raw[0];
-            event.sysExLength      = raw.size();
-            event.message          = protocol::midi::messageType_t::SYS_EX;
-
-            return midiToUsbPackets(event);
-        }
-
-        std::vector<protocol::midi::UsbPacket> midiToUsbPackets(messaging::Event event)
-        {
-            class HWAWriteToUSB : public lib::midi::usb::Hwa
-            {
-                public:
-                HWAWriteToUSB() = default;
-
-                bool init() override
-                {
-                    return true;
-                }
-
-                bool deInit() override
-                {
-                    return true;
-                }
-
-                bool read(protocol::midi::UsbPacket& packet) override
-                {
-                    return false;
-                }
-
-                bool write(protocol::midi::UsbPacket& packet) override
-                {
-                    _buffer.push_back(packet);
-                    return true;
-                }
-
-                std::vector<protocol::midi::UsbPacket> _buffer;
-            } hwaWriteToUSB;
-
-            lib::midi::usb::Usb writeToUsb(hwaWriteToUSB);
-            writeToUsb.init();
+            std::vector<midi_ump> packets;
 
             switch (event.message)
             {
-            case protocol::midi::messageType_t::NOTE_OFF:
-            {
-                writeToUsb.sendNoteOff(event.index, event.value, event.channel);
-            }
-            break;
+            case protocol::midi::MessageType::NoteOff:
+                packets.push_back(zlibs::utils::midi::midi1::note_off(0, event.channel - 1, event.index, event.value));
+                break;
 
-            case protocol::midi::messageType_t::NOTE_ON:
-            {
-                writeToUsb.sendNoteOff(event.index, event.value, event.channel);
-            }
-            break;
+            case protocol::midi::MessageType::NoteOn:
+                packets.push_back(zlibs::utils::midi::midi1::note_on(0, event.channel - 1, event.index, event.value));
+                break;
 
-            case protocol::midi::messageType_t::CONTROL_CHANGE:
-            {
-                writeToUsb.sendControlChange(event.index, event.value, event.channel);
-            }
-            break;
+            case protocol::midi::MessageType::ControlChange:
+                packets.push_back(zlibs::utils::midi::midi1::control_change(0, event.channel - 1, event.index, event.value));
+                break;
 
-            case protocol::midi::messageType_t::PROGRAM_CHANGE:
-            {
-                writeToUsb.sendProgramChange(event.index, event.channel);
-            }
-            break;
+            case protocol::midi::MessageType::ProgramChange:
+                packets.push_back(zlibs::utils::midi::midi1::program_change(0, event.channel - 1, event.index));
+                break;
 
-            case protocol::midi::messageType_t::AFTER_TOUCH_CHANNEL:
+            case protocol::midi::MessageType::SysEx:
             {
-                writeToUsb.sendAfterTouch(event.value, event.channel);
-            }
-            break;
+                size_t index = 0;
 
-            case protocol::midi::messageType_t::AFTER_TOUCH_POLY:
-            {
-                writeToUsb.sendAfterTouch(event.value, event.channel, event.index);
-            }
-            break;
+                while (index < event.sys_ex_length)
+                {
+                    if (event.sys_ex[index] != zlibs::utils::midi::SYS_EX_START)
+                    {
+                        break;
+                    }
 
-            case protocol::midi::messageType_t::PITCH_BEND:
-            {
-                writeToUsb.sendPitchBend(event.value, event.channel);
-            }
-            break;
+                    size_t frame_end = index + 1;
 
-            case protocol::midi::messageType_t::SYS_REAL_TIME_CLOCK:
-            {
-                writeToUsb.sendRealTime(event.message);
-            }
-            break;
+                    while ((frame_end < event.sys_ex_length) && (event.sys_ex[frame_end] != zlibs::utils::midi::SYS_EX_END))
+                    {
+                        frame_end++;
+                    }
 
-            case protocol::midi::messageType_t::SYS_REAL_TIME_START:
-            {
-                writeToUsb.sendRealTime(event.message);
-            }
-            break;
+                    if (frame_end >= event.sys_ex_length)
+                    {
+                        break;
+                    }
 
-            case protocol::midi::messageType_t::SYS_REAL_TIME_CONTINUE:
-            {
-                writeToUsb.sendRealTime(event.message);
-            }
-            break;
+                    const size_t frame_size = frame_end - index + 1;
 
-            case protocol::midi::messageType_t::SYS_REAL_TIME_STOP:
-            {
-                writeToUsb.sendRealTime(event.message);
-            }
-            break;
+                    if (frame_size >= 2)
+                    {
+                        const auto payload = std::span<const uint8_t>(event.sys_ex + index + 1, frame_size - 2);
 
-            case protocol::midi::messageType_t::SYS_REAL_TIME_ACTIVE_SENSING:
-            {
-                writeToUsb.sendRealTime(event.message);
-            }
-            break;
+                        zlibs::utils::midi::write_sysex7_payload_as_ump_packets(
+                            zlibs::utils::midi::DEFAULT_RX_GROUP,
+                            payload,
+                            [&packets](const midi_ump& packet)
+                            {
+                                packets.push_back(packet);
+                                return true;
+                            });
+                    }
 
-            case protocol::midi::messageType_t::SYS_REAL_TIME_SYSTEM_RESET:
-            {
-                writeToUsb.sendRealTime(event.message);
-            }
-            break;
-
-            case protocol::midi::messageType_t::MMC_PLAY:
-            {
-                writeToUsb.sendMMC(event.index, event.message);
-            }
-            break;
-
-            case protocol::midi::messageType_t::MMC_STOP:
-            {
-                writeToUsb.sendMMC(event.index, event.message);
-            }
-            break;
-
-            case protocol::midi::messageType_t::MMC_PAUSE:
-            {
-                writeToUsb.sendMMC(event.index, event.message);
-            }
-            break;
-
-            case protocol::midi::messageType_t::MMC_RECORD_START:
-            {
-                writeToUsb.sendMMC(event.index, event.message);
-            }
-            break;
-
-            case protocol::midi::messageType_t::MMC_RECORD_STOP:
-            {
-                writeToUsb.sendMMC(event.index, event.message);
-            }
-            break;
-
-            case protocol::midi::messageType_t::NRPN_7BIT:
-            {
-                writeToUsb.sendNRPN(event.index, event.value, event.channel, false);
-            }
-            break;
-
-            case protocol::midi::messageType_t::NRPN_14BIT:
-            {
-                writeToUsb.sendNRPN(event.index, event.value, event.channel, true);
-            }
-            break;
-
-            case protocol::midi::messageType_t::CONTROL_CHANGE_14BIT:
-            {
-                writeToUsb.sendControlChange14bit(event.index, event.value, event.channel);
-            }
-            break;
-
-            case protocol::midi::messageType_t::SYS_EX:
-            {
-                writeToUsb.sendSysEx(event.sysExLength, event.sysEx, true);
+                    index += frame_size;
+                }
             }
             break;
 
@@ -239,260 +169,303 @@ namespace test
                 break;
             }
 
-            return hwaWriteToUSB._buffer;
+            return packets;
         }
 
+        /**
+         * @brief Builds a SysEx configuration read request.
+         *
+         * @tparam S Section enum type.
+         * @tparam I Index type.
+         *
+         * @param section Section to read.
+         * @param index Item index within the section.
+         *
+         * @return Serialized SysEx read request.
+         */
         template<typename S, typename I>
-        std::vector<uint8_t> generateSysExGetReq(S section, I index)
+        std::vector<uint8_t> generate_sysex_get_req(S section, I index)
         {
-            using namespace sys;
+            const auto block_index = block(section);
+            const auto split       = util::Conversion::Split14Bit(static_cast<size_t>(index));
 
-            auto blockIndex = BLOCK(section);
-            auto split      = util::Conversion::Split14Bit(static_cast<size_t>(index));
-
-            std::vector<uint8_t> request = {
+            return {
                 0xF0,
-                Config::SYSEX_MANUFACTURER_ID_0,
-                Config::SYSEX_MANUFACTURER_ID_1,
-                Config::SYSEX_MANUFACTURER_ID_2,
-                static_cast<uint8_t>(lib::sysexconf::status_t::REQUEST),    // status
-                0,                                                          // part
-                static_cast<uint8_t>(lib::sysexconf::wish_t::GET),          // wish
-                static_cast<uint8_t>(lib::sysexconf::amount_t::SINGLE),     // amount
-                static_cast<uint8_t>(blockIndex),                           // block
-                static_cast<uint8_t>(section),                              // section
-                split.high(),                                               // index high byte
-                split.low(),                                                // index low byte
-                0x00,                                                       // new value high byte
-                0x00,                                                       // new value low byte
-                0xF7
-            };
-
-            return request;
-        }
-
-        template<typename S, typename I, typename V>
-        std::vector<uint8_t> generateSysExSetReq(S section, I index, V value)
-        {
-            using namespace sys;
-
-            auto blockIndex = BLOCK(section);
-            auto splitIndex = util::Conversion::Split14Bit(static_cast<uint16_t>(index));
-            auto splitValue = util::Conversion::Split14Bit(static_cast<uint16_t>(value));
-
-            std::vector<uint8_t> request = {
-                0xF0,
-                Config::SYSEX_MANUFACTURER_ID_0,
-                Config::SYSEX_MANUFACTURER_ID_1,
-                Config::SYSEX_MANUFACTURER_ID_2,
-                static_cast<uint8_t>(lib::sysexconf::status_t::REQUEST),
-                0,
-                static_cast<uint8_t>(lib::sysexconf::wish_t::SET),
-                static_cast<uint8_t>(lib::sysexconf::amount_t::SINGLE),
-                static_cast<uint8_t>(blockIndex),
+                sys::Config::SYSEX_MANUFACTURER_ID_0,
+                sys::Config::SYSEX_MANUFACTURER_ID_1,
+                sys::Config::SYSEX_MANUFACTURER_ID_2,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                static_cast<uint8_t>(block_index),
                 static_cast<uint8_t>(section),
-                splitIndex.high(),
-                splitIndex.low(),
-                splitValue.high(),
-                splitValue.low(),
+                split.high(),
+                split.low(),
+                0x00,
+                0x00,
                 0xF7
             };
-
-            return request;
         }
 
-        template<typename S, typename I>
-        uint16_t databaseReadFromSystemViaSysEx(S section, I index)
-        {
-            auto request = generateSysExGetReq(section, index);
-
-#ifdef PROJECT_TARGET_HW_TESTS_SUPPORTED
-            if (USE_HARDWARE)
-            {
-                return sendRequestToDevice(request, lib::sysexconf::wish_t::GET);
-            }
-            else
-            {
-                return sendRequestToStub(request, lib::sysexconf::wish_t::GET);
-            }
-#else
-            return sendRequestToStub(request, lib::sysexconf::wish_t::GET);
-#endif
-        }
-
+        /**
+         * @brief Builds a SysEx configuration write request.
+         *
+         * @tparam S Section enum type.
+         * @tparam I Index type.
+         * @tparam V Value type.
+         *
+         * @param section Section to update.
+         * @param index Item index within the section.
+         * @param value Value to write.
+         *
+         * @return Serialized SysEx write request.
+         */
         template<typename S, typename I, typename V>
-        bool databaseWriteToSystemViaSysEx(S section, I index, V value)
+        std::vector<uint8_t> generate_sysex_set_req(S section, I index, V value)
         {
-            auto request = generateSysExSetReq(section, index, value);
+            const auto block_index = block(section);
+            const auto split_index = util::Conversion::Split14Bit(static_cast<uint16_t>(index));
+            const auto split_value = util::Conversion::Split14Bit(static_cast<uint16_t>(value));
+
+            return {
+                0xF0,
+                sys::Config::SYSEX_MANUFACTURER_ID_0,
+                sys::Config::SYSEX_MANUFACTURER_ID_1,
+                sys::Config::SYSEX_MANUFACTURER_ID_2,
+                0x00,
+                0x00,
+                0x01,
+                0x00,
+                static_cast<uint8_t>(block_index),
+                static_cast<uint8_t>(section),
+                split_index.high(),
+                split_index.low(),
+                split_value.high(),
+                split_value.low(),
+                0xF7
+            };
+        }
+
+        /**
+         * @brief Reads one configuration value through the SysEx test path.
+         *
+         * @tparam S Section enum type.
+         * @tparam I Index type.
+         *
+         * @param section Section to read.
+         * @param index Item index within the section.
+         *
+         * @return Decoded configuration value.
+         */
+        template<typename S, typename I>
+        uint16_t database_read_from_system_via_sysex(S section, I index)
+        {
+            auto request = generate_sysex_get_req(section, index);
 
 #ifdef PROJECT_TARGET_HW_TESTS_SUPPORTED
-            if (USE_HARDWARE)
+            if (_use_hardware)
             {
-                return sendRequestToDevice(request, lib::sysexconf::wish_t::SET);
+                return send_request_to_device(request, true);
             }
-            else
-            {
-                return sendRequestToStub(request, lib::sysexconf::wish_t::SET);
-            }
-#else
-            return sendRequestToStub(request, lib::sysexconf::wish_t::SET);
 #endif
+
+            return send_request_to_stub(request, true);
+        }
+
+        /**
+         * @brief Writes one configuration value through the SysEx test path.
+         *
+         * @tparam S Section enum type.
+         * @tparam I Index type.
+         * @tparam V Value type.
+         *
+         * @param section Section to update.
+         * @param index Item index within the section.
+         * @param value Value to write.
+         *
+         * @return `true` if the write was acknowledged, otherwise `false`.
+         */
+        template<typename S, typename I, typename V>
+        bool database_write_to_system_via_sysex(S section, I index, V value)
+        {
+            auto request = generate_sysex_set_req(section, index, value);
+
+#ifdef PROJECT_TARGET_HW_TESTS_SUPPORTED
+            if (_use_hardware)
+            {
+                return send_write_request_to_device(request);
+            }
+#endif
+
+            return send_request_to_stub(request, false) == static_cast<uint16_t>(sys::Config::Status::Ack);
         }
 
 #ifdef PROJECT_TARGET_HW_TESTS_SUPPORTED
-        static void flush()
+        /**
+         * @brief Sends a SysEx request to the device and captures every matching response frame.
+         *
+         * @param request Serialized SysEx request.
+         * @param results Filled with every parsed response frame.
+         * @param timeout_ms Maximum time to wait.
+         *
+         * @return `true` if at least one response was captured, otherwise `false`.
+         */
+        static bool capture_sysex_responses(const std::vector<uint8_t>&        request,
+                                            std::vector<std::vector<uint8_t>>& results,
+                                            uint32_t                           timeout_ms)
         {
-            LOG(INFO) << "Flushing all incoming data from the OpenDeck device";
-            std::string cmdResponse;
+            auto       output_file = temporary_file_path("capture_sysex_responses");
+            const auto pid         = start_receive_midi(output_file);
+            sleep_ms(RECEIVE_SETTLE_DELAY_MS);
 
-            std::string cmd = std::string("amidi -p ") + amidiPort(HW_TEST_USB_DEVICE_NAME_APP) + std::string(" -d -t 3");
-            test::wsystem(cmd, cmdResponse);
-
-// do the same for din interface if present
-#ifdef HW_TEST_DIN_MIDI_SUPPORTED
-            LOG(INFO) << "Flushing all incoming data from the DIN MIDI interface on device";
-            cmd = std::string("amidi -p ") + amidiPort(HW_TEST_DIN_MIDI_OUT_PORT) + std::string(" -d -t 3");
-            test::wsystem(cmd, cmdResponse);
-#endif
-        }
-
-        static std::vector<uint8_t> sendRawSysExToDevice(std::vector<uint8_t> request, bool expectResponse = true)
-        {
-            std::vector<uint8_t> ret;
-            std::string          cmdResponse;
-            std::string          lastResponseFileLocation = "/tmp/midi_in_data.txt";
-            auto                 hexRequest               = test::vectorToHexString(request);
-
-            test::wsystem("rm -f " + lastResponseFileLocation);
-            LOG(INFO) << "req: " << hexRequest;
-
-            std::string cmd = std::string("stdbuf -i0 -o0 -e0 amidi -p ") + amidiPort(HW_TEST_USB_DEVICE_NAME_APP) + std::string(" -S '") + hexRequest + "' -d | stdbuf -i0 -o0 -e0 tr -d '\\n' > " + lastResponseFileLocation + " &";
-            test::wsystem(cmd, cmdResponse);
-
-            static constexpr uint32_t STOP_WAIT_AFTER_MS = 3000;
-
-            if (expectResponse)
+            if (pid <= 0)
             {
-                // parse the response with midi library
-                // convert the response to u8 vector first
-                protocol::midi::HwaSerialTest _hwaMidiSerial;
-
-                cmd                                  = "cat " + lastResponseFileLocation + " | tr -d '[:space:]'";
-                std::vector<uint8_t> responsePattern = { 0xF0, 0x00, 0x53, 0x43, 0x01 };
-
-                // copy message part and wish to pattern as well
-                responsePattern.push_back(request.at(5));
-                responsePattern.push_back(request.at(6));
-
-                auto startTime = test::millis();
-
-                while (true)
-                {
-                    auto check = [&]()
-                    {
-                        bool matched = false;
-                        test::wsystem(cmd, cmdResponse);
-
-                        auto packetVector = [&]()
-                        {
-                            auto                                   vector  = test::hexStringToVector(test::trimWhitespace(cmdResponse));
-                            std::vector<lib::midi::serial::Packet> packets = {};
-
-                            for (size_t i = 0; i < vector.size(); i++)
-                            {
-                                packets.push_back(lib::midi::serial::Packet{ vector.at(i) });
-                            }
-
-                            return packets;
-                        };
-
-                        _hwaMidiSerial._readPackets       = packetVector();
-                        lib::midi::serial::Serial _serial = lib::midi::serial::Serial(_hwaMidiSerial);
-
-                        while (_hwaMidiSerial._readPackets.size())
-                        {
-                            if (!_serial.read())
-                            {
-                                continue;
-                            }
-
-                            if (_serial.type() == lib::midi::messageType_t::SYS_EX)
-                            {
-                                std::vector<uint8_t> sysex(_serial.sysExArray(), _serial.sysExArray() + _serial.length());
-
-                                // verify if it matches pattern
-                                if (sysex.size() > responsePattern.size())
-                                {
-                                    bool patternMatch = true;
-
-                                    for (size_t i = 0; i < responsePattern.size(); i++)
-                                    {
-                                        if (sysex.at(i) != responsePattern.at(i))
-                                        {
-                                            patternMatch = false;
-                                            break;
-                                        }
-                                    }
-
-                                    if (patternMatch)
-                                    {
-                                        ret     = sysex;
-                                        matched = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-                        return matched;
-                    };
-
-                    if ((test::millis() - startTime) > STOP_WAIT_AFTER_MS)
-                    {
-                        LOG(ERROR)
-                            << "Failed to find valid response to request. Printing raw response:\n"
-                            << cmdResponse;
-
-                        break;
-                    }
-                    else if (check())
-                    {
-                        break;
-                    }
-                }
-            }
-
-            test::wsystem("killall amidi > /dev/null 2>&1");
-            LOG(INFO) << "res: " << test::vectorToHexString(ret);
-            return ret;
-        }
-
-        static bool devicePresent(bool silent, bool bootloader = false)
-        {
-            if (!silent)
-            {
-                LOG(INFO) << "Checking if OpenDeck MIDI device is available";
-            }
-
-            auto port = bootloader ? amidiPort(HW_TEST_USB_DEVICE_NAME_BOOT) : amidiPort(HW_TEST_USB_DEVICE_NAME_APP);
-
-            if (port == "")
-            {
-                if (!silent)
-                {
-                    LOG(ERROR) << "OpenDeck MIDI device not available";
-                }
-
                 return false;
             }
 
-            std::string cmdResponse;
+            if (!send_midi(send_midi_payload(request)))
+            {
+                stop_receive_midi(pid);
+                return false;
+            }
 
-            if (test::wsystem("amidi -l | grep \"" + port + "\"", cmdResponse) == 0)
+            auto output = wait_for_receive_midi_stream(output_file, timeout_ms);
+            stop_receive_midi(pid);
+
+            if (output.empty())
+            {
+                return false;
+            }
+
+            results = parse_receive_midi_outputs(output);
+
+            if (results.empty())
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /**
+         * @brief Captures textual `receivemidi` output for voice messages after a request.
+         *
+         * @param request Serialized SysEx request to send first.
+         * @param timeout_ms Maximum capture duration.
+         *
+         * @return Raw `receivemidi` output.
+         */
+        static std::string capture_midi_voice_messages_dump_after_request(const std::vector<uint8_t>& request, uint32_t timeout_ms = 1000)
+        {
+            const auto output_file = temporary_file_path("receivemidi-dump");
+            const auto pid         = start_receive_midi(output_file, "voice");
+            sleep_ms(RECEIVE_SETTLE_DELAY_MS);
+
+            if (pid <= 0)
+            {
+                return "";
+            }
+
+            if (!send_midi(send_midi_payload(request)))
+            {
+                stop_receive_midi(pid);
+                return "";
+            }
+
+            const auto output = wait_for_receive_midi_stream(output_file, timeout_ms);
+            stop_receive_midi(pid);
+            return output;
+        }
+
+        /**
+         * @brief Flushes pending traffic from the host MIDI input helper.
+         */
+        static void flush()
+        {
+            const auto temp_file = temporary_file_path("receivemidi-flush");
+            const auto pid       = start_receive_midi(temp_file);
+
+            if (pid > 0)
+            {
+                if (wait_for_receive_midi_ready(temp_file))
+                {
+                    sleep_ms(RECEIVE_FLUSH_DELAY_MS);
+                }
+
+                stop_receive_midi(pid);
+            }
+
+            std::remove(temp_file.c_str());
+        }
+
+        /**
+         * @brief Sends a raw SysEx message to a real device and optionally waits for a response.
+         *
+         * @param request Serialized SysEx request.
+         * @param expect_response `true` to wait for a response, otherwise `false`.
+         *
+         * @return Received response frame, or an empty vector on failure.
+         */
+        static std::vector<uint8_t> send_raw_sysex_to_device(std::vector<uint8_t> request, bool expect_response = true)
+        {
+            std::vector<uint8_t> response;
+
+            std::cout << "req: " << test::vector_to_hex_string(request) << std::endl;
+
+            if (expect_response)
+            {
+                const auto temp_file = temporary_file_path("receivemidi-response");
+                const auto pid       = start_receive_midi(temp_file);
+
+                if (pid <= 0)
+                {
+                    return response;
+                }
+
+                sleep_ms(RECEIVE_STARTUP_DELAY_MS);
+
+                if (send_midi(send_midi_payload(request)))
+                {
+                    response = wait_for_receive_midi_response(temp_file, request, 3000);
+                }
+
+                stop_receive_midi(pid);
+                std::remove(temp_file.c_str());
+            }
+            else
+            {
+                [[maybe_unused]] auto ret = send_midi(send_midi_payload(request));
+            }
+
+            std::cout << "res: " << test::vector_to_hex_string(response) << std::endl;
+            return response;
+        }
+
+        /**
+         * @brief Returns whether the expected hardware MIDI device is present.
+         *
+         * @param silent `true` to suppress status logging, otherwise `false`.
+         * @param bootloader Unused bootloader selector kept for compatibility.
+         *
+         * @return `true` if the device is present, otherwise `false`.
+         */
+        static bool device_present(bool silent, [[maybe_unused]] bool bootloader = false)
+        {
+            if (!silent)
+            {
+                std::cout << "Checking if OpenDeck MIDI device is available" << std::endl;
+            }
+
+            std::string response;
+            const auto  result = test::wsystem("sendmidi list | grep -F \"" + std::string(USB_MIDI_DEVICE_NAME) + "\"",
+                                               response);
+
+            if (result == 0)
             {
                 if (!silent)
                 {
-                    LOG(INFO) << "Device found";
+                    std::cout << "Device found" << std::endl;
                 }
 
                 return true;
@@ -500,205 +473,659 @@ namespace test
 
             if (!silent)
             {
-                LOG(ERROR) << "Device not found";
+                std::cerr << "Device not found" << std::endl;
             }
 
             return false;
         }
-
-        static std::string amidiPort(std::string midiDevice)
-        {
-            std::string cmd = "amidi -l | grep \"" + midiDevice + "\" | grep -Eo 'hw:\\S*'";
-            std::string cmdResponse;
-
-            test::wsystem(cmd, cmdResponse);
-            return test::trimWhitespace(cmdResponse);
-        }
 #endif
 
-        std::vector<uint8_t> sendRawSysExToStub(std::vector<uint8_t> request)
+        /**
+         * @brief Sends a raw SysEx request through the system stub and returns the first response.
+         *
+         * @param request Serialized SysEx request.
+         *
+         * @return First response frame, or an empty vector when none was produced.
+         */
+        std::vector<uint8_t> send_raw_sysex_to_stub(std::vector<uint8_t> request)
         {
-            LOG(INFO) << "Sending request to system: ";
+            MIDIInputEvent event = {};
+            event.sys_ex         = request.data();
+            event.sys_ex_length  = request.size();
+            event.message        = protocol::midi::MessageType::SysEx;
 
-            for (size_t i = 0; i < request.size(); i++)
+            process_incoming(event);
+
+            constexpr uint32_t   MAX_WAIT_MS = 250;
+            std::vector<uint8_t> response;
+
+            for (uint32_t elapsed = 0; elapsed < MAX_WAIT_MS; elapsed++)
             {
-                std::cout
-                    << std::hex << std::setfill('0') << std::setw(2) << std::uppercase
-                    << static_cast<int>(request.at(i)) << " ";
+                auto responses = collect_stub_sysex_responses();
+
+                if (!responses.empty())
+                {
+                    response = responses.front();
+                    break;
+                }
+
+                k_msleep(1);
             }
 
-            std::cout << std::endl;
-
-            messaging::Event event = {};
-            event.sysEx            = &request[0];
-            event.sysExLength      = request.size();
-            event.message          = protocol::midi::messageType_t::SYS_EX;
-
-            processIncoming(event);
-
-            auto response     = _system->_components._builderMidi._hwaUsb._writeParser.writtenMessages().at(0).sysexArray;
-            auto responseSize = _system->_components._builderMidi._hwaUsb._writeParser.writtenMessages().at(0).length;
-
-            std::vector<uint8_t> responseVec(&response[0], &response[responseSize]);
-
-            LOG(INFO) << "Received response: ";
-
-            for (size_t i = 0; i < responseVec.size(); i++)
+            if (response.empty())
             {
-                std::cout
-                    << std::hex << std::setfill('0') << std::setw(2) << std::uppercase
-                    << static_cast<int>(responseVec.at(i)) << " ";
+                std::cerr << "No SysEx response received" << std::endl;
+                return response;
             }
 
-            std::cout << std::endl;
-
-            return responseVec;
+            return response;
         }
 
-        void processIncoming(messaging::Event event)
+        /**
+         * @brief Sends a raw SysEx request through the system stub and returns the full response stream.
+         *
+         * @param request Serialized SysEx request.
+         *
+         * @return All response frames captured from the stub.
+         */
+        std::vector<std::vector<uint8_t>> send_raw_sysex_stream_to_stub(std::vector<uint8_t> request)
+        {
+            std::cout << "Sending request to system: ";
+
+            for (const auto byte : request)
+            {
+                std::cout << std::hex << std::setfill('0') << std::setw(2) << std::uppercase
+                          << static_cast<int>(byte) << " ";
+            }
+
+            std::cout << std::dec << std::endl;
+
+            MIDIInputEvent event = {};
+            event.sys_ex         = request.data();
+            event.sys_ex_length  = request.size();
+            event.message        = protocol::midi::MessageType::SysEx;
+
+            process_incoming(event);
+
+            std::vector<std::vector<uint8_t>> responses;
+            size_t                            last_count    = 0;
+            uint32_t                          stable_for_ms = 0;
+
+            for (uint32_t elapsed = 0; elapsed < STREAM_RESPONSE_TIMEOUT_MS; elapsed++)
+            {
+                responses = collect_stub_sysex_responses();
+
+                if (responses.size() == last_count)
+                {
+                    stable_for_ms++;
+
+                    if (!responses.empty() && stable_for_ms >= RECEIVE_STABLE_TIME_MS)
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    last_count    = responses.size();
+                    stable_for_ms = 0;
+                }
+
+                k_msleep(1);
+            }
+
+            for (const auto& response : responses)
+            {
+                std::cout << "Stream response: ";
+
+                for (const auto byte : response)
+                {
+                    std::cout << std::hex << std::setfill('0') << std::setw(2) << std::uppercase
+                              << static_cast<int>(byte) << " ";
+                }
+
+                std::cout << std::dec << std::endl;
+            }
+
+            return responses;
+        }
+
+        /**
+         * @brief Injects one logical MIDI input event into the system stub.
+         *
+         * @param event Event to process.
+         */
+        void process_incoming(const MIDIInputEvent& event)
         {
             if (_system == nullptr)
             {
                 return;
             }
 
-            LOG(INFO) << "Processing incoming messages to system";
+            _system->_hwa._builder_midi._hwaUsb.clear();
+            _system->_hwa._builder_midi._hwaSerial.clear();
 
-            _system->_components._builderMidi._hwaUsb.clear();
-            _system->_components._builderMidi._hwaSerial.clear();
+            _system->_hwa._builder_midi._hwaUsb._readPackets = midi_to_usb_packets(event);
 
-            _system->_components._builderMidi._hwaUsb._readPackets = midiToUsbPackets(event);
-
-            // don't care about hwa calls here
-            EXPECT_CALL(_system->_components._builderButtons._hwa, state(_, _, _))
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_BUTTONS
+            EXPECT_CALL(_system->_hwa._builder_digital._builderButtons._hwa, state(_))
                 .Times(AnyNumber());
+#endif
 
-            EXPECT_CALL(_system->_components._builderAnalog._hwa, value(_, _))
-                .Times(AnyNumber());
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_ADC
+            _system->_hwa._builder_analog._hwa.clear_read_count();
+#endif
 
-            // now just call system which will call midi.read which in turn will read the filled packets
-            while (_system->_components._builderMidi._hwaUsb._readPackets.size())
+            k_poll_signal_raise(_system->_hwa._builder_midi._hwaUsb.data_available_signal(), 0);
+
+            constexpr uint32_t MAX_WAIT_MS = 100;
+
+            for (uint32_t elapsed = 0; elapsed < MAX_WAIT_MS; elapsed++)
             {
-                _system->_instance.run();
-            }
-        }
-
-        size_t totalChannelMessages(const std::string& input)
-        {
-            LOG(INFO) << "Checking total number of channel messages for the following input:\n"
-                      << input;
-
-            auto packetVector = [&]()
-            {
-                // for a given input, extract all channel midi messages and return total count
-                auto                                   vector  = test::hexStringToVector(test::trimWhitespace(input));
-                std::vector<lib::midi::serial::Packet> packets = {};
-
-                for (size_t i = 0; i < vector.size(); i++)
+                if (_system->_hwa._builder_midi._hwaUsb._readPackets.empty())
                 {
-                    packets.push_back(lib::midi::serial::Packet{ vector.at(i) });
+                    break;
                 }
 
-                return packets;
-            };
+                k_msleep(1);
+            }
 
-            // now count total number of channel messages
-            size_t                        totalChannelMessages = 0;
-            protocol::midi::HwaSerialTest _hwaMidiSerial;
-            protocol::midi::Serial        _serial = protocol::midi::Serial(_hwaMidiSerial);
-            _hwaMidiSerial._readPackets           = packetVector();
+            k_msleep(1);
+        }
 
-            while (_hwaMidiSerial._readPackets.size())
+#ifdef PROJECT_TARGET_HW_TESTS_SUPPORTED
+        /**
+         * @brief Sends a SysEx request to a real device and decodes the response payload.
+         *
+         * @param request Serialized SysEx request.
+         * @param is_get `true` when the response should be decoded as a read value.
+         *
+         * @return Decoded response value, or `-1` on failure.
+         */
+        int32_t send_request_to_device(std::vector<uint8_t>& request, bool is_get)
+        {
+            const auto response = send_raw_sysex_to_device(request);
+
+            if (response.empty())
             {
-                if (!_serial.read())
+                return -1;
+            }
+
+            if (is_get)
+            {
+                const auto merged = util::Conversion::Merge14Bit(response.at(response.size() - 3),
+                                                                 response.at(response.size() - 2));
+                return merged.value();
+            }
+
+            return response.at(4);
+        }
+
+        /**
+         * @brief Sends a write-only SysEx request to a real device.
+         *
+         * @param request Serialized SysEx write request.
+         *
+         * @return `true` if the request was sent successfully, otherwise `false`.
+         */
+        bool send_write_request_to_device(std::vector<uint8_t>& request)
+        {
+            std::cout << "req: " << test::vector_to_hex_string(request) << std::endl;
+
+            if (!send_midi(send_midi_payload(request)))
+            {
+                std::cerr << "Failed to send write request" << std::endl;
+                return false;
+            }
+
+            sleep_ms(WRITE_SETTLE_DELAY_MS);
+            return true;
+        }
+#endif
+
+        /**
+         * @brief Sends a SysEx request to the system stub and decodes the response payload.
+         *
+         * @param request Serialized SysEx request.
+         * @param is_get `true` when the response should be decoded as a read value.
+         *
+         * @return Decoded response value, or `0` when no response was received.
+         */
+        uint16_t send_request_to_stub(std::vector<uint8_t>& request, bool is_get)
+        {
+            const auto response = send_raw_sysex_to_stub(request);
+
+            if (response.empty())
+            {
+                return 0;
+            }
+
+            if (is_get)
+            {
+                const auto merged = util::Conversion::Merge14Bit(response.at(response.size() - 3),
+                                                                 response.at(response.size() - 2));
+                return merged.value();
+            }
+
+            return response.at(4);
+        }
+
+        /** @brief Maps a global section enum to its SysEx configuration block. */
+        static constexpr sys::Config::Block block(sys::Config::Section::Global)
+        {
+            return sys::Config::Block::Global;
+        }
+
+        /** @brief Maps a button section enum to its SysEx configuration block. */
+        static constexpr sys::Config::Block block(sys::Config::Section::Button)
+        {
+            return sys::Config::Block::Buttons;
+        }
+
+        /** @brief Maps an encoder section enum to its SysEx configuration block. */
+        static constexpr sys::Config::Block block(sys::Config::Section::Encoder)
+        {
+            return sys::Config::Block::Encoders;
+        }
+
+        /** @brief Maps an analog section enum to its SysEx configuration block. */
+        static constexpr sys::Config::Block block(sys::Config::Section::Analog)
+        {
+            return sys::Config::Block::Analog;
+        }
+
+        /** @brief Maps an LED section enum to its SysEx configuration block. */
+        static constexpr sys::Config::Block block(sys::Config::Section::Leds)
+        {
+            return sys::Config::Block::Leds;
+        }
+
+        /** @brief Maps an I2C section enum to its SysEx configuration block. */
+        static constexpr sys::Config::Block block(sys::Config::Section::I2c)
+        {
+            return sys::Config::Block::I2c;
+        }
+
+        /** @brief Maps a touchscreen section enum to its SysEx configuration block. */
+        static constexpr sys::Config::Block block(sys::Config::Section::Touchscreen)
+        {
+            return sys::Config::Block::Touchscreen;
+        }
+
+        /**
+         * @brief Collects all complete SysEx responses currently emitted by the system stub.
+         *
+         * @return Parsed SysEx response frames.
+         */
+        std::vector<std::vector<uint8_t>> collect_stub_sysex_responses()
+        {
+            std::vector<std::vector<uint8_t>> responses;
+            std::vector<uint8_t>              current_response;
+
+            if (_system == nullptr)
+            {
+                return responses;
+            }
+
+            for (const auto& packet : _system->_hwa._builder_midi._hwaUsb._writePackets)
+            {
+                if (!zlibs::utils::midi::is_sysex7_packet(packet))
                 {
                     continue;
                 }
 
-                if (lib::midi::IS_CHANNEL_MESSAGE(_serial.type()))
-                {
-                    totalChannelMessages++;
-                }
+                zlibs::utils::midi::write_ump_as_midi1_bytes(
+                    packet,
+                    0,
+                    [&responses, &current_response](uint8_t byte)
+                    {
+                        current_response.push_back(byte);
+
+                        if (!current_response.empty() && current_response.back() == 0xF7)
+                        {
+                            responses.push_back(current_response);
+                            current_response.clear();
+                        }
+
+                        return true;
+                    });
             }
 
-            return totalChannelMessages;
+            return responses;
         }
 
-        private:
-#ifdef PROJECT_TARGET_HW_TESTS_SUPPORTED
-        int32_t sendRequestToDevice(std::vector<uint8_t>& request, lib::sysexconf::wish_t wish)
-        {
-            auto response = sendRawSysExToDevice(request);
+        sys::Builder*               _system = nullptr;
+        [[maybe_unused]] const bool _use_hardware;
 
+#ifdef PROJECT_TARGET_HW_TESTS_SUPPORTED
+        /**
+         * @brief Serializes a SysEx request payload for the `sendmidi` CLI.
+         *
+         * @param request Serialized SysEx request including `F0`/`F7`.
+         *
+         * @return CLI-ready payload string without framing bytes.
+         */
+        static std::string send_midi_payload(const std::vector<uint8_t>& request)
+        {
+            std::stringstream payload;
+            payload << std::hex << std::setfill('0') << std::uppercase;
+
+            for (size_t i = 1; i + 1 < request.size(); i++)
+            {
+                if (i != 1)
+                {
+                    payload << " ";
+                }
+
+                payload << std::setw(2) << static_cast<int>(request.at(i));
+            }
+
+            return payload.str();
+        }
+
+        /**
+         * @brief Returns a unique temporary log-file path for helper processes.
+         *
+         * @param tag Path tag used to identify the file purpose.
+         *
+         * @return Temporary file path.
+         */
+        static std::string temporary_file_path(const std::string& tag)
+        {
+            return "/tmp/" + tag + "-" + std::to_string(test::millis()) + ".log";
+        }
+
+        /**
+         * @brief Trims leading and trailing ASCII whitespace.
+         *
+         * @param input Input string to trim.
+         *
+         * @return Trimmed string.
+         */
+        static std::string trim(const std::string& input)
+        {
+            const auto start = input.find_first_not_of(" \t\r\n");
+
+            if (start == std::string::npos)
+            {
+                return "";
+            }
+
+            const auto end = input.find_last_not_of(" \t\r\n");
+            return input.substr(start, end - start + 1);
+        }
+
+        /**
+         * @brief Reads the full contents of a text file.
+         *
+         * @param path File path to read.
+         *
+         * @return File contents, or an empty string on failure.
+         */
+        static std::string read_file(const std::string& path)
+        {
+            std::ifstream stream(path);
+
+            if (!stream.is_open())
+            {
+                return "";
+            }
+
+            std::stringstream buffer;
+            buffer << stream.rdbuf();
+            return buffer.str();
+        }
+
+        /**
+         * @brief Sends a SysEx payload to the external MIDI device through `sendmidi`.
+         *
+         * @param payload CLI-ready payload string.
+         *
+         * @return `true` if the command succeeded, otherwise `false`.
+         */
+        static bool send_midi(const std::string& payload)
+        {
+            const auto cmd = "sendmidi dev \"" + std::string(USB_MIDI_DEVICE_NAME) + "\" hex syx " + payload;
+            return test::wsystem(cmd) == 0;
+        }
+
+        /**
+         * @brief Starts a background `receivemidi` process writing to a log file.
+         *
+         * @param output_file Destination log file.
+         * @param mode `receivemidi` output mode.
+         *
+         * @return Process ID, or `-1` on failure.
+         */
+        static int start_receive_midi(const std::string& output_file, const std::string& mode = "syx")
+        {
+            const auto cmd = "sh -c 'stdbuf -oL -eL receivemidi dev \"" + std::string(USB_MIDI_DEVICE_NAME) +
+                             "\" " + mode + " > \"" + output_file + "\" 2>&1 & echo $!'";
+
+            std::string pid_string;
+
+            if (test::wsystem(cmd, pid_string) != 0)
+            {
+                return -1;
+            }
+
+            const auto trimmed = trim(pid_string);
+
+            if (trimmed.empty())
+            {
+                return -1;
+            }
+
+            return std::stoi(trimmed);
+        }
+
+        /**
+         * @brief Stops a background `receivemidi` process.
+         *
+         * @param pid Process ID to terminate.
+         */
+        static void stop_receive_midi(int pid)
+        {
+            if (pid > 0)
+            {
+                test::wsystem("kill " + std::to_string(pid) + " >/dev/null 2>&1");
+            }
+        }
+
+        /**
+         * @brief Waits until the receive helper reports that it is connected.
+         *
+         * @param output_file Log file produced by the helper.
+         *
+         * @return `true` once the helper is considered ready.
+         */
+        static bool wait_for_receive_midi_ready(const std::string& output_file)
+        {
+            constexpr const char* CONNECTED_MESSAGE = "Connected to MIDI input port";
+
+            for (uint32_t elapsed = 0; elapsed < RECEIVE_CONNECT_TIMEOUT_MS; elapsed += RECEIVE_POLL_DELAY_MS)
+            {
+                const auto output = read_file(output_file);
+
+                if (output.find(CONNECTED_MESSAGE) != std::string::npos)
+                {
+                    return true;
+                }
+
+                sleep_ms(RECEIVE_POLL_DELAY_MS);
+            }
+
+            sleep_ms(RECEIVE_STARTUP_DELAY_MS);
+            return true;
+        }
+
+        /**
+         * @brief Parses one `receivemidi` output line into a framed SysEx byte vector.
+         *
+         * @param input Output line to parse.
+         *
+         * @return Parsed SysEx frame.
+         */
+        static std::vector<uint8_t> parse_receive_midi_output_line(const std::string& input)
+        {
+            std::vector<uint8_t> result;
+
+            // Start byte
+            result.push_back(0xF0);
+
+            // Regex for exactly 1–2 hex digits
+            std::regex hex_byte_regex(R"(\b[0-9A-Fa-f]{1,2}\b)");
+
+            auto begin = std::sregex_iterator(input.begin(), input.end(), hex_byte_regex);
+            auto end   = std::sregex_iterator();
+
+            for (auto it = begin; it != end; ++it)
+            {
+                std::string byte_str = it->str();
+
+                uint32_t value = std::stoul(byte_str, nullptr, 16);
+                result.push_back(static_cast<uint8_t>(value));
+            }
+
+            // End byte
+            result.push_back(0xF7);
+
+            return result;
+        }
+
+        /**
+         * @brief Parses all `receivemidi` output lines into framed SysEx responses.
+         *
+         * @param output Raw `receivemidi` output.
+         *
+         * @return Parsed SysEx response frames.
+         */
+        static std::vector<std::vector<uint8_t>> parse_receive_midi_outputs(const std::string& output)
+        {
+            std::vector<std::vector<uint8_t>> responses;
+            std::stringstream                 stream(output);
+            std::string                       line;
+
+            while (std::getline(stream, line))
+            {
+                responses.push_back(parse_receive_midi_output_line(line));
+            }
+
+            return responses;
+        }
+
+        /**
+         * @brief Waits for any valid receive-helper response.
+         *
+         * @param output_file Helper log file.
+         * @param timeout_ms Maximum wait time.
+         *
+         * @return First matching response frame, or an empty vector on timeout.
+         */
+        static std::vector<uint8_t> wait_for_receive_midi_response(const std::string& output_file, uint32_t timeout_ms)
+        {
+            return wait_for_receive_midi_response(output_file, {}, timeout_ms);
+        }
+
+        /**
+         * @brief Waits for a receive-helper response matching the original request.
+         *
+         * @param output_file Helper log file.
+         * @param request Original request used for correlation.
+         * @param timeout_ms Maximum wait time.
+         *
+         * @return First matching response frame, or an empty vector on timeout.
+         */
+        static std::vector<uint8_t> wait_for_receive_midi_response(const std::string&          output_file,
+                                                                   const std::vector<uint8_t>& request,
+                                                                   uint32_t                    timeout_ms)
+        {
+            for (uint32_t elapsed = 0; elapsed < timeout_ms; elapsed += RECEIVE_POLL_DELAY_MS)
+            {
+                const auto output = read_file(output_file);
+
+                if (!output.empty())
+                {
+                    const auto parsed = parse_receive_midi_outputs(output);
+
+                    for (const auto& response : parsed)
+                    {
+                        if (matches_response_to_request(response, request))
+                        {
+                            return response;
+                        }
+                    }
+                }
+
+                sleep_ms(RECEIVE_POLL_DELAY_MS);
+            }
+
+            return {};
+        }
+
+        /**
+         * @brief Waits for streamed helper output and returns it verbatim.
+         *
+         * @param output_file Helper log file.
+         * @param timeout_ms Duration to wait before reading the file.
+         *
+         * @return Raw helper output.
+         */
+        static std::string wait_for_receive_midi_stream(const std::string& output_file, uint32_t timeout_ms)
+        {
+            sleep_ms(timeout_ms);
+            return read_file(output_file);
+        }
+
+        /**
+         * @brief Returns whether a parsed response matches the original request metadata.
+         *
+         * @param response Parsed SysEx response frame.
+         * @param request Original request frame.
+         *
+         * @return `true` if the response matches, otherwise `false`.
+         */
+        static bool matches_response_to_request(const std::vector<uint8_t>& response, const std::vector<uint8_t>& request)
+        {
             if (response.empty())
             {
-                return -1;    // invalid response
+                return false;
             }
 
-            if (wish == lib::sysexconf::wish_t::GET)
+            if (request.empty())
             {
-                // last two bytes are result
-                auto merged = util::Conversion::Merge14Bit(response.at(response.size() - 3), response.at(response.size() - 2));
-                return merged.value();
+                return true;
             }
 
-            // read status byte
-            return response.at(4);
+            if (response.size() < 8 || request.size() < 8)
+            {
+                return false;
+            }
+
+            if ((response[0] != 0xF0) || (response[1] != request[1]) || (response[2] != request[2]) || (response[3] != request[3]))
+            {
+                return false;
+            }
+
+            if ((response[5] != request[5]) || (response[6] != request[6]))
+            {
+                return false;
+            }
+
+            if ((request.size() > 7) && (response[7] != request[7]))
+            {
+                return false;
+            }
+
+            if ((request.size() > 11) && (response.size() > 11))
+            {
+                return response[8] == request[8] &&
+                       response[9] == request[9] &&
+                       response[10] == request[10] &&
+                       response[11] == request[11];
+            }
+
+            return true;
         }
 #endif
-
-        uint16_t sendRequestToStub(std::vector<uint8_t>& request, lib::sysexconf::wish_t wish, bool customReq = false)
-        {
-            auto response = sendRawSysExToStub(request);
-
-            if (wish == lib::sysexconf::wish_t::GET)
-            {
-                // last two bytes are result
-                auto merged = util::Conversion::Merge14Bit(response.at(response.size() - 3), response.at(response.size() - 2));
-                return merged.value();
-            }
-
-            // read status byte
-            return response.at(4);
-        }
-
-        static constexpr sys::Config::block_t BLOCK(sys::Config::Section::global_t section)
-        {
-            return sys::Config::block_t::GLOBAL;
-        }
-
-        static constexpr sys::Config::block_t BLOCK(sys::Config::Section::button_t section)
-        {
-            return sys::Config::block_t::BUTTONS;
-        }
-
-        static constexpr sys::Config::block_t BLOCK(sys::Config::Section::encoder_t section)
-        {
-            return sys::Config::block_t::ENCODERS;
-        }
-
-        static constexpr sys::Config::block_t BLOCK(sys::Config::Section::analog_t section)
-        {
-            return sys::Config::block_t::ANALOG;
-        }
-
-        static constexpr sys::Config::block_t BLOCK(sys::Config::Section::leds_t section)
-        {
-            return sys::Config::block_t::LEDS;
-        }
-
-        static constexpr sys::Config::block_t BLOCK(sys::Config::Section::i2c_t section)
-        {
-            return sys::Config::block_t::I2C;
-        }
-
-        static constexpr sys::Config::block_t BLOCK(sys::Config::Section::touchscreen_t section)
-        {
-            return sys::Config::block_t::TOUCHSCREEN;
-        }
-
-        sys::Builder* _system = nullptr;
-
-        [[maybe_unused]] const bool USE_HARDWARE;
     };
 }    // namespace test

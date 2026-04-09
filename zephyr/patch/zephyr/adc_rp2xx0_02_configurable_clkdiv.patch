@@ -1,0 +1,56 @@
+diff --git a/drivers/adc/adc_rpi_pico.c b/drivers/adc/adc_rpi_pico.c
+index a3f899de5cc..eab7a77eb0d 100644
+--- a/drivers/adc/adc_rpi_pico.c
++++ b/drivers/adc/adc_rpi_pico.c
+@@ -42,6 +42,8 @@ struct adc_rpi_config {
+ 	const struct device *clk_dev;
+ 	/** Clock id of ADC clock */
+ 	clock_control_subsys_t clk_id;
++	/** ADC clock divider value */
++	float clkdiv;
+ 	/** Reset controller config */
+ 	const struct reset_dt_spec reset;
+ };
+@@ -407,8 +409,8 @@ static int adc_rpi_init(const struct device *dev)
+ 	 */
+ 	adc_fifo_setup(true, false, 1, true, true);
+ 
+-	/* Set max speed to conversion */
+-	adc_set_clkdiv(0.f);
++	/* Configure conversion cadence once from devicetree. */
++	adc_set_clkdiv(config->clkdiv);
+ 
+ 	/* Enable ADC and wait becoming READY */
+ 	adc_enable();
+@@ -445,6 +447,7 @@ static int adc_rpi_init(const struct device *dev)
+ 		.pcfg = PINCTRL_DT_INST_DEV_CONFIG_GET(idx),                                       \
+ 		.clk_dev = DEVICE_DT_GET(DT_INST_CLOCKS_CTLR(idx)),                                \
+ 		.clk_id = (clock_control_subsys_t)DT_INST_PHA_BY_IDX(idx, clocks, 0, clk_id),      \
++		.clkdiv = DT_INST_PROP(idx, raspberrypi_adc_clkdiv),                               \
+ 		.reset = RESET_DT_SPEC_INST_GET(idx),                                              \
+ 		IRQ_CONFIGURE_DEFINE(idx),                                                         \
+ 	};                                                                                         \
+diff --git a/dts/bindings/adc/raspberrypi,pico-adc.yaml b/dts/bindings/adc/raspberrypi,pico-adc.yaml
+index 741f97e7cc1..e94f51216d0 100644
+--- a/dts/bindings/adc/raspberrypi,pico-adc.yaml
++++ b/dts/bindings/adc/raspberrypi,pico-adc.yaml
+@@ -11,11 +11,19 @@ properties:
+   reg:
+     required: true
+ 
++  raspberrypi,adc-clkdiv:
++    type: int
++    default: 0
++    description: |
++      ADC clock divider passed to adc_set_clkdiv().
++      A value of 0 selects the maximum ADC conversion rate.
++      The approximate conversion time is divider * 96 ADC clock cycles.
++
+   vref-mv:
+     type: int
+     default: 3300
+     description: |
+       Indicate the reference voltage of the ADC in mV.
+       Raspberry Pi has one voltage reference.
+       And it is usually connected to VDD.
+       In such case, set this property to the VDD (in mV) value.

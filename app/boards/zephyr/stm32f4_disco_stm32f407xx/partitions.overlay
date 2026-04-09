@@ -1,0 +1,83 @@
+&flash0 {
+    #address-cells = <1>;
+    #size-cells = <1>;
+    ranges = <0x0 0x08000000 0x00100000>;
+
+    partitions {
+        compatible = "fixed-partitions";
+        ranges;
+        #address-cells = <1>;
+        #size-cells = <1>;
+
+        /delete-node/ partition@0;
+        /delete-node/ partition@8000;
+
+        boot_partition: partition@0 {
+            compatible = "zephyr,mapped-partition";
+            label = "boot";
+            reg = <0x00000000 0x00010000>;
+            read-only;
+        };
+
+        code_partition: partition@10000 {
+            compatible = "zephyr,mapped-partition";
+            label = "code-partition";
+            reg = <0x00010000 0x00050000>;
+            read-only;
+        };
+
+        factory_partition: partition@60000 {
+            compatible = "zephyr,mapped-partition";
+            label = "factory";
+            reg = <0x00060000 0x00020000>;
+        };
+
+        emueeprom_page1_partition: partition@80000 {
+            compatible = "zephyr,mapped-partition";
+            label = "emueeprom-page1";
+            reg = <0x00080000 0x00020000>;
+        };
+
+        emueeprom_page2_partition: partition@a0000 {
+            compatible = "zephyr,mapped-partition";
+            label = "emueeprom-page2";
+            reg = <0x000a0000 0x00020000>;
+        };
+    };
+};
+
+&sram0 {
+    reg = <0x20000000 DT_SIZE_K(124)>;
+};
+
+/ {
+    chosen {
+        zephyr,code-partition = &code_partition;
+    };
+
+    opendeck_retained_mem: memory@2001f000 {
+        compatible = "zephyr,memory-region", "mmio-sram";
+        reg = <0x2001f000 DT_SIZE_K(4)>;
+        zephyr,memory-region = "RetainedMem";
+        status = "okay";
+
+        retainedmem {
+            compatible = "zephyr,retained-ram";
+            status = "okay";
+            #address-cells = <1>;
+            #size-cells = <1>;
+
+            opendeck_retained: boot_mode@0 {
+                compatible = "zephyr,retention";
+                status = "okay";
+                reg = <0x0 0x100>;
+                prefix = [00 53 43];
+                checksum = <1>;
+            };
+        };
+    };
+};
+
+opendeck_partition_boot: &boot_partition {};
+
+opendeck_partition_app: &code_partition {};

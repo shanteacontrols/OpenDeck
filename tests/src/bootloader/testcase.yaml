@@ -1,0 +1,8 @@
+tests:
+  bootloader.test:
+    build_only: false
+    platform_allow: native_sim/native/64
+    harness: gtest
+    timeout: 120
+    tags:
+      - host

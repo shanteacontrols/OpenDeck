@@ -1,0 +1,68 @@
+/ {
+    opendeck_metadata: opendeck-metadata {
+        compatible = "opendeck,metadata";
+        zephyr-board = "weact_stm32f405_core/stm32f405xx";
+    };
+
+    opendeck_tests: opendeck-tests {
+        compatible = "opendeck,tests";
+        host;
+    };
+
+    opendeck_bulk_build: opendeck-bulk-build {
+        compatible = "opendeck,bulk-build";
+        app;
+        lint;
+    };
+
+    opendeck_bootloader: opendeck-bootloader {
+        compatible = "opendeck,bootloader";
+        button-gpios = <&gpioc 5 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+        boot-partition = <&opendeck_partition_boot>;
+        app-partition = <&opendeck_partition_app>;
+    };
+
+    opendeck_buttons: opendeck-buttons {
+        compatible = "opendeck,buttons";
+        mode = "shift-register";
+        shift-registers = <4>;
+        index-remap = <29 26 28 27 30 25 31 24 21 18 20 19 22 17 23 16
+                     13 10 12 11 14 9 15 8 5 2 4 3 6 1 7 0>;
+        data-gpios = <&gpioc 7 GPIO_ACTIVE_HIGH>;
+        clock-gpios = <&gpiob 13 GPIO_ACTIVE_HIGH>;
+        latch-gpios = <&gpiob 14 GPIO_ACTIVE_HIGH>;
+    };
+
+    opendeck_analog: opendeck-analog {
+        compatible = "opendeck,analog";
+        mode = "4067";
+        io-channels =
+            <&adc1 3>,
+            <&adc1 4>,
+            <&adc1 5>,
+            <&adc1 6>,
+            <&adc1 7>;
+        multiplexers = <5>;
+        index-remap = <10 11 12 13 72 8 9 14 15 73 7 6 1 0 74
+                     5 4 3 2 75 26 27 28 29 76 24 25 30 31 77
+                     23 22 17 16 78 21 20 19 18 79 42 43 44 45 64
+                     40 41 46 47 65 39 38 33 32 66 37 36 35 34 67
+                     58 59 60 61 68 56 57 62 63 69 55 54 49 48 70
+                     53 52 51 50 71>;
+        selector-s0-gpios = <&gpioa 9 GPIO_ACTIVE_HIGH>;
+        selector-s1-gpios = <&gpioa 8 GPIO_ACTIVE_HIGH>;
+        selector-s2-gpios = <&gpioc 9 GPIO_ACTIVE_HIGH>;
+        selector-s3-gpios = <&gpioc 8 GPIO_ACTIVE_HIGH>;
+    };
+
+    opendeck_leds: opendeck-leds {
+        compatible = "opendeck,leds";
+        mode = "max7219";
+        drivers = <1>;
+        index-remap = <7 3 47 43 15 11 55 51 39 35 23 19 63 59 31 27
+                     30 26 62 58 22 18 38 34 54 50 14 10 46 42 6 2>;
+        data-gpios = <&gpioc 6 GPIO_ACTIVE_HIGH>;
+        clock-gpios = <&gpiob 12 GPIO_ACTIVE_HIGH>;
+        latch-gpios = <&gpiob 15 GPIO_ACTIVE_HIGH>;
+    };
+};

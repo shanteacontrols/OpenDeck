@@ -1,15 +1,13 @@
 **/generated/*
-**/infer-out/*
 *-backups
 *-bak
 *.cortex-debug*
 *.kicad_prl
-*.profraw
 *compile_commands.json
 *fp-info-cache
-*ipch*
 .DS_Store
 build/
 ccache/*
 release/*
 .west-updated
+*.cache

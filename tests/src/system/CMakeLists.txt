@@ -1,38 +1,46 @@
-if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
-    add_executable(system)
+cmake_minimum_required(VERSION 3.20)
+include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_test_suite.cmake)
+opendeck_test_bootstrap(APPLY_TARGET)
 
-    target_sources(system
-        PRIVATE
-        test.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/database/database.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/database/custom_init.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/system/system.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/util/cinfo/cinfo.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/protocol/midi/midi.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/buttons/buttons.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/encoders/encoders.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/leds/leds.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/analog/analog.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/i2c/i2c.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/i2c/peripherals/display/display.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/i2c/peripherals/display/elements.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/touchscreen/touchscreen.cpp
-    )
+zephyr_include_directories($ENV{ZEPHYR_PROJECT}/app/bootloader/src)
 
-    target_compile_definitions(system
-        PUBLIC
-        SW_VERSION_MAJOR=0
-        SW_VERSION_MINOR=0
-        SW_VERSION_REVISION=0
-    )
-
-    target_link_libraries(system
-        PUBLIC
-        common
-    )
-
-    add_test(
-        NAME system
-        COMMAND $<TARGET_FILE:system>
-    )
+if(NOT TARGET zlibs-drivers-usb_hw)
+    add_library(zlibs-drivers-usb_hw INTERFACE)
 endif()
+
+if(NOT TARGET zlibs-drivers-uart_hw)
+    add_library(zlibs-drivers-uart_hw INTERFACE)
+endif()
+
+opendeck_test_add_modules(
+    metadata        "app/common/metadata"
+    database        "app/firmware/src/database"
+    configurable    "app/firmware/src/util/configurable"
+    cinfo           "app/firmware/src/util/cinfo"
+    protocol_midi   "app/firmware/src/protocol/midi"
+    digital         "app/firmware/src/io/digital"
+    buttons         "app/firmware/src/io/digital/buttons"
+    encoders        "app/firmware/src/io/digital/encoders"
+    analog          "app/firmware/src/io/analog"
+    leds            "app/firmware/src/io/leds"
+    touchscreen     "app/firmware/src/io/touchscreen"
+    i2c             "app/firmware/src/io/i2c"
+    indicators      "app/firmware/src/io/indicators"
+    system          "app/firmware/src/system"
+)
+
+target_sources(app
+    PRIVATE
+    system_test.cpp
+)
+
+target_include_directories(app
+    PUBLIC
+    $ENV{ZEPHYR_WS}/modules/libcore/include
+    $ENV{ZEPHYR_PROJECT}/app/bootloader/src
+)
+
+target_link_libraries(app
+    PUBLIC
+    kernel
+)

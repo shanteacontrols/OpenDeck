@@ -1,5 +1,30 @@
 #!/usr/bin/env bash
 
+# Collect OpenDeck release artifacts from the current build tree into one flat
+# directory. The script discovers target build roots by looking for release
+# artifacts under build/app/<preset>/<build-type>/<target>/.
+#
+# Copied files are named after the OpenDeck target:
+#
+#   <target>.hex      merged bootloader + validated app image
+#   <target>.bin      binary form of the merged image
+#   <target>.uf2      merged UF2 image, when generated
+#   <target>.dfu.bin  WebUSB bootloader update package
+#
+# Only merged UF2 files are copied. Raw Zephyr outputs such as
+# app/zephyr/zephyr.uf2 are intermediate build products and are intentionally
+# ignored because they do not represent the full OpenDeck release image.
+#
+# Options:
+#
+#   --build-dir=<dir>  build tree root, defaults to build
+#   --copy-dir=<dir>   output directory, defaults to release
+
+set -euo pipefail
+
+build_dir=build
+copy_dir=release
+
 for arg in "$@"; do
     case "$arg" in
         --build-dir=*)
@@ -14,34 +39,61 @@ done
 
 mkdir -p "$copy_dir"
 
-# merged.hex, merged.bin, merged.uf2 and firmware.sysex files are needed
+declare -A release_dirs=()
 
-readarray -t hex_files < <(find "$build_dir" -type f -path "*release/*" -name "*merged.hex")
-readarray -t bin_files < <(find "$build_dir" -type f -path "*release/*" -name "*merged.bin")
-readarray -t uf2_files < <(find "$build_dir" -type f -path "*release/*" -name "*merged.uf2")
-readarray -t sysex_files < <(find "$build_dir" -type f -path "*release/*" -name "*firmware.sysex")
-
-for hex in "${hex_files[@]}"
+while IFS= read -r artifact_file
 do
-    target=$(basename "$(dirname "$(dirname "$hex")")")
-    cp "$hex" "$copy_dir"/"$target".hex
-done
+    case "$artifact_file" in
+        */app/dfu.bin)
+            release_dirs["$(dirname "$(dirname "$artifact_file")")"]=1
+            ;;
 
-for bin in "${bin_files[@]}"
-do
-    target=$(basename "$(dirname "$(dirname "$bin")")")
-    cp "$bin" "$copy_dir"/"$target".bin
-done
+        *)
+            release_dirs["$(dirname "$artifact_file")"]=1
+            ;;
+    esac
+done < <(
+    find "$build_dir/app" -type f \
+        \( \
+            -name merged.hex \
+            -o -name merged.bin \
+            -o -name merged.uf2 \
+            -o -path '*/app/dfu.bin' \
+        \) 2>/dev/null | sort
+)
 
-for uf2 in "${uf2_files[@]}"
-do
-    target=$(basename "$(dirname "$(dirname "$uf2")")")
-    cp "$uf2" "$copy_dir"/"$target".uf2
-done
+if (( ${#release_dirs[@]} == 0 ))
+then
+    exit 0
+fi
 
-for sysex in "${sysex_files[@]}"
+readarray -t sorted_release_dirs < <(printf '%s\n' "${!release_dirs[@]}" | sort)
+
+for release_dir in "${sorted_release_dirs[@]}"
 do
-    # SysEx file is in subdir
-    target=$(basename "$(dirname "$(dirname "$(dirname "$sysex")")")")
-    cp "$sysex" "$copy_dir"/"$target".sysex
+    target=$(basename "$release_dir")
+    uf2_file="${release_dir}/merged.uf2"
+    hex_file="${release_dir}/merged.hex"
+    bin_file="${release_dir}/merged.bin"
+    dfu_file="${release_dir}/app/dfu.bin"
+
+    if [[ -f "$uf2_file" ]]
+    then
+        cp "$uf2_file" "${copy_dir}/${target}.uf2"
+    fi
+
+    if [[ -f "$hex_file" ]]
+    then
+        cp "$hex_file" "${copy_dir}/${target}.hex"
+    fi
+
+    if [[ -f "$bin_file" ]]
+    then
+        cp "$bin_file" "${copy_dir}/${target}.bin"
+    fi
+
+    if [[ -f "$dfu_file" ]]
+    then
+        cp "$dfu_file" "${copy_dir}/${target}.dfu.bin"
+    fi
 done

@@ -1,0 +1,107 @@
+/ {
+    opendeck_metadata: opendeck-metadata {
+        compatible = "opendeck,metadata";
+        zephyr-board = "weact_stm32f405_core/stm32f405xx";
+    };
+
+    opendeck_tests: opendeck-tests {
+        compatible = "opendeck,tests";
+        host;
+    };
+
+    opendeck_bulk_build: opendeck-bulk-build {
+        compatible = "opendeck,bulk-build";
+        app;
+        lint;
+    };
+
+    opendeck_bootloader: opendeck-bootloader {
+        compatible = "opendeck,bootloader";
+        button-gpios = <&gpiob 4 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>;
+        boot-partition = <&opendeck_partition_boot>;
+        app-partition = <&opendeck_partition_app>;
+    };
+
+    opendeck_buttons: opendeck-buttons {
+        compatible = "opendeck,buttons";
+        mode = "matrix";
+        touchscreen-components = <64>;
+        row-mode = "native";
+        rows = <8>;
+        columns = <8>;
+        index-remap = <0 7 2 1 4 3 5 6 8 15 10 9 12 11 13 14
+                     16 23 18 17 20 19 21 22 24 31 26 25 28 27 29 30
+                     56 63 58 57 60 59 61 62 48 55 50 49 52 51 53 54
+                     40 47 42 41 44 43 45 46 32 39 34 33 36 35 37 38>;
+        row-gpios =
+            <&gpioa 4 GPIO_ACTIVE_LOW>,
+            <&gpioa 5 GPIO_ACTIVE_LOW>,
+            <&gpioc 4 GPIO_ACTIVE_LOW>,
+            <&gpioc 5 GPIO_ACTIVE_LOW>,
+            <&gpiob 11 GPIO_ACTIVE_LOW>,
+            <&gpiob 10 GPIO_ACTIVE_LOW>,
+            <&gpiob 2 GPIO_ACTIVE_LOW>,
+            <&gpiob 1 GPIO_ACTIVE_LOW>;
+        column-mode = "decoder";
+        decoder-a0-gpios = <&gpioc 8 GPIO_ACTIVE_HIGH>;
+        decoder-a1-gpios = <&gpioc 9 GPIO_ACTIVE_HIGH>;
+        decoder-a2-gpios = <&gpioa 8 GPIO_ACTIVE_HIGH>;
+    };
+
+    opendeck_analog: opendeck-analog {
+        compatible = "opendeck,analog";
+        mode = "4067";
+        io-channels =
+            <&adc1 12>,
+            <&adc1 11>;
+        multiplexers = <2>;
+        index-remap = <8 9 10 11 12 13 14 15 7 6 5 4 3 2 1 0
+                     24 25 26 27 28 29 30 31 23 22 21 20 19 18 17 16>;
+        selector-s0-gpios = <&gpiob 14 GPIO_ACTIVE_HIGH>;
+        selector-s1-gpios = <&gpiob 15 GPIO_ACTIVE_HIGH>;
+        selector-s2-gpios = <&gpiob 12 GPIO_ACTIVE_HIGH>;
+        selector-s3-gpios = <&gpiob 13 GPIO_ACTIVE_HIGH>;
+    };
+
+    opendeck_leds: opendeck-leds {
+        compatible = "opendeck,leds";
+        mode = "matrix";
+        touchscreen-components = <64>;
+        rows = <6>;
+        columns = <8>;
+        index-remap = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+                     32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
+                     16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31>;
+        row-gpios =
+            <&gpiob 9 GPIO_ACTIVE_HIGH>,
+            <&gpiob 8 GPIO_ACTIVE_HIGH>,
+            <&gpioa 3 GPIO_ACTIVE_HIGH>,
+            <&gpioa 6 GPIO_ACTIVE_HIGH>,
+            <&gpioa 7 GPIO_ACTIVE_HIGH>,
+            <&gpiob 0 GPIO_ACTIVE_HIGH>;
+    };
+
+    opendeck_midi_indicators: opendeck-midi-indicators {
+        compatible = "opendeck,midi-indicators";
+        usb-in-gpios = <&gpioa 10 GPIO_ACTIVE_HIGH>;
+        usb-out-gpios = <&gpioa 9 GPIO_ACTIVE_HIGH>;
+        din-in-gpios = <&gpioa 10 GPIO_ACTIVE_HIGH>;
+        din-out-gpios = <&gpioa 9 GPIO_ACTIVE_HIGH>;
+    };
+
+    opendeck_touchscreen: opendeck-touchscreen {
+        compatible = "opendeck,touchscreen";
+        component-count = <64>;
+        uart = <&opendeck_uart_touchscreen>;
+    };
+
+    opendeck_din_midi: opendeck-din-midi {
+        compatible = "opendeck,midi-uart";
+        uart = <&opendeck_uart_din_midi>;
+    };
+
+    opendeck_display: opendeck-display {
+        compatible = "opendeck,display-i2c";
+        i2c = <&opendeck_i2c_display>;
+    };
+};

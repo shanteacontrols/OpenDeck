@@ -1,0 +1,4 @@
+rsource "analog/Kconfig"
+rsource "digital/Kconfig"
+rsource "i2c/Kconfig"
+rsource "leds/Kconfig"

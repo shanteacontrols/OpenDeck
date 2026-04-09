@@ -1,0 +1,8 @@
+tests:
+  analog_filter.test:
+    build_only: false
+    platform_allow: native_sim/native/64
+    harness: gtest
+    timeout: 90
+    tags:
+      - host

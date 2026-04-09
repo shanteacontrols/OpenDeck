@@ -1,0 +1,90 @@
+description: OpenDeck analog input inventory and topology
+
+compatible: "opendeck,analog"
+
+properties:
+  mode:
+    type: string
+    required: true
+    enum:
+      - native
+      - "4067"
+      - muxonmux
+    description: Physical analog frontend topology.
+
+  io-channels:
+    type: phandle-array
+    required: false
+    description: ADC channels used by the analog frontend. For native mode,
+      one entry per logical analog input. For 4067 mode, one entry per mux
+      output. For mux-on-mux mode, one entry for the controller output.
+
+  multiplexers:
+    type: int
+    required: false
+    description: Number of 16-channel analog multiplexers exposed by the topology.
+
+  selector-s0-gpios:
+    type: phandle-array
+    required: false
+    description: Shared selector S0 for 4067-based analog multiplexers.
+
+  selector-s1-gpios:
+    type: phandle-array
+    required: false
+    description: Shared selector S1 for 4067-based analog multiplexers.
+
+  selector-s2-gpios:
+    type: phandle-array
+    required: false
+    description: Shared selector S2 for 4067-based analog multiplexers.
+
+  selector-s3-gpios:
+    type: phandle-array
+    required: false
+    description: Shared selector S3 for 4067-based analog multiplexers.
+
+  controller-s0-gpios:
+    type: phandle-array
+    required: false
+    description: Controller multiplexer selector S0 for mux-on-mux topology.
+
+  controller-s1-gpios:
+    type: phandle-array
+    required: false
+    description: Controller multiplexer selector S1 for mux-on-mux topology.
+
+  controller-s2-gpios:
+    type: phandle-array
+    required: false
+    description: Optional controller multiplexer selector S2 for mux-on-mux topology.
+
+  controller-s3-gpios:
+    type: phandle-array
+    required: false
+    description: Optional controller multiplexer selector S3 for mux-on-mux topology.
+
+  node-s0-gpios:
+    type: phandle-array
+    required: false
+    description: Node multiplexer selector S0 for mux-on-mux topology.
+
+  node-s1-gpios:
+    type: phandle-array
+    required: false
+    description: Node multiplexer selector S1 for mux-on-mux topology.
+
+  node-s2-gpios:
+    type: phandle-array
+    required: false
+    description: Node multiplexer selector S2 for mux-on-mux topology.
+
+  node-s3-gpios:
+    type: phandle-array
+    required: false
+    description: Node multiplexer selector S3 for mux-on-mux topology.
+
+  index-remap:
+    type: array
+    required: false
+    description: Optional physical-to-logical analog input index remap table.

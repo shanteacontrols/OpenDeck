@@ -1,0 +1,118 @@
+diff --git a/drivers/adc/adc_rpi_pico.c b/drivers/adc/adc_rpi_pico.c
+index f2a5b73356e..a3f899de5cc 100644
+--- a/drivers/adc/adc_rpi_pico.c
++++ b/drivers/adc/adc_rpi_pico.c
+@@ -159,6 +159,7 @@ static int adc_rpi_check_buffer_size(const struct device *dev,
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_ADC_ASYNC
+ /**
+  * @brief Start processing read request
+  *
+@@ -202,6 +203,7 @@ static int adc_rpi_start_read(const struct device *dev,
+ 
+ 	return adc_context_wait_for_completion(&data->ctx);
+ }
++#endif
+ 
+ /**
+  * Interrupt handler
+@@ -243,6 +245,7 @@ static void adc_rpi_isr(const struct device *dev)
+ 	adc_start_once();
+ }
+ 
++#ifdef CONFIG_ADC_ASYNC
+ static int adc_rpi_read_async(const struct device *dev,
+ 			      const struct adc_sequence *sequence,
+ 			      struct k_poll_signal *async)
+@@ -256,11 +259,88 @@ static int adc_rpi_read_async(const struct device *dev,
+ 
+ 	return err;
+ }
++#endif
++
++static int adc_rpi_read_polled(const struct device *dev,
++			       const struct adc_sequence *sequence)
++{
++	const struct adc_rpi_config *config = dev->config;
++	struct adc_rpi_data *data = dev->data;
++	uint32_t channels;
++	int err;
++	uint16_t sampling_count = 1U;
++
++	if (sequence->resolution > ADC_RPI_MAX_RESOLUTION ||
++	    sequence->resolution == 0) {
++		LOG_ERR("unsupported resolution %d", sequence->resolution);
++		return -ENOTSUP;
++	}
++
++	if (find_msb_set(sequence->channels) > config->num_channels) {
++		LOG_ERR("unsupported channels in mask: 0x%08x",
++			sequence->channels);
++		return -ENOTSUP;
++	}
++
++	err = adc_rpi_check_buffer_size(dev, sequence);
++	if (err) {
++		LOG_ERR("buffer size too small");
++		return err;
++	}
++
++	if (sequence->options != NULL) {
++		sampling_count += sequence->options->extra_samplings;
++	}
++
++	data->buf = sequence->buffer;
++
++	adc_irq_set_enabled(false);
++	adc_clear_errors();
++	while (!adc_fifo_is_empty()) {
++		(void)adc_fifo_get();
++	}
++
++	for (uint16_t sample_idx = 0; sample_idx < sampling_count; sample_idx++) {
++		channels = sequence->channels;
++
++		while (channels != 0U) {
++			const uint8_t ainsel = (uint8_t)(find_lsb_set(channels) - 1);
++
++			channels &= ~BIT(ainsel);
++			adc_clear_errors();
++			adc_select_input(ainsel);
++			*data->buf++ = pico_adc_read();
++
++			while (!adc_fifo_is_empty()) {
++				(void)adc_fifo_get();
++			}
++
++			if (adc_get_err()) {
++				err = -EIO;
++				goto out;
++			}
++		}
++	}
++
++	err = 0;
++
++out:
++	adc_clear_errors();
++	adc_irq_set_enabled(true);
++	return err;
++}
+ 
+ static int adc_rpi_read(const struct device *dev,
+ 			const struct adc_sequence *sequence)
+ {
+-	return adc_rpi_read_async(dev, sequence, NULL);
++	struct adc_rpi_data *data = dev->data;
++	int err;
++
++	adc_context_lock(&data->ctx, false, NULL);
++	err = adc_rpi_read_polled(dev, sequence);
++	adc_context_release(&data->ctx, err);
++
++	return err;
+ }
+ 
+ static void adc_context_start_sampling(struct adc_context *ctx)

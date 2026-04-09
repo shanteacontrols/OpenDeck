@@ -1,0 +1,23 @@
+#include <zephyr/dt-bindings/pinctrl/rpi-pico-rp2040-pinctrl.h>
+
+&pinctrl {
+    i2c1_display_2_3: i2c1_display_2_3 {
+        group1 {
+            pinmux = <I2C1_SDA_P2>, <I2C1_SCL_P3>;
+            input-enable;
+            input-schmitt-enable;
+        };
+    };
+};
+
+&i2c1 {
+    status = "okay";
+    pinctrl-0 = <&i2c1_display_2_3>;
+    pinctrl-names = "default";
+};
+
+opendeck_uart_din_midi: &uart0 {};
+
+opendeck_uart_touchscreen: &uart1 {};
+
+opendeck_i2c_display: &i2c1 {};

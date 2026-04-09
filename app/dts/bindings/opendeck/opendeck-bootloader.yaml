@@ -1,0 +1,19 @@
+description: OpenDeck bootloader trigger configuration
+
+compatible: "opendeck,bootloader"
+
+properties:
+  button-gpios:
+    type: phandle-array
+    required: false
+    description: Optional bootloader entry button GPIO. Use GPIO flags for polarity and pull mode.
+
+  boot-partition:
+    type: phandle
+    required: false
+    description: Fixed flash partition where the bootloader image is placed.
+
+  app-partition:
+    type: phandle
+    required: false
+    description: Fixed flash partition of the application image boot target.

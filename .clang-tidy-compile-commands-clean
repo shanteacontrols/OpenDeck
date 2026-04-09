@@ -1,4 +1,0 @@
--specs=nano.specs
--mrelax
--funsigned-bitfields
--fno-fat-lto-objects

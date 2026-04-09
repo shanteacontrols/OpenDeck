@@ -1,0 +1,44 @@
+diff --git a/subsys/usb/device_next/class/Kconfig.midi2 b/subsys/usb/device_next/class/Kconfig.midi2
+index cd991c93e69..e019d6a8942 100644
+--- a/subsys/usb/device_next/class/Kconfig.midi2
++++ b/subsys/usb/device_next/class/Kconfig.midi2
+@@ -10,6 +10,22 @@ config USBD_MIDI2_CLASS
+ 
+ if USBD_MIDI2_CLASS
+ 
++config USBD_MIDI2_BUFFER_COUNT
++	int "USB MIDI 2.0 buffer count"
++	default 8
++	range 2 256
++	help
++	  Number of net_buf instances reserved for the USB MIDI 2.0 class.
++	  Increase this when sustained MIDI traffic can exhaust the default pool.
++
++config USBD_MIDI2_TX_QUEUE_SIZE
++	int "USB MIDI 2.0 TX queue size"
++	default 256
++	range 64 4096
++	help
++	  Size in bytes of the internal transmit ring buffer used before packets are
++	  enqueued to the USB device controller.
++
+ module = USBD_MIDI2
+ module-str = usbd midi2
+ source "subsys/logging/Kconfig.template.log_config"
+diff --git a/subsys/usb/device_next/class/usbd_midi2.c b/subsys/usb/device_next/class/usbd_midi2.c
+index 78b8fa4ccc4..aca2fcbc54e 100644
+--- a/subsys/usb/device_next/class/usbd_midi2.c
++++ b/subsys/usb/device_next/class/usbd_midi2.c
+@@ -20,10 +20,10 @@ LOG_MODULE_REGISTER(usbd_midi2, CONFIG_USBD_MIDI2_LOG_LEVEL);
+ #define MIDI1_ALTERNATE 0x00
+ #define MIDI2_ALTERNATE 0x01
+ 
+-UDC_BUF_POOL_DEFINE(usbd_midi_buf_pool, DT_NUM_INST_STATUS_OKAY(DT_DRV_COMPAT) * 2, 512U,
++UDC_BUF_POOL_DEFINE(usbd_midi_buf_pool, CONFIG_USBD_MIDI2_BUFFER_COUNT, 512U,
+ 		    sizeof(struct udc_buf_info), NULL);
+ 
+-#define MIDI_QUEUE_SIZE 64
++#define MIDI_QUEUE_SIZE CONFIG_USBD_MIDI2_TX_QUEUE_SIZE
+ 
+ /* midi20 A.1 MS Class-Specific Interface Descriptor Types */
+ #define CS_GR_TRM_BLOCK	0x26

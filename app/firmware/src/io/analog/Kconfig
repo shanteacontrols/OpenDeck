@@ -1,0 +1,8 @@
+config ANALOG_THREAD_SLEEP_MS
+    int "Analog thread loop sleep in milliseconds"
+    range 0 1000
+    default 1
+    help
+      Sleep interval used by the synchronous analog processing loop after
+      each iteration. Set this to 0 in tests to yield instead of sleeping
+      on wall-clock time.

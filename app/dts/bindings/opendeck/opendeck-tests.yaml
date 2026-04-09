@@ -1,0 +1,13 @@
+description: OpenDeck test capability configuration
+
+compatible: "opendeck,tests"
+
+properties:
+  host:
+    type: boolean
+    required: false
+    description: Enable this target for host-based test execution.
+  hw:
+    type: boolean
+    required: false
+    description: Enable this target for hardware-backed test execution.

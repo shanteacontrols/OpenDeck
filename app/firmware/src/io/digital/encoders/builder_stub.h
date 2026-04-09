@@ -1,0 +1,59 @@
+/*
+ * Copyright (c) 2026 Igor Petrovic
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#pragma once
+
+#include "encoders_stub.h"
+#include "filter_stub.h"
+#include "hwa_stub.h"
+#include "io/digital/buttons/deps.h"
+#include "database/builder.h"
+
+namespace io::encoders
+{
+    /**
+     * @brief Stub builder that wires the encoder subsystem to no-op backends.
+     */
+    class Builder
+    {
+        public:
+        /**
+         * @brief Constructs the encoder stub builder.
+         *
+         * @param database Database administrator used for configuration access.
+         */
+        explicit Builder(database::Admin& database)
+            : _database(database)
+            , _instance(_hwa, _filter, _database)
+        {}
+
+        /**
+         * @brief Constructs the encoder stub builder while accepting an unused button HWA.
+         *
+         * @param database Database administrator used for configuration access.
+         * @param buttons_hwa Unused button HWA kept for builder-interface compatibility.
+         */
+        Builder(database::Admin&                   database,
+                [[maybe_unused]] io::buttons::Hwa& buttons_hwa)
+            : Builder(database)
+        {}
+
+        /**
+         * @brief Returns the constructed encoder subsystem instance.
+         *
+         * @return Stub-backed encoder subsystem instance.
+         */
+        Encoders& instance()
+        {
+            return _instance;
+        }
+
+        private:
+        HwaStub    _hwa;
+        FilterStub _filter;
+        Database   _database;
+        Encoders   _instance;
+    };
+}    // namespace io::encoders

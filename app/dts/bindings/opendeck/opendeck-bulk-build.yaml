@@ -1,0 +1,21 @@
+description: OpenDeck bulk helper script configuration
+
+compatible: "opendeck,bulk-build"
+
+properties:
+  app:
+    type: boolean
+    required: false
+    description: Include this target in bulk firmware build runs launched by helper scripts.
+  host-test:
+    type: boolean
+    required: false
+    description: Include this target in bulk host test runs launched by helper scripts.
+  hw-test:
+    type: boolean
+    required: false
+    description: Include this target in bulk hardware test runs launched by helper scripts.
+  lint:
+    type: boolean
+    required: false
+    description: Include this target in bulk lint runs launched by helper scripts.

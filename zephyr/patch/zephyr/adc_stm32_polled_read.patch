@@ -1,0 +1,245 @@
+diff --git a/drivers/adc/adc_stm32.c b/drivers/adc/adc_stm32.c
+index 594bbc31549..6dfa4e13774 100644
+--- a/drivers/adc/adc_stm32.c
++++ b/drivers/adc/adc_stm32.c
+@@ -245,6 +245,8 @@ struct adc_stm32_data {
+ 	adc_data_size_t *repeat_buffer;
+ 
+ 	uint8_t resolution;
++	uint8_t configured_resolution;
++	bool resolution_configured;
+ 	uint32_t channels;
+ 	uint8_t channel_count;
+ 	uint8_t samples_count;
+@@ -1174,12 +1176,10 @@ static int start_inj_read(const struct device *dev, const struct adc_sequence *s
+ }
+ #endif /* CONFIG_ADC_STM32_INJECTED_CHANNELS */
+ 
+-static int start_read(const struct device *dev,
++static int prepare_read(const struct device *dev,
+ 		      const struct adc_sequence *sequence)
+ {
+-	const struct adc_stm32_cfg *config = dev->config;
+ 	struct adc_stm32_data *data = dev->data;
+-	ADC_TypeDef *adc = config->base;
+ 	int err;
+ 
+ 	data->buffer = sequence->buffer;
+@@ -1208,14 +1208,18 @@ static int start_read(const struct device *dev,
+ 	}
+ #endif /* DT_HAS_COMPAT_STATUS_OKAY(st_stm32f1_adc) && !CONFIG_ADC_STM32_DMA */
+ 
+-	/* Check and set the resolution */
+-	err = set_resolution(dev, sequence);
+-	if (err < 0) {
+-		LOG_ERR("Error setting the ADC resolution");
+-		return err;
++	if (!data->resolution_configured ||
++	    (data->configured_resolution != sequence->resolution)) {
++		err = set_resolution(dev, sequence);
++		if (err < 0) {
++			LOG_ERR("Error setting the ADC resolution");
++			return err;
++		}
++
++		data->configured_resolution = sequence->resolution;
++		data->resolution_configured = true;
+ 	}
+ 
+-	/* Configure the sequencer */
+ 	err = set_sequencer(dev);
+ 	if (err < 0) {
+ 		LOG_ERR("Error setting the ADC sequencer");
+@@ -1254,6 +1258,167 @@ static int start_read(const struct device *dev,
+ #endif
+ 	}
+ 
++	return 0;
++}
++
++static int start_read_polled(const struct device *dev,
++			     const struct adc_sequence *sequence)
++{
++	const struct adc_stm32_cfg *config = dev->config;
++	struct adc_stm32_data *data = dev->data;
++	ADC_TypeDef *adc = config->base;
++	int err;
++
++	data->buffer = sequence->buffer;
++	data->channels = sequence->channels;
++	data->channel_count = POPCOUNT(data->channels);
++	data->samples_count = 0;
++	data->resolution = sequence->resolution;
++
++	/* Fast path for the OpenDeck/native-analog pattern: single channel,
++	 * synchronous, no oversampling/calibration, no extra sampling options.
++	 */
++	if ((data->channel_count == 1U) &&
++	    (sequence->options == NULL) &&
++	    (sequence->oversampling == 0U) &&
++	    !sequence->calibrate) {
++		uint8_t channel_id = find_lsb_set(data->channels) - 1U;
++
++		if ((sequence->buffer == NULL) || (sequence->buffer_size < sizeof(adc_data_size_t))) {
++			LOG_ERR("ADC buffer error");
++			return -ENOMEM;
++		}
++
++#if DT_HAS_COMPAT_STATUS_OKAY(st_stm32f1_adc) && !defined(CONFIG_ADC_STM32_DMA)
++		if (data->channel_count > 1) {
++			LOG_ERR("Without DMA, this device only supports single channel sampling");
++			return -EINVAL;
++		}
++#endif /* DT_HAS_COMPAT_STATUS_OKAY(st_stm32f1_adc) && !CONFIG_ADC_STM32_DMA */
++
++		err = set_resolution(dev, sequence);
++		if (err < 0) {
++			LOG_ERR("Error setting the ADC resolution");
++			return err;
++		}
++
++#if ANY_ADC_HAS_CHANNEL_PRESELECTION && !defined(CONFIG_ADC_STM32_INJECTED_CHANNELS)
++		err = adc_stm32_preselection_setup(dev, channel_id);
++		if (err < 0) {
++			LOG_ERR("Error setting preselection register");
++			return err;
++		}
++#endif /* ANY_ADC_HAS_CHANNEL_PRESELECTION */
++
++#if ANY_ADC_SEQUENCER_TYPE_IS(SEQUENCER_PROGRAMMABLE)
++		if (config->sequencer_type == SEQUENCER_PROGRAMMABLE) {
++			LL_ADC_REG_SetSequencerRanks(adc, table_rank[0],
++					     STM32_ADC_DECIMAL_NB_TO_CHANNEL(channel_id));
++			LL_ADC_REG_SetSequencerLength(adc, table_seq_len[0]);
++		}
++#endif /* ANY_ADC_SEQUENCER_TYPE_IS(SEQUENCER_PROGRAMMABLE) */
++
++#if ANY_ADC_SEQUENCER_TYPE_IS(SEQUENCER_FIXED)
++		if (config->sequencer_type == SEQUENCER_FIXED) {
++			LL_ADC_REG_SetSequencerChannels(adc,
++						 STM32_ADC_DECIMAL_NB_TO_CHANNEL(channel_id));
++#ifdef LL_ADC_FLAG_CCRDY
++			while (LL_ADC_IsActiveFlag_CCRDY(adc) == 0) {
++			}
++			LL_ADC_ClearFlag_CCRDY(adc);
++#endif /* LL_ADC_FLAG_CCRDY */
++		}
++#endif /* ANY_ADC_SEQUENCER_TYPE_IS(SEQUENCER_FIXED) */
++
++#if DT_HAS_COMPAT_STATUS_OKAY(st_stm32f1_adc) || DT_HAS_COMPAT_STATUS_OKAY(st_stm32f4_adc)
++		LL_ADC_SetSequencersScanMode(adc, LL_ADC_SEQ_SCAN_ENABLE);
++#endif /* st_stm32f1_adc || st_stm32f4_adc */
++
++		adc_stm32_enable(adc);
++
++#if !DT_HAS_COMPAT_STATUS_OKAY(st_stm32f1_adc)
++		LL_ADC_ClearFlag_OVR(adc);
++#endif /* !DT_HAS_COMPAT_STATUS_OKAY(st_stm32f1_adc) */
++
++#if DT_HAS_COMPAT_STATUS_OKAY(st_stm32f4_adc)
++		LL_ADC_REG_SetFlagEndOfConversion(adc, LL_ADC_REG_FLAG_EOC_UNITARY_CONV);
++		LL_ADC_DisableIT_EOCS(adc);
++#elif DT_HAS_COMPAT_STATUS_OKAY(st_stm32f1_adc)
++		LL_ADC_DisableIT_EOS(adc);
++#else
++		LL_ADC_DisableIT_EOC(adc);
++#endif
++
++		adc_stm32_start_conversion(dev);
++
++#if DT_HAS_COMPAT_STATUS_OKAY(st_stm32f1_adc)
++		while (LL_ADC_IsActiveFlag_EOS(adc) == 0) {
++		}
++#elif DT_HAS_COMPAT_STATUS_OKAY(st_stm32f4_adc)
++		while (LL_ADC_IsActiveFlag_EOCS(adc) == 0) {
++		}
++#else
++		while (LL_ADC_IsActiveFlag_EOC(adc) == 0) {
++		}
++#endif
++		*data->buffer = LL_ADC_REG_ReadConversionData32(adc);
++		adc_context_on_complete(&data->ctx, 0);
++		return 0;
++	}
++
++	err = prepare_read(dev, sequence);
++	if (err < 0) {
++		return err;
++	}
++
++	uint16_t sampling_count = 1U;
++	if (sequence->options != NULL) {
++		sampling_count += sequence->options->extra_samplings;
++	}
++
++	adc_stm32_enable(adc);
++
++#if !DT_HAS_COMPAT_STATUS_OKAY(st_stm32f1_adc)
++	LL_ADC_ClearFlag_OVR(adc);
++#endif /* !DT_HAS_COMPAT_STATUS_OKAY(st_stm32f1_adc) */
++
++#if DT_HAS_COMPAT_STATUS_OKAY(st_stm32f4_adc)
++	LL_ADC_REG_SetFlagEndOfConversion(adc, LL_ADC_REG_FLAG_EOC_UNITARY_CONV);
++	LL_ADC_DisableIT_EOCS(adc);
++#elif DT_HAS_COMPAT_STATUS_OKAY(st_stm32f1_adc)
++	LL_ADC_DisableIT_EOS(adc);
++#else
++	LL_ADC_DisableIT_EOC(adc);
++#endif
++
++	for (uint16_t sample_idx = 0; sample_idx < sampling_count; sample_idx++) {
++		adc_stm32_start_conversion(dev);
++
++		for (uint8_t channel_idx = 0; channel_idx < data->channel_count; channel_idx++) {
++#if DT_HAS_COMPAT_STATUS_OKAY(st_stm32f1_adc)
++			while (LL_ADC_IsActiveFlag_EOS(adc) == 0) {
++			}
++#elif DT_HAS_COMPAT_STATUS_OKAY(st_stm32f4_adc)
++			while (LL_ADC_IsActiveFlag_EOCS(adc) == 0) {
++			}
++#else
++			while (LL_ADC_IsActiveFlag_EOC(adc) == 0) {
++			}
++#endif
++			*data->buffer++ = LL_ADC_REG_ReadConversionData32(adc);
++		}
++	}
++
++	adc_context_on_complete(&data->ctx, 0);
++
++	return 0;
++}
++
++static int start_read(const struct device *dev,
++		      const struct adc_sequence *sequence)
++{
++	const struct adc_stm32_cfg *config = dev->config;
++	struct adc_stm32_data *data = dev->data;
++	ADC_TypeDef *adc = config->base;
++	int err;
++
++	err = prepare_read(dev, sequence);
++	if (err < 0) {
++		return err;
++	}
++
+ 	/*
+ 	 * Make sure the ADC is enabled as it might have been disabled earlier
+ 	 * to set the resolution, to set the oversampling or to perform the
+@@ -1478,10 +1643,14 @@ static int adc_stm32_read(const struct device *dev,
+ 		return -EINVAL;
+ 	}
+ 	ctx = is_injected ? &data->inj_ctx : &data->ctx;
+-	read_fn = is_injected ? start_inj_read : start_read;
++	if (is_injected) {
++		read_fn = start_inj_read;
++	} else {
++		read_fn = asynchronous ? start_read : start_read_polled;
++	}
+ #else /* CONFIG_ADC_STM32_INJECTED_CHANNELS */
+ 	ctx = &data->ctx;
+-	read_fn = start_read;
++	read_fn = asynchronous ? start_read : start_read_polled;
+ #endif /* CONFIG_ADC_STM32_INJECTED_CHANNELS */
+ 
+ 	adc_context_lock(ctx, asynchronous, async_sig);

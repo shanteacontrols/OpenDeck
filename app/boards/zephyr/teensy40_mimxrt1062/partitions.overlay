@@ -1,0 +1,76 @@
+&w25q16jvuxim {
+    partitions {
+        compatible = "fixed-partitions";
+        #address-cells = <1>;
+        #size-cells = <1>;
+
+        boot_partition: partition@0 {
+            label = "boot";
+            reg = <0x00000000 0x00020000>;
+            read-only;
+        };
+
+        code_partition: partition@20000 {
+            label = "code-partition";
+            reg = <0x00020000 0x001b0000>;
+            read-only;
+        };
+
+        factory_partition: partition@1d0000 {
+            label = "factory";
+            reg = <0x001d0000 0x00010000>;
+        };
+
+        emueeprom_page1_partition: partition@1e0000 {
+            label = "emueeprom-page1";
+            reg = <0x001e0000 0x00010000>;
+        };
+
+        emueeprom_page2_partition: partition@1f0000 {
+            label = "emueeprom-page2";
+            reg = <0x001f0000 0x00010000>;
+        };
+    };
+};
+
+&flexram {
+    /delete-node/ ocram@20280000;
+
+    ocram: ocram@20200000 {
+        compatible = "zephyr,memory-region", "mmio-sram";
+        reg = <0x20200000 DT_SIZE_K(252)>;
+        zephyr,memory-region = "OCRAM";
+    };
+};
+
+/ {
+    chosen {
+        zephyr,code-partition = &code_partition;
+    };
+
+    opendeck_retained_mem: memory@2023f000 {
+        compatible = "zephyr,memory-region", "mmio-sram";
+        reg = <0x2023f000 DT_SIZE_K(4)>;
+        zephyr,memory-region = "RetainedMem";
+        status = "okay";
+
+        retainedmem {
+            compatible = "zephyr,retained-ram";
+            status = "okay";
+            #address-cells = <1>;
+            #size-cells = <1>;
+
+            opendeck_retained: boot_mode@0 {
+                compatible = "zephyr,retention";
+                status = "okay";
+                reg = <0x0 0x100>;
+                prefix = [00 53 43];
+                checksum = <1>;
+            };
+        };
+    };
+};
+
+opendeck_partition_boot: &boot_partition {};
+
+opendeck_partition_app: &code_partition {};

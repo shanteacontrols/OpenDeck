@@ -1,0 +1,18 @@
+diff --git a/boards/weact/blackpill_f411ce/board.yml b/boards/weact/blackpill_f411ce/board.yml
+index deee6cbdd06..52af6fa19e6 100644
+--- a/boards/weact/blackpill_f411ce/board.yml
++++ b/boards/weact/blackpill_f411ce/board.yml
+@@ -4,3 +4,13 @@ board:
+   vendor: weact
+   socs:
+     - name: stm32f411xe
++
++runners:
++  run_once:
++    '--reset':
++    - runners:
++      - dfu-util
++      run: last
++      groups:
++      - boards:
++        - blackpill_f411ce/stm32f411xe

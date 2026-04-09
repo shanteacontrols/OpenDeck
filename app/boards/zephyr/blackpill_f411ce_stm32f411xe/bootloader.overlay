@@ -1,0 +1,7 @@
+/ {
+    chosen {
+        /delete-property/ zephyr,console;
+        /delete-property/ zephyr,shell-uart;
+        zephyr,code-partition = &boot_partition;
+    };
+};

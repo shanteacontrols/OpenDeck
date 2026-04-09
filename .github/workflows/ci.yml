@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Pull the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Restore ccache
@@ -29,7 +29,6 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Setup missing directories and files on the runner
         run: |
-          mkdir -p ~/.ssh
           touch ~/.gitconfig
       - name: Prepare container
         uses: devcontainers/ci@v0.3
@@ -37,7 +36,7 @@ jobs:
           imageName: opendeck # Local name only
           imageTag: latest # Local tag only
           push: never
-      - name: Build and test targets
+      - name: Build and test presets
         uses: devcontainers/ci@v0.3
         with:
           imageName: opendeck
@@ -45,11 +44,11 @@ jobs:
           push: never
           runCmd: |
             git fetch --tags
-            ./scripts/build_targets.sh --type=build
+            ./scripts/bulk_build.sh --type=host-test
+            ./scripts/bulk_build.sh --type=app
             ./scripts/copy_release_binaries.sh --build-dir=build --copy-dir=release
-            ./scripts/build_targets.sh --type=test
       - name: Upload firmware artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: binaries
           path: release/*
@@ -64,7 +63,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Pull the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Login to GitHub Container Registry

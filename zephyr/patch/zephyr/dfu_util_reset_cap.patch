@@ -1,0 +1,80 @@
+diff --git a/scripts/west_commands/runners/dfu.py b/scripts/west_commands/runners/dfu.py
+index 30f895e0806..c295918a383 100644
+--- a/scripts/west_commands/runners/dfu.py
++++ b/scripts/west_commands/runners/dfu.py
+@@ -17,7 +17,7 @@ class DfuUtilBinaryRunner(ZephyrBinaryRunner):
+     '''Runner front-end for dfu-util.'''
+ 
+     def __init__(self, cfg, dev_id, alt, img, exe='dfu-util',
+-                 dfuse_config=None):
++                 dfuse_config=None, reset=False):
+ 
+         super().__init__(cfg)
+         self.dev_id = dev_id # Used only for error checking in do_run
+@@ -34,7 +34,8 @@ class DfuUtilBinaryRunner(ZephyrBinaryRunner):
+         else:
+             self.dfuse = True
+         self.dfuse_config = dfuse_config
+-        self.reset = False
++        self.reset = bool(reset)
++        self.waited_for_dfu = False
+ 
+     @classmethod
+     def name(cls):
+@@ -42,7 +43,8 @@ class DfuUtilBinaryRunner(ZephyrBinaryRunner):
+ 
+     @classmethod
+     def capabilities(cls):
+-        return RunnerCaps(commands={'flash'}, dev_id=True, flash_addr=True)
++        return RunnerCaps(commands={'flash'}, dev_id=True, flash_addr=True,
++                          reset=True)
+ 
+     @classmethod
+     def dev_id_help(cls) -> str:
+@@ -90,13 +92,14 @@ class DfuUtilBinaryRunner(ZephyrBinaryRunner):
+             dcfg = None
+ 
+         ret = DfuUtilBinaryRunner(cfg, args.dev_id, args.alt, args.img,
+-                                  exe=args.dfu_util, dfuse_config=dcfg)
++                                  exe=args.dfu_util, dfuse_config=dcfg,
++                                  reset=args.reset)
+         ret.ensure_device()
+         return ret
+ 
+     def ensure_device(self):
+         if not self.find_device():
+-            self.reset = True
++            self.waited_for_dfu = True
+             print('Please reset your board to switch to DFU mode...')
+             while not self.find_device():
+                 time.sleep(0.1)
+@@ -118,20 +121,20 @@ class DfuUtilBinaryRunner(ZephyrBinaryRunner):
+             raise RuntimeError('device not found')
+ 
+         cmd = list(self.cmd)
++        performed_reset = False
+         if self.dfuse:
+             # http://dfu-util.sourceforge.net/dfuse.html
+             dcfg = self.dfuse_config
+-            addr_opts = hex(dcfg.address) + ':' + dcfg.options
++            dfuse_options = [opt for opt in dcfg.options.split(':') if opt and opt != 'leave']
++
++            if self.reset:
++                dfuse_options.append('leave')
++
++            addr_opts = hex(dcfg.address) + ':' + ':'.join(dfuse_options)
+             cmd.extend(['-s', addr_opts])
++            performed_reset = self.reset
+         cmd.extend(['-a', self.alt, '-D', self.img])
+         self.check_call(cmd)
+ 
+-        if self.dfuse and 'leave' in dcfg.options.split(':'):
+-            # Normal DFU devices generally need to be reset to switch
+-            # back to the flashed program.
+-            #
+-            # DfuSe targets do as well, except when 'leave' is given
+-            # as an option.
+-            self.reset = False
+-        if self.reset:
++        if self.waited_for_dfu and not performed_reset:
+             print('Now reset your board again to switch back to runtime mode.')

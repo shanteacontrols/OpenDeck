@@ -1,69 +1,91 @@
-FROM ghcr.io/paradajz/zenv:b521042e7fc04cf76ad7a2b47a913b8396e000c0
+FROM ghcr.io/paradajz/zenv:c5553452a12edb73f5b9391123460944a1a3ecd5
 
-ARG arduino_dir=/opt/toolchains/arduino
-ARG arduino_version=1.8.6
+ARG jlink_version=V926
+ARG tmp_deps_dir=/tmp/deps
 
 RUN \
+echo '#!/bin/bash\necho not running udevadm "$@"' | sudo tee -a /usr/bin/udevadm && \
+sudo chmod +x /usr/bin/udevadm && \
 sudo apt-get update && \
-sudo apt-get install --no-install-recommends -y \
-avrdude \
-libgoogle-glog-dev \
-unzip \
+sudo apt-get -y --no-install-recommends install \
+build-essential \
+libasound2-dev \
 libfontconfig1 \
 libfreetype6 \
 libice6 \
 libsm6 \
 libssl-dev \
 libtool \
+libusb-dev \
 libx11-6 \
 libx11-xcb1 \
+libxcb1 \
 libxcb-icccm4 \
 libxcb-image0 \
 libxcb-keysyms1 \
 libxcb-randr0 \
-libxcb-render-util0 \
 libxcb-render0 \
+libxcb-render-util0 \
 libxcb-shape0 \
 libxcb-shm0 \
 libxcb-sync1 \
 libxcb-xfixes0 \
-libxcb1 \
 libxext6 \
-libxkbcommon-x11-0 \
 libxkbcommon0 \
-libxrender1 && \
-sudo rm -rf /var/lib/apt/lists/*
+libxkbcommon-x11-0 \
+libxrender1 \
+pkg-config
 
 RUN \
-sudo mkdir -p ${arduino_dir} && \
-sudo chmod -R 777 ${arduino_dir} && \
-cd ${arduino_dir} & \
-wget -qO- https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=${arduino_dir} sh && \
-${arduino_dir}/arduino-cli config init && \
-${arduino_dir}/arduino-cli config set directories.data ${arduino_dir} && \
-${arduino_dir}/arduino-cli core install arduino:avr@${arduino_version}
+mkdir -p ${tmp_deps_dir} && \
+cd ${tmp_deps_dir} && \
+git clone https://github.com/gbevin/SendMIDI.git && \
+cd SendMIDI/Builds/LinuxMakefile && \
+make && \
+sudo mv build/sendmidi /usr/local/bin && \
+cd ${tmp_deps_dir} && \
+git clone https://github.com/gbevin/ReceiveMIDI.git && \
+cd ReceiveMIDI/Builds/LinuxMakefile && \
+make && \
+sudo mv build/receivemidi /usr/local/bin && \
+cd ${tmp_deps_dir} && \
+git clone https://github.com/PaulStoffregen/teensy_loader_cli.git && \
+cd teensy_loader_cli && \
+make && \
+sudo mv teensy_loader_cli /usr/local/bin && \
+cd ${tmp_deps_dir} && \
+git clone https://github.com/arduino/BOSSA.git && \
+cd BOSSA && \
+make bossac && \
+sudo mv bin/bossac /usr/bin/arduino-bossac && \
+cd && \
+rm -rf ${tmp_deps_dir}
+
+RUN \
+ARCH=$(uname -m); \
+if [ "$ARCH" = "x86_64" ]; then \
+PACKAGE_VARIANT="x86_64"; \
+elif [ "$ARCH" = "aarch64" ]; then \
+PACKAGE_VARIANT="arm64"; \
+fi; \
+wget --post-data="accept_license_agreement=accepted&submit=Download+software" https://www.segger.com/downloads/jlink/JLink_Linux_${jlink_version}_${PACKAGE_VARIANT}.deb -O jlink.deb && \
+sudo dpkg -i jlink.deb && \
+rm -f jlink.deb
 
 RUN \
 ARCH="$(dpkg --print-architecture)" && \
 if [ "$ARCH" = "amd64" ]; then \
 PACKAGE_VARIANT="x86_64"; \
 elif [ "$ARCH" = "arm64" ]; then \
-PACKAGE_VARIANT="arm64"; \
+PACKAGE_VARIANT="aarch64"; \
 else echo "Unsupported architecture"; false; \
 fi; \
-cd /tmp && \
-wget \
--O nrfclt.deb \
-https://nsscprodmedia.blob.core.windows.net/prod/software-and-other-downloads/desktop-software/nrf-command-line-tools/sw/versions-10-x-x/10-24-2/nrf-command-line-tools_10.24.2_${ARCH}.deb && \
-sudo dpkg -i nrfclt.deb && \
-rm nrfclt.deb && \
-echo '#!/bin/bash\necho not running udevadm "$@"' | sudo tee -a /usr/bin/udevadm && \
-sudo chmod +x /usr/bin/udevadm && \
-sudo apt-get install --no-install-recommends -y \
-/opt/nrf-command-line-tools/share/JLink_Linux_V794e_${PACKAGE_VARIANT}.deb --fix-broken
+cd && \
+wget ${wget_args} \
+-O nrfutil \
+"https://files.nordicsemi.com/artifactory/swtools/external/nrfutil/executables/${PACKAGE_VARIANT}-unknown-linux-gnu/nrfutil" && \
+chmod +x nrfutil && \
+sudo mv nrfutil /usr/bin/
 
-ENV ARM_TOOLCHAIN_PATH=$ZEPHYR_SDK_INSTALL_DIR/arm-zephyr-eabi/bin
-ENV ARM_TOOLCHAIN_PREFIX=arm-zephyr-eabi-
-
-ENV AVR_TOOLCHAIN_PATH=${arduino_dir}/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/bin
-ENV AVR_TOOLCHAIN_PREFIX=avr-
+RUN nrfutil self-upgrade
+RUN nrfutil install device

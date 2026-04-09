@@ -1,0 +1,56 @@
+/ {
+    opendeck_metadata: opendeck-metadata {
+        compatible = "opendeck,metadata";
+        zephyr-board = "weact_stm32f405_core/stm32f405xx";
+    };
+
+    opendeck_tests: opendeck-tests {
+        compatible = "opendeck,tests";
+        host;
+    };
+
+    opendeck_bulk_build: opendeck-bulk-build {
+        compatible = "opendeck,bulk-build";
+        app;
+        host-test;
+    };
+
+    opendeck_buttons: opendeck-buttons {
+        compatible = "opendeck,buttons";
+        mode = "native";
+        touchscreen-components = <64>;
+        native-gpios =
+            <&gpiob 7 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpiob 6 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpiob 9 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpiob 8 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpiob 1 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpiob 0 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpiob 11 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpiob 10 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+    };
+
+    opendeck_analog: opendeck-analog {
+        compatible = "opendeck,analog";
+        mode = "4067";
+        io-channels = <&adc1 15>;
+        multiplexers = <1>;
+        index-remap = <10 11 12 13 8 9 14 15 7 6 1 0 5 4 3 2>;
+        selector-s0-gpios = <&gpioa 5 GPIO_ACTIVE_HIGH>;
+        selector-s1-gpios = <&gpioa 4 GPIO_ACTIVE_HIGH>;
+        selector-s2-gpios = <&gpioa 7 GPIO_ACTIVE_HIGH>;
+        selector-s3-gpios = <&gpioa 6 GPIO_ACTIVE_HIGH>;
+    };
+
+    opendeck_touchscreen: opendeck-touchscreen {
+        compatible = "opendeck,touchscreen";
+        component-count = <64>;
+        uart = <&opendeck_uart_touchscreen>;
+    };
+
+    opendeck_bootloader: opendeck-bootloader {
+        compatible = "opendeck,bootloader";
+        boot-partition = <&opendeck_partition_boot>;
+        app-partition = <&opendeck_partition_app>;
+    };
+};

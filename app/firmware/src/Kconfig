@@ -1,0 +1,2 @@
+rsource "io/Kconfig"
+rsource "protocol/Kconfig"

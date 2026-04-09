@@ -2,40 +2,16 @@ manifest:
   remotes:
     - name: paradajz
       url-base: https://github.com/paradajz
-    - name: shanteacontrols
-      url-base: https://github.com/shanteacontrols
     - name: olikraus
       url-base: https://github.com/olikraus
 
   projects:
-    - name: libcore
-      remote: paradajz
-      revision: dfc26db371e0447cfaddc2d7df2f843d1e66c109
-      path: modules/libcore
-      submodules: true
-      import: true
-    - name: libmidi
-      remote: shanteacontrols
-      revision: 4b9c5973eac07007931b201727fd97d8367ac47d
-      path: modules/libmidi
-      submodules: true
-    - name: liblessdb
-      remote: paradajz
-      revision: 0ad7716c7480b68fc3d79999b7cd30e80254103e
-      path: modules/liblessdb
-      submodules: true
-    - name: libemueeprom
-      remote: paradajz
-      revision: 62c9ae9412427075799bf1b94be47b56870acc25
-      path: modules/libemueeprom
-      submodules: true
-    - name: libsysexconf
-      remote: shanteacontrols
-      revision: 20973e56a382c72a434fb932eff6286afbd95dfc
-      path: modules/libsysexconf
-      submodules: true
     - name: u8g2
       remote: olikraus
       revision: 8430f65c9e2bc7ca393bf0e9d8cf58a84ae081d7
       path: modules/u8g2
       submodules: true
+    - name: zlibs
+      remote: paradajz
+      revision: 3b7909f90682edfea151d1d4528481785c9952d6
+      path: modules/zlibs

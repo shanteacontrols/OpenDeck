@@ -1,0 +1,105 @@
+/ {
+    opendeck_metadata: opendeck-metadata {
+        compatible = "opendeck,metadata";
+        zephyr-board = "nrf52840dk/nrf52840";
+    };
+
+    opendeck_tests: opendeck-tests {
+        compatible = "opendeck,tests";
+        host;
+        hw;
+    };
+
+    opendeck_bulk_build: opendeck-bulk-build {
+        compatible = "opendeck,bulk-build";
+        app;
+        lint;
+        hw-test;
+    };
+
+    opendeck_buttons: opendeck-buttons {
+        compatible = "opendeck,buttons";
+        mode = "native";
+        touchscreen-components = <64>;
+        native-gpios =
+            <&gpio0 11 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpio0 12 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpio0 24 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpio0 25 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpio1 1 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpio1 2 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpio1 3 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpio1 4 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpio1 5 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpio1 6 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+    };
+
+    opendeck_analog: opendeck-analog {
+        compatible = "opendeck,analog";
+        mode = "native";
+        io-channels =
+            <&adc 1>,
+            <&adc 2>,
+            <&adc 4>,
+            <&adc 5>,
+            <&adc 6>,
+            <&adc 7>,
+            <&adc 3>,
+            <&adc 0>;
+    };
+
+    opendeck_leds: opendeck-leds {
+        compatible = "opendeck,leds";
+        mode = "native";
+        touchscreen-components = <64>;
+        native-gpios =
+            <&gpio0 17 GPIO_ACTIVE_HIGH>,
+            <&gpio0 19 GPIO_ACTIVE_HIGH>,
+            <&gpio0 20 GPIO_ACTIVE_HIGH>,
+            <&gpio0 21 GPIO_ACTIVE_HIGH>,
+            <&gpio0 22 GPIO_ACTIVE_HIGH>,
+            <&gpio0 23 GPIO_ACTIVE_HIGH>,
+            <&gpio1 7 GPIO_ACTIVE_HIGH>,
+            <&gpio1 8 GPIO_ACTIVE_HIGH>,
+            <&gpio1 9 GPIO_ACTIVE_HIGH>,
+            <&gpio1 10 GPIO_ACTIVE_HIGH>,
+            <&gpio1 11 GPIO_ACTIVE_HIGH>,
+            <&gpio1 12 GPIO_ACTIVE_HIGH>,
+            <&gpio1 13 GPIO_ACTIVE_HIGH>,
+            <&gpio1 14 GPIO_ACTIVE_HIGH>,
+            <&gpio1 15 GPIO_ACTIVE_HIGH>;
+    };
+
+    opendeck_touchscreen: opendeck-touchscreen {
+        compatible = "opendeck,touchscreen";
+        component-count = <64>;
+        uart = <&opendeck_uart_touchscreen>;
+    };
+
+    opendeck_din_midi: opendeck-din-midi {
+        compatible = "opendeck,midi-uart";
+        uart = <&opendeck_uart_din_midi>;
+    };
+
+    opendeck_midi_indicators: opendeck-midi-indicators {
+        compatible = "opendeck,midi-indicators";
+        usb-in-gpios = <&gpio0 15 GPIO_ACTIVE_LOW>;
+        usb-out-gpios = <&gpio0 16 GPIO_ACTIVE_LOW>;
+        din-in-gpios = <&gpio0 13 GPIO_ACTIVE_LOW>;
+        din-out-gpios = <&gpio0 14 GPIO_ACTIVE_LOW>;
+        ble-in-gpios = <&gpio0 13 GPIO_ACTIVE_LOW>;
+        ble-out-gpios = <&gpio0 14 GPIO_ACTIVE_LOW>;
+    };
+
+    opendeck_display: opendeck-display {
+        compatible = "opendeck,display-i2c";
+        i2c = <&opendeck_i2c_display>;
+    };
+
+    opendeck_bootloader: opendeck-bootloader {
+        compatible = "opendeck,bootloader";
+        button-gpios = <&gpio0 11 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+        boot-partition = <&opendeck_partition_boot>;
+        app-partition = <&opendeck_partition_app>;
+    };
+};

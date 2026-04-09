@@ -1,23 +1,16 @@
-if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
-    add_executable(analog)
+cmake_minimum_required(VERSION 3.20)
+include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_test_suite.cmake)
+opendeck_test_bootstrap(APPLY_TARGET)
 
-    target_sources(analog
-        PRIVATE
-        test.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/database/database.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/database/custom_init.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/buttons/buttons.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/leds/leds.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/analog/analog.cpp
-    )
+opendeck_test_add_modules(
+    metadata     "app/common/metadata"
+    database     "app/firmware/src/database"
+    configurable "app/firmware/src/util/configurable"
+    analog       "app/firmware/src/io/analog"
+    buttons      "app/firmware/src/io/digital/buttons"
+)
 
-    target_link_libraries(analog
-        PUBLIC
-        common
-    )
-
-    add_test(
-        NAME analog
-        COMMAND $<TARGET_FILE:analog>
-    )
-endif()
+target_sources(app
+    PRIVATE
+    analog_test.cpp
+)

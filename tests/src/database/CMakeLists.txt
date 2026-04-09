@@ -1,20 +1,14 @@
-if(NOT "PROJECT_TARGET_USB_OVER_SERIAL_HOST" IN_LIST PROJECT_TARGET_DEFINES)
-    add_executable(database)
+cmake_minimum_required(VERSION 3.20)
+include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_test_suite.cmake)
+opendeck_test_bootstrap(APPLY_TARGET)
 
-    target_sources(database
-        PRIVATE
-        test.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/database/database.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/database/custom_init.cpp
-    )
+opendeck_test_add_modules(
+    metadata     "app/common/metadata"
+    database     "app/firmware/src/database"
+    configurable "app/firmware/src/util/configurable"
+)
 
-    target_link_libraries(database
-        PUBLIC
-        common
-    )
-
-    add_test(
-        NAME database
-        COMMAND $<TARGET_FILE:database>
-    )
-endif()
+target_sources(app
+    PRIVATE
+    database_test.cpp
+)

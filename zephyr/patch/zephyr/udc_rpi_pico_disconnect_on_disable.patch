@@ -1,0 +1,21 @@
+diff --git a/drivers/usb/udc/udc_rpi_pico.c b/drivers/usb/udc/udc_rpi_pico.c
+index 4cc8e86a3f6..4036c826493 100644
+--- a/drivers/usb/udc/udc_rpi_pico.c
++++ b/drivers/usb/udc/udc_rpi_pico.c
+@@ -985,6 +985,7 @@ static int udc_rpi_pico_enable(const struct device *dev)
+ static int udc_rpi_pico_disable(const struct device *dev)
+ {
+ 	const struct rpi_pico_config *config = dev->config;
++	usb_hw_t *base = config->base;
+ 
+ 	if (udc_ep_disable_internal(dev, USB_CONTROL_EP_OUT)) {
+ 		LOG_ERR("Failed to disable control endpoint");
+@@ -997,6 +998,8 @@ static int udc_rpi_pico_disable(const struct device *dev)
+ 	}
+ 
+ 	config->irq_disable_func(dev);
++	sie_dp_pullup(dev, false);
++	sys_write32(0, (mm_reg_t)&base->main_ctrl);
+ 	LOG_DBG("Disable device %p", dev);
+ 
+ 	return 0;

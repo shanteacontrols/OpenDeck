@@ -1,24 +1,13 @@
 /*
-
-Copyright Igor Petrovic
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-*/
+ * Copyright (c) 2026 Igor Petrovic
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 #pragma once
 
-#include <glog/logging.h>
+#include "io/base.h"
+#include <zephyr/kernel.h>
+#include <zephyr/logging/log.h>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
@@ -29,3 +18,38 @@ limitations under the License.
 #include <iostream>
 
 using namespace ::testing;
+
+namespace tests
+{
+    inline void resume_io()
+    {
+        io::Base::resume();
+        k_msleep(20);
+    }
+
+    /**
+     * @brief Polls until a condition becomes true or a timeout expires.
+     *
+     * @param [in] condition Predicate evaluated between sleep intervals.
+     * @param [in] timeout_ms Maximum time to wait before returning.
+     * @param [in] poll_ms Delay between condition checks.
+     *
+     * @return `true` if the condition became true within the timeout window,
+     *         otherwise the final condition value after the timeout expires.
+     */
+    template<typename Condition>
+    bool wait_until(Condition condition, const int32_t timeout_ms = 200, const int32_t poll_ms = 20)
+    {
+        for (int32_t elapsed_ms = 0; elapsed_ms < timeout_ms; elapsed_ms += poll_ms)
+        {
+            if (condition())
+            {
+                return true;
+            }
+
+            k_msleep(poll_ms);
+        }
+
+        return condition();
+    }
+}    // namespace tests

@@ -1,0 +1,3 @@
+mainmenu "Project-specific configuration"
+
+rsource "$ZEPHYR_PROJECT/app/Kconfig"

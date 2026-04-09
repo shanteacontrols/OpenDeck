@@ -1,0 +1,9 @@
+description: OpenDeck DIN MIDI UART configuration
+
+compatible: "opendeck,midi-uart"
+
+properties:
+  uart:
+    type: phandle
+    required: false
+    description: UART device used for DIN MIDI. Usually provided in firmware.overlay and required when DIN MIDI is used.

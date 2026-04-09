@@ -1,0 +1,41 @@
+#include <zephyr/dt-bindings/pinctrl/rpi-pico-rp2040-pinctrl.h>
+
+&pinctrl {
+    uart1_touchscreen_8_9: uart1_touchscreen_8_9 {
+        group1 {
+            pinmux = <UART1_TX_P8>;
+        };
+
+        group2 {
+            pinmux = <UART1_RX_P9>;
+            input-enable;
+        };
+    };
+
+    i2c1_display_10_11: i2c1_display_10_11 {
+        group1 {
+            pinmux = <I2C1_SDA_P10>, <I2C1_SCL_P11>;
+            input-enable;
+            input-schmitt-enable;
+        };
+    };
+};
+
+&uart1 {
+    current-speed = <115200>;
+    status = "okay";
+    pinctrl-0 = <&uart1_touchscreen_8_9>;
+    pinctrl-names = "default";
+};
+
+&i2c1 {
+    status = "okay";
+    pinctrl-0 = <&i2c1_display_10_11>;
+    pinctrl-names = "default";
+};
+
+opendeck_uart_din_midi: &uart0 {};
+
+opendeck_uart_touchscreen: &uart1 {};
+
+opendeck_i2c_display: &i2c1 {};
