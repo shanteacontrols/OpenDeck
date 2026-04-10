@@ -34,7 +34,7 @@ namespace database
      * layouts to their storage regions, and exposes typed accessors used by
      * the rest of the application.
      */
-    class Admin : public lib::lessdb::LessDb
+    class Admin : public zlibs::utils::lessdb::LessDb
     {
         public:
         /**
@@ -46,9 +46,8 @@ namespace database
         Admin(Hwa&    hwa,
               Layout& layout);
 
-        using sectionParameterType_t = lib::lessdb::SectionParameterType;
-        using lib::lessdb::LessDb::read;
-        using lib::lessdb::LessDb::update;
+        using zlibs::utils::lessdb::LessDb::read;
+        using zlibs::utils::lessdb::LessDb::update;
 
         /**
          * @brief Reads a value from the active preset region.
@@ -162,14 +161,7 @@ namespace database
         }
 
         /**
-         * @brief Initializes the database and validates the stored signature.
-         *
-         * @return `true` on success, otherwise `false`.
-         */
-        bool init();
-
-        /**
-         * @brief Initializes the database and registers event handlers.
+         * @brief Initializes the database with lifecycle handlers.
          *
          * @param handlers Handler interface for lifecycle notifications.
          *
@@ -205,7 +197,7 @@ namespace database
          *
          * @return Active preset index.
          */
-        uint8_t getPreset();
+        uint8_t currentPreset();
 
         /**
          * @brief Returns whether initialization completed successfully.
@@ -213,13 +205,6 @@ namespace database
          * @return `true` if the database is initialized.
          */
         bool isInitialized();
-
-        /**
-         * @brief Registers lifecycle event handlers.
-         *
-         * @param handlers Handler interface to register.
-         */
-        void registerHandlers(Handlers& handlers);
 
         /**
          * @brief Enables or disables preset preservation across restart.
@@ -328,39 +313,50 @@ namespace database
             PRESET,
         };
 
+        Hwa&      _hwa;
         Layout&   _layout;
-        Handlers* _handlers = nullptr;
+        Handlers* _handlers               = nullptr;
+        uint32_t  _presetDataStartAddress = 0;
+        uint32_t  _presetLayoutSize       = 0;
+        uint8_t   _activePreset           = 0;
+        size_t    _supportedPresets       = 0;
+        bool      _initialized            = false;
+        Context   _activeContext          = Context::COMMON;
 
-        const bool INITIALIZE_DATA;
-
-        uint32_t _presetDataStartAddress = 0;
-        uint32_t _presetLayoutSize       = 0;
-        uint8_t  _activePreset           = 0;
-        size_t   _supportedPresets       = 0;
-        uint16_t _uid                    = 0;
-        bool     _initialized            = false;
-        Context  _activeContext          = Context::COMMON;
-
-        /** @brief Optional weak hook invoked after global preset data initialization. */
+        /** @brief Hook invoked after global preset data initialization. */
         void customInitGlobal();
 
-        /** @brief Optional weak hook invoked after button preset data initialization. */
+        /** @brief Hook invoked after button preset data initialization. */
         void customInitButtons();
 
-        /** @brief Optional weak hook invoked after encoder preset data initialization. */
+        /** @brief Hook invoked after encoder preset data initialization. */
         void customInitEncoders();
 
-        /** @brief Optional weak hook invoked after analog preset data initialization. */
+        /** @brief Hook invoked after analog preset data initialization. */
         void customInitAnalog();
 
-        /** @brief Optional weak hook invoked after LED preset data initialization. */
+        /** @brief Hook invoked after LED preset data initialization. */
         void customInitLEDs();
 
-        /** @brief Optional weak hook invoked after display preset data initialization. */
+        /** @brief Hook invoked after display preset data initialization. */
         void customInitDisplay();
 
-        /** @brief Optional weak hook invoked after touchscreen preset data initialization. */
+        /** @brief Hook invoked after touchscreen preset data initialization. */
         void customInitTouchscreen();
+
+        /**
+         * @brief Applies the stored preset selection and preservation state.
+         *
+         * @return `true` on success, otherwise `false`.
+         */
+        bool loadStoredPresetState();
+
+        /**
+         * @brief Regenerates database defaults in the active storage pages.
+         *
+         * @return `true` on success, otherwise `false`.
+         */
+        bool initializeDefaultData();
 
         /**
          * @brief Selects the common database region.
@@ -395,11 +391,18 @@ namespace database
         bool isSignatureValid();
 
         /**
+         * @brief Returns the expected database signature for the current layout and target.
+         *
+         * @return Database signature.
+         */
+        uint16_t signature() const;
+
+        /**
          * @brief Stores the current preset layout UID in the common region.
          *
          * @return `true` on success, otherwise `false`.
          */
-        bool setUID();
+        bool setSignature();
 
         /**
          * @brief Selects a preset without updating the stored active preset value.
@@ -439,9 +442,9 @@ namespace database
             }
 
             auto blockIndex = BLOCK(section);
-            auto value      = lib::lessdb::LessDb::read(static_cast<uint8_t>(blockIndex),
-                                                        static_cast<uint8_t>(section),
-                                                        static_cast<size_t>(index));
+            auto value      = zlibs::utils::lessdb::LessDb::read(static_cast<uint8_t>(blockIndex),
+                                                                 static_cast<uint8_t>(section),
+                                                                 static_cast<size_t>(index));
 
             return value.value_or(0);
         }
@@ -467,9 +470,9 @@ namespace database
             }
 
             auto blockIndex = BLOCK(section);
-            auto readValue  = lib::lessdb::LessDb::read(static_cast<uint8_t>(blockIndex),
-                                                        static_cast<uint8_t>(section),
-                                                        static_cast<size_t>(index));
+            auto readValue  = zlibs::utils::lessdb::LessDb::read(static_cast<uint8_t>(blockIndex),
+                                                                 static_cast<uint8_t>(section),
+                                                                 static_cast<size_t>(index));
 
             if (!readValue)
             {
@@ -514,10 +517,10 @@ namespace database
             auto blockIndex = BLOCK(section);
             auto newValue   = static_cast<uint32_t>(value);
 
-            return lib::lessdb::LessDb::update(static_cast<uint8_t>(blockIndex),
-                                               static_cast<uint8_t>(section),
-                                               static_cast<size_t>(index),
-                                               newValue);
+            return zlibs::utils::lessdb::LessDb::update(static_cast<uint8_t>(blockIndex),
+                                                        static_cast<uint8_t>(section),
+                                                        static_cast<size_t>(index),
+                                                        newValue);
         }
 
         /**
@@ -625,9 +628,9 @@ namespace database
          *
          * @return Active preset index.
          */
-        uint8_t getPreset()
+        uint8_t currentPreset()
         {
-            return _admin.getPreset();
+            return _admin.currentPreset();
         }
 
         private:

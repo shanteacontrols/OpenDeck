@@ -27,7 +27,7 @@ namespace io::i2c::display
         public:
         Strings() = default;
 
-        static constexpr auto TARGET_NAME_STRING          = PROJECT_TARGET_NAME;
+        static constexpr auto TARGET_NAME_STRING          = CONFIG_BOARD;
         static constexpr auto IN_EVENT_STRING             = "<";
         static constexpr auto OUT_EVENT_STRING            = ">";
         static constexpr auto NOTE_C_STRING               = "C";

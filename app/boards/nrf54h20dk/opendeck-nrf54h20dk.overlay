@@ -1,0 +1,64 @@
+/ {
+    chosen {
+        opendeck = &opendeck;
+        opendeck-buttons = &opendeck_buttons;
+        opendeck-analog = &opendeck_analog;
+        opendeck-midi-indicators = &opendeck_midi_indicators;
+    };
+
+    opendeck: opendeck {
+        compatible = "opendeck,root";
+        usb;
+        buttons = <&opendeck_buttons>;
+        analog = <&opendeck_analog>;
+        midi-indicators = <&opendeck_midi_indicators>;
+    };
+
+    opendeck_buttons: opendeck-buttons {
+        compatible = "opendeck,buttons";
+        mode = "native";
+        native-gpios =
+            <&gpio0 8 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpio0 9 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpio0 10 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpio0 11 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+    };
+
+    opendeck_analog: opendeck-analog {
+        compatible = "opendeck,analog";
+        mode = "native";
+        io-channels =
+            <&adc 0>,
+            <&adc 1>,
+            <&adc 2>,
+            <&adc 3>,
+            <&adc 4>,
+            <&adc 5>,
+            <&adc 6>,
+            <&adc 7>;
+    };
+
+    opendeck_leds: opendeck-leds {
+        compatible = "opendeck,leds";
+        mode = "native";
+        native-gpios =
+            <&gpio9 0 GPIO_ACTIVE_HIGH>,
+            <&gpio9 1 GPIO_ACTIVE_HIGH>,
+            <&gpio9 2 GPIO_ACTIVE_HIGH>,
+            <&gpio9 3 GPIO_ACTIVE_HIGH>;
+    };
+
+    opendeck_midi_indicators: opendeck-midi-indicators {
+        compatible = "opendeck,midi-indicators";
+        usb-in-gpios = <&gpio9 0 GPIO_ACTIVE_HIGH>;
+        usb-out-gpios = <&gpio9 1 GPIO_ACTIVE_HIGH>;
+        din-in-gpios = <&gpio9 2 GPIO_ACTIVE_HIGH>;
+        din-out-gpios = <&gpio9 3 GPIO_ACTIVE_HIGH>;
+        ble-in-gpios = <&gpio9 2 GPIO_ACTIVE_HIGH>;
+        ble-out-gpios = <&gpio9 3 GPIO_ACTIVE_HIGH>;
+    };
+};
+
+&{/buttons} {
+    status = "disabled";
+};

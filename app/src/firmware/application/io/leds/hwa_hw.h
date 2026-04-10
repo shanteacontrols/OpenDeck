@@ -19,29 +19,38 @@ limitations under the License.
 #pragma once
 
 #include "deps.h"
-#include "board/board.h"
+#include "drivers/driver_base.h"
 
 namespace io::leds
 {
     class HwaHw : public Hwa
     {
         public:
-        HwaHw() = default;
+        explicit HwaHw(DriverBase& driver)
+            : _driver(driver)
+        {}
+
+        void update() override
+        {
+            _driver.update();
+        }
 
         void setState(size_t index, brightness_t brightness) override
         {
-            board::io::digital_out::writeLedState(index, static_cast<board::io::digital_out::ledBrightness_t>(brightness));
+            _driver.setState(index, brightness);
         }
 
         size_t rgbFromOutput(size_t index) override
         {
-            return board::io::digital_out::rgbFromOutput(index);
+            return _driver.rgbFromOutput(index);
         }
 
         size_t rgbComponentFromRgb(size_t index, rgbComponent_t component) override
         {
-            return board::io::digital_out::rgbComponentFromRgb(index,
-                                                               static_cast<board::io::digital_out::rgbComponent_t>(component));
+            return _driver.rgbComponentFromRgb(index, component);
         }
+
+        private:
+        DriverBase& _driver;
     };
 }    // namespace io::leds

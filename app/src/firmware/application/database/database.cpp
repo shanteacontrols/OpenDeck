@@ -19,17 +19,24 @@ limitations under the License.
 #include "application/util/conversion/conversion.h"
 #include "application/util/configurable/configurable.h"
 
-#include "core/util/util.h"
+#include "zlibs/utils/misc/numeric.h"
+
+#include <zephyr/logging/log.h>
 
 #include <inttypes.h>
 
-using namespace lib::lessdb;
+using namespace zlibs::utils::lessdb;
+
+namespace
+{
+    LOG_MODULE_REGISTER(database, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
+}    // namespace
 
 database::Admin::Admin(Hwa&    hwa,
                        Layout& layout)
     : LessDb::LessDb(hwa)
+    , _hwa(hwa)
     , _layout(layout)
-    , INITIALIZE_DATA(hwa.initializeDatabase())
 {
     ConfigHandler.registerConfig(
         sys::Config::block_t::GLOBAL,
@@ -48,12 +55,10 @@ database::Admin::Admin(Hwa&    hwa,
 
 bool database::Admin::init(Handlers& handlers)
 {
-    registerHandlers(handlers);
-    return init();
-}
+    LOG_INF("Initializing database");
 
-bool database::Admin::init()
-{
+    _handlers = &handlers;
+
     if (!LessDb::init())
     {
         return false;
@@ -63,6 +68,7 @@ bool database::Admin::init()
 
     if (!LessDb::set_layout(_layout.commonLayout()))
     {
+        LOG_ERR("Setting common layout failed");
         return false;
     }
 
@@ -71,6 +77,7 @@ bool database::Admin::init()
 
     if (!LessDb::set_layout(_layout.presetLayout(), _presetDataStartAddress))
     {
+        LOG_ERR("Setting preset layout failed");
         return false;
     }
 
@@ -81,40 +88,46 @@ bool database::Admin::init()
     _supportedPresets = _presetLayoutSize ? (LessDb::db_size() - commonLayoutSize) / _presetLayoutSize : 0;
 
     // limit by hardcoded limit
-    _supportedPresets = core::util::CONSTRAIN(_supportedPresets,
-                                              static_cast<size_t>(0),
-                                              Config::MAX_PRESETS);
-
-    _uid = _layout.presetUid();
+    _supportedPresets = zlibs::utils::misc::constrain(_supportedPresets,
+                                                      static_cast<size_t>(0),
+                                                      Config::MAX_PRESETS);
 
     bool retVal = true;
 
     if (!isSignatureValid())
     {
-        retVal = factoryReset();
-    }
-    else
-    {
-        _activePreset = readCommonBlock(static_cast<size_t>(Config::commonSetting_t::ACTIVE_PRESET));
+        LOG_WRN("Signature invalid");
 
-        if (getPresetPreserveState())
+        bool restoredFromSnapshot = false;
+
+        if (_hwa.hasFactorySnapshot())
         {
-            // don't write anything to database in this case - setup preset only internally
-            setPresetInternal(_activePreset);
+            LOG_INF("Restoring snapshot from factory page");
+
+            retVal = _hwa.restoreFactorySnapshot();
+
+            if (retVal)
+            {
+                restoredFromSnapshot = isSignatureValid();
+                retVal               = restoredFromSnapshot;
+            }
+        }
+
+        if (restoredFromSnapshot)
+        {
+            LOG_INF("Snapshot restored, loading data");
+            retVal = loadStoredPresetState();
         }
         else
         {
-            if (_activePreset != 0)
-            {
-                // preset preservation is not set which means preset must be 0
-                // in this case it is not so overwrite it with 0
-                setPreset(0);
-            }
-            else
-            {
-                setPresetInternal(0);
-            }
+            LOG_WRN("Restoring from snapshot failed or snapshot is missing");
+            retVal = factoryReset();
         }
+    }
+    else
+    {
+        LOG_INF("Loading data");
+        retVal = loadStoredPresetState();
     }
 
     if (retVal)
@@ -137,6 +150,8 @@ bool database::Admin::isInitialized()
 
 bool database::Admin::factoryReset()
 {
+    LOG_INF("Performing factory reset");
+
     if (_handlers != nullptr)
     {
         _handlers->factoryResetStart();
@@ -147,9 +162,79 @@ bool database::Admin::factoryReset()
         return false;
     }
 
-    if (INITIALIZE_DATA)
+    if (_hwa.hasFactorySnapshot())
     {
-        if (!selectCommon())
+        if (_hwa.restoreFactorySnapshot() && isSignatureValid())
+        {
+            if (!loadStoredPresetState())
+            {
+                return false;
+            }
+
+            if (_handlers != nullptr)
+            {
+                _handlers->factoryResetDone();
+            }
+
+            return true;
+        }
+
+        LOG_WRN("Factory snapshot restore failed, regenerating defaults");
+    }
+
+    if (!initializeDefaultData())
+    {
+        return false;
+    }
+
+    if (!_hwa.storeFactorySnapshot())
+    {
+        LOG_WRN("Failed to store factory snapshot");
+    }
+
+    if (_handlers != nullptr)
+    {
+        _handlers->factoryResetDone();
+    }
+
+    return true;
+}
+
+bool database::Admin::loadStoredPresetState()
+{
+    _activePreset = readCommonBlock(static_cast<size_t>(Config::commonSetting_t::ACTIVE_PRESET));
+
+    if (getPresetPreserveState())
+    {
+        // don't write anything to database in this case - setup preset only internally
+        return setPresetInternal(_activePreset);
+    }
+
+    if (_activePreset != 0)
+    {
+        // preset preservation is not set which means preset must be 0
+        // in this case it is not so overwrite it with 0
+        return setPreset(0);
+    }
+
+    return setPresetInternal(0);
+}
+
+bool database::Admin::initializeDefaultData()
+{
+    if (!selectCommon())
+    {
+        return false;
+    }
+
+    if (!init_data(FactoryResetType::Full))
+    {
+        return false;
+    }
+
+    for (size_t i = _supportedPresets; i-- > 0;)
+    {
+        if (!setPresetInternal(i))
         {
             return false;
         }
@@ -159,49 +244,24 @@ bool database::Admin::factoryReset()
             return false;
         }
 
-        for (size_t i = _supportedPresets; i-- > 0;)
-        {
-            if (!setPresetInternal(i))
-            {
-                return false;
-            }
-
-            if (!init_data(FactoryResetType::Full))
-            {
-                return false;
-            }
-
-            // perform custom init as well
-            customInitGlobal();
-            customInitButtons();
-            customInitEncoders();
-            customInitAnalog();
-            customInitLEDs();
-            customInitDisplay();
-            customInitTouchscreen();
-        }
-
-        if (!setPresetPreserveState(false))
-        {
-            return false;
-        }
-
-        if (!setUID())
-        {
-            return false;
-        }
-    }
-    else
-    {
-        if (!setPresetInternal(0))
-        {
-            return false;
-        }
+        // perform custom init as well
+        customInitGlobal();
+        customInitButtons();
+        customInitEncoders();
+        customInitAnalog();
+        customInitLEDs();
+        customInitDisplay();
+        customInitTouchscreen();
     }
 
-    if (_handlers != nullptr)
+    if (!setPresetPreserveState(false))
     {
-        _handlers->factoryResetDone();
+        return false;
+    }
+
+    if (!setSignature())
+    {
+        return false;
     }
 
     return true;
@@ -282,7 +342,7 @@ uint32_t database::Admin::presetStartAddress(uint8_t preset) const
     return _presetDataStartAddress + (_presetLayoutSize * preset);
 }
 
-uint8_t database::Admin::getPreset()
+uint8_t database::Admin::currentPreset()
 {
     return _activePreset;
 }
@@ -305,31 +365,33 @@ bool database::Admin::getPresetPreserveState()
 
 bool database::Admin::isSignatureValid()
 {
-    uint16_t signature = readCommonBlock(static_cast<size_t>(Config::commonSetting_t::UID));
+    uint16_t storedSignature = readCommonBlock(static_cast<size_t>(Config::commonSetting_t::UID));
 
-    return _uid == signature;
+    return signature() == storedSignature;
 }
 
-bool database::Admin::setUID()
+uint16_t database::Admin::signature() const
 {
-    return updateCommonBlock(static_cast<size_t>(Config::commonSetting_t::UID), _uid);
+    return static_cast<uint16_t>(_layout.presetUid() ^
+                                 static_cast<uint16_t>(PROJECT_TARGET_UID) ^
+                                 static_cast<uint16_t>(_supportedPresets));
 }
 
-void database::Admin::registerHandlers(Handlers& handlers)
+bool database::Admin::setSignature()
 {
-    _handlers = &handlers;
+    return updateCommonBlock(static_cast<size_t>(Config::commonSetting_t::UID), signature());
 }
 
 std::optional<uint8_t> database::Admin::sysConfigGet(sys::Config::Section::global_t section, size_t index, uint16_t& value)
 {
     if (section != sys::Config::Section::global_t::SYSTEM_SETTINGS)
     {
-        return std::nullopt;
+        return {};
     }
 
     if (index >= static_cast<uint8_t>(Config::commonSetting_t::CUSTOM_COMMON_SETTING_START))
     {
-        return std::nullopt;
+        return {};
     }
 
     uint32_t readValue = 0;
@@ -341,7 +403,7 @@ std::optional<uint8_t> database::Admin::sysConfigGet(sys::Config::Section::globa
     {
     case Config::commonSetting_t::ACTIVE_PRESET:
     {
-        readValue = getPreset();
+        readValue = currentPreset();
         result    = sys::Config::Status::ACK;
     }
     break;
@@ -365,12 +427,12 @@ std::optional<uint8_t> database::Admin::sysConfigSet(sys::Config::Section::globa
 {
     if (section != sys::Config::Section::global_t::SYSTEM_SETTINGS)
     {
-        return std::nullopt;
+        return {};
     }
 
     if (index >= static_cast<uint8_t>(Config::commonSetting_t::CUSTOM_COMMON_SETTING_START))
     {
-        return std::nullopt;
+        return {};
     }
 
     uint8_t result  = sys::Config::Status::ERROR_WRITE;
@@ -403,7 +465,7 @@ std::optional<uint8_t> database::Admin::sysConfigSet(sys::Config::Section::globa
     break;
 
     default:
-        return std::nullopt;
+        return {};
     }
 
     return result;
@@ -433,32 +495,4 @@ bool database::Admin::updateCommonBlock(size_t index, uint16_t value)
                           static_cast<uint8_t>(Config::Section::common_t::COMMON_SETTINGS),
                           index,
                           value);
-}
-
-__attribute__((weak)) void database::Admin::customInitGlobal()
-{
-}
-
-__attribute__((weak)) void database::Admin::customInitButtons()
-{
-}
-
-__attribute__((weak)) void database::Admin::customInitEncoders()
-{
-}
-
-__attribute__((weak)) void database::Admin::customInitAnalog()
-{
-}
-
-__attribute__((weak)) void database::Admin::customInitLEDs()
-{
-}
-
-__attribute__((weak)) void database::Admin::customInitDisplay()
-{
-}
-
-__attribute__((weak)) void database::Admin::customInitTouchscreen()
-{
 }

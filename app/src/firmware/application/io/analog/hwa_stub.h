@@ -20,8 +20,6 @@ limitations under the License.
 
 #include "deps.h"
 
-#include <gmock/gmock.h>
-
 namespace io::analog
 {
     class HwaStub : public Hwa
@@ -29,9 +27,14 @@ namespace io::analog
         public:
         HwaStub() = default;
 
-        bool value(size_t index, uint16_t& value) override
+        bool init() override
         {
             return false;
+        }
+
+        std::optional<uint16_t> value(size_t index) override
+        {
+            return {};
         }
 
         uint8_t adcBits() override

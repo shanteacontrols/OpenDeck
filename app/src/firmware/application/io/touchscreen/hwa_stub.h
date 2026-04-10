@@ -42,9 +42,9 @@ namespace io::touchscreen
             return false;
         }
 
-        bool read(uint8_t& value) override
+        std::optional<uint8_t> read() override
         {
-            return false;
+            return {};
         }
 
         bool allocated(io::common::Allocatable::interface_t interface) override

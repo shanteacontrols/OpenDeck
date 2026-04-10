@@ -20,22 +20,34 @@ limitations under the License.
 
 #include "zlibs/utils/lessdb/lessdb.h"
 
-namespace lib::lessdb = zlibs::utils::lessdb;
-
 namespace database
 {
     /**
      * @brief Hardware abstraction interface for database storage access.
      */
-    class Hwa : public lib::lessdb::Hwa
+    class Hwa : public zlibs::utils::lessdb::Hwa
     {
         public:
         /**
-         * @brief Returns whether a factory reset should populate default data.
+         * @brief Returns whether a valid factory snapshot is provisioned.
          *
-         * @return `true` when default values should be written after a clear.
+         * @return `true` when the factory snapshot can be restored.
          */
-        virtual bool initializeDatabase() = 0;
+        virtual bool hasFactorySnapshot() = 0;
+
+        /**
+         * @brief Stores the current initialized database contents as a factory snapshot.
+         *
+         * @return `true` on success, otherwise `false`.
+         */
+        virtual bool storeFactorySnapshot() = 0;
+
+        /**
+         * @brief Restores the active database contents from the factory snapshot.
+         *
+         * @return `true` on success, otherwise `false`.
+         */
+        virtual bool restoreFactorySnapshot() = 0;
     };
 
     /**
@@ -55,14 +67,14 @@ namespace database
          *
          * @return Common-region layout descriptor.
          */
-        virtual std::span<const lib::lessdb::Block> commonLayout() const = 0;
+        virtual std::span<const zlibs::utils::lessdb::Block> commonLayout() const = 0;
 
         /**
          * @brief Returns the layout repeated once per preset slot.
          *
          * @return Preset-region layout descriptor.
          */
-        virtual std::span<const lib::lessdb::Block> presetLayout() const = 0;
+        virtual std::span<const zlibs::utils::lessdb::Block> presetLayout() const = 0;
 
         /**
          * @brief Returns the common layout size in bytes.

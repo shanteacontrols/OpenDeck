@@ -19,7 +19,10 @@ limitations under the License.
 #pragma once
 
 #include "deps.h"
-#include "board/board.h"
+
+#include <zephyr/device.h>
+#include <zephyr/devicetree.h>
+#include <zephyr/drivers/i2c.h>
 
 namespace io::i2c
 {
@@ -30,18 +33,23 @@ namespace io::i2c
 
         bool init() override
         {
-            // for i2c, consider ALREADY_INIT status a success
-            return board::i2c::init(PROJECT_TARGET_I2C_CHANNEL_DISPLAY, board::i2c::clockSpeed_t::S400K) != board::initStatus_t::ERROR;
+            return device_is_ready(_device);
         }
 
         bool write(uint8_t address, uint8_t* buffer, size_t size) override
         {
-            return board::i2c::write(PROJECT_TARGET_I2C_CHANNEL_DISPLAY, address, buffer, size);
+            return i2c_write(_device, buffer, size, address) == 0;
         }
 
         bool deviceAvailable(uint8_t address) override
         {
-            return board::i2c::deviceAvailable(PROJECT_TARGET_I2C_CHANNEL_DISPLAY, address);
+            return i2c_write(_device, nullptr, 0, address) == 0;
         }
+
+        private:
+        static_assert(DT_NODE_EXISTS(DT_CHOSEN(opendeck_display)), "Chosen OpenDeck display node must exist.");
+        static_assert(DT_NODE_HAS_PROP(DT_CHOSEN(opendeck_display), i2c), "OpenDeck display node must define an i2c phandle.");
+
+        const device* const _device = DEVICE_DT_GET(DT_PHANDLE(DT_CHOSEN(opendeck_display), i2c));
     };
 }    // namespace io::i2c

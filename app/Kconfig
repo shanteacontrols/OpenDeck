@@ -1,0 +1,8 @@
+mainmenu "Project-specific configuration"
+
+module = OPENDECK
+module-str = OpenDeck
+source "subsys/logging/Kconfig.template.log_config"
+
+source "Kconfig.zephyr"
+rsource "src/Kconfig"

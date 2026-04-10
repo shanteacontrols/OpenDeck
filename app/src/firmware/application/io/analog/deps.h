@@ -21,7 +21,9 @@ limitations under the License.
 #include "common.h"
 
 #include "application/database/database.h"
-#include "application/io/buttons/common.h"
+#include "application/io/digital/buttons/common.h"
+
+#include <optional>
 
 namespace io::analog
 {
@@ -32,8 +34,9 @@ namespace io::analog
         public:
         virtual ~Hwa() = default;
 
-        virtual bool    value(size_t index, uint16_t& value) = 0;
-        virtual uint8_t adcBits()                            = 0;
+        virtual bool                    init()              = 0;
+        virtual std::optional<uint16_t> value(size_t index) = 0;
+        virtual uint8_t                 adcBits()           = 0;
     };
 
     class Filter

@@ -20,10 +20,11 @@ limitations under the License.
 
 #include "application/io/common/common.h"
 #include "application/database/database.h"
+#include "application/io/analog/drivers/count.h"
 
 namespace io::analog
 {
-    class Collection : public io::common::BaseCollection<PROJECT_TARGET_SUPPORTED_NR_OF_ANALOG_INPUTS>
+    class Collection : public io::common::BaseCollection<OPENDECK_ANALOG_COUNT>
     {
         public:
         Collection() = delete;

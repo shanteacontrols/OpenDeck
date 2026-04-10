@@ -19,11 +19,13 @@ limitations under the License.
 #pragma once
 
 #include "application/io/common/common.h"
+#include "application/io/leds/drivers/count.h"
+#include "application/io/touchscreen/count.h"
 
 namespace io::leds
 {
-    class Collection : public io::common::BaseCollection<PROJECT_TARGET_SUPPORTED_NR_OF_DIGITAL_OUTPUTS,
-                                                         PROJECT_TARGET_SUPPORTED_NR_OF_TOUCHSCREEN_COMPONENTS>
+    class Collection : public io::common::BaseCollection<OPENDECK_LED_OUTPUT_COUNT,
+                                                         OPENDECK_TOUCHSCREEN_COMPONENT_COUNT>
     {
         public:
         Collection() = delete;

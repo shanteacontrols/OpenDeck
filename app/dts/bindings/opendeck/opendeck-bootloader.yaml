@@ -1,0 +1,19 @@
+description: OpenDeck bootloader trigger configuration
+
+compatible: "opendeck,bootloader"
+
+properties:
+  disabled:
+    type: boolean
+    required: false
+    description: Ignore this bootloader node for target support checks.
+
+  button-gpios:
+    type: phandle-array
+    required: false
+    description: Bootloader entry button GPIO.
+
+  active-low:
+    type: boolean
+    required: false
+    description: Bootloader entry button is electrically active-low.

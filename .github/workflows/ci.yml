@@ -29,7 +29,6 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Setup missing directories and files on the runner
         run: |
-          mkdir -p ~/.ssh
           touch ~/.gitconfig
       - name: Prepare container
         uses: devcontainers/ci@v0.3

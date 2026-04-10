@@ -20,10 +20,12 @@ limitations under the License.
 
 #include "deps.h"
 
-#ifdef PROJECT_MCU_USE_EMU_EEPROM
-#include "lib/emueeprom/emueeprom.h"
-#endif
+#include "zlibs/utils/emueeprom/emueeprom.h"
 
+#include <algorithm>
+#include <array>
+#include <cstddef>
+#include <cstdint>
 #include <optional>
 
 namespace database
@@ -35,179 +37,97 @@ namespace database
 
         bool init() override
         {
-#ifdef PROJECT_MCU_USE_EMU_EEPROM
-            _emuEEPROM.init();
-#endif
-            return true;
+            return _emuEEPROM.init();
         }
 
         uint32_t size() override
         {
-#ifdef PROJECT_MCU_USE_EMU_EEPROM
-            return _emuEEPROM.maxAddress();
-#else
-            return _memoryArray.size();
-#endif
+            return _emuEEPROM.max_address();
         }
 
         bool clear() override
         {
-#ifdef PROJECT_MCU_USE_EMU_EEPROM
             return _emuEEPROM.format();
-#else
-            std::fill(_memoryArray.begin(), _memoryArray.end(), 0x00);
-            return true;
-#endif
         }
 
-        std::optional<uint32_t> read(uint32_t address, lib::lessdb::SectionParameterType type) override
+        std::optional<uint32_t> read(uint32_t address, zlibs::utils::lessdb::SectionParameterType type) override
         {
-#ifdef PROJECT_MCU_USE_EMU_EEPROM
-            uint16_t tempData;
-            uint32_t value = 0;
+            uint16_t value = 0;
 
             switch (type)
             {
-            case lib::lessdb::SectionParameterType::Bit:
-            case lib::lessdb::SectionParameterType::Byte:
-            case lib::lessdb::SectionParameterType::HalfByte:
-            case lib::lessdb::SectionParameterType::Word:
+            case zlibs::utils::lessdb::SectionParameterType::Bit:
+            case zlibs::utils::lessdb::SectionParameterType::Byte:
+            case zlibs::utils::lessdb::SectionParameterType::HalfByte:
+            case zlibs::utils::lessdb::SectionParameterType::Word:
             {
-                auto readStatus = _emuEEPROM.read(address, tempData);
+                const auto read_status = _emuEEPROM.read(address, value);
 
-                if (readStatus == lib::emueeprom::readStatus_t::OK)
+                if (read_status == zlibs::utils::emueeprom::ReadStatus::Ok)
                 {
-                    value = tempData;
+                    return value;
                 }
-                else if (readStatus == lib::emueeprom::readStatus_t::NO_VAR)
+
+                if (read_status == zlibs::utils::emueeprom::ReadStatus::NoVariable)
                 {
-                    // variable with this address doesn't exist yet - set value to 0
-                    value = 0;
+                    return 0;
                 }
-                else
-                {
-                    return std::nullopt;
-                }
+
+                return {};
             }
-            break;
 
             default:
-                return std::nullopt;
+                return {};
             }
-
-            return value;
-#else
-            uint32_t value = 0;
-
-            switch (type)
-            {
-            case lib::lessdb::SectionParameterType::Bit:
-            case lib::lessdb::SectionParameterType::Byte:
-            case lib::lessdb::SectionParameterType::HalfByte:
-            {
-                value = _memoryArray.at(address);
-            }
-            break;
-
-            case lib::lessdb::SectionParameterType::Word:
-            {
-                value = _memoryArray.at(address + 1);
-                value <<= 8;
-                value |= _memoryArray.at(address + 0);
-            }
-            break;
-
-            default:
-            {
-                // case lib::lessdb::SectionParameterType::Dword:
-                value = _memoryArray.at(address + 3);
-                value <<= 8;
-                value |= _memoryArray.at(address + 2);
-                value <<= 8;
-                value |= _memoryArray.at(address + 1);
-                value <<= 8;
-                value |= _memoryArray.at(address + 0);
-            }
-            break;
-            }
-
-            return value;
-#endif
         }
 
-        bool write(uint32_t address, uint32_t value, lib::lessdb::SectionParameterType type) override
+        bool write(uint32_t address, uint32_t value, zlibs::utils::lessdb::SectionParameterType type) override
         {
-#ifdef PROJECT_MCU_USE_EMU_EEPROM
-            uint16_t tempData;
+            uint16_t write_value = value;
 
             switch (type)
             {
-            case lib::lessdb::SectionParameterType::Bit:
-            case lib::lessdb::SectionParameterType::Byte:
-            case lib::lessdb::SectionParameterType::HalfByte:
-            case lib::lessdb::SectionParameterType::Word:
-            {
-                tempData = value;
-
-                if (_emuEEPROM.write(address, tempData) != lib::emueeprom::writeStatus_t::OK)
-                {
-                    return false;
-                }
-            }
-            break;
+            case zlibs::utils::lessdb::SectionParameterType::Bit:
+            case zlibs::utils::lessdb::SectionParameterType::Byte:
+            case zlibs::utils::lessdb::SectionParameterType::HalfByte:
+            case zlibs::utils::lessdb::SectionParameterType::Word:
+                return _emuEEPROM.write(address, write_value) == zlibs::utils::emueeprom::WriteStatus::Ok;
 
             default:
                 return false;
             }
-
-            return true;
-#else
-            switch (type)
-            {
-            case lib::lessdb::SectionParameterType::Bit:
-            case lib::lessdb::SectionParameterType::Byte:
-            case lib::lessdb::SectionParameterType::HalfByte:
-            {
-                _memoryArray.at(address) = value;
-            }
-            break;
-
-            case lib::lessdb::SectionParameterType::Word:
-            {
-                _memoryArray.at(address + 0) = (value >> 0) & (uint16_t)0xFF;
-                _memoryArray.at(address + 1) = (value >> 8) & (uint16_t)0xFF;
-            }
-            break;
-
-            default:
-            {
-                // case lib::lessdb::SectionParameterType::Dword:
-                _memoryArray.at(address + 0) = (value >> 0) & (uint32_t)0xFF;
-                _memoryArray.at(address + 1) = (value >> 8) & (uint32_t)0xFF;
-                _memoryArray.at(address + 2) = (value >> 16) & (uint32_t)0xFF;
-                _memoryArray.at(address + 3) = (value >> 24) & (uint32_t)0xFF;
-            }
-            break;
-            }
-
-            return true;
-#endif
         }
 
-        bool initializeDatabase() override
+        bool hasFactorySnapshot() override
         {
-            return true;
+            return _emuEEPROM.page_status(zlibs::utils::emueeprom::Page::Factory) ==
+                   zlibs::utils::emueeprom::PageStatus::Valid;
+        }
+
+        bool storeFactorySnapshot() override
+        {
+            _emuEEPROM.write_cache_to_flash();
+            return _emuEEPROM.store_to_factory();
+        }
+
+        bool restoreFactorySnapshot() override
+        {
+            return _emuEEPROM.restore_from_factory();
         }
 
         private:
-#ifdef PROJECT_MCU_USE_EMU_EEPROM
-        class HwaEmuEeprom : public lib::emueeprom::Hwa
+        class HwaEmuEeprom : public zlibs::utils::emueeprom::Hwa
         {
             public:
+            static constexpr size_t PAGE_1_SIZE  = CONFIG_ZLIBS_UTILS_EMUEEPROM_PAGE_SIZE;
+            static constexpr size_t PAGE_2_SIZE  = CONFIG_ZLIBS_UTILS_EMUEEPROM_PAGE_SIZE;
+            static constexpr size_t FACTORY_SIZE = CONFIG_ZLIBS_UTILS_EMUEEPROM_PAGE_SIZE;
+
             HwaEmuEeprom()
             {
-                std::fill(_pageArray.at(0).begin(), _pageArray.at(0).end(), 0xFF);
-                std::fill(_pageArray.at(1).begin(), _pageArray.at(1).end(), 0xFF);
+                erase_page(zlibs::utils::emueeprom::Page::Page1);
+                erase_page(zlibs::utils::emueeprom::Page::Page2);
+                erase_page(zlibs::utils::emueeprom::Page::Factory);
             }
 
             bool init() override
@@ -215,73 +135,101 @@ namespace database
                 return true;
             }
 
-            bool erasePage(lib::emueeprom::page_t page) override
+            bool erase_page(zlibs::utils::emueeprom::Page page) override
             {
-                if (page == lib::emueeprom::page_t::PAGE_FACTORY)
-                {
-                    return false;
-                }
+                auto& storage = page_storage(page);
 
-                auto& ref = page == lib::emueeprom::page_t::PAGE_1 ? _pageArray.at(0) : _pageArray.at(1);
-
-                std::fill(ref.begin(), ref.end(), 0xFF);
+                std::fill(storage.begin(), storage.end(), static_cast<uint8_t>(0xFF));
                 return true;
             }
 
-            bool write32(lib::emueeprom::page_t page, uint32_t offset, uint32_t data) override
+            bool write_32(zlibs::utils::emueeprom::Page page, uint32_t offset, uint32_t data) override
             {
-                if (page == lib::emueeprom::page_t::PAGE_FACTORY)
+                auto& storage = page_storage(page);
+
+                if ((offset + sizeof(data)) > storage.size())
                 {
                     return false;
                 }
 
-                // 0->1 transition is not allowed
-                uint32_t currentData = 0;
-                read32(page, offset, currentData);
+                auto current = read_32(page, offset);
 
-                if (data > currentData)
+                if (!current.has_value() || (data > current.value()))
                 {
                     return false;
                 }
 
-                auto& ref = page == lib::emueeprom::page_t::PAGE_1 ? _pageArray.at(0) : _pageArray.at(1);
-
-                ref.at(offset + 0) = data >> 0 & static_cast<uint16_t>(0xFF);
-                ref.at(offset + 1) = data >> 8 & static_cast<uint16_t>(0xFF);
-                ref.at(offset + 2) = data >> 16 & static_cast<uint16_t>(0xFF);
-                ref.at(offset + 3) = data >> 24 & static_cast<uint16_t>(0xFF);
+                storage.at(offset + 0) = static_cast<uint8_t>((data >> 0) & 0xFF);
+                storage.at(offset + 1) = static_cast<uint8_t>((data >> 8) & 0xFF);
+                storage.at(offset + 2) = static_cast<uint8_t>((data >> 16) & 0xFF);
+                storage.at(offset + 3) = static_cast<uint8_t>((data >> 24) & 0xFF);
 
                 return true;
             }
 
-            bool read32(lib::emueeprom::page_t page, uint32_t offset, uint32_t& data) override
+            std::optional<uint32_t> read_32(zlibs::utils::emueeprom::Page page, uint32_t offset) override
             {
-                // no factory page here
-                if (page == lib::emueeprom::page_t::PAGE_FACTORY)
+                const auto& storage = page_storage(page);
+
+                if ((offset + sizeof(uint32_t)) > storage.size())
                 {
-                    return false;
+                    return {};
                 }
 
-                auto& ref = page == lib::emueeprom::page_t::PAGE_1 ? _pageArray.at(0) : _pageArray.at(1);
+                uint32_t data = storage.at(offset + 3);
+                data <<= 8;
+                data |= storage.at(offset + 2);
+                data <<= 8;
+                data |= storage.at(offset + 1);
+                data <<= 8;
+                data |= storage.at(offset + 0);
 
-                data = ref.at(offset + 3);
-                data <<= 8;
-                data |= ref.at(offset + 2);
-                data <<= 8;
-                data |= ref.at(offset + 1);
-                data <<= 8;
-                data |= ref.at(offset + 0);
-
-                return true;
+                return data;
             }
 
             private:
-            std::array<std::array<uint8_t, EMU_EEPROM_PAGE_SIZE>, 2> _pageArray;
-        } _hwaEmuEeprom;
+            using PageStorage = std::array<uint8_t, CONFIG_ZLIBS_UTILS_EMUEEPROM_PAGE_SIZE>;
 
-        lib::emueeprom::EmuEEPROM _emuEEPROM = lib::emueeprom::EmuEEPROM(_hwaEmuEeprom, false);
-#else
-        std::array<uint8_t, PROJECT_MCU_EEPROM_SIZE - 1> _memoryArray = {};
-#endif
+            PageStorage& page_storage(zlibs::utils::emueeprom::Page page)
+            {
+                switch (page)
+                {
+                case zlibs::utils::emueeprom::Page::Page1:
+                    return _page1;
+
+                case zlibs::utils::emueeprom::Page::Page2:
+                    return _page2;
+
+                case zlibs::utils::emueeprom::Page::Factory:
+                    return _factory;
+                }
+
+                return _page1;
+            }
+
+            const PageStorage& page_storage(zlibs::utils::emueeprom::Page page) const
+            {
+                switch (page)
+                {
+                case zlibs::utils::emueeprom::Page::Page1:
+                    return _page1;
+
+                case zlibs::utils::emueeprom::Page::Page2:
+                    return _page2;
+
+                case zlibs::utils::emueeprom::Page::Factory:
+                    return _factory;
+                }
+
+                return _page1;
+            }
+
+            PageStorage _page1   = {};
+            PageStorage _page2   = {};
+            PageStorage _factory = {};
+        };
+
+        HwaEmuEeprom                       _hwaEmuEeprom;
+        zlibs::utils::emueeprom::EmuEeprom _emuEEPROM = zlibs::utils::emueeprom::EmuEeprom(_hwaEmuEeprom);
     };
 }    // namespace database

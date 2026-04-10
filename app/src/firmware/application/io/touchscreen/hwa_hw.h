@@ -19,9 +19,20 @@ limitations under the License.
 #pragma once
 
 #include "deps.h"
-#include "board/board.h"
 
-#include "core/util/util.h"
+#include "zlibs/drivers/uart/uart_hw.h"
+#include "zlibs/utils/misc/ring_buffer.h"
+
+#include <zephyr/device.h>
+#include <zephyr/devicetree.h>
+#include <zephyr/drivers/uart.h>
+
+#define OPENDECK_TOUCHSCREEN_NODE DT_CHOSEN(opendeck_touchscreen)
+
+#if !DT_NODE_HAS_PROP(OPENDECK_TOUCHSCREEN_NODE, uart)
+#error "Chosen OpenDeck touchscreen node must define a UART phandle."
+#endif
+#define OPENDECK_TOUCHSCREEN_UART_NODE DT_PHANDLE(OPENDECK_TOUCHSCREEN_NODE, uart)
 
 namespace io::touchscreen
 {
@@ -32,32 +43,44 @@ namespace io::touchscreen
 
         bool init() override
         {
-            static constexpr uint32_t BAUDRATE = 38400;
-            return board::uart::init(PROJECT_TARGET_UART_CHANNEL_TOUCHSCREEN, BAUDRATE) == board::initStatus_t::OK;
+            _initialized = _uart.init(_config);
+            return _initialized;
         }
 
         bool deInit() override
         {
-            return board::uart::deInit(PROJECT_TARGET_UART_CHANNEL_TOUCHSCREEN);
+            const bool result = _uart.deinit();
+            _initialized      = false;
+            return result;
         }
 
         bool write(uint8_t value) override
         {
-            return board::uart::write(PROJECT_TARGET_UART_CHANNEL_TOUCHSCREEN, value);
+            return _uart.write(value);
         }
 
-        bool read(uint8_t& value) override
+        std::optional<uint8_t> read() override
         {
-            return board::uart::read(PROJECT_TARGET_UART_CHANNEL_TOUCHSCREEN, value);
+            return _uart.read();
         }
 
         bool allocated(io::common::Allocatable::interface_t interface) override
         {
-#ifdef PROJECT_TARGET_UART_CHANNEL_TOUCHSCREEN
-            return board::uart::isInitialized(PROJECT_TARGET_UART_CHANNEL_TOUCHSCREEN);
-#else
-            return false;
-#endif
+            return interface == io::common::Allocatable::interface_t::UART ? _initialized : false;
         }
+
+        private:
+        static constexpr size_t                     BUFFER_SIZE = 256;
+        static constexpr uint32_t                   BAUDRATE    = 38400;
+        const device* const                         _device     = DEVICE_DT_GET(OPENDECK_TOUCHSCREEN_UART_NODE);
+        zlibs::utils::misc::RingBuffer<BUFFER_SIZE> _rx_buffer  = {};
+        zlibs::utils::misc::RingBuffer<BUFFER_SIZE> _tx_buffer  = {};
+        zlibs::drivers::uart::Config                _config     = zlibs::drivers::uart::Config(
+            BAUDRATE,
+            UART_CFG_STOP_BITS_1,
+            _rx_buffer,
+            _tx_buffer);
+        zlibs::drivers::uart::UartHw _uart        = zlibs::drivers::uart::UartHw(_device);
+        bool                         _initialized = false;
     };
 }    // namespace io::touchscreen

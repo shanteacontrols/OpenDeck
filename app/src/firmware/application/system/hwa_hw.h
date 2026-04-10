@@ -20,80 +20,33 @@ limitations under the License.
 
 #include "deps.h"
 #include "application/messaging/messaging.h"
-#include "board/board.h"
 
-#include "core/mcu.h"
+#include <zephyr/sys/reboot.h>
 
 namespace sys
 {
     class HwaHw : public Hwa
     {
         public:
-        HwaHw()
-        {
-            MidiDispatcher.listen(messaging::eventType_t::SYSTEM,
-                                  [](const messaging::Event& event)
-                                  {
-                                      switch (event.systemMessage)
-                                      {
-                                      case messaging::systemMessage_t::FACTORY_RESET_START:
-                                      {
-                                          board::usb::deInit();
-                                          board::io::indicators::indicateFactoryReset();
-                                      }
-                                      break;
-
-                                      case messaging::systemMessage_t::FACTORY_RESET_END:
-                                      {
-                                          board::reboot();
-                                      }
-                                      break;
-
-                                      default:
-                                          break;
-                                      }
-                                  });
-        }
+        HwaHw() = default;
 
         bool init() override
         {
-            board::init();
+            if (_usbConnectionHandler != nullptr)
+            {
+                _usbConnectionHandler();
+            }
+
             return true;
         }
 
         void update() override
         {
-            board::update();
-
-            static uint32_t lastCheckTime       = 0;
-            static bool     lastConnectionState = false;
-
-            if (core::mcu::timing::ms() - lastCheckTime > USB_CONN_CHECK_TIME)
-            {
-                bool newState = board::usb::isUsbConnected();
-
-                if (newState)
-                {
-                    if (!lastConnectionState)
-                    {
-                        if (_usbConnectionHandler != nullptr)
-                        {
-                            _usbConnectionHandler();
-                        }
-                    }
-                }
-
-                lastConnectionState = newState;
-                lastCheckTime       = core::mcu::timing::ms();
-            }
         }
 
-        void reboot(fw_selector::fwType_t type) override
+        void reboot([[maybe_unused]] fw_selector::fwType_t type) override
         {
-            auto value = static_cast<uint32_t>(type);
-
-            board::bootloader::setMagicBootValue(value);
-            board::reboot();
+            sys_reboot(SYS_REBOOT_COLD);
         }
 
         void registerOnUSBconnectionHandler(usbConnectionHandler_t&& usbConnectionHandler) override
@@ -102,7 +55,6 @@ namespace sys
         }
 
         private:
-        static constexpr uint32_t USB_CONN_CHECK_TIME   = 2000;
-        usbConnectionHandler_t    _usbConnectionHandler = nullptr;
+        usbConnectionHandler_t _usbConnectionHandler = nullptr;
     };
 }    // namespace sys

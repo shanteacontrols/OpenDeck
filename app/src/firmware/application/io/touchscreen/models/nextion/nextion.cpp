@@ -16,13 +16,13 @@ limitations under the License.
 
 */
 
-#ifdef PROJECT_TARGET_SUPPORT_TOUCHSCREEN
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_TOUCHSCREEN
 
 #include "nextion.h"
 
 #include "application/io/touchscreen/touchscreen.h"
 
-#include "core/mcu.h"
+#include <zephyr/kernel.h>
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -43,7 +43,7 @@ bool Nextion::init()
     if (_hwa.init())
     {
         // add slight delay to ensure display can receive commands after power on
-        core::mcu::timing::waitMs(1000);
+        k_msleep(1000);
 
         endCommand();
         writeCommand("sendxy=1");
@@ -66,24 +66,27 @@ bool Nextion::setScreen(size_t index)
 
 tsEvent_t Nextion::update(Data& data)
 {
-    uint8_t value   = 0;
-    bool    process = false;
-    auto    retVal  = tsEvent_t::NONE;
+    bool process = false;
+    auto retVal  = tsEvent_t::NONE;
 
-    while (_hwa.read(value))
+    while (true)
     {
-        Model::_rxBuffer[Model::_bufferCount++] = value;
+        auto value = _hwa.read();
 
-        if (value == 0xFF)
+        if (!value.has_value())
+        {
+            break;
+        }
+
+        Model::_rxBuffer[Model::_bufferCount++] = value.value();
+
+        if (value.value() == 0xFF)
         {
             _endCounter++;
         }
-        else
+        else if (_endCounter)
         {
-            if (_endCounter)
-            {
-                _endCounter = 0;
-            }
+            _endCounter = 0;
         }
 
         if (_endCounter == 3)

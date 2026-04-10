@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef PROJECT_TARGET_SUPPORT_DISPLAY
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_DISPLAY
 
 #include "display.h"
 
@@ -26,10 +26,16 @@ limitations under the License.
 #include "application/util/conversion/conversion.h"
 #include "application/util/configurable/configurable.h"
 
-#include "core/mcu.h"
+#include <zephyr/kernel.h>
+#include <zephyr/logging/log.h>
 
 using namespace io::i2c::display;
 using namespace protocol;
+
+namespace
+{
+    LOG_MODULE_REGISTER(display, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
+}    // namespace
 
 Display::Display(Hwa&      hwa,
                  Database& database)
@@ -98,7 +104,7 @@ bool Display::init()
 
             _elements._midiUpdater.useAlternateNote(_database.read(database::Config::Section::i2c_t::DISPLAY,
                                                                    setting_t::MIDI_NOTES_ALTERNATE));
-            _elements._preset.setPreset(_database.getPreset());
+            _elements._preset.setPreset(_database.currentPreset());
             _elements.setRetentionTime(_database.read(database::Config::Section::i2c_t::DISPLAY, setting_t::EVENT_TIME) * 1000);
         }
         else
@@ -287,17 +293,17 @@ void Display::displayWelcomeMessage()
         writeString(startRow, "HW: %s", Strings::TARGET_NAME_STRING);
     }
 
-    core::mcu::timing::waitMs(2000);
+    k_msleep(2000);
 }
 
 std::optional<uint8_t> Display::sysConfigGet(sys::Config::Section::i2c_t section, size_t index, uint16_t& value)
 {
     if (section != sys::Config::Section::i2c_t::DISPLAY)
     {
-        return std::nullopt;
+        return {};
     }
 
-    uint32_t readValue;
+    uint32_t readValue = 0;
 
     auto result = _database.read(util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
                       ? sys::Config::Status::ACK
@@ -312,7 +318,7 @@ std::optional<uint8_t> Display::sysConfigSet(sys::Config::Section::i2c_t section
 {
     if (section != sys::Config::Section::i2c_t::DISPLAY)
     {
-        return std::nullopt;
+        return {};
     }
 
     auto initAction = common::initAction_t::AS_IS;

@@ -23,10 +23,10 @@ limitations under the License.
 #include "application/database/builder.h"
 #include "application/protocol/midi/builder.h"
 #include "application/io/analog/builder.h"
-#include "application/io/buttons/builder.h"
-#include "application/io/encoders/builder.h"
+#include "application/io/digital/builder.h"
 #include "application/io/touchscreen/builder.h"
 #include "application/io/i2c/builder.h"
+#include "application/io/indicators/builder.h"
 #include "application/io/leds/builder.h"
 
 namespace sys
@@ -47,12 +47,12 @@ namespace sys
             public:
             ComponentsHw()
             {
-                _io.at(static_cast<size_t>(::io::ioComponent_t::BUTTONS))       = &_builderButtons.instance();
-                _io.at(static_cast<size_t>(::io::ioComponent_t::ENCODERS))      = &_builderEncoders.instance();
+                _io.at(static_cast<size_t>(::io::ioComponent_t::DIGITAL))       = &_builderDigital.instance();
                 _io.at(static_cast<size_t>(::io::ioComponent_t::ANALOG))        = &_builderAnalog.instance();
                 _io.at(static_cast<size_t>(::io::ioComponent_t::LEDS))          = &_builderLeds.instance();
                 _io.at(static_cast<size_t>(::io::ioComponent_t::I2C))           = &_builderI2c.instance();
                 _io.at(static_cast<size_t>(::io::ioComponent_t::TOUCHSCREEN))   = &_builderTouchscreen.instance();
+                _io.at(static_cast<size_t>(::io::ioComponent_t::INDICATORS))    = &_builderIndicators.instance();
                 _protocol.at(static_cast<size_t>(::protocol::protocol_t::MIDI)) = &_builderMidi.instance();
             }
 
@@ -74,12 +74,12 @@ namespace sys
             private:
             database::Builder                                                              _builderDatabase;
             database::Admin&                                                               _database           = _builderDatabase.instance();
+            io::digital::Builder                                                           _builderDigital     = io::digital::Builder(_database);
             io::analog::Builder                                                            _builderAnalog      = io::analog::Builder(_database);
-            io::encoders::Builder                                                          _builderEncoders    = io::encoders::Builder(_database);
             io::leds::Builder                                                              _builderLeds        = io::leds::Builder(_database);
-            io::buttons::Builder                                                           _builderButtons     = io::buttons::Builder(_database);
             io::touchscreen::Builder                                                       _builderTouchscreen = io::touchscreen::Builder(_database);
             io::i2c::Builder                                                               _builderI2c         = io::i2c::Builder(_database);
+            io::indicators::Builder                                                        _builderIndicators  = io::indicators::Builder(_database);
             protocol::midi::Builder                                                        _builderMidi        = protocol::midi::Builder(_database);
             std::array<io::Base*, static_cast<size_t>(io::ioComponent_t::AMOUNT)>          _io                 = {};
             std::array<protocol::Base*, static_cast<size_t>(protocol::protocol_t::AMOUNT)> _protocol           = {};

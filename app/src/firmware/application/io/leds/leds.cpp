@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef PROJECT_TARGET_SUPPORT_LEDS
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_LEDS
 
 #include "leds.h"
 #include "application/messaging/messaging.h"
@@ -24,11 +24,19 @@ limitations under the License.
 #include "application/util/conversion/conversion.h"
 #include "application/util/configurable/configurable.h"
 
-#include "core/mcu.h"
-#include "core/util/util.h"
+#include "zlibs/utils/misc/bit.h"
+
+#include <zephyr/kernel.h>
+#include <zephyr/logging/log.h>
 
 using namespace io::leds;
 using namespace protocol;
+using namespace zlibs::utils;
+
+namespace
+{
+    LOG_MODULE_REGISTER(leds, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
+}    // namespace
 
 Leds::Leds(Hwa&      hwa,
            Database& database)
@@ -45,104 +53,97 @@ Leds::Leds(Hwa&      hwa,
         _brightness[i] = brightness_t::OFF;
     }
 
-    MidiDispatcher.listen(messaging::eventType_t::MIDI_IN,
-                          [this](const messaging::Event& event)
-                          {
-                              switch (event.message)
-                              {
-                              case midi::messageType_t::NOTE_ON:
-                              case midi::messageType_t::NOTE_OFF:
-                              case midi::messageType_t::CONTROL_CHANGE:
-                              case midi::messageType_t::PROGRAM_CHANGE:
-                              {
-                                  midiToState(event, messaging::eventType_t::MIDI_IN);
-                              }
-                              break;
+    messaging::subscribe<messaging::UmpSignal>(
+        [this](const messaging::UmpSignal& signal)
+        {
+            if (signal.direction != messaging::MidiDirection::In)
+            {
+                return;
+            }
 
-                              case midi::messageType_t::SYS_REAL_TIME_CLOCK:
-                              {
-                                  updateAll(true);
-                              }
-                              break;
+            const auto message = protocol::midi::decode_message(signal.packet);
 
-                              case midi::messageType_t::SYS_REAL_TIME_START:
-                              {
-                                  resetBlinking();
-                                  updateAll(true);
-                              }
-                              break;
+            switch (message.type)
+            {
+            case protocol::midi::messageType_t::NOTE_ON:
+            case protocol::midi::messageType_t::NOTE_OFF:
+            case protocol::midi::messageType_t::CONTROL_CHANGE:
+            case protocol::midi::messageType_t::PROGRAM_CHANGE:
+            {
+                midiToState(message, messaging::MidiDirection::In);
+            }
+            break;
 
-                              default:
-                                  break;
-                              }
-                          });
+            case protocol::midi::messageType_t::SYS_REAL_TIME_CLOCK:
+            {
+                updateAll(true);
+            }
+            break;
 
-    MidiDispatcher.listen(messaging::eventType_t::BUTTON,
-                          [this](const messaging::Event& event)
-                          {
-                              switch (event.message)
-                              {
-                              case midi::messageType_t::NOTE_ON:
-                              case midi::messageType_t::NOTE_OFF:
-                              case midi::messageType_t::CONTROL_CHANGE:
-                              case midi::messageType_t::PROGRAM_CHANGE:
-                              {
-                                  midiToState(event, messaging::eventType_t::BUTTON);
-                              }
-                              break;
+            case protocol::midi::messageType_t::SYS_REAL_TIME_START:
+            {
+                resetBlinking();
+                updateAll(true);
+            }
+            break;
 
-                              default:
-                                  break;
-                              }
-                          });
+            default:
+                break;
+            }
+        });
 
-    MidiDispatcher.listen(messaging::eventType_t::ANALOG,
-                          [this](const messaging::Event& event)
-                          {
-                              switch (event.message)
-                              {
-                              case midi::messageType_t::NOTE_ON:
-                              case midi::messageType_t::NOTE_OFF:
-                              case midi::messageType_t::CONTROL_CHANGE:
-                              case midi::messageType_t::PROGRAM_CHANGE:
-                              {
-                                  midiToState(event, messaging::eventType_t::ANALOG);
-                              }
-                              break;
+    messaging::subscribe<messaging::SystemSignal>(
+        [this](const messaging::SystemSignal& signal)
+        {
+            switch (signal.systemMessage)
+            {
+            case messaging::systemMessage_t::PRESET_CHANGED:
+            {
+                setAllOff();
+                presetToState(signal.value);
+            }
+            break;
 
-                              default:
-                                  break;
-                              }
-                          });
+            default:
+                break;
+            }
+        });
 
-    MidiDispatcher.listen(messaging::eventType_t::SYSTEM,
-                          [this](const messaging::Event& event)
-                          {
-                              switch (event.systemMessage)
-                              {
-                              case messaging::systemMessage_t::PRESET_CHANGED:
-                              {
-                                  setAllOff();
-                                  midiToState(event, messaging::eventType_t::SYSTEM);
-                              }
-                              break;
+    messaging::subscribe<messaging::TouchscreenScreenSignal>(
+        [this](const messaging::TouchscreenScreenSignal& signal)
+        {
+            refresh();
+        });
 
-                              default:
-                                  break;
-                              }
-                          });
+    messaging::subscribe<messaging::MidiSignal>(
+        [this](const messaging::MidiSignal& signal)
+        {
+            const auto direction = (signal.source == messaging::MidiSource::Program)
+                                       ? messaging::MidiDirection::In
+                                       : messaging::MidiDirection::Out;
 
-    MidiDispatcher.listen(messaging::eventType_t::TOUCHSCREEN_SCREEN,
-                          [this](const messaging::Event& event)
-                          {
-                              refresh();
-                          });
+            switch (signal.source)
+            {
+            case messaging::MidiSource::Button:
+            case messaging::MidiSource::Analog:
+            case messaging::MidiSource::AnalogButton:
+            case messaging::MidiSource::Encoder:
+            case messaging::MidiSource::Program:
+                break;
 
-    MidiDispatcher.listen(messaging::eventType_t::PROGRAM,
-                          [this](const messaging::Event& event)
-                          {
-                              midiToState(event, messaging::eventType_t::PROGRAM);
-                          });
+            default:
+                return;
+            }
+
+            midiToState(
+                {
+                    .type    = signal.message,
+                    .channel = signal.channel,
+                    .data1   = signal.index,
+                    .data2   = signal.value,
+                },
+                direction);
+        });
 
     ConfigHandler.registerConfig(
         sys::Config::block_t::LEDS,
@@ -184,6 +185,7 @@ void Leds::updateAll(bool forceRefresh)
 {
     if (_blinkResetArrayPtr == nullptr)
     {
+        _hwa.update();
         return;
     }
 
@@ -191,12 +193,13 @@ void Leds::updateAll(bool forceRefresh)
     {
     case blinkType_t::TIMER:
     {
-        if ((core::mcu::timing::ms() - _lastLEDblinkUpdateTime) < LED_BLINK_TIMER_TYPE_CHECK_TIME)
+        if ((k_uptime_get_32() - _lastLEDblinkUpdateTime) < LED_BLINK_TIMER_TYPE_CHECK_TIME)
         {
+            _hwa.update();
             return;
         }
 
-        _lastLEDblinkUpdateTime = core::mcu::timing::ms();
+        _lastLEDblinkUpdateTime = k_uptime_get_32();
     }
     break;
 
@@ -204,12 +207,14 @@ void Leds::updateAll(bool forceRefresh)
     {
         if (!forceRefresh)
         {
+            _hwa.update();
             return;
         }
     }
     break;
 
     default:
+        _hwa.update();
         return;
     }
 
@@ -241,6 +246,8 @@ void Leds::updateAll(bool forceRefresh)
             setState(j, bit(j, ledBit_t::STATE) ? _brightness[j] : brightness_t::OFF);
         }
     }
+
+    _hwa.update();
 }
 
 size_t Leds::maxComponentUpdateIndex()
@@ -253,24 +260,24 @@ __attribute__((weak)) void Leds::startUpAnimation()
     // turn all leds on first
     setAllOn();
 
-    core::mcu::timing::waitMs(1000);
+    k_msleep(1000);
 
     for (size_t i = 0; i < Collection::SIZE(GROUP_DIGITAL_OUTPUTS); i++)
     {
         setState(i, brightness_t::OFF);
-        core::mcu::timing::waitMs(35);
+        k_msleep(35);
     }
 
     for (size_t i = 0; i < Collection::SIZE(GROUP_DIGITAL_OUTPUTS); i++)
     {
         setState(Collection::SIZE(GROUP_DIGITAL_OUTPUTS) - 1 - i, brightness_t::B100);
-        core::mcu::timing::waitMs(35);
+        k_msleep(35);
     }
 
     for (size_t i = 0; i < Collection::SIZE(GROUP_DIGITAL_OUTPUTS); i++)
     {
         setState(i, brightness_t::OFF);
-        core::mcu::timing::waitMs(35);
+        k_msleep(35);
     }
 
     // turn all off again
@@ -304,43 +311,31 @@ brightness_t Leds::valueToBrightness(uint8_t value)
     return static_cast<brightness_t>((value % 16 % TOTAL_BRIGHTNESS_VALUES) + 1);
 }
 
-void Leds::midiToState(const messaging::Event& event, messaging::eventType_t source)
+void Leds::midiToState(const protocol::midi::message_t& message, messaging::MidiDirection direction)
 {
-    const uint8_t GLOBAL_CHANNEL     = _database.read(database::Config::Section::global_t::MIDI_SETTINGS, midi::setting_t::GLOBAL_CHANNEL);
+    const uint8_t GLOBAL_CHANNEL     = _database.read(database::Config::Section::global_t::MIDI_SETTINGS, protocol::midi::setting_t::GLOBAL_CHANNEL);
     const uint8_t USE_GLOBAL_CHANNEL = _database.read(database::Config::Section::global_t::MIDI_SETTINGS,
-                                                      midi::setting_t::USE_GLOBAL_CHANNEL);
+                                                      protocol::midi::setting_t::USE_GLOBAL_CHANNEL);
 
-    auto eventToMessage = [](const messaging::Event& event)
-    {
-        auto message = event.message;
-
-        // ignore the distinction between note on and off
-        if (message == midi::messageType_t::NOTE_OFF)
-        {
-            message = midi::messageType_t::NOTE_ON;
-        }
-
-        if (event.systemMessage == messaging::systemMessage_t::PRESET_CHANGED)
-        {
-            message = midi::messageType_t::PROGRAM_CHANGE;
-        }
-
-        return message;
-    };
-
-    auto isControlTypeMatched = [](midi::messageType_t message, controlType_t controlType)
+    auto isControlTypeMatched = [](protocol::midi::messageType_t message, controlType_t controlType)
     {
         return CONTROL_TYPE_TO_MIDI_MESSAGE[static_cast<uint8_t>(controlType)] == message;
     };
 
-    auto message = eventToMessage(event);
+    auto midiMessage = message.type;
+
+    // ignore the distinction between note on and off
+    if (midiMessage == protocol::midi::messageType_t::NOTE_OFF)
+    {
+        midiMessage = protocol::midi::messageType_t::NOTE_ON;
+    }
 
     for (size_t i = 0; i < Collection::SIZE(); i++)
     {
         auto controlType = static_cast<controlType_t>(_database.read(database::Config::Section::leds_t::CONTROL_TYPE, i));
 
         // match received midi message with the assigned LED control type
-        if (!isControlTypeMatched(message, controlType))
+        if (!isControlTypeMatched(midiMessage, controlType))
         {
             continue;
         }
@@ -351,13 +346,13 @@ void Leds::midiToState(const messaging::Event& event, messaging::eventType_t sou
 
         // determine whether led state or blink state should be changed
         // received MIDI message must match with defined control type
-        if (source != messaging::eventType_t::MIDI_IN)
+        if (direction != messaging::MidiDirection::In)
         {
             switch (controlType)
             {
             case controlType_t::LOCAL_NOTE_SINGLE_VAL:
             {
-                if (message == midi::messageType_t::NOTE_ON)
+                if (midiMessage == protocol::midi::messageType_t::NOTE_ON)
                 {
                     setState = true;
                 }
@@ -366,7 +361,7 @@ void Leds::midiToState(const messaging::Event& event, messaging::eventType_t sou
 
             case controlType_t::LOCAL_CC_SINGLE_VAL:
             {
-                if (message == midi::messageType_t::CONTROL_CHANGE)
+                if (midiMessage == protocol::midi::messageType_t::CONTROL_CHANGE)
                 {
                     setState = true;
                 }
@@ -375,8 +370,7 @@ void Leds::midiToState(const messaging::Event& event, messaging::eventType_t sou
 
             case controlType_t::PC_SINGLE_VAL:
             {
-                // source must be verified here, otherwise no difference between program and preset source is detected
-                if ((message == midi::messageType_t::PROGRAM_CHANGE) && (source != messaging::eventType_t::SYSTEM))
+                if (midiMessage == protocol::midi::messageType_t::PROGRAM_CHANGE)
                 {
                     setState = true;
                 }
@@ -385,19 +379,13 @@ void Leds::midiToState(const messaging::Event& event, messaging::eventType_t sou
 
             case controlType_t::PRESET:
             {
-                // message is set to PROGRAM_CHANGE when changing preset so that internal control type matching is possible
-                if ((message == midi::messageType_t::PROGRAM_CHANGE) && (source == messaging::eventType_t::SYSTEM))
-                {
-                    setState = true;
-                }
-
                 checkChannel = false;
             }
             break;
 
             case controlType_t::LOCAL_NOTE_MULTI_VAL:
             {
-                if (message == midi::messageType_t::NOTE_ON)
+                if (midiMessage == protocol::midi::messageType_t::NOTE_ON)
                 {
                     setState = true;
                     setBlink = true;
@@ -407,7 +395,7 @@ void Leds::midiToState(const messaging::Event& event, messaging::eventType_t sou
 
             case controlType_t::LOCAL_CC_MULTI_VAL:
             {
-                if (message == midi::messageType_t::CONTROL_CHANGE)
+                if (midiMessage == protocol::midi::messageType_t::CONTROL_CHANGE)
                 {
                     setState = true;
                     setBlink = true;
@@ -425,7 +413,7 @@ void Leds::midiToState(const messaging::Event& event, messaging::eventType_t sou
             {
             case controlType_t::MIDI_IN_NOTE_SINGLE_VAL:
             {
-                if (message == midi::messageType_t::NOTE_ON)
+                if (midiMessage == protocol::midi::messageType_t::NOTE_ON)
                 {
                     setState = true;
                 }
@@ -434,7 +422,7 @@ void Leds::midiToState(const messaging::Event& event, messaging::eventType_t sou
 
             case controlType_t::MIDI_IN_CC_SINGLE_VAL:
             {
-                if (message == midi::messageType_t::CONTROL_CHANGE)
+                if (midiMessage == protocol::midi::messageType_t::CONTROL_CHANGE)
                 {
                     setState = true;
                 }
@@ -443,7 +431,7 @@ void Leds::midiToState(const messaging::Event& event, messaging::eventType_t sou
 
             case controlType_t::PC_SINGLE_VAL:
             {
-                if (message == midi::messageType_t::PROGRAM_CHANGE)
+                if (midiMessage == protocol::midi::messageType_t::PROGRAM_CHANGE)
                 {
                     setState = true;
                 }
@@ -452,7 +440,7 @@ void Leds::midiToState(const messaging::Event& event, messaging::eventType_t sou
 
             case controlType_t::MIDI_IN_NOTE_MULTI_VAL:
             {
-                if (message == midi::messageType_t::NOTE_ON)
+                if (midiMessage == protocol::midi::messageType_t::NOTE_ON)
                 {
                     setState = true;
                     setBlink = true;
@@ -462,7 +450,7 @@ void Leds::midiToState(const messaging::Event& event, messaging::eventType_t sou
 
             case controlType_t::MIDI_IN_CC_MULTI_VAL:
             {
-                if (message == midi::messageType_t::CONTROL_CHANGE)
+                if (midiMessage == protocol::midi::messageType_t::CONTROL_CHANGE)
                 {
                     setState = true;
                     setBlink = true;
@@ -476,13 +464,13 @@ void Leds::midiToState(const messaging::Event& event, messaging::eventType_t sou
         }
 
         const auto DB_CHANNEL = _database.read(database::Config::Section::leds_t::CHANNEL, i);
-        const bool USE_OMNI   = (USE_GLOBAL_CHANNEL && (GLOBAL_CHANNEL == midi::OMNI_CHANNEL)) || (DB_CHANNEL == midi::OMNI_CHANNEL);
+        const bool USE_OMNI   = (USE_GLOBAL_CHANNEL && (GLOBAL_CHANNEL == protocol::midi::OMNI_CHANNEL)) || (DB_CHANNEL == protocol::midi::OMNI_CHANNEL);
 
         if (checkChannel && !USE_OMNI)
         {
             const auto CHECK_CHANNEL = USE_GLOBAL_CHANNEL ? GLOBAL_CHANNEL : DB_CHANNEL;
 
-            if (CHECK_CHANNEL != event.channel)
+            if (CHECK_CHANNEL != message.channel)
             {
                 continue;
             }
@@ -498,7 +486,7 @@ void Leds::midiToState(const messaging::Event& event, messaging::eventType_t sou
 
             uint8_t activationID = _database.read(database::Config::Section::leds_t::ACTIVATION_ID, i);
 
-            if (message == midi::messageType_t::PROGRAM_CHANGE)
+            if (midiMessage == protocol::midi::messageType_t::PROGRAM_CHANGE)
             {
                 if (_database.read(database::Config::Section::leds_t::GLOBAL, setting_t::USE_MIDI_PROGRAM_OFFSET))
                 {
@@ -510,9 +498,9 @@ void Leds::midiToState(const messaging::Event& event, messaging::eventType_t sou
             if (setState)
             {
                 // match activation ID with received ID
-                if (activationID == event.index)
+                if (activationID == message.data1)
                 {
-                    if (message == midi::messageType_t::PROGRAM_CHANGE)
+                    if (midiMessage == protocol::midi::messageType_t::PROGRAM_CHANGE)
                     {
                         // byte2 doesn't exist on program change message
                         color      = color_t::RED;
@@ -523,13 +511,13 @@ void Leds::midiToState(const messaging::Event& event, messaging::eventType_t sou
                         // when note/cc are used to control both state and blinking ignore activation velocity
                         if (setState && setBlink)
                         {
-                            color      = valueToColor(event.value);
-                            brightness = valueToBrightness(event.value);
+                            color      = valueToColor(message.data2);
+                            brightness = valueToBrightness(message.data2);
                         }
                         else
                         {
                             // this has side effect that it will always set RGB LED to red color since no color information is available
-                            color      = (_database.read(database::Config::Section::leds_t::ACTIVATION_VALUE, i) == event.value) ? color_t::RED : color_t::OFF;
+                            color      = (_database.read(database::Config::Section::leds_t::ACTIVATION_VALUE, i) == message.data2) ? color_t::RED : color_t::OFF;
                             brightness = brightness_t::B100;
                         }
                     }
@@ -538,7 +526,7 @@ void Leds::midiToState(const messaging::Event& event, messaging::eventType_t sou
                 }
                 else
                 {
-                    if (message == midi::messageType_t::PROGRAM_CHANGE)
+                    if (midiMessage == protocol::midi::messageType_t::PROGRAM_CHANGE)
                     {
                         setColor(i, color_t::OFF, brightness_t::OFF);
                     }
@@ -548,13 +536,44 @@ void Leds::midiToState(const messaging::Event& event, messaging::eventType_t sou
             if (setBlink)
             {
                 // match activation ID with received ID
-                if (activationID == event.index)
+                if (activationID == message.data1)
                 {
                     // if both state and blink speed should be set, then don't update the state again in setBlinkSpeed
-                    setBlinkSpeed(i, valueToBlinkSpeed(event.value), !(setState && setBlink));
+                    setBlinkSpeed(i, valueToBlinkSpeed(message.data2), !(setState && setBlink));
                 }
             }
         }
+    }
+}
+
+void Leds::presetToState(uint8_t preset)
+{
+    for (size_t i = 0; i < Collection::SIZE(); i++)
+    {
+        auto controlType = static_cast<controlType_t>(_database.read(database::Config::Section::leds_t::CONTROL_TYPE, i));
+
+        if (controlType != controlType_t::PRESET)
+        {
+            continue;
+        }
+
+        auto    color        = color_t::OFF;
+        auto    brightness   = brightness_t::OFF;
+        uint8_t activationID = _database.read(database::Config::Section::leds_t::ACTIVATION_ID, i);
+
+        if (_database.read(database::Config::Section::leds_t::GLOBAL, setting_t::USE_MIDI_PROGRAM_OFFSET))
+        {
+            activationID += MidiProgram.offset();
+            activationID &= 0x7F;
+        }
+
+        if (activationID == preset)
+        {
+            color      = color_t::RED;
+            brightness = brightness_t::B100;
+        }
+
+        setColor(i, color, brightness);
     }
 }
 
@@ -698,9 +717,9 @@ void Leds::setColor(uint8_t index, color_t color, brightness_t brightness)
         uint8_t gLED = _hwa.rgbComponentFromRgb(rgbFromOutput, rgbComponent_t::G);
         uint8_t bLED = _hwa.rgbComponentFromRgb(rgbFromOutput, rgbComponent_t::B);
 
-        handleLED(rLED, rgbComponent_t::R, core::util::BIT_READ(static_cast<uint8_t>(color), static_cast<size_t>(rgbComponent_t::R)), true);
-        handleLED(gLED, rgbComponent_t::G, core::util::BIT_READ(static_cast<uint8_t>(color), static_cast<size_t>(rgbComponent_t::G)), true);
-        handleLED(bLED, rgbComponent_t::B, core::util::BIT_READ(static_cast<uint8_t>(color), static_cast<size_t>(rgbComponent_t::B)), true);
+        handleLED(rLED, rgbComponent_t::R, misc::bit_read(static_cast<uint8_t>(color), static_cast<size_t>(rgbComponent_t::R)), true);
+        handleLED(gLED, rgbComponent_t::G, misc::bit_read(static_cast<uint8_t>(color), static_cast<size_t>(rgbComponent_t::G)), true);
+        handleLED(bLED, rgbComponent_t::B, misc::bit_read(static_cast<uint8_t>(color), static_cast<size_t>(rgbComponent_t::B)), true);
     }
     else
     {
@@ -754,12 +773,12 @@ void Leds::resetBlinking()
 
 void Leds::updateBit(uint8_t index, ledBit_t bit, bool state)
 {
-    core::util::BIT_WRITE(_ledState[index], static_cast<uint8_t>(bit), state);
+    misc::bit_write(_ledState[index], static_cast<uint8_t>(bit), state);
 }
 
 bool Leds::bit(uint8_t index, ledBit_t bit)
 {
-    return core::util::BIT_READ(_ledState[index], static_cast<size_t>(bit));
+    return misc::bit_read(_ledState[index], static_cast<size_t>(bit));
 }
 
 color_t Leds::color(uint8_t index)
@@ -802,11 +821,11 @@ void Leds::setState(size_t index, brightness_t brightness)
         // specified hwa interface only writes to physical leds
         // for touchscreen and other destinations, notify via dispatcher
 
-        messaging::Event event = {};
-        event.componentIndex   = index - Collection::START_INDEX(GROUP_TOUCHSCREEN_COMPONENTS);
-        event.value            = static_cast<uint16_t>(brightness);
+        messaging::TouchscreenLedSignal signal = {};
+        signal.componentIndex                  = index - Collection::START_INDEX(GROUP_TOUCHSCREEN_COMPONENTS);
+        signal.value                           = static_cast<uint16_t>(brightness);
 
-        MidiDispatcher.notify(messaging::eventType_t::TOUCHSCREEN_LED, event);
+        messaging::publish(signal);
     }
     else
     {
@@ -816,8 +835,8 @@ void Leds::setState(size_t index, brightness_t brightness)
 
 std::optional<uint8_t> Leds::sysConfigGet(sys::Config::Section::leds_t section, size_t index, uint16_t& value)
 {
-    uint32_t readValue;
-    auto     result = sys::Config::Status::ACK;
+    uint32_t readValue = 0;
+    auto     result    = sys::Config::Status::ACK;
 
     switch (section)
     {

@@ -88,11 +88,11 @@ namespace global
         {
             _bpm = bpm;
 
-            messaging::Event event = {};
-            event.systemMessage    = messaging::systemMessage_t::MIDI_BPM_CHANGE;
-            event.value            = bpm;
+            messaging::SystemSignal signal = {};
+            signal.systemMessage           = messaging::systemMessage_t::MIDI_BPM_CHANGE;
+            signal.value                   = bpm;
 
-            MidiDispatcher.notify(messaging::eventType_t::SYSTEM, event);
+            messaging::publish(signal);
         }
     };
 }    // namespace global

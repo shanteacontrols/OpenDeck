@@ -21,6 +21,7 @@ limitations under the License.
 #include "analog.h"
 #include "filter_hw.h"
 #include "hwa_hw.h"
+#include "drivers/driver.h"
 #include "application/database/builder.h"
 
 namespace io::analog
@@ -30,6 +31,7 @@ namespace io::analog
         public:
         Builder(database::Admin& database)
             : _database(database)
+            , _hwa(_driver)
             , _filter(_hwa.adcBits())
             , _instance(_hwa, _filter, _database)
         {}
@@ -40,8 +42,9 @@ namespace io::analog
         }
 
         private:
-        HwaHw    _hwa;
         Database _database;
+        Driver   _driver;
+        HwaHw    _hwa;
         FilterHw _filter;
         Analog   _instance;
     };

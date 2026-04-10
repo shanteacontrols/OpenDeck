@@ -21,13 +21,13 @@ limitations under the License.
 // clang-format off
 
 #ifdef OPENDECK_TEST
-    #ifdef PROJECT_TARGET_SUPPORT_LEDS
+    #ifdef CONFIG_PROJECT_TARGET_SUPPORT_LEDS
         #include "application/io/leds/builder_test.h"
     #else
         #include "application/io/leds/builder_stub.h"
     #endif
 #else
-    #ifdef PROJECT_TARGET_SUPPORT_LEDS
+    #ifdef CONFIG_PROJECT_TARGET_SUPPORT_LEDS
         #include "application/io/leds/builder_hw.h"
     #else
         #include "application/io/leds/builder_stub.h"

@@ -29,6 +29,10 @@ namespace io::leds
         public:
         HwaTest() = default;
 
+        void update() override
+        {
+        }
+
         MOCK_METHOD2(setState, void(size_t index, brightness_t brightness));
 
         size_t rgbComponentFromRgb(size_t index, rgbComponent_t component) override

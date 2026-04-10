@@ -44,16 +44,16 @@ namespace io::analog
         private:
         struct Descriptor
         {
-            type_t           type        = type_t::POTENTIOMETER_CONTROL_CHANGE;
-            bool             inverted    = false;
-            uint16_t         lowerLimit  = 0;
-            uint16_t         upperLimit  = 0;
-            uint8_t          lowerOffset = 0;
-            uint8_t          upperOffset = 0;
-            uint16_t         maxValue    = 127;
-            uint16_t         newValue    = 0;
-            uint16_t         oldValue    = 0;
-            messaging::Event event       = {};
+            type_t                type        = type_t::POTENTIOMETER_CONTROL_CHANGE;
+            bool                  inverted    = false;
+            uint16_t              lowerLimit  = 0;
+            uint16_t              upperLimit  = 0;
+            uint8_t               lowerOffset = 0;
+            uint8_t               upperOffset = 0;
+            uint16_t              maxValue    = 127;
+            uint16_t              newValue    = 0;
+            uint16_t              oldValue    = 0;
+            messaging::MidiSignal signal      = {};
         };
 
         static constexpr protocol::midi::messageType_t INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(type_t::AMOUNT)] = {

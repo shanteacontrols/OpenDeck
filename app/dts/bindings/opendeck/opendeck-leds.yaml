@@ -1,0 +1,115 @@
+description: OpenDeck LED inventory and topology
+
+compatible: "opendeck,leds"
+
+properties:
+  disabled:
+    type: boolean
+    required: false
+    description: Ignore this LED node for target support and runtime collection sizing.
+
+  mode:
+    type: string
+    required: false
+    enum:
+      - native
+      - shift-register
+      - matrix
+      - max7219
+    description: Physical LED output topology.
+
+  touchscreen-components:
+    type: int
+    required: false
+    default: 0
+    description: Number of touchscreen-driven LED-like components sharing the collection.
+
+  invert:
+    type: boolean
+    required: false
+    description: External LED outputs are electrically active-low.
+
+  internal-usb-rx-gpios:
+    type: phandle-array
+    required: false
+    description: Internal USB RX status LED GPIO.
+
+  internal-usb-tx-gpios:
+    type: phandle-array
+    required: false
+    description: Internal USB TX status LED GPIO.
+
+  internal-uart-rx-gpios:
+    type: phandle-array
+    required: false
+    description: Internal UART RX status LED GPIO.
+
+  internal-uart-tx-gpios:
+    type: phandle-array
+    required: false
+    description: Internal UART TX status LED GPIO.
+
+  internal-ble-rx-gpios:
+    type: phandle-array
+    required: false
+    description: Internal BLE RX status LED GPIO.
+
+  internal-ble-tx-gpios:
+    type: phandle-array
+    required: false
+    description: Internal BLE TX status LED GPIO.
+
+  native-gpios:
+    type: phandle-array
+    required: false
+    description: Direct GPIO outputs for native external LED topology.
+
+  shift-registers:
+    type: int
+    required: false
+    description: Number of cascaded shift registers for external LED shift-register topology.
+
+  data-gpios:
+    type: phandle-array
+    required: false
+    description: Serial data output for shift-register or MAX7219 LED topology.
+
+  clock-gpios:
+    type: phandle-array
+    required: false
+    description: Shift or serial clock for shift-register or MAX7219 LED topology.
+
+  latch-gpios:
+    type: phandle-array
+    required: false
+    description: Latch or chip-select control for shift-register or MAX7219 LED topology.
+
+  enable-gpios:
+    type: phandle-array
+    required: false
+    description: Optional output enable control for shift-register LED topology.
+
+  rows:
+    type: int
+    required: false
+    description: Number of matrix LED rows.
+
+  columns:
+    type: int
+    required: false
+    description: Number of matrix LED columns.
+
+  row-gpios:
+    type: phandle-array
+    required: false
+    description: Matrix LED row outputs.
+
+  column-gpios:
+    type: phandle-array
+    required: false
+    description: Matrix LED column outputs.
+
+  drivers:
+    type: int
+    required: false
+    description: Number of MAX7219 LED drivers.

@@ -1,0 +1,29 @@
+description: OpenDeck touchscreen inventory
+
+compatible: "opendeck,touchscreen"
+
+properties:
+  disabled:
+    type: boolean
+    required: false
+    description: Ignore this touchscreen node for target support and runtime collection sizing.
+
+  component-count:
+    type: int
+    required: true
+    description: Number of logical touchscreen components exposed to the firmware.
+
+  uart:
+    type: phandle
+    required: false
+    description: UART device used to communicate with the touchscreen.
+
+  rx-gpios:
+    type: phandle-array
+    required: false
+    description: Touchscreen UART RX GPIO when pins are configured directly.
+
+  tx-gpios:
+    type: phandle-array
+    required: false
+    description: Touchscreen UART TX GPIO when pins are configured directly.

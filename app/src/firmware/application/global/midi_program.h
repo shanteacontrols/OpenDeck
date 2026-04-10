@@ -137,11 +137,11 @@ namespace global
         {
             _offset = offset;
 
-            messaging::Event event = {};
-            event.systemMessage    = messaging::systemMessage_t::MIDI_PROGRAM_OFFSET_CHANGE;
-            event.value            = offset;
+            messaging::SystemSignal signal = {};
+            signal.systemMessage           = messaging::systemMessage_t::MIDI_PROGRAM_OFFSET_CHANGE;
+            signal.value                   = offset;
 
-            MidiDispatcher.notify(messaging::eventType_t::SYSTEM, event);
+            messaging::publish(signal);
         }
 
         uint8_t offset()

@@ -19,41 +19,51 @@ limitations under the License.
 #include "cinfo.h"
 #include "application/messaging/messaging.h"
 
-#include "core/mcu.h"
+#include <zephyr/kernel.h>
 
 using namespace util;
 
 ComponentInfo::ComponentInfo()
 {
-    MidiDispatcher.listen(messaging::eventType_t::ANALOG,
-                          [this](const messaging::Event& event)
-                          {
-                              send(database::Config::block_t::ANALOG, event.componentIndex);
-                          });
+    messaging::subscribe<messaging::MidiSignal>(
+        [this](const messaging::MidiSignal& signal)
+        {
+            switch (signal.source)
+            {
+            case messaging::MidiSource::Analog:
+            {
+                send(database::Config::block_t::ANALOG, signal.componentIndex);
+            }
+            break;
 
-    MidiDispatcher.listen(messaging::eventType_t::ANALOG_BUTTON,
-                          [this](const messaging::Event& event)
-                          {
-                              send(database::Config::block_t::ANALOG, event.componentIndex);
-                          });
+            case messaging::MidiSource::AnalogButton:
+            {
+                send(database::Config::block_t::ANALOG, signal.componentIndex);
+            }
+            break;
 
-    MidiDispatcher.listen(messaging::eventType_t::BUTTON,
-                          [this](const messaging::Event& event)
-                          {
-                              send(database::Config::block_t::BUTTONS, event.componentIndex);
-                          });
+            case messaging::MidiSource::Button:
+            {
+                send(database::Config::block_t::BUTTONS, signal.componentIndex);
+            }
+            break;
 
-    MidiDispatcher.listen(messaging::eventType_t::ENCODER,
-                          [this](const messaging::Event& event)
-                          {
-                              send(database::Config::block_t::ENCODERS, event.componentIndex);
-                          });
+            case messaging::MidiSource::Encoder:
+            {
+                send(database::Config::block_t::ENCODERS, signal.componentIndex);
+            }
+            break;
 
-    MidiDispatcher.listen(messaging::eventType_t::TOUCHSCREEN_BUTTON,
-                          [this](const messaging::Event& event)
-                          {
-                              send(database::Config::block_t::TOUCHSCREEN, event.componentIndex);
-                          });
+            case messaging::MidiSource::TouchscreenButton:
+            {
+                send(database::Config::block_t::TOUCHSCREEN, signal.componentIndex);
+            }
+            break;
+
+            default:
+                break;
+            }
+        });
 }
 
 void ComponentInfo::registerHandler(cinfoHandler_t&& handler)
@@ -63,13 +73,13 @@ void ComponentInfo::registerHandler(cinfoHandler_t&& handler)
 
 void ComponentInfo::send(database::Config::block_t block, size_t index)
 {
-    if ((core::mcu::timing::ms() - _lastCinfoMsgTime[static_cast<size_t>(block)]) > COMPONENT_INFO_TIMEOUT)
+    if ((k_uptime_get_32() - _lastCinfoMsgTime[static_cast<size_t>(block)]) > COMPONENT_INFO_TIMEOUT)
     {
         if (_handler != nullptr)
         {
             _handler(static_cast<size_t>(block), index);
         }
 
-        _lastCinfoMsgTime[static_cast<size_t>(block)] = core::mcu::timing::ms();
+        _lastCinfoMsgTime[static_cast<size_t>(block)] = k_uptime_get_32();
     }
 }

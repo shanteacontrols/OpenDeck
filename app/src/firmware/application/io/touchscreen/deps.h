@@ -23,6 +23,8 @@ limitations under the License.
 #include "application/io/common/common.h"
 #include "application/database/database.h"
 
+#include <optional>
+
 namespace io::touchscreen
 {
     using Database = database::User<database::Config::Section::touchscreen_t>;
@@ -32,10 +34,10 @@ namespace io::touchscreen
         public:
         virtual ~Hwa() = default;
 
-        virtual bool init()               = 0;
-        virtual bool deInit()             = 0;
-        virtual bool write(uint8_t value) = 0;
-        virtual bool read(uint8_t& value) = 0;
+        virtual bool                   init()               = 0;
+        virtual bool                   deInit()             = 0;
+        virtual bool                   write(uint8_t value) = 0;
+        virtual std::optional<uint8_t> read()               = 0;
 
         bool allocated(io::common::Allocatable::interface_t interface) override
         {

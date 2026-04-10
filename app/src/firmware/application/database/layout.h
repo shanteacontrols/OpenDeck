@@ -20,8 +20,8 @@ limitations under the License.
 
 #include "deps.h"
 #include "application/io/analog/common.h"
-#include "application/io/buttons/common.h"
-#include "application/io/encoders/common.h"
+#include "application/io/digital/buttons/common.h"
+#include "application/io/digital/encoders/common.h"
 #include "application/io/i2c/peripherals/display/common.h"
 #include "application/io/leds/common.h"
 #include "application/io/touchscreen/common.h"
@@ -36,45 +36,45 @@ namespace database
         public:
         AppLayout() = default;
 
-        std::span<const lib::lessdb::Block> commonLayout() const override
+        std::span<const zlibs::utils::lessdb::Block> commonLayout() const override
         {
             return COMMON_LAYOUT;
         }
 
-        std::span<const lib::lessdb::Block> presetLayout() const override
+        std::span<const zlibs::utils::lessdb::Block> presetLayout() const override
         {
             return PRESET_LAYOUT;
         }
 
         constexpr uint32_t commonLayoutSize() const override
         {
-            return lib::lessdb::LessDb::layout_size(COMMON_LAYOUT);
+            return zlibs::utils::lessdb::LessDb::layout_size(COMMON_LAYOUT);
         }
 
         constexpr uint32_t presetLayoutSize() const override
         {
-            return lib::lessdb::LessDb::layout_size(PRESET_LAYOUT);
+            return zlibs::utils::lessdb::LessDb::layout_size(PRESET_LAYOUT);
         }
 
         constexpr uint16_t commonUid() const override
         {
-            return static_cast<uint16_t>(lib::lessdb::LessDb::layout_uid(COMMON_LAYOUT));
+            return static_cast<uint16_t>(zlibs::utils::lessdb::LessDb::layout_uid(COMMON_LAYOUT));
         }
 
         constexpr uint16_t presetUid() const override
         {
-            return static_cast<uint16_t>(lib::lessdb::LessDb::layout_uid(PRESET_LAYOUT));
+            return static_cast<uint16_t>(zlibs::utils::lessdb::LessDb::layout_uid(PRESET_LAYOUT));
         }
 
         private:
-        using Section = lib::lessdb::Section;
-        using Block   = lib::lessdb::Block;
+        using Section = zlibs::utils::lessdb::Section;
+        using Block   = zlibs::utils::lessdb::Block;
 
-        using SectionParameterType = lib::lessdb::SectionParameterType;
-        using PreserveSetting      = lib::lessdb::PreserveSetting;
-        using AutoIncrementSetting = lib::lessdb::AutoIncrementSetting;
+        using SectionParameterType = zlibs::utils::lessdb::SectionParameterType;
+        using PreserveSetting      = zlibs::utils::lessdb::PreserveSetting;
+        using AutoIncrementSetting = zlibs::utils::lessdb::AutoIncrementSetting;
 
-        inline static constexpr auto COMMON_SECTIONS = lib::lessdb::make_block(std::array{
+        inline static constexpr auto COMMON_SECTIONS = zlibs::utils::lessdb::make_block(std::array{
             Section(
                 static_cast<uint8_t>(database::Config::commonSetting_t::AMOUNT),
                 SectionParameterType::Word,
@@ -83,7 +83,7 @@ namespace database
                 0),
         });
 
-        inline static constexpr auto GLOBAL_SECTIONS = lib::lessdb::make_block(std::array{
+        inline static constexpr auto GLOBAL_SECTIONS = zlibs::utils::lessdb::make_block(std::array{
             Section(
                 static_cast<uint8_t>(protocol::midi::setting_t::AMOUNT),
                 SectionParameterType::Byte,
@@ -92,7 +92,7 @@ namespace database
                 0),
         });
 
-        inline static constexpr auto BUTTON_SECTIONS = lib::lessdb::make_block(std::array{
+        inline static constexpr auto BUTTON_SECTIONS = zlibs::utils::lessdb::make_block(std::array{
             Section(io::buttons::Collection::SIZE(),
                     SectionParameterType::Bit,
                     PreserveSetting::Disable,
@@ -120,7 +120,7 @@ namespace database
                     1),
         });
 
-        inline static constexpr auto ENCODER_SECTIONS = lib::lessdb::make_block(std::array{
+        inline static constexpr auto ENCODER_SECTIONS = zlibs::utils::lessdb::make_block(std::array{
             Section(io::encoders::Collection::SIZE(),
                     SectionParameterType::Bit,
                     PreserveSetting::Disable,
@@ -183,7 +183,7 @@ namespace database
                     0),
         });
 
-        inline static constexpr auto ANALOG_SECTIONS = lib::lessdb::make_block(std::array{
+        inline static constexpr auto ANALOG_SECTIONS = zlibs::utils::lessdb::make_block(std::array{
             Section(io::analog::Collection::SIZE(),
                     SectionParameterType::Bit,
                     PreserveSetting::Disable,
@@ -231,7 +231,7 @@ namespace database
                     0),
         });
 
-        inline static constexpr auto LED_SECTIONS = lib::lessdb::make_block(std::array{
+        inline static constexpr auto LED_SECTIONS = zlibs::utils::lessdb::make_block(std::array{
             Section(static_cast<size_t>(io::leds::setting_t::AMOUNT),
                     SectionParameterType::Byte,
                     PreserveSetting::Disable,
@@ -264,7 +264,7 @@ namespace database
                     1),
         });
 
-        inline static constexpr auto I2C_SECTIONS = lib::lessdb::make_block(std::array{
+        inline static constexpr auto I2C_SECTIONS = zlibs::utils::lessdb::make_block(std::array{
             Section(
                 static_cast<uint8_t>(io::i2c::display::setting_t::AMOUNT),
                 SectionParameterType::Byte,
@@ -273,7 +273,7 @@ namespace database
                 0),
         });
 
-        inline static constexpr auto TOUCHSCREEN_SECTIONS = lib::lessdb::make_block(std::array{
+        inline static constexpr auto TOUCHSCREEN_SECTIONS = zlibs::utils::lessdb::make_block(std::array{
             Section(static_cast<uint8_t>(io::touchscreen::setting_t::AMOUNT), SectionParameterType::Byte, PreserveSetting::Disable, AutoIncrementSetting::Disable, 0),
             Section(io::touchscreen::Collection::SIZE(),
                     SectionParameterType::Word,
@@ -317,11 +317,11 @@ namespace database
                     0),
         });
 
-        inline static constexpr auto COMMON_LAYOUT = lib::lessdb::make_layout(std::array{
+        inline static constexpr auto COMMON_LAYOUT = zlibs::utils::lessdb::make_layout(std::array{
             Block(COMMON_SECTIONS),
         });
 
-        inline static constexpr auto PRESET_LAYOUT = lib::lessdb::make_layout(std::array{
+        inline static constexpr auto PRESET_LAYOUT = zlibs::utils::lessdb::make_layout(std::array{
             Block(GLOBAL_SECTIONS),
             Block(BUTTON_SECTIONS),
             Block(ENCODER_SECTIONS),

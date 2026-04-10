@@ -24,7 +24,6 @@ limitations under the License.
 #include "application/messaging/messaging.h"
 #include "application/system/config.h"
 
-#include "core/util/util.h"
 #include <u8x8.h>
 
 #include <bits/char_traits.h>
@@ -94,7 +93,11 @@ namespace io::i2c::display
                 MIDIUpdater() = default;
 
                 void useAlternateNote(bool state);
-                void updateMIDIValue(DisplayTextControl& element, const messaging::Event& event);
+                void updateMIDIValue(DisplayTextControl&           element,
+                                     uint8_t                       channel,
+                                     uint16_t                      index,
+                                     uint16_t                      value,
+                                     protocol::midi::messageType_t message);
 
                 private:
                 bool _useAlternateNote = false;
@@ -105,14 +108,21 @@ namespace io::i2c::display
                 public:
                 MessageTypeIn()
                 {
-                    MidiDispatcher.listen(messaging::eventType_t::MIDI_IN,
-                                          [this](const messaging::Event& event)
-                                          {
-                                              if (event.message != protocol::midi::messageType_t::SYS_EX)
-                                              {
-                                                  setText("%s", Strings::MIDI_MESSAGE(event.message));
-                                              }
-                                          });
+                    messaging::subscribe<messaging::UmpSignal>(
+                        [this](const messaging::UmpSignal& event)
+                        {
+                            if (event.direction != messaging::MidiDirection::In)
+                            {
+                                return;
+                            }
+
+                            const auto message = protocol::midi::decode_message(event.packet);
+
+                            if (message.type != protocol::midi::messageType_t::SYS_EX)
+                            {
+                                setText("%s", Strings::MIDI_MESSAGE(message.type));
+                            }
+                        });
                 }
             };
 
@@ -122,14 +132,25 @@ namespace io::i2c::display
                 MessageValueIn(MIDIUpdater& midiUpdater)
                     : _midiUpdater(midiUpdater)
                 {
-                    MidiDispatcher.listen(messaging::eventType_t::MIDI_IN,
-                                          [this](const messaging::Event& event)
-                                          {
-                                              if (event.message != protocol::midi::messageType_t::SYS_EX)
-                                              {
-                                                  _midiUpdater.updateMIDIValue(*this, event);
-                                              }
-                                          });
+                    messaging::subscribe<messaging::UmpSignal>(
+                        [this](const messaging::UmpSignal& event)
+                        {
+                            if (event.direction != messaging::MidiDirection::In)
+                            {
+                                return;
+                            }
+
+                            const auto message = protocol::midi::decode_message(event.packet);
+
+                            if (message.type != protocol::midi::messageType_t::SYS_EX)
+                            {
+                                _midiUpdater.updateMIDIValue(*this,
+                                                             message.channel,
+                                                             message.data1,
+                                                             message.data2,
+                                                             message.type);
+                            }
+                        });
                 }
 
                 private:
@@ -141,23 +162,21 @@ namespace io::i2c::display
                 public:
                 MessageTypeOut()
                 {
-                    MidiDispatcher.listen(messaging::eventType_t::ANALOG,
-                                          [this](const messaging::Event& event)
-                                          {
-                                              setText("%s", Strings::MIDI_MESSAGE(event.message));
-                                          });
+                    messaging::subscribe<messaging::MidiSignal>(
+                        [this](const messaging::MidiSignal& signal)
+                        {
+                            switch (signal.source)
+                            {
+                            case messaging::MidiSource::Analog:
+                            case messaging::MidiSource::Button:
+                            case messaging::MidiSource::Encoder:
+                                setText("%s", Strings::MIDI_MESSAGE(signal.message));
+                                break;
 
-                    MidiDispatcher.listen(messaging::eventType_t::BUTTON,
-                                          [this](const messaging::Event& event)
-                                          {
-                                              setText("%s", Strings::MIDI_MESSAGE(event.message));
-                                          });
-
-                    MidiDispatcher.listen(messaging::eventType_t::ENCODER,
-                                          [this](const messaging::Event& event)
-                                          {
-                                              setText("%s", Strings::MIDI_MESSAGE(event.message));
-                                          });
+                            default:
+                                break;
+                            }
+                        });
                 }
             };
 
@@ -167,23 +186,25 @@ namespace io::i2c::display
                 MessageValueOut(MIDIUpdater& midiUpdater)
                     : _midiUpdater(midiUpdater)
                 {
-                    MidiDispatcher.listen(messaging::eventType_t::ANALOG,
-                                          [this](const messaging::Event& event)
-                                          {
-                                              _midiUpdater.updateMIDIValue(*this, event);
-                                          });
+                    messaging::subscribe<messaging::MidiSignal>(
+                        [this](const messaging::MidiSignal& signal)
+                        {
+                            switch (signal.source)
+                            {
+                            case messaging::MidiSource::Analog:
+                            case messaging::MidiSource::Button:
+                            case messaging::MidiSource::Encoder:
+                                _midiUpdater.updateMIDIValue(*this,
+                                                             signal.channel,
+                                                             signal.index,
+                                                             signal.value,
+                                                             signal.message);
+                                break;
 
-                    MidiDispatcher.listen(messaging::eventType_t::BUTTON,
-                                          [this](const messaging::Event& event)
-                                          {
-                                              _midiUpdater.updateMIDIValue(*this, event);
-                                          });
-
-                    MidiDispatcher.listen(messaging::eventType_t::ENCODER,
-                                          [this](const messaging::Event& event)
-                                          {
-                                              _midiUpdater.updateMIDIValue(*this, event);
-                                          });
+                            default:
+                                break;
+                            }
+                        });
                 }
 
                 private:
@@ -195,14 +216,14 @@ namespace io::i2c::display
                 public:
                 Preset()
                 {
-                    MidiDispatcher.listen(messaging::eventType_t::SYSTEM,
-                                          [this](const messaging::Event& event)
-                                          {
-                                              if (event.systemMessage == messaging::systemMessage_t::PRESET_CHANGED)
-                                              {
-                                                  setPreset(event.index + 1);
-                                              }
-                                          });
+                    messaging::subscribe<messaging::SystemSignal>(
+                        [this](const messaging::SystemSignal& event)
+                        {
+                            if (event.systemMessage == messaging::systemMessage_t::PRESET_CHANGED)
+                            {
+                                setPreset(event.value + 1);
+                            }
+                        });
                 }
 
                 void setPreset(uint8_t preset)

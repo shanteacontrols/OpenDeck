@@ -29,11 +29,16 @@ namespace io::analog
         public:
         HwaTest() = default;
 
-        uint8_t adcBits() override
+        bool init() override
         {
-            return 10;    // unused in tests
+            return true;
         }
 
-        MOCK_METHOD2(value, bool(size_t index, uint16_t& value));
+        uint8_t adcBits() override
+        {
+            return 10;
+        }
+
+        MOCK_METHOD1(value, std::optional<uint16_t>(size_t index));
     };
 }    // namespace io::analog

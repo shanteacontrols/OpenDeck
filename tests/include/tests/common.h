@@ -18,7 +18,8 @@ limitations under the License.
 
 #pragma once
 
-#include <glog/logging.h>
+#include <zephyr/kernel.h>
+#include <zephyr/logging/log.h>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 

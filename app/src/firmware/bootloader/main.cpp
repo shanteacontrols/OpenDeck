@@ -16,7 +16,6 @@ limitations under the License.
 
 */
 
-#include "board/board.h"
 #include "bootloader/updater/builder.h"
 #include "sysex_parser/sysex_parser.h"
 #include "fw_selector/builder.h"

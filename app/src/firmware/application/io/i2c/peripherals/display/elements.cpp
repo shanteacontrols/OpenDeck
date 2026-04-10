@@ -16,18 +16,20 @@ limitations under the License.
 
 */
 
-#ifdef PROJECT_TARGET_SUPPORT_DISPLAY
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_DISPLAY
 
 #include "display.h"
 
-#include "core/mcu.h"
+#include "zlibs/utils/misc/bit.h"
+
+#include <zephyr/kernel.h>
 
 using namespace io::i2c::display;
 using namespace protocol;
 
 void Display::Elements::update()
 {
-    if ((core::mcu::timing::ms() - _lastRefreshTime) < REFRESH_TIME)
+    if ((k_uptime_get_32() - _lastRefreshTime) < REFRESH_TIME)
     {
         return;    // we don't need to update lcd in real time
     }
@@ -42,7 +44,7 @@ void Display::Elements::update()
             {
                 if (strlen(element->text()))
                 {
-                    if (((core::mcu::timing::ms() - element->lastUpdateTime()) > _messageRetentionTime))
+                    if (((k_uptime_get_32() - element->lastUpdateTime()) > _messageRetentionTime))
                     {
                         element->setText("");
                     }
@@ -56,7 +58,7 @@ void Display::Elements::update()
         {
             for (size_t index = 0; index < element->MAX_LENGTH(); index++)
             {
-                if (core::util::BIT_READ(change, index))
+                if (zlibs::utils::misc::bit_read(change, index))
                 {
                     u8x8_DrawGlyph(&_display._u8x8,
                                    element->COLUMN() + index,
@@ -69,7 +71,7 @@ void Display::Elements::update()
         }
     }
 
-    _lastRefreshTime = core::mcu::timing::ms();
+    _lastRefreshTime = k_uptime_get_32();
 }
 
 /// Sets new message retention time.
@@ -101,31 +103,35 @@ void Display::Elements::MIDIUpdater::useAlternateNote(bool state)
     _useAlternateNote = state;
 }
 
-void Display::Elements::MIDIUpdater::updateMIDIValue(DisplayTextControl& element, const messaging::Event& event)
+void Display::Elements::MIDIUpdater::updateMIDIValue(DisplayTextControl& element,
+                                                     uint8_t             channel,
+                                                     uint16_t            index,
+                                                     uint16_t            value,
+                                                     midi::messageType_t message)
 {
-    switch (event.message)
+    switch (message)
     {
     case midi::messageType_t::NOTE_OFF:
     case midi::messageType_t::NOTE_ON:
     {
         if (!_useAlternateNote)
         {
-            element.setText("CH%d %d v%d", event.channel, event.index, event.value);
+            element.setText("CH%d %d v%d", channel, index, value);
         }
         else
         {
             element.setText("CH%d %s%d v%d",
-                            event.channel,
-                            Strings::NOTE(midi::NOTE_TO_TONIC(event.index)),
-                            midi::NOTE_TO_OCTAVE(event.value),
-                            event.value);
+                            channel,
+                            Strings::NOTE(midi::NOTE_TO_TONIC(index)),
+                            midi::NOTE_TO_OCTAVE(value),
+                            value);
         }
     }
     break;
 
     case midi::messageType_t::PROGRAM_CHANGE:
     {
-        element.setText("CH%d %d", event.channel, event.index);
+        element.setText("CH%d %d", channel, index);
     }
     break;
 
@@ -134,7 +140,7 @@ void Display::Elements::MIDIUpdater::updateMIDIValue(DisplayTextControl& element
     case midi::messageType_t::NRPN_7BIT:
     case midi::messageType_t::NRPN_14BIT:
     {
-        element.setText("CH%d %d %d", event.channel, event.index, event.value);
+        element.setText("CH%d %d %d", channel, index, value);
     }
     break;
 
@@ -144,7 +150,7 @@ void Display::Elements::MIDIUpdater::updateMIDIValue(DisplayTextControl& element
     case midi::messageType_t::MMC_RECORD_STOP:
     case midi::messageType_t::MMC_PAUSE:
     {
-        element.setText("CH%d", event.index);
+        element.setText("CH%d", index);
     }
     break;
 

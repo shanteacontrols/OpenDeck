@@ -16,46 +16,50 @@ limitations under the License.
 
 */
 
-#ifdef PROJECT_TARGET_SUPPORT_TOUCHSCREEN
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_TOUCHSCREEN
 
 #include "touchscreen.h"
 #include "application/util/conversion/conversion.h"
 #include "application/util/configurable/configurable.h"
 
-#include "core/mcu.h"
-#include "core/util/util.h"
+#include <zephyr/logging/log.h>
 
 using namespace io::touchscreen;
+
+namespace
+{
+    LOG_MODULE_REGISTER(touchscreen, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
+}    // namespace
 
 Touchscreen::Touchscreen(Hwa&      hwa,
                          Database& database)
     : _hwa(hwa)
     , _database(database)
 {
-    MidiDispatcher.listen(messaging::eventType_t::TOUCHSCREEN_LED,
-                          [this](const messaging::Event& event)
-                          {
-                              setIconState(event.componentIndex, event.value);
-                          });
+    messaging::subscribe<messaging::TouchscreenLedSignal>(
+        [this](const messaging::TouchscreenLedSignal& signal)
+        {
+            setIconState(signal.componentIndex, signal.value);
+        });
 
-    MidiDispatcher.listen(messaging::eventType_t::SYSTEM,
-                          [this](const messaging::Event& event)
-                          {
-                              switch (event.systemMessage)
-                              {
-                              case messaging::systemMessage_t::PRESET_CHANGED:
-                              {
-                                  if (!init())
-                                  {
-                                      deInit();
-                                  }
-                              }
-                              break;
+    messaging::subscribe<messaging::SystemSignal>(
+        [this](const messaging::SystemSignal& event)
+        {
+            switch (event.systemMessage)
+            {
+            case messaging::systemMessage_t::PRESET_CHANGED:
+            {
+                if (!init())
+                {
+                    deInit();
+                }
+            }
+            break;
 
-                              default:
-                                  break;
-                              }
-                          });
+            default:
+                break;
+            }
+        });
 
     ConfigHandler.registerConfig(
         sys::Config::block_t::TOUCHSCREEN,
@@ -315,21 +319,20 @@ Model* Touchscreen::modelInstance(model_t model)
 
 void Touchscreen::buttonHandler(size_t index, bool state)
 {
-    messaging::Event event = {};
-    event.componentIndex   = index;
-    event.value            = state;
+    messaging::MidiSignal signal = {};
+    signal.source                = messaging::MidiSource::TouchscreenButton;
+    signal.componentIndex        = index;
+    signal.value                 = state;
 
-    // mark this as forwarding message type - further action/processing is required
-    MidiDispatcher.notify(messaging::eventType_t::TOUCHSCREEN_BUTTON, event);
+    messaging::publish(signal);
 }
 
 void Touchscreen::screenChangeHandler(size_t index)
 {
-    messaging::Event event = {};
-    event.componentIndex   = index;
+    messaging::TouchscreenScreenSignal signal = {};
+    signal.componentIndex                     = index;
 
-    // mark this as forwarding message type - further action/processing is required
-    MidiDispatcher.notify(messaging::eventType_t::TOUCHSCREEN_SCREEN, event);
+    messaging::publish(signal);
 }
 
 std::optional<uint8_t> Touchscreen::sysConfigGet(sys::Config::Section::touchscreen_t section, size_t index, uint16_t& value)
@@ -339,7 +342,7 @@ std::optional<uint8_t> Touchscreen::sysConfigGet(sys::Config::Section::touchscre
         return sys::Config::Status::SERIAL_PERIPHERAL_ALLOCATED_ERROR;
     }
 
-    uint32_t readValue;
+    uint32_t readValue = 0;
 
     auto result = _database.read(util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
                       ? sys::Config::Status::ACK

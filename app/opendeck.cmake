@@ -1,0 +1,37 @@
+add_subdirectory(src/firmware/application/metadata)
+add_subdirectory(src/firmware/application/database)
+add_subdirectory(src/firmware/application/util/configurable)
+add_subdirectory(src/firmware/application/util/cinfo)
+add_subdirectory(src/firmware/application/protocol/midi)
+add_subdirectory(src/firmware/application/io/digital)
+add_subdirectory(src/firmware/application/io/digital/buttons)
+add_subdirectory(src/firmware/application/io/digital/encoders)
+add_subdirectory(src/firmware/application/io/analog)
+add_subdirectory(src/firmware/application/io/leds)
+add_subdirectory(src/firmware/application/io/touchscreen)
+add_subdirectory(src/firmware/application/io/i2c)
+add_subdirectory(src/firmware/application/io/indicators)
+add_subdirectory(src/firmware/application/system)
+
+target_sources(app
+    PRIVATE
+    src/atomic_compat.cpp
+    src/opendeck.cpp
+)
+
+target_link_libraries(app
+    PRIVATE
+    metadata
+    database
+    configurable
+    cinfo
+    protocol_midi
+    buttons
+    analog
+    leds
+    encoders
+    touchscreen
+    i2c
+    indicators
+    system
+)

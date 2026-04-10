@@ -25,7 +25,7 @@ namespace io::analog
     class Analog : public io::Base
     {
         public:
-        Analog(HWA&      hwa,
+        Analog(Hwa&      hwa,
                Filter&   filter,
                Database& database)
         {}

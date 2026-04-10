@@ -1,27 +1,31 @@
-cmake_minimum_required(VERSION 3.22)
-set(TARGET "" CACHE STRING "Target name")
+cmake_minimum_required(VERSION 3.27.0)
 
-project(sysexgen)
-enable_language(CXX)
+project(sysexgen_host LANGUAGES CXX)
 
-include($ENV{ZEPHYR_WS}/modules/libcore/cmake/ccache.cmake)
-include($ENV{ZEPHYR_PROJECT}/app/src/generated/target/${TARGET}/CMakeLists.txt)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_executable(sysexgen)
+if(NOT TARGET metadata)
+    add_subdirectory($ENV{ZEPHYR_PROJECT}/app/src/firmware/application/metadata metadata)
+endif()
 
-target_include_directories(sysexgen
-    PRIVATE
-    $ENV{ZEPHYR_PROJECT}/app/src/firmware
-    $ENV{ZEPHYR_WS}/modules/liblessdb/include
-    $ENV{ZEPHYR_WS}/modules/libsysexconf/include
-)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/lib sysexgen_lib)
 
-target_sources(sysexgen
-    PRIVATE
+add_executable(sysexgen_tool
     ${CMAKE_CURRENT_LIST_DIR}/main.cpp
 )
 
-target_compile_definitions(sysexgen
+target_link_libraries(sysexgen_tool
     PRIVATE
-    ${PROJECT_TARGET_DEFINES}
+    metadata
+    sysexgen_lib
 )
+
+if(DEFINED SYSEXGEN_INPUT_FILE AND DEFINED SYSEXGEN_OUTPUT_FILE)
+    target_compile_definitions(sysexgen_tool
+        PRIVATE
+        SYSEXGEN_INPUT_FILE="${SYSEXGEN_INPUT_FILE}"
+        SYSEXGEN_OUTPUT_FILE="${SYSEXGEN_OUTPUT_FILE}"
+    )
+endif()

@@ -21,7 +21,6 @@ limitations under the License.
 #include "application/io/touchscreen/deps.h"
 
 #include "nextion/nextion.h"
-#include "viewtech/viewtech.h"
 
 namespace io::touchscreen
 {
@@ -30,11 +29,9 @@ namespace io::touchscreen
         public:
         ModelsBuilder(Hwa& hwa)
             : _nextion(hwa)
-            , _viewtech(hwa)
         {}
 
         private:
-        Nextion  _nextion;
-        Viewtech _viewtech;
+        Nextion _nextion;
     };
 }    // namespace io::touchscreen

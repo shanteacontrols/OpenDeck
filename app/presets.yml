@@ -1,0 +1,41 @@
+---
+presets:
+  -
+    name: "opendeck"
+    board: "nrf52840dk/nrf52840"
+    cmake-file: "opendeck.cmake"
+    overlay-file: "boards/nrf52840dk/nrf52840dk.overlay\\;boards/nrf52840dk/opendeck-nrf52840dk.overlay"
+    conf-files:
+      common:
+        - "app.conf"
+        - "opendeck.conf"
+  -
+    name: "pico"
+    board: "rpi_pico/rp2040"
+    cmake-file: "opendeck.cmake"
+    overlay-file: "boards/rpi_pico/rpi_pico.overlay\\;boards/rpi_pico/opendeck-rpi_pico.overlay"
+    conf-files:
+      common:
+        - "app.conf"
+        - "opendeck.conf"
+        - "pico.conf"
+  -
+    name: "discovery"
+    board: "stm32f4_disco/stm32f407xx"
+    cmake-file: "opendeck.cmake"
+    overlay-file: "boards/stm32f4_disco/stm32f4_disco.overlay\\;boards/stm32f4_disco/opendeck-stm32f4_disco.overlay"
+    conf-files:
+      common:
+        - "app.conf"
+        - "opendeck.conf"
+        - "discovery.conf"
+  -
+    name: "nrf54h20"
+    board: "nrf54h20dk/nrf54h20/cpuapp"
+    cmake-file: "opendeck.cmake"
+    overlay-file: "boards/nrf54h20dk/nrf54h20dk.overlay\\;boards/nrf54h20dk/opendeck-nrf54h20dk.overlay"
+    conf-files:
+      common:
+        - "app.conf"
+        - "opendeck.conf"
+        - "nrf54h20.conf"

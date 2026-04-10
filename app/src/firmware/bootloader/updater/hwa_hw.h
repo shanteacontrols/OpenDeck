@@ -19,7 +19,6 @@ limitations under the License.
 #pragma once
 
 #include "deps.h"
-#include "board/board.h"
 
 namespace updater
 {

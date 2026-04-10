@@ -18,8 +18,9 @@ limitations under the License.
 
 #pragma once
 
-#include "core/mcu.h"
-#include "core/util/util.h"
+#include "zlibs/utils/misc/bit.h"
+
+#include <zephyr/kernel.h>
 
 #include <cstdio>
 #include <string.h>
@@ -97,12 +98,12 @@ namespace io::i2c::display
             {
                 if (tempBuff[i] != _text[i])
                 {
-                    core::util::BIT_SET(_textChange, i);
+                    zlibs::utils::misc::bit_write(_textChange, i, true);
                 }
             }
 
             strncpy(_text, tempBuff, maxLength);
-            _lastUpdateTime = core::mcu::timing::ms();
+            _lastUpdateTime = k_uptime_get_32();
         }
 
         uint32_t change() override

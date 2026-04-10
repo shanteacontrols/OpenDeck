@@ -16,11 +16,18 @@ limitations under the License.
 
 */
 
-#ifdef PROJECT_TARGET_SUPPORT_I2C
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_I2C
 
 #include "i2c.h"
 
+#include <zephyr/logging/log.h>
+
 using namespace io::i2c;
+
+namespace
+{
+    LOG_MODULE_REGISTER(i2c, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
+}    // namespace
 
 I2c::~I2c()
 {

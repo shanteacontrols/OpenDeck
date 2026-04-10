@@ -1,0 +1,39 @@
+description: OpenDeck MIDI traffic indicator LEDs
+
+compatible: "opendeck,midi-indicators"
+
+properties:
+  disabled:
+    type: boolean
+    required: false
+    description: Ignore this MIDI indicators node for target support checks.
+
+  usb-in-gpios:
+    type: phandle-array
+    required: false
+    description: GPIO driving the USB MIDI incoming traffic indicator LED.
+
+  usb-out-gpios:
+    type: phandle-array
+    required: false
+    description: GPIO driving the USB MIDI outgoing traffic indicator LED.
+
+  ble-in-gpios:
+    type: phandle-array
+    required: false
+    description: GPIO driving the BLE MIDI incoming traffic indicator LED.
+
+  ble-out-gpios:
+    type: phandle-array
+    required: false
+    description: GPIO driving the BLE MIDI outgoing traffic indicator LED.
+
+  din-in-gpios:
+    type: phandle-array
+    required: false
+    description: GPIO driving the DIN MIDI incoming traffic indicator LED.
+
+  din-out-gpios:
+    type: phandle-array
+    required: false
+    description: GPIO driving the DIN MIDI outgoing traffic indicator LED.

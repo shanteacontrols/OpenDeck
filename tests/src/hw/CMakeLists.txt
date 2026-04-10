@@ -1,5 +1,7 @@
 if("PROJECT_TARGET_HW_TESTS_SUPPORTED" IN_LIST PROJECT_TARGET_DEFINES)
     add_executable(hw)
+    add_subdirectory($ENV{ZEPHYR_PROJECT}/app/src/firmware/application/metadata
+                     ${CMAKE_CURRENT_BINARY_DIR}/metadata)
     set(CURRENT_FW_RELEASE_DL_DIR /tmp/latest_github_release/${TARGET})
 
     FetchContent_Declare(
@@ -31,21 +33,15 @@ if("PROJECT_TARGET_HW_TESTS_SUPPORTED" IN_LIST PROJECT_TARGET_DEFINES)
         $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/system/system.cpp
         $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/util/cinfo/cinfo.cpp
         $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/protocol/midi/midi.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/buttons/buttons.cpp
-        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/encoders/encoders.cpp
+        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/digital/buttons/buttons.cpp
+        $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/digital/encoders/encoders.cpp
         $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/leds/leds.cpp
         $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/io/analog/analog.cpp
     )
 
-    target_compile_definitions(hw
-        PUBLIC
-        SW_VERSION_MAJOR=0
-        SW_VERSION_MINOR=0
-        SW_VERSION_REVISION=0
-    )
-
     target_link_libraries(hw
         PUBLIC
+        metadata
         common
     )
 

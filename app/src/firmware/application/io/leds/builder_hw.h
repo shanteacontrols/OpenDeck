@@ -20,6 +20,7 @@ limitations under the License.
 
 #include "leds.h"
 #include "hwa_hw.h"
+#include "drivers/driver.h"
 #include "application/database/builder.h"
 
 namespace io::leds
@@ -29,6 +30,7 @@ namespace io::leds
         public:
         Builder(database::Admin& database)
             : _database(database)
+            , _hwa(_driver)
             , _instance(_hwa, _database)
         {}
 
@@ -39,6 +41,7 @@ namespace io::leds
 
         private:
         Database _database;
+        Driver   _driver;
         HwaHw    _hwa;
         Leds     _instance;
     };

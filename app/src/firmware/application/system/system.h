@@ -22,9 +22,8 @@ limitations under the License.
 #include "config.h"
 #include "layout.h"
 #include "application/util/cinfo/cinfo.h"
-#include "application/util/scheduler/scheduler.h"
 
-#include "lib/sysexconf/sysexconf.h"
+#include "zlibs/utils/misc/kwork_delayable.h"
 
 namespace sys
 {
@@ -38,12 +37,6 @@ namespace sys
         io::ioComponent_t run();
 
         private:
-        enum
-        {
-            SCHEDULED_TASK_PRESET,
-            SCHEDULED_TASK_FORCED_REFRESH,
-        };
-
         enum class backupRestoreState_t : uint8_t
         {
             NONE,
@@ -58,10 +51,10 @@ namespace sys
                 : _system(system)
             {}
 
-            uint8_t get(uint8_t block, uint8_t section, uint16_t index, uint16_t& value) override;
-            uint8_t set(uint8_t block, uint8_t section, uint16_t index, uint16_t value) override;
-            uint8_t customRequest(uint16_t request, CustomResponse& customResponse) override;
-            void    sendResponse(uint8_t* array, uint16_t size) override;
+            lib::sysexconf::Status get(uint8_t block, uint8_t section, uint16_t index, uint16_t& value) override;
+            lib::sysexconf::Status set(uint8_t block, uint8_t section, uint16_t index, uint16_t value) override;
+            lib::sysexconf::Status custom_request(uint16_t request, CustomResponse& custom_response) override;
+            bool                   send_response(const midi_ump& packet) override;
 
             private:
             System& _system;
@@ -89,17 +82,18 @@ namespace sys
             Config::SYSEX_MANUFACTURER_ID_2
         };
 
-        Hwa&                      _hwa;
-        Components&               _components;
-        DatabaseHandlers          _databaseHandlers;
-        SysExDataHandler          _sysExDataHandler;
-        lib::sysexconf::SysExConf _sysExConf;
-        util::Scheduler           _scheduler;
-        util::ComponentInfo       _cInfo;
-        Layout                    _layout;
-        backupRestoreState_t      _backupRestoreState                                                    = backupRestoreState_t::NONE;
-        io::ioComponent_t         _componentIndex                                                        = io::ioComponent_t::AMOUNT;
-        size_t                    _componentUpdateIndex[static_cast<uint8_t>(io::ioComponent_t::AMOUNT)] = {};
+        Hwa&                               _hwa;
+        Components&                        _components;
+        DatabaseHandlers                   _databaseHandlers;
+        SysExDataHandler                   _sysExDataHandler;
+        zlibs::utils::misc::KworkDelayable _presetChangeWork;
+        zlibs::utils::misc::KworkDelayable _forcedRefreshWork;
+        lib::sysexconf::SysExConf          _sysExConf;
+        util::ComponentInfo                _cInfo;
+        Layout                             _layout;
+        backupRestoreState_t               _backupRestoreState                                                    = backupRestoreState_t::NONE;
+        io::ioComponent_t                  _componentIndex                                                        = io::ioComponent_t::AMOUNT;
+        size_t                             _componentUpdateIndex[static_cast<uint8_t>(io::ioComponent_t::AMOUNT)] = {};
 
         io::ioComponent_t      checkComponents();
         void                   checkProtocols();

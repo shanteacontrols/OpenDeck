@@ -21,13 +21,26 @@ limitations under the License.
 #include "application/util/conversion/conversion.h"
 #include "application/messaging/messaging.h"
 #include "application/util/configurable/configurable.h"
-#include "application/util/logger/logger.h"
 #include "application/global/midi_program.h"
 #include "application/global/bpm.h"
 
-#include "core/mcu.h"
+#include <zephyr/logging/log.h>
 
 using namespace protocol::midi;
+using namespace zlibs::utils;
+
+namespace
+{
+    LOG_MODULE_REGISTER(database, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
+
+    constexpr uint8_t MIDI_GROUP = 0;
+
+    uint8_t to_zero_based_channel(uint8_t channel)
+    {
+        return channel > 0 ? channel - 1 : 0;
+    }
+
+}    // namespace
 
 Midi::Midi(HwaUsb&    hwaUSB,
            HwaSerial& hwaSerial,
@@ -37,67 +50,65 @@ Midi::Midi(HwaUsb&    hwaUSB,
     , _hwaSerial(hwaSerial)
     , _hwaBle(hwaBLE)
     , _database(database)
+    , _clockTimer(
+          misc::Timer::Type::Repeating,
+          [this]()
+          {
+              _serial.send(lib::midi::midi1::timing_clock(MIDI_GROUP));
+          })
 {
     // place all interfaces in array for easier access
     _midiInterface[INTERFACE_USB]    = &_usb;
     _midiInterface[INTERFACE_SERIAL] = &_serial;
     _midiInterface[INTERFACE_BLE]    = &_ble;
 
-    MidiDispatcher.listen(messaging::eventType_t::ANALOG,
-                          [this](const messaging::Event& event)
-                          {
-                              send(messaging::eventType_t::ANALOG, event);
-                          });
+    messaging::subscribe<messaging::SystemSignal>(
+        [this](const messaging::SystemSignal& event)
+        {
+            switch (event.systemMessage)
+            {
+            case messaging::systemMessage_t::FACTORY_RESET_START:
+            {
+                _usb.deinit();
+            }
+            break;
 
-    MidiDispatcher.listen(messaging::eventType_t::BUTTON,
-                          [this](const messaging::Event& event)
-                          {
-                              send(messaging::eventType_t::BUTTON, event);
-                          });
+            case messaging::systemMessage_t::PRESET_CHANGED:
+            {
+                init();
+            }
+            break;
 
-    MidiDispatcher.listen(messaging::eventType_t::ENCODER,
-                          [this](const messaging::Event& event)
-                          {
-                              send(messaging::eventType_t::ENCODER, event);
-                          });
+            case messaging::systemMessage_t::MIDI_BPM_CHANGE:
+            {
+                if (isSettingEnabled(setting_t::DIN_ENABLED) && isSettingEnabled(setting_t::SEND_MIDI_CLOCK_DIN))
+                {
+                    _clockTimer.start(Bpm.bpmToUsec(Bpm.value()), misc::TimerUnit::Us);
+                }
+            }
+            break;
 
-    MidiDispatcher.listen(messaging::eventType_t::TOUCHSCREEN_BUTTON,
-                          [this](const messaging::Event& event)
-                          {
-                              send(messaging::eventType_t::TOUCHSCREEN_BUTTON, event);
-                          });
+            default:
+                break;
+            }
+        });
 
-    MidiDispatcher.listen(messaging::eventType_t::SYSTEM,
-                          [this](const messaging::Event& event)
-                          {
-                              switch (event.systemMessage)
-                              {
-                              case messaging::systemMessage_t::SYS_EX_RESPONSE:
-                              {
-                                  send(messaging::eventType_t::SYSTEM, event);
-                              }
-                              break;
+    messaging::subscribe<messaging::MidiSignal>(
+        [this](const messaging::MidiSignal& event)
+        {
+            send(event);
+        });
 
-                              case messaging::systemMessage_t::PRESET_CHANGED:
-                              {
-                                  init();
-                              }
-                              break;
+    messaging::subscribe<messaging::UmpSignal>(
+        [this](const messaging::UmpSignal& event)
+        {
+            if (event.direction != messaging::MidiDirection::Out)
+            {
+                return;
+            }
 
-                              case messaging::systemMessage_t::MIDI_BPM_CHANGE:
-                              {
-                                  if (isSettingEnabled(setting_t::DIN_ENABLED) && isSettingEnabled(setting_t::SEND_MIDI_CLOCK_DIN) && _clockTimerAllocated)
-                                  {
-                                      core::mcu::timers::setPeriod(_clockTimerIndex, Bpm.bpmToUsec(Bpm.value()));
-                                      core::mcu::timers::start(_clockTimerIndex);
-                                  }
-                              }
-                              break;
-
-                              default:
-                                  break;
-                              }
-                          });
+            send(event);
+        });
 
     ConfigHandler.registerConfig(
         sys::Config::block_t::GLOBAL,
@@ -116,6 +127,8 @@ Midi::Midi(HwaUsb&    hwaUSB,
 
 bool Midi::init()
 {
+    _standardNoteOff = isSettingEnabled(setting_t::STANDARD_NOTE_OFF);
+
     if (!setupUsb())
     {
         return false;
@@ -141,17 +154,17 @@ bool Midi::init()
 
 bool Midi::deInit()
 {
-    if (!_serial.deInit())
+    if (!_serial.deinit())
     {
         return false;
     }
 
-    if (!_usb.deInit())
+    if (!_usb.deinit())
     {
         return false;
     }
 
-    if (!_ble.deInit())
+    if (!_ble.deinit())
     {
         return false;
     }
@@ -166,7 +179,6 @@ bool Midi::setupUsb()
         return false;
     }
 
-    _usb.setNoteOffMode(isSettingEnabled(setting_t::STANDARD_NOTE_OFF) ? noteOffType_t::STANDARD_NOTE_OFF : noteOffType_t::NOTE_ON_ZERO_VEL);
     return true;
 }
 
@@ -178,28 +190,18 @@ bool Midi::setupSerial()
     }
     else
     {
-        _serial.deInit();
+        _serial.deinit();
     }
 
-    _serial.setNoteOffMode(isSettingEnabled(setting_t::STANDARD_NOTE_OFF) ? noteOffType_t::STANDARD_NOTE_OFF : noteOffType_t::NOTE_ON_ZERO_VEL);
     _hwaSerial.setLoopback(isDinLoopbackRequired());
 
-    if (!_clockTimerAllocated)
+    if (isSettingEnabled(setting_t::SEND_MIDI_CLOCK_DIN))
     {
-        if (core::mcu::timers::allocate(_clockTimerIndex, [this]()
-                                        {
-                                            _serial.sendRealTime(messageType_t::SYS_REAL_TIME_CLOCK);
-                                        }))
-        {
-            _clockTimerAllocated = true;
-
-            core::mcu::timers::setPeriod(_clockTimerIndex, Bpm.bpmToUsec(Bpm.value()));
-
-            if (isSettingEnabled(setting_t::SEND_MIDI_CLOCK_DIN))
-            {
-                core::mcu::timers::start(_clockTimerIndex);
-            }
-        }
+        _clockTimer.start(Bpm.bpmToUsec(Bpm.value()), misc::TimerUnit::Us);
+    }
+    else
+    {
+        _clockTimer.stop();
     }
 
     return true;
@@ -213,10 +215,8 @@ bool Midi::setupBle()
     }
     else
     {
-        _ble.deInit();
+        _ble.deinit();
     }
-
-    _ble.setNoteOffMode(isSettingEnabled(setting_t::STANDARD_NOTE_OFF) ? noteOffType_t::STANDARD_NOTE_OFF : noteOffType_t::NOTE_ON_ZERO_VEL);
 
     return true;
 }
@@ -225,83 +225,83 @@ bool Midi::setupThru()
 {
     if (isSettingEnabled(setting_t::DIN_THRU_DIN))
     {
-        _serial.registerThruInterface(_serial.transport());
+        _serial.register_thru_interface(_serial.thru_interface());
     }
     else
     {
-        _serial.unregisterThruInterface(_serial.transport());
+        _serial.unregister_thru_interface(_serial.thru_interface());
     }
 
     if (isSettingEnabled(setting_t::DIN_THRU_USB))
     {
-        _serial.registerThruInterface(_usb.transport());
+        _serial.register_thru_interface(_usb.thru_interface());
     }
     else
     {
-        _serial.unregisterThruInterface(_usb.transport());
+        _serial.unregister_thru_interface(_usb.thru_interface());
     }
 
     if (isSettingEnabled(setting_t::DIN_THRU_BLE))
     {
-        _serial.registerThruInterface(_ble.transport());
+        _serial.register_thru_interface(_ble.thru_interface());
     }
     else
     {
-        _serial.unregisterThruInterface(_ble.transport());
+        _serial.unregister_thru_interface(_ble.thru_interface());
     }
 
     if (isSettingEnabled(setting_t::USB_THRU_DIN))
     {
-        _usb.registerThruInterface(_serial.transport());
+        _usb.register_thru_interface(_serial.thru_interface());
     }
     else
     {
-        _usb.unregisterThruInterface(_serial.transport());
+        _usb.unregister_thru_interface(_serial.thru_interface());
     }
 
     if (isSettingEnabled(setting_t::USB_THRU_USB))
     {
-        _usb.registerThruInterface(_usb.transport());
+        _usb.register_thru_interface(_usb.thru_interface());
     }
     else
     {
-        _usb.unregisterThruInterface(_usb.transport());
+        _usb.unregister_thru_interface(_usb.thru_interface());
     }
 
     if (isSettingEnabled(setting_t::USB_THRU_BLE))
     {
-        _usb.registerThruInterface(_ble.transport());
+        _usb.register_thru_interface(_ble.thru_interface());
     }
     else
     {
-        _usb.unregisterThruInterface(_ble.transport());
+        _usb.unregister_thru_interface(_ble.thru_interface());
     }
 
     if (isSettingEnabled(setting_t::BLE_THRU_DIN))
     {
-        _ble.registerThruInterface(_serial.transport());
+        _ble.register_thru_interface(_serial.thru_interface());
     }
     else
     {
-        _ble.unregisterThruInterface(_serial.transport());
+        _ble.unregister_thru_interface(_serial.thru_interface());
     }
 
     if (isSettingEnabled(setting_t::BLE_THRU_USB))
     {
-        _ble.registerThruInterface(_usb.transport());
+        _ble.register_thru_interface(_usb.thru_interface());
     }
     else
     {
-        _ble.unregisterThruInterface(_usb.transport());
+        _ble.unregister_thru_interface(_usb.thru_interface());
     }
 
     if (isSettingEnabled(setting_t::BLE_THRU_BLE))
     {
-        _ble.registerThruInterface(_ble.transport());
+        _ble.register_thru_interface(_ble.thru_interface());
     }
     else
     {
-        _ble.unregisterThruInterface(_ble.transport());
+        _ble.unregister_thru_interface(_ble.thru_interface());
     }
 
     return true;
@@ -318,39 +318,37 @@ void Midi::read()
             continue;
         }
 
-        while (interfaceInstance->read())
+        while (true)
         {
-            LOG_INF("Received MIDI message on interface index %d", static_cast<int>(i));
+            const auto PACKET = interfaceInstance->read();
 
-            messaging::Event event = {};
-            event.componentIndex   = 0;
-            event.channel          = interfaceInstance->channel();
-            event.index            = interfaceInstance->data1();
-            event.value            = interfaceInstance->data2();
-            event.message          = interfaceInstance->type();
+            if (!PACKET.has_value())
+            {
+                break;
+            }
 
-            switch (event.message)
+            messaging::publish(messaging::MidiTrafficSignal{
+                .transport = interfaceToTransport(i),
+                .direction = messaging::MidiDirection::In,
+            });
+
+            const auto message = midi::decode_message(PACKET.value());
+
+            switch (message.type)
             {
             case messageType_t::SYS_EX:
             {
                 // process sysex messages only from usb interface
-                if (i == INTERFACE_USB)
+                if (i != INTERFACE_USB)
                 {
-                    event.sysEx       = interfaceInstance->sysExArray();
-                    event.sysExLength = interfaceInstance->length();
+                    continue;
                 }
             }
             break;
 
             case messageType_t::PROGRAM_CHANGE:
             {
-                MidiProgram.setProgram(event.channel, event.index);
-            }
-            break;
-
-            case messageType_t::NOTE_OFF:
-            {
-                event.value = 0;
+                MidiProgram.setProgram(message.channel, message.data1);
             }
             break;
 
@@ -358,7 +356,10 @@ void Midi::read()
                 break;
             }
 
-            MidiDispatcher.notify(messaging::eventType_t::MIDI_IN, event);
+            messaging::publish(messaging::UmpSignal{
+                .direction = messaging::MidiDirection::In,
+                .packet    = PACKET.value(),
+            });
         }
     }
 }
@@ -376,297 +377,216 @@ bool Midi::isDinLoopbackRequired()
             !isSettingEnabled(setting_t::DIN_THRU_BLE));
 }
 
-void Midi::send(messaging::eventType_t source, const messaging::Event& event)
+void Midi::send(const messaging::MidiSignal& event)
 {
-    using namespace protocol;
+    if (event.source == messaging::MidiSource::AnalogButton)
+    {
+        return;
+    }
 
-    // if omni channel is defined, send the message on each midi channel
     const uint8_t GLOBAL_CHANNEL = _database.read(database::Config::Section::global_t::MIDI_SETTINGS, setting_t::GLOBAL_CHANNEL);
     const uint8_t CHANNEL        = _database.read(database::Config::Section::global_t::MIDI_SETTINGS,
                                                   setting_t::USE_GLOBAL_CHANNEL)
                                        ? GLOBAL_CHANNEL
                                        : event.channel;
+    const bool    USE_OMNI       = CHANNEL == OMNI_CHANNEL;
 
-    const bool USE_OMNI = CHANNEL == OMNI_CHANNEL ? true : false;
-
-    for (size_t i = 0; i < _midiInterface.size(); i++)
+    auto send_ump = [this](const midi_ump& packet)
     {
-        auto interfaceInstance = _midiInterface[i];
+        messaging::UmpSignal signal = {};
+        signal.packet               = packet;
+        send(signal);
+    };
 
-        if (!interfaceInstance->initialized())
+    auto send_channel_voice = [&](auto builder)
+    {
+        if (USE_OMNI)
         {
-            continue;
+            for (uint8_t channel = 1; channel <= 16; channel++)
+            {
+                send_ump(builder(channel));
+            }
         }
+        else
+        {
+            send_ump(builder(CHANNEL));
+        }
+    };
 
-        LOG_INF("MIDI interface: #%d, channel: %d, event.index: %d, event.value: %d",
-                static_cast<int>(i),
-                CHANNEL,
-                event.index,
-                event.value);
+    switch (event.message)
+    {
+    case messageType_t::NOTE_OFF:
+    {
+        send_channel_voice(
+            [&](uint8_t channel)
+            {
+                return lib::midi::midi1::note_off(
+                    MIDI_GROUP,
+                    to_zero_based_channel(channel),
+                    event.index,
+                    event.value,
+                    !_standardNoteOff);
+            });
+    }
+    break;
+
+    case messageType_t::NOTE_ON:
+    {
+        send_channel_voice(
+            [&](uint8_t channel)
+            {
+                return lib::midi::midi1::note_on(
+                    MIDI_GROUP,
+                    to_zero_based_channel(channel),
+                    event.index,
+                    event.value);
+            });
+    }
+    break;
+
+    case messageType_t::CONTROL_CHANGE:
+    {
+        send_channel_voice(
+            [&](uint8_t channel)
+            {
+                return lib::midi::midi1::control_change(
+                    MIDI_GROUP,
+                    to_zero_based_channel(channel),
+                    event.index,
+                    event.value);
+            });
+    }
+    break;
+
+    case messageType_t::PROGRAM_CHANGE:
+    {
+        send_channel_voice(
+            [&](uint8_t channel)
+            {
+                return lib::midi::midi1::program_change(
+                    MIDI_GROUP,
+                    to_zero_based_channel(channel),
+                    event.index);
+            });
+    }
+    break;
+
+    case messageType_t::SYS_REAL_TIME_CLOCK:
+        send_ump(lib::midi::midi1::timing_clock(MIDI_GROUP));
+        break;
+
+    case messageType_t::SYS_REAL_TIME_START:
+        send_ump(lib::midi::midi1::start(MIDI_GROUP));
+        break;
+
+    case messageType_t::SYS_REAL_TIME_CONTINUE:
+        send_ump(lib::midi::midi1::continue_playback(MIDI_GROUP));
+        break;
+
+    case messageType_t::SYS_REAL_TIME_STOP:
+        send_ump(lib::midi::midi1::stop(MIDI_GROUP));
+        break;
+
+    case messageType_t::SYS_REAL_TIME_ACTIVE_SENSING:
+        send_ump(lib::midi::midi1::active_sensing(MIDI_GROUP));
+        break;
+
+    case messageType_t::SYS_REAL_TIME_SYSTEM_RESET:
+        send_ump(lib::midi::midi1::system_reset(MIDI_GROUP));
+        break;
+
+    case messageType_t::MMC_PLAY:
+    case messageType_t::MMC_STOP:
+    case messageType_t::MMC_PAUSE:
+    case messageType_t::MMC_RECORD_START:
+    case messageType_t::MMC_RECORD_STOP:
+    {
+        std::optional<midi_ump> packet = std::nullopt;
 
         switch (event.message)
         {
-        case messageType_t::NOTE_OFF:
-        {
-            if (USE_OMNI)
-            {
-                for (uint8_t channel = 1; channel <= 16; channel++)
-                {
-                    interfaceInstance->sendNoteOff(event.index, event.value, channel);
-                }
-            }
-            else
-            {
-                interfaceInstance->sendNoteOff(event.index, event.value, CHANNEL);
-            }
-        }
-        break;
-
-        case messageType_t::NOTE_ON:
-        {
-            if (USE_OMNI)
-            {
-                for (uint8_t channel = 1; channel <= 16; channel++)
-                {
-                    interfaceInstance->sendNoteOn(event.index, event.value, channel);
-                }
-            }
-            else
-            {
-                interfaceInstance->sendNoteOn(event.index, event.value, CHANNEL);
-            }
-        }
-        break;
-
-        case messageType_t::CONTROL_CHANGE:
-        {
-            if (USE_OMNI)
-            {
-                for (uint8_t channel = 1; channel <= 16; channel++)
-                {
-                    interfaceInstance->sendControlChange(event.index, event.value, channel);
-                }
-            }
-            else
-            {
-                interfaceInstance->sendControlChange(event.index, event.value, CHANNEL);
-            }
-        }
-        break;
-
-        case messageType_t::PROGRAM_CHANGE:
-        {
-            if (USE_OMNI)
-            {
-                for (uint8_t channel = 1; channel <= 16; channel++)
-                {
-                    interfaceInstance->sendProgramChange(event.index, channel);
-                }
-            }
-            else
-            {
-                interfaceInstance->sendProgramChange(event.index, CHANNEL);
-            }
-        }
-        break;
-
-        case messageType_t::AFTER_TOUCH_CHANNEL:
-        {
-            if (USE_OMNI)
-            {
-                for (uint8_t channel = 1; channel <= 16; channel++)
-                {
-                    interfaceInstance->sendAfterTouch(event.value, channel);
-                }
-            }
-            else
-            {
-                interfaceInstance->sendAfterTouch(event.value, CHANNEL);
-            }
-        }
-        break;
-
-        case messageType_t::AFTER_TOUCH_POLY:
-        {
-            if (USE_OMNI)
-            {
-                for (uint8_t channel = 1; channel <= 16; channel++)
-                {
-                    interfaceInstance->sendAfterTouch(event.value, channel, event.index);
-                }
-            }
-            else
-            {
-                interfaceInstance->sendAfterTouch(event.value, CHANNEL, event.index);
-            }
-        }
-        break;
-
-        case messageType_t::PITCH_BEND:
-        {
-            if (USE_OMNI)
-            {
-                for (uint8_t channel = 1; channel <= 16; channel++)
-                {
-                    interfaceInstance->sendPitchBend(event.value, channel);
-                }
-            }
-            else
-            {
-                interfaceInstance->sendPitchBend(event.value, CHANNEL);
-            }
-        }
-        break;
-
-        case messageType_t::SYS_REAL_TIME_CLOCK:
-        {
-            interfaceInstance->sendRealTime(event.message);
-        }
-        break;
-
-        case messageType_t::SYS_REAL_TIME_START:
-        {
-            interfaceInstance->sendRealTime(event.message);
-        }
-        break;
-
-        case messageType_t::SYS_REAL_TIME_CONTINUE:
-        {
-            interfaceInstance->sendRealTime(event.message);
-        }
-        break;
-
-        case messageType_t::SYS_REAL_TIME_STOP:
-        {
-            interfaceInstance->sendRealTime(event.message);
-        }
-        break;
-
-        case messageType_t::SYS_REAL_TIME_ACTIVE_SENSING:
-        {
-            interfaceInstance->sendRealTime(event.message);
-        }
-        break;
-
-        case messageType_t::SYS_REAL_TIME_SYSTEM_RESET:
-        {
-            interfaceInstance->sendRealTime(event.message);
-        }
-        break;
-
         case messageType_t::MMC_PLAY:
-        {
-            interfaceInstance->sendMMC(event.index, event.message);
-        }
-        break;
+            packet = lib::midi::midi1::mmc<lib::midi::MessageType::MmcPlay>(MIDI_GROUP, event.index);
+            break;
 
         case messageType_t::MMC_STOP:
-        {
-            interfaceInstance->sendMMC(event.index, event.message);
-        }
-        break;
+            packet = lib::midi::midi1::mmc<lib::midi::MessageType::MmcStop>(MIDI_GROUP, event.index);
+            break;
 
         case messageType_t::MMC_PAUSE:
-        {
-            interfaceInstance->sendMMC(event.index, event.message);
-        }
-        break;
+            packet = lib::midi::midi1::mmc<lib::midi::MessageType::MmcPause>(MIDI_GROUP, event.index);
+            break;
 
         case messageType_t::MMC_RECORD_START:
-        {
-            interfaceInstance->sendMMC(event.index, event.message);
-        }
-        break;
+            packet = lib::midi::midi1::mmc<lib::midi::MessageType::MmcRecordStart>(MIDI_GROUP, event.index);
+            break;
 
         case messageType_t::MMC_RECORD_STOP:
-        {
-            interfaceInstance->sendMMC(event.index, event.message);
-        }
-        break;
-
-        case messageType_t::NRPN_7BIT:
-        {
-            if (USE_OMNI)
-            {
-                for (uint8_t channel = 1; channel <= 16; channel++)
-                {
-                    interfaceInstance->sendNRPN(event.index, event.value, channel, false);
-                }
-            }
-            else
-            {
-                interfaceInstance->sendNRPN(event.index, event.value, CHANNEL, false);
-            }
-        }
-        break;
-
-        case messageType_t::NRPN_14BIT:
-        {
-            if (USE_OMNI)
-            {
-                for (uint8_t channel = 1; channel <= 16; channel++)
-                {
-                    interfaceInstance->sendNRPN(event.index, event.value, channel, true);
-                }
-            }
-            else
-            {
-                interfaceInstance->sendNRPN(event.index, event.value, CHANNEL, true);
-            }
-        }
-        break;
-
-        case messageType_t::CONTROL_CHANGE_14BIT:
-        {
-            if (USE_OMNI)
-            {
-                for (uint8_t channel = 1; channel <= 16; channel++)
-                {
-                    interfaceInstance->sendControlChange14bit(event.index, event.value, channel);
-                }
-            }
-            else
-            {
-                interfaceInstance->sendControlChange14bit(event.index, event.value, CHANNEL);
-            }
-        }
-        break;
-
-        case messageType_t::SYS_EX:
-        {
-            if (source == messaging::eventType_t::SYSTEM)
-            {
-                if (i != INTERFACE_USB)
-                {
-                    // send internal sysex messages on USB interface only
-                    break;
-                }
-            }
-
-            interfaceInstance->sendSysEx(event.sysExLength, event.sysEx, true);
-        }
-        break;
+            packet = lib::midi::midi1::mmc<lib::midi::MessageType::MmcRecordStop>(MIDI_GROUP, event.index);
+            break;
 
         default:
             break;
         }
+
+        if (packet.has_value())
+        {
+            send_ump(packet.value());
+        }
+    }
+    break;
+
+    default:
+        break;
     }
 }
 
-// helper function used to apply note off to all available interfaces
-void Midi::setNoteOffMode(noteOffType_t type)
+void Midi::send(const messaging::UmpSignal& event)
 {
     for (size_t i = 0; i < _midiInterface.size(); i++)
     {
-        _midiInterface[i]->setNoteOffMode(type);
+        auto* interfaceInstance = _midiInterface[i];
+
+        if ((interfaceInstance != nullptr) && interfaceInstance->initialized())
+        {
+            interfaceInstance->send(event.packet);
+
+            messaging::publish(messaging::MidiTrafficSignal{
+                .transport = interfaceToTransport(i),
+                .direction = messaging::MidiDirection::Out,
+            });
+        }
     }
+}
+
+messaging::MidiTransport Midi::interfaceToTransport(size_t index) const
+{
+    switch (index)
+    {
+    case INTERFACE_USB:
+        return messaging::MidiTransport::Usb;
+
+    case INTERFACE_SERIAL:
+        return messaging::MidiTransport::Din;
+
+    case INTERFACE_BLE:
+        return messaging::MidiTransport::Ble;
+
+    default:
+        return messaging::MidiTransport::Usb;
+    }
+}
+
+void Midi::setNoteOffMode(noteOffType_t type)
+{
+    _standardNoteOff = type == noteOffType_t::STANDARD_NOTE_OFF;
 }
 
 std::optional<uint8_t> Midi::sysConfigGet(sys::Config::Section::global_t section, size_t index, uint16_t& value)
 {
     if (section != sys::Config::Section::global_t::MIDI_SETTINGS)
     {
-        return std::nullopt;
+        return {};
     }
 
     [[maybe_unused]] uint32_t readValue = 0;
@@ -760,16 +680,9 @@ std::optional<uint8_t> Midi::sysConfigGet(sys::Config::Section::global_t section
 
     case setting_t::SEND_MIDI_CLOCK_DIN:
     {
-        if (!_clockTimerAllocated)
-        {
-            result = sys::Config::Status::ERROR_NOT_SUPPORTED;
-        }
-        else
-        {
-            result = _database.read(util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
-                         ? sys::Config::Status::ACK
-                         : sys::Config::Status::ERROR_READ;
-        }
+        result = _database.read(util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
+                     ? sys::Config::Status::ACK
+                     : sys::Config::Status::ERROR_READ;
     }
     break;
 
@@ -790,7 +703,7 @@ std::optional<uint8_t> Midi::sysConfigSet(sys::Config::Section::global_t section
 {
     if (section != sys::Config::Section::global_t::MIDI_SETTINGS)
     {
-        return std::nullopt;
+        return {};
     }
 
     [[maybe_unused]] uint8_t result            = sys::Config::Status::ERROR_WRITE;
@@ -814,7 +727,7 @@ std::optional<uint8_t> Midi::sysConfigSet(sys::Config::Section::global_t section
             }
             else
             {
-                _serial.setRunningStatusState(value);
+                // Running status handling is internal to the zlibs serial parser.
                 result = sys::Config::Status::ACK;
             }
         }
@@ -890,11 +803,11 @@ std::optional<uint8_t> Midi::sysConfigSet(sys::Config::Section::global_t section
         {
             if (value)
             {
-                _serial.registerThruInterface(_serial.transport());
+                _serial.register_thru_interface(_serial.thru_interface());
             }
             else
             {
-                _serial.unregisterThruInterface(_serial.transport());
+                _serial.unregister_thru_interface(_serial.thru_interface());
             }
 
             result           = sys::Config::Status::ACK;
@@ -913,11 +826,11 @@ std::optional<uint8_t> Midi::sysConfigSet(sys::Config::Section::global_t section
         {
             if (value)
             {
-                _serial.registerThruInterface(_usb.transport());
+                _serial.register_thru_interface(_usb.thru_interface());
             }
             else
             {
-                _serial.unregisterThruInterface(_usb.transport());
+                _serial.unregister_thru_interface(_usb.thru_interface());
             }
 
             result           = sys::Config::Status::ACK;
@@ -944,11 +857,11 @@ std::optional<uint8_t> Midi::sysConfigSet(sys::Config::Section::global_t section
                 {
                     if (value)
                     {
-                        _serial.registerThruInterface(_ble.transport());
+                        _serial.register_thru_interface(_ble.thru_interface());
                     }
                     else
                     {
-                        _serial.unregisterThruInterface(_ble.transport());
+                        _serial.unregister_thru_interface(_ble.thru_interface());
                     }
 
                     result           = sys::Config::Status::ACK;
@@ -973,11 +886,11 @@ std::optional<uint8_t> Midi::sysConfigSet(sys::Config::Section::global_t section
         {
             if (value)
             {
-                _usb.registerThruInterface(_serial.transport());
+                _usb.register_thru_interface(_serial.thru_interface());
             }
             else
             {
-                _usb.unregisterThruInterface(_serial.transport());
+                _usb.unregister_thru_interface(_serial.thru_interface());
             }
 
             result = sys::Config::Status::ACK;
@@ -993,11 +906,11 @@ std::optional<uint8_t> Midi::sysConfigSet(sys::Config::Section::global_t section
     {
         if (value)
         {
-            _usb.registerThruInterface(_usb.transport());
+            _usb.register_thru_interface(_usb.thru_interface());
         }
         else
         {
-            _usb.unregisterThruInterface(_usb.transport());
+            _usb.unregister_thru_interface(_usb.thru_interface());
         }
 
         result = sys::Config::Status::ACK;
@@ -1010,11 +923,11 @@ std::optional<uint8_t> Midi::sysConfigSet(sys::Config::Section::global_t section
         {
             if (value)
             {
-                _usb.registerThruInterface(_ble.transport());
+                _usb.register_thru_interface(_ble.thru_interface());
             }
             else
             {
-                _usb.unregisterThruInterface(_ble.transport());
+                _usb.unregister_thru_interface(_ble.thru_interface());
             }
 
             result = sys::Config::Status::ACK;
@@ -1040,11 +953,11 @@ std::optional<uint8_t> Midi::sysConfigSet(sys::Config::Section::global_t section
                 {
                     if (value)
                     {
-                        _ble.registerThruInterface(_serial.transport());
+                        _ble.register_thru_interface(_serial.thru_interface());
                     }
                     else
                     {
-                        _ble.unregisterThruInterface(_serial.transport());
+                        _ble.unregister_thru_interface(_serial.thru_interface());
                     }
 
                     result = sys::Config::Status::ACK;
@@ -1068,11 +981,11 @@ std::optional<uint8_t> Midi::sysConfigSet(sys::Config::Section::global_t section
         {
             if (value)
             {
-                _ble.registerThruInterface(_usb.transport());
+                _ble.register_thru_interface(_usb.thru_interface());
             }
             else
             {
-                _ble.unregisterThruInterface(_usb.transport());
+                _ble.unregister_thru_interface(_usb.thru_interface());
             }
 
             result = sys::Config::Status::ACK;
@@ -1090,11 +1003,11 @@ std::optional<uint8_t> Midi::sysConfigSet(sys::Config::Section::global_t section
         {
             if (value)
             {
-                _ble.registerThruInterface(_ble.transport());
+                _ble.register_thru_interface(_ble.thru_interface());
             }
             else
             {
-                _ble.unregisterThruInterface(_ble.transport());
+                _ble.unregister_thru_interface(_ble.thru_interface());
             }
 
             result = sys::Config::Status::ACK;
@@ -1121,15 +1034,15 @@ std::optional<uint8_t> Midi::sysConfigSet(sys::Config::Section::global_t section
 
     case setting_t::SEND_MIDI_CLOCK_DIN:
     {
-        if (!_clockTimerAllocated)
+        if (value)
         {
-            result = sys::Config::Status::ERROR_NOT_SUPPORTED;
+            _clockTimer.start(Bpm.bpmToUsec(Bpm.value()), misc::TimerUnit::Us);
         }
         else
         {
-            value ? core::mcu::timers::start(_clockTimerIndex) : core::mcu::timers::stop(_clockTimerIndex);
-            result = sys::Config::Status::ACK;
+            _clockTimer.stop();
         }
+        result = sys::Config::Status::ACK;
     }
     break;
 
@@ -1152,21 +1065,21 @@ std::optional<uint8_t> Midi::sysConfigSet(sys::Config::Section::global_t section
         {
             _serial.init();
 
-            if (isSettingEnabled(setting_t::SEND_MIDI_CLOCK_DIN) && _clockTimerAllocated)
+            if (isSettingEnabled(setting_t::SEND_MIDI_CLOCK_DIN))
             {
-                core::mcu::timers::start(_clockTimerIndex);
+                _clockTimer.start(Bpm.bpmToUsec(Bpm.value()), misc::TimerUnit::Us);
             }
         }
         break;
 
         case io::common::initAction_t::DE_INIT:
         {
-            if (isSettingEnabled(setting_t::SEND_MIDI_CLOCK_DIN) && _clockTimerAllocated)
+            if (isSettingEnabled(setting_t::SEND_MIDI_CLOCK_DIN))
             {
-                core::mcu::timers::stop(_clockTimerIndex);
+                _clockTimer.stop();
             }
 
-            _serial.deInit();
+            _serial.deinit();
         }
         break;
 
@@ -1184,7 +1097,7 @@ std::optional<uint8_t> Midi::sysConfigSet(sys::Config::Section::global_t section
 
         case io::common::initAction_t::DE_INIT:
         {
-            _ble.deInit();
+            _ble.deinit();
         }
         break;
 

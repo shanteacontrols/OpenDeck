@@ -20,9 +20,12 @@ limitations under the License.
 
 #include "deps.h"
 
-#include "core/mcu.h"
-#include "core/util/util.h"
-#include "core/util/filters.h"
+#include "zlibs/utils/filters/filters.h"
+#include "zlibs/utils/misc/bit.h"
+#include "zlibs/utils/misc/numeric.h"
+
+#include <array>
+#include <zephyr/kernel.h>
 
 namespace io::analog
 {
@@ -44,9 +47,9 @@ namespace io::analog
             const uint16_t ADC_MIN_VALUE = lowerOffsetRaw(descriptor.lowerOffset);
             const uint16_t ADC_MAX_VALUE = upperOffsetRaw(descriptor.upperOffset);
 
-            descriptor.value = core::util::CONSTRAIN(descriptor.value,
-                                                     ADC_MIN_VALUE,
-                                                     ADC_MAX_VALUE);
+            descriptor.value = zlibs::utils::misc::constrain(descriptor.value,
+                                                             ADC_MIN_VALUE,
+                                                             ADC_MAX_VALUE);
 
             // avoid full filtering in this case for faster response
             if (descriptor.type == type_t::BUTTON)
@@ -54,13 +57,13 @@ namespace io::analog
                 return isButtonFiltered(index, descriptor);
             }
 
-            const bool FAST_FILTER    = (core::mcu::timing::ms() - _lastMovementTime[index]) < FAST_FILTER_ENABLE_AFTER_MS;
+            const bool FAST_FILTER    = (k_uptime_get() - _lastMovementTime[index]) < FAST_FILTER_ENABLE_AFTER_MS;
             const bool DIRECTION      = descriptor.value >= _lastValue[index];
-            const auto OLD_MIDI_VALUE = core::util::MAP_RANGE(static_cast<uint32_t>(_lastValue[index]),
-                                                              static_cast<uint32_t>(ADC_MIN_VALUE),
-                                                              static_cast<uint32_t>(ADC_MAX_VALUE),
-                                                              static_cast<uint32_t>(0),
-                                                              static_cast<uint32_t>(descriptor.maxValue));
+            const auto OLD_MIDI_VALUE = zlibs::utils::misc::map_range(static_cast<uint32_t>(_lastValue[index]),
+                                                                      static_cast<uint32_t>(ADC_MIN_VALUE),
+                                                                      static_cast<uint32_t>(ADC_MAX_VALUE),
+                                                                      static_cast<uint32_t>(0),
+                                                                      static_cast<uint32_t>(descriptor.maxValue));
             int16_t    stepDiff       = 1;
 
             if (((DIRECTION != lastDirection(index)) || !FAST_FILTER) && ((OLD_MIDI_VALUE != 0) && (OLD_MIDI_VALUE != descriptor.maxValue)))
@@ -70,17 +73,13 @@ namespace io::analog
 
             if (abs(static_cast<int16_t>(descriptor.value) - static_cast<int16_t>(_lastValue[index])) < stepDiff)
             {
-#ifdef PROJECT_TARGET_ANALOG_FILTER_MEDIAN
                 _medianFilter[index].reset();
-#endif
-
                 return false;
             }
 
-#ifdef PROJECT_TARGET_ANALOG_FILTER_MEDIAN
             if (!FAST_FILTER)
             {
-                auto median = _medianFilter[index].value(descriptor.value);
+                auto median = _medianFilter[index].filter_value(descriptor.value);
 
                 if (median.has_value())
                 {
@@ -91,17 +90,14 @@ namespace io::analog
                     return false;
                 }
             }
-#endif
 
-#ifdef PROJECT_TARGET_ANALOG_FILTER_EMA
             descriptor.value = _emaFilter[index].value(descriptor.value);
-#endif
 
-            const auto MIDI_VALUE = core::util::MAP_RANGE(static_cast<uint32_t>(descriptor.value),
-                                                          static_cast<uint32_t>(ADC_MIN_VALUE),
-                                                          static_cast<uint32_t>(ADC_MAX_VALUE),
-                                                          static_cast<uint32_t>(0),
-                                                          static_cast<uint32_t>(descriptor.maxValue));
+            const auto MIDI_VALUE = zlibs::utils::misc::map_range(static_cast<uint32_t>(descriptor.value),
+                                                                  static_cast<uint32_t>(ADC_MIN_VALUE),
+                                                                  static_cast<uint32_t>(ADC_MAX_VALUE),
+                                                                  static_cast<uint32_t>(0),
+                                                                  static_cast<uint32_t>(descriptor.maxValue));
 
             if (MIDI_VALUE == OLD_MIDI_VALUE)
             {
@@ -118,18 +114,19 @@ namespace io::analog
             }
             else
             {
-                _lastMovementTime[index] = core::mcu::timing::ms();
+                _lastMovementTime[index] = k_uptime_get();
             }
 
             if (descriptor.type == type_t::FSR)
             {
-                descriptor.value = core::util::MAP_RANGE(core::util::CONSTRAIN(static_cast<uint32_t>(descriptor.value),
-                                                                               static_cast<uint32_t>(_adcConfig.FSR_MIN_VALUE),
-                                                                               static_cast<uint32_t>(_adcConfig.FSR_MAX_VALUE)),
-                                                         static_cast<uint32_t>(_adcConfig.FSR_MIN_VALUE),
-                                                         static_cast<uint32_t>(_adcConfig.FSR_MAX_VALUE),
-                                                         static_cast<uint32_t>(0),
-                                                         static_cast<uint32_t>(descriptor.maxValue));
+                descriptor.value = zlibs::utils::misc::map_range(
+                    zlibs::utils::misc::constrain(static_cast<uint32_t>(descriptor.value),
+                                                  static_cast<uint32_t>(_adcConfig.FSR_MIN_VALUE),
+                                                  static_cast<uint32_t>(_adcConfig.FSR_MAX_VALUE)),
+                    static_cast<uint32_t>(_adcConfig.FSR_MIN_VALUE),
+                    static_cast<uint32_t>(_adcConfig.FSR_MAX_VALUE),
+                    static_cast<uint32_t>(0),
+                    static_cast<uint32_t>(descriptor.maxValue));
             }
             else
             {
@@ -143,9 +140,7 @@ namespace io::analog
         {
             if (index < io::analog::Collection::SIZE())
             {
-#ifdef PROJECT_TARGET_ANALOG_FILTER_MEDIAN
                 _medianFilter[index].reset();
-#endif
                 _lastMovementTime[index] = 0;
             }
 
@@ -188,31 +183,22 @@ namespace io::analog
         static constexpr size_t   MEDIAN_SAMPLE_COUNT         = 3;
         static constexpr size_t   MEDIAN_MIDDLE_VALUE         = 1;
         static constexpr uint8_t  BUTTON_TYPE_DEBOUNCED_MASK  = 0b00000010;
+        static constexpr size_t   STORAGE_SIZE                = io::analog::Collection::SIZE() ? io::analog::Collection::SIZE() : 1;
 
-        const adcConfig_t& _adcConfig;
-        const uint16_t     STEP_DIFF_7BIT;
-
-// some filtering is needed for adc only
-#ifdef PROJECT_TARGET_ANALOG_FILTER_EMA
-        core::util::EMAFilter<uint16_t, 50> _emaFilter[io::analog::Collection::SIZE()];
-#endif
-
-#ifdef PROJECT_TARGET_ANALOG_FILTER_MEDIAN
-        core::util::MedianFilter<uint16_t, 3> _medianFilter[io::analog::Collection::SIZE()];
-#else
-        uint16_t _analogSample[io::analog::Collection::SIZE()] = {};
-#endif
-        uint32_t _lastMovementTime[io::analog::Collection::SIZE()] = {};
-
-        uint8_t  _lastDirection[io::analog::Collection::SIZE() / 8 + 1] = {};
-        uint16_t _lastValue[io::analog::Collection::SIZE()]             = {};
+        const adcConfig_t&                                                         _adcConfig;
+        const uint16_t                                                             STEP_DIFF_7BIT;
+        std::array<zlibs::utils::filters::EmaFilter<uint16_t, 50>, STORAGE_SIZE>   _emaFilter        = {};
+        std::array<zlibs::utils::filters::MedianFilter<uint16_t, 3>, STORAGE_SIZE> _medianFilter     = {};
+        std::array<uint32_t, STORAGE_SIZE>                                         _lastMovementTime = {};
+        std::array<uint8_t, STORAGE_SIZE / 8 + 1>                                  _lastDirection    = {};
+        std::array<uint16_t, STORAGE_SIZE>                                         _lastValue        = {};
 
         void setlastDirection(size_t index, bool state)
         {
             uint8_t arrayIndex  = index / 8;
             uint8_t analogIndex = index - 8 * arrayIndex;
 
-            core::util::BIT_WRITE(_lastDirection[arrayIndex], analogIndex, state);
+            zlibs::utils::misc::bit_write(_lastDirection[arrayIndex], analogIndex, state);
         }
 
         bool lastDirection(size_t index)
@@ -220,7 +206,7 @@ namespace io::analog
             uint8_t arrayIndex  = index / 8;
             uint8_t analogIndex = index - 8 * arrayIndex;
 
-            return core::util::BIT_READ(_lastDirection[arrayIndex], analogIndex);
+            return zlibs::utils::misc::bit_read(_lastDirection[arrayIndex], analogIndex);
         }
 
         uint32_t lowerOffsetRaw(uint8_t percentage)
@@ -269,13 +255,13 @@ namespace io::analog
             if (newValue != unmaskedLastValue)
             {
                 _lastValue[index]        = newValue;
-                _lastMovementTime[index] = core::mcu::timing::ms();
+                _lastMovementTime[index] = k_uptime_get();
 
                 // not debounced yet
                 return false;
             }
 
-            if ((core::mcu::timing::ms() - _lastMovementTime[index]) < io::buttons::DEBOUNCE_TIME_MS)
+            if ((k_uptime_get() - _lastMovementTime[index]) < io::buttons::DEBOUNCE_TIME_MS)
             {
                 return false;
             }

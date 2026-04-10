@@ -17,7 +17,7 @@ limitations under the License.
 */
 
 #include "application/database/database.h"
-#include "application/io/buttons/common.h"
+#include "application/io/digital/buttons/common.h"
 #include "application/io/analog/common.h"
 #include "application/io/leds/common.h"
 #include "application/protocol/midi/common.h"
@@ -45,6 +45,10 @@ void Admin::customInitButtons()
     }
 }
 
+void Admin::customInitEncoders()
+{
+}
+
 void Admin::customInitAnalog()
 {
     for (size_t group = 0; group < analog::Collection::GROUPS(); group++)
@@ -66,4 +70,12 @@ void Admin::customInitLEDs()
             update(Config::Section::leds_t::CONTROL_TYPE, i + leds::Collection::START_INDEX(group), leds::controlType_t::MIDI_IN_NOTE_MULTI_VAL);
         }
     }
+}
+
+void Admin::customInitDisplay()
+{
+}
+
+void Admin::customInitTouchscreen()
+{
 }

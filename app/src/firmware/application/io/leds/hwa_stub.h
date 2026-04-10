@@ -27,6 +27,10 @@ namespace io::leds
         public:
         HwaStub() = default;
 
+        void update() override
+        {
+        }
+
         void setState(size_t index, brightness_t brightness) override
         {
         }

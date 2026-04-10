@@ -1,0 +1,87 @@
+#include <zephyr/dt-bindings/pinctrl/rpi-pico-rp2040-pinctrl.h>
+
+/ {
+    usb_midi: usb_midi {
+        compatible = "zephyr,midi2-device";
+        status = "okay";
+        #address-cells = <1>;
+        #size-cells = <1>;
+
+        midi_in_out@0 {
+            reg = <0 1>;
+            protocol = "midi1-up-to-128b";
+            label = "OpenDeck";
+        };
+    };
+};
+
+&pinctrl {
+    uart1_touchscreen_default: uart1_touchscreen_default {
+        group1 {
+            pinmux = <UART1_TX_P4>;
+        };
+
+        group2 {
+            pinmux = <UART1_RX_P5>;
+            input-enable;
+        };
+    };
+
+    i2c0_display_default: i2c0_display_default {
+        group1 {
+            pinmux = <I2C0_SDA_P16>, <I2C0_SCL_P17>;
+            input-enable;
+            input-schmitt-enable;
+        };
+    };
+};
+
+&uart1 {
+    current-speed = <115200>;
+    status = "okay";
+    pinctrl-0 = <&uart1_touchscreen_default>;
+    pinctrl-names = "default";
+};
+
+&i2c0 {
+    status = "okay";
+    pinctrl-0 = <&i2c0_display_default>;
+    pinctrl-names = "default";
+};
+
+&flash0 {
+    /delete-node/ partitions;
+
+    partitions {
+        compatible = "fixed-partitions";
+        #address-cells = <1>;
+        #size-cells = <1>;
+
+        second_stage_bootloader: partition@0 {
+            label = "second_stage_bootloader";
+            reg = <0x00000000 0x00000100>;
+            read-only;
+        };
+
+        code_partition: partition@100 {
+            label = "code-partition";
+            reg = <0x00000100 0x00047f00>;
+            read-only;
+        };
+
+        factory_partition: partition@48000 {
+            label = "factory";
+            reg = <0x00048000 0x00040000>;
+        };
+
+        emueeprom_page1_partition: partition@88000 {
+            label = "emueeprom-page1";
+            reg = <0x00088000 0x00040000>;
+        };
+
+        emueeprom_page2_partition: partition@c8000 {
+            label = "emueeprom-page2";
+            reg = <0x000c8000 0x00040000>;
+        };
+    };
+};

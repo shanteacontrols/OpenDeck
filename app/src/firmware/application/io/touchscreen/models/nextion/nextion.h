@@ -20,8 +20,6 @@ limitations under the License.
 
 #include "application/io/touchscreen/deps.h"
 
-#include "core/util/ring_buffer.h"
-
 namespace io::touchscreen
 {
     class Nextion : public Model

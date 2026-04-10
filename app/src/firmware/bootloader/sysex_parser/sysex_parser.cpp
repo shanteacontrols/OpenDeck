@@ -19,8 +19,6 @@ limitations under the License.
 #include "sysex_parser.h"
 #include "application/system/config.h"
 
-#include "lib/sysexconf/sysexconf.h"
-
 using namespace sysex_parser;
 using namespace protocol;
 

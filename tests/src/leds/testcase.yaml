@@ -1,0 +1,6 @@
+tests:
+  leds.test:
+    build_only: false
+    platform_allow: native_sim/native/64
+    harness: gtest
+    tags: leds

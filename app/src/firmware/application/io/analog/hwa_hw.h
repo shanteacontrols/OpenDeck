@@ -19,24 +19,33 @@ limitations under the License.
 #pragma once
 
 #include "deps.h"
-#include "board/board.h"
+#include "drivers/driver_base.h"
 
 namespace io::analog
 {
     class HwaHw : public Hwa
     {
         public:
-        HwaHw() = default;
+        explicit HwaHw(DriverBase& driver)
+            : _driver(driver)
+        {}
 
-        bool value(size_t index, uint16_t& value) override
+        bool init() override
         {
-            return board::io::analog::value(index, value);
+            return _driver.init();
+        }
+
+        std::optional<uint16_t> value(size_t index) override
+        {
+            return _driver.value(index);
         }
 
         uint8_t adcBits() override
         {
-            // only 10 and 12-bit ADC supported
-            return CORE_MCU_ADC_MAX_VALUE == 1023 ? 10 : 12;
+            return _driver.adcBits();
         }
+
+        private:
+        DriverBase& _driver;
     };
 }    // namespace io::analog

@@ -1,0 +1,24 @@
+description: OpenDeck DIN MIDI UART configuration
+
+compatible: "opendeck,midi-uart"
+
+properties:
+  disabled:
+    type: boolean
+    required: false
+    description: Ignore this DIN MIDI UART node for target support checks.
+
+  uart:
+    type: phandle
+    required: false
+    description: UART device used for DIN MIDI.
+
+  rx-gpios:
+    type: phandle-array
+    required: false
+    description: DIN MIDI UART RX GPIO when pins are configured directly.
+
+  tx-gpios:
+    type: phandle-array
+    required: false
+    description: DIN MIDI UART TX GPIO when pins are configured directly.

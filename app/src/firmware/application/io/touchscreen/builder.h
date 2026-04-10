@@ -21,13 +21,13 @@ limitations under the License.
 // clang-format off
 
 #ifdef OPENDECK_TEST
-    #ifdef PROJECT_TARGET_SUPPORT_TOUCHSCREEN
+    #ifdef CONFIG_PROJECT_TARGET_SUPPORT_TOUCHSCREEN
         #include "application/io/touchscreen/builder_test.h"
     #else
         #include "application/io/touchscreen/builder_stub.h"
     #endif
 #else
-    #ifdef PROJECT_TARGET_SUPPORT_TOUCHSCREEN
+    #ifdef CONFIG_PROJECT_TARGET_SUPPORT_TOUCHSCREEN
         #include "application/io/touchscreen/builder_hw.h"
     #else
         #include "application/io/touchscreen/builder_stub.h"

@@ -1,0 +1,59 @@
+description: OpenDeck top-level configuration container
+
+compatible: "opendeck,root"
+
+properties:
+  disabled:
+    type: boolean
+    required: false
+    description: Ignore this OpenDeck root node for target support checks.
+
+  usb:
+    type: boolean
+    required: false
+    description: USB transport support is present on this target.
+
+  ble:
+    type: boolean
+    required: false
+    description: BLE transport support is present on this target.
+
+  buttons:
+    type: phandle
+    required: false
+    description: Phandle to the OpenDeck button configuration node.
+
+  analog:
+    type: phandle
+    required: false
+    description: Phandle to the OpenDeck analog configuration node.
+
+  leds:
+    type: phandle
+    required: false
+    description: Phandle to the OpenDeck LED configuration node.
+
+  touchscreen:
+    type: phandle
+    required: false
+    description: Phandle to the OpenDeck touchscreen configuration node.
+
+  din-midi:
+    type: phandle
+    required: false
+    description: Phandle to the DIN MIDI UART configuration node.
+
+  midi-indicators:
+    type: phandle
+    required: false
+    description: Phandle to the MIDI traffic indicator configuration node.
+
+  display:
+    type: phandle
+    required: false
+    description: Phandle to the display I2C configuration node.
+
+  bootloader:
+    type: phandle
+    required: false
+    description: Phandle to the bootloader configuration node.

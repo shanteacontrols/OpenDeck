@@ -39,7 +39,7 @@ namespace io::analog
         }
 
         private:
-        HwaHw      _hwa;
+        HwaStub    _hwa;
         FilterStub _filter;
 
         public:

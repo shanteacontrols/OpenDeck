@@ -16,17 +16,25 @@ limitations under the License.
 
 */
 
-#ifdef PROJECT_TARGET_SUPPORT_ADC
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_ADC
 
 #include "analog.h"
 #include "application/system/config.h"
 #include "application/util/conversion/conversion.h"
 #include "application/util/configurable/configurable.h"
 
-#include "core/util/util.h"
+#include "zlibs/utils/misc/bit.h"
+#include "zlibs/utils/misc/numeric.h"
+
+#include <zephyr/logging/log.h>
 
 using namespace io::analog;
 using namespace protocol;
+
+namespace
+{
+    LOG_MODULE_REGISTER(analog, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
+}    // namespace
 
 Analog::Analog(Hwa&      hwa,
                Filter&   filter,
@@ -35,21 +43,21 @@ Analog::Analog(Hwa&      hwa,
     , _filter(filter)
     , _database(database)
 {
-    MidiDispatcher.listen(messaging::eventType_t::SYSTEM,
-                          [this](const messaging::Event& event)
-                          {
-                              switch (event.systemMessage)
-                              {
-                              case messaging::systemMessage_t::FORCE_IO_REFRESH:
-                              {
-                                  updateAll(true);
-                              }
-                              break;
+    messaging::subscribe<messaging::SystemSignal>(
+        [this](const messaging::SystemSignal& event)
+        {
+            switch (event.systemMessage)
+            {
+            case messaging::systemMessage_t::FORCE_IO_REFRESH:
+            {
+                updateAll(true);
+            }
+            break;
 
-                              default:
-                                  break;
-                              }
-                          });
+            default:
+                break;
+            }
+        });
 
     ConfigHandler.registerConfig(
         sys::Config::block_t::ANALOG,
@@ -68,6 +76,11 @@ Analog::Analog(Hwa&      hwa,
 
 bool Analog::init()
 {
+    if (!_hwa.init())
+    {
+        return false;
+    }
+
     for (size_t i = 0; i < Collection::SIZE(); i++)
     {
         reset(i);
@@ -85,14 +98,14 @@ void Analog::updateSingle(size_t index, bool forceRefresh)
 
     if (!forceRefresh)
     {
-        uint16_t value;
+        auto value = _hwa.value(index);
 
-        if (!_hwa.value(index, value))
+        if (!value.has_value())
         {
             return;
         }
 
-        processReading(index, value);
+        processReading(index, value.value());
     }
     else
     {
@@ -100,7 +113,6 @@ void Analog::updateSingle(size_t index, bool forceRefresh)
         {
             Descriptor descriptor;
             fillDescriptor(index, descriptor);
-            descriptor.event.forcedRefresh = true;
 
             descriptor.newValue = _lastValue[index];
             descriptor.oldValue = _lastValue[index];
@@ -208,8 +220,8 @@ bool Analog::checkPotentiometerValue(size_t index, Descriptor& descriptor)
     default:
     {
         // use 7-bit MIDI ID and limits
-        auto splitIndex        = util::Conversion::Split14Bit(descriptor.event.index);
-        descriptor.event.index = splitIndex.low();
+        auto splitIndex         = util::Conversion::Split14Bit(descriptor.signal.index);
+        descriptor.signal.index = splitIndex.low();
 
         auto splitLowerLimit  = util::Conversion::Split14Bit(descriptor.lowerLimit);
         descriptor.lowerLimit = splitLowerLimit.low();
@@ -231,11 +243,11 @@ bool Analog::checkPotentiometerValue(size_t index, Descriptor& descriptor)
 
         if (descriptor.lowerLimit > descriptor.upperLimit)
         {
-            scaled = core::util::MAP_RANGE(static_cast<uint32_t>(value),
-                                           static_cast<uint32_t>(0),
-                                           static_cast<uint32_t>(descriptor.maxValue),
-                                           static_cast<uint32_t>(descriptor.upperLimit),
-                                           static_cast<uint32_t>(descriptor.lowerLimit));
+            scaled = zlibs::utils::misc::map_range(static_cast<uint32_t>(value),
+                                                   static_cast<uint32_t>(0),
+                                                   static_cast<uint32_t>(descriptor.maxValue),
+                                                   static_cast<uint32_t>(descriptor.upperLimit),
+                                                   static_cast<uint32_t>(descriptor.lowerLimit));
 
             if (!descriptor.inverted)
             {
@@ -244,11 +256,11 @@ bool Analog::checkPotentiometerValue(size_t index, Descriptor& descriptor)
         }
         else
         {
-            scaled = core::util::MAP_RANGE(static_cast<uint32_t>(value),
-                                           static_cast<uint32_t>(0),
-                                           static_cast<uint32_t>(descriptor.maxValue),
-                                           static_cast<uint32_t>(descriptor.lowerLimit),
-                                           static_cast<uint32_t>(descriptor.upperLimit));
+            scaled = zlibs::utils::misc::map_range(static_cast<uint32_t>(value),
+                                                   static_cast<uint32_t>(0),
+                                                   static_cast<uint32_t>(descriptor.maxValue),
+                                                   static_cast<uint32_t>(descriptor.lowerLimit),
+                                                   static_cast<uint32_t>(descriptor.upperLimit));
 
             if (descriptor.inverted)
             {
@@ -302,12 +314,12 @@ bool Analog::checkFSRvalue(size_t index, Descriptor& descriptor)
 
 void Analog::sendMessage(size_t index, Descriptor& descriptor)
 {
-    auto eventType         = messaging::eventType_t::ANALOG;
-    descriptor.event.value = descriptor.newValue;
+    descriptor.signal.value = descriptor.newValue;
 
-    auto send = [&]()
+    auto sendAnalog = [&]()
     {
-        MidiDispatcher.notify(eventType, descriptor.event);
+        descriptor.signal.source = messaging::MidiSource::Analog;
+        messaging::publish(descriptor.signal);
     };
 
     switch (descriptor.type)
@@ -318,7 +330,7 @@ void Analog::sendMessage(size_t index, Descriptor& descriptor)
     case type_t::NRPN_7BIT:
     case type_t::NRPN_14BIT:
     {
-        send();
+        sendAnalog();
     }
     break;
 
@@ -326,29 +338,33 @@ void Analog::sendMessage(size_t index, Descriptor& descriptor)
     {
         if (!descriptor.newValue)
         {
-            descriptor.event.message = midi::messageType_t::NOTE_OFF;
+            descriptor.signal.message = midi::messageType_t::NOTE_OFF;
         }
 
-        send();
+        sendAnalog();
     }
     break;
 
     case type_t::BUTTON:
     {
-        eventType = messaging::eventType_t::ANALOG_BUTTON;
-        send();
+        messaging::MidiSignal signal = {};
+        signal.source                = messaging::MidiSource::AnalogButton;
+        signal.componentIndex        = descriptor.signal.componentIndex;
+        signal.value                 = descriptor.signal.value;
+
+        messaging::publish(signal);
     }
     break;
 
     case type_t::CONTROL_CHANGE_14BIT:
     {
-        if (descriptor.event.index >= 96)
+        if (descriptor.signal.index >= 96)
         {
             // not allowed
             return;
         }
 
-        send();
+        sendAnalog();
     }
     break;
 
@@ -369,7 +385,7 @@ void Analog::setFSRstate(size_t index, bool state)
     uint8_t arrayIndex  = index / 8;
     uint8_t analogIndex = index - 8 * arrayIndex;
 
-    core::util::BIT_WRITE(_fsrPressed[arrayIndex], analogIndex, state);
+    zlibs::utils::misc::bit_write(_fsrPressed[arrayIndex], analogIndex, state);
 }
 
 bool Analog::fsrState(size_t index)
@@ -377,21 +393,21 @@ bool Analog::fsrState(size_t index)
     uint8_t arrayIndex  = index / 8;
     uint8_t analogIndex = index - 8 * arrayIndex;
 
-    return core::util::BIT_READ(_fsrPressed[arrayIndex], analogIndex);
+    return zlibs::utils::misc::bit_read(_fsrPressed[arrayIndex], analogIndex);
 }
 
 void Analog::fillDescriptor(size_t index, Descriptor& descriptor)
 {
-    descriptor.type                 = static_cast<type_t>(_database.read(database::Config::Section::analog_t::TYPE, index));
-    descriptor.inverted             = _database.read(database::Config::Section::analog_t::INVERT, index);
-    descriptor.lowerLimit           = _database.read(database::Config::Section::analog_t::LOWER_LIMIT, index);
-    descriptor.upperLimit           = _database.read(database::Config::Section::analog_t::UPPER_LIMIT, index);
-    descriptor.lowerOffset          = _database.read(database::Config::Section::analog_t::LOWER_OFFSET, index);
-    descriptor.upperOffset          = _database.read(database::Config::Section::analog_t::UPPER_OFFSET, index);
-    descriptor.event.componentIndex = index;
-    descriptor.event.channel        = _database.read(database::Config::Section::analog_t::CHANNEL, index);
-    descriptor.event.index          = _database.read(database::Config::Section::analog_t::MIDI_ID, index);
-    descriptor.event.message        = INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(descriptor.type)];
+    descriptor.type                  = static_cast<type_t>(_database.read(database::Config::Section::analog_t::TYPE, index));
+    descriptor.inverted              = _database.read(database::Config::Section::analog_t::INVERT, index);
+    descriptor.lowerLimit            = _database.read(database::Config::Section::analog_t::LOWER_LIMIT, index);
+    descriptor.upperLimit            = _database.read(database::Config::Section::analog_t::UPPER_LIMIT, index);
+    descriptor.lowerOffset           = _database.read(database::Config::Section::analog_t::LOWER_OFFSET, index);
+    descriptor.upperOffset           = _database.read(database::Config::Section::analog_t::UPPER_OFFSET, index);
+    descriptor.signal.componentIndex = index;
+    descriptor.signal.channel        = _database.read(database::Config::Section::analog_t::CHANNEL, index);
+    descriptor.signal.index          = _database.read(database::Config::Section::analog_t::MIDI_ID, index);
+    descriptor.signal.message        = INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(descriptor.type)];
 
     switch (descriptor.type)
     {
@@ -413,7 +429,7 @@ void Analog::fillDescriptor(size_t index, Descriptor& descriptor)
 
 std::optional<uint8_t> Analog::sysConfigGet(sys::Config::Section::analog_t section, size_t index, uint16_t& value)
 {
-    uint32_t readValue;
+    uint32_t readValue = 0;
 
     auto result = _database.read(util::Conversion::SYS_2_DB_SECTION(section), index, readValue)
                       ? sys::Config::Status::ACK

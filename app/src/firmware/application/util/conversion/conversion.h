@@ -21,7 +21,12 @@ limitations under the License.
 #include "application/database/database.h"
 #include "application/system/config.h"
 
-#include "lib/sysexconf/sysexconf.h"
+#include "zlibs/utils/sysex_conf/sysex_conf.h"
+
+namespace lib
+{
+    namespace sysexconf = zlibs::utils::sysex_conf;
+}
 
 namespace util
 {

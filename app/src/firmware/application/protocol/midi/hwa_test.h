@@ -19,117 +19,56 @@ limitations under the License.
 #pragma once
 
 #include "deps.h"
-#include "application/messaging/messaging.h"
-#include "board/board.h"
+
+#include <gmock/gmock.h>
 
 namespace protocol::midi
 {
-    template<class Inherit, typename Data>
-    class WriteParserHWA : public Inherit
+    class WrittenMessageLog
     {
         public:
-        WriteParserHWA() = default;
-
-        bool init() override
+        void push(const midi_ump& packet)
         {
-            return true;
+            _decoded.push_back(decode_message(packet));
         }
 
-        bool deInit() override
+        void push(uint8_t data)
         {
-            return true;
-        }
-
-        bool write(Data& data) override
-        {
-            return false;
-        }
-
-        bool read(Data& data) override
-        {
-            if (_toDecode.size())
+            if (const auto packet = _parser.parse(data, 0); packet.has_value())
             {
-                data = _toDecode.at(0);
-                _toDecode.erase(_toDecode.begin());
-
-                return true;
-            }
-
-            return false;
-        }
-
-        uint32_t time()
-        {
-            return 0;
-        }
-
-        bool supported()
-        {
-            return true;
-        }
-
-        bool setLoopback(bool state)
-        {
-            return true;
-        }
-
-        bool allocated(io::common::Allocatable::interface_t interface)
-        {
-            return false;
-        }
-
-        std::vector<Data>      _toDecode;
-        std::vector<message_t> _decoded;
-    };
-
-    template<typename Transport, typename Hwa, typename Data>
-    class WriteParser
-    {
-        public:
-        WriteParser()
-        {
-            _base.init();
-        }
-
-        void feed(Data data)
-        {
-            _writeParserHWA._toDecode.push_back(data);
-
-            while (_base.read())
-            {
-                _writeParserHWA._decoded.push_back(_base.message());
+                push(packet.value());
             }
         }
 
         std::vector<message_t>& writtenMessages()
         {
-            return _writeParserHWA._decoded;
+            return _decoded;
         }
 
-        size_t totalWrittenChannelMessages()
+        size_t totalWrittenChannelMessages() const
         {
-            size_t cnt = 0;
+            size_t count = 0;
 
-            for (size_t i = 0; i < _writeParserHWA._decoded.size(); i++)
+            for (const auto& message : _decoded)
             {
-                if (IS_CHANNEL_MESSAGE(_writeParserHWA._decoded.at(i).type))
+                if (IS_CHANNEL_MESSAGE(message.type))
                 {
-                    cnt++;
+                    count++;
                 }
             }
 
-            return cnt;
+            return count;
         }
 
         void clear()
         {
-            _writeParserHWA._toDecode.clear();
-            _writeParserHWA._decoded.clear();
+            _decoded.clear();
+            _parser.reset();
         }
 
         private:
-        WriteParserHWA<Hwa, Data> _writeParserHWA;
-        Transport                 _base = Transport(_writeParserHWA);
+        lib::midi::Midi1ByteToUmpParser _parser  = {};
+        std::vector<message_t>          _decoded = {};
     };
 
     class HwaUsbTest : public HwaUsb
@@ -148,31 +87,29 @@ namespace protocol::midi
             return true;
         }
 
-        bool deInit() override
+        bool deinit() override
         {
             clear();
             return true;
         }
 
-        bool read(UsbPacket& packet) override
+        bool write(const midi_ump& packet) override
         {
-            if (!_readPackets.size())
-            {
-                return false;
-            }
-
-            packet = _readPackets.at(0);
-            _readPackets.erase(_readPackets.begin());
-
+            _writePackets.push_back(packet);
+            _writeParser.push(packet);
             return true;
         }
 
-        bool write(UsbPacket& packet) override
+        std::optional<midi_ump> read() override
         {
-            _writePackets.push_back(packet);
-            _writeParser.feed(packet);
+            if (_readPackets.empty())
+            {
+                return {};
+            }
 
-            return true;
+            const auto packet = _readPackets.front();
+            _readPackets.erase(_readPackets.begin());
+            return packet;
         }
 
         void clear()
@@ -182,9 +119,9 @@ namespace protocol::midi
             _writeParser.clear();
         }
 
-        std::vector<UsbPacket>              _readPackets  = {};
-        std::vector<UsbPacket>              _writePackets = {};
-        WriteParser<Usb, HwaUsb, UsbPacket> _writeParser;
+        std::vector<midi_ump> _readPackets  = {};
+        std::vector<midi_ump> _writePackets = {};
+        WrittenMessageLog     _writeParser;
     };
 
     class HwaSerialTest : public HwaSerial
@@ -202,33 +139,31 @@ namespace protocol::midi
         }
 
         MOCK_METHOD0(init, bool());
-        MOCK_METHOD0(deInit, bool());
+        MOCK_METHOD0(deinit, bool());
         MOCK_METHOD1(setLoopback, bool(bool state));
 
-        bool read(SerialPacket& data) override
+        bool write(uint8_t data) override
         {
-            if (!_readPackets.size())
-            {
-                return false;
-            }
-
-            data = _readPackets.at(0);
-            _readPackets.erase(_readPackets.begin());
-
+            _writePackets.push_back(data);
+            _writeParser.push(data);
             return true;
         }
 
-        bool write(SerialPacket& data) override
+        std::optional<uint8_t> read() override
         {
-            _writePackets.push_back(data);
-            _writeParser.feed(data);
+            if (_readPackets.empty())
+            {
+                return {};
+            }
 
-            return true;
+            const auto data = _readPackets.front();
+            _readPackets.erase(_readPackets.begin());
+            return data;
         }
 
         bool allocated(io::common::Allocatable::interface_t interface) override
         {
-            return false;
+            return interface == io::common::Allocatable::interface_t::UART ? _loopbackEnabled : false;
         }
 
         void clear()
@@ -236,14 +171,13 @@ namespace protocol::midi
             _readPackets.clear();
             _writePackets.clear();
             _writeParser.clear();
-
             _loopbackEnabled = false;
         }
 
-        std::vector<SerialPacket>                    _readPackets     = {};
-        std::vector<SerialPacket>                    _writePackets    = {};
-        bool                                         _loopbackEnabled = false;
-        WriteParser<Serial, HwaSerial, SerialPacket> _writeParser;
+        std::vector<uint8_t> _readPackets     = {};
+        std::vector<uint8_t> _writePackets    = {};
+        bool                 _loopbackEnabled = false;
+        WrittenMessageLog    _writeParser;
     };
 
     class HwaBleTest : public HwaBle
@@ -261,21 +195,24 @@ namespace protocol::midi
         }
 
         MOCK_METHOD0(init, bool());
-        MOCK_METHOD0(deInit, bool());
+        MOCK_METHOD0(deinit, bool());
 
-        bool write(BlePacket& data) override
+        bool write(BlePacket& packet) override
         {
-            return false;
+            _writePackets.push_back(packet);
+            return true;
         }
 
-        bool read(BlePacket& data) override
+        std::optional<BlePacket> read() override
         {
-            return false;
-        }
+            if (_readPackets.empty())
+            {
+                return {};
+            }
 
-        uint32_t time() override
-        {
-            return 0;
+            const auto packet = _readPackets.front();
+            _readPackets.erase(_readPackets.begin());
+            return packet;
         }
 
         void clear()
@@ -284,8 +221,8 @@ namespace protocol::midi
             _writePackets.clear();
         }
 
-        std::vector<uint8_t>                _readPackets  = {};
-        std::vector<uint8_t>                _writePackets = {};
-        WriteParser<Ble, HwaBle, BlePacket> _writeParser;
+        std::vector<BlePacket> _readPackets  = {};
+        std::vector<BlePacket> _writePackets = {};
+        WrittenMessageLog      _writeParser;
     };
 }    // namespace protocol::midi

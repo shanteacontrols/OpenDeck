@@ -1,0 +1,78 @@
+/ {
+    chosen {
+        opendeck = &opendeck;
+        opendeck-buttons = &opendeck_buttons;
+        opendeck-analog = &opendeck_analog;
+        opendeck-leds = &opendeck_leds;
+        opendeck-touchscreen = &opendeck_touchscreen;
+        opendeck-din-midi = &opendeck_din_midi;
+        opendeck-display = &opendeck_display;
+    };
+
+    opendeck: opendeck {
+        compatible = "opendeck,root";
+        usb;
+        buttons = <&opendeck_buttons>;
+        analog = <&opendeck_analog>;
+        leds = <&opendeck_leds>;
+        touchscreen = <&opendeck_touchscreen>;
+        din-midi = <&opendeck_din_midi>;
+        display = <&opendeck_display>;
+    };
+
+    opendeck_buttons: opendeck-buttons {
+        compatible = "opendeck,buttons";
+        mode = "native";
+        touchscreen-components = <64>;
+        native-gpios =
+            <&gpio0 2 GPIO_ACTIVE_LOW>,
+            <&gpio0 3 GPIO_ACTIVE_LOW>,
+            <&gpio0 6 GPIO_ACTIVE_LOW>,
+            <&gpio0 7 GPIO_ACTIVE_LOW>,
+            <&gpio0 8 GPIO_ACTIVE_LOW>,
+            <&gpio0 9 GPIO_ACTIVE_LOW>,
+            <&gpio0 10 GPIO_ACTIVE_LOW>,
+            <&gpio0 11 GPIO_ACTIVE_LOW>,
+            <&gpio0 12 GPIO_ACTIVE_LOW>,
+            <&gpio0 13 GPIO_ACTIVE_LOW>;
+    };
+
+    opendeck_analog: opendeck-analog {
+        compatible = "opendeck,analog";
+        mode = "native";
+        io-channels =
+            <&adc 0>,
+            <&adc 1>,
+            <&adc 2>;
+    };
+
+    opendeck_leds: opendeck-leds {
+        compatible = "opendeck,leds";
+        mode = "native";
+        touchscreen-components = <64>;
+        native-gpios =
+            <&gpio0 14 GPIO_ACTIVE_HIGH>,
+            <&gpio0 15 GPIO_ACTIVE_HIGH>,
+            <&gpio0 22 GPIO_ACTIVE_HIGH>,
+            <&gpio0 21 GPIO_ACTIVE_HIGH>,
+            <&gpio0 20 GPIO_ACTIVE_HIGH>,
+            <&gpio0 19 GPIO_ACTIVE_HIGH>,
+            <&gpio0 18 GPIO_ACTIVE_HIGH>;
+    };
+
+    opendeck_touchscreen: opendeck-touchscreen {
+        compatible = "opendeck,touchscreen";
+        component-count = <64>;
+        uart = <&uart1>;
+    };
+
+    opendeck_din_midi: opendeck-din-midi {
+        compatible = "opendeck,midi-uart";
+        uart = <&uart0>;
+    };
+
+    opendeck_display: opendeck-display {
+        compatible = "opendeck,display-i2c";
+        i2c = <&i2c0>;
+    };
+};

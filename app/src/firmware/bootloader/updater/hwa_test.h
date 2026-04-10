@@ -20,21 +20,14 @@ limitations under the License.
 
 #include "deps.h"
 
-// Force the generated flash functions into test namespace to avoid clashes with
-// stub functions (since stub MCU is used for tests)
-namespace test
-{
-#include <core_mcu_generated.h>
-}
-
 namespace updater
 {
     class HwaTest : public Hwa
     {
         public:
-        uint32_t pageSize(size_t index) override
+        uint32_t pageSize([[maybe_unused]] size_t index) override
         {
-            return test::core::mcu::flash::pageSize(index);
+            return BOOTLOADER_TEST_FLASH_PAGE_SIZE;
         }
 
         void erasePage(size_t index) override

@@ -1,18 +1,31 @@
-add_executable(database)
+cmake_minimum_required(VERSION 3.20)
+list(APPEND CONF_FILE "${CMAKE_CURRENT_LIST_DIR}/prj.conf")
+include($ENV{ZEPHYR_WS}/zenv/cmake/test.cmake)
 
-target_sources(database
+project(test)
+
+add_compile_definitions(
+    OPENDECK_TEST
+)
+
+add_subdirectory($ENV{ZEPHYR_PROJECT}/app/src/firmware/application/metadata ${CMAKE_CURRENT_BINARY_DIR}/metadata)
+add_subdirectory($ENV{ZEPHYR_PROJECT}/app/src/firmware/application/database ${CMAKE_CURRENT_BINARY_DIR}/database)
+add_subdirectory($ENV{ZEPHYR_PROJECT}/app/src/firmware/application/util/configurable ${CMAKE_CURRENT_BINARY_DIR}/configurable)
+
+target_sources(app
     PRIVATE
-    test.cpp
-    $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/database/database.cpp
-    $ENV{ZEPHYR_PROJECT}/app/src/firmware/application/database/custom_init.cpp
+    database_test.cpp
 )
 
-target_link_libraries(database
+add_dependencies(app
+    metadata
+    database
+    configurable
+)
+
+target_link_libraries(app
     PUBLIC
-    common
-)
-
-add_test(
-    NAME database
-    COMMAND $<TARGET_FILE:database>
+    metadata
+    database
+    configurable
 )

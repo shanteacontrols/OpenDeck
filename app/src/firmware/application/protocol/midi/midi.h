@@ -25,10 +25,7 @@ limitations under the License.
 #include "application/system/config.h"
 #include "application/protocol/base.h"
 #include "application/messaging/messaging.h"
-
-#include "lib/midi/transport/usb/usb.h"
-#include "lib/midi/transport/serial/serial.h"
-#include "lib/midi/transport/ble/ble.h"
+#include "zlibs/utils/misc/timer.h"
 
 #include <optional>
 
@@ -63,18 +60,20 @@ namespace protocol::midi
         lib::midi::ble::Ble                            _ble    = lib::midi::ble::Ble(_hwaBle);
         Database&                                      _database;
         std::array<lib::midi::Base*, INTERFACE_AMOUNT> _midiInterface;
-        bool                                           _clockTimerAllocated = false;
-        size_t                                         _clockTimerIndex     = 0;
+        zlibs::utils::misc::Timer                      _clockTimer;
+        bool                                           _standardNoteOff = true;
 
-        bool                   isSettingEnabled(setting_t feature);
-        bool                   isDinLoopbackRequired();
-        std::optional<uint8_t> sysConfigGet(sys::Config::Section::global_t section, size_t index, uint16_t& value);
-        std::optional<uint8_t> sysConfigSet(sys::Config::Section::global_t section, size_t index, uint16_t value);
-        void                   send(messaging::eventType_t source, const messaging::Event& event);
-        void                   setNoteOffMode(noteOffType_t type);
-        bool                   setupUsb();
-        bool                   setupSerial();
-        bool                   setupBle();
-        bool                   setupThru();
+        bool                     isSettingEnabled(setting_t feature);
+        bool                     isDinLoopbackRequired();
+        std::optional<uint8_t>   sysConfigGet(sys::Config::Section::global_t section, size_t index, uint16_t& value);
+        std::optional<uint8_t>   sysConfigSet(sys::Config::Section::global_t section, size_t index, uint16_t value);
+        void                     send(const messaging::MidiSignal& event);
+        void                     send(const messaging::UmpSignal& event);
+        void                     setNoteOffMode(noteOffType_t type);
+        bool                     setupUsb();
+        bool                     setupSerial();
+        bool                     setupBle();
+        bool                     setupThru();
+        messaging::MidiTransport interfaceToTransport(size_t index) const;
     };
 }    // namespace protocol::midi

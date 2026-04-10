@@ -26,8 +26,7 @@ namespace io::i2c
     class Builder
     {
         public:
-        Builder(database::Admin& database)
-            : _database(database)
+        Builder([[maybe_unused]] database::Admin& database)
         {}
 
         I2c& instance()
@@ -37,9 +36,6 @@ namespace io::i2c
 
         private:
         HwaStub _hwa;
-
-        public:
-        database::Admin _database;
-        I2c             _instance;
+        I2c     _instance;
     };
 }    // namespace io::i2c

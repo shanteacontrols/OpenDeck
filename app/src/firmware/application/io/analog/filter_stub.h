@@ -22,10 +22,10 @@ limitations under the License.
 
 namespace io::analog
 {
-    class FilterTest : public Filter
+    class FilterStub : public Filter
     {
         public:
-        FilterTest() = default;
+        FilterStub() = default;
 
         bool isFiltered(size_t index, Descriptor& descriptor) override
         {

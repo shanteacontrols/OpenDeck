@@ -32,6 +32,7 @@ namespace io::leds
         public:
         virtual ~Hwa() = default;
 
+        virtual void   update()                                                    = 0;
         virtual void   setState(size_t index, brightness_t brightness)             = 0;
         virtual size_t rgbFromOutput(size_t index)                                 = 0;
         virtual size_t rgbComponentFromRgb(size_t index, rgbComponent_t component) = 0;

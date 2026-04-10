@@ -19,9 +19,6 @@ limitations under the License.
 #pragma once
 
 #include "deps.h"
-#include "board/board.h"
-
-#include "core/util/util.h"
 
 namespace io::touchscreen
 {
@@ -45,9 +42,9 @@ namespace io::touchscreen
             return true;
         }
 
-        bool read(uint8_t& value) override
+        std::optional<uint8_t> read() override
         {
-            return true;
+            return {};
         }
 
         bool allocated(io::common::Allocatable::interface_t interface) override

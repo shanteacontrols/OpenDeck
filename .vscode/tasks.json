@@ -1,107 +1,35 @@
 {
-    "version": "2.0.0",
     "tasks": [
         {
+            "label": "[Flash] [debug] opendeck",
+            "command": "make PRESET=opendeck DEBUG=1 flash",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+        },
+        {
             "label": "[Tests] Build",
-            "command": "make TARGET=${input:target} test TEST_EXECUTE=0 && cp $(./scripts/test_path_get.sh ${input:target} ${input:test}) build/test.out",
+            "command": "make tests && cp ${workspaceFolder}/build/tests/native_sim_native_64/host/src/${input:test}/${input:test}.test/zephyr/zephyr.exe ${workspaceFolder}/build/tests/test_vscode.exe",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
             ]
-        },
-        {
-            "label": "[Debug] blackpill411",
-            "command": "make TARGET=blackpill411 DEBUG=1",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-            }
-        },
-        {
-            "label": "[Debug] nrf52840dk",
-            "command": "make TARGET=nrf52840dk DEBUG=1",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-            }
-        },
-        {
-            "label": "[Debug] bergamot",
-            "command": "make TARGET=bergamot DEBUG=1",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-            }
-        },
+        }
     ],
     "inputs": [
         {
-            "id": "target",
-            "type": "pickString",
-            "default": "af_ib_nrf52840",
-            "description": "Select target:",
-            "options": [
-                "af_ib_nrf52840",
-                "bergamot",
-                "blackpill401ce",
-                "blackpill401cc",
-                "blackpill411",
-                "cardamom",
-                "discovery",
-                "dubfocus12",
-                "dubfocus12sr",
-                "dubfocus16",
-                "dubfocus16c",
-                "dubfocus16",
-                "mega16u2",
-                "mega2560_muxsh2",
-                "mega2560",
-                "nano33ble",
-                "nrf52840dk",
-                "opendeck_mini",
-                "opendeck2",
-                "opendeck3a",
-                "opendeck3b",
-                "opendeck21",
-                "opendeck22",
-                "opendeck31",
-                "pico",
-                "rooibos",
-                "stm32f4ve",
-                "teensy2pp",
-                "tpyboard",
-                "ws_core405r",
-                "ws_core407i",
-                "ws_core407v",
-                "xiao_nrf52840",
-                "xiao_rp2040",
-            ]
-        },
-        {
             "id": "test",
             "type": "pickString",
-            "default": "database",
+            "default": "dummy",
             "description": "Select test:",
             "options": [
-                "analog",
-                "bootloader",
-                "buttons",
-                "database",
-                "encoders",
-                "hw",
-                "leds",
-                "midi",
-                "system",
+                "dummy",
             ]
-        }
+        },
     ]
 }

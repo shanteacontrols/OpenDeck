@@ -25,6 +25,7 @@ limitations under the License.
 #include "application/system/config.h"
 #include "application/io/base.h"
 
+#include <array>
 #include <optional>
 
 namespace io::leds
@@ -59,6 +60,7 @@ namespace io::leds
         static constexpr size_t  TOTAL_BLINK_SPEEDS              = 4;
         static constexpr size_t  TOTAL_BRIGHTNESS_VALUES         = 4;
         static constexpr uint8_t LED_BLINK_TIMER_TYPE_CHECK_TIME = 50;
+        static constexpr size_t  STORAGE_SIZE                    = Collection::SIZE() ? Collection::SIZE() : 1;
 
         /// Array holding MIDI clock pulses after which LED state is toggled for all possible blink rates.
         static constexpr uint8_t BLINK_RESET_MIDI_CLOCK[TOTAL_BLINK_SPEEDS] = {
@@ -94,13 +96,13 @@ namespace io::leds
         Database& _database;
 
         /// Array holding current LED status for all LEDs.
-        uint8_t _ledState[Collection::SIZE()] = {};
+        std::array<uint8_t, STORAGE_SIZE> _ledState = {};
 
         /// Array holding current LED brightness for all LEDs.
-        brightness_t _brightness[Collection::SIZE()] = {};
+        std::array<brightness_t, STORAGE_SIZE> _brightness = {};
 
         /// Array holding time after which LEDs should blink.
-        uint8_t _blinkTimer[Collection::SIZE()] = {};
+        std::array<uint8_t, STORAGE_SIZE> _blinkTimer = {};
 
         /// Holds currently active LED blink type.
         blinkType_t _ledBlinkType = blinkType_t::TIMER;
@@ -131,7 +133,8 @@ namespace io::leds
         brightness_t           valueToBrightness(uint8_t value);
         void                   startUpAnimation();
         bool                   isControlTypeMatched(protocol::midi::messageType_t midiMessage, controlType_t controlType);
-        void                   midiToState(const messaging::Event& event, messaging::eventType_t source);
+        void                   midiToState(const protocol::midi::message_t& message, messaging::MidiDirection direction);
+        void                   presetToState(uint8_t preset);
         void                   setState(size_t index, brightness_t brightness);
         std::optional<uint8_t> sysConfigGet(sys::Config::Section::leds_t section, size_t index, uint16_t& value);
         std::optional<uint8_t> sysConfigSet(sys::Config::Section::leds_t section, size_t index, uint16_t value);
