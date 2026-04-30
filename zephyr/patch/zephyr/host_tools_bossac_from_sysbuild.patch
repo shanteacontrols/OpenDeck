@@ -1,0 +1,12 @@
+diff --git a/cmake/modules/FindHostTools.cmake b/cmake/modules/FindHostTools.cmake
+index 02fd8362a8d..5dd203a0d73 100644
+--- a/cmake/modules/FindHostTools.cmake
++++ b/cmake/modules/FindHostTools.cmake
+@@ -56,6 +56,7 @@ find_program(GPERF gperf)
+ find_program(OPENOCD openocd)
+ 
+ # bossac is an optional dependency
++zephyr_get(BOSSAC SYSBUILD GLOBAL)
+ find_program(BOSSAC bossac)
+ 
+ # imgtool is an optional dependency (prefer the version that is in the mcuboot repository, if

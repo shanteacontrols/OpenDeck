@@ -87,5 +87,12 @@ wget ${wget_args} \
 chmod +x nrfutil && \
 sudo mv nrfutil /usr/bin/
 
+RUN \
+cd && \
+git clone https://github.com/arduino/BOSSA.git && \
+cd BOSSA && \
+make bossac && \
+sudo mv bin/bossac /usr/bin/arduino-bossac
+
 RUN nrfutil self-upgrade
 RUN nrfutil install device

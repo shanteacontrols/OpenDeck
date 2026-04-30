@@ -54,6 +54,7 @@ This board is based on Raspberry Pi RP2040 microcontroller and features the foll
 
 The firmware supports various other boards, both small and large:
 
+* [Arduino Nano 33 BLE](https://docs.arduino.cc/hardware/nano-33-ble/)
 * [nRF52840 DK](https://www.nordicsemi.com/Products/Development-hardware/nrf52840-dk)
 * [Raspberry Pi Pico](https://www.raspberrypi.com/products/raspberry-pi-pico/)
 * [Raspberry Pi Pico 2](https://www.raspberrypi.com/products/raspberry-pi-pico-2/)

@@ -1,0 +1,96 @@
+&flash0 {
+    partitions {
+        ranges;
+        /delete-node/ partition@0;
+        /delete-node/ partition@10000;
+        /delete-node/ partition@f8000;
+
+        sam_ba_partition: partition@0 {
+            compatible = "zephyr,mapped-partition";
+            label = "sam-ba";
+            reg = <0x00000000 0x00010000>;
+            read-only;
+        };
+
+        boot_partition: partition@10000 {
+            compatible = "zephyr,mapped-partition";
+            label = "boot";
+            reg = <0x00010000 0x00018000>;
+            read-only;
+        };
+
+        code_partition: partition@28000 {
+            compatible = "zephyr,mapped-partition";
+            label = "code-partition";
+            reg = <0x00028000 0x00040000>;
+            read-only;
+        };
+
+        factory_partition: partition@68000 {
+            compatible = "zephyr,mapped-partition";
+            label = "factory";
+            reg = <0x00068000 0x00002000>;
+        };
+
+        emueeprom_page1_partition: partition@6a000 {
+            compatible = "zephyr,mapped-partition";
+            label = "emueeprom-page1";
+            reg = <0x0006a000 0x00002000>;
+        };
+
+        emueeprom_page2_partition: partition@6c000 {
+            compatible = "zephyr,mapped-partition";
+            label = "emueeprom-page2";
+            reg = <0x0006c000 0x00002000>;
+        };
+    };
+};
+
+/delete-node/ &sram0;
+
+&{/soc} {
+    /*
+     * The closed Arduino first-stage bootloader runs before OpenDeck on this
+     * board. Keep OpenDeck retained RAM out of low SRAM, which it clears, and
+     * leave the upper scratch area free for Arduino's reset/double-tap state.
+     */
+    sram0: memory@20000100 {
+        compatible = "mmio-sram";
+        reg = <0x20000100 ((DT_SIZE_K(252)) - 0x100)>;
+        ranges = <0x0 0x20000100 ((DT_SIZE_K(252)) - 0x100)>;
+        #address-cells = <1>;
+        #size-cells = <1>;
+    };
+};
+
+/ {
+    chosen {
+        zephyr,code-partition = &code_partition;
+    };
+
+    opendeck_retained_mem: memory@2003f000 {
+        compatible = "zephyr,memory-region", "mmio-sram";
+        reg = <0x2003f000 0x100>;
+        zephyr,memory-region = "RetainedMem";
+        status = "okay";
+
+        retainedmem {
+            compatible = "zephyr,retained-ram";
+            status = "okay";
+            #address-cells = <1>;
+            #size-cells = <1>;
+
+            opendeck_retained: boot_mode@0 {
+                compatible = "zephyr,retention";
+                status = "okay";
+                reg = <0x0 0x100>;
+                prefix = [00 53 43];
+                checksum = <1>;
+            };
+        };
+    };
+};
+
+opendeck_partition_boot: &boot_partition {};
+
+opendeck_partition_app: &code_partition {};

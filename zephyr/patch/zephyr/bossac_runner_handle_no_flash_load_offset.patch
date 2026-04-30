@@ -1,0 +1,41 @@
+diff --git a/scripts/west_commands/runners/bossac.py b/scripts/west_commands/runners/bossac.py
+index a5d9f315508..b7cf73d1517 100644
+--- a/scripts/west_commands/runners/bossac.py
++++ b/scripts/west_commands/runners/bossac.py
+@@ -121,10 +121,35 @@ class BossacBinaryRunner(ZephyrBinaryRunner):
+     def get_dts_img_offset(self):
+         if self.build_conf.getboolean('CONFIG_BOOTLOADER_BOSSA_LEGACY'):
+             return 0
+ 
++        if self.is_partition_enabled():
++            partition = self.get_chosen_code_partition_node()
++            if partition is not None and partition.regs:
++                offset = partition.regs[0].addr
++
++                # Some Arduino BOSSA targets expose flash offsets relative
++                # to the application area after the resident SAM-BA bootloader.
++                # When the board DTS models that resident bootloader as a
++                # sam-ba partition at address 0, convert physical partition
++                # addresses to BOSSA's app-relative offsets:
++                #
++                #   physical 0x10000 -> bossac -o omitted / 0
++                #   physical 0x28000 -> bossac -o 0x18000
++                if self.build_conf.getboolean('CONFIG_BOOTLOADER_BOSSA_ARDUINO'):
++                    partitions = partition.parent
++                    for node in partitions.children.values():
++                        label = node.props.get('label')
++                        if label is None or label.val != 'sam-ba':
++                            continue
++
++                        if node.regs and node.regs[0].addr == 0:
++                            return max(0, offset - node.regs[0].size)
++
++                return offset
++
+         if self.build_conf.getboolean('CONFIG_HAS_FLASH_LOAD_OFFSET'):
+-            return self.build_conf['CONFIG_FLASH_LOAD_OFFSET']
++            return self.build_conf.get('CONFIG_FLASH_LOAD_OFFSET', 0)
+ 
+         return 0
+ 
+     def get_image_offset(self, supports_offset):

@@ -1,0 +1,18 @@
+diff --git a/boards/arduino/nano_33_ble/board.yml b/boards/arduino/nano_33_ble/board.yml
+index b1cbb7a9212..195592db592 100644
+--- a/boards/arduino/nano_33_ble/board.yml
++++ b/boards/arduino/nano_33_ble/board.yml
+@@ -6,3 +6,13 @@ board:
+   - name: nrf52840
+     variants:
+     - name: 'sense'
++
++runners:
++  run_once:
++    '--reset':
++    - runners:
++      - bossac
++      run: last
++      groups:
++      - boards:
++        - arduino_nano_33_ble/nrf52840

@@ -1,0 +1,42 @@
+/ {
+    opendeck_retained: opendeck-retained {
+    };
+
+    gpio1: gpio1 {
+        compatible = "zephyr,gpio-emul";
+        rising-edge;
+        falling-edge;
+        high-level;
+        low-level;
+        gpio-controller;
+        #gpio-cells = <2>;
+        status = "okay";
+    };
+
+    adc: adc {
+        compatible = "zephyr,adc-emul";
+        nchannels = <8>;
+        #io-channel-cells = <1>;
+        status = "okay";
+    };
+};
+
+&flash0 {
+    partitions {
+        boot_partition: partition@0 {
+            compatible = "zephyr,mapped-partition";
+            label = "boot";
+            reg = <0x00000000 0x0000c000>;
+        };
+
+        code_partition: partition@c000 {
+            compatible = "zephyr,mapped-partition";
+            label = "code-partition";
+            reg = <0x0000c000 0x00069000>;
+        };
+    };
+};
+
+opendeck_partition_boot: &boot_partition {};
+
+opendeck_partition_app: &code_partition {};
