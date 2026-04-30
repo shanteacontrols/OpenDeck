@@ -1,0 +1,130 @@
+/ {
+    usb_midi: usb_midi {
+        compatible = "zephyr,midi2-device";
+        status = "okay";
+        #address-cells = <1>;
+        #size-cells = <1>;
+
+        midi_in_out@0 {
+            reg = <0 1>;
+            protocol = "midi1-up-to-128b";
+        };
+    };
+};
+
+&uart0 {
+    current-speed = <115200>;
+};
+
+&uart1 {
+    status = "disabled";
+};
+
+&uart2 {
+    status = "okay";
+    current-speed = <115200>;
+    pinctrl-0 = <&uart2_default>;
+    pinctrl-1 = <&uart2_sleep>;
+    pinctrl-names = "default", "sleep";
+};
+
+&pwm0 {
+    status = "disabled";
+};
+
+&spi4 {
+    status = "disabled";
+};
+
+&pinctrl {
+    uart2_default: uart2_default {
+        group1 {
+            psels = <NRF_PSEL(UART_TX, 1, 1)>;
+        };
+
+        group2 {
+            psels = <NRF_PSEL(UART_RX, 1, 0)>;
+            bias-pull-up;
+        };
+    };
+
+    uart2_sleep: uart2_sleep {
+        group1 {
+            psels = <NRF_PSEL(UART_TX, 1, 1)>,
+                <NRF_PSEL(UART_RX, 1, 0)>;
+            low-power-enable;
+        };
+    };
+};
+
+&adc {
+    status = "okay";
+    #address-cells = <1>;
+    #size-cells = <0>;
+
+    channel@0 {
+        reg = <0>;
+        zephyr,gain = "ADC_GAIN_1_5";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 5)>;
+        zephyr,resolution = <12>;
+        zephyr,input-positive = <NRF_SAADC_AIN0>;
+    };
+
+    channel@1 {
+        reg = <1>;
+        zephyr,gain = "ADC_GAIN_1_5";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 5)>;
+        zephyr,resolution = <12>;
+        zephyr,input-positive = <NRF_SAADC_AIN1>;
+    };
+
+    channel@2 {
+        reg = <2>;
+        zephyr,gain = "ADC_GAIN_1_5";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 5)>;
+        zephyr,resolution = <12>;
+        zephyr,input-positive = <NRF_SAADC_AIN2>;
+    };
+
+    channel@3 {
+        reg = <3>;
+        zephyr,gain = "ADC_GAIN_1_5";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 5)>;
+        zephyr,resolution = <12>;
+        zephyr,input-positive = <NRF_SAADC_AIN3>;
+    };
+
+    channel@4 {
+        reg = <4>;
+        zephyr,gain = "ADC_GAIN_1_5";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 5)>;
+        zephyr,resolution = <12>;
+        zephyr,input-positive = <NRF_SAADC_AIN4>;
+    };
+
+    channel@5 {
+        reg = <5>;
+        zephyr,gain = "ADC_GAIN_1_5";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 5)>;
+        zephyr,resolution = <12>;
+        zephyr,input-positive = <NRF_SAADC_AIN5>;
+    };
+};
+
+&{/buttons} {
+    status = "disabled";
+};
+
+&{/leds} {
+    status = "disabled";
+};
+
+&{/pwmleds} {
+    status = "disabled";
+};

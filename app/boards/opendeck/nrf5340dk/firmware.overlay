@@ -1,0 +1,5 @@
+opendeck_uart_din_midi: &uart2 {};
+
+opendeck_uart_touchscreen: &uart2 {};
+
+opendeck_i2c_display: &i2c1 {};

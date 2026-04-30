@@ -259,6 +259,9 @@ sysbuild_add_dependencies(FLASH ${DEFAULT_IMAGE} opendeck_bootloader)
 function(opendeck_add_merged_artifacts)
     set(opendeck_firmware_hex_file   ${CMAKE_BINARY_DIR}/${DEFAULT_IMAGE}/zephyr/zephyr.hex)
     set(opendeck_bootloader_hex_file ${CMAKE_BINARY_DIR}/opendeck_bootloader/zephyr/zephyr.hex)
+    set(opendeck_merged_hex_inputs   ${opendeck_bootloader_hex_file}
+                                     ${opendeck_firmware_hex_file}
+                                     ${opendeck_extra_merged_hex_files})
     set(opendeck_merged_hex          ${CMAKE_BINARY_DIR}/merged.hex)
     set(opendeck_merged_bin          ${CMAKE_BINARY_DIR}/merged.bin)
     set(opendeck_merged_uf2          ${CMAKE_BINARY_DIR}/merged.uf2)
@@ -281,15 +284,13 @@ function(opendeck_add_merged_artifacts)
         COMMAND
         $ENV{ZEPHYR_BASE}/scripts/build/mergehex.py
         -o ${opendeck_merged_hex}
-        ${opendeck_bootloader_hex_file}
-        ${opendeck_firmware_hex_file}
+        ${opendeck_merged_hex_inputs}
 
         DEPENDS
-        ${opendeck_bootloader_hex_file}
-        ${opendeck_firmware_hex_file}
+        ${opendeck_merged_hex_inputs}
 
         COMMENT
-        "Generating merged bootloader and application HEX image"
+        "Generating merged OpenDeck HEX image"
 
         VERBATIM
     )
@@ -314,7 +315,7 @@ function(opendeck_add_merged_artifacts)
         ${opendeck_merged_hex}
 
         COMMENT
-        "Generating merged bootloader and application BIN image"
+        "Generating merged OpenDeck BIN image"
 
         VERBATIM
     )
@@ -360,6 +361,7 @@ function(opendeck_add_merged_artifacts)
     add_dependencies(opendeck_merged_uf2_target
         ${DEFAULT_IMAGE}
         opendeck_bootloader
+        ${opendeck_extra_merged_image_targets}
     )
 endfunction()
 

@@ -56,6 +56,7 @@ The firmware supports various other boards, both small and large:
 
 * [Arduino Nano 33 BLE](https://docs.arduino.cc/hardware/nano-33-ble/)
 * [nRF52840 DK](https://www.nordicsemi.com/Products/Development-hardware/nrf52840-dk)
+* [nRF5340 DK](https://www.nordicsemi.com/Products/Development-hardware/nrf5340-dk)
 * [Raspberry Pi Pico](https://www.raspberrypi.com/products/raspberry-pi-pico/)
 * [Raspberry Pi Pico 2](https://www.raspberrypi.com/products/raspberry-pi-pico-2/)
 * [STM32F411 Black Pill](https://stm32-base.org/boards/STM32F411CEU6-WeAct-Black-Pill-V2.0) ([Adafruit](https://www.adafruit.com/product/4877))
