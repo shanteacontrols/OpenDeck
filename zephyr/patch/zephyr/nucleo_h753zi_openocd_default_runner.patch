@@ -1,0 +1,13 @@
+diff --git a/boards/st/nucleo_h753zi/board.cmake b/boards/st/nucleo_h753zi/board.cmake
+index 8e19a769dfa..71524d15ab0 100644
+--- a/boards/st/nucleo_h753zi/board.cmake
++++ b/boards/st/nucleo_h753zi/board.cmake
+@@ -8,7 +8,7 @@ board_runner_args(openocd --target-handle=_CHIPNAME.cpu0)
+ board_runner_args(pyocd "--target=stm32h753zitx")
+ 
+ # keep first
+-include(${ZEPHYR_BASE}/boards/common/stm32cubeprogrammer.board.cmake)
+ include(${ZEPHYR_BASE}/boards/common/openocd-stm32.board.cmake)
++include(${ZEPHYR_BASE}/boards/common/stm32cubeprogrammer.board.cmake)
+ include(${ZEPHYR_BASE}/boards/common/pyocd.board.cmake)
+ include(${ZEPHYR_BASE}/boards/common/jlink.board.cmake)

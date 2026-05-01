@@ -1,0 +1,283 @@
+#include <zephyr/dt-bindings/clock/stm32h7_clock.h>
+
+/ {
+    chosen {
+        /delete-property/ zephyr,canbus;
+        zephyr,console = &usart3;
+        zephyr,shell-uart = &usart3;
+    };
+
+    usb_midi: usb_midi {
+        compatible = "zephyr,midi2-device";
+        status = "okay";
+        #address-cells = <1>;
+        #size-cells = <1>;
+
+        midi_in_out@0 {
+            reg = <0 1>;
+            protocol = "midi1-up-to-128b";
+        };
+    };
+};
+
+&lpuart1 {
+    status = "disabled";
+};
+
+&usart3 {
+    current-speed = <115200>;
+    pinctrl-0 = <&usart3_tx_pd8 &usart3_rx_pd9>;
+    pinctrl-names = "default";
+    status = "okay";
+};
+
+&usart6 {
+    current-speed = <115200>;
+    pinctrl-0 = <&usart6_tx_pc6 &usart6_rx_pc7>;
+    pinctrl-names = "default";
+    status = "okay";
+};
+
+&i2c1 {
+    clock-frequency = <I2C_BITRATE_FAST>;
+    pinctrl-0 = <&i2c1_scl_pb8 &i2c1_sda_pb9>;
+    pinctrl-names = "default";
+    status = "okay";
+};
+
+&i2c2 {
+    status = "disabled";
+};
+
+&timers12 {
+    status = "disabled";
+};
+
+&pwm12 {
+    status = "disabled";
+};
+
+&fdcan1 {
+    status = "disabled";
+};
+
+&mac {
+    status = "disabled";
+};
+
+&mdio {
+    status = "disabled";
+};
+
+&spi1 {
+    status = "disabled";
+};
+
+&adc1 {
+    clocks = <&rcc STM32_CLOCK(AHB1, 5)>,
+             <&rcc STM32_SRC_PLL2_P ADC_SEL(0)>;
+    clock-names = "adcx", "adc_ker";
+    pinctrl-0 = <&adc1_inp16_pa0
+                 &adc1_inp15_pa3
+                 &adc1_inp18_pa4
+                 &adc1_inp19_pa5
+                 &adc1_inp3_pa6
+                 &adc1_inp5_pb1
+                 &adc1_inp10_pc0
+                 &adc1_inp2_pf11
+                 &adc1_inp6_pf12>;
+    pinctrl-names = "default";
+    st,adc-clock-source = "ASYNC";
+    st,adc-prescaler = <4>;
+    status = "okay";
+
+    #address-cells = <1>;
+    #size-cells = <0>;
+
+    channel@2 {
+        reg = <2>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 65)>;
+        zephyr,resolution = <12>;
+    };
+
+    channel@3 {
+        reg = <3>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 65)>;
+        zephyr,resolution = <12>;
+    };
+
+    channel@5 {
+        reg = <5>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 65)>;
+        zephyr,resolution = <12>;
+    };
+
+    channel@6 {
+        reg = <6>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 65)>;
+        zephyr,resolution = <12>;
+    };
+
+    channel@a {
+        reg = <10>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 65)>;
+        zephyr,resolution = <12>;
+    };
+
+    channel@f {
+        reg = <15>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 65)>;
+        zephyr,resolution = <12>;
+    };
+
+    channel@10 {
+        reg = <16>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 65)>;
+        zephyr,resolution = <12>;
+    };
+
+    channel@12 {
+        reg = <18>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 65)>;
+        zephyr,resolution = <12>;
+    };
+
+    channel@13 {
+        reg = <19>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 65)>;
+        zephyr,resolution = <12>;
+    };
+};
+
+&adc3 {
+    clocks = <&rcc STM32_CLOCK(AHB4, 24)>,
+             <&rcc STM32_SRC_PLL2_P ADC_SEL(0)>;
+    clock-names = "adcx", "adc_ker";
+    pinctrl-0 = <&adc3_inp0_pc2_c
+                 &adc3_inp1_pc3_c
+                 &adc3_inp5_pf3
+                 &adc3_inp9_pf4
+                 &adc3_inp4_pf5
+                 &adc3_inp8_pf6
+                 &adc3_inp3_pf7
+                 &adc3_inp7_pf8
+                 &adc3_inp2_pf9
+                 &adc3_inp6_pf10>;
+    pinctrl-names = "default";
+    st,adc-clock-source = "ASYNC";
+    st,adc-prescaler = <4>;
+    status = "okay";
+
+    #address-cells = <1>;
+    #size-cells = <0>;
+
+    channel@0 {
+        reg = <0>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 65)>;
+        zephyr,resolution = <12>;
+    };
+
+    channel@1 {
+        reg = <1>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 65)>;
+        zephyr,resolution = <12>;
+    };
+
+    channel@2 {
+        reg = <2>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 65)>;
+        zephyr,resolution = <12>;
+    };
+
+    channel@3 {
+        reg = <3>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 65)>;
+        zephyr,resolution = <12>;
+    };
+
+    channel@4 {
+        reg = <4>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 65)>;
+        zephyr,resolution = <12>;
+    };
+
+    channel@5 {
+        reg = <5>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 65)>;
+        zephyr,resolution = <12>;
+    };
+
+    channel@6 {
+        reg = <6>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 65)>;
+        zephyr,resolution = <12>;
+    };
+
+    channel@7 {
+        reg = <7>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 65)>;
+        zephyr,resolution = <12>;
+    };
+
+    channel@8 {
+        reg = <8>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 65)>;
+        zephyr,resolution = <12>;
+    };
+
+    channel@9 {
+        reg = <9>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 65)>;
+        zephyr,resolution = <12>;
+    };
+};
+
+&{/leds} {
+    status = "disabled";
+};
+
+&{/pwmleds} {
+    status = "disabled";
+};
+
+&{/gpio_keys} {
+    status = "disabled";
+};
