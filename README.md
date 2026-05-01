@@ -62,6 +62,7 @@ The firmware supports various other boards, both small and large:
 * [Raspberry Pi Pico 2](https://www.raspberrypi.com/products/raspberry-pi-pico-2/)
 * [STM32F411 Black Pill](https://stm32-base.org/boards/STM32F411CEU6-WeAct-Black-Pill-V2.0) ([Adafruit](https://www.adafruit.com/product/4877))
 * [STM32F4 Discovery](https://www.st.com/en/evaluation-tools/stm32f4discovery.html) ([Mouser](https://hr.mouser.com/ProductDetail/STMicroelectronics/STM32F407G-DISC1?qs=%2Fha2pyFadugMvYxi1ftRWf5mGCRgIpVnZzkmnZLph%2FPbqHgeIRafES4CiZOiJh1y) / [Digikey](https://www.digikey.com/en/products/detail/stmicroelectronics/STM32F407G-DISC1/5824404?s=N4IgTCBcDaIMoBUCyBmMAxALABgOwHEBaAEQEk4BhARhAF0BfIA))
+* [ST Nucleo F767ZI](https://www.st.com/en/evaluation-tools/nucleo-f767zi.html)
 * [ST Nucleo H753ZI](https://www.st.com/en/evaluation-tools/nucleo-h753zi.html)
 * [Teensy 4.0](https://www.pjrc.com/store/teensy40.html)
 * [Teensy 4.1](https://www.pjrc.com/store/teensy41.html)
