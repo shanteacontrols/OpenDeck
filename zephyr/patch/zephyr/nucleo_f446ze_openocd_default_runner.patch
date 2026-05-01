@@ -1,0 +1,12 @@
+diff --git a/boards/st/nucleo_f446ze/board.cmake b/boards/st/nucleo_f446ze/board.cmake
+index 252e8c3b383..223b37eb921 100644
+--- a/boards/st/nucleo_f446ze/board.cmake
++++ b/boards/st/nucleo_f446ze/board.cmake
+@@ -5,6 +5,6 @@ board_runner_args(stm32cubeprogrammer "--port=swd" "--reset-mode=hw")
+ board_runner_args(jlink "--device=STM32F446ZE" "--speed=4000")
+ 
+ # keep first
+-include(${ZEPHYR_BASE}/boards/common/stm32cubeprogrammer.board.cmake)
+ include(${ZEPHYR_BASE}/boards/common/openocd-stm32.board.cmake)
++include(${ZEPHYR_BASE}/boards/common/stm32cubeprogrammer.board.cmake)
+ include(${ZEPHYR_BASE}/boards/common/jlink.board.cmake)

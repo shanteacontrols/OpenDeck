@@ -1,0 +1,75 @@
+/ {
+    chosen {
+        /delete-property/ zephyr,canbus;
+        zephyr,console = &usart3;
+        zephyr,shell-uart = &usart3;
+        zephyr,code-partition = &boot_partition;
+    };
+};
+
+&usart2 {
+    status = "disabled";
+};
+
+&usart3 {
+    current-speed = <115200>;
+    pinctrl-0 = <&usart3_tx_pd8 &usart3_rx_pd9>;
+    pinctrl-names = "default";
+    status = "okay";
+};
+
+&usart6 {
+    status = "disabled";
+};
+
+&i2c1 {
+    status = "disabled";
+};
+
+&i2c2 {
+    status = "disabled";
+};
+
+&timers1 {
+    status = "disabled";
+};
+
+&pwm1 {
+    status = "disabled";
+};
+
+&adc1 {
+    status = "disabled";
+};
+
+&adc2 {
+    status = "disabled";
+};
+
+&adc3 {
+    status = "disabled";
+};
+
+&dac1 {
+    status = "disabled";
+};
+
+&can1 {
+    status = "disabled";
+};
+
+&spi1 {
+    status = "disabled";
+};
+
+&spi2 {
+    status = "disabled";
+};
+
+&{/leds} {
+    status = "disabled";
+};
+
+&{/gpio_keys} {
+    status = "disabled";
+};

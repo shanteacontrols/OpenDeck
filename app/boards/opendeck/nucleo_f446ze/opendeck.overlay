@@ -1,0 +1,104 @@
+/ {
+    opendeck_metadata: opendeck-metadata {
+        compatible = "opendeck,metadata";
+        zephyr-board = "nucleo_f446ze/stm32f446xx";
+        board-name = "Nucleo F446ZE";
+    };
+
+    opendeck_tests: opendeck-tests {
+        compatible = "opendeck,tests";
+        host;
+    };
+
+    opendeck_bulk_build: opendeck-bulk-build {
+        compatible = "opendeck,bulk-build";
+        app;
+        host-test;
+        lint;
+    };
+
+    opendeck_buttons: opendeck-buttons {
+        compatible = "opendeck,buttons";
+        mode = "native";
+        touchscreen-components = <64>;
+        native-gpios =
+            <&gpioc 13 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>,
+            <&gpiod 2 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpiod 3 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpiod 4 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpiod 5 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpiod 6 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpiod 7 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpioe 2 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpioe 3 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpioe 4 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpioe 5 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpioe 6 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpioe 7 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpioe 8 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpioe 9 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpioe 10 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+    };
+
+    opendeck_analog: opendeck-analog {
+        compatible = "opendeck,analog";
+        mode = "native";
+        io-channels =
+            <&adc1 0>,  /* PA0 */
+            <&adc1 1>,  /* PA1 */
+            <&adc1 2>,  /* PA2 */
+            <&adc1 3>,  /* PA3 */
+            <&adc1 4>,  /* PA4 */
+            <&adc1 5>,  /* PA5 */
+            <&adc1 6>,  /* PA6 */
+            <&adc1 7>,  /* PA7 */
+            <&adc1 9>,  /* PB1 */
+            <&adc1 10>, /* PC0 */
+            <&adc1 11>, /* PC1 */
+            <&adc1 12>, /* PC2 */
+            <&adc1 13>, /* PC3 */
+            <&adc1 14>, /* PC4 */
+            <&adc1 15>, /* PC5 */
+            <&adc3 9>,  /* PF3 */
+            <&adc3 14>, /* PF4 */
+            <&adc3 15>, /* PF5 */
+            <&adc3 4>,  /* PF6 */
+            <&adc3 5>,  /* PF7 */
+            <&adc3 6>,  /* PF8 */
+            <&adc3 7>,  /* PF9 */
+            <&adc3 8>;  /* PF10 */
+    };
+
+    opendeck_touchscreen: opendeck-touchscreen {
+        compatible = "opendeck,touchscreen";
+        component-count = <64>;
+        uart = <&opendeck_uart_touchscreen>;
+    };
+
+    opendeck_din_midi: opendeck-din-midi {
+        compatible = "opendeck,midi-uart";
+        uart = <&opendeck_uart_din_midi>;
+    };
+
+    opendeck_midi_indicators: opendeck-midi-indicators {
+        compatible = "opendeck,midi-indicators";
+        usb-in-gpios = <&gpiob 0 GPIO_ACTIVE_HIGH>;
+        usb-out-gpios = <&gpiob 7 GPIO_ACTIVE_HIGH>;
+        din-in-gpios = <&gpiob 0 GPIO_ACTIVE_HIGH>;
+        din-out-gpios = <&gpiob 7 GPIO_ACTIVE_HIGH>;
+        ble-in-gpios = <&gpiob 0 GPIO_ACTIVE_HIGH>;
+        ble-out-gpios = <&gpiob 7 GPIO_ACTIVE_HIGH>;
+    };
+
+    opendeck_display: opendeck-display {
+        compatible = "opendeck,display-i2c";
+        i2c = <&opendeck_i2c_display>;
+    };
+
+    opendeck_bootloader: opendeck-bootloader {
+        compatible = "opendeck,bootloader";
+        button-gpios = <&gpioc 13 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>;
+        boot-partition = <&opendeck_partition_boot>;
+        app-partition = <&opendeck_partition_app>;
+    };
+};
