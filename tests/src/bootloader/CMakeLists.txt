@@ -12,49 +12,43 @@ add_compile_definitions(
 
 add_subdirectory($ENV{ZEPHYR_PROJECT}/app/common/metadata ${CMAKE_CURRENT_BINARY_DIR}/metadata)
 
-set(BOOTLOADER_TEST_PAYLOAD_FILE ${CMAKE_CURRENT_BINARY_DIR}/bootloader_test_payload.bin)
-set(BOOTLOADER_TEST_DFU_FILE ${CMAKE_CURRENT_BINARY_DIR}/bootloader_test_dfu.bin)
+if(NOT DEFINED ENV{TARGET} OR "$ENV{TARGET}" STREQUAL "")
+    message(FATAL_ERROR "Bootloader tests require TARGET to be exported")
+endif()
 
-file(GENERATE
-    OUTPUT ${BOOTLOADER_TEST_PAYLOAD_FILE}
-    CONTENT "OpenDeck bootloader test fixture payload 1234567890 ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-)
+set(BOOTLOADER_TEST_APP_BUILD_DIR $ENV{ZEPHYR_PROJECT}/build/app/default/release/$ENV{TARGET}/app)
+set(BOOTLOADER_TEST_VALIDATED_PAYLOAD_FILE ${BOOTLOADER_TEST_APP_BUILD_DIR}/app_validated.bin)
+set(BOOTLOADER_TEST_DFU_FILE ${BOOTLOADER_TEST_APP_BUILD_DIR}/dfu.bin)
+set(BOOTLOADER_TEST_APP_INFO_FILE ${BOOTLOADER_TEST_APP_BUILD_DIR}/app_validated_info.h)
 
-add_custom_command(
-    OUTPUT ${BOOTLOADER_TEST_DFU_FILE}
-    COMMAND
-    ${CMAKE_COMMAND}
-    -DINPUT_FILE=${BOOTLOADER_TEST_PAYLOAD_FILE}
-    -DOUTPUT_FILE=${BOOTLOADER_TEST_DFU_FILE}
-    -DTARGET_UID=${OPENDECK_TARGET_UID}
-    -DFORMAT_VERSION=${OPENDECK_DFU_FORMAT_VERSION}
-    -DBEGIN_MAGIC=${OPENDECK_DFU_BEGIN_MAGIC}
-    -DEND_MAGIC=${OPENDECK_DFU_END_MAGIC}
-    -P $ENV{ZEPHYR_PROJECT}/cmake/dfu_bin.cmake
-    DEPENDS ${BOOTLOADER_TEST_PAYLOAD_FILE}
-    COMMENT "Generating bootloader test DFU binary"
-    VERBATIM
-)
+if(NOT EXISTS ${BOOTLOADER_TEST_VALIDATED_PAYLOAD_FILE})
+    message(FATAL_ERROR "Missing target app payload: ${BOOTLOADER_TEST_VALIDATED_PAYLOAD_FILE}. Build the app for TARGET=$ENV{TARGET} first.")
+endif()
 
-add_custom_target(bootloader_test_dfu
-    DEPENDS ${BOOTLOADER_TEST_DFU_FILE}
-)
+if(NOT EXISTS ${BOOTLOADER_TEST_DFU_FILE})
+    message(FATAL_ERROR "Missing target DFU payload: ${BOOTLOADER_TEST_DFU_FILE}. Build the app for TARGET=$ENV{TARGET} first.")
+endif()
+
+if(NOT EXISTS ${BOOTLOADER_TEST_APP_INFO_FILE})
+    message(FATAL_ERROR "Missing target app info: ${BOOTLOADER_TEST_APP_INFO_FILE}. Build the app for TARGET=$ENV{TARGET} first.")
+endif()
 
 target_sources(app
     PRIVATE
     bootloader_test.cpp
+    $ENV{ZEPHYR_PROJECT}/app/bootloader/src/fw_selector/fw_selector.cpp
     $ENV{ZEPHYR_PROJECT}/app/bootloader/src/updater/updater.cpp
 )
 
 target_include_directories(app
     PRIVATE
+    ${BOOTLOADER_TEST_APP_BUILD_DIR}
     $ENV{ZEPHYR_PROJECT}/app/firmware/src
     $ENV{ZEPHYR_PROJECT}/app/bootloader/src
 )
 
 add_dependencies(app
     metadata
-    bootloader_test_dfu
 )
 
 target_link_libraries(app
@@ -64,6 +58,6 @@ target_link_libraries(app
 
 target_compile_definitions(app
     PRIVATE
-    OPENDECK_TEST_PAYLOAD_FILE="${BOOTLOADER_TEST_PAYLOAD_FILE}"
+    OPENDECK_TEST_VALIDATED_PAYLOAD_FILE="${BOOTLOADER_TEST_VALIDATED_PAYLOAD_FILE}"
     OPENDECK_TEST_DFU_FILE="${BOOTLOADER_TEST_DFU_FILE}"
 )

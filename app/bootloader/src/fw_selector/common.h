@@ -37,4 +37,33 @@ namespace fw_selector
         FwType  firmware = FwType::Bootloader;
         Trigger trigger  = Trigger::None;
     };
+
+    /**
+     * @brief Half-open memory address range.
+     */
+    struct Boundary
+    {
+        uint32_t start = 0;
+        uint32_t end   = 0;
+    };
+
+    /**
+     * @brief Address layout needed to validate and start the application.
+     */
+    struct AppInfo
+    {
+        Boundary app                 = {};
+        Boundary sram                = {};
+        uint32_t vector_table_offset = 0;
+    };
+
+    /**
+     * @brief Magic value that marks the installed-image validation record.
+     */
+    constexpr inline uint32_t IMAGE_VALIDATION_MAGIC = 0x43554644U;
+
+    /**
+     * @brief Number of bytes in the installed-image validation record.
+     */
+    constexpr inline uint32_t IMAGE_VALIDATION_RECORD_SIZE = sizeof(uint32_t) * 3U;
 }    // namespace fw_selector

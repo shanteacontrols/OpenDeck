@@ -178,7 +178,8 @@ if(EXISTS ${opendeck_target_firmware_conf})
     list(APPEND opendeck_firmware_extra_conf_files ${opendeck_target_firmware_conf})
 endif()
 
-set(${DEFAULT_IMAGE}_EXTRA_CONF_FILE ${opendeck_firmware_extra_conf_files} CACHE INTERNAL "" FORCE)
+set(${DEFAULT_IMAGE}_EXTRA_CONF_FILE    ${opendeck_firmware_extra_conf_files} CACHE INTERNAL "" FORCE)
+set(${DEFAULT_IMAGE}_SIGNING_SCRIPT     $ENV{ZEPHYR_PROJECT}/cmake/app_runner_files.cmake CACHE INTERNAL "" FORCE)
 
 set(opendeck_bootloader_extra_dtc_overlay_files)
 list(APPEND opendeck_bootloader_extra_dtc_overlay_files ${opendeck_board_partitions_overlay})
@@ -257,16 +258,17 @@ add_dependencies(${DEFAULT_IMAGE} opendeck_bootloader)
 sysbuild_add_dependencies(FLASH ${DEFAULT_IMAGE} opendeck_bootloader)
 
 function(opendeck_add_merged_artifacts)
-    set(opendeck_firmware_hex_file   ${CMAKE_BINARY_DIR}/${DEFAULT_IMAGE}/zephyr/zephyr.hex)
-    set(opendeck_bootloader_hex_file ${CMAKE_BINARY_DIR}/opendeck_bootloader/zephyr/zephyr.hex)
-    set(opendeck_merged_hex_inputs   ${opendeck_bootloader_hex_file}
-                                     ${opendeck_firmware_hex_file}
-                                     ${opendeck_extra_merged_hex_files})
-    set(opendeck_merged_hex          ${CMAKE_BINARY_DIR}/merged.hex)
-    set(opendeck_merged_bin          ${CMAKE_BINARY_DIR}/merged.bin)
-    set(opendeck_merged_uf2          ${CMAKE_BINARY_DIR}/merged.uf2)
-    set(opendeck_merged_outputs      ${opendeck_merged_hex}
-                                     ${opendeck_merged_bin})
+    set(opendeck_firmware_validated_hex_file ${CMAKE_BINARY_DIR}/${DEFAULT_IMAGE}/app_validated.hex)
+    set(opendeck_merged_app_hex_file         ${CMAKE_BINARY_DIR}/app_validated.hex)
+    set(opendeck_bootloader_hex_file         ${CMAKE_BINARY_DIR}/opendeck_bootloader/zephyr/zephyr.hex)
+    set(opendeck_merged_hex_inputs           ${opendeck_bootloader_hex_file}
+                                             ${opendeck_merged_app_hex_file}
+                                             ${opendeck_extra_merged_hex_files})
+    set(opendeck_merged_hex                  ${CMAKE_BINARY_DIR}/merged.hex)
+    set(opendeck_merged_bin                  ${CMAKE_BINARY_DIR}/merged.bin)
+    set(opendeck_merged_uf2                  ${CMAKE_BINARY_DIR}/merged.uf2)
+    set(opendeck_merged_outputs              ${opendeck_merged_hex}
+                                             ${opendeck_merged_bin})
 
     sysbuild_get(opendeck_has_uf2    IMAGE opendeck_bootloader VAR CONFIG_BUILD_OUTPUT_UF2 KCONFIG)
     sysbuild_get(opendeck_uf2_base   IMAGE opendeck_bootloader VAR CONFIG_FLASH_BASE_ADDRESS KCONFIG)
@@ -276,6 +278,25 @@ function(opendeck_add_merged_artifacts)
     if(DEFINED opendeck_uf2_family)
         string(REGEX REPLACE "^\"([^\"]*)\"$" "\\1" opendeck_uf2_family "${opendeck_uf2_family}")
     endif()
+
+    add_custom_command(
+        OUTPUT
+        ${opendeck_merged_app_hex_file}
+
+        COMMAND
+        ${CMAKE_COMMAND}
+        -E copy
+        ${opendeck_firmware_validated_hex_file}
+        ${opendeck_merged_app_hex_file}
+
+        DEPENDS
+        ${DEFAULT_IMAGE}
+
+        COMMENT
+        "Copying validated application HEX image"
+
+        VERBATIM
+    )
 
     add_custom_command(
         OUTPUT
@@ -294,10 +315,6 @@ function(opendeck_add_merged_artifacts)
 
         VERBATIM
     )
-
-    if(NOT DEFINED opendeck_objcopy)
-        message(FATAL_ERROR "Merged binary generation requires CMAKE_OBJCOPY")
-    endif()
 
     add_custom_command(
         OUTPUT

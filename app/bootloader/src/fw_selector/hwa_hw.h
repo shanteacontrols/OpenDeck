@@ -16,6 +16,7 @@
 #include <zephyr/storage/flash_map.h>
 
 #include <cmsis_core.h>
+#include <algorithm>
 #include <array>
 #include <bit>
 #include <cstdint>
@@ -60,19 +61,6 @@ namespace fw_selector
          * @brief Delay applied before jumping to the application image.
          */
         static constexpr uint32_t APP_STARTUP_DELAY_MS = 20;
-
-        /**
-         * @brief Thumb-state bit required in Cortex-M reset vectors.
-         */
-        static constexpr uint32_t THUMB_BIT_MASK = 0x01;
-
-        /**
-         * @brief Constructs the hardware-backed firmware selector and validates the application image.
-         */
-        HwaHw()
-        {
-            _is_app_valid = init_app_info();
-        }
 
         /**
          * @brief Returns whether the optional bootloader button is currently asserted.
@@ -122,14 +110,34 @@ namespace fw_selector
             return bootloader_requested;
         }
 
-        /**
-         * @brief Returns whether the application vector table passed validation.
-         *
-         * @return `true` if the application image can be jumped to, otherwise `false`.
-         */
-        bool is_app_valid() override
+        bool read_app(const uint32_t offset, std::span<uint8_t> data) override
         {
-            return _is_app_valid;
+            const struct flash_area* app_flash_area = nullptr;
+
+            if (flash_area_open(APP_SLOT_AREA_ID, &app_flash_area) != 0)
+            {
+                return false;
+            }
+
+            const bool read = flash_area_read(app_flash_area, static_cast<off_t>(offset), data.data(), data.size()) == 0;
+            flash_area_close(app_flash_area);
+
+            return read;
+        }
+
+        fw_selector::AppInfo app_info() const override
+        {
+            return {
+                .app = {
+                    .start = APP_SLOT_START,
+                    .end   = APP_SLOT_END,
+                },
+                .sram = {
+                    .start = OPENDECK_SRAM_START,
+                    .end   = OPENDECK_SRAM_END,
+                },
+                .vector_table_offset = CONFIG_ROM_START_OFFSET,
+            };
         }
 
         /**
@@ -143,9 +151,9 @@ namespace fw_selector
             {
             case FwType::Application:
             {
-                if (_is_app_valid)
+                if (read_app_vector_table())
                 {
-                    jump(_app_info.stack_pointer, _app_info.reset_vector);
+                    jump(_app_vector_table.stack_pointer, _app_vector_table.reset_vector);
                 }
             }
             break;
@@ -160,24 +168,23 @@ namespace fw_selector
         /**
          * @brief Captures the application vector-table entry points used for validation and jumping.
          */
-        struct AppInfo
+        struct AppVectorTable
         {
             uint32_t stack_pointer = 0;
             uint32_t reset_vector  = 0;
         };
 
-        static constexpr uint32_t VALIDATION_SP_ALIGNMENT_BYTES = 4;
+        static constexpr uint8_t APP_SLOT_AREA_ID = DT_PARTITION_ID(APP_SLOT_NODE);
 
         /**
-         * @brief Reads and validates the application vector table.
+         * @brief Reads the application vector table used for jumping.
          *
-         * @return `true` if the application stack pointer and reset vector are valid, otherwise `false`.
+         * @return `true` if the vector table was read, otherwise `false`.
          */
-        bool init_app_info()
+        bool read_app_vector_table()
         {
-            static constexpr uint8_t APP_SLOT_AREA_ID = DT_PARTITION_ID(APP_SLOT_NODE);
-            const struct flash_area* app_flash_area   = nullptr;
-            std::array<uint32_t, 2>  vector_table     = {};
+            const struct flash_area* app_flash_area = nullptr;
+            std::array<uint32_t, 2>  vector_table   = {};
 
             if (flash_area_open(APP_SLOT_AREA_ID, &app_flash_area) != 0)
             {
@@ -190,68 +197,20 @@ namespace fw_selector
             // Cortex-M vector table, so read from the configured ROM start
             // offset within the application slot rather than assuming the
             // first bytes of the partition are SP/Reset.
-            auto ret = flash_area_read(app_flash_area,
-                                       CONFIG_ROM_START_OFFSET,
-                                       vector_table.data(),
-                                       sizeof(vector_table));
+            const bool read = flash_area_read(app_flash_area,
+                                              CONFIG_ROM_START_OFFSET,
+                                              vector_table.data(),
+                                              sizeof(vector_table)) == 0;
+
+            if (read)
+            {
+                _app_vector_table.stack_pointer = vector_table[0];
+                _app_vector_table.reset_vector  = vector_table[1];
+            }
+
             flash_area_close(app_flash_area);
 
-            if (ret != 0)
-            {
-                return false;
-            }
-
-            _app_info.stack_pointer = vector_table[0];
-            _app_info.reset_vector  = vector_table[1];
-
-            if (!is_aligned(_app_info.stack_pointer, VALIDATION_SP_ALIGNMENT_BYTES))
-            {
-                return false;
-            }
-
-            if (!is_in_range(_app_info.stack_pointer, OPENDECK_SRAM_START, OPENDECK_SRAM_END))
-            {
-                return false;
-            }
-
-            if ((_app_info.reset_vector & THUMB_BIT_MASK) == 0U)
-            {
-                return false;
-            }
-
-            if (!is_in_range(_app_info.reset_vector & ~THUMB_BIT_MASK, APP_SLOT_START, APP_SLOT_END))
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        /**
-         * @brief Returns whether a value is aligned to the requested byte boundary.
-         *
-         * @param value Value to validate.
-         * @param alignment Required byte alignment.
-         *
-         * @return `true` if `value` is aligned, otherwise `false`.
-         */
-        static bool is_aligned(uint32_t value, uint32_t alignment)
-        {
-            return (value % alignment) == 0U;
-        }
-
-        /**
-         * @brief Returns whether a value falls within a half-open address range.
-         *
-         * @param value Address to validate.
-         * @param start Inclusive range start.
-         * @param end Exclusive range end.
-         *
-         * @return `true` if `value` is inside `[start, end)`, otherwise `false`.
-         */
-        static bool is_in_range(uint32_t value, uint32_t start, uint32_t end)
-        {
-            return (value >= start) && (value < end);
+            return read;
         }
 
         /**
@@ -384,7 +343,6 @@ namespace fw_selector
 #if DT_NODE_HAS_PROP(OPENDECK_BOOTLOADER_NODE, button_gpios)
         const gpio_dt_spec _bootloader_button = GPIO_DT_SPEC_GET(OPENDECK_BOOTLOADER_NODE, button_gpios);
 #endif
-        AppInfo _app_info     = {};
-        bool    _is_app_valid = false;
+        AppVectorTable _app_vector_table = {};
     };
 }    // namespace fw_selector

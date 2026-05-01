@@ -11,12 +11,13 @@
 
 namespace
 {
-    constexpr uint8_t  BITS_PER_BYTE          = 8U;
-    constexpr uint32_t BYTE_MASK              = 0xFFU;
-    constexpr uint8_t  START_COMMAND_BYTES    = sizeof(updater::START_COMMAND);
-    constexpr uint8_t  FW_METADATA_SPLIT_BYTE = 4U;
-    constexpr uint8_t  FW_METADATA_BYTES      = 12U;
-    constexpr uint8_t  END_COMMAND_BYTES      = 4U;
+    constexpr uint8_t  BITS_PER_BYTE                            = 8U;
+    constexpr uint32_t BYTE_MASK                                = 0xFFU;
+    constexpr uint8_t  FW_METADATA_WORD_BYTES                   = sizeof(uint32_t);
+    constexpr uint8_t  START_MAGIC_BYTES                        = sizeof(updater::START_COMMAND);
+    constexpr uint8_t  FW_METADATA_WORD_COUNT_AFTER_START_MAGIC = 3U;
+    constexpr uint8_t  FW_METADATA_BYTES_AFTER_START_MAGIC      = FW_METADATA_WORD_BYTES * FW_METADATA_WORD_COUNT_AFTER_START_MAGIC;
+    constexpr uint8_t  END_COMMAND_BYTES                        = 4U;
 }    // namespace
 
 updater::Updater::Updater(Hwa& hwa)
@@ -80,7 +81,7 @@ updater::Updater::ProcessStatus updater::Updater::process_start(const uint8_t da
         return ProcessStatus::Invalid;
     }
 
-    if (++_start_bytes_received == START_COMMAND_BYTES)
+    if (++_start_bytes_received == START_MAGIC_BYTES)
     {
         _start_bytes_received = 0;
         webusb::status("DFU session started");
@@ -92,20 +93,20 @@ updater::Updater::ProcessStatus updater::Updater::process_start(const uint8_t da
 
 updater::Updater::ProcessStatus updater::Updater::process_fw_metadata(const uint8_t data)
 {
-    if (_stage_bytes_received < FW_METADATA_SPLIT_BYTE)
+    if (_stage_bytes_received < FW_METADATA_WORD_BYTES)
     {
         _received_format_version |= (static_cast<uint32_t>(data) << (BITS_PER_BYTE * _stage_bytes_received));
     }
-    else if (_stage_bytes_received < (FW_METADATA_SPLIT_BYTE * 2U))
+    else if (_stage_bytes_received < (FW_METADATA_WORD_BYTES * 2U))
     {
-        _received_uid |= (static_cast<uint32_t>(data) << (BITS_PER_BYTE * (_stage_bytes_received - FW_METADATA_SPLIT_BYTE)));
+        _received_uid |= (static_cast<uint32_t>(data) << (BITS_PER_BYTE * (_stage_bytes_received - FW_METADATA_WORD_BYTES)));
     }
     else
     {
-        _fw_size |= (static_cast<uint32_t>(data) << (BITS_PER_BYTE * (_stage_bytes_received - (FW_METADATA_SPLIT_BYTE * 2U))));
+        _fw_size |= (static_cast<uint32_t>(data) << (BITS_PER_BYTE * (_stage_bytes_received - (FW_METADATA_WORD_BYTES * 2U))));
     }
 
-    if (++_stage_bytes_received == FW_METADATA_BYTES)
+    if (++_stage_bytes_received == FW_METADATA_BYTES_AFTER_START_MAGIC)
     {
         if (_received_format_version != FORMAT_VERSION)
         {
@@ -135,15 +136,6 @@ updater::Updater::ProcessStatus updater::Updater::process_fw_metadata(const uint
 
 updater::Updater::ProcessStatus updater::Updater::process_fw_chunk(const uint8_t data)
 {
-    if ((_fw_page_bytes_received == 0) && !_write_block_cache.dirty)
-    {
-        if (!_hwa.erase_page(_current_fw_page))
-        {
-            fail("Flash erase failed");
-            return ProcessStatus::Invalid;
-        }
-    }
-
     if (!write_payload_byte(data))
     {
         return ProcessStatus::Invalid;
@@ -166,12 +158,9 @@ updater::Updater::ProcessStatus updater::Updater::process_fw_chunk(const uint8_t
 
     if (_fw_bytes_received == _fw_size)
     {
-        if (!page_written)
+        if (!finish_current_page())
         {
-            if (!finish_current_page())
-            {
-                return ProcessStatus::Invalid;
-            }
+            return ProcessStatus::Invalid;
         }
 
         _stage_bytes_received = 0;
@@ -304,6 +293,14 @@ bool updater::Updater::write_payload_byte(const uint8_t data)
     if (_fw_page_bytes_received >= page_size)
     {
         return fail("Flash buffer overflow");
+    }
+
+    if ((_fw_page_bytes_received == 0) && !_write_block_cache.dirty)
+    {
+        if (!_hwa.erase_page(_current_fw_page))
+        {
+            return fail("Flash erase failed");
+        }
     }
 
     if (!_write_block_cache.dirty)

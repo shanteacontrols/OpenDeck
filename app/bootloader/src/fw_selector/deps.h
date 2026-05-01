@@ -7,6 +7,8 @@
 
 #include "common.h"
 
+#include <span>
+
 namespace fw_selector
 {
     /**
@@ -32,11 +34,21 @@ namespace fw_selector
         virtual bool is_sw_trigger_active() = 0;
 
         /**
-         * @brief Returns whether the application image is valid.
+         * @brief Returns the address layout used to validate and start the application.
          *
-         * @return `true` when the application image can be started, otherwise `false`.
+         * @return Application address layout.
          */
-        virtual bool is_app_valid() = 0;
+        virtual AppInfo app_info() const = 0;
+
+        /**
+         * @brief Reads bytes from the application slot.
+         *
+         * @param offset Offset from the beginning of the application slot.
+         * @param data Destination buffer.
+         *
+         * @return `true` if the bytes were read, otherwise `false`.
+         */
+        virtual bool read_app(uint32_t offset, std::span<uint8_t> data) = 0;
 
         /**
          * @brief Transfers control to the selected firmware image.

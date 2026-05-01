@@ -38,7 +38,7 @@ namespace updater
         explicit HwaHw(CleanupCallback cleanup_callback)
             : _cleanup_callback(cleanup_callback)
         {
-            _reboot_instance = this;
+            reboot_instance = this;
             k_work_init_delayable(&_reboot_work, reboot_handler);
         }
 
@@ -264,14 +264,14 @@ namespace updater
          */
         static void reboot_handler([[maybe_unused]] k_work* work)
         {
-            if (_reboot_instance == nullptr)
+            if (reboot_instance == nullptr)
             {
                 return;
             }
 
-            if (_reboot_instance->_cleanup_callback != nullptr)
+            if (reboot_instance->_cleanup_callback != nullptr)
             {
-                _reboot_instance->_cleanup_callback();
+                reboot_instance->_cleanup_callback();
             }
 
             sys_reboot(SYS_REBOOT_COLD);
@@ -285,6 +285,6 @@ namespace updater
         k_work_delayable                           _reboot_work      = {};
         bool                                       _initialized      = false;
 
-        static inline HwaHw* _reboot_instance = nullptr;
+        static inline HwaHw* reboot_instance = nullptr;
     };
 }    // namespace updater
