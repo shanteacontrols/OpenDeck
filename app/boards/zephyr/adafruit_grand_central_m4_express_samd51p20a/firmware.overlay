@@ -1,0 +1,296 @@
+/ {
+    gd25q64: qspi-nor-flash@42003400 {
+        compatible = "atmel,samd51-qspi-nor";
+        reg = <0x42003400 0x100>;
+        status = "okay";
+        pinctrl-0 = <&qspi_default>;
+        pinctrl-names = "default";
+        qspi-max-frequency = <8000000>;
+        size = <DT_SIZE_M(64)>;
+        jedec-id = [c8 40 17];
+        has-lock = <0x7c>;
+    };
+};
+
+/ {
+    aliases {
+        /delete-property/ sdhc0;
+    };
+};
+
+&pinctrl {
+    qspi_default: qspi_default {
+        group1 {
+            pinmux = <PA8H_QSPI_DATA0>,
+                     <PA9H_QSPI_DATA1>,
+                     <PA10H_QSPI_DATA2>,
+                     <PA11H_QSPI_DATA3>,
+                     <PB10H_QSPI_SCK>,
+                     <PB11H_QSPI_CS>;
+        };
+    };
+};
+
+/ {
+    usb_midi: usb_midi {
+        compatible = "zephyr,midi2-device";
+        status = "okay";
+        #address-cells = <1>;
+        #size-cells = <1>;
+
+        midi_in_out@0 {
+            reg = <0 1>;
+            protocol = "midi1-up-to-128b";
+        };
+    };
+};
+
+&sercom0 {
+    status = "okay";
+    compatible = "atmel,sam0-uart";
+    current-speed = <115200>;
+    rxpo = <1>;
+    txpo = <0>;
+    pinctrl-0 = <&sercom0_uart_default>;
+    pinctrl-names = "default";
+};
+
+&sercom2 {
+    compatible = "atmel,sam0-sercom";
+    status = "disabled";
+    /delete-property/ dipo;
+    /delete-property/ dopo;
+    /delete-property/ cs-gpios;
+    /delete-property/ pinctrl-0;
+    /delete-property/ pinctrl-names;
+    /delete-property/ #address-cells;
+    /delete-property/ #size-cells;
+
+    /delete-node/ sdhc@0;
+};
+
+&sercom3 {
+    status = "okay";
+    compatible = "atmel,sam0-i2c";
+    clock-frequency = <I2C_BITRATE_FAST>;
+    pinctrl-0 = <&sercom3_i2c_default>;
+    pinctrl-names = "default";
+};
+
+&sercom7 {
+    compatible = "atmel,sam0-sercom";
+    status = "disabled";
+    /delete-property/ dipo;
+    /delete-property/ dopo;
+    /delete-property/ pinctrl-0;
+    /delete-property/ pinctrl-names;
+};
+
+&sercom6 {
+    status = "okay";
+    compatible = "atmel,sam0-uart";
+    current-speed = <115200>;
+    rxpo = <1>;
+    txpo = <0>;
+    pinctrl-0 = <&opendeck_sercom6_uart_default>;
+    pinctrl-names = "default";
+};
+
+&pinctrl {
+    opendeck_sercom6_uart_default: opendeck_sercom6_uart_default {
+        group1 {
+            pinmux = <PC13D_SERCOM6_PAD0>,
+                     <PC12D_SERCOM6_PAD1>;
+        };
+    };
+
+    opendeck_adc0_default: opendeck_adc0_default {
+        group1 {
+            pinmux = <PA2B_ADC0_AIN0>,
+                     <PA4B_ADC0_AIN4>,
+                     <PA5B_ADC0_AIN5>,
+                     <PA6B_ADC0_AIN6>,
+                     <PA7B_ADC0_AIN7>,
+                     <PB3B_ADC0_AIN15>;
+        };
+    };
+
+    opendeck_adc1_default: opendeck_adc1_default {
+        group1 {
+            pinmux = <PB4B_ADC1_AIN6>,
+                     <PB5B_ADC1_AIN7>,
+                     <PB6B_ADC1_AIN8>,
+                     <PB7B_ADC1_AIN9>,
+                     <PB8B_ADC1_AIN0>,
+                     <PB9B_ADC1_AIN1>,
+                     <PC0B_ADC1_AIN10>,
+                     <PC1B_ADC1_AIN11>,
+                     <PC2B_ADC1_AIN4>,
+                     <PC3B_ADC1_AIN5>;
+        };
+    };
+};
+
+&adc0 {
+    status = "okay";
+    pinctrl-0 = <&opendeck_adc0_default>;
+    pinctrl-names = "default";
+    #address-cells = <1>;
+    #size-cells = <0>;
+
+    channel@0 {
+        reg = <0>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_VDD_1";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 30)>;
+        zephyr,resolution = <12>;
+        zephyr,input-positive = <0>;
+    };
+
+    channel@4 {
+        reg = <4>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_VDD_1";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 30)>;
+        zephyr,resolution = <12>;
+        zephyr,input-positive = <4>;
+    };
+
+    channel@5 {
+        reg = <5>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_VDD_1";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 30)>;
+        zephyr,resolution = <12>;
+        zephyr,input-positive = <5>;
+    };
+
+    channel@6 {
+        reg = <6>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_VDD_1";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 30)>;
+        zephyr,resolution = <12>;
+        zephyr,input-positive = <6>;
+    };
+
+    channel@7 {
+        reg = <7>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_VDD_1";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 30)>;
+        zephyr,resolution = <12>;
+        zephyr,input-positive = <7>;
+    };
+
+    channel@f {
+        reg = <15>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_VDD_1";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 30)>;
+        zephyr,resolution = <12>;
+        zephyr,input-positive = <15>;
+    };
+};
+
+&adc1 {
+    status = "okay";
+    pinctrl-0 = <&opendeck_adc1_default>;
+    pinctrl-names = "default";
+    #address-cells = <1>;
+    #size-cells = <0>;
+
+    channel@0 {
+        reg = <0>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_VDD_1";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 30)>;
+        zephyr,resolution = <12>;
+        zephyr,input-positive = <0>;
+    };
+
+    channel@1 {
+        reg = <1>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_VDD_1";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 30)>;
+        zephyr,resolution = <12>;
+        zephyr,input-positive = <1>;
+    };
+
+    channel@4 {
+        reg = <4>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_VDD_1";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 30)>;
+        zephyr,resolution = <12>;
+        zephyr,input-positive = <4>;
+    };
+
+    channel@5 {
+        reg = <5>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_VDD_1";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 30)>;
+        zephyr,resolution = <12>;
+        zephyr,input-positive = <5>;
+    };
+
+    channel@6 {
+        reg = <6>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_VDD_1";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 30)>;
+        zephyr,resolution = <12>;
+        zephyr,input-positive = <6>;
+    };
+
+    channel@7 {
+        reg = <7>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_VDD_1";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 30)>;
+        zephyr,resolution = <12>;
+        zephyr,input-positive = <7>;
+    };
+
+    channel@8 {
+        reg = <8>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_VDD_1";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 30)>;
+        zephyr,resolution = <12>;
+        zephyr,input-positive = <8>;
+    };
+
+    channel@9 {
+        reg = <9>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_VDD_1";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 30)>;
+        zephyr,resolution = <12>;
+        zephyr,input-positive = <9>;
+    };
+
+    channel@a {
+        reg = <10>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_VDD_1";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 30)>;
+        zephyr,resolution = <12>;
+        zephyr,input-positive = <10>;
+    };
+
+    channel@b {
+        reg = <11>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_VDD_1";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 30)>;
+        zephyr,resolution = <12>;
+        zephyr,input-positive = <11>;
+    };
+};
+
+&led0 {
+    status = "disabled";
+};

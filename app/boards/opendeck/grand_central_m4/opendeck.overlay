@@ -1,0 +1,113 @@
+/ {
+    opendeck_metadata: opendeck-metadata {
+        compatible = "opendeck,metadata";
+        zephyr-board = "adafruit_grand_central_m4_express/samd51p20a";
+        board-name = "Adafruit Grand Central M4";
+    };
+
+    opendeck_tests: opendeck-tests {
+        compatible = "opendeck,tests";
+        host;
+    };
+
+    opendeck_bulk_build: opendeck-bulk-build {
+        compatible = "opendeck,bulk-build";
+        app;
+        host-test;
+        lint;
+    };
+
+    opendeck_buttons: opendeck-buttons {
+        compatible = "opendeck,buttons";
+        mode = "native";
+        touchscreen-components = <64>;
+        native-gpios =
+            <&portc 18 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&portc 19 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&portc 20 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&portc 21 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&portd 20 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&portd 21 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&portb 18 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&portb 2 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&portb 22 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&portb 0 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+    };
+
+    opendeck_analog: opendeck-analog {
+        compatible = "opendeck,analog";
+        mode = "native";
+        io-channels =
+            <&adc0 0>,
+            <&adc0 5>,
+            <&adc0 15>,
+            <&adc1 10>,
+            <&adc1 11>,
+            <&adc1 4>,
+            <&adc1 5>,
+            <&adc1 6>,
+            <&adc1 7>,
+            <&adc1 8>,
+            <&adc1 9>,
+            <&adc1 0>,
+            <&adc1 1>,
+            <&adc0 4>,
+            <&adc0 6>,
+            <&adc0 7>;
+    };
+
+    opendeck_leds: opendeck-leds {
+        compatible = "opendeck,leds";
+        mode = "native";
+        touchscreen-components = <64>;
+        native-gpios =
+            <&portb 16 GPIO_ACTIVE_HIGH>,
+            <&portb 17 GPIO_ACTIVE_HIGH>,
+            <&portc 22 GPIO_ACTIVE_HIGH>,
+            <&portc 23 GPIO_ACTIVE_HIGH>,
+            <&portb 12 GPIO_ACTIVE_HIGH>,
+            <&portb 13 GPIO_ACTIVE_HIGH>,
+            <&portd 12 GPIO_ACTIVE_HIGH>,
+            <&porta 15 GPIO_ACTIVE_HIGH>,
+            <&portc 17 GPIO_ACTIVE_HIGH>,
+            <&portc 16 GPIO_ACTIVE_HIGH>,
+            <&porta 12 GPIO_ACTIVE_HIGH>,
+            <&porta 13 GPIO_ACTIVE_HIGH>,
+            <&porta 14 GPIO_ACTIVE_HIGH>,
+            <&portb 19 GPIO_ACTIVE_HIGH>,
+            <&portb 1 GPIO_ACTIVE_HIGH>;
+    };
+
+    opendeck_touchscreen: opendeck-touchscreen {
+        compatible = "opendeck,touchscreen";
+        component-count = <64>;
+        uart = <&opendeck_uart_touchscreen>;
+    };
+
+    opendeck_din_midi: opendeck-din-midi {
+        compatible = "opendeck,midi-uart";
+        uart = <&opendeck_uart_din_midi>;
+    };
+
+    opendeck_midi_indicators: opendeck-midi-indicators {
+        compatible = "opendeck,midi-indicators";
+        usb-in-gpios = <&portc 31 GPIO_ACTIVE_LOW>;
+        usb-out-gpios = <&portc 30 GPIO_ACTIVE_LOW>;
+        din-in-gpios = <&portc 31 GPIO_ACTIVE_LOW>;
+        din-out-gpios = <&portc 30 GPIO_ACTIVE_LOW>;
+        ble-in-gpios = <&portc 31 GPIO_ACTIVE_LOW>;
+        ble-out-gpios = <&portc 30 GPIO_ACTIVE_LOW>;
+    };
+
+    opendeck_display: opendeck-display {
+        compatible = "opendeck,display-i2c";
+        i2c = <&opendeck_i2c_display>;
+    };
+
+    opendeck_bootloader: opendeck-bootloader {
+        compatible = "opendeck,bootloader";
+        button-gpios = <&portb 23 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+        boot-partition = <&opendeck_partition_boot>;
+        app-partition = <&opendeck_partition_app>;
+    };
+};

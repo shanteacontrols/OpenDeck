@@ -54,6 +54,7 @@ This board is based on Raspberry Pi RP2040 microcontroller and features the foll
 
 The firmware supports various other boards, both small and large:
 
+* [Adafruit Grand Central M4 Express](https://www.adafruit.com/product/4064)
 * [Arduino Nano 33 BLE](https://docs.arduino.cc/hardware/nano-33-ble/)
 * [nRF52840 DK](https://www.nordicsemi.com/Products/Development-hardware/nrf52840-dk)
 * [nRF5340 DK](https://www.nordicsemi.com/Products/Development-hardware/nrf5340-dk)

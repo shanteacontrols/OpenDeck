@@ -1,0 +1,18 @@
+diff --git a/boards/adafruit/grand_central_m4_express/board.yml b/boards/adafruit/grand_central_m4_express/board.yml
+index 5c9d4d0d6e1..b071e53e2b2 100644
+--- a/boards/adafruit/grand_central_m4_express/board.yml
++++ b/boards/adafruit/grand_central_m4_express/board.yml
+@@ -4,3 +4,13 @@ board:
+   vendor: adafruit
+   socs:
+     - name: samd51p20a
++
++runners:
++  run_once:
++    '--reset':
++    - runners:
++      - bossac
++      run: last
++      groups:
++      - boards:
++        - adafruit_grand_central_m4_express/samd51p20a

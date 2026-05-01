@@ -1,0 +1,84 @@
+&flash0 {
+    /delete-node/ partitions;
+
+    partitions {
+        compatible = "fixed-partitions";
+        #address-cells = <1>;
+        #size-cells = <1>;
+
+        uf2_partition: partition@0 {
+            label = "uf2";
+            reg = <0x00000000 0x00004000>;
+            read-only;
+        };
+
+        boot_partition: partition@4000 {
+            compatible = "zephyr,mapped-partition";
+            label = "boot";
+            reg = <0x00004000 0x00018000>;
+            read-only;
+        };
+
+        code_partition: partition@1c000 {
+            compatible = "zephyr,mapped-partition";
+            label = "code-partition";
+            reg = <0x0001c000 0x000b4000>;
+            read-only;
+        };
+
+        factory_partition: partition@d0000 {
+            label = "factory";
+            reg = <0x000d0000 0x00010000>;
+        };
+
+        emueeprom_page1_partition: partition@e0000 {
+            label = "emueeprom-page1";
+            reg = <0x000e0000 0x00010000>;
+        };
+
+        emueeprom_page2_partition: partition@f0000 {
+            label = "emueeprom-page2";
+            reg = <0x000f0000 0x00010000>;
+        };
+    };
+};
+
+&{/soc} {
+    /delete-node/ pinmux@41008000;
+};
+
+&sram0 {
+    reg = <0x20000000 DT_SIZE_K(252)>;
+};
+
+/ {
+    chosen {
+        zephyr,code-partition = &code_partition;
+    };
+
+    opendeck_retained_mem: memory@2003f000 {
+        compatible = "zephyr,memory-region", "mmio-sram";
+        reg = <0x2003f000 DT_SIZE_K(4)>;
+        zephyr,memory-region = "RetainedMem";
+        status = "okay";
+
+        retainedmem {
+            compatible = "zephyr,retained-ram";
+            status = "okay";
+            #address-cells = <1>;
+            #size-cells = <1>;
+
+            opendeck_retained: boot_mode@0 {
+                compatible = "zephyr,retention";
+                status = "okay";
+                reg = <0x0 0x100>;
+                prefix = [00 53 43];
+                checksum = <1>;
+            };
+        };
+    };
+};
+
+opendeck_partition_boot: &boot_partition {};
+
+opendeck_partition_app: &code_partition {};
