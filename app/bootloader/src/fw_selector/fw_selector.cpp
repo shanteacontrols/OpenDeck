@@ -12,7 +12,7 @@
 
 namespace
 {
-    constexpr uint32_t CRC_READ_BLOCK_SIZE              = 64;
+    constexpr uint32_t FLASH_SCAN_BLOCK_SIZE            = 256;
     constexpr uint32_t VALIDATION_SP_ALIGNMENT_BYTES    = 4;
     constexpr uint32_t THUMB_BIT_MASK                   = 0x01;
     constexpr uint32_t VALIDATION_RECORD_ALIGNMENT_SIZE = sizeof(uint32_t);
@@ -120,19 +120,30 @@ bool fw_selector::FwSelector::find_app_validation_record()
         return false;
     }
 
-    std::array<uint8_t, IMAGE_VALIDATION_RECORD_SIZE> data          = {};
-    uint32_t                                          record_offset = app_size - IMAGE_VALIDATION_RECORD_SIZE;
+    std::array<uint8_t, FLASH_SCAN_BLOCK_SIZE> data          = {};
+    uint32_t                                   record_offset = app_size - IMAGE_VALIDATION_RECORD_SIZE;
 
     while (true)
     {
-        if (_hwa.read_app(record_offset, data))
+        const uint32_t scan_end  = record_offset + IMAGE_VALIDATION_RECORD_SIZE;
+        const uint32_t scan_size = std::min<uint32_t>(data.size(), scan_end);
+        const uint32_t scan_base = scan_end - scan_size;
+
+        if (!_hwa.read_app(scan_base, std::span<uint8_t>(data.data(), scan_size)))
         {
-            const uint32_t magic = read_le32(data.data());
+            return false;
+        }
+
+        while (true)
+        {
+            const uint32_t within_scan = record_offset - scan_base;
+            const uint8_t* record_data = data.data() + within_scan;
+            const uint32_t magic       = read_le32(record_data);
 
             if (magic == IMAGE_VALIDATION_MAGIC)
             {
-                const uint32_t record_size = read_le32(data.data() + sizeof(uint32_t));
-                const uint32_t record_crc  = read_le32(data.data() + (sizeof(uint32_t) * 2U));
+                const uint32_t record_size = read_le32(record_data + sizeof(uint32_t));
+                const uint32_t record_crc  = read_le32(record_data + (sizeof(uint32_t) * 2U));
                 uint32_t       calculated_crc;
 
                 if ((record_size <= record_offset) &&
@@ -143,23 +154,27 @@ bool fw_selector::FwSelector::find_app_validation_record()
                     return true;
                 }
             }
-        }
 
-        if (record_offset < VALIDATION_RECORD_ALIGNMENT_SIZE)
-        {
-            break;
-        }
+            if (record_offset < VALIDATION_RECORD_ALIGNMENT_SIZE)
+            {
+                return false;
+            }
 
-        record_offset -= VALIDATION_RECORD_ALIGNMENT_SIZE;
+            record_offset -= VALIDATION_RECORD_ALIGNMENT_SIZE;
+
+            if ((record_offset < scan_base) ||
+                ((record_offset + IMAGE_VALIDATION_RECORD_SIZE) > scan_end))
+            {
+                break;
+            }
+        }
     }
-
-    return false;
 }
 
 bool fw_selector::FwSelector::calculate_app_crc(const uint32_t size, uint32_t& crc)
 {
-    std::array<uint8_t, CRC_READ_BLOCK_SIZE> data   = {};
-    uint32_t                                 offset = 0;
+    std::array<uint8_t, FLASH_SCAN_BLOCK_SIZE> data   = {};
+    uint32_t                                   offset = 0;
 
     crc = 0;
 

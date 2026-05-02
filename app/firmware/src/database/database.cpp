@@ -5,8 +5,7 @@
 
 #include "util/conversion/conversion.h"
 #include "util/configurable/configurable.h"
-
-#include "zlibs/utils/misc/numeric.h"
+#include "layout.h"
 
 #include <zephyr/logging/log.h>
 
@@ -19,11 +18,9 @@ namespace
     LOG_MODULE_REGISTER(database, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
 }    // namespace
 
-database::Admin::Admin(Hwa&    hwa,
-                       Layout& layout)
+database::Admin::Admin(Hwa& hwa)
     : LessDb::LessDb(hwa)
     , _hwa(hwa)
-    , _layout(layout)
 {
     ConfigHandler.register_config(
         sys::Config::Block::Global,
@@ -51,9 +48,9 @@ bool database::Admin::init(Handlers& handlers)
         return false;
     }
 
-    const uint32_t common_layout_size = _layout.common_layout_size();
+    constexpr uint32_t common_layout_size = AppLayout::common_layout_size();
 
-    if (!LessDb::set_layout(_layout.common_layout()))
+    if (!LessDb::set_layout(AppLayout::common_layout()))
     {
         LOG_ERR("Setting common layout failed");
         return false;
@@ -62,22 +59,16 @@ bool database::Admin::init(Handlers& handlers)
     _preset_data_start_address = common_layout_size;
     _active_context            = Context::Common;
 
-    if (!LessDb::set_layout(_layout.preset_layout(), _preset_data_start_address))
+    if (!LessDb::set_layout(AppLayout::preset_layout(), _preset_data_start_address))
     {
         LOG_ERR("Setting preset layout failed");
         return false;
     }
 
-    _preset_layout_size = _layout.preset_layout_size();
+    _preset_layout_size = AppLayout::preset_layout_size();
     _active_context     = Context::Preset;
 
-    // get theoretical maximum of presets
-    _supported_presets = _preset_layout_size ? (LessDb::db_size() - common_layout_size) / _preset_layout_size : 0;
-
-    // limit by hardcoded limit
-    _supported_presets = zlibs::utils::misc::constrain(_supported_presets,
-                                                       static_cast<size_t>(0),
-                                                       Config::MAX_PRESETS);
+    _supported_presets = AppLayout::supported_preset_count_for(LessDb::address_count());
 
     bool ret_val = true;
 
@@ -291,7 +282,7 @@ bool database::Admin::select_common()
         return true;
     }
 
-    if (!LessDb::set_layout(_layout.common_layout(), 0))
+    if (!LessDb::set_layout(AppLayout::common_layout(), 0))
     {
         return false;
     }
@@ -312,7 +303,7 @@ bool database::Admin::select_preset(uint8_t preset)
         return true;
     }
 
-    if (!LessDb::set_layout(_layout.preset_layout(), preset_start_address(preset)))
+    if (!LessDb::set_layout(AppLayout::preset_layout(), preset_start_address(preset)))
     {
         return false;
     }
@@ -358,7 +349,7 @@ bool database::Admin::is_signature_valid()
 
 uint16_t database::Admin::signature() const
 {
-    return static_cast<uint16_t>(_layout.preset_uid() ^
+    return static_cast<uint16_t>(AppLayout::preset_uid() ^
                                  static_cast<uint16_t>(OPENDECK_TARGET_UID) ^
                                  static_cast<uint16_t>(_supported_presets));
 }

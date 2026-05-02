@@ -189,7 +189,6 @@ bool System::init()
     LOG_INF("MCU: %s", CONFIG_SOC);
     LOG_INF("Zephyr board: %s", CONFIG_BOARD);
     LOG_INF("OpenDeck target: %s", OPENDECK_TARGET);
-    LOG_INF("EMUEEPROM page size: %u", static_cast<unsigned>(CONFIG_ZLIBS_UTILS_EMUEEPROM_PAGE_SIZE));
     LOG_INF("Buttons: %u", static_cast<unsigned>(io::buttons::Collection::size(io::buttons::GroupDigitalInputs)));
     LOG_INF("Encoders: %u", static_cast<unsigned>(io::encoders::Collection::size()));
     LOG_INF("Analog: %u", static_cast<unsigned>(io::analog::Collection::size()));

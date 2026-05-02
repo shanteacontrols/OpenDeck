@@ -6,6 +6,7 @@
 #include "tests/common.h"
 #include "tests/helpers/database.h"
 #include "database/builder.h"
+#include "database/layout.h"
 #include "io/digital/buttons/common.h"
 #include "io/digital/encoders/common.h"
 #include "io/analog/common.h"
@@ -84,7 +85,7 @@ namespace
 
 TEST_F(DatabaseTest, ReadInitialValues)
 {
-    const auto expected_signature = static_cast<uint16_t>(_database._layout.preset_uid() ^
+    const auto expected_signature = static_cast<uint16_t>(database::AppLayout::preset_uid() ^
                                                           static_cast<uint16_t>(OPENDECK_TARGET_UID) ^
                                                           static_cast<uint16_t>(_database.instance().supported_presets()));
 

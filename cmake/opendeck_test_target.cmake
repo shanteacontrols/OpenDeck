@@ -103,7 +103,6 @@ function(opendeck_test_apply_target)
     string(REPLACE "/" "_" zephyr_board_dir "${zephyr_board}")
     set(zephyr_overlay_dir "$ENV{ZEPHYR_PROJECT}/app/boards/zephyr/${zephyr_board_dir}")
     set(partitions_overlay_path "${zephyr_overlay_dir}/partitions.overlay")
-    set(firmware_conf_path "${zephyr_overlay_dir}/firmware.conf")
     set(target_firmware_overlay_path "$ENV{ZEPHYR_PROJECT}/app/boards/opendeck/${OPENDECK_TARGET}/firmware.overlay")
 
     if(NOT EXISTS "${partitions_overlay_path}")
@@ -111,63 +110,46 @@ function(opendeck_test_apply_target)
     endif()
 
     set(emueeprom_page_size "")
+    file(STRINGS "${partitions_overlay_path}" partitions_overlay_lines)
+    set(in_emueeprom_page1_partition OFF)
 
-    # Tests need the logical EmuEEPROM page size to match runtime behavior.
-    # Prefer an explicit board firmware.conf override, then fall back to the
-    # first EEPROM backing partition size from partitions.overlay.
-    if(EXISTS "${firmware_conf_path}")
-        set(emueeprom_page_size_from_conf "")
-        read_config_value("${firmware_conf_path}" "CONFIG_ZLIBS_UTILS_EMUEEPROM_PAGE_SIZE" emueeprom_page_size_from_conf)
+    foreach(line IN LISTS partitions_overlay_lines)
+        string(STRIP "${line}" line)
 
-        if(NOT emueeprom_page_size_from_conf STREQUAL "")
-            set(emueeprom_page_size "${emueeprom_page_size_from_conf}")
+        if(line MATCHES "^emueeprom_page1_partition:")
+            set(in_emueeprom_page1_partition ON)
+            continue()
         endif()
-    endif()
+
+        if(NOT in_emueeprom_page1_partition)
+            continue()
+        endif()
+
+        if(line MATCHES "^};")
+            set(in_emueeprom_page1_partition OFF)
+            continue()
+        endif()
+
+        if(line MATCHES "reg[ \t]*=[ \t]*<0x[0-9A-Fa-f]+[ \t]+0x([0-9A-Fa-f]+)>;")
+            math(EXPR emueeprom_page_size "0x${CMAKE_MATCH_1}")
+            break()
+        elseif(line MATCHES "reg[ \t]*=[ \t]*<0x[0-9A-Fa-f]+[ \t]+DT_SIZE_K\\(([0-9]+)\\)>;")
+            math(EXPR emueeprom_page_size "${CMAKE_MATCH_1} * 1024")
+            break()
+        elseif(line MATCHES "reg[ \t]*=[ \t]*<0x[0-9A-Fa-f]+[ \t]+DT_SIZE_M\\(([0-9]+)\\)>;")
+            math(EXPR emueeprom_page_size "${CMAKE_MATCH_1} * 1024 * 1024")
+            break()
+        endif()
+    endforeach()
 
     if(emueeprom_page_size STREQUAL "")
-        file(STRINGS "${partitions_overlay_path}" partitions_overlay_lines)
-        set(in_emueeprom_page1_partition OFF)
-
-        foreach(line IN LISTS partitions_overlay_lines)
-            string(STRIP "${line}" line)
-
-            if(line MATCHES "^emueeprom_page1_partition:")
-                set(in_emueeprom_page1_partition ON)
-                continue()
-            endif()
-
-            if(NOT in_emueeprom_page1_partition)
-                continue()
-            endif()
-
-            if(line MATCHES "^};")
-                set(in_emueeprom_page1_partition OFF)
-                continue()
-            endif()
-
-            if(line MATCHES "reg[ \t]*=[ \t]*<0x[0-9A-Fa-f]+[ \t]+0x([0-9A-Fa-f]+)>;")
-                math(EXPR emueeprom_page_size "0x${CMAKE_MATCH_1}")
-                break()
-            elseif(line MATCHES "reg[ \t]*=[ \t]*<0x[0-9A-Fa-f]+[ \t]+DT_SIZE_K\\(([0-9]+)\\)>;")
-                math(EXPR emueeprom_page_size "${CMAKE_MATCH_1} * 1024")
-                break()
-            elseif(line MATCHES "reg[ \t]*=[ \t]*<0x[0-9A-Fa-f]+[ \t]+DT_SIZE_M\\(([0-9]+)\\)>;")
-                math(EXPR emueeprom_page_size "${CMAKE_MATCH_1} * 1024 * 1024")
-                break()
-            endif()
-        endforeach()
+        message(FATAL_ERROR "Unable to infer EmuEEPROM page size from ${partitions_overlay_path}.")
     endif()
 
-    if(emueeprom_page_size STREQUAL "")
-        message(FATAL_ERROR "Unable to infer CONFIG_ZLIBS_UTILS_EMUEEPROM_PAGE_SIZE from ${partitions_overlay_path}.")
-    endif()
-
-    set(target_conf_file "${CMAKE_CURRENT_BINARY_DIR}/opendeck_test_target.conf")
-    file(WRITE "${target_conf_file}" "CONFIG_ZLIBS_UTILS_EMUEEPROM_PAGE_SIZE=${emueeprom_page_size}\n")
+    add_compile_definitions(OPENDECK_TEST_EMUEEPROM_PAGE_SIZE=${emueeprom_page_size})
 
     # Apply the board-side emulation overlay first, then any target-specific
     # test aliases, and finally the OpenDeck target overlay.
-    list(APPEND CONF_FILE "${target_conf_file}")
     set(test_overlay_path "${zephyr_overlay_dir}/test.overlay")
 
     if(EXISTS "${test_overlay_path}")

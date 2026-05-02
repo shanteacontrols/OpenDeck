@@ -171,6 +171,7 @@ namespace
                 return false;
             }
 
+            max_read_size = std::max(max_read_size, data.size());
             std::copy(image.begin() + offset, image.begin() + offset + data.size(), data.begin());
             return true;
         }
@@ -190,7 +191,8 @@ namespace
                 .end   = 0x20010000,
             },
         };
-        bool fail_read = false;
+        bool   fail_read     = false;
+        size_t max_read_size = 0;
     };
 
 }    // namespace
@@ -368,6 +370,21 @@ TEST(Bootloader, SelectorValidatesAppCrc)
     fw_selector::FwSelector selector(hwa);
 
     ASSERT_EQ(fw_selector::FwType::Application, selector.select().firmware);
+}
+
+TEST(Bootloader, SelectorScansValidationRecordsInBlocks)
+{
+    constexpr uint32_t slot_size = 1024;
+
+    FwSelectorHwaTest hwa(std::vector<uint8_t>(slot_size, 0xFF));
+    hwa.info.app = { .start = 0x08000000, .end = 0x08000000 + slot_size };
+
+    write_test_vector_table(hwa.image);
+
+    fw_selector::FwSelector selector(hwa);
+
+    ASSERT_EQ(fw_selector::Trigger::InvalidApp, selector.select().trigger);
+    ASSERT_GT(hwa.max_read_size, fw_selector::IMAGE_VALIDATION_RECORD_SIZE);
 }
 
 TEST(Bootloader, SelectorRejectsAppCrcMismatch)

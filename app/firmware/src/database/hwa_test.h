@@ -6,6 +6,7 @@
 #pragma once
 
 #include "deps.h"
+#include "layout.h"
 
 #include "zlibs/utils/emueeprom/emueeprom.h"
 
@@ -24,6 +25,33 @@ namespace database
     class HwaTest : public Hwa
     {
         public:
+        /**
+         * @brief Backend write granularity used by the test flash.
+         */
+        static constexpr size_t WRITE_BLOCK_SIZE = sizeof(uint32_t);
+
+        /**
+         * @brief Logical size of each test EmuEEPROM page.
+         */
+        static constexpr size_t EMUEEPROM_PAGE_SIZE = OPENDECK_TEST_EMUEEPROM_PAGE_SIZE;
+
+        /**
+         * @brief Number of logical addresses supported by the physical EmuEEPROM journal.
+         */
+        static constexpr uint32_t EMUEEPROM_ADDRESS_COUNT = static_cast<uint32_t>(zlibs::utils::emueeprom::address_count_for(EMUEEPROM_PAGE_SIZE, WRITE_BLOCK_SIZE));
+
+        /**
+         * @brief Number of preset slots supported by the configured database storage.
+         */
+        static constexpr size_t SUPPORTED_PRESET_COUNT = AppLayout::supported_preset_count_for(EMUEEPROM_ADDRESS_COUNT);
+
+        /**
+         * @brief Number of logical database addresses exposed through LessDB.
+         */
+        static constexpr uint32_t DATABASE_ADDRESS_COUNT = AppLayout::database_size_for_presets(SUPPORTED_PRESET_COUNT);
+
+        static_assert(SUPPORTED_PRESET_COUNT > 0, "Database storage must support at least one preset.");
+
         HwaTest() = default;
 
         bool init() override
@@ -31,9 +59,9 @@ namespace database
             return _emueeprom.init();
         }
 
-        uint32_t size() override
+        uint32_t address_count() override
         {
-            return _emueeprom.max_address();
+            return DATABASE_ADDRESS_COUNT;
         }
 
         bool clear() override
@@ -106,6 +134,8 @@ namespace database
         }
 
         private:
+        using EmuEeprom = zlibs::utils::emueeprom::EmuEeprom<EMUEEPROM_PAGE_SIZE, WRITE_BLOCK_SIZE, DATABASE_ADDRESS_COUNT>;
+
         /**
          * @brief In-memory emulated EEPROM hardware adapter used by database tests.
          */
@@ -115,27 +145,7 @@ namespace database
             /**
              * @brief Backend write granularity used by the test flash.
              */
-            static constexpr size_t WRITE_BLOCK_SIZE = sizeof(uint32_t);
-
-            /**
-             * @brief Size of the first EEPROM emulation page used by the test backend.
-             */
-            static constexpr size_t PAGE_1_SIZE = CONFIG_ZLIBS_UTILS_EMUEEPROM_PAGE_SIZE;
-
-            /**
-             * @brief Size of the second EEPROM emulation page used by the test backend.
-             */
-            static constexpr size_t PAGE_2_SIZE = CONFIG_ZLIBS_UTILS_EMUEEPROM_PAGE_SIZE;
-
-            /**
-             * @brief Indicates that the test backend provides a factory snapshot page.
-             */
-            static constexpr bool HAS_FACTORY_PAGE = true;
-
-            /**
-             * @brief Size of the factory snapshot page used by the test backend.
-             */
-            static constexpr size_t FACTORY_SIZE = CONFIG_ZLIBS_UTILS_EMUEEPROM_PAGE_SIZE;
+            static constexpr size_t WRITE_BLOCK_SIZE = HwaTest::WRITE_BLOCK_SIZE;
 
             /**
              * @brief Constructs the in-memory emulated EEPROM backend and initializes all pages to the erased state.
@@ -206,7 +216,7 @@ namespace database
             }
 
             /**
-             * @brief Reads one backend write block from the selected emulated EEPROM page.
+             * @brief Reads one or more backend write blocks from the selected emulated EEPROM page.
              *
              * @param page Emulated EEPROM page to read.
              * @param offset Byte offset within `page`.
@@ -218,7 +228,8 @@ namespace database
             {
                 const auto& storage = page_storage(page);
 
-                if ((data.size() != WRITE_BLOCK_SIZE) ||
+                if ((data.empty()) ||
+                    ((data.size() % WRITE_BLOCK_SIZE) != 0) ||
                     ((offset % WRITE_BLOCK_SIZE) != 0) ||
                     ((offset + data.size()) > storage.size()))
                 {
@@ -233,7 +244,7 @@ namespace database
             /**
              * @brief Byte-addressable storage type used for one in-memory emulated EEPROM page.
              */
-            using PageStorage = std::array<uint8_t, CONFIG_ZLIBS_UTILS_EMUEEPROM_PAGE_SIZE>;
+            using PageStorage = std::array<uint8_t, HwaTest::EMUEEPROM_PAGE_SIZE>;
 
             /**
              * @brief Returns mutable storage for the selected emulated EEPROM page.
@@ -288,7 +299,7 @@ namespace database
             PageStorage _factory = {};
         };
 
-        HwaEmuEeprom                       _hwa_emueeprom;
-        zlibs::utils::emueeprom::EmuEeprom _emueeprom = zlibs::utils::emueeprom::EmuEeprom(_hwa_emueeprom);
+        HwaEmuEeprom _hwa_emueeprom;
+        EmuEeprom    _emueeprom = EmuEeprom(_hwa_emueeprom);
     };
 }    // namespace database

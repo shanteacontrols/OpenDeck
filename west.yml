@@ -13,5 +13,5 @@ manifest:
       submodules: true
     - name: zlibs
       remote: paradajz
-      revision: 3b7909f90682edfea151d1d4528481785c9952d6
+      revision: 5c42879787da862dee03e99d72af8a5f8cceaf2e
       path: modules/zlibs

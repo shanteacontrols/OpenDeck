@@ -6,7 +6,6 @@
 #pragma once
 
 #include "database.h"
-#include "layout.h"
 #include "hwa_test.h"
 
 namespace database
@@ -29,8 +28,7 @@ namespace database
             return _instance;
         }
 
-        HwaTest   _hwa;
-        AppLayout _layout;
-        Admin     _instance = Admin(_hwa, _layout);
+        HwaTest _hwa;
+        Admin   _instance = Admin(_hwa);
     };
 }    // namespace database

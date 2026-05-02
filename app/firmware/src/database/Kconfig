@@ -1,0 +1,11 @@
+menu "Database"
+
+config PROJECT_DATABASE_MAX_SUPPORTED_PRESETS
+    int "Maximum supported preset slots"
+    range 1 5
+    default 5
+    help
+      Maximum number of preset slots exposed by the database. Lower this on
+      RAM-constrained targets to reduce the EmuEEPROM RAM mirror size.
+
+endmenu

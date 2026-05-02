@@ -6,6 +6,7 @@
 #pragma once
 
 #include "deps.h"
+#include "layout.h"
 #include "messaging/messaging.h"
 #include "io/indicators/indicators.h"
 
@@ -33,6 +34,52 @@ namespace database
     class HwaHw : public Hwa
     {
         public:
+        /**
+         * @brief Flash write granularity reported by Zephyr for the EEPROM partitions.
+         */
+        static constexpr size_t FLASH_WRITE_BLOCK_SIZE = DT_PROP(DT_MEM_FROM_FIXED_PARTITION(DT_NODELABEL(emueeprom_page1_partition)), write_block_size);
+
+        /**
+         * @brief Smallest block size EmuEEPROM writes through this backend.
+         *
+         * Some flash drivers report byte-programmable storage, but this backend
+         * still uses a minimum logical write block for database storage.
+         */
+        static constexpr size_t WRITE_BLOCK_SIZE = FLASH_WRITE_BLOCK_SIZE < sizeof(zlibs::utils::emueeprom::Entry) ? sizeof(zlibs::utils::emueeprom::Entry) : FLASH_WRITE_BLOCK_SIZE;
+
+        /**
+         * @brief Physical size of each flash partition used by EmuEEPROM.
+         */
+        static constexpr size_t EMUEEPROM_PAGE1_PARTITION_SIZE   = PARTITION_SIZE(emueeprom_page1_partition);
+        static constexpr size_t EMUEEPROM_PAGE2_PARTITION_SIZE   = PARTITION_SIZE(emueeprom_page2_partition);
+        static constexpr size_t EMUEEPROM_FACTORY_PARTITION_SIZE = PARTITION_SIZE(factory_partition);
+
+        static_assert((EMUEEPROM_PAGE1_PARTITION_SIZE == EMUEEPROM_PAGE2_PARTITION_SIZE) &&
+                          (EMUEEPROM_PAGE1_PARTITION_SIZE == EMUEEPROM_FACTORY_PARTITION_SIZE),
+                      "EmuEEPROM partitions must have matching physical sizes.");
+
+        /**
+         * @brief Logical size of each EmuEEPROM page.
+         */
+        static constexpr size_t EMUEEPROM_PAGE_SIZE = EMUEEPROM_PAGE1_PARTITION_SIZE;
+
+        /**
+         * @brief Number of logical addresses supported by the physical EmuEEPROM journal.
+         */
+        static constexpr uint32_t EMUEEPROM_ADDRESS_COUNT = static_cast<uint32_t>(zlibs::utils::emueeprom::address_count_for(EMUEEPROM_PAGE_SIZE, WRITE_BLOCK_SIZE));
+
+        /**
+         * @brief Number of preset slots supported by the configured database storage.
+         */
+        static constexpr size_t SUPPORTED_PRESET_COUNT = AppLayout::supported_preset_count_for(EMUEEPROM_ADDRESS_COUNT);
+
+        /**
+         * @brief Number of logical database addresses exposed through LessDB.
+         */
+        static constexpr uint32_t DATABASE_ADDRESS_COUNT = AppLayout::database_size_for_presets(SUPPORTED_PRESET_COUNT);
+
+        static_assert(SUPPORTED_PRESET_COUNT > 0, "Database storage must support at least one preset.");
+
         /**
          * @brief Constructs the hardware-backed database backend and subscribes to restore notifications.
          */
@@ -126,9 +173,9 @@ namespace database
          *
          * @return Highest supported database address.
          */
-        uint32_t size() override
+        uint32_t address_count() override
         {
-            return _emueeprom.max_address();
+            return DATABASE_ADDRESS_COUNT;
         }
 
         /**
@@ -246,6 +293,8 @@ namespace database
         }
 
         private:
+        using EmuEeprom = zlibs::utils::emueeprom::EmuEeprom<EMUEEPROM_PAGE_SIZE, WRITE_BLOCK_SIZE, DATABASE_ADDRESS_COUNT>;
+
         /**
          * @brief Updates cache-only write mode from active database write sessions.
          */
@@ -297,51 +346,13 @@ namespace database
         {
             public:
             /**
-             * @brief Logical size of the first EEPROM emulation page.
-             */
-            static constexpr size_t PAGE_1_SIZE = CONFIG_ZLIBS_UTILS_EMUEEPROM_PAGE_SIZE;
-
-            /**
-             * @brief Logical size of the second EEPROM emulation page.
-             */
-            static constexpr size_t PAGE_2_SIZE = CONFIG_ZLIBS_UTILS_EMUEEPROM_PAGE_SIZE;
-
-            /**
-             * @brief Logical size of the factory snapshot area.
-             */
-            static constexpr size_t FACTORY_SIZE = CONFIG_ZLIBS_UTILS_EMUEEPROM_PAGE_SIZE;
-
-            /**
-             * @brief Flash write granularity reported by Zephyr for the EEPROM partitions.
-             */
-            static constexpr size_t FLASH_WRITE_BLOCK_SIZE = DT_PROP(DT_MEM_FROM_FIXED_PARTITION(DT_NODELABEL(emueeprom_page1_partition)), write_block_size);
-
-            /**
-             * @brief Smallest block size EmuEEPROM writes through this backend.
-             *
-             * Some flash drivers report byte-programmable storage, but EmuEEPROM
-             * stores 16-bit address/value entries and therefore writes at least one
-             * full entry at a time.
-             */
-            static constexpr size_t WRITE_BLOCK_SIZE = FLASH_WRITE_BLOCK_SIZE < sizeof(zlibs::utils::emueeprom::Entry) ? sizeof(zlibs::utils::emueeprom::Entry) : FLASH_WRITE_BLOCK_SIZE;
-
-            static_assert((PARTITION_SIZE(emueeprom_page1_partition) == PARTITION_SIZE(emueeprom_page2_partition)) &&
-                              (PARTITION_SIZE(emueeprom_page1_partition) == PARTITION_SIZE(factory_partition)),
-                          "EmuEEPROM partitions must have matching physical sizes.");
-            static_assert(PARTITION_SIZE(emueeprom_page1_partition) >= PAGE_1_SIZE,
-                          "EmuEEPROM physical partitions are smaller than the configured logical page size.");
-
-            /**
              * @brief Returns whether all flash devices used by the emulated EEPROM backend are ready.
              *
              * @return `true` if every partition device is ready, otherwise `false`.
              */
             bool init() override
             {
-                return (PAGE_1.size >= PAGE_1_SIZE) &&
-                       (PAGE_2.size >= PAGE_2_SIZE) &&
-                       (FACTORY.size >= FACTORY_SIZE) &&
-                       device_is_ready(PAGE_1.dev) &&
+                return device_is_ready(PAGE_1.dev) &&
                        device_is_ready(PAGE_2.dev) &&
                        device_is_ready(FACTORY.dev);
             }
@@ -372,9 +383,9 @@ namespace database
             {
                 const auto& partition = partition_for(page);
 
-                if ((data.size() != WRITE_BLOCK_SIZE) ||
-                    ((offset % WRITE_BLOCK_SIZE) != 0) ||
-                    ((offset + data.size()) > logical_size_for(page)))
+                if ((data.size() != HwaHw::WRITE_BLOCK_SIZE) ||
+                    ((offset % HwaHw::WRITE_BLOCK_SIZE) != 0) ||
+                    ((offset + data.size()) > HwaHw::EMUEEPROM_PAGE_SIZE))
                 {
                     return false;
                 }
@@ -383,7 +394,7 @@ namespace database
             }
 
             /**
-             * @brief Reads one backend write block from the selected emulated EEPROM page.
+             * @brief Reads one or more backend write blocks from the selected emulated EEPROM page.
              *
              * @param page Emulated EEPROM page to read.
              * @param offset Byte offset within `page`.
@@ -395,9 +406,10 @@ namespace database
             {
                 const auto& partition = partition_for(page);
 
-                if ((data.size() != WRITE_BLOCK_SIZE) ||
-                    ((offset % WRITE_BLOCK_SIZE) != 0) ||
-                    ((offset + data.size()) > logical_size_for(page)))
+                if ((data.empty()) ||
+                    ((data.size() % HwaHw::WRITE_BLOCK_SIZE) != 0) ||
+                    ((offset % HwaHw::WRITE_BLOCK_SIZE) != 0) ||
+                    ((offset + data.size()) > HwaHw::EMUEEPROM_PAGE_SIZE))
                 {
                     return false;
                 }
@@ -430,23 +442,6 @@ namespace database
                 return PAGE_1;
             }
 
-            static constexpr size_t logical_size_for(zlibs::utils::emueeprom::Page page)
-            {
-                switch (page)
-                {
-                case zlibs::utils::emueeprom::Page::Page1:
-                    return PAGE_1_SIZE;
-
-                case zlibs::utils::emueeprom::Page::Page2:
-                    return PAGE_2_SIZE;
-
-                case zlibs::utils::emueeprom::Page::Factory:
-                    return FACTORY_SIZE;
-                }
-
-                return 0;
-            }
-
             static constexpr Partition PAGE_1 = {
                 .dev    = PARTITION_DEVICE(emueeprom_page1_partition),
                 .offset = PARTITION_OFFSET(emueeprom_page1_partition),
@@ -466,11 +461,11 @@ namespace database
             };
         };
 
-        bool                               _bulk_write_active          = false;
-        bool                               _backup_restore_active      = false;
-        bool                               _configuration_session_open = false;
-        bool                               _write_to_cache             = false;
-        HwaEmuEeprom                       _hwa_emueeprom;
-        zlibs::utils::emueeprom::EmuEeprom _emueeprom = zlibs::utils::emueeprom::EmuEeprom(_hwa_emueeprom);
+        bool         _bulk_write_active          = false;
+        bool         _backup_restore_active      = false;
+        bool         _configuration_session_open = false;
+        bool         _write_to_cache             = false;
+        HwaEmuEeprom _hwa_emueeprom;
+        EmuEeprom    _emueeprom = EmuEeprom(_hwa_emueeprom);
     };
 }    // namespace database

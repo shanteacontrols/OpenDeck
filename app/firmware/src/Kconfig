@@ -1,2 +1,3 @@
+rsource "database/Kconfig"
 rsource "io/Kconfig"
 rsource "protocol/Kconfig"

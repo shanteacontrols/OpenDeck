@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "config.h"
 #include "deps.h"
 #include "io/analog/common.h"
 #include "io/digital/buttons/common.h"
@@ -21,7 +22,7 @@ namespace database
     /**
      * @brief Application-specific LessDb layout for common and preset data.
      */
-    class AppLayout : public database::Layout
+    class AppLayout
     {
         public:
         AppLayout() = default;
@@ -31,7 +32,7 @@ namespace database
          *
          * @return Span of LessDb blocks describing common data.
          */
-        std::span<const zlibs::utils::lessdb::Block> common_layout() const override
+        static std::span<const zlibs::utils::lessdb::Block> common_layout()
         {
             return COMMON_LAYOUT;
         }
@@ -41,7 +42,7 @@ namespace database
          *
          * @return Span of LessDb blocks describing preset data.
          */
-        std::span<const zlibs::utils::lessdb::Block> preset_layout() const override
+        static std::span<const zlibs::utils::lessdb::Block> preset_layout()
         {
             return PRESET_LAYOUT;
         }
@@ -51,7 +52,7 @@ namespace database
          *
          * @return Common-data layout size in bytes.
          */
-        constexpr uint32_t common_layout_size() const override
+        static constexpr uint32_t common_layout_size()
         {
             return zlibs::utils::lessdb::LessDb::layout_size(COMMON_LAYOUT);
         }
@@ -61,19 +62,42 @@ namespace database
          *
          * @return Preset-data layout size in bytes.
          */
-        constexpr uint32_t preset_layout_size() const override
+        static constexpr uint32_t preset_layout_size()
         {
             return zlibs::utils::lessdb::LessDb::layout_size(PRESET_LAYOUT);
         }
 
         /**
-         * @brief Returns the UID of the common-data layout.
+         * @brief Returns the storage size needed for the requested number of presets.
          *
-         * @return Common-data layout UID.
+         * @param preset_count Number of preset slots to include.
+         *
+         * @return Required database size in bytes.
          */
-        constexpr uint16_t common_uid() const override
+        static constexpr uint32_t database_size_for_presets(size_t preset_count)
         {
-            return static_cast<uint16_t>(zlibs::utils::lessdb::LessDb::layout_uid(COMMON_LAYOUT));
+            return common_layout_size() + (preset_layout_size() * preset_count);
+        }
+
+        /**
+         * @brief Returns how many preset slots fit in the provided database size.
+         *
+         * @param database_size Available database size in bytes.
+         *
+         * @return Supported preset count capped by the application preset limit.
+         */
+        static constexpr size_t supported_preset_count_for(uint32_t database_size)
+        {
+            if ((preset_layout_size() == 0) || (database_size <= common_layout_size()))
+            {
+                return 0;
+            }
+
+            const size_t available_presets = (database_size - common_layout_size()) / preset_layout_size();
+
+            return available_presets > CONFIG_PROJECT_DATABASE_MAX_SUPPORTED_PRESETS
+                       ? CONFIG_PROJECT_DATABASE_MAX_SUPPORTED_PRESETS
+                       : available_presets;
         }
 
         /**
@@ -81,7 +105,7 @@ namespace database
          *
          * @return Preset-data layout UID.
          */
-        constexpr uint16_t preset_uid() const override
+        static constexpr uint16_t preset_uid()
         {
             return static_cast<uint16_t>(zlibs::utils::lessdb::LessDb::layout_uid(PRESET_LAYOUT));
         }

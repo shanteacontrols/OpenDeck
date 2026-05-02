@@ -21,9 +21,6 @@ namespace database
          */
         Config() = delete;
 
-        /** @brief Maximum number of supported presets. */
-        static constexpr size_t MAX_PRESETS = 5;
-
         /** @brief Maximum number of custom common settings reserved for applications. */
         static constexpr size_t MAX_CUSTOM_COMMON_SETTINGS = 10;
 

@@ -6,7 +6,6 @@
 #pragma once
 
 #include "database.h"
-#include "layout.h"
 #include "hwa_hw.h"
 
 namespace database
@@ -26,9 +25,8 @@ namespace database
          */
         static Admin& instance()
         {
-            static HwaHw     hwa;
-            static AppLayout layout;
-            static Admin     admin = Admin(hwa, layout);
+            static HwaHw hwa;
+            static Admin admin = Admin(hwa);
 
             return admin;
         }

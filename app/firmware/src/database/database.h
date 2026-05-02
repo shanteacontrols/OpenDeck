@@ -25,13 +25,11 @@ namespace database
     {
         public:
         /**
-         * @brief Constructs a database administrator bound to hardware and layout providers.
+         * @brief Constructs a database administrator bound to hardware storage.
          *
-         * @param hwa    Hardware abstraction used for storage access.
-         * @param layout Layout provider describing the common and preset regions.
+         * @param hwa Hardware abstraction used for storage access.
          */
-        Admin(Hwa&    hwa,
-              Layout& layout);
+        explicit Admin(Hwa& hwa);
 
         using zlibs::utils::lessdb::LessDb::read;
         using zlibs::utils::lessdb::LessDb::update;
@@ -304,7 +302,6 @@ namespace database
         };
 
         Hwa&      _hwa;
-        Layout&   _layout;
         Handlers* _handlers                  = nullptr;
         uint32_t  _preset_data_start_address = 0;
         uint32_t  _preset_layout_size        = 0;
