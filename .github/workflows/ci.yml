@@ -45,8 +45,8 @@ jobs:
           runCmd: |
             set -euo pipefail
             git fetch --tags
-            ./scripts/bulk_build.sh --type=host-test
             ./scripts/bulk_build.sh --type=app
+            ./scripts/bulk_build.sh --type=host-test
             ./scripts/copy_release_binaries.sh --build-dir=build --copy-dir=release
       - name: Upload firmware artifacts
         uses: actions/upload-artifact@v7
