@@ -43,6 +43,7 @@ jobs:
           imageTag: latest
           push: never
           runCmd: |
+            set -euo pipefail
             git fetch --tags
             ./scripts/bulk_build.sh --type=host-test
             ./scripts/bulk_build.sh --type=app
@@ -52,6 +53,7 @@ jobs:
         with:
           name: binaries
           path: release/*
+          if-no-files-found: error
       - name: Save ccache
         uses: actions/cache/save@v4
         if: always()

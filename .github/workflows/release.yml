@@ -37,6 +37,7 @@ jobs:
           imageTag: latest
           push: never
           runCmd: |
+            set -euo pipefail
             git fetch --tags
             ./scripts/bulk_build.sh --type=app
             ./scripts/copy_release_binaries.sh --build-dir=build --copy-dir=release
@@ -45,6 +46,7 @@ jobs:
         with:
           name: binaries
           path: release/*
+          if-no-files-found: error
       -
         name: Upload binaries to Github Release
         uses: ncipollo/release-action@v1
