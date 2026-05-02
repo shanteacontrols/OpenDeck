@@ -57,6 +57,7 @@ namespace io::indicators
         zlibs::utils::misc::KworkDelayable _ble_in_off_work;
         zlibs::utils::misc::KworkDelayable _ble_out_off_work;
         bool                               _factory_reset_in_progress = false;
+        bool                               _invert                    = false;
 
         /**
          * @brief Handles one MIDI traffic notification.
@@ -66,11 +67,30 @@ namespace io::indicators
         void on_traffic(const messaging::MidiTrafficSignal& signal);
 
         /**
-         * @brief Schedules automatic turn-off for the selected indicator.
+         * @brief Applies the idle state to one indicator.
          *
-         * @param type Indicator to turn off later.
+         * @param type Indicator to update.
          */
-        void schedule_off(Type type);
+        void set_idle(Type type);
+
+        /**
+         * @brief Applies the active traffic state to one indicator.
+         *
+         * @param type Indicator to update.
+         */
+        void set_active(Type type);
+
+        /**
+         * @brief Schedules automatic return to idle state for the selected indicator.
+         *
+         * @param type Indicator to return to idle later.
+         */
+        void schedule_idle(Type type);
+
+        /**
+         * @brief Cancels all pending indicator idle work.
+         */
+        void cancel_idle_work();
 
         /**
          * @brief Maps transport and direction to a concrete indicator output.

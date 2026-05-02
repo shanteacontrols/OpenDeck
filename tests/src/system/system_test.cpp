@@ -7,6 +7,8 @@
 #include "tests/helpers/database.h"
 #include "tests/helpers/midi.h"
 #include "system/builder.h"
+#include "io/indicators/hwa_test.h"
+#include "io/indicators/indicators.h"
 #include "messaging/messaging.h"
 #include "util/configurable/configurable.h"
 
@@ -249,6 +251,52 @@ TEST_F(SystemTest, ConfigurationSessionTimesOutAfterInactivity)
 
     ASSERT_FALSE(response.empty());
     ASSERT_EQ(static_cast<uint8_t>(zlibs::utils::sysex_conf::Status::ErrorConnection), response.at(4));
+}
+
+TEST_F(SystemTest, IndicatorsInvertWhileConfigurationSessionIsOpen)
+{
+    io::indicators::HwaTest    hwa;
+    io::indicators::Indicators indicators(hwa);
+
+    ASSERT_TRUE(indicators.init());
+    ASSERT_FALSE(hwa.is_on(io::indicators::Type::UsbIn));
+    ASSERT_FALSE(hwa.is_on(io::indicators::Type::UsbOut));
+
+    messaging::SystemSignal open_signal = {};
+    open_signal.system_message          = messaging::SystemMessage::ConfigurationSessionOpened;
+    messaging::publish(open_signal);
+
+    ASSERT_TRUE(tests::wait_until(
+        [&]()
+        {
+            return hwa.is_on(io::indicators::Type::UsbIn) &&
+                   hwa.is_on(io::indicators::Type::UsbOut);
+        }));
+
+    messaging::MidiTrafficSignal traffic_signal = {};
+    traffic_signal.transport                    = messaging::MidiTransport::Usb;
+    traffic_signal.direction                    = messaging::MidiDirection::In;
+    messaging::publish(traffic_signal);
+
+    ASSERT_TRUE(tests::wait_until(
+        [&]()
+        {
+            return !hwa.is_on(io::indicators::Type::UsbIn);
+        }));
+
+    k_msleep(io::indicators::Indicators::TRAFFIC_INDICATOR_TIMEOUT_MS + 20);
+    ASSERT_TRUE(hwa.is_on(io::indicators::Type::UsbIn));
+
+    messaging::SystemSignal close_signal = {};
+    close_signal.system_message          = messaging::SystemMessage::ConfigurationSessionClosed;
+    messaging::publish(close_signal);
+
+    ASSERT_TRUE(tests::wait_until(
+        [&]()
+        {
+            return !hwa.is_on(io::indicators::Type::UsbIn) &&
+                   !hwa.is_on(io::indicators::Type::UsbOut);
+        }));
 }
 
 TEST_F(SystemTest, ConfigurationSessionTimeoutDoesNotCloseBackup)

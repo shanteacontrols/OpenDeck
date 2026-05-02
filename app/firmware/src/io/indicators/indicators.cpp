@@ -19,27 +19,27 @@ Indicators::Indicators(Hwa& hwa)
     : _hwa(hwa)
     , _usb_in_off_work([this]()
                        {
-                           _hwa.off(Type::UsbIn);
+                           set_idle(Type::UsbIn);
                        })
     , _usb_out_off_work([this]()
                         {
-                            _hwa.off(Type::UsbOut);
+                            set_idle(Type::UsbOut);
                         })
     , _din_in_off_work([this]()
                        {
-                           _hwa.off(Type::DinIn);
+                           set_idle(Type::DinIn);
                        })
     , _din_out_off_work([this]()
                         {
-                            _hwa.off(Type::DinOut);
+                            set_idle(Type::DinOut);
                         })
     , _ble_in_off_work([this]()
                        {
-                           _hwa.off(Type::BleIn);
+                           set_idle(Type::BleIn);
                        })
     , _ble_out_off_work([this]()
                         {
-                            _hwa.off(Type::BleOut);
+                            set_idle(Type::BleOut);
                         })
 {
     messaging::subscribe<messaging::MidiTrafficSignal>(
@@ -56,8 +56,8 @@ Indicators::Indicators(Hwa& hwa)
                 return;
             }
 
-            _hwa.on(Type::UsbOut);
-            schedule_off(Type::UsbOut);
+            set_active(Type::UsbOut);
+            schedule_idle(Type::UsbOut);
         });
 
     messaging::subscribe<messaging::SystemSignal>(
@@ -68,6 +68,22 @@ Indicators::Indicators(Hwa& hwa)
             case messaging::SystemMessage::InitComplete:
             {
                 indicate_startup();
+            }
+            break;
+
+            case messaging::SystemMessage::ConfigurationSessionOpened:
+            {
+                _invert = true;
+                cancel_idle_work();
+                _hwa.on(Type::All);
+            }
+            break;
+
+            case messaging::SystemMessage::ConfigurationSessionClosed:
+            {
+                _invert = false;
+                cancel_idle_work();
+                _hwa.off(Type::All);
             }
             break;
 
@@ -100,12 +116,7 @@ void Indicators::deinit()
 
 void Indicators::shutdown()
 {
-    _usb_in_off_work.cancel();
-    _usb_out_off_work.cancel();
-    _din_in_off_work.cancel();
-    _din_out_off_work.cancel();
-    _ble_in_off_work.cancel();
-    _ble_out_off_work.cancel();
+    cancel_idle_work();
 
     _hwa.off(Type::All);
 }
@@ -119,11 +130,35 @@ void Indicators::on_traffic(const messaging::MidiTrafficSignal& signal)
 
     const auto type = indicator_type(signal.transport, signal.direction);
 
-    _hwa.on(type);
-    schedule_off(type);
+    set_active(type);
+    schedule_idle(type);
 }
 
-void Indicators::schedule_off(Type type)
+void Indicators::set_idle(Type type)
+{
+    if (_invert)
+    {
+        _hwa.on(type);
+    }
+    else
+    {
+        _hwa.off(type);
+    }
+}
+
+void Indicators::set_active(Type type)
+{
+    if (_invert)
+    {
+        _hwa.off(type);
+    }
+    else
+    {
+        _hwa.on(type);
+    }
+}
+
+void Indicators::schedule_idle(Type type)
 {
     switch (type)
     {
@@ -155,6 +190,16 @@ void Indicators::schedule_off(Type type)
     default:
         break;
     }
+}
+
+void Indicators::cancel_idle_work()
+{
+    _usb_in_off_work.cancel();
+    _usb_out_off_work.cancel();
+    _din_in_off_work.cancel();
+    _din_out_off_work.cancel();
+    _ble_in_off_work.cancel();
+    _ble_out_off_work.cancel();
 }
 
 Type Indicators::indicator_type(messaging::MidiTransport transport, messaging::MidiDirection direction)
