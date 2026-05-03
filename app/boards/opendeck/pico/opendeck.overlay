@@ -12,8 +12,6 @@
     opendeck_bulk_build: opendeck-bulk-build {
         compatible = "opendeck,bulk-build";
         app;
-        host-test;
-        lint;
     };
 
     opendeck_buttons: opendeck-buttons {

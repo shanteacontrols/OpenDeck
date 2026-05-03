@@ -12,7 +12,7 @@
     opendeck_bulk_build: opendeck-bulk-build {
         compatible = "opendeck,bulk-build";
         app;
-        lint;
+        host-test;
     };
 
     opendeck_bootloader: opendeck-bootloader {

@@ -14,7 +14,6 @@
     opendeck_bulk_build: opendeck-bulk-build {
         compatible = "opendeck,bulk-build";
         app;
-        lint;
         hw-test;
     };
 

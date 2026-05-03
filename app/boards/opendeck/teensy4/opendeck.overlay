@@ -15,7 +15,6 @@
         compatible = "opendeck,bulk-build";
         app;
         hw-test;
-        lint;
     };
 
     opendeck_buttons: opendeck-buttons {
