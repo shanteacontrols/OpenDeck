@@ -12,13 +12,14 @@
 #
 # Optional outputs:
 # - --hex-output writes the same validated image as addressed Intel HEX, using
-#   the app partition base resolved from Zephyr's generated devicetree data.
+#   the app partition base resolved from generated zephyr.dts metadata.
 # - --info-output writes a tiny C header with the app/SRAM boundaries and ROM
-#   start offset used by tests to run selector validation against this image.
+#   start offset resolved from generated zephyr.dts and .config metadata.
 
 set -euo pipefail
 
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+metadata_query_script="${script_dir}/../query_metadata.sh"
 payload_file=
 output_file=
 dts_file=
@@ -47,75 +48,12 @@ function usage
     printf 'usage: gen_validated_app_image.sh --input=<payload.bin> --output=<output.bin> [--dts=<zephyr.dts> --hex-output=<output.hex> --info-output=<output.h> --objcopy=<objcopy>]\n' >&2
 }
 
-# Returns the generated devicetree header next to zephyr.dts.
-function generated_header
-{
-    local dts_file=$1
-
-    printf '%s\n' "${dts_file%/zephyr.dts}/include/generated/zephyr/devicetree_generated.h"
-}
-
 # Returns the Kconfig output next to zephyr.dts.
 function config_file
 {
     local dts_file=$1
 
     printf '%s\n' "${dts_file%/zephyr.dts}/.config"
-}
-
-# Resolves a devicetree node label to its generated header node identifier.
-function node_id
-{
-    local header_file=$1
-    local label=$2
-    local id
-
-    id=$(sed -n "s/^#define DT_N_NODELABEL_${label}[[:space:]]\\+\\(.*\\)$/\\1/p" "$header_file" | head -n 1)
-
-    if [[ -z $id ]]
-    then
-        printf 'Unable to find node label: %s\n' "$label" >&2
-        exit 1
-    fi
-
-    printf '%s\n' "$id"
-}
-
-# Resolves a /chosen property to its generated header node identifier.
-function chosen_node_id
-{
-    local header_file=$1
-    local chosen=$2
-    local id
-
-    id=$(sed -n "s/^#define DT_CHOSEN_${chosen}[[:space:]]\\+\\(.*\\)$/\\1/p" "$header_file" | head -n 1)
-
-    if [[ -z $id ]]
-    then
-        printf 'Unable to find chosen node: %s\n' "$chosen" >&2
-        exit 1
-    fi
-
-    printf '%s\n' "$id"
-}
-
-# Reads a generated REG_IDX_0 address or size value for a node.
-function reg_value
-{
-    local header_file=$1
-    local id=$2
-    local field=$3
-    local value
-
-    value=$(sed -n "s/^#define ${id}_REG_IDX_0_VAL_${field}[[:space:]]\\+\\([0-9]\\+\\).*/\\1/p" "$header_file" | head -n 1)
-
-    if [[ -z $value ]]
-    then
-        printf 'Unable to find %s for node: %s\n' "$field" "$id" >&2
-        exit 1
-    fi
-
-    printf '%u\n' "$value"
 }
 
 # Reads and normalizes one Kconfig value from the app build .config.
@@ -125,7 +63,7 @@ function config_value
     local key=$2
     local value
 
-    value=$(sed -n "s/^${key}=\\(.*\\)$/\\1/p" "$config_file" | head -n 1)
+    value=$(bash "$metadata_query_script" config --file "$config_file" --key "$key")
 
     if [[ -z $value ]]
     then
@@ -136,75 +74,21 @@ function config_value
     parse_int "$value"
 }
 
-function find_app_base_from_dts
+function dts_value
 {
     local dts_file=$1
-    local flash_base=
-    local in_app=0
-    local remaining=0
-    local line
+    local key=$2
+    local value
 
-    while IFS= read -r line
-    do
-        if [[ $line =~ flash@([0-9A-Fa-f]+)[[:space:]]*\{ ]]
-        then
-            flash_base=$((16#${BASH_REMATCH[1]}))
-        fi
+    value=$(bash "$metadata_query_script" dts --file "$dts_file" --key "$key")
 
-        if [[ $line == *opendeck_partition_app:* ]]
-        then
-            in_app=1
-            remaining=12
-        fi
-
-        if ((in_app))
-        then
-            if [[ $line =~ reg[[:space:]]*=[[:space:]]*\<[[:space:]]*([^[:space:]]+)[[:space:]]+([^[:space:]]+)[[:space:]]*\> ]]
-            then
-                if [[ -z $flash_base ]]
-                then
-                    printf 'Found app partition before flash base\n' >&2
-                    exit 1
-                fi
-
-                local partition_offset
-                partition_offset=$(parse_int "${BASH_REMATCH[1]}")
-                printf '%u\n' "$((flash_base + partition_offset))"
-                return
-            fi
-
-            remaining=$((remaining - 1))
-            if ((remaining == 0))
-            then
-                printf 'Found app partition without reg property\n' >&2
-                exit 1
-            fi
-        fi
-    done < "$dts_file"
-
-    printf 'Unable to find opendeck_partition_app in DTS\n' >&2
-    exit 1
-}
-
-# Finds the absolute flash address of opendeck_partition_app.
-#
-# Prefer Zephyr's generated devicetree header because it already resolves
-# ranges and mapped partitions. Fall back to the DTS scan for simpler boards
-# whose partitions sit directly below a flash@... node.
-function find_app_base
-{
-    local dts_file=$1
-    local header_file
-
-    header_file=$(generated_header "$dts_file")
-
-    if [[ -f $header_file ]]
+    if [[ -z $value ]]
     then
-        reg_value "$header_file" "$(node_id "$header_file" opendeck_partition_app)" ADDRESS
-        return
+        printf 'Unable to find DTS metadata value: %s\n' "$key" >&2
+        exit 1
     fi
 
-    find_app_base_from_dts "$dts_file"
+    printf '%u\n' "$value"
 }
 
 # Writes the address ranges needed to validate the generated app image in tests.
@@ -212,21 +96,13 @@ function write_info_header
 {
     local dts_file=$1
     local output_file=$2
-    local header_file
-    local app_node
-    local sram_node
-
-    header_file=$(generated_header "$dts_file")
-
-    app_node=$(node_id "$header_file" opendeck_partition_app)
-    sram_node=$(chosen_node_id "$header_file" zephyr_sram)
 
     {
         printf '#pragma once\n\n'
-        printf '#define OPENDECK_VALIDATED_APP_START %s\n' "$(reg_value "$header_file" "$app_node" ADDRESS)"
-        printf '#define OPENDECK_VALIDATED_APP_SIZE %s\n' "$(reg_value "$header_file" "$app_node" SIZE)"
-        printf '#define OPENDECK_VALIDATED_SRAM_START %s\n' "$(reg_value "$header_file" "$sram_node" ADDRESS)"
-        printf '#define OPENDECK_VALIDATED_SRAM_SIZE %s\n' "$(reg_value "$header_file" "$sram_node" SIZE)"
+        printf '#define OPENDECK_VALIDATED_APP_START %s\n' "$(dts_value "$dts_file" app_base)"
+        printf '#define OPENDECK_VALIDATED_APP_SIZE %s\n' "$(dts_value "$dts_file" app_size)"
+        printf '#define OPENDECK_VALIDATED_SRAM_START %s\n' "$(dts_value "$dts_file" sram_base)"
+        printf '#define OPENDECK_VALIDATED_SRAM_SIZE %s\n' "$(dts_value "$dts_file" sram_size)"
         printf '#define OPENDECK_VALIDATED_ROM_START_OFFSET %s\n' "$(config_value "$(config_file "$dts_file")" CONFIG_ROM_START_OFFSET)"
     } > "$output_file"
 }
@@ -329,7 +205,7 @@ if [[ -n "$hex_output_file" ]]
 then
     # Raw binaries have no address; HEX output must be relocated to the app
     # partition base so merged flashing places the validation record correctly.
-    "$objcopy" -I binary -O ihex --change-addresses "$(find_app_base "$dts_file")" "$output_file" "$hex_output_file"
+    "$objcopy" -I binary -O ihex --change-addresses "$(dts_value "$dts_file" app_base)" "$output_file" "$hex_output_file"
 fi
 
 if [[ -n "$info_output_file" ]]

@@ -48,7 +48,7 @@ done
 project_root=$ZEPHYR_PROJECT
 build_targets=()
 yaml_parser="dasel -n -p yaml"
-metadata_query_script="${project_root}/scripts/query_test_metadata.sh"
+metadata_query_script="${project_root}/scripts/query_metadata.sh"
 
 function load_targets
 {

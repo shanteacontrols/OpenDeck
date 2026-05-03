@@ -10,12 +10,10 @@
 # - validating that the requested target exists
 # - checking whether the target allows host/hw tests
 # - inferring the matching Zephyr board layer
-# - resolving the logical EmuEEPROM page size from board config or partitions
-# - generating a tiny CONF_FILE fragment for that page size
+# - resolving the logical EmuEEPROM page size through the metadata helper
+# - exporting that page size as a test compile definition
 # - appending the correct test and OpenDeck overlays
 #
-
-include($ENV{ZEPHYR_PROJECT}/cmake/helpers.cmake)
 
 if(NOT DEFINED ENV{TARGET} OR "$ENV{TARGET}" STREQUAL "")
     message(FATAL_ERROR "OpenDeck tests require TARGET to be exported by the makefile")
@@ -24,7 +22,7 @@ endif()
 set(OPENDECK_TARGET "$ENV{TARGET}" CACHE STRING "OpenDeck topology target")
 
 set(opendeck_testcase_yaml "${CMAKE_CURRENT_SOURCE_DIR}/testcase.yaml")
-set(opendeck_metadata_query_script "$ENV{ZEPHYR_PROJECT}/scripts/query_test_metadata.sh")
+set(opendeck_metadata_query_script "$ENV{ZEPHYR_PROJECT}/scripts/query_metadata.sh")
 
 if(NOT EXISTS "${opendeck_testcase_yaml}")
     message(FATAL_ERROR "OpenDeck tests require testcase.yaml at ${opendeck_testcase_yaml}")
@@ -82,6 +80,24 @@ function(opendeck_test_apply_target)
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
 
+    execute_process(
+        COMMAND bash "${opendeck_metadata_query_script}" target --target "${OPENDECK_TARGET}" --key zephyr_overlay_dir
+        OUTPUT_VARIABLE zephyr_overlay_dir
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    execute_process(
+        COMMAND bash "${opendeck_metadata_query_script}" target --target "${OPENDECK_TARGET}" --key emueeprom_page_size
+        OUTPUT_VARIABLE emueeprom_page_size
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    execute_process(
+        COMMAND bash "${opendeck_metadata_query_script}" target --target "${OPENDECK_TARGET}" --key target_alias_overlay_line
+        OUTPUT_VARIABLE target_alias_overlay_lines
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
     if("${OPENDECK_TEST_MODE}" STREQUAL "host")
         if(NOT target_host_test_enabled STREQUAL "true")
             message(FATAL_ERROR "Target '${OPENDECK_TARGET}' is disabled for host tests in ${firmware_overlay_path}.")
@@ -100,50 +116,8 @@ function(opendeck_test_apply_target)
         )
     endif()
 
-    string(REPLACE "/" "_" zephyr_board_dir "${zephyr_board}")
-    set(zephyr_overlay_dir "$ENV{ZEPHYR_PROJECT}/app/boards/zephyr/${zephyr_board_dir}")
-    set(partitions_overlay_path "${zephyr_overlay_dir}/partitions.overlay")
-    set(target_firmware_overlay_path "$ENV{ZEPHYR_PROJECT}/app/boards/opendeck/${OPENDECK_TARGET}/firmware.overlay")
-
-    if(NOT EXISTS "${partitions_overlay_path}")
-        message(FATAL_ERROR "Target '${OPENDECK_TARGET}' is missing partitions overlay at ${partitions_overlay_path}.")
-    endif()
-
-    set(emueeprom_page_size "")
-    file(STRINGS "${partitions_overlay_path}" partitions_overlay_lines)
-    set(in_emueeprom_page1_partition OFF)
-
-    foreach(line IN LISTS partitions_overlay_lines)
-        string(STRIP "${line}" line)
-
-        if(line MATCHES "^emueeprom_page1_partition:")
-            set(in_emueeprom_page1_partition ON)
-            continue()
-        endif()
-
-        if(NOT in_emueeprom_page1_partition)
-            continue()
-        endif()
-
-        if(line MATCHES "^};")
-            set(in_emueeprom_page1_partition OFF)
-            continue()
-        endif()
-
-        if(line MATCHES "reg[ \t]*=[ \t]*<0x[0-9A-Fa-f]+[ \t]+0x([0-9A-Fa-f]+)>;")
-            math(EXPR emueeprom_page_size "0x${CMAKE_MATCH_1}")
-            break()
-        elseif(line MATCHES "reg[ \t]*=[ \t]*<0x[0-9A-Fa-f]+[ \t]+DT_SIZE_K\\(([0-9]+)\\)>;")
-            math(EXPR emueeprom_page_size "${CMAKE_MATCH_1} * 1024")
-            break()
-        elseif(line MATCHES "reg[ \t]*=[ \t]*<0x[0-9A-Fa-f]+[ \t]+DT_SIZE_M\\(([0-9]+)\\)>;")
-            math(EXPR emueeprom_page_size "${CMAKE_MATCH_1} * 1024 * 1024")
-            break()
-        endif()
-    endforeach()
-
     if(emueeprom_page_size STREQUAL "")
-        message(FATAL_ERROR "Unable to infer EmuEEPROM page size from ${partitions_overlay_path}.")
+        message(FATAL_ERROR "Unable to infer EmuEEPROM page size for target '${OPENDECK_TARGET}'.")
     endif()
 
     add_compile_definitions(OPENDECK_TEST_EMUEEPROM_PAGE_SIZE=${emueeprom_page_size})
@@ -156,7 +130,7 @@ function(opendeck_test_apply_target)
         list(APPEND DTC_OVERLAY_FILE "${test_overlay_path}")
     endif()
 
-    if(EXISTS "${target_firmware_overlay_path}")
+    if(NOT target_alias_overlay_lines STREQUAL "")
         # Host tests build against native_sim, not the real target board DTS.
         # The shared OpenDeck overlay still contains abstract resource
         # references such as:
@@ -177,20 +151,10 @@ function(opendeck_test_apply_target)
         # same lines. The shared board-side test.overlay still provides any
         # common emulated backing devices and partition labels that native_sim
         # would otherwise be missing.
-        file(STRINGS "${target_firmware_overlay_path}" target_alias_overlay_lines
-             REGEX "^opendeck_(uart_din_midi|uart_touchscreen|i2c_display):")
+        set(generated_target_test_overlay "${CMAKE_CURRENT_BINARY_DIR}/opendeck_test_target.overlay")
+        file(WRITE "${generated_target_test_overlay}" "${target_alias_overlay_lines}\n")
 
-        if(target_alias_overlay_lines)
-            set(generated_target_test_overlay
-                "${CMAKE_CURRENT_BINARY_DIR}/opendeck_test_target.overlay")
-            file(WRITE "${generated_target_test_overlay}" "")
-
-            foreach(target_alias_overlay_line IN LISTS target_alias_overlay_lines)
-                file(APPEND "${generated_target_test_overlay}" "${target_alias_overlay_line}\n")
-            endforeach()
-
-            list(APPEND DTC_OVERLAY_FILE "${generated_target_test_overlay}")
-        endif()
+        list(APPEND DTC_OVERLAY_FILE "${generated_target_test_overlay}")
     endif()
 
     list(APPEND DTC_OVERLAY_FILE "${firmware_overlay_path}")

@@ -1,5 +1,3 @@
-include($ENV{ZEPHYR_PROJECT}/cmake/helpers.cmake)
-
 if(NOT DEFINED ENV{TARGET} OR "$ENV{TARGET}" STREQUAL "")
     message(FATAL_ERROR "OpenDeck sysbuild requires TARGET to be exported by the makefile")
 endif()
@@ -42,7 +40,17 @@ set(opendeck_board_bootloader_overlay   ${opendeck_zephyr_board_dir_path}/bootlo
 set(opendeck_board_bootloader_conf      ${opendeck_zephyr_board_dir_path}/bootloader.conf)
 set(opendeck_common_bootloader_conf     ${APP_DIR}/bootloader/bootloader.conf)
 set(opendeck_generated_dir              ${CMAKE_BINARY_DIR}/generated)
-set(opendeck_metadata_query_script      $ENV{ZEPHYR_PROJECT}/scripts/query_test_metadata.sh)
+set(opendeck_metadata_query_script      $ENV{ZEPHYR_PROJECT}/scripts/query_metadata.sh)
+
+function(opendeck_read_config_value config_file variable_name output_var)
+    execute_process(
+        COMMAND bash "${opendeck_metadata_query_script}" config --file "${config_file}" --key "${variable_name}"
+        OUTPUT_VARIABLE config_value
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    set(${output_var} "${config_value}" PARENT_SCOPE)
+endfunction()
 
 file(MAKE_DIRECTORY ${opendeck_generated_dir})
 
@@ -113,10 +121,10 @@ set(opendeck_ble_enabled            FALSE)
 set(opendeck_bt_enabled             FALSE)
 set(opendeck_bt_peripheral_enabled  FALSE)
 
-read_config_value(${opendeck_board_firmware_conf}   CONFIG_BT               opendeck_board_bt_enabled)
-read_config_value(${opendeck_board_firmware_conf}   CONFIG_BT_PERIPHERAL    opendeck_board_bt_peripheral_enabled)
-read_config_value(${opendeck_target_firmware_conf}  CONFIG_BT               opendeck_target_bt_enabled)
-read_config_value(${opendeck_target_firmware_conf}  CONFIG_BT_PERIPHERAL    opendeck_target_bt_peripheral_enabled)
+opendeck_read_config_value(${opendeck_board_firmware_conf}   CONFIG_BT               opendeck_board_bt_enabled)
+opendeck_read_config_value(${opendeck_board_firmware_conf}   CONFIG_BT_PERIPHERAL    opendeck_board_bt_peripheral_enabled)
+opendeck_read_config_value(${opendeck_target_firmware_conf}  CONFIG_BT               opendeck_target_bt_enabled)
+opendeck_read_config_value(${opendeck_target_firmware_conf}  CONFIG_BT_PERIPHERAL    opendeck_target_bt_peripheral_enabled)
 
 if("${opendeck_board_bt_enabled}" STREQUAL "y" OR "${opendeck_target_bt_enabled}" STREQUAL "y")
     set(opendeck_bt_enabled TRUE)
@@ -127,8 +135,8 @@ if("${opendeck_board_bt_peripheral_enabled}" STREQUAL "y" OR "${opendeck_target_
 endif()
 
 foreach(opendeck_shared_conf_file ${opendeck_shared_conf_files})
-    read_config_value(${opendeck_shared_conf_file} CONFIG_BT opendeck_shared_bt_enabled)
-    read_config_value(${opendeck_shared_conf_file} CONFIG_BT_PERIPHERAL opendeck_shared_bt_peripheral_enabled)
+    opendeck_read_config_value(${opendeck_shared_conf_file} CONFIG_BT opendeck_shared_bt_enabled)
+    opendeck_read_config_value(${opendeck_shared_conf_file} CONFIG_BT_PERIPHERAL opendeck_shared_bt_peripheral_enabled)
 
     if("${opendeck_shared_bt_enabled}" STREQUAL "y")
         set(opendeck_bt_enabled TRUE)
@@ -212,15 +220,14 @@ elseif(EXISTS ${opendeck_target_firmware_overlay})
     # and this block will generate bootloader_target_alias.overlay with those
     # same lines. Targets with real bootloader-specific DTS changes still
     # provide their own bootloader.overlay and bypass this fallback.
-    file(STRINGS ${opendeck_target_firmware_overlay} opendeck_bootloader_alias_lines
-         REGEX "^[ \t]*opendeck_(uart_din_midi|uart_touchscreen|i2c_display):")
+    execute_process(
+        COMMAND bash "${opendeck_metadata_query_script}" target --target "${TARGET}" --key target_alias_overlay_line
+        OUTPUT_VARIABLE opendeck_bootloader_alias_lines
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
 
-    if(opendeck_bootloader_alias_lines)
-        file(WRITE ${opendeck_generated_bootloader_alias_overlay} "")
-
-        foreach(opendeck_bootloader_alias_line IN LISTS opendeck_bootloader_alias_lines)
-            file(APPEND ${opendeck_generated_bootloader_alias_overlay} "${opendeck_bootloader_alias_line}\n\n")
-        endforeach()
+    if(NOT opendeck_bootloader_alias_lines STREQUAL "")
+        file(WRITE ${opendeck_generated_bootloader_alias_overlay} "${opendeck_bootloader_alias_lines}\n")
 
         list(APPEND opendeck_bootloader_extra_dtc_overlay_files ${opendeck_generated_bootloader_alias_overlay})
     endif()
