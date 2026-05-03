@@ -9,6 +9,8 @@
 #include "io/indicators/hwa_hw.h"
 #include "zlibs/utils/misc/kwork_delayable.h"
 
+using namespace opendeck;
+
 namespace
 {
     constexpr uint32_t    BLINK_INTERVAL_MS = 50U;

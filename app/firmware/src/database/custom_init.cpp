@@ -9,9 +9,9 @@
 #include "io/leds/common.h"
 #include "protocol/midi/common.h"
 
-using namespace database;
-using namespace io;
-using namespace protocol;
+using namespace opendeck::database;
+using namespace opendeck::io;
+using namespace opendeck::protocol;
 
 // each new group of components should have their IDs start from 0
 

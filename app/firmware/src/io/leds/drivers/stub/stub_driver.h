@@ -7,7 +7,7 @@
 
 #include "../driver_base.h"
 
-namespace io::leds
+namespace opendeck::io::leds
 {
     /**
      * @brief No-op LED driver used for touchscreen-only targets.
@@ -33,4 +33,4 @@ namespace io::leds
             return 0;
         }
     };
-}    // namespace io::leds
+}    // namespace opendeck::io::leds

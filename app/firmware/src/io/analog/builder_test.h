@@ -10,7 +10,7 @@
 #include "hwa_test.h"
 #include "database/builder_test.h"
 
-namespace io::analog
+namespace opendeck::io::analog
 {
     /**
      * @brief Test builder that wires the analog subsystem to test backends.
@@ -43,4 +43,4 @@ namespace io::analog
         FilterTest _filter;
         Analog     _instance;
     };
-}    // namespace io::analog
+}    // namespace opendeck::io::analog

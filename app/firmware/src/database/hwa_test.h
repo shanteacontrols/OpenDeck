@@ -17,7 +17,7 @@
 #include <optional>
 #include <span>
 
-namespace database
+namespace opendeck::database
 {
     /**
      * @brief Test database storage backend.
@@ -94,6 +94,7 @@ namespace database
 
                 return {};
             }
+            break;
 
             default:
                 return {};
@@ -302,4 +303,4 @@ namespace database
         HwaEmuEeprom _hwa_emueeprom;
         EmuEeprom    _emueeprom = EmuEeprom(_hwa_emueeprom);
     };
-}    // namespace database
+}    // namespace opendeck::database

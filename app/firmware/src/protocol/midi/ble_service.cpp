@@ -20,8 +20,8 @@ namespace
 {
     LOG_MODULE_REGISTER(midi_ble_service, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
 
-    using protocol::midi::ble_service::PacketHandler;
-    using protocol::midi::ble_service::ReadyHandler;
+    using opendeck::protocol::midi::ble_service::PacketHandler;
+    using opendeck::protocol::midi::ble_service::ReadyHandler;
 
 #define BT_UUID_BLE_MIDI_SERVICE_VAL \
     BT_UUID_128_ENCODE(0x03B80E5A, 0xEDE8, 0x4B33, 0xA751, 0x6CE34EC4C700)
@@ -201,98 +201,101 @@ namespace
     };
 }    // namespace
 
-bool protocol::midi::ble_service::init(ReadyHandler new_ready_handler, PacketHandler new_packet_handler)
+namespace opendeck::protocol::midi::ble_service
 {
-    ready_handler  = new_ready_handler;
-    packet_handler = new_packet_handler;
-
-    if (is_initialized)
+    bool init(ReadyHandler new_ready_handler, PacketHandler new_packet_handler)
     {
-        LOG_DBG("BLE MIDI service already initialized");
-        publish_ready_state();
+        ready_handler  = new_ready_handler;
+        packet_handler = new_packet_handler;
+
+        if (is_initialized)
+        {
+            LOG_DBG("BLE MIDI service already initialized");
+            publish_ready_state();
+            return true;
+        }
+
+        is_initialized   = true;
+        is_connected     = false;
+        notify_enabled   = false;
+        last_ready_state = false;
+        bt_gatt_cb_register(&gatt_callbacks);
+        LOG_INF("BLE MIDI service initialized");
+
         return true;
     }
 
-    is_initialized   = true;
-    is_connected     = false;
-    notify_enabled   = false;
-    last_ready_state = false;
-    bt_gatt_cb_register(&gatt_callbacks);
-    LOG_INF("BLE MIDI service initialized");
-
-    return true;
-}
-
-bool protocol::midi::ble_service::start_advertising()
-{
-    const int ret = bt_le_adv_start(BT_LE_ADV_CONN_FAST_1, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
-
-    if (ret == 0)
+    bool start_advertising()
     {
-        LOG_INF("BLE MIDI advertising started");
-    }
-    else if (ret == -EALREADY)
-    {
-        LOG_DBG("BLE MIDI advertising already active");
-    }
-    else
-    {
-        LOG_ERR("BLE MIDI advertising start failed: %d", ret);
+        const int ret = bt_le_adv_start(BT_LE_ADV_CONN_FAST_1, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
+
+        if (ret == 0)
+        {
+            LOG_INF("BLE MIDI advertising started");
+        }
+        else if (ret == -EALREADY)
+        {
+            LOG_DBG("BLE MIDI advertising already active");
+        }
+        else
+        {
+            LOG_ERR("BLE MIDI advertising start failed: %d", ret);
+        }
+
+        return ret == 0 || ret == -EALREADY;
     }
 
-    return ret == 0 || ret == -EALREADY;
-}
-
-bool protocol::midi::ble_service::stop_advertising()
-{
-    const int ret = bt_le_adv_stop();
-
-    if (ret == 0)
+    bool stop_advertising()
     {
-        LOG_INF("BLE MIDI advertising stopped");
-    }
-    else if (ret == -EALREADY)
-    {
-        LOG_DBG("BLE MIDI advertising already stopped");
-    }
-    else
-    {
-        LOG_ERR("BLE MIDI advertising stop failed: %d", ret);
-    }
+        const int ret = bt_le_adv_stop();
 
-    return ret == 0 || ret == -EALREADY;
-}
+        if (ret == 0)
+        {
+            LOG_INF("BLE MIDI advertising stopped");
+        }
+        else if (ret == -EALREADY)
+        {
+            LOG_DBG("BLE MIDI advertising already stopped");
+        }
+        else
+        {
+            LOG_ERR("BLE MIDI advertising stop failed: %d", ret);
+        }
 
-bool protocol::midi::ble_service::send_packet(const uint8_t* bytes, uint16_t size)
-{
-    if ((bytes == nullptr) || (size == 0) || !ready())
-    {
-        LOG_DBG("BLE MIDI TX rejected: bytes=%p size=%u ready=%d", bytes, size, ready());
-        return false;
+        return ret == 0 || ret == -EALREADY;
     }
 
-    bt_gatt_notify_params notify_params = {
-        .attr = &opendeck_ble_midi_service.attrs[1],
-        .data = bytes,
-        .len  = size,
-        .func = on_notify_done,
-    };
-
-    const bool sent = bt_gatt_notify_cb(nullptr, &notify_params) == 0;
-
-    if (sent)
+    bool send_packet(const uint8_t* bytes, uint16_t size)
     {
-        LOG_DBG("BLE MIDI TX packet: len=%u", size);
+        if ((bytes == nullptr) || (size == 0) || !ready())
+        {
+            LOG_DBG("BLE MIDI TX rejected: bytes=%p size=%u ready=%d", bytes, size, ready());
+            return false;
+        }
+
+        bt_gatt_notify_params notify_params = {
+            .attr = &opendeck_ble_midi_service.attrs[1],
+            .data = bytes,
+            .len  = size,
+            .func = on_notify_done,
+        };
+
+        const bool sent = bt_gatt_notify_cb(nullptr, &notify_params) == 0;
+
+        if (sent)
+        {
+            LOG_DBG("BLE MIDI TX packet: len=%u", size);
+        }
+        else
+        {
+            LOG_WRN("BLE MIDI TX failed: len=%u", size);
+        }
+
+        return sent;
     }
-    else
+
+    bool ready()
     {
-        LOG_WRN("BLE MIDI TX failed: len=%u", size);
+        return is_connected && notify_enabled;
     }
-
-    return sent;
-}
-
-bool protocol::midi::ble_service::ready()
-{
-    return is_connected && notify_enabled;
-}
+}    // namespace opendeck::protocol::midi::ble_service

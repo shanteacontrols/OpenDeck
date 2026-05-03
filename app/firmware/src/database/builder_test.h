@@ -8,7 +8,7 @@
 #include "database.h"
 #include "hwa_test.h"
 
-namespace database
+namespace opendeck::database
 {
     /**
      * @brief Test-database builder that owns the test backend and layout.
@@ -31,4 +31,4 @@ namespace database
         HwaTest _hwa;
         Admin   _instance = Admin(_hwa);
     };
-}    // namespace database
+}    // namespace opendeck::database

@@ -7,7 +7,7 @@
 
 #include "deps.h"
 
-namespace io::i2c
+namespace opendeck::io::i2c
 {
     /**
      * @brief Stub I2C backend that reports no hardware support.
@@ -55,4 +55,4 @@ namespace io::i2c
             return false;
         }
     };
-}    // namespace io::i2c
+}    // namespace opendeck::io::i2c

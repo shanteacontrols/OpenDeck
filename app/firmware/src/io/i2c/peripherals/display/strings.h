@@ -7,7 +7,7 @@
 
 #include "protocol/midi/midi.h"
 
-namespace io::i2c::display
+namespace opendeck::io::i2c::display
 {
     /**
      * @brief Collection of string constants used by the display subsystem.
@@ -227,4 +227,4 @@ namespace io::i2c::display
             NOTE_B_STRIG
         };
     };
-}    // namespace io::i2c::display
+}    // namespace opendeck::io::i2c::display

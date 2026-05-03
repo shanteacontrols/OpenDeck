@@ -4,12 +4,13 @@
  */
 
 #include "cinfo.h"
-#include "messaging/messaging.h"
+#include "signaling/signaling.h"
 
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
-using namespace util;
+using namespace opendeck;
+using namespace opendeck::util;
 
 namespace
 {
@@ -18,31 +19,31 @@ namespace
 
 ComponentInfo::ComponentInfo()
 {
-    messaging::subscribe<messaging::MidiSignal>(
-        [this](const messaging::MidiSignal& signal)
+    signaling::subscribe<signaling::MidiSignal>(
+        [this](const signaling::MidiSignal& signal)
         {
             switch (signal.source)
             {
-            case messaging::MidiSource::AnalogButton:
-            case messaging::MidiSource::Analog:
+            case signaling::MidiSource::AnalogButton:
+            case signaling::MidiSource::Analog:
             {
                 send(database::Config::Block::Analog, signal.component_index);
             }
             break;
 
-            case messaging::MidiSource::Button:
+            case signaling::MidiSource::Button:
             {
                 send(database::Config::Block::Buttons, signal.component_index);
             }
             break;
 
-            case messaging::MidiSource::Encoder:
+            case signaling::MidiSource::Encoder:
             {
                 send(database::Config::Block::Encoders, signal.component_index);
             }
             break;
 
-            case messaging::MidiSource::TouchscreenButton:
+            case signaling::MidiSource::TouchscreenButton:
             {
                 send(database::Config::Block::Touchscreen, signal.component_index);
             }

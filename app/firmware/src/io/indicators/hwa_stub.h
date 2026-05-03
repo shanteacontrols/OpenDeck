@@ -7,7 +7,7 @@
 
 #include "deps.h"
 
-namespace io::indicators
+namespace opendeck::io::indicators
 {
     /**
      * @brief Stub indicator backend that accepts requests without driving hardware.
@@ -43,4 +43,4 @@ namespace io::indicators
         {
         }
     };
-}    // namespace io::indicators
+}    // namespace opendeck::io::indicators

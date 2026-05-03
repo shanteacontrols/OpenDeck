@@ -9,7 +9,7 @@
 #include "hwa_test.h"
 #include "database/builder_test.h"
 
-namespace io::touchscreen
+namespace opendeck::io::touchscreen
 {
     /**
      * @brief Test builder that wires the touchscreen subsystem to a test backend.
@@ -41,4 +41,4 @@ namespace io::touchscreen
         Database    _database;
         Touchscreen _instance;
     };
-}    // namespace io::touchscreen
+}    // namespace opendeck::io::touchscreen

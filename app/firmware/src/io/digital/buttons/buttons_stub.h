@@ -8,7 +8,7 @@
 #include "deps.h"
 #include "io/base.h"
 
-namespace io::buttons
+namespace opendeck::io::buttons
 {
     /**
      * @brief Stub button subsystem used when no button implementation is available.
@@ -54,4 +54,4 @@ namespace io::buttons
         {
         }
     };
-}    // namespace io::buttons
+}    // namespace opendeck::io::buttons

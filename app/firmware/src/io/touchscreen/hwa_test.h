@@ -7,7 +7,7 @@
 
 #include "deps.h"
 
-namespace io::touchscreen
+namespace opendeck::io::touchscreen
 {
     /**
      * @brief Test touchscreen backend that accepts traffic without touching hardware.
@@ -71,4 +71,4 @@ namespace io::touchscreen
             return false;
         }
     };
-}    // namespace io::touchscreen
+}    // namespace opendeck::io::touchscreen

@@ -8,7 +8,7 @@
 #include "deps.h"
 #include "io/digital/frame_store.h"
 
-namespace io::buttons
+namespace opendeck::io::buttons
 {
     /**
      * @brief Hardware-backed button backend that reads state from the shared frame store.
@@ -74,4 +74,4 @@ namespace io::buttons
         private:
         io::digital::FrameStore& _frame_store;
     };
-}    // namespace io::buttons
+}    // namespace opendeck::io::buttons

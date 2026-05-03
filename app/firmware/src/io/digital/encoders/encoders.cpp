@@ -16,8 +16,9 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
-using namespace io::encoders;
-using namespace protocol;
+using namespace opendeck;
+using namespace opendeck::io::encoders;
+using namespace opendeck::protocol;
 
 namespace
 {
@@ -31,15 +32,15 @@ Encoders::Encoders(Hwa&      hwa,
     , _filter(filter)
     , _database(database)
 {
-    messaging::subscribe<messaging::UmpSignal>(
-        [this](const messaging::UmpSignal& event)
+    signaling::subscribe<signaling::UmpSignal>(
+        [this](const signaling::UmpSignal& event)
         {
             if (is_frozen())
             {
                 return;
             }
 
-            if (event.direction != messaging::MidiDirection::In)
+            if (event.direction != signaling::MidiDirection::In)
             {
                 return;
             }
@@ -178,10 +179,13 @@ void Encoders::force_refresh(size_t start_index, size_t count)
         break;
 
         default:
+        {
             continue;
         }
+        break;
+        }
 
-        messaging::publish(descriptor.signal);
+        signaling::publish(descriptor.signal);
     }
 }
 
@@ -396,11 +400,11 @@ void Encoders::send_message(size_t index, Position position, Descriptor& descrip
 
     case Type::PresetChange:
     {
-        messaging::SystemSignal signal = {};
-        signal.system_message          = (position == Position::Cw)
-                                             ? messaging::SystemMessage::PresetChangeIncReq
-                                             : messaging::SystemMessage::PresetChangeDecReq;
-        messaging::publish(signal);
+        signaling::SystemSignal signal = {};
+        signal.system_event            = (position == Position::Cw)
+                                             ? signaling::SystemEvent::PresetChangeIncReq
+                                             : signaling::SystemEvent::PresetChangeDecReq;
+        signaling::publish(signal);
         return;
     }
     break;
@@ -434,7 +438,7 @@ void Encoders::send_message(size_t index, Position position, Descriptor& descrip
 
     if (send)
     {
-        messaging::publish(descriptor.signal);
+        signaling::publish(descriptor.signal);
     }
 }
 
@@ -527,7 +531,7 @@ void Encoders::fill_descriptor(size_t index, Position position, Descriptor& desc
     break;
     }
 
-    descriptor.signal.source          = messaging::MidiSource::Encoder;
+    descriptor.signal.source          = signaling::MidiSource::Encoder;
     descriptor.signal.component_index = index;
     descriptor.signal.channel         = _database.read(database::Config::Section::Encoder::Channel, index);
     descriptor.signal.message         = INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(descriptor.type)];

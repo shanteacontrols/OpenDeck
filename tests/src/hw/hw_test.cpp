@@ -64,24 +64,24 @@ namespace
         {
             LOG_INF("Tearing down test");
 
-            test::wsystem("rm -f " + temp_midi_data_location);
+            tests::wsystem("rm -f " + temp_midi_data_location);
 
             if (HasFailure())
             {
                 LOG_INF("Preserving backup capture for failed test");
             }
 
-            test::wsystem("killall receivemidi > /dev/null 2>&1");
-            test::wsystem("killall sendmidi > /dev/null 2>&1");
-            test::wsystem("killall ssterm > /dev/null 2>&1");
+            tests::wsystem("killall receivemidi > /dev/null 2>&1");
+            tests::wsystem("killall sendmidi > /dev/null 2>&1");
+            tests::wsystem("killall ssterm > /dev/null 2>&1");
 
             std::string cmd_response;
 
-            if (test::wsystem("pgrep ssterm", cmd_response) == 0)
+            if (tests::wsystem("pgrep ssterm", cmd_response) == 0)
             {
                 LOG_INF("Waiting for ssterm process to be terminated");
 
-                while (test::wsystem("pgrep ssterm", cmd_response) == 0)
+                while (tests::wsystem("pgrep ssterm", cmd_response) == 0)
                     ;
             }
         }
@@ -103,11 +103,11 @@ namespace
         static bool handshake()
         {
             LOG_INF("Ensuring the device is available for handshake request...");
-            auto start_time = test::millis();
+            auto start_time = tests::millis();
 
-            while (!test::MIDIHelper::device_present(true))
+            while (!tests::MIDIHelper::device_present(true))
             {
-                if ((test::millis() - start_time) > max_conn_delay_ms)
+                if ((tests::millis() - start_time) > max_conn_delay_ms)
                 {
                     LOG_ERR("Device not available - waited %u ms.", max_conn_delay_ms);
                     return false;
@@ -116,11 +116,11 @@ namespace
 
             LOG_INF("Device available, attempting to send handshake");
 
-            start_time = test::millis();
+            start_time = tests::millis();
 
-            while (handshake_ack != test::MIDIHelper::send_raw_sysex_to_device(handshake_req))
+            while (handshake_ack != tests::MIDIHelper::send_raw_sysex_to_device(handshake_req))
             {
-                if ((test::millis() - start_time) > max_conn_delay_ms)
+                if ((tests::millis() - start_time) > max_conn_delay_ms)
                 {
                     LOG_ERR("Device didn't respond to handshake in %u ms.", max_conn_delay_ms);
                     return false;
@@ -174,19 +174,19 @@ namespace
                 LOG_INF("Attempting to reboot the device, attempt %u", static_cast<unsigned>(i + 1));
                 auto ret = _helper.send_raw_sysex_to_device(cmd, false);
                 ASSERT_TRUE(ret.empty());
-                auto start_time = test::millis();
+                auto start_time = tests::millis();
                 LOG_INF("Request sent. Waiting for the device to disconnect.");
 
-                while (test::MIDIHelper::device_present(true))
+                while (tests::MIDIHelper::device_present(true))
                 {
-                    if ((test::millis() - start_time) > disconnect_retry_delay_ms)
+                    if ((tests::millis() - start_time) > disconnect_retry_delay_ms)
                     {
                         LOG_ERR("Device didn't disconnect in %u ms.", disconnect_retry_delay_ms);
                         break;
                     }
                 }
 
-                if (!test::MIDIHelper::device_present(true))
+                if (!tests::MIDIHelper::device_present(true))
                 {
                     disconnected = true;
                     break;
@@ -199,15 +199,15 @@ namespace
             if (type != SoftRebootType::Bootloader)
             {
                 ASSERT_TRUE(handshake());
-                test::MIDIHelper::flush();
+                tests::MIDIHelper::flush();
             }
             else
             {
-                auto start_time = test::millis();
+                auto start_time = tests::millis();
 
-                while (!test::MIDIHelper::device_present(true, true))
+                while (!tests::MIDIHelper::device_present(true, true))
                 {
-                    if ((test::millis() - start_time) > max_conn_delay_ms)
+                    if ((tests::millis() - start_time) > max_conn_delay_ms)
                     {
                         LOG_ERR("Device not available - waited %u ms.", max_conn_delay_ms);
                         FAIL();
@@ -239,7 +239,7 @@ namespace
                 for (size_t i = 0; i < allowed_repeats; i++)
                 {
                     LOG_INF("Flashing the device, attempt %u", static_cast<unsigned>(i + 1));
-                    result = test::wsystem(flash_cmd + flash_target);
+                    result = tests::wsystem(flash_cmd + flash_target);
 
                     if (result)
                     {
@@ -273,7 +273,7 @@ namespace
 
         database::Builder           _database;
         tests::NoOpDatabaseHandlers _handlers;
-        test::MIDIHelper            _helper = test::MIDIHelper(true);
+        tests::MIDIHelper           _helper = tests::MIDIHelper(true);
         static inline bool          flashed = false;
     };
 }    // namespace
@@ -332,8 +332,10 @@ TEST_F(HWTest, DatabaseInitialValues)
             break;
 
         case static_cast<size_t>(protocol::midi::Setting::GlobalChannel):
+        {
             ASSERT_EQ(1, _helper.database_read_from_system_via_sysex(sys::Config::Section::Global::MidiSettings, i));
-            break;
+        }
+        break;
 
         default:
             break;
@@ -530,9 +532,9 @@ TEST_F(HWTest, BackupAndRestore)
 
     LOG_INF("Sending backup request");
     std::vector<std::vector<uint8_t>> responses = {};
-    ASSERT_TRUE(test::MIDIHelper::capture_sysex_responses(backup_req,
-                                                          responses,
-                                                          backup_capture_timeout_ms));
+    ASSERT_TRUE(tests::MIDIHelper::capture_sysex_responses(backup_req,
+                                                           responses,
+                                                           backup_capture_timeout_ms));
 
     LOG_INF("Verifying backup");
 
@@ -602,7 +604,7 @@ TEST_F(HWTest, BackupAndRestore)
 
     LOG_INF("Restoring backup");
 
-    test::MIDIHelper::flush();
+    tests::MIDIHelper::flush();
 
     for (const auto& msg : responses)
     {
@@ -613,10 +615,10 @@ TEST_F(HWTest, BackupAndRestore)
     LOG_INF("Backup file sent successfully");
 
     // device is rebooted after restore
-    test::sleep_ms(sys::REBOOT_DELAY_MS);
+    tests::sleep_ms(sys::REBOOT_DELAY_MS);
 
     ASSERT_TRUE(handshake());
-    test::MIDIHelper::flush();
+    tests::MIDIHelper::flush();
 
     LOG_INF("Verifying that the custom values are active again");
 
@@ -650,7 +652,7 @@ TEST_F(HWTest, USBMIDIData)
         LOG_INF("Switching preset");
         const size_t preset      = 0;
         auto         preset0_req = _helper.generate_sysex_set_req(sys::Config::Section::Global::SystemSettings, sys::Config::SystemSetting::ActivePreset, preset);
-        response                 = test::MIDIHelper::capture_midi_voice_messages_dump_after_request(preset0_req, sys::USB_CHANGE_FORCED_REFRESH_DELAY * 2);
+        response                 = tests::MIDIHelper::capture_midi_voice_messages_dump_after_request(preset0_req, sys::USB_CHANGE_FORCED_REFRESH_DELAY * 2);
     };
 
     change_preset();
@@ -660,7 +662,7 @@ TEST_F(HWTest, USBMIDIData)
 
     while (std::getline(response_stream, line))
     {
-        if (!test::trim_whitespace(line).empty())
+        if (!tests::trim_whitespace(line).empty())
         {
             received_messages++;
         }

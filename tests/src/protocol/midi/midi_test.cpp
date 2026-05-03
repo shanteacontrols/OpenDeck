@@ -8,8 +8,8 @@
 #include "protocol/midi/builder.h"
 #include "util/configurable/configurable.h"
 
-using namespace io;
-using namespace protocol;
+using namespace opendeck::io;
+using namespace opendeck::protocol;
 
 namespace
 {
@@ -25,7 +25,7 @@ namespace
         void TearDown() override
         {
             util::Configurable::instance().clear();
-            messaging::clear_registry();
+            signaling::clear_registry();
         }
 
         void wait_for_signal_dispatch()
@@ -50,8 +50,8 @@ namespace
 
 TEST_F(MIDITest, OmniChannel)
 {
-    messaging::publish(messaging::MidiSignal{
-        .source          = messaging::MidiSource::Button,
+    signaling::publish(signaling::MidiSignal{
+        .source          = signaling::MidiSource::Button,
         .component_index = 0,
         .channel         = 1,
         .index           = 0,
@@ -66,8 +66,8 @@ TEST_F(MIDITest, OmniChannel)
 
     // now set the channel to omni and verify that 16 messages are sent
     _midi._hwaUsb.clear();
-    messaging::publish(messaging::MidiSignal{
-        .source          = messaging::MidiSource::Button,
+    signaling::publish(signaling::MidiSignal{
+        .source          = signaling::MidiSource::Button,
         .component_index = 0,
         .channel         = midi::OMNI_CHANNEL,
         .index           = 0,
@@ -111,8 +111,8 @@ TEST_F(MIDITest, BleTxIsSkippedUntilReady)
     _midi._hwaBle.clear();
     _midi._hwaBle._ready = false;
 
-    messaging::publish(messaging::MidiSignal{
-        .source          = messaging::MidiSource::Button,
+    signaling::publish(signaling::MidiSignal{
+        .source          = signaling::MidiSource::Button,
         .component_index = 0,
         .channel         = 1,
         .index           = 0,

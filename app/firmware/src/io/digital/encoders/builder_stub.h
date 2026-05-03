@@ -11,7 +11,7 @@
 #include "io/digital/buttons/deps.h"
 #include "database/builder.h"
 
-namespace io::encoders
+namespace opendeck::io::encoders
 {
     /**
      * @brief Stub builder that wires the encoder subsystem to no-op backends.
@@ -56,4 +56,4 @@ namespace io::encoders
         Database   _database;
         Encoders   _instance;
     };
-}    // namespace io::encoders
+}    // namespace opendeck::io::encoders

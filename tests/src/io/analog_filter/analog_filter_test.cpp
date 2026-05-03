@@ -16,7 +16,7 @@
 #include <utility>
 #include <vector>
 
-using namespace io;
+using namespace opendeck::io;
 
 namespace
 {

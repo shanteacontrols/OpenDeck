@@ -14,7 +14,7 @@
 
 #define OPENDECK_LED_NATIVE_GPIO_ENTRY(index, node_id) GPIO_DT_SPEC_GET_BY_IDX(node_id, native_gpios, index)
 
-namespace io::leds
+namespace opendeck::io::leds
 {
     /**
      * @brief LED driver that drives native GPIO outputs directly.
@@ -100,6 +100,6 @@ namespace io::leds
             return LED_OUTPUT_COUNT / 3;
         }
     };
-}    // namespace io::leds
+}    // namespace opendeck::io::leds
 
 #undef OPENDECK_LED_NATIVE_GPIO_ENTRY

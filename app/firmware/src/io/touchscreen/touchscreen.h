@@ -7,7 +7,7 @@
 
 #include "deps.h"
 #include "system/config.h"
-#include "messaging/messaging.h"
+#include "signaling/signaling.h"
 #include "io/base.h"
 #include "threads.h"
 
@@ -17,7 +17,7 @@
 
 #include <optional>
 
-namespace io::touchscreen
+namespace opendeck::io::touchscreen
 {
     /**
      * @brief Coordinates touchscreen model initialization, polling, and system integration.
@@ -195,4 +195,4 @@ namespace io::touchscreen
          */
         std::optional<uint8_t> sys_config_set(sys::Config::Section::Touchscreen section, size_t index, uint16_t value);
     };
-}    // namespace io::touchscreen
+}    // namespace opendeck::io::touchscreen

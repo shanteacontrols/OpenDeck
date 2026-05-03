@@ -12,7 +12,7 @@
 
 #include <optional>
 
-namespace io::touchscreen
+namespace opendeck::io::touchscreen
 {
     /**
      * @brief Database view used by the touchscreen subsystem.
@@ -22,7 +22,7 @@ namespace io::touchscreen
     /**
      * @brief Hardware abstraction used by the touchscreen subsystem.
      */
-    class Hwa : public ::io::common::Allocatable
+    class Hwa : public io::common::Allocatable
     {
         public:
         ~Hwa() override = default;
@@ -66,4 +66,4 @@ namespace io::touchscreen
             return false;
         }
     };
-}    // namespace io::touchscreen
+}    // namespace opendeck::io::touchscreen

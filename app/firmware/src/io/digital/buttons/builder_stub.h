@@ -10,7 +10,7 @@
 #include "hwa_stub.h"
 #include "database/builder.h"
 
-namespace io::buttons
+namespace opendeck::io::buttons
 {
     /**
      * @brief Stub builder that wires the button subsystem to no-op backends.
@@ -44,4 +44,4 @@ namespace io::buttons
         Database   _database;
         Buttons    _instance;
     };
-}    // namespace io::buttons
+}    // namespace opendeck::io::buttons

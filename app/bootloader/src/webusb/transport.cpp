@@ -21,6 +21,8 @@
 
 #include <cstring>
 
+using namespace opendeck;
+
 namespace
 {
     LOG_MODULE_REGISTER(opendeck_bootloader_webusb, LOG_LEVEL_INF);    // NOLINT

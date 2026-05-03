@@ -8,7 +8,7 @@
 #include <inttypes.h>
 #include <stddef.h>
 
-namespace sys
+namespace opendeck::sys
 {
     /**
      * @brief Delay before the system reboots into the selected firmware target.
@@ -68,4 +68,4 @@ namespace sys
      * for UI state synchronization.
      */
     constexpr inline uint32_t FORCED_REFRESH_STAGE_DELAY_MS = 5;
-}    // namespace sys
+}    // namespace opendeck::sys

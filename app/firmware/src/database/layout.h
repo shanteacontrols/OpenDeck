@@ -17,7 +17,7 @@
 
 #include <array>
 
-namespace database
+namespace opendeck::database
 {
     /**
      * @brief Application-specific LessDb layout for common and preset data.
@@ -418,4 +418,4 @@ namespace database
             Block(TOUCHSCREEN_SECTIONS),
         });
     };
-}    // namespace database
+}    // namespace opendeck::database

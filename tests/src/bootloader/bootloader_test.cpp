@@ -197,12 +197,12 @@ namespace
 
 }    // namespace
 
-namespace webusb
+namespace opendeck::webusb
 {
     void status(const char*)
     {
     }
-}    // namespace webusb
+}    // namespace opendeck::webusb
 
 TEST(Bootloader, FwUpdate)
 {

@@ -8,7 +8,7 @@
 #include "common.h"
 #include "deps.h"
 
-namespace fw_selector
+namespace opendeck::fw_selector
 {
     /**
      * @brief Chooses which firmware image should be started.
@@ -69,4 +69,4 @@ namespace fw_selector
          */
         bool calculate_app_crc(uint32_t size, uint32_t& crc);
     };
-}    // namespace fw_selector
+}    // namespace opendeck::fw_selector

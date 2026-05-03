@@ -8,7 +8,7 @@
 #include "deps.h"
 #include "drivers/driver_base.h"
 
-namespace io::analog
+namespace opendeck::io::analog
 {
     /**
      * @brief Hardware-backed analog subsystem adapter.
@@ -56,4 +56,4 @@ namespace io::analog
         private:
         DriverBase& _driver;
     };
-}    // namespace io::analog
+}    // namespace opendeck::io::analog

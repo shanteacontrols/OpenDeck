@@ -7,7 +7,7 @@
 
 #include "deps.h"
 
-namespace io::encoders
+namespace opendeck::io::encoders
 {
     /**
      * @brief Test encoder filter that accepts every movement sample.
@@ -56,4 +56,4 @@ namespace io::encoders
             return 0;
         }
     };
-}    // namespace io::encoders
+}    // namespace opendeck::io::encoders

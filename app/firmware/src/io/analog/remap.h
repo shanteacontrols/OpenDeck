@@ -11,7 +11,7 @@
 #include <cstddef>
 #include <zephyr/devicetree.h>
 
-namespace io::analog
+namespace opendeck::io::analog
 {
     /**
      * @brief Resolves logical analog indices to the underlying physical scan order.
@@ -65,4 +65,4 @@ namespace io::analog
 #undef OPENDECK_ANALOG_REMAP_ENTRY
 #endif
     };
-}    // namespace io::analog
+}    // namespace opendeck::io::analog

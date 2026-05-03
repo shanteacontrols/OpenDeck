@@ -7,7 +7,7 @@
 
 #include "deps.h"
 
-namespace io::i2c
+namespace opendeck::io::i2c
 {
     /**
      * @brief Test I2C backend that accepts writes without touching hardware.
@@ -53,4 +53,4 @@ namespace io::i2c
             return false;
         }
     };
-}    // namespace io::i2c
+}    // namespace opendeck::io::i2c

@@ -8,7 +8,7 @@
 #include "io/common/common.h"
 #include "io/touchscreen/count.h"
 
-namespace io::touchscreen
+namespace opendeck::io::touchscreen
 {
     /**
      * @brief Flattened collection of touchscreen components.
@@ -165,4 +165,4 @@ namespace io::touchscreen
         static inline uint8_t rx_buffer[BUFFER_SIZE] = {};
         static inline size_t  buffer_count           = 0;
     };
-}    // namespace io::touchscreen
+}    // namespace opendeck::io::touchscreen

@@ -12,20 +12,20 @@
 #include "util/configurable/configurable.h"
 #include "global/midi_program.h"
 
-using namespace io;
-using namespace protocol;
+using namespace opendeck::io;
+using namespace opendeck::protocol;
 
 namespace
 {
     class TouchscreenListener
     {
         public:
-        void on_message(const messaging::TouchscreenLedSignal& event)
+        void on_message(const signaling::TouchscreenLedSignal& event)
         {
             event_log.push_back(event);
         }
 
-        std::vector<messaging::TouchscreenLedSignal> event_log = {};
+        std::vector<signaling::TouchscreenLedSignal> event_log = {};
     };
 
     class LEDsTest : public ::testing::Test
@@ -52,7 +52,7 @@ namespace
         void TearDown() override
         {
             ConfigHandler.clear();
-            messaging::clear_registry();
+            signaling::clear_registry();
         }
 
         void wait_for_signal_dispatch()
@@ -62,8 +62,8 @@ namespace
 
         void subscribe_touchscreen_listener()
         {
-            messaging::subscribe<messaging::TouchscreenLedSignal>(
-                [this](const messaging::TouchscreenLedSignal& dispatch_message)
+            signaling::subscribe<signaling::TouchscreenLedSignal>(
+                [this](const signaling::TouchscreenLedSignal& dispatch_message)
                 {
                     _touchscreen_listener.on_message(dispatch_message);
                 });
@@ -119,21 +119,29 @@ namespace
             switch (message)
             {
             case midi::MessageType::NoteOn:
+            {
                 command = UMP_MIDI_NOTE_ON;
-                break;
+            }
+            break;
 
             case midi::MessageType::NoteOff:
+            {
                 command = UMP_MIDI_NOTE_OFF;
-                break;
+            }
+            break;
 
             case midi::MessageType::ControlChange:
+            {
                 command = UMP_MIDI_CONTROL_CHANGE;
-                break;
+            }
+            break;
 
             case midi::MessageType::ProgramChange:
+            {
                 command = UMP_MIDI_PROGRAM_CHANGE;
                 p2      = 0;
-                break;
+            }
+            break;
 
             default:
                 return;
@@ -147,21 +155,21 @@ namespace
                               ((static_cast<uint32_t>(p1) & 0x7fU) << 8U) |
                               (static_cast<uint32_t>(p2) & 0x7fU);
 
-            messaging::publish(messaging::UmpSignal{
-                .direction = messaging::MidiDirection::In,
+            signaling::publish(signaling::UmpSignal{
+                .direction = signaling::MidiDirection::In,
                 .packet    = packet,
             });
 
             wait_for_signal_dispatch();
         }
 
-        void notify_local(messaging::MidiSource source,
+        void notify_local(signaling::MidiSource source,
                           midi::MessageType     message,
                           uint8_t               channel,
                           uint16_t              index,
                           uint16_t              value)
         {
-            messaging::publish(messaging::MidiSignal{
+            signaling::publish(signaling::MidiSignal{
                 .source          = source,
                 .component_index = 0,
                 .channel         = channel,
@@ -175,8 +183,8 @@ namespace
 
         void notify_program(uint8_t channel, uint16_t program)
         {
-            messaging::publish(messaging::MidiSignal{
-                .source          = messaging::MidiSource::Program,
+            signaling::publish(signaling::MidiSignal{
+                .source          = signaling::MidiSource::Program,
                 .component_index = 0,
                 .channel         = channel,
                 .index           = program,
@@ -540,7 +548,7 @@ TEST_F(LEDsTest, MultiValue)
             EXPECT_CALL(_leds._hwa, set_state(_, expected_brightness(value)))
                 .Times(1);
 
-            notify_local(messaging::MidiSource::Button, midi::MessageType::NoteOn, MIDI_CHANNEL, static_cast<uint16_t>(led), value);
+            notify_local(signaling::MidiSource::Button, midi::MessageType::NoteOn, MIDI_CHANNEL, static_cast<uint16_t>(led), value);
 
             ASSERT_EQ(expected_blink_speed(value), _leds._instance.blink_speed(led));
         }
@@ -559,7 +567,7 @@ TEST_F(LEDsTest, MultiValue)
             EXPECT_CALL(_leds._hwa, set_state(_, expected_brightness(value)))
                 .Times(1);
 
-            notify_local(messaging::MidiSource::Analog, midi::MessageType::NoteOn, MIDI_CHANNEL, static_cast<uint16_t>(led), value);
+            notify_local(signaling::MidiSource::Analog, midi::MessageType::NoteOn, MIDI_CHANNEL, static_cast<uint16_t>(led), value);
 
             ASSERT_EQ(expected_blink_speed(value), _leds._instance.blink_speed(led));
         }
@@ -585,7 +593,7 @@ TEST_F(LEDsTest, MultiValue)
             EXPECT_CALL(_leds._hwa, set_state(_, expected_brightness(value)))
                 .Times(1);
 
-            notify_local(messaging::MidiSource::Button, midi::MessageType::ControlChange, MIDI_CHANNEL, static_cast<uint16_t>(led), value);
+            notify_local(signaling::MidiSource::Button, midi::MessageType::ControlChange, MIDI_CHANNEL, static_cast<uint16_t>(led), value);
 
             ASSERT_EQ(expected_blink_speed(value), _leds._instance.blink_speed(led));
         }
@@ -603,7 +611,7 @@ TEST_F(LEDsTest, MultiValue)
             EXPECT_CALL(_leds._hwa, set_state(_, expected_brightness(value)))
                 .Times(1);
 
-            notify_local(messaging::MidiSource::Analog, midi::MessageType::ControlChange, MIDI_CHANNEL, static_cast<uint16_t>(led), value);
+            notify_local(signaling::MidiSource::Analog, midi::MessageType::ControlChange, MIDI_CHANNEL, static_cast<uint16_t>(led), value);
 
             ASSERT_EQ(expected_blink_speed(value), _leds._instance.blink_speed(led));
         }
@@ -700,7 +708,7 @@ TEST_F(LEDsTest, SingleValue)
                 EXPECT_CALL(_leds._hwa, set_state(_, value == activation_value ? leds::Brightness::Level100 : leds::Brightness::Off))
                     .Times(1);
 
-                notify_local(messaging::MidiSource::Button, midi::MessageType::NoteOn, MIDI_CHANNEL, static_cast<uint16_t>(led), value);
+                notify_local(signaling::MidiSource::Button, midi::MessageType::NoteOn, MIDI_CHANNEL, static_cast<uint16_t>(led), value);
 
                 ASSERT_EQ(leds::BlinkSpeed::NoBlink, _leds._instance.blink_speed(led));
             }
@@ -730,7 +738,7 @@ TEST_F(LEDsTest, SingleValue)
                 EXPECT_CALL(_leds._hwa, set_state(_, value == activation_value ? leds::Brightness::Level100 : leds::Brightness::Off))
                     .Times(1);
 
-                notify_local(messaging::MidiSource::Button, midi::MessageType::ControlChange, MIDI_CHANNEL, static_cast<uint16_t>(led), value);
+                notify_local(signaling::MidiSource::Button, midi::MessageType::ControlChange, MIDI_CHANNEL, static_cast<uint16_t>(led), value);
 
                 ASSERT_EQ(leds::BlinkSpeed::NoBlink, _leds._instance.blink_speed(led));
             }
@@ -890,7 +898,7 @@ TEST_F(LEDsTest, StaticLEDsOnInitially)
 
         const auto matching_event = std::find_if(_touchscreen_listener.event_log.begin(),
                                                  _touchscreen_listener.event_log.end(),
-                                                 [](const messaging::TouchscreenLedSignal& event)
+                                                 [](const signaling::TouchscreenLedSignal& event)
                                                  {
                                                      return event.component_index == LED_INDEX &&
                                                             event.value == static_cast<uint16_t>(leds::Brightness::Level100);

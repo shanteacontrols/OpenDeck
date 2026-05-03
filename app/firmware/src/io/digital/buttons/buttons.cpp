@@ -16,9 +16,11 @@
 
 #include <zephyr/logging/log.h>
 
-using namespace io::buttons;
-using namespace protocol;
-using namespace zlibs::utils;
+using namespace opendeck;
+using namespace opendeck::io::buttons;
+using namespace opendeck::protocol;
+
+namespace zmisc = zlibs::utils::misc;
 
 namespace
 {
@@ -32,15 +34,15 @@ Buttons::Buttons(Hwa&      hwa,
     , _filter(filter)
     , _database(database)
 {
-    messaging::subscribe<messaging::MidiSignal>(
-        [this](const messaging::MidiSignal& event)
+    signaling::subscribe<signaling::MidiSignal>(
+        [this](const signaling::MidiSignal& event)
         {
             if (is_frozen())
             {
                 return;
             }
 
-            if (event.source == messaging::MidiSource::AnalogButton)
+            if (event.source == signaling::MidiSource::AnalogButton)
             {
                 size_t     index = event.component_index + Collection::start_index(GroupAnalogInputs);
                 Descriptor descriptor;
@@ -50,7 +52,7 @@ Buttons::Buttons(Hwa&      hwa,
                 return;
             }
 
-            if (event.source == messaging::MidiSource::TouchscreenButton)
+            if (event.source == signaling::MidiSource::TouchscreenButton)
             {
                 size_t     index = event.component_index + Collection::start_index(GroupTouchscreenComponents);
                 Descriptor descriptor;
@@ -382,10 +384,10 @@ void Buttons::send_message(size_t index, bool state, Descriptor& descriptor, boo
 
         case MessageType::PresetChange:
         {
-            messaging::SystemSignal event = {};
-            event.system_message          = messaging::SystemMessage::PresetChangeDirectReq;
+            signaling::SystemSignal event = {};
+            event.system_event            = signaling::SystemEvent::PresetChangeDirectReq;
             event.value                   = descriptor.signal.index;
-            messaging::publish(event);
+            signaling::publish(event);
             return;
         }
         break;
@@ -462,8 +464,8 @@ void Buttons::send_message(size_t index, bool state, Descriptor& descriptor, boo
 
     if (send)
     {
-        descriptor.signal.source = messaging::MidiSource::Button;
-        messaging::publish(descriptor.signal);
+        descriptor.signal.source = signaling::MidiSource::Button;
+        signaling::publish(descriptor.signal);
     }
 }
 
@@ -471,28 +473,28 @@ void Buttons::set_state(size_t index, bool state)
 {
     const auto location = io::common::bit_storage_location<STATE_STORAGE_DIVISOR>(index);
 
-    misc::bit_write(_button_pressed[location.array_index], location.bit_index, state);
+    zmisc::bit_write(_button_pressed[location.array_index], location.bit_index, state);
 }
 
 bool Buttons::cached_state(size_t index)
 {
     const auto location = io::common::bit_storage_location<STATE_STORAGE_DIVISOR>(index);
 
-    return misc::bit_read(_button_pressed[location.array_index], location.bit_index);
+    return zmisc::bit_read(_button_pressed[location.array_index], location.bit_index);
 }
 
 void Buttons::set_latching_state(size_t index, bool state)
 {
     const auto location = io::common::bit_storage_location<STATE_STORAGE_DIVISOR>(index);
 
-    misc::bit_write(_last_latching_state[location.array_index], location.bit_index, state);
+    zmisc::bit_write(_last_latching_state[location.array_index], location.bit_index, state);
 }
 
 bool Buttons::latching_state(size_t index)
 {
     const auto location = io::common::bit_storage_location<STATE_STORAGE_DIVISOR>(index);
 
-    return misc::bit_read(_last_latching_state[location.array_index], location.bit_index);
+    return zmisc::bit_read(_last_latching_state[location.array_index], location.bit_index);
 }
 
 void Buttons::reset(size_t index)

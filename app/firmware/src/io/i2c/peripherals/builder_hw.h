@@ -8,7 +8,7 @@
 #include "display/display.h"
 #include "database/database.h"
 
-namespace io::i2c
+namespace opendeck::io::i2c
 {
     /**
      * @brief Builder that instantiates the I2C peripheral set.
@@ -31,4 +31,4 @@ namespace io::i2c
         display::Database _display_database;
         display::Display  _display;
     };
-}    // namespace io::i2c
+}    // namespace opendeck::io::i2c

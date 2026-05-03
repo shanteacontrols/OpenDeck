@@ -12,7 +12,7 @@
 
 #define OPENDECK_ANALOG_MUX_CHANNEL_ENTRY(index, node_id) ADC_DT_SPEC_GET_BY_IDX(node_id, index)
 
-namespace io::analog
+namespace opendeck::io::analog
 {
     /**
      * @brief ADC driver for boards that route analog inputs through per-channel multiplexers.
@@ -153,6 +153,6 @@ namespace io::analog
 #endif
         }
     };
-}    // namespace io::analog
+}    // namespace opendeck::io::analog
 
 #undef OPENDECK_ANALOG_MUX_CHANNEL_ENTRY

@@ -9,7 +9,7 @@
 #include "remap.h"
 #include "drivers/driver_base.h"
 
-namespace io::leds
+namespace opendeck::io::leds
 {
     /**
      * @brief Hardware-backed LED backend that proxies to a low-level LED driver.
@@ -73,4 +73,4 @@ namespace io::leds
         private:
         DriverBase& _driver;
     };
-}    // namespace io::leds
+}    // namespace opendeck::io::leds

@@ -5,7 +5,7 @@
 
 #include "configurable.h"
 
-using namespace util;
+using namespace opendeck::util;
 
 void Configurable::register_config(sys::Config::Block block, GetHandler&& get_handler, SetHandler&& set_handler)
 {

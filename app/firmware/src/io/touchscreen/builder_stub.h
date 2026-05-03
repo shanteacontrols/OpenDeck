@@ -9,7 +9,7 @@
 #include "hwa_stub.h"
 #include "database/builder.h"
 
-namespace io::touchscreen
+namespace opendeck::io::touchscreen
 {
     /**
      * @brief Stub builder that wires the touchscreen subsystem to a no-op backend.
@@ -42,4 +42,4 @@ namespace io::touchscreen
         Database    _database;
         Touchscreen _instance;
     };
-}    // namespace io::touchscreen
+}    // namespace opendeck::io::touchscreen

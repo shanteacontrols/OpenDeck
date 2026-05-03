@@ -16,7 +16,7 @@
 #include "io/indicators/builder.h"
 #include "io/leds/builder.h"
 
-namespace sys
+namespace opendeck::sys
 {
     /**
      * @brief Hardware-system builder that wires all production subsystem instances.
@@ -35,4 +35,4 @@ namespace sys
         HwaHw  _hwa;
         System _instance = System(_hwa);
     };
-}    // namespace sys
+}    // namespace opendeck::sys

@@ -9,7 +9,7 @@
 
 #include <functional>
 
-namespace util
+namespace opendeck::util
 {
     /**
      * @brief Throttles and forwards component-info notifications.
@@ -48,4 +48,4 @@ namespace util
          */
         void send(database::Config::Block block, size_t index);
     };
-}    // namespace util
+}    // namespace opendeck::util

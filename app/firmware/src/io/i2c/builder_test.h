@@ -9,7 +9,7 @@
 #include "hwa_test.h"
 #include "database/builder_test.h"
 
-namespace io::i2c
+namespace opendeck::io::i2c
 {
     /**
      * @brief Test builder that exposes the I2C subsystem with a test backend.
@@ -39,4 +39,4 @@ namespace io::i2c
         HwaTest _hwa;
         I2c     _instance;
     };
-}    // namespace io::i2c
+}    // namespace opendeck::io::i2c

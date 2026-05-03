@@ -6,7 +6,7 @@
 #include "digital.h"
 #include "util/thread_sleep.h"
 
-using namespace io::digital;
+using namespace opendeck::io::digital;
 
 Digital::Digital(drivers::DriverBase&    driver,
                  FrameStore&             frame_store,

@@ -7,7 +7,7 @@
 
 #include "deps.h"
 
-namespace io::buttons
+namespace opendeck::io::buttons
 {
     /**
      * @brief Stub button backend that never returns live hardware state.
@@ -63,4 +63,4 @@ namespace io::buttons
             return {};
         }
     };
-}    // namespace io::buttons
+}    // namespace opendeck::io::buttons

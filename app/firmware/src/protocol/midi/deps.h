@@ -13,7 +13,7 @@
 #include <functional>
 #include <span>
 
-namespace protocol::midi
+namespace opendeck::protocol::midi
 {
     /**
      * @brief Database view used by the MIDI subsystem for global settings.
@@ -140,4 +140,4 @@ namespace protocol::midi
          */
         virtual bool ready() = 0;
     };
-}    // namespace protocol::midi
+}    // namespace opendeck::protocol::midi

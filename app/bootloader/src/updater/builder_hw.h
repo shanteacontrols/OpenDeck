@@ -8,7 +8,7 @@
 #include "hwa_hw.h"
 #include "updater.h"
 
-namespace updater
+namespace opendeck::updater
 {
     /**
      * @brief Convenience builder that wires the hardware updater backend.
@@ -40,4 +40,4 @@ namespace updater
         HwaHw   _hwa;
         Updater _instance;
     };
-}    // namespace updater
+}    // namespace opendeck::updater

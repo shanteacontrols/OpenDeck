@@ -10,7 +10,7 @@
 #include <zephyr/devicetree.h>
 #include <zephyr/drivers/gpio.h>
 
-namespace io::indicators
+namespace opendeck::io::indicators
 {
     /**
      * @brief Hardware-backed indicator backend that drives GPIO outputs.
@@ -222,41 +222,55 @@ namespace io::indicators
             switch (type)
             {
             case Type::UsbIn:
+            {
                 set_optional<Type::UsbIn>(state);
-                break;
+            }
+            break;
 
             case Type::UsbOut:
+            {
                 set_optional<Type::UsbOut>(state);
-                break;
+            }
+            break;
 
             case Type::DinIn:
+            {
                 set_optional<Type::DinIn>(state);
-                break;
+            }
+            break;
 
             case Type::DinOut:
+            {
                 set_optional<Type::DinOut>(state);
-                break;
+            }
+            break;
 
             case Type::BleIn:
+            {
                 set_optional<Type::BleIn>(state);
-                break;
+            }
+            break;
 
             case Type::BleOut:
+            {
                 set_optional<Type::BleOut>(state);
-                break;
+            }
+            break;
 
             case Type::All:
+            {
                 set_optional<Type::UsbIn>(state);
                 set_optional<Type::UsbOut>(state);
                 set_optional<Type::DinIn>(state);
                 set_optional<Type::DinOut>(state);
                 set_optional<Type::BleIn>(state);
                 set_optional<Type::BleOut>(state);
-                break;
+            }
+            break;
 
             default:
                 break;
             }
         }
     };
-}    // namespace io::indicators
+}    // namespace opendeck::io::indicators

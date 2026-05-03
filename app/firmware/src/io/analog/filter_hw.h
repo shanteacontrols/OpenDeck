@@ -14,7 +14,7 @@
 #include <limits>
 #include <zephyr/kernel.h>
 
-namespace io::analog
+namespace opendeck::io::analog
 {
     /**
      * @brief Hardware-oriented analog filter for potentiometers, FSRs, and analog buttons.
@@ -1146,4 +1146,4 @@ namespace io::analog
             return true;
         }
     };
-}    // namespace io::analog
+}    // namespace opendeck::io::analog

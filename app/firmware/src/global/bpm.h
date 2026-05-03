@@ -6,9 +6,9 @@
 #pragma once
 
 #include "util/incdec/inc_dec.h"
-#include "messaging/messaging.h"
+#include "signaling/signaling.h"
 
-namespace global
+namespace opendeck::global
 {
     /** @brief Number of microseconds in one minute. */
     constexpr inline uint32_t USEC_PER_MINUTE = 60000000;
@@ -120,13 +120,13 @@ namespace global
         {
             _bpm = bpm;
 
-            messaging::SystemSignal signal = {};
-            signal.system_message          = messaging::SystemMessage::MidiBpmChange;
+            signaling::SystemSignal signal = {};
+            signal.system_event            = signaling::SystemEvent::MidiBpmChange;
             signal.value                   = bpm;
 
-            messaging::publish(signal);
+            signaling::publish(signal);
         }
     };
-}    // namespace global
+}    // namespace opendeck::global
 
 #define Bpm global::Bpm::instance()

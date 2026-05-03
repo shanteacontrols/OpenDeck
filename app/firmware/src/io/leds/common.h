@@ -9,7 +9,7 @@
 #include "io/leds/drivers/count.h"
 #include "io/touchscreen/count.h"
 
-namespace io::leds
+namespace opendeck::io::leds
 {
     /**
      * @brief Flattened collection of LED-capable outputs.
@@ -121,4 +121,4 @@ namespace io::leds
         Level75,
         Level100
     };
-}    // namespace io::leds
+}    // namespace opendeck::io::leds

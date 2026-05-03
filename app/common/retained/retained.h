@@ -9,7 +9,7 @@
 
 #include <cstdint>
 
-namespace retained
+namespace opendeck::retained
 {
     /**
      * @brief Retained variable container placed in the shared retained-memory section.
@@ -26,4 +26,4 @@ namespace retained
                   "opendeck_retained must reserve enough space for the retained container.");
 
     inline Container data;
-}    // namespace retained
+}    // namespace opendeck::retained

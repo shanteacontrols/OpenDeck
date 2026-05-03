@@ -11,7 +11,7 @@
 
 #include <optional>
 
-namespace io::buttons
+namespace opendeck::io::buttons
 {
     /**
      * @brief Database view used by the button subsystem.
@@ -77,4 +77,4 @@ namespace io::buttons
          */
         virtual bool is_filtered(size_t index, bool& state) = 0;
     };
-}    // namespace io::buttons
+}    // namespace opendeck::io::buttons

@@ -7,7 +7,7 @@
 
 #include <stdint.h>
 
-namespace updater
+namespace opendeck::updater
 {
     /**
      * @brief Magic value that marks the beginning of a firmware update stream.
@@ -23,4 +23,4 @@ namespace updater
      * @brief Magic value that marks the end of a firmware update stream.
      */
     constexpr inline uint32_t END_COMMAND = OPENDECK_DFU_END_MAGIC;
-}    // namespace updater
+}    // namespace opendeck::updater

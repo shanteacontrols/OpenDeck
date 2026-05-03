@@ -5,8 +5,8 @@
 
 #pragma once
 
-namespace indicators
+namespace opendeck::indicators
 {
     bool init();
     void start_blinking_all();
-}    // namespace indicators
+}    // namespace opendeck::indicators

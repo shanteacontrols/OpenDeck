@@ -8,7 +8,7 @@
 #include <inttypes.h>
 #include <stddef.h>
 
-namespace io::common
+namespace opendeck::io::common
 {
     /**
      * @brief Packed-byte storage location for one bit-addressed I/O state.
@@ -138,4 +138,4 @@ namespace io::common
          */
         virtual bool allocated(Interface interface) = 0;
     };
-}    // namespace io::common
+}    // namespace opendeck::io::common

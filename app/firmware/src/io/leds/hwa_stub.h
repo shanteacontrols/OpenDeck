@@ -7,7 +7,7 @@
 
 #include "deps.h"
 
-namespace io::leds
+namespace opendeck::io::leds
 {
     /**
      * @brief Stub LED backend that accepts requests without driving hardware.
@@ -61,4 +61,4 @@ namespace io::leds
             return 0;
         }
     };
-}    // namespace io::leds
+}    // namespace opendeck::io::leds

@@ -8,7 +8,7 @@
 #include "deps.h"
 #include "element.h"
 #include "strings.h"
-#include "messaging/messaging.h"
+#include "signaling/signaling.h"
 #include "system/config.h"
 
 #include <u8x8.h>
@@ -16,7 +16,7 @@
 #include <bits/char_traits.h>
 #include <optional>
 
-namespace io::i2c::display
+namespace opendeck::io::i2c::display
 {
     /**
      * @brief OLED display peripheral that renders MIDI and preset status.
@@ -148,10 +148,10 @@ namespace io::i2c::display
                 public:
                 MessageTypeIn()
                 {
-                    messaging::subscribe<messaging::UmpSignal>(
-                        [this](const messaging::UmpSignal& event)
+                    signaling::subscribe<signaling::UmpSignal>(
+                        [this](const signaling::UmpSignal& event)
                         {
-                            if (event.direction != messaging::MidiDirection::In)
+                            if (event.direction != signaling::MidiDirection::In)
                             {
                                 return;
                             }
@@ -175,10 +175,10 @@ namespace io::i2c::display
                 explicit MessageValueIn(MIDIUpdater& midi_updater)
                     : _midi_updater(midi_updater)
                 {
-                    messaging::subscribe<messaging::UmpSignal>(
-                        [this](const messaging::UmpSignal& event)
+                    signaling::subscribe<signaling::UmpSignal>(
+                        [this](const signaling::UmpSignal& event)
                         {
-                            if (event.direction != messaging::MidiDirection::In)
+                            if (event.direction != signaling::MidiDirection::In)
                             {
                                 return;
                             }
@@ -208,16 +208,18 @@ namespace io::i2c::display
                 public:
                 MessageTypeOut()
                 {
-                    messaging::subscribe<messaging::MidiSignal>(
-                        [this](const messaging::MidiSignal& signal)
+                    signaling::subscribe<signaling::MidiSignal>(
+                        [this](const signaling::MidiSignal& signal)
                         {
                             switch (signal.source)
                             {
-                            case messaging::MidiSource::Analog:
-                            case messaging::MidiSource::Button:
-                            case messaging::MidiSource::Encoder:
+                            case signaling::MidiSource::Analog:
+                            case signaling::MidiSource::Button:
+                            case signaling::MidiSource::Encoder:
+                            {
                                 set_text("%s", Strings::midi_message(signal.message));
-                                break;
+                            }
+                            break;
 
                             default:
                                 break;
@@ -235,20 +237,22 @@ namespace io::i2c::display
                 explicit MessageValueOut(MIDIUpdater& midi_updater)
                     : _midi_updater(midi_updater)
                 {
-                    messaging::subscribe<messaging::MidiSignal>(
-                        [this](const messaging::MidiSignal& signal)
+                    signaling::subscribe<signaling::MidiSignal>(
+                        [this](const signaling::MidiSignal& signal)
                         {
                             switch (signal.source)
                             {
-                            case messaging::MidiSource::Analog:
-                            case messaging::MidiSource::Button:
-                            case messaging::MidiSource::Encoder:
+                            case signaling::MidiSource::Analog:
+                            case signaling::MidiSource::Button:
+                            case signaling::MidiSource::Encoder:
+                            {
                                 _midi_updater.update_midi_value(*this,
                                                                 signal.channel,
                                                                 signal.index,
                                                                 signal.value,
                                                                 signal.message);
-                                break;
+                            }
+                            break;
 
                             default:
                                 break;
@@ -268,10 +272,10 @@ namespace io::i2c::display
                 public:
                 Preset()
                 {
-                    messaging::subscribe<messaging::SystemSignal>(
-                        [this](const messaging::SystemSignal& event)
+                    signaling::subscribe<signaling::SystemSignal>(
+                        [this](const signaling::SystemSignal& event)
                         {
-                            if (event.system_message == messaging::SystemMessage::PresetChanged)
+                            if (event.system_event == signaling::SystemEvent::PresetChanged)
                             {
                                 set_preset(event.value + 1);
                             }
@@ -430,4 +434,4 @@ namespace io::i2c::display
          */
         std::optional<uint8_t> sys_config_set(sys::Config::Section::I2c section, size_t index, uint16_t value);
     };
-}    // namespace io::i2c::display
+}    // namespace opendeck::io::i2c::display

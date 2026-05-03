@@ -14,7 +14,7 @@
 
 #define OPENDECK_RETENTION_NODE DT_NODELABEL(opendeck_retained)
 
-namespace retained
+namespace opendeck::retained
 {
     static_assert(DT_NODE_EXISTS(OPENDECK_RETENTION_NODE),
                   "Node label 'opendeck_retained' is required for retained storage.");
@@ -71,4 +71,4 @@ namespace retained
             return DEVICE_DT_GET(OPENDECK_RETENTION_NODE);
         }
     };
-}    // namespace retained
+}    // namespace opendeck::retained

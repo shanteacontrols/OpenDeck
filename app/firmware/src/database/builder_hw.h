@@ -8,7 +8,7 @@
 #include "database.h"
 #include "hwa_hw.h"
 
-namespace database
+namespace opendeck::database
 {
     /**
      * @brief Convenience builder that exposes the shared hardware database instance.
@@ -31,4 +31,4 @@ namespace database
             return admin;
         }
     };
-}    // namespace database
+}    // namespace opendeck::database

@@ -38,7 +38,7 @@ extern "C"
 #include <span>
 #include <cerrno>
 
-namespace protocol::midi
+namespace opendeck::protocol::midi
 {
 #define OPENDECK_DIN_MIDI_NODE DT_NODELABEL(opendeck_din_midi)
 
@@ -824,4 +824,4 @@ namespace protocol::midi
         bool _ready       = false;
         bool _drop_logged = false;
     };
-}    // namespace protocol::midi
+}    // namespace opendeck::protocol::midi

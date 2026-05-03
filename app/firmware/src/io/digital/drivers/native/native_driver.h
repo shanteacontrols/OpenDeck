@@ -10,7 +10,7 @@
 
 #define OPENDECK_BUTTON_NATIVE_GPIO_ENTRY(index, node_id) GPIO_DT_SPEC_GET_BY_IDX(node_id, native_gpios, index)
 
-namespace io::digital::drivers
+namespace opendeck::io::digital::drivers
 {
     /**
      * @brief Digital input driver for directly connected GPIO buttons.
@@ -120,6 +120,6 @@ namespace io::digital::drivers
             return frame;
         }
     };
-}    // namespace io::digital::drivers
+}    // namespace opendeck::io::digital::drivers
 
 #undef OPENDECK_BUTTON_NATIVE_GPIO_ENTRY

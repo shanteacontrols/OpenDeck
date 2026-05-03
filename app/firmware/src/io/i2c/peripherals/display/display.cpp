@@ -16,8 +16,8 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
-using namespace io::i2c::display;
-using namespace protocol;
+using namespace opendeck::io::i2c::display;
+using namespace opendeck::protocol;
 
 namespace
 {
@@ -365,7 +365,8 @@ std::optional<uint8_t> Display::sys_config_set(sys::Config::Section::I2c section
         case Setting::MidiNotesAlternate:
         {
             _elements.use_alternate_note(value);
-        };
+        }
+        break;
 
         default:
             break;

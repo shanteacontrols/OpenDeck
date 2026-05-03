@@ -8,7 +8,7 @@
 #include "indicators.h"
 #include "hwa_stub.h"
 
-namespace io::indicators
+namespace opendeck::io::indicators
 {
     /**
      * @brief Stub builder that wires the indicator subsystem to a no-op backend.
@@ -39,4 +39,4 @@ namespace io::indicators
         HwaStub    _hwa;
         Indicators _instance;
     };
-}    // namespace io::indicators
+}    // namespace opendeck::io::indicators

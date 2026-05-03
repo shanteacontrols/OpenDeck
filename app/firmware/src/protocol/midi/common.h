@@ -13,7 +13,7 @@
 #include "zlibs/utils/midi/transport/serial/transport_serial.h"
 #include "zlibs/utils/midi/transport/ble/transport_ble.h"
 
-namespace protocol::midi
+namespace opendeck::protocol::midi
 {
     /** @brief USB transport type alias used by the MIDI subsystem. */
     using Usb = zlibs::utils::midi::usb::Usb;
@@ -286,4 +286,4 @@ namespace protocol::midi
         SendMidiClockDin,
         Count
     };
-}    // namespace protocol::midi
+}    // namespace opendeck::protocol::midi

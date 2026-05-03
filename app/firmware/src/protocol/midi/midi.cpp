@@ -6,7 +6,7 @@
 #include "midi.h"
 #include "system/config.h"
 #include "util/conversion/conversion.h"
-#include "messaging/messaging.h"
+#include "signaling/signaling.h"
 #include "util/configurable/configurable.h"
 #include "global/midi_program.h"
 #include "global/bpm.h"
@@ -15,8 +15,11 @@
 #include <zephyr/kernel.h>
 #include <span>
 
-using namespace protocol::midi;
-using namespace zlibs::utils;
+using namespace opendeck;
+using namespace opendeck::protocol::midi;
+
+namespace zmidi = zlibs::utils::midi;
+namespace zmisc = zlibs::utils::misc;
 
 namespace
 {
@@ -47,10 +50,10 @@ Midi::Midi(HwaUsb&    hwa_usb,
     , _hwa_ble(hwa_ble)
     , _database(database)
     , _clock_timer(
-          misc::Timer::Type::Repeating,
+          zmisc::Timer::Type::Repeating,
           [this]()
           {
-              _serial.send(zlibs::utils::midi::midi1::timing_clock(MIDI_GROUP));
+              _serial.send(zmidi::midi1::timing_clock(MIDI_GROUP));
           })
     , _thread([this]()
               {
@@ -66,9 +69,9 @@ Midi::Midi(HwaUsb&    hwa_usb,
 {
     _hwa_usb.register_on_ready_handler([]()
                                        {
-                                           messaging::SystemSignal signal = {};
-                                           signal.system_message          = messaging::SystemMessage::UsbMidiReady;
-                                           messaging::publish(signal);
+                                           signaling::SystemSignal signal = {};
+                                           signal.system_event            = signaling::SystemEvent::UsbMidiReady;
+                                           signaling::publish(signal);
                                        });
 
     // place all interfaces in array for easier access
@@ -92,27 +95,27 @@ Midi::Midi(HwaUsb&    hwa_usb,
         K_POLL_MODE_NOTIFY_ONLY,
         _hwa_ble.data_available_signal());
 
-    messaging::subscribe<messaging::SystemSignal>(
-        [this](const messaging::SystemSignal& event)
+    signaling::subscribe<signaling::SystemSignal>(
+        [this](const signaling::SystemSignal& event)
         {
-            switch (event.system_message)
+            switch (event.system_event)
             {
-            case messaging::SystemMessage::PresetChanged:
+            case signaling::SystemEvent::PresetChanged:
             {
                 init();
             }
             break;
 
-            case messaging::SystemMessage::MidiBpmChange:
+            case signaling::SystemEvent::MidiBpmChange:
             {
                 if (is_setting_enabled(Setting::DinEnabled) && is_setting_enabled(Setting::SendMidiClockDin))
                 {
-                    _clock_timer.start(Bpm.bpm_to_usec(Bpm.value()), misc::TimerUnit::Us);
+                    _clock_timer.start(Bpm.bpm_to_usec(Bpm.value()), zmisc::TimerUnit::Us);
                 }
             }
             break;
 
-            case messaging::SystemMessage::BurstMidiStart:
+            case signaling::SystemEvent::BurstMidiStart:
             {
                 _burst_midi_active = true;
                 _usb_burst_count   = 0;
@@ -120,7 +123,7 @@ Midi::Midi(HwaUsb&    hwa_usb,
             }
             break;
 
-            case messaging::SystemMessage::BurstMidiStop:
+            case signaling::SystemEvent::BurstMidiStop:
             {
                 flush_usb_burst();
                 _burst_midi_active = false;
@@ -132,16 +135,16 @@ Midi::Midi(HwaUsb&    hwa_usb,
             }
         });
 
-    messaging::subscribe<messaging::MidiSignal>(
-        [this](const messaging::MidiSignal& event)
+    signaling::subscribe<signaling::MidiSignal>(
+        [this](const signaling::MidiSignal& event)
         {
             send(event);
         });
 
-    messaging::subscribe<messaging::UmpSignal>(
-        [this](const messaging::UmpSignal& event)
+    signaling::subscribe<signaling::UmpSignal>(
+        [this](const signaling::UmpSignal& event)
         {
-            if (event.direction != messaging::MidiDirection::Out)
+            if (event.direction != signaling::MidiDirection::Out)
             {
                 return;
             }
@@ -149,8 +152,8 @@ Midi::Midi(HwaUsb&    hwa_usb,
             send(event);
         });
 
-    messaging::subscribe<messaging::UsbUmpBurstSignal>(
-        [this](const messaging::UsbUmpBurstSignal& event)
+    signaling::subscribe<signaling::UsbUmpBurstSignal>(
+        [this](const signaling::UsbUmpBurstSignal& event)
         {
             append_usb_burst_packet(event.packet);
 
@@ -159,13 +162,13 @@ Midi::Midi(HwaUsb&    hwa_usb,
                 return;
             }
 
-            if (!zlibs::utils::midi::is_sysex7_packet(event.packet))
+            if (!zmidi::is_sysex7_packet(event.packet))
             {
                 flush_usb_burst();
                 return;
             }
 
-            if (zlibs::utils::midi::sysex7_ends_message(zlibs::utils::midi::sysex7_status(event.packet)))
+            if (zmidi::sysex7_ends_message(zmidi::sysex7_status(event.packet)))
             {
                 flush_usb_burst();
             }
@@ -325,7 +328,7 @@ bool Midi::setup_serial()
 
     if (is_setting_enabled(Setting::SendMidiClockDin))
     {
-        _clock_timer.start(Bpm.bpm_to_usec(Bpm.value()), misc::TimerUnit::Us);
+        _clock_timer.start(Bpm.bpm_to_usec(Bpm.value()), zmisc::TimerUnit::Us);
     }
     else
     {
@@ -495,12 +498,12 @@ void Midi::read_interface(size_t interface_index)
             break;
         }
 
-        messaging::publish(messaging::MidiTrafficSignal{
+        signaling::publish(signaling::MidiTrafficSignal{
             .transport = interface_to_transport(interface_index),
-            .direction = messaging::MidiDirection::In,
+            .direction = signaling::MidiDirection::In,
         });
 
-        const auto message = midi::decode_message(packet.value());
+        const auto message = decode_message(packet.value());
 
         switch (message.type)
         {
@@ -524,8 +527,8 @@ void Midi::read_interface(size_t interface_index)
             break;
         }
 
-        messaging::publish(messaging::UmpSignal{
-            .direction = messaging::MidiDirection::In,
+        signaling::publish(signaling::UmpSignal{
+            .direction = signaling::MidiDirection::In,
             .packet    = packet.value(),
         });
     }
@@ -568,14 +571,14 @@ bool Midi::apply_din_loopback()
     return true;
 }
 
-void Midi::send(const messaging::MidiSignal& event)
+void Midi::send(const signaling::MidiSignal& event)
 {
     if (protocol::Base::is_frozen())
     {
         return;
     }
 
-    if (event.source == messaging::MidiSource::AnalogButton)
+    if (event.source == signaling::MidiSource::AnalogButton)
     {
         return;
     }
@@ -591,20 +594,20 @@ void Midi::send(const messaging::MidiSignal& event)
     {
         if (_burst_midi_active)
         {
-            (void)messaging::publish(messaging::UsbUmpBurstSignal{ .packet = packet });
+            (void)signaling::publish(signaling::UsbUmpBurstSignal{ .packet = packet });
 
-            messaging::UmpSignal non_usb_signal = {};
+            signaling::UmpSignal non_usb_signal = {};
             non_usb_signal.packet               = packet;
 
-            non_usb_signal.route = messaging::UmpSignal::Route::Din;
+            non_usb_signal.route = signaling::UmpSignal::Route::Din;
             send(non_usb_signal);
 
-            non_usb_signal.route = messaging::UmpSignal::Route::Ble;
+            non_usb_signal.route = signaling::UmpSignal::Route::Ble;
             send(non_usb_signal);
             return;
         }
 
-        messaging::UmpSignal signal = {};
+        signaling::UmpSignal signal = {};
         signal.packet               = packet;
         send(signal);
     };
@@ -631,7 +634,7 @@ void Midi::send(const messaging::MidiSignal& event)
         send_channel_voice(
             [&](uint8_t channel)
             {
-                return zlibs::utils::midi::midi1::note_off(
+                return zmidi::midi1::note_off(
                     MIDI_GROUP,
                     to_zero_based_channel(channel),
                     event.index,
@@ -646,7 +649,7 @@ void Midi::send(const messaging::MidiSignal& event)
         send_channel_voice(
             [&](uint8_t channel)
             {
-                return zlibs::utils::midi::midi1::note_on(
+                return zmidi::midi1::note_on(
                     MIDI_GROUP,
                     to_zero_based_channel(channel),
                     event.index,
@@ -660,7 +663,7 @@ void Midi::send(const messaging::MidiSignal& event)
         send_channel_voice(
             [&](uint8_t channel)
             {
-                return zlibs::utils::midi::midi1::control_change(
+                return zmidi::midi1::control_change(
                     MIDI_GROUP,
                     to_zero_based_channel(channel),
                     event.index,
@@ -674,7 +677,7 @@ void Midi::send(const messaging::MidiSignal& event)
         send_channel_voice(
             [&](uint8_t channel)
             {
-                return zlibs::utils::midi::midi1::program_change(
+                return zmidi::midi1::program_change(
                     MIDI_GROUP,
                     to_zero_based_channel(channel),
                     event.index);
@@ -683,28 +686,40 @@ void Midi::send(const messaging::MidiSignal& event)
     break;
 
     case MessageType::SysRealTimeClock:
-        send_ump(zlibs::utils::midi::midi1::timing_clock(MIDI_GROUP));
-        break;
+    {
+        send_ump(zmidi::midi1::timing_clock(MIDI_GROUP));
+    }
+    break;
 
     case MessageType::SysRealTimeStart:
-        send_ump(zlibs::utils::midi::midi1::start(MIDI_GROUP));
-        break;
+    {
+        send_ump(zmidi::midi1::start(MIDI_GROUP));
+    }
+    break;
 
     case MessageType::SysRealTimeContinue:
-        send_ump(zlibs::utils::midi::midi1::continue_playback(MIDI_GROUP));
-        break;
+    {
+        send_ump(zmidi::midi1::continue_playback(MIDI_GROUP));
+    }
+    break;
 
     case MessageType::SysRealTimeStop:
-        send_ump(zlibs::utils::midi::midi1::stop(MIDI_GROUP));
-        break;
+    {
+        send_ump(zmidi::midi1::stop(MIDI_GROUP));
+    }
+    break;
 
     case MessageType::SysRealTimeActiveSensing:
-        send_ump(zlibs::utils::midi::midi1::active_sensing(MIDI_GROUP));
-        break;
+    {
+        send_ump(zmidi::midi1::active_sensing(MIDI_GROUP));
+    }
+    break;
 
     case MessageType::SysRealTimeSystemReset:
-        send_ump(zlibs::utils::midi::midi1::system_reset(MIDI_GROUP));
-        break;
+    {
+        send_ump(zmidi::midi1::system_reset(MIDI_GROUP));
+    }
+    break;
 
     case MessageType::MmcPlay:
     case MessageType::MmcStop:
@@ -717,24 +732,34 @@ void Midi::send(const messaging::MidiSignal& event)
         switch (event.message)
         {
         case MessageType::MmcPlay:
-            packet = zlibs::utils::midi::midi1::mmc<zlibs::utils::midi::MessageType::MmcPlay>(MIDI_GROUP, event.index);
-            break;
+        {
+            packet = zmidi::midi1::mmc<zmidi::MessageType::MmcPlay>(MIDI_GROUP, event.index);
+        }
+        break;
 
         case MessageType::MmcStop:
-            packet = zlibs::utils::midi::midi1::mmc<zlibs::utils::midi::MessageType::MmcStop>(MIDI_GROUP, event.index);
-            break;
+        {
+            packet = zmidi::midi1::mmc<zmidi::MessageType::MmcStop>(MIDI_GROUP, event.index);
+        }
+        break;
 
         case MessageType::MmcPause:
-            packet = zlibs::utils::midi::midi1::mmc<zlibs::utils::midi::MessageType::MmcPause>(MIDI_GROUP, event.index);
-            break;
+        {
+            packet = zmidi::midi1::mmc<zmidi::MessageType::MmcPause>(MIDI_GROUP, event.index);
+        }
+        break;
 
         case MessageType::MmcRecordStart:
-            packet = zlibs::utils::midi::midi1::mmc<zlibs::utils::midi::MessageType::MmcRecordStart>(MIDI_GROUP, event.index);
-            break;
+        {
+            packet = zmidi::midi1::mmc<zmidi::MessageType::MmcRecordStart>(MIDI_GROUP, event.index);
+        }
+        break;
 
         case MessageType::MmcRecordStop:
-            packet = zlibs::utils::midi::midi1::mmc<zlibs::utils::midi::MessageType::MmcRecordStop>(MIDI_GROUP, event.index);
-            break;
+        {
+            packet = zmidi::midi1::mmc<zmidi::MessageType::MmcRecordStop>(MIDI_GROUP, event.index);
+        }
+        break;
 
         default:
             break;
@@ -752,7 +777,7 @@ void Midi::send(const messaging::MidiSignal& event)
     }
 }
 
-void Midi::send(const messaging::UmpSignal& event)
+void Midi::send(const signaling::UmpSignal& event)
 {
     if (protocol::Base::is_frozen())
     {
@@ -766,37 +791,43 @@ void Midi::send(const messaging::UmpSignal& event)
 
         if ((interface_instance != nullptr) && interface_instance->initialized())
         {
-            if (event.direction == messaging::MidiDirection::Out)
+            if (event.direction == signaling::MidiDirection::Out)
             {
                 switch (event.route)
                 {
-                case messaging::UmpSignal::Route::All:
+                case signaling::UmpSignal::Route::All:
                     break;
 
-                case messaging::UmpSignal::Route::Usb:
-                    if (transport != messaging::MidiTransport::Usb)
+                case signaling::UmpSignal::Route::Usb:
+                {
+                    if (transport != signaling::MidiTransport::Usb)
                     {
                         continue;
                     }
-                    break;
+                }
+                break;
 
-                case messaging::UmpSignal::Route::Din:
-                    if (transport != messaging::MidiTransport::Din)
+                case signaling::UmpSignal::Route::Din:
+                {
+                    if (transport != signaling::MidiTransport::Din)
                     {
                         continue;
                     }
-                    break;
+                }
+                break;
 
-                case messaging::UmpSignal::Route::Ble:
-                    if (transport != messaging::MidiTransport::Ble)
+                case signaling::UmpSignal::Route::Ble:
+                {
+                    if (transport != signaling::MidiTransport::Ble)
                     {
                         continue;
                     }
-                    break;
+                }
+                break;
                 }
             }
 
-            if ((transport == messaging::MidiTransport::Ble) && !_hwa_ble.ready())
+            if ((transport == signaling::MidiTransport::Ble) && !_hwa_ble.ready())
             {
                 continue;
             }
@@ -809,29 +840,29 @@ void Midi::send(const messaging::UmpSignal& event)
                         static_cast<int>(UMP_MT(event.packet)));
             }
 
-            messaging::publish(messaging::MidiTrafficSignal{
+            signaling::publish(signaling::MidiTrafficSignal{
                 .transport = transport,
-                .direction = messaging::MidiDirection::Out,
+                .direction = signaling::MidiDirection::Out,
             });
         }
     }
 }
 
-messaging::MidiTransport Midi::interface_to_transport(size_t index) const
+signaling::MidiTransport Midi::interface_to_transport(size_t index) const
 {
     switch (index)
     {
     case static_cast<size_t>(Interface::Usb):
-        return messaging::MidiTransport::Usb;
+        return signaling::MidiTransport::Usb;
 
     case static_cast<size_t>(Interface::Serial):
-        return messaging::MidiTransport::Din;
+        return signaling::MidiTransport::Din;
 
     case static_cast<size_t>(Interface::Ble):
-        return messaging::MidiTransport::Ble;
+        return signaling::MidiTransport::Ble;
 
     default:
-        return messaging::MidiTransport::Usb;
+        return signaling::MidiTransport::Usb;
     }
 }
 
@@ -1286,7 +1317,7 @@ std::optional<uint8_t> Midi::sys_config_set(sys::Config::Section::Global section
     {
         if (value)
         {
-            _clock_timer.start(Bpm.bpm_to_usec(Bpm.value()), misc::TimerUnit::Us);
+            _clock_timer.start(Bpm.bpm_to_usec(Bpm.value()), zmisc::TimerUnit::Us);
         }
         else
         {
@@ -1317,7 +1348,7 @@ std::optional<uint8_t> Midi::sys_config_set(sys::Config::Section::Global section
 
             if (is_setting_enabled(Setting::SendMidiClockDin))
             {
-                _clock_timer.start(Bpm.bpm_to_usec(Bpm.value()), misc::TimerUnit::Us);
+                _clock_timer.start(Bpm.bpm_to_usec(Bpm.value()), zmisc::TimerUnit::Us);
             }
         }
         break;

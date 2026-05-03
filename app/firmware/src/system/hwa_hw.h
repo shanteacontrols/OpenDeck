@@ -18,7 +18,7 @@
 
 #include <zephyr/sys/reboot.h>
 
-namespace sys
+namespace opendeck::sys
 {
     /**
      * @brief Hardware-backed system backend that controls reboot mode selection.
@@ -85,4 +85,4 @@ namespace sys
             &_builder_midi.instance(),
         };
     };
-}    // namespace sys
+}    // namespace opendeck::sys

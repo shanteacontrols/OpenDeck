@@ -13,7 +13,7 @@
 
 #include <array>
 
-namespace io::i2c
+namespace opendeck::io::i2c
 {
     /**
      * @brief Top-level I2C subsystem that owns and updates registered peripherals.
@@ -64,4 +64,4 @@ namespace io::i2c
          */
         void shutdown();
     };
-}    // namespace io::i2c
+}    // namespace opendeck::io::i2c

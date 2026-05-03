@@ -10,7 +10,7 @@
 #include "io/digital/drivers/count.h"
 #include "io/touchscreen/count.h"
 
-namespace io::buttons
+namespace opendeck::io::buttons
 {
     /** @brief Debounce interval applied to digital button inputs in milliseconds. */
     constexpr inline uint32_t DEBOUNCE_TIME_MS = 8;
@@ -86,4 +86,4 @@ namespace io::buttons
         MmcPlayStop,
         Count
     };
-}    // namespace io::buttons
+}    // namespace opendeck::io::buttons

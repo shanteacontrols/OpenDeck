@@ -31,7 +31,7 @@
 #include <string>
 #include <vector>
 
-namespace test
+namespace opendeck::tests
 {
     /**
      * @brief Describes one MIDI event fed into the test helper.
@@ -106,20 +106,28 @@ namespace test
             switch (event.message)
             {
             case protocol::midi::MessageType::NoteOff:
+            {
                 packets.push_back(zlibs::utils::midi::midi1::note_off(0, event.channel - 1, event.index, event.value));
-                break;
+            }
+            break;
 
             case protocol::midi::MessageType::NoteOn:
+            {
                 packets.push_back(zlibs::utils::midi::midi1::note_on(0, event.channel - 1, event.index, event.value));
-                break;
+            }
+            break;
 
             case protocol::midi::MessageType::ControlChange:
+            {
                 packets.push_back(zlibs::utils::midi::midi1::control_change(0, event.channel - 1, event.index, event.value));
-                break;
+            }
+            break;
 
             case protocol::midi::MessageType::ProgramChange:
+            {
                 packets.push_back(zlibs::utils::midi::midi1::program_change(0, event.channel - 1, event.index));
-                break;
+            }
+            break;
 
             case protocol::midi::MessageType::SysEx:
             {
@@ -411,7 +419,7 @@ namespace test
         {
             std::vector<uint8_t> response;
 
-            std::cout << "req: " << test::vector_to_hex_string(request) << std::endl;
+            std::cout << "req: " << tests::vector_to_hex_string(request) << std::endl;
 
             if (expect_response)
             {
@@ -438,7 +446,7 @@ namespace test
                 [[maybe_unused]] auto ret = send_midi(send_midi_payload(request));
             }
 
-            std::cout << "res: " << test::vector_to_hex_string(response) << std::endl;
+            std::cout << "res: " << tests::vector_to_hex_string(response) << std::endl;
             return response;
         }
 
@@ -458,8 +466,8 @@ namespace test
             }
 
             std::string response;
-            const auto  result = test::wsystem("sendmidi list | grep -F \"" + std::string(USB_MIDI_DEVICE_NAME) + "\"",
-                                               response);
+            const auto  result = tests::wsystem("sendmidi list | grep -F \"" + std::string(USB_MIDI_DEVICE_NAME) + "\"",
+                                                response);
 
             if (result == 0)
             {
@@ -669,7 +677,7 @@ namespace test
          */
         bool send_write_request_to_device(std::vector<uint8_t>& request)
         {
-            std::cout << "req: " << test::vector_to_hex_string(request) << std::endl;
+            std::cout << "req: " << tests::vector_to_hex_string(request) << std::endl;
 
             if (!send_midi(send_midi_payload(request)))
             {
@@ -831,7 +839,7 @@ namespace test
          */
         static std::string temporary_file_path(const std::string& tag)
         {
-            return "/tmp/" + tag + "-" + std::to_string(test::millis()) + ".log";
+            return "/tmp/" + tag + "-" + std::to_string(tests::millis()) + ".log";
         }
 
         /**
@@ -885,7 +893,7 @@ namespace test
         static bool send_midi(const std::string& payload)
         {
             const auto cmd = "sendmidi dev \"" + std::string(USB_MIDI_DEVICE_NAME) + "\" hex syx " + payload;
-            return test::wsystem(cmd) == 0;
+            return tests::wsystem(cmd) == 0;
         }
 
         /**
@@ -903,7 +911,7 @@ namespace test
 
             std::string pid_string;
 
-            if (test::wsystem(cmd, pid_string) != 0)
+            if (tests::wsystem(cmd, pid_string) != 0)
             {
                 return -1;
             }
@@ -927,7 +935,7 @@ namespace test
         {
             if (pid > 0)
             {
-                test::wsystem("kill " + std::to_string(pid) + " >/dev/null 2>&1");
+                tests::wsystem("kill " + std::to_string(pid) + " >/dev/null 2>&1");
             }
         }
 
@@ -1128,4 +1136,4 @@ namespace test
         }
 #endif
     };
-}    // namespace test
+}    // namespace opendeck::tests

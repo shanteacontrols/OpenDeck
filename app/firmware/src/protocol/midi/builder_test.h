@@ -9,7 +9,7 @@
 #include "hwa_test.h"
 #include "database/builder_test.h"
 
-namespace protocol::midi
+namespace opendeck::protocol::midi
 {
     /**
      * @brief Test builder that wires the MIDI subsystem to test transport backends.
@@ -43,4 +43,4 @@ namespace protocol::midi
         Database      _database;
         Midi          _instance;
     };
-}    // namespace protocol::midi
+}    // namespace opendeck::protocol::midi

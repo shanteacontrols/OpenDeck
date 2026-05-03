@@ -7,7 +7,7 @@
 
 #include <zephyr/kernel.h>
 
-namespace util
+namespace opendeck::util
 {
     /**
      * @brief Sleeps the current thread or yields immediately when no sleep is requested.
@@ -26,4 +26,4 @@ namespace util
             k_msleep(sleep_ms);
         }
     }
-}    // namespace util
+}    // namespace opendeck::util

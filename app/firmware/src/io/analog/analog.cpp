@@ -18,8 +18,9 @@
 
 #include <zephyr/logging/log.h>
 
-using namespace io::analog;
-using namespace protocol;
+using namespace opendeck;
+using namespace opendeck::io::analog;
+using namespace opendeck::protocol;
 
 namespace
 {
@@ -347,8 +348,8 @@ void Analog::send_message([[maybe_unused]] size_t index, Descriptor& descriptor,
 
     auto send_analog = [&]()
     {
-        descriptor.signal.source = messaging::MidiSource::Analog;
-        messaging::publish(descriptor.signal);
+        descriptor.signal.source = signaling::MidiSource::Analog;
+        signaling::publish(descriptor.signal);
     };
 
     switch (descriptor.type)
@@ -376,12 +377,12 @@ void Analog::send_message([[maybe_unused]] size_t index, Descriptor& descriptor,
 
     case Type::Button:
     {
-        messaging::MidiSignal signal = {};
-        signal.source                = messaging::MidiSource::AnalogButton;
+        signaling::MidiSignal signal = {};
+        signal.source                = signaling::MidiSource::AnalogButton;
         signal.component_index       = descriptor.signal.component_index;
         signal.value                 = descriptor.signal.value;
 
-        messaging::publish(signal);
+        signaling::publish(signal);
     }
     break;
 

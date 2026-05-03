@@ -12,7 +12,7 @@
 #include "io/digital/encoders/encoders.h"
 #include "threads.h"
 
-namespace io::digital
+namespace opendeck::io::digital
 {
     /**
      * @brief Top-level digital-input subsystem that coordinates buttons and encoders.
@@ -71,4 +71,4 @@ namespace io::digital
          */
         void shutdown();
     };
-}    // namespace io::digital
+}    // namespace opendeck::io::digital

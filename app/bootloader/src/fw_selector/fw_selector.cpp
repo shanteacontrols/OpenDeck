@@ -10,6 +10,8 @@
 #include <algorithm>
 #include <array>
 
+using namespace opendeck;
+
 namespace
 {
     constexpr uint32_t FLASH_SCAN_BLOCK_SIZE            = 256;

@@ -8,7 +8,7 @@
 #include "../driver_base.h"
 #include "count.h"
 
-namespace io::digital::drivers
+namespace opendeck::io::digital::drivers
 {
     /**
      * @brief Digital input driver for matrices that read rows through a shift register.
@@ -201,4 +201,4 @@ namespace io::digital::drivers
             return frame;
         }
     };
-}    // namespace io::digital::drivers
+}    // namespace opendeck::io::digital::drivers

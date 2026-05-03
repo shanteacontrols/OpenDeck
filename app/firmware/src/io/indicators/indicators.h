@@ -7,11 +7,11 @@
 
 #include "deps.h"
 #include "io/base.h"
-#include "messaging/messaging.h"
+#include "signaling/signaling.h"
 
 #include "zlibs/utils/misc/kwork_delayable.h"
 
-namespace io::indicators
+namespace opendeck::io::indicators
 {
     /**
      * @brief Top-level subsystem that drives MIDI traffic and status indicators.
@@ -64,7 +64,7 @@ namespace io::indicators
          *
          * @param signal MIDI traffic event to visualize.
          */
-        void on_traffic(const messaging::MidiTrafficSignal& signal);
+        void on_traffic(const signaling::MidiTrafficSignal& signal);
 
         /**
          * @brief Applies the idle state to one indicator.
@@ -100,7 +100,7 @@ namespace io::indicators
          *
          * @return Indicator type that represents the traffic source.
          */
-        Type indicator_type(messaging::MidiTransport transport, messaging::MidiDirection direction);
+        Type indicator_type(signaling::MidiTransport transport, signaling::MidiDirection direction);
 
         /**
          * @brief Sets the state of all input indicators.
@@ -126,4 +126,4 @@ namespace io::indicators
          */
         void shutdown();
     };
-}    // namespace io::indicators
+}    // namespace opendeck::io::indicators

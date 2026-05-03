@@ -14,7 +14,7 @@
 #include <zephyr/device.h>
 #include <zephyr/drivers/gpio.h>
 
-namespace io::leds
+namespace opendeck::io::leds
 {
     /**
      * @brief LED driver that shifts output state through one or more shift registers.
@@ -136,4 +136,4 @@ namespace io::leds
             return (register_count * 8) / 3;
         }
     };
-}    // namespace io::leds
+}    // namespace opendeck::io::leds

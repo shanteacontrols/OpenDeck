@@ -10,7 +10,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace io::leds
+namespace opendeck::io::leds
 {
     enum class Brightness : uint8_t;
     enum class RgbComponent : uint8_t;
@@ -52,4 +52,4 @@ namespace io::leds
          */
         virtual size_t rgb_component_from_rgb(size_t index, RgbComponent component) = 0;
     };
-}    // namespace io::leds
+}    // namespace opendeck::io::leds

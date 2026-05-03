@@ -5,6 +5,7 @@
 
 #include "tests/common.h"
 #include "tests/helpers/database.h"
+#include "tests/helpers/misc.h"
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_ENCODERS
 
@@ -12,25 +13,25 @@
 #include "util/configurable/configurable.h"
 #include "zlibs/utils/misc/mutex.h"
 
-using namespace io;
-using namespace protocol;
+using namespace opendeck::io;
+using namespace opendeck::protocol;
 
 namespace
 {
     struct TestEvent
     {
-        size_t                   component_index = 0;
-        uint8_t                  channel         = 0;
-        uint16_t                 index           = 0;
-        uint16_t                 value           = 0;
-        midi::MessageType        message         = midi::MessageType::Invalid;
-        messaging::SystemMessage system_message  = {};
+        size_t                 component_index = 0;
+        uint8_t                channel         = 0;
+        uint16_t               index           = 0;
+        uint16_t               value           = 0;
+        midi::MessageType      message         = midi::MessageType::Invalid;
+        signaling::SystemEvent system_event    = {};
     };
 
     class Listener
     {
         public:
-        void push(const messaging::MidiSignal& signal)
+        void push(const signaling::MidiSignal& signal)
         {
             const zlibs::utils::misc::LockGuard lock(_mutex);
 
@@ -43,12 +44,12 @@ namespace
             });
         }
 
-        void push(const messaging::SystemSignal& signal)
+        void push(const signaling::SystemSignal& signal)
         {
             const zlibs::utils::misc::LockGuard lock(_mutex);
 
             event_log.push_back(TestEvent{
-                .system_message = signal.system_message,
+                .system_event = signal.system_event,
             });
         }
 
@@ -97,17 +98,17 @@ namespace
                 ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Encoder::PulsesPerStep, i, 1));
             }
 
-            messaging::subscribe<messaging::MidiSignal>(
-                [this](const messaging::MidiSignal& signal)
+            signaling::subscribe<signaling::MidiSignal>(
+                [this](const signaling::MidiSignal& signal)
                 {
-                    if (signal.source == messaging::MidiSource::Encoder)
+                    if (signal.source == signaling::MidiSource::Encoder)
                     {
                         _listener.push(signal);
                     }
                 });
 
-            messaging::subscribe<messaging::SystemSignal>(
-                [this](const messaging::SystemSignal& signal)
+            signaling::subscribe<signaling::SystemSignal>(
+                [this](const signaling::SystemSignal& signal)
                 {
                     _listener.push(signal);
                 });
@@ -119,7 +120,7 @@ namespace
         void TearDown() override
         {
             ConfigHandler.clear();
-            messaging::clear_registry();
+            signaling::clear_registry();
             _listener.clear();
         }
 

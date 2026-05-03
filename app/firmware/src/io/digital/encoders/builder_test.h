@@ -11,7 +11,7 @@
 #include "io/digital/buttons/deps.h"
 #include "database/builder_test.h"
 
-namespace io::encoders
+namespace opendeck::io::encoders
 {
     /**
      * @brief Test builder that wires the encoder subsystem to test backends.
@@ -55,4 +55,4 @@ namespace io::encoders
         Database   _database;
         Encoders   _instance;
     };
-}    // namespace io::encoders
+}    // namespace opendeck::io::encoders

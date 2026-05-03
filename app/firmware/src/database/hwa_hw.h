@@ -7,7 +7,7 @@
 
 #include "deps.h"
 #include "layout.h"
-#include "messaging/messaging.h"
+#include "signaling/signaling.h"
 #include "io/indicators/indicators.h"
 
 #include "zlibs/utils/emueeprom/emueeprom.h"
@@ -26,7 +26,7 @@
 #include <optional>
 #include <span>
 
-namespace database
+namespace opendeck::database
 {
     /**
      * @brief Hardware-backed database storage backend.
@@ -85,27 +85,27 @@ namespace database
          */
         HwaHw()
         {
-            messaging::subscribe<messaging::SystemSignal>(
-                [this](const messaging::SystemSignal& signal)
+            signaling::subscribe<signaling::SystemSignal>(
+                [this](const signaling::SystemSignal& signal)
                 {
-                    switch (signal.system_message)
+                    switch (signal.system_event)
                     {
-                    case messaging::SystemMessage::BackupStart:
+                    case signaling::SystemEvent::BackupStart:
                     {
                         _backup_restore_active = true;
                     }
                     break;
 
-                    case messaging::SystemMessage::BackupEnd:
+                    case signaling::SystemEvent::BackupEnd:
                     {
                         _backup_restore_active = false;
                     }
                     break;
 
-                    case messaging::SystemMessage::RestoreStart:
-                    case messaging::SystemMessage::FactoryResetStart:
+                    case signaling::SystemEvent::RestoreStart:
+                    case signaling::SystemEvent::FactoryResetStart:
                     {
-                        if (signal.system_message == messaging::SystemMessage::RestoreStart)
+                        if (signal.system_event == signaling::SystemEvent::RestoreStart)
                         {
                             _backup_restore_active = true;
                         }
@@ -115,12 +115,12 @@ namespace database
                     }
                     break;
 
-                    case messaging::SystemMessage::RestoreEnd:
-                    case messaging::SystemMessage::FactoryResetEnd:
+                    case signaling::SystemEvent::RestoreEnd:
+                    case signaling::SystemEvent::FactoryResetEnd:
                     {
                         _bulk_write_active = false;
 
-                        if (signal.system_message == messaging::SystemMessage::RestoreEnd)
+                        if (signal.system_event == signaling::SystemEvent::RestoreEnd)
                         {
                             _backup_restore_active = false;
                         }
@@ -129,7 +129,7 @@ namespace database
                     }
                     break;
 
-                    case messaging::SystemMessage::PresetChanged:
+                    case signaling::SystemEvent::PresetChanged:
                     {
                         if (!_backup_restore_active && !_bulk_write_active && !_configuration_session_open)
                         {
@@ -138,14 +138,14 @@ namespace database
                     }
                     break;
 
-                    case messaging::SystemMessage::ConfigurationSessionOpened:
+                    case signaling::SystemEvent::ConfigurationSessionOpened:
                     {
                         _configuration_session_open = true;
                         update_cached_write_state();
                     }
                     break;
 
-                    case messaging::SystemMessage::ConfigurationSessionClosed:
+                    case signaling::SystemEvent::ConfigurationSessionClosed:
                     {
                         _configuration_session_open = false;
                         update_cached_write_state();
@@ -228,6 +228,7 @@ namespace database
 
                 return {};
             }
+            break;
 
             default:
                 return {};
@@ -468,4 +469,4 @@ namespace database
         HwaEmuEeprom _hwa_emueeprom;
         EmuEeprom    _emueeprom = EmuEeprom(_hwa_emueeprom);
     };
-}    // namespace database
+}    // namespace opendeck::database

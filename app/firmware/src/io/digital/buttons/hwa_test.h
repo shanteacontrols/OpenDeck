@@ -9,7 +9,7 @@
 
 #include <gmock/gmock.h>
 
-namespace io::buttons
+namespace opendeck::io::buttons
 {
     /**
      * @brief Test button backend with mockable state access.
@@ -35,4 +35,4 @@ namespace io::buttons
             return index / 2;
         }
     };
-}    // namespace io::buttons
+}    // namespace opendeck::io::buttons

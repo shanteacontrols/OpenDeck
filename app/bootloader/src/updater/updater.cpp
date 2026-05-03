@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <span>
 
+using namespace opendeck;
+
 namespace
 {
     constexpr uint8_t  BITS_PER_BYTE                            = 8U;

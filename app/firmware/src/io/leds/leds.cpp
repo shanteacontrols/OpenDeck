@@ -6,7 +6,7 @@
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_LEDS
 
 #include "leds.h"
-#include "messaging/messaging.h"
+#include "signaling/signaling.h"
 #include "global/midi_program.h"
 #include "util/conversion/conversion.h"
 #include "util/configurable/configurable.h"
@@ -16,9 +16,12 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
-using namespace io::leds;
-using namespace protocol;
-using namespace zlibs::utils;
+using namespace opendeck;
+using namespace opendeck::io::leds;
+using namespace opendeck::protocol;
+
+namespace zmidi = zlibs::utils::midi;
+namespace zmisc = zlibs::utils::misc;
 
 namespace
 {
@@ -60,15 +63,15 @@ Leds::Leds(Hwa&      hwa,
         _brightness[i] = Brightness::Off;
     }
 
-    messaging::subscribe<messaging::UmpSignal>(
-        [this](const messaging::UmpSignal& signal)
+    signaling::subscribe<signaling::UmpSignal>(
+        [this](const signaling::UmpSignal& signal)
         {
             if (is_frozen())
             {
                 return;
             }
 
-            if (signal.direction != messaging::MidiDirection::In)
+            if (signal.direction != signaling::MidiDirection::In)
             {
                 return;
             }
@@ -82,8 +85,8 @@ Leds::Leds(Hwa&      hwa,
             case protocol::midi::MessageType::ControlChange:
             case protocol::midi::MessageType::ProgramChange:
             {
-                const zlibs::utils::misc::LockGuard lock(_state_mutex);
-                midi_to_state(message, messaging::MidiDirection::In);
+                const zmisc::LockGuard lock(_state_mutex);
+                midi_to_state(message, signaling::MidiDirection::In);
                 request_update(false);
             }
             break;
@@ -96,7 +99,7 @@ Leds::Leds(Hwa&      hwa,
 
             case protocol::midi::MessageType::SysRealTimeStart:
             {
-                const zlibs::utils::misc::LockGuard lock(_state_mutex);
+                const zmisc::LockGuard lock(_state_mutex);
                 reset_blinking();
                 request_update(true);
             }
@@ -107,19 +110,19 @@ Leds::Leds(Hwa&      hwa,
             }
         });
 
-    messaging::subscribe<messaging::SystemSignal>(
-        [this](const messaging::SystemSignal& signal)
+    signaling::subscribe<signaling::SystemSignal>(
+        [this](const signaling::SystemSignal& signal)
         {
             if (is_frozen())
             {
                 return;
             }
 
-            switch (signal.system_message)
+            switch (signal.system_event)
             {
-            case messaging::SystemMessage::PresetChanged:
+            case signaling::SystemEvent::PresetChanged:
             {
-                const zlibs::utils::misc::LockGuard lock(_state_mutex);
+                const zmisc::LockGuard lock(_state_mutex);
                 set_all_off();
                 internal_preset_to_state(signal.value);
                 request_update(false);
@@ -131,45 +134,45 @@ Leds::Leds(Hwa&      hwa,
             }
         });
 
-    messaging::subscribe<messaging::TouchscreenScreenSignal>(
-        [this](const messaging::TouchscreenScreenSignal&)
+    signaling::subscribe<signaling::TouchscreenScreenSignal>(
+        [this](const signaling::TouchscreenScreenSignal&)
         {
             if (is_frozen())
             {
                 return;
             }
 
-            const zlibs::utils::misc::LockGuard lock(_state_mutex);
+            const zmisc::LockGuard lock(_state_mutex);
             refresh();
             request_update(false);
         });
 
-    messaging::subscribe<messaging::MidiSignal>(
-        [this](const messaging::MidiSignal& signal)
+    signaling::subscribe<signaling::MidiSignal>(
+        [this](const signaling::MidiSignal& signal)
         {
             if (is_frozen())
             {
                 return;
             }
 
-            const auto direction = (signal.source == messaging::MidiSource::Program)
-                                       ? messaging::MidiDirection::In
-                                       : messaging::MidiDirection::Out;
+            const auto direction = (signal.source == signaling::MidiSource::Program)
+                                       ? signaling::MidiDirection::In
+                                       : signaling::MidiDirection::Out;
 
             switch (signal.source)
             {
-            case messaging::MidiSource::Button:
-            case messaging::MidiSource::Analog:
-            case messaging::MidiSource::AnalogButton:
-            case messaging::MidiSource::Encoder:
-            case messaging::MidiSource::Program:
+            case signaling::MidiSource::Button:
+            case signaling::MidiSource::Analog:
+            case signaling::MidiSource::AnalogButton:
+            case signaling::MidiSource::Encoder:
+            case signaling::MidiSource::Program:
                 break;
 
             default:
                 return;
             }
 
-            const zlibs::utils::misc::LockGuard lock(_state_mutex);
+            const zmisc::LockGuard lock(_state_mutex);
 
             midi_to_state(
                 {
@@ -183,15 +186,15 @@ Leds::Leds(Hwa&      hwa,
             request_update(false);
         });
 
-    messaging::subscribe<messaging::InternalProgram>(
-        [this](const messaging::InternalProgram& signal)
+    signaling::subscribe<signaling::InternalProgram>(
+        [this](const signaling::InternalProgram& signal)
         {
             if (is_frozen())
             {
                 return;
             }
 
-            const zlibs::utils::misc::LockGuard lock(_state_mutex);
+            const zmisc::LockGuard lock(_state_mutex);
 
             midi_to_state(
                 {
@@ -200,7 +203,7 @@ Leds::Leds(Hwa&      hwa,
                     .data1   = signal.index,
                     .data2   = signal.value,
                 },
-                messaging::MidiDirection::In);
+                signaling::MidiDirection::In);
 
             request_update(false);
         });
@@ -265,7 +268,7 @@ void Leds::force_refresh(size_t start_index, size_t count)
 
     const auto end = std::min(start_index + count, total);
 
-    const zlibs::utils::misc::LockGuard lock(_state_mutex);
+    const zmisc::LockGuard lock(_state_mutex);
 
     for (size_t i = start_index; i < end; i++)
     {
@@ -307,7 +310,7 @@ void Leds::process_update(bool force_refresh)
         return;
     }
 
-    const zlibs::utils::misc::LockGuard lock(_state_mutex);
+    const zmisc::LockGuard lock(_state_mutex);
 
     if (_blink_reset_array_ptr == nullptr)
     {
@@ -340,8 +343,11 @@ void Leds::process_update(bool force_refresh)
     break;
 
     default:
+    {
         _hwa.update();
         return;
+    }
+    break;
     }
 
     // change the blink state for specific blink rate
@@ -432,7 +438,7 @@ Brightness Leds::value_to_brightness(uint8_t value)
     return static_cast<Brightness>((value % MIDI_VALUE_GROUP_SIZE % TOTAL_BRIGHTNESS_VALUES) + 1);
 }
 
-void Leds::midi_to_state(const protocol::midi::Message& message, messaging::MidiDirection direction)
+void Leds::midi_to_state(const protocol::midi::Message& message, signaling::MidiDirection direction)
 {
     const uint8_t global_channel     = _database.read(database::Config::Section::Global::MidiSettings, protocol::midi::Setting::GlobalChannel);
     const uint8_t use_global_channel = _database.read(database::Config::Section::Global::MidiSettings,
@@ -467,7 +473,7 @@ void Leds::midi_to_state(const protocol::midi::Message& message, messaging::Midi
 
         // determine whether led state or blink state should be changed
         // received MIDI message must match with defined control type
-        if (direction != messaging::MidiDirection::In)
+        if (direction != signaling::MidiDirection::In)
         {
             switch (control_type)
             {
@@ -612,7 +618,7 @@ void Leds::midi_to_state(const protocol::midi::Message& message, messaging::Midi
                 if (_database.read(database::Config::Section::Leds::Global, Setting::UseMidiProgramOffset))
                 {
                     activation_id += MidiProgram.offset();
-                    activation_id &= zlibs::utils::midi::MIDI_DATA_BYTE_MASK;
+                    activation_id &= zmidi::MIDI_DATA_BYTE_MASK;
                 }
             }
 
@@ -685,7 +691,7 @@ void Leds::internal_preset_to_state(uint8_t preset)
         if (_database.read(database::Config::Section::Leds::Global, Setting::UseMidiProgramOffset))
         {
             activation_id += MidiProgram.offset();
-            activation_id &= zlibs::utils::midi::MIDI_DATA_BYTE_MASK;
+            activation_id &= zmidi::MIDI_DATA_BYTE_MASK;
         }
 
         if (activation_id == preset)
@@ -838,9 +844,9 @@ void Leds::set_color(uint8_t index, Color color, Brightness brightness)
         uint8_t green_led = _hwa.rgb_component_from_rgb(rgb_from_output, RgbComponent::G);
         uint8_t blue_led  = _hwa.rgb_component_from_rgb(rgb_from_output, RgbComponent::B);
 
-        handle_led(red_led, RgbComponent::R, misc::bit_read(static_cast<uint8_t>(color), static_cast<size_t>(RgbComponent::R)), true);
-        handle_led(green_led, RgbComponent::G, misc::bit_read(static_cast<uint8_t>(color), static_cast<size_t>(RgbComponent::G)), true);
-        handle_led(blue_led, RgbComponent::B, misc::bit_read(static_cast<uint8_t>(color), static_cast<size_t>(RgbComponent::B)), true);
+        handle_led(red_led, RgbComponent::R, zmisc::bit_read(static_cast<uint8_t>(color), static_cast<size_t>(RgbComponent::R)), true);
+        handle_led(green_led, RgbComponent::G, zmisc::bit_read(static_cast<uint8_t>(color), static_cast<size_t>(RgbComponent::G)), true);
+        handle_led(blue_led, RgbComponent::B, zmisc::bit_read(static_cast<uint8_t>(color), static_cast<size_t>(RgbComponent::B)), true);
     }
     else
     {
@@ -894,12 +900,12 @@ void Leds::reset_blinking()
 
 void Leds::update_bit(uint8_t index, LedBit bit, bool state)
 {
-    misc::bit_write(_led_state[index], static_cast<uint8_t>(bit), state);
+    zmisc::bit_write(_led_state[index], static_cast<uint8_t>(bit), state);
 }
 
 bool Leds::bit(uint8_t index, LedBit bit)
 {
-    return misc::bit_read(_led_state[index], static_cast<size_t>(bit));
+    return zmisc::bit_read(_led_state[index], static_cast<size_t>(bit));
 }
 
 Color Leds::color(uint8_t index)
@@ -942,11 +948,11 @@ void Leds::set_state(size_t index, Brightness brightness)
         // specified hwa interface only writes to physical leds
         // for touchscreen and other destinations, notify via dispatcher
 
-        messaging::TouchscreenLedSignal signal = {};
+        signaling::TouchscreenLedSignal signal = {};
         signal.component_index                 = index - Collection::start_index(GroupTouchscreenComponents);
         signal.value                           = static_cast<uint16_t>(brightness);
 
-        messaging::publish(signal);
+        signaling::publish(signal);
     }
     else
     {

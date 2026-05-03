@@ -13,17 +13,17 @@
 
 #include <array>
 
-namespace sys
+namespace opendeck::sys
 {
     /**
      * @brief Collection of top-level I/O subsystem instances indexed by `io::Io`.
      */
-    using IoCollection = std::array<::io::Base*, static_cast<size_t>(::io::Io::Count)>;
+    using IoCollection = std::array<io::Base*, static_cast<size_t>(io::Io::Count)>;
 
     /**
      * @brief Collection of protocol subsystem instances indexed by `protocol::Protocol`.
      */
-    using ProtocolCollection = std::array<::protocol::Base*, static_cast<size_t>(::protocol::Protocol::Count)>;
+    using ProtocolCollection = std::array<protocol::Base*, static_cast<size_t>(protocol::Protocol::Count)>;
 
     /**
      * @brief Hardware abstraction used by the system coordinator.
@@ -68,4 +68,4 @@ namespace sys
          */
         virtual database::Admin& database() = 0;
     };
-}    // namespace sys
+}    // namespace opendeck::sys

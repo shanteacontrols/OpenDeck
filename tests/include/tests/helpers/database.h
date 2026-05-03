@@ -7,7 +7,7 @@
 
 #include "database/deps.h"
 
-namespace tests
+namespace opendeck::tests
 {
     /**
      * @brief No-op database lifecycle handler used by tests that only need a valid observer.
@@ -31,4 +31,4 @@ namespace tests
         {
         }
     };
-}    // namespace tests
+}    // namespace opendeck::tests

@@ -10,7 +10,7 @@
 
 #include "zlibs/utils/sysex_conf/sysex_conf.h"
 
-namespace util
+namespace opendeck::util
 {
     /**
      * @brief Converts runtime system-config sections into database-config sections.
@@ -190,4 +190,4 @@ namespace util
             database::Config::Section::Touchscreen::PageSwitchIndex,
         };
     };
-}    // namespace util
+}    // namespace opendeck::util

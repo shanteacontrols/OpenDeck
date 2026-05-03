@@ -7,7 +7,7 @@
 
 #include "deps.h"
 
-namespace io::encoders
+namespace opendeck::io::encoders
 {
     /**
      * @brief Stub encoder subsystem used when no encoder implementation is available.
@@ -44,4 +44,4 @@ namespace io::encoders
         {
         }
     };
-}    // namespace io::encoders
+}    // namespace opendeck::io::encoders

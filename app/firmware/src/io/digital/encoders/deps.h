@@ -12,7 +12,7 @@
 
 #include <optional>
 
-namespace io::encoders
+namespace opendeck::io::encoders
 {
     /**
      * @brief Database view used by the encoder subsystem.
@@ -77,4 +77,4 @@ namespace io::encoders
          */
         virtual uint32_t last_movement_time(size_t index) = 0;
     };
-}    // namespace io::encoders
+}    // namespace opendeck::io::encoders

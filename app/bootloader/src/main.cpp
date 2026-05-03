@@ -10,6 +10,8 @@
 
 #include <zephyr/kernel.h>
 
+using namespace opendeck;
+
 namespace
 {
     fw_selector::HwaHw      hwa_fw_selector = {};
@@ -45,14 +47,23 @@ int main()
     switch (selection.trigger)
     {
     case fw_selector::Trigger::Software:
+    {
         webusb::status("Software bootloader request");
-        break;
+    }
+    break;
+
     case fw_selector::Trigger::Hardware:
+    {
         webusb::status("Hardware bootloader request");
-        break;
+    }
+    break;
+
     case fw_selector::Trigger::InvalidApp:
+    {
         webusb::status("Application image invalid");
-        break;
+    }
+    break;
+
     case fw_selector::Trigger::None:
     default:
         break;

@@ -7,7 +7,7 @@
 
 #include "deps.h"
 
-namespace io::buttons
+namespace opendeck::io::buttons
 {
     /**
      * @brief Debouncing filter for digital button readings.
@@ -61,4 +61,4 @@ namespace io::buttons
         private:
         uint8_t _debounce_state[Collection::size(GroupDigitalInputs)] = {};
     };
-}    // namespace io::buttons
+}    // namespace opendeck::io::buttons

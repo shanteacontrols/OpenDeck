@@ -8,7 +8,7 @@
 #include "deps.h"
 #include "io/base.h"
 
-namespace io::leds
+namespace opendeck::io::leds
 {
     /**
      * @brief Stub LED subsystem used when no LED implementation is available.
@@ -43,4 +43,4 @@ namespace io::leds
         {
         }
     };
-}    // namespace io::leds
+}    // namespace opendeck::io::leds

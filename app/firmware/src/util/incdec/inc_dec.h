@@ -10,7 +10,7 @@
 #include <functional>
 #include <stddef.h>
 
-namespace util
+namespace opendeck::util
 {
     /**
      * @brief Performs bounded increment and decrement operations for an integral range.
@@ -87,4 +87,4 @@ namespace util
             return value - steps;
         }
     };
-}    // namespace util
+}    // namespace opendeck::util

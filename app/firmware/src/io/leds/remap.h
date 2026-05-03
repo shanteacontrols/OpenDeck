@@ -11,7 +11,7 @@
 #include <cstddef>
 #include <zephyr/devicetree.h>
 
-namespace io::leds
+namespace opendeck::io::leds
 {
     /**
      * @brief Resolves logical LED indices against the physical driver order.
@@ -65,4 +65,4 @@ namespace io::leds
 #undef OPENDECK_LED_REMAP_ENTRY
 #endif
     };
-}    // namespace io::leds
+}    // namespace opendeck::io::leds

@@ -15,7 +15,7 @@
 #include "protocol/midi/common.h"
 #include "system/config.h"
 
-namespace sys
+namespace opendeck::sys
 {
     /**
      * @brief SysEx configuration layout used by the system backup and restore flow.
@@ -411,4 +411,4 @@ namespace sys
             }
         }
     };
-}    // namespace sys
+}    // namespace opendeck::sys

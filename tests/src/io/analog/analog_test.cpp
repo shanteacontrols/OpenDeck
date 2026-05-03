@@ -5,6 +5,7 @@
 
 #include "tests/common.h"
 #include "tests/helpers/database.h"
+#include "tests/helpers/misc.h"
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_ADC
 
@@ -18,8 +19,8 @@
 
 #include <deque>
 
-using namespace io;
-using namespace protocol;
+using namespace opendeck::io;
+using namespace opendeck::protocol;
 
 namespace
 {
@@ -123,7 +124,7 @@ namespace
     class MidiSignalCollector
     {
         public:
-        void push(const messaging::MidiSignal& signal)
+        void push(const signaling::MidiSignal& signal)
         {
             const zlibs::utils::misc::LockGuard lock(_mutex);
             _signals.push_back(signal);
@@ -141,7 +142,7 @@ namespace
             return _signals.size();
         }
 
-        std::vector<messaging::MidiSignal> snapshot() const
+        std::vector<signaling::MidiSignal> snapshot() const
         {
             const zlibs::utils::misc::LockGuard lock(_mutex);
             return _signals;
@@ -149,7 +150,7 @@ namespace
 
         private:
         mutable zlibs::utils::misc::Mutex  _mutex;
-        std::vector<messaging::MidiSignal> _signals = {};
+        std::vector<signaling::MidiSignal> _signals = {};
     };
 
     class AnalogTest : public ::testing::Test
@@ -184,20 +185,20 @@ namespace
                 ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Channel, i, 1));
             }
 
-            messaging::subscribe<messaging::MidiSignal>(
-                [this](const messaging::MidiSignal& signal)
+            signaling::subscribe<signaling::MidiSignal>(
+                [this](const signaling::MidiSignal& signal)
                 {
-                    if (signal.source == messaging::MidiSource::Analog)
+                    if (signal.source == signaling::MidiSource::Analog)
                     {
                         _analog_messages.push(signal);
                     }
 
-                    if (signal.source == messaging::MidiSource::AnalogButton)
+                    if (signal.source == signaling::MidiSource::AnalogButton)
                     {
                         _analogButton_messages.push(signal);
                     }
 
-                    if (signal.source == messaging::MidiSource::Button)
+                    if (signal.source == signaling::MidiSource::Button)
                     {
                         _button_messages.push(signal);
                     }
@@ -213,7 +214,7 @@ namespace
         void TearDown() override
         {
             ConfigHandler.clear();
-            messaging::clear_registry();
+            signaling::clear_registry();
             clear_messages();
         }
 
@@ -447,7 +448,7 @@ TEST_F(AnalogTest, NRPN14bit)
 TEST_F(AnalogTest, PitchBendTest)
 {
     const auto validate_messages =
-        [&](const std::vector<messaging::MidiSignal>& analog_messages,
+        [&](const std::vector<signaling::MidiSignal>& analog_messages,
             const std::vector<uint16_t>&              expected_values)
     {
         const auto input_count = analog::Collection::size(analog::GroupAnalogInputs);

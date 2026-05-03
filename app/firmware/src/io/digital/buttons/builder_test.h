@@ -10,7 +10,7 @@
 #include "hwa_test.h"
 #include "database/builder_test.h"
 
-namespace io::buttons
+namespace opendeck::io::buttons
 {
     /**
      * @brief Test builder that wires the button subsystem to test backends.
@@ -43,4 +43,4 @@ namespace io::buttons
         Database   _database;
         Buttons    _instance;
     };
-}    // namespace io::buttons
+}    // namespace opendeck::io::buttons

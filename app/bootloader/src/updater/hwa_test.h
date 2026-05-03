@@ -11,7 +11,7 @@
 #include <span>
 #include <vector>
 
-namespace updater
+namespace opendeck::updater
 {
     /**
      * @brief Test updater backend backed by an in-memory flash page image.
@@ -145,4 +145,4 @@ namespace updater
         std::vector<std::vector<uint8_t>> _pages            = {};
         std::vector<bool>                 _written_pages    = {};
     };
-}    // namespace updater
+}    // namespace opendeck::updater

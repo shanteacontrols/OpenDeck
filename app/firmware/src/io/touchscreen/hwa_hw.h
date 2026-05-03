@@ -21,7 +21,7 @@
 #endif
 #define OPENDECK_TOUCHSCREEN_UART_NODE DT_PHANDLE(OPENDECK_TOUCHSCREEN_NODE, uart)
 
-namespace io::touchscreen
+namespace opendeck::io::touchscreen
 {
     /**
      * @brief Hardware-backed touchscreen backend that proxies to a UART transport.
@@ -103,4 +103,4 @@ namespace io::touchscreen
         zlibs::drivers::uart::UartHw _uart        = zlibs::drivers::uart::UartHw(_touchscreen_device);
         bool                         _initialized = false;
     };
-}    // namespace io::touchscreen
+}    // namespace opendeck::io::touchscreen

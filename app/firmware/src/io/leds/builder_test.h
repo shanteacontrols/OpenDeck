@@ -9,7 +9,7 @@
 #include "hwa_test.h"
 #include "database/builder_test.h"
 
-namespace io::leds
+namespace opendeck::io::leds
 {
     /**
      * @brief Test builder that wires the LED subsystem to a test backend.
@@ -41,4 +41,4 @@ namespace io::leds
         Database _database;
         Leds     _instance;
     };
-}    // namespace io::leds
+}    // namespace opendeck::io::leds

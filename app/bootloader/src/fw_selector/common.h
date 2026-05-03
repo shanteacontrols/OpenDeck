@@ -7,7 +7,7 @@
 
 #include <stdint.h>
 
-namespace fw_selector
+namespace opendeck::fw_selector
 {
     /**
      * @brief Identifies which firmware image should be started.
@@ -66,4 +66,4 @@ namespace fw_selector
      * @brief Number of bytes in the installed-image validation record.
      */
     constexpr inline uint32_t IMAGE_VALIDATION_RECORD_SIZE = sizeof(uint32_t) * 3U;
-}    // namespace fw_selector
+}    // namespace opendeck::fw_selector

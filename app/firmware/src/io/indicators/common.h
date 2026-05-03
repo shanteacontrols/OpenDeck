@@ -7,7 +7,7 @@
 
 #include <cstdint>
 
-namespace io::indicators
+namespace opendeck::io::indicators
 {
     /**
      * @brief Identifies an indicator output or a group operation target.
@@ -22,4 +22,4 @@ namespace io::indicators
         BleOut,
         All,
     };
-}    // namespace io::indicators
+}    // namespace opendeck::io::indicators

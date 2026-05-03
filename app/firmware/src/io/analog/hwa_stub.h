@@ -7,7 +7,7 @@
 
 #include "deps.h"
 
-namespace io::analog
+namespace opendeck::io::analog
 {
     /**
      * @brief Stub analog hardware adapter used when no backend is available.
@@ -44,4 +44,4 @@ namespace io::analog
             return {};
         }
     };
-}    // namespace io::analog
+}    // namespace opendeck::io::analog

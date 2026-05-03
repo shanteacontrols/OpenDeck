@@ -13,7 +13,7 @@
 #include <concepts>
 #include <cstdint>
 
-namespace io::analog
+namespace opendeck::io::analog
 {
     /**
      * @brief Frame of raw analog samples, indexed by analog input.
@@ -144,4 +144,4 @@ namespace io::analog
 
     template<uint8_t Bits>
     using AdcConfigForT = typename AdcConfigFor<Bits>::Type;
-}    // namespace io::analog
+}    // namespace opendeck::io::analog

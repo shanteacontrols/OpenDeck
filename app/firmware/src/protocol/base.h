@@ -10,7 +10,7 @@
 
 #include <zephyr/kernel.h>
 
-namespace protocol
+namespace opendeck::protocol
 {
     /**
      * @brief Identifies a supported top-level communication protocol.
@@ -110,4 +110,4 @@ namespace protocol
         static inline struct k_sem      resume_semaphore = {};
         static inline std::atomic<bool> frozen           = false;
     };
-}    // namespace protocol
+}    // namespace opendeck::protocol

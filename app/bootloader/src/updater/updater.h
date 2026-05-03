@@ -10,7 +10,7 @@
 
 #include <array>
 
-namespace updater
+namespace opendeck::updater
 {
     /**
      * @brief Consumes firmware update bytes and forwards validated chunks to the bootloader hardware layer.
@@ -184,4 +184,4 @@ namespace updater
          */
         bool fail(const char* status);
     };
-}    // namespace updater
+}    // namespace opendeck::updater

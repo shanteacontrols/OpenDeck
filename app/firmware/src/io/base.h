@@ -12,7 +12,7 @@
 
 #include <zephyr/kernel.h>
 
-namespace io
+namespace opendeck::io
 {
     /**
      * @brief Identifies a top-level I/O subsystem.
@@ -136,4 +136,4 @@ namespace io
         static inline struct k_sem      resume_semaphore = {};
         static inline std::atomic<bool> frozen           = true;
     };
-}    // namespace io
+}    // namespace opendeck::io

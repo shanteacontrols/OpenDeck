@@ -7,7 +7,7 @@
 
 #include "deps.h"
 
-namespace io::touchscreen
+namespace opendeck::io::touchscreen
 {
     /**
      * @brief Stub touchscreen subsystem used when no touchscreen implementation is available.
@@ -42,4 +42,4 @@ namespace io::touchscreen
         {
         }
     };
-}    // namespace io::touchscreen
+}    // namespace opendeck::io::touchscreen

@@ -14,7 +14,7 @@
 #include <inttypes.h>
 #include <stdarg.h>
 
-namespace io::i2c::display
+namespace opendeck::io::i2c::display
 {
     /**
      * @brief Common interface implemented by display text elements.
@@ -236,4 +236,4 @@ namespace io::i2c::display
         uint32_t _text_change         = 0;
         uint32_t _last_update_time    = 0;
     };
-}    // namespace io::i2c::display
+}    // namespace opendeck::io::i2c::display

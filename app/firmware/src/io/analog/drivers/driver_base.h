@@ -12,7 +12,7 @@
 #include <cstdint>
 #include <optional>
 
-namespace io::analog
+namespace opendeck::io::analog
 {
     /**
      * @brief Base interface for synchronous analog input drivers.
@@ -41,4 +41,4 @@ namespace io::analog
          */
         virtual std::optional<Frame> read() = 0;
     };
-}    // namespace io::analog
+}    // namespace opendeck::io::analog

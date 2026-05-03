@@ -9,7 +9,7 @@
 
 #include <algorithm>
 
-namespace io::analog::drivers
+namespace opendeck::io::analog::drivers
 {
     /**
      * @brief Template base for analog drivers that synchronously scan full frames.
@@ -103,4 +103,4 @@ namespace io::analog::drivers
         private:
         bool _initialized = false;
     };
-}    // namespace io::analog::drivers
+}    // namespace opendeck::io::analog::drivers

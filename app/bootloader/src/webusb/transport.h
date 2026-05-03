@@ -5,7 +5,7 @@
 
 #pragma once
 
-namespace webusb
+namespace opendeck::webusb
 {
     /**
      * @brief Sends one device-side status line to the host over WebUSB when an IN endpoint is active.
@@ -37,4 +37,4 @@ namespace webusb
          */
         bool deinit();
     };
-}    // namespace webusb
+}    // namespace opendeck::webusb

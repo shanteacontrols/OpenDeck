@@ -8,7 +8,8 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
-using namespace io::indicators;
+using namespace opendeck;
+using namespace opendeck::io::indicators;
 
 namespace
 {
@@ -42,14 +43,14 @@ Indicators::Indicators(Hwa& hwa)
                             set_idle(Type::BleOut);
                         })
 {
-    messaging::subscribe<messaging::MidiTrafficSignal>(
-        [this](const messaging::MidiTrafficSignal& signal)
+    signaling::subscribe<signaling::MidiTrafficSignal>(
+        [this](const signaling::MidiTrafficSignal& signal)
         {
             on_traffic(signal);
         });
 
-    messaging::subscribe<messaging::UsbUmpBurstSignal>(
-        [this]([[maybe_unused]] const messaging::UsbUmpBurstSignal& signal)
+    signaling::subscribe<signaling::UsbUmpBurstSignal>(
+        [this]([[maybe_unused]] const signaling::UsbUmpBurstSignal& signal)
         {
             if (_factory_reset_in_progress)
             {
@@ -60,18 +61,18 @@ Indicators::Indicators(Hwa& hwa)
             schedule_idle(Type::UsbOut);
         });
 
-    messaging::subscribe<messaging::SystemSignal>(
-        [this](const messaging::SystemSignal& signal)
+    signaling::subscribe<signaling::SystemSignal>(
+        [this](const signaling::SystemSignal& signal)
         {
-            switch (signal.system_message)
+            switch (signal.system_event)
             {
-            case messaging::SystemMessage::InitComplete:
+            case signaling::SystemEvent::InitComplete:
             {
                 indicate_startup();
             }
             break;
 
-            case messaging::SystemMessage::ConfigurationSessionOpened:
+            case signaling::SystemEvent::ConfigurationSessionOpened:
             {
                 _invert = true;
                 cancel_idle_work();
@@ -79,7 +80,7 @@ Indicators::Indicators(Hwa& hwa)
             }
             break;
 
-            case messaging::SystemMessage::ConfigurationSessionClosed:
+            case signaling::SystemEvent::ConfigurationSessionClosed:
             {
                 _invert = false;
                 cancel_idle_work();
@@ -121,7 +122,7 @@ void Indicators::shutdown()
     _hwa.off(Type::All);
 }
 
-void Indicators::on_traffic(const messaging::MidiTrafficSignal& signal)
+void Indicators::on_traffic(const signaling::MidiTrafficSignal& signal)
 {
     if (_factory_reset_in_progress)
     {
@@ -163,28 +164,40 @@ void Indicators::schedule_idle(Type type)
     switch (type)
     {
     case Type::UsbIn:
+    {
         _usb_in_off_work.reschedule(TRAFFIC_INDICATOR_TIMEOUT_MS);
-        break;
+    }
+    break;
 
     case Type::UsbOut:
+    {
         _usb_out_off_work.reschedule(TRAFFIC_INDICATOR_TIMEOUT_MS);
-        break;
+    }
+    break;
 
     case Type::DinIn:
+    {
         _din_in_off_work.reschedule(TRAFFIC_INDICATOR_TIMEOUT_MS);
-        break;
+    }
+    break;
 
     case Type::DinOut:
+    {
         _din_out_off_work.reschedule(TRAFFIC_INDICATOR_TIMEOUT_MS);
-        break;
+    }
+    break;
 
     case Type::BleIn:
+    {
         _ble_in_off_work.reschedule(TRAFFIC_INDICATOR_TIMEOUT_MS);
-        break;
+    }
+    break;
 
     case Type::BleOut:
+    {
         _ble_out_off_work.reschedule(TRAFFIC_INDICATOR_TIMEOUT_MS);
-        break;
+    }
+    break;
 
     case Type::All:
     default:
@@ -202,18 +215,18 @@ void Indicators::cancel_idle_work()
     _ble_out_off_work.cancel();
 }
 
-Type Indicators::indicator_type(messaging::MidiTransport transport, messaging::MidiDirection direction)
+Type Indicators::indicator_type(signaling::MidiTransport transport, signaling::MidiDirection direction)
 {
     switch (transport)
     {
-    case messaging::MidiTransport::Usb:
-        return direction == messaging::MidiDirection::In ? Type::UsbIn : Type::UsbOut;
+    case signaling::MidiTransport::Usb:
+        return direction == signaling::MidiDirection::In ? Type::UsbIn : Type::UsbOut;
 
-    case messaging::MidiTransport::Din:
-        return direction == messaging::MidiDirection::In ? Type::DinIn : Type::DinOut;
+    case signaling::MidiTransport::Din:
+        return direction == signaling::MidiDirection::In ? Type::DinIn : Type::DinOut;
 
-    case messaging::MidiTransport::Ble:
-        return direction == messaging::MidiDirection::In ? Type::BleIn : Type::BleOut;
+    case signaling::MidiTransport::Ble:
+        return direction == signaling::MidiDirection::In ? Type::BleIn : Type::BleOut;
 
     default:
         return Type::All;

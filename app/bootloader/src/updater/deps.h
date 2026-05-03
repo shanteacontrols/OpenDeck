@@ -9,7 +9,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-namespace updater
+namespace opendeck::updater
 {
     /**
      * @brief Callback invoked before the updater hands control back to the platform.
@@ -75,4 +75,4 @@ namespace updater
          */
         virtual void on_firmware_update_start() = 0;
     };
-}    // namespace updater
+}    // namespace opendeck::updater

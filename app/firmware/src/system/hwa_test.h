@@ -15,7 +15,7 @@
 #include "io/indicators/builder.h"
 #include "io/leds/builder.h"
 
-namespace sys
+namespace opendeck::sys
 {
     /**
      * @brief Test system backend that accepts initialization and ignores reboot requests.
@@ -80,4 +80,4 @@ namespace sys
             &_builder_midi.instance(),
         };
     };
-}    // namespace sys
+}    // namespace opendeck::sys

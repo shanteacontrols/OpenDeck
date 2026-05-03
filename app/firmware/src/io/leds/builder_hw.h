@@ -10,7 +10,7 @@
 #include "drivers/driver.h"
 #include "database/builder.h"
 
-namespace io::leds
+namespace opendeck::io::leds
 {
     /**
      * @brief Convenience builder that wires the hardware LED subsystem.
@@ -45,4 +45,4 @@ namespace io::leds
         HwaHw    _hwa;
         Leds     _instance;
     };
-}    // namespace io::leds
+}    // namespace opendeck::io::leds

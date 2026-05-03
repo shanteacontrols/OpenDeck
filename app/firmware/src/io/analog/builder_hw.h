@@ -11,7 +11,7 @@
 #include "hwa_hw.h"
 #include "database/builder.h"
 
-namespace io::analog
+namespace opendeck::io::analog
 {
     /**
      * @brief Convenience builder that wires the hardware analog subsystem.
@@ -47,4 +47,4 @@ namespace io::analog
         FilterHw<OPENDECK_ANALOG_ADC_BITS> _filter;
         Analog                             _instance;
     };
-}    // namespace io::analog
+}    // namespace opendeck::io::analog

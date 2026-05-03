@@ -7,14 +7,14 @@
 
 #include "deps.h"
 #include "io/base.h"
-#include "messaging/messaging.h"
+#include "signaling/signaling.h"
 #include "global/midi_program.h"
 #include "system/config.h"
 #include "protocol/midi/midi.h"
 
 #include <optional>
 
-namespace io::encoders
+namespace opendeck::io::encoders
 {
     /**
      * @brief Reads encoder movement, tracks per-encoder state, and publishes the configured actions.
@@ -82,7 +82,7 @@ namespace io::encoders
         struct Descriptor
         {
             Type                  type   = Type::ControlChange7fh01h;
-            messaging::MidiSignal signal = {};
+            signaling::MidiSignal signal = {};
         };
 
         using ValueIncDecMidi7Bit  = util::IncDec<uint8_t, 0, protocol::midi::MAX_VALUE_7BIT>;
@@ -240,4 +240,4 @@ namespace io::encoders
          */
         void shutdown();
     };
-}    // namespace io::encoders
+}    // namespace opendeck::io::encoders

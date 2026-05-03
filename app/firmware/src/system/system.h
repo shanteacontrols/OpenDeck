@@ -8,7 +8,7 @@
 #include "deps.h"
 #include "config.h"
 #include "layout.h"
-#include "messaging/messaging.h"
+#include "signaling/signaling.h"
 #include "protocol/midi/midi.h"
 #include "threads.h"
 #include "util/cinfo/cinfo.h"
@@ -16,7 +16,7 @@
 #include "zlibs/utils/misc/kwork_delayable.h"
 #include "zlibs/utils/misc/ring_buffer.h"
 
-namespace sys
+namespace opendeck::sys
 {
     /**
      * @brief Top-level system coordinator for initialization, backup/restore, and reboot flows.
@@ -352,7 +352,7 @@ namespace sys
         /**
          * @brief Emits a configuration-session state change.
          */
-        void publish_configuration_session_state(messaging::SystemMessage message);
+        void publish_configuration_session_state(signaling::SystemEvent event);
 
         /**
          * @brief Reads one global system configuration value.
@@ -376,4 +376,4 @@ namespace sys
          */
         std::optional<uint8_t> sys_config_set(sys::Config::Section::Global section, size_t index, uint16_t value);
     };
-}    // namespace sys
+}    // namespace opendeck::sys

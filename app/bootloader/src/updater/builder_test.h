@@ -8,7 +8,7 @@
 #include "hwa_test.h"
 #include "updater.h"
 
-namespace updater
+namespace opendeck::updater
 {
     /**
      * @brief Convenience builder that wires the test updater backend.
@@ -38,4 +38,4 @@ namespace updater
         private:
         Updater _instance;
     };
-}    // namespace updater
+}    // namespace opendeck::updater

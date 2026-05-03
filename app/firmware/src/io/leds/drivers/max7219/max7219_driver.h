@@ -14,7 +14,7 @@
 #include <zephyr/device.h>
 #include <zephyr/drivers/gpio.h>
 
-namespace io::leds
+namespace opendeck::io::leds
 {
     /**
      * @brief LED driver for an 8x8 matrix controlled by a MAX7219.
@@ -172,4 +172,4 @@ namespace io::leds
             return (MATRIX_SIZE * MATRIX_SIZE) / RGB_COMPONENT_COUNT;
         }
     };
-}    // namespace io::leds
+}    // namespace opendeck::io::leds

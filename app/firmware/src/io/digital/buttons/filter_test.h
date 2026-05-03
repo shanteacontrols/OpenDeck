@@ -7,7 +7,7 @@
 
 #include "deps.h"
 
-namespace io::buttons
+namespace opendeck::io::buttons
 {
     /**
      * @brief Test button filter that accepts every button reading.
@@ -30,4 +30,4 @@ namespace io::buttons
             return true;
         }
     };
-}    // namespace io::buttons
+}    // namespace opendeck::io::buttons

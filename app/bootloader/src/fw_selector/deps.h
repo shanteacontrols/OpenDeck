@@ -9,7 +9,7 @@
 
 #include <span>
 
-namespace fw_selector
+namespace opendeck::fw_selector
 {
     /**
      * @brief Hardware abstraction used to choose and load a firmware image.
@@ -57,4 +57,4 @@ namespace fw_selector
          */
         virtual void load(FwType type) = 0;
     };
-}    // namespace fw_selector
+}    // namespace opendeck::fw_selector

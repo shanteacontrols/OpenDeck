@@ -21,7 +21,7 @@
 #include <atomic>
 #include <optional>
 
-namespace io::leds
+namespace opendeck::io::leds
 {
     /**
      * @brief Manages LED state, blinking, and refresh scheduling.
@@ -285,7 +285,7 @@ namespace io::leds
          * @param message Decoded MIDI message to process.
          * @param direction MIDI traffic direction associated with the message.
          */
-        void midi_to_state(const protocol::midi::Message& message, messaging::MidiDirection direction);
+        void midi_to_state(const protocol::midi::Message& message, signaling::MidiDirection direction);
 
         /**
          * @brief Updates internal preset-indicator LEDs for the selected preset.
@@ -329,4 +329,4 @@ namespace io::leds
          */
         void shutdown();
     };
-}    // namespace io::leds
+}    // namespace opendeck::io::leds

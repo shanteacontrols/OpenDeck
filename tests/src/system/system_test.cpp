@@ -6,14 +6,15 @@
 #include "tests/common.h"
 #include "tests/helpers/database.h"
 #include "tests/helpers/midi.h"
+#include "tests/helpers/misc.h"
 #include "system/builder.h"
 #include "io/indicators/hwa_test.h"
 #include "io/indicators/indicators.h"
-#include "messaging/messaging.h"
+#include "signaling/signaling.h"
 #include "util/configurable/configurable.h"
 
-using namespace io;
-using namespace protocol;
+using namespace opendeck::io;
+using namespace opendeck::protocol;
 
 namespace
 {
@@ -37,7 +38,7 @@ namespace
             io::Base::resume();
             protocol::Base::resume();
             ConfigHandler.clear();
-            messaging::clear_registry();
+            signaling::clear_registry();
         }
 
         int supported_presets()
@@ -72,7 +73,7 @@ namespace
         }
 
         sys::Builder                _system;
-        test::MIDIHelper            _helper = test::MIDIHelper(_system);
+        tests::MIDIHelper           _helper = tests::MIDIHelper(_system);
         tests::NoOpDatabaseHandlers _database_handlers;
     };
 }    // namespace
@@ -82,17 +83,17 @@ TEST_F(SystemTest, FirstBootDatabaseInitializationSkipsComponentInitialization)
     size_t init_complete_cnt = 0;
     size_t program_msg_cnt   = 0;
 
-    messaging::subscribe<messaging::SystemSignal>(
-        [&](const messaging::SystemSignal& event)
+    signaling::subscribe<signaling::SystemSignal>(
+        [&](const signaling::SystemSignal& event)
         {
-            if (event.system_message == messaging::SystemMessage::InitComplete)
+            if (event.system_event == signaling::SystemEvent::InitComplete)
             {
                 init_complete_cnt++;
             }
         });
 
-    messaging::subscribe<messaging::InternalProgram>(
-        [&](const messaging::InternalProgram& signal)
+    signaling::subscribe<signaling::InternalProgram>(
+        [&](const signaling::InternalProgram& signal)
         {
             program_msg_cnt++;
         });
@@ -113,22 +114,22 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
     size_t             stop_received_cnt             = 0;
     size_t             preset_change_received_cnt    = 0;
 
-    messaging::subscribe<messaging::ForcedRefreshStart>(
-        [&](const messaging::ForcedRefreshStart& event)
+    signaling::subscribe<signaling::ForcedRefreshStart>(
+        [&](const signaling::ForcedRefreshStart& event)
         {
             start_received_cnt++;
         });
 
-    messaging::subscribe<messaging::ForcedRefreshStop>(
-        [&](const messaging::ForcedRefreshStop& event)
+    signaling::subscribe<signaling::ForcedRefreshStop>(
+        [&](const signaling::ForcedRefreshStop& event)
         {
             stop_received_cnt++;
         });
 
-    messaging::subscribe<messaging::SystemSignal>(
-        [&](const messaging::SystemSignal& event)
+    signaling::subscribe<signaling::SystemSignal>(
+        [&](const signaling::SystemSignal& event)
         {
-            if (event.system_message == messaging::SystemMessage::PresetChanged)
+            if (event.system_event == signaling::SystemEvent::PresetChanged)
             {
                 preset_change_received_cnt++;
             }
@@ -188,8 +189,8 @@ TEST_F(SystemTest, ProgramIndicatedOnStartup)
 {
     size_t program_msg_cnt = 0;
 
-    messaging::subscribe<messaging::InternalProgram>(
-        [&](const messaging::InternalProgram& signal)
+    signaling::subscribe<signaling::InternalProgram>(
+        [&](const signaling::InternalProgram& signal)
         {
             program_msg_cnt++;
         });
@@ -205,18 +206,22 @@ TEST_F(SystemTest, ConfigurationSessionTimesOutAfterInactivity)
     size_t opened_cnt = 0;
     size_t closed_cnt = 0;
 
-    messaging::subscribe<messaging::SystemSignal>(
-        [&](const messaging::SystemSignal& event)
+    signaling::subscribe<signaling::SystemSignal>(
+        [&](const signaling::SystemSignal& event)
         {
-            switch (event.system_message)
+            switch (event.system_event)
             {
-            case messaging::SystemMessage::ConfigurationSessionOpened:
+            case signaling::SystemEvent::ConfigurationSessionOpened:
+            {
                 opened_cnt++;
-                break;
+            }
+            break;
 
-            case messaging::SystemMessage::ConfigurationSessionClosed:
+            case signaling::SystemEvent::ConfigurationSessionClosed:
+            {
                 closed_cnt++;
-                break;
+            }
+            break;
 
             default:
                 break;
@@ -262,9 +267,9 @@ TEST_F(SystemTest, IndicatorsInvertWhileConfigurationSessionIsOpen)
     ASSERT_FALSE(hwa.is_on(io::indicators::Type::UsbIn));
     ASSERT_FALSE(hwa.is_on(io::indicators::Type::UsbOut));
 
-    messaging::SystemSignal open_signal = {};
-    open_signal.system_message          = messaging::SystemMessage::ConfigurationSessionOpened;
-    messaging::publish(open_signal);
+    signaling::SystemSignal open_signal = {};
+    open_signal.system_event            = signaling::SystemEvent::ConfigurationSessionOpened;
+    signaling::publish(open_signal);
 
     ASSERT_TRUE(tests::wait_until(
         [&]()
@@ -273,10 +278,10 @@ TEST_F(SystemTest, IndicatorsInvertWhileConfigurationSessionIsOpen)
                    hwa.is_on(io::indicators::Type::UsbOut);
         }));
 
-    messaging::MidiTrafficSignal traffic_signal = {};
-    traffic_signal.transport                    = messaging::MidiTransport::Usb;
-    traffic_signal.direction                    = messaging::MidiDirection::In;
-    messaging::publish(traffic_signal);
+    signaling::MidiTrafficSignal traffic_signal = {};
+    traffic_signal.transport                    = signaling::MidiTransport::Usb;
+    traffic_signal.direction                    = signaling::MidiDirection::In;
+    signaling::publish(traffic_signal);
 
     ASSERT_TRUE(tests::wait_until(
         [&]()
@@ -287,9 +292,9 @@ TEST_F(SystemTest, IndicatorsInvertWhileConfigurationSessionIsOpen)
     k_msleep(io::indicators::Indicators::TRAFFIC_INDICATOR_TIMEOUT_MS + 20);
     ASSERT_TRUE(hwa.is_on(io::indicators::Type::UsbIn));
 
-    messaging::SystemSignal close_signal = {};
-    close_signal.system_message          = messaging::SystemMessage::ConfigurationSessionClosed;
-    messaging::publish(close_signal);
+    signaling::SystemSignal close_signal = {};
+    close_signal.system_event            = signaling::SystemEvent::ConfigurationSessionClosed;
+    signaling::publish(close_signal);
 
     ASSERT_TRUE(tests::wait_until(
         [&]()
@@ -306,27 +311,33 @@ TEST_F(SystemTest, ConfigurationSessionTimeoutDoesNotCloseBackup)
     size_t backup_start_received_cnt = 0;
     size_t backup_end_received_cnt   = 0;
 
-    messaging::subscribe<messaging::SystemSignal>(
-        [&](const messaging::SystemSignal& event)
+    signaling::subscribe<signaling::SystemSignal>(
+        [&](const signaling::SystemSignal& event)
         {
-            switch (event.system_message)
+            switch (event.system_event)
             {
-            case messaging::SystemMessage::BackupStart:
+            case signaling::SystemEvent::BackupStart:
+            {
                 backup_active = true;
                 backup_start_received_cnt++;
-                break;
+            }
+            break;
 
-            case messaging::SystemMessage::BackupEnd:
+            case signaling::SystemEvent::BackupEnd:
+            {
                 backup_active = false;
                 backup_end_received_cnt++;
-                break;
+            }
+            break;
 
-            case messaging::SystemMessage::ConfigurationSessionClosed:
+            case signaling::SystemEvent::ConfigurationSessionClosed:
+            {
                 if (backup_active)
                 {
                     closed_during_backup = true;
                 }
-                break;
+            }
+            break;
 
             default:
                 break;
@@ -370,10 +381,10 @@ TEST_F(SystemTest, FactoryResetRequestIsDeferred)
 {
     size_t factory_reset_start_cnt = 0;
 
-    messaging::subscribe<messaging::SystemSignal>(
-        [&](const messaging::SystemSignal& event)
+    signaling::subscribe<signaling::SystemSignal>(
+        [&](const signaling::SystemSignal& event)
         {
-            if (event.system_message == messaging::SystemMessage::FactoryResetStart)
+            if (event.system_event == signaling::SystemEvent::FactoryResetStart)
             {
                 factory_reset_start_cnt++;
             }
@@ -424,11 +435,11 @@ TEST_F(SystemTest, UsbThruDin)
 
     // generate incoming USB message
 
-    test::MIDIInputEvent event = {};
-    event.channel              = 1;
-    event.index                = 0;
-    event.value                = 127;
-    event.message              = midi::MessageType::ControlChange;
+    tests::MIDIInputEvent event = {};
+    event.channel               = 1;
+    event.index                 = 0;
+    event.value                 = 127;
+    event.message               = midi::MessageType::ControlChange;
 
     _helper.process_incoming(event);
 

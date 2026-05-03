@@ -9,7 +9,7 @@
 
 #include <gmock/gmock.h>
 
-namespace io::leds
+namespace opendeck::io::leds
 {
     /**
      * @brief Test LED backend with mockable state updates.
@@ -53,4 +53,4 @@ namespace io::leds
             return index / 3;
         }
     };
-}    // namespace io::leds
+}    // namespace opendeck::io::leds

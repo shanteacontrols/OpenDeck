@@ -9,7 +9,7 @@
 
 #include <array>
 
-namespace io::indicators
+namespace opendeck::io::indicators
 {
     /**
      * @brief Test indicator backend that accepts requests without side effects.
@@ -75,4 +75,4 @@ namespace io::indicators
 
         std::array<bool, INDICATOR_COUNT> _states = {};
     };
-}    // namespace io::indicators
+}    // namespace opendeck::io::indicators

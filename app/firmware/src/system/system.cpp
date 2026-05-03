@@ -4,7 +4,7 @@
  */
 
 #include "system.h"
-#include "messaging/messaging.h"
+#include "signaling/signaling.h"
 #include "util/configurable/configurable.h"
 #include "util/conversion/conversion.h"
 #include "global/midi_program.h"
@@ -13,9 +13,10 @@
 #include <zephyr/logging/log.h>
 #include <zephyr/logging/log_ctrl.h>
 
-using namespace io;
-using namespace sys;
-using namespace protocol;
+using namespace opendeck;
+using namespace opendeck::io;
+using namespace opendeck::sys;
+using namespace opendeck::protocol;
 
 namespace
 {
@@ -42,12 +43,12 @@ System::System(Hwa& hwa)
 
                           for (int i = 1; i <= MIDI_CHANNEL_COUNT; i++)
                           {
-                              messaging::InternalProgram signal = {};
+                              signaling::InternalProgram signal = {};
                               signal.channel                    = i;
                               signal.index                      = MidiProgram.program(i);
                               signal.value                      = 0;
 
-                              messaging::publish(signal);
+                              signaling::publish(signal);
                           }
                       },
                       []()
@@ -96,10 +97,10 @@ System::System(Hwa& hwa)
                              })
     , _sysex_conf(_sysex_data_handler, SYS_EX_MANUFACTURER_ID)
 {
-    messaging::subscribe<messaging::UmpSignal>(
-        [this](const messaging::UmpSignal& event)
+    signaling::subscribe<signaling::UmpSignal>(
+        [this](const signaling::UmpSignal& event)
         {
-            if (event.direction != messaging::MidiDirection::In)
+            if (event.direction != signaling::MidiDirection::In)
             {
                 return;
             }
@@ -130,30 +131,30 @@ System::System(Hwa& hwa)
             }
         });
 
-    messaging::subscribe<messaging::SystemSignal>(
-        [this](const messaging::SystemSignal& event)
+    signaling::subscribe<signaling::SystemSignal>(
+        [this](const signaling::SystemSignal& event)
         {
-            switch (event.system_message)
+            switch (event.system_event)
             {
-            case messaging::SystemMessage::PresetChangeIncReq:
+            case signaling::SystemEvent::PresetChangeIncReq:
             {
                 _hwa.database().set_preset(_hwa.database().current_preset() + 1);
             }
             break;
 
-            case messaging::SystemMessage::PresetChangeDecReq:
+            case signaling::SystemEvent::PresetChangeDecReq:
             {
                 _hwa.database().set_preset(_hwa.database().current_preset() - 1);
             }
             break;
 
-            case messaging::SystemMessage::PresetChangeDirectReq:
+            case signaling::SystemEvent::PresetChangeDirectReq:
             {
                 _hwa.database().set_preset(event.value);
             }
             break;
 
-            case messaging::SystemMessage::UsbMidiReady:
+            case signaling::SystemEvent::UsbMidiReady:
             {
                 LOG_INF("USB ready, scheduling forced component refresh");
                 schedule_forced_refresh(ForcedRefreshType::UsbInit, USB_CHANGE_FORCED_REFRESH_DELAY);
@@ -246,9 +247,9 @@ bool System::init()
 
     LOG_INF("Initialization complete");
 
-    messaging::SystemSignal init_complete_signal = {};
-    init_complete_signal.system_message          = messaging::SystemMessage::InitComplete;
-    messaging::publish(init_complete_signal);
+    signaling::SystemSignal init_complete_signal = {};
+    init_complete_signal.system_event            = signaling::SystemEvent::InitComplete;
+    signaling::publish(init_complete_signal);
 
     // allow io threads to continue after their readings have been settled
     _io_resume_work.reschedule(INITIAL_IO_RESUME_DELAY_MS);
@@ -317,9 +318,9 @@ void System::start_backup()
 
     _sysex_conf_close_work.cancel();
 
-    messaging::SystemSignal signal = {};
-    signal.system_message          = messaging::SystemMessage::BackupStart;
-    messaging::publish(signal);
+    signaling::SystemSignal signal = {};
+    signal.system_event            = signaling::SystemEvent::BackupStart;
+    signaling::publish(signal);
 
     _backup_restore_state = BackupRestoreState::Backup;
 
@@ -412,6 +413,7 @@ void System::run_backup_step()
         finish_backup();
         return;
     }
+    break;
 
     case BackupPhase::Idle:
     default:
@@ -492,9 +494,9 @@ void System::finish_backup()
     _backup_session.phase  = BackupPhase::Idle;
     _backup_restore_state  = BackupRestoreState::None;
 
-    messaging::SystemSignal signal = {};
-    signal.system_message          = messaging::SystemMessage::BackupEnd;
-    messaging::publish(signal);
+    signaling::SystemSignal signal = {};
+    signal.system_event            = signaling::SystemEvent::BackupEnd;
+    signaling::publish(signal);
 
     io::Base::resume();
 
@@ -515,9 +517,9 @@ void System::start_restore()
     _backup_restore_state = BackupRestoreState::Restore;
     _sysex_conf.set_user_error_ignore_mode(true);
 
-    messaging::SystemSignal signal = {};
-    signal.system_message          = messaging::SystemMessage::RestoreStart;
-    messaging::publish(signal);
+    signaling::SystemSignal signal = {};
+    signal.system_event            = signaling::SystemEvent::RestoreStart;
+    signaling::publish(signal);
 }
 
 bool System::queue_restore_packet(const midi_ump& packet)
@@ -546,9 +548,9 @@ void System::finish_restore()
 
     _backup_restore_state = BackupRestoreState::None;
 
-    messaging::SystemSignal signal = {};
-    signal.system_message          = messaging::SystemMessage::RestoreEnd;
-    messaging::publish(signal);
+    signaling::SystemSignal signal = {};
+    signal.system_event            = signaling::SystemEvent::RestoreEnd;
+    signaling::publish(signal);
 
     schedule_reboot(fw_selector::FwType::Application);
 }
@@ -585,26 +587,26 @@ void System::start_forced_refresh()
 
     io::Base::freeze();
 
-    messaging::ForcedRefreshStart forced_refresh_start = {};
+    signaling::ForcedRefreshStart forced_refresh_start = {};
     forced_refresh_start.type                          = _forced_refresh_session.type;
-    messaging::publish(forced_refresh_start);
+    signaling::publish(forced_refresh_start);
 
-    messaging::SystemSignal burst_start = {};
-    burst_start.system_message          = messaging::SystemMessage::BurstMidiStart;
-    messaging::publish(burst_start);
+    signaling::SystemSignal burst_start = {};
+    burst_start.system_event            = signaling::SystemEvent::BurstMidiStart;
+    signaling::publish(burst_start);
 }
 
 void System::finish_forced_refresh()
 {
     LOG_INF("Finishing forced refresh");
 
-    messaging::SystemSignal burst_stop = {};
-    burst_stop.system_message          = messaging::SystemMessage::BurstMidiStop;
-    messaging::publish(burst_stop);
+    signaling::SystemSignal burst_stop = {};
+    burst_stop.system_event            = signaling::SystemEvent::BurstMidiStop;
+    signaling::publish(burst_stop);
 
-    messaging::ForcedRefreshStop forced_refresh_stop = {};
+    signaling::ForcedRefreshStop forced_refresh_stop = {};
     forced_refresh_stop.type                         = _forced_refresh_session.type;
-    messaging::publish(forced_refresh_stop);
+    signaling::publish(forced_refresh_stop);
 
     _forced_refresh_session = {};
     io::Base::resume();
@@ -681,7 +683,7 @@ void System::force_component_refresh()
 
 bool System::SysExDataHandler::send_response(const midi_ump& packet)
 {
-    return messaging::publish(messaging::UsbUmpBurstSignal{ .packet = packet });
+    return signaling::publish(signaling::UsbUmpBurstSignal{ .packet = packet });
 }
 
 zlibs::utils::sysex_conf::Status System::SysExDataHandler::custom_request(uint16_t request, CustomResponse& custom_response)
@@ -826,10 +828,10 @@ void System::DatabaseHandlers::preset_change([[maybe_unused]] uint8_t preset)
         return;
     }
 
-    messaging::SystemSignal signal = {};
-    signal.system_message          = messaging::SystemMessage::PresetChanged;
+    signaling::SystemSignal signal = {};
+    signal.system_event            = signaling::SystemEvent::PresetChanged;
     signal.value                   = preset;
-    messaging::publish(signal);
+    signaling::publish(signal);
 
     if (_system._backup_restore_state == BackupRestoreState::None)
     {
@@ -847,20 +849,20 @@ void System::DatabaseHandlers::factory_reset_start()
 {
     LOG_INF("Starting factory reset");
 
-    messaging::SystemSignal signal = {};
-    signal.system_message          = messaging::SystemMessage::FactoryResetStart;
+    signaling::SystemSignal signal = {};
+    signal.system_event            = signaling::SystemEvent::FactoryResetStart;
 
-    messaging::publish(signal);
+    signaling::publish(signal);
 }
 
 void System::DatabaseHandlers::factory_reset_done()
 {
     LOG_INF("Factory reset done, rebooting");
 
-    messaging::SystemSignal signal = {};
-    signal.system_message          = messaging::SystemMessage::FactoryResetEnd;
+    signaling::SystemSignal signal = {};
+    signal.system_event            = signaling::SystemEvent::FactoryResetEnd;
 
-    messaging::publish(signal);
+    signaling::publish(signal);
 
     _system.schedule_reboot(fw_selector::FwType::Application);
 }
@@ -908,7 +910,7 @@ void System::update_sysex_configuration_session(bool was_open)
 
             if (!was_open)
             {
-                publish_configuration_session_state(messaging::SystemMessage::ConfigurationSessionOpened);
+                publish_configuration_session_state(signaling::SystemEvent::ConfigurationSessionOpened);
             }
 
             return;
@@ -918,7 +920,7 @@ void System::update_sysex_configuration_session(bool was_open)
 
         if (!was_open)
         {
-            publish_configuration_session_state(messaging::SystemMessage::ConfigurationSessionOpened);
+            publish_configuration_session_state(signaling::SystemEvent::ConfigurationSessionOpened);
         }
 
         return;
@@ -928,7 +930,7 @@ void System::update_sysex_configuration_session(bool was_open)
 
     if (was_open)
     {
-        publish_configuration_session_state(messaging::SystemMessage::ConfigurationSessionClosed);
+        publish_configuration_session_state(signaling::SystemEvent::ConfigurationSessionClosed);
     }
 }
 
@@ -948,15 +950,15 @@ void System::close_inactive_sysex_configuration_session()
     LOG_INF("Closing inactive SysEx configuration session");
 
     _sysex_conf.close_connection();
-    publish_configuration_session_state(messaging::SystemMessage::ConfigurationSessionClosed);
+    publish_configuration_session_state(signaling::SystemEvent::ConfigurationSessionClosed);
 }
 
-void System::publish_configuration_session_state(messaging::SystemMessage message)
+void System::publish_configuration_session_state(signaling::SystemEvent event)
 {
-    messaging::SystemSignal signal = {};
-    signal.system_message          = message;
+    signaling::SystemSignal signal = {};
+    signal.system_event            = event;
 
-    messaging::publish(signal);
+    signaling::publish(signal);
 }
 
 std::optional<uint8_t> System::sys_config_get(sys::Config::Section::Global section, size_t index, uint16_t& value)

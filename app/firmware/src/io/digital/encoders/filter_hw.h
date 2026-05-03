@@ -9,7 +9,7 @@
 
 #include <array>
 
-namespace io::encoders
+namespace opendeck::io::encoders
 {
     /**
      * @brief Debounces encoder direction changes by requiring repeated movement in the same direction.
@@ -108,4 +108,4 @@ namespace io::encoders
         std::array<uint8_t, STORAGE_SIZE>  _debounce_counter   = {};
         std::array<uint32_t, STORAGE_SIZE> _last_movement_time = {};
     };
-}    // namespace io::encoders
+}    // namespace opendeck::io::encoders

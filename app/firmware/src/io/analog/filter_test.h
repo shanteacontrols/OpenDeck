@@ -7,7 +7,7 @@
 
 #include "deps.h"
 
-namespace io::analog
+namespace opendeck::io::analog
 {
     /**
      * @brief Test analog filter that forwards every reading.
@@ -39,4 +39,4 @@ namespace io::analog
         {
         }
     };
-}    // namespace io::analog
+}    // namespace opendeck::io::analog

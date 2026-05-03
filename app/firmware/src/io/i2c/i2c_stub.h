@@ -8,7 +8,7 @@
 #include "deps.h"
 #include "io/base.h"
 
-namespace io::i2c
+namespace opendeck::io::i2c
 {
     /**
      * @brief Stub I2C subsystem used when no I2C implementation is available.
@@ -35,4 +35,4 @@ namespace io::i2c
         {
         }
     };
-}    // namespace io::i2c
+}    // namespace opendeck::io::i2c

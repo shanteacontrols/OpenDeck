@@ -22,7 +22,7 @@
 #define OPENDECK_BOOTLOADER_NODE DT_NODELABEL(opendeck_bootloader)
 #define APP_SLOT_NODE            DT_PHANDLE(OPENDECK_BOOTLOADER_NODE, app_partition)
 
-namespace updater
+namespace opendeck::updater
 {
     /**
      * @brief Hardware-backed updater backend that writes the application image to flash.
@@ -287,4 +287,4 @@ namespace updater
 
         static inline HwaHw* reboot_instance = nullptr;
     };
-}    // namespace updater
+}    // namespace opendeck::updater

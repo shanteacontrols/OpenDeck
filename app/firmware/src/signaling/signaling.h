@@ -13,7 +13,7 @@
 #include <functional>
 #include <vector>
 
-namespace messaging
+namespace opendeck::signaling
 {
     /**
      * @brief Maximum number of UMP packets accumulated before a USB burst is flushed.
@@ -23,7 +23,7 @@ namespace messaging
     /**
      * @brief Identifies system-level events exchanged over the signaling bus.
      */
-    enum class SystemMessage : uint8_t
+    enum class SystemEvent : uint8_t
     {
         BurstMidiStart,
         BurstMidiStop,
@@ -95,8 +95,8 @@ namespace messaging
      */
     struct SystemSignal
     {
-        SystemMessage system_message = {};
-        uint16_t      value          = 0;
+        SystemEvent system_event = {};
+        uint16_t    value        = 0;
     };
 
     /**
@@ -307,4 +307,4 @@ namespace messaging
         SignalRegistry<UsbUmpBurstSignal>::instance().clear();
         SignalRegistry<MidiTrafficSignal>::instance().clear();
     }
-}    // namespace messaging
+}    // namespace opendeck::signaling

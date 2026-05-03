@@ -11,7 +11,8 @@
 
 #include <zephyr/logging/log.h>
 
-using namespace io::touchscreen;
+using namespace opendeck;
+using namespace opendeck::io::touchscreen;
 
 namespace
 {
@@ -43,8 +44,8 @@ Touchscreen::Touchscreen(Hwa&      hwa,
 {
     k_sem_init(&_update_semaphore, 0, K_SEM_MAX_LIMIT);
 
-    messaging::subscribe<messaging::TouchscreenLedSignal>(
-        [this](const messaging::TouchscreenLedSignal& signal)
+    signaling::subscribe<signaling::TouchscreenLedSignal>(
+        [this](const signaling::TouchscreenLedSignal& signal)
         {
             if (is_frozen())
             {
@@ -55,12 +56,12 @@ Touchscreen::Touchscreen(Hwa&      hwa,
             request_update();
         });
 
-    messaging::subscribe<messaging::SystemSignal>(
-        [this](const messaging::SystemSignal& event)
+    signaling::subscribe<signaling::SystemSignal>(
+        [this](const signaling::SystemSignal& event)
         {
-            switch (event.system_message)
+            switch (event.system_event)
             {
-            case messaging::SystemMessage::PresetChanged:
+            case signaling::SystemEvent::PresetChanged:
             {
                 if (!init())
                 {
@@ -364,20 +365,20 @@ Model* Touchscreen::model_instance(ModelType model)
 
 void Touchscreen::button_handler(size_t index, bool state)
 {
-    messaging::MidiSignal signal = {};
-    signal.source                = messaging::MidiSource::TouchscreenButton;
+    signaling::MidiSignal signal = {};
+    signal.source                = signaling::MidiSource::TouchscreenButton;
     signal.component_index       = index;
     signal.value                 = state;
 
-    messaging::publish(signal);
+    signaling::publish(signal);
 }
 
 void Touchscreen::screen_change_handler(size_t index)
 {
-    messaging::TouchscreenScreenSignal signal = {};
+    signaling::TouchscreenScreenSignal signal = {};
     signal.component_index                    = index;
 
-    messaging::publish(signal);
+    signaling::publish(signal);
 }
 
 std::optional<uint8_t> Touchscreen::sys_config_get(sys::Config::Section::Touchscreen section, size_t index, uint16_t& value)

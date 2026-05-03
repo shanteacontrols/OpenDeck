@@ -6,7 +6,7 @@
 #pragma once
 
 #include "deps.h"
-#include "messaging/messaging.h"
+#include "signaling/signaling.h"
 #include "system/config.h"
 #include "threads.h"
 #include "io/base.h"
@@ -16,7 +16,7 @@
 
 #include <optional>
 
-namespace io::analog
+namespace opendeck::io::analog
 {
     /**
      * @brief Processes analog input frames, applies filtering, and publishes the configured actions.
@@ -80,7 +80,7 @@ namespace io::analog
             uint16_t              max_value    = zlibs::utils::midi::MAX_VALUE_7BIT;
             uint16_t              new_value    = 0;
             uint16_t              old_value    = 0;
-            messaging::MidiSignal signal       = {};
+            signaling::MidiSignal signal       = {};
         };
 
         static constexpr protocol::midi::MessageType INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(Type::Count)] = {
@@ -203,4 +203,4 @@ namespace io::analog
          */
         std::optional<uint8_t> sys_config_set(sys::Config::Section::Analog section, size_t index, uint16_t value);
     };
-}    // namespace io::analog
+}    // namespace opendeck::io::analog

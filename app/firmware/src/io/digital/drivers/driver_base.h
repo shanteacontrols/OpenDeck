@@ -12,7 +12,7 @@
 #include <cstdint>
 #include <optional>
 
-namespace io::digital::drivers
+namespace opendeck::io::digital::drivers
 {
     /**
      * @brief Identifies which physical pin of an encoder is being addressed.
@@ -76,4 +76,4 @@ namespace io::digital::drivers
          */
         virtual size_t encoder_component_from_encoder(size_t index, EncoderComponent c) = 0;
     };
-}    // namespace io::digital::drivers
+}    // namespace opendeck::io::digital::drivers

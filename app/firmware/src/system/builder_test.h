@@ -16,7 +16,7 @@
 #include "io/indicators/builder.h"
 #include "io/leds/builder.h"
 
-namespace sys
+namespace opendeck::sys
 {
     /**
      * @brief Test-system builder that wires all subsystem test implementations.
@@ -29,4 +29,4 @@ namespace sys
         HwaTest _hwa;
         System  _instance = System(_hwa);
     };
-}    // namespace sys
+}    // namespace opendeck::sys

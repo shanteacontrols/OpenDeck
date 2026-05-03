@@ -9,7 +9,7 @@
 
 #include "database/database.h"
 
-namespace io::leds
+namespace opendeck::io::leds
 {
     /**
      * @brief Database view used by the LED subsystem.
@@ -54,4 +54,4 @@ namespace io::leds
          */
         virtual size_t rgb_component_from_rgb(size_t index, RgbComponent component) = 0;
     };
-}    // namespace io::leds
+}    // namespace opendeck::io::leds

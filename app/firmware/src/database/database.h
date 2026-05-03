@@ -12,7 +12,7 @@
 #include <type_traits>
 #include <optional>
 
-namespace database
+namespace opendeck::database
 {
     /**
      * @brief High-level database administrator for common and preset regions.
@@ -626,4 +626,4 @@ namespace database
         private:
         Admin& _admin;
     };
-}    // namespace database
+}    // namespace opendeck::database

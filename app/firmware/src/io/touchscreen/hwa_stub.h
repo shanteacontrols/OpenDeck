@@ -7,7 +7,7 @@
 
 #include "deps.h"
 
-namespace io::touchscreen
+namespace opendeck::io::touchscreen
 {
     /**
      * @brief Stub touchscreen backend that reports no hardware support.
@@ -71,4 +71,4 @@ namespace io::touchscreen
             return false;
         }
     };
-}    // namespace io::touchscreen
+}    // namespace opendeck::io::touchscreen

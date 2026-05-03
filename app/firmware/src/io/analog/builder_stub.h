@@ -10,7 +10,7 @@
 #include "hwa_stub.h"
 #include "database/builder.h"
 
-namespace io::analog
+namespace opendeck::io::analog
 {
     /**
      * @brief Stub builder that wires the analog subsystem to no-op backends.
@@ -44,4 +44,4 @@ namespace io::analog
         Database   _database;
         Analog     _instance;
     };
-}    // namespace io::analog
+}    // namespace opendeck::io::analog

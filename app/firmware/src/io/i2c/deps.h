@@ -8,7 +8,7 @@
 #include <inttypes.h>
 #include <stddef.h>
 
-namespace io::i2c
+namespace opendeck::io::i2c
 {
     /**
      * @brief Hardware abstraction for low-level I2C transactions.
@@ -66,4 +66,4 @@ namespace io::i2c
          */
         virtual void update() = 0;
     };
-}    // namespace io::i2c
+}    // namespace opendeck::io::i2c

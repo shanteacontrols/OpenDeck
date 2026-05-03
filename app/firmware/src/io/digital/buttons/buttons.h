@@ -13,7 +13,7 @@
 
 #include <optional>
 
-namespace io::buttons
+namespace opendeck::io::buttons
 {
     /**
      * @brief Samples buttons, tracks latching state, and publishes the configured actions.
@@ -79,7 +79,7 @@ namespace io::buttons
         {
             Type                  type         = Type::Momentary;
             MessageType           message_type = MessageType::Note;
-            messaging::MidiSignal signal       = {};
+            signaling::MidiSignal signal       = {};
         };
 
         using ValueIncDecMidi7Bit = util::IncDec<uint8_t, 0, protocol::midi::MAX_VALUE_7BIT>;
@@ -218,4 +218,4 @@ namespace io::buttons
          */
         std::optional<uint8_t> sys_config_set(sys::Config::Section::Button section, size_t index, uint16_t value);
     };
-}    // namespace io::buttons
+}    // namespace opendeck::io::buttons

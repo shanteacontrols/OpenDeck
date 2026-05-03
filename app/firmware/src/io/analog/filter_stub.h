@@ -7,7 +7,7 @@
 
 #include "deps.h"
 
-namespace io::analog
+namespace opendeck::io::analog
 {
     /**
      * @brief Stub analog filter that never forwards readings.
@@ -39,4 +39,4 @@ namespace io::analog
         {
         }
     };
-}    // namespace io::analog
+}    // namespace opendeck::io::analog

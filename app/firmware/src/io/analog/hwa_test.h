@@ -12,7 +12,7 @@
 #include <atomic>
 #include <deque>
 
-namespace io::analog
+namespace opendeck::io::analog
 {
     /**
      * @brief Test analog hardware adapter backed by an in-memory frame queue.
@@ -94,4 +94,4 @@ namespace io::analog
         std::deque<Frame>                 _frames     = {};
         std::atomic<size_t>               _read_count = { 0 };
     };
-}    // namespace io::analog
+}    // namespace opendeck::io::analog

@@ -7,7 +7,7 @@
 
 #include "zlibs/utils/threads/threads.h"
 
-namespace threads
+namespace opendeck::threads
 {
     /**
      * @brief Stack size, in bytes, assigned to OpenDeck worker threads.
@@ -63,4 +63,4 @@ namespace threads
                                                                    K_PRIO_PREEMPT(1),
                                                                    THREAD_STACK_SIZE>;
 
-}    // namespace threads
+}    // namespace opendeck::threads

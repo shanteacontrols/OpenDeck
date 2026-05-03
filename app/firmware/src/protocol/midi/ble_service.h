@@ -7,7 +7,7 @@
 
 #include <cstdint>
 
-namespace protocol::midi::ble_service
+namespace opendeck::protocol::midi::ble_service
 {
     /**
      * @brief Callback invoked when BLE MIDI readiness changes.
@@ -65,4 +65,4 @@ namespace protocol::midi::ble_service
      * @return `true` when connected and notifications are enabled.
      */
     bool ready();
-}    // namespace protocol::midi::ble_service
+}    // namespace opendeck::protocol::midi::ble_service

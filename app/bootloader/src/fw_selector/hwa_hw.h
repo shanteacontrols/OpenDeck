@@ -49,7 +49,7 @@
 #error "opendeck-bootloader must define boot-partition."
 #endif
 
-namespace fw_selector
+namespace opendeck::fw_selector
 {
     /**
      * @brief Hardware-backed firmware-selection backend.
@@ -345,4 +345,4 @@ namespace fw_selector
 #endif
         AppVectorTable _app_vector_table = {};
     };
-}    // namespace fw_selector
+}    // namespace opendeck::fw_selector

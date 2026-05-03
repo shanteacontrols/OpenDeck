@@ -8,7 +8,7 @@
 #include "../driver_base.h"
 #include "count.h"
 
-namespace io::leds
+namespace opendeck::io::leds
 {
     /**
      * @brief LED driver for matrix-addressed outputs with native row handling.
@@ -79,4 +79,4 @@ namespace io::leds
             return (DT_PROP(DT_NODELABEL(opendeck_leds), rows) * DT_PROP(DT_NODELABEL(opendeck_leds), columns)) / 3;
         }
     };
-}    // namespace io::leds
+}    // namespace opendeck::io::leds

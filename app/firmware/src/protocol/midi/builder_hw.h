@@ -9,7 +9,7 @@
 #include "hwa_hw.h"
 #include "database/builder.h"
 
-namespace protocol::midi
+namespace opendeck::protocol::midi
 {
     /**
      * @brief Convenience builder that wires the hardware MIDI subsystem.
@@ -44,4 +44,4 @@ namespace protocol::midi
         Database    _database;
         Midi        _instance;
     };
-}    // namespace protocol::midi
+}    // namespace opendeck::protocol::midi

@@ -7,7 +7,7 @@
 
 #include "common.h"
 
-namespace io::indicators
+namespace opendeck::io::indicators
 {
     /**
      * @brief Hardware abstraction for indicator outputs.
@@ -38,4 +38,4 @@ namespace io::indicators
          */
         virtual void off(Type type) = 0;
     };
-}    // namespace io::indicators
+}    // namespace opendeck::io::indicators

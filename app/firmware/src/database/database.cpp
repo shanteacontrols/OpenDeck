@@ -11,6 +11,7 @@
 
 #include <cinttypes>
 
+using namespace opendeck;
 using namespace zlibs::utils::lessdb;
 
 namespace

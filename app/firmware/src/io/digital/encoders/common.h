@@ -8,7 +8,7 @@
 #include "io/common/common.h"
 #include "io/digital/drivers/count.h"
 
-namespace io::encoders
+namespace opendeck::io::encoders
 {
     /**
      * @brief Flattened collection of encoder inputs.
@@ -66,6 +66,6 @@ namespace io::encoders
         Fast,
         Count
     };
-}    // namespace io::encoders
+}    // namespace opendeck::io::encoders
 
 #undef OPENDECK_ENCODER_COUNT

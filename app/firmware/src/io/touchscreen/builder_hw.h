@@ -10,7 +10,7 @@
 #include "models/builder.h"
 #include "database/builder.h"
 
-namespace io::touchscreen
+namespace opendeck::io::touchscreen
 {
     /**
      * @brief Convenience builder that wires the hardware touchscreen subsystem.
@@ -45,4 +45,4 @@ namespace io::touchscreen
         ModelsBuilder _models;
         Touchscreen   _instance;
     };
-}    // namespace io::touchscreen
+}    // namespace opendeck::io::touchscreen

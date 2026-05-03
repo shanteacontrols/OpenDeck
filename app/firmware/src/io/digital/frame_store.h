@@ -10,7 +10,7 @@
 
 #include <optional>
 
-namespace io::digital
+namespace opendeck::io::digital
 {
     /**
      * @brief Shared cache of the most recent digital scan frame.
@@ -113,4 +113,4 @@ namespace io::digital
         drivers::Frame       _frame       = {};
         bool                 _frame_valid = false;
     };
-}    // namespace io::digital
+}    // namespace opendeck::io::digital

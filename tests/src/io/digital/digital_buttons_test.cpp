@@ -5,6 +5,7 @@
 
 #include "tests/common.h"
 #include "tests/helpers/database.h"
+#include "tests/helpers/misc.h"
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_BUTTONS
 
@@ -15,25 +16,25 @@
 
 #include <limits>
 
-using namespace io;
-using namespace protocol;
+using namespace opendeck::io;
+using namespace opendeck::protocol;
 
 namespace
 {
     struct TestEvent
     {
-        size_t                   component_index = 0;
-        uint8_t                  channel         = 0;
-        uint16_t                 index           = 0;
-        uint16_t                 value           = 0;
-        midi::MessageType        message         = midi::MessageType::Invalid;
-        messaging::SystemMessage system_message  = {};
+        size_t                 component_index = 0;
+        uint8_t                channel         = 0;
+        uint16_t               index           = 0;
+        uint16_t               value           = 0;
+        midi::MessageType      message         = midi::MessageType::Invalid;
+        signaling::SystemEvent system_event    = {};
     };
 
     class Listener
     {
         public:
-        void push(const messaging::MidiSignal& signal)
+        void push(const signaling::MidiSignal& signal)
         {
             const zlibs::utils::misc::LockGuard lock(_mutex);
 
@@ -46,7 +47,7 @@ namespace
             });
         }
 
-        void push(const messaging::SystemSignal& signal)
+        void push(const signaling::SystemSignal& signal)
         {
             const zlibs::utils::misc::LockGuard lock(_mutex);
 
@@ -56,7 +57,7 @@ namespace
                 .index           = 0,
                 .value           = signal.value,
                 .message         = midi::MessageType::Invalid,
-                .system_message  = signal.system_message,
+                .system_event    = signal.system_event,
             });
         }
 
@@ -111,17 +112,17 @@ namespace
                 _digital._builderButtons._instance.reset(i);
             }
 
-            messaging::subscribe<messaging::MidiSignal>(
-                [this](const messaging::MidiSignal& signal)
+            signaling::subscribe<signaling::MidiSignal>(
+                [this](const signaling::MidiSignal& signal)
                 {
-                    if (signal.source == messaging::MidiSource::Button)
+                    if (signal.source == signaling::MidiSource::Button)
                     {
                         _listener.push(signal);
                     }
                 });
 
-            messaging::subscribe<messaging::SystemSignal>(
-                [this](const messaging::SystemSignal& signal)
+            signaling::subscribe<signaling::SystemSignal>(
+                [this](const signaling::SystemSignal& signal)
                 {
                     _listener.push(signal);
                 });
@@ -133,7 +134,7 @@ namespace
         void TearDown() override
         {
             ConfigHandler.clear();
-            messaging::clear_registry();
+            signaling::clear_registry();
             _listener.clear();
         }
 
@@ -874,7 +875,7 @@ TEST_F(DigitalButtonsTest, PresetChange)
     state_change_register_single(BUTTON_INDEX, true);
 
     ASSERT_EQ(1, _listener.event_log.size());
-    ASSERT_EQ(messaging::SystemMessage::PresetChangeDirectReq, _listener.event_log.at(0).system_message);
+    ASSERT_EQ(signaling::SystemEvent::PresetChangeDirectReq, _listener.event_log.at(0).system_event);
 
     // verify that no new events are generated on button release
     state_change_register_single(BUTTON_INDEX, false);

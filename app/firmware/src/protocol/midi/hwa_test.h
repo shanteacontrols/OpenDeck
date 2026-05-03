@@ -9,7 +9,7 @@
 
 #include <gmock/gmock.h>
 
-namespace protocol::midi
+namespace opendeck::protocol::midi
 {
     /**
      * @brief Helper that records and decodes MIDI messages written by test backends.
@@ -408,4 +408,4 @@ namespace protocol::midi
         private:
         k_poll_signal _data_available_signal = {};
     };
-}    // namespace protocol::midi
+}    // namespace opendeck::protocol::midi

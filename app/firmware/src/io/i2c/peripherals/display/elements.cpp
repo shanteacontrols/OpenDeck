@@ -11,8 +11,8 @@
 
 #include <zephyr/kernel.h>
 
-using namespace io::i2c::display;
-using namespace protocol;
+using namespace opendeck::io::i2c::display;
+using namespace opendeck::protocol;
 
 void Display::Elements::update()
 {

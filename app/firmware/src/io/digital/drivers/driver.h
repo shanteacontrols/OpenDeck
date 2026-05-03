@@ -16,7 +16,7 @@
 #elif defined(CONFIG_PROJECT_TARGET_DRIVER_DIGITAL_INPUT_MATRIX_SHIFT_REGISTER_ROWS)
 #include "matrix_shift_register_rows/matrix_shift_register_rows_driver.h"
 #else
-namespace io::digital::drivers
+namespace opendeck::io::digital::drivers
 {
     /**
      * @brief Fallback no-op digital driver used when no hardware-specific driver is selected.
@@ -80,5 +80,5 @@ namespace io::digital::drivers
             return component == EncoderComponent::A ? index : index + 1;
         }
     };
-}    // namespace io::digital::drivers
+}    // namespace opendeck::io::digital::drivers
 #endif

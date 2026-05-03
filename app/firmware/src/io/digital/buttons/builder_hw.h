@@ -11,7 +11,7 @@
 #include "drivers/driver.h"
 #include "database/builder.h"
 
-namespace io::buttons
+namespace opendeck::io::buttons
 {
     /**
      * @brief Convenience builder that wires the hardware button subsystem.
@@ -57,4 +57,4 @@ namespace io::buttons
         FilterHw _filter;
         Buttons  _instance;
     };
-}    // namespace io::buttons
+}    // namespace opendeck::io::buttons

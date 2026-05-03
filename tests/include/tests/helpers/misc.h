@@ -5,17 +5,59 @@
 
 #pragma once
 
+#include "io/base.h"
+
+#include <zephyr/kernel.h>
+
 #include <string>
 #include <exception>
 #include <stdexcept>
 #include <algorithm>
 #include <iostream>
+#include <sstream>
+#include <vector>
+#include <cstdint>
 #include <time.h>
 #include <errno.h>
 #include <iomanip>
 
-namespace test
+namespace opendeck::tests
 {
+    /**
+     * @brief Resumes IO processing and waits for worker threads to observe it.
+     */
+    inline void resume_io()
+    {
+        io::Base::resume();
+        k_msleep(20);
+    }
+
+    /**
+     * @brief Polls until a condition becomes true or a timeout expires.
+     *
+     * @param [in] condition Predicate evaluated between sleep intervals.
+     * @param [in] timeout_ms Maximum time to wait before returning.
+     * @param [in] poll_ms Delay between condition checks.
+     *
+     * @return `true` if the condition became true within the timeout window,
+     *         otherwise the final condition value after the timeout expires.
+     */
+    template<typename Condition>
+    bool wait_until(Condition condition, const int32_t timeout_ms = 200, const int32_t poll_ms = 20)
+    {
+        for (int32_t elapsed_ms = 0; elapsed_ms < timeout_ms; elapsed_ms += poll_ms)
+        {
+            if (condition())
+            {
+                return true;
+            }
+
+            k_msleep(poll_ms);
+        }
+
+        return condition();
+    }
+
     /**
      * @brief Executes a shell command and captures its standard output.
      *
@@ -141,7 +183,7 @@ namespace test
      *
      * @return Current timestamp in milliseconds.
      */
-    int64_t millis()
+    inline int64_t millis()
     {
         struct timespec now;
         timespec_get(&now, TIME_UTC);
@@ -191,4 +233,4 @@ namespace test
 
         return request_string.str();
     }
-}    // namespace test
+}    // namespace opendeck::tests

@@ -7,6 +7,8 @@
 
 #include <zephyr/logging/log.h>
 
+using namespace opendeck;
+
 namespace
 {
     LOG_MODULE_REGISTER(main, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT

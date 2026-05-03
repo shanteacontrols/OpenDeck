@@ -11,7 +11,7 @@
 #include "io/digital/buttons/deps.h"
 #include "database/builder.h"
 
-namespace io::encoders
+namespace opendeck::io::encoders
 {
     /**
      * @brief Convenience builder that wires the hardware encoder subsystem.
@@ -48,4 +48,4 @@ namespace io::encoders
         FilterHw _filter;
         Encoders _instance;
     };
-}    // namespace io::encoders
+}    // namespace opendeck::io::encoders

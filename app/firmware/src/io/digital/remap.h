@@ -11,7 +11,7 @@
 #include <cstddef>
 #include <zephyr/devicetree.h>
 
-namespace io::digital
+namespace opendeck::io::digital
 {
     /**
      * @brief Resolves logical digital indices to the underlying physical scan order.
@@ -65,4 +65,4 @@ namespace io::digital
 #undef OPENDECK_BUTTON_REMAP_ENTRY
 #endif
     };
-}    // namespace io::digital
+}    // namespace opendeck::io::digital

@@ -6,9 +6,9 @@
 #pragma once
 
 #include "util/incdec/inc_dec.h"
-#include "messaging/messaging.h"
+#include "signaling/signaling.h"
 
-namespace global
+namespace opendeck::global
 {
     /** @brief Number of MIDI channels tracked by the global program store. */
     constexpr inline uint8_t MIDI_PROGRAM_CHANNEL_COUNT = 16;
@@ -184,11 +184,11 @@ namespace global
         {
             _offset = offset;
 
-            messaging::SystemSignal signal = {};
-            signal.system_message          = messaging::SystemMessage::MidiProgramOffsetChange;
+            signaling::SystemSignal signal = {};
+            signal.system_event            = signaling::SystemEvent::MidiProgramOffsetChange;
             signal.value                   = offset;
 
-            messaging::publish(signal);
+            signaling::publish(signal);
         }
 
         /**
@@ -209,6 +209,6 @@ namespace global
         std::array<uint8_t, MIDI_PROGRAM_CHANNEL_COUNT + 1> _program = {};
         uint8_t                                             _offset  = 0;
     };
-}    // namespace global
+}    // namespace opendeck::global
 
 #define MidiProgram global::MidiProgram::instance()

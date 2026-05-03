@@ -8,7 +8,7 @@
 #include "deps.h"
 #include "io/base.h"
 
-namespace io::analog
+namespace opendeck::io::analog
 {
     /**
      * @brief Stub analog subsystem used when no analog hardware is present.
@@ -45,4 +45,4 @@ namespace io::analog
         {
         }
     };
-}    // namespace io::analog
+}    // namespace opendeck::io::analog

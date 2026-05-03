@@ -8,7 +8,7 @@
 #include <inttypes.h>
 #include <stddef.h>
 
-namespace database
+namespace opendeck::database
 {
     /**
      * @brief Compile-time identifiers and limits for database blocks and sections.
@@ -172,4 +172,4 @@ namespace database
             Count
         };
     };
-}    // namespace database
+}    // namespace opendeck::database

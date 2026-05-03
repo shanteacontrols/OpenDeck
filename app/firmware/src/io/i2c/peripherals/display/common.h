@@ -7,7 +7,7 @@
 
 #include <inttypes.h>
 
-namespace io::i2c::display
+namespace opendeck::io::i2c::display
 {
     /**
      * @brief Identifies configurable display settings stored in the database.
@@ -44,4 +44,4 @@ namespace io::i2c::display
         Res128x32,
         Count
     };
-}    // namespace io::i2c::display
+}    // namespace opendeck::io::i2c::display

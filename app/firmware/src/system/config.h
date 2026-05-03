@@ -9,7 +9,7 @@
 
 #include "zlibs/utils/sysex_conf/sysex_conf.h"
 
-namespace sys
+namespace opendeck::sys
 {
     /**
      * @brief Compile-time identifiers and limits for the system SysEx configuration protocol.
@@ -215,4 +215,4 @@ namespace sys
             };
         };
     };
-}    // namespace sys
+}    // namespace opendeck::sys

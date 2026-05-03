@@ -9,7 +9,7 @@
 #include "hwa_stub.h"
 #include "database/builder.h"
 
-namespace io::leds
+namespace opendeck::io::leds
 {
     /**
      * @brief Stub builder that wires the LED subsystem to a no-op backend.
@@ -42,4 +42,4 @@ namespace io::leds
         Database _database;
         Leds     _instance;
     };
-}    // namespace io::leds
+}    // namespace opendeck::io::leds
