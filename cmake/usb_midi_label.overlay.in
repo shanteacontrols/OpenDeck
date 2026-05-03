@@ -1,3 +1,14 @@
-&{/usb_midi/midi_in_out@0} {
-    label = "@OPENDECK_USB_MIDI_LABEL@";
+/ {
+    usb_midi: usb_midi {
+        compatible = "zephyr,midi2-device";
+        status = "okay";
+        #address-cells = <1>;
+        #size-cells = <1>;
+
+        midi_in_out@0 {
+            reg = <0 1>;
+            protocol = "midi1-up-to-128b";
+            label = "@OPENDECK_USB_MIDI_LABEL@";
+        };
+    };
 };

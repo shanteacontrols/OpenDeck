@@ -4,18 +4,6 @@
         zephyr,console = &usart3;
         zephyr,shell-uart = &usart3;
     };
-
-    usb_midi: usb_midi {
-        compatible = "zephyr,midi2-device";
-        status = "okay";
-        #address-cells = <1>;
-        #size-cells = <1>;
-
-        midi_in_out@0 {
-            reg = <0 1>;
-            protocol = "midi1-up-to-128b";
-        };
-    };
 };
 
 &usart2 {
