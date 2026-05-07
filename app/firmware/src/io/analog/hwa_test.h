@@ -61,6 +61,17 @@ namespace opendeck::io::analog
         }
 
         /**
+         * @brief Stores the most recently requested scan mask.
+         *
+         * @param mask Physical-channel scan mask.
+         */
+        void set_scan_mask(const ScanMask& mask) override
+        {
+            const zlibs::utils::misc::LockGuard lock(_mutex);
+            _scan_mask = mask;
+        }
+
+        /**
          * @brief Appends one frame to the test input queue.
          *
          * @param frame Frame to queue.
@@ -89,9 +100,21 @@ namespace opendeck::io::analog
             _read_count.store(0, std::memory_order_relaxed);
         }
 
+        /**
+         * @brief Returns the most recently requested scan mask.
+         *
+         * @return Stored physical-channel scan mask.
+         */
+        ScanMask scan_mask() const
+        {
+            const zlibs::utils::misc::LockGuard lock(_mutex);
+            return _scan_mask;
+        }
+
         private:
         mutable zlibs::utils::misc::Mutex _mutex;
         std::deque<Frame>                 _frames     = {};
         std::atomic<size_t>               _read_count = { 0 };
+        ScanMask                          _scan_mask  = {};
     };
 }    // namespace opendeck::io::analog

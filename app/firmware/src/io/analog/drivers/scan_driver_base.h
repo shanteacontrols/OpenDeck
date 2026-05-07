@@ -78,6 +78,11 @@ namespace opendeck::io::analog::drivers
 
             for (size_t i = 0; i < static_cast<T*>(this)->physical_input_count(); i++)
             {
+                if (!_scan_mask[i])
+                {
+                    continue;
+                }
+
                 uint16_t sample = 0;
 
                 static_cast<T*>(this)->select_input(i);
@@ -100,7 +105,18 @@ namespace opendeck::io::analog::drivers
             return frame;
         }
 
+        /**
+         * @brief Updates which physical analog channels should be scanned.
+         *
+         * @param mask Physical-channel scan mask.
+         */
+        void set_scan_mask(const ScanMask& mask) override
+        {
+            _scan_mask = mask;
+        }
+
         private:
-        bool _initialized = false;
+        bool     _initialized = false;
+        ScanMask _scan_mask   = {};
     };
 }    // namespace opendeck::io::analog::drivers

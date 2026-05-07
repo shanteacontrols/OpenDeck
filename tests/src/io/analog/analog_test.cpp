@@ -11,6 +11,7 @@
 
 #include "io/analog/builder.h"
 #include "io/analog/drivers/scan_driver_base.h"
+#include "io/analog/remap.h"
 #include "io/digital/buttons/builder.h"
 #include "io/digital/buttons/buttons.h"
 #include "util/configurable/configurable.h"
@@ -181,7 +182,11 @@ namespace
 
             for (size_t i = 0; i < analog::Collection::size(analog::GroupAnalogInputs); i++)
             {
-                ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Enable, i, 1));
+                ASSERT_EQ(static_cast<uint8_t>(sys::Config::Status::Ack),
+                          ConfigHandler.set(sys::Config::Block::Analog,
+                                            static_cast<uint8_t>(sys::Config::Section::Analog::Enable),
+                                            i,
+                                            1));
                 ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Channel, i, 1));
             }
 
@@ -297,13 +302,25 @@ TEST(AnalogDriverBufferTest, KeepsNewestEightFrames)
 
 TEST(AnalogDriverScanTest, PublishesFullFrames)
 {
-    FakeScanDriver driver;
+    if (FakeScanDriver::INPUT_COUNT < 3)
+    {
+        return;
+    }
+
+    FakeScanDriver   driver;
+    analog::ScanMask mask = {};
+
+    for (size_t i = 0; i < FakeScanDriver::INPUT_COUNT; i++)
+    {
+        mask[i] = true;
+    }
 
     driver.samples[0] = { 10, 10, 30, 30 };
     driver.samples[1] = { 20, 20, 40, 40 };
     driver.samples[2] = { 50, 50, 60, 60 };
 
     ASSERT_TRUE(driver.init());
+    driver.set_scan_mask(mask);
 
     auto frame = driver.read();
     ASSERT_TRUE(frame.has_value());
@@ -320,6 +337,36 @@ TEST(AnalogDriverScanTest, PublishesFullFrames)
     EXPECT_EQ(40, frame->at(1));
     EXPECT_EQ(60, frame->at(2));
     EXPECT_EQ((std::vector<size_t>{ 0, 1, 2 }), driver.selected_inputs);
+}
+
+TEST(AnalogDriverScanTest, SkipsMaskedChannels)
+{
+    if (FakeScanDriver::INPUT_COUNT < 3)
+    {
+        return;
+    }
+
+    FakeScanDriver          driver;
+    analog::ScanMask        mask         = {};
+    static constexpr size_t FIRST_INPUT  = 0;
+    static constexpr size_t SECOND_INPUT = 1;
+    static constexpr size_t LAST_INPUT   = FakeScanDriver::INPUT_COUNT - 1;
+
+    mask[FIRST_INPUT] = true;
+    mask[LAST_INPUT]  = true;
+
+    driver.samples[FIRST_INPUT] = { 10, 10 };
+    driver.samples[LAST_INPUT]  = { 50, 50 };
+
+    ASSERT_TRUE(driver.init());
+    driver.set_scan_mask(mask);
+
+    auto frame = driver.read();
+    ASSERT_TRUE(frame.has_value());
+    EXPECT_EQ(10, frame->at(FIRST_INPUT));
+    EXPECT_EQ(0, frame->at(SECOND_INPUT));
+    EXPECT_EQ(50, frame->at(LAST_INPUT));
+    EXPECT_EQ((std::vector<size_t>{ FIRST_INPUT, LAST_INPUT }), driver.selected_inputs);
 }
 
 TEST_F(AnalogTest, CC)
@@ -791,6 +838,71 @@ TEST_F(AnalogTest, ForceRefreshUsesLastValueWithoutNewFrames)
     {
         EXPECT_EQ(17, message.value);
     }
+}
+
+TEST_F(AnalogTest, EnableChangesUpdatePhysicalScanMask)
+{
+    if (!analog::Collection::size(analog::GroupAnalogInputs))
+    {
+        return;
+    }
+
+    analog::ScanMask expected_mask = _analog._hwa.scan_mask();
+
+    ASSERT_EQ(static_cast<uint8_t>(sys::Config::Status::Ack),
+              ConfigHandler.set(sys::Config::Block::Analog,
+                                static_cast<uint8_t>(sys::Config::Section::Analog::Enable),
+                                0,
+                                1));
+
+    expected_mask[analog::Remap::physical(0)] = true;
+    EXPECT_EQ(expected_mask, _analog._hwa.scan_mask());
+
+    ASSERT_EQ(static_cast<uint8_t>(sys::Config::Status::Ack),
+              ConfigHandler.set(sys::Config::Block::Analog,
+                                static_cast<uint8_t>(sys::Config::Section::Analog::Enable),
+                                0,
+                                0));
+
+    expected_mask[analog::Remap::physical(0)] = false;
+    EXPECT_EQ(expected_mask, _analog._hwa.scan_mask());
+}
+
+TEST_F(AnalogTest, PresetChangeUpdatesPhysicalScanMask)
+{
+    if (_database_admin.supported_presets() < 2)
+    {
+        return;
+    }
+
+    analog::ScanMask expected_mask = _analog._hwa.scan_mask();
+
+    ASSERT_TRUE(_database_admin.set_preset(1));
+
+    for (size_t i = 0; i < analog::Collection::size(analog::GroupAnalogInputs); i++)
+    {
+        ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Enable, i, 1));
+    }
+
+    ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Enable, 0, 0));
+
+    ASSERT_TRUE(_database_admin.set_preset(0));
+    signaling::publish(signaling::SystemSignal{
+        .system_event = signaling::SystemEvent::PresetChanged,
+        .value        = 0,
+    });
+
+    expected_mask[analog::Remap::physical(0)] = true;
+    EXPECT_EQ(expected_mask, _analog._hwa.scan_mask());
+
+    ASSERT_TRUE(_database_admin.set_preset(1));
+    signaling::publish(signaling::SystemSignal{
+        .system_event = signaling::SystemEvent::PresetChanged,
+        .value        = 1,
+    });
+
+    expected_mask[analog::Remap::physical(0)] = false;
+    EXPECT_EQ(expected_mask, _analog._hwa.scan_mask());
 }
 
 #else

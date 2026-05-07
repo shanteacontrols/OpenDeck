@@ -21,6 +21,11 @@ namespace opendeck::io::analog
     using Frame = std::array<uint16_t, OPENDECK_ANALOG_PHYSICAL_COUNT>;
 
     /**
+     * @brief Physical-channel scan mask used to skip disabled analog inputs.
+     */
+    using ScanMask = std::array<bool, OPENDECK_ANALOG_PHYSICAL_COUNT>;
+
+    /**
      * @brief Flattened collection of analog-capable inputs.
      */
     class Collection : public io::common::BaseCollection<OPENDECK_ANALOG_LOGICAL_COUNT>

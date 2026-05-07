@@ -53,6 +53,16 @@ namespace opendeck::io::analog
             return _driver.read();
         }
 
+        /**
+         * @brief Updates which physical analog channels should be scanned.
+         *
+         * @param mask Physical-channel scan mask.
+         */
+        void set_scan_mask(const ScanMask& mask) override
+        {
+            _driver.set_scan_mask(mask);
+        }
+
         private:
         DriverBase& _driver;
     };

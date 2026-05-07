@@ -43,5 +43,14 @@ namespace opendeck::io::analog
         {
             return {};
         }
+
+        /**
+         * @brief Ignores scan-mask updates in the stub backend.
+         *
+         * @param mask Physical-channel scan mask.
+         */
+        void set_scan_mask([[maybe_unused]] const ScanMask& mask) override
+        {
+        }
     };
 }    // namespace opendeck::io::analog

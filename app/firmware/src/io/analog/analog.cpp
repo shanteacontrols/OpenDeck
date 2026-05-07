@@ -47,7 +47,12 @@ Analog::Analog(Hwa&      hwa,
                           continue;
                       }
 
-                      auto frame = _hwa.read();
+                      std::optional<Frame> frame;
+
+                      {
+                          const zlibs::utils::misc::LockGuard lock(_hwa_mutex);
+                          frame = _hwa.read();
+                      }
 
                       if (frame.has_value())
                       {
@@ -72,6 +77,18 @@ Analog::Analog(Hwa&      hwa,
         {
             return sys_config_set(static_cast<sys::Config::Section::Analog>(section), index, value);
         });
+
+    signaling::subscribe<signaling::SystemSignal>(
+        [this](const signaling::SystemSignal& signal)
+        {
+            if (signal.system_event != signaling::SystemEvent::PresetChanged)
+            {
+                return;
+            }
+
+            const zlibs::utils::misc::LockGuard lock(_hwa_mutex);
+            update_scan_mask();
+        });
 }
 
 Analog::~Analog()
@@ -85,6 +102,11 @@ bool Analog::init()
     if (!_hwa.init())
     {
         return false;
+    }
+
+    {
+        const zlibs::utils::misc::LockGuard lock(_hwa_mutex);
+        update_scan_mask();
     }
 
     for (size_t i = 0; i < Collection::size(); i++)
@@ -231,6 +253,28 @@ void Analog::process_reading(size_t index, uint16_t value)
         send_message(index, analog_descriptor);
         _last_value[index] = analog_descriptor.new_value;
     }
+}
+
+void Analog::update_scan_mask()
+{
+    ScanMask mask = {};
+
+    for (size_t i = 0; i < Collection::size(GroupAnalogInputs); i++)
+    {
+        if (!_database.read(database::Config::Section::Analog::Enable, i))
+        {
+            continue;
+        }
+
+        const auto physical_index = Remap::physical(i);
+
+        if (physical_index < mask.size())
+        {
+            mask[physical_index] = true;
+        }
+    }
+
+    _hwa.set_scan_mask(mask);
 }
 
 bool Analog::check_potentiometer_value([[maybe_unused]] size_t index, Descriptor& descriptor)
@@ -494,13 +538,28 @@ std::optional<uint8_t> Analog::sys_config_set(sys::Config::Section::Analog secti
     }
     break;
 
+    case sys::Config::Section::Analog::Enable:
+    {
+        reset(index);
+    }
+    break;
+
     default:
         break;
     }
 
-    return _database.update(util::Conversion::sys_2_db_section(section), index, value)
-               ? sys::Config::Status::Ack
-               : sys::Config::Status::ErrorWrite;
+    if (!_database.update(util::Conversion::sys_2_db_section(section), index, value))
+    {
+        return sys::Config::Status::ErrorWrite;
+    }
+
+    if (section == sys::Config::Section::Analog::Enable)
+    {
+        const zlibs::utils::misc::LockGuard lock(_hwa_mutex);
+        update_scan_mask();
+    }
+
+    return sys::Config::Status::Ack;
 }
 
 #endif

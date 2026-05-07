@@ -100,6 +100,7 @@ namespace opendeck::io::analog
         Hwa&                      _hwa;
         Filter&                   _filter;
         Database&                 _database;
+        zlibs::utils::misc::Mutex _hwa_mutex;
         zlibs::utils::misc::Mutex _state_mutex;
         uint8_t                   _fsr_pressed[Collection::size() / STATE_STORAGE_DIVISOR + 1] = {};
         uint16_t                  _last_value[Collection::size()]                              = {};
@@ -127,6 +128,11 @@ namespace opendeck::io::analog
          * @param value Raw sampled analog value.
          */
         void process_reading(size_t index, uint16_t value);
+
+        /**
+         * @brief Rebuilds the physical scan mask from enabled logical analog inputs.
+         */
+        void update_scan_mask();
 
         /**
          * @brief Resets cached runtime state for one analog input.
