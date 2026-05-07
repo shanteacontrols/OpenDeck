@@ -19,6 +19,7 @@
 #include "zlibs/utils/misc/mutex.h"
 
 #include <deque>
+#include <optional>
 
 using namespace opendeck::io;
 using namespace opendeck::protocol;
@@ -99,16 +100,16 @@ namespace
             selected_inputs.push_back(index);
         }
 
-        bool read_sample(uint16_t& sample)
+        std::optional<uint16_t> read_sample()
         {
             if (samples[_activeIndex].empty())
             {
-                return false;
+                return {};
             }
 
-            sample = samples[_activeIndex].front();
+            const auto sample = samples[_activeIndex].front();
             samples[_activeIndex].pop_front();
-            return true;
+            return sample;
         }
 
         std::array<std::deque<uint16_t>, INPUT_COUNT> samples         = {};

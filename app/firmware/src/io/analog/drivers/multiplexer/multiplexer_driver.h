@@ -89,22 +89,26 @@ namespace opendeck::io::analog
         /**
          * @brief Performs one synchronous ADC conversion for the active mux channel.
          *
-         * @param sample Storage location for the converted sample.
-         *
-         * @return `true` if the read succeeded, otherwise `false`.
+         * @return Converted sample, or `std::nullopt` if the read failed.
          */
-        bool read_sample(uint16_t& sample)
+        std::optional<uint16_t> read_sample()
         {
+            uint16_t     sample   = 0;
             adc_sequence sequence = {};
             sequence.buffer       = &sample;
             sequence.buffer_size  = sizeof(sample);
 
             if (adc_sequence_init_dt(&_channels[_active_mux_index], &sequence) != 0)
             {
-                return false;
+                return {};
             }
 
-            return adc_read(_channels[_active_mux_index].dev, &sequence) == 0;
+            if (adc_read(_channels[_active_mux_index].dev, &sequence) != 0)
+            {
+                return {};
+            }
+
+            return sample;
         }
 
         private:

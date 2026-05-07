@@ -83,23 +83,23 @@ namespace opendeck::io::analog::drivers
                     continue;
                 }
 
-                uint16_t sample = 0;
-
                 static_cast<T*>(this)->select_input(i);
 
-                if (!static_cast<T*>(this)->read_sample(sample))
+                if (!static_cast<T*>(this)->read_sample().has_value())
                 {
                     return {};
                 }
 
-                if (!static_cast<T*>(this)->read_sample(sample))
+                const auto sample = static_cast<T*>(this)->read_sample();
+
+                if (!sample.has_value())
                 {
                     return {};
                 }
 
-                frame[i]   = sample;
-                min_sample = std::min(min_sample, sample);
-                max_sample = std::max(max_sample, sample);
+                frame[i]   = sample.value();
+                min_sample = std::min(min_sample, sample.value());
+                max_sample = std::max(max_sample, sample.value());
             }
 
             return frame;

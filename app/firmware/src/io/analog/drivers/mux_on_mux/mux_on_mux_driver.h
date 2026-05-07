@@ -103,13 +103,19 @@ namespace opendeck::io::analog
         /**
          * @brief Performs one ADC conversion for the currently selected route.
          *
-         * @param sample Storage location for the converted sample.
-         *
-         * @return `true` if the sample was read successfully, otherwise `false`.
+         * @return Converted sample, or `std::nullopt` if the read failed.
          */
-        bool read_sample(uint16_t& sample)
+        std::optional<uint16_t> read_sample()
         {
-            return read_active_sample(sample);
+            uint16_t sample  = 0;
+            _sequence.buffer = &sample;
+
+            if (adc_read(_channel.dev, &_sequence) != 0)
+            {
+                return {};
+            }
+
+            return sample;
         }
 
         private:
@@ -255,20 +261,6 @@ namespace opendeck::io::analog
             }
 
             _selected_node_input = input;
-        }
-
-        /**
-         * @brief Performs one ADC conversion for the currently selected route.
-         *
-         * @param sample Storage location for the converted sample.
-         *
-         * @return `true` if the conversion succeeded, otherwise `false`.
-         */
-        bool read_active_sample(uint16_t& sample)
-        {
-            _sequence.buffer = &sample;
-
-            return adc_read(_channel.dev, &_sequence) == 0;
         }
     };
 }    // namespace opendeck::io::analog
