@@ -99,10 +99,6 @@ namespace
             selected_inputs.push_back(index);
         }
 
-        void settle() const
-        {
-        }
-
         bool read_sample(uint16_t& sample)
         {
             if (samples[_activeIndex].empty())
