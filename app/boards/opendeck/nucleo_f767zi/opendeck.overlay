@@ -42,23 +42,23 @@
         compatible = "opendeck,analog";
         mode = "native";
         io-channels =
+            <&adc1 3>,  /* A0 / PA3 */
+            <&adc1 10>, /* A1 / PC0 */
+            <&adc1 13>, /* A2 / PC3 */
+            <&adc3 9>,  /* A3 / PF3 */
+            <&adc3 15>, /* A4 / PF5 */
+            <&adc3 8>,  /* A5 / PF10 */
             <&adc1 0>,  /* PA0 */
-            <&adc1 3>,  /* PA3 */
             <&adc1 4>,  /* PA4 */
             <&adc1 5>,  /* PA5 */
             <&adc1 6>,  /* PA6 */
             <&adc1 9>,  /* PB1 */
-            <&adc1 10>, /* PC0 */
             <&adc1 12>, /* PC2 */
-            <&adc1 13>, /* PC3 */
-            <&adc3 9>,  /* PF3 */
             <&adc3 14>, /* PF4 */
-            <&adc3 15>, /* PF5 */
             <&adc3 4>,  /* PF6 */
             <&adc3 5>,  /* PF7 */
             <&adc3 6>,  /* PF8 */
-            <&adc3 7>,  /* PF9 */
-            <&adc3 8>;  /* PF10 */
+            <&adc3 7>;  /* PF9 */
     };
 
     opendeck_touchscreen: opendeck-touchscreen {
