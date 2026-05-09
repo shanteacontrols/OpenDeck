@@ -56,6 +56,13 @@ namespace opendeck::protocol::midi
         virtual void register_on_ready_handler(UsbReadyHandler&& handler) = 0;
 
         /**
+         * @brief Returns whether USB MIDI is ready for packet exchange.
+         *
+         * @return `true` when the USB MIDI function is ready for TX/RX.
+         */
+        virtual bool ready() = 0;
+
+        /**
          * @brief Writes a burst of UMP packets through the USB backend.
          *
          * The default implementation forwards packets one by one through

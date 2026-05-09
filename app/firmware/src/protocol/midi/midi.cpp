@@ -832,6 +832,11 @@ void Midi::send(const signaling::UmpSignal& event)
                 continue;
             }
 
+            if ((transport == signaling::MidiTransport::Usb) && !_hwa_usb.ready())
+            {
+                continue;
+            }
+
             if (!interface_instance->send(event.packet))
             {
                 LOG_ERR("Ump TX failed on interface %d (transport=%d, mt=%d)",

@@ -129,6 +129,16 @@ namespace opendeck::protocol::midi
         }
 
         /**
+         * @brief Returns whether the USB test backend is ready for packet exchange.
+         *
+         * @return Always `true`.
+         */
+        bool ready() override
+        {
+            return true;
+        }
+
+        /**
          * @brief Initializes the backend, clears buffered packets, and signals readiness.
          *
          * @return Always `true`.

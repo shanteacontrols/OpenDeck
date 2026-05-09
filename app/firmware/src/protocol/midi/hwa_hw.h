@@ -96,6 +96,16 @@ namespace opendeck::protocol::midi
         }
 
         /**
+         * @brief Returns whether USB MIDI is ready for packet exchange.
+         *
+         * @return `true` when the USB MIDI function is ready for TX/RX.
+         */
+        bool ready() override
+        {
+            return _ready;
+        }
+
+        /**
          * @brief Initializes the USB MIDI transport and responder callbacks.
          *
          * @return `true` if initialization succeeded, otherwise `false`.
