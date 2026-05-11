@@ -572,6 +572,21 @@ TEST_F(AnalogFilterTest, FastModeThresholdScalesWithOutputResolution)
     EXPECT_TRUE(_filter.fast_mode_active(FILTER_INDEX));
 }
 
+TEST_F(AnalogFilterTest, HighResolutionEndpointHoldSuppressesEdgeNoise)
+{
+    (void)prime(adc_value_for_output(32, MIDI_MAX_VALUE_14_BIT), MIDI_MAX_VALUE_14_BIT);
+
+    auto endpoint = sample(ADC_MIN_VALUE, MIDI_MAX_VALUE_14_BIT);
+
+    ASSERT_TRUE(endpoint.has_value());
+    EXPECT_EQ(0, endpoint.value());
+
+    const auto edge_noise = sample(adc_value_for_output(56, MIDI_MAX_VALUE_14_BIT),
+                                   MIDI_MAX_VALUE_14_BIT);
+
+    EXPECT_FALSE(edge_noise.has_value());
+}
+
 TEST_F(AnalogFilterTest, FastModeExpiresWhileContinuousIdleSamplesArrive)
 {
     const auto baseline = prime_midi();
@@ -617,6 +632,18 @@ TEST_F(AnalogFilterTest, ActivePotMovementPublishesWithoutIdleRepeat)
 
     ASSERT_TRUE(filtered.has_value());
     EXPECT_GT(filtered.value(), baseline);
+}
+
+TEST_F(AnalogFilterTest, HighResolutionIdlePotDriftBelowFilterStepIsSuppressed)
+{
+    static constexpr uint16_t DRIFT_ADC = MID_VALUE + 7;
+
+    (void)prime(MID_VALUE, MIDI_MAX_VALUE_14_BIT);
+
+    k_msleep(analog::FilterHw<ActiveAdcBits>::motion_context_timeout_ms() + 20);
+
+    EXPECT_FALSE(sample(DRIFT_ADC, MIDI_MAX_VALUE_14_BIT).has_value());
+    EXPECT_FALSE(sample(DRIFT_ADC, MIDI_MAX_VALUE_14_BIT).has_value());
 }
 
 TEST_F(AnalogFilterTest, FsrIdleDriftRequiresRepeatConfirmation)

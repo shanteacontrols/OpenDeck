@@ -10,6 +10,7 @@
 #include "zlibs/utils/misc/bit.h"
 #include "zlibs/utils/misc/numeric.h"
 
+#include <algorithm>
 #include <array>
 #include <limits>
 #include <zephyr/kernel.h>
@@ -213,10 +214,12 @@ namespace opendeck::io::analog
             uint16_t            last_filtered_value     = 0;
             uint16_t            old_midi_value          = NO_VALUE;
             uint16_t            min_step_diff           = 1;
+            uint16_t            endpoint_range          = ENDPOINT_ASSIST_MIDI_RANGE;
             bool                direction               = false;
             EndpointAssistState endpoint_assist         = {};
         };
 
+        static constexpr uint16_t HIGH_RES_FILTER_STEPS                     = 512;
         static constexpr uint8_t  FAST_FILTER_STEP_MULTIPLIER               = 2;
         static constexpr uint8_t  FAST_FILTER_ENTER_MULTIPLIER              = 2;
         static constexpr uint8_t  FAST_FILTER_EXIT_MULTIPLIER               = 1;
@@ -519,9 +522,10 @@ namespace opendeck::io::analog
                                                                         adc_max_value,
                                                                         descriptor.max_value);
             const bool           raw_at_endpoint  = (raw_midi_value == 0) || (raw_midi_value == descriptor.max_value);
+            const auto           steps            = filter_steps(descriptor.max_value);
             const auto           base_step_diff   = step_diff(adc_min_value,
                                                               adc_max_value,
-                                                              descriptor.max_value);
+                                                              steps);
             const auto           adc_delta        = has_last_sample ? abs_diff(descriptor.value, _last_sample_value[index]) : static_cast<uint16_t>(0);
             const auto           fast_enter_thres = static_cast<uint16_t>(base_step_diff * FAST_FILTER_ENTER_MULTIPLIER);
             const auto           fast_exit_thres  = static_cast<uint16_t>(base_step_diff * FAST_FILTER_EXIT_MULTIPLIER);
@@ -531,10 +535,13 @@ namespace opendeck::io::analog
             state.last_filtered_value     = state.has_last_filtered_value ? _last_value[index] : descriptor.value;
             state.old_midi_value          = state.has_last_midi_value ? _last_midi_value[index] : NO_VALUE;
             state.direction               = descriptor.value >= state.last_filtered_value;
+            state.endpoint_range          = endpoint_assist_range(descriptor.max_value,
+                                                                  steps);
             state.endpoint_assist         = endpoint_assist_state(state.has_last_midi_value,
                                                                   state.old_midi_value,
                                                                   raw_midi_value,
-                                                                  descriptor.max_value);
+                                                                  descriptor.max_value,
+                                                                  state.endpoint_range);
 
             update_fast_filter_state(index,
                                      has_last_sample,
@@ -623,6 +630,7 @@ namespace opendeck::io::analog
                                            state.has_last_midi_value,
                                            state.old_midi_value,
                                            descriptor.max_value,
+                                           state.endpoint_range,
                                            state.direction,
                                            midi_value))
             {
@@ -709,17 +717,19 @@ namespace opendeck::io::analog
          * @param old_midi_value Last published MIDI value.
          * @param raw_midi_value MIDI value corresponding to the unclamped raw ADC sample.
          * @param max_value Maximum output value for the current descriptor.
+         * @param endpoint_range How close a value must be to min/max before it snaps.
          *
          * @return Endpoint-assist state for the current sample.
          */
         EndpointAssistState endpoint_assist_state(bool     has_last_midi_value,
                                                   uint16_t old_midi_value,
                                                   uint16_t raw_midi_value,
-                                                  uint16_t max_value) const
+                                                  uint16_t max_value,
+                                                  uint16_t endpoint_range) const
         {
-            const auto upper_endpoint_floor  = max_value > ENDPOINT_ASSIST_MIDI_RANGE ? static_cast<uint16_t>(max_value - ENDPOINT_ASSIST_MIDI_RANGE) : static_cast<uint16_t>(0);
+            const auto upper_endpoint_floor  = max_value > endpoint_range ? static_cast<uint16_t>(max_value - endpoint_range) : static_cast<uint16_t>(0);
             const bool near_upper_endpoint   = has_last_midi_value && (old_midi_value >= upper_endpoint_floor);
-            const bool near_lower_endpoint   = has_last_midi_value && (old_midi_value <= ENDPOINT_ASSIST_MIDI_RANGE);
+            const bool near_lower_endpoint   = has_last_midi_value && (old_midi_value <= endpoint_range);
             const bool upper_endpoint_assist = near_upper_endpoint &&
                                                (raw_midi_value == max_value) &&
                                                (old_midi_value < max_value);
@@ -732,6 +742,53 @@ namespace opendeck::io::analog
                 .upper   = upper_endpoint_assist,
                 .lower   = lower_endpoint_assist,
             };
+        }
+
+        /**
+         * @brief Returns how close a value must be to min/max before it snaps.
+         *
+         * 14-bit values are stretched from the ADC, so one ADC step covers many output values.
+         * Use a matching snap range so the pot can still reach exact 0 and max.
+         *
+         * @param max_value Maximum output value for the current descriptor.
+         * @param filter_steps Virtual number of output steps used by the analog motion filter.
+         *
+         * @return Distance from min/max that still counts as the endpoint.
+         */
+        uint16_t endpoint_assist_range(uint16_t max_value,
+                                       uint16_t filter_steps) const
+        {
+            const auto step_count = static_cast<uint32_t>(filter_steps);
+
+            if (step_count == 0U)
+            {
+                return ENDPOINT_ASSIST_MIDI_RANGE;
+            }
+
+            const auto output_count = static_cast<uint32_t>(max_value) + 1U;
+            const auto range        = (output_count + step_count - 1U) / step_count;
+
+            return static_cast<uint16_t>(std::max<uint32_t>(ENDPOINT_ASSIST_MIDI_RANGE, range));
+        }
+
+        /**
+         * @brief Returns how many movement steps the filter should track.
+         *
+         * 7-bit outputs can use every output value. Higher-resolution modes keep a coarser
+         * movement filter and stretch the accepted ADC readings to the full output range.
+         *
+         * @param max_value Maximum output value for the current descriptor.
+         *
+         * @return Number of virtual movement steps used by the filter.
+         */
+        uint16_t filter_steps(uint16_t max_value) const
+        {
+            if (max_value <= zlibs::utils::midi::MAX_VALUE_7BIT)
+            {
+                return static_cast<uint16_t>(max_value + 1U);
+            }
+
+            return HIGH_RES_FILTER_STEPS;
         }
 
         /**
@@ -853,6 +910,7 @@ namespace opendeck::io::analog
          * @param has_last_midi_value Whether a previous MIDI value exists.
          * @param old_midi_value Last published MIDI value.
          * @param max_value Maximum output value for the current descriptor.
+         * @param endpoint_range How close a value must be to min/max before it snaps.
          * @param direction Current movement direction; may be updated by endpoint assist.
          * @param midi_value Current MIDI value; may be replaced by endpoint assist.
          *
@@ -864,6 +922,7 @@ namespace opendeck::io::analog
                                        bool                       has_last_midi_value,
                                        uint16_t                   old_midi_value,
                                        uint16_t                   max_value,
+                                       uint16_t                   endpoint_range,
                                        bool&                      direction,
                                        uint16_t&                  midi_value)
         {
@@ -878,6 +937,16 @@ namespace opendeck::io::analog
                 direction  = false;
             }
 
+            if (endpoint_hold_active(has_last_midi_value,
+                                     old_midi_value,
+                                     midi_value,
+                                     max_value,
+                                     endpoint_range))
+            {
+                clear_pending_midi_state(index);
+                return false;
+            }
+
             if (has_last_midi_value && (midi_value == old_midi_value))
             {
                 clear_pending_midi_state(index);
@@ -886,6 +955,16 @@ namespace opendeck::io::analog
 
             if (!endpoint_assist.enabled && idle_context && has_last_midi_value)
             {
+                // 14-bit modes stretch each ADC step across several output values. When the pot
+                // is idle, ignore movement smaller than one virtual filter step so ADC noise does
+                // not briefly publish a high-res value and then settle back.
+                if ((max_value > MIDI_7_BIT_MAX_VALUE) &&
+                    (abs_diff(midi_value, old_midi_value) < endpoint_range))
+                {
+                    clear_pending_midi_state(index);
+                    return false;
+                }
+
                 if (_pending_midi_value[index] != midi_value)
                 {
                     _pending_midi_value[index]       = midi_value;
@@ -911,6 +990,36 @@ namespace opendeck::io::analog
             }
 
             return true;
+        }
+
+        /**
+         * @brief Returns whether a sample should stay latched to a previously published endpoint.
+         *
+         * Endpoint assist snaps a value to exact min/max when the raw reading reaches the edge.
+         * Without this hold check, edge noise can immediately publish a small value next to the
+         * endpoint and then snap back again on the next sample.
+         *
+         * @param has_last_midi_value Whether a previous MIDI value exists.
+         * @param old_midi_value Last published MIDI value.
+         * @param midi_value Current MIDI value.
+         * @param max_value Maximum output value for the current descriptor.
+         * @param endpoint_range How close a value must be to min/max before it snaps.
+         *
+         * @return `true` when the previous endpoint value should remain published.
+         */
+        bool endpoint_hold_active(bool     has_last_midi_value,
+                                  uint16_t old_midi_value,
+                                  uint16_t midi_value,
+                                  uint16_t max_value,
+                                  uint16_t endpoint_range) const
+        {
+            const auto hold_range = static_cast<uint16_t>(std::min<uint32_t>(
+                max_value,
+                static_cast<uint32_t>(endpoint_range) * FAST_FILTER_STEP_MULTIPLIER));
+
+            return has_last_midi_value &&
+                   (((old_midi_value == 0) && (midi_value <= hold_range)) ||
+                    ((old_midi_value == max_value) && (midi_value >= (max_value - hold_range))));
         }
 
         /**
@@ -945,17 +1054,21 @@ namespace opendeck::io::analog
          *
          * @param adc_min_value Lower bound of the active ADC range.
          * @param adc_max_value Upper bound of the active ADC range.
-         * @param max_value     Maximum output value for the current descriptor.
+         * @param output_steps  Virtual number of output steps used by the analog motion filter.
          *
          * @return Minimum ADC delta corresponding to one output step.
          */
         uint16_t step_diff(uint16_t adc_min_value,
                            uint16_t adc_max_value,
-                           uint16_t max_value) const
+                           uint16_t output_steps) const
         {
-            const auto adc_span     = static_cast<uint32_t>(adc_max_value) - static_cast<uint32_t>(adc_min_value);
-            const auto output_steps = static_cast<uint32_t>(max_value) + 1U;
-            const auto step_diff    = adc_span / output_steps;
+            if (output_steps == 0U)
+            {
+                return 1U;
+            }
+
+            const auto adc_span  = static_cast<uint32_t>(adc_max_value) - static_cast<uint32_t>(adc_min_value);
+            const auto step_diff = adc_span / static_cast<uint32_t>(output_steps);
 
             return step_diff == 0U ? 1U : static_cast<uint16_t>(step_diff);
         }
