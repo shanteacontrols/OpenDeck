@@ -278,9 +278,9 @@ TEST_F(SystemTest, IndicatorsInvertWhileConfigurationSessionIsOpen)
                    hwa.is_on(io::indicators::Type::UsbOut);
         }));
 
-    signaling::MidiTrafficSignal traffic_signal = {};
-    traffic_signal.transport                    = signaling::MidiTransport::Usb;
-    traffic_signal.direction                    = signaling::MidiDirection::In;
+    signaling::TrafficSignal traffic_signal = {};
+    traffic_signal.transport                = signaling::TrafficTransport::Usb;
+    traffic_signal.direction                = signaling::SignalDirection::In;
     signaling::publish(traffic_signal);
 
     ASSERT_TRUE(tests::wait_until(

@@ -26,7 +26,8 @@ namespace opendeck::io::encoders
          */
         Builder(database::Admin& database)
             : _database(database)
-            , _instance(_hwa, _filter, _database)
+            , _mapper(_database)
+            , _instance(_hwa, _filter, _database, _mapper)
         {}
 
         /**
@@ -53,6 +54,7 @@ namespace opendeck::io::encoders
         HwaTest    _hwa;
         FilterTest _filter;
         Database   _database;
+        Mapper     _mapper;
         Encoders   _instance;
     };
 }    // namespace opendeck::io::encoders

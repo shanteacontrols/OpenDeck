@@ -14,4 +14,5 @@ target_link_libraries(buttons
 
 zephyr_library_sources(
     ${CMAKE_CURRENT_LIST_DIR}/buttons.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/mapper.cpp
 )

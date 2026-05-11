@@ -18,6 +18,7 @@ opendeck_test_add_modules(
     configurable    "app/firmware/src/util/configurable"
     cinfo           "app/firmware/src/util/cinfo"
     protocol_midi   "app/firmware/src/protocol/midi"
+    protocol_mdns   "app/firmware/src/protocol/mdns"
     digital         "app/firmware/src/io/digital"
     buttons         "app/firmware/src/io/digital/buttons"
     encoders        "app/firmware/src/io/digital/encoders"

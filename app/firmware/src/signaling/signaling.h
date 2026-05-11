@@ -5,21 +5,20 @@
 
 #pragma once
 
+#include "protocol/mdns/common.h"
 #include "protocol/midi/common.h"
 #include "system/common.h"
 #include "zlibs/utils/signaling/signaling.h"
 
+#include <algorithm>
 #include <array>
 #include <functional>
+#include <span>
+#include <string_view>
 #include <vector>
 
 namespace opendeck::signaling
 {
-    /**
-     * @brief Maximum number of UMP packets accumulated before a USB burst is flushed.
-     */
-    static constexpr size_t USB_UMP_BURST_PACKET_COUNT = 64;
-
     /**
      * @brief Identifies system-level events exchanged over the signaling bus.
      */
@@ -46,43 +45,68 @@ namespace opendeck::signaling
     };
 
     /**
-     * @brief Identifies the direction of MIDI traffic.
+     * @brief Identifies signal direction from OpenDeck's perspective.
+     *
+     * `Out` means OpenDeck emitted state toward protocols, transports, or observers.
+     * `In` means an external protocol or transport is driving state into OpenDeck.
      */
-    enum class MidiDirection : uint8_t
+    enum class SignalDirection : uint8_t
     {
         In,
         Out,
     };
 
     /**
-     * @brief Identifies the physical MIDI transport.
+     * @brief Identifies the transport that carried traffic.
      */
-    enum class MidiTransport : uint8_t
+    enum class TrafficTransport : uint8_t
     {
         Usb,
         Din,
         Ble,
+        Network,
     };
 
     /**
-     * @brief Identifies which subsystem originated a MIDI event.
+     * @brief Identifies the endpoint that carries SysEx configuration data.
      */
-    enum class MidiSource : uint8_t
+    enum class ConfigTransport : uint8_t
+    {
+        Usb,
+        WebConfig,
+    };
+
+    /**
+     * @brief Identifies which IO component originated an event.
+     */
+    enum class IoEventSource : uint8_t
     {
         Button,
         Analog,
         AnalogButton,
         Encoder,
         TouchscreenButton,
-        Program,
+        Led,
     };
 
     /**
-     * @brief Describes one logical MIDI event produced by a firmware component.
+     * @brief Describes one protocol-neutral IO event.
      */
-    struct MidiSignal
+    struct OscIoSignal
     {
-        MidiSource                  source          = MidiSource::Button;
+        IoEventSource          source          = IoEventSource::Button;
+        size_t                 component_index = 0;
+        std::optional<int32_t> int32_value     = {};
+        std::optional<float>   float_value     = {};
+        SignalDirection        direction       = SignalDirection::Out;
+    };
+
+    /**
+     * @brief Describes one IO event interpreted through MIDI configuration.
+     */
+    struct MidiIoSignal
+    {
+        IoEventSource               source          = IoEventSource::Button;
         size_t                      component_index = 0;
         uint8_t                     channel         = 0;
         uint16_t                    index           = 0;
@@ -100,20 +124,11 @@ namespace opendeck::signaling
     };
 
     /**
-     * @brief Requests a touchscreen screen change.
+     * @brief Reports that the active touchscreen screen changed.
      */
-    struct TouchscreenScreenSignal
+    struct TouchscreenScreenChangedSignal
     {
-        size_t component_index = 0;
-    };
-
-    /**
-     * @brief Requests a touchscreen LED/icon state update.
-     */
-    struct TouchscreenLedSignal
-    {
-        size_t   component_index = 0;
-        uint16_t value           = 0;
+        size_t screen_index = 0;
     };
 
     /**
@@ -121,7 +136,7 @@ namespace opendeck::signaling
      */
     struct UmpSignal
     {
-        MidiDirection direction = MidiDirection::Out;
+        SignalDirection direction = SignalDirection::Out;
 
         /**
          * @brief Selects which transport backends should receive the UMP packet.
@@ -137,6 +152,88 @@ namespace opendeck::signaling
     };
 
     /**
+     * @brief Carries one raw SysEx configuration frame.
+     */
+    struct ConfigRequestSignal
+    {
+        ConfigTransport          transport = ConfigTransport::WebConfig;
+        std::span<const uint8_t> data      = {};
+    };
+
+    /**
+     * @brief Carries one SysEx configuration response packet.
+     */
+    struct ConfigResponseSignal
+    {
+        ConfigTransport transport = ConfigTransport::WebConfig;
+        ::midi_ump      packet    = {};
+    };
+
+    /**
+     * @brief Carries one raw OSC packet observed by the network protocol.
+     */
+    struct OscSignal
+    {
+        SignalDirection          direction = SignalDirection::Out;
+        std::span<const uint8_t> packet    = {};
+    };
+
+    /**
+     * @brief Network name and address currently advertised by OpenDeck.
+     */
+    class NetworkIdentitySignal
+    {
+        public:
+        static constexpr size_t NAME_SIZE         = opendeck::protocol::mdns::NETWORK_NAME_SIZE;
+        static constexpr size_t IPV4_ADDRESS_SIZE = opendeck::protocol::mdns::IPV4_ADDRESS_SIZE;
+
+        NetworkIdentitySignal() = default;
+
+        NetworkIdentitySignal(std::string_view network_name, std::string_view address)
+        {
+            copy_to_buffer(network_name, _name);
+            copy_to_buffer(address, _ipv4_address);
+        }
+
+        /**
+         * @brief Returns the advertised mDNS name.
+         *
+         * @return Network name text.
+         */
+        std::string_view name() const
+        {
+            return std::string_view(_name.data());
+        }
+
+        /**
+         * @brief Returns the advertised IPv4 address.
+         *
+         * @return IPv4 address text.
+         */
+        std::string_view ipv4_address() const
+        {
+            return std::string_view(_ipv4_address.data());
+        }
+
+        private:
+        std::array<char, NAME_SIZE>         _name         = {};
+        std::array<char, IPV4_ADDRESS_SIZE> _ipv4_address = {};
+
+        template<size_t Size>
+        static void copy_to_buffer(std::string_view value, std::array<char, Size>& buffer)
+        {
+            buffer.fill('\0');
+
+            if (value.size() >= buffer.size())
+            {
+                return;
+            }
+
+            std::copy(value.begin(), value.end(), buffer.begin());
+        }
+    };
+
+    /**
      * @brief Carries one outgoing USB UMP batch event.
      */
     struct UsbUmpBurstSignal
@@ -145,12 +242,12 @@ namespace opendeck::signaling
     };
 
     /**
-     * @brief Reports MIDI traffic activity for transport indicators.
+     * @brief Reports transport traffic activity for indicators.
      */
-    struct MidiTrafficSignal
+    struct TrafficSignal
     {
-        MidiTransport transport = MidiTransport::Usb;
-        MidiDirection direction = MidiDirection::Out;
+        TrafficTransport transport = TrafficTransport::Usb;
+        SignalDirection  direction = SignalDirection::Out;
     };
 
     /**
@@ -205,7 +302,7 @@ namespace opendeck::signaling
         }
 
         /**
-         * @brief Queues one signal instance through the asynchronous signaling backend.
+         * @brief Queues one signal instance through the owned signaling backend.
          *
          * @param signal Signal payload to publish.
          *
@@ -298,13 +395,17 @@ namespace opendeck::signaling
      */
     inline void clear_registry()
     {
-        SignalRegistry<MidiSignal>::instance().clear();
+        SignalRegistry<OscIoSignal>::instance().clear();
+        SignalRegistry<MidiIoSignal>::instance().clear();
         SignalRegistry<InternalProgram>::instance().clear();
         SignalRegistry<SystemSignal>::instance().clear();
-        SignalRegistry<TouchscreenLedSignal>::instance().clear();
-        SignalRegistry<TouchscreenScreenSignal>::instance().clear();
+        SignalRegistry<TouchscreenScreenChangedSignal>::instance().clear();
         SignalRegistry<UmpSignal>::instance().clear();
+        SignalRegistry<ConfigRequestSignal>::instance().clear();
+        SignalRegistry<ConfigResponseSignal>::instance().clear();
+        SignalRegistry<OscSignal>::instance().clear();
+        SignalRegistry<NetworkIdentitySignal>::instance().clear();
         SignalRegistry<UsbUmpBurstSignal>::instance().clear();
-        SignalRegistry<MidiTrafficSignal>::instance().clear();
+        SignalRegistry<TrafficSignal>::instance().clear();
     }
 }    // namespace opendeck::signaling

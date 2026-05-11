@@ -8,6 +8,7 @@
 #include "analog_stub.h"
 #include "filter_stub.h"
 #include "hwa_stub.h"
+#include "mapper.h"
 #include "database/builder.h"
 
 namespace opendeck::io::analog
@@ -25,7 +26,7 @@ namespace opendeck::io::analog
          */
         explicit Builder(database::Admin& database)
             : _database(database)
-            , _instance(_hwa, _filter, _database)
+            , _instance(_hwa, _filter, _mapper, _database)
         {}
 
         /**
@@ -41,6 +42,7 @@ namespace opendeck::io::analog
         private:
         HwaStub    _hwa;
         FilterStub _filter;
+        Mapper     _mapper;
         Database   _database;
         Analog     _instance;
     };

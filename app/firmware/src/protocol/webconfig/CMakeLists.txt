@@ -1,0 +1,22 @@
+include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_library.cmake)
+add_subdirectory(firmware_upload)
+
+opendeck_library_named(protocol_webconfig)
+
+target_include_directories(protocol_webconfig
+    PUBLIC
+    $ENV{ZEPHYR_PROJECT}/app/firmware/src
+)
+
+target_link_libraries(protocol_webconfig
+    PUBLIC
+    kernel
+    protocol_webconfig_firmware_upload
+)
+
+zephyr_linker_sources(SECTIONS ${CMAKE_CURRENT_LIST_DIR}/sections-rom.ld)
+
+zephyr_library_sources(
+    ${CMAKE_CURRENT_LIST_DIR}/hwa_hw.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/webconfig.cpp
+)

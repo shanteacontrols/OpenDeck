@@ -59,6 +59,12 @@ namespace opendeck::io::analog
     class Filter
     {
         public:
+        /** @brief Number of stable physical-position steps produced by the continuous analog filter. */
+        static constexpr uint16_t POSITION_STEP_COUNT = 512;
+
+        /** @brief Maximum stable physical-position value produced by the continuous analog filter. */
+        static constexpr uint16_t POSITION_MAX_VALUE = POSITION_STEP_COUNT - 1U;
+
         /**
          * @brief Runtime description of an analog sample used by filter implementations.
          */
@@ -68,7 +74,6 @@ namespace opendeck::io::analog
             uint16_t value        = 0;
             uint16_t lower_offset = 0;
             uint16_t upper_offset = 0;
-            uint16_t max_value    = zlibs::utils::midi::MAX_VALUE_7BIT;
         };
 
         virtual ~Filter() = default;

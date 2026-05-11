@@ -8,6 +8,7 @@
 #include "buttons.h"
 #include "filter_hw.h"
 #include "hwa_hw.h"
+#include "mapper.h"
 #include "drivers/driver.h"
 #include "database/builder.h"
 
@@ -27,7 +28,8 @@ namespace opendeck::io::buttons
         Builder(database::Admin& database)
             : _database(database)
             , _hwa(_driver)
-            , _instance(_hwa, _filter, _database)
+            , _mapper(_database)
+            , _instance(_hwa, _filter, _mapper, _database)
         {}
 
         /**
@@ -55,6 +57,7 @@ namespace opendeck::io::buttons
         Driver   _driver;
         HwaHw    _hwa;
         FilterHw _filter;
+        Mapper   _mapper;
         Buttons  _instance;
     };
 }    // namespace opendeck::io::buttons

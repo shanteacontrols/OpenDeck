@@ -6,9 +6,13 @@
 #include "fw_selector/fw_selector.h"
 #include "fw_selector/hwa_hw.h"
 #include "indicators.h"
+#ifdef CONFIG_PROJECT_BOOTLOADER_STAGED_UPDATE
+#include "staged_update/staged_update.h"
+#endif
 #include "webusb/transport.h"
 
 #include <zephyr/kernel.h>
+#include <zephyr/sys/reboot.h>
 
 using namespace opendeck;
 
@@ -21,6 +25,13 @@ namespace
 
 int main()
 {
+#ifdef CONFIG_PROJECT_BOOTLOADER_STAGED_UPDATE
+    if (staged_update::apply())
+    {
+        sys_reboot(SYS_REBOOT_COLD);
+    }
+#endif
+
     const auto selection = selector.select();
 
     if ((selection.firmware == fw_selector::FwType::Application) &&

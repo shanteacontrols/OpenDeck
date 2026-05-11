@@ -71,7 +71,7 @@ namespace opendeck::protocol::midi
         bool                                                                         _standard_note_off = true;
         bool                                                                         _din_loopback      = false;
         bool                                                                         _burst_midi_active = false;
-        std::array<midi_ump, signaling::USB_UMP_BURST_PACKET_COUNT>                  _usb_burst_packets = {};
+        std::array<midi_ump, USB_UMP_BURST_PACKET_COUNT>                             _usb_burst_packets = {};
         size_t                                                                       _usb_burst_count   = 0;
         size_t                                                                       _usb_burst_size    = 0;
 
@@ -125,9 +125,9 @@ namespace opendeck::protocol::midi
         /**
          * @brief Converts and sends one MIDI 1.0 event to the enabled transports.
          *
-         * @param event Logical MIDI signal to transmit.
+         * @param event MIDI-interpreted IO event to transmit.
          */
-        void send(const signaling::MidiSignal& event);
+        void send(const signaling::MidiIoSignal& event);
 
         /**
          * @brief Sends one prebuilt UMP event to the enabled transports.
@@ -190,7 +190,7 @@ namespace opendeck::protocol::midi
          *
          * @return Matching public MIDI transport identifier.
          */
-        signaling::MidiTransport interface_to_transport(size_t index) const;
+        signaling::TrafficTransport interface_to_transport(size_t index) const;
 
         /**
          * @brief Adds one UMP packet to the pending USB burst buffer.

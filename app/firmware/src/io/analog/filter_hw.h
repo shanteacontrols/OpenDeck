@@ -23,34 +23,25 @@ namespace opendeck::io::analog
      * Continuously varying analog inputs use a lightweight path tuned for real-time response on
      * both dense native ADC scans and large multiplexed matrices: bucket-sized ADC deadbanding,
      * raw-sample reversal confirmation, smoothing against the last accepted ADC value, endpoint
-     * assist, and light MIDI-domain publish gating for idle drift. Button-style analog inputs
+     * assist, and light position publish gating for idle drift. Button-style analog inputs
      * bypass continuous-value filtering and use threshold-based analog-to-digital conversion with
      * hysteresis instead.
      */
-    template<uint8_t Bits>
     class FilterHw : public Filter
     {
         public:
-        using AdcConfig = AdcConfigForT<Bits>;
-
         /**
-         * @brief Constructs a filter for one compile-time ADC resolution.
-         *
-         * The template parameter selects the ADC profile used for offsets, button thresholds, and
-         * FSR scaling. Supported resolutions are limited to 10-bit and 12-bit. All per-channel
-         * runtime state is initialized to the reset value.
-         *
-         * @tparam Bits ADC resolution in bits.
+         * @brief Constructs a filter for the board ADC profile.
          */
         FilterHw()
         {
             for (size_t i = 0; i < io::analog::Collection::size(); i++)
             {
-                _last_sample_value[i]  = NO_VALUE;
-                _last_value[i]         = NO_VALUE;
-                _last_midi_value[i]    = NO_VALUE;
-                _pending_midi_value[i] = NO_VALUE;
-                _last_movement_time[i] = NO_TIME;
+                _last_sample_value[i]      = NO_VALUE;
+                _last_value[i]             = NO_VALUE;
+                _last_position_value[i]    = NO_VALUE;
+                _pending_position_value[i] = NO_VALUE;
+                _last_movement_time[i]     = NO_TIME;
             }
         }
 
@@ -58,8 +49,8 @@ namespace opendeck::io::analog
          * @brief Returns the inactivity timeout after which motion context expires.
          *
          * Once this timeout elapses without a newly accepted movement, fast-mode state, pending
-         * reversal confirmation, and pending idle-drift MIDI confirmation are discarded. The last
-         * published output is kept.
+         * reversal confirmation, and pending idle-drift position confirmation are discarded. The
+         * last published position is kept.
          *
          * @return Motion-context timeout in milliseconds.
          */
@@ -86,11 +77,11 @@ namespace opendeck::io::analog
         }
 
         /**
-         * @brief Filters a raw analog reading and converts it into the effective output value.
+         * @brief Filters a raw analog reading and converts it into a stable position value.
          *
          * Continuously varying analog inputs move through the following states:
          * - Step 1: clamp the raw reading to the expected minimum/maximum range
-         * - Step 2: ignore tiny fluctuations by requiring roughly one MIDI bucket worth of ADC
+         * - Step 2: ignore tiny fluctuations by requiring roughly one position step worth of ADC
          *           movement before accepting a new sample; opposite-direction motion uses a
          *           wider threshold away from endpoints, while endpoint-assist samples bypass
          *           this deadband so edge snaps can still complete cleanly
@@ -102,15 +93,15 @@ namespace opendeck::io::analog
          *           them; endpoint-assist samples bypass reversal confirmation because they
          *           already snap directly to the endpoint value
          * - Step 6: smooth the accepted sample by blending it with the last accepted ADC value
-         * - Step 7: convert the filtered ADC value into a MIDI value
-         * - Step 8: apply MIDI-domain publish rules
-         *   - if the MIDI value is unchanged, suppress it
+         * - Step 7: convert the filtered ADC value into a position value
+         * - Step 8: apply position publish rules
+         *   - if the position value is unchanged, suppress it
          *   - if the raw sample already reaches the lower/upper endpoint bucket and the current
          *     published value is one step away from that edge, snap to the endpoint immediately
          *   - after motion context expires, require one repeated sample before publishing a new
          *     idle value so rare baseline drift does not emit immediately
-         *   - ignore tiny opposite-direction reversals that would briefly bounce the output
-         * - Step 9: commit the new movement direction, filtered ADC value, MIDI output, and
+         *   - ignore tiny opposite-direction reversals that would briefly bounce the position
+         * - Step 9: commit the new movement direction, filtered ADC value, position value, and
          *           motion timestamp as the current state
          *
          * @param index Analog input index being processed.
@@ -152,19 +143,19 @@ namespace opendeck::io::analog
                 return false;
             }
 
-            return apply_output_stage(index,
-                                      motion_context,
-                                      input_state,
-                                      adc_min_value,
-                                      adc_max_value,
-                                      descriptor);
+            return apply_position_stage(index,
+                                        motion_context,
+                                        input_state,
+                                        adc_min_value,
+                                        adc_max_value,
+                                        descriptor);
         }
 
         /**
          * @brief Resets filter state for one analog input.
          *
-         * This clears fast-mode state, pending MIDI confirmation, raw ADC history, and cached
-         * last-published MIDI value for the specified input.
+         * This clears fast-mode state, pending position confirmation, raw ADC history, and cached
+         * last-published position value for the specified input.
          *
          * @param index Analog input index to reset.
          */
@@ -177,11 +168,11 @@ namespace opendeck::io::analog
 
             clear_motion_context(index);
 
-            _last_movement_time[index] = NO_TIME;
-            _last_sample_value[index]  = NO_VALUE;
-            _last_value[index]         = NO_VALUE;
-            _last_midi_value[index]    = NO_VALUE;
-            _pending_midi_value[index] = NO_VALUE;
+            _last_movement_time[index]     = NO_TIME;
+            _last_sample_value[index]      = NO_VALUE;
+            _last_value[index]             = NO_VALUE;
+            _last_position_value[index]    = NO_VALUE;
+            _pending_position_value[index] = NO_VALUE;
         }
 
         private:
@@ -210,46 +201,44 @@ namespace opendeck::io::analog
         struct ContinuousInputState
         {
             bool                has_last_filtered_value = false;
-            bool                has_last_midi_value     = false;
+            bool                has_last_position_value = false;
             uint16_t            last_filtered_value     = 0;
-            uint16_t            old_midi_value          = NO_VALUE;
+            uint16_t            old_position_value      = NO_VALUE;
+            uint16_t            raw_position_value      = 0;
             uint16_t            min_step_diff           = 1;
-            uint16_t            endpoint_range          = ENDPOINT_ASSIST_MIDI_RANGE;
+            uint16_t            endpoint_range          = ENDPOINT_ASSIST_POSITION_RANGE;
             bool                direction               = false;
             EndpointAssistState endpoint_assist         = {};
         };
 
-        static constexpr uint16_t HIGH_RES_FILTER_STEPS                     = 512;
         static constexpr uint8_t  FAST_FILTER_STEP_MULTIPLIER               = 2;
         static constexpr uint8_t  FAST_FILTER_ENTER_MULTIPLIER              = 2;
         static constexpr uint8_t  FAST_FILTER_EXIT_MULTIPLIER               = 1;
         static constexpr uint8_t  FAST_FILTER_ENTER_SAMPLE_COUNT            = 2;
         static constexpr uint32_t MOTION_CONTEXT_TIMEOUT_MS                 = 100;
-        static constexpr uint8_t  ENDPOINT_ASSIST_MIDI_RANGE                = 1;
-        static constexpr uint8_t  MIDI_DIRECTION_CHANGE_THRESHOLD           = 3;
-        static constexpr uint8_t  IDLE_MIDI_CHANGE_SAMPLE_COUNT             = 2;
+        static constexpr uint8_t  ENDPOINT_ASSIST_POSITION_RANGE            = 1;
+        static constexpr uint8_t  POSITION_DIRECTION_CHANGE_THRESHOLD       = 3;
+        static constexpr uint8_t  IDLE_WAKE_POSITION_THRESHOLD              = 4;
+        static constexpr uint8_t  IDLE_POSITION_CHANGE_SAMPLE_COUNT         = 2;
         static constexpr uint32_t PERCENTAGE_DIVISOR                        = 100;
         static constexpr uint8_t  FAST_FILTER_DIRECTION_CHANGE_SAMPLE_COUNT = 2;
         static constexpr size_t   BITS_PER_STORAGE_UNIT                     = 8;
         static constexpr uint8_t  EMA_FILTER_PERCENT                        = 50;
-        static constexpr uint8_t  MIDI_7_BIT_MAX_VALUE                      = 127;
-        static constexpr uint8_t  ADC_RESOLUTION_10_BIT_SHIFT               = 3;
-        static constexpr uint8_t  ADC_RESOLUTION_12_BIT_SHIFT               = 5;
         static constexpr uint16_t NO_VALUE                                  = 0xFFFF;
         static constexpr uint32_t NO_TIME                                   = std::numeric_limits<uint32_t>::max();
         static constexpr size_t   STORAGE_SIZE                              = io::analog::Collection::size() ? io::analog::Collection::size() : 1;
         static constexpr size_t   BIT_STORAGE_SIZE                          = (STORAGE_SIZE + BITS_PER_STORAGE_UNIT - 1) / BITS_PER_STORAGE_UNIT;
 
-        std::array<uint8_t, STORAGE_SIZE>     _direction_change_counter = {};
-        std::array<uint8_t, STORAGE_SIZE>     _fast_mode_entry_counter  = {};
-        std::array<uint8_t, STORAGE_SIZE>     _slow_midi_change_counter = {};
-        std::array<uint32_t, STORAGE_SIZE>    _last_movement_time       = {};
-        std::array<uint8_t, BIT_STORAGE_SIZE> _fast_mode                = {};
-        std::array<uint8_t, BIT_STORAGE_SIZE> _last_direction           = {};
-        std::array<uint16_t, STORAGE_SIZE>    _last_sample_value        = {};
-        std::array<uint16_t, STORAGE_SIZE>    _last_value               = {};
-        std::array<uint16_t, STORAGE_SIZE>    _last_midi_value          = {};
-        std::array<uint16_t, STORAGE_SIZE>    _pending_midi_value       = {};
+        std::array<uint8_t, STORAGE_SIZE>     _direction_change_counter     = {};
+        std::array<uint8_t, STORAGE_SIZE>     _fast_mode_entry_counter      = {};
+        std::array<uint8_t, STORAGE_SIZE>     _idle_position_change_counter = {};
+        std::array<uint32_t, STORAGE_SIZE>    _last_movement_time           = {};
+        std::array<uint8_t, BIT_STORAGE_SIZE> _fast_mode                    = {};
+        std::array<uint8_t, BIT_STORAGE_SIZE> _last_direction               = {};
+        std::array<uint16_t, STORAGE_SIZE>    _last_sample_value            = {};
+        std::array<uint16_t, STORAGE_SIZE>    _last_value                   = {};
+        std::array<uint16_t, STORAGE_SIZE>    _last_position_value          = {};
+        std::array<uint16_t, STORAGE_SIZE>    _pending_position_value       = {};
 
         /**
          * @brief Stores the last movement direction for one analog input.
@@ -362,7 +351,7 @@ namespace opendeck::io::analog
          * @brief Clears motion-tracking state while keeping the last published value intact.
          *
          * This is used when motion context expires so the next sample starts a fresh gesture
-         * instead of continuing stale fast-mode, reversal-confirmation, or pending MIDI
+         * instead of continuing stale fast-mode, reversal-confirmation, or pending position
          * confirmation state.
          *
          * @param index Analog input index to reset.
@@ -370,7 +359,7 @@ namespace opendeck::io::analog
         void clear_motion_context(size_t index)
         {
             clear_direction_change_state(index);
-            clear_pending_midi_state(index);
+            clear_pending_position_state(index);
             _fast_mode_entry_counter[index] = 0;
             set_fast_mode(index, false);
         }
@@ -386,14 +375,14 @@ namespace opendeck::io::analog
         }
 
         /**
-         * @brief Clears pending MIDI publish confirmation state for one input.
+         * @brief Clears pending position publish confirmation state for one input.
          *
          * @param index Analog input index to update.
          */
-        void clear_pending_midi_state(size_t index)
+        void clear_pending_position_state(size_t index)
         {
-            _slow_midi_change_counter[index] = 0;
-            _pending_midi_value[index]       = NO_VALUE;
+            _idle_position_change_counter[index] = 0;
+            _pending_position_value[index]       = NO_VALUE;
         }
 
         /**
@@ -438,45 +427,22 @@ namespace opendeck::io::analog
         }
 
         /**
-         * @brief Maps one ADC sample into output space.
-         *
-         * The common default-range 7-bit case uses a simple shift instead of the generic mapper:
-         * - 10-bit ADC: `value >> 3`
-         * - 12-bit ADC: `value >> 5`
-         *
-         * Everything else falls back to `map_range()` to preserve exact behavior.
+         * @brief Maps one ADC sample into filter position space.
          *
          * @param value Input ADC sample.
          * @param adc_min_value Lower bound of the active ADC range.
          * @param adc_max_value Upper bound of the active ADC range.
-         * @param max_value Maximum output value for the current descriptor.
-         *
-         * @return Output-space value corresponding to the ADC sample.
+         * @return Position-space value corresponding to the ADC sample.
          */
-        static constexpr uint16_t adc_to_output_value(uint16_t value,
-                                                      uint16_t adc_min_value,
-                                                      uint16_t adc_max_value,
-                                                      uint16_t max_value)
+        static constexpr uint16_t adc_to_position_value(uint16_t value,
+                                                        uint16_t adc_min_value,
+                                                        uint16_t adc_max_value)
         {
-            if ((adc_min_value == AdcConfig::ADC_MIN_VALUE) &&
-                (adc_max_value == AdcConfig::ADC_MAX_VALUE) &&
-                (max_value == MIDI_7_BIT_MAX_VALUE))
-            {
-                if constexpr (Bits == ADC_RESOLUTION_12_BIT)
-                {
-                    return static_cast<uint16_t>(value >> ADC_RESOLUTION_12_BIT_SHIFT);
-                }
-                else
-                {
-                    return static_cast<uint16_t>(value >> ADC_RESOLUTION_10_BIT_SHIFT);
-                }
-            }
-
             return static_cast<uint16_t>(zlibs::utils::misc::map_range(static_cast<uint32_t>(value),
                                                                        static_cast<uint32_t>(adc_min_value),
                                                                        static_cast<uint32_t>(adc_max_value),
                                                                        static_cast<uint32_t>(0),
-                                                                       static_cast<uint32_t>(max_value)));
+                                                                       static_cast<uint32_t>(POSITION_MAX_VALUE)));
         }
 
         /**
@@ -515,32 +481,30 @@ namespace opendeck::io::analog
                                                             uint16_t          adc_min_value,
                                                             uint16_t          adc_max_value)
         {
-            ContinuousInputState state            = {};
-            const bool           has_last_sample  = _last_sample_value[index] != NO_VALUE;
-            const auto           raw_midi_value   = adc_to_output_value(descriptor.value,
-                                                                        adc_min_value,
-                                                                        adc_max_value,
-                                                                        descriptor.max_value);
-            const bool           raw_at_endpoint  = (raw_midi_value == 0) || (raw_midi_value == descriptor.max_value);
-            const auto           steps            = filter_steps(descriptor.max_value);
-            const auto           base_step_diff   = step_diff(adc_min_value,
-                                                              adc_max_value,
-                                                              steps);
-            const auto           adc_delta        = has_last_sample ? abs_diff(descriptor.value, _last_sample_value[index]) : static_cast<uint16_t>(0);
-            const auto           fast_enter_thres = static_cast<uint16_t>(base_step_diff * FAST_FILTER_ENTER_MULTIPLIER);
-            const auto           fast_exit_thres  = static_cast<uint16_t>(base_step_diff * FAST_FILTER_EXIT_MULTIPLIER);
+            ContinuousInputState state              = {};
+            const bool           has_last_sample    = _last_sample_value[index] != NO_VALUE;
+            const auto           raw_position_value = adc_to_position_value(descriptor.value,
+                                                                            adc_min_value,
+                                                                            adc_max_value);
+            const bool           raw_at_endpoint    = (raw_position_value == 0) || (raw_position_value == POSITION_MAX_VALUE);
+            const auto           steps              = POSITION_STEP_COUNT;
+            const auto           base_step_diff     = step_diff(adc_min_value,
+                                                                adc_max_value,
+                                                                steps);
+            const auto           adc_delta          = has_last_sample ? abs_diff(descriptor.value, _last_sample_value[index]) : static_cast<uint16_t>(0);
+            const auto           fast_enter_thres   = static_cast<uint16_t>(base_step_diff * FAST_FILTER_ENTER_MULTIPLIER);
+            const auto           fast_exit_thres    = static_cast<uint16_t>(base_step_diff * FAST_FILTER_EXIT_MULTIPLIER);
 
             state.has_last_filtered_value = _last_value[index] != NO_VALUE;
-            state.has_last_midi_value     = _last_midi_value[index] != NO_VALUE;
+            state.has_last_position_value = _last_position_value[index] != NO_VALUE;
             state.last_filtered_value     = state.has_last_filtered_value ? _last_value[index] : descriptor.value;
-            state.old_midi_value          = state.has_last_midi_value ? _last_midi_value[index] : NO_VALUE;
+            state.old_position_value      = state.has_last_position_value ? _last_position_value[index] : NO_VALUE;
+            state.raw_position_value      = raw_position_value;
             state.direction               = descriptor.value >= state.last_filtered_value;
-            state.endpoint_range          = endpoint_assist_range(descriptor.max_value,
-                                                                  steps);
-            state.endpoint_assist         = endpoint_assist_state(state.has_last_midi_value,
-                                                                  state.old_midi_value,
-                                                                  raw_midi_value,
-                                                                  descriptor.max_value,
+            state.endpoint_range          = endpoint_assist_range();
+            state.endpoint_assist         = endpoint_assist_state(state.has_last_position_value,
+                                                                  state.old_position_value,
+                                                                  raw_position_value,
                                                                   state.endpoint_range);
 
             update_fast_filter_state(index,
@@ -552,9 +516,8 @@ namespace opendeck::io::analog
             state.min_step_diff = min_step_diff(index,
                                                 state.direction,
                                                 raw_at_endpoint,
-                                                state.has_last_midi_value,
-                                                state.old_midi_value,
-                                                descriptor.max_value,
+                                                state.has_last_position_value,
+                                                state.old_position_value,
                                                 base_step_diff);
 
             return state;
@@ -601,7 +564,7 @@ namespace opendeck::io::analog
         }
 
         /**
-         * @brief Applies MIDI publish policy and commits one accepted continuous sample.
+         * @brief Applies position publish policy and commits one accepted continuous sample.
          *
          * @param index Analog input index being processed.
          * @param motion_context Motion-context state prepared for the current sample.
@@ -612,27 +575,27 @@ namespace opendeck::io::analog
          *
          * @return `true` when the current sample should be published.
          */
-        bool apply_output_stage(size_t                    index,
-                                const MotionContextState& motion_context,
-                                ContinuousInputState&     state,
-                                uint16_t                  adc_min_value,
-                                uint16_t                  adc_max_value,
-                                Descriptor&               descriptor)
+        bool apply_position_stage(size_t                    index,
+                                  const MotionContextState& motion_context,
+                                  ContinuousInputState&     state,
+                                  uint16_t                  adc_min_value,
+                                  uint16_t                  adc_max_value,
+                                  Descriptor&               descriptor)
         {
-            auto midi_value = adc_to_output_value(descriptor.value,
-                                                  adc_min_value,
-                                                  adc_max_value,
-                                                  descriptor.max_value);
+            auto position_value = adc_to_position_value(descriptor.value,
+                                                        adc_min_value,
+                                                        adc_max_value);
 
-            if (!apply_midi_publish_policy(index,
-                                           state.endpoint_assist,
-                                           motion_context.idle_context,
-                                           state.has_last_midi_value,
-                                           state.old_midi_value,
-                                           descriptor.max_value,
-                                           state.endpoint_range,
-                                           state.direction,
-                                           midi_value))
+            if (!apply_position_publish_policy(index,
+                                               state.endpoint_assist,
+                                               motion_context.idle_context,
+                                               descriptor.type != Type::Fsr,
+                                               state.has_last_position_value,
+                                               state.old_position_value,
+                                               state.raw_position_value,
+                                               state.endpoint_range,
+                                               state.direction,
+                                               position_value))
             {
                 return false;
             }
@@ -643,16 +606,16 @@ namespace opendeck::io::analog
             commit_filtered_state(index,
                                   state.direction,
                                   descriptor.value,
-                                  midi_value,
+                                  position_value,
                                   now);
 
             if (descriptor.type == Type::Fsr)
             {
-                descriptor.value = scale_fsr_value(descriptor.value, descriptor.max_value);
+                descriptor.value = scale_fsr_value(descriptor.value);
             }
             else
             {
-                descriptor.value = midi_value;
+                descriptor.value = position_value;
             }
 
             return true;
@@ -713,29 +676,27 @@ namespace opendeck::io::analog
         /**
          * @brief Returns endpoint-assist flags for the current raw sample.
          *
-         * @param has_last_midi_value Whether a previous MIDI value exists.
-         * @param old_midi_value Last published MIDI value.
-         * @param raw_midi_value MIDI value corresponding to the unclamped raw ADC sample.
-         * @param max_value Maximum output value for the current descriptor.
+         * @param has_last_position_value Whether a previous position value exists.
+         * @param old_position_value Last published position value.
+         * @param raw_position_value Position value corresponding to the unclamped raw ADC sample.
          * @param endpoint_range How close a value must be to min/max before it snaps.
          *
          * @return Endpoint-assist state for the current sample.
          */
-        EndpointAssistState endpoint_assist_state(bool     has_last_midi_value,
-                                                  uint16_t old_midi_value,
-                                                  uint16_t raw_midi_value,
-                                                  uint16_t max_value,
+        EndpointAssistState endpoint_assist_state(bool     has_last_position_value,
+                                                  uint16_t old_position_value,
+                                                  uint16_t raw_position_value,
                                                   uint16_t endpoint_range) const
         {
-            const auto upper_endpoint_floor  = max_value > endpoint_range ? static_cast<uint16_t>(max_value - endpoint_range) : static_cast<uint16_t>(0);
-            const bool near_upper_endpoint   = has_last_midi_value && (old_midi_value >= upper_endpoint_floor);
-            const bool near_lower_endpoint   = has_last_midi_value && (old_midi_value <= endpoint_range);
+            const auto upper_endpoint_floor  = POSITION_MAX_VALUE > endpoint_range ? static_cast<uint16_t>(POSITION_MAX_VALUE - endpoint_range) : static_cast<uint16_t>(0);
+            const bool near_upper_endpoint   = has_last_position_value && (old_position_value >= upper_endpoint_floor);
+            const bool near_lower_endpoint   = has_last_position_value && (old_position_value <= endpoint_range);
             const bool upper_endpoint_assist = near_upper_endpoint &&
-                                               (raw_midi_value == max_value) &&
-                                               (old_midi_value < max_value);
+                                               (raw_position_value == POSITION_MAX_VALUE) &&
+                                               (old_position_value < POSITION_MAX_VALUE);
             const bool lower_endpoint_assist = near_lower_endpoint &&
-                                               (raw_midi_value == 0) &&
-                                               (old_midi_value > 0);
+                                               (raw_position_value == 0) &&
+                                               (old_position_value > 0);
 
             return {
                 .enabled = upper_endpoint_assist || lower_endpoint_assist,
@@ -747,48 +708,11 @@ namespace opendeck::io::analog
         /**
          * @brief Returns how close a value must be to min/max before it snaps.
          *
-         * 14-bit values are stretched from the ADC, so one ADC step covers many output values.
-         * Use a matching snap range so the pot can still reach exact 0 and max.
-         *
-         * @param max_value Maximum output value for the current descriptor.
-         * @param filter_steps Virtual number of output steps used by the analog motion filter.
-         *
          * @return Distance from min/max that still counts as the endpoint.
          */
-        uint16_t endpoint_assist_range(uint16_t max_value,
-                                       uint16_t filter_steps) const
+        uint16_t endpoint_assist_range() const
         {
-            const auto step_count = static_cast<uint32_t>(filter_steps);
-
-            if (step_count == 0U)
-            {
-                return ENDPOINT_ASSIST_MIDI_RANGE;
-            }
-
-            const auto output_count = static_cast<uint32_t>(max_value) + 1U;
-            const auto range        = (output_count + step_count - 1U) / step_count;
-
-            return static_cast<uint16_t>(std::max<uint32_t>(ENDPOINT_ASSIST_MIDI_RANGE, range));
-        }
-
-        /**
-         * @brief Returns how many movement steps the filter should track.
-         *
-         * 7-bit outputs can use every output value. Higher-resolution modes keep a coarser
-         * movement filter and stretch the accepted ADC readings to the full output range.
-         *
-         * @param max_value Maximum output value for the current descriptor.
-         *
-         * @return Number of virtual movement steps used by the filter.
-         */
-        uint16_t filter_steps(uint16_t max_value) const
-        {
-            if (max_value <= zlibs::utils::midi::MAX_VALUE_7BIT)
-            {
-                return static_cast<uint16_t>(max_value + 1U);
-            }
-
-            return HIGH_RES_FILTER_STEPS;
+            return ENDPOINT_ASSIST_POSITION_RANGE;
         }
 
         /**
@@ -796,26 +720,24 @@ namespace opendeck::io::analog
          *
          * @param index Analog input index being processed.
          * @param direction Current movement direction inferred from ADC values.
-         * @param raw_at_midi_endpoint Whether the raw sample already maps to a MIDI endpoint.
-         * @param has_last_midi_value Whether a previous MIDI value exists.
-         * @param old_midi_value Last published MIDI value.
-         * @param max_value Maximum output value for the current descriptor.
-         * @param base_step_diff ADC delta corresponding to one output step.
+         * @param raw_at_position_endpoint Whether the raw sample already maps to an endpoint.
+         * @param has_last_position_value Whether a previous position value exists.
+         * @param old_position_value Last published position value.
+         * @param base_step_diff ADC delta corresponding to one position step.
          *
          * @return ADC deadband threshold for the current sample.
          */
         uint16_t min_step_diff(size_t   index,
                                bool     direction,
-                               bool     raw_at_midi_endpoint,
-                               bool     has_last_midi_value,
-                               uint16_t old_midi_value,
-                               uint16_t max_value,
+                               bool     raw_at_position_endpoint,
+                               bool     has_last_position_value,
+                               uint16_t old_position_value,
                                uint16_t base_step_diff)
         {
             if ((direction != last_direction(index)) &&
-                has_last_midi_value &&
-                !raw_at_midi_endpoint &&
-                ((old_midi_value != 0) && (old_midi_value != max_value)))
+                has_last_position_value &&
+                !raw_at_position_endpoint &&
+                ((old_position_value != 0) && (old_position_value != POSITION_MAX_VALUE)))
             {
                 return static_cast<uint16_t>(base_step_diff * FAST_FILTER_STEP_MULTIPLIER);
             }
@@ -858,7 +780,7 @@ namespace opendeck::io::analog
             }
 
             clear_direction_change_state(index);
-            clear_pending_midi_state(index);
+            clear_pending_position_state(index);
             _fast_mode_entry_counter[index] = 0;
             set_fast_mode(index, false);
 
@@ -902,90 +824,91 @@ namespace opendeck::io::analog
         }
 
         /**
-         * @brief Applies MIDI-domain publish rules for the current sample.
+         * @brief Applies position publish rules for the current sample.
          *
          * @param index Analog input index being processed.
          * @param endpoint_assist Endpoint-assist state for the current sample.
          * @param idle_context Whether recent motion context is absent.
-         * @param has_last_midi_value Whether a previous MIDI value exists.
-         * @param old_midi_value Last published MIDI value.
-         * @param max_value Maximum output value for the current descriptor.
+         * @param apply_idle_wake_gate Whether tiny idle movements should be blocked.
+         * @param has_last_position_value Whether a previous position value exists.
+         * @param old_position_value Last published position value.
+         * @param raw_position_value Current raw position before EMA smoothing.
          * @param endpoint_range How close a value must be to min/max before it snaps.
          * @param direction Current movement direction; may be updated by endpoint assist.
-         * @param midi_value Current MIDI value; may be replaced by endpoint assist.
+         * @param position_value Current position value; may be replaced by endpoint assist.
          *
-         * @return `true` when the current MIDI value should be published.
+         * @return `true` when the current position value should be published.
          */
-        bool apply_midi_publish_policy(size_t                     index,
-                                       const EndpointAssistState& endpoint_assist,
-                                       bool                       idle_context,
-                                       bool                       has_last_midi_value,
-                                       uint16_t                   old_midi_value,
-                                       uint16_t                   max_value,
-                                       uint16_t                   endpoint_range,
-                                       bool&                      direction,
-                                       uint16_t&                  midi_value)
+        bool apply_position_publish_policy(size_t                     index,
+                                           const EndpointAssistState& endpoint_assist,
+                                           bool                       idle_context,
+                                           bool                       apply_idle_wake_gate,
+                                           bool                       has_last_position_value,
+                                           uint16_t                   old_position_value,
+                                           uint16_t                   raw_position_value,
+                                           uint16_t                   endpoint_range,
+                                           bool&                      direction,
+                                           uint16_t&                  position_value)
         {
             if (endpoint_assist.upper)
             {
-                midi_value = max_value;
-                direction  = true;
+                position_value = POSITION_MAX_VALUE;
+                direction      = true;
             }
             else if (endpoint_assist.lower)
             {
-                midi_value = 0;
-                direction  = false;
+                position_value = 0;
+                direction      = false;
             }
 
-            if (endpoint_hold_active(has_last_midi_value,
-                                     old_midi_value,
-                                     midi_value,
-                                     max_value,
+            if (endpoint_hold_active(has_last_position_value,
+                                     old_position_value,
+                                     position_value,
                                      endpoint_range))
             {
-                clear_pending_midi_state(index);
+                clear_pending_position_state(index);
                 return false;
             }
 
-            if (has_last_midi_value && (midi_value == old_midi_value))
+            if (has_last_position_value && (position_value == old_position_value))
             {
-                clear_pending_midi_state(index);
+                clear_pending_position_state(index);
                 return false;
             }
 
-            if (!endpoint_assist.enabled && idle_context && has_last_midi_value)
+            if (!endpoint_assist.enabled && idle_context && has_last_position_value)
             {
-                // 14-bit modes stretch each ADC step across several output values. When the pot
-                // is idle, ignore movement smaller than one virtual filter step so ADC noise does
-                // not briefly publish a high-res value and then settle back.
-                if ((max_value > MIDI_7_BIT_MAX_VALUE) &&
-                    (abs_diff(midi_value, old_midi_value) < endpoint_range))
+                // While motion context is expired, ignore tiny position changes entirely.
+                // Larger changes still need repeated-sample confirmation below; once accepted,
+                // commit_filtered_state() refreshes motion context and this idle gate is skipped.
+                if (apply_idle_wake_gate &&
+                    (abs_diff(raw_position_value, old_position_value) < IDLE_WAKE_POSITION_THRESHOLD))
                 {
-                    clear_pending_midi_state(index);
+                    clear_pending_position_state(index);
                     return false;
                 }
 
-                if (_pending_midi_value[index] != midi_value)
+                if (_pending_position_value[index] != position_value)
                 {
-                    _pending_midi_value[index]       = midi_value;
-                    _slow_midi_change_counter[index] = 1;
+                    _pending_position_value[index]       = position_value;
+                    _idle_position_change_counter[index] = 1;
                     return false;
                 }
 
-                _slow_midi_change_counter[index]++;
+                _idle_position_change_counter[index]++;
 
-                if (_slow_midi_change_counter[index] < IDLE_MIDI_CHANGE_SAMPLE_COUNT)
+                if (_idle_position_change_counter[index] < IDLE_POSITION_CHANGE_SAMPLE_COUNT)
                 {
                     return false;
                 }
             }
 
             if (!endpoint_assist.enabled &&
-                has_last_midi_value &&
+                has_last_position_value &&
                 (direction != last_direction(index)) &&
-                (abs_diff(midi_value, old_midi_value) < MIDI_DIRECTION_CHANGE_THRESHOLD))
+                (abs_diff(position_value, old_position_value) < POSITION_DIRECTION_CHANGE_THRESHOLD))
             {
-                clear_pending_midi_state(index);
+                clear_pending_position_state(index);
                 return false;
             }
 
@@ -999,27 +922,25 @@ namespace opendeck::io::analog
          * Without this hold check, edge noise can immediately publish a small value next to the
          * endpoint and then snap back again on the next sample.
          *
-         * @param has_last_midi_value Whether a previous MIDI value exists.
-         * @param old_midi_value Last published MIDI value.
-         * @param midi_value Current MIDI value.
-         * @param max_value Maximum output value for the current descriptor.
+         * @param has_last_position_value Whether a previous position value exists.
+         * @param old_position_value Last published position value.
+         * @param position_value Current position value.
          * @param endpoint_range How close a value must be to min/max before it snaps.
          *
          * @return `true` when the previous endpoint value should remain published.
          */
-        bool endpoint_hold_active(bool     has_last_midi_value,
-                                  uint16_t old_midi_value,
-                                  uint16_t midi_value,
-                                  uint16_t max_value,
+        bool endpoint_hold_active(bool     has_last_position_value,
+                                  uint16_t old_position_value,
+                                  uint16_t position_value,
                                   uint16_t endpoint_range) const
         {
             const auto hold_range = static_cast<uint16_t>(std::min<uint32_t>(
-                max_value,
+                POSITION_MAX_VALUE,
                 static_cast<uint32_t>(endpoint_range) * FAST_FILTER_STEP_MULTIPLIER));
 
-            return has_last_midi_value &&
-                   (((old_midi_value == 0) && (midi_value <= hold_range)) ||
-                    ((old_midi_value == max_value) && (midi_value >= (max_value - hold_range))));
+            return has_last_position_value &&
+                   (((old_position_value == 0) && (position_value <= hold_range)) ||
+                    ((old_position_value == POSITION_MAX_VALUE) && (position_value >= (POSITION_MAX_VALUE - hold_range))));
         }
 
         /**
@@ -1028,123 +949,54 @@ namespace opendeck::io::analog
          * @param index Analog input index being processed.
          * @param direction Accepted movement direction.
          * @param value Accepted filtered ADC value.
-         * @param midi_value Accepted MIDI value.
+         * @param position_value Accepted position value.
          * @param now Current uptime in milliseconds.
          */
         void commit_filtered_state(size_t   index,
                                    bool     direction,
                                    uint16_t value,
-                                   uint16_t midi_value,
+                                   uint16_t position_value,
                                    uint32_t now)
         {
             set_last_direction(index, direction);
             clear_direction_change_state(index);
-            clear_pending_midi_state(index);
-            _last_value[index]         = value;
-            _last_midi_value[index]    = midi_value;
-            _last_movement_time[index] = now;
+            clear_pending_position_state(index);
+            _last_value[index]          = value;
+            _last_position_value[index] = position_value;
+            _last_movement_time[index]  = now;
         }
 
         /**
-         * @brief Returns the minimum ADC delta corresponding to one output step for the active range.
+         * @brief Returns the minimum ADC delta corresponding to one position step.
          *
-         * The value is derived from the effective ADC span after offsets and from the caller's
-         * selected output resolution. It is clamped to at least one ADC step so higher-resolution
-         * outputs such as 14-bit mode do not collapse to zero.
+         * The value is derived from the effective ADC span after offsets and the fixed filter
+         * position scale. It is clamped to at least one ADC step.
          *
          * @param adc_min_value Lower bound of the active ADC range.
          * @param adc_max_value Upper bound of the active ADC range.
-         * @param output_steps  Virtual number of output steps used by the analog motion filter.
+         * @param position_steps Position steps used by the analog motion filter.
          *
-         * @return Minimum ADC delta corresponding to one output step.
+         * @return Minimum ADC delta corresponding to one position step.
          */
         uint16_t step_diff(uint16_t adc_min_value,
                            uint16_t adc_max_value,
-                           uint16_t output_steps) const
+                           uint16_t position_steps) const
         {
-            if (output_steps == 0U)
+            if (position_steps == 0U)
             {
                 return 1U;
             }
 
             const auto adc_span  = static_cast<uint32_t>(adc_max_value) - static_cast<uint32_t>(adc_min_value);
-            const auto step_diff = adc_span / static_cast<uint32_t>(output_steps);
+            const auto step_diff = adc_span / static_cast<uint32_t>(position_steps);
 
             return step_diff == 0U ? 1U : static_cast<uint16_t>(step_diff);
         }
 
         /**
-         * @brief Converts a lower offset percentage into a raw ADC threshold for one compile-time ADC profile.
-         *
-         * @tparam Config ADC profile to use for the conversion.
-         * @param percentage Lower offset percentage.
-         *
-         * @return Raw ADC threshold for the lower bound.
-         */
-        template<AdcConfigType Config>
-        static constexpr uint32_t lower_offset_raw_for(uint8_t percentage)
-        {
-            if (percentage != 0)
-            {
-                const auto adc_span = static_cast<uint32_t>(Config::ADC_MAX_VALUE) - static_cast<uint32_t>(Config::ADC_MIN_VALUE);
-
-                return static_cast<uint32_t>(Config::ADC_MIN_VALUE) +
-                       ((adc_span * percentage) / PERCENTAGE_DIVISOR);
-            }
-
-            return Config::ADC_MIN_VALUE;
-        }
-
-        /**
-         * @brief Converts an upper offset percentage into a raw ADC threshold for one compile-time ADC profile.
-         *
-         * @tparam Config ADC profile to use for the conversion.
-         * @param percentage Upper offset percentage.
-         *
-         * @return Raw ADC threshold for the upper bound.
-         */
-        template<AdcConfigType Config>
-        static constexpr uint32_t upper_offset_raw_for(uint8_t percentage)
-        {
-            if (percentage != 0)
-            {
-                const auto adc_span = static_cast<uint32_t>(Config::ADC_MAX_VALUE) - static_cast<uint32_t>(Config::ADC_MIN_VALUE);
-
-                return static_cast<uint32_t>(Config::ADC_MAX_VALUE) -
-                       ((adc_span * percentage) / PERCENTAGE_DIVISOR);
-            }
-
-            return Config::ADC_MAX_VALUE;
-        }
-
-        /**
-         * @brief Scales one FSR reading using a compile-time ADC profile.
-         *
-         * @tparam Config ADC profile to use for the conversion.
-         * @param value Raw FSR reading.
-         * @param max_value Maximum output value for the current descriptor.
-         *
-         * @return Scaled FSR value.
-         */
-        template<AdcConfigType Config>
-        static uint16_t scale_fsr_value_for(uint16_t value,
-                                            uint16_t max_value)
-        {
-            return static_cast<uint16_t>(zlibs::utils::misc::map_range(
-                zlibs::utils::misc::constrain(static_cast<uint32_t>(value),
-                                              static_cast<uint32_t>(Config::FSR_MIN_VALUE),
-                                              static_cast<uint32_t>(Config::FSR_MAX_VALUE)),
-                static_cast<uint32_t>(Config::FSR_MIN_VALUE),
-                static_cast<uint32_t>(Config::FSR_MAX_VALUE),
-                static_cast<uint32_t>(0),
-                static_cast<uint32_t>(max_value)));
-        }
-
-        /**
          * @brief Converts a lower offset percentage into a raw ADC threshold.
          *
-         * Offsets are applied relative to the configured usable ADC span for the selected
-         * ADC resolution profile.
+         * Offsets are applied relative to the configured usable ADC span.
          *
          * @param percentage Lower offset percentage.
          *
@@ -1152,14 +1004,21 @@ namespace opendeck::io::analog
          */
         static constexpr uint32_t lower_offset_raw(uint8_t percentage)
         {
-            return lower_offset_raw_for<AdcConfig>(percentage);
+            if (percentage != 0)
+            {
+                const auto adc_span = static_cast<uint32_t>(AdcConfig::ADC_MAX_VALUE) - static_cast<uint32_t>(AdcConfig::ADC_MIN_VALUE);
+
+                return static_cast<uint32_t>(AdcConfig::ADC_MIN_VALUE) +
+                       ((adc_span * percentage) / PERCENTAGE_DIVISOR);
+            }
+
+            return AdcConfig::ADC_MIN_VALUE;
         }
 
         /**
          * @brief Converts an upper offset percentage into a raw ADC threshold.
          *
-         * Offsets are applied relative to the configured usable ADC span for the selected
-         * ADC resolution profile.
+         * Offsets are applied relative to the configured usable ADC span.
          *
          * @param percentage Upper offset percentage.
          *
@@ -1167,25 +1026,38 @@ namespace opendeck::io::analog
          */
         static constexpr uint32_t upper_offset_raw(uint8_t percentage)
         {
-            return upper_offset_raw_for<AdcConfig>(percentage);
+            if (percentage != 0)
+            {
+                const auto adc_span = static_cast<uint32_t>(AdcConfig::ADC_MAX_VALUE) - static_cast<uint32_t>(AdcConfig::ADC_MIN_VALUE);
+
+                return static_cast<uint32_t>(AdcConfig::ADC_MAX_VALUE) -
+                       ((adc_span * percentage) / PERCENTAGE_DIVISOR);
+            }
+
+            return AdcConfig::ADC_MAX_VALUE;
         }
 
         /**
-         * @brief Scales one FSR value using the selected ADC profile.
+         * @brief Scales one FSR value into filter position space.
          *
          * @param value Raw FSR reading.
-         * @param max_value Maximum output value for the current descriptor.
          *
          * @return Scaled FSR value.
          */
-        uint16_t scale_fsr_value(uint16_t value,
-                                 uint16_t max_value) const
+        uint16_t scale_fsr_value(uint16_t value) const
         {
-            return scale_fsr_value_for<AdcConfig>(value, max_value);
+            return static_cast<uint16_t>(zlibs::utils::misc::map_range(
+                zlibs::utils::misc::constrain(static_cast<uint32_t>(value),
+                                              static_cast<uint32_t>(AdcConfig::FSR_MIN_VALUE),
+                                              static_cast<uint32_t>(AdcConfig::FSR_MAX_VALUE)),
+                static_cast<uint32_t>(AdcConfig::FSR_MIN_VALUE),
+                static_cast<uint32_t>(AdcConfig::FSR_MAX_VALUE),
+                static_cast<uint32_t>(0),
+                static_cast<uint32_t>(POSITION_MAX_VALUE)));
         }
 
         /**
-         * @brief Returns the lower button threshold for the selected ADC profile.
+         * @brief Returns the lower button threshold.
          *
          * @return Raw ADC threshold below which the button is treated as released.
          */
@@ -1195,7 +1067,7 @@ namespace opendeck::io::analog
         }
 
         /**
-         * @brief Returns the upper button threshold for the selected ADC profile.
+         * @brief Returns the upper button threshold.
          *
          * @return Raw ADC threshold above which the button is treated as pressed.
          */
@@ -1207,8 +1079,8 @@ namespace opendeck::io::analog
         /**
          * @brief Applies button-style filtering for analog inputs configured as buttons.
          *
-         * The analog reading is converted into a digital state using hysteresis from the selected
-         * ADC profile. The first resolved released state only seeds internal state, while the
+         * The analog reading is converted into a digital state using ADC hysteresis. The first
+         * resolved released state only seeds internal state, while the
          * first resolved pressed state is emitted immediately so startup-held buttons behave like
          * the digital button path.
          *

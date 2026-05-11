@@ -8,6 +8,10 @@ add_subdirectory(src/fw_selector)
 add_subdirectory(src/indicators)
 add_subdirectory(src/updater)
 
+if(CONFIG_PROJECT_BOOTLOADER_STAGED_UPDATE)
+    add_subdirectory(src/staged_update)
+endif()
+
 target_include_directories(app
     PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/src
@@ -27,6 +31,13 @@ target_link_libraries(app
     opendeck_bootloader_updater
     zlibs-drivers-usb_hw
 )
+
+if(CONFIG_PROJECT_BOOTLOADER_STAGED_UPDATE)
+    target_link_libraries(app
+        PRIVATE
+        opendeck_bootloader_staged_update
+    )
+endif()
 
 target_sources(app
     PRIVATE

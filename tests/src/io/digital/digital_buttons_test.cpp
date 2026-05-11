@@ -31,10 +31,16 @@ namespace
         signaling::SystemEvent system_event    = {};
     };
 
+    struct OscEvent
+    {
+        size_t   component_index = 0;
+        uint16_t value           = 0;
+    };
+
     class Listener
     {
         public:
-        void push(const signaling::MidiSignal& signal)
+        void push(const signaling::MidiIoSignal& signal)
         {
             const zlibs::utils::misc::LockGuard lock(_mutex);
 
@@ -61,10 +67,21 @@ namespace
             });
         }
 
+        void push(const signaling::OscIoSignal& signal)
+        {
+            const zlibs::utils::misc::LockGuard lock(_mutex);
+
+            osc_event_log.push_back(OscEvent{
+                .component_index = signal.component_index,
+                .value           = static_cast<uint16_t>(signal.int32_value.value_or(0)),
+            });
+        }
+
         void clear()
         {
             const zlibs::utils::misc::LockGuard lock(_mutex);
             event_log.clear();
+            osc_event_log.clear();
         }
 
         size_t size() const
@@ -85,11 +102,18 @@ namespace
             return event_log;
         }
 
+        std::vector<OscEvent> osc_snapshot() const
+        {
+            const zlibs::utils::misc::LockGuard lock(_mutex);
+            return osc_event_log;
+        }
+
         private:
         mutable zlibs::utils::misc::Mutex _mutex;
 
         public:
-        std::vector<TestEvent> event_log = {};
+        std::vector<TestEvent> event_log     = {};
+        std::vector<OscEvent>  osc_event_log = {};
     };
 
     class DigitalButtonsTest : public ::testing::Test
@@ -112,10 +136,10 @@ namespace
                 _digital._builderButtons._instance.reset(i);
             }
 
-            signaling::subscribe<signaling::MidiSignal>(
-                [this](const signaling::MidiSignal& signal)
+            signaling::subscribe<signaling::MidiIoSignal>(
+                [this](const signaling::MidiIoSignal& signal)
                 {
-                    if (signal.source == signaling::MidiSource::Button)
+                    if (signal.source == signaling::IoEventSource::Button)
                     {
                         _listener.push(signal);
                     }
@@ -125,6 +149,15 @@ namespace
                 [this](const signaling::SystemSignal& signal)
                 {
                     _listener.push(signal);
+                });
+
+            signaling::subscribe<signaling::OscIoSignal>(
+                [this](const signaling::OscIoSignal& signal)
+                {
+                    if (signal.source == signaling::IoEventSource::Button)
+                    {
+                        _listener.push(signal);
+                    }
                 });
 
             k_msleep(20);
@@ -347,6 +380,53 @@ TEST_F(DigitalButtonsTest, Note)
             test(channel, velocity);
         }
     }
+}
+
+TEST_F(DigitalButtonsTest, MidiTypeOverrideDoesNotChangeOscTypeBehavior)
+{
+    if (!DigitalButtonsTest::digital_button_count())
+    {
+        return;
+    }
+
+    static constexpr size_t BUTTON_INDEX = 0;
+
+    ASSERT_EQ(buttons::Type::Latching,
+              buttons::Mapper::message_to_type(buttons::MessageType::MmcRecord, buttons::Type::Momentary));
+    ASSERT_EQ(buttons::Type::Momentary,
+              buttons::Mapper::message_to_type(buttons::MessageType::Note, buttons::Type::Momentary));
+
+    ASSERT_TRUE(_digital._builderButtons._database.update(database::Config::Section::Button::Type, BUTTON_INDEX, buttons::Type::Momentary));
+    ASSERT_TRUE(_digital._builderButtons._database.update(database::Config::Section::Button::MessageType, BUTTON_INDEX, buttons::MessageType::MmcRecord));
+    ASSERT_TRUE(_digital._builderButtons._database.update(database::Config::Section::Button::Channel, BUTTON_INDEX, 1));
+
+    _digital._builderButtons._instance.reset(BUTTON_INDEX);
+
+    state_change_register_single(BUTTON_INDEX, true);
+    ASSERT_EQ(1, _listener.event_log.size());
+    ASSERT_EQ(midi::MessageType::MmcRecordStart, _listener.event_log.at(0).message);
+
+    auto osc_events = _listener.osc_snapshot();
+    ASSERT_EQ(1, osc_events.size());
+    ASSERT_EQ(BUTTON_INDEX, osc_events.at(0).component_index);
+    ASSERT_EQ(1, osc_events.at(0).value);
+
+    state_change_register_single(BUTTON_INDEX, false);
+    ASSERT_EQ(0, _listener.event_log.size());
+
+    osc_events = _listener.osc_snapshot();
+    ASSERT_EQ(1, osc_events.size());
+    ASSERT_EQ(BUTTON_INDEX, osc_events.at(0).component_index);
+    ASSERT_EQ(0, osc_events.at(0).value);
+
+    state_change_register_single(BUTTON_INDEX, true);
+    ASSERT_EQ(1, _listener.event_log.size());
+    ASSERT_EQ(midi::MessageType::MmcRecordStop, _listener.event_log.at(0).message);
+
+    osc_events = _listener.osc_snapshot();
+    ASSERT_EQ(1, osc_events.size());
+    ASSERT_EQ(BUTTON_INDEX, osc_events.at(0).component_index);
+    ASSERT_EQ(1, osc_events.at(0).value);
 }
 
 TEST_F(DigitalButtonsTest, ProgramChange)
@@ -810,6 +890,59 @@ TEST_F(DigitalButtonsTest, ControlChange)
     {
         control_change_test(value);
     }
+}
+
+TEST_F(DigitalButtonsTest, OscFollowsOnlyLogicalButtonState)
+{
+    if (!DigitalButtonsTest::digital_button_count())
+    {
+        return;
+    }
+
+    static constexpr size_t BUTTON_INDEX = 0;
+
+    ASSERT_TRUE(_digital._builderButtons._database.update(database::Config::Section::Button::MessageType,
+                                                          BUTTON_INDEX,
+                                                          buttons::MessageType::None));
+    ASSERT_TRUE(_digital._builderButtons._database.update(database::Config::Section::Button::Type,
+                                                          BUTTON_INDEX,
+                                                          buttons::Type::Momentary));
+    _digital._builderButtons._instance.reset(BUTTON_INDEX);
+
+    state_change_register_single(BUTTON_INDEX, true);
+    auto osc_events = _listener.osc_snapshot();
+    ASSERT_EQ(1U, osc_events.size());
+    EXPECT_EQ(BUTTON_INDEX, osc_events.at(0).component_index);
+    EXPECT_EQ(1U, osc_events.at(0).value);
+    EXPECT_EQ(0U, _listener.event_log.size());
+
+    state_change_register_single(BUTTON_INDEX, false);
+    osc_events = _listener.osc_snapshot();
+    ASSERT_EQ(1U, osc_events.size());
+    EXPECT_EQ(BUTTON_INDEX, osc_events.at(0).component_index);
+    EXPECT_EQ(0U, osc_events.at(0).value);
+    EXPECT_EQ(0U, _listener.event_log.size());
+
+    ASSERT_TRUE(_digital._builderButtons._database.update(database::Config::Section::Button::Type,
+                                                          BUTTON_INDEX,
+                                                          buttons::Type::Latching));
+    _digital._builderButtons._instance.reset(BUTTON_INDEX);
+
+    state_change_register_single(BUTTON_INDEX, true);
+    osc_events = _listener.osc_snapshot();
+    ASSERT_EQ(1U, osc_events.size());
+    EXPECT_EQ(BUTTON_INDEX, osc_events.at(0).component_index);
+    EXPECT_EQ(1U, osc_events.at(0).value);
+
+    state_change_register_single(BUTTON_INDEX, false);
+    osc_events = _listener.osc_snapshot();
+    ASSERT_EQ(0U, osc_events.size());
+
+    state_change_register_single(BUTTON_INDEX, true);
+    osc_events = _listener.osc_snapshot();
+    ASSERT_EQ(1U, osc_events.size());
+    EXPECT_EQ(BUTTON_INDEX, osc_events.at(0).component_index);
+    EXPECT_EQ(0U, osc_events.at(0).value);
 }
 
 TEST_F(DigitalButtonsTest, NoMessages)

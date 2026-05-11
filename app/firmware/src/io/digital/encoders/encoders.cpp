@@ -27,10 +27,12 @@ namespace
 
 Encoders::Encoders(Hwa&      hwa,
                    Filter&   filter,
-                   Database& database)
+                   Database& database,
+                   Mapper&   mapper)
     : _hwa(hwa)
     , _filter(filter)
     , _database(database)
+    , _mapper(mapper)
 {
     signaling::subscribe<signaling::UmpSignal>(
         [this](const signaling::UmpSignal& event)
@@ -40,7 +42,7 @@ Encoders::Encoders(Hwa&      hwa,
                 return;
             }
 
-            if (event.direction != signaling::MidiDirection::In)
+            if (event.direction != signaling::SignalDirection::In)
             {
                 return;
             }
@@ -84,7 +86,7 @@ Encoders::Encoders(Hwa&      hwa,
                         continue;
                     }
 
-                    set_value(i, message.data2);
+                    _mapper.set_value(i, message.data2);
                 }
             }
             break;
@@ -156,36 +158,27 @@ void Encoders::force_refresh(size_t start_index, size_t count)
             continue;
         }
 
-        Descriptor descriptor;
-        fill_descriptor(i, Position::Stopped, descriptor);
+        const auto result = _mapper.last_result(i);
 
-        switch (descriptor.type)
-        {
-        case Type::ProgramChange:
-        {
-            descriptor.signal.value = MidiProgram.program(descriptor.signal.channel);
-        }
-        break;
-
-        case Type::ControlChange:
-        case Type::PitchBend:
-        case Type::Nrpn7Bit:
-        case Type::Nrpn14Bit:
-        case Type::ControlChange14Bit:
-        case Type::SingleNoteVariableVal:
-        {
-            descriptor.signal.value = _value[i];
-        }
-        break;
-
-        default:
+        if (!result.has_value())
         {
             continue;
         }
-        break;
+
+        if (result->osc.has_value())
+        {
+            signaling::publish(result->osc.value());
         }
 
-        signaling::publish(descriptor.signal);
+        if (result->midi.has_value())
+        {
+            signaling::publish(result->midi.value());
+        }
+
+        if (result->system.has_value())
+        {
+            signaling::publish(result->system.value());
+        }
     }
 }
 
@@ -216,24 +209,15 @@ void Encoders::process_state_changes()
 
 void Encoders::process_reading(size_t index, uint8_t pair_value, uint32_t sample_time)
 {
-    auto position = read(index, pair_value);
+    Position position = Position::Stopped;
 
-    if (_filter.is_filtered(index, position, position, sample_time))
+    if (_filter.is_filtered(index,
+                            pair_value,
+                            position,
+                            sample_time))
     {
         if (position != Position::Stopped)
         {
-            if (_database.read(database::Config::Section::Encoder::Invert, index))
-            {
-                if (position == Position::Ccw)
-                {
-                    position = Position::Cw;
-                }
-                else
-                {
-                    position = Position::Ccw;
-                }
-            }
-
             uint8_t enc_acceleration = _database.read(database::Config::Section::Encoder::Acceleration, index);
 
             if (enc_acceleration)
@@ -252,289 +236,36 @@ void Encoders::process_reading(size_t index, uint8_t pair_value, uint32_t sample
                 }
             }
 
-            Descriptor descriptor;
-            fill_descriptor(index, position, descriptor);
+            const auto result = _mapper.result(index, position, (_encoder_speed[index] > 0) ? _encoder_speed[index] : 1);
 
-            send_message(index, position, descriptor);
-        }
-    }
-}
-
-void Encoders::send_message(size_t index, Position position, Descriptor& descriptor, bool ignore_freeze)
-{
-    if (is_frozen() && !ignore_freeze)
-    {
-        return;
-    }
-
-    bool    send  = true;
-    uint8_t steps = (_encoder_speed[index] > 0) ? _encoder_speed[index] : 1;
-
-    switch (descriptor.type)
-    {
-    case Type::ControlChange7fh01h:
-    {
-        descriptor.signal.value = VAL_CONTROL_CHANGE_7FH01H[static_cast<uint8_t>(position)];
-    }
-    break;
-
-    case Type::ControlChange3fh41h:
-    {
-        descriptor.signal.value = VAL_CONTROL_CHANGE_3FH41H[static_cast<uint8_t>(position)];
-    }
-    break;
-
-    case Type::ControlChange41h01h:
-    {
-        descriptor.signal.value = VAL_CONTROL_CHANGE_41H01H[static_cast<uint8_t>(position)];
-    }
-    break;
-
-    case Type::ProgramChange:
-    {
-        if (position == Position::Ccw)
-        {
-            if (!MidiProgram.increment_program(descriptor.signal.channel, 1))
+            if (!result.has_value())
             {
                 return;
             }
-        }
-        else
-        {
-            if (!MidiProgram.decrement_program(descriptor.signal.channel, 1))
+
+            if (result->osc.has_value())
             {
-                return;
+                signaling::publish(result->osc.value());
+            }
+
+            if (result->midi.has_value())
+            {
+                signaling::publish(result->midi.value());
+            }
+
+            if (result->system.has_value())
+            {
+                signaling::publish(result->system.value());
             }
         }
-
-        descriptor.signal.value = MidiProgram.program(descriptor.signal.channel);
-    }
-    break;
-
-    case Type::ControlChange:
-    case Type::PitchBend:
-    case Type::Nrpn7Bit:
-    case Type::Nrpn14Bit:
-    case Type::ControlChange14Bit:
-    case Type::SingleNoteVariableVal:
-    {
-        const bool use_14bit =
-            ((descriptor.type == Type::PitchBend) || (descriptor.type == Type::Nrpn14Bit) || (descriptor.type == Type::ControlChange14Bit));
-
-        if (use_14bit && (steps > 1))
-        {
-            steps <<= 2;
-        }
-
-        if (position == Position::Ccw)
-        {
-            // ValueIncDecMidi7Bit is used, but any type can be used when decrementing since the limit is 0 for all of them
-            _value[index] = ValueIncDecMidi7Bit::decrement(_value[index],
-                                                           steps,
-                                                           ValueIncDecMidi7Bit::Type::Edge);
-        }
-        else
-        {
-            switch (descriptor.type)
-            {
-            case Type::ControlChange:
-            case Type::Nrpn7Bit:
-            case Type::SingleNoteVariableVal:
-            {
-                _value[index] = ValueIncDecMidi7Bit::increment(_value[index],
-                                                               steps,
-                                                               ValueIncDecMidi7Bit::Type::Edge);
-            }
-            break;
-
-            case Type::PitchBend:
-            case Type::Nrpn14Bit:
-            case Type::ControlChange14Bit:
-            {
-                const auto incremented_value = ValueIncDecMidi14Bit::increment(static_cast<uint16_t>(_value[index]),
-                                                                               steps,
-                                                                               ValueIncDecMidi14Bit::Type::Edge);
-
-                _value[index] = static_cast<int16_t>(incremented_value);
-            }
-            break;
-
-            default:
-                break;
-            }
-        }
-
-        const auto constrained_value = zlibs::utils::misc::constrain(static_cast<uint16_t>(_value[index]),
-                                                                     static_cast<uint16_t>(_database.read(database::Config::Section::Encoder::LowerLimit, index)),
-                                                                     static_cast<uint16_t>(_database.read(database::Config::Section::Encoder::UpperLimit, index)));
-
-        _value[index] = static_cast<int16_t>(constrained_value);
-
-        if (descriptor.type == Type::ControlChange14Bit)
-        {
-            if (descriptor.signal.index >= protocol::midi::CONTROL_CHANGE_14BIT_MAX_INDEX)
-            {
-                return;
-            }
-        }
-
-        descriptor.signal.value = _value[index];
-    }
-    break;
-
-    case Type::SingleNoteFixedValBothDir:
-    case Type::SingleNoteFixedValOneDir0OtherDir:
-    case Type::TwoNoteFixedValBothDir:
-    {
-        descriptor.signal.value = _database.read(database::Config::Section::Encoder::RepeatedValue, index);
-
-        if (descriptor.type == Type::SingleNoteFixedValOneDir0OtherDir)
-        {
-            if (position == Position::Ccw)
-            {
-                descriptor.signal.value = 0;
-            }
-        }
-    }
-    break;
-
-    case Type::PresetChange:
-    {
-        signaling::SystemSignal signal = {};
-        signal.system_event            = (position == Position::Cw)
-                                             ? signaling::SystemEvent::PresetChangeIncReq
-                                             : signaling::SystemEvent::PresetChangeDecReq;
-        signaling::publish(signal);
-        return;
-    }
-    break;
-
-    case Type::BpmChange:
-    {
-        if (position == Position::Ccw)
-        {
-            if (!Bpm.increment(1))
-            {
-                return;
-            }
-        }
-        else
-        {
-            if (!Bpm.decrement(1))
-            {
-                return;
-            }
-        }
-        return;
-    }
-    break;
-
-    default:
-    {
-        send = false;
-    }
-    break;
-    }
-
-    if (send)
-    {
-        signaling::publish(descriptor.signal);
     }
 }
 
 void Encoders::reset(size_t index)
 {
-    if (_database.read(database::Config::Section::Encoder::Mode, index) == static_cast<int32_t>(Type::PitchBend))
-    {
-        _value[index] = static_cast<int16_t>(midi::MIDI_PITCH_BEND_CENTER);
-    }
-    else
-    {
-        _value[index] = 0;
-    }
-
+    _mapper.reset(index);
     _filter.reset(index);
-    _encoder_speed[index]  = 0;
-    _encoder_data[index]   = 0;
-    _encoder_pulses[index] = 0;
-}
-
-void Encoders::set_value(size_t index, uint16_t value)
-{
-    _value[index] = static_cast<int16_t>(value);
-}
-
-Position Encoders::read(size_t index, uint8_t pair_state)
-{
-    static constexpr uint8_t ENCODER_STATE_MASK      = 0x03;
-    static constexpr uint8_t ENCODER_DATA_VALID_BIT  = 7;
-    static constexpr uint8_t ENCODER_DATA_VALID_MASK = 0x80;
-    static constexpr uint8_t ENCODER_LOOKUP_MASK     = 0x0F;
-
-    auto position = Position::Stopped;
-    pair_state &= ENCODER_STATE_MASK;
-
-    // add new data
-
-    bool process = true;
-
-    // only process the data from encoder if there is a previous reading stored
-    if (!zlibs::utils::misc::bit_read(_encoder_data[index], ENCODER_DATA_VALID_BIT))
-    {
-        process = false;
-    }
-
-    _encoder_data[index] <<= 2;
-    _encoder_data[index] |= pair_state;
-    _encoder_data[index] |= ENCODER_DATA_VALID_MASK;
-
-    if (!process)
-    {
-        return position;
-    }
-
-    _encoder_pulses[index] = static_cast<int8_t>(_encoder_pulses[index] + ENCODER_LOOK_UP_TABLE[_encoder_data[index] & ENCODER_LOOKUP_MASK]);
-
-    if (abs(_encoder_pulses[index]) >= static_cast<int32_t>(_database.read(database::Config::Section::Encoder::PulsesPerStep, index)))
-    {
-        position = (_encoder_pulses[index] > 0) ? Position::Ccw : Position::Cw;
-        // reset count
-        _encoder_pulses[index] = 0;
-    }
-
-    return position;
-}
-
-void Encoders::fill_descriptor(size_t index, Position position, Descriptor& descriptor)
-{
-    descriptor.type = static_cast<Type>(_database.read(database::Config::Section::Encoder::Mode, index));
-
-    switch (descriptor.type)
-    {
-    case Type::TwoNoteFixedValBothDir:
-    {
-        if (position == Position::Ccw)
-        {
-            descriptor.signal.index = _database.read(database::Config::Section::Encoder::MidiId2, index);
-        }
-        else
-        {
-            descriptor.signal.index = _database.read(database::Config::Section::Encoder::MidiId1, index);
-        }
-    }
-    break;
-
-    default:
-    {
-        descriptor.signal.index = _database.read(database::Config::Section::Encoder::MidiId1, index);
-    }
-    break;
-    }
-
-    descriptor.signal.source          = signaling::MidiSource::Encoder;
-    descriptor.signal.component_index = index;
-    descriptor.signal.channel         = _database.read(database::Config::Section::Encoder::Channel, index);
-    descriptor.signal.message         = INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(descriptor.type)];
+    _encoder_speed[index] = 0;
 }
 
 std::optional<uint8_t> Encoders::sys_config_get(sys::Config::Section::Encoder section, size_t index, uint16_t& value)

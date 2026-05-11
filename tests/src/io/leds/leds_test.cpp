@@ -20,12 +20,12 @@ namespace
     class TouchscreenListener
     {
         public:
-        void on_message(const signaling::TouchscreenLedSignal& event)
+        void on_message(const signaling::OscIoSignal& event)
         {
             event_log.push_back(event);
         }
 
-        std::vector<signaling::TouchscreenLedSignal> event_log = {};
+        std::vector<signaling::OscIoSignal> event_log = {};
     };
 
     class LEDsTest : public ::testing::Test
@@ -62,9 +62,14 @@ namespace
 
         void subscribe_touchscreen_listener()
         {
-            signaling::subscribe<signaling::TouchscreenLedSignal>(
-                [this](const signaling::TouchscreenLedSignal& dispatch_message)
+            signaling::subscribe<signaling::OscIoSignal>(
+                [this](const signaling::OscIoSignal& dispatch_message)
                 {
+                    if (dispatch_message.source != signaling::IoEventSource::Led)
+                    {
+                        return;
+                    }
+
                     _touchscreen_listener.on_message(dispatch_message);
                 });
 
@@ -156,20 +161,20 @@ namespace
                               (static_cast<uint32_t>(p2) & 0x7fU);
 
             signaling::publish(signaling::UmpSignal{
-                .direction = signaling::MidiDirection::In,
+                .direction = signaling::SignalDirection::In,
                 .packet    = packet,
             });
 
             wait_for_signal_dispatch();
         }
 
-        void notify_local(signaling::MidiSource source,
-                          midi::MessageType     message,
-                          uint8_t               channel,
-                          uint16_t              index,
-                          uint16_t              value)
+        void notify_local(signaling::IoEventSource source,
+                          midi::MessageType        message,
+                          uint8_t                  channel,
+                          uint16_t                 index,
+                          uint16_t                 value)
         {
-            signaling::publish(signaling::MidiSignal{
+            signaling::publish(signaling::MidiIoSignal{
                 .source          = source,
                 .component_index = 0,
                 .channel         = channel,
@@ -183,13 +188,10 @@ namespace
 
         void notify_program(uint8_t channel, uint16_t program)
         {
-            signaling::publish(signaling::MidiSignal{
-                .source          = signaling::MidiSource::Program,
-                .component_index = 0,
-                .channel         = channel,
-                .index           = program,
-                .value           = 0,
-                .message         = midi::MessageType::ProgramChange,
+            signaling::publish(signaling::InternalProgram{
+                .channel = channel,
+                .index   = program,
+                .value   = 0,
             });
 
             wait_for_signal_dispatch();
@@ -548,7 +550,7 @@ TEST_F(LEDsTest, MultiValue)
             EXPECT_CALL(_leds._hwa, set_state(_, expected_brightness(value)))
                 .Times(1);
 
-            notify_local(signaling::MidiSource::Button, midi::MessageType::NoteOn, MIDI_CHANNEL, static_cast<uint16_t>(led), value);
+            notify_local(signaling::IoEventSource::Button, midi::MessageType::NoteOn, MIDI_CHANNEL, static_cast<uint16_t>(led), value);
 
             ASSERT_EQ(expected_blink_speed(value), _leds._instance.blink_speed(led));
         }
@@ -567,7 +569,7 @@ TEST_F(LEDsTest, MultiValue)
             EXPECT_CALL(_leds._hwa, set_state(_, expected_brightness(value)))
                 .Times(1);
 
-            notify_local(signaling::MidiSource::Analog, midi::MessageType::NoteOn, MIDI_CHANNEL, static_cast<uint16_t>(led), value);
+            notify_local(signaling::IoEventSource::Analog, midi::MessageType::NoteOn, MIDI_CHANNEL, static_cast<uint16_t>(led), value);
 
             ASSERT_EQ(expected_blink_speed(value), _leds._instance.blink_speed(led));
         }
@@ -593,7 +595,7 @@ TEST_F(LEDsTest, MultiValue)
             EXPECT_CALL(_leds._hwa, set_state(_, expected_brightness(value)))
                 .Times(1);
 
-            notify_local(signaling::MidiSource::Button, midi::MessageType::ControlChange, MIDI_CHANNEL, static_cast<uint16_t>(led), value);
+            notify_local(signaling::IoEventSource::Button, midi::MessageType::ControlChange, MIDI_CHANNEL, static_cast<uint16_t>(led), value);
 
             ASSERT_EQ(expected_blink_speed(value), _leds._instance.blink_speed(led));
         }
@@ -611,7 +613,7 @@ TEST_F(LEDsTest, MultiValue)
             EXPECT_CALL(_leds._hwa, set_state(_, expected_brightness(value)))
                 .Times(1);
 
-            notify_local(signaling::MidiSource::Analog, midi::MessageType::ControlChange, MIDI_CHANNEL, static_cast<uint16_t>(led), value);
+            notify_local(signaling::IoEventSource::Analog, midi::MessageType::ControlChange, MIDI_CHANNEL, static_cast<uint16_t>(led), value);
 
             ASSERT_EQ(expected_blink_speed(value), _leds._instance.blink_speed(led));
         }
@@ -708,7 +710,7 @@ TEST_F(LEDsTest, SingleValue)
                 EXPECT_CALL(_leds._hwa, set_state(_, value == activation_value ? leds::Brightness::Level100 : leds::Brightness::Off))
                     .Times(1);
 
-                notify_local(signaling::MidiSource::Button, midi::MessageType::NoteOn, MIDI_CHANNEL, static_cast<uint16_t>(led), value);
+                notify_local(signaling::IoEventSource::Button, midi::MessageType::NoteOn, MIDI_CHANNEL, static_cast<uint16_t>(led), value);
 
                 ASSERT_EQ(leds::BlinkSpeed::NoBlink, _leds._instance.blink_speed(led));
             }
@@ -738,7 +740,7 @@ TEST_F(LEDsTest, SingleValue)
                 EXPECT_CALL(_leds._hwa, set_state(_, value == activation_value ? leds::Brightness::Level100 : leds::Brightness::Off))
                     .Times(1);
 
-                notify_local(signaling::MidiSource::Button, midi::MessageType::ControlChange, MIDI_CHANNEL, static_cast<uint16_t>(led), value);
+                notify_local(signaling::IoEventSource::Button, midi::MessageType::ControlChange, MIDI_CHANNEL, static_cast<uint16_t>(led), value);
 
                 ASSERT_EQ(leds::BlinkSpeed::NoBlink, _leds._instance.blink_speed(led));
             }
@@ -894,14 +896,16 @@ TEST_F(LEDsTest, StaticLEDsOnInitially)
     if constexpr (leds::Collection::size(leds::GroupTouchscreenComponents) != 0 &&
                   leds::Collection::size(leds::GroupDigitalOutputs) == 0)
     {
+        constexpr size_t EXPECTED_COMPONENT_INDEX = leds::Collection::start_index(leds::GroupTouchscreenComponents) + LED_INDEX;
+
         wait_for_touchscreen_led_events(leds::Collection::size(leds::GroupTouchscreenComponents));
 
         const auto matching_event = std::find_if(_touchscreen_listener.event_log.begin(),
                                                  _touchscreen_listener.event_log.end(),
-                                                 [](const signaling::TouchscreenLedSignal& event)
+                                                 [](const signaling::OscIoSignal& event)
                                                  {
-                                                     return event.component_index == LED_INDEX &&
-                                                            event.value == static_cast<uint16_t>(leds::Brightness::Level100);
+                                                     return event.component_index == EXPECTED_COMPONENT_INDEX &&
+                                                            event.int32_value == static_cast<int32_t>(leds::Brightness::Level100);
                                                  });
 
         ASSERT_NE(_touchscreen_listener.event_log.end(), matching_event);

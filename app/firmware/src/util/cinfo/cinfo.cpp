@@ -19,31 +19,31 @@ namespace
 
 ComponentInfo::ComponentInfo()
 {
-    signaling::subscribe<signaling::MidiSignal>(
-        [this](const signaling::MidiSignal& signal)
+    signaling::subscribe<signaling::MidiIoSignal>(
+        [this](const signaling::MidiIoSignal& signal)
         {
             switch (signal.source)
             {
-            case signaling::MidiSource::AnalogButton:
-            case signaling::MidiSource::Analog:
+            case signaling::IoEventSource::AnalogButton:
+            case signaling::IoEventSource::Analog:
             {
                 send(database::Config::Block::Analog, signal.component_index);
             }
             break;
 
-            case signaling::MidiSource::Button:
+            case signaling::IoEventSource::Button:
             {
                 send(database::Config::Block::Buttons, signal.component_index);
             }
             break;
 
-            case signaling::MidiSource::Encoder:
+            case signaling::IoEventSource::Encoder:
             {
                 send(database::Config::Block::Encoders, signal.component_index);
             }
             break;
 
-            case signaling::MidiSource::TouchscreenButton:
+            case signaling::IoEventSource::TouchscreenButton:
             {
                 send(database::Config::Block::Touchscreen, signal.component_index);
             }

@@ -7,20 +7,14 @@
 
 #include "buttons.h"
 #include "system/config.h"
-#include "global/midi_program.h"
-#include "global/bpm.h"
 #include "util/conversion/conversion.h"
 #include "util/configurable/configurable.h"
-
-#include "zlibs/utils/misc/bit.h"
 
 #include <zephyr/logging/log.h>
 
 using namespace opendeck;
 using namespace opendeck::io::buttons;
 using namespace opendeck::protocol;
-
-namespace zmisc = zlibs::utils::misc;
 
 namespace
 {
@@ -29,36 +23,32 @@ namespace
 
 Buttons::Buttons(Hwa&      hwa,
                  Filter&   filter,
+                 Mapper&   mapper,
                  Database& database)
     : _hwa(hwa)
     , _filter(filter)
+    , _mapper(mapper)
     , _database(database)
 {
-    signaling::subscribe<signaling::MidiSignal>(
-        [this](const signaling::MidiSignal& event)
+    signaling::subscribe<signaling::MidiIoSignal>(
+        [this](const signaling::MidiIoSignal& event)
         {
             if (is_frozen())
             {
                 return;
             }
 
-            if (event.source == signaling::MidiSource::AnalogButton)
+            if (event.source == signaling::IoEventSource::AnalogButton)
             {
-                size_t     index = event.component_index + Collection::start_index(GroupAnalogInputs);
-                Descriptor descriptor;
-                fill_descriptor(index, descriptor);
-
-                process_button(index, event.value, descriptor);
+                size_t index = event.component_index + Collection::start_index(GroupAnalogInputs);
+                process_button(index, event.value);
                 return;
             }
 
-            if (event.source == signaling::MidiSource::TouchscreenButton)
+            if (event.source == signaling::IoEventSource::TouchscreenButton)
             {
-                size_t     index = event.component_index + Collection::start_index(GroupTouchscreenComponents);
-                Descriptor descriptor;
-                fill_descriptor(index, descriptor);
-
-                process_button(index, event.value, descriptor);
+                size_t index = event.component_index + Collection::start_index(GroupTouchscreenComponents);
+                process_button(index, event.value);
             }
         });
 
@@ -114,16 +104,9 @@ void Buttons::force_refresh(size_t start_index, size_t count)
 
     for (size_t i = start_index; i < end; i++)
     {
-        Descriptor descriptor;
-        fill_descriptor(i, descriptor);
-
-        if (descriptor.type == Type::Latching)
+        if (const auto result = _mapper.refresh_result(i); result.has_value())
         {
-            send_message(i, latching_state(i), descriptor, true);
-        }
-        else
-        {
-            send_message(i, cached_state(i), descriptor, true);
+            publish_result(result.value(), true);
         }
     }
 }
@@ -137,16 +120,12 @@ void Buttons::process_state_changes()
 
     for (size_t i = 0; i < Collection::size(GroupDigitalInputs); i++)
     {
-        Descriptor descriptor;
-
         auto current_state = state(i);
 
         if (!current_state.has_value())
         {
             continue;
         }
-
-        fill_descriptor(i, descriptor);
 
         bool filtered_state = current_state.value();
 
@@ -155,407 +134,44 @@ void Buttons::process_state_changes()
             continue;
         }
 
-        process_button(i, filtered_state, descriptor);
+        process_button(i, filtered_state);
     }
 }
 
-void Buttons::process_button(size_t index, bool reading, Descriptor& descriptor)
+void Buttons::process_button(size_t index, bool reading)
 {
-    // act on change of state only
-    if (reading == cached_state(index))
+    if (const auto result = _mapper.result(index, reading); result.has_value())
     {
-        return;
-    }
-
-    set_state(index, reading);
-
-    // don't process MessageType::None type of message
-    if (descriptor.message_type != MessageType::None)
-    {
-        bool send = true;
-
-        if (descriptor.type == Type::Latching)
-        {
-            // act on press only
-            if (reading)
-            {
-                if (latching_state(index))
-                {
-                    set_latching_state(index, false);
-                    // overwrite before processing
-                    reading = false;
-                }
-                else
-                {
-                    set_latching_state(index, true);
-                    reading = true;
-                }
-            }
-            else
-            {
-                send = false;
-            }
-        }
-
-        if (send)
-        {
-            send_message(index, reading, descriptor);
-        }
+        publish_result(result.value());
     }
 }
 
-void Buttons::send_message(size_t index, bool state, Descriptor& descriptor, bool ignore_freeze)
+void Buttons::publish_result(const Result& result, bool ignore_freeze)
 {
     if (is_frozen() && !ignore_freeze)
     {
         return;
     }
 
-    bool send = true;
-
-    if (state)
+    if (result.osc.has_value())
     {
-        switch (descriptor.message_type)
-        {
-        case MessageType::Note:
-        case MessageType::ControlChange:
-        case MessageType::ControlChangeReset:
-        case MessageType::RealTimeClock:
-        case MessageType::RealTimeStart:
-        case MessageType::RealTimeContinue:
-        case MessageType::RealTimeStop:
-        case MessageType::RealTimeActiveSensing:
-        case MessageType::RealTimeSystemReset:
-        case MessageType::MmcPlay:
-        case MessageType::MmcStop:
-        case MessageType::MmcPause:
-        case MessageType::MmcRecord:
-        case MessageType::MmcPlayStop:
-            break;
-
-        case MessageType::ProgramChange:
-        {
-            descriptor.signal.value = 0;
-            descriptor.signal.index += MidiProgram.offset();
-            descriptor.signal.index &= protocol::midi::MAX_VALUE_7BIT;
-        }
-        break;
-
-        case MessageType::ProgramChangeInc:
-        {
-            descriptor.signal.value = 0;
-
-            if (!MidiProgram.increment_program(descriptor.signal.channel, 1))
-            {
-                send = false;
-            }
-
-            descriptor.signal.index = MidiProgram.program(descriptor.signal.channel);
-        }
-        break;
-
-        case MessageType::ProgramChangeDec:
-        {
-            descriptor.signal.value = 0;
-
-            if (!MidiProgram.decrement_program(descriptor.signal.channel, 1))
-            {
-                send = false;
-            }
-
-            descriptor.signal.index = MidiProgram.program(descriptor.signal.channel);
-        }
-        break;
-
-        case MessageType::MultiValIncResetNote:
-        {
-            auto new_value = ValueIncDecMidi7Bit::increment(_inc_dec_value[index],
-                                                            descriptor.signal.value,
-                                                            ValueIncDecMidi7Bit::Type::Overflow);
-
-            if (new_value != _inc_dec_value[index])
-            {
-                if (!new_value)
-                {
-                    descriptor.signal.message = protocol::midi::MessageType::NoteOff;
-                }
-                else
-                {
-                    descriptor.signal.message = protocol::midi::MessageType::NoteOn;
-                }
-
-                _inc_dec_value[index]   = new_value;
-                descriptor.signal.value = new_value;
-            }
-            else
-            {
-                send = false;
-            }
-        }
-        break;
-
-        case MessageType::MultiValIncDecNote:
-        {
-            auto new_value = ValueIncDecMidi7Bit::increment(_inc_dec_value[index],
-                                                            descriptor.signal.value,
-                                                            ValueIncDecMidi7Bit::Type::Edge);
-
-            if (new_value != _inc_dec_value[index])
-            {
-                if (!new_value)
-                {
-                    descriptor.signal.message = protocol::midi::MessageType::NoteOff;
-                }
-                else
-                {
-                    descriptor.signal.message = protocol::midi::MessageType::NoteOn;
-                }
-
-                _inc_dec_value[index]   = new_value;
-                descriptor.signal.value = new_value;
-            }
-            else
-            {
-                send = false;
-            }
-        }
-        break;
-
-        case MessageType::MultiValIncResetCc:
-        {
-            auto new_value = ValueIncDecMidi7Bit::increment(_inc_dec_value[index],
-                                                            descriptor.signal.value,
-                                                            ValueIncDecMidi7Bit::Type::Overflow);
-
-            if (new_value != _inc_dec_value[index])
-            {
-                _inc_dec_value[index]   = new_value;
-                descriptor.signal.value = new_value;
-            }
-            else
-            {
-                send = false;
-            }
-        }
-        break;
-
-        case MessageType::MultiValIncDecCc:
-        {
-            auto new_value = ValueIncDecMidi7Bit::increment(_inc_dec_value[index],
-                                                            descriptor.signal.value,
-                                                            ValueIncDecMidi7Bit::Type::Edge);
-
-            if (new_value != _inc_dec_value[index])
-            {
-                _inc_dec_value[index]   = new_value;
-                descriptor.signal.value = new_value;
-            }
-            else
-            {
-                send = false;
-            }
-        }
-        break;
-
-        case MessageType::NoteOffOnly:
-        {
-            descriptor.signal.value   = 0;
-            descriptor.signal.message = protocol::midi::MessageType::NoteOff;
-        }
-        break;
-
-        case MessageType::ControlChange0Only:
-        {
-            descriptor.signal.value = 0;
-        }
-        break;
-
-        case MessageType::ProgramChangeOffsetInc:
-        {
-            MidiProgram.increment_offset(descriptor.signal.value);
-        }
-        break;
-
-        case MessageType::ProgramChangeOffsetDec:
-        {
-            MidiProgram.decrement_offset(descriptor.signal.value);
-        }
-        break;
-
-        case MessageType::PresetChange:
-        {
-            signaling::SystemSignal event = {};
-            event.system_event            = signaling::SystemEvent::PresetChangeDirectReq;
-            event.value                   = descriptor.signal.index;
-            signaling::publish(event);
-            return;
-        }
-        break;
-
-        case MessageType::BpmInc:
-        {
-            descriptor.signal.value = 0;
-
-            if (!Bpm.increment(1))
-            {
-                send = false;
-            }
-
-            descriptor.signal.index = Bpm.value();
-        }
-        break;
-
-        case MessageType::BpmDec:
-        {
-            descriptor.signal.value = 0;
-
-            if (!Bpm.decrement(1))
-            {
-                send = false;
-            }
-
-            descriptor.signal.index = Bpm.value();
-        }
-        break;
-
-        default:
-        {
-            send = false;
-        }
-        break;
-        }
-    }
-    else
-    {
-        switch (descriptor.message_type)
-        {
-        case MessageType::Note:
-        {
-            descriptor.signal.value   = 0;
-            descriptor.signal.message = protocol::midi::MessageType::NoteOff;
-        }
-        break;
-
-        case MessageType::ControlChangeReset:
-        {
-            descriptor.signal.value = 0;
-        }
-        break;
-
-        case MessageType::MmcRecord:
-        {
-            descriptor.signal.message = protocol::midi::MessageType::MmcRecordStop;
-        }
-        break;
-
-        case MessageType::MmcPlayStop:
-        {
-            descriptor.signal.message = protocol::midi::MessageType::MmcStop;
-        }
-        break;
-
-        default:
-        {
-            send = false;
-        }
-        break;
-        }
+        signaling::publish(*result.osc);
     }
 
-    if (send)
+    if (result.midi.has_value())
     {
-        descriptor.signal.source = signaling::MidiSource::Button;
-        signaling::publish(descriptor.signal);
+        signaling::publish(*result.midi);
     }
-}
 
-void Buttons::set_state(size_t index, bool state)
-{
-    const auto location = io::common::bit_storage_location<STATE_STORAGE_DIVISOR>(index);
-
-    zmisc::bit_write(_button_pressed[location.array_index], location.bit_index, state);
-}
-
-bool Buttons::cached_state(size_t index)
-{
-    const auto location = io::common::bit_storage_location<STATE_STORAGE_DIVISOR>(index);
-
-    return zmisc::bit_read(_button_pressed[location.array_index], location.bit_index);
-}
-
-void Buttons::set_latching_state(size_t index, bool state)
-{
-    const auto location = io::common::bit_storage_location<STATE_STORAGE_DIVISOR>(index);
-
-    zmisc::bit_write(_last_latching_state[location.array_index], location.bit_index, state);
-}
-
-bool Buttons::latching_state(size_t index)
-{
-    const auto location = io::common::bit_storage_location<STATE_STORAGE_DIVISOR>(index);
-
-    return zmisc::bit_read(_last_latching_state[location.array_index], location.bit_index);
+    if (result.system.has_value())
+    {
+        signaling::publish(*result.system);
+    }
 }
 
 void Buttons::reset(size_t index)
 {
-    set_state(index, false);
-    set_latching_state(index, false);
-}
-
-void Buttons::fill_descriptor(size_t index, Descriptor& descriptor)
-{
-    descriptor.type                   = static_cast<Type>(_database.read(database::Config::Section::Button::Type, index));
-    descriptor.message_type           = static_cast<MessageType>(_database.read(database::Config::Section::Button::MessageType, index));
-    descriptor.signal.component_index = index;
-    descriptor.signal.channel         = _database.read(database::Config::Section::Button::Channel, index);
-    descriptor.signal.index           = _database.read(database::Config::Section::Button::MidiId, index);
-    descriptor.signal.value           = _database.read(database::Config::Section::Button::Value, index);
-
-    // overwrite type under certain conditions
-    switch (descriptor.message_type)
-    {
-    case MessageType::ProgramChange:
-    case MessageType::ProgramChangeInc:
-    case MessageType::ProgramChangeDec:
-    case MessageType::MmcPlay:
-    case MessageType::MmcStop:
-    case MessageType::MmcPause:
-    case MessageType::ControlChange:
-    case MessageType::RealTimeClock:
-    case MessageType::RealTimeStart:
-    case MessageType::RealTimeContinue:
-    case MessageType::RealTimeStop:
-    case MessageType::RealTimeActiveSensing:
-    case MessageType::RealTimeSystemReset:
-    case MessageType::MultiValIncResetNote:
-    case MessageType::MultiValIncDecNote:
-    case MessageType::MultiValIncResetCc:
-    case MessageType::MultiValIncDecCc:
-    case MessageType::PresetChange:
-    case MessageType::ProgramChangeOffsetInc:
-    case MessageType::ProgramChangeOffsetDec:
-    case MessageType::NoteOffOnly:
-    case MessageType::ControlChange0Only:
-    case MessageType::BpmInc:
-    case MessageType::BpmDec:
-    {
-        descriptor.type = Type::Momentary;
-    }
-    break;
-
-    case MessageType::MmcRecord:
-    case MessageType::MmcPlayStop:
-    {
-        descriptor.type = Type::Latching;
-    }
-    break;
-
-    default:
-        break;
-    }
-
-    descriptor.signal.message = INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(descriptor.message_type)];
+    _mapper.reset(index);
 }
 
 std::optional<bool> Buttons::state(size_t index)

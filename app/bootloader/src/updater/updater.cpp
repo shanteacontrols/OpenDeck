@@ -9,11 +9,12 @@
 #include <algorithm>
 #include <span>
 
+#include <zephyr/sys/util.h>
+
 using namespace opendeck;
 
 namespace
 {
-    constexpr uint8_t  BITS_PER_BYTE                            = 8U;
     constexpr uint32_t BYTE_MASK                                = 0xFFU;
     constexpr uint8_t  FW_METADATA_WORD_BYTES                   = sizeof(uint32_t);
     constexpr uint8_t  START_MAGIC_BYTES                        = sizeof(updater::START_COMMAND);
@@ -227,10 +228,11 @@ void updater::Updater::advance_stage()
         if (!_failed)
         {
             webusb::status("DFU stream complete, applying update");
+            _completed = true;
             _hwa.apply();
         }
 
-        reset();
+        reset_state(true);
         return;
     }
 
@@ -240,7 +242,18 @@ void updater::Updater::advance_stage()
 
 void updater::Updater::reset()
 {
+    _completed = false;
     reset_state(true);
+}
+
+bool updater::Updater::completed() const
+{
+    return _completed;
+}
+
+bool updater::Updater::failed() const
+{
+    return _failed;
 }
 
 void updater::Updater::reset_state(const bool clear_failure)

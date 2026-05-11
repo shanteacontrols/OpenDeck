@@ -8,6 +8,7 @@
 #include "buttons.h"
 #include "filter_test.h"
 #include "hwa_test.h"
+#include "mapper.h"
 #include "database/builder_test.h"
 
 namespace opendeck::io::buttons
@@ -25,7 +26,8 @@ namespace opendeck::io::buttons
          */
         Builder(database::Admin& database)
             : _database(database)
-            , _instance(_hwa, _filter, _database)
+            , _mapper(_database)
+            , _instance(_hwa, _filter, _mapper, _database)
         {}
 
         /**
@@ -38,9 +40,10 @@ namespace opendeck::io::buttons
             return _instance;
         }
 
+        Database   _database;
         HwaTest    _hwa;
         FilterTest _filter;
-        Database   _database;
+        Mapper     _mapper;
         Buttons    _instance;
     };
 }    // namespace opendeck::io::buttons

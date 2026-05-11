@@ -8,6 +8,7 @@ target_include_directories(database
 
 target_link_libraries(database
     PUBLIC
+    configurable
     metadata
     zlibs-utils-lessdb
     zlibs-utils-misc

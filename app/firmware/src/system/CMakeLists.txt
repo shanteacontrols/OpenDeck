@@ -12,6 +12,7 @@ target_link_libraries(system
     configurable
     cinfo
     protocol_midi
+    protocol_mdns
     digital
     buttons
     analog

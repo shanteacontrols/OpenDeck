@@ -44,25 +44,25 @@
         compatible = "opendeck,analog";
         mode = "native";
         io-channels =
+            <&adc1 15>, /* A0 / PA3 */
+            <&adc1 10>, /* A1 / PC0 */
+            <&adc3 1>,  /* A2 / PC3 */
+            <&adc1 5>,  /* A3 / PB1 */
+            <&adc3 0>,  /* A4 / PC2 */
+            <&adc3 6>,  /* A5 / PF10 */
             <&adc1 16>, /* PA0 */
-            <&adc1 15>, /* PA3 */
             <&adc1 18>, /* PA4 */
             <&adc1 19>, /* PA5 */
             <&adc1 3>,  /* PA6 */
-            <&adc1 5>,  /* PB1 */
-            <&adc1 10>, /* PC0 */
             <&adc1 2>,  /* PF11 */
             <&adc1 6>,  /* PF12 */
-            <&adc3 0>,  /* PC2 */
-            <&adc3 1>,  /* PC3 */
             <&adc3 5>,  /* PF3 */
             <&adc3 9>,  /* PF4 */
             <&adc3 4>,  /* PF5 */
             <&adc3 8>,  /* PF6 */
             <&adc3 3>,  /* PF7 */
             <&adc3 7>,  /* PF8 */
-            <&adc3 2>,  /* PF9 */
-            <&adc3 6>;  /* PF10 */
+            <&adc3 2>;  /* PF9 */
     };
 
     opendeck_touchscreen: opendeck-touchscreen {
@@ -76,14 +76,16 @@
         uart = <&opendeck_uart_din_midi>;
     };
 
-    opendeck_midi_indicators: opendeck-midi-indicators {
-        compatible = "opendeck,midi-indicators";
+    opendeck_traffic_indicators: opendeck-traffic-indicators {
+        compatible = "opendeck,traffic-indicators";
         usb-in-gpios = <&gpiob 0 GPIO_ACTIVE_HIGH>;
         usb-out-gpios = <&gpioe 1 GPIO_ACTIVE_HIGH>;
         din-in-gpios = <&gpiob 0 GPIO_ACTIVE_HIGH>;
         din-out-gpios = <&gpioe 1 GPIO_ACTIVE_HIGH>;
         ble-in-gpios = <&gpiob 0 GPIO_ACTIVE_HIGH>;
         ble-out-gpios = <&gpioe 1 GPIO_ACTIVE_HIGH>;
+        network-in-gpios = <&gpiob 0 GPIO_ACTIVE_HIGH>;
+        network-out-gpios = <&gpioe 1 GPIO_ACTIVE_HIGH>;
     };
 
     opendeck_display: opendeck-display {
@@ -96,5 +98,6 @@
         button-gpios = <&gpioc 13 GPIO_ACTIVE_HIGH>;
         boot-partition = <&opendeck_partition_boot>;
         app-partition = <&opendeck_partition_app>;
+        staged-dfu-partition = <&opendeck_partition_staged_dfu>;
     };
 };

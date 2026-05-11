@@ -122,6 +122,8 @@ namespace opendeck::util
             database::Config::Section::Global::MidiSettings,
             database::Config::Section::Global::Count,    // blank/reserved
             database::Config::Section::Global::Count,    // unused
+            database::Config::Section::Global::OscSettings,
+            database::Config::Section::Global::Count,
         };
 
         static constexpr database::Config::Section::Button SYS_EX2_DB_BUTTON[static_cast<uint8_t>(sys::Config::Section::Button::Count)] = {
@@ -138,7 +140,7 @@ namespace opendeck::util
             database::Config::Section::Encoder::Mode,
             database::Config::Section::Encoder::MidiId1,
             database::Config::Section::Encoder::Channel,
-            database::Config::Section::Encoder::PulsesPerStep,
+            database::Config::Section::Encoder::Count,
             database::Config::Section::Encoder::Acceleration,
             database::Config::Section::Encoder::MidiId1,
             database::Config::Section::Encoder::RemoteSync,

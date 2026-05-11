@@ -3,6 +3,10 @@ add_subdirectory(src/database)
 add_subdirectory(src/util/configurable)
 add_subdirectory(src/util/cinfo)
 add_subdirectory(src/protocol/midi)
+add_subdirectory(src/protocol/osc)
+add_subdirectory(src/protocol/webconfig)
+add_subdirectory(src/protocol/mdns)
+add_subdirectory(src/staged_update)
 add_subdirectory(src/io/digital)
 add_subdirectory(src/io/digital/buttons)
 add_subdirectory(src/io/digital/encoders)
@@ -19,6 +23,10 @@ set(OPENDECK_FIRMWARE_LIBS
     configurable
     cinfo
     protocol_midi
+    protocol_osc
+    protocol_webconfig
+    protocol_mdns
+    staged_update
     buttons
     analog
     leds

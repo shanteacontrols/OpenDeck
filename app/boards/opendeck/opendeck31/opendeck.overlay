@@ -78,8 +78,8 @@
         latch-gpios = <&gpio0 15 GPIO_ACTIVE_HIGH>;
     };
 
-    opendeck_midi_indicators: opendeck-midi-indicators {
-        compatible = "opendeck,midi-indicators";
+    opendeck_traffic_indicators: opendeck-traffic-indicators {
+        compatible = "opendeck,traffic-indicators";
         usb-in-gpios = <&gpio0 20 GPIO_ACTIVE_HIGH>;
         usb-out-gpios = <&gpio0 19 GPIO_ACTIVE_HIGH>;
         din-in-gpios = <&gpio0 20 GPIO_ACTIVE_HIGH>;

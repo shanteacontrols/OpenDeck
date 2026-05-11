@@ -57,6 +57,27 @@ namespace opendeck::threads
                                                          THREAD_STACK_SIZE>;
 
     /**
+     * @brief Thread type used for OSC packet reception.
+     */
+    using OscReadThread = zlibs::utils::threads::UserThread<zlibs::utils::misc::StringLiteral{ "protocol_osc_rx" },
+                                                            K_PRIO_PREEMPT(1),
+                                                            THREAD_STACK_SIZE * 3>;
+
+    /**
+     * @brief Thread type used for OSC packet transmission.
+     */
+    using OscSendThread = zlibs::utils::threads::UserThread<zlibs::utils::misc::StringLiteral{ "protocol_osc_tx" },
+                                                            K_PRIO_PREEMPT(1),
+                                                            THREAD_STACK_SIZE * 3>;
+
+    /**
+     * @brief Thread type used for WebSocket configuration client handling.
+     */
+    using WebConfigThread = zlibs::utils::threads::UserThread<zlibs::utils::misc::StringLiteral{ "protocol_webcfg" },
+                                                              K_PRIO_PREEMPT(1),
+                                                              THREAD_STACK_SIZE * 2>;
+
+    /**
      * @brief Workqueue type used for deferred system tasks.
      */
     using SystemWorkqueue = zlibs::utils::threads::WorkqueueThread<zlibs::utils::misc::StringLiteral{ "system_work" },

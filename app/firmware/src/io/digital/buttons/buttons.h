@@ -6,8 +6,8 @@
 #pragma once
 
 #include "deps.h"
+#include "mapper.h"
 #include "protocol/midi/midi.h"
-#include "global/midi_program.h"
 #include "system/config.h"
 #include "io/base.h"
 
@@ -30,6 +30,7 @@ namespace opendeck::io::buttons
          */
         Buttons(Hwa&      hwa,
                 Filter&   filter,
+                Mapper&   mapper,
                 Database& database);
 
         ~Buttons() override = default;
@@ -72,68 +73,12 @@ namespace opendeck::io::buttons
         void reset(size_t index);
 
         private:
-        /**
-         * @brief Runtime description of a button action resolved from the database.
-         */
-        struct Descriptor
-        {
-            Type                  type         = Type::Momentary;
-            MessageType           message_type = MessageType::Note;
-            signaling::MidiSignal signal       = {};
-        };
-
-        using ValueIncDecMidi7Bit = util::IncDec<uint8_t, 0, protocol::midi::MAX_VALUE_7BIT>;
-
-        static constexpr size_t STATE_STORAGE_DIVISOR = 8;
-
-        static constexpr std::array<protocol::midi::MessageType, static_cast<uint8_t>(MessageType::Count)> INTERNAL_MSG_TO_MIDI_TYPE = {
-            protocol::midi::MessageType::NoteOn,                      // Note
-            protocol::midi::MessageType::ProgramChange,               // ProgramChange
-            protocol::midi::MessageType::ControlChange,               // ControlChange
-            protocol::midi::MessageType::ControlChange,               // ControlChangeReset
-            protocol::midi::MessageType::MmcStop,                     // MmcStop
-            protocol::midi::MessageType::MmcPlay,                     // MmcPlay
-            protocol::midi::MessageType::MmcRecordStart,              // MmcRecord - modified to stop when needed
-            protocol::midi::MessageType::MmcPause,                    // MmcPause
-            protocol::midi::MessageType::SysRealTimeClock,            // RealTimeClock
-            protocol::midi::MessageType::SysRealTimeStart,            // RealTimeStart
-            protocol::midi::MessageType::SysRealTimeContinue,         // RealTimeContinue
-            protocol::midi::MessageType::SysRealTimeStop,             // RealTimeStop
-            protocol::midi::MessageType::SysRealTimeActiveSensing,    // RealTimeActiveSensing
-            protocol::midi::MessageType::SysRealTimeSystemReset,      // RealTimeSystemReset
-            protocol::midi::MessageType::ProgramChange,               // ProgramChangeInc
-            protocol::midi::MessageType::ProgramChange,               // ProgramChangeDec
-            protocol::midi::MessageType::Invalid,                     // None
-            protocol::midi::MessageType::Invalid,                     // PresetChange
-            protocol::midi::MessageType::NoteOn,                      // MultiValIncResetNote
-            protocol::midi::MessageType::NoteOn,                      // MultiValIncDecNote
-            protocol::midi::MessageType::ControlChange,               // MultiValIncResetCc
-            protocol::midi::MessageType::ControlChange,               // MultiValIncDecCc
-            protocol::midi::MessageType::NoteOn,                      // NoteOffOnly
-            protocol::midi::MessageType::ControlChange,               // ControlChange0Only
-            protocol::midi::MessageType::Invalid,                     // Reserved
-            protocol::midi::MessageType::Invalid,                     // ProgramChangeOffsetInc
-            protocol::midi::MessageType::Invalid,                     // ProgramChangeOffsetDec
-            protocol::midi::MessageType::Invalid,                     // BpmInc
-            protocol::midi::MessageType::Invalid,                     // BpmDec
-            protocol::midi::MessageType::MmcPlay,                     // MmcPlayStop - modified to stop when needed
-        };
+        using Result = Mapper::Result;
 
         Hwa&      _hwa;
         Filter&   _filter;
+        Mapper&   _mapper;
         Database& _database;
-        uint8_t   _button_pressed[Collection::size() / STATE_STORAGE_DIVISOR + 1]      = {};
-        uint8_t   _last_latching_state[Collection::size() / STATE_STORAGE_DIVISOR + 1] = {};
-        uint8_t   _inc_dec_value[Collection::size()]                                   = {};
-
-        /**
-         * @brief Returns the cached pressed state for a button.
-         *
-         * @param index Button index to query.
-         *
-         * @return `true` if the cached state is pressed, otherwise `false`.
-         */
-        bool cached_state(size_t index);
 
         /**
          * @brief Reads the current physical state for a button when it is not claimed by an encoder.
@@ -145,56 +90,19 @@ namespace opendeck::io::buttons
         std::optional<bool> state(size_t index);
 
         /**
-         * @brief Builds the runtime descriptor for a button.
-         *
-         * @param index Button index to describe.
-         * @param descriptor Output storage for the populated descriptor.
-         */
-        void fill_descriptor(size_t index, Descriptor& descriptor);
-
-        /**
          * @brief Processes one button state change and emits any configured action.
          *
          * @param index Button index being processed.
          * @param reading New sampled state.
-         * @param descriptor Runtime descriptor describing the configured action.
          */
-        void process_button(size_t index, bool reading, Descriptor& descriptor);
+        void process_button(size_t index, bool reading);
 
         /**
          * @brief Publishes the action configured for a button event.
          *
-         * @param index Button index being processed.
-         * @param state Logical button state to publish.
-         * @param descriptor Runtime descriptor describing the configured action.
          * @param ignore_freeze When `true`, allows refresh-triggered output while the subsystem is frozen.
          */
-        void send_message(size_t index, bool state, Descriptor& descriptor, bool ignore_freeze = false);
-
-        /**
-         * @brief Stores the cached physical pressed state for a button.
-         *
-         * @param index Button index to update.
-         * @param state Cached pressed state to store.
-         */
-        void set_state(size_t index, bool state);
-
-        /**
-         * @brief Stores the cached logical latching state for a button.
-         *
-         * @param index Button index to update.
-         * @param state Cached latching state to store.
-         */
-        void set_latching_state(size_t index, bool state);
-
-        /**
-         * @brief Returns the cached logical latching state for a button.
-         *
-         * @param index Button index to query.
-         *
-         * @return `true` if the button is latched on, otherwise `false`.
-         */
-        bool latching_state(size_t index);
+        void publish_result(const Result& result, bool ignore_freeze = false);
 
         /**
          * @brief Serves SysEx configuration reads for the button block.

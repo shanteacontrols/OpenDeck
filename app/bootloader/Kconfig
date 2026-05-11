@@ -1,0 +1,13 @@
+mainmenu "OpenDeck bootloader"
+
+OPENDECK_STAGED_DFU_NODE := $(dt_nodelabel_path,opendeck_partition_staged_dfu)
+
+config PROJECT_BOOTLOADER_STAGED_UPDATE
+    bool
+    default y if $(dt_path_enabled,$(OPENDECK_STAGED_DFU_NODE))
+    help
+      Hidden symbol. If the target has a staged DFU partition, the
+      bootloader can apply raw dfu.bin images written there by the
+      application.
+
+source "Kconfig.zephyr"

@@ -70,8 +70,8 @@
         uart = <&opendeck_uart_din_midi>;
     };
 
-    opendeck_midi_indicators: opendeck-midi-indicators {
-        compatible = "opendeck,midi-indicators";
+    opendeck_traffic_indicators: opendeck-traffic-indicators {
+        compatible = "opendeck,traffic-indicators";
         usb-in-gpios = <&gpio0 28 GPIO_ACTIVE_LOW>;
         usb-out-gpios = <&gpio0 29 GPIO_ACTIVE_LOW>;
         din-in-gpios = <&gpio0 30 GPIO_ACTIVE_LOW>;

@@ -8,6 +8,8 @@
 #include "deps.h"
 #include "database/builder.h"
 #include "protocol/midi/builder.h"
+#include "protocol/webconfig/builder.h"
+#include "protocol/mdns/builder.h"
 #include "io/analog/builder.h"
 #include "io/digital/builder.h"
 #include "io/touchscreen/builder.h"
@@ -59,16 +61,18 @@ namespace opendeck::sys
         {
         }
 
-        database::Builder        _builder_database;
-        database::Admin&         _database            = _builder_database.instance();
-        io::digital::Builder     _builder_digital     = io::digital::Builder(_database);
-        io::analog::Builder      _builder_analog      = io::analog::Builder(_database);
-        io::leds::Builder        _builder_leds        = io::leds::Builder(_database);
-        io::touchscreen::Builder _builder_touchscreen = io::touchscreen::Builder(_database);
-        io::i2c::Builder         _builder_i2c         = io::i2c::Builder(_database);
-        io::indicators::Builder  _builder_indicators  = io::indicators::Builder(_database);
-        protocol::midi::Builder  _builder_midi        = protocol::midi::Builder(_database);
-        IoCollection             _io                  = {
+        database::Builder            _builder_database;
+        database::Admin&             _database            = _builder_database.instance();
+        io::digital::Builder         _builder_digital     = io::digital::Builder(_database);
+        io::analog::Builder          _builder_analog      = io::analog::Builder(_database);
+        io::leds::Builder            _builder_leds        = io::leds::Builder(_database);
+        io::touchscreen::Builder     _builder_touchscreen = io::touchscreen::Builder(_database);
+        io::i2c::Builder             _builder_i2c         = io::i2c::Builder(_database);
+        io::indicators::Builder      _builder_indicators  = io::indicators::Builder(_database);
+        protocol::midi::Builder      _builder_midi        = protocol::midi::Builder(_database);
+        protocol::webconfig::Builder _builder_webconfig;
+        protocol::mdns::Builder      _builder_mdns = protocol::mdns::Builder(_database);
+        IoCollection                 _io           = {
             &_builder_digital.instance(),
             &_builder_analog.instance(),
             &_builder_leds.instance(),
@@ -78,6 +82,8 @@ namespace opendeck::sys
         };
         ProtocolCollection _protocol = {
             &_builder_midi.instance(),
+            &_builder_webconfig.instance(),
+            &_builder_mdns.instance(),
         };
     };
 }    // namespace opendeck::sys

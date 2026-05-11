@@ -44,20 +44,22 @@ namespace opendeck::io::encoders
     class Filter
     {
         public:
+        static constexpr uint8_t PULSES_PER_STEP = 4;
+
         virtual ~Filter() = default;
 
         /**
-         * @brief Filters one encoder movement sample.
+         * @brief Decodes and filters one encoder hardware sample.
          *
          * @param index Encoder index being processed.
-         * @param position Raw movement position decoded from the hardware state.
+         * @param pair_state Current two-bit encoder pair state.
          * @param filtered_position Output position after filtering.
          * @param sample_taken_time Timestamp associated with the sample.
          *
          * @return `true` when the filtered movement should be processed, otherwise `false`.
          */
         virtual bool is_filtered(size_t    index,
-                                 Position  position,
+                                 uint8_t   pair_state,
                                  Position& filtered_position,
                                  uint32_t  sample_taken_time) = 0;
 

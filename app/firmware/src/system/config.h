@@ -71,6 +71,8 @@ namespace opendeck::sys
                 MidiSettings,
                 Reserved,    // compatibility
                 SystemSettings,
+                OscSettings,
+                MdnsHostname,
                 Count
             };
 
@@ -97,7 +99,7 @@ namespace opendeck::sys
                 Mode,
                 MidiId1,
                 Channel,
-                PulsesPerStep,
+                Reserved2,
                 Acceleration,
                 Reserved1,
                 RemoteSync,

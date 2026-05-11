@@ -17,6 +17,7 @@
 #include "util/configurable/configurable.h"
 #include "zlibs/utils/misc/ring_buffer.h"
 #include "zlibs/utils/misc/mutex.h"
+#include "zlibs/utils/misc/numeric.h"
 
 #include <deque>
 #include <optional>
@@ -54,22 +55,20 @@ namespace
         127,
     };
 
-    const std::vector<uint16_t> pitch_bend_test_values = {
+    const std::vector<uint16_t> pitch_bend_position_values = {
         0,
         1,
         2,
-        127,
+        4,
+        8,
+        32,
+        64,
         128,
         255,
         256,
-        1023,
-        2048,
-        4095,
-        8191,
-        8192,
-        12000,
-        16382,
-        16383,
+        384,
+        510,
+        511,
     };
 
     analog::Frame make_frame(uint16_t value)
@@ -119,10 +118,10 @@ namespace
         size_t _activeIndex = 0;
     };
 
-    class MidiSignalCollector
+    class MidiIoSignalCollector
     {
         public:
-        void push(const signaling::MidiSignal& signal)
+        void push(const signaling::MidiIoSignal& signal)
         {
             const zlibs::utils::misc::LockGuard lock(_mutex);
             _signals.push_back(signal);
@@ -140,15 +139,15 @@ namespace
             return _signals.size();
         }
 
-        std::vector<signaling::MidiSignal> snapshot() const
+        std::vector<signaling::MidiIoSignal> snapshot() const
         {
             const zlibs::utils::misc::LockGuard lock(_mutex);
             return _signals;
         }
 
         private:
-        mutable zlibs::utils::misc::Mutex  _mutex;
-        std::vector<signaling::MidiSignal> _signals = {};
+        mutable zlibs::utils::misc::Mutex    _mutex;
+        std::vector<signaling::MidiIoSignal> _signals = {};
     };
 
     class AnalogTest : public ::testing::Test
@@ -187,20 +186,20 @@ namespace
                 ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Channel, i, 1));
             }
 
-            signaling::subscribe<signaling::MidiSignal>(
-                [this](const signaling::MidiSignal& signal)
+            signaling::subscribe<signaling::MidiIoSignal>(
+                [this](const signaling::MidiIoSignal& signal)
                 {
-                    if (signal.source == signaling::MidiSource::Analog)
+                    if (signal.source == signaling::IoEventSource::Analog)
                     {
                         _analog_messages.push(signal);
                     }
 
-                    if (signal.source == signaling::MidiSource::AnalogButton)
+                    if (signal.source == signaling::IoEventSource::AnalogButton)
                     {
                         _analogButton_messages.push(signal);
                     }
 
-                    if (signal.source == signaling::MidiSource::Button)
+                    if (signal.source == signaling::IoEventSource::Button)
                     {
                         _button_messages.push(signal);
                     }
@@ -223,6 +222,34 @@ namespace
         void state_change_register(uint16_t value)
         {
             state_change_register(std::vector<uint16_t>{ value });
+        }
+
+        uint16_t position_for_midi_value(uint16_t value, uint16_t max_value) const
+        {
+            return static_cast<uint16_t>(zlibs::utils::misc::map_range(static_cast<uint32_t>(value),
+                                                                       static_cast<uint32_t>(0),
+                                                                       static_cast<uint32_t>(max_value),
+                                                                       static_cast<uint32_t>(0),
+                                                                       static_cast<uint32_t>(analog::Filter::POSITION_MAX_VALUE)));
+        }
+
+        void state_change_register_midi_7bit(uint16_t value)
+        {
+            state_change_register(position_for_midi_value(value, midi::MAX_VALUE_7BIT));
+        }
+
+        void state_change_register_midi_14bit(uint16_t value)
+        {
+            state_change_register(position_for_midi_value(value, midi::MAX_VALUE_14BIT));
+        }
+
+        uint16_t midi_14bit_value_for_position(uint16_t value) const
+        {
+            return static_cast<uint16_t>(zlibs::utils::misc::map_range(static_cast<uint32_t>(value),
+                                                                       static_cast<uint32_t>(0),
+                                                                       static_cast<uint32_t>(analog::Filter::POSITION_MAX_VALUE),
+                                                                       static_cast<uint32_t>(0),
+                                                                       static_cast<uint32_t>(midi::MAX_VALUE_14BIT)));
         }
 
         void state_change_register(const std::vector<uint16_t>& values)
@@ -268,9 +295,9 @@ namespace
         database::Admin&            _database_admin = _builder_database.instance();
         analog::Builder             _analog         = analog::Builder(_database_admin);
         buttons::Builder            _buttons        = buttons::Builder(_database_admin);
-        MidiSignalCollector         _analog_messages;
-        MidiSignalCollector         _analogButton_messages;
-        MidiSignalCollector         _button_messages;
+        MidiIoSignalCollector       _analog_messages;
+        MidiIoSignalCollector       _analogButton_messages;
+        MidiIoSignalCollector       _button_messages;
     };
 }    // namespace
 
@@ -375,7 +402,7 @@ TEST_F(AnalogTest, CC)
 
     for (auto value : midi_7bit_test_values)
     {
-        state_change_register(value);
+        state_change_register_midi_7bit(value);
     }
 
     wait_for_signals();
@@ -406,7 +433,7 @@ TEST_F(AnalogTest, CC)
 
     for (auto value : reverse_values)
     {
-        state_change_register(value);
+        state_change_register_midi_7bit(value);
     }
 
     wait_for_signals();
@@ -446,7 +473,7 @@ TEST_F(AnalogTest, NRPN7bit)
 
     for (auto value : midi_7bit_test_values)
     {
-        state_change_register(value);
+        state_change_register_midi_7bit(value);
     }
 
     wait_for_signals();
@@ -474,7 +501,7 @@ TEST_F(AnalogTest, NRPN14bit)
 
     for (auto value : midi_7bit_test_values)
     {
-        state_change_register(value);
+        state_change_register_midi_7bit(value);
     }
 
     wait_for_signals();
@@ -492,8 +519,8 @@ TEST_F(AnalogTest, NRPN14bit)
 TEST_F(AnalogTest, PitchBendTest)
 {
     const auto validate_messages =
-        [&](const std::vector<signaling::MidiSignal>& analog_messages,
-            const std::vector<uint16_t>&              expected_values)
+        [&](const std::vector<signaling::MidiIoSignal>& analog_messages,
+            const std::vector<uint16_t>&                expected_values)
     {
         const auto input_count = analog::Collection::size(analog::GroupAnalogInputs);
 
@@ -521,23 +548,28 @@ TEST_F(AnalogTest, PitchBendTest)
         ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Type, i, analog::Type::PitchBend));
     }
 
-    for (auto value : pitch_bend_test_values)
+    std::vector<uint16_t> expected_values;
+
+    for (auto value : pitch_bend_position_values)
     {
         state_change_register(value);
+        expected_values.push_back(midi_14bit_value_for_position(value));
     }
 
     wait_for_signals();
     auto analog_messages = _analog_messages.snapshot();
-    validate_messages(analog_messages, pitch_bend_test_values);
+    validate_messages(analog_messages, expected_values);
 
     // now go backward
     _analog_messages.clear();
 
-    std::vector<uint16_t> reverse_values(pitch_bend_test_values.rbegin() + 1, pitch_bend_test_values.rend());
+    std::vector<uint16_t> reverse_positions(pitch_bend_position_values.rbegin() + 1, pitch_bend_position_values.rend());
+    std::vector<uint16_t> reverse_values;
 
-    for (auto value : reverse_values)
+    for (auto value : reverse_positions)
     {
         state_change_register(value);
+        reverse_values.push_back(midi_14bit_value_for_position(value));
     }
 
     wait_for_signals();
@@ -555,7 +587,7 @@ TEST_F(AnalogTest, Inversion)
 
     for (auto value : midi_7bit_test_values)
     {
-        state_change_register(value);
+        state_change_register_midi_7bit(value);
     }
 
     wait_for_signals();
@@ -592,7 +624,7 @@ TEST_F(AnalogTest, Inversion)
     // feed all the values again
     for (auto value : midi_7bit_test_values)
     {
-        state_change_register(value);
+        state_change_register_midi_7bit(value);
     }
 
     wait_for_signals();
@@ -623,7 +655,7 @@ TEST_F(AnalogTest, Inversion)
     // feed all the values again
     for (auto value : midi_7bit_test_values)
     {
-        state_change_register(value);
+        state_change_register_midi_7bit(value);
     }
 
     wait_for_signals();
@@ -660,7 +692,7 @@ TEST_F(AnalogTest, Scaling)
 
     for (auto value : scaling_test_values)
     {
-        state_change_register(value);
+        state_change_register_midi_7bit(value);
     }
 
     wait_for_signals();
@@ -688,7 +720,7 @@ TEST_F(AnalogTest, Scaling)
 
     for (auto value : scaling_test_values)
     {
-        state_change_register(value);
+        state_change_register_midi_7bit(value);
     }
 
     wait_for_signals();
@@ -713,7 +745,7 @@ TEST_F(AnalogTest, Scaling)
 
     for (size_t i = 1; i < scaling_test_values.size(); i++)
     {
-        state_change_register(scaling_test_values.at(i));
+        state_change_register_midi_7bit(scaling_test_values.at(i));
     }
 
     wait_for_signals();
@@ -799,9 +831,60 @@ TEST_F(AnalogTest, ButtonForwarding)
     EXPECT_EQ(1, button_messages.size());
 }
 
+TEST_F(AnalogTest, FsrPublishesOnlyWhenMappedValueBecomesNonZeroAndOnRelease)
+{
+    for (size_t i = 0; i < analog::Collection::size(analog::GroupAnalogInputs); i++)
+    {
+        ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Type, i, analog::Type::Fsr));
+        ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::LowerLimit, i, 0));
+        ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::UpperLimit, i, 127));
+        reset_analog(i);
+    }
+
+    state_change_register(1);
+    wait_for_signals();
+
+    auto analog_messages = _analog_messages.snapshot();
+
+    EXPECT_TRUE(analog_messages.empty());
+
+    _analog_messages.clear();
+
+    state_change_register(analog::Filter::POSITION_MAX_VALUE);
+    wait_for_signals();
+
+    analog_messages = _analog_messages.snapshot();
+
+    ASSERT_EQ(analog::Collection::size(analog::GroupAnalogInputs), analog_messages.size());
+
+    for (const auto& message : analog_messages)
+    {
+        EXPECT_EQ(midi::MessageType::NoteOn, message.message);
+        EXPECT_EQ(127, message.value);
+    }
+
+    _analog_messages.clear();
+
+    state_change_register(0);
+    wait_for_signals();
+
+    analog_messages = _analog_messages.snapshot();
+
+    ASSERT_EQ(analog::Collection::size(analog::GroupAnalogInputs), analog_messages.size());
+
+    for (const auto& message : analog_messages)
+    {
+        EXPECT_EQ(midi::MessageType::NoteOff, message.message);
+        EXPECT_EQ(0, message.value);
+    }
+}
+
 TEST_F(AnalogTest, DrainsMultipleQueuedFramesInSingleUpdate)
 {
-    state_change_register(std::vector<uint16_t>{ 10, 11 });
+    state_change_register(std::vector<uint16_t>{
+        position_for_midi_value(10, midi::MAX_VALUE_7BIT),
+        position_for_midi_value(11, midi::MAX_VALUE_7BIT),
+    });
     wait_for_signals();
 
     auto analog_messages = _analog_messages.snapshot();
@@ -817,7 +900,7 @@ TEST_F(AnalogTest, DrainsMultipleQueuedFramesInSingleUpdate)
 
 TEST_F(AnalogTest, ForceRefreshUsesLastValueWithoutNewFrames)
 {
-    state_change_register(17);
+    state_change_register_midi_7bit(17);
     wait_for_signals();
     clear_messages();
 

@@ -6,13 +6,13 @@
 #pragma once
 
 #ifdef OPENDECK_TEST
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_MIDI_INDICATORS
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_TRAFFIC_INDICATORS
 #include "io/indicators/builder_test.h"
 #else
 #include "io/indicators/builder_stub.h"
 #endif
 #else
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_MIDI_INDICATORS
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_TRAFFIC_INDICATORS
 #include "io/indicators/builder_hw.h"
 #else
 #include "io/indicators/builder_stub.h"

@@ -20,28 +20,25 @@ using namespace opendeck::io;
 
 namespace
 {
-    constexpr uint8_t ActiveAdcBits = analog::ADC_RESOLUTION_12_BIT;
-    using ActiveAdcConfig           = analog::AdcConfigForT<ActiveAdcBits>;
+    using ActiveAdcConfig = analog::AdcConfig;
 
     class AnalogFilterTest : public ::testing::Test
     {
         protected:
-        static constexpr size_t   FILTER_INDEX          = 0;
-        static constexpr uint16_t ADC_MIN_VALUE         = ActiveAdcConfig::ADC_MIN_VALUE;
-        static constexpr uint16_t ADC_MAX_VALUE         = ActiveAdcConfig::ADC_MAX_VALUE;
-        static constexpr uint16_t MID_VALUE             = (ADC_MIN_VALUE + ADC_MAX_VALUE) / 2;
-        static constexpr uint16_t BUTTON_OFF_VALUE      = ActiveAdcConfig::DIGITAL_VALUE_THRESHOLD_OFF / 2;
-        static constexpr uint16_t BUTTON_ON_VALUE       = (ActiveAdcConfig::DIGITAL_VALUE_THRESHOLD_ON + ActiveAdcConfig::ADC_MAX_VALUE) / 2;
-        static constexpr uint16_t BUTTON_MID_VALUE      = (ActiveAdcConfig::DIGITAL_VALUE_THRESHOLD_OFF + ActiveAdcConfig::DIGITAL_VALUE_THRESHOLD_ON) / 2;
-        static constexpr uint16_t FSR_MIN_VALUE         = ActiveAdcConfig::FSR_MIN_VALUE;
-        static constexpr uint16_t FSR_MAX_VALUE         = ActiveAdcConfig::FSR_MAX_VALUE;
-        static constexpr uint16_t MIDI_MAX_VALUE        = 127;
-        static constexpr uint16_t MIDI_MAX_VALUE_14_BIT = 16383;
-        static constexpr uint16_t DEFAULT_MIDI_OUT      = MIDI_MAX_VALUE / 2;
-        static constexpr uint8_t  PERCENTAGE_DIVISOR    = 100;
+        static constexpr size_t   FILTER_INDEX         = 0;
+        static constexpr uint16_t ADC_MIN_VALUE        = ActiveAdcConfig::ADC_MIN_VALUE;
+        static constexpr uint16_t ADC_MAX_VALUE        = ActiveAdcConfig::ADC_MAX_VALUE;
+        static constexpr uint16_t MID_VALUE            = (ADC_MIN_VALUE + ADC_MAX_VALUE) / 2;
+        static constexpr uint16_t BUTTON_OFF_VALUE     = ActiveAdcConfig::DIGITAL_VALUE_THRESHOLD_OFF / 2;
+        static constexpr uint16_t BUTTON_ON_VALUE      = (ActiveAdcConfig::DIGITAL_VALUE_THRESHOLD_ON + ActiveAdcConfig::ADC_MAX_VALUE) / 2;
+        static constexpr uint16_t BUTTON_MID_VALUE     = (ActiveAdcConfig::DIGITAL_VALUE_THRESHOLD_OFF + ActiveAdcConfig::DIGITAL_VALUE_THRESHOLD_ON) / 2;
+        static constexpr uint16_t FSR_MIN_VALUE        = ActiveAdcConfig::FSR_MIN_VALUE;
+        static constexpr uint16_t FSR_MAX_VALUE        = ActiveAdcConfig::FSR_MAX_VALUE;
+        static constexpr uint16_t FILTER_POSITION_MAX  = analog::Filter::POSITION_MAX_VALUE;
+        static constexpr uint16_t DEFAULT_POSITION_OUT = FILTER_POSITION_MAX / 2;
+        static constexpr uint8_t  PERCENTAGE_DIVISOR   = 100;
 
         analog::Filter::Descriptor descriptor(uint16_t value,
-                                              uint16_t max_value    = MIDI_MAX_VALUE,
                                               uint8_t  lower_offset = 0,
                                               uint8_t  upper_offset = 0) const
         {
@@ -50,7 +47,6 @@ namespace
             descriptor.value                      = value;
             descriptor.lower_offset               = lower_offset;
             descriptor.upper_offset               = upper_offset;
-            descriptor.max_value                  = max_value;
             return descriptor;
         }
 
@@ -61,19 +57,16 @@ namespace
             descriptor.value                      = value;
             descriptor.lower_offset               = 0;
             descriptor.upper_offset               = 0;
-            descriptor.max_value                  = 1;
             return descriptor;
         }
 
-        analog::Filter::Descriptor fsr_descriptor(uint16_t value,
-                                                  uint16_t max_value = MIDI_MAX_VALUE) const
+        analog::Filter::Descriptor fsr_descriptor(uint16_t value) const
         {
             analog::Filter::Descriptor descriptor = {};
             descriptor.type                       = analog::Type::Fsr;
             descriptor.value                      = value;
             descriptor.lower_offset               = 0;
             descriptor.upper_offset               = 0;
-            descriptor.max_value                  = max_value;
             return descriptor;
         }
 
@@ -104,7 +97,6 @@ namespace
         }
 
         uint16_t adc_value_for_output(uint16_t output_value,
-                                      uint16_t max_value    = MIDI_MAX_VALUE,
                                       uint8_t  lower_offset = 0,
                                       uint8_t  upper_offset = 0) const
         {
@@ -119,7 +111,7 @@ namespace
                                                                   static_cast<uint32_t>(adc_min),
                                                                   static_cast<uint32_t>(adc_max),
                                                                   static_cast<uint32_t>(0),
-                                                                  static_cast<uint32_t>(max_value));
+                                                                  static_cast<uint32_t>(FILTER_POSITION_MAX));
 
                 if (mapped == output_value)
                 {
@@ -140,8 +132,7 @@ namespace
             return first.has_value() ? static_cast<uint16_t>((first.value() + last) / 2) : adc_min;
         }
 
-        uint16_t adc_value_for_fsr_output(uint16_t output_value,
-                                          uint16_t max_value = MIDI_MAX_VALUE) const
+        uint16_t adc_value_for_fsr_output(uint16_t output_value) const
         {
             std::optional<uint16_t> first = {};
             uint16_t                last  = 0;
@@ -152,7 +143,7 @@ namespace
                                                                   static_cast<uint32_t>(FSR_MIN_VALUE),
                                                                   static_cast<uint32_t>(FSR_MAX_VALUE),
                                                                   static_cast<uint32_t>(0),
-                                                                  static_cast<uint32_t>(max_value));
+                                                                  static_cast<uint32_t>(FILTER_POSITION_MAX));
 
                 if (mapped == output_value)
                 {
@@ -174,11 +165,10 @@ namespace
         }
 
         std::optional<uint16_t> sample(uint16_t value,
-                                       uint16_t max_value    = MIDI_MAX_VALUE,
                                        uint8_t  lower_offset = 0,
                                        uint8_t  upper_offset = 0)
         {
-            auto filtered = descriptor(value, max_value, lower_offset, upper_offset);
+            auto filtered = descriptor(value, lower_offset, upper_offset);
 
             if (_filter.is_filtered(FILTER_INDEX, filtered))
             {
@@ -200,10 +190,9 @@ namespace
             return {};
         }
 
-        std::optional<uint16_t> sample_fsr(uint16_t value,
-                                           uint16_t max_value = MIDI_MAX_VALUE)
+        std::optional<uint16_t> sample_fsr(uint16_t value)
         {
-            auto filtered = fsr_descriptor(value, max_value);
+            auto filtered = fsr_descriptor(value);
 
             if (_filter.is_filtered(FILTER_INDEX, filtered))
             {
@@ -230,7 +219,7 @@ namespace
             return outputs;
         }
 
-        std::vector<uint16_t> sample_midi_sequence(std::initializer_list<uint16_t> values)
+        std::vector<uint16_t> sample_position_sequence(std::initializer_list<uint16_t> values)
         {
             std::vector<uint16_t> outputs;
 
@@ -247,7 +236,7 @@ namespace
             return outputs;
         }
 
-        std::vector<uint16_t> sample_timed_midi_sequence(std::initializer_list<std::pair<uint32_t, uint16_t>> values)
+        std::vector<uint16_t> sample_timed_position_sequence(std::initializer_list<std::pair<uint32_t, uint16_t>> values)
         {
             std::vector<uint16_t> outputs;
 
@@ -269,11 +258,11 @@ namespace
             return outputs;
         }
 
-        std::vector<uint16_t> sample_midi_repeated(uint16_t midi_value,
-                                                   size_t   count)
+        std::vector<uint16_t> sample_position_repeated(uint16_t position_value,
+                                                       size_t   count)
         {
             std::vector<uint16_t> outputs;
-            const auto            adc_value = adc_value_for_output(midi_value);
+            const auto            adc_value = adc_value_for_output(position_value);
 
             for (size_t i = 0; i < count; i++)
             {
@@ -288,12 +277,12 @@ namespace
             return outputs;
         }
 
-        std::vector<uint16_t> sample_midi_for(uint16_t midi_value,
-                                              uint32_t duration_ms,
-                                              uint32_t step_ms = 1)
+        std::vector<uint16_t> sample_position_for(uint16_t position_value,
+                                                  uint32_t duration_ms,
+                                                  uint32_t step_ms = 1)
         {
             std::vector<uint16_t> outputs;
-            const auto            adc_value = adc_value_for_output(midi_value);
+            const auto            adc_value = adc_value_for_output(position_value);
 
             for (uint32_t elapsed = 0; elapsed < duration_ms; elapsed += step_ms)
             {
@@ -314,7 +303,6 @@ namespace
         }
 
         uint16_t prime(uint16_t value        = MID_VALUE,
-                       uint16_t max_value    = MIDI_MAX_VALUE,
                        uint8_t  lower_offset = 0,
                        uint8_t  upper_offset = 0)
         {
@@ -322,7 +310,7 @@ namespace
 
             for (size_t i = 0; i < 5; i++)
             {
-                auto filtered = sample(value, max_value, lower_offset, upper_offset);
+                auto filtered = sample(value, lower_offset, upper_offset);
 
                 if (filtered.has_value())
                 {
@@ -336,7 +324,6 @@ namespace
         }
 
         uint16_t settle_to_raw(uint16_t value,
-                               uint16_t max_value    = MIDI_MAX_VALUE,
                                uint8_t  lower_offset = 0,
                                uint8_t  upper_offset = 0)
         {
@@ -345,7 +332,7 @@ namespace
 
             for (size_t i = 0; i < 128; i++)
             {
-                auto filtered = sample(value, max_value, lower_offset, upper_offset);
+                auto filtered = sample(value, lower_offset, upper_offset);
 
                 if (filtered.has_value())
                 {
@@ -368,15 +355,14 @@ namespace
             return last_output.value_or(0);
         }
 
-        uint16_t prime_midi(uint16_t value     = DEFAULT_MIDI_OUT,
-                            uint16_t max_value = MIDI_MAX_VALUE)
+        uint16_t prime_position(uint16_t value = DEFAULT_POSITION_OUT)
         {
             std::optional<uint16_t> last_output = {};
             size_t                  quiet_count = 0;
 
             for (size_t i = 0; i < 128; i++)
             {
-                auto filtered = sample(adc_value_for_output(value, max_value), max_value);
+                auto filtered = sample(adc_value_for_output(value));
 
                 if (filtered.has_value())
                 {
@@ -399,15 +385,14 @@ namespace
             return last_output.value_or(0);
         }
 
-        uint16_t prime_fsr_midi(uint16_t value     = DEFAULT_MIDI_OUT,
-                                uint16_t max_value = MIDI_MAX_VALUE)
+        uint16_t prime_fsr_position(uint16_t value = DEFAULT_POSITION_OUT)
         {
             std::optional<uint16_t> last_output = {};
             size_t                  quiet_count = 0;
 
             for (size_t i = 0; i < 128; i++)
             {
-                auto filtered = sample_fsr(adc_value_for_fsr_output(value, max_value), max_value);
+                auto filtered = sample_fsr(adc_value_for_fsr_output(value));
 
                 if (filtered.has_value())
                 {
@@ -430,10 +415,10 @@ namespace
             return last_output.value_or(0);
         }
 
-        uint16_t settle_to_midi(uint16_t value,
-                                uint32_t duration_ms = analog::FilterHw<ActiveAdcBits>::motion_context_timeout_ms() + 20)
+        uint16_t settle_to_position(uint16_t value,
+                                    uint32_t duration_ms = analog::FilterHw::motion_context_timeout_ms() + 20)
         {
-            const auto outputs = sample_midi_for(value, duration_ms);
+            const auto outputs = sample_position_for(value, duration_ms);
 
             EXPECT_FALSE(outputs.empty());
 
@@ -445,7 +430,7 @@ namespace
             _filter.reset(FILTER_INDEX);
         }
 
-        analog::FilterHw<ActiveAdcBits> _filter = {};
+        analog::FilterHw _filter = {};
     };
 }    // namespace
 
@@ -460,8 +445,8 @@ TEST_F(AnalogFilterTest, SubDeadbandSamplesAreSuppressed)
 {
     (void)prime();
 
-    EXPECT_FALSE(sample(MID_VALUE + 20).has_value());
-    EXPECT_TRUE(sample(MID_VALUE + 40).has_value());
+    EXPECT_FALSE(sample(MID_VALUE + 6).has_value());
+    EXPECT_TRUE(sample(MID_VALUE + 20).has_value());
 }
 
 TEST_F(AnalogFilterTest, LowerOffsetClampsToConfiguredLowerBound)
@@ -473,11 +458,11 @@ TEST_F(AnalogFilterTest, LowerOffsetClampsToConfiguredLowerBound)
 
     ASSERT_LT(probe, configured_lower);
 
-    const auto filtered = settle_to_raw(probe, MIDI_MAX_VALUE, LOWER_OFFSET);
+    const auto filtered = settle_to_raw(probe, LOWER_OFFSET);
 
     reset_filter();
 
-    const auto expected_clamped = settle_to_raw(configured_lower, MIDI_MAX_VALUE, LOWER_OFFSET);
+    const auto expected_clamped = settle_to_raw(configured_lower, LOWER_OFFSET);
 
     EXPECT_EQ(expected_clamped, filtered);
 }
@@ -491,11 +476,11 @@ TEST_F(AnalogFilterTest, UpperOffsetClampsToConfiguredUpperBound)
 
     ASSERT_GT(probe, configured_upper);
 
-    const auto filtered = settle_to_raw(probe, MIDI_MAX_VALUE, 0, UPPER_OFFSET);
+    const auto filtered = settle_to_raw(probe, 0, UPPER_OFFSET);
 
     reset_filter();
 
-    const auto expected_clamped = settle_to_raw(configured_upper, MIDI_MAX_VALUE, 0, UPPER_OFFSET);
+    const auto expected_clamped = settle_to_raw(configured_upper, 0, UPPER_OFFSET);
 
     EXPECT_EQ(expected_clamped, filtered);
 }
@@ -529,13 +514,38 @@ TEST_F(AnalogFilterTest, ButtonPathPublishesPressedStateOnStartup)
 
 TEST_F(AnalogFilterTest, IdlePotDriftRequiresRepeatConfirmation)
 {
-    const auto baseline = prime_midi(64);
+    const auto baseline = prime_position(64);
 
-    k_msleep(analog::FilterHw<ActiveAdcBits>::motion_context_timeout_ms() + 20);
+    k_msleep(analog::FilterHw::motion_context_timeout_ms() + 20);
 
     EXPECT_FALSE(sample(adc_value_for_output(static_cast<uint16_t>(baseline + 6))).has_value());
 
     const auto filtered = sample(adc_value_for_output(static_cast<uint16_t>(baseline + 6)));
+
+    ASSERT_TRUE(filtered.has_value());
+    EXPECT_GT(filtered.value(), baseline);
+}
+
+TEST_F(AnalogFilterTest, TinyIdlePotDriftDoesNotWakeFilter)
+{
+    const auto baseline = prime_position(105);
+
+    k_msleep(analog::FilterHw::motion_context_timeout_ms() + 20);
+
+    EXPECT_FALSE(sample(adc_value_for_output(static_cast<uint16_t>(baseline - 1))).has_value());
+    EXPECT_FALSE(sample(adc_value_for_output(static_cast<uint16_t>(baseline - 1))).has_value());
+    EXPECT_FALSE(sample(adc_value_for_output(static_cast<uint16_t>(baseline + 2))).has_value());
+}
+
+TEST_F(AnalogFilterTest, ConfirmedIdlePotMovementWakesFilter)
+{
+    const auto baseline = prime_position(105);
+
+    k_msleep(analog::FilterHw::motion_context_timeout_ms() + 20);
+
+    EXPECT_FALSE(sample(adc_value_for_output(static_cast<uint16_t>(baseline + 4))).has_value());
+
+    const auto filtered = sample(adc_value_for_output(static_cast<uint16_t>(baseline + 4)));
 
     ASSERT_TRUE(filtered.has_value());
     EXPECT_GT(filtered.value(), baseline);
@@ -553,50 +563,40 @@ TEST_F(AnalogFilterTest, FastModeRequiresRepeatedLargeDeltasToEnter)
     EXPECT_TRUE(_filter.fast_mode_active(FILTER_INDEX));
 }
 
-TEST_F(AnalogFilterTest, FastModeThresholdScalesWithOutputResolution)
+TEST_F(AnalogFilterTest, FastModeThresholdUsesFilterPositionResolution)
 {
-    (void)prime(MID_VALUE, MIDI_MAX_VALUE);
+    (void)prime(MID_VALUE);
     EXPECT_FALSE(_filter.fast_mode_active(FILTER_INDEX));
 
-    (void)sample(MID_VALUE + 20, MIDI_MAX_VALUE);
-    (void)sample(MID_VALUE + 40, MIDI_MAX_VALUE);
-    EXPECT_FALSE(_filter.fast_mode_active(FILTER_INDEX));
-
-    reset_filter();
-
-    (void)prime(MID_VALUE, MIDI_MAX_VALUE_14_BIT);
-    EXPECT_FALSE(_filter.fast_mode_active(FILTER_INDEX));
-
-    (void)sample(MID_VALUE + 20, MIDI_MAX_VALUE_14_BIT);
-    (void)sample(MID_VALUE + 40, MIDI_MAX_VALUE_14_BIT);
+    (void)sample(MID_VALUE + 20);
+    (void)sample(MID_VALUE + 40);
     EXPECT_TRUE(_filter.fast_mode_active(FILTER_INDEX));
 }
 
 TEST_F(AnalogFilterTest, HighResolutionEndpointHoldSuppressesEdgeNoise)
 {
-    (void)prime(adc_value_for_output(32, MIDI_MAX_VALUE_14_BIT), MIDI_MAX_VALUE_14_BIT);
+    (void)settle_to_position(1);
 
-    auto endpoint = sample(ADC_MIN_VALUE, MIDI_MAX_VALUE_14_BIT);
+    auto endpoint = sample(ADC_MIN_VALUE);
 
     ASSERT_TRUE(endpoint.has_value());
     EXPECT_EQ(0, endpoint.value());
 
-    const auto edge_noise = sample(adc_value_for_output(56, MIDI_MAX_VALUE_14_BIT),
-                                   MIDI_MAX_VALUE_14_BIT);
+    const auto edge_noise = sample(adc_value_for_output(56));
 
     EXPECT_FALSE(edge_noise.has_value());
 }
 
 TEST_F(AnalogFilterTest, FastModeExpiresWhileContinuousIdleSamplesArrive)
 {
-    const auto baseline = prime_midi();
+    const auto baseline = prime_position();
 
     (void)sample_sequence({ static_cast<uint16_t>(MID_VALUE + 140),
                             static_cast<uint16_t>(MID_VALUE + 210) });
     ASSERT_TRUE(_filter.fast_mode_active(FILTER_INDEX));
 
-    (void)sample_midi_for(baseline,
-                          analog::FilterHw<ActiveAdcBits>::motion_context_timeout_ms() + 20);
+    (void)sample_position_for(baseline,
+                              analog::FilterHw::motion_context_timeout_ms() + 20);
 
     EXPECT_FALSE(_filter.fast_mode_active(FILTER_INDEX));
     EXPECT_FALSE(sample(MID_VALUE + 280).has_value());
@@ -605,9 +605,9 @@ TEST_F(AnalogFilterTest, FastModeExpiresWhileContinuousIdleSamplesArrive)
 
 TEST_F(AnalogFilterTest, TimedIdleDriftTraceNeedsRepeatedIdleSamples)
 {
-    (void)prime_midi();
+    (void)prime_position();
 
-    const auto outputs = sample_timed_midi_sequence({
+    const auto outputs = sample_timed_position_sequence({
         { 89, 77 },
         { 127, 78 },
         { 2244, 79 },
@@ -621,12 +621,12 @@ TEST_F(AnalogFilterTest, TimedIdleDriftTraceNeedsRepeatedIdleSamples)
     });
 
     EXPECT_FALSE(outputs.empty()) << testing::PrintToString(outputs);
-    EXPECT_EQ(std::vector<uint16_t>({ 70, 74, 75 }), outputs);
+    EXPECT_EQ(outputs.back(), 87);
 }
 
 TEST_F(AnalogFilterTest, ActivePotMovementPublishesWithoutIdleRepeat)
 {
-    const auto baseline = prime_midi(64);
+    const auto baseline = prime_position(64);
 
     const auto filtered = sample(adc_value_for_output(static_cast<uint16_t>(baseline + 6)));
 
@@ -636,21 +636,21 @@ TEST_F(AnalogFilterTest, ActivePotMovementPublishesWithoutIdleRepeat)
 
 TEST_F(AnalogFilterTest, HighResolutionIdlePotDriftBelowFilterStepIsSuppressed)
 {
-    static constexpr uint16_t DRIFT_ADC = MID_VALUE + 7;
+    static constexpr uint16_t DRIFT_ADC = MID_VALUE + 6;
 
-    (void)prime(MID_VALUE, MIDI_MAX_VALUE_14_BIT);
+    (void)prime(MID_VALUE);
 
-    k_msleep(analog::FilterHw<ActiveAdcBits>::motion_context_timeout_ms() + 20);
+    k_msleep(analog::FilterHw::motion_context_timeout_ms() + 20);
 
-    EXPECT_FALSE(sample(DRIFT_ADC, MIDI_MAX_VALUE_14_BIT).has_value());
-    EXPECT_FALSE(sample(DRIFT_ADC, MIDI_MAX_VALUE_14_BIT).has_value());
+    EXPECT_FALSE(sample(DRIFT_ADC).has_value());
+    EXPECT_FALSE(sample(DRIFT_ADC).has_value());
 }
 
 TEST_F(AnalogFilterTest, FsrIdleDriftRequiresRepeatConfirmation)
 {
-    const auto baseline = prime_fsr_midi(64);
+    const auto baseline = prime_fsr_position(64);
 
-    k_msleep(analog::FilterHw<ActiveAdcBits>::motion_context_timeout_ms() + 20);
+    k_msleep(analog::FilterHw::motion_context_timeout_ms() + 20);
 
     EXPECT_FALSE(sample_fsr(adc_value_for_fsr_output(static_cast<uint16_t>(baseline + 6))).has_value());
 
@@ -662,7 +662,7 @@ TEST_F(AnalogFilterTest, FsrIdleDriftRequiresRepeatConfirmation)
 
 TEST_F(AnalogFilterTest, ActiveFsrMovementPublishesWithoutIdleRepeat)
 {
-    const auto baseline = prime_fsr_midi(64);
+    const auto baseline = prime_fsr_position(64);
 
     const auto filtered = sample_fsr(adc_value_for_fsr_output(static_cast<uint16_t>(baseline + 6)));
 

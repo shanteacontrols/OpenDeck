@@ -283,9 +283,9 @@ namespace opendeck::io::leds
          * @brief Applies an incoming MIDI event to the LED state machine.
          *
          * @param message Decoded MIDI message to process.
-         * @param direction MIDI traffic direction associated with the message.
+         * @param direction Traffic direction associated with the message.
          */
-        void midi_to_state(const protocol::midi::Message& message, signaling::MidiDirection direction);
+        void midi_to_state(const protocol::midi::Message& message, signaling::SignalDirection direction);
 
         /**
          * @brief Updates internal preset-indicator LEDs for the selected preset.

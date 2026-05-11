@@ -55,19 +55,23 @@ namespace opendeck::io::indicators
         }
 
         private:
-        static constexpr bool HAS_USB_IN  = DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_midi_indicators), usb_in_gpios);
-        static constexpr bool HAS_USB_OUT = DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_midi_indicators), usb_out_gpios);
-        static constexpr bool HAS_DIN_IN  = DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_midi_indicators), din_in_gpios);
-        static constexpr bool HAS_DIN_OUT = DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_midi_indicators), din_out_gpios);
-        static constexpr bool HAS_BLE_IN  = DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_midi_indicators), ble_in_gpios);
-        static constexpr bool HAS_BLE_OUT = DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_midi_indicators), ble_out_gpios);
+        static constexpr bool HAS_USB_IN      = DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_traffic_indicators), usb_in_gpios);
+        static constexpr bool HAS_USB_OUT     = DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_traffic_indicators), usb_out_gpios);
+        static constexpr bool HAS_DIN_IN      = DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_traffic_indicators), din_in_gpios);
+        static constexpr bool HAS_DIN_OUT     = DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_traffic_indicators), din_out_gpios);
+        static constexpr bool HAS_BLE_IN      = DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_traffic_indicators), ble_in_gpios);
+        static constexpr bool HAS_BLE_OUT     = DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_traffic_indicators), ble_out_gpios);
+        static constexpr bool HAS_NETWORK_IN  = DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_traffic_indicators), network_in_gpios);
+        static constexpr bool HAS_NETWORK_OUT = DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_traffic_indicators), network_out_gpios);
 
-        const gpio_dt_spec _usb_in  = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(opendeck_midi_indicators), usb_in_gpios, {});
-        const gpio_dt_spec _usb_out = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(opendeck_midi_indicators), usb_out_gpios, {});
-        const gpio_dt_spec _din_in  = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(opendeck_midi_indicators), din_in_gpios, {});
-        const gpio_dt_spec _din_out = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(opendeck_midi_indicators), din_out_gpios, {});
-        const gpio_dt_spec _ble_in  = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(opendeck_midi_indicators), ble_in_gpios, {});
-        const gpio_dt_spec _ble_out = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(opendeck_midi_indicators), ble_out_gpios, {});
+        const gpio_dt_spec _usb_in      = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(opendeck_traffic_indicators), usb_in_gpios, {});
+        const gpio_dt_spec _usb_out     = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(opendeck_traffic_indicators), usb_out_gpios, {});
+        const gpio_dt_spec _din_in      = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(opendeck_traffic_indicators), din_in_gpios, {});
+        const gpio_dt_spec _din_out     = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(opendeck_traffic_indicators), din_out_gpios, {});
+        const gpio_dt_spec _ble_in      = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(opendeck_traffic_indicators), ble_in_gpios, {});
+        const gpio_dt_spec _ble_out     = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(opendeck_traffic_indicators), ble_out_gpios, {});
+        const gpio_dt_spec _network_in  = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(opendeck_traffic_indicators), network_in_gpios, {});
+        const gpio_dt_spec _network_out = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(opendeck_traffic_indicators), network_out_gpios, {});
 
         /**
          * @brief Configures all indicator GPIOs present in the devicetree.
@@ -81,7 +85,9 @@ namespace opendeck::io::indicators
                    configure_optional<Type::DinIn>() &&
                    configure_optional<Type::DinOut>() &&
                    configure_optional<Type::BleIn>() &&
-                   configure_optional<Type::BleOut>();
+                   configure_optional<Type::BleOut>() &&
+                   configure_optional<Type::NetworkIn>() &&
+                   configure_optional<Type::NetworkOut>();
         }
 
         /**
@@ -134,6 +140,20 @@ namespace opendeck::io::indicators
                 if constexpr (HAS_BLE_OUT)
                 {
                     return configure(_ble_out);
+                }
+            }
+            else if constexpr (Type == Type::NetworkIn)
+            {
+                if constexpr (HAS_NETWORK_IN)
+                {
+                    return configure(_network_in);
+                }
+            }
+            else if constexpr (Type == Type::NetworkOut)
+            {
+                if constexpr (HAS_NETWORK_OUT)
+                {
+                    return configure(_network_out);
                 }
             }
 
@@ -209,6 +229,20 @@ namespace opendeck::io::indicators
                     gpio_pin_set_dt(&_ble_out, state);
                 }
             }
+            else if constexpr (Type == Type::NetworkIn)
+            {
+                if constexpr (HAS_NETWORK_IN)
+                {
+                    gpio_pin_set_dt(&_network_in, state);
+                }
+            }
+            else if constexpr (Type == Type::NetworkOut)
+            {
+                if constexpr (HAS_NETWORK_OUT)
+                {
+                    gpio_pin_set_dt(&_network_out, state);
+                }
+            }
         }
 
         /**
@@ -257,6 +291,18 @@ namespace opendeck::io::indicators
             }
             break;
 
+            case Type::NetworkIn:
+            {
+                set_optional<Type::NetworkIn>(state);
+            }
+            break;
+
+            case Type::NetworkOut:
+            {
+                set_optional<Type::NetworkOut>(state);
+            }
+            break;
+
             case Type::All:
             {
                 set_optional<Type::UsbIn>(state);
@@ -265,6 +311,8 @@ namespace opendeck::io::indicators
                 set_optional<Type::DinOut>(state);
                 set_optional<Type::BleIn>(state);
                 set_optional<Type::BleOut>(state);
+                set_optional<Type::NetworkIn>(state);
+                set_optional<Type::NetworkOut>(state);
             }
             break;
 

@@ -37,6 +37,20 @@ namespace opendeck::updater
          */
         void reset();
 
+        /**
+         * @brief Returns whether the last processed stream completed successfully.
+         *
+         * @return `true` after a complete update stream triggered application.
+         */
+        bool completed() const;
+
+        /**
+         * @brief Returns whether the current or last processed stream failed validation.
+         *
+         * @return `true` when the updater rejected the stream or flash write failed.
+         */
+        bool failed() const;
+
         private:
         /**
          * @brief Identifies the current section of the firmware update stream being parsed.
@@ -87,6 +101,7 @@ namespace opendeck::updater
         WriteBlockCache                                 _write_block_cache       = {};
         std::array<uint8_t, MAX_FLASH_WRITE_BLOCK_SIZE> _write_block_buffer      = {};
         bool                                            _failed                  = false;
+        bool                                            _completed               = false;
 
         /**
          * @brief Processes the update-stream start marker.

@@ -215,6 +215,7 @@ namespace opendeck::sys
         Layout                                                                      _layout;
         BackupRestoreState                                                          _backup_restore_state     = BackupRestoreState::None;
         BackupSession                                                               _backup_session           = {};
+        signaling::ConfigTransport                                                  _config_transport         = signaling::ConfigTransport::Usb;
         bool                                                                        _components_initialized   = false;
         uint32_t                                                                    _backup_generated_packets = 0;
         fw_selector::FwType                                                         _reboot_type              = fw_selector::FwType::Application;
@@ -348,6 +349,35 @@ namespace opendeck::sys
          * @brief Forces an inactive configuration session closed after timeout.
          */
         void close_inactive_sysex_configuration_session();
+
+        /**
+         * @brief Checks whether a transport is allowed to use the current config session.
+         *
+         * Only one transport owns configuration at a time. When no session is active,
+         * any transport may start one. Once a session or backup/restore is active,
+         * only the owning transport may continue sending configuration requests.
+         *
+         * @param transport Transport that delivered the request.
+         *
+         * @return `true` if the request may be processed, otherwise `false`.
+         */
+        bool can_accept_config_transport(signaling::ConfigTransport transport);
+
+        /**
+         * @brief Handles one raw SysEx configuration frame from a non-MIDI config endpoint.
+         *
+         * @param request Config request containing MIDI 1 SysEx bytes, including F0/F7.
+         */
+        void handle_config_request(const signaling::ConfigRequestSignal& request);
+
+        /**
+         * @brief Routes one SysExConf response packet to the active configuration endpoint.
+         *
+         * @param packet UMP packet containing the response payload.
+         *
+         * @return `true` if the response was published successfully, otherwise `false`.
+         */
+        bool send_config_response(const midi_ump& packet);
 
         /**
          * @brief Emits a configuration-session state change.

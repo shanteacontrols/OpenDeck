@@ -135,8 +135,8 @@ Midi::Midi(HwaUsb&    hwa_usb,
             }
         });
 
-    signaling::subscribe<signaling::MidiSignal>(
-        [this](const signaling::MidiSignal& event)
+    signaling::subscribe<signaling::MidiIoSignal>(
+        [this](const signaling::MidiIoSignal& event)
         {
             send(event);
         });
@@ -144,7 +144,7 @@ Midi::Midi(HwaUsb&    hwa_usb,
     signaling::subscribe<signaling::UmpSignal>(
         [this](const signaling::UmpSignal& event)
         {
-            if (event.direction != signaling::MidiDirection::Out)
+            if (event.direction != signaling::SignalDirection::Out)
             {
                 return;
             }
@@ -498,9 +498,9 @@ void Midi::read_interface(size_t interface_index)
             break;
         }
 
-        signaling::publish(signaling::MidiTrafficSignal{
+        signaling::publish(signaling::TrafficSignal{
             .transport = interface_to_transport(interface_index),
-            .direction = signaling::MidiDirection::In,
+            .direction = signaling::SignalDirection::In,
         });
 
         const auto message = decode_message(packet.value());
@@ -528,7 +528,7 @@ void Midi::read_interface(size_t interface_index)
         }
 
         signaling::publish(signaling::UmpSignal{
-            .direction = signaling::MidiDirection::In,
+            .direction = signaling::SignalDirection::In,
             .packet    = packet.value(),
         });
     }
@@ -571,14 +571,14 @@ bool Midi::apply_din_loopback()
     return true;
 }
 
-void Midi::send(const signaling::MidiSignal& event)
+void Midi::send(const signaling::MidiIoSignal& event)
 {
     if (protocol::Base::is_frozen())
     {
         return;
     }
 
-    if (event.source == signaling::MidiSource::AnalogButton)
+    if (event.source == signaling::IoEventSource::AnalogButton)
     {
         return;
     }
@@ -791,7 +791,7 @@ void Midi::send(const signaling::UmpSignal& event)
 
         if ((interface_instance != nullptr) && interface_instance->initialized())
         {
-            if (event.direction == signaling::MidiDirection::Out)
+            if (event.direction == signaling::SignalDirection::Out)
             {
                 switch (event.route)
                 {
@@ -800,7 +800,7 @@ void Midi::send(const signaling::UmpSignal& event)
 
                 case signaling::UmpSignal::Route::Usb:
                 {
-                    if (transport != signaling::MidiTransport::Usb)
+                    if (transport != signaling::TrafficTransport::Usb)
                     {
                         continue;
                     }
@@ -809,7 +809,7 @@ void Midi::send(const signaling::UmpSignal& event)
 
                 case signaling::UmpSignal::Route::Din:
                 {
-                    if (transport != signaling::MidiTransport::Din)
+                    if (transport != signaling::TrafficTransport::Din)
                     {
                         continue;
                     }
@@ -818,7 +818,7 @@ void Midi::send(const signaling::UmpSignal& event)
 
                 case signaling::UmpSignal::Route::Ble:
                 {
-                    if (transport != signaling::MidiTransport::Ble)
+                    if (transport != signaling::TrafficTransport::Ble)
                     {
                         continue;
                     }
@@ -827,12 +827,12 @@ void Midi::send(const signaling::UmpSignal& event)
                 }
             }
 
-            if ((transport == signaling::MidiTransport::Ble) && !_hwa_ble.ready())
+            if ((transport == signaling::TrafficTransport::Ble) && !_hwa_ble.ready())
             {
                 continue;
             }
 
-            if ((transport == signaling::MidiTransport::Usb) && !_hwa_usb.ready())
+            if ((transport == signaling::TrafficTransport::Usb) && !_hwa_usb.ready())
             {
                 continue;
             }
@@ -845,29 +845,29 @@ void Midi::send(const signaling::UmpSignal& event)
                         static_cast<int>(UMP_MT(event.packet)));
             }
 
-            signaling::publish(signaling::MidiTrafficSignal{
+            signaling::publish(signaling::TrafficSignal{
                 .transport = transport,
-                .direction = signaling::MidiDirection::Out,
+                .direction = signaling::SignalDirection::Out,
             });
         }
     }
 }
 
-signaling::MidiTransport Midi::interface_to_transport(size_t index) const
+signaling::TrafficTransport Midi::interface_to_transport(size_t index) const
 {
     switch (index)
     {
     case static_cast<size_t>(Interface::Usb):
-        return signaling::MidiTransport::Usb;
+        return signaling::TrafficTransport::Usb;
 
     case static_cast<size_t>(Interface::Serial):
-        return signaling::MidiTransport::Din;
+        return signaling::TrafficTransport::Din;
 
     case static_cast<size_t>(Interface::Ble):
-        return signaling::MidiTransport::Ble;
+        return signaling::TrafficTransport::Ble;
 
     default:
-        return signaling::MidiTransport::Usb;
+        return signaling::TrafficTransport::Usb;
     }
 }
 

@@ -71,7 +71,7 @@ Leds::Leds(Hwa&      hwa,
                 return;
             }
 
-            if (signal.direction != signaling::MidiDirection::In)
+            if (signal.direction != signaling::SignalDirection::In)
             {
                 return;
             }
@@ -86,7 +86,7 @@ Leds::Leds(Hwa&      hwa,
             case protocol::midi::MessageType::ProgramChange:
             {
                 const zmisc::LockGuard lock(_state_mutex);
-                midi_to_state(message, signaling::MidiDirection::In);
+                midi_to_state(message, signaling::SignalDirection::In);
                 request_update(false);
             }
             break;
@@ -134,8 +134,8 @@ Leds::Leds(Hwa&      hwa,
             }
         });
 
-    signaling::subscribe<signaling::TouchscreenScreenSignal>(
-        [this](const signaling::TouchscreenScreenSignal&)
+    signaling::subscribe<signaling::TouchscreenScreenChangedSignal>(
+        [this](const signaling::TouchscreenScreenChangedSignal&)
         {
             if (is_frozen())
             {
@@ -147,25 +147,52 @@ Leds::Leds(Hwa&      hwa,
             request_update(false);
         });
 
-    signaling::subscribe<signaling::MidiSignal>(
-        [this](const signaling::MidiSignal& signal)
+    signaling::subscribe<signaling::OscIoSignal>(
+        [this](const signaling::OscIoSignal& signal)
         {
             if (is_frozen())
             {
                 return;
             }
 
-            const auto direction = (signal.source == signaling::MidiSource::Program)
-                                       ? signaling::MidiDirection::In
-                                       : signaling::MidiDirection::Out;
+            if (signal.direction != signaling::SignalDirection::In)
+            {
+                return;
+            }
+
+            if (signal.source != signaling::IoEventSource::Led)
+            {
+                return;
+            }
+
+            if (signal.component_index >= Collection::size())
+            {
+                return;
+            }
+
+            const zmisc::LockGuard lock(_state_mutex);
+            const auto             value = signal.int32_value.value_or(0);
+
+            set_color(static_cast<uint8_t>(signal.component_index),
+                      value != 0 ? Color::Red : Color::Off,
+                      value != 0 ? Brightness::Level100 : Brightness::Off);
+            request_update(false);
+        });
+
+    signaling::subscribe<signaling::MidiIoSignal>(
+        [this](const signaling::MidiIoSignal& signal)
+        {
+            if (is_frozen())
+            {
+                return;
+            }
 
             switch (signal.source)
             {
-            case signaling::MidiSource::Button:
-            case signaling::MidiSource::Analog:
-            case signaling::MidiSource::AnalogButton:
-            case signaling::MidiSource::Encoder:
-            case signaling::MidiSource::Program:
+            case signaling::IoEventSource::Button:
+            case signaling::IoEventSource::Analog:
+            case signaling::IoEventSource::AnalogButton:
+            case signaling::IoEventSource::Encoder:
                 break;
 
             default:
@@ -181,7 +208,7 @@ Leds::Leds(Hwa&      hwa,
                     .data1   = signal.index,
                     .data2   = signal.value,
                 },
-                direction);
+                signaling::SignalDirection::Out);
 
             request_update(false);
         });
@@ -203,7 +230,7 @@ Leds::Leds(Hwa&      hwa,
                     .data1   = signal.index,
                     .data2   = signal.value,
                 },
-                signaling::MidiDirection::In);
+                signaling::SignalDirection::In);
 
             request_update(false);
         });
@@ -438,7 +465,7 @@ Brightness Leds::value_to_brightness(uint8_t value)
     return static_cast<Brightness>((value % MIDI_VALUE_GROUP_SIZE % TOTAL_BRIGHTNESS_VALUES) + 1);
 }
 
-void Leds::midi_to_state(const protocol::midi::Message& message, signaling::MidiDirection direction)
+void Leds::midi_to_state(const protocol::midi::Message& message, signaling::SignalDirection direction)
 {
     const uint8_t global_channel     = _database.read(database::Config::Section::Global::MidiSettings, protocol::midi::Setting::GlobalChannel);
     const uint8_t use_global_channel = _database.read(database::Config::Section::Global::MidiSettings,
@@ -473,7 +500,7 @@ void Leds::midi_to_state(const protocol::midi::Message& message, signaling::Midi
 
         // determine whether led state or blink state should be changed
         // received MIDI message must match with defined control type
-        if (direction != signaling::MidiDirection::In)
+        if (direction != signaling::SignalDirection::In)
         {
             switch (control_type)
             {
@@ -943,18 +970,14 @@ void Leds::reset_state(uint8_t index)
 
 void Leds::set_state(size_t index, Brightness brightness)
 {
-    if (index >= Collection::size(GroupDigitalOutputs))
-    {
-        // specified hwa interface only writes to physical leds
-        // for touchscreen and other destinations, notify via dispatcher
+    signaling::publish(signaling::OscIoSignal{
+        .source          = signaling::IoEventSource::Led,
+        .component_index = index,
+        .int32_value     = static_cast<int32_t>(brightness),
+        .direction       = signaling::SignalDirection::Out,
+    });
 
-        signaling::TouchscreenLedSignal signal = {};
-        signal.component_index                 = index - Collection::start_index(GroupTouchscreenComponents);
-        signal.value                           = static_cast<uint16_t>(brightness);
-
-        signaling::publish(signal);
-    }
-    else
+    if (index < Collection::size(GroupDigitalOutputs))
     {
         _hwa.set_state(index, brightness);
     }

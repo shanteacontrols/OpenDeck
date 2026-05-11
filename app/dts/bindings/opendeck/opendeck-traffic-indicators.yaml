@@ -1,0 +1,44 @@
+description: OpenDeck traffic indicator LEDs
+
+compatible: "opendeck,traffic-indicators"
+
+properties:
+  usb-in-gpios:
+    type: phandle-array
+    required: false
+    description: GPIO driving the USB incoming traffic indicator LED.
+
+  usb-out-gpios:
+    type: phandle-array
+    required: false
+    description: GPIO driving the USB outgoing traffic indicator LED.
+
+  ble-in-gpios:
+    type: phandle-array
+    required: false
+    description: GPIO driving the BLE incoming traffic indicator LED.
+
+  ble-out-gpios:
+    type: phandle-array
+    required: false
+    description: GPIO driving the BLE outgoing traffic indicator LED.
+
+  din-in-gpios:
+    type: phandle-array
+    required: false
+    description: GPIO driving the DIN incoming traffic indicator LED.
+
+  din-out-gpios:
+    type: phandle-array
+    required: false
+    description: GPIO driving the DIN outgoing traffic indicator LED.
+
+  network-in-gpios:
+    type: phandle-array
+    required: false
+    description: GPIO driving the network incoming traffic indicator LED.
+
+  network-out-gpios:
+    type: phandle-array
+    required: false
+    description: GPIO driving the network outgoing traffic indicator LED.

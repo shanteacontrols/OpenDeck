@@ -72,14 +72,16 @@
         uart = <&opendeck_uart_din_midi>;
     };
 
-    opendeck_midi_indicators: opendeck-midi-indicators {
-        compatible = "opendeck,midi-indicators";
+    opendeck_traffic_indicators: opendeck-traffic-indicators {
+        compatible = "opendeck,traffic-indicators";
         usb-in-gpios = <&gpiob 0 GPIO_ACTIVE_HIGH>;
         usb-out-gpios = <&gpiob 7 GPIO_ACTIVE_HIGH>;
         din-in-gpios = <&gpiob 0 GPIO_ACTIVE_HIGH>;
         din-out-gpios = <&gpiob 7 GPIO_ACTIVE_HIGH>;
         ble-in-gpios = <&gpiob 0 GPIO_ACTIVE_HIGH>;
         ble-out-gpios = <&gpiob 7 GPIO_ACTIVE_HIGH>;
+        network-in-gpios = <&gpiob 0 GPIO_ACTIVE_HIGH>;
+        network-out-gpios = <&gpiob 7 GPIO_ACTIVE_HIGH>;
     };
 
     opendeck_display: opendeck-display {
@@ -92,5 +94,6 @@
         button-gpios = <&gpioc 13 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>;
         boot-partition = <&opendeck_partition_boot>;
         app-partition = <&opendeck_partition_app>;
+        staged-dfu-partition = <&opendeck_partition_staged_dfu>;
     };
 };

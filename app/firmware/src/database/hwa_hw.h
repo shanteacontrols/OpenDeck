@@ -185,7 +185,7 @@ namespace opendeck::database
          */
         bool clear() override
         {
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_MIDI_INDICATORS
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_TRAFFIC_INDICATORS
             // It's possible that LED indicators are still on since
             // this command is most likely given via USB.
             // Wait until all indicators are turned off

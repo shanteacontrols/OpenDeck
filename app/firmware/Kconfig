@@ -3,8 +3,9 @@ OPENDECK_ANALOG_NODE := $(dt_nodelabel_path,opendeck_analog)
 OPENDECK_LEDS_NODE := $(dt_nodelabel_path,opendeck_leds)
 OPENDECK_TOUCHSCREEN_NODE := $(dt_nodelabel_path,opendeck_touchscreen)
 OPENDECK_DIN_MIDI_NODE := $(dt_nodelabel_path,opendeck_din_midi)
-OPENDECK_MIDI_INDICATORS_NODE := $(dt_nodelabel_path,opendeck_midi_indicators)
+OPENDECK_TRAFFIC_INDICATORS_NODE := $(dt_nodelabel_path,opendeck_traffic_indicators)
 OPENDECK_DISPLAY_NODE := $(dt_nodelabel_path,opendeck_display)
+OPENDECK_STAGED_DFU_NODE := $(dt_nodelabel_path,opendeck_partition_staged_dfu)
 
 config PROJECT_TARGET_BUTTONS_DISABLED
     bool
@@ -26,9 +27,9 @@ config PROJECT_TARGET_DIN_MIDI_DISABLED
     bool
     default y if !$(dt_path_enabled,$(OPENDECK_DIN_MIDI_NODE))
 
-config PROJECT_TARGET_MIDI_INDICATORS_DISABLED
+config PROJECT_TARGET_TRAFFIC_INDICATORS_DISABLED
     bool
-    default y if !$(dt_path_enabled,$(OPENDECK_MIDI_INDICATORS_NODE))
+    default y if !$(dt_path_enabled,$(OPENDECK_TRAFFIC_INDICATORS_NODE))
 
 config PROJECT_TARGET_DISPLAY_DISABLED
     bool
@@ -198,36 +199,99 @@ config PROJECT_TARGET_SUPPORT_BLE
       this target when Bluetooth peripheral support is enabled for the
       build.
 
-config PROJECT_TARGET_SUPPORT_MIDI_INDICATORS
+config PROJECT_TARGET_SUPPORT_TRAFFIC_INDICATORS
     bool
-    default y if $(dt_path_enabled,$(OPENDECK_MIDI_INDICATORS_NODE))
+    default y if $(dt_path_enabled,$(OPENDECK_TRAFFIC_INDICATORS_NODE))
     help
-      Hidden symbol indicating MIDI traffic indicator support is present
-      on this target when the chosen MIDI indicators devicetree node
+      Hidden symbol indicating traffic indicator support is present
+      on this target when the chosen traffic indicators devicetree node
       exists.
 
 config PROJECT_TARGET_SUPPORT_USB_INDICATORS
     bool
-    default y if $(dt_path_enabled,$(OPENDECK_MIDI_INDICATORS_NODE)) && \
-             $(dt_node_has_prop,$(OPENDECK_MIDI_INDICATORS_NODE),usb_in_gpios) && \
-             $(dt_node_has_prop,$(OPENDECK_MIDI_INDICATORS_NODE),usb_out_gpios)
+    default y if $(dt_path_enabled,$(OPENDECK_TRAFFIC_INDICATORS_NODE)) && \
+             $(dt_node_has_prop,$(OPENDECK_TRAFFIC_INDICATORS_NODE),usb_in_gpios) && \
+             $(dt_node_has_prop,$(OPENDECK_TRAFFIC_INDICATORS_NODE),usb_out_gpios)
     help
-      Hidden symbol indicating USB MIDI traffic indicators are present.
+      Hidden symbol indicating USB traffic indicators are present.
 
 config PROJECT_TARGET_SUPPORT_DIN_INDICATORS
     bool
-    default y if $(dt_path_enabled,$(OPENDECK_MIDI_INDICATORS_NODE)) && \
-             $(dt_node_has_prop,$(OPENDECK_MIDI_INDICATORS_NODE),din_in_gpios) && \
-             $(dt_node_has_prop,$(OPENDECK_MIDI_INDICATORS_NODE),din_out_gpios)
+    default y if $(dt_path_enabled,$(OPENDECK_TRAFFIC_INDICATORS_NODE)) && \
+             $(dt_node_has_prop,$(OPENDECK_TRAFFIC_INDICATORS_NODE),din_in_gpios) && \
+             $(dt_node_has_prop,$(OPENDECK_TRAFFIC_INDICATORS_NODE),din_out_gpios)
     help
-      Hidden symbol indicating DIN MIDI traffic indicators are present.
+      Hidden symbol indicating DIN traffic indicators are present.
 
 config PROJECT_TARGET_SUPPORT_BLE_INDICATORS
     bool
-    default y if $(dt_path_enabled,$(OPENDECK_MIDI_INDICATORS_NODE)) && \
-             $(dt_node_has_prop,$(OPENDECK_MIDI_INDICATORS_NODE),ble_in_gpios) && \
-             $(dt_node_has_prop,$(OPENDECK_MIDI_INDICATORS_NODE),ble_out_gpios)
+    default y if $(dt_path_enabled,$(OPENDECK_TRAFFIC_INDICATORS_NODE)) && \
+             $(dt_node_has_prop,$(OPENDECK_TRAFFIC_INDICATORS_NODE),ble_in_gpios) && \
+             $(dt_node_has_prop,$(OPENDECK_TRAFFIC_INDICATORS_NODE),ble_out_gpios)
     help
-      Hidden symbol indicating BLE MIDI traffic indicators are present.
+      Hidden symbol indicating BLE traffic indicators are present.
+
+config PROJECT_TARGET_SUPPORT_NETWORK_INDICATORS
+    bool
+    default y if $(dt_path_enabled,$(OPENDECK_TRAFFIC_INDICATORS_NODE)) && \
+             $(dt_node_has_prop,$(OPENDECK_TRAFFIC_INDICATORS_NODE),network_in_gpios) && \
+             $(dt_node_has_prop,$(OPENDECK_TRAFFIC_INDICATORS_NODE),network_out_gpios)
+    help
+      Hidden symbol indicating network traffic indicators are present.
+
+config PROJECT_TARGET_SUPPORT_NETWORK
+    bool
+    default y if NETWORKING && NET_L2_ETHERNET
+    select FPU if CPU_HAS_FPU
+    select FPU_SHARING if CPU_HAS_FPU
+    select NET_IPV4
+    select NET_ARP
+    select NET_UDP
+    select NET_DHCPV4
+    select NET_DHCPV4_OPTION_CALLBACKS
+    select NET_SOCKETS
+    select NET_CONFIG_SETTINGS
+    select NET_CONFIG_NEED_IPV4
+    help
+      Hidden symbol indicating IP network support is present on this target when
+      Ethernet networking is enabled.
+
+config PROJECT_TARGET_SUPPORT_OSC
+    bool
+    default y if PROJECT_TARGET_SUPPORT_NETWORK
+    depends on PROJECT_TARGET_SUPPORT_NETWORK
+    help
+      Hidden symbol indicating OSC support is present on this target.
+
+config PROJECT_TARGET_SUPPORT_WEBCONFIG
+    bool
+    default y if PROJECT_TARGET_SUPPORT_NETWORK
+    depends on PROJECT_TARGET_SUPPORT_NETWORK
+    select NET_TCP
+    select HTTP_SERVER
+    select HTTP_SERVER_WEBSOCKET
+    help
+      Hidden symbol indicating WebSocket configuration support is present
+      on this target.
+
+config PROJECT_TARGET_SUPPORT_MDNS
+    bool
+    default y if PROJECT_TARGET_SUPPORT_WEBCONFIG
+    depends on PROJECT_TARGET_SUPPORT_NETWORK
+    select DNS_SD
+    select HWINFO
+    select MDNS_RESPONDER
+    select MDNS_RESPONDER_DNS_SD
+    select NET_HOSTNAME_DYNAMIC
+    select NET_HOSTNAME_ENABLE
+    help
+      Hidden symbol indicating mDNS and DNS-SD discovery support is present
+      on this target.
+
+config PROJECT_TARGET_SUPPORT_STAGED_UPDATE
+    bool
+    default y if $(dt_path_enabled,$(OPENDECK_STAGED_DFU_NODE))
+    help
+      Hidden symbol indicating staged DFU storage is present on this target.
 
 rsource "src/Kconfig"

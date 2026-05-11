@@ -62,9 +62,9 @@ namespace opendeck::database
          * @return Stored value, or zero on failure.
          */
         template<typename I>
-        uint32_t read([[maybe_unused]] Config::Section::Common section, I index)
+        uint32_t read(Config::Section::Common section, I index)
         {
-            return read_common_block(static_cast<size_t>(index));
+            return read_common_block(section, static_cast<size_t>(index));
         }
 
         /**
@@ -97,10 +97,9 @@ namespace opendeck::database
          * @return Always `true`; zero is returned on read failure.
          */
         template<typename I>
-        bool read([[maybe_unused]] Config::Section::Common section, I index, uint32_t& value)
+        bool read(Config::Section::Common section, I index, uint32_t& value)
         {
-            value = read_common_block(static_cast<size_t>(index));
-            return true;
+            return read_common_block(section, static_cast<size_t>(index), value);
         }
 
         /**
@@ -135,14 +134,15 @@ namespace opendeck::database
          * @return `true` on success, otherwise `false`.
          */
         template<typename I, typename V>
-        bool update([[maybe_unused]] Config::Section::Common section, I index, V value)
+        bool update(Config::Section::Common section, I index, V value)
         {
-            if (static_cast<uint8_t>(index) < static_cast<uint8_t>(Config::CommonSetting::CustomCommonSettingStart))
+            if ((section == Config::Section::Common::CommonSettings) &&
+                (static_cast<uint8_t>(index) < static_cast<uint8_t>(Config::CommonSetting::CustomCommonSettingStart)))
             {
                 return false;
             }
 
-            return update_common_block(static_cast<size_t>(index), value);
+            return update_common_block(section, static_cast<size_t>(index), value);
         }
 
         /**
@@ -407,7 +407,18 @@ namespace opendeck::database
          *
          * @return Stored value, or zero on failure.
          */
-        uint16_t read_common_block(size_t index);
+        uint16_t read_common_block(Config::Section::Common section, size_t index);
+
+        /**
+         * @brief Reads a value from a common-region section.
+         *
+         * @param section Common section selector.
+         * @param index   Setting index within the section.
+         * @param value   Output storage for the returned value.
+         *
+         * @return `true` on success, otherwise `false`.
+         */
+        bool read_common_block(Config::Section::Common section, size_t index, uint32_t& value);
 
         /**
          * @brief Reads a value from the active preset region.
@@ -478,7 +489,7 @@ namespace opendeck::database
          *
          * @return `true` on success, otherwise `false`.
          */
-        bool update_common_block(size_t index, uint16_t value);
+        bool update_common_block(Config::Section::Common section, size_t index, uint16_t value);
 
         /**
          * @brief Updates a value in the active preset region.

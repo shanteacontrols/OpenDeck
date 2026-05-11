@@ -14,6 +14,8 @@
 #include "io/i2c/peripherals/display/common.h"
 #include "io/touchscreen/common.h"
 #include "protocol/midi/midi.h"
+#include "protocol/mdns/common.h"
+#include "protocol/osc/common.h"
 #include "util/configurable/configurable.h"
 
 namespace
@@ -85,7 +87,8 @@ namespace
 
 TEST_F(DatabaseTest, ReadInitialValues)
 {
-    const auto expected_signature = static_cast<uint16_t>(database::AppLayout::preset_uid() ^
+    const auto expected_signature = static_cast<uint16_t>(database::AppLayout::common_uid() ^
+                                                          database::AppLayout::preset_uid() ^
                                                           static_cast<uint16_t>(OPENDECK_TARGET_UID) ^
                                                           static_cast<uint16_t>(_database.instance().supported_presets()));
 
@@ -121,6 +124,13 @@ TEST_F(DatabaseTest, ReadInitialValues)
             {
                 DB_READ_VERIFY(0, database::Config::Section::Global::MidiSettings, i);
             }
+        }
+
+        // OSC settings section
+        // all values should be set to 0 when OSC is not enabled for the test target
+        for (int i = 0; i < static_cast<uint8_t>(protocol::osc::Setting::Count); i++)
+        {
+            DB_READ_VERIFY(0, database::Config::Section::Global::OscSettings, i);
         }
 
         // button block
@@ -197,13 +207,6 @@ TEST_F(DatabaseTest, ReadInitialValues)
         for (size_t i = 0; i < io::encoders::Collection::size(); i++)
         {
             DB_READ_VERIFY(1, database::Config::Section::Encoder::Channel, i);
-        }
-
-        // pulses per step section
-        // all values should be set to 4
-        for (size_t i = 0; i < io::encoders::Collection::size(); i++)
-        {
-            DB_READ_VERIFY(4, database::Config::Section::Encoder::PulsesPerStep, i);
         }
 
         // lower limit section
@@ -450,6 +453,31 @@ TEST(DatabaseRegressionTest, InitWithMissingFactorySnapshotFallsBackToFactoryRes
                                         database::Config::CommonSetting::Uid,
                                         read_value));
     EXPECT_NE(0U, read_value);
+}
+
+TEST_F(DatabaseTest, CommonSectionsDoNotAlias)
+{
+    uint32_t common_value   = 0;
+    uint32_t hostname_value = 0;
+
+    ASSERT_TRUE(_database.instance().update(database::Config::Section::Common::CommonSettings,
+                                            database::Config::CommonSetting::CustomCommonSettingStart,
+                                            42));
+    ASSERT_TRUE(_database.instance().update(database::Config::Section::Common::MdnsHostname, 0, 'o'));
+
+    ASSERT_TRUE(_database.instance().read(database::Config::Section::Common::CommonSettings,
+                                          database::Config::CommonSetting::CustomCommonSettingStart,
+                                          common_value));
+    ASSERT_TRUE(_database.instance().read(database::Config::Section::Common::MdnsHostname, 0, hostname_value));
+
+    EXPECT_EQ(42U, common_value);
+    EXPECT_EQ(static_cast<uint32_t>('o'), hostname_value);
+
+    for (size_t i = 1; i < protocol::mdns::CUSTOM_HOSTNAME_DB_SIZE; i++)
+    {
+        ASSERT_TRUE(_database.instance().read(database::Config::Section::Common::MdnsHostname, i, hostname_value));
+        EXPECT_EQ(0U, hostname_value);
+    }
 }
 
 TEST_F(DatabaseTest, Presets)

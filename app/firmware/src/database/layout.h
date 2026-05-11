@@ -14,6 +14,8 @@
 #include "io/leds/common.h"
 #include "io/touchscreen/common.h"
 #include "protocol/midi/common.h"
+#include "protocol/mdns/common.h"
+#include "protocol/osc/common.h"
 
 #include <array>
 
@@ -88,16 +90,29 @@ namespace opendeck::database
          */
         static constexpr size_t supported_preset_count_for(uint32_t database_size)
         {
-            if ((preset_layout_size() == 0) || (database_size <= common_layout_size()))
+            const size_t preset_size = preset_layout_size();
+            const size_t common_size = common_layout_size();
+
+            if ((preset_size == 0) || (database_size <= common_size))
             {
                 return 0;
             }
 
-            const size_t available_presets = (database_size - common_layout_size()) / preset_layout_size();
+            const size_t available_presets = (database_size - common_size) / preset_size;
 
             return available_presets > CONFIG_PROJECT_DATABASE_MAX_SUPPORTED_PRESETS
                        ? CONFIG_PROJECT_DATABASE_MAX_SUPPORTED_PRESETS
                        : available_presets;
+        }
+
+        /**
+         * @brief Returns the UID of the common-data layout.
+         *
+         * @return Common-data layout UID.
+         */
+        static constexpr uint16_t common_uid()
+        {
+            return static_cast<uint16_t>(zlibs::utils::lessdb::LessDb::layout_uid(COMMON_LAYOUT));
         }
 
         /**
@@ -125,6 +140,13 @@ namespace opendeck::database
                 PreserveSetting::Disable,
                 AutoIncrementSetting::Disable,
                 0),
+            // MdnsHostname
+            Section(
+                static_cast<uint8_t>(protocol::mdns::CUSTOM_HOSTNAME_DB_SIZE),
+                SectionParameterType::Byte,
+                PreserveSetting::Disable,
+                AutoIncrementSetting::Disable,
+                0),
         });
 
         inline static constexpr auto GLOBAL_SECTIONS = zlibs::utils::lessdb::make_block(std::array{
@@ -132,6 +154,13 @@ namespace opendeck::database
             Section(
                 static_cast<uint8_t>(protocol::midi::Setting::Count),
                 SectionParameterType::Byte,
+                PreserveSetting::Disable,
+                AutoIncrementSetting::Disable,
+                0),
+            // OscSettings
+            Section(
+                static_cast<uint8_t>(protocol::osc::Setting::Count),
+                SectionParameterType::Word,
                 PreserveSetting::Disable,
                 AutoIncrementSetting::Disable,
                 0),
@@ -201,12 +230,6 @@ namespace opendeck::database
                     PreserveSetting::Disable,
                     AutoIncrementSetting::Disable,
                     1),
-            // PulsesPerStep
-            Section(io::encoders::Collection::size(),
-                    SectionParameterType::HalfByte,
-                    PreserveSetting::Disable,
-                    AutoIncrementSetting::Disable,
-                    4),
             // Acceleration
             Section(io::encoders::Collection::size(),
                     SectionParameterType::HalfByte,

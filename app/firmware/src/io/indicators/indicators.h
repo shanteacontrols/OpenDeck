@@ -14,12 +14,12 @@
 namespace opendeck::io::indicators
 {
     /**
-     * @brief Top-level subsystem that drives MIDI traffic and status indicators.
+     * @brief Top-level subsystem that drives transport traffic and status indicators.
      */
     class Indicators : public io::Base
     {
         public:
-        /** @brief Timeout used for transient MIDI traffic indications. */
+        /** @brief Timeout used for transient traffic indications. */
         static constexpr uint32_t TRAFFIC_INDICATOR_TIMEOUT_MS = 50;
         /** @brief Timeout used for factory-reset flashing. */
         static constexpr uint32_t FACTORY_RESET_INDICATOR_TIMEOUT_MS = 250;
@@ -56,15 +56,17 @@ namespace opendeck::io::indicators
         zlibs::utils::misc::KworkDelayable _din_out_off_work;
         zlibs::utils::misc::KworkDelayable _ble_in_off_work;
         zlibs::utils::misc::KworkDelayable _ble_out_off_work;
+        zlibs::utils::misc::KworkDelayable _network_in_off_work;
+        zlibs::utils::misc::KworkDelayable _network_out_off_work;
         bool                               _factory_reset_in_progress = false;
         bool                               _invert                    = false;
 
         /**
-         * @brief Handles one MIDI traffic notification.
+         * @brief Handles one traffic notification.
          *
-         * @param signal MIDI traffic event to visualize.
+         * @param signal Transport traffic event to visualize.
          */
-        void on_traffic(const signaling::MidiTrafficSignal& signal);
+        void on_traffic(const signaling::TrafficSignal& signal);
 
         /**
          * @brief Applies the idle state to one indicator.
@@ -95,12 +97,12 @@ namespace opendeck::io::indicators
         /**
          * @brief Maps transport and direction to a concrete indicator output.
          *
-         * @param transport MIDI transport that carried the message.
-         * @param direction Direction of the MIDI message.
+         * @param transport Transport that carried the traffic.
+         * @param direction Direction of the traffic.
          *
          * @return Indicator type that represents the traffic source.
          */
-        Type indicator_type(signaling::MidiTransport transport, signaling::MidiDirection direction);
+        Type indicator_type(signaling::TrafficTransport transport, signaling::SignalDirection direction);
 
         /**
          * @brief Sets the state of all input indicators.

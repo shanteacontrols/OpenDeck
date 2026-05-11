@@ -25,15 +25,15 @@ using namespace opendeck::protocol;
 namespace
 {
     LOG_MODULE_REGISTER(analog, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
-
-    constexpr uint16_t RESET_ANALOG_VALUE = 0xFFFF;
 }    // namespace
 
 Analog::Analog(Hwa&      hwa,
                Filter&   filter,
+               Mapper&   mapper,
                Database& database)
     : _hwa(hwa)
     , _filter(filter)
+    , _mapper(mapper)
     , _database(database)
     , _thread([&]()
               {
@@ -147,13 +147,20 @@ void Analog::force_refresh(size_t start_index, size_t count)
     {
         if (_database.read(database::Config::Section::Analog::Enable, i))
         {
-            Descriptor descriptor;
-            fill_descriptor(i, descriptor);
+            Filter::Descriptor filter_descriptor = {};
+            fill_filter_descriptor(i, filter_descriptor);
 
-            descriptor.new_value = _last_value[i];
-            descriptor.old_value = _last_value[i];
-
-            send_message(i, descriptor, true);
+            if (const auto result = _mapper.last_result(i); result.has_value())
+            {
+                if (filter_descriptor.type == Type::Button)
+                {
+                    publish_button(result.value(), true);
+                }
+                else
+                {
+                    publish_result(result.value(), true);
+                }
+            }
         }
     }
 }
@@ -191,67 +198,46 @@ void Analog::process_reading(size_t index, uint16_t value)
         return;
     }
 
-    Descriptor         analog_descriptor;
-    Filter::Descriptor filter_descriptor;
+    Filter::Descriptor filter_descriptor = {};
+    fill_filter_descriptor(index, filter_descriptor);
 
-    fill_descriptor(index, analog_descriptor);
-
-    filter_descriptor.type         = analog_descriptor.type;
-    filter_descriptor.value        = value;
-    filter_descriptor.lower_offset = analog_descriptor.lower_offset;
-    filter_descriptor.upper_offset = analog_descriptor.upper_offset;
-    filter_descriptor.max_value    = analog_descriptor.max_value;
-
+    filter_descriptor.value = value;
     if (!_filter.is_filtered(index, filter_descriptor))
     {
         return;
     }
 
-    // assumption for now
-    analog_descriptor.new_value = filter_descriptor.value;
-    analog_descriptor.old_value = _last_value[index];
+    const auto position = filter_descriptor.value;
+    const auto result   = _mapper.result(index, position);
 
-    bool send = false;
-
-    switch (analog_descriptor.type)
+    switch (filter_descriptor.type)
     {
     case Type::PotentiometerControlChange:
     case Type::PotentiometerNote:
+    case Type::Fsr:
     case Type::Nrpn7Bit:
     case Type::Nrpn14Bit:
     case Type::PitchBend:
     case Type::ControlChange14Bit:
     {
-        if (check_potentiometer_value(index, analog_descriptor))
+        if (result.has_value())
         {
-            send = true;
-        }
-    }
-    break;
-
-    case Type::Fsr:
-    {
-        if (check_fsr_value(index, analog_descriptor))
-        {
-            send = true;
+            publish_result(result.value());
         }
     }
     break;
 
     case Type::Button:
     {
-        send = true;
+        if (result.has_value())
+        {
+            publish_button(result.value());
+        }
     }
     break;
 
     default:
         break;
-    }
-
-    if (send)
-    {
-        send_message(index, analog_descriptor);
-        _last_value[index] = analog_descriptor.new_value;
     }
 }
 
@@ -277,226 +263,62 @@ void Analog::update_scan_mask()
     _hwa.set_scan_mask(mask);
 }
 
-bool Analog::check_potentiometer_value([[maybe_unused]] size_t index, Descriptor& descriptor)
-{
-    switch (descriptor.type)
-    {
-    case Type::Nrpn14Bit:
-    case Type::PitchBend:
-    case Type::ControlChange14Bit:
-        break;
-
-    default:
-    {
-        // use 7-bit MIDI ID and limits
-        auto split_index        = util::Conversion::Split14Bit(descriptor.signal.index);
-        descriptor.signal.index = split_index.low();
-
-        auto split_lower_limit = util::Conversion::Split14Bit(descriptor.lower_limit);
-        descriptor.lower_limit = split_lower_limit.low();
-
-        auto split_upper_limit = util::Conversion::Split14Bit(descriptor.upper_limit);
-        descriptor.upper_limit = split_upper_limit.low();
-    }
-    break;
-    }
-
-    if (descriptor.new_value > descriptor.max_value)
-    {
-        return false;
-    }
-
-    auto scale = [&](uint16_t value)
-    {
-        uint32_t scaled = 0;
-
-        if (descriptor.lower_limit > descriptor.upper_limit)
-        {
-            scaled = zlibs::utils::misc::map_range(static_cast<uint32_t>(value),
-                                                   static_cast<uint32_t>(0),
-                                                   static_cast<uint32_t>(descriptor.max_value),
-                                                   static_cast<uint32_t>(descriptor.upper_limit),
-                                                   static_cast<uint32_t>(descriptor.lower_limit));
-
-            if (!descriptor.inverted)
-            {
-                scaled = descriptor.upper_limit - (scaled - descriptor.lower_limit);
-            }
-        }
-        else
-        {
-            scaled = zlibs::utils::misc::map_range(static_cast<uint32_t>(value),
-                                                   static_cast<uint32_t>(0),
-                                                   static_cast<uint32_t>(descriptor.max_value),
-                                                   static_cast<uint32_t>(descriptor.lower_limit),
-                                                   static_cast<uint32_t>(descriptor.upper_limit));
-
-            if (descriptor.inverted)
-            {
-                scaled = descriptor.upper_limit - (scaled - descriptor.lower_limit);
-            }
-        }
-
-        return scaled;
-    };
-
-    auto scaled = scale(descriptor.new_value);
-
-    if (scaled == descriptor.old_value)
-    {
-        return false;
-    }
-
-    descriptor.new_value = scaled;
-
-    return true;
-}
-
-bool Analog::check_fsr_value(size_t index, Descriptor& descriptor)
-{
-    // don't allow touchscreen components to be processed as Fsr
-    if (index >= Collection::size(GroupAnalogInputs))
-    {
-        return false;
-    }
-
-    if (descriptor.new_value > 0)
-    {
-        if (!fsr_state(index))
-        {
-            // sensor is really pressed
-            set_fsr_state(index, true);
-            return true;
-        }
-    }
-    else
-    {
-        if (fsr_state(index))
-        {
-            set_fsr_state(index, false);
-            return true;
-        }
-    }
-
-    return false;
-}
-
-void Analog::send_message([[maybe_unused]] size_t index, Descriptor& descriptor, bool ignore_freeze)
+void Analog::publish_result(const Mapper::Result& result, bool ignore_freeze)
 {
     if (is_frozen() && !ignore_freeze)
     {
         return;
     }
 
-    descriptor.signal.value = descriptor.new_value;
-
-    auto send_analog = [&]()
+    if (result.osc.has_value())
     {
-        descriptor.signal.source = signaling::MidiSource::Analog;
-        signaling::publish(descriptor.signal);
-    };
-
-    switch (descriptor.type)
-    {
-    case Type::PotentiometerControlChange:
-    case Type::PotentiometerNote:
-    case Type::PitchBend:
-    case Type::Nrpn7Bit:
-    case Type::Nrpn14Bit:
-    {
-        send_analog();
+        signaling::publish(*result.osc);
     }
-    break;
 
-    case Type::Fsr:
+    if (result.midi.has_value())
     {
-        if (!descriptor.new_value)
-        {
-            descriptor.signal.message = midi::MessageType::NoteOff;
-        }
-
-        send_analog();
-    }
-    break;
-
-    case Type::Button:
-    {
-        signaling::MidiSignal signal = {};
-        signal.source                = signaling::MidiSource::AnalogButton;
-        signal.component_index       = descriptor.signal.component_index;
-        signal.value                 = descriptor.signal.value;
-
-        signaling::publish(signal);
-    }
-    break;
-
-    case Type::ControlChange14Bit:
-    {
-        if (descriptor.signal.index >= midi::CONTROL_CHANGE_14BIT_MAX_INDEX)
-        {
-            // not allowed
-            return;
-        }
-
-        send_analog();
-    }
-    break;
-
-    default:
-        break;
+        signaling::publish(*result.midi);
     }
 }
 
 void Analog::reset(size_t index)
 {
-    set_fsr_state(index, false);
     _filter.reset(index);
-    _last_value[index] = RESET_ANALOG_VALUE;
+    _mapper.reset(index);
 }
 
-void Analog::set_fsr_state(size_t index, bool state)
+void Analog::fill_filter_descriptor(size_t index, Filter::Descriptor& filter_descriptor)
 {
-    const auto location = io::common::bit_storage_location<STATE_STORAGE_DIVISOR>(index);
-
-    zlibs::utils::misc::bit_write(_fsr_pressed[location.array_index], location.bit_index, state);
+    filter_descriptor.type         = static_cast<Type>(_database.read(database::Config::Section::Analog::Type, index));
+    filter_descriptor.lower_offset = _database.read(database::Config::Section::Analog::LowerOffset, index);
+    filter_descriptor.upper_offset = _database.read(database::Config::Section::Analog::UpperOffset, index);
 }
 
-bool Analog::fsr_state(size_t index)
+void Analog::publish_button(const Mapper::Result& result, bool ignore_freeze)
 {
-    const auto location = io::common::bit_storage_location<STATE_STORAGE_DIVISOR>(index);
-
-    return zlibs::utils::misc::bit_read(_fsr_pressed[location.array_index], location.bit_index);
-}
-
-void Analog::fill_descriptor(size_t index, Descriptor& descriptor)
-{
-    descriptor.type                   = static_cast<Type>(_database.read(database::Config::Section::Analog::Type, index));
-    descriptor.inverted               = _database.read(database::Config::Section::Analog::Invert, index);
-    descriptor.lower_limit            = _database.read(database::Config::Section::Analog::LowerLimit, index);
-    descriptor.upper_limit            = _database.read(database::Config::Section::Analog::UpperLimit, index);
-    descriptor.lower_offset           = _database.read(database::Config::Section::Analog::LowerOffset, index);
-    descriptor.upper_offset           = _database.read(database::Config::Section::Analog::UpperOffset, index);
-    descriptor.signal.component_index = index;
-    descriptor.signal.channel         = _database.read(database::Config::Section::Analog::Channel, index);
-    descriptor.signal.index           = _database.read(database::Config::Section::Analog::MidiId, index);
-    descriptor.signal.message         = INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(descriptor.type)];
-
-    switch (descriptor.type)
+    if (is_frozen() && !ignore_freeze)
     {
-    case Type::Nrpn14Bit:
-    case Type::PitchBend:
-    case Type::ControlChange14Bit:
-    {
-        descriptor.max_value = midi::MAX_VALUE_14BIT;
+        return;
     }
-    break;
 
-    default:
+    if (!result.midi.has_value())
     {
-        descriptor.max_value = midi::MAX_VALUE_7BIT;
+        return;
     }
-    break;
-    }
+
+    signaling::MidiIoSignal signal = {};
+    signal.source                  = signaling::IoEventSource::AnalogButton;
+    signal.component_index         = result.midi->component_index;
+    signal.value                   = result.midi->value;
+
+    signaling::publish(signaling::OscIoSignal{
+        .source          = signaling::IoEventSource::AnalogButton,
+        .component_index = signal.component_index,
+        .int32_value     = static_cast<int32_t>(signal.value),
+        .direction       = signaling::SignalDirection::Out,
+    });
+
+    signaling::publish(signal);
 }
 
 std::optional<uint8_t> Analog::sys_config_get(sys::Config::Section::Analog section, size_t index, uint16_t& value)
@@ -532,13 +354,8 @@ std::optional<uint8_t> Analog::sys_config_set(sys::Config::Section::Analog secti
     case sys::Config::Section::Analog::Reserved3:
         return sys::Config::Status::ErrorNotSupported;
 
-    case sys::Config::Section::Analog::Type:
-    {
-        reset(index);
-    }
-    break;
-
     case sys::Config::Section::Analog::Enable:
+    case sys::Config::Section::Analog::Type:
     {
         reset(index);
     }

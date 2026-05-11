@@ -73,8 +73,8 @@
         i2c = <&opendeck_i2c_display>;
     };
 
-    opendeck_midi_indicators: opendeck-midi-indicators {
-        compatible = "opendeck,midi-indicators";
+    opendeck_traffic_indicators: opendeck-traffic-indicators {
+        compatible = "opendeck,traffic-indicators";
         usb-in-gpios = <&gpioc 13 GPIO_ACTIVE_LOW>;
         usb-out-gpios = <&gpioc 13 GPIO_ACTIVE_LOW>;
         din-in-gpios = <&gpioc 13 GPIO_ACTIVE_LOW>;

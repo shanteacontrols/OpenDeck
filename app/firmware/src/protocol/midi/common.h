@@ -15,6 +15,11 @@
 
 namespace opendeck::protocol::midi
 {
+    /**
+     * @brief Maximum number of UMP packets accumulated before a USB burst is flushed.
+     */
+    static constexpr size_t USB_UMP_BURST_PACKET_COUNT = 64;
+
     /** @brief USB transport type alias used by the MIDI subsystem. */
     using Usb = zlibs::utils::midi::usb::Usb;
     /** @brief BLE transport type alias used by the MIDI subsystem. */

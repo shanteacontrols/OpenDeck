@@ -9,6 +9,7 @@
 #include "drivers/driver.h"
 #include "filter_hw.h"
 #include "hwa_hw.h"
+#include "mapper.h"
 #include "database/builder.h"
 
 namespace opendeck::io::analog
@@ -27,7 +28,8 @@ namespace opendeck::io::analog
         explicit Builder(database::Admin& database)
             : _database(database)
             , _hwa(_driver)
-            , _instance(_hwa, _filter, _database)
+            , _mapper(_database)
+            , _instance(_hwa, _filter, _mapper, _database)
         {}
 
         /**
@@ -41,10 +43,11 @@ namespace opendeck::io::analog
         }
 
         private:
-        Database                           _database;
-        Driver                             _driver;
-        HwaHw                              _hwa;
-        FilterHw<OPENDECK_ANALOG_ADC_BITS> _filter;
-        Analog                             _instance;
+        Database _database;
+        Driver   _driver;
+        HwaHw    _hwa;
+        FilterHw _filter;
+        Mapper   _mapper;
+        Analog   _instance;
     };
 }    // namespace opendeck::io::analog

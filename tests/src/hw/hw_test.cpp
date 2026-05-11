@@ -373,7 +373,6 @@ TEST_F(HWTest, DatabaseInitialValues)
         ASSERT_EQ(0, _helper.database_read_from_system_via_sysex(sys::Config::Section::Encoder::Mode, i));
         ASSERT_EQ(i, _helper.database_read_from_system_via_sysex(sys::Config::Section::Encoder::MidiId1, i));
         ASSERT_EQ(1, _helper.database_read_from_system_via_sysex(sys::Config::Section::Encoder::Channel, i));
-        ASSERT_EQ(4, _helper.database_read_from_system_via_sysex(sys::Config::Section::Encoder::PulsesPerStep, i));
         ASSERT_EQ(0, _helper.database_read_from_system_via_sysex(sys::Config::Section::Encoder::LowerLimit, i));
         ASSERT_EQ(16383, _helper.database_read_from_system_via_sysex(sys::Config::Section::Encoder::UpperLimit, i));
         ASSERT_EQ(127, _helper.database_read_from_system_via_sysex(sys::Config::Section::Encoder::RepeatedValue, i));

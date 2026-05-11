@@ -100,13 +100,21 @@ System::System(Hwa& hwa)
     signaling::subscribe<signaling::UmpSignal>(
         [this](const signaling::UmpSignal& event)
         {
-            if (event.direction != signaling::MidiDirection::In)
+            if (event.direction != signaling::SignalDirection::In)
             {
                 return;
             }
 
             if (zlibs::utils::midi::is_sysex7_packet(event.packet))
             {
+                if (!can_accept_config_transport(signaling::ConfigTransport::Usb))
+                {
+                    LOG_WRN_ONCE("Ignoring USB SysEx config request while another config session is active");
+                    return;
+                }
+
+                _config_transport = signaling::ConfigTransport::Usb;
+
                 // Keep the previous session state so ConnOpen/ConnClose transitions can be detected.
                 const bool was_configuration_enabled = _sysex_conf.is_configuration_enabled();
 
@@ -129,6 +137,12 @@ System::System(Hwa& hwa)
             {
                 _hwa.database().set_preset(message.data1);
             }
+        });
+
+    signaling::subscribe<signaling::ConfigRequestSignal>(
+        [this](const signaling::ConfigRequestSignal& request)
+        {
+            handle_config_request(request);
         });
 
     signaling::subscribe<signaling::SystemSignal>(
@@ -683,7 +697,7 @@ void System::force_component_refresh()
 
 bool System::SysExDataHandler::send_response(const midi_ump& packet)
 {
-    return signaling::publish(signaling::UsbUmpBurstSignal{ .packet = packet });
+    return _system.send_config_response(packet);
 }
 
 zlibs::utils::sysex_conf::Status System::SysExDataHandler::custom_request(uint16_t request, CustomResponse& custom_response)
@@ -951,6 +965,72 @@ void System::close_inactive_sysex_configuration_session()
 
     _sysex_conf.close_connection();
     publish_configuration_session_state(signaling::SystemEvent::ConfigurationSessionClosed);
+}
+
+bool System::can_accept_config_transport(signaling::ConfigTransport transport)
+{
+    const bool session_active = _sysex_conf.is_configuration_enabled() ||
+                                (_backup_restore_state != BackupRestoreState::None);
+
+    return !session_active || (_config_transport == transport);
+}
+
+void System::handle_config_request(const signaling::ConfigRequestSignal& request)
+{
+    static constexpr size_t SYSEX_MIN_FRAME_SIZE = 2;
+
+    if ((request.data.size() < SYSEX_MIN_FRAME_SIZE) ||
+        (request.data.front() != zlibs::utils::midi::SYS_EX_START) ||
+        (request.data.back() != zlibs::utils::midi::SYS_EX_END))
+    {
+        LOG_WRN_ONCE("Ignoring malformed config SysEx frame");
+        return;
+    }
+
+    if (!can_accept_config_transport(request.transport))
+    {
+        LOG_WRN_ONCE("Ignoring WebConfig SysEx request while another config session is active");
+        return;
+    }
+
+    _config_transport = request.transport;
+
+    const bool was_configuration_enabled = _sysex_conf.is_configuration_enabled();
+    const auto payload                   = request.data.subspan(1, request.data.size() - SYSEX_MIN_FRAME_SIZE);
+    const bool sent                      = zlibs::utils::midi::write_sysex7_payload_as_ump_packets(
+        zlibs::utils::midi::DEFAULT_RX_GROUP,
+        payload,
+        [this](const midi_ump& packet)
+        {
+            if (_backup_restore_state == BackupRestoreState::Restore)
+            {
+                return queue_restore_packet(packet);
+            }
+
+            _sysex_conf.handle_packet(packet);
+            return true;
+        });
+
+    if (!sent)
+    {
+        LOG_WRN_ONCE("Failed to process config SysEx frame");
+        return;
+    }
+
+    update_sysex_configuration_session(was_configuration_enabled);
+}
+
+bool System::send_config_response(const midi_ump& packet)
+{
+    if (_config_transport == signaling::ConfigTransport::WebConfig)
+    {
+        return signaling::publish(signaling::ConfigResponseSignal{
+            .transport = signaling::ConfigTransport::WebConfig,
+            .packet    = packet,
+        });
+    }
+
+    return signaling::publish(signaling::UsbUmpBurstSignal{ .packet = packet });
 }
 
 void System::publish_configuration_session_state(signaling::SystemEvent event)

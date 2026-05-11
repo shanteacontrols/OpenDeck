@@ -132,9 +132,17 @@
             label = "code-partition";
             reg = <0x0000c000 0x00069000>;
         };
+
+        dfu_storage_partition: partition@75000 {
+            compatible = "zephyr,mapped-partition";
+            label = "dfu-storage";
+            reg = <0x00075000 0x00001000>;
+        };
     };
 };
 
 opendeck_partition_boot: &boot_partition {};
 
 opendeck_partition_app: &code_partition {};
+
+opendeck_partition_staged_dfu: &dfu_storage_partition {};

@@ -24,8 +24,14 @@
         code_partition: partition@20000 {
             compatible = "zephyr,mapped-partition";
             label = "code-partition";
-            reg = <0x00020000 0x00180000>;
+            reg = <0x00020000 0x00080000>;
             read-only;
+        };
+
+        dfu_storage_partition: partition@a0000 {
+            compatible = "zephyr,mapped-partition";
+            label = "dfu-storage";
+            reg = <0x000a0000 0x00080000>;
         };
 
         factory_partition: partition@1a0000 {
@@ -83,3 +89,5 @@
 opendeck_partition_boot: &boot_partition {};
 
 opendeck_partition_app: &code_partition {};
+
+opendeck_partition_staged_dfu: &dfu_storage_partition {};

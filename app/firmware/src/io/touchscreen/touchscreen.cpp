@@ -6,6 +6,7 @@
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_TOUCHSCREEN
 
 #include "touchscreen.h"
+#include "io/leds/common.h"
 #include "util/conversion/conversion.h"
 #include "util/configurable/configurable.h"
 
@@ -44,15 +45,39 @@ Touchscreen::Touchscreen(Hwa&      hwa,
 {
     k_sem_init(&_update_semaphore, 0, K_SEM_MAX_LIMIT);
 
-    signaling::subscribe<signaling::TouchscreenLedSignal>(
-        [this](const signaling::TouchscreenLedSignal& signal)
+    signaling::subscribe<signaling::OscIoSignal>(
+        [this](const signaling::OscIoSignal& signal)
         {
             if (is_frozen())
             {
                 return;
             }
 
-            set_icon_state(signal.component_index, signal.value);
+            if (signal.source != signaling::IoEventSource::Led)
+            {
+                return;
+            }
+
+            if (signal.direction != signaling::SignalDirection::Out)
+            {
+                return;
+            }
+
+            constexpr size_t TOUCHSCREEN_LED_START = leds::Collection::start_index(leds::GroupTouchscreenComponents);
+
+            if (signal.component_index < TOUCHSCREEN_LED_START)
+            {
+                return;
+            }
+
+            const size_t touchscreen_index = signal.component_index - TOUCHSCREEN_LED_START;
+
+            if (touchscreen_index >= Collection::size())
+            {
+                return;
+            }
+
+            set_icon_state(touchscreen_index, signal.int32_value.value_or(0) != 0);
             request_update();
         });
 
@@ -365,18 +390,18 @@ Model* Touchscreen::model_instance(ModelType model)
 
 void Touchscreen::button_handler(size_t index, bool state)
 {
-    signaling::MidiSignal signal = {};
-    signal.source                = signaling::MidiSource::TouchscreenButton;
-    signal.component_index       = index;
-    signal.value                 = state;
+    signaling::MidiIoSignal signal = {};
+    signal.source                  = signaling::IoEventSource::TouchscreenButton;
+    signal.component_index         = index;
+    signal.value                   = state;
 
     signaling::publish(signal);
 }
 
 void Touchscreen::screen_change_handler(size_t index)
 {
-    signaling::TouchscreenScreenSignal signal = {};
-    signal.component_index                    = index;
+    signaling::TouchscreenScreenChangedSignal signal = {};
+    signal.screen_index                              = index;
 
     signaling::publish(signal);
 }

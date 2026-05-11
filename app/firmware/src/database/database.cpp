@@ -49,7 +49,7 @@ bool database::Admin::init(Handlers& handlers)
         return false;
     }
 
-    constexpr uint32_t common_layout_size = AppLayout::common_layout_size();
+    constexpr uint32_t COMMON_LAYOUT_SIZE = AppLayout::common_layout_size();
 
     if (!LessDb::set_layout(AppLayout::common_layout()))
     {
@@ -57,7 +57,7 @@ bool database::Admin::init(Handlers& handlers)
         return false;
     }
 
-    _preset_data_start_address = common_layout_size;
+    _preset_data_start_address = COMMON_LAYOUT_SIZE;
     _active_context            = Context::Common;
 
     if (!LessDb::set_layout(AppLayout::preset_layout(), _preset_data_start_address))
@@ -180,7 +180,8 @@ bool database::Admin::factory_reset()
 
 bool database::Admin::load_stored_preset_state()
 {
-    _active_preset = read_common_block(static_cast<size_t>(Config::CommonSetting::ActivePreset));
+    _active_preset = read_common_block(Config::Section::Common::CommonSettings,
+                                       static_cast<size_t>(Config::CommonSetting::ActivePreset));
 
     if (preset_preserve_state())
     {
@@ -257,7 +258,8 @@ bool database::Admin::set_preset(uint8_t preset)
         return false;
     }
 
-    auto ret_val = update_common_block(static_cast<size_t>(Config::CommonSetting::ActivePreset),
+    auto ret_val = update_common_block(Config::Section::Common::CommonSettings,
+                                       static_cast<size_t>(Config::CommonSetting::ActivePreset),
                                        preset);
 
     if (ret_val)
@@ -332,32 +334,38 @@ uint8_t database::Admin::supported_presets()
 
 bool database::Admin::set_preset_preserve_state(bool state)
 {
-    return update_common_block(static_cast<size_t>(Config::CommonSetting::PresetPreserve),
+    return update_common_block(Config::Section::Common::CommonSettings,
+                               static_cast<size_t>(Config::CommonSetting::PresetPreserve),
                                state);
 }
 
 bool database::Admin::preset_preserve_state()
 {
-    return read_common_block(static_cast<size_t>(Config::CommonSetting::PresetPreserve));
+    return read_common_block(Config::Section::Common::CommonSettings,
+                             static_cast<size_t>(Config::CommonSetting::PresetPreserve));
 }
 
 bool database::Admin::is_signature_valid()
 {
-    uint16_t stored_signature = read_common_block(static_cast<size_t>(Config::CommonSetting::Uid));
+    uint16_t stored_signature = read_common_block(Config::Section::Common::CommonSettings,
+                                                  static_cast<size_t>(Config::CommonSetting::Uid));
 
     return signature() == stored_signature;
 }
 
 uint16_t database::Admin::signature() const
 {
-    return static_cast<uint16_t>(AppLayout::preset_uid() ^
+    return static_cast<uint16_t>(AppLayout::common_uid() ^
+                                 AppLayout::preset_uid() ^
                                  static_cast<uint16_t>(OPENDECK_TARGET_UID) ^
                                  static_cast<uint16_t>(_supported_presets));
 }
 
 bool database::Admin::set_signature()
 {
-    return update_common_block(static_cast<size_t>(Config::CommonSetting::Uid), signature());
+    return update_common_block(Config::Section::Common::CommonSettings,
+                               static_cast<size_t>(Config::CommonSetting::Uid),
+                               signature());
 }
 
 std::optional<uint8_t> database::Admin::sys_config_get(sys::Config::Section::Global section, size_t index, uint16_t& value)
@@ -449,7 +457,7 @@ std::optional<uint8_t> database::Admin::sys_config_set(sys::Config::Section::Glo
     return result;
 }
 
-uint16_t database::Admin::read_common_block(size_t index)
+uint16_t database::Admin::read_common_block(Config::Section::Common section, size_t index)
 {
     if (!select_common())
     {
@@ -457,12 +465,32 @@ uint16_t database::Admin::read_common_block(size_t index)
     }
 
     return LessDb::read(0,
-                        static_cast<uint8_t>(Config::Section::Common::CommonSettings),
+                        static_cast<uint8_t>(section),
                         index)
         .value_or(0);
 }
 
-bool database::Admin::update_common_block(size_t index, uint16_t value)
+bool database::Admin::read_common_block(Config::Section::Common section, size_t index, uint32_t& value)
+{
+    if (!select_common())
+    {
+        return false;
+    }
+
+    auto read_value = LessDb::read(0,
+                                   static_cast<uint8_t>(section),
+                                   index);
+
+    if (!read_value)
+    {
+        return false;
+    }
+
+    value = *read_value;
+    return true;
+}
+
+bool database::Admin::update_common_block(Config::Section::Common section, size_t index, uint16_t value)
 {
     if (!select_common())
     {
@@ -470,7 +498,7 @@ bool database::Admin::update_common_block(size_t index, uint16_t value)
     }
 
     return LessDb::update(0,
-                          static_cast<uint8_t>(Config::Section::Common::CommonSettings),
+                          static_cast<uint8_t>(section),
                           index,
                           value);
 }

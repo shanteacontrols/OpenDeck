@@ -13,6 +13,8 @@
 #include "io/i2c/peripherals/display/common.h"
 #include "io/touchscreen/common.h"
 #include "protocol/midi/common.h"
+#include "protocol/mdns/common.h"
+#include "protocol/osc/common.h"
 #include "system/config.h"
 
 namespace opendeck::sys
@@ -23,7 +25,7 @@ namespace opendeck::sys
     class Layout
     {
         private:
-        static constexpr size_t GLOBAL_SECTION_COUNT      = 3;
+        static constexpr size_t GLOBAL_SECTION_COUNT      = 5;
         static constexpr size_t BUTTON_SECTION_COUNT      = 5;
         static constexpr size_t ENCODER_SECTION_COUNT     = 13;
         static constexpr size_t ANALOG_SECTION_COUNT      = 12;
@@ -55,6 +57,16 @@ namespace opendeck::sys
             zlibs::utils::sysex_conf::Section(static_cast<uint16_t>(Config::SystemSetting::Count),
                                               0,
                                               0),
+
+            // OSC settings section
+            zlibs::utils::sysex_conf::Section(static_cast<uint16_t>(protocol::osc::Setting::Count),
+                                              0,
+                                              0),
+
+            // mDNS hostname byte section
+            zlibs::utils::sysex_conf::Section(static_cast<uint16_t>(protocol::mdns::CUSTOM_HOSTNAME_DB_SIZE),
+                                              0,
+                                              255),
         });
 
         static constexpr auto BUTTON_SECTIONS = zlibs::utils::sysex_conf::make_block(std::array<zlibs::utils::sysex_conf::Section, BUTTON_SECTION_COUNT>{
@@ -110,10 +122,10 @@ namespace opendeck::sys
                                               1,
                                               17),
 
-            // pulses per step section
+            // unused, reserved for compatibility
             zlibs::utils::sysex_conf::Section(io::encoders::Collection::size(),
-                                              2,
-                                              4),
+                                              0,
+                                              127),
 
             // acceleration section
             zlibs::utils::sysex_conf::Section(io::encoders::Collection::size(),

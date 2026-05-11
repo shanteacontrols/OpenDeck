@@ -20,6 +20,8 @@ namespace opendeck::io::indicators
         DinOut,
         BleIn,
         BleOut,
+        NetworkIn,
+        NetworkOut,
         All,
     };
 }    // namespace opendeck::io::indicators

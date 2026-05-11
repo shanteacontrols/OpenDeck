@@ -42,9 +42,17 @@ Indicators::Indicators(Hwa& hwa)
                         {
                             set_idle(Type::BleOut);
                         })
+    , _network_in_off_work([this]()
+                           {
+                               set_idle(Type::NetworkIn);
+                           })
+    , _network_out_off_work([this]()
+                            {
+                                set_idle(Type::NetworkOut);
+                            })
 {
-    signaling::subscribe<signaling::MidiTrafficSignal>(
-        [this](const signaling::MidiTrafficSignal& signal)
+    signaling::subscribe<signaling::TrafficSignal>(
+        [this](const signaling::TrafficSignal& signal)
         {
             on_traffic(signal);
         });
@@ -122,7 +130,7 @@ void Indicators::shutdown()
     _hwa.off(Type::All);
 }
 
-void Indicators::on_traffic(const signaling::MidiTrafficSignal& signal)
+void Indicators::on_traffic(const signaling::TrafficSignal& signal)
 {
     if (_factory_reset_in_progress)
     {
@@ -199,6 +207,18 @@ void Indicators::schedule_idle(Type type)
     }
     break;
 
+    case Type::NetworkIn:
+    {
+        _network_in_off_work.reschedule(TRAFFIC_INDICATOR_TIMEOUT_MS);
+    }
+    break;
+
+    case Type::NetworkOut:
+    {
+        _network_out_off_work.reschedule(TRAFFIC_INDICATOR_TIMEOUT_MS);
+    }
+    break;
+
     case Type::All:
     default:
         break;
@@ -213,20 +233,25 @@ void Indicators::cancel_idle_work()
     _din_out_off_work.cancel();
     _ble_in_off_work.cancel();
     _ble_out_off_work.cancel();
+    _network_in_off_work.cancel();
+    _network_out_off_work.cancel();
 }
 
-Type Indicators::indicator_type(signaling::MidiTransport transport, signaling::MidiDirection direction)
+Type Indicators::indicator_type(signaling::TrafficTransport transport, signaling::SignalDirection direction)
 {
     switch (transport)
     {
-    case signaling::MidiTransport::Usb:
-        return direction == signaling::MidiDirection::In ? Type::UsbIn : Type::UsbOut;
+    case signaling::TrafficTransport::Usb:
+        return direction == signaling::SignalDirection::In ? Type::UsbIn : Type::UsbOut;
 
-    case signaling::MidiTransport::Din:
-        return direction == signaling::MidiDirection::In ? Type::DinIn : Type::DinOut;
+    case signaling::TrafficTransport::Din:
+        return direction == signaling::SignalDirection::In ? Type::DinIn : Type::DinOut;
 
-    case signaling::MidiTransport::Ble:
-        return direction == signaling::MidiDirection::In ? Type::BleIn : Type::BleOut;
+    case signaling::TrafficTransport::Ble:
+        return direction == signaling::SignalDirection::In ? Type::BleIn : Type::BleOut;
+
+    case signaling::TrafficTransport::Network:
+        return direction == signaling::SignalDirection::In ? Type::NetworkIn : Type::NetworkOut;
 
     default:
         return Type::All;
@@ -240,12 +265,14 @@ void Indicators::set_input_indicators(bool state)
         _hwa.on(Type::UsbIn);
         _hwa.on(Type::DinIn);
         _hwa.on(Type::BleIn);
+        _hwa.on(Type::NetworkIn);
     }
     else
     {
         _hwa.off(Type::UsbIn);
         _hwa.off(Type::DinIn);
         _hwa.off(Type::BleIn);
+        _hwa.off(Type::NetworkIn);
     }
 }
 
@@ -256,12 +283,14 @@ void Indicators::set_output_indicators(bool state)
         _hwa.on(Type::UsbOut);
         _hwa.on(Type::DinOut);
         _hwa.on(Type::BleOut);
+        _hwa.on(Type::NetworkOut);
     }
     else
     {
         _hwa.off(Type::UsbOut);
         _hwa.off(Type::DinOut);
         _hwa.off(Type::BleOut);
+        _hwa.off(Type::NetworkOut);
     }
 }
 

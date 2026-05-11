@@ -8,6 +8,7 @@
 #include "io/analog/common.h"
 #include "io/leds/common.h"
 #include "protocol/midi/common.h"
+#include "protocol/osc/common.h"
 
 using namespace opendeck::database;
 using namespace opendeck::io;
@@ -19,6 +20,11 @@ void Admin::custom_init_global()
 {
     // set global channel to 1
     update(Config::Section::Global::MidiSettings, midi::Setting::GlobalChannel, 1);
+
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_OSC
+    update(Config::Section::Global::OscSettings, osc::Setting::DestPort, osc::DEFAULT_DEST_PORT);
+    update(Config::Section::Global::OscSettings, osc::Setting::ListenPort, osc::DEFAULT_LISTEN_PORT);
+#endif
 }
 
 void Admin::custom_init_buttons()

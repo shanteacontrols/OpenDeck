@@ -18,6 +18,9 @@ namespace opendeck::protocol
     enum class Protocol : uint8_t
     {
         Midi,
+        Osc,
+        WebConfig,
+        Mdns,
         Count
     };
 

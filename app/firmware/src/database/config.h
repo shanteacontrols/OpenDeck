@@ -56,6 +56,7 @@ namespace opendeck::database
             enum class Common : uint8_t
             {
                 CommonSettings,
+                MdnsHostname,
                 Count
             };
 
@@ -65,6 +66,7 @@ namespace opendeck::database
             enum class Global : uint8_t
             {
                 MidiSettings,
+                OscSettings,
                 Count
             };
 
@@ -91,7 +93,6 @@ namespace opendeck::database
                 Mode,
                 MidiId1,
                 Channel,
-                PulsesPerStep,
                 Acceleration,
                 RemoteSync,
                 LowerLimit,
