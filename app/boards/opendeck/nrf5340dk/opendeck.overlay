@@ -17,8 +17,8 @@
         hw-test;
     };
 
-    opendeck_buttons: opendeck-buttons {
-        compatible = "opendeck,buttons";
+    opendeck_switches: opendeck-switches {
+        compatible = "opendeck,switches";
         mode = "native";
         touchscreen-components = <64>;
         native-gpios =
@@ -44,8 +44,8 @@
             <&adc 5>; /* A5 / P0.26 / AIN5 */
     };
 
-    opendeck_leds: opendeck-leds {
-        compatible = "opendeck,leds";
+    opendeck_outputs: opendeck-outputs {
+        compatible = "opendeck,outputs";
         mode = "native";
         touchscreen-components = <64>;
         native-gpios =
@@ -87,7 +87,7 @@
 
     opendeck_bootloader: opendeck-bootloader {
         compatible = "opendeck,bootloader";
-        button-gpios = <&gpio0 23 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>; /* BUTTON1 */
+        switch-gpios = <&gpio0 23 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>; /* SWITCH1 */
         boot-partition = <&opendeck_partition_boot>;
         app-partition = <&opendeck_partition_app>;
     };

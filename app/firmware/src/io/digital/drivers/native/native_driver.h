@@ -8,12 +8,12 @@
 #include "../driver_base.h"
 #include "count.h"
 
-#define OPENDECK_BUTTON_NATIVE_GPIO_ENTRY(index, node_id) GPIO_DT_SPEC_GET_BY_IDX(node_id, native_gpios, index)
+#define OPENDECK_SWITCH_NATIVE_GPIO_ENTRY(index, node_id) GPIO_DT_SPEC_GET_BY_IDX(node_id, native_gpios, index)
 
 namespace opendeck::io::digital::drivers
 {
     /**
-     * @brief Digital input driver for directly connected GPIO buttons.
+     * @brief Digital input driver for directly connected GPIO switches.
      */
     class Driver : public DriverBase
     {
@@ -52,7 +52,7 @@ namespace opendeck::io::digital::drivers
         }
 
         /**
-         * @brief Returns the number of encoders represented by the button matrix.
+         * @brief Returns the number of encoders represented by the switch matrix.
          *
          * @return Encoder count.
          */
@@ -64,11 +64,11 @@ namespace opendeck::io::digital::drivers
         /**
          * @brief Maps a flattened input index to its paired encoder index.
          *
-         * @param index Flattened button/input index.
+         * @param index Flattened switch/input index.
          *
          * @return Encoder index associated with the input.
          */
-        size_t button_to_encoder_index(size_t index) override
+        size_t switch_to_encoder_index(size_t index) override
         {
             return index / 2;
         }
@@ -88,10 +88,10 @@ namespace opendeck::io::digital::drivers
         }
 
         private:
-        static constexpr size_t BUTTON_COUNT  = OPENDECK_BUTTON_PHYSICAL_COUNT;
-        static constexpr size_t ENCODER_COUNT = BUTTON_COUNT / 2;
+        static constexpr size_t SWITCH_COUNT  = OPENDECK_SWITCH_PHYSICAL_COUNT;
+        static constexpr size_t ENCODER_COUNT = SWITCH_COUNT / 2;
 
-        std::array<gpio_dt_spec, BUTTON_COUNT> _pins = { { LISTIFY(OPENDECK_BUTTON_PHYSICAL_COUNT, OPENDECK_BUTTON_NATIVE_GPIO_ENTRY, (, ), DT_NODELABEL(opendeck_buttons)) } };
+        std::array<gpio_dt_spec, SWITCH_COUNT> _pins = { { LISTIFY(OPENDECK_SWITCH_PHYSICAL_COUNT, OPENDECK_SWITCH_NATIVE_GPIO_ENTRY, (, ), DT_NODELABEL(opendeck_switches)) } };
 
         /**
          * @brief Reads one GPIO input pin.
@@ -112,7 +112,7 @@ namespace opendeck::io::digital::drivers
         {
             Frame frame = {};
 
-            for (size_t i = 0; i < BUTTON_COUNT; i++)
+            for (size_t i = 0; i < SWITCH_COUNT; i++)
             {
                 frame[i] = read_pin(i);
             }
@@ -122,4 +122,4 @@ namespace opendeck::io::digital::drivers
     };
 }    // namespace opendeck::io::digital::drivers
 
-#undef OPENDECK_BUTTON_NATIVE_GPIO_ENTRY
+#undef OPENDECK_SWITCH_NATIVE_GPIO_ENTRY

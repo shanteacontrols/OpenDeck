@@ -145,7 +145,7 @@ bool Nextion::set_brightness(Brightness brightness)
 TsEvent Nextion::response(Data& data)
 {
     bool response_found = false;
-    auto response       = ResponseId::Button;    // assumption for now
+    auto response       = ResponseId::Switch;    // assumption for now
 
     for (size_t i = 0; i < static_cast<size_t>(ResponseId::Count); i++)
     {
@@ -164,12 +164,12 @@ TsEvent Nextion::response(Data& data)
     {
         switch (response)
         {
-        case ResponseId::Button:
+        case ResponseId::Switch:
         {
-            data.button_state = Model::rx_buffer[1];
-            data.button_index = Model::rx_buffer[2];
+            data.switch_state = Model::rx_buffer[1];
+            data.switch_index = Model::rx_buffer[2];
 
-            return TsEvent::Button;
+            return TsEvent::Switch;
         }
         break;
 

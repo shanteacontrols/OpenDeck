@@ -264,7 +264,7 @@ TEST_F(OscProtocolTest, SendsInputAfterLateNetworkIdentity)
     const auto message = osc::parse_message(sent.front().data);
     ASSERT_TRUE(message);
 
-    EXPECT_EQ(message->address(), "/opendeck/input/analog/3");
+    EXPECT_EQ(message->address(), "/opendeck/analog/3");
     EXPECT_EQ(message->type_tags(), ",f");
     EXPECT_FLOAT_EQ(*message->arg<osc::OscFloat32>(0), 0.5F);
 }
@@ -292,12 +292,12 @@ TEST_F(OscProtocolTest, SendsRawAnalogInputAsNormalizedFloatOscPacket)
     const auto message = osc::parse_message(sent.front().data);
     ASSERT_TRUE(message);
 
-    EXPECT_EQ(message->address(), "/opendeck/input/analog/3");
+    EXPECT_EQ(message->address(), "/opendeck/analog/3");
     EXPECT_EQ(message->type_tags(), ",f");
     EXPECT_FLOAT_EQ(*message->arg<osc::OscFloat32>(0), 1.0F);
 }
 
-TEST_F(OscProtocolTest, ReceivesLedOutputCommand)
+TEST_F(OscProtocolTest, ReceivesOutputCommand)
 {
     publish_network_identity();
 
@@ -305,7 +305,7 @@ TEST_F(OscProtocolTest, ReceivesLedOutputCommand)
     osc::PacketBuffer packet = {};
     const auto        size   = osc::make_packet(packet,
                                                 osc::OscIndexedAddress{
-                                                    .prefix = osc::paths::OUTPUT_LED.c_str(),
+                                                    .prefix = osc::paths::OUTPUT.c_str(),
                                                     .index  = 5,
                                                 },
                                                 osc::OscInt32{ 1 });
@@ -319,7 +319,7 @@ TEST_F(OscProtocolTest, ReceivesLedOutputCommand)
     const auto signals = collector.signals();
     ASSERT_EQ(signals.size(), 1U);
 
-    EXPECT_EQ(signals.front().source, signaling::IoEventSource::Led);
+    EXPECT_EQ(signals.front().source, signaling::IoEventSource::Output);
     EXPECT_EQ(signals.front().component_index, 5U);
     ASSERT_TRUE(signals.front().int32_value.has_value());
     EXPECT_EQ(*signals.front().int32_value, 1);
@@ -377,7 +377,7 @@ TEST_F(OscProtocolTest, RestrictsIncomingPacketsToConfiguredDestinationIp)
     osc::PacketBuffer packet = {};
     const auto        size   = osc::make_packet(packet,
                                                 osc::OscIndexedAddress{
-                                                    .prefix = osc::paths::OUTPUT_LED.c_str(),
+                                                    .prefix = osc::paths::OUTPUT.c_str(),
                                                     .index  = 5,
                                                 },
                                                 osc::OscInt32{ 1 });

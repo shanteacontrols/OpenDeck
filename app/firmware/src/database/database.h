@@ -220,15 +220,15 @@ namespace opendeck::database
         }
 
         /**
-         * @brief Maps a button section enum to its containing database block.
+         * @brief Maps a switch section enum to its containing database block.
          *
-         * @param section Button section selector.
+         * @param section Switch section selector.
          *
          * @return Database block containing the section.
          */
-        static constexpr Config::Block block([[maybe_unused]] Config::Section::Button section)
+        static constexpr Config::Block block([[maybe_unused]] Config::Section::Switch section)
         {
-            return Config::Block::Buttons;
+            return Config::Block::Switches;
         }
 
         /**
@@ -256,15 +256,15 @@ namespace opendeck::database
         }
 
         /**
-         * @brief Maps an LED section enum to its containing database block.
+         * @brief Maps an OUTPUT section enum to its containing database block.
          *
-         * @param section LED section selector.
+         * @param section OUTPUT section selector.
          *
          * @return Database block containing the section.
          */
-        static constexpr Config::Block block([[maybe_unused]] Config::Section::Leds section)
+        static constexpr Config::Block block([[maybe_unused]] Config::Section::Outputs section)
         {
-            return Config::Block::Leds;
+            return Config::Block::Outputs;
         }
 
         /**
@@ -313,8 +313,8 @@ namespace opendeck::database
         /** @brief Hook invoked after global preset data initialization. */
         void custom_init_global();
 
-        /** @brief Hook invoked after button preset data initialization. */
-        void custom_init_buttons();
+        /** @brief Hook invoked after switch preset data initialization. */
+        void custom_init_switches();
 
         /** @brief Hook invoked after encoder preset data initialization. */
         void custom_init_encoders();
@@ -322,8 +322,8 @@ namespace opendeck::database
         /** @brief Hook invoked after analog preset data initialization. */
         void custom_init_analog();
 
-        /** @brief Hook invoked after LED preset data initialization. */
-        void custom_init_leds();
+        /** @brief Hook invoked after OUTPUT preset data initialization. */
+        void custom_init_outputs();
 
         /** @brief Hook invoked after display preset data initialization. */
         void custom_init_display();

@@ -1,23 +1,23 @@
-OPENDECK_BUTTONS_NODE := $(dt_nodelabel_path,opendeck_buttons)
+OPENDECK_SWITCHES_NODE := $(dt_nodelabel_path,opendeck_switches)
 OPENDECK_ANALOG_NODE := $(dt_nodelabel_path,opendeck_analog)
-OPENDECK_LEDS_NODE := $(dt_nodelabel_path,opendeck_leds)
+OPENDECK_OUTPUTS_NODE := $(dt_nodelabel_path,opendeck_outputs)
 OPENDECK_TOUCHSCREEN_NODE := $(dt_nodelabel_path,opendeck_touchscreen)
 OPENDECK_DIN_MIDI_NODE := $(dt_nodelabel_path,opendeck_din_midi)
 OPENDECK_TRAFFIC_INDICATORS_NODE := $(dt_nodelabel_path,opendeck_traffic_indicators)
 OPENDECK_DISPLAY_NODE := $(dt_nodelabel_path,opendeck_display)
 OPENDECK_STAGED_DFU_NODE := $(dt_nodelabel_path,opendeck_partition_staged_dfu)
 
-config PROJECT_TARGET_BUTTONS_DISABLED
+config PROJECT_TARGET_SWITCHES_DISABLED
     bool
-    default y if !$(dt_path_enabled,$(OPENDECK_BUTTONS_NODE))
+    default y if !$(dt_path_enabled,$(OPENDECK_SWITCHES_NODE))
 
 config PROJECT_TARGET_ANALOG_DISABLED
     bool
     default y if !$(dt_path_enabled,$(OPENDECK_ANALOG_NODE))
 
-config PROJECT_TARGET_LEDS_DISABLED
+config PROJECT_TARGET_OUTPUTS_DISABLED
     bool
-    default y if !$(dt_path_enabled,$(OPENDECK_LEDS_NODE))
+    default y if !$(dt_path_enabled,$(OPENDECK_OUTPUTS_NODE))
 
 config PROJECT_TARGET_TOUCHSCREEN_DISABLED
     bool
@@ -35,57 +35,57 @@ config PROJECT_TARGET_DISPLAY_DISABLED
     bool
     default y if !$(dt_path_enabled,$(OPENDECK_DISPLAY_NODE))
 
-config PROJECT_TARGET_SUPPORT_BUTTONS
+config PROJECT_TARGET_SUPPORT_SWITCHES
     bool
-    default y if $(dt_path_enabled,$(OPENDECK_BUTTONS_NODE))
+    default y if $(dt_path_enabled,$(OPENDECK_SWITCHES_NODE))
     help
-      Hidden compatibility symbol indicating button support is present on
-      this target when the chosen OpenDeck button devicetree node exists.
+      Hidden compatibility symbol indicating switch support is present on
+      this target when the chosen OpenDeck switch devicetree node exists.
 
 config PROJECT_TARGET_SUPPORT_DIGITAL_INPUTS
     bool
-    default y if $(dt_path_enabled,$(OPENDECK_BUTTONS_NODE))
+    default y if $(dt_path_enabled,$(OPENDECK_SWITCHES_NODE))
     help
       Hidden compatibility symbol indicating digital input support is
-      present on this target when the chosen OpenDeck button devicetree
+      present on this target when the chosen OpenDeck switch devicetree
       node exists.
 
 config PROJECT_TARGET_SUPPORT_ENCODERS
     bool
-    default y if $(dt_path_enabled,$(OPENDECK_BUTTONS_NODE)) && \
-             $(dt_node_has_prop,$(OPENDECK_BUTTONS_NODE),encoders)
+    default y if $(dt_path_enabled,$(OPENDECK_SWITCHES_NODE)) && \
+             $(dt_node_has_prop,$(OPENDECK_SWITCHES_NODE),encoders)
     help
       Hidden compatibility symbol indicating encoder support is present on
-      this target when the chosen OpenDeck button devicetree node
+      this target when the chosen OpenDeck switch devicetree node
       explicitly enables encoders support.
 
 config PROJECT_TARGET_DRIVER_DIGITAL_INPUT_NATIVE
     bool
-    default y if $(dt_path_enabled,$(OPENDECK_BUTTONS_NODE)) && \
-             $(dt_node_str_prop_equals,$(OPENDECK_BUTTONS_NODE),mode,native)
+    default y if $(dt_path_enabled,$(OPENDECK_SWITCHES_NODE)) && \
+             $(dt_node_str_prop_equals,$(OPENDECK_SWITCHES_NODE),mode,native)
     help
-      Hidden selector for the native button GPIO backend.
+      Hidden selector for the native switch GPIO backend.
 
 config PROJECT_TARGET_DRIVER_DIGITAL_INPUT_SHIFT_REGISTER
     bool
-    default y if $(dt_path_enabled,$(OPENDECK_BUTTONS_NODE)) && \
-             $(dt_node_str_prop_equals,$(OPENDECK_BUTTONS_NODE),mode,shift-register)
+    default y if $(dt_path_enabled,$(OPENDECK_SWITCHES_NODE)) && \
+             $(dt_node_str_prop_equals,$(OPENDECK_SWITCHES_NODE),mode,shift-register)
     help
-      Hidden selector for the shift-register button backend.
+      Hidden selector for the shift-register switch backend.
 
 config PROJECT_TARGET_DRIVER_DIGITAL_INPUT_MATRIX_NATIVE_ROWS
     bool
-    default y if $(dt_path_enabled,$(OPENDECK_BUTTONS_NODE)) && \
-             $(dt_node_str_prop_equals,$(OPENDECK_BUTTONS_NODE),mode,matrix) && \
-             $(dt_node_str_prop_equals,$(OPENDECK_BUTTONS_NODE),row-mode,native)
+    default y if $(dt_path_enabled,$(OPENDECK_SWITCHES_NODE)) && \
+             $(dt_node_str_prop_equals,$(OPENDECK_SWITCHES_NODE),mode,matrix) && \
+             $(dt_node_str_prop_equals,$(OPENDECK_SWITCHES_NODE),row-mode,native)
     help
       Hidden selector for the matrix backend with native row inputs.
 
 config PROJECT_TARGET_DRIVER_DIGITAL_INPUT_MATRIX_SHIFT_REGISTER_ROWS
     bool
-    default y if $(dt_path_enabled,$(OPENDECK_BUTTONS_NODE)) && \
-             $(dt_node_str_prop_equals,$(OPENDECK_BUTTONS_NODE),mode,matrix) && \
-             $(dt_node_str_prop_equals,$(OPENDECK_BUTTONS_NODE),row-mode,shift-register)
+    default y if $(dt_path_enabled,$(OPENDECK_SWITCHES_NODE)) && \
+             $(dt_node_str_prop_equals,$(OPENDECK_SWITCHES_NODE),mode,matrix) && \
+             $(dt_node_str_prop_equals,$(OPENDECK_SWITCHES_NODE),row-mode,shift-register)
     help
       Hidden selector for the matrix backend with shift-register row
       inputs.
@@ -105,49 +105,49 @@ config PROJECT_TARGET_SUPPORT_TOUCHSCREEN
       present on this target when the chosen OpenDeck touchscreen
       devicetree node exists.
 
-config PROJECT_TARGET_SUPPORT_LEDS
+config PROJECT_TARGET_SUPPORT_OUTPUTS
     bool
-    default y if $(dt_path_enabled,$(OPENDECK_LEDS_NODE))
+    default y if $(dt_path_enabled,$(OPENDECK_OUTPUTS_NODE))
     default y if $(dt_path_enabled,$(OPENDECK_TOUCHSCREEN_NODE))
     help
-      Hidden compatibility symbol indicating LED support is present on
-      this target when the chosen OpenDeck LED devicetree node exists.
+      Hidden compatibility symbol indicating OUTPUT support is present on
+      this target when the chosen OpenDeck OUTPUT devicetree node exists.
 
 config PROJECT_TARGET_SUPPORT_DIGITAL_OUTPUTS
     bool
-    default y if $(dt_path_enabled,$(OPENDECK_LEDS_NODE))
+    default y if $(dt_path_enabled,$(OPENDECK_OUTPUTS_NODE))
     help
       Hidden compatibility symbol indicating digital output support is
-      present on this target when the chosen OpenDeck LED devicetree node
+      present on this target when the chosen OpenDeck OUTPUT devicetree node
       exists.
 
 config PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_NATIVE
     bool
-    default y if $(dt_path_enabled,$(OPENDECK_LEDS_NODE)) && \
-             $(dt_node_str_prop_equals,$(OPENDECK_LEDS_NODE),mode,native)
+    default y if $(dt_path_enabled,$(OPENDECK_OUTPUTS_NODE)) && \
+             $(dt_node_str_prop_equals,$(OPENDECK_OUTPUTS_NODE),mode,native)
     help
-      Hidden selector for the native LED backend.
+      Hidden selector for the native OUTPUT backend.
 
 config PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_SHIFT_REGISTER
     bool
-    default y if $(dt_path_enabled,$(OPENDECK_LEDS_NODE)) && \
-             $(dt_node_str_prop_equals,$(OPENDECK_LEDS_NODE),mode,shift-register)
+    default y if $(dt_path_enabled,$(OPENDECK_OUTPUTS_NODE)) && \
+             $(dt_node_str_prop_equals,$(OPENDECK_OUTPUTS_NODE),mode,shift-register)
     help
-      Hidden selector for the shift-register LED backend.
+      Hidden selector for the shift-register OUTPUT backend.
 
 config PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_MATRIX_NATIVE_ROWS
     bool
-    default y if $(dt_path_enabled,$(OPENDECK_LEDS_NODE)) && \
-             $(dt_node_str_prop_equals,$(OPENDECK_LEDS_NODE),mode,matrix)
+    default y if $(dt_path_enabled,$(OPENDECK_OUTPUTS_NODE)) && \
+             $(dt_node_str_prop_equals,$(OPENDECK_OUTPUTS_NODE),mode,matrix)
     help
-      Hidden selector for the matrix LED backend with native rows.
+      Hidden selector for the matrix OUTPUT backend with native rows.
 
 config PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_MAX7219
     bool
-    default y if $(dt_path_enabled,$(OPENDECK_LEDS_NODE)) && \
-             $(dt_node_str_prop_equals,$(OPENDECK_LEDS_NODE),mode,max7219)
+    default y if $(dt_path_enabled,$(OPENDECK_OUTPUTS_NODE)) && \
+             $(dt_node_str_prop_equals,$(OPENDECK_OUTPUTS_NODE),mode,max7219)
     help
-      Hidden selector for the MAX7219 LED backend.
+      Hidden selector for the MAX7219 OUTPUT backend.
 
 config PROJECT_TARGET_DRIVER_ANALOG_INPUT_NATIVE
     bool

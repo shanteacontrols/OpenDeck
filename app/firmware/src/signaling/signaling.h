@@ -81,12 +81,12 @@ namespace opendeck::signaling
      */
     enum class IoEventSource : uint8_t
     {
-        Button,
+        Switch,
         Analog,
-        AnalogButton,
+        AnalogSwitch,
         Encoder,
-        TouchscreenButton,
-        Led,
+        TouchscreenSwitch,
+        Output,
     };
 
     /**
@@ -94,7 +94,7 @@ namespace opendeck::signaling
      */
     struct OscIoSignal
     {
-        IoEventSource          source          = IoEventSource::Button;
+        IoEventSource          source          = IoEventSource::Switch;
         size_t                 component_index = 0;
         std::optional<int32_t> int32_value     = {};
         std::optional<float>   float_value     = {};
@@ -106,7 +106,7 @@ namespace opendeck::signaling
      */
     struct MidiIoSignal
     {
-        IoEventSource               source          = IoEventSource::Button;
+        IoEventSource               source          = IoEventSource::Switch;
         size_t                      component_index = 0;
         uint8_t                     channel         = 0;
         uint16_t                    index           = 0;

@@ -19,8 +19,8 @@
         lint;
     };
 
-    opendeck_buttons: opendeck-buttons {
-        compatible = "opendeck,buttons";
+    opendeck_switches: opendeck-switches {
+        compatible = "opendeck,switches";
         mode = "native";
         native-gpios =
             <&gpio4 4 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,   /* pin 2 */
@@ -56,8 +56,8 @@
             <&adc1 10>;  /* A17 = pin 41 */
     };
 
-    opendeck_leds: opendeck-leds {
-        compatible = "opendeck,leds";
+    opendeck_outputs: opendeck-outputs {
+        compatible = "opendeck,outputs";
         mode = "native";
         native-gpios =
             <&gpio3 18 GPIO_ACTIVE_HIGH>,  /* pin 28 */

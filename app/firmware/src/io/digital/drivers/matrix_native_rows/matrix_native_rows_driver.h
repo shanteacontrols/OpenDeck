@@ -67,11 +67,11 @@ namespace opendeck::io::digital::drivers
         /**
          * @brief Maps a flattened matrix input index to its paired encoder index.
          *
-         * @param index Flattened button/input index.
+         * @param index Flattened switch/input index.
          *
          * @return Encoder index associated with the input.
          */
-        size_t button_to_encoder_index(size_t index) override
+        size_t switch_to_encoder_index(size_t index) override
         {
             const size_t row    = index / COLUMN_COUNT;
             const size_t column = index % COLUMN_COUNT;
@@ -97,27 +97,27 @@ namespace opendeck::io::digital::drivers
         }
 
         private:
-        static constexpr size_t             ROW_COUNT       = DT_PROP_LEN(DT_NODELABEL(opendeck_buttons), row_gpios);
-        static constexpr size_t             COLUMN_COUNT    = DT_PROP(DT_NODELABEL(opendeck_buttons), columns);
+        static constexpr size_t             ROW_COUNT       = DT_PROP_LEN(DT_NODELABEL(opendeck_switches), row_gpios);
+        static constexpr size_t             COLUMN_COUNT    = DT_PROP(DT_NODELABEL(opendeck_switches), columns);
         static constexpr size_t             ENCODER_COUNT   = (ROW_COUNT * COLUMN_COUNT) / 2;
         static constexpr size_t             COLUMN_BIT_MASK = 0x01U;
         std::array<gpio_dt_spec, ROW_COUNT> _rows           = { {
-#define OPENDECK_BUTTON_MATRIX_ROW_GPIO_ENTRY(index, _) GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(opendeck_buttons), row_gpios, index)
-            LISTIFY(DT_PROP_LEN(DT_NODELABEL(opendeck_buttons), row_gpios), OPENDECK_BUTTON_MATRIX_ROW_GPIO_ENTRY, (, ), _)
-#undef OPENDECK_BUTTON_MATRIX_ROW_GPIO_ENTRY
+#define OPENDECK_SWITCH_MATRIX_ROW_GPIO_ENTRY(index, _) GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(opendeck_switches), row_gpios, index)
+            LISTIFY(DT_PROP_LEN(DT_NODELABEL(opendeck_switches), row_gpios), OPENDECK_SWITCH_MATRIX_ROW_GPIO_ENTRY, (, ), _)
+#undef OPENDECK_SWITCH_MATRIX_ROW_GPIO_ENTRY
         } };
 
-#if DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_buttons), column_gpios)
-        static constexpr size_t                       DIRECT_COLUMN_COUNT = DT_PROP_LEN(DT_NODELABEL(opendeck_buttons), column_gpios);
+#if DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_switches), column_gpios)
+        static constexpr size_t                       DIRECT_COLUMN_COUNT = DT_PROP_LEN(DT_NODELABEL(opendeck_switches), column_gpios);
         std::array<gpio_dt_spec, DIRECT_COLUMN_COUNT> _columns            = { {
-#define OPENDECK_BUTTON_MATRIX_COLUMN_GPIO_ENTRY(index, _) GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(opendeck_buttons), column_gpios, index)
-            LISTIFY(DT_PROP_LEN(DT_NODELABEL(opendeck_buttons), column_gpios), OPENDECK_BUTTON_MATRIX_COLUMN_GPIO_ENTRY, (, ), _)
-#undef OPENDECK_BUTTON_MATRIX_COLUMN_GPIO_ENTRY
+#define OPENDECK_SWITCH_MATRIX_COLUMN_GPIO_ENTRY(index, _) GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(opendeck_switches), column_gpios, index)
+            LISTIFY(DT_PROP_LEN(DT_NODELABEL(opendeck_switches), column_gpios), OPENDECK_SWITCH_MATRIX_COLUMN_GPIO_ENTRY, (, ), _)
+#undef OPENDECK_SWITCH_MATRIX_COLUMN_GPIO_ENTRY
         } };
 #else
-        gpio_dt_spec _decoder_a0 = GPIO_DT_SPEC_GET(DT_NODELABEL(opendeck_buttons), decoder_a0_gpios);
-        gpio_dt_spec _decoder_a1 = GPIO_DT_SPEC_GET(DT_NODELABEL(opendeck_buttons), decoder_a1_gpios);
-        gpio_dt_spec _decoder_a2 = GPIO_DT_SPEC_GET(DT_NODELABEL(opendeck_buttons), decoder_a2_gpios);
+        gpio_dt_spec _decoder_a0 = GPIO_DT_SPEC_GET(DT_NODELABEL(opendeck_switches), decoder_a0_gpios);
+        gpio_dt_spec _decoder_a1 = GPIO_DT_SPEC_GET(DT_NODELABEL(opendeck_switches), decoder_a1_gpios);
+        gpio_dt_spec _decoder_a2 = GPIO_DT_SPEC_GET(DT_NODELABEL(opendeck_switches), decoder_a2_gpios);
 #endif
 
         /**
@@ -127,7 +127,7 @@ namespace opendeck::io::digital::drivers
          */
         bool init_columns()
         {
-#if DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_buttons), column_gpios)
+#if DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_switches), column_gpios)
             for (auto& column : _columns)
             {
                 if (!gpio_is_ready_dt(&column))
@@ -159,7 +159,7 @@ namespace opendeck::io::digital::drivers
          */
         void select_column(size_t column)
         {
-#if DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_buttons), column_gpios)
+#if DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_switches), column_gpios)
             for (size_t i = 0; i < _columns.size(); i++)
             {
                 gpio_pin_set_dt(&_columns[i], i == column);

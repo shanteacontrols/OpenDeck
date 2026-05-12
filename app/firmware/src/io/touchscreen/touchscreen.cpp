@@ -6,7 +6,7 @@
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_TOUCHSCREEN
 
 #include "touchscreen.h"
-#include "io/leds/common.h"
+#include "io/outputs/common.h"
 #include "util/conversion/conversion.h"
 #include "util/configurable/configurable.h"
 
@@ -53,7 +53,7 @@ Touchscreen::Touchscreen(Hwa&      hwa,
                 return;
             }
 
-            if (signal.source != signaling::IoEventSource::Led)
+            if (signal.source != signaling::IoEventSource::Output)
             {
                 return;
             }
@@ -63,14 +63,14 @@ Touchscreen::Touchscreen(Hwa&      hwa,
                 return;
             }
 
-            constexpr size_t TOUCHSCREEN_LED_START = leds::Collection::start_index(leds::GroupTouchscreenComponents);
+            constexpr size_t TOUCHSCREEN_OUTPUT_START = outputs::Collection::start_index(outputs::GroupTouchscreenComponents);
 
-            if (signal.component_index < TOUCHSCREEN_LED_START)
+            if (signal.component_index < TOUCHSCREEN_OUTPUT_START)
             {
                 return;
             }
 
-            const size_t touchscreen_index = signal.component_index - TOUCHSCREEN_LED_START;
+            const size_t touchscreen_index = signal.component_index - TOUCHSCREEN_OUTPUT_START;
 
             if (touchscreen_index >= Collection::size())
             {
@@ -263,9 +263,9 @@ void Touchscreen::process_update()
 
     switch (event)
     {
-    case TsEvent::Button:
+    case TsEvent::Switch:
     {
-        process_button(data.button_index, data.button_state);
+        process_switch(data.switch_index, data.switch_state);
     }
     break;
 
@@ -339,24 +339,24 @@ void Touchscreen::set_icon_state(size_t index, bool state)
     ptr->set_icon_state(icon, state);
 }
 
-void Touchscreen::process_button(const size_t button_index, const bool state)
+void Touchscreen::process_switch(const size_t switch_index, const bool state)
 {
     bool   change_screen = false;
     size_t new_screen    = 0;
 
-    if (_database.read(database::Config::Section::Touchscreen::PageSwitchEnabled, button_index))
+    if (_database.read(database::Config::Section::Touchscreen::PageSwitchEnabled, switch_index))
     {
         change_screen = true;
-        new_screen    = _database.read(database::Config::Section::Touchscreen::PageSwitchIndex, button_index);
+        new_screen    = _database.read(database::Config::Section::Touchscreen::PageSwitchIndex, switch_index);
     }
 
-    button_handler(button_index, state);
+    switch_handler(switch_index, state);
 
-    // if the button should change screen, change it immediately
-    // this will result in button never sending off state so do it manually first
+    // if the switch should change screen, change it immediately
+    // this will result in switch never sending off state so do it manually first
     if (change_screen)
     {
-        button_handler(button_index, false);
+        switch_handler(switch_index, false);
         set_screen(new_screen);
     }
 }
@@ -388,10 +388,10 @@ Model* Touchscreen::model_instance(ModelType model)
     return models[static_cast<size_t>(model)];
 }
 
-void Touchscreen::button_handler(size_t index, bool state)
+void Touchscreen::switch_handler(size_t index, bool state)
 {
     signaling::MidiIoSignal signal = {};
-    signal.source                  = signaling::IoEventSource::TouchscreenButton;
+    signal.source                  = signaling::IoEventSource::TouchscreenSwitch;
     signal.component_index         = index;
     signal.value                   = state;
 

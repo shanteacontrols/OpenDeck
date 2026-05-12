@@ -6,7 +6,7 @@
 #pragma once
 
 #include "io/base.h"
-#include "io/digital/buttons/builder.h"
+#include "io/digital/switches/builder.h"
 #include "io/digital/encoders/builder.h"
 #include "database/builder_test.h"
 
@@ -19,25 +19,25 @@ namespace opendeck::io::digital
     {
         public:
         /**
-         * @brief Constructs the test wrapper around button and encoder subsystems.
+         * @brief Constructs the test wrapper around switch and encoder subsystems.
          *
-         * @param buttons Button subsystem instance.
+         * @param switches Switch subsystem instance.
          * @param encoders Encoder subsystem instance.
          */
-        DigitalTest(io::buttons::Buttons&   buttons,
+        DigitalTest(io::switches::Switches& switches,
                     io::encoders::Encoders& encoders)
-            : _buttons(buttons)
+            : _switches(switches)
             , _encoders(encoders)
         {}
 
         /**
-         * @brief Initializes the wrapped button and encoder subsystems.
+         * @brief Initializes the wrapped switch and encoder subsystems.
          *
          * @return `true` if both subsystems initialized successfully, otherwise `false`.
          */
         bool init() override
         {
-            return _buttons.init() && _encoders.init();
+            return _switches.init() && _encoders.init();
         }
 
         /**
@@ -52,8 +52,8 @@ namespace opendeck::io::digital
          */
         void process_state_changes()
         {
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_BUTTONS
-            _buttons.process_state_changes();
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_SWITCHES
+            _switches.process_state_changes();
 #endif
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_ENCODERS
             _encoders.process_state_changes();
@@ -65,8 +65,8 @@ namespace opendeck::io::digital
          */
         void force_refresh_all()
         {
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_BUTTONS
-            _buttons.force_refresh(0, _buttons.refreshable_components());
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_SWITCHES
+            _switches.force_refresh(0, _switches.refreshable_components());
 #endif
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_ENCODERS
             _encoders.force_refresh(0, _encoders.refreshable_components());
@@ -74,12 +74,12 @@ namespace opendeck::io::digital
         }
 
         private:
-        io::buttons::Buttons&   _buttons;
+        io::switches::Switches& _switches;
         io::encoders::Encoders& _encoders;
     };
 
     /**
-     * @brief Test builder that wires button and encoder test subsystems together.
+     * @brief Test builder that wires switch and encoder test subsystems together.
      */
     class Builder
     {
@@ -90,9 +90,9 @@ namespace opendeck::io::digital
          * @param database Database administrator used for configuration access.
          */
         explicit Builder(database::Admin& database)
-            : _builderButtons(database)
+            : _builderSwitches(database)
             , _builderEncoders(database)
-            , _instance(_builderButtons.instance(), _builderEncoders.instance())
+            , _instance(_builderSwitches.instance(), _builderEncoders.instance())
         {}
 
         /**
@@ -105,7 +105,7 @@ namespace opendeck::io::digital
             return _instance;
         }
 
-        io::buttons::Builder  _builderButtons;
+        io::switches::Builder _builderSwitches;
         io::encoders::Builder _builderEncoders;
         DigitalTest           _instance;
     };

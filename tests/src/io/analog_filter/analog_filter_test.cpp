@@ -29,9 +29,9 @@ namespace
         static constexpr uint16_t ADC_MIN_VALUE        = ActiveAdcConfig::ADC_MIN_VALUE;
         static constexpr uint16_t ADC_MAX_VALUE        = ActiveAdcConfig::ADC_MAX_VALUE;
         static constexpr uint16_t MID_VALUE            = (ADC_MIN_VALUE + ADC_MAX_VALUE) / 2;
-        static constexpr uint16_t BUTTON_OFF_VALUE     = ActiveAdcConfig::DIGITAL_VALUE_THRESHOLD_OFF / 2;
-        static constexpr uint16_t BUTTON_ON_VALUE      = (ActiveAdcConfig::DIGITAL_VALUE_THRESHOLD_ON + ActiveAdcConfig::ADC_MAX_VALUE) / 2;
-        static constexpr uint16_t BUTTON_MID_VALUE     = (ActiveAdcConfig::DIGITAL_VALUE_THRESHOLD_OFF + ActiveAdcConfig::DIGITAL_VALUE_THRESHOLD_ON) / 2;
+        static constexpr uint16_t SWITCH_OFF_VALUE     = ActiveAdcConfig::DIGITAL_VALUE_THRESHOLD_OFF / 2;
+        static constexpr uint16_t SWITCH_ON_VALUE      = (ActiveAdcConfig::DIGITAL_VALUE_THRESHOLD_ON + ActiveAdcConfig::ADC_MAX_VALUE) / 2;
+        static constexpr uint16_t SWITCH_MID_VALUE     = (ActiveAdcConfig::DIGITAL_VALUE_THRESHOLD_OFF + ActiveAdcConfig::DIGITAL_VALUE_THRESHOLD_ON) / 2;
         static constexpr uint16_t FSR_MIN_VALUE        = ActiveAdcConfig::FSR_MIN_VALUE;
         static constexpr uint16_t FSR_MAX_VALUE        = ActiveAdcConfig::FSR_MAX_VALUE;
         static constexpr uint16_t FILTER_POSITION_MAX  = analog::Filter::POSITION_MAX_VALUE;
@@ -50,10 +50,10 @@ namespace
             return descriptor;
         }
 
-        analog::Filter::Descriptor button_descriptor(uint16_t value) const
+        analog::Filter::Descriptor switch_descriptor(uint16_t value) const
         {
             analog::Filter::Descriptor descriptor = {};
-            descriptor.type                       = analog::Type::Button;
+            descriptor.type                       = analog::Type::Switch;
             descriptor.value                      = value;
             descriptor.lower_offset               = 0;
             descriptor.upper_offset               = 0;
@@ -178,9 +178,9 @@ namespace
             return {};
         }
 
-        std::optional<uint16_t> sample_button(uint16_t value)
+        std::optional<uint16_t> sample_switch(uint16_t value)
         {
-            auto filtered = button_descriptor(value);
+            auto filtered = switch_descriptor(value);
 
             if (_filter.is_filtered(FILTER_INDEX, filtered))
             {
@@ -485,31 +485,31 @@ TEST_F(AnalogFilterTest, UpperOffsetClampsToConfiguredUpperBound)
     EXPECT_EQ(expected_clamped, filtered);
 }
 
-TEST_F(AnalogFilterTest, ButtonPathUsesHysteresisAndEmitsOnTransitions)
+TEST_F(AnalogFilterTest, SwitchPathUsesHysteresisAndEmitsOnTransitions)
 {
-    EXPECT_FALSE(sample_button(BUTTON_OFF_VALUE).has_value());
-    auto event = sample_button(BUTTON_ON_VALUE);
+    EXPECT_FALSE(sample_switch(SWITCH_OFF_VALUE).has_value());
+    auto event = sample_switch(SWITCH_ON_VALUE);
     ASSERT_TRUE(event.has_value());
     EXPECT_EQ(1, event.value());
 
-    EXPECT_FALSE(sample_button(BUTTON_ON_VALUE).has_value());
-    EXPECT_FALSE(sample_button(BUTTON_MID_VALUE).has_value());
+    EXPECT_FALSE(sample_switch(SWITCH_ON_VALUE).has_value());
+    EXPECT_FALSE(sample_switch(SWITCH_MID_VALUE).has_value());
 
-    event = sample_button(BUTTON_OFF_VALUE);
+    event = sample_switch(SWITCH_OFF_VALUE);
     ASSERT_TRUE(event.has_value());
     EXPECT_EQ(0, event.value());
 
-    EXPECT_FALSE(sample_button(BUTTON_OFF_VALUE).has_value());
-    EXPECT_FALSE(sample_button(BUTTON_MID_VALUE).has_value());
+    EXPECT_FALSE(sample_switch(SWITCH_OFF_VALUE).has_value());
+    EXPECT_FALSE(sample_switch(SWITCH_MID_VALUE).has_value());
 }
 
-TEST_F(AnalogFilterTest, ButtonPathPublishesPressedStateOnStartup)
+TEST_F(AnalogFilterTest, SwitchPathPublishesPressedStateOnStartup)
 {
-    auto event = sample_button(BUTTON_ON_VALUE);
+    auto event = sample_switch(SWITCH_ON_VALUE);
     ASSERT_TRUE(event.has_value());
     EXPECT_EQ(1, event.value());
 
-    EXPECT_FALSE(sample_button(BUTTON_ON_VALUE).has_value());
+    EXPECT_FALSE(sample_switch(SWITCH_ON_VALUE).has_value());
 }
 
 TEST_F(AnalogFilterTest, IdlePotDriftRequiresRepeatConfirmation)

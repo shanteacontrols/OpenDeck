@@ -204,10 +204,10 @@ bool System::init()
     LOG_INF("MCU: %s", CONFIG_SOC);
     LOG_INF("Zephyr board: %s", CONFIG_BOARD);
     LOG_INF("OpenDeck target: %s", OPENDECK_TARGET);
-    LOG_INF("Buttons: %u", static_cast<unsigned>(io::buttons::Collection::size(io::buttons::GroupDigitalInputs)));
+    LOG_INF("Switches: %u", static_cast<unsigned>(io::switches::Collection::size(io::switches::GroupDigitalInputs)));
     LOG_INF("Encoders: %u", static_cast<unsigned>(io::encoders::Collection::size()));
     LOG_INF("Analog: %u", static_cast<unsigned>(io::analog::Collection::size()));
-    LOG_INF("LEDs: %u", static_cast<unsigned>(io::leds::Collection::size()));
+    LOG_INF("Outputs: %u", static_cast<unsigned>(io::outputs::Collection::size()));
     LOG_INF("Touchscreen components: %u", static_cast<unsigned>(io::touchscreen::Collection::size()));
     LOG_INF("DIN MIDI supported: %s", IS_ENABLED(CONFIG_PROJECT_TARGET_SUPPORT_DIN_MIDI) ? "Yes" : "No");
     LOG_INF("BLE MIDI supported: %s", IS_ENABLED(CONFIG_PROJECT_TARGET_SUPPORT_BLE) ? "Yes" : "No");
@@ -478,12 +478,12 @@ bool System::find_next_backup_section(uint8_t& block, uint8_t& section) const
     {
         while (section < _layout.sections(block))
         {
-            const bool skip_led_test_section =
-                (block == static_cast<uint8_t>(sys::Config::Block::Leds)) &&
-                ((section == static_cast<uint8_t>(sys::Config::Section::Leds::TestColor)) ||
-                 (section == static_cast<uint8_t>(sys::Config::Section::Leds::TestBlink)));
+            const bool skip_output_test_section =
+                (block == static_cast<uint8_t>(sys::Config::Block::Outputs)) &&
+                ((section == static_cast<uint8_t>(sys::Config::Section::Outputs::TestColor)) ||
+                 (section == static_cast<uint8_t>(sys::Config::Section::Outputs::TestBlink)));
 
-            if (!skip_led_test_section)
+            if (!skip_output_test_section)
             {
                 return true;
             }
@@ -765,10 +765,10 @@ zlibs::utils::sysex_conf::Status System::SysExDataHandler::custom_request(uint16
 
     case SYSEX_CR_MAX_COMPONENTS:
     {
-        custom_response.append(buttons::Collection::size());
+        custom_response.append(switches::Collection::size());
         custom_response.append(encoders::Collection::size());
         custom_response.append(analog::Collection::size());
-        custom_response.append(leds::Collection::size());
+        custom_response.append(outputs::Collection::size());
         custom_response.append(touchscreen::Collection::size());
     }
     break;

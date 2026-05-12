@@ -16,13 +16,13 @@
 
     opendeck_bootloader: opendeck-bootloader {
         compatible = "opendeck,bootloader";
-        button-gpios = <&gpio0 4 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+        switch-gpios = <&gpio0 4 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
         boot-partition = <&opendeck_partition_boot>;
         app-partition = <&opendeck_partition_app>;
     };
 
-    opendeck_buttons: opendeck-buttons {
-        compatible = "opendeck,buttons";
+    opendeck_switches: opendeck-switches {
+        compatible = "opendeck,switches";
         mode = "matrix";
         touchscreen-components = <64>;
         row-mode = "shift-register";
@@ -56,8 +56,8 @@
         selector-s3-gpios = <&gpio0 13 GPIO_ACTIVE_HIGH>;
     };
 
-    opendeck_leds: opendeck-leds {
-        compatible = "opendeck,leds";
+    opendeck_outputs: opendeck-outputs {
+        compatible = "opendeck,outputs";
         mode = "max7219";
         touchscreen-components = <64>;
         drivers = <1>;

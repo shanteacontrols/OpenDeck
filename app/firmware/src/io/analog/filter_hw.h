@@ -18,12 +18,12 @@
 namespace opendeck::io::analog
 {
     /**
-     * @brief Hardware-oriented analog filter for potentiometers, FSRs, and analog buttons.
+     * @brief Hardware-oriented analog filter for potentiometers, FSRs, and analog switches.
      *
      * Continuously varying analog inputs use a lightweight path tuned for real-time response on
      * both dense native ADC scans and large multiplexed matrices: bucket-sized ADC deadbanding,
      * raw-sample reversal confirmation, smoothing against the last accepted ADC value, endpoint
-     * assist, and light position publish gating for idle drift. Button-style analog inputs
+     * assist, and light position publish gating for idle drift. Switch-style analog inputs
      * bypass continuous-value filtering and use threshold-based analog-to-digital conversion with
      * hysteresis instead.
      */
@@ -125,9 +125,9 @@ namespace opendeck::io::analog
                                                              adc_max_value);
 
             // avoid full filtering in this case for faster response
-            if (descriptor.type == Type::Button)
+            if (descriptor.type == Type::Switch)
             {
-                return is_button_filtered(index, descriptor);
+                return is_switch_filtered(index, descriptor);
             }
 
             const auto motion_context = prepare_motion_context(index);
@@ -1057,9 +1057,9 @@ namespace opendeck::io::analog
         }
 
         /**
-         * @brief Returns the lower button threshold.
+         * @brief Returns the lower switch threshold.
          *
-         * @return Raw ADC threshold below which the button is treated as released.
+         * @return Raw ADC threshold below which the switch is treated as released.
          */
         uint16_t digital_value_threshold_off() const
         {
@@ -1067,9 +1067,9 @@ namespace opendeck::io::analog
         }
 
         /**
-         * @brief Returns the upper button threshold.
+         * @brief Returns the upper switch threshold.
          *
-         * @return Raw ADC threshold above which the button is treated as pressed.
+         * @return Raw ADC threshold above which the switch is treated as pressed.
          */
         uint16_t digital_value_threshold_on() const
         {
@@ -1077,20 +1077,20 @@ namespace opendeck::io::analog
         }
 
         /**
-         * @brief Applies button-style filtering for analog inputs configured as buttons.
+         * @brief Applies switch-style filtering for analog inputs configured as switches.
          *
          * The analog reading is converted into a digital state using ADC hysteresis. The first
          * resolved released state only seeds internal state, while the
-         * first resolved pressed state is emitted immediately so startup-held buttons behave like
-         * the digital button path.
+         * first resolved pressed state is emitted immediately so startup-held switches behave like
+         * the digital switch path.
          *
          * @param index Analog input index being processed.
          * @param descriptor Runtime descriptor containing the current reading and configuration.
          *
-         * @return `true` when the hysteresis-converted button state changed and should be processed,
+         * @return `true` when the hysteresis-converted switch state changed and should be processed,
          *         otherwise `false`.
          */
-        bool is_button_filtered(size_t index, Descriptor& descriptor)
+        bool is_switch_filtered(size_t index, Descriptor& descriptor)
         {
             bool new_value = false;
 

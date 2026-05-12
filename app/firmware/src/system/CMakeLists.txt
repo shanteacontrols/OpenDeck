@@ -14,9 +14,9 @@ target_link_libraries(system
     protocol_midi
     protocol_mdns
     digital
-    buttons
+    switches
     analog
-    leds
+    outputs
     encoders
     touchscreen
     i2c

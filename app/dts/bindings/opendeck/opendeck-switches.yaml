@@ -1,0 +1,105 @@
+description: OpenDeck switch inventory and topology
+
+compatible: "opendeck,switches"
+
+properties:
+  mode:
+    type: string
+    required: true
+    enum:
+      - native
+      - matrix
+      - shift-register
+    description: Physical switch topology.
+
+  native-gpios:
+    type: phandle-array
+    required: false
+    description: Direct GPIO inputs for native switch topology.
+
+  rows:
+    type: int
+    required: false
+    description: Number of matrix rows for matrix topology.
+
+  columns:
+    type: int
+    required: false
+    description: Number of matrix columns for matrix topology.
+
+  shift-registers:
+    type: int
+    required: false
+    description: Number of cascaded 8-bit input shift registers for shift-register topology.
+
+  row-mode:
+    type: string
+    required: false
+    enum:
+      - native
+      - shift-register
+    description: Physical row driver topology for matrix switches.
+
+  row-gpios:
+    type: phandle-array
+    required: false
+    description: Direct GPIO row signals for native matrix row topology.
+
+  data-gpios:
+    type: phandle-array
+    required: false
+    description: Serial data input from cascaded switch shift registers or matrix row shift registers.
+
+  clock-gpios:
+    type: phandle-array
+    required: false
+    description: Shift clock for cascaded switch shift registers or matrix row shift registers.
+
+  latch-gpios:
+    type: phandle-array
+    required: false
+    description: Latch or load control for cascaded switch shift registers or matrix row shift registers.
+
+  column-mode:
+    type: string
+    required: false
+    enum:
+      - direct
+      - decoder
+    description: Physical column driver topology for matrix switches.
+
+  column-gpios:
+    type: phandle-array
+    required: false
+    description: Direct GPIO column signals for non-decoded matrix columns.
+
+  decoder-a0-gpios:
+    type: phandle-array
+    required: false
+    description: Decoder address bit 0 for matrix column selection.
+
+  decoder-a1-gpios:
+    type: phandle-array
+    required: false
+    description: Decoder address bit 1 for matrix column selection.
+
+  decoder-a2-gpios:
+    type: phandle-array
+    required: false
+    description: Decoder address bit 2 for matrix column selection.
+
+  encoders:
+    type: boolean
+    required: false
+    description: Enable logical encoder support derived from the switch topology.
+
+  touchscreen-components:
+    type: int
+    required: false
+    default: 0
+    description: Number of touchscreen-driven switch-like components. Used only when touchscreen is used.
+
+  index-remap:
+    type: array
+    required: false
+    description: Optional physical-to-logical switch index remap table.

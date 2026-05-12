@@ -16,9 +16,9 @@ They describe different things.
 
 This layer defines things like:
 
-- buttons
+- switches
 - analog inputs
-- LEDs
+- outputs
 - displays
 - touchscreens
 - DIN MIDI
@@ -237,9 +237,9 @@ If logical component ordering differs from the physical scan order, these nodes 
 
 This is currently supported on:
 
-- `opendeck-buttons`
+- `opendeck-switches`
 - `opendeck-analog`
-- `opendeck-leds`
+- `opendeck-outputs`
 
 Use it only when a target needs a physical-to-logical reorder table.
 

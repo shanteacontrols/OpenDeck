@@ -63,7 +63,7 @@ namespace opendeck::fw_selector
         static constexpr uint32_t APP_STARTUP_DELAY_MS = 20;
 
         /**
-         * @brief Returns whether the optional bootloader button is currently asserted.
+         * @brief Returns whether the optional bootloader switch is currently asserted.
          *
          * @return `true` when the hardware bootloader trigger is active, otherwise `false`.
          */

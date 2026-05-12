@@ -578,7 +578,7 @@ void Midi::send(const signaling::MidiIoSignal& event)
         return;
     }
 
-    if (event.source == signaling::IoEventSource::AnalogButton)
+    if (event.source == signaling::IoEventSource::AnalogSwitch)
     {
         return;
     }

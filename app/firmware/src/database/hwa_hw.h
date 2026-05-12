@@ -186,7 +186,7 @@ namespace opendeck::database
         bool clear() override
         {
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_TRAFFIC_INDICATORS
-            // It's possible that LED indicators are still on since
+            // It's possible that OUTPUT indicators are still on since
             // this command is most likely given via USB.
             // Wait until all indicators are turned off
             k_msleep(io::indicators::Indicators::TRAFFIC_INDICATOR_TIMEOUT_MS);

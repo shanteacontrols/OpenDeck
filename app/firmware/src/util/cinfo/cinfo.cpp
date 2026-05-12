@@ -24,16 +24,16 @@ ComponentInfo::ComponentInfo()
         {
             switch (signal.source)
             {
-            case signaling::IoEventSource::AnalogButton:
+            case signaling::IoEventSource::AnalogSwitch:
             case signaling::IoEventSource::Analog:
             {
                 send(database::Config::Block::Analog, signal.component_index);
             }
             break;
 
-            case signaling::IoEventSource::Button:
+            case signaling::IoEventSource::Switch:
             {
-                send(database::Config::Block::Buttons, signal.component_index);
+                send(database::Config::Block::Switches, signal.component_index);
             }
             break;
 
@@ -43,7 +43,7 @@ ComponentInfo::ComponentInfo()
             }
             break;
 
-            case signaling::IoEventSource::TouchscreenButton:
+            case signaling::IoEventSource::TouchscreenSwitch:
             {
                 send(database::Config::Block::Touchscreen, signal.component_index);
             }

@@ -12,8 +12,8 @@
 #include "io/analog/builder.h"
 #include "io/analog/drivers/scan_driver_base.h"
 #include "io/analog/remap.h"
-#include "io/digital/buttons/builder.h"
-#include "io/digital/buttons/buttons.h"
+#include "io/digital/switches/builder.h"
+#include "io/digital/switches/switches.h"
 #include "util/configurable/configurable.h"
 #include "zlibs/utils/misc/ring_buffer.h"
 #include "zlibs/utils/misc/mutex.h"
@@ -172,9 +172,9 @@ namespace
             ASSERT_TRUE(_database_admin.factory_reset());
             ASSERT_EQ(0, _database_admin.current_preset());
             ASSERT_TRUE(_analog._instance.init());
-            EXPECT_CALL(_buttons._hwa, init())
+            EXPECT_CALL(_switches._hwa, init())
                 .WillOnce(Return(true));
-            ASSERT_TRUE(_buttons._instance.init());
+            ASSERT_TRUE(_switches._instance.init());
 
             for (size_t i = 0; i < analog::Collection::size(analog::GroupAnalogInputs); i++)
             {
@@ -194,14 +194,14 @@ namespace
                         _analog_messages.push(signal);
                     }
 
-                    if (signal.source == signaling::IoEventSource::AnalogButton)
+                    if (signal.source == signaling::IoEventSource::AnalogSwitch)
                     {
-                        _analogButton_messages.push(signal);
+                        _analogSwitch_messages.push(signal);
                     }
 
-                    if (signal.source == signaling::IoEventSource::Button)
+                    if (signal.source == signaling::IoEventSource::Switch)
                     {
-                        _button_messages.push(signal);
+                        _switch_messages.push(signal);
                     }
                 });
 
@@ -263,8 +263,8 @@ namespace
         void clear_messages()
         {
             _analog_messages.clear();
-            _analogButton_messages.clear();
-            _button_messages.clear();
+            _analogSwitch_messages.clear();
+            _switch_messages.clear();
         }
 
         void wait_for_signals()
@@ -274,7 +274,7 @@ namespace
 
             while (stable_iterations < 10)
             {
-                const size_t current_size = _analog_messages.size() + _analogButton_messages.size() + _button_messages.size();
+                const size_t current_size = _analog_messages.size() + _analogSwitch_messages.size() + _switch_messages.size();
 
                 if (current_size == last_size)
                 {
@@ -294,10 +294,10 @@ namespace
         database::Builder           _builder_database;
         database::Admin&            _database_admin = _builder_database.instance();
         analog::Builder             _analog         = analog::Builder(_database_admin);
-        buttons::Builder            _buttons        = buttons::Builder(_database_admin);
+        switches::Builder           _switches       = switches::Builder(_database_admin);
         MidiIoSignalCollector       _analog_messages;
-        MidiIoSignalCollector       _analogButton_messages;
-        MidiIoSignalCollector       _button_messages;
+        MidiIoSignalCollector       _analogSwitch_messages;
+        MidiIoSignalCollector       _switch_messages;
     };
 }    // namespace
 
@@ -758,77 +758,77 @@ TEST_F(AnalogTest, Scaling)
     }
 }
 
-TEST_F(AnalogTest, ButtonForwarding)
+TEST_F(AnalogTest, SwitchForwarding)
 {
     if (!analog::Collection::size(analog::GroupAnalogInputs))
     {
         return;
     }
 
-    // configure one analog component to be button type
-    static constexpr size_t  BUTTON_INDEX        = 1;
-    static constexpr uint8_t BUTTON_MIDI_CHANNEL = 2;
-    static constexpr uint8_t BUTTON_VELOCITY     = 100;
+    // configure one analog component to be switch type
+    static constexpr size_t  SWITCH_INDEX        = 1;
+    static constexpr uint8_t SWITCH_MIDI_CHANNEL = 2;
+    static constexpr uint8_t SWITCH_VELOCITY     = 100;
 
-    ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Type, BUTTON_INDEX, analog::Type::Button) == true);
+    ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Type, SWITCH_INDEX, analog::Type::Switch) == true);
 
-    // configure button with the same INDEX (+offset) to certain parameters
-    ASSERT_TRUE(_database_admin.update(database::Config::Section::Button::Type, buttons::Collection::size(buttons::GroupDigitalInputs) + BUTTON_INDEX, buttons::Type::Momentary));
-    ASSERT_TRUE(_database_admin.update(database::Config::Section::Button::Channel, buttons::Collection::size(buttons::GroupDigitalInputs) + BUTTON_INDEX, BUTTON_MIDI_CHANNEL));
-    ASSERT_TRUE(_database_admin.update(database::Config::Section::Button::MessageType, buttons::Collection::size(buttons::GroupDigitalInputs) + BUTTON_INDEX, buttons::MessageType::ControlChangeReset));
-    ASSERT_TRUE(_database_admin.update(database::Config::Section::Button::Value, buttons::Collection::size(buttons::GroupDigitalInputs) + BUTTON_INDEX, BUTTON_VELOCITY));
+    // configure switch with the same INDEX (+offset) to certain parameters
+    ASSERT_TRUE(_database_admin.update(database::Config::Section::Switch::Type, switches::Collection::size(switches::GroupDigitalInputs) + SWITCH_INDEX, switches::Type::Momentary));
+    ASSERT_TRUE(_database_admin.update(database::Config::Section::Switch::Channel, switches::Collection::size(switches::GroupDigitalInputs) + SWITCH_INDEX, SWITCH_MIDI_CHANNEL));
+    ASSERT_TRUE(_database_admin.update(database::Config::Section::Switch::MessageType, switches::Collection::size(switches::GroupDigitalInputs) + SWITCH_INDEX, switches::MessageType::ControlChangeReset));
+    ASSERT_TRUE(_database_admin.update(database::Config::Section::Switch::Value, switches::Collection::size(switches::GroupDigitalInputs) + SWITCH_INDEX, SWITCH_VELOCITY));
 
     state_change_register(0xFFFF);
     wait_for_signals();
-    auto analog_button_messages = _analogButton_messages.snapshot();
+    auto analog_switch_messages = _analogSwitch_messages.snapshot();
 
-    ASSERT_EQ(1, analog_button_messages.size());
-    EXPECT_EQ(BUTTON_INDEX, analog_button_messages.at(0).component_index);
+    ASSERT_EQ(1, analog_switch_messages.size());
+    EXPECT_EQ(SWITCH_INDEX, analog_switch_messages.at(0).component_index);
 
     state_change_register(0);
     wait_for_signals();
-    analog_button_messages = _analogButton_messages.snapshot();
-    auto button_messages   = _button_messages.snapshot();
+    analog_switch_messages = _analogSwitch_messages.snapshot();
+    auto switch_messages   = _switch_messages.snapshot();
 
-    // In CONTROL_CHANGE_RESET mode the button path emits once on press and
+    // In CONTROL_CHANGE_RESET mode the switch path emits once on press and
     // once on release.
-    ASSERT_EQ(2, analog_button_messages.size());
-    EXPECT_EQ(BUTTON_INDEX, analog_button_messages.at(1).component_index);
-    ASSERT_EQ(2, button_messages.size());
-    EXPECT_EQ(buttons::Collection::size(buttons::GroupDigitalInputs) + BUTTON_INDEX,
-              button_messages.at(0).component_index);
-    EXPECT_EQ(buttons::Collection::size(buttons::GroupDigitalInputs) + BUTTON_INDEX,
-              button_messages.at(1).component_index);
+    ASSERT_EQ(2, analog_switch_messages.size());
+    EXPECT_EQ(SWITCH_INDEX, analog_switch_messages.at(1).component_index);
+    ASSERT_EQ(2, switch_messages.size());
+    EXPECT_EQ(switches::Collection::size(switches::GroupDigitalInputs) + SWITCH_INDEX,
+              switch_messages.at(0).component_index);
+    EXPECT_EQ(switches::Collection::size(switches::GroupDigitalInputs) + SWITCH_INDEX,
+              switch_messages.at(1).component_index);
 
     // repeat the same input frame - analog class sends forwarding message again since it's not in charge of filtering it
     state_change_register(0);
     wait_for_signals();
-    analog_button_messages = _analogButton_messages.snapshot();
+    analog_switch_messages = _analogSwitch_messages.snapshot();
 
-    EXPECT_EQ(3, analog_button_messages.size());
+    EXPECT_EQ(3, analog_switch_messages.size());
 
-    // similar test with the button message type being normal CC
-    _analogButton_messages.clear();
-    _button_messages.clear();
+    // similar test with the switch message type being normal CC
+    _analogSwitch_messages.clear();
+    _switch_messages.clear();
 
-    ASSERT_TRUE(_database_admin.update(database::Config::Section::Button::MessageType, buttons::Collection::size(buttons::GroupDigitalInputs) + BUTTON_INDEX, buttons::MessageType::ControlChange));
+    ASSERT_TRUE(_database_admin.update(database::Config::Section::Switch::MessageType, switches::Collection::size(switches::GroupDigitalInputs) + SWITCH_INDEX, switches::MessageType::ControlChange));
 
     state_change_register(0xFFFF);
     wait_for_signals();
-    analog_button_messages = _analogButton_messages.snapshot();
-    button_messages        = _button_messages.snapshot();
+    analog_switch_messages = _analogSwitch_messages.snapshot();
+    switch_messages        = _switch_messages.snapshot();
 
-    ASSERT_EQ(1, analog_button_messages.size());
-    EXPECT_EQ(BUTTON_INDEX, analog_button_messages.at(0).component_index);
-    ASSERT_EQ(1, button_messages.size());
+    ASSERT_EQ(1, analog_switch_messages.size());
+    EXPECT_EQ(SWITCH_INDEX, analog_switch_messages.at(0).component_index);
+    ASSERT_EQ(1, switch_messages.size());
 
     state_change_register(0);
     wait_for_signals();
-    analog_button_messages = _analogButton_messages.snapshot();
-    button_messages        = _button_messages.snapshot();
+    analog_switch_messages = _analogSwitch_messages.snapshot();
+    switch_messages        = _switch_messages.snapshot();
 
-    EXPECT_EQ(2, analog_button_messages.size());
-    EXPECT_EQ(1, button_messages.size());
+    EXPECT_EQ(2, analog_switch_messages.size());
+    EXPECT_EQ(1, switch_messages.size());
 }
 
 TEST_F(AnalogTest, FsrPublishesOnlyWhenMappedValueBecomesNonZeroAndOnRelease)

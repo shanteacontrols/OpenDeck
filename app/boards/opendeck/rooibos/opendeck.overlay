@@ -14,8 +14,8 @@
         app;
     };
 
-    opendeck_buttons: opendeck-buttons {
-        compatible = "opendeck,buttons";
+    opendeck_switches: opendeck-switches {
+        compatible = "opendeck,switches";
         mode = "native";
         touchscreen-components = <64>;
         native-gpios =

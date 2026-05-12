@@ -11,7 +11,7 @@
 namespace opendeck::io::digital::drivers
 {
     /**
-     * @brief Digital input driver for shift-register based button inputs.
+     * @brief Digital input driver for shift-register based switch inputs.
      */
     class Driver : public DriverBase
     {
@@ -61,11 +61,11 @@ namespace opendeck::io::digital::drivers
         /**
          * @brief Maps a flattened input index to its paired encoder index.
          *
-         * @param index Flattened button/input index.
+         * @param index Flattened switch/input index.
          *
          * @return Encoder index associated with the input.
          */
-        size_t button_to_encoder_index(size_t index) override
+        size_t switch_to_encoder_index(size_t index) override
         {
             return index / 2;
         }
@@ -85,13 +85,13 @@ namespace opendeck::io::digital::drivers
         }
 
         private:
-        static constexpr size_t BUTTON_COUNT              = OPENDECK_BUTTON_PHYSICAL_COUNT;
-        static constexpr size_t ENCODER_COUNT             = BUTTON_COUNT / 2;
+        static constexpr size_t SWITCH_COUNT              = OPENDECK_SWITCH_PHYSICAL_COUNT;
+        static constexpr size_t ENCODER_COUNT             = SWITCH_COUNT / 2;
         static constexpr size_t INPUTS_PER_SHIFT_REGISTER = 8;
 
-        gpio_dt_spec _data  = GPIO_DT_SPEC_GET(DT_NODELABEL(opendeck_buttons), data_gpios);
-        gpio_dt_spec _clock = GPIO_DT_SPEC_GET(DT_NODELABEL(opendeck_buttons), clock_gpios);
-        gpio_dt_spec _latch = GPIO_DT_SPEC_GET(DT_NODELABEL(opendeck_buttons), latch_gpios);
+        gpio_dt_spec _data  = GPIO_DT_SPEC_GET(DT_NODELABEL(opendeck_switches), data_gpios);
+        gpio_dt_spec _clock = GPIO_DT_SPEC_GET(DT_NODELABEL(opendeck_switches), clock_gpios);
+        gpio_dt_spec _latch = GPIO_DT_SPEC_GET(DT_NODELABEL(opendeck_switches), latch_gpios);
 
         /**
          * @brief Samples all inputs through the shift-register chain and returns one frame.
@@ -105,7 +105,7 @@ namespace opendeck::io::digital::drivers
             k_busy_wait(1);
             gpio_pin_set_dt(&_latch, 1);
 
-            for (size_t shift_register = 0; shift_register < DT_PROP(DT_NODELABEL(opendeck_buttons), shift_registers); shift_register++)
+            for (size_t shift_register = 0; shift_register < DT_PROP(DT_NODELABEL(opendeck_switches), shift_registers); shift_register++)
             {
                 for (size_t input = 0; input < INPUTS_PER_SHIFT_REGISTER; input++)
                 {

@@ -130,8 +130,8 @@ namespace
             EXPECT_CALL(_digital._builderEncoders._hwa, state(_))
                 .WillRepeatedly(Return(std::optional<uint8_t>(state)));
 
-            // keep buttons at released state to avoid spurious button signals
-            EXPECT_CALL(_digital._builderButtons._hwa, state(_))
+            // keep switches at released state to avoid spurious switch signals
+            EXPECT_CALL(_digital._builderSwitches._hwa, state(_))
                 .WillRepeatedly(Return(std::optional<bool>(false)));
 
             _digital._instance.process_state_changes();

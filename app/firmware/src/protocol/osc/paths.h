@@ -15,23 +15,21 @@ namespace opendeck::protocol::osc::paths
 {
     namespace misc = zlibs::utils::misc;
 
-    constexpr inline auto ROOT     = misc::StringLiteral{ "/opendeck" };
-    constexpr inline auto INPUT    = misc::StringLiteral{ "/input" };
-    constexpr inline auto OUTPUT   = misc::StringLiteral{ "/output" };
-    constexpr inline auto BUTTON   = misc::StringLiteral{ "/button" };
-    constexpr inline auto ENCODER  = misc::StringLiteral{ "/encoder" };
-    constexpr inline auto ANALOG   = misc::StringLiteral{ "/analog" };
-    constexpr inline auto LED      = misc::StringLiteral{ "/led" };
-    constexpr inline auto RGB      = misc::StringLiteral{ "/rgb" };
-    constexpr inline auto DISCOVER = misc::StringLiteral{ "/discover" };
-    constexpr inline auto DEVICE   = misc::StringLiteral{ "/device" };
+    constexpr inline auto ROOT              = misc::StringLiteral{ "/opendeck" };
+    constexpr inline auto SWITCH_COMPONENT  = misc::StringLiteral{ "/switch" };
+    constexpr inline auto ENCODER_COMPONENT = misc::StringLiteral{ "/encoder" };
+    constexpr inline auto ANALOG_COMPONENT  = misc::StringLiteral{ "/analog" };
+    constexpr inline auto OUTPUT_COMPONENT  = misc::StringLiteral{ "/output" };
+    constexpr inline auto RGB               = misc::StringLiteral{ "/rgb" };
+    constexpr inline auto DISCOVER          = misc::StringLiteral{ "/discover" };
+    constexpr inline auto DEVICE            = misc::StringLiteral{ "/device" };
 
-    constexpr inline auto INPUT_BUTTON  = misc::string_join(ROOT, INPUT, BUTTON);
-    constexpr inline auto INPUT_ENCODER = misc::string_join(ROOT, INPUT, ENCODER);
-    constexpr inline auto INPUT_ANALOG  = misc::string_join(ROOT, INPUT, ANALOG);
-    constexpr inline auto OUTPUT_LED    = misc::string_join(ROOT, OUTPUT, LED);
-    constexpr inline auto DISCOVERY     = misc::string_join(ROOT, DISCOVER);
-    constexpr inline auto DEVICE_INFO   = misc::string_join(ROOT, DEVICE);
+    constexpr inline auto SWITCH      = misc::string_join(ROOT, SWITCH_COMPONENT);
+    constexpr inline auto ENCODER     = misc::string_join(ROOT, ENCODER_COMPONENT);
+    constexpr inline auto ANALOG      = misc::string_join(ROOT, ANALOG_COMPONENT);
+    constexpr inline auto OUTPUT      = misc::string_join(ROOT, OUTPUT_COMPONENT);
+    constexpr inline auto DISCOVERY   = misc::string_join(ROOT, DISCOVER);
+    constexpr inline auto DEVICE_INFO = misc::string_join(ROOT, DEVICE);
 
     /**
      * @brief Extracts a component index from an address with a fixed OpenDeck path prefix.

@@ -152,9 +152,9 @@ void Analog::force_refresh(size_t start_index, size_t count)
 
             if (const auto result = _mapper.last_result(i); result.has_value())
             {
-                if (filter_descriptor.type == Type::Button)
+                if (filter_descriptor.type == Type::Switch)
                 {
-                    publish_button(result.value(), true);
+                    publish_switch(result.value(), true);
                 }
                 else
                 {
@@ -227,11 +227,11 @@ void Analog::process_reading(size_t index, uint16_t value)
     }
     break;
 
-    case Type::Button:
+    case Type::Switch:
     {
         if (result.has_value())
         {
-            publish_button(result.value());
+            publish_switch(result.value());
         }
     }
     break;
@@ -294,7 +294,7 @@ void Analog::fill_filter_descriptor(size_t index, Filter::Descriptor& filter_des
     filter_descriptor.upper_offset = _database.read(database::Config::Section::Analog::UpperOffset, index);
 }
 
-void Analog::publish_button(const Mapper::Result& result, bool ignore_freeze)
+void Analog::publish_switch(const Mapper::Result& result, bool ignore_freeze)
 {
     if (is_frozen() && !ignore_freeze)
     {
@@ -307,12 +307,12 @@ void Analog::publish_button(const Mapper::Result& result, bool ignore_freeze)
     }
 
     signaling::MidiIoSignal signal = {};
-    signal.source                  = signaling::IoEventSource::AnalogButton;
+    signal.source                  = signaling::IoEventSource::AnalogSwitch;
     signal.component_index         = result.midi->component_index;
     signal.value                   = result.midi->value;
 
     signaling::publish(signaling::OscIoSignal{
-        .source          = signaling::IoEventSource::AnalogButton,
+        .source          = signaling::IoEventSource::AnalogSwitch,
         .component_index = signal.component_index,
         .int32_value     = static_cast<int32_t>(signal.value),
         .direction       = signaling::SignalDirection::Out,

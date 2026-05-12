@@ -6,12 +6,12 @@ opendeck_test_add_modules(
     metadata     "app/common/metadata"
     database     "app/firmware/src/database"
     configurable "app/firmware/src/util/configurable"
-    buttons      "app/firmware/src/io/digital/buttons"
+    switches      "app/firmware/src/io/digital/switches"
     encoders     "app/firmware/src/io/digital/encoders"
 )
 
 target_sources(app
     PRIVATE
-    digital_buttons_test.cpp
+    digital_switches_test.cpp
     digital_encoders_test.cpp
 )

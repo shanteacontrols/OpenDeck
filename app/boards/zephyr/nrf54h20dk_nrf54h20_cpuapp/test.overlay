@@ -2,7 +2,7 @@
     opendeck_retained: opendeck-retained {
     };
 
-    buttons {
+    switches {
         compatible = "gpio-keys";
         status = "okay";
     };

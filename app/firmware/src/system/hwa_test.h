@@ -15,7 +15,7 @@
 #include "io/touchscreen/builder.h"
 #include "io/i2c/builder.h"
 #include "io/indicators/builder.h"
-#include "io/leds/builder.h"
+#include "io/outputs/builder.h"
 
 namespace opendeck::sys
 {
@@ -65,7 +65,7 @@ namespace opendeck::sys
         database::Admin&             _database            = _builder_database.instance();
         io::digital::Builder         _builder_digital     = io::digital::Builder(_database);
         io::analog::Builder          _builder_analog      = io::analog::Builder(_database);
-        io::leds::Builder            _builder_leds        = io::leds::Builder(_database);
+        io::outputs::Builder         _builder_outputs     = io::outputs::Builder(_database);
         io::touchscreen::Builder     _builder_touchscreen = io::touchscreen::Builder(_database);
         io::i2c::Builder             _builder_i2c         = io::i2c::Builder(_database);
         io::indicators::Builder      _builder_indicators  = io::indicators::Builder(_database);
@@ -75,7 +75,7 @@ namespace opendeck::sys
         IoCollection                 _io           = {
             &_builder_digital.instance(),
             &_builder_analog.instance(),
-            &_builder_leds.instance(),
+            &_builder_outputs.instance(),
             &_builder_i2c.instance(),
             &_builder_touchscreen.instance(),
             &_builder_indicators.instance(),

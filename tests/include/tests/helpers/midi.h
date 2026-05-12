@@ -614,8 +614,8 @@ namespace opendeck::tests
 
             _system->_hwa._builder_midi._hwaUsb._readPackets = midi_to_usb_packets(event);
 
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_BUTTONS
-            EXPECT_CALL(_system->_hwa._builder_digital._builderButtons._hwa, state(_))
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_SWITCHES
+            EXPECT_CALL(_system->_hwa._builder_digital._builderSwitches._hwa, state(_))
                 .Times(AnyNumber());
 #endif
 
@@ -723,10 +723,10 @@ namespace opendeck::tests
             return sys::Config::Block::Global;
         }
 
-        /** @brief Maps a button section enum to its SysEx configuration block. */
-        static constexpr sys::Config::Block block(sys::Config::Section::Button)
+        /** @brief Maps a switch section enum to its SysEx configuration block. */
+        static constexpr sys::Config::Block block(sys::Config::Section::Switch)
         {
-            return sys::Config::Block::Buttons;
+            return sys::Config::Block::Switches;
         }
 
         /** @brief Maps an encoder section enum to its SysEx configuration block. */
@@ -741,10 +741,10 @@ namespace opendeck::tests
             return sys::Config::Block::Analog;
         }
 
-        /** @brief Maps an LED section enum to its SysEx configuration block. */
-        static constexpr sys::Config::Block block(sys::Config::Section::Leds)
+        /** @brief Maps an OUTPUT section enum to its SysEx configuration block. */
+        static constexpr sys::Config::Block block(sys::Config::Section::Outputs)
         {
-            return sys::Config::Block::Leds;
+            return sys::Config::Block::Outputs;
         }
 
         /** @brief Maps an I2C section enum to its SysEx configuration block. */

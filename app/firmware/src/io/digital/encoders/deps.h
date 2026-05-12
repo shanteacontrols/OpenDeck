@@ -8,7 +8,7 @@
 #include "common.h"
 
 #include "database/database.h"
-#include "io/digital/buttons/deps.h"
+#include "io/digital/switches/deps.h"
 
 #include <optional>
 

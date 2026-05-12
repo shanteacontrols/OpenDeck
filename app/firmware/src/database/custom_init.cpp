@@ -4,9 +4,9 @@
  */
 
 #include "database/database.h"
-#include "io/digital/buttons/common.h"
+#include "io/digital/switches/common.h"
 #include "io/analog/common.h"
-#include "io/leds/common.h"
+#include "io/outputs/common.h"
 #include "protocol/midi/common.h"
 #include "protocol/osc/common.h"
 
@@ -27,13 +27,13 @@ void Admin::custom_init_global()
 #endif
 }
 
-void Admin::custom_init_buttons()
+void Admin::custom_init_switches()
 {
-    for (size_t group = 0; group < buttons::Collection::groups(); group++)
+    for (size_t group = 0; group < switches::Collection::groups(); group++)
     {
-        for (size_t i = 0; i < buttons::Collection::size(group); i++)
+        for (size_t i = 0; i < switches::Collection::size(group); i++)
         {
-            update(Config::Section::Button::MidiId, i + buttons::Collection::start_index(group), i);
+            update(Config::Section::Switch::MidiId, i + switches::Collection::start_index(group), i);
         }
     }
 }
@@ -53,14 +53,14 @@ void Admin::custom_init_analog()
     }
 }
 
-void Admin::custom_init_leds()
+void Admin::custom_init_outputs()
 {
-    for (size_t group = 0; group < leds::Collection::groups(); group++)
+    for (size_t group = 0; group < outputs::Collection::groups(); group++)
     {
-        for (size_t i = 0; i < leds::Collection::size(group); i++)
+        for (size_t i = 0; i < outputs::Collection::size(group); i++)
         {
-            update(Config::Section::Leds::ActivationId, i + leds::Collection::start_index(group), i);
-            update(Config::Section::Leds::ControlType, i + leds::Collection::start_index(group), leds::ControlType::MidiInNoteMultiVal);
+            update(Config::Section::Outputs::ActivationId, i + outputs::Collection::start_index(group), i);
+            update(Config::Section::Outputs::ControlType, i + outputs::Collection::start_index(group), outputs::ControlType::MidiInNoteMultiVal);
         }
     }
 }

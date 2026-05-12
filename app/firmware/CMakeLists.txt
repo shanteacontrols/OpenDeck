@@ -8,10 +8,10 @@ add_subdirectory(src/protocol/webconfig)
 add_subdirectory(src/protocol/mdns)
 add_subdirectory(src/staged_update)
 add_subdirectory(src/io/digital)
-add_subdirectory(src/io/digital/buttons)
+add_subdirectory(src/io/digital/switches)
 add_subdirectory(src/io/digital/encoders)
 add_subdirectory(src/io/analog)
-add_subdirectory(src/io/leds)
+add_subdirectory(src/io/outputs)
 add_subdirectory(src/io/touchscreen)
 add_subdirectory(src/io/i2c)
 add_subdirectory(src/io/indicators)
@@ -27,9 +27,9 @@ set(OPENDECK_FIRMWARE_LIBS
     protocol_webconfig
     protocol_mdns
     staged_update
-    buttons
+    switches
     analog
-    leds
+    outputs
     encoders
     touchscreen
     i2c

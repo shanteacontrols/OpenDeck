@@ -57,11 +57,11 @@ namespace opendeck::io::digital::drivers
         /**
          * @brief Maps a flattened input index to its paired encoder index.
          *
-         * @param index Flattened button/input index.
+         * @param index Flattened switch/input index.
          *
          * @return Encoder index associated with the input.
          */
-        size_t button_to_encoder_index(size_t index) override
+        size_t switch_to_encoder_index(size_t index) override
         {
             return index / 2;
         }

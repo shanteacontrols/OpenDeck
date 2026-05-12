@@ -8,7 +8,7 @@
 #include "encoders.h"
 #include "filter_hw.h"
 #include "hwa_hw.h"
-#include "io/digital/buttons/deps.h"
+#include "io/digital/switches/deps.h"
 #include "database/builder.h"
 
 namespace opendeck::io::encoders
@@ -20,15 +20,15 @@ namespace opendeck::io::encoders
     {
         public:
         /**
-         * @brief Constructs the encoder builder around shared database and button HWA instances.
+         * @brief Constructs the encoder builder around shared database and switch HWA instances.
          *
          * @param database Database administrator used for configuration access.
-         * @param buttons_hwa Button HWA used to derive encoder pair state.
+         * @param switches_hwa Switch HWA used to derive encoder pair state.
          */
-        Builder(database::Admin&  database,
-                io::buttons::Hwa& buttons_hwa)
+        Builder(database::Admin&   database,
+                io::switches::Hwa& switches_hwa)
             : _database(database)
-            , _hwa(buttons_hwa)
+            , _hwa(switches_hwa)
             , _mapper(_database)
             , _instance(_hwa, _filter, _database, _mapper)
         {}

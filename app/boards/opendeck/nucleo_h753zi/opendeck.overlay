@@ -17,8 +17,8 @@
         lint;
     };
 
-    opendeck_buttons: opendeck-buttons {
-        compatible = "opendeck,buttons";
+    opendeck_switches: opendeck-switches {
+        compatible = "opendeck,switches";
         mode = "native";
         touchscreen-components = <64>;
         native-gpios =
@@ -95,7 +95,7 @@
 
     opendeck_bootloader: opendeck-bootloader {
         compatible = "opendeck,bootloader";
-        button-gpios = <&gpioc 13 GPIO_ACTIVE_HIGH>;
+        switch-gpios = <&gpioc 13 GPIO_ACTIVE_HIGH>;
         boot-partition = <&opendeck_partition_boot>;
         app-partition = <&opendeck_partition_app>;
         staged-dfu-partition = <&opendeck_partition_staged_dfu>;

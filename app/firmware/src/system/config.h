@@ -43,10 +43,10 @@ namespace opendeck::sys
         enum class Block : uint8_t
         {
             Global,
-            Buttons,
+            Switches,
             Encoders,
             Analog,
-            Leds,
+            Outputs,
             I2c,
             Touchscreen,
             Count
@@ -77,9 +77,9 @@ namespace opendeck::sys
             };
 
             /**
-             * @brief Identifies button SysEx configuration sections.
+             * @brief Identifies switch SysEx configuration sections.
              */
-            enum class Button : uint8_t
+            enum class Switch : uint8_t
             {
                 Type,
                 MessageType,
@@ -131,9 +131,9 @@ namespace opendeck::sys
             };
 
             /**
-             * @brief Identifies LED SysEx configuration sections.
+             * @brief Identifies OUTPUT SysEx configuration sections.
              */
-            enum class Leds : uint8_t
+            enum class Outputs : uint8_t
             {
                 TestColor,
                 TestBlink,

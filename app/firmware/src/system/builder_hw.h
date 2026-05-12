@@ -14,7 +14,7 @@
 #include "io/touchscreen/builder.h"
 #include "io/i2c/builder.h"
 #include "io/indicators/builder.h"
-#include "io/leds/builder.h"
+#include "io/outputs/builder.h"
 
 namespace opendeck::sys
 {

@@ -51,7 +51,7 @@ namespace
 TEST_F(MIDITest, OmniChannel)
 {
     signaling::publish(signaling::MidiIoSignal{
-        .source          = signaling::IoEventSource::Button,
+        .source          = signaling::IoEventSource::Switch,
         .component_index = 0,
         .channel         = 1,
         .index           = 0,
@@ -67,7 +67,7 @@ TEST_F(MIDITest, OmniChannel)
     // now set the channel to omni and verify that 16 messages are sent
     _midi._hwaUsb.clear();
     signaling::publish(signaling::MidiIoSignal{
-        .source          = signaling::IoEventSource::Button,
+        .source          = signaling::IoEventSource::Switch,
         .component_index = 0,
         .channel         = midi::OMNI_CHANNEL,
         .index           = 0,
@@ -112,7 +112,7 @@ TEST_F(MIDITest, BleTxIsSkippedUntilReady)
     _midi._hwaBle._ready = false;
 
     signaling::publish(signaling::MidiIoSignal{
-        .source          = signaling::IoEventSource::Button,
+        .source          = signaling::IoEventSource::Switch,
         .component_index = 0,
         .channel         = 1,
         .index           = 0,

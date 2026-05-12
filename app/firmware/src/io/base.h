@@ -21,7 +21,7 @@ namespace opendeck::io
     {
         Digital,
         Analog,
-        Leds,
+        Outputs,
         I2c,
         Touchscreen,
         Indicators,

@@ -220,23 +220,23 @@ bool Osc::enqueue_input(const signaling::OscIoSignal& event)
 
     switch (event.source)
     {
-    case signaling::IoEventSource::Button:
-    case signaling::IoEventSource::TouchscreenButton:
+    case signaling::IoEventSource::Switch:
+    case signaling::IoEventSource::TouchscreenSwitch:
     {
-        queued.path  = paths::INPUT_BUTTON.c_str();
+        queued.path  = paths::SWITCH.c_str();
         queued.value = event.int32_value.value_or(0) != 0 ? 1 : 0;
     }
     break;
 
     case signaling::IoEventSource::Encoder:
     {
-        queued.path = paths::INPUT_ENCODER.c_str();
+        queued.path = paths::ENCODER.c_str();
     }
     break;
 
     case signaling::IoEventSource::Analog:
     {
-        queued.path             = paths::INPUT_ANALOG.c_str();
+        queued.path             = paths::ANALOG.c_str();
         queued.float_value      = event.float_value.has_value();
         queued.normalized_value = event.float_value.value_or(0.0F);
     }
@@ -744,12 +744,12 @@ void Osc::close_listen_socket()
 
 bool Osc::handle_message(std::string_view address, int32_t value)
 {
-    const auto index = paths::parse_indexed(address, paths::OUTPUT_LED.c_str());
+    const auto index = paths::parse_indexed(address, paths::OUTPUT.c_str());
 
     if (index)
     {
         signaling::publish(signaling::OscIoSignal{
-            .source          = signaling::IoEventSource::Led,
+            .source          = signaling::IoEventSource::Output,
             .component_index = *index,
             .int32_value     = static_cast<int32_t>(value != 0 ? 1 : 0),
             .direction       = signaling::SignalDirection::In,

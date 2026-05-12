@@ -42,19 +42,19 @@ namespace opendeck::util
          */
         static constexpr database::Config::Section::Global sys_2_db_section(sys::Config::Section::Global section)
         {
-            return SYS_EX2_DB_GLOBAL[static_cast<uint8_t>(section)];
+            return SYSEX_2_DB_GLOBAL[static_cast<uint8_t>(section)];
         }
 
         /**
-         * @brief Converts a button system-config section into its database equivalent.
+         * @brief Converts a switch system-config section into its database equivalent.
          *
-         * @param section System-config button section.
+         * @param section System-config switch section.
          *
          * @return Matching database-config section.
          */
-        static constexpr database::Config::Section::Button sys_2_db_section(sys::Config::Section::Button section)
+        static constexpr database::Config::Section::Switch sys_2_db_section(sys::Config::Section::Switch section)
         {
-            return SYS_EX2_DB_BUTTON[static_cast<uint8_t>(section)];
+            return SYSEX_2_DB_SWITCH[static_cast<uint8_t>(section)];
         }
 
         /**
@@ -66,7 +66,7 @@ namespace opendeck::util
          */
         static constexpr database::Config::Section::Encoder sys_2_db_section(sys::Config::Section::Encoder section)
         {
-            return SYS_EX2_DB_ENCODER[static_cast<uint8_t>(section)];
+            return SYSEX_2_DB_ENCODER[static_cast<uint8_t>(section)];
         }
 
         /**
@@ -78,19 +78,19 @@ namespace opendeck::util
          */
         static constexpr database::Config::Section::Analog sys_2_db_section(sys::Config::Section::Analog section)
         {
-            return SYS_EX2_DB_ANALOG[static_cast<uint8_t>(section)];
+            return SYSEX_2_DB_ANALOG[static_cast<uint8_t>(section)];
         }
 
         /**
-         * @brief Converts an LED system-config section into its database equivalent.
+         * @brief Converts an OUTPUT system-config section into its database equivalent.
          *
-         * @param section System-config LED section.
+         * @param section System-config OUTPUT section.
          *
          * @return Matching database-config section.
          */
-        static constexpr database::Config::Section::Leds sys_2_db_section(sys::Config::Section::Leds section)
+        static constexpr database::Config::Section::Outputs sys_2_db_section(sys::Config::Section::Outputs section)
         {
-            return SYS_EX2_DB_LEDS[static_cast<uint8_t>(section)];
+            return SYSEX_2_DB_OUTPUTS[static_cast<uint8_t>(section)];
         }
 
         /**
@@ -102,7 +102,7 @@ namespace opendeck::util
          */
         static constexpr database::Config::Section::I2c sys_2_db_section(sys::Config::Section::I2c section)
         {
-            return SYS_EX2_DB_I2C[static_cast<uint8_t>(section)];
+            return SYSEX_2_DB_I2C[static_cast<uint8_t>(section)];
         }
 
         /**
@@ -114,11 +114,11 @@ namespace opendeck::util
          */
         static constexpr database::Config::Section::Touchscreen sys_2_db_section(sys::Config::Section::Touchscreen section)
         {
-            return SYS_EX2_DB_TOUCHSCREEN[static_cast<uint8_t>(section)];
+            return SYSEX_2_DB_TOUCHSCREEN[static_cast<uint8_t>(section)];
         }
 
         private:
-        static constexpr database::Config::Section::Global SYS_EX2_DB_GLOBAL[static_cast<uint8_t>(sys::Config::Section::Global::Count)] = {
+        static constexpr database::Config::Section::Global SYSEX_2_DB_GLOBAL[static_cast<uint8_t>(sys::Config::Section::Global::Count)] = {
             database::Config::Section::Global::MidiSettings,
             database::Config::Section::Global::Count,    // blank/reserved
             database::Config::Section::Global::Count,    // unused
@@ -126,15 +126,15 @@ namespace opendeck::util
             database::Config::Section::Global::Count,
         };
 
-        static constexpr database::Config::Section::Button SYS_EX2_DB_BUTTON[static_cast<uint8_t>(sys::Config::Section::Button::Count)] = {
-            database::Config::Section::Button::Type,
-            database::Config::Section::Button::MessageType,
-            database::Config::Section::Button::MidiId,
-            database::Config::Section::Button::Value,
-            database::Config::Section::Button::Channel
+        static constexpr database::Config::Section::Switch SYSEX_2_DB_SWITCH[static_cast<uint8_t>(sys::Config::Section::Switch::Count)] = {
+            database::Config::Section::Switch::Type,
+            database::Config::Section::Switch::MessageType,
+            database::Config::Section::Switch::MidiId,
+            database::Config::Section::Switch::Value,
+            database::Config::Section::Switch::Channel
         };
 
-        static constexpr database::Config::Section::Encoder SYS_EX2_DB_ENCODER[static_cast<uint8_t>(sys::Config::Section::Encoder::Count)] = {
+        static constexpr database::Config::Section::Encoder SYSEX_2_DB_ENCODER[static_cast<uint8_t>(sys::Config::Section::Encoder::Count)] = {
             database::Config::Section::Encoder::Enable,
             database::Config::Section::Encoder::Invert,
             database::Config::Section::Encoder::Mode,
@@ -150,7 +150,7 @@ namespace opendeck::util
             database::Config::Section::Encoder::MidiId2,
         };
 
-        static constexpr database::Config::Section::Analog SYS_EX2_DB_ANALOG[static_cast<uint8_t>(sys::Config::Section::Analog::Count)] = {
+        static constexpr database::Config::Section::Analog SYSEX_2_DB_ANALOG[static_cast<uint8_t>(sys::Config::Section::Analog::Count)] = {
             database::Config::Section::Analog::Enable,
             database::Config::Section::Analog::Invert,
             database::Config::Section::Analog::Type,
@@ -165,22 +165,22 @@ namespace opendeck::util
             database::Config::Section::Analog::UpperOffset,
         };
 
-        static constexpr database::Config::Section::Leds SYS_EX2_DB_LEDS[static_cast<uint8_t>(sys::Config::Section::Leds::Count)] = {
-            database::Config::Section::Leds::Count,
-            database::Config::Section::Leds::Count,
-            database::Config::Section::Leds::Global,
-            database::Config::Section::Leds::ActivationId,
-            database::Config::Section::Leds::RgbEnable,
-            database::Config::Section::Leds::ControlType,
-            database::Config::Section::Leds::ActivationValue,
-            database::Config::Section::Leds::Channel,
+        static constexpr database::Config::Section::Outputs SYSEX_2_DB_OUTPUTS[static_cast<uint8_t>(sys::Config::Section::Outputs::Count)] = {
+            database::Config::Section::Outputs::Count,
+            database::Config::Section::Outputs::Count,
+            database::Config::Section::Outputs::Global,
+            database::Config::Section::Outputs::ActivationId,
+            database::Config::Section::Outputs::RgbEnable,
+            database::Config::Section::Outputs::ControlType,
+            database::Config::Section::Outputs::ActivationValue,
+            database::Config::Section::Outputs::Channel,
         };
 
-        static constexpr database::Config::Section::I2c SYS_EX2_DB_I2C[static_cast<uint8_t>(sys::Config::Section::I2c::Count)] = {
+        static constexpr database::Config::Section::I2c SYSEX_2_DB_I2C[static_cast<uint8_t>(sys::Config::Section::I2c::Count)] = {
             database::Config::Section::I2c::Display,
         };
 
-        static constexpr database::Config::Section::Touchscreen SYS_EX2_DB_TOUCHSCREEN[static_cast<uint8_t>(sys::Config::Section::Touchscreen::Count)] = {
+        static constexpr database::Config::Section::Touchscreen SYSEX_2_DB_TOUCHSCREEN[static_cast<uint8_t>(sys::Config::Section::Touchscreen::Count)] = {
             database::Config::Section::Touchscreen::Setting,
             database::Config::Section::Touchscreen::XPos,
             database::Config::Section::Touchscreen::YPos,

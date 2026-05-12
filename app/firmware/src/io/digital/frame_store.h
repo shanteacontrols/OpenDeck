@@ -21,7 +21,7 @@ namespace opendeck::io::digital
         /**
          * @brief Constructs the frame store around the active digital driver.
          *
-         * @param driver Driver used for button/encoder index mapping.
+         * @param driver Driver used for switch/encoder index mapping.
          */
         explicit FrameStore(drivers::DriverBase& driver)
             : _driver(driver)
@@ -97,15 +97,15 @@ namespace opendeck::io::digital
         }
 
         /**
-         * @brief Maps a button index to the corresponding encoder index.
+         * @brief Maps a switch index to the corresponding encoder index.
          *
-         * @param index Button index to map.
+         * @param index Switch index to map.
          *
-         * @return Encoder index associated with the button.
+         * @return Encoder index associated with the switch.
          */
-        size_t button_to_encoder_index(size_t index) const
+        size_t switch_to_encoder_index(size_t index) const
         {
-            return _driver.button_to_encoder_index(index);
+            return _driver.switch_to_encoder_index(index);
         }
 
         private:

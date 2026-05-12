@@ -120,12 +120,12 @@ namespace opendeck::io::analog
         void publish_result(const Mapper::Result& result, bool ignore_freeze = false);
 
         /**
-         * @brief Publishes one analog input configured as a digital button.
+         * @brief Publishes one analog input configured as a digital switch.
          *
-         * @param result Mapped analog result containing the button-style value to publish.
+         * @param result Mapped analog result containing the switch-style value to publish.
          * @param ignore_freeze When `true`, allows refresh-triggered output while the subsystem is frozen.
          */
-        void publish_button(const Mapper::Result& result, bool ignore_freeze = false);
+        void publish_switch(const Mapper::Result& result, bool ignore_freeze = false);
 
         /**
          * @brief Serves SysEx configuration reads for the analog block.

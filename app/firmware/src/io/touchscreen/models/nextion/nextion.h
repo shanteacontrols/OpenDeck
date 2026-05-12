@@ -81,7 +81,7 @@ namespace opendeck::io::touchscreen
          */
         enum class ResponseId : uint8_t
         {
-            Button,
+            Switch,
             Count
         };
 
@@ -95,7 +95,7 @@ namespace opendeck::io::touchscreen
         };
 
         static constexpr ResponseDescriptor RESPONSES[static_cast<size_t>(ResponseId::Count)] = {
-            // button
+            // switch
             {
                 .size        = 6,
                 .response_id = 0x65,

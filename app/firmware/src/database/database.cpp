@@ -225,10 +225,10 @@ bool database::Admin::initialize_default_data()
 
         // perform custom init as well
         custom_init_global();
-        custom_init_buttons();
+        custom_init_switches();
         custom_init_encoders();
         custom_init_analog();
-        custom_init_leds();
+        custom_init_outputs();
         custom_init_display();
         custom_init_touchscreen();
     }

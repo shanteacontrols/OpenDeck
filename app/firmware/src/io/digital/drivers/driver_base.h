@@ -58,13 +58,13 @@ namespace opendeck::io::digital::drivers
         virtual size_t encoder_count() const = 0;
 
         /**
-         * @brief Maps a button index to the encoder index that shares its pins.
+         * @brief Maps a switch index to the encoder index that shares its pins.
          *
-         * @param index Flattened button/input index.
+         * @param index Flattened switch/input index.
          *
          * @return Encoder index associated with the input.
          */
-        virtual size_t button_to_encoder_index(size_t index) = 0;
+        virtual size_t switch_to_encoder_index(size_t index) = 0;
 
         /**
          * @brief Maps an encoder index and pin component to a flattened input index.

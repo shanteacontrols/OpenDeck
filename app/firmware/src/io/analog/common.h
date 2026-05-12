@@ -52,7 +52,7 @@ namespace opendeck::io::analog
         PotentiometerControlChange,
         PotentiometerNote,
         Fsr,
-        Button,
+        Switch,
         Nrpn7Bit,
         Nrpn14Bit,
         PitchBend,

@@ -346,21 +346,21 @@ TEST_F(HWTest, DatabaseInitialValues)
     //----------------------------------
     // The remaining sections are preset-scoped and are read from the currently active preset.
 
-    // button block
+    // switch block
     //----------------------------------
-    for (size_t i = 0; i < io::buttons::Collection::size(); i += PARAM_SKIP)
+    for (size_t i = 0; i < io::switches::Collection::size(); i += PARAM_SKIP)
     {
-        ASSERT_EQ(0, _helper.database_read_from_system_via_sysex(sys::Config::Section::Button::Type, i));
-        ASSERT_EQ(0, _helper.database_read_from_system_via_sysex(sys::Config::Section::Button::MessageType, i));
-        ASSERT_EQ(127, _helper.database_read_from_system_via_sysex(sys::Config::Section::Button::Value, i));
-        ASSERT_EQ(1, _helper.database_read_from_system_via_sysex(sys::Config::Section::Button::Channel, i));
+        ASSERT_EQ(0, _helper.database_read_from_system_via_sysex(sys::Config::Section::Switch::Type, i));
+        ASSERT_EQ(0, _helper.database_read_from_system_via_sysex(sys::Config::Section::Switch::MessageType, i));
+        ASSERT_EQ(127, _helper.database_read_from_system_via_sysex(sys::Config::Section::Switch::Value, i));
+        ASSERT_EQ(1, _helper.database_read_from_system_via_sysex(sys::Config::Section::Switch::Channel, i));
     }
 
-    for (size_t group = 0; group < io::buttons::Collection::groups(); group++)
+    for (size_t group = 0; group < io::switches::Collection::groups(); group++)
     {
-        for (size_t i = 0; i < io::buttons::Collection::size(group); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::switches::Collection::size(group); i += PARAM_SKIP)
         {
-            ASSERT_EQ(i, _helper.database_read_from_system_via_sysex(sys::Config::Section::Button::MidiId, i + io::buttons::Collection::start_index(group)));
+            ASSERT_EQ(i, _helper.database_read_from_system_via_sysex(sys::Config::Section::Switch::MidiId, i + io::switches::Collection::start_index(group)));
         }
     }
 
@@ -401,31 +401,31 @@ TEST_F(HWTest, DatabaseInitialValues)
         }
     }
 
-    // LED block
+    // OUTPUT block
     //----------------------------------
-    for (size_t i = 0; i < static_cast<uint8_t>(io::leds::Setting::Count); i += PARAM_SKIP)
+    for (size_t i = 0; i < static_cast<uint8_t>(io::outputs::Setting::Count); i += PARAM_SKIP)
     {
-        ASSERT_EQ(0, _helper.database_read_from_system_via_sysex(sys::Config::Section::Leds::Global, i));
+        ASSERT_EQ(0, _helper.database_read_from_system_via_sysex(sys::Config::Section::Outputs::Global, i));
     }
 
-    for (size_t group = 0; group < io::leds::Collection::groups(); group++)
+    for (size_t group = 0; group < io::outputs::Collection::groups(); group++)
     {
-        for (size_t i = 0; i < io::leds::Collection::size(group); i += PARAM_SKIP)
+        for (size_t i = 0; i < io::outputs::Collection::size(group); i += PARAM_SKIP)
         {
-            ASSERT_EQ(i, _helper.database_read_from_system_via_sysex(sys::Config::Section::Leds::ActivationId, i + io::leds::Collection::start_index(group)));
+            ASSERT_EQ(i, _helper.database_read_from_system_via_sysex(sys::Config::Section::Outputs::ActivationId, i + io::outputs::Collection::start_index(group)));
         }
     }
 
-    for (size_t i = 0; i < io::leds::Collection::size() / 3 + (io::touchscreen::Collection::size() / 3); i += PARAM_SKIP)
+    for (size_t i = 0; i < io::outputs::Collection::size() / 3 + (io::touchscreen::Collection::size() / 3); i += PARAM_SKIP)
     {
-        ASSERT_EQ(0, _helper.database_read_from_system_via_sysex(sys::Config::Section::Leds::RgbEnable, i));
+        ASSERT_EQ(0, _helper.database_read_from_system_via_sysex(sys::Config::Section::Outputs::RgbEnable, i));
     }
 
-    for (size_t i = 0; i < io::leds::Collection::size(); i += PARAM_SKIP)
+    for (size_t i = 0; i < io::outputs::Collection::size(); i += PARAM_SKIP)
     {
-        ASSERT_EQ(static_cast<uint32_t>(io::leds::ControlType::MidiInNoteMultiVal), _helper.database_read_from_system_via_sysex(sys::Config::Section::Leds::ControlType, i));
-        ASSERT_EQ(127, _helper.database_read_from_system_via_sysex(sys::Config::Section::Leds::ActivationValue, i));
-        ASSERT_EQ(1, _helper.database_read_from_system_via_sysex(sys::Config::Section::Leds::Channel, i));
+        ASSERT_EQ(static_cast<uint32_t>(io::outputs::ControlType::MidiInNoteMultiVal), _helper.database_read_from_system_via_sysex(sys::Config::Section::Outputs::ControlType, i));
+        ASSERT_EQ(127, _helper.database_read_from_system_via_sysex(sys::Config::Section::Outputs::ActivationValue, i));
+        ASSERT_EQ(1, _helper.database_read_from_system_via_sysex(sys::Config::Section::Outputs::Channel, i));
     }
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_I2C
@@ -465,7 +465,7 @@ TEST_F(HWTest, DatabaseInitialValues)
 TEST_F(HWTest, BackupAndRestore)
 {
     ASSERT_GT(io::analog::Collection::size(), 0U);
-    ASSERT_GT(io::buttons::Collection::size(), 0U);
+    ASSERT_GT(io::switches::Collection::size(), 0U);
 
     const size_t analog_component_count = io::analog::Collection::size();
     const size_t analog_component_index = analog_component_count - 1;
@@ -499,10 +499,10 @@ TEST_F(HWTest, BackupAndRestore)
         }
 #endif
 
-        constexpr size_t BUTTON_COMPONENT = 0;
-        const size_t     button_midi_id   = 90 + preset;
+        constexpr size_t SWITCH_COMPONENT = 0;
+        const size_t     switch_midi_id   = 90 + preset;
 
-        ASSERT_TRUE(_helper.database_write_to_system_via_sysex(sys::Config::Section::Button::Value, BUTTON_COMPONENT, button_midi_id));
+        ASSERT_TRUE(_helper.database_write_to_system_via_sysex(sys::Config::Section::Switch::Value, SWITCH_COMPONENT, switch_midi_id));
     }
 
     LOG_INF("Verifying that the custom values are active before backup");
@@ -526,7 +526,7 @@ TEST_F(HWTest, BackupAndRestore)
                                                                   encoder_component_index));
         }
 #endif
-        ASSERT_EQ(90 + preset, _helper.database_read_from_system_via_sysex(sys::Config::Section::Button::Value, 0));
+        ASSERT_EQ(90 + preset, _helper.database_read_from_system_via_sysex(sys::Config::Section::Switch::Value, 0));
     }
 
     LOG_INF("Sending backup request");
@@ -598,7 +598,7 @@ TEST_F(HWTest, BackupAndRestore)
                                                                   encoder_component_index));
         }
 #endif
-        ASSERT_EQ(127, _helper.database_read_from_system_via_sysex(sys::Config::Section::Button::Value, 0));
+        ASSERT_EQ(127, _helper.database_read_from_system_via_sysex(sys::Config::Section::Switch::Value, 0));
     }
 
     LOG_INF("Restoring backup");
@@ -637,7 +637,7 @@ TEST_F(HWTest, BackupAndRestore)
                                                                   encoder_component_index));
         }
 #endif
-        ASSERT_EQ(90 + preset, _helper.database_read_from_system_via_sysex(sys::Config::Section::Button::Value, 0));
+        ASSERT_EQ(90 + preset, _helper.database_read_from_system_via_sysex(sys::Config::Section::Switch::Value, 0));
     }
 }
 
@@ -668,7 +668,7 @@ TEST_F(HWTest, USBMIDIData)
     }
 
     LOG_INF("Received %u USB messages after preset change", static_cast<unsigned>(received_messages));
-    ASSERT_EQ(io::buttons::Collection::size(io::buttons::GroupDigitalInputs), received_messages);
+    ASSERT_EQ(io::switches::Collection::size(io::switches::GroupDigitalInputs), received_messages);
 }
 
 #endif

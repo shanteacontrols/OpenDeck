@@ -214,7 +214,7 @@ namespace opendeck::io::i2c::display
                             switch (signal.source)
                             {
                             case signaling::IoEventSource::Analog:
-                            case signaling::IoEventSource::Button:
+                            case signaling::IoEventSource::Switch:
                             case signaling::IoEventSource::Encoder:
                             {
                                 set_text("%s", Strings::midi_message(signal.message));
@@ -243,7 +243,7 @@ namespace opendeck::io::i2c::display
                             switch (signal.source)
                             {
                             case signaling::IoEventSource::Analog:
-                            case signaling::IoEventSource::Button:
+                            case signaling::IoEventSource::Switch:
                             case signaling::IoEventSource::Encoder:
                             {
                                 _midi_updater.update_midi_value(*this,

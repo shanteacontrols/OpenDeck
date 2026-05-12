@@ -8,7 +8,7 @@ target_include_directories(digital
 
 target_link_libraries(digital
     PUBLIC
-    buttons
+    switches
     encoders
     zlibs-utils-threads
 )

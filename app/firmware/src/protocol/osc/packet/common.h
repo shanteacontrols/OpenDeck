@@ -57,7 +57,7 @@ namespace opendeck::protocol::osc
     /**
      * @brief OSC address made from a fixed prefix and numeric component index.
      *
-     * For example, `{ paths::OUTPUT_LED.c_str(), 3 }` becomes `/opendeck/output/led/3`.
+     * For example, `{ paths::OUTPUT.c_str(), 3 }` becomes `/opendeck/output/3`.
      */
     struct OscIndexedAddress
     {

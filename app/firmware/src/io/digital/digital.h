@@ -8,14 +8,14 @@
 #include "frame_store.h"
 #include "drivers/driver_base.h"
 #include "io/base.h"
-#include "io/digital/buttons/buttons.h"
+#include "io/digital/switches/switches.h"
 #include "io/digital/encoders/encoders.h"
 #include "threads.h"
 
 namespace opendeck::io::digital
 {
     /**
-     * @brief Top-level digital-input subsystem that coordinates buttons and encoders.
+     * @brief Top-level digital-input subsystem that coordinates switches and encoders.
      */
     class Digital : public io::Base
     {
@@ -25,12 +25,12 @@ namespace opendeck::io::digital
          *
          * @param driver Low-level digital scan driver.
          * @param frame_store Shared frame cache populated from the driver.
-         * @param buttons Button subsystem instance.
+         * @param switches Switch subsystem instance.
          * @param encoders Encoder subsystem instance.
          */
         Digital(drivers::DriverBase&    driver,
                 FrameStore&             frame_store,
-                io::buttons::Buttons&   buttons,
+                io::switches::Switches& switches,
                 io::encoders::Encoders& encoders);
         ~Digital() override;
 
@@ -52,7 +52,7 @@ namespace opendeck::io::digital
         size_t refreshable_components() const override;
 
         /**
-         * @brief Republishes a staged subset of button and encoder state.
+         * @brief Republishes a staged subset of switch and encoder state.
          *
          * @param start_index First digital component index to refresh.
          * @param count Number of digital component indices to refresh.
@@ -62,7 +62,7 @@ namespace opendeck::io::digital
         private:
         drivers::DriverBase&    _driver;
         FrameStore&             _frame_store;
-        io::buttons::Buttons&   _buttons;
+        io::switches::Switches& _switches;
         io::encoders::Encoders& _encoders;
         threads::DigitalThread  _thread;
 

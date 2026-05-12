@@ -27,7 +27,7 @@ TEST(OscPacketTest, BuildsAndReadsIntPacket)
 {
     PacketBuffer packet = {};
 
-    const auto size = make_packet(packet, "/opendeck/input/analog/0", OscInt32{ 1234 });
+    const auto size = make_packet(packet, "/opendeck/analog/0", OscInt32{ 1234 });
 
     ASSERT_TRUE(size);
     const auto message = parse_message(packet_span(packet, *size));
@@ -36,7 +36,7 @@ TEST(OscPacketTest, BuildsAndReadsIntPacket)
     const auto value = message->arg<OscInt32>(0);
     ASSERT_TRUE(value);
 
-    EXPECT_EQ(message->address(), "/opendeck/input/analog/0");
+    EXPECT_EQ(message->address(), "/opendeck/analog/0");
     EXPECT_EQ(message->type_tags(), ",i");
     EXPECT_EQ(*value, 1234);
 }
@@ -47,7 +47,7 @@ TEST(OscPacketTest, BuildsIndexedAddressPacket)
 
     const auto size = make_packet(packet,
                                   OscIndexedAddress{
-                                      .prefix = paths::INPUT_ANALOG.c_str(),
+                                      .prefix = paths::ANALOG.c_str(),
                                       .index  = 42,
                                   },
                                   OscInt32{ 1234 });
@@ -59,7 +59,7 @@ TEST(OscPacketTest, BuildsIndexedAddressPacket)
     const auto value = message->arg<OscInt32>(0);
     ASSERT_TRUE(value);
 
-    EXPECT_EQ(message->address(), "/opendeck/input/analog/42");
+    EXPECT_EQ(message->address(), "/opendeck/analog/42");
     EXPECT_EQ(*value, 1234);
 }
 
@@ -67,7 +67,7 @@ TEST(OscPacketTest, PreservesNegativeIntValue)
 {
     PacketBuffer packet = {};
 
-    const auto size = make_packet(packet, "/opendeck/input/encoder/1", OscInt32{ -1 });
+    const auto size = make_packet(packet, "/opendeck/encoder/1", OscInt32{ -1 });
 
     ASSERT_TRUE(size);
     const auto message = parse_message(packet_span(packet, *size));
@@ -76,7 +76,7 @@ TEST(OscPacketTest, PreservesNegativeIntValue)
     const auto value = message->arg<OscInt32>(0);
     ASSERT_TRUE(value);
 
-    EXPECT_EQ(message->address(), "/opendeck/input/encoder/1");
+    EXPECT_EQ(message->address(), "/opendeck/encoder/1");
     EXPECT_EQ(message->type_tags(), ",i");
     EXPECT_EQ(*value, -1);
 }
@@ -172,7 +172,7 @@ TEST(OscPacketTest, RejectsPacketWhichDoesNotFitBuffer)
     PacketBuffer packet = {};
 
     const std::string_view too_long_address(
-        "/opendeck/input/analog/000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+        "/opendeck/analog/000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
 
     EXPECT_FALSE(make_packet(packet, too_long_address, OscInt32{ 1 }));
 }
@@ -181,7 +181,7 @@ TEST(OscPacketTest, RejectsTruncatedArgument)
 {
     PacketBuffer packet = {};
 
-    const auto size = make_packet(packet, "/opendeck/input/analog/0", OscInt32{ 1234 });
+    const auto size = make_packet(packet, "/opendeck/analog/0", OscInt32{ 1234 });
     ASSERT_TRUE(size);
     ASSERT_GT(*size, sizeof(uint32_t));
 
@@ -228,7 +228,7 @@ TEST(OscPacketTest, RejectsExtraTrailingBytes)
 {
     PacketBuffer packet = {};
 
-    const auto size = make_packet(packet, "/opendeck/input/analog/0", OscInt32{ 1234 });
+    const auto size = make_packet(packet, "/opendeck/analog/0", OscInt32{ 1234 });
     ASSERT_TRUE(size);
     ASSERT_LT(*size, packet.size());
 
@@ -239,7 +239,7 @@ TEST(OscPacketTest, RejectsExtraTrailingBytes)
 
 TEST(OscAddressTest, ParsesIndexedAddress)
 {
-    const auto index = paths::parse_indexed("/opendeck/output/led/42", paths::OUTPUT_LED.c_str());
+    const auto index = paths::parse_indexed("/opendeck/output/42", paths::OUTPUT.c_str());
 
     ASSERT_TRUE(index);
     EXPECT_EQ(*index, 42);
@@ -247,7 +247,7 @@ TEST(OscAddressTest, ParsesIndexedAddress)
 
 TEST(OscAddressTest, RejectsInvalidIndexedAddress)
 {
-    EXPECT_FALSE(paths::parse_indexed("/opendeck/output/led", paths::OUTPUT_LED.c_str()));
-    EXPECT_FALSE(paths::parse_indexed("/opendeck/output/led/foo", paths::OUTPUT_LED.c_str()));
-    EXPECT_FALSE(paths::parse_indexed("/opendeck/input/button/1", paths::OUTPUT_LED.c_str()));
+    EXPECT_FALSE(paths::parse_indexed("/opendeck/output", paths::OUTPUT.c_str()));
+    EXPECT_FALSE(paths::parse_indexed("/opendeck/output/foo", paths::OUTPUT.c_str()));
+    EXPECT_FALSE(paths::parse_indexed("/opendeck/switch/1", paths::OUTPUT.c_str()));
 }

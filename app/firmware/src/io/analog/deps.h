@@ -8,7 +8,7 @@
 #include "common.h"
 
 #include "database/database.h"
-#include "io/digital/buttons/common.h"
+#include "io/digital/switches/common.h"
 
 #include "zlibs/utils/midi/midi_common.h"
 

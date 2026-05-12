@@ -8,10 +8,10 @@
 #include "config.h"
 #include "deps.h"
 #include "io/analog/common.h"
-#include "io/digital/buttons/common.h"
+#include "io/digital/switches/common.h"
 #include "io/digital/encoders/common.h"
 #include "io/i2c/peripherals/display/common.h"
-#include "io/leds/common.h"
+#include "io/outputs/common.h"
 #include "io/touchscreen/common.h"
 #include "protocol/midi/common.h"
 #include "protocol/mdns/common.h"
@@ -166,33 +166,33 @@ namespace opendeck::database
                 0),
         });
 
-        inline static constexpr auto BUTTON_SECTIONS = zlibs::utils::lessdb::make_block(std::array{
+        inline static constexpr auto SWITCH_SECTIONS = zlibs::utils::lessdb::make_block(std::array{
             // Type
-            Section(io::buttons::Collection::size(),
+            Section(io::switches::Collection::size(),
                     SectionParameterType::Bit,
                     PreserveSetting::Disable,
                     AutoIncrementSetting::Disable,
                     0),
             // MessageType
-            Section(io::buttons::Collection::size(),
+            Section(io::switches::Collection::size(),
                     SectionParameterType::Byte,
                     PreserveSetting::Disable,
                     AutoIncrementSetting::Disable,
                     0),
             // MidiId
-            Section(io::buttons::Collection::size(),
+            Section(io::switches::Collection::size(),
                     SectionParameterType::Byte,
                     PreserveSetting::Disable,
                     AutoIncrementSetting::Disable,
                     0),
             // Value
-            Section(io::buttons::Collection::size(),
+            Section(io::switches::Collection::size(),
                     SectionParameterType::Byte,
                     PreserveSetting::Disable,
                     AutoIncrementSetting::Disable,
                     127),
             // Channel
-            Section(io::buttons::Collection::size(),
+            Section(io::switches::Collection::size(),
                     SectionParameterType::Byte,
                     PreserveSetting::Disable,
                     AutoIncrementSetting::Disable,
@@ -325,39 +325,39 @@ namespace opendeck::database
                     0),
         });
 
-        inline static constexpr auto LED_SECTIONS = zlibs::utils::lessdb::make_block(std::array{
+        inline static constexpr auto OUTPUT_SECTIONS = zlibs::utils::lessdb::make_block(std::array{
             // Global
-            Section(static_cast<size_t>(io::leds::Setting::Count),
+            Section(static_cast<size_t>(io::outputs::Setting::Count),
                     SectionParameterType::Byte,
                     PreserveSetting::Disable,
                     AutoIncrementSetting::Disable,
                     0),
             // ActivationId
-            Section(io::leds::Collection::size(),
+            Section(io::outputs::Collection::size(),
                     SectionParameterType::Byte,
                     PreserveSetting::Disable,
                     AutoIncrementSetting::Disable,
                     0),
             // RgbEnable
-            Section((io::leds::Collection::size() / 3) + (io::touchscreen::Collection::size() / 3),
+            Section((io::outputs::Collection::size() / 3) + (io::touchscreen::Collection::size() / 3),
                     SectionParameterType::Bit,
                     PreserveSetting::Disable,
                     AutoIncrementSetting::Disable,
                     0),
             // ControlType
-            Section(io::leds::Collection::size(),
+            Section(io::outputs::Collection::size(),
                     SectionParameterType::HalfByte,
                     PreserveSetting::Disable,
                     AutoIncrementSetting::Disable,
                     0),
             // ActivationValue
-            Section(io::leds::Collection::size(),
+            Section(io::outputs::Collection::size(),
                     SectionParameterType::Byte,
                     PreserveSetting::Disable,
                     AutoIncrementSetting::Disable,
                     127),
             // Channel
-            Section(io::leds::Collection::size(),
+            Section(io::outputs::Collection::size(),
                     SectionParameterType::Byte,
                     PreserveSetting::Disable,
                     AutoIncrementSetting::Disable,
@@ -433,10 +433,10 @@ namespace opendeck::database
 
         inline static constexpr auto PRESET_LAYOUT = zlibs::utils::lessdb::make_layout(std::array{
             Block(GLOBAL_SECTIONS),
-            Block(BUTTON_SECTIONS),
+            Block(SWITCH_SECTIONS),
             Block(ENCODER_SECTIONS),
             Block(ANALOG_SECTIONS),
-            Block(LED_SECTIONS),
+            Block(OUTPUT_SECTIONS),
             Block(I2C_SECTIONS),
             Block(TOUCHSCREEN_SECTIONS),
         });

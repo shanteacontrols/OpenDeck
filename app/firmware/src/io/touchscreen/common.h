@@ -41,7 +41,7 @@ namespace opendeck::io::touchscreen
     enum class TsEvent : uint8_t
     {
         None,
-        Button,
+        Switch,
     };
 
     /**
@@ -96,8 +96,8 @@ namespace opendeck::io::touchscreen
     struct Data
     {
         PressType press_type   = PressType::None;
-        size_t    button_index = 0;
-        bool      button_state = false;
+        size_t    switch_index = 0;
+        bool      switch_state = false;
         uint16_t  x_pos        = 0;
         uint16_t  y_pos        = 0;
     };

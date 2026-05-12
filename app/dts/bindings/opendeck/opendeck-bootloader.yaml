@@ -3,10 +3,10 @@ description: OpenDeck bootloader trigger configuration
 compatible: "opendeck,bootloader"
 
 properties:
-  button-gpios:
+  switch-gpios:
     type: phandle-array
     required: false
-    description: Optional bootloader entry button GPIO. Use GPIO flags for polarity and pull mode.
+    description: Optional bootloader entry switch GPIO. Use GPIO flags for polarity and pull mode.
 
   boot-partition:
     type: phandle

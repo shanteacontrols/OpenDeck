@@ -8,7 +8,7 @@
 #include "encoders.h"
 #include "filter_test.h"
 #include "hwa_test.h"
-#include "io/digital/buttons/deps.h"
+#include "io/digital/switches/deps.h"
 #include "database/builder_test.h"
 
 namespace opendeck::io::encoders
@@ -31,13 +31,13 @@ namespace opendeck::io::encoders
         {}
 
         /**
-         * @brief Constructs the encoder test builder while accepting an unused button HWA.
+         * @brief Constructs the encoder test builder while accepting an unused switch HWA.
          *
          * @param database Database administrator used for configuration access.
-         * @param buttons_hwa Unused button HWA kept for builder-interface compatibility.
+         * @param switches_hwa Unused switch HWA kept for builder-interface compatibility.
          */
-        Builder(database::Admin&                   database,
-                [[maybe_unused]] io::buttons::Hwa& buttons_hwa)
+        Builder(database::Admin&                    database,
+                [[maybe_unused]] io::switches::Hwa& switches_hwa)
             : Builder(database)
         {}
 

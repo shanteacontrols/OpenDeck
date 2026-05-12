@@ -8,10 +8,10 @@
 #include "digital.h"
 #include "frame_store.h"
 #include "drivers/driver.h"
-#include "io/digital/buttons/buttons.h"
-#include "io/digital/buttons/filter_hw.h"
-#include "io/digital/buttons/hwa_hw.h"
-#include "io/digital/buttons/mapper.h"
+#include "io/digital/switches/switches.h"
+#include "io/digital/switches/filter_hw.h"
+#include "io/digital/switches/hwa_hw.h"
+#include "io/digital/switches/mapper.h"
 #include "io/digital/encoders/encoders.h"
 #include "io/digital/encoders/filter_hw.h"
 #include "io/digital/encoders/hwa_hw.h"
@@ -32,16 +32,16 @@ namespace opendeck::io::digital
          * @param database Database administrator used for configuration access.
          */
         explicit Builder(database::Admin& database)
-            : _buttons_database(database)
+            : _switches_database(database)
             , _encoders_database(database)
             , _frame_store(_driver)
-            , _buttons_hwa(_frame_store)
-            , _buttons_mapper(_buttons_database)
-            , _buttons(_buttons_hwa, _buttons_filter, _buttons_mapper, _buttons_database)
+            , _switches_hwa(_frame_store)
+            , _switches_mapper(_switches_database)
+            , _switches(_switches_hwa, _switches_filter, _switches_mapper, _switches_database)
             , _encoders_hwa(_frame_store)
             , _encoders_mapper(_encoders_database)
             , _encoders(_encoders_hwa, _encoders_filter, _encoders_database, _encoders_mapper)
-            , _instance(_driver, _frame_store, _buttons, _encoders)
+            , _instance(_driver, _frame_store, _switches, _encoders)
         {}
 
         /**
@@ -55,14 +55,14 @@ namespace opendeck::io::digital
         }
 
         private:
-        io::buttons::Database  _buttons_database;
+        io::switches::Database _switches_database;
         io::encoders::Database _encoders_database;
         drivers::Driver        _driver;
         FrameStore             _frame_store;
-        io::buttons::HwaHw     _buttons_hwa;
-        io::buttons::FilterHw  _buttons_filter;
-        io::buttons::Mapper    _buttons_mapper;
-        io::buttons::Buttons   _buttons;
+        io::switches::HwaHw    _switches_hwa;
+        io::switches::FilterHw _switches_filter;
+        io::switches::Mapper   _switches_mapper;
+        io::switches::Switches _switches;
         io::encoders::HwaHw    _encoders_hwa;
         io::encoders::FilterHw _encoders_filter;
         io::encoders::Mapper   _encoders_mapper;

@@ -6,10 +6,10 @@
 #pragma once
 
 #include "custom_ids.h"
-#include "io/digital/buttons/common.h"
+#include "io/digital/switches/common.h"
 #include "io/digital/encoders/common.h"
 #include "io/analog/common.h"
-#include "io/leds/common.h"
+#include "io/outputs/common.h"
 #include "io/i2c/peripherals/display/common.h"
 #include "io/touchscreen/common.h"
 #include "protocol/midi/common.h"
@@ -26,19 +26,19 @@ namespace opendeck::sys
     {
         private:
         static constexpr size_t GLOBAL_SECTION_COUNT      = 5;
-        static constexpr size_t BUTTON_SECTION_COUNT      = 5;
+        static constexpr size_t SWITCH_SECTION_COUNT      = 5;
         static constexpr size_t ENCODER_SECTION_COUNT     = 13;
         static constexpr size_t ANALOG_SECTION_COUNT      = 12;
-        static constexpr size_t LED_SECTION_COUNT         = 8;
+        static constexpr size_t OUTPUT_SECTION_COUNT      = 8;
         static constexpr size_t I2C_SECTION_COUNT         = 1;
         static constexpr size_t TOUCHSCREEN_SECTION_COUNT = 9;
         static constexpr size_t BLOCK_COUNT               = 7;
         static constexpr size_t CUSTOM_REQUEST_COUNT      = 12;
         static constexpr size_t GLOBAL_BLOCK_INDEX        = 0;
-        static constexpr size_t BUTTON_BLOCK_INDEX        = 1;
+        static constexpr size_t SWITCH_BLOCK_INDEX        = 1;
         static constexpr size_t ENCODER_BLOCK_INDEX       = 2;
         static constexpr size_t ANALOG_BLOCK_INDEX        = 3;
-        static constexpr size_t LED_BLOCK_INDEX           = 4;
+        static constexpr size_t OUTPUT_BLOCK_INDEX        = 4;
         static constexpr size_t I2C_BLOCK_INDEX           = 5;
         static constexpr size_t TOUCHSCREEN_BLOCK_INDEX   = 6;
 
@@ -69,29 +69,29 @@ namespace opendeck::sys
                                               255),
         });
 
-        static constexpr auto BUTTON_SECTIONS = zlibs::utils::sysex_conf::make_block(std::array<zlibs::utils::sysex_conf::Section, BUTTON_SECTION_COUNT>{
+        static constexpr auto SWITCH_SECTIONS = zlibs::utils::sysex_conf::make_block(std::array<zlibs::utils::sysex_conf::Section, SWITCH_SECTION_COUNT>{
             // type section
-            zlibs::utils::sysex_conf::Section(io::buttons::Collection::size(),
+            zlibs::utils::sysex_conf::Section(io::switches::Collection::size(),
                                               0,
-                                              static_cast<uint16_t>(io::buttons::Type::Count) - 1),
+                                              static_cast<uint16_t>(io::switches::Type::Count) - 1),
 
             // message type section
-            zlibs::utils::sysex_conf::Section(io::buttons::Collection::size(),
+            zlibs::utils::sysex_conf::Section(io::switches::Collection::size(),
                                               0,
-                                              static_cast<uint16_t>(io::buttons::MessageType::Count) - 1),
+                                              static_cast<uint16_t>(io::switches::MessageType::Count) - 1),
 
             // midi id section
-            zlibs::utils::sysex_conf::Section(io::buttons::Collection::size(),
+            zlibs::utils::sysex_conf::Section(io::switches::Collection::size(),
                                               0,
                                               127),
 
             // value section
-            zlibs::utils::sysex_conf::Section(io::buttons::Collection::size(),
+            zlibs::utils::sysex_conf::Section(io::switches::Collection::size(),
                                               0,
                                               127),
 
             // channel section
-            zlibs::utils::sysex_conf::Section(io::buttons::Collection::size(),
+            zlibs::utils::sysex_conf::Section(io::switches::Collection::size(),
                                               1,
                                               17),
         });
@@ -225,44 +225,44 @@ namespace opendeck::sys
                                               100),
         });
 
-        static constexpr auto LED_SECTIONS = zlibs::utils::sysex_conf::make_block(std::array<zlibs::utils::sysex_conf::Section, LED_SECTION_COUNT>{
-            // led color test section
-            zlibs::utils::sysex_conf::Section(io::leds::Collection::size(),
+        static constexpr auto OUTPUT_SECTIONS = zlibs::utils::sysex_conf::make_block(std::array<zlibs::utils::sysex_conf::Section, OUTPUT_SECTION_COUNT>{
+            // output color test section
+            zlibs::utils::sysex_conf::Section(io::outputs::Collection::size(),
                                               0,
-                                              static_cast<uint16_t>(io::leds::Color::Count) - 1),
+                                              static_cast<uint16_t>(io::outputs::Color::Count) - 1),
 
-            // led blink test section
-            zlibs::utils::sysex_conf::Section(io::leds::Collection::size(),
+            // output blink test section
+            zlibs::utils::sysex_conf::Section(io::outputs::Collection::size(),
                                               0,
                                               1),
 
             // global parameters section
-            zlibs::utils::sysex_conf::Section(static_cast<uint16_t>(io::leds::Setting::Count),
+            zlibs::utils::sysex_conf::Section(static_cast<uint16_t>(io::outputs::Setting::Count),
                                               0,
                                               0),
 
             // activation id section
-            zlibs::utils::sysex_conf::Section(io::leds::Collection::size(),
+            zlibs::utils::sysex_conf::Section(io::outputs::Collection::size(),
                                               0,
                                               127),
 
             // rgb enabled section
-            zlibs::utils::sysex_conf::Section(io::leds::Collection::size(),
+            zlibs::utils::sysex_conf::Section(io::outputs::Collection::size(),
                                               0,
                                               1),
 
-            // led control type section
-            zlibs::utils::sysex_conf::Section(io::leds::Collection::size(),
+            // output control type section
+            zlibs::utils::sysex_conf::Section(io::outputs::Collection::size(),
                                               0,
-                                              static_cast<uint16_t>(io::leds::ControlType::Count) - 1),
+                                              static_cast<uint16_t>(io::outputs::ControlType::Count) - 1),
 
-            // single led activation value section
-            zlibs::utils::sysex_conf::Section(io::leds::Collection::size(),
+            // single output activation value section
+            zlibs::utils::sysex_conf::Section(io::outputs::Collection::size(),
                                               0,
                                               127),
 
             // channel section
-            zlibs::utils::sysex_conf::Section(io::leds::Collection::size(),
+            zlibs::utils::sysex_conf::Section(io::outputs::Collection::size(),
                                               1,
                                               17),
         });
@@ -323,10 +323,10 @@ namespace opendeck::sys
 
         static constexpr auto LAYOUT = zlibs::utils::sysex_conf::make_layout(std::array<zlibs::utils::sysex_conf::Block, BLOCK_COUNT>{
             zlibs::utils::sysex_conf::Block(GLOBAL_SECTIONS),
-            zlibs::utils::sysex_conf::Block(BUTTON_SECTIONS),
+            zlibs::utils::sysex_conf::Block(SWITCH_SECTIONS),
             zlibs::utils::sysex_conf::Block(ENCODER_SECTIONS),
             zlibs::utils::sysex_conf::Block(ANALOG_SECTIONS),
-            zlibs::utils::sysex_conf::Block(LED_SECTIONS),
+            zlibs::utils::sysex_conf::Block(OUTPUT_SECTIONS),
             zlibs::utils::sysex_conf::Block(I2C_SECTIONS),
             zlibs::utils::sysex_conf::Block(TOUCHSCREEN_SECTIONS),
         });
@@ -406,14 +406,14 @@ namespace opendeck::sys
             {
             case GLOBAL_BLOCK_INDEX:
                 return GLOBAL_SECTIONS.size();
-            case BUTTON_BLOCK_INDEX:
-                return BUTTON_SECTIONS.size();
+            case SWITCH_BLOCK_INDEX:
+                return SWITCH_SECTIONS.size();
             case ENCODER_BLOCK_INDEX:
                 return ENCODER_SECTIONS.size();
             case ANALOG_BLOCK_INDEX:
                 return ANALOG_SECTIONS.size();
-            case LED_BLOCK_INDEX:
-                return LED_SECTIONS.size();
+            case OUTPUT_BLOCK_INDEX:
+                return OUTPUT_SECTIONS.size();
             case I2C_BLOCK_INDEX:
                 return I2C_SECTIONS.size();
             case TOUCHSCREEN_BLOCK_INDEX:

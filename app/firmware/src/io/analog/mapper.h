@@ -87,14 +87,14 @@ namespace opendeck::io::analog
         std::array<Value, Collection::size()> _last_value = {};
 
         /**
-         * @brief Builds one button-style passthrough result from the received logical value.
+         * @brief Builds one switch-style passthrough result from the received logical value.
          *
          * @param info Runtime mapping configuration.
-         * @param value Filtered button value to forward.
+         * @param value Filtered switch value to forward.
          *
-         * @return Ready-to-publish button result.
+         * @return Ready-to-publish switch result.
          */
-        Result button_result(const DatabaseInfo& info, uint16_t value) const;
+        Result switch_result(const DatabaseInfo& info, uint16_t value) const;
 
         /**
          * @brief Reads runtime mapping configuration for one analog input from the database.

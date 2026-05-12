@@ -17,7 +17,7 @@ namespace
         opendeck::protocol::midi::MessageType::ControlChange,         // PotentiometerControlChange
         opendeck::protocol::midi::MessageType::NoteOn,                // PotentiometerNote
         opendeck::protocol::midi::MessageType::NoteOn,                // Fsr
-        opendeck::protocol::midi::MessageType::Invalid,               // Button
+        opendeck::protocol::midi::MessageType::Invalid,               // Switch
         opendeck::protocol::midi::MessageType::Nrpn7Bit,              // Nrpn7Bit
         opendeck::protocol::midi::MessageType::Nrpn14Bit,             // Nrpn14Bit
         opendeck::protocol::midi::MessageType::PitchBend,             // PitchBend
@@ -35,7 +35,7 @@ std::optional<Mapper::Result> Mapper::result(size_t index, uint16_t position)
 
     const auto info = read_database_info(index);
 
-    if (info.type == Type::Button)
+    if (info.type == Type::Switch)
     {
         _last_value[index] = {
             .fsr_pressed = false,
@@ -44,7 +44,7 @@ std::optional<Mapper::Result> Mapper::result(size_t index, uint16_t position)
             .valid       = true,
         };
 
-        return button_result(info, position);
+        return switch_result(info, position);
     }
 
     if (position > opendeck::io::analog::Filter::POSITION_MAX_VALUE)
@@ -110,7 +110,7 @@ std::optional<Mapper::Result> Mapper::result(size_t index, uint16_t position)
     return result;
 }
 
-Mapper::Result Mapper::button_result(const DatabaseInfo& info, uint16_t value) const
+Mapper::Result Mapper::switch_result(const DatabaseInfo& info, uint16_t value) const
 {
     Result result = {};
     result.osc.emplace();
@@ -131,9 +131,9 @@ std::optional<Mapper::Result> Mapper::last_result(size_t index) const
     const auto& last = _last_value[index];
     const auto  info = read_database_info(index);
 
-    if (info.type == Type::Button)
+    if (info.type == Type::Switch)
     {
-        return button_result(info, last.value);
+        return switch_result(info, last.value);
     }
 
     Result result = {};
@@ -193,7 +193,7 @@ Mapper::DatabaseInfo Mapper::read_database_info(size_t index) const
 
 uint16_t Mapper::output_max_value(const DatabaseInfo& info) const
 {
-    if (info.type == Type::Button)
+    if (info.type == Type::Switch)
     {
         return 1;
     }
@@ -229,7 +229,7 @@ void Mapper::fill_osc_signal(uint16_t position, const DatabaseInfo& info, signal
     uint16_t mapped_value = 0;
     uint16_t max_value    = output_max_value(info);
 
-    if (info.type == Type::Button)
+    if (info.type == Type::Switch)
     {
         mapped_value = position;
     }
@@ -248,7 +248,7 @@ void Mapper::fill_osc_signal(uint16_t position, const DatabaseInfo& info, signal
 
 uint16_t Mapper::compute_value(uint16_t position, const DatabaseInfo& info) const
 {
-    if (info.type == Type::Button)
+    if (info.type == Type::Switch)
     {
         return position != 0 ? 1 : 0;
     }

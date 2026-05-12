@@ -29,11 +29,11 @@ namespace opendeck::threads
                                                            THREAD_STACK_SIZE * 3>;
 
     /**
-     * @brief Thread type used for LED state processing.
+     * @brief Thread type used for OUTPUT state processing.
      */
-    using LedsThread = zlibs::utils::threads::UserThread<zlibs::utils::misc::StringLiteral{ "io_leds" },
-                                                         K_PRIO_PREEMPT(1),
-                                                         THREAD_STACK_SIZE>;
+    using OutputsThread = zlibs::utils::threads::UserThread<zlibs::utils::misc::StringLiteral{ "io_outputs" },
+                                                            K_PRIO_PREEMPT(1),
+                                                            THREAD_STACK_SIZE>;
 
     /**
      * @brief Thread type used for touchscreen event processing.

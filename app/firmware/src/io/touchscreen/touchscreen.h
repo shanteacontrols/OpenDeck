@@ -151,20 +151,20 @@ namespace opendeck::io::touchscreen
         bool set_brightness(Brightness brightness);
 
         /**
-         * @brief Handles a touchscreen button event and performs any configured page switch.
+         * @brief Handles a touchscreen switch event and performs any configured page switch.
          *
-         * @param button_index Touchscreen button index reported by the active model.
-         * @param state Press state reported for the button.
+         * @param switch_index Touchscreen switch index reported by the active model.
+         * @param state Press state reported for the switch.
          */
-        void process_button(const size_t button_index, const bool state);
+        void process_switch(const size_t switch_index, const bool state);
 
         /**
-         * @brief Publishes the logical button event associated with a touchscreen component.
+         * @brief Publishes the logical switch event associated with a touchscreen component.
          *
          * @param index Touchscreen component index to publish.
-         * @param state Button state to publish.
+         * @param state Switch state to publish.
          */
-        void button_handler(size_t index, bool state);
+        void switch_handler(size_t index, bool state);
 
         /**
          * @brief Publishes a touchscreen screen-change notification.

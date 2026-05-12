@@ -7,10 +7,10 @@
 #include "tests/helpers/database.h"
 #include "database/builder.h"
 #include "database/layout.h"
-#include "io/digital/buttons/common.h"
+#include "io/digital/switches/common.h"
 #include "io/digital/encoders/common.h"
 #include "io/analog/common.h"
-#include "io/leds/common.h"
+#include "io/outputs/common.h"
 #include "io/i2c/peripherals/display/common.h"
 #include "io/touchscreen/common.h"
 #include "protocol/midi/midi.h"
@@ -133,43 +133,43 @@ TEST_F(DatabaseTest, ReadInitialValues)
             DB_READ_VERIFY(0, database::Config::Section::Global::OscSettings, i);
         }
 
-        // button block
+        // switch block
         //----------------------------------
         // type section
         // all values should be set to 0 (default type)
-        for (size_t i = 0; i < io::buttons::Collection::size(); i++)
+        for (size_t i = 0; i < io::switches::Collection::size(); i++)
         {
-            DB_READ_VERIFY(0, database::Config::Section::Button::Type, i);
+            DB_READ_VERIFY(0, database::Config::Section::Switch::Type, i);
         }
 
         // midi message section
         // all values should be set to 0 (default/note)
-        for (size_t i = 0; i < io::buttons::Collection::size(); i++)
+        for (size_t i = 0; i < io::switches::Collection::size(); i++)
         {
-            DB_READ_VERIFY(0, database::Config::Section::Button::MessageType, i);
+            DB_READ_VERIFY(0, database::Config::Section::Switch::MessageType, i);
         }
 
         // midi id section
-        for (size_t group = 0; group < io::buttons::Collection::groups(); group++)
+        for (size_t group = 0; group < io::switches::Collection::groups(); group++)
         {
-            for (size_t i = 0; i < io::buttons::Collection::size(group); i++)
+            for (size_t i = 0; i < io::switches::Collection::size(group); i++)
             {
-                DB_READ_VERIFY(i, database::Config::Section::Button::MidiId, i + io::buttons::Collection::start_index(group));
+                DB_READ_VERIFY(i, database::Config::Section::Switch::MidiId, i + io::switches::Collection::start_index(group));
             }
         }
 
         // midi velocity section
         // all values should be set to 127
-        for (size_t i = 0; i < io::buttons::Collection::size(); i++)
+        for (size_t i = 0; i < io::switches::Collection::size(); i++)
         {
-            DB_READ_VERIFY(127, database::Config::Section::Button::Value, i);
+            DB_READ_VERIFY(127, database::Config::Section::Switch::Value, i);
         }
 
         // midi channel section
         // all values should be set to 1
-        for (size_t i = 0; i < io::buttons::Collection::size(); i++)
+        for (size_t i = 0; i < io::switches::Collection::size(); i++)
         {
-            DB_READ_VERIFY(1, database::Config::Section::Button::Channel, i);
+            DB_READ_VERIFY(1, database::Config::Section::Switch::Channel, i);
         }
 
         // encoders block
@@ -305,51 +305,51 @@ TEST_F(DatabaseTest, ReadInitialValues)
             DB_READ_VERIFY(0, database::Config::Section::Analog::UpperOffset, i);
         }
 
-        // LED block
+        // OUTPUT block
         //----------------------------------
         // global section
         // all values should be set to 0
-        for (int i = 0; i < static_cast<uint8_t>(io::leds::Setting::Count); i++)
+        for (int i = 0; i < static_cast<uint8_t>(io::outputs::Setting::Count); i++)
         {
-            DB_READ_VERIFY(0, database::Config::Section::Leds::Global, i);
+            DB_READ_VERIFY(0, database::Config::Section::Outputs::Global, i);
         }
 
         // activation id section
         // incremental values - first value should be 0, each successive value should be incremented by 1 for each group
-        for (size_t group = 0; group < io::leds::Collection::groups(); group++)
+        for (size_t group = 0; group < io::outputs::Collection::groups(); group++)
         {
-            for (size_t i = 0; i < io::leds::Collection::size(group); i++)
+            for (size_t i = 0; i < io::outputs::Collection::size(group); i++)
             {
-                DB_READ_VERIFY(i, database::Config::Section::Leds::ActivationId, i + io::leds::Collection::start_index(group));
+                DB_READ_VERIFY(i, database::Config::Section::Outputs::ActivationId, i + io::outputs::Collection::start_index(group));
             }
         }
 
         // rgb enable section
         // all values should be set to 0
-        for (size_t i = 0; i < io::leds::Collection::size() / 3 + (io::touchscreen::Collection::size() / 3); i++)
+        for (size_t i = 0; i < io::outputs::Collection::size() / 3 + (io::touchscreen::Collection::size() / 3); i++)
         {
-            DB_READ_VERIFY(0, database::Config::Section::Leds::RgbEnable, i);
+            DB_READ_VERIFY(0, database::Config::Section::Outputs::RgbEnable, i);
         }
 
         // control type section
         // all values should be set to MIDI_IN_NOTE_MULTI_VAL
-        for (size_t i = 0; i < io::leds::Collection::size(); i++)
+        for (size_t i = 0; i < io::outputs::Collection::size(); i++)
         {
-            DB_READ_VERIFY(static_cast<uint32_t>(io::leds::ControlType::MidiInNoteMultiVal), database::Config::Section::Leds::ControlType, i);
+            DB_READ_VERIFY(static_cast<uint32_t>(io::outputs::ControlType::MidiInNoteMultiVal), database::Config::Section::Outputs::ControlType, i);
         }
 
         // activation value section
         // all values should be set to 127
-        for (size_t i = 0; i < io::leds::Collection::size(); i++)
+        for (size_t i = 0; i < io::outputs::Collection::size(); i++)
         {
-            DB_READ_VERIFY(127, database::Config::Section::Leds::ActivationValue, i);
+            DB_READ_VERIFY(127, database::Config::Section::Outputs::ActivationValue, i);
         }
 
         // midi channel section
         // all values should be set to 1
-        for (size_t i = 0; i < io::leds::Collection::size(); i++)
+        for (size_t i = 0; i < io::outputs::Collection::size(); i++)
         {
-            DB_READ_VERIFY(1, database::Config::Section::Leds::Channel, i);
+            DB_READ_VERIFY(1, database::Config::Section::Outputs::Channel, i);
         }
 
 #ifdef PROJECT_TARGET_SUPPORT_I2C
@@ -523,8 +523,8 @@ TEST_F(DatabaseTest, Presets)
 TEST_F(DatabaseTest, FactoryReset)
 {
     // change several values
-#ifdef PROJECT_TARGET_SUPPORT_BUTTONS
-    ASSERT_TRUE(_database.instance().update(database::Config::Section::Button::MidiId, 0, 114));
+#ifdef PROJECT_TARGET_SUPPORT_SWITCHES
+    ASSERT_TRUE(_database.instance().update(database::Config::Section::Switch::MidiId, 0, 114));
 #endif
 
 #ifdef PROJECT_TARGET_SUPPORT_ENCODERS
@@ -541,8 +541,8 @@ TEST_F(DatabaseTest, FactoryReset)
     _database.instance().factory_reset();
 
     // expect default values
-#ifdef PROJECT_TARGET_SUPPORT_BUTTONS
-    DB_READ_VERIFY(0, database::Config::Section::Button::MidiId, 0);
+#ifdef PROJECT_TARGET_SUPPORT_SWITCHES
+    DB_READ_VERIFY(0, database::Config::Section::Switch::MidiId, 0);
 #endif
 
 #ifdef PROJECT_TARGET_SUPPORT_ENCODERS
@@ -558,22 +558,22 @@ TEST_F(DatabaseTest, FactoryReset)
     ASSERT_FALSE(_database.instance().preset_preserve_state());
 }
 
-#ifdef PROJECT_TARGET_SUPPORT_LEDS
-TEST_F(DatabaseTest, LEDs)
+#ifdef PROJECT_TARGET_SUPPORT_OUTPUTS
+TEST_F(DatabaseTest, Outputs)
 {
     // regression test
     // by default, rgb state should be disabled
-    for (size_t i = 0; i < io::leds::Collection::size() / 3; i++)
+    for (size_t i = 0; i < io::outputs::Collection::size() / 3; i++)
     {
-        ASSERT_FALSE(_database.instance().read(database::Config::Section::Leds::RgbEnable, i));
+        ASSERT_FALSE(_database.instance().read(database::Config::Section::Outputs::RgbEnable, i));
     }
 
-    ASSERT_TRUE(_database.instance().update(database::Config::Section::Leds::ControlType, 0, io::leds::ControlType::PC_SINGLE_VAL));
+    ASSERT_TRUE(_database.instance().update(database::Config::Section::Outputs::ControlType, 0, io::outputs::ControlType::PC_SINGLE_VAL));
 
     // rgb state shouldn't change
-    for (size_t i = 0; i < io::leds::Collection::size() / 3; i++)
+    for (size_t i = 0; i < io::outputs::Collection::size() / 3; i++)
     {
-        DB_READ_VERIFY(0, database::Config::Section::Leds::RgbEnable, i);
+        DB_READ_VERIFY(0, database::Config::Section::Outputs::RgbEnable, i);
     }
 }
 #endif
