@@ -22,6 +22,8 @@ namespace opendeck::io::indicators
         BleOut,
         NetworkIn,
         NetworkOut,
+        NetworkUp,
+        TrafficAll,
         All,
     };
 }    // namespace opendeck::io::indicators

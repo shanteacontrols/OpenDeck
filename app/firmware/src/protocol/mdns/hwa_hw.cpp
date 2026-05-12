@@ -16,6 +16,8 @@
 #include <utility>
 
 #include <zephyr/drivers/hwinfo.h>
+#include <zephyr/init.h>
+#include <zephyr/logging/log.h>
 #include <zephyr/net/dns_sd.h>
 #include <zephyr/net/hostname.h>
 #include <zephyr/net/net_if.h>
@@ -23,6 +25,8 @@
 #include <zephyr/sys/byteorder.h>
 
 using namespace opendeck::protocol::mdns;
+
+LOG_MODULE_REGISTER(network_init, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
 
 namespace
 {
@@ -67,6 +71,18 @@ namespace
 
         return true;
     }
+
+#ifdef CONFIG_NET_CONFIG_AUTO_INIT
+    int log_network_auto_init_wait()
+    {
+        LOG_INF("Network auto-init waiting up to %d seconds for link and IPv4 address",
+                CONFIG_NET_CONFIG_INIT_TIMEOUT);
+
+        return 0;
+    }
+
+    SYS_INIT(log_network_auto_init_wait, APPLICATION, 0);
+#endif
 }    // namespace
 
 ssize_t HwaHw::serial_number(std::span<uint8_t> buffer)

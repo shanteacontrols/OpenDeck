@@ -64,6 +64,12 @@ namespace opendeck::io::indicators
 
         void set_state(Type type, bool state)
         {
+            if (type == Type::TrafficAll)
+            {
+                set_traffic_state(state);
+                return;
+            }
+
             if (type == Type::All)
             {
                 _states.fill(state);
@@ -71,6 +77,18 @@ namespace opendeck::io::indicators
             }
 
             _states.at(static_cast<size_t>(type)) = state;
+        }
+
+        void set_traffic_state(bool state)
+        {
+            _states.at(static_cast<size_t>(Type::UsbIn))      = state;
+            _states.at(static_cast<size_t>(Type::UsbOut))     = state;
+            _states.at(static_cast<size_t>(Type::DinIn))      = state;
+            _states.at(static_cast<size_t>(Type::DinOut))     = state;
+            _states.at(static_cast<size_t>(Type::BleIn))      = state;
+            _states.at(static_cast<size_t>(Type::BleOut))     = state;
+            _states.at(static_cast<size_t>(Type::NetworkIn))  = state;
+            _states.at(static_cast<size_t>(Type::NetworkOut)) = state;
         }
 
         std::array<bool, INDICATOR_COUNT> _states = {};

@@ -116,11 +116,20 @@ Osc::Osc(Hwa& hwa, Database& database)
             const auto network_name = _network_identity.name();
             const auto ip_address   = _network_identity.ipv4_address();
 
-            LOG_INF("OSC network identity: %.*s %.*s",
-                    static_cast<int>(network_name.size()),
-                    network_name.data(),
-                    static_cast<int>(ip_address.size()),
-                    ip_address.data());
+            if (ip_address.empty())
+            {
+                LOG_WRN("OSC network identity has no address: %.*s",
+                        static_cast<int>(network_name.size()),
+                        network_name.data());
+            }
+            else
+            {
+                LOG_INF("OSC network identity: %.*s %.*s",
+                        static_cast<int>(network_name.size()),
+                        network_name.data(),
+                        static_cast<int>(ip_address.size()),
+                        ip_address.data());
+            }
 
             if (_initialized && has_network_identity())
             {
@@ -198,7 +207,9 @@ bool Osc::enabled()
 
 bool Osc::has_network_identity() const
 {
-    return _network_identity_received.load();
+    return _network_identity_received.load() &&
+           !_network_identity.name().empty() &&
+           !_network_identity.ipv4_address().empty();
 }
 
 bool Osc::enqueue_input(const signaling::OscIoSignal& event)

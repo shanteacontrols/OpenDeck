@@ -63,6 +63,7 @@ namespace opendeck::io::indicators
         static constexpr bool HAS_BLE_OUT     = DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_traffic_indicators), ble_out_gpios);
         static constexpr bool HAS_NETWORK_IN  = DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_traffic_indicators), network_in_gpios);
         static constexpr bool HAS_NETWORK_OUT = DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_traffic_indicators), network_out_gpios);
+        static constexpr bool HAS_NETWORK_UP  = DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_traffic_indicators), network_up_gpios);
 
         const gpio_dt_spec _usb_in      = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(opendeck_traffic_indicators), usb_in_gpios, {});
         const gpio_dt_spec _usb_out     = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(opendeck_traffic_indicators), usb_out_gpios, {});
@@ -72,6 +73,7 @@ namespace opendeck::io::indicators
         const gpio_dt_spec _ble_out     = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(opendeck_traffic_indicators), ble_out_gpios, {});
         const gpio_dt_spec _network_in  = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(opendeck_traffic_indicators), network_in_gpios, {});
         const gpio_dt_spec _network_out = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(opendeck_traffic_indicators), network_out_gpios, {});
+        const gpio_dt_spec _network_up  = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(opendeck_traffic_indicators), network_up_gpios, {});
 
         /**
          * @brief Configures all indicator GPIOs present in the devicetree.
@@ -87,7 +89,8 @@ namespace opendeck::io::indicators
                    configure_optional<Type::BleIn>() &&
                    configure_optional<Type::BleOut>() &&
                    configure_optional<Type::NetworkIn>() &&
-                   configure_optional<Type::NetworkOut>();
+                   configure_optional<Type::NetworkOut>() &&
+                   configure_optional<Type::NetworkUp>();
         }
 
         /**
@@ -154,6 +157,13 @@ namespace opendeck::io::indicators
                 if constexpr (HAS_NETWORK_OUT)
                 {
                     return configure(_network_out);
+                }
+            }
+            else if constexpr (Type == Type::NetworkUp)
+            {
+                if constexpr (HAS_NETWORK_UP)
+                {
+                    return configure(_network_up);
                 }
             }
 
@@ -243,6 +253,13 @@ namespace opendeck::io::indicators
                     gpio_pin_set_dt(&_network_out, state);
                 }
             }
+            else if constexpr (Type == Type::NetworkUp)
+            {
+                if constexpr (HAS_NETWORK_UP)
+                {
+                    gpio_pin_set_dt(&_network_up, state);
+                }
+            }
         }
 
         /**
@@ -303,6 +320,25 @@ namespace opendeck::io::indicators
             }
             break;
 
+            case Type::NetworkUp:
+            {
+                set_optional<Type::NetworkUp>(state);
+            }
+            break;
+
+            case Type::TrafficAll:
+            {
+                set_optional<Type::UsbIn>(state);
+                set_optional<Type::UsbOut>(state);
+                set_optional<Type::DinIn>(state);
+                set_optional<Type::DinOut>(state);
+                set_optional<Type::BleIn>(state);
+                set_optional<Type::BleOut>(state);
+                set_optional<Type::NetworkIn>(state);
+                set_optional<Type::NetworkOut>(state);
+            }
+            break;
+
             case Type::All:
             {
                 set_optional<Type::UsbIn>(state);
@@ -313,6 +349,7 @@ namespace opendeck::io::indicators
                 set_optional<Type::BleOut>(state);
                 set_optional<Type::NetworkIn>(state);
                 set_optional<Type::NetworkOut>(state);
+                set_optional<Type::NetworkUp>(state);
             }
             break;
 

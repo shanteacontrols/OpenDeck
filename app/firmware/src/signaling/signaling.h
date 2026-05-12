@@ -171,6 +171,14 @@ namespace opendeck::signaling
     };
 
     /**
+     * @brief Reports that a SysEx configuration transport disconnected.
+     */
+    struct ConfigDisconnectSignal
+    {
+        ConfigTransport transport = ConfigTransport::WebConfig;
+    };
+
+    /**
      * @brief Carries one raw OSC packet observed by the network protocol.
      */
     struct OscSignal
@@ -404,6 +412,7 @@ namespace opendeck::signaling
         SignalRegistry<UmpSignal>::instance().clear();
         SignalRegistry<ConfigRequestSignal>::instance().clear();
         SignalRegistry<ConfigResponseSignal>::instance().clear();
+        SignalRegistry<ConfigDisconnectSignal>::instance().clear();
         SignalRegistry<OscSignal>::instance().clear();
         SignalRegistry<NetworkIdentitySignal>::instance().clear();
         SignalRegistry<UsbUmpBurstSignal>::instance().clear();

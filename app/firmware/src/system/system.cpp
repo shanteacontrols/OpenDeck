@@ -13,6 +13,8 @@
 #include <zephyr/logging/log.h>
 #include <zephyr/logging/log_ctrl.h>
 
+#include <string_view>
+
 using namespace opendeck;
 using namespace opendeck::io;
 using namespace opendeck::sys;
@@ -21,6 +23,20 @@ using namespace opendeck::protocol;
 namespace
 {
     LOG_MODULE_REGISTER(system, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
+
+    std::string_view config_transport_name(signaling::ConfigTransport transport)
+    {
+        switch (transport)
+        {
+        case signaling::ConfigTransport::Usb:
+            return "USB";
+
+        case signaling::ConfigTransport::WebConfig:
+            return "WebConfig";
+        }
+
+        return "unknown";
+    }
 }    // namespace
 
 System::System(Hwa& hwa)
@@ -149,9 +165,21 @@ System::System(Hwa& hwa)
             handle_config_request(request);
         });
 
-    signaling::subscribe<signaling::NetworkIdentitySignal>(
-        [this]([[maybe_unused]] const signaling::NetworkIdentitySignal& identity)
+    signaling::subscribe<signaling::ConfigDisconnectSignal>(
+        [this](const signaling::ConfigDisconnectSignal& event)
         {
+            handle_config_disconnect(event.transport);
+        });
+
+    signaling::subscribe<signaling::NetworkIdentitySignal>(
+        [this](const signaling::NetworkIdentitySignal& identity)
+        {
+            if (identity.ipv4_address().empty())
+            {
+                LOG_INF("Network identity has no address, skipping forced component refresh");
+                return;
+            }
+
             LOG_INF("Network identity ready, scheduling forced component refresh");
             schedule_forced_refresh(ForcedRefreshType::NetworkInit, NETWORK_CHANGE_FORCED_REFRESH_DELAY);
         });
@@ -932,7 +960,8 @@ void System::schedule_reboot(fw_selector::FwType type)
 
 void System::update_sysex_configuration_session(bool was_open)
 {
-    const bool is_open = _sysex_conf.is_configuration_enabled();
+    const bool is_open        = _sysex_conf.is_configuration_enabled();
+    const auto transport_name = config_transport_name(_config_transport);
 
     if (is_open)
     {
@@ -942,6 +971,9 @@ void System::update_sysex_configuration_session(bool was_open)
 
             if (!was_open)
             {
+                LOG_INF("Opening SysEx configuration session via %.*s",
+                        static_cast<int>(transport_name.size()),
+                        transport_name.data());
                 publish_configuration_session_state(signaling::SystemEvent::ConfigurationSessionOpened);
             }
 
@@ -952,6 +984,9 @@ void System::update_sysex_configuration_session(bool was_open)
 
         if (!was_open)
         {
+            LOG_INF("Opening SysEx configuration session via %.*s",
+                    static_cast<int>(transport_name.size()),
+                    transport_name.data());
             publish_configuration_session_state(signaling::SystemEvent::ConfigurationSessionOpened);
         }
 
@@ -962,6 +997,9 @@ void System::update_sysex_configuration_session(bool was_open)
 
     if (was_open)
     {
+        LOG_INF("Closing SysEx configuration session via %.*s",
+                static_cast<int>(transport_name.size()),
+                transport_name.data());
         publish_configuration_session_state(signaling::SystemEvent::ConfigurationSessionClosed);
     }
 }
@@ -979,8 +1017,35 @@ void System::close_inactive_sysex_configuration_session()
         return;
     }
 
-    LOG_INF("Closing inactive SysEx configuration session");
+    const auto transport_name = config_transport_name(_config_transport);
 
+    LOG_INF("Closing inactive SysEx configuration session via %.*s",
+            static_cast<int>(transport_name.size()),
+            transport_name.data());
+
+    _sysex_conf.close_connection();
+    publish_configuration_session_state(signaling::SystemEvent::ConfigurationSessionClosed);
+}
+
+void System::handle_config_disconnect(signaling::ConfigTransport transport)
+{
+    if ((_config_transport != transport) || !_sysex_conf.is_configuration_enabled())
+    {
+        return;
+    }
+
+    if (_backup_restore_state != BackupRestoreState::None)
+    {
+        return;
+    }
+
+    const auto transport_name = config_transport_name(_config_transport);
+
+    LOG_INF("Closing SysEx configuration session after %.*s disconnect",
+            static_cast<int>(transport_name.size()),
+            transport_name.data());
+
+    _sysex_conf_close_work.cancel();
     _sysex_conf.close_connection();
     publish_configuration_session_state(signaling::SystemEvent::ConfigurationSessionClosed);
 }

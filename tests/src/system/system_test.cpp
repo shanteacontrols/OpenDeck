@@ -13,6 +13,8 @@
 #include "signaling/signaling.h"
 #include "util/configurable/configurable.h"
 
+#include <atomic>
+
 using namespace opendeck::io;
 using namespace opendeck::protocol;
 
@@ -210,9 +212,13 @@ TEST_F(SystemTest, ForcedResendOnNetworkIdentity)
 
     signaling::publish(signaling::NetworkIdentitySignal("opendeck-test.local", "192.168.1.112"));
 
-    k_msleep(sys::NETWORK_CHANGE_FORCED_REFRESH_DELAY);
+    ASSERT_TRUE(tests::wait_until(
+        [&]()
+        {
+            return start_received_cnt == 1;
+        },
+        sys::NETWORK_CHANGE_FORCED_REFRESH_DELAY + END_WAIT_TIMEOUT_MS));
 
-    ASSERT_EQ(1, start_received_cnt);
     ASSERT_EQ(sys::ForcedRefreshType::NetworkInit, refresh_type);
 
     ASSERT_TRUE(tests::wait_until(
@@ -221,6 +227,28 @@ TEST_F(SystemTest, ForcedResendOnNetworkIdentity)
             return stop_received_cnt == 1;
         },
         END_WAIT_TIMEOUT_MS));
+}
+
+TEST_F(SystemTest, NetworkIdentityWithoutAddressDoesNotForceRefresh)
+{
+    size_t start_received_cnt = 0;
+
+    signaling::subscribe<signaling::ForcedRefreshStart>(
+        [&](const signaling::ForcedRefreshStart& event)
+        {
+            if (event.type == sys::ForcedRefreshType::NetworkInit)
+            {
+                start_received_cnt++;
+            }
+        });
+
+    init_initialized_system();
+
+    signaling::publish(signaling::NetworkIdentitySignal("opendeck-test.local", {}));
+
+    k_msleep(sys::NETWORK_CHANGE_FORCED_REFRESH_DELAY + 100);
+
+    ASSERT_EQ(0, start_received_cnt);
 }
 
 TEST_F(SystemTest, ForcedResendOnOscRefreshRequest)
@@ -285,8 +313,8 @@ TEST_F(SystemTest, ProgramIndicatedOnStartup)
 
 TEST_F(SystemTest, ConfigurationSessionTimesOutAfterInactivity)
 {
-    size_t opened_cnt = 0;
-    size_t closed_cnt = 0;
+    std::atomic_size_t opened_cnt = 0;
+    std::atomic_size_t closed_cnt = 0;
 
     signaling::subscribe<signaling::SystemSignal>(
         [&](const signaling::SystemSignal& event)
@@ -315,21 +343,21 @@ TEST_F(SystemTest, ConfigurationSessionTimesOutAfterInactivity)
     ASSERT_TRUE(tests::wait_until(
         [&]()
         {
-            return opened_cnt == 1;
+            return opened_cnt.load() == 1;
         }));
 
-    ASSERT_EQ(0, closed_cnt);
+    ASSERT_EQ(0, closed_cnt.load());
 
     k_msleep(sys::SYSEX_CONFIGURATION_TIMEOUT_MS / 2);
     handshake();
     k_msleep((sys::SYSEX_CONFIGURATION_TIMEOUT_MS / 2) + 100);
 
-    ASSERT_EQ(0, closed_cnt);
+    ASSERT_EQ(0, closed_cnt.load());
 
     ASSERT_TRUE(tests::wait_until(
         [&]()
         {
-            return closed_cnt == 1;
+            return closed_cnt.load() == 1;
         },
         sys::SYSEX_CONFIGURATION_TIMEOUT_MS));
 
@@ -457,6 +485,54 @@ TEST_F(SystemTest, ConfigurationSessionTimeoutDoesNotCloseBackup)
         10000));
 
     ASSERT_FALSE(closed_during_backup);
+}
+
+TEST_F(SystemTest, WebConfigDisconnectClosesConfigurationSession)
+{
+    std::atomic_size_t opened_cnt = 0;
+    std::atomic_size_t closed_cnt = 0;
+
+    signaling::subscribe<signaling::SystemSignal>(
+        [&](const signaling::SystemSignal& event)
+        {
+            switch (event.system_event)
+            {
+            case signaling::SystemEvent::ConfigurationSessionOpened:
+                opened_cnt++;
+                break;
+
+            case signaling::SystemEvent::ConfigurationSessionClosed:
+                closed_cnt++;
+                break;
+
+            default:
+                break;
+            }
+        });
+
+    ASSERT_TRUE(_system._hwa.database().init(_database_handlers));
+    ASSERT_TRUE(_system._instance.init());
+
+    signaling::publish(signaling::ConfigRequestSignal{
+        .transport = signaling::ConfigTransport::WebConfig,
+        .data      = handshake_req,
+    });
+
+    ASSERT_TRUE(tests::wait_until(
+        [&]()
+        {
+            return opened_cnt.load() == 1;
+        }));
+
+    signaling::publish(signaling::ConfigDisconnectSignal{
+        .transport = signaling::ConfigTransport::WebConfig,
+    });
+
+    ASSERT_TRUE(tests::wait_until(
+        [&]()
+        {
+            return closed_cnt.load() == 1;
+        }));
 }
 
 TEST_F(SystemTest, FactoryResetRequestIsDeferred)

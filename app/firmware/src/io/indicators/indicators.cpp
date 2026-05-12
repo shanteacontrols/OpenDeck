@@ -57,6 +57,12 @@ Indicators::Indicators(Hwa& hwa)
             on_traffic(signal);
         });
 
+    signaling::subscribe<signaling::NetworkIdentitySignal>(
+        [this](const signaling::NetworkIdentitySignal& identity)
+        {
+            on_network_identity(identity);
+        });
+
     signaling::subscribe<signaling::UsbUmpBurstSignal>(
         [this]([[maybe_unused]] const signaling::UsbUmpBurstSignal& signal)
         {
@@ -84,7 +90,7 @@ Indicators::Indicators(Hwa& hwa)
             {
                 _invert = true;
                 cancel_idle_work();
-                _hwa.on(Type::All);
+                _hwa.on(Type::TrafficAll);
             }
             break;
 
@@ -92,7 +98,8 @@ Indicators::Indicators(Hwa& hwa)
             {
                 _invert = false;
                 cancel_idle_work();
-                _hwa.off(Type::All);
+                _hwa.off(Type::TrafficAll);
+                apply_network_up_state();
             }
             break;
 
@@ -115,6 +122,7 @@ bool Indicators::init()
     }
 
     _hwa.off(Type::All);
+    apply_network_up_state();
     return true;
 }
 
@@ -141,6 +149,12 @@ void Indicators::on_traffic(const signaling::TrafficSignal& signal)
 
     set_active(type);
     schedule_idle(type);
+}
+
+void Indicators::on_network_identity(const signaling::NetworkIdentitySignal& identity)
+{
+    _network_up = !identity.ipv4_address().empty();
+    apply_network_up_state();
 }
 
 void Indicators::set_idle(Type type)
@@ -237,6 +251,23 @@ void Indicators::cancel_idle_work()
     _network_out_off_work.cancel();
 }
 
+void Indicators::apply_network_up_state()
+{
+    if (_factory_reset_in_progress)
+    {
+        return;
+    }
+
+    if (_network_up)
+    {
+        _hwa.on(Type::NetworkUp);
+    }
+    else
+    {
+        _hwa.off(Type::NetworkUp);
+    }
+}
+
 Type Indicators::indicator_type(signaling::TrafficTransport transport, signaling::SignalDirection direction)
 {
     switch (transport)
@@ -303,9 +334,9 @@ void Indicators::indicate_startup()
 
     for (size_t flash = 0; flash < STARTUP_INDICATOR_FLASH_COUNT; flash++)
     {
-        _hwa.on(Type::All);
+        _hwa.on(Type::TrafficAll);
         k_msleep(STARTUP_INDICATOR_TIMEOUT_MS);
-        _hwa.off(Type::All);
+        _hwa.off(Type::TrafficAll);
         k_msleep(STARTUP_INDICATOR_TIMEOUT_MS);
     }
 }

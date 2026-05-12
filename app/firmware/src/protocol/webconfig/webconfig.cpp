@@ -210,7 +210,17 @@ void WebConfig::client_loop()
             }
         }
 
+        const bool active_client_disconnected = _client_socket.load() == sock;
+
         close_client(sock);
+
+        if (active_client_disconnected)
+        {
+            signaling::publish(signaling::ConfigDisconnectSignal{
+                .transport = signaling::ConfigTransport::WebConfig,
+            });
+        }
+
         LOG_INF("WebConfig client disconnected");
     }
 }
@@ -267,7 +277,7 @@ void WebConfig::log_endpoint() const
 
     if (ip_address.empty())
     {
-        LOG_INF("WebConfig endpoint: ws://%.*s/config",
+        LOG_WRN("WebConfig network identity has no address: %.*s",
                 static_cast<int>(network_name.size()),
                 network_name.data());
         return;

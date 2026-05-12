@@ -5,12 +5,14 @@
 
 #include "tests/common.h"
 #include "tests/helpers/database.h"
+#include "tests/helpers/misc.h"
 
 #include "database/builder.h"
 #include "protocol/mdns/hwa_test.h"
 #include "protocol/mdns/mdns.h"
 #include "signaling/signaling.h"
 #include "util/configurable/configurable.h"
+#include "zlibs/utils/misc/mutex.h"
 
 #include <algorithm>
 #include <cctype>
@@ -50,6 +52,8 @@ namespace
             signaling::subscribe<signaling::NetworkIdentitySignal>(
                 [this](const signaling::NetworkIdentitySignal& signal)
                 {
+                    const zlibs::utils::misc::LockGuard lock(_mutex);
+
                     _signals.push_back({
                         .name         = std::string(signal.name()),
                         .ipv4_address = std::string(signal.ipv4_address()),
@@ -63,13 +67,15 @@ namespace
             std::string ipv4_address = {};
         };
 
-        const std::vector<Signal>& signals() const
+        std::vector<Signal> signals() const
         {
+            const zlibs::utils::misc::LockGuard lock(_mutex);
             return _signals;
         }
 
         private:
-        std::vector<Signal> _signals = {};
+        mutable zlibs::utils::misc::Mutex _mutex;
+        std::vector<Signal>               _signals = {};
     };
 
     class MdnsTest : public ::testing::Test
@@ -99,6 +105,15 @@ namespace
             }
         }
 
+        void wait_for_signals(const NetworkIdentityCollector& collector, size_t count)
+        {
+            ASSERT_TRUE(tests::wait_until(
+                [&]()
+                {
+                    return collector.signals().size() == count;
+                }));
+        }
+
         tests::NoOpDatabaseHandlers _handlers;
         database::Builder           _database_builder;
         database::Admin&            _database_admin = _database_builder.instance();
@@ -114,9 +129,10 @@ TEST_F(MdnsTest, PublishesNetworkIdentityOnInit)
 
     ASSERT_TRUE(_mdns.init());
 
-    ASSERT_EQ(collector.signals().size(), 1U);
-    EXPECT_EQ(collector.signals().front().name, make_expected_name());
-    EXPECT_EQ(collector.signals().front().ipv4_address, "192.168.1.112");
+    wait_for_signals(collector, 1);
+    const auto signals = collector.signals();
+    EXPECT_EQ(signals.front().name, make_expected_name());
+    EXPECT_EQ(signals.front().ipv4_address, "192.168.1.112");
     EXPECT_EQ(_hwa.webconfig_instance + ".local", make_expected_name());
     EXPECT_EQ(_hwa.osc_instance + ".local", make_expected_name());
 }
@@ -128,7 +144,7 @@ TEST_F(MdnsTest, UsesCustomHostnameFromCommonDatabase)
 
     ASSERT_TRUE(_mdns.init());
 
-    ASSERT_EQ(collector.signals().size(), 1U);
+    wait_for_signals(collector, 1);
     EXPECT_EQ(collector.signals().front().name, "studio-left.local");
     EXPECT_EQ(_hwa.hostname, "studio-left");
     EXPECT_EQ(_hwa.webconfig_instance, "studio-left");
@@ -181,7 +197,7 @@ TEST_F(MdnsTest, FallsBackToGeneratedHostnameWhenCustomHostnameIsInvalid)
 
     ASSERT_TRUE(_mdns.init());
 
-    ASSERT_EQ(collector.signals().size(), 1U);
+    wait_for_signals(collector, 1);
     EXPECT_EQ(collector.signals().front().name, make_expected_name());
     EXPECT_EQ(_hwa.hostname + ".local", make_expected_name());
 }
@@ -191,13 +207,15 @@ TEST_F(MdnsTest, RepublishesNetworkIdentityWhenIpChanges)
     NetworkIdentityCollector collector;
 
     ASSERT_TRUE(_mdns.init());
+    wait_for_signals(collector, 1);
 
     _hwa.ip_address_value = "192.168.1.113";
     _hwa.trigger_ip_change();
 
-    ASSERT_EQ(collector.signals().size(), 2U);
-    EXPECT_EQ(collector.signals().back().name, make_expected_name());
-    EXPECT_EQ(collector.signals().back().ipv4_address, "192.168.1.113");
+    wait_for_signals(collector, 2);
+    const auto signals = collector.signals();
+    EXPECT_EQ(signals.back().name, make_expected_name());
+    EXPECT_EQ(signals.back().ipv4_address, "192.168.1.113");
 }
 
 TEST_F(MdnsTest, StopsIpChangeCallbackOnDeinit)
@@ -205,6 +223,7 @@ TEST_F(MdnsTest, StopsIpChangeCallbackOnDeinit)
     NetworkIdentityCollector collector;
 
     ASSERT_TRUE(_mdns.init());
+    wait_for_signals(collector, 1);
     ASSERT_TRUE(_mdns.deinit());
 
     _hwa.ip_address_value = "192.168.1.113";

@@ -60,6 +60,7 @@ namespace opendeck::io::indicators
         zlibs::utils::misc::KworkDelayable _network_out_off_work;
         bool                               _factory_reset_in_progress = false;
         bool                               _invert                    = false;
+        bool                               _network_up                = false;
 
         /**
          * @brief Handles one traffic notification.
@@ -67,6 +68,13 @@ namespace opendeck::io::indicators
          * @param signal Transport traffic event to visualize.
          */
         void on_traffic(const signaling::TrafficSignal& signal);
+
+        /**
+         * @brief Handles a network identity update.
+         *
+         * @param identity Current advertised network identity.
+         */
+        void on_network_identity(const signaling::NetworkIdentitySignal& identity);
 
         /**
          * @brief Applies the idle state to one indicator.
@@ -93,6 +101,11 @@ namespace opendeck::io::indicators
          * @brief Cancels all pending indicator idle work.
          */
         void cancel_idle_work();
+
+        /**
+         * @brief Applies the remembered network status indicator state.
+         */
+        void apply_network_up_state();
 
         /**
          * @brief Maps transport and direction to a concrete indicator output.

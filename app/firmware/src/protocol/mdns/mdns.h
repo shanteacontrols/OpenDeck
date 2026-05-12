@@ -9,6 +9,8 @@
 #include "deps.h"
 #include "protocol/base.h"
 #include "system/config.h"
+#include "threads.h"
+#include "zlibs/utils/misc/kwork_delayable.h"
 
 #include <array>
 #include <optional>
@@ -49,6 +51,7 @@ namespace opendeck::protocol::mdns
 
         Hwa&                                         _hwa;
         Database&                                    _database;
+        zlibs::utils::misc::KworkDelayable           _network_identity_work;
         std::array<char, NETWORK_NAME_SIZE>          _hostname               = {};
         std::array<char, IPV4_ADDRESS_SIZE>          _ip_address             = {};
         std::array<uint8_t, CUSTOM_HOSTNAME_DB_SIZE> _custom_hostname        = {};
@@ -87,6 +90,11 @@ namespace opendeck::protocol::mdns
          * @param name Full `.local` name advertised by mDNS.
          */
         void publish_network_identity(std::string_view name);
+
+        /**
+         * @brief Schedules network identity publishing outside the caller's stack context.
+         */
+        void schedule_network_identity_publish();
 
         /**
          * @brief Republishes network identity after the local IP address changes.

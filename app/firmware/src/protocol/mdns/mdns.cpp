@@ -47,6 +47,21 @@ namespace
 Mdns::Mdns(Hwa& hwa, Database& database)
     : _hwa(hwa)
     , _database(database)
+    , _network_identity_work([this]()
+                             {
+                                 const auto name = make_network_name();
+
+                                 if (name.empty())
+                                 {
+                                     return;
+                                 }
+
+                                 publish_network_identity(name);
+                             },
+                             []()
+                             {
+                                 return threads::SystemWorkqueue::handle();
+                             })
 {
     ConfigHandler.register_config(
         // read
@@ -105,13 +120,14 @@ bool Mdns::init()
             handle_ip_address_changed();
         });
 
-    publish_network_identity(name);
+    schedule_network_identity_publish();
 
     return true;
 }
 
 bool Mdns::deinit()
 {
+    _network_identity_work.cancel();
     _hwa.register_ip_address_changed_callback({});
     return true;
 }
@@ -255,16 +271,14 @@ void Mdns::publish_network_identity(std::string_view name)
     signaling::publish(signaling::NetworkIdentitySignal(name, ip_address));
 }
 
+void Mdns::schedule_network_identity_publish()
+{
+    _network_identity_work.reschedule(0);
+}
+
 void Mdns::handle_ip_address_changed()
 {
-    const auto name = make_network_name();
-
-    if (name.empty())
-    {
-        return;
-    }
-
-    publish_network_identity(name);
+    schedule_network_identity_publish();
 }
 
 bool Mdns::append_target()

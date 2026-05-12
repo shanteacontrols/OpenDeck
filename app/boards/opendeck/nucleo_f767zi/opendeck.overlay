@@ -82,6 +82,7 @@
         ble-out-gpios = <&gpiob 7 GPIO_ACTIVE_HIGH>;
         network-in-gpios = <&gpiob 0 GPIO_ACTIVE_HIGH>;
         network-out-gpios = <&gpiob 7 GPIO_ACTIVE_HIGH>;
+        network-up-gpios = <&gpiob 14 GPIO_ACTIVE_HIGH>;
     };
 
     opendeck_display: opendeck-display {

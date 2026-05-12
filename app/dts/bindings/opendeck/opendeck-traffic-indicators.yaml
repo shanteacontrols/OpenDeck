@@ -42,3 +42,8 @@ properties:
     type: phandle-array
     required: false
     description: GPIO driving the network outgoing traffic indicator OUTPUT.
+
+  network-up-gpios:
+    type: phandle-array
+    required: false
+    description: GPIO driving the network link/address status indicator OUTPUT.

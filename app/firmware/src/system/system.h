@@ -351,6 +351,13 @@ namespace opendeck::sys
         void close_inactive_sysex_configuration_session();
 
         /**
+         * @brief Closes the active configuration session when its transport disconnects.
+         *
+         * @param transport Transport that disconnected.
+         */
+        void handle_config_disconnect(signaling::ConfigTransport transport);
+
+        /**
          * @brief Checks whether a transport is allowed to use the current config session.
          *
          * Only one transport owns configuration at a time. When no session is active,

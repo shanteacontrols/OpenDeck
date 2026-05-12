@@ -222,22 +222,14 @@ TEST_F(OscProtocolTest, SendsDiscoveryAnnouncementWhenNetworkIdentityArrives)
     EXPECT_EQ(*message->arg<osc::OscString>(5), "192.168.1.112");
 }
 
-TEST_F(OscProtocolTest, NetworkIdentityTopicEnablesOscEvenWithoutIpText)
+TEST_F(OscProtocolTest, SkipsDiscoveryAnnouncementWhenNetworkIdentityHasNoIpText)
 {
     publish_network_identity_without_ip();
 
     ASSERT_TRUE(_osc.init());
-    ASSERT_TRUE(wait_for_sent_packets(1));
+    k_msleep(10);
 
-    const auto sent = _hwa.sent_packets();
-    ASSERT_EQ(sent.size(), 1U);
-
-    const auto message = osc::parse_message(sent.front().data);
-    ASSERT_TRUE(message);
-
-    EXPECT_EQ(message->address(), osc::paths::DEVICE_INFO.c_str());
-    EXPECT_EQ(*message->arg<osc::OscString>(4), "opendeck-test.local");
-    EXPECT_EQ(*message->arg<osc::OscString>(5), "");
+    EXPECT_EQ(_hwa.sent_packet_count(), 0U);
 }
 
 TEST_F(OscProtocolTest, SendsInputAfterLateNetworkIdentity)

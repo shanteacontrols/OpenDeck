@@ -239,6 +239,13 @@ config PROJECT_TARGET_SUPPORT_NETWORK_INDICATORS
     help
       Hidden symbol indicating network traffic indicators are present.
 
+config PROJECT_TARGET_SUPPORT_NETWORK_UP_INDICATOR
+    bool
+    default y if $(dt_path_enabled,$(OPENDECK_TRAFFIC_INDICATORS_NODE)) && \
+             $(dt_node_has_prop,$(OPENDECK_TRAFFIC_INDICATORS_NODE),network_up_gpios)
+    help
+      Hidden symbol indicating a network status indicator is present.
+
 config PROJECT_TARGET_SUPPORT_NETWORK
     bool
     default y if NETWORKING && NET_L2_ETHERNET
