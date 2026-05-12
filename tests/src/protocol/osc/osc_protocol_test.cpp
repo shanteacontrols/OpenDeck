@@ -5,6 +5,7 @@
 
 #include "tests/common.h"
 #include "tests/helpers/database.h"
+#include "tests/helpers/misc.h"
 
 #include "database/builder.h"
 #include "io/analog/deps.h"
@@ -365,6 +366,37 @@ TEST_F(OscProtocolTest, DiscoveryResponseUsesConfiguredDestinationPort)
     }
 
     EXPECT_TRUE(found_response);
+}
+
+TEST_F(OscProtocolTest, ReceivesRefreshCommand)
+{
+    publish_network_identity();
+
+    size_t refresh_req_cnt = 0;
+
+    signaling::subscribe<signaling::SystemSignal>(
+        [&](const signaling::SystemSignal& signal)
+        {
+            if (signal.system_event == signaling::SystemEvent::OscRefreshReq)
+            {
+                refresh_req_cnt++;
+            }
+        });
+
+    osc::PacketBuffer packet = {};
+    const auto        size   = osc::make_packet(packet, osc::paths::REFRESH_REQ.c_str());
+    ASSERT_TRUE(size);
+
+    _hwa.push_received(packet_span(packet, *size), endpoint(192, 168, 1, 10, 50000));
+
+    ASSERT_TRUE(_osc.init());
+
+    ASSERT_TRUE(tests::wait_until(
+        [&]()
+        {
+            return refresh_req_cnt == 1;
+        },
+        1000));
 }
 
 TEST_F(OscProtocolTest, RestrictsIncomingPacketsToConfiguredDestinationIp)

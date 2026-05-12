@@ -39,6 +39,7 @@ namespace opendeck::signaling
         FactoryResetEnd,
         InitComplete,
         UsbMidiReady,
+        OscRefreshReq,
         MidiBpmChange,
         ConfigurationSessionOpened,
         ConfigurationSessionClosed,

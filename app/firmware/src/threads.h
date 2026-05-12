@@ -82,6 +82,6 @@ namespace opendeck::threads
      */
     using SystemWorkqueue = zlibs::utils::threads::WorkqueueThread<zlibs::utils::misc::StringLiteral{ "system_work" },
                                                                    K_PRIO_PREEMPT(1),
-                                                                   THREAD_STACK_SIZE>;
+                                                                   THREAD_STACK_SIZE * 3>;
 
 }    // namespace opendeck::threads

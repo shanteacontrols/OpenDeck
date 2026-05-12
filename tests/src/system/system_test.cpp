@@ -185,6 +185,88 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
         END_WAIT_TIMEOUT_MS));
 }
 
+TEST_F(SystemTest, ForcedResendOnNetworkIdentity)
+{
+    constexpr uint32_t     END_WAIT_TIMEOUT_MS = 1000;
+    size_t                 start_received_cnt  = 0;
+    size_t                 stop_received_cnt   = 0;
+    sys::ForcedRefreshType refresh_type        = {};
+
+    signaling::subscribe<signaling::ForcedRefreshStart>(
+        [&](const signaling::ForcedRefreshStart& event)
+        {
+            start_received_cnt++;
+            refresh_type = event.type;
+        });
+
+    signaling::subscribe<signaling::ForcedRefreshStop>(
+        [&](const signaling::ForcedRefreshStop& event)
+        {
+            stop_received_cnt++;
+            refresh_type = event.type;
+        });
+
+    init_initialized_system();
+
+    signaling::publish(signaling::NetworkIdentitySignal("opendeck-test.local", "192.168.1.112"));
+
+    k_msleep(sys::NETWORK_CHANGE_FORCED_REFRESH_DELAY);
+
+    ASSERT_EQ(1, start_received_cnt);
+    ASSERT_EQ(sys::ForcedRefreshType::NetworkInit, refresh_type);
+
+    ASSERT_TRUE(tests::wait_until(
+        [&]()
+        {
+            return stop_received_cnt == 1;
+        },
+        END_WAIT_TIMEOUT_MS));
+}
+
+TEST_F(SystemTest, ForcedResendOnOscRefreshRequest)
+{
+    constexpr uint32_t     END_WAIT_TIMEOUT_MS = 1000;
+    size_t                 start_received_cnt  = 0;
+    size_t                 stop_received_cnt   = 0;
+    sys::ForcedRefreshType refresh_type        = {};
+
+    signaling::subscribe<signaling::ForcedRefreshStart>(
+        [&](const signaling::ForcedRefreshStart& event)
+        {
+            start_received_cnt++;
+            refresh_type = event.type;
+        });
+
+    signaling::subscribe<signaling::ForcedRefreshStop>(
+        [&](const signaling::ForcedRefreshStop& event)
+        {
+            stop_received_cnt++;
+            refresh_type = event.type;
+        });
+
+    init_initialized_system();
+
+    signaling::publish(signaling::SystemSignal{
+        .system_event = signaling::SystemEvent::OscRefreshReq,
+    });
+
+    ASSERT_TRUE(tests::wait_until(
+        [&]()
+        {
+            return start_received_cnt == 1;
+        },
+        END_WAIT_TIMEOUT_MS));
+
+    ASSERT_EQ(sys::ForcedRefreshType::OscRequest, refresh_type);
+
+    ASSERT_TRUE(tests::wait_until(
+        [&]()
+        {
+            return stop_received_cnt == 1;
+        },
+        END_WAIT_TIMEOUT_MS));
+}
+
 TEST_F(SystemTest, ProgramIndicatedOnStartup)
 {
     size_t program_msg_cnt = 0;

@@ -30,6 +30,10 @@ System::System(Hwa& hwa)
     , _forced_refresh_work([this]()
                            {
                                force_component_refresh();
+                           },
+                           []()
+                           {
+                               return threads::SystemWorkqueue::handle();
                            })
     , _io_resume_work([]
                       {
@@ -145,6 +149,13 @@ System::System(Hwa& hwa)
             handle_config_request(request);
         });
 
+    signaling::subscribe<signaling::NetworkIdentitySignal>(
+        [this]([[maybe_unused]] const signaling::NetworkIdentitySignal& identity)
+        {
+            LOG_INF("Network identity ready, scheduling forced component refresh");
+            schedule_forced_refresh(ForcedRefreshType::NetworkInit, NETWORK_CHANGE_FORCED_REFRESH_DELAY);
+        });
+
     signaling::subscribe<signaling::SystemSignal>(
         [this](const signaling::SystemSignal& event)
         {
@@ -172,6 +183,13 @@ System::System(Hwa& hwa)
             {
                 LOG_INF("USB ready, scheduling forced component refresh");
                 schedule_forced_refresh(ForcedRefreshType::UsbInit, USB_CHANGE_FORCED_REFRESH_DELAY);
+            }
+            break;
+
+            case signaling::SystemEvent::OscRefreshReq:
+            {
+                LOG_INF("OSC refresh requested, scheduling forced component refresh");
+                schedule_forced_refresh(ForcedRefreshType::OscRequest, 0);
             }
             break;
 

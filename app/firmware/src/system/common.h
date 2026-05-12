@@ -38,6 +38,14 @@ namespace opendeck::sys
     constexpr inline uint32_t USB_CHANGE_FORCED_REFRESH_DELAY = 3000;
 
     /**
+     * @brief Delay before a forced refresh starts after network identity becomes available.
+     *
+     * This allows discovery and network socket setup to settle before the firmware republishes
+     * current component state over network protocols.
+     */
+    constexpr inline uint32_t NETWORK_CHANGE_FORCED_REFRESH_DELAY = 500;
+
+    /**
      * @brief Delay before a forced refresh starts after the active preset changes.
      */
     constexpr inline uint32_t PRESET_CHANGE_FORCED_REFRESH_DELAY = 500;
@@ -53,6 +61,8 @@ namespace opendeck::sys
     enum class ForcedRefreshType : uint8_t
     {
         UsbInit,
+        NetworkInit,
+        OscRequest,
         PresetChange
     };
 

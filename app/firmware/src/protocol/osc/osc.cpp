@@ -693,6 +693,26 @@ bool Osc::receive_packet(int listen_sock)
         return true;
     }
 
+    if (message->address() == paths::REFRESH_REQ.c_str())
+    {
+        if (!message->empty())
+        {
+            LOG_WRN_ONCE("Ignoring malformed OSC refresh packet");
+            return true;
+        }
+
+        signaling::publish(signaling::SystemSignal{
+            .system_event = signaling::SystemEvent::OscRefreshReq,
+        });
+
+        signaling::publish(signaling::TrafficSignal{
+            .transport = signaling::TrafficTransport::Network,
+            .direction = signaling::SignalDirection::In,
+        });
+
+        return true;
+    }
+
     const auto value = message->arg<OscInt32>(0);
 
     if (!value)

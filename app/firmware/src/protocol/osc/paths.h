@@ -21,6 +21,7 @@ namespace opendeck::protocol::osc::paths
     constexpr inline auto ANALOG_COMPONENT  = misc::StringLiteral{ "/analog" };
     constexpr inline auto OUTPUT_COMPONENT  = misc::StringLiteral{ "/output" };
     constexpr inline auto RGB               = misc::StringLiteral{ "/rgb" };
+    constexpr inline auto REFRESH           = misc::StringLiteral{ "/refresh" };
     constexpr inline auto DISCOVER          = misc::StringLiteral{ "/discover" };
     constexpr inline auto DEVICE            = misc::StringLiteral{ "/device" };
 
@@ -28,6 +29,7 @@ namespace opendeck::protocol::osc::paths
     constexpr inline auto ENCODER     = misc::string_join(ROOT, ENCODER_COMPONENT);
     constexpr inline auto ANALOG      = misc::string_join(ROOT, ANALOG_COMPONENT);
     constexpr inline auto OUTPUT      = misc::string_join(ROOT, OUTPUT_COMPONENT);
+    constexpr inline auto REFRESH_REQ = misc::string_join(ROOT, REFRESH);
     constexpr inline auto DISCOVERY   = misc::string_join(ROOT, DISCOVER);
     constexpr inline auto DEVICE_INFO = misc::string_join(ROOT, DEVICE);
 
