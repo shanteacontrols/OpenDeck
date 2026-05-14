@@ -9,6 +9,15 @@ jobs:
     name: Attach firmware to release
     runs-on: ubuntu-latest
     steps:
+      - name: Free Disk Space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          swap-storage: true
       - name: Pull the repository
         uses: actions/checkout@v4
         with:
