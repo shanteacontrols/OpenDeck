@@ -339,6 +339,11 @@ namespace opendeck::sys
         void schedule_reboot(fw_selector::FwType type);
 
         /**
+         * @brief Closes active sessions that must be flushed before reboot.
+         */
+        void prepare_for_reboot();
+
+        /**
          * @brief Updates configuration-session timeout tracking after incoming SysEx.
          *
          * @param was_open Configuration-session state before processing the incoming packet.

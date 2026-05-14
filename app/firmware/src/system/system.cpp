@@ -101,6 +101,7 @@ System::System(Hwa& hwa)
                     })
     , _reboot_work([this]()
                    {
+                       prepare_for_reboot();
                        _hwa.reboot(_reboot_type);
                    },
                    []()
@@ -956,6 +957,24 @@ void System::schedule_reboot(fw_selector::FwType type)
     LOG_INF("Scheduling reboot to %s", type == fw_selector::FwType::Bootloader ? "bootloader" : "application");
     _reboot_type = type;
     _reboot_work.reschedule(REBOOT_DELAY_MS);
+}
+
+void System::prepare_for_reboot()
+{
+    if (!_sysex_conf.is_configuration_enabled())
+    {
+        return;
+    }
+
+    const auto transport_name = config_transport_name(_config_transport);
+
+    LOG_INF("Closing SysEx configuration session before reboot via %.*s",
+            static_cast<int>(transport_name.size()),
+            transport_name.data());
+
+    _sysex_conf_close_work.cancel();
+    _sysex_conf.close_connection();
+    publish_configuration_session_state(signaling::SystemEvent::ConfigurationSessionClosed);
 }
 
 void System::update_sysex_configuration_session(bool was_open)
