@@ -6,6 +6,7 @@
 #pragma once
 
 #include "database/config.h"
+#include "system/common.h"
 
 #include "zlibs/utils/sysex_conf/sysex_conf.h"
 
@@ -73,6 +74,7 @@ namespace opendeck::sys
                 SystemSettings,
                 OscSettings,
                 MdnsHostname,
+                ConfigUnlock,
                 Count
             };
 

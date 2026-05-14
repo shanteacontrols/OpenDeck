@@ -67,11 +67,24 @@ namespace
             ASSERT_EQ(handshake_ack, response);
         }
 
+        void unlock_config()
+        {
+            const auto token = sys::make_config_unlock_token(_system._hwa.serial);
+
+            for (size_t i = 0; i < token.size(); i++)
+            {
+                ASSERT_TRUE(_helper.database_write_to_system_via_sysex(sys::Config::Section::Global::ConfigUnlock,
+                                                                       i,
+                                                                       token.at(i)));
+            }
+        }
+
         void init_initialized_system()
         {
             ASSERT_TRUE(_system._hwa.database().init(_database_handlers));
             ASSERT_TRUE(_system._instance.init());
             handshake();
+            unlock_config();
         }
 
         sys::Builder                _system;
@@ -340,6 +353,23 @@ TEST_F(SystemTest, SerialNumberCustomRequestReturnsHwaSerial)
         EXPECT_EQ(0, response.at(response_index));
         EXPECT_EQ(_system._hwa.serial.at(i), response.at(response_index + 1));
     }
+}
+
+TEST_F(SystemTest, ConfigurationWritesRequireUnlockToken)
+{
+    ASSERT_TRUE(_system._hwa.database().init(_database_handlers));
+    ASSERT_TRUE(_system._instance.init());
+    handshake();
+
+    ASSERT_FALSE(_helper.database_write_to_system_via_sysex(sys::Config::Section::Global::SystemSettings,
+                                                            sys::Config::SystemSetting::DisableForcedRefreshAfterPresetChange,
+                                                            1));
+
+    unlock_config();
+
+    ASSERT_TRUE(_helper.database_write_to_system_via_sysex(sys::Config::Section::Global::SystemSettings,
+                                                           sys::Config::SystemSetting::DisableForcedRefreshAfterPresetChange,
+                                                           1));
 }
 
 TEST_F(SystemTest, ConfigurationSessionTimesOutAfterInactivity)

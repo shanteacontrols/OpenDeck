@@ -301,6 +301,8 @@ bool System::init()
 
     collection_init();
 
+    load_config_unlock_token();
+
     LOG_INF("Init SysEx layout");
 
     _sysex_conf.set_layout(_layout.layout());
@@ -820,6 +822,12 @@ zlibs::utils::sysex_conf::Status System::SysExDataHandler::custom_request(uint16
 
     case SYSEX_CR_FACTORY_RESET:
     {
+        if (!_system.config_unlocked())
+        {
+            result = zlibs::utils::sysex_conf::Status::ErrorConnection;
+            break;
+        }
+
         _system.schedule_factory_reset();
     }
     break;
@@ -832,6 +840,12 @@ zlibs::utils::sysex_conf::Status System::SysExDataHandler::custom_request(uint16
 
     case SYSEX_CR_REBOOT_BTLDR:
     {
+        if (!_system.config_unlocked())
+        {
+            result = zlibs::utils::sysex_conf::Status::ErrorConnection;
+            break;
+        }
+
         _system.schedule_reboot(fw_selector::FwType::Bootloader);
     }
     break;
@@ -860,6 +874,12 @@ zlibs::utils::sysex_conf::Status System::SysExDataHandler::custom_request(uint16
 
     case SYSEX_CR_FULL_BACKUP:
     {
+        if (!_system.config_unlocked())
+        {
+            result = zlibs::utils::sysex_conf::Status::ErrorConnection;
+            break;
+        }
+
         if ((_system._backup_restore_state == BackupRestoreState::Backup) || _system._backup_session.active)
         {
             LOG_WRN("Ignoring duplicate backup request while a backup session is active");
@@ -872,12 +892,24 @@ zlibs::utils::sysex_conf::Status System::SysExDataHandler::custom_request(uint16
 
     case SYSEX_CR_RESTORE_START:
     {
+        if (!_system.config_unlocked())
+        {
+            result = zlibs::utils::sysex_conf::Status::ErrorConnection;
+            break;
+        }
+
         _system.start_restore();
     }
     break;
 
     case SYSEX_CR_RESTORE_END:
     {
+        if (!_system.config_unlocked())
+        {
+            result = zlibs::utils::sysex_conf::Status::ErrorConnection;
+            break;
+        }
+
         _system.finish_restore();
     }
     break;
@@ -905,6 +937,18 @@ zlibs::utils::sysex_conf::Status System::SysExDataHandler::set(uint8_t  block,
                                                                uint16_t index,
                                                                uint16_t value)
 {
+    if ((block == static_cast<uint8_t>(sys::Config::Block::Global)) &&
+        (section == static_cast<uint8_t>(sys::Config::Section::Global::ConfigUnlock)))
+    {
+        return static_cast<zlibs::utils::sysex_conf::Status>(_system.process_config_unlock_word(static_cast<size_t>(index), value));
+    }
+
+    if (!_system.config_unlocked())
+    {
+        LOG_WRN_ONCE("Ignoring locked SysEx configuration write");
+        return zlibs::utils::sysex_conf::Status::ErrorConnection;
+    }
+
     return static_cast<zlibs::utils::sysex_conf::Status>(ConfigHandler.set(static_cast<sys::Config::Block>(block), section, index, value));
 }
 
@@ -1167,6 +1211,70 @@ void System::publish_configuration_session_state(signaling::SystemEvent event)
     signal.system_event            = event;
 
     signaling::publish(signal);
+}
+
+bool System::config_unlocked() const
+{
+    return _config_unlocked;
+}
+
+uint8_t System::process_config_unlock_word(size_t index, uint16_t value)
+{
+    if (index >= CONFIG_UNLOCK_TOKEN_WORDS)
+    {
+        return sys::Config::Status::ErrorIndex;
+    }
+
+    if (!_config_unlock_token)
+    {
+        LOG_WRN_ONCE("Configuration unlock rejected: serial number unavailable");
+        return sys::Config::Status::ErrorRead;
+    }
+
+    if (index != _config_unlock_word_index)
+    {
+        LOG_WRN("Configuration unlock token index mismatch: expected %u, got %u",
+                static_cast<unsigned int>(_config_unlock_word_index),
+                static_cast<unsigned int>(index));
+        _config_unlock_word_index = 0;
+        _config_unlocked          = false;
+        return sys::Config::Status::ErrorIndex;
+    }
+
+    if (value != _config_unlock_token->at(index))
+    {
+        LOG_WRN("Configuration unlock token mismatch at word %u", static_cast<unsigned int>(index));
+        _config_unlock_word_index = 0;
+        _config_unlocked          = false;
+        return sys::Config::Status::ErrorWrite;
+    }
+
+    _config_unlock_word_index++;
+
+    if (_config_unlock_word_index == CONFIG_UNLOCK_TOKEN_WORDS)
+    {
+        _config_unlock_word_index = 0;
+        _config_unlocked          = true;
+        LOG_INF("Configuration unlocked");
+    }
+
+    return sys::Config::Status::Ack;
+}
+
+bool System::load_config_unlock_token()
+{
+    const auto serial = _hwa.serial_number();
+
+    if (serial.empty())
+    {
+        LOG_WRN("Configuration unlock token unavailable: serial number unavailable");
+        _config_unlock_token = {};
+        return false;
+    }
+
+    _config_unlock_token = make_config_unlock_token(serial);
+
+    return true;
 }
 
 std::optional<uint8_t> System::sys_config_get(sys::Config::Section::Global section, size_t index, uint16_t& value)

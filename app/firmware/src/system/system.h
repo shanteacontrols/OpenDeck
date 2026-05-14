@@ -217,6 +217,9 @@ namespace opendeck::sys
         BackupSession                                                               _backup_session           = {};
         signaling::ConfigTransport                                                  _config_transport         = signaling::ConfigTransport::Usb;
         bool                                                                        _components_initialized   = false;
+        bool                                                                        _config_unlocked          = false;
+        std::optional<ConfigUnlockToken>                                            _config_unlock_token      = {};
+        size_t                                                                      _config_unlock_word_index = 0;
         uint32_t                                                                    _backup_generated_packets = 0;
         fw_selector::FwType                                                         _reboot_type              = fw_selector::FwType::Application;
         ForcedRefreshSession                                                        _forced_refresh_session   = {};
@@ -395,6 +398,30 @@ namespace opendeck::sys
          * @brief Emits a configuration-session state change.
          */
         void publish_configuration_session_state(signaling::SystemEvent event);
+
+        /**
+         * @brief Reports whether privileged configuration actions are unlocked.
+         *
+         * @return `true` once the host has sent a valid unlock token.
+         */
+        bool config_unlocked() const;
+
+        /**
+         * @brief Processes one hidden unlock token word written through SysEx.
+         *
+         * @param index Token word index.
+         * @param value Token word value.
+         *
+         * @return SysEx status code for the write operation.
+         */
+        uint8_t process_config_unlock_word(size_t index, uint16_t value);
+
+        /**
+         * @brief Loads the expected unlock token from the MCU serial number.
+         *
+         * @return `true` when the token was loaded, otherwise `false`.
+         */
+        bool load_config_unlock_token();
 
         /**
          * @brief Reads one global system configuration value.

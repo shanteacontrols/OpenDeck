@@ -25,7 +25,7 @@ namespace opendeck::sys
     class Layout
     {
         private:
-        static constexpr size_t GLOBAL_SECTION_COUNT      = 5;
+        static constexpr size_t GLOBAL_SECTION_COUNT      = 6;
         static constexpr size_t SWITCH_SECTION_COUNT      = 5;
         static constexpr size_t ENCODER_SECTION_COUNT     = 13;
         static constexpr size_t ANALOG_SECTION_COUNT      = 12;
@@ -67,6 +67,11 @@ namespace opendeck::sys
             zlibs::utils::sysex_conf::Section(static_cast<uint16_t>(protocol::mdns::CUSTOM_HOSTNAME_DB_SIZE),
                                               0,
                                               255),
+
+            // hidden configuration unlock token section
+            zlibs::utils::sysex_conf::Section(static_cast<uint16_t>(CONFIG_UNLOCK_TOKEN_WORDS),
+                                              0,
+                                              CONFIG_UNLOCK_TOKEN_WORD_MASK),
         });
 
         static constexpr auto SWITCH_SECTIONS = zlibs::utils::sysex_conf::make_block(std::array<zlibs::utils::sysex_conf::Section, SWITCH_SECTION_COUNT>{
