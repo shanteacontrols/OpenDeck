@@ -78,7 +78,7 @@ WebConfig::WebConfig(Hwa& hwa, staged_update::StagedUpdate& staged_update)
 
 WebConfig::~WebConfig()
 {
-    deinit();
+    stop();
 }
 
 bool WebConfig::init()
@@ -106,6 +106,11 @@ bool WebConfig::init()
 }
 
 bool WebConfig::deinit()
+{
+    return stop();
+}
+
+bool WebConfig::stop()
 {
     _server_running = false;
     _client_thread.destroy();
@@ -272,8 +277,8 @@ void WebConfig::log_endpoint() const
         return;
     }
 
-    const auto network_name = _network_identity.name();
-    const auto ip_address   = _network_identity.ipv4_address();
+    [[maybe_unused]] const auto network_name = _network_identity.name();
+    const auto                  ip_address   = _network_identity.ipv4_address();
 
     if (ip_address.empty())
     {

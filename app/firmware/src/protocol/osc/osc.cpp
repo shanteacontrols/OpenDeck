@@ -444,13 +444,13 @@ bool Osc::send_discovery_response(const sockaddr_in& sender, int sock)
     const uint32_t listen_port = _database.read(database::Config::Section::Global::OscSettings, Setting::ListenPort);
     const uint32_t dest_port   = _database.read(database::Config::Section::Global::OscSettings, Setting::DestPort);
 
-    if ((listen_port == 0) || (listen_port > 65535))
+    if ((listen_port == 0) || (listen_port > UDP_PORT_MAX))
     {
         LOG_ERR("Invalid OSC listen port configuration");
         return false;
     }
 
-    if ((dest_port == 0) || (dest_port > 65535))
+    if ((dest_port == 0) || (dest_port > UDP_PORT_MAX))
     {
         LOG_ERR("Invalid OSC destination port configuration");
         return false;
@@ -478,7 +478,7 @@ bool Osc::send_discovery_announcement()
 {
     const uint32_t listen_port = _database.read(database::Config::Section::Global::OscSettings, Setting::ListenPort);
 
-    if ((listen_port == 0) || (listen_port > 65535))
+    if ((listen_port == 0) || (listen_port > UDP_PORT_MAX))
     {
         LOG_ERR("Invalid OSC listen port configuration");
         return false;
@@ -530,13 +530,13 @@ bool Osc::send_packet(std::span<const uint8_t> packet, int sock)
 
 bool Osc::send_packet_to(std::span<const uint8_t> packet, const sockaddr_in& dest, int sock)
 {
-    const auto sent       = _hwa.send(sock,
-                                      packet.data(),
-                                      packet.size(),
-                                      0,
-                                      reinterpret_cast<const sockaddr*>(&dest),
-                                      sizeof(dest));
-    const int  send_errno = errno;
+    const auto                 sent       = _hwa.send(sock,
+                                                      packet.data(),
+                                                      packet.size(),
+                                                      0,
+                                                      reinterpret_cast<const sockaddr*>(&dest),
+                                                      sizeof(dest));
+    [[maybe_unused]] const int send_errno = errno;
 
     if (sent < 0)
     {
@@ -566,7 +566,12 @@ bool Osc::destination(sockaddr_in& dest)
     const uint32_t octet3 = _database.read(database::Config::Section::Global::OscSettings, Setting::DestIpv4Octet3);
     const uint32_t port   = _database.read(database::Config::Section::Global::OscSettings, Setting::DestPort);
 
-    if ((octet0 > 255) || (octet1 > 255) || (octet2 > 255) || (octet3 > 255) || (port == 0) || (port > 65535))
+    if ((octet0 > IPV4_OCTET_MAX) ||
+        (octet1 > IPV4_OCTET_MAX) ||
+        (octet2 > IPV4_OCTET_MAX) ||
+        (octet3 > IPV4_OCTET_MAX) ||
+        (port == 0) ||
+        (port > UDP_PORT_MAX))
     {
         LOG_ERR("Invalid OSC destination configuration");
         return false;
@@ -608,7 +613,7 @@ int Osc::open_listen_socket()
 {
     const uint32_t port = _database.read(database::Config::Section::Global::OscSettings, Setting::ListenPort);
 
-    if ((port == 0) || (port > 65535))
+    if ((port == 0) || (port > UDP_PORT_MAX))
     {
         LOG_ERR("Invalid OSC listen port configuration");
         return -1;
@@ -837,7 +842,7 @@ std::optional<uint8_t> Osc::sys_config_set(sys::Config::Section::Global section,
     case Setting::DestIpv4Octet2:
     case Setting::DestIpv4Octet3:
     {
-        if (value > 255)
+        if (value > IPV4_OCTET_MAX)
         {
             return sys::Config::Status::ErrorNewValue;
         }

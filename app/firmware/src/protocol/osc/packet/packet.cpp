@@ -5,6 +5,7 @@
 
 #include "packet.h"
 #include "internal.h"
+#include "zlibs/utils/misc/numeric.h"
 
 #include <algorithm>
 #include <cstring>
@@ -13,13 +14,12 @@
 
 using namespace opendeck::protocol::osc;
 
+namespace zmisc = zlibs::utils::misc;
+
 namespace
 {
     /** @brief OSC strings and payload fields are padded to 4-byte boundaries. */
     constexpr size_t ALIGNMENT = 4;
-
-    /** @brief Decimal base used while writing indexed OSC addresses. */
-    constexpr size_t DECIMAL_BASE = 10U;
 
     /**
      * @brief Reads one padded OSC string from a packet.
@@ -179,15 +179,15 @@ bool internal::PacketWriter::add_byte(uint8_t value)
 
 bool internal::PacketWriter::add_decimal(size_t value)
 {
-    if (value >= DECIMAL_BASE)
+    if (value >= zmisc::DECIMAL_BASE)
     {
-        if (!add_decimal(value / DECIMAL_BASE))
+        if (!add_decimal(value / zmisc::DECIMAL_BASE))
         {
             return false;
         }
     }
 
-    return add_byte(static_cast<uint8_t>('0' + (value % DECIMAL_BASE)));
+    return add_byte(static_cast<uint8_t>('0' + (value % zmisc::DECIMAL_BASE)));
 }
 
 bool internal::PacketWriter::pad()

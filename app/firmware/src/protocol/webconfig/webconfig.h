@@ -68,6 +68,11 @@ namespace opendeck::protocol::webconfig
         void client_loop();
 
         /**
+         * @brief Stops the WebConfig server and client worker.
+         */
+        bool stop();
+
+        /**
          * @brief Closes the active WebSocket client, if one is connected.
          */
         void close_client();

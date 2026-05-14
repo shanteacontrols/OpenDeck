@@ -27,12 +27,12 @@ namespace opendeck::protocol::osc
 
         ssize_t send(int             sock,
                      const void*     buffer,
-                     size_t          size,
+                     size_t          len,
                      int             flags,
                      const sockaddr* dest,
-                     socklen_t       dest_len) override
+                     socklen_t       addrlen) override
         {
-            return zsock_sendto(sock, buffer, size, flags, dest, dest_len);
+            return zsock_sendto(sock, buffer, len, flags, dest, addrlen);
         }
 
         ssize_t receive(int        sock,

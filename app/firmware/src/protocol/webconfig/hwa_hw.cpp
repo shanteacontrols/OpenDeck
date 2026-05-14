@@ -61,6 +61,7 @@ namespace
     };
 }    // namespace
 
+// NOLINTNEXTLINE(misc-use-anonymous-namespace): Zephyr macro defines service storage with internal linkage.
 HTTP_SERVICE_DEFINE(webconfig_service, nullptr, &http_port, CLIENT_COUNT, 1, nullptr, nullptr, nullptr);
 HTTP_RESOURCE_DEFINE(webconfig_resource, webconfig_service, "/config", &webconfig_resource_detail);
 

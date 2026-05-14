@@ -72,13 +72,13 @@ namespace opendeck::staged_update
         bool erase(uint32_t offset, uint32_t size) override
         {
             return (_flash_area != nullptr) &&
-                   (flash_area_erase(_flash_area, offset, size) == 0);
+                   (flash_area_erase(_flash_area, static_cast<off_t>(offset), size) == 0);
         }
 
         bool write(uint32_t offset, std::span<const uint8_t> data) override
         {
             return (_flash_area != nullptr) &&
-                   (flash_area_write(_flash_area, offset, data.data(), data.size()) == 0);
+                   (flash_area_write(_flash_area, static_cast<off_t>(offset), data.data(), data.size()) == 0);
         }
 
         private:

@@ -966,7 +966,7 @@ void System::prepare_for_reboot()
         return;
     }
 
-    const auto transport_name = config_transport_name(_config_transport);
+    [[maybe_unused]] const auto transport_name = config_transport_name(_config_transport);
 
     LOG_INF("Closing SysEx configuration session before reboot via %.*s",
             static_cast<int>(transport_name.size()),
@@ -979,8 +979,8 @@ void System::prepare_for_reboot()
 
 void System::update_sysex_configuration_session(bool was_open)
 {
-    const bool is_open        = _sysex_conf.is_configuration_enabled();
-    const auto transport_name = config_transport_name(_config_transport);
+    const bool                  is_open        = _sysex_conf.is_configuration_enabled();
+    [[maybe_unused]] const auto transport_name = config_transport_name(_config_transport);
 
     if (is_open)
     {
@@ -1036,7 +1036,7 @@ void System::close_inactive_sysex_configuration_session()
         return;
     }
 
-    const auto transport_name = config_transport_name(_config_transport);
+    [[maybe_unused]] const auto transport_name = config_transport_name(_config_transport);
 
     LOG_INF("Closing inactive SysEx configuration session via %.*s",
             static_cast<int>(transport_name.size()),
@@ -1058,7 +1058,7 @@ void System::handle_config_disconnect(signaling::ConfigTransport transport)
         return;
     }
 
-    const auto transport_name = config_transport_name(_config_transport);
+    [[maybe_unused]] const auto transport_name = config_transport_name(_config_transport);
 
     LOG_INF("Closing SysEx configuration session after %.*s disconnect",
             static_cast<int>(transport_name.size()),

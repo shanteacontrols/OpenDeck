@@ -146,7 +146,7 @@ void HwaHw::register_ip_address_changed_callback(IpAddressChangedCallback callba
 
     net_mgmt_init_event_callback(&_ip_event_callback.member,
                                  ip_event_handler,
-                                 NET_EVENT_IPV4_ADDR_ADD | NET_EVENT_IPV4_ADDR_DEL);
+                                 NET_EVENT_IPV4_ADDR_ADD | NET_EVENT_IPV4_ADDR_DEL);    // NOLINT(misc-redundant-expression): Zephyr event masks are intentionally ORed.
     net_mgmt_add_event_callback(&_ip_event_callback.member);
     _ip_event_callback_registered = true;
 }

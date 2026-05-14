@@ -6,6 +6,7 @@
 #pragma once
 
 #include "zlibs/utils/misc/string.h"
+#include "zlibs/utils/misc/numeric.h"
 
 #include <cstddef>
 #include <optional>
@@ -61,7 +62,7 @@ namespace opendeck::protocol::osc::paths
                 return {};
             }
 
-            index = (index * 10U) + static_cast<size_t>(c - '0');
+            index = (index * misc::DECIMAL_BASE) + static_cast<size_t>(c - '0');
         }
 
         return index;

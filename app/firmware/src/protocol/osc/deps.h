@@ -54,19 +54,19 @@ namespace opendeck::protocol::osc
          *
          * @param sock Socket descriptor.
          * @param buffer Datagram payload.
-         * @param size Datagram payload size.
+         * @param len Datagram payload size.
          * @param flags Send flags.
          * @param dest Destination address.
-         * @param dest_len Destination address size.
+         * @param addrlen Destination address size.
          *
          * @return Number of bytes sent, otherwise a negative value.
          */
         virtual ssize_t send(int             sock,
                              const void*     buffer,
-                             size_t          size,
+                             size_t          len,
                              int             flags,
                              const sockaddr* dest,
-                             socklen_t       dest_len) = 0;
+                             socklen_t       addrlen) = 0;
 
         /**
          * @brief Receives one datagram.
