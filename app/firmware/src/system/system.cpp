@@ -13,6 +13,7 @@
 #include <zephyr/logging/log.h>
 #include <zephyr/logging/log_ctrl.h>
 
+#include <algorithm>
 #include <string_view>
 
 using namespace opendeck;
@@ -36,6 +37,37 @@ namespace
         }
 
         return "unknown";
+    }
+
+    struct SkipBackupSection
+    {
+        uint8_t block   = 0;
+        uint8_t section = 0;
+    };
+
+    constexpr std::array BACKUP_SKIPPED_SECTIONS = {
+        SkipBackupSection{
+            static_cast<uint8_t>(sys::Config::Block::Outputs),
+            static_cast<uint8_t>(sys::Config::Section::Outputs::TestColor),
+        },
+        SkipBackupSection{
+            static_cast<uint8_t>(sys::Config::Block::Outputs),
+            static_cast<uint8_t>(sys::Config::Section::Outputs::TestBlink),
+        },
+        SkipBackupSection{
+            static_cast<uint8_t>(sys::Config::Block::Global),
+            static_cast<uint8_t>(sys::Config::Section::Global::ConfigUnlock),
+        },
+    };
+
+    bool should_skip_backup_section(uint8_t block, uint8_t section)
+    {
+        return std::any_of(BACKUP_SKIPPED_SECTIONS.begin(),
+                           BACKUP_SKIPPED_SECTIONS.end(),
+                           [block, section](const SkipBackupSection& skipped)
+                           {
+                               return (skipped.block == block) && (skipped.section == section);
+                           });
     }
 }    // namespace
 
@@ -527,12 +559,7 @@ bool System::find_next_backup_section(uint8_t& block, uint8_t& section) const
     {
         while (section < _layout.sections(block))
         {
-            const bool skip_output_test_section =
-                (block == static_cast<uint8_t>(sys::Config::Block::Outputs)) &&
-                ((section == static_cast<uint8_t>(sys::Config::Section::Outputs::TestColor)) ||
-                 (section == static_cast<uint8_t>(sys::Config::Section::Outputs::TestBlink)));
-
-            if (!skip_output_test_section)
+            if (!should_skip_backup_section(block, section))
             {
                 return true;
             }
