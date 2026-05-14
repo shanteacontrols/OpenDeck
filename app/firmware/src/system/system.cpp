@@ -771,6 +771,23 @@ zlibs::utils::sysex_conf::Status System::SysExDataHandler::custom_request(uint16
         custom_response.append(OPENDECK_TARGET_UID & static_cast<uint32_t>(UID_BYTE_MASK));
     };
 
+    auto append_serial = [this, &custom_response]()
+    {
+        const auto serial = _system._hwa.serial_number();
+
+        if (serial.empty())
+        {
+            return false;
+        }
+
+        for (auto byte : serial)
+        {
+            custom_response.append(byte);
+        }
+
+        return true;
+    };
+
     switch (request)
     {
     case SYSEX_CR_FIRMWARE_VERSION:
@@ -782,6 +799,15 @@ zlibs::utils::sysex_conf::Status System::SysExDataHandler::custom_request(uint16
     case SYSEX_CR_HARDWARE_UID:
     {
         append_hw();
+    }
+    break;
+
+    case SYSEX_CR_SERIAL_NUM:
+    {
+        if (!append_serial())
+        {
+            result = zlibs::utils::sysex_conf::Status::ErrorRead;
+        }
     }
     break;
 

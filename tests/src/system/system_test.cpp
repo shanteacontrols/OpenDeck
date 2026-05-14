@@ -311,6 +311,37 @@ TEST_F(SystemTest, ProgramIndicatedOnStartup)
     ASSERT_EQ(16, program_msg_cnt);
 }
 
+TEST_F(SystemTest, SerialNumberCustomRequestReturnsHwaSerial)
+{
+    init_initialized_system();
+
+    const auto response = _helper.send_raw_sysex_to_stub(std::vector<uint8_t>({ 0xF0,
+                                                                                0x00,
+                                                                                0x53,
+                                                                                0x43,
+                                                                                0x00,
+                                                                                0x00,
+                                                                                SYSEX_CR_SERIAL_NUM,
+                                                                                0xF7 }));
+
+    ASSERT_EQ(7 + (_system._hwa.serial.size() * 2) + 1, response.size());
+    ASSERT_EQ(0xF0, response.at(0));
+    ASSERT_EQ(0x00, response.at(1));
+    ASSERT_EQ(0x53, response.at(2));
+    ASSERT_EQ(0x43, response.at(3));
+    ASSERT_EQ(static_cast<uint8_t>(zlibs::utils::sysex_conf::Status::Ack), response.at(4));
+    ASSERT_EQ(0x00, response.at(5));
+    ASSERT_EQ(SYSEX_CR_SERIAL_NUM, response.at(6));
+    ASSERT_EQ(0xF7, response.back());
+
+    for (size_t i = 0; i < _system._hwa.serial.size(); i++)
+    {
+        const auto response_index = 7 + (i * 2);
+        EXPECT_EQ(0, response.at(response_index));
+        EXPECT_EQ(_system._hwa.serial.at(i), response.at(response_index + 1));
+    }
+}
+
 TEST_F(SystemTest, ConfigurationSessionTimesOutAfterInactivity)
 {
     std::atomic_size_t opened_cnt = 0;

@@ -61,6 +61,13 @@ namespace opendeck::sys
         {
         }
 
+        std::span<uint8_t> serial_number() override
+        {
+            return serial;
+        }
+
+        std::array<uint8_t, SERIAL_NUMBER_BUFFER_SIZE> serial = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+
         database::Builder            _builder_database;
         database::Admin&             _database            = _builder_database.instance();
         io::digital::Builder         _builder_digital     = io::digital::Builder(_database);

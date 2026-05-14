@@ -19,7 +19,10 @@
 #include "io/indicators/builder.h"
 #include "io/outputs/builder.h"
 
+#include <zephyr/drivers/hwinfo.h>
 #include <zephyr/sys/reboot.h>
+
+#include <array>
 
 namespace opendeck::sys
 {
@@ -67,19 +70,36 @@ namespace opendeck::sys
             sys_reboot(SYS_REBOOT_COLD);
         }
 
+        std::span<uint8_t> serial_number() override
+        {
+            const auto size = hwinfo_get_device_id(_serial_number.data(), _serial_number.size());
+
+            if (size <= 0)
+            {
+                return {};
+            }
+
+            const auto clamped_size = static_cast<size_t>(size) > _serial_number.size()
+                                          ? _serial_number.size()
+                                          : static_cast<size_t>(size);
+
+            return std::span<uint8_t>(_serial_number).first(clamped_size);
+        }
+
         private:
-        database::Admin&             _database            = database::Builder::instance();
-        io::digital::Builder         _builder_digital     = io::digital::Builder(_database);
-        io::analog::Builder          _builder_analog      = io::analog::Builder(_database);
-        io::outputs::Builder         _builder_outputs     = io::outputs::Builder(_database);
-        io::touchscreen::Builder     _builder_touchscreen = io::touchscreen::Builder(_database);
-        io::i2c::Builder             _builder_i2c         = io::i2c::Builder(_database);
-        io::indicators::Builder      _builder_indicators  = io::indicators::Builder(_database);
-        protocol::midi::Builder      _builder_midi        = protocol::midi::Builder(_database);
-        protocol::osc::Builder       _builder_osc         = protocol::osc::Builder(_database);
-        protocol::webconfig::Builder _builder_webconfig;
-        protocol::mdns::Builder      _builder_mdns = protocol::mdns::Builder(_database);
-        IoCollection                 _io           = {
+        std::array<uint8_t, SERIAL_NUMBER_BUFFER_SIZE> _serial_number       = {};
+        database::Admin&                               _database            = database::Builder::instance();
+        io::digital::Builder                           _builder_digital     = io::digital::Builder(_database);
+        io::analog::Builder                            _builder_analog      = io::analog::Builder(_database);
+        io::outputs::Builder                           _builder_outputs     = io::outputs::Builder(_database);
+        io::touchscreen::Builder                       _builder_touchscreen = io::touchscreen::Builder(_database);
+        io::i2c::Builder                               _builder_i2c         = io::i2c::Builder(_database);
+        io::indicators::Builder                        _builder_indicators  = io::indicators::Builder(_database);
+        protocol::midi::Builder                        _builder_midi        = protocol::midi::Builder(_database);
+        protocol::osc::Builder                         _builder_osc         = protocol::osc::Builder(_database);
+        protocol::webconfig::Builder                   _builder_webconfig;
+        protocol::mdns::Builder                        _builder_mdns = protocol::mdns::Builder(_database);
+        IoCollection                                   _io           = {
             &_builder_digital.instance(),
             &_builder_analog.instance(),
             &_builder_outputs.instance(),

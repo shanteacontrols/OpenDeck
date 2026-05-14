@@ -11,6 +11,8 @@
 constexpr inline uint8_t SYSEX_CR_FIRMWARE_VERSION = 0x56;
 /** @brief Returns the hardware UID. */
 constexpr inline uint8_t SYSEX_CR_HARDWARE_UID = 0x42;
+/** @brief Returns the hardware serial number. */
+constexpr inline uint8_t SYSEX_CR_SERIAL_NUM = 0x53;
 /** @brief Returns the firmware version together with the hardware UID. */
 constexpr inline uint8_t SYSEX_CR_FIRMWARE_VERSION_HARDWARE_UID = 0x43;
 /** @brief Requests an application reboot. */

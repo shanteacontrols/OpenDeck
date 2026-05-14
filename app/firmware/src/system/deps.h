@@ -12,6 +12,7 @@
 #include "database/database.h"
 
 #include <array>
+#include <span>
 
 namespace opendeck::sys
 {
@@ -46,6 +47,13 @@ namespace opendeck::sys
          * @param type Firmware target to reboot into.
          */
         virtual void reboot(fw_selector::FwType type) = 0;
+
+        /**
+         * @brief Reads the hardware serial number bytes.
+         *
+         * @return View into HWA-owned serial number bytes, or an empty span when unavailable.
+         */
+        virtual std::span<uint8_t> serial_number() = 0;
 
         /**
          * @brief Returns the registered top-level I/O subsystems.
