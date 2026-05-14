@@ -74,8 +74,15 @@ namespace
 #ifdef CONFIG_NET_CONFIG_AUTO_INIT
     int log_network_auto_init_wait()
     {
-        LOG_INF("Network auto-init waiting up to %d seconds for link and IPv4 address",
-                CONFIG_NET_CONFIG_INIT_TIMEOUT);
+        if constexpr (CONFIG_NET_CONFIG_INIT_TIMEOUT == 0)
+        {
+            LOG_INF("Network auto-init starting without waiting for link or IPv4 address");
+        }
+        else
+        {
+            LOG_INF("Network auto-init waiting up to %d seconds for link and IPv4 address",
+                    CONFIG_NET_CONFIG_INIT_TIMEOUT);
+        }
 
         return 0;
     }
