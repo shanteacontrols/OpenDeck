@@ -15,7 +15,6 @@
 #include <cstring>
 #include <utility>
 
-#include <zephyr/drivers/hwinfo.h>
 #include <zephyr/init.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/net/dns_sd.h>
@@ -85,9 +84,18 @@ namespace
 #endif
 }    // namespace
 
+HwaHw::HwaHw(mcu::Hwa& mcu)
+    : _mcu(mcu)
+{}
+
 ssize_t HwaHw::serial_number(std::span<uint8_t> buffer)
 {
-    return hwinfo_get_device_id(buffer.data(), buffer.size());
+    const auto serial = _mcu.serial_number();
+    const auto size   = std::min(buffer.size(), serial.size());
+
+    std::copy_n(serial.begin(), size, buffer.begin());
+
+    return static_cast<ssize_t>(size);
 }
 
 std::string_view HwaHw::ip_address(std::span<char> buffer)

@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "mcu/deps.h"
 #include "webconfig_stub.h"
 
 namespace opendeck::protocol::webconfig
@@ -16,6 +17,14 @@ namespace opendeck::protocol::webconfig
     {
         public:
         Builder() = default;
+
+        /**
+         * @brief Constructs the disabled WebConfig builder with shared MCU services.
+         *
+         * @param mcu Unused MCU services retained for builder compatibility.
+         */
+        explicit Builder([[maybe_unused]] mcu::Hwa& mcu)
+        {}
 
         /**
          * @brief Returns the disabled WebConfig protocol instance.

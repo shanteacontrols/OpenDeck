@@ -8,6 +8,7 @@
 #include "deps.h"
 
 #include "zlibs/utils/misc/userdata_struct.h"
+#include "mcu/deps.h"
 
 #include <zephyr/net/net_mgmt.h>
 
@@ -19,6 +20,8 @@ namespace opendeck::protocol::mdns
     class HwaHw : public Hwa
     {
         public:
+        explicit HwaHw(mcu::Hwa& mcu);
+
         /**
          * @brief Reads Zephyr's hardware ID bytes.
          *
@@ -72,6 +75,8 @@ namespace opendeck::protocol::mdns
         bool advertise_osc(std::string_view instance) override;
 
         private:
+        mcu::Hwa& _mcu;
+
         using IpEventCallback = zlibs::utils::misc::UserDataStruct<net_mgmt_event_callback, HwaHw>;
 
         IpAddressChangedCallback _ip_address_changed_callback  = {};

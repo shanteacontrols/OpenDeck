@@ -8,6 +8,7 @@
 #include "hwa_hw.h"
 #include "mdns.h"
 #include "database/builder.h"
+#include "mcu/builder.h"
 
 namespace opendeck::protocol::mdns
 {
@@ -24,6 +25,19 @@ namespace opendeck::protocol::mdns
          */
         explicit Builder(database::Admin& database)
             : _database(database)
+            , _hwa(_default_mcu_builder.instance())
+            , _instance(_hwa, _database)
+        {}
+
+        /**
+         * @brief Constructs the mDNS builder around shared database and MCU services.
+         *
+         * @param database Database administrator used for device-wide settings.
+         * @param mcu MCU services shared by firmware subsystems.
+         */
+        Builder(database::Admin& database, mcu::Hwa& mcu)
+            : _database(database)
+            , _hwa(mcu)
             , _instance(_hwa, _database)
         {}
 
@@ -38,8 +52,9 @@ namespace opendeck::protocol::mdns
         }
 
         private:
-        HwaHw    _hwa;
-        Database _database;
-        Mdns     _instance;
+        mcu::Builder _default_mcu_builder;
+        Database     _database;
+        HwaHw        _hwa;
+        Mdns         _instance;
     };
 }    // namespace opendeck::protocol::mdns

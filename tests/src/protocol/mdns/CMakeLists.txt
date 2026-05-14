@@ -7,6 +7,7 @@ opendeck_test_bootstrap(
 )
 
 opendeck_test_add_modules(
+    mcu           "app/firmware/src/mcu"
     database      "app/firmware/src/database"
     configurable  "app/firmware/src/util/configurable"
     metadata      "app/common/metadata"

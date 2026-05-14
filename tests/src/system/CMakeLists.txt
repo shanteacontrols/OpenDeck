@@ -14,6 +14,7 @@ endif()
 
 opendeck_test_add_modules(
     metadata        "app/common/metadata"
+    mcu             "app/firmware/src/mcu"
     database        "app/firmware/src/database"
     configurable    "app/firmware/src/util/configurable"
     cinfo           "app/firmware/src/util/cinfo"

@@ -11,6 +11,7 @@ target_include_directories(protocol_webconfig
 target_link_libraries(protocol_webconfig
     PUBLIC
     kernel
+    mcu
     protocol_webconfig_firmware_upload
 )
 

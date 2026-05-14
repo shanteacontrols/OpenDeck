@@ -11,6 +11,7 @@ target_link_libraries(protocol_mdns
     PUBLIC
     database
     kernel
+    mcu
     metadata
 )
 

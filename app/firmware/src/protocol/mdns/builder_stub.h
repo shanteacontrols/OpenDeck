@@ -7,6 +7,7 @@
 
 #include "mdns_stub.h"
 #include "database/builder.h"
+#include "mcu/deps.h"
 
 namespace opendeck::protocol::mdns
 {
@@ -16,7 +17,22 @@ namespace opendeck::protocol::mdns
     class Builder
     {
         public:
+        /**
+         * @brief Constructs the disabled mDNS builder.
+         *
+         * @param database Unused database administrator retained for builder compatibility.
+         */
         explicit Builder([[maybe_unused]] database::Admin& database)
+        {}
+
+        /**
+         * @brief Constructs the disabled mDNS builder with shared MCU services.
+         *
+         * @param database Unused database administrator retained for builder compatibility.
+         * @param mcu Unused MCU services retained for builder compatibility.
+         */
+        Builder([[maybe_unused]] database::Admin& database,
+                [[maybe_unused]] mcu::Hwa&        mcu)
         {}
 
         /**

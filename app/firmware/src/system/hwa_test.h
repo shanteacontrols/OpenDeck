@@ -7,6 +7,8 @@
 
 #include "deps.h"
 #include "database/builder.h"
+#include "mcu/builder.h"
+#include "mcu/common.h"
 #include "protocol/midi/builder.h"
 #include "protocol/webconfig/builder.h"
 #include "protocol/mdns/builder.h"
@@ -16,6 +18,8 @@
 #include "io/i2c/builder.h"
 #include "io/indicators/builder.h"
 #include "io/outputs/builder.h"
+
+#include <array>
 
 namespace opendeck::sys
 {
@@ -59,27 +63,34 @@ namespace opendeck::sys
          */
         void reboot(fw_selector::FwType type) override
         {
+            _mcu.reboot(type);
         }
 
+        /**
+         * @brief Returns the test MCU serial-number bytes.
+         *
+         * @return View into the configured test serial-number bytes.
+         */
         std::span<uint8_t> serial_number() override
         {
-            return serial;
+            return _mcu.serial_number();
         }
 
-        std::array<uint8_t, SERIAL_NUMBER_BUFFER_SIZE> serial = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
-
-        database::Builder            _builder_database;
-        database::Admin&             _database            = _builder_database.instance();
-        io::digital::Builder         _builder_digital     = io::digital::Builder(_database);
-        io::analog::Builder          _builder_analog      = io::analog::Builder(_database);
-        io::outputs::Builder         _builder_outputs     = io::outputs::Builder(_database);
-        io::touchscreen::Builder     _builder_touchscreen = io::touchscreen::Builder(_database);
-        io::i2c::Builder             _builder_i2c         = io::i2c::Builder(_database);
-        io::indicators::Builder      _builder_indicators  = io::indicators::Builder(_database);
-        protocol::midi::Builder      _builder_midi        = protocol::midi::Builder(_database);
-        protocol::webconfig::Builder _builder_webconfig;
-        protocol::mdns::Builder      _builder_mdns = protocol::mdns::Builder(_database);
-        IoCollection                 _io           = {
+        mcu::Builder                                         _builder_mcu;
+        mcu::Hwa&                                            _mcu   = _builder_mcu.instance();
+        std::array<uint8_t, mcu::SERIAL_NUMBER_BUFFER_SIZE>& serial = _builder_mcu._hwa.serial;
+        database::Builder                                    _builder_database;
+        database::Admin&                                     _database            = _builder_database.instance();
+        io::digital::Builder                                 _builder_digital     = io::digital::Builder(_database);
+        io::analog::Builder                                  _builder_analog      = io::analog::Builder(_database);
+        io::outputs::Builder                                 _builder_outputs     = io::outputs::Builder(_database);
+        io::touchscreen::Builder                             _builder_touchscreen = io::touchscreen::Builder(_database);
+        io::i2c::Builder                                     _builder_i2c         = io::i2c::Builder(_database);
+        io::indicators::Builder                              _builder_indicators  = io::indicators::Builder(_database);
+        protocol::midi::Builder                              _builder_midi        = protocol::midi::Builder(_database);
+        protocol::webconfig::Builder                         _builder_webconfig;
+        protocol::mdns::Builder                              _builder_mdns = protocol::mdns::Builder(_database);
+        IoCollection                                         _io           = {
             &_builder_digital.instance(),
             &_builder_analog.instance(),
             &_builder_outputs.instance(),

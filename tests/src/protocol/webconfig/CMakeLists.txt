@@ -6,6 +6,7 @@ opendeck_test_bootstrap(
 )
 
 opendeck_test_add_modules(
+    mcu                "app/firmware/src/mcu"
     metadata           "app/common/metadata"
     staged_update      "app/firmware/src/staged_update"
     protocol_webconfig "app/firmware/src/protocol/webconfig"

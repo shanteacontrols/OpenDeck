@@ -56,11 +56,6 @@ namespace opendeck::sys
     constexpr inline uint32_t SYSEX_CONFIGURATION_TIMEOUT_MS = 4000;
 
     /**
-     * @brief Maximum number of hardware serial-number bytes exposed by system APIs.
-     */
-    constexpr inline size_t SERIAL_NUMBER_BUFFER_SIZE = 16;
-
-    /**
      * @brief Identifies why the current staged forced-refresh session was scheduled.
      */
     enum class ForcedRefreshType : uint8_t

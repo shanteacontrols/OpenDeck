@@ -8,6 +8,7 @@ zephyr_library_sources(
 target_link_libraries(system
     PUBLIC
     metadata
+    mcu
     database
     configurable
     cinfo

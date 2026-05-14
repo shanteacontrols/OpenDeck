@@ -8,14 +8,12 @@
 #include "hwa_hw.h"
 #include "common.h"
 #include "fw_selector/common.h"
-#include "retained/retained.h"
 #include "webconfig.h"
 
 #include <zephyr/kernel.h>
 #include <zephyr/net/http/server.h>
 #include <zephyr/net/http/service.h>
 #include <zephyr/net/websocket.h>
-#include <zephyr/sys/reboot.h>
 #include <zephyr/sys/util.h>
 
 using namespace opendeck::protocol::webconfig;
@@ -65,6 +63,10 @@ namespace
 HTTP_SERVICE_DEFINE(webconfig_service, nullptr, &http_port, CLIENT_COUNT, 1, nullptr, nullptr, nullptr);
 HTTP_RESOURCE_DEFINE(webconfig_resource, webconfig_service, "/config", &webconfig_resource_detail);
 
+HwaHw::HwaHw(mcu::Hwa& mcu)
+    : _mcu(mcu)
+{}
+
 int HwaHw::start_server(WebConfig& endpoint)
 {
     webconfig_resource_detail.user_data = &endpoint;
@@ -113,8 +115,7 @@ void HwaHw::unregister(int socket)
 
 void HwaHw::reboot_to_bootloader()
 {
-    retained::data.boot_mode.set(static_cast<uint32_t>(fw_selector::FwType::Bootloader));
-    sys_reboot(SYS_REBOOT_COLD);
+    _mcu.reboot(fw_selector::FwType::Bootloader);
 }
 
 #endif

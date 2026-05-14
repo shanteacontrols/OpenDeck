@@ -1,4 +1,5 @@
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/metadata ${CMAKE_CURRENT_BINARY_DIR}/metadata)
+add_subdirectory(src/mcu)
 add_subdirectory(src/database)
 add_subdirectory(src/util/configurable)
 add_subdirectory(src/util/cinfo)
@@ -19,6 +20,7 @@ add_subdirectory(src/system)
 
 set(OPENDECK_FIRMWARE_LIBS
     metadata
+    mcu
     database
     configurable
     cinfo
