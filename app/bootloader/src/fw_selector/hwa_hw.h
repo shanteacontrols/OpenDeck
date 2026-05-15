@@ -69,7 +69,7 @@ namespace opendeck::fw_selector
          */
         bool is_hw_trigger_active() override
         {
-#if !DT_NODE_HAS_PROP(OPENDECK_BOOTLOADER_NODE, button_gpios)
+#if !DT_NODE_HAS_PROP(OPENDECK_BOOTLOADER_NODE, switch_gpios)
             return false;
 #else
             if (!gpio_is_ready_dt(&_bootloader_button))
@@ -340,8 +340,8 @@ namespace opendeck::fw_selector
             reset_handler();
         }
 
-#if DT_NODE_HAS_PROP(OPENDECK_BOOTLOADER_NODE, button_gpios)
-        const gpio_dt_spec _bootloader_button = GPIO_DT_SPEC_GET(OPENDECK_BOOTLOADER_NODE, button_gpios);
+#if DT_NODE_HAS_PROP(OPENDECK_BOOTLOADER_NODE, switch_gpios)
+        const gpio_dt_spec _bootloader_button = GPIO_DT_SPEC_GET(OPENDECK_BOOTLOADER_NODE, switch_gpios);
 #endif
         AppVectorTable _app_vector_table = {};
     };
