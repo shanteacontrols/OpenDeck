@@ -30,46 +30,54 @@ namespace opendeck::io::i2c::display
          * @return Maximum text length in characters.
          */
         virtual uint8_t max_length() = 0;
+
         /**
          * @brief Returns the target display row.
          *
          * @return Row index.
          */
         virtual uint8_t row() = 0;
+
         /**
          * @brief Returns the target display column.
          *
          * @return Column index.
          */
         virtual uint8_t column() = 0;
+
         /**
          * @brief Returns whether the element content should be retained temporarily.
          *
          * @return `true` when retention is enabled, otherwise `false`.
          */
         virtual bool use_retention() = 0;
+
         /**
          * @brief Returns the current element text.
          *
          * @return Pointer to the current null-terminated text buffer.
          */
         virtual const char* text() = 0;
+
         /**
          * @brief Replaces the element text with a preformatted string.
          *
          * @param text New text to copy into the element buffer.
          */
         virtual void set_text_raw(const char* text) = 0;
+
         /**
          * @brief Returns the bitmask of characters changed since the last clear.
          *
          * @return Change bitmask.
          */
         virtual uint32_t change() = 0;
+
         /**
          * @brief Clears the accumulated change bitmask.
          */
         virtual void clear_change() = 0;
+
         /**
          * @brief Returns the timestamp of the last text update.
          *

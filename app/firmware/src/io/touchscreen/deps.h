@@ -32,12 +32,14 @@ namespace opendeck::io::touchscreen
          * @return `true` if initialization succeeded, otherwise `false`.
          */
         virtual bool init() = 0;
+
         /**
          * @brief Deinitializes the touchscreen backend.
          *
          * @return `true` if deinitialization succeeded, otherwise `false`.
          */
         virtual bool deinit() = 0;
+
         /**
          * @brief Writes one byte to the touchscreen transport.
          *
@@ -46,6 +48,7 @@ namespace opendeck::io::touchscreen
          * @return `true` if the byte was written, otherwise `false`.
          */
         virtual bool write(uint8_t value) = 0;
+
         /**
          * @brief Reads one byte from the touchscreen transport.
          *

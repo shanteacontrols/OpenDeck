@@ -6,7 +6,7 @@ opendeck_test_add_modules(
     metadata     "app/common/src/metadata"
     database     "app/firmware/src/database"
     configurable "app/firmware/src/util/configurable"
-    outputs         "app/firmware/src/io/outputs"
+    outputs      "app/firmware/src/io/outputs"
 )
 
 target_sources(app

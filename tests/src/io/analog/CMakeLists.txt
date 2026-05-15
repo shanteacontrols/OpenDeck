@@ -7,7 +7,7 @@ opendeck_test_add_modules(
     database     "app/firmware/src/database"
     configurable "app/firmware/src/util/configurable"
     analog       "app/firmware/src/io/analog"
-    switches      "app/firmware/src/io/digital/switches"
+    switches     "app/firmware/src/io/digital/switches"
 )
 
 target_sources(app

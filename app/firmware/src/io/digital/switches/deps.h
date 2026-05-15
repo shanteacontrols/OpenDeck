@@ -32,6 +32,7 @@ namespace opendeck::io::switches
          * @return `true` if initialization succeeded, otherwise `false`.
          */
         virtual bool init() = 0;
+
         /**
          * @brief Returns the current state for one switch.
          *
@@ -40,6 +41,7 @@ namespace opendeck::io::switches
          * @return Switch state, or `std::nullopt` when unavailable.
          */
         virtual std::optional<bool> state(size_t index) = 0;
+
         /**
          * @brief Returns the current encoded state for the encoder paired with a switch.
          *
@@ -48,6 +50,7 @@ namespace opendeck::io::switches
          * @return Encoded encoder state, or `std::nullopt` when unavailable.
          */
         virtual std::optional<uint8_t> encoder_state(size_t index) = 0;
+
         /**
          * @brief Maps a switch index to the corresponding encoder index.
          *

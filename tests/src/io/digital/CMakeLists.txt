@@ -6,7 +6,7 @@ opendeck_test_add_modules(
     metadata     "app/common/src/metadata"
     database     "app/firmware/src/database"
     configurable "app/firmware/src/util/configurable"
-    switches      "app/firmware/src/io/digital/switches"
+    switches     "app/firmware/src/io/digital/switches"
     encoders     "app/firmware/src/io/digital/encoders"
 )
 

@@ -28,6 +28,7 @@ namespace opendeck::io::outputs
          * @brief Flushes any pending hardware state updates.
          */
         virtual void update() = 0;
+
         /**
          * @brief Sets the state of one OUTPUT output.
          *
@@ -35,6 +36,7 @@ namespace opendeck::io::outputs
          * @param brightness Brightness value to apply.
          */
         virtual void set_state(size_t index, Brightness brightness) = 0;
+
         /**
          * @brief Maps one OUTPUT output index to its RGB OUTPUT index.
          *
@@ -43,6 +45,7 @@ namespace opendeck::io::outputs
          * @return RGB OUTPUT index corresponding to the output.
          */
         virtual size_t rgb_from_output(size_t index) = 0;
+
         /**
          * @brief Maps an RGB OUTPUT index and component to a physical output index.
          *
