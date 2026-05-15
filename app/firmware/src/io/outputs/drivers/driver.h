@@ -17,5 +17,5 @@
     !defined(CONFIG_PROJECT_TARGET_SUPPORT_DIGITAL_OUTPUTS)
 #include "firmware/src/io/outputs/drivers/stub/stub_driver.h"
 #else
-#error "No OUTPUT driver selected through DT/Kconfig."
+#error "No output driver selected through DT/Kconfig."
 #endif

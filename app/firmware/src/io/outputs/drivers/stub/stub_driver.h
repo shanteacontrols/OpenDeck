@@ -10,7 +10,7 @@
 namespace opendeck::io::outputs
 {
     /**
-     * @brief No-op OUTPUT driver used for touchscreen-only targets.
+     * @brief No-op output driver used for touchscreen-only targets.
      */
     class Driver : public DriverBase
     {

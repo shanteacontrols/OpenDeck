@@ -11,7 +11,7 @@
 namespace opendeck::io::outputs
 {
     /**
-     * @brief OUTPUT driver for matrix-addressed outputs with native row handling.
+     * @brief Output driver for matrix-addressed outputs with native row handling.
      */
     class Driver : public DriverBase
     {
@@ -34,11 +34,11 @@ namespace opendeck::io::outputs
         }
 
         /**
-         * @brief Maps a physical output index to the corresponding RGB OUTPUT index.
+         * @brief Maps a physical output index to the corresponding RGB output index.
          *
          * @param index Output index to map.
          *
-         * @return RGB OUTPUT index corresponding to the output.
+         * @return RGB output index corresponding to the output.
          */
         size_t rgb_from_output(size_t index) override
         {
@@ -52,9 +52,9 @@ namespace opendeck::io::outputs
         }
 
         /**
-         * @brief Maps an RGB OUTPUT index and component to a physical output index.
+         * @brief Maps an RGB output index and component to a physical output index.
          *
-         * @param index RGB OUTPUT index to map.
+         * @param index RGB output index to map.
          * @param component RGB component to map.
          *
          * @return Physical output index corresponding to the RGB component.
@@ -70,9 +70,9 @@ namespace opendeck::io::outputs
 
         private:
         /**
-         * @brief Returns the number of complete RGB Outputs exposed by the matrix.
+         * @brief Returns the number of complete RGB outputs exposed by the matrix.
          *
-         * @return Number of RGB Outputs.
+         * @return Number of RGB outputs.
          */
         static constexpr size_t rgb_output_count()
         {

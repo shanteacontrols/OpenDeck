@@ -16,7 +16,7 @@ namespace opendeck::io::outputs
     enum class RgbComponent : uint8_t;
 
     /**
-     * @brief Common interface implemented by low-level OUTPUT hardware drivers.
+     * @brief Common interface implemented by low-level output hardware drivers.
      */
     class DriverBase
     {
@@ -27,25 +27,28 @@ namespace opendeck::io::outputs
          * @brief Flushes any pending hardware state updates.
          */
         virtual void update() = 0;
+
         /**
-         * @brief Sets the state of one physical OUTPUT output.
+         * @brief Sets the state of one physical output.
          *
          * @param index Output index to update.
          * @param brightness Brightness value to apply.
          */
         virtual void set_state(size_t index, Brightness brightness) = 0;
+
         /**
-         * @brief Maps a physical output index to the corresponding RGB OUTPUT index.
+         * @brief Maps a physical output index to the corresponding RGB output index.
          *
          * @param index Output index to map.
          *
-         * @return RGB OUTPUT index corresponding to the output.
+         * @return RGB output index corresponding to the output.
          */
         virtual size_t rgb_from_output(size_t index) = 0;
+
         /**
-         * @brief Maps an RGB OUTPUT index and component to a physical output index.
+         * @brief Maps an RGB output index and component to a physical output index.
          *
-         * @param index RGB OUTPUT index to map.
+         * @param index RGB output index to map.
          * @param component RGB component to map.
          *
          * @return Physical output index corresponding to the RGB component.

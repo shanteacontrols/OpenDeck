@@ -1,4 +1,4 @@
-description: OpenDeck OUTPUT inventory and topology
+description: OpenDeck output inventory and topology
 
 compatible: "opendeck,outputs"
 
@@ -11,70 +11,70 @@ properties:
       - shift-register
       - matrix
       - max7219
-    description: Physical OUTPUT output topology.
+    description: Physical output topology.
 
   touchscreen-components:
     type: int
     required: false
     default: 0
-    description: Number of touchscreen-driven OUTPUT-like components. Used only when touchscreen is used.
+    description: Number of touchscreen-driven output-like components. Used only when touchscreen is used.
 
   native-gpios:
     type: phandle-array
     required: false
-    description: Direct GPIO outputs for native external OUTPUT topology.
+    description: Direct GPIO outputs for native output topology.
 
   shift-registers:
     type: int
     required: false
-    description: Number of cascaded shift registers for external OUTPUT shift-register topology.
+    description: Number of cascaded shift registers for shift-register output topology.
 
   data-gpios:
     type: phandle-array
     required: false
-    description: Serial data output for shift-register or MAX7219 OUTPUT topology.
+    description: Serial data output for shift-register or MAX7219 output topology.
 
   clock-gpios:
     type: phandle-array
     required: false
-    description: Shift or serial clock for shift-register or MAX7219 OUTPUT topology.
+    description: Shift or serial clock for shift-register or MAX7219 output topology.
 
   latch-gpios:
     type: phandle-array
     required: false
-    description: Latch or chip-select control for shift-register or MAX7219 OUTPUT topology.
+    description: Latch or chip-select control for shift-register or MAX7219 output topology.
 
   enable-gpios:
     type: phandle-array
     required: false
-    description: Optional output enable control for shift-register OUTPUT topology.
+    description: Optional output enable control for shift-register output topology.
 
   rows:
     type: int
     required: false
-    description: Number of matrix OUTPUT rows.
+    description: Number of matrix output rows.
 
   columns:
     type: int
     required: false
-    description: Number of matrix OUTPUT columns.
+    description: Number of matrix output columns.
 
   row-gpios:
     type: phandle-array
     required: false
-    description: Matrix OUTPUT row outputs.
+    description: Matrix output row lines.
 
   column-gpios:
     type: phandle-array
     required: false
-    description: Matrix OUTPUT column outputs.
+    description: Matrix output column lines.
 
   drivers:
     type: int
     required: false
-    description: Number of MAX7219 OUTPUT drivers.
+    description: Number of MAX7219 output drivers.
 
   index-remap:
     type: array
     required: false
-    description: Optional physical-to-logical OUTPUT index remap table.
+    description: Optional physical-to-logical output index remap table.

@@ -18,7 +18,7 @@
 namespace opendeck::io::outputs
 {
     /**
-     * @brief OUTPUT driver that shifts output state through one or more shift registers.
+     * @brief Output driver that shifts output state through one or more shift registers.
      */
     class Driver : public DriverBase
     {
@@ -52,7 +52,7 @@ namespace opendeck::io::outputs
         }
 
         /**
-         * @brief Sets one shift-register-driven OUTPUT output and flushes the register state.
+         * @brief Sets one shift-register-driven output and flushes the register state.
          *
          * @param index Output index to update.
          * @param brightness Brightness value to apply.
@@ -72,11 +72,11 @@ namespace opendeck::io::outputs
         }
 
         /**
-         * @brief Maps a physical output index to the corresponding RGB OUTPUT index.
+         * @brief Maps a physical output index to the corresponding RGB output index.
          *
          * @param index Output index to map.
          *
-         * @return RGB OUTPUT index corresponding to the output.
+         * @return RGB output index corresponding to the output.
          */
         size_t rgb_from_output(size_t index) override
         {
@@ -85,9 +85,9 @@ namespace opendeck::io::outputs
         }
 
         /**
-         * @brief Maps an RGB OUTPUT index and component to a physical output index.
+         * @brief Maps an RGB output index and component to a physical output index.
          *
-         * @param index RGB OUTPUT index to map.
+         * @param index RGB output index to map.
          * @param component RGB component to map.
          *
          * @return Physical output index corresponding to the RGB component.
@@ -128,9 +128,9 @@ namespace opendeck::io::outputs
         }
 
         /**
-         * @brief Returns the number of complete RGB Outputs exposed by the driver.
+         * @brief Returns the number of complete RGB outputs exposed by the driver.
          *
-         * @return Number of RGB Outputs.
+         * @return Number of RGB outputs.
          */
         static constexpr size_t rgb_output_count()
         {
