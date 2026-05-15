@@ -5,17 +5,16 @@
 
 #pragma once
 
-#include "common.h"
-#include "deps.h"
+#include "firmware/src/mcu/common.h"
+#include "firmware/src/mcu/deps.h"
+#include "common/src/retained/retained.h"
 
 #include "zlibs/utils/misc/mutex.h"
 
-#include "retained/retained.h"
-
-#include <array>
-
 #include <zephyr/drivers/hwinfo.h>
 #include <zephyr/sys/reboot.h>
+
+#include <array>
 
 namespace opendeck::mcu
 {

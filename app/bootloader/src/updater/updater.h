@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "common.h"
-#include "deps.h"
+#include "bootloader/src/updater/common.h"
+#include "bootloader/src/updater/deps.h"
 
 #include <array>
 

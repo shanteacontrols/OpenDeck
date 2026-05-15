@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "count.h"
+#include "firmware/src/io/digital/drivers/count.h"
 
 #include <array>
 #include <cstddef>

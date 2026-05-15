@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "database/database.h"
-#include "io/digital/switches/common.h"
-#include "io/analog/common.h"
-#include "io/outputs/common.h"
-#include "protocol/midi/common.h"
-#include "protocol/osc/common.h"
+#include "firmware/src/database/database.h"
+#include "firmware/src/io/digital/switches/common.h"
+#include "firmware/src/io/analog/common.h"
+#include "firmware/src/io/outputs/common.h"
+#include "firmware/src/protocol/midi/common.h"
+#include "firmware/src/protocol/osc/common.h"
 
 using namespace opendeck::database;
 using namespace opendeck::io;

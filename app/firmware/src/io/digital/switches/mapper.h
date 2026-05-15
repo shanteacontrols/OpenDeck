@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "deps.h"
-#include "protocol/midi/midi.h"
-#include "signaling/signaling.h"
+#include "firmware/src/io/digital/switches/deps.h"
+#include "firmware/src/protocol/midi/midi.h"
+#include "firmware/src/signaling/signaling.h"
 
 #include <array>
 #include <optional>

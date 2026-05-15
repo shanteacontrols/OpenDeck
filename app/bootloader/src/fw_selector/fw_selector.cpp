@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "fw_selector.h"
+#include "bootloader/src/fw_selector/fw_selector.h"
 
 #include <zephyr/sys/crc.h>
 

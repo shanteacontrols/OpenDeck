@@ -5,14 +5,14 @@
 
 #pragma once
 
-#include "deps.h"
-
-#include <array>
-#include <optional>
+#include "firmware/src/staged_update/deps.h"
 
 #include <zephyr/devicetree.h>
 #include <zephyr/devicetree/fixed-partitions.h>
 #include <zephyr/storage/flash_map.h>
+
+#include <array>
+#include <optional>
 
 namespace opendeck::staged_update
 {

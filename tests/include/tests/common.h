@@ -5,10 +5,11 @@
 
 #pragma once
 
-#include "system/common.h"
+#include "firmware/src/system/common.h"
 
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 

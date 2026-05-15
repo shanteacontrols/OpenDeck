@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "hwa_hw.h"
-#include "mcu/builder.h"
-#include "staged_update/builder.h"
-#include "webconfig.h"
+#include "firmware/src/protocol/webconfig/hwa_hw.h"
+#include "firmware/src/mcu/builder.h"
+#include "firmware/src/staged_update/builder.h"
+#include "firmware/src/protocol/webconfig/webconfig.h"
 
 namespace opendeck::protocol::webconfig
 {

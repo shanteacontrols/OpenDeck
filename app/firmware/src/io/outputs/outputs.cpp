@@ -5,11 +5,11 @@
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_OUTPUTS
 
-#include "outputs.h"
-#include "signaling/signaling.h"
-#include "global/midi_program.h"
-#include "util/conversion/conversion.h"
-#include "util/configurable/configurable.h"
+#include "firmware/src/io/outputs/outputs.h"
+#include "firmware/src/signaling/signaling.h"
+#include "firmware/src/global/midi_program.h"
+#include "firmware/src/util/conversion/conversion.h"
+#include "firmware/src/util/configurable/configurable.h"
 
 #include "zlibs/utils/misc/bit.h"
 

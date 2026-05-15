@@ -5,12 +5,12 @@
 
 #pragma once
 
-#include "switches.h"
-#include "filter_hw.h"
-#include "hwa_hw.h"
-#include "mapper.h"
-#include "drivers/driver.h"
-#include "database/builder.h"
+#include "firmware/src/io/digital/switches/switches.h"
+#include "firmware/src/io/digital/switches/filter_hw.h"
+#include "firmware/src/io/digital/switches/hwa_hw.h"
+#include "firmware/src/io/digital/switches/mapper.h"
+#include "firmware/src/io/digital/drivers/driver.h"
+#include "firmware/src/database/builder.h"
 
 namespace opendeck::io::switches
 {

@@ -5,15 +5,16 @@
 
 #pragma once
 
-#include "deps.h"
+#include "firmware/src/protocol/osc/deps.h"
+
 #include "zlibs/utils/misc/mutex.h"
+
+#include <zephyr/kernel.h>
 
 #include <algorithm>
 #include <deque>
 #include <span>
 #include <vector>
-
-#include <zephyr/kernel.h>
 
 namespace opendeck::protocol::osc
 {

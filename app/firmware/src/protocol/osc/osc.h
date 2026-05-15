@@ -5,15 +5,19 @@
 
 #pragma once
 
-#include "common.h"
-#include "deps.h"
-#include "packet/packet.h"
-#include "protocol/base.h"
-#include "signaling/signaling.h"
-#include "system/config.h"
-#include "threads.h"
+#include "firmware/src/protocol/osc/common.h"
+#include "firmware/src/protocol/osc/deps.h"
+#include "firmware/src/protocol/osc/packet/packet.h"
+#include "firmware/src/protocol/base.h"
+#include "firmware/src/signaling/signaling.h"
+#include "firmware/src/system/config.h"
+#include "firmware/src/threads.h"
+
 #include "zlibs/utils/misc/mutex.h"
 #include "zlibs/utils/misc/ring_buffer.h"
+
+#include <zephyr/kernel.h>
+#include <zephyr/net/socket.h>
 
 #include <atomic>
 #include <array>
@@ -22,9 +26,6 @@
 #include <optional>
 #include <span>
 #include <string_view>
-
-#include <zephyr/kernel.h>
-#include <zephyr/net/socket.h>
 
 namespace opendeck::protocol::osc
 {

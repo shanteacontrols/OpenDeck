@@ -5,10 +5,9 @@
 
 #pragma once
 
-#include "common.h"
-
-#include "database/database.h"
-#include "io/digital/switches/common.h"
+#include "firmware/src/io/analog/common.h"
+#include "firmware/src/database/database.h"
+#include "firmware/src/io/digital/switches/common.h"
 
 #include "zlibs/utils/midi/midi_common.h"
 

@@ -5,13 +5,13 @@
 
 #pragma once
 
-#include <array>
-#include <cstddef>
-#include <cstdint>
-
 #include "zlibs/utils/midi/transport/usb/transport_usb.h"
 #include "zlibs/utils/midi/transport/serial/transport_serial.h"
 #include "zlibs/utils/midi/transport/ble/transport_ble.h"
+
+#include <array>
+#include <cstddef>
+#include <cstdint>
 
 namespace opendeck::protocol::midi
 {

@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "deps.h"
-#include "staged_update/common.h"
+#include "firmware/src/staged_update/deps.h"
+#include "common/src/staged_update/common.h"
 
 #include <array>
 #include <span>

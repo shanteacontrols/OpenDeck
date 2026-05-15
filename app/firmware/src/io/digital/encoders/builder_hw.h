@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include "encoders.h"
-#include "filter_hw.h"
-#include "hwa_hw.h"
-#include "io/digital/switches/deps.h"
-#include "database/builder.h"
+#include "firmware/src/io/digital/encoders/encoders.h"
+#include "firmware/src/io/digital/encoders/filter_hw.h"
+#include "firmware/src/io/digital/encoders/hwa_hw.h"
+#include "firmware/src/io/digital/switches/deps.h"
+#include "firmware/src/database/builder.h"
 
 namespace opendeck::io::encoders
 {

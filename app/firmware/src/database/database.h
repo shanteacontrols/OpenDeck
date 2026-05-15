@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "config.h"
-#include "deps.h"
-#include "system/config.h"
+#include "firmware/src/database/config.h"
+#include "firmware/src/database/deps.h"
+#include "firmware/src/system/config.h"
 
 #include <type_traits>
 #include <optional>

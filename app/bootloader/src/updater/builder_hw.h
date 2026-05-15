@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "hwa_hw.h"
-#include "updater.h"
+#include "bootloader/src/updater/hwa_hw.h"
+#include "bootloader/src/updater/updater.h"
 
 namespace opendeck::updater
 {

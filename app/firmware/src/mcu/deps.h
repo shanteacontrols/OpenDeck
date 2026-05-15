@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "fw_selector/common.h"
+#include "bootloader/src/fw_selector/common.h"
 
 #include <cstdint>
 #include <span>

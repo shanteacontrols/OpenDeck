@@ -5,17 +5,17 @@
 
 #pragma once
 
-#include "custom_ids.h"
-#include "io/digital/switches/common.h"
-#include "io/digital/encoders/common.h"
-#include "io/analog/common.h"
-#include "io/outputs/common.h"
-#include "io/i2c/peripherals/display/common.h"
-#include "io/touchscreen/common.h"
-#include "protocol/midi/common.h"
-#include "protocol/mdns/common.h"
-#include "protocol/osc/common.h"
-#include "system/config.h"
+#include "firmware/src/system/custom_ids.h"
+#include "firmware/src/io/digital/switches/common.h"
+#include "firmware/src/io/digital/encoders/common.h"
+#include "firmware/src/io/analog/common.h"
+#include "firmware/src/io/outputs/common.h"
+#include "firmware/src/io/i2c/peripherals/display/common.h"
+#include "firmware/src/io/touchscreen/common.h"
+#include "firmware/src/protocol/midi/common.h"
+#include "firmware/src/protocol/mdns/common.h"
+#include "firmware/src/protocol/osc/common.h"
+#include "firmware/src/system/config.h"
 
 namespace opendeck::sys
 {

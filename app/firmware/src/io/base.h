@@ -8,9 +8,9 @@
 #include <inttypes.h>
 #include <stddef.h>
 
-#include <atomic>
-
 #include <zephyr/kernel.h>
+
+#include <atomic>
 
 namespace opendeck::io
 {

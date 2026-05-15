@@ -3,16 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "mdns.h"
-#include "common.h"
-#include "signaling/signaling.h"
-#include "util/configurable/configurable.h"
-
-#include <algorithm>
-#include <cctype>
+#include "firmware/src/protocol/mdns/mdns.h"
+#include "firmware/src/protocol/mdns/common.h"
+#include "firmware/src/signaling/signaling.h"
+#include "firmware/src/util/configurable/configurable.h"
 
 #include <zephyr/logging/log.h>
 #include <zephyr/sys/util.h>
+
+#include <algorithm>
+#include <cctype>
 
 using namespace opendeck::protocol::mdns;
 

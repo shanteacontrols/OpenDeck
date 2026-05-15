@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "common.h"
+#include "firmware/src/protocol/osc/packet/common.h"
 
 #include <array>
 #include <cstddef>

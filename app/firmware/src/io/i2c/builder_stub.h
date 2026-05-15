@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "i2c_stub.h"
-#include "hwa_stub.h"
+#include "firmware/src/io/i2c/i2c_stub.h"
+#include "firmware/src/io/i2c/hwa_stub.h"
 
 namespace opendeck::io::i2c
 {

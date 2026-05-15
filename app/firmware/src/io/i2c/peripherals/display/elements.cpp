@@ -5,7 +5,7 @@
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_DISPLAY
 
-#include "display.h"
+#include "firmware/src/io/i2c/peripherals/display/display.h"
 
 #include "zlibs/utils/misc/bit.h"
 

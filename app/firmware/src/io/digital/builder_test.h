@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "io/base.h"
-#include "io/digital/switches/builder.h"
-#include "io/digital/encoders/builder.h"
-#include "database/builder_test.h"
+#include "firmware/src/io/base.h"
+#include "firmware/src/io/digital/switches/builder.h"
+#include "firmware/src/io/digital/encoders/builder.h"
+#include "firmware/src/database/builder_test.h"
 
 namespace opendeck::io::digital
 {

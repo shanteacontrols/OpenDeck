@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "deps.h"
-#include "remap.h"
-#include "drivers/driver_base.h"
+#include "firmware/src/io/outputs/deps.h"
+#include "firmware/src/io/outputs/remap.h"
+#include "firmware/src/io/outputs/drivers/driver_base.h"
 
 namespace opendeck::io::outputs
 {

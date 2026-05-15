@@ -3,26 +3,23 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "staged_update.h"
-
-#include "staged_update/common.h"
+#include "bootloader/src/staged_update/staged_update.h"
+#include "common/src/staged_update/common.h"
+#include "bootloader/src/indicators/indicators.h"
+#include "bootloader/src/updater/builder.h"
 
 #include <zephyr/devicetree.h>
-
-#define OPENDECK_BOOTLOADER_NODE DT_NODELABEL(opendeck_bootloader)
-
-#if DT_NODE_EXISTS(OPENDECK_BOOTLOADER_NODE) && DT_NODE_HAS_PROP(OPENDECK_BOOTLOADER_NODE, staged_dfu_partition)
-
-#include "indicators.h"
-#include "updater/builder.h"
-
-#include <array>
-#include <span>
-
 #include <zephyr/devicetree/fixed-partitions.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/storage/flash_map.h>
 #include <zephyr/sys/crc.h>
+
+#include <array>
+#include <span>
+
+#define OPENDECK_BOOTLOADER_NODE DT_NODELABEL(opendeck_bootloader)
+
+#if DT_NODE_EXISTS(OPENDECK_BOOTLOADER_NODE) && DT_NODE_HAS_PROP(OPENDECK_BOOTLOADER_NODE, staged_dfu_partition)
 
 namespace
 {

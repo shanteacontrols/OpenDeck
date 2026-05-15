@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "deps.h"
+#include "firmware/src/io/indicators/deps.h"
 
 namespace opendeck::io::indicators
 {

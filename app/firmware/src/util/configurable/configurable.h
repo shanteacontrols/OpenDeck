@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "system/config.h"
+#include "firmware/src/system/config.h"
 
 #include <functional>
 #include <optional>

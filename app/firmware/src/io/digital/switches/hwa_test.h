@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "deps.h"
+#include "firmware/src/io/digital/switches/deps.h"
 
 #include <gmock/gmock.h>
 

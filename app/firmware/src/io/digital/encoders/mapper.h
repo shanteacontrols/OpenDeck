@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include "deps.h"
-#include "global/midi_program.h"
-#include "protocol/midi/midi.h"
-#include "signaling/signaling.h"
-#include "util/incdec/inc_dec.h"
+#include "firmware/src/io/digital/encoders/deps.h"
+#include "firmware/src/global/midi_program.h"
+#include "firmware/src/protocol/midi/midi.h"
+#include "firmware/src/signaling/signaling.h"
+#include "firmware/src/util/incdec/inc_dec.h"
 
 #include <array>
 #include <optional>

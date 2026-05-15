@@ -5,13 +5,13 @@
 
 #pragma once
 
-#include "deps.h"
-#include "config.h"
-#include "layout.h"
-#include "signaling/signaling.h"
-#include "protocol/midi/midi.h"
-#include "threads.h"
-#include "util/cinfo/cinfo.h"
+#include "firmware/src/system/deps.h"
+#include "firmware/src/system/config.h"
+#include "firmware/src/system/layout.h"
+#include "firmware/src/signaling/signaling.h"
+#include "firmware/src/protocol/midi/midi.h"
+#include "firmware/src/threads.h"
+#include "firmware/src/util/cinfo/cinfo.h"
 
 #include "zlibs/utils/misc/kwork_delayable.h"
 #include "zlibs/utils/misc/ring_buffer.h"

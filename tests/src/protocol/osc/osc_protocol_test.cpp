@@ -7,22 +7,23 @@
 #include "tests/helpers/database.h"
 #include "tests/helpers/misc.h"
 
-#include "database/builder.h"
-#include "io/analog/deps.h"
-#include "protocol/osc/hwa_test.h"
-#include "protocol/osc/osc.h"
-#include "protocol/osc/packet/packet.h"
-#include "protocol/osc/paths.h"
-#include "signaling/signaling.h"
-#include "util/configurable/configurable.h"
+#include "firmware/src/database/builder.h"
+#include "firmware/src/io/analog/deps.h"
+#include "firmware/src/protocol/osc/hwa_test.h"
+#include "firmware/src/protocol/osc/osc.h"
+#include "firmware/src/protocol/osc/packet/packet.h"
+#include "firmware/src/protocol/osc/paths.h"
+#include "firmware/src/signaling/signaling.h"
+#include "firmware/src/util/configurable/configurable.h"
+
 #include "zlibs/utils/misc/mutex.h"
+
+#include <zephyr/kernel.h>
+#include <zephyr/sys/byteorder.h>
 
 #include <cstdint>
 #include <span>
 #include <vector>
-
-#include <zephyr/kernel.h>
-#include <zephyr/sys/byteorder.h>
 
 using namespace opendeck;
 using namespace opendeck::protocol;

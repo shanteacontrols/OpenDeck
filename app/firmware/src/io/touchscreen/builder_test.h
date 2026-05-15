@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "touchscreen.h"
-#include "hwa_test.h"
-#include "database/builder_test.h"
+#include "firmware/src/io/touchscreen/touchscreen.h"
+#include "firmware/src/io/touchscreen/hwa_test.h"
+#include "firmware/src/database/builder_test.h"
 
 namespace opendeck::io::touchscreen
 {

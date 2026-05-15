@@ -15,9 +15,7 @@ set(TARGET "$ENV{TARGET}")
 
 zephyr_compile_options(-Wno-psabi)
 zephyr_compile_options($<$<COMPILE_LANGUAGE:CXX>:-fno-threadsafe-statics>)
-zephyr_include_directories(${CMAKE_CURRENT_SOURCE_DIR}/bootloader/src)
-zephyr_include_directories(${CMAKE_CURRENT_SOURCE_DIR}/common)
-zephyr_include_directories(${CMAKE_CURRENT_SOURCE_DIR}/firmware/src)
+zephyr_include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_subdirectory(firmware)
 

@@ -5,11 +5,12 @@
 
 #pragma once
 
-#include "common.h"
-#include "deps.h"
-#include "protocol/base.h"
-#include "system/config.h"
-#include "threads.h"
+#include "firmware/src/protocol/mdns/common.h"
+#include "firmware/src/protocol/mdns/deps.h"
+#include "firmware/src/protocol/base.h"
+#include "firmware/src/system/config.h"
+#include "firmware/src/threads.h"
+
 #include "zlibs/utils/misc/kwork_delayable.h"
 
 #include <array>

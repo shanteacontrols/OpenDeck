@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "common.h"
-#include "deps.h"
+#include "bootloader/src/fw_selector/common.h"
+#include "bootloader/src/fw_selector/deps.h"
 
 namespace opendeck::fw_selector
 {

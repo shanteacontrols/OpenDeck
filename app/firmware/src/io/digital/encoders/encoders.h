@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include "deps.h"
-#include "io/base.h"
-#include "mapper.h"
-#include "signaling/signaling.h"
-#include "system/config.h"
+#include "firmware/src/io/digital/encoders/deps.h"
+#include "firmware/src/io/base.h"
+#include "firmware/src/io/digital/encoders/mapper.h"
+#include "firmware/src/signaling/signaling.h"
+#include "firmware/src/system/config.h"
 
 #include <optional>
 

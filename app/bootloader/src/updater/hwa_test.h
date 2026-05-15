@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "deps.h"
+#include "bootloader/src/updater/deps.h"
 
 #include <algorithm>
 #include <span>

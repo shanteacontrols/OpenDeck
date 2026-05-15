@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "deps.h"
-#include "io/digital/frame_store.h"
+#include "firmware/src/io/digital/encoders/deps.h"
+#include "firmware/src/io/digital/frame_store.h"
 
 namespace opendeck::io::encoders
 {

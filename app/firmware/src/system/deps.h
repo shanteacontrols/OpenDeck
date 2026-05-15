@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include "common.h"
-#include "fw_selector/common.h"
-#include "io/base.h"
-#include "protocol/base.h"
-#include "database/database.h"
+#include "firmware/src/system/common.h"
+#include "bootloader/src/fw_selector/common.h"
+#include "firmware/src/io/base.h"
+#include "firmware/src/protocol/base.h"
+#include "firmware/src/database/database.h"
 
 #include <array>
 #include <span>

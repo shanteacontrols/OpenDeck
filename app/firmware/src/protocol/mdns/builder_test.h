@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "hwa_test.h"
-#include "mdns.h"
-#include "database/builder.h"
+#include "firmware/src/protocol/mdns/hwa_test.h"
+#include "firmware/src/protocol/mdns/mdns.h"
+#include "firmware/src/database/builder.h"
 
 namespace opendeck::protocol::mdns
 {

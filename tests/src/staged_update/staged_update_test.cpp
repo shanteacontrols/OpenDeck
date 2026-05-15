@@ -4,14 +4,13 @@
  */
 
 #include "tests/common.h"
+#include "firmware/src/staged_update/hwa_test.h"
+#include "firmware/src/staged_update/staged_update.h"
 
-#include "staged_update/hwa_test.h"
-#include "staged_update/staged_update.h"
+#include <zephyr/sys/crc.h>
 
 #include <cstring>
 #include <vector>
-
-#include <zephyr/sys/crc.h>
 
 using namespace opendeck::staged_update;
 

@@ -5,14 +5,15 @@
 
 #pragma once
 
-#include "../driver_base.h"
-#include "count.h"
+#include "firmware/src/io/outputs/drivers/driver_base.h"
+#include "firmware/src/io/outputs/drivers/max7219/count.h"
 
 #include "zlibs/utils/misc/bit.h"
 
-#include <array>
 #include <zephyr/device.h>
 #include <zephyr/drivers/gpio.h>
+
+#include <array>
 
 namespace opendeck::io::outputs
 {

@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "protocol/webconfig/firmware_upload/common.h"
-#include "staged_update/staged_update.h"
+#include "firmware/src/protocol/webconfig/firmware_upload/common.h"
+#include "firmware/src/staged_update/staged_update.h"
 
 #include <array>
 #include <cstdint>

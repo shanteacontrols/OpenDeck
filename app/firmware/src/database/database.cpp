@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "util/conversion/conversion.h"
-#include "util/configurable/configurable.h"
-#include "layout.h"
+#include "firmware/src/util/conversion/conversion.h"
+#include "firmware/src/util/configurable/configurable.h"
+#include "firmware/src/database/layout.h"
 
 #include <zephyr/logging/log.h>
 

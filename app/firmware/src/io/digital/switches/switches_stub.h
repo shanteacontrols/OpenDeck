@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "deps.h"
-#include "io/base.h"
+#include "firmware/src/io/digital/switches/deps.h"
+#include "firmware/src/io/base.h"
 
 namespace opendeck::io::switches
 {

@@ -5,11 +5,12 @@
 
 #pragma once
 
-#include "drivers/count.h"
+#include "firmware/src/io/analog/drivers/count.h"
+
+#include <zephyr/devicetree.h>
 
 #include <array>
 #include <cstddef>
-#include <zephyr/devicetree.h>
 
 namespace opendeck::io::analog
 {

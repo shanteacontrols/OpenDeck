@@ -5,10 +5,10 @@
 
 #if defined(CONFIG_PROJECT_TARGET_SUPPORT_WEBCONFIG) && !defined(OPENDECK_TEST)
 
-#include "hwa_hw.h"
-#include "common.h"
-#include "fw_selector/common.h"
-#include "webconfig.h"
+#include "firmware/src/protocol/webconfig/hwa_hw.h"
+#include "firmware/src/protocol/webconfig/common.h"
+#include "bootloader/src/fw_selector/common.h"
+#include "firmware/src/protocol/webconfig/webconfig.h"
 
 #include <zephyr/kernel.h>
 #include <zephyr/net/http/server.h>

@@ -7,14 +7,14 @@
 
 #ifdef OPENDECK_TEST
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_ADC
-#include "io/analog/builder_test.h"
+#include "firmware/src/io/analog/builder_test.h"
 #else
-#include "io/analog/builder_stub.h"
+#include "firmware/src/io/analog/builder_stub.h"
 #endif
 #else
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_ADC
-#include "io/analog/builder_hw.h"
+#include "firmware/src/io/analog/builder_hw.h"
 #else
-#include "io/analog/builder_stub.h"
+#include "firmware/src/io/analog/builder_stub.h"
 #endif
 #endif

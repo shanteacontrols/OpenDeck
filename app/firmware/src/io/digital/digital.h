@@ -5,12 +5,12 @@
 
 #pragma once
 
-#include "frame_store.h"
-#include "drivers/driver_base.h"
-#include "io/base.h"
-#include "io/digital/switches/switches.h"
-#include "io/digital/encoders/encoders.h"
-#include "threads.h"
+#include "firmware/src/io/digital/frame_store.h"
+#include "firmware/src/io/digital/drivers/driver_base.h"
+#include "firmware/src/io/base.h"
+#include "firmware/src/io/digital/switches/switches.h"
+#include "firmware/src/io/digital/encoders/encoders.h"
+#include "firmware/src/threads.h"
 
 namespace opendeck::io::digital
 {

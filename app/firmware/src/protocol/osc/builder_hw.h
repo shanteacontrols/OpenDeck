@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "osc.h"
-#include "hwa_hw.h"
-#include "database/builder.h"
+#include "firmware/src/protocol/osc/osc.h"
+#include "firmware/src/protocol/osc/hwa_hw.h"
+#include "firmware/src/database/builder.h"
 
 namespace opendeck::protocol::osc
 {

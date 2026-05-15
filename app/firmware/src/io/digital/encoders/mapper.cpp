@@ -3,9 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "mapper.h"
-
-#include "global/bpm.h"
+#include "firmware/src/io/digital/encoders/mapper.h"
+#include "firmware/src/global/bpm.h"
 
 #include "zlibs/utils/misc/numeric.h"
 

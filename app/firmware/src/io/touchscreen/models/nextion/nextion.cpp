@@ -5,9 +5,8 @@
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_TOUCHSCREEN
 
-#include "nextion.h"
-
-#include "io/touchscreen/touchscreen.h"
+#include "firmware/src/io/touchscreen/models/nextion/nextion.h"
+#include "firmware/src/io/touchscreen/touchscreen.h"
 
 #include <zephyr/kernel.h>
 

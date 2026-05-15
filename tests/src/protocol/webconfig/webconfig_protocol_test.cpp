@@ -4,20 +4,20 @@
  */
 
 #include "tests/common.h"
+#include "firmware/src/protocol/webconfig/hwa_test.h"
+#include "firmware/src/protocol/webconfig/webconfig.h"
+#include "firmware/src/signaling/signaling.h"
+#include "firmware/src/staged_update/hwa_test.h"
+#include "firmware/src/staged_update/staged_update.h"
 
-#include "protocol/webconfig/hwa_test.h"
-#include "protocol/webconfig/webconfig.h"
-#include "signaling/signaling.h"
-#include "staged_update/hwa_test.h"
-#include "staged_update/staged_update.h"
 #include "zlibs/utils/midi/midi.h"
 #include "zlibs/utils/misc/mutex.h"
+
+#include <zephyr/kernel.h>
 
 #include <array>
 #include <span>
 #include <vector>
-
-#include <zephyr/kernel.h>
 
 using namespace opendeck;
 using namespace opendeck::protocol;

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "protocol/base.h"
+#include "firmware/src/protocol/base.h"
 
 namespace opendeck::protocol::osc
 {

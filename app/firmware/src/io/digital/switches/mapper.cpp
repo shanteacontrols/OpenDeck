@@ -3,12 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "mapper.h"
-
-#include "global/bpm.h"
-#include "global/midi_program.h"
-#include "util/incdec/inc_dec.h"
-#include "util/conversion/conversion.h"
+#include "firmware/src/io/digital/switches/mapper.h"
+#include "firmware/src/global/bpm.h"
+#include "firmware/src/global/midi_program.h"
+#include "firmware/src/util/incdec/inc_dec.h"
+#include "firmware/src/util/conversion/conversion.h"
 
 using namespace opendeck::io::switches;
 using namespace opendeck::protocol;

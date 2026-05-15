@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "staged_update.h"
-
-#include <algorithm>
-#include <cstring>
+#include "firmware/src/staged_update/staged_update.h"
 
 #include <zephyr/sys/crc.h>
 #include <zephyr/logging/log.h>
+
+#include <algorithm>
+#include <cstring>
 
 using namespace opendeck::staged_update;
 

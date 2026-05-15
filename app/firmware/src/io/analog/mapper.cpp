@@ -3,9 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "mapper.h"
-
-#include "util/conversion/conversion.h"
+#include "firmware/src/io/analog/mapper.h"
+#include "firmware/src/util/conversion/conversion.h"
 
 #include "zlibs/utils/misc/numeric.h"
 

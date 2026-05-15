@@ -6,13 +6,13 @@
 #pragma once
 
 #if defined(CONFIG_PROJECT_TARGET_DRIVER_DIGITAL_INPUT_NATIVE)
-#include "native/count.h"
+#include "firmware/src/io/digital/drivers/native/count.h"
 #elif defined(CONFIG_PROJECT_TARGET_DRIVER_DIGITAL_INPUT_SHIFT_REGISTER)
-#include "shift_register/count.h"
+#include "firmware/src/io/digital/drivers/shift_register/count.h"
 #elif defined(CONFIG_PROJECT_TARGET_DRIVER_DIGITAL_INPUT_MATRIX_NATIVE_ROWS)
-#include "matrix_native_rows/count.h"
+#include "firmware/src/io/digital/drivers/matrix_native_rows/count.h"
 #elif defined(CONFIG_PROJECT_TARGET_DRIVER_DIGITAL_INPUT_MATRIX_SHIFT_REGISTER_ROWS)
-#include "matrix_shift_register_rows/count.h"
+#include "firmware/src/io/digital/drivers/matrix_shift_register_rows/count.h"
 #else
 #define OPENDECK_SWITCH_PHYSICAL_COUNT 0
 #define OPENDECK_SWITCH_HAS_REMAP      0

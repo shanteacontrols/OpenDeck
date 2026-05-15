@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "system.h"
-#include "signaling/signaling.h"
-#include "util/configurable/configurable.h"
-#include "util/conversion/conversion.h"
-#include "global/midi_program.h"
-#include "fw_selector/common.h"
+#include "firmware/src/system/system.h"
+#include "firmware/src/signaling/signaling.h"
+#include "firmware/src/util/configurable/configurable.h"
+#include "firmware/src/util/conversion/conversion.h"
+#include "firmware/src/global/midi_program.h"
+#include "bootloader/src/fw_selector/common.h"
 
 #include <zephyr/logging/log.h>
 #include <zephyr/logging/log_ctrl.h>

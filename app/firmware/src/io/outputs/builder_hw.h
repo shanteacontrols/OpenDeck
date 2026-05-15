@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "outputs.h"
-#include "hwa_hw.h"
-#include "drivers/driver.h"
-#include "database/builder.h"
+#include "firmware/src/io/outputs/outputs.h"
+#include "firmware/src/io/outputs/hwa_hw.h"
+#include "firmware/src/io/outputs/drivers/driver.h"
+#include "firmware/src/database/builder.h"
 
 namespace opendeck::io::outputs
 {

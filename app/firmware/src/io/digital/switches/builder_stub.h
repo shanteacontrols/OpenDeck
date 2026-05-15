@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "switches_stub.h"
-#include "filter_stub.h"
-#include "hwa_stub.h"
-#include "database/builder.h"
+#include "firmware/src/io/digital/switches/switches_stub.h"
+#include "firmware/src/io/digital/switches/filter_stub.h"
+#include "firmware/src/io/digital/switches/hwa_stub.h"
+#include "firmware/src/database/builder.h"
 
 namespace opendeck::io::switches
 {

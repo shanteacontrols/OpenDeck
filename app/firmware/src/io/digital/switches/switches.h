@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include "deps.h"
-#include "mapper.h"
-#include "protocol/midi/midi.h"
-#include "system/config.h"
-#include "io/base.h"
+#include "firmware/src/io/digital/switches/deps.h"
+#include "firmware/src/io/digital/switches/mapper.h"
+#include "firmware/src/protocol/midi/midi.h"
+#include "firmware/src/system/config.h"
+#include "firmware/src/io/base.h"
 
 #include <optional>
 

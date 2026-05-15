@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "digital.h"
-#include "util/thread_sleep.h"
+#include "firmware/src/io/digital/digital.h"
+#include "firmware/src/util/thread_sleep.h"
 
 using namespace opendeck::io::digital;
 

@@ -3,17 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "hwa_hw.h"
+#include "firmware/src/protocol/mdns/hwa_hw.h"
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_MDNS
 
-#include "common.h"
-#include "protocol/osc/common.h"
-#include "protocol/webconfig/common.h"
-
-#include <algorithm>
-#include <cstring>
-#include <utility>
+#include "firmware/src/protocol/mdns/common.h"
+#include "firmware/src/protocol/osc/common.h"
+#include "firmware/src/protocol/webconfig/common.h"
 
 #include <zephyr/init.h>
 #include <zephyr/logging/log.h>
@@ -22,6 +18,10 @@
 #include <zephyr/net/net_if.h>
 #include <zephyr/net/net_ip.h>
 #include <zephyr/sys/byteorder.h>
+
+#include <algorithm>
+#include <cstring>
+#include <utility>
 
 using namespace opendeck::protocol::mdns;
 

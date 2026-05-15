@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "common.h"
-#include "internal.h"
+#include "firmware/src/protocol/osc/packet/common.h"
+#include "firmware/src/protocol/osc/packet/internal.h"
 
 #include <array>
 #include <cstddef>

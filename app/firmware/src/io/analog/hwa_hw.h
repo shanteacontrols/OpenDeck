@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "deps.h"
-#include "drivers/driver_base.h"
+#include "firmware/src/io/analog/deps.h"
+#include "firmware/src/io/analog/drivers/driver_base.h"
 
 namespace opendeck::io::analog
 {

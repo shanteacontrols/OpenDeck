@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "io/common/common.h"
-#include "io/outputs/drivers/count.h"
-#include "io/touchscreen/count.h"
+#include "firmware/src/io/common/common.h"
+#include "firmware/src/io/outputs/drivers/count.h"
+#include "firmware/src/io/touchscreen/count.h"
 
 namespace opendeck::io::outputs
 {

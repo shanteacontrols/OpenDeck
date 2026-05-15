@@ -1,10 +1,6 @@
 include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_library.cmake)
 opendeck_library_named(database)
 
-target_include_directories(database
-    PUBLIC
-    $ENV{ZEPHYR_PROJECT}/app/firmware/src
-)
 
 target_link_libraries(database
     PUBLIC

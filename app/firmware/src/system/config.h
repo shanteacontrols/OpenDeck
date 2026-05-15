@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "database/config.h"
-#include "system/common.h"
+#include "firmware/src/database/config.h"
+#include "firmware/src/system/common.h"
 
 #include "zlibs/utils/sysex_conf/sysex_conf.h"
 

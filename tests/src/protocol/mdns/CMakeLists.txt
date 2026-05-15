@@ -10,7 +10,7 @@ opendeck_test_add_modules(
     mcu           "app/firmware/src/mcu"
     database      "app/firmware/src/database"
     configurable  "app/firmware/src/util/configurable"
-    metadata      "app/common/metadata"
+    metadata      "app/common/src/metadata"
     protocol_mdns "app/firmware/src/protocol/mdns"
 )
 

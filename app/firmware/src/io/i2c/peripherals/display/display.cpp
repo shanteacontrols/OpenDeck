@@ -5,13 +5,12 @@
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_DISPLAY
 
-#include "display.h"
-
-#include "io/i2c/i2c.h"
-#include "protocol/midi/midi.h"
-#include "io/common/common.h"
-#include "util/conversion/conversion.h"
-#include "util/configurable/configurable.h"
+#include "firmware/src/io/i2c/peripherals/display/display.h"
+#include "firmware/src/io/i2c/i2c.h"
+#include "firmware/src/protocol/midi/midi.h"
+#include "firmware/src/io/common/common.h"
+#include "firmware/src/util/conversion/conversion.h"
+#include "firmware/src/util/configurable/configurable.h"
 
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>

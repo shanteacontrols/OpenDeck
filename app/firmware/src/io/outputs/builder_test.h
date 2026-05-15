@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "outputs.h"
-#include "hwa_test.h"
-#include "database/builder_test.h"
+#include "firmware/src/io/outputs/outputs.h"
+#include "firmware/src/io/outputs/hwa_test.h"
+#include "firmware/src/database/builder_test.h"
 
 namespace opendeck::io::outputs
 {

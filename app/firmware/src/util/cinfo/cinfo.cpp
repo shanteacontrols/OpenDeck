@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "cinfo.h"
-#include "signaling/signaling.h"
+#include "firmware/src/util/cinfo/cinfo.h"
+#include "firmware/src/signaling/signaling.h"
 
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>

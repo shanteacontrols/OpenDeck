@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "io/touchscreen/deps.h"
+#include "firmware/src/io/touchscreen/deps.h"
 
 #include <array>
 #include <cstdio>

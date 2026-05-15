@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "mcu/deps.h"
-#include "webconfig_stub.h"
+#include "firmware/src/mcu/deps.h"
+#include "firmware/src/protocol/webconfig/webconfig_stub.h"
 
 namespace opendeck::protocol::webconfig
 {

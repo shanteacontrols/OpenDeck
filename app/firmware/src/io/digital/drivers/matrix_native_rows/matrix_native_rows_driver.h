@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "../driver_base.h"
-#include "count.h"
+#include "firmware/src/io/digital/drivers/driver_base.h"
+#include "firmware/src/io/digital/drivers/matrix_native_rows/count.h"
 
 namespace opendeck::io::digital::drivers
 {

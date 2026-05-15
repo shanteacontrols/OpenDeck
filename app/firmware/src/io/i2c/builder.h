@@ -7,14 +7,14 @@
 
 #ifdef OPENDECK_TEST
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_I2C
-#include "io/i2c/builder_test.h"
+#include "firmware/src/io/i2c/builder_test.h"
 #else
-#include "io/i2c/builder_stub.h"
+#include "firmware/src/io/i2c/builder_stub.h"
 #endif
 #else
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_I2C
-#include "io/i2c/builder_hw.h"
+#include "firmware/src/io/i2c/builder_hw.h"
 #else
-#include "io/i2c/builder_stub.h"
+#include "firmware/src/io/i2c/builder_stub.h"
 #endif
 #endif

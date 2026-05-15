@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "i2c.h"
-#include "hwa_hw.h"
-#include "peripherals/builder.h"
+#include "firmware/src/io/i2c/i2c.h"
+#include "firmware/src/io/i2c/hwa_hw.h"
+#include "firmware/src/io/i2c/peripherals/builder.h"
 
 namespace opendeck::io::i2c
 {

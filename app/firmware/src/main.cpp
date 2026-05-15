@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "system/builder.h"
+#include "firmware/src/system/builder.h"
 
 #include <zephyr/logging/log.h>
 

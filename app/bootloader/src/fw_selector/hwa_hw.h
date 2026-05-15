@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "fw_selector.h"
-#include "retained/retained.h"
+#include "bootloader/src/fw_selector/fw_selector.h"
+#include "common/src/retained/retained.h"
 
 #include <zephyr/devicetree.h>
 #include <zephyr/devicetree/fixed-partitions.h>

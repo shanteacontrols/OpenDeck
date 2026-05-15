@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include "switches.h"
-#include "filter_test.h"
-#include "hwa_test.h"
-#include "mapper.h"
-#include "database/builder_test.h"
+#include "firmware/src/io/digital/switches/switches.h"
+#include "firmware/src/io/digital/switches/filter_test.h"
+#include "firmware/src/io/digital/switches/hwa_test.h"
+#include "firmware/src/io/digital/switches/mapper.h"
+#include "firmware/src/database/builder_test.h"
 
 namespace opendeck::io::switches
 {

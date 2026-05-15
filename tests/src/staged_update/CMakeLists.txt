@@ -7,7 +7,7 @@ opendeck_test_bootstrap(
 )
 
 opendeck_test_add_modules(
-    metadata      "app/common/metadata"
+    metadata      "app/common/src/metadata"
     staged_update "app/firmware/src/staged_update"
 )
 

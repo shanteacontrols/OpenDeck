@@ -1,10 +1,6 @@
 include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_library.cmake)
 opendeck_library_named(protocol_midi)
 
-target_include_directories(protocol_midi
-    PUBLIC
-    $ENV{ZEPHYR_PROJECT}/app/firmware/src
-)
 
 target_link_libraries(protocol_midi
     PUBLIC

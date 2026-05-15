@@ -5,12 +5,12 @@
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_ADC
 
-#include "analog.h"
-#include "remap.h"
-#include "system/config.h"
-#include "util/conversion/conversion.h"
-#include "util/configurable/configurable.h"
-#include "util/thread_sleep.h"
+#include "firmware/src/io/analog/analog.h"
+#include "firmware/src/io/analog/remap.h"
+#include "firmware/src/system/config.h"
+#include "firmware/src/util/conversion/conversion.h"
+#include "firmware/src/util/configurable/configurable.h"
+#include "firmware/src/util/thread_sleep.h"
 
 #include "zlibs/utils/misc/bit.h"
 #include "zlibs/utils/misc/numeric.h"

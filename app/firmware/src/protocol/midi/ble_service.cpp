@@ -3,9 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "ble_service.h"
-
-#include <cerrno>
+#include "firmware/src/protocol/midi/ble_service.h"
 
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/conn.h>
@@ -15,6 +13,8 @@
 #include <zephyr/bluetooth/uuid.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/sys/util.h>
+
+#include <cerrno>
 
 namespace
 {

@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "indicators.h"
+#include "bootloader/src/indicators/indicators.h"
+#include "firmware/src/io/indicators/common.h"
+#include "firmware/src/io/indicators/hwa_hw.h"
 
-#include "io/indicators/common.h"
-#include "io/indicators/hwa_hw.h"
 #include "zlibs/utils/misc/kwork_delayable.h"
 
 using namespace opendeck;

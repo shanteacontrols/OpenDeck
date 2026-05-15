@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "deps.h"
-#include "layout.h"
-#include "signaling/signaling.h"
-#include "io/indicators/indicators.h"
+#include "firmware/src/database/deps.h"
+#include "firmware/src/database/layout.h"
+#include "firmware/src/signaling/signaling.h"
+#include "firmware/src/io/indicators/indicators.h"
 
 #include "zlibs/utils/emueeprom/emueeprom.h"
 

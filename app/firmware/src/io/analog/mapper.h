@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "deps.h"
-#include "signaling/signaling.h"
+#include "firmware/src/io/analog/deps.h"
+#include "firmware/src/signaling/signaling.h"
 
 #include <array>
 #include <optional>

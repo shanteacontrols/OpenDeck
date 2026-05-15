@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include "deps.h"
-#include "element.h"
-#include "strings.h"
-#include "signaling/signaling.h"
-#include "system/config.h"
+#include "firmware/src/io/i2c/peripherals/display/deps.h"
+#include "firmware/src/io/i2c/peripherals/display/element.h"
+#include "firmware/src/io/i2c/peripherals/display/strings.h"
+#include "firmware/src/signaling/signaling.h"
+#include "firmware/src/system/config.h"
 
 #include <u8x8.h>
 

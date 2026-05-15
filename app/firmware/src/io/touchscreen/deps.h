@@ -5,10 +5,9 @@
 
 #pragma once
 
-#include "common.h"
-
-#include "io/common/common.h"
-#include "database/database.h"
+#include "firmware/src/io/touchscreen/common.h"
+#include "firmware/src/io/common/common.h"
+#include "firmware/src/database/database.h"
 
 #include <optional>
 

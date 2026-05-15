@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "common.h"
-#include "deps.h"
+#include "firmware/src/mcu/common.h"
+#include "firmware/src/mcu/deps.h"
 
 #include <array>
 #include <optional>

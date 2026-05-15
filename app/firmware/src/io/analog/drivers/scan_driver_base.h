@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "driver_base.h"
+#include "firmware/src/io/analog/drivers/driver_base.h"
 
 #include <algorithm>
 

@@ -8,9 +8,9 @@
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_OUTPUTS
 
-#include "io/outputs/builder.h"
-#include "util/configurable/configurable.h"
-#include "global/midi_program.h"
+#include "firmware/src/io/outputs/builder.h"
+#include "firmware/src/util/configurable/configurable.h"
+#include "firmware/src/global/midi_program.h"
 
 using namespace opendeck::io;
 using namespace opendeck::protocol;

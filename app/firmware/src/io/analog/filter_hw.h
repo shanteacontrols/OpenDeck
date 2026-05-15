@@ -5,15 +5,16 @@
 
 #pragma once
 
-#include "deps.h"
+#include "firmware/src/io/analog/deps.h"
 
 #include "zlibs/utils/misc/bit.h"
 #include "zlibs/utils/misc/numeric.h"
 
+#include <zephyr/kernel.h>
+
 #include <algorithm>
 #include <array>
 #include <limits>
-#include <zephyr/kernel.h>
 
 namespace opendeck::io::analog
 {

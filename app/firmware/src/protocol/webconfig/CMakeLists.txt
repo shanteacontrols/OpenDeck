@@ -3,10 +3,6 @@ add_subdirectory(firmware_upload)
 
 opendeck_library_named(protocol_webconfig)
 
-target_include_directories(protocol_webconfig
-    PUBLIC
-    $ENV{ZEPHYR_PROJECT}/app/firmware/src
-)
 
 target_link_libraries(protocol_webconfig
     PUBLIC

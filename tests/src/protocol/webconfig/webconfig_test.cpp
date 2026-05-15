@@ -4,10 +4,9 @@
  */
 
 #include "tests/common.h"
-
-#include "protocol/webconfig/firmware_upload/firmware_upload.h"
-#include "staged_update/hwa_test.h"
-#include "staged_update/staged_update.h"
+#include "firmware/src/protocol/webconfig/firmware_upload/firmware_upload.h"
+#include "firmware/src/staged_update/hwa_test.h"
+#include "firmware/src/staged_update/staged_update.h"
 
 #include <array>
 #include <cstring>

@@ -5,9 +5,8 @@
 
 #pragma once
 
-#include "io/touchscreen/deps.h"
-
-#include "nextion/nextion.h"
+#include "firmware/src/io/touchscreen/deps.h"
+#include "firmware/src/io/touchscreen/models/nextion/nextion.h"
 
 namespace opendeck::io::touchscreen
 {

@@ -5,12 +5,13 @@
 
 #pragma once
 
-#include "../driver_base.h"
-#include "count.h"
+#include "firmware/src/io/outputs/drivers/driver_base.h"
+#include "firmware/src/io/outputs/drivers/native/count.h"
 
-#include <array>
 #include <zephyr/device.h>
 #include <zephyr/drivers/gpio.h>
+
+#include <array>
 
 #define OPENDECK_OUTPUT_NATIVE_GPIO_ENTRY(index, node_id) GPIO_DT_SPEC_GET_BY_IDX(node_id, native_gpios, index)
 

@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "../scan_driver_base.h"
-#include "count.h"
+#include "firmware/src/io/analog/drivers/scan_driver_base.h"
+#include "firmware/src/io/analog/drivers/mux_on_mux/count.h"
 
 #include <zephyr/kernel.h>
 

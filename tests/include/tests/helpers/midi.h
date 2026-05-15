@@ -5,13 +5,14 @@
 
 #pragma once
 
-#include "misc.h"
-#include "system/builder.h"
-#include "system/config.h"
-#include "util/configurable/configurable.h"
-#include "util/conversion/conversion.h"
-#include "protocol/midi/common.h"
-#include "protocol/midi/midi.h"
+#include "tests/helpers/misc.h"
+#include "firmware/src/system/builder.h"
+#include "firmware/src/system/config.h"
+#include "firmware/src/util/configurable/configurable.h"
+#include "firmware/src/util/conversion/conversion.h"
+#include "firmware/src/protocol/midi/common.h"
+#include "firmware/src/protocol/midi/midi.h"
+
 #include "zlibs/utils/midi/midi_common.h"
 
 #include <zephyr/kernel.h>

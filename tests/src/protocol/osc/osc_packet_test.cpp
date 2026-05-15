@@ -4,9 +4,8 @@
  */
 
 #include "tests/common.h"
-
-#include "protocol/osc/packet/packet.h"
-#include "protocol/osc/paths.h"
+#include "firmware/src/protocol/osc/packet/packet.h"
+#include "firmware/src/protocol/osc/paths.h"
 
 #include <array>
 #include <cstdint>

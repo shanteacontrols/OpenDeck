@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "indicators.h"
-#include "hwa_test.h"
+#include "firmware/src/io/indicators/indicators.h"
+#include "firmware/src/io/indicators/hwa_test.h"
 
 namespace opendeck::io::indicators
 {

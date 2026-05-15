@@ -7,11 +7,11 @@
 #include "tests/helpers/database.h"
 #include "tests/helpers/midi.h"
 #include "tests/helpers/misc.h"
-#include "system/builder.h"
-#include "io/indicators/hwa_test.h"
-#include "io/indicators/indicators.h"
-#include "signaling/signaling.h"
-#include "util/configurable/configurable.h"
+#include "firmware/src/system/builder.h"
+#include "firmware/src/io/indicators/hwa_test.h"
+#include "firmware/src/io/indicators/indicators.h"
+#include "firmware/src/signaling/signaling.h"
+#include "firmware/src/util/configurable/configurable.h"
 
 #include <atomic>
 

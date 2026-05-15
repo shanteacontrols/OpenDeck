@@ -5,10 +5,10 @@
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_SWITCHES
 
-#include "switches.h"
-#include "system/config.h"
-#include "util/conversion/conversion.h"
-#include "util/configurable/configurable.h"
+#include "firmware/src/io/digital/switches/switches.h"
+#include "firmware/src/system/config.h"
+#include "firmware/src/util/conversion/conversion.h"
+#include "firmware/src/util/configurable/configurable.h"
 
 #include <zephyr/logging/log.h>
 

@@ -5,14 +5,15 @@
 
 #pragma once
 
-#include "deps.h"
-#include "io/common/common.h"
-#include "protocol/base.h"
-#include "database/database.h"
-#include "system/config.h"
-#include "protocol/base.h"
-#include "signaling/signaling.h"
-#include "threads.h"
+#include "firmware/src/protocol/midi/deps.h"
+#include "firmware/src/io/common/common.h"
+#include "firmware/src/protocol/base.h"
+#include "firmware/src/database/database.h"
+#include "firmware/src/system/config.h"
+#include "firmware/src/protocol/base.h"
+#include "firmware/src/signaling/signaling.h"
+#include "firmware/src/threads.h"
+
 #include "zlibs/utils/misc/kwork_delayable.h"
 #include "zlibs/utils/misc/timer.h"
 

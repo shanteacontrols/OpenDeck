@@ -7,7 +7,7 @@ opendeck_test_bootstrap(
 )
 
 opendeck_test_add_modules(
-    metadata     "app/common/metadata"
+    metadata     "app/common/src/metadata"
     database     "app/firmware/src/database"
     configurable "app/firmware/src/util/configurable"
     protocol_osc "app/firmware/src/protocol/osc"

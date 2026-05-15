@@ -9,12 +9,13 @@
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_ADC
 
-#include "io/analog/builder.h"
-#include "io/analog/drivers/scan_driver_base.h"
-#include "io/analog/remap.h"
-#include "io/digital/switches/builder.h"
-#include "io/digital/switches/switches.h"
-#include "util/configurable/configurable.h"
+#include "firmware/src/io/analog/builder.h"
+#include "firmware/src/io/analog/drivers/scan_driver_base.h"
+#include "firmware/src/io/analog/remap.h"
+#include "firmware/src/io/digital/switches/builder.h"
+#include "firmware/src/io/digital/switches/switches.h"
+#include "firmware/src/util/configurable/configurable.h"
+
 #include "zlibs/utils/misc/ring_buffer.h"
 #include "zlibs/utils/misc/mutex.h"
 #include "zlibs/utils/misc/numeric.h"

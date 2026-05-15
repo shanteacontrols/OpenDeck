@@ -5,16 +5,16 @@
 
 #pragma once
 
-#include "system.h"
-#include "hwa_test.h"
-#include "database/builder.h"
-#include "protocol/midi/builder.h"
-#include "io/analog/builder.h"
-#include "io/digital/builder.h"
-#include "io/touchscreen/builder.h"
-#include "io/i2c/builder.h"
-#include "io/indicators/builder.h"
-#include "io/outputs/builder.h"
+#include "firmware/src/system/system.h"
+#include "firmware/src/system/hwa_test.h"
+#include "firmware/src/database/builder.h"
+#include "firmware/src/protocol/midi/builder.h"
+#include "firmware/src/io/analog/builder.h"
+#include "firmware/src/io/digital/builder.h"
+#include "firmware/src/io/touchscreen/builder.h"
+#include "firmware/src/io/i2c/builder.h"
+#include "firmware/src/io/indicators/builder.h"
+#include "firmware/src/io/outputs/builder.h"
 
 namespace opendeck::sys
 {

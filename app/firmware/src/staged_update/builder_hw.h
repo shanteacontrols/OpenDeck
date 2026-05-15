@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "hwa_hw.h"
-#include "staged_update.h"
+#include "firmware/src/staged_update/hwa_hw.h"
+#include "firmware/src/staged_update/staged_update.h"
 
 namespace opendeck::staged_update
 {

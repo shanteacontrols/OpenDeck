@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "io/common/common.h"
-#include "io/analog/drivers/count.h"
-#include "io/digital/drivers/count.h"
-#include "io/touchscreen/count.h"
+#include "firmware/src/io/common/common.h"
+#include "firmware/src/io/analog/drivers/count.h"
+#include "firmware/src/io/digital/drivers/count.h"
+#include "firmware/src/io/touchscreen/count.h"
 
 namespace opendeck::io::switches
 {

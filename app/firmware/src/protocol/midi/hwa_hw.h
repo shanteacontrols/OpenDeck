@@ -5,7 +5,12 @@
 
 #pragma once
 
-#include "deps.h"
+#include "firmware/src/protocol/midi/deps.h"
+
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_BLE
+#include "firmware/src/protocol/midi/ble_service.h"
+#endif
+
 #include "zlibs/drivers/usb/usb_hw.h"
 #include "zlibs/drivers/uart/uart_hw.h"
 #include "zlibs/utils/misc/ring_buffer.h"
@@ -17,10 +22,6 @@
 #include <zephyr/usb/class/usbd_midi2.h>
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_BLE
-#include "ble_service.h"
-
-#include <algorithm>
-
 #include <zephyr/bluetooth/bluetooth.h>
 #endif
 
@@ -33,6 +34,7 @@ extern "C"
 }
 #endif
 
+#include <algorithm>
 #include <optional>
 #include <inttypes.h>
 #include <span>

@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "touchscreen.h"
-#include "hwa_hw.h"
-#include "models/builder.h"
-#include "database/builder.h"
+#include "firmware/src/io/touchscreen/touchscreen.h"
+#include "firmware/src/io/touchscreen/hwa_hw.h"
+#include "firmware/src/io/touchscreen/models/builder.h"
+#include "firmware/src/database/builder.h"
 
 namespace opendeck::io::touchscreen
 {

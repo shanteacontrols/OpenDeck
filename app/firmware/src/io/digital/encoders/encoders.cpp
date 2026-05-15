@@ -5,10 +5,10 @@
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_ENCODERS
 
-#include "encoders.h"
-#include "util/conversion/conversion.h"
-#include "util/configurable/configurable.h"
-#include "global/bpm.h"
+#include "firmware/src/io/digital/encoders/encoders.h"
+#include "firmware/src/util/conversion/conversion.h"
+#include "firmware/src/util/configurable/configurable.h"
+#include "firmware/src/global/bpm.h"
 
 #include "zlibs/utils/misc/bit.h"
 #include "zlibs/utils/misc/numeric.h"

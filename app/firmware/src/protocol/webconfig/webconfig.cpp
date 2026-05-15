@@ -5,18 +5,18 @@
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_WEBCONFIG
 
-#include "webconfig.h"
-#include "common.h"
-#include "signaling/signaling.h"
-#include "system/common.h"
+#include "firmware/src/protocol/webconfig/webconfig.h"
+#include "firmware/src/protocol/webconfig/common.h"
+#include "firmware/src/signaling/signaling.h"
+#include "firmware/src/system/common.h"
 
 #include "zlibs/utils/midi/midi.h"
 
-#include <cerrno>
-#include <span>
-
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+
+#include <cerrno>
+#include <span>
 
 using namespace opendeck::protocol::webconfig;
 

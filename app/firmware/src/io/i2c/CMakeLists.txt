@@ -3,7 +3,6 @@ opendeck_library_named(i2c)
 
 target_include_directories(i2c
     PUBLIC
-    $ENV{ZEPHYR_PROJECT}/app/firmware/src
     $ENV{ZEPHYR_WS}/modules/u8g2/csrc
 )
 

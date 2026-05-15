@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "io/base.h"
+#include "firmware/src/io/base.h"
 
 #include <zephyr/kernel.h>
 

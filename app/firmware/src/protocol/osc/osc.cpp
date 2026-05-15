@@ -5,16 +5,11 @@
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_OSC
 
-#include "osc.h"
-#include "packet/packet.h"
-#include "paths.h"
-#include "util/configurable/configurable.h"
-#include "util/conversion/conversion.h"
-
-#include <cerrno>
-#include <cstddef>
-#include <cstdint>
-#include <optional>
+#include "firmware/src/protocol/osc/osc.h"
+#include "firmware/src/protocol/osc/packet/packet.h"
+#include "firmware/src/protocol/osc/paths.h"
+#include "firmware/src/util/configurable/configurable.h"
+#include "firmware/src/util/conversion/conversion.h"
 
 #include <zlibs/utils/misc/version.h>
 
@@ -22,6 +17,11 @@
 #include <zephyr/logging/log.h>
 #include <zephyr/net/socket.h>
 #include <zephyr/sys/byteorder.h>
+
+#include <cerrno>
+#include <cstddef>
+#include <cstdint>
+#include <optional>
 
 using namespace opendeck::protocol::osc;
 using namespace opendeck;

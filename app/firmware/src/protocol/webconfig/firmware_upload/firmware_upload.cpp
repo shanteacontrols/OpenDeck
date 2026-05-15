@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "firmware_upload.h"
+#include "firmware/src/protocol/webconfig/firmware_upload/firmware_upload.h"
 
 #include <cstring>
 

@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "io/common/common.h"
-#include "io/digital/drivers/count.h"
+#include "firmware/src/io/common/common.h"
+#include "firmware/src/io/digital/drivers/count.h"
 
 namespace opendeck::io::encoders
 {

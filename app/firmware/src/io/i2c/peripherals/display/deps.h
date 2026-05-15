@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "common.h"
-#include "database/database.h"
-#include "io/i2c/deps.h"
+#include "firmware/src/io/i2c/peripherals/display/common.h"
+#include "firmware/src/database/database.h"
+#include "firmware/src/io/i2c/deps.h"
 
 namespace opendeck::io::i2c::display
 {

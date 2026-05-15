@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "../driver_base.h"
-#include "count.h"
+#include "firmware/src/io/digital/drivers/driver_base.h"
+#include "firmware/src/io/digital/drivers/native/count.h"
 
 #define OPENDECK_SWITCH_NATIVE_GPIO_ENTRY(index, node_id) GPIO_DT_SPEC_GET_BY_IDX(node_id, native_gpios, index)
 

@@ -5,16 +5,16 @@
 
 #pragma once
 
-#include "driver_base.h"
+#include "firmware/src/io/digital/drivers/driver_base.h"
 
 #if defined(CONFIG_PROJECT_TARGET_DRIVER_DIGITAL_INPUT_NATIVE)
-#include "native/native_driver.h"
+#include "firmware/src/io/digital/drivers/native/native_driver.h"
 #elif defined(CONFIG_PROJECT_TARGET_DRIVER_DIGITAL_INPUT_SHIFT_REGISTER)
-#include "shift_register/shift_register_driver.h"
+#include "firmware/src/io/digital/drivers/shift_register/shift_register_driver.h"
 #elif defined(CONFIG_PROJECT_TARGET_DRIVER_DIGITAL_INPUT_MATRIX_NATIVE_ROWS)
-#include "matrix_native_rows/matrix_native_rows_driver.h"
+#include "firmware/src/io/digital/drivers/matrix_native_rows/matrix_native_rows_driver.h"
 #elif defined(CONFIG_PROJECT_TARGET_DRIVER_DIGITAL_INPUT_MATRIX_SHIFT_REGISTER_ROWS)
-#include "matrix_shift_register_rows/matrix_shift_register_rows_driver.h"
+#include "firmware/src/io/digital/drivers/matrix_shift_register_rows/matrix_shift_register_rows_driver.h"
 #else
 namespace opendeck::io::digital::drivers
 {

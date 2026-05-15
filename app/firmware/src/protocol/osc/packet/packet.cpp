@@ -3,14 +3,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "packet.h"
-#include "internal.h"
+#include "firmware/src/protocol/osc/packet/packet.h"
+#include "firmware/src/protocol/osc/packet/internal.h"
+
 #include "zlibs/utils/misc/numeric.h"
+
+#include <zephyr/sys/byteorder.h>
 
 #include <algorithm>
 #include <cstring>
-
-#include <zephyr/sys/byteorder.h>
 
 using namespace opendeck::protocol::osc;
 

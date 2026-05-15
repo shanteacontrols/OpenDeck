@@ -6,7 +6,7 @@
 #pragma once
 
 #ifdef OPENDECK_TEST
-#include "database/builder_test.h"
+#include "firmware/src/database/builder_test.h"
 #else
-#include "database/builder_hw.h"
+#include "firmware/src/database/builder_hw.h"
 #endif

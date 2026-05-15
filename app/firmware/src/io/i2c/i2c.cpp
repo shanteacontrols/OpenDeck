@@ -5,8 +5,8 @@
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_I2C
 
-#include "i2c.h"
-#include "util/thread_sleep.h"
+#include "firmware/src/io/i2c/i2c.h"
+#include "firmware/src/util/thread_sleep.h"
 
 #include <zephyr/logging/log.h>
 

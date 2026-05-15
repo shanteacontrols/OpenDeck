@@ -5,9 +5,10 @@
 
 #pragma once
 
-#include "protocol/mdns/common.h"
-#include "protocol/midi/common.h"
-#include "system/common.h"
+#include "firmware/src/protocol/mdns/common.h"
+#include "firmware/src/protocol/midi/common.h"
+#include "firmware/src/system/common.h"
+
 #include "zlibs/utils/signaling/signaling.h"
 
 #include <algorithm>

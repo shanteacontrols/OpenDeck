@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "deps.h"
-#include "io/base.h"
-#include "signaling/signaling.h"
+#include "firmware/src/io/indicators/deps.h"
+#include "firmware/src/io/base.h"
+#include "firmware/src/signaling/signaling.h"
 
 #include "zlibs/utils/misc/kwork_delayable.h"
 

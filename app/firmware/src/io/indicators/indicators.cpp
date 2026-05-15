@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "indicators.h"
+#include "firmware/src/io/indicators/indicators.h"
 
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>

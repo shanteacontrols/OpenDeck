@@ -5,13 +5,13 @@
 
 #pragma once
 
-#include "deps.h"
-#include "database/database.h"
-#include "protocol/midi/midi.h"
-#include "io/common/common.h"
-#include "system/config.h"
-#include "io/base.h"
-#include "threads.h"
+#include "firmware/src/io/outputs/deps.h"
+#include "firmware/src/database/database.h"
+#include "firmware/src/protocol/midi/midi.h"
+#include "firmware/src/io/common/common.h"
+#include "firmware/src/system/config.h"
+#include "firmware/src/io/base.h"
+#include "firmware/src/threads.h"
 
 #include "zlibs/utils/misc/mutex.h"
 

@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "hwa_hw.h"
-#include "mdns.h"
-#include "database/builder.h"
-#include "mcu/builder.h"
+#include "firmware/src/protocol/mdns/hwa_hw.h"
+#include "firmware/src/protocol/mdns/mdns.h"
+#include "firmware/src/database/builder.h"
+#include "firmware/src/mcu/builder.h"
 
 namespace opendeck::protocol::mdns
 {

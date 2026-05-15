@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "mdns_stub.h"
-#include "database/builder.h"
-#include "mcu/deps.h"
+#include "firmware/src/protocol/mdns/mdns_stub.h"
+#include "firmware/src/database/builder.h"
+#include "firmware/src/mcu/deps.h"
 
 namespace opendeck::protocol::mdns
 {

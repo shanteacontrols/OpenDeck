@@ -5,23 +5,23 @@
 
 #pragma once
 
-#include "common.h"
-#include "deps.h"
-#include "firmware_upload/firmware_upload.h"
-#include "protocol/base.h"
-#include "signaling/signaling.h"
-#include "staged_update/staged_update.h"
-#include "threads.h"
+#include "firmware/src/protocol/webconfig/common.h"
+#include "firmware/src/protocol/webconfig/deps.h"
+#include "firmware/src/protocol/webconfig/firmware_upload/firmware_upload.h"
+#include "firmware/src/protocol/base.h"
+#include "firmware/src/signaling/signaling.h"
+#include "firmware/src/staged_update/staged_update.h"
+#include "firmware/src/threads.h"
 
 #include "zlibs/utils/midi/midi.h"
 #include "zlibs/utils/misc/kwork_delayable.h"
 #include "zlibs/utils/misc/mutex.h"
 
+#include <zephyr/kernel.h>
+
 #include <array>
 #include <atomic>
 #include <span>
-
-#include <zephyr/kernel.h>
 
 namespace opendeck::protocol::webconfig
 {

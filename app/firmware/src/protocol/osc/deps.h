@@ -5,12 +5,12 @@
 
 #pragma once
 
-#include "database/database.h"
+#include "firmware/src/database/database.h"
+
+#include <zephyr/net/socket.h>
 
 #include <cstddef>
 #include <sys/types.h>
-
-#include <zephyr/net/socket.h>
 
 namespace opendeck::protocol::osc
 {

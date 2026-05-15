@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "deps.h"
+#include "firmware/src/io/touchscreen/deps.h"
 
 namespace opendeck::io::touchscreen
 {

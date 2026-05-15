@@ -5,10 +5,9 @@
 
 #pragma once
 
-#include "common.h"
-
-#include "database/database.h"
-#include "io/digital/switches/deps.h"
+#include "firmware/src/io/digital/encoders/common.h"
+#include "firmware/src/database/database.h"
+#include "firmware/src/io/digital/switches/deps.h"
 
 #include <optional>
 

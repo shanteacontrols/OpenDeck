@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "configurable.h"
+#include "firmware/src/util/configurable/configurable.h"
 
 using namespace opendeck::util;
 

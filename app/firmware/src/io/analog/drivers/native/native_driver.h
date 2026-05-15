@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "../scan_driver_base.h"
-#include "count.h"
+#include "firmware/src/io/analog/drivers/scan_driver_base.h"
+#include "firmware/src/io/analog/drivers/native/count.h"
 
 #define OPENDECK_ANALOG_NATIVE_CHANNEL_ENTRY(index, node_id) ADC_DT_SPEC_GET_BY_IDX(node_id, index)
 

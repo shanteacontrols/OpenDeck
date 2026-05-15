@@ -5,11 +5,10 @@
 
 #pragma once
 
-#include "deps.h"
-
-#include "io/base.h"
-#include "io/common/common.h"
-#include "threads.h"
+#include "firmware/src/io/i2c/deps.h"
+#include "firmware/src/io/base.h"
+#include "firmware/src/io/common/common.h"
+#include "firmware/src/threads.h"
 
 #include <array>
 

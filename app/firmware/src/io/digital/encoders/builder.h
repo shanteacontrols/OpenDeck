@@ -5,20 +5,16 @@
 
 #pragma once
 
-// clang-format off
-
 #ifdef OPENDECK_TEST
-    #ifdef CONFIG_PROJECT_TARGET_SUPPORT_ENCODERS
-        #include "io/digital/encoders/builder_test.h"
-    #else
-        #include "io/digital/encoders/builder_stub.h"
-    #endif
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_ENCODERS
+#include "firmware/src/io/digital/encoders/builder_test.h"
 #else
-    #ifdef CONFIG_PROJECT_TARGET_SUPPORT_ENCODERS
-        #include "io/digital/encoders/builder_hw.h"
-    #else
-        #include "io/digital/encoders/builder_stub.h"
-    #endif
+#include "firmware/src/io/digital/encoders/builder_stub.h"
 #endif
-
-// clang-format on
+#else
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_ENCODERS
+#include "firmware/src/io/digital/encoders/builder_hw.h"
+#else
+#include "firmware/src/io/digital/encoders/builder_stub.h"
+#endif
+#endif

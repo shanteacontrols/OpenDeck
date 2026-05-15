@@ -3,9 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "transport.h"
-
-#include "updater/builder.h"
+#include "bootloader/src/webusb/transport.h"
+#include "bootloader/src/updater/builder.h"
 
 #include "zlibs/drivers/usb/usb_hw.h"
 

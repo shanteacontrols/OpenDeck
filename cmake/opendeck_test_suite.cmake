@@ -21,6 +21,8 @@ macro(opendeck_test_bootstrap)
 
     project(test)
 
+    zephyr_include_directories($ENV{ZEPHYR_PROJECT}/app)
+
     add_compile_definitions(OPENDECK_TEST)
 
     if(OPENDECK_TEST_COMPILE_DEFINITIONS)

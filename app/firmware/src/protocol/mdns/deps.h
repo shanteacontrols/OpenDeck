@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "database/database.h"
+#include "firmware/src/database/database.h"
 
 #include <cstddef>
 #include <cstdint>

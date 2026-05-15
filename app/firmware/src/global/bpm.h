@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "util/incdec/inc_dec.h"
-#include "signaling/signaling.h"
+#include "firmware/src/util/incdec/inc_dec.h"
+#include "firmware/src/signaling/signaling.h"
 
 namespace opendeck::global
 {

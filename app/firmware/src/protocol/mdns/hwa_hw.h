@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "deps.h"
+#include "firmware/src/protocol/mdns/deps.h"
+#include "firmware/src/mcu/deps.h"
 
 #include "zlibs/utils/misc/userdata_struct.h"
-#include "mcu/deps.h"
 
 #include <zephyr/net/net_mgmt.h>
 

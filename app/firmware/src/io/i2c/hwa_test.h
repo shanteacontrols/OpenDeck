@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "deps.h"
+#include "firmware/src/io/i2c/deps.h"
 
 namespace opendeck::io::i2c
 {

@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "updater.h"
-#include "webusb/transport.h"
+#include "bootloader/src/updater/updater.h"
+#include "bootloader/src/webusb/transport.h"
+
+#include <zephyr/sys/util.h>
 
 #include <algorithm>
 #include <span>
-
-#include <zephyr/sys/util.h>
 
 using namespace opendeck;
 

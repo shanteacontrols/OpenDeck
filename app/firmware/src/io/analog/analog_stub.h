@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "deps.h"
-#include "io/base.h"
+#include "firmware/src/io/analog/deps.h"
+#include "firmware/src/io/base.h"
 
 namespace opendeck::io::analog
 {
