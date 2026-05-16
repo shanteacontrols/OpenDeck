@@ -7,14 +7,14 @@
 
 #ifdef OPENDECK_TEST
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_SWITCHES
-#include "firmware/src/io/digital/switches/builder_test.h"
+#include "firmware/src/io/digital/switches/builder/test/builder_test.h"
 #else
-#include "firmware/src/io/digital/switches/builder_stub.h"
+#include "firmware/src/io/digital/switches/builder/stub/builder_stub.h"
 #endif
 #else
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_SWITCHES
-#include "firmware/src/io/digital/switches/builder_hw.h"
+#include "firmware/src/io/digital/switches/builder/hw/builder_hw.h"
 #else
-#include "firmware/src/io/digital/switches/builder_stub.h"
+#include "firmware/src/io/digital/switches/builder/stub/builder_stub.h"
 #endif
 #endif

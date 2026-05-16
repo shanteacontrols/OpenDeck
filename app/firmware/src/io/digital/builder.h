@@ -7,14 +7,14 @@
 
 #ifdef OPENDECK_TEST
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_DIGITAL_INPUTS
-#include "firmware/src/io/digital/builder_test.h"
+#include "firmware/src/io/digital/builder/test/builder_test.h"
 #else
-#include "firmware/src/io/digital/builder_stub.h"
+#include "firmware/src/io/digital/builder/stub/builder_stub.h"
 #endif
 #else
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_DIGITAL_INPUTS
-#include "firmware/src/io/digital/builder_hw.h"
+#include "firmware/src/io/digital/builder/hw/builder_hw.h"
 #else
-#include "firmware/src/io/digital/builder_stub.h"
+#include "firmware/src/io/digital/builder/stub/builder_stub.h"
 #endif
 #endif

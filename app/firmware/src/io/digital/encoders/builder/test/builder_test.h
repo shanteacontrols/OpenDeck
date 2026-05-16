@@ -9,7 +9,7 @@
 #include "firmware/src/io/digital/encoders/filter_test.h"
 #include "firmware/src/io/digital/encoders/hwa/test/hwa_test.h"
 #include "firmware/src/io/digital/switches/deps.h"
-#include "firmware/src/database/builder_test.h"
+#include "firmware/src/database/builder/test/builder_test.h"
 
 namespace opendeck::io::encoders
 {

@@ -5,4 +5,4 @@
 
 #pragma once
 
-#include "firmware/src/io/touchscreen/models/builder_hw.h"
+#include "firmware/src/io/touchscreen/models/builder/hw/builder_hw.h"

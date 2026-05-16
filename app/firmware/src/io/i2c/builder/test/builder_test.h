@@ -7,7 +7,7 @@
 
 #include "firmware/src/io/i2c/i2c.h"
 #include "firmware/src/io/i2c/hwa/test/hwa_test.h"
-#include "firmware/src/database/builder_test.h"
+#include "firmware/src/database/builder/test/builder_test.h"
 
 namespace opendeck::io::i2c
 {

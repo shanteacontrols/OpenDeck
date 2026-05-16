@@ -7,14 +7,14 @@
 
 #ifdef OPENDECK_TEST
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_TOUCHSCREEN
-#include "firmware/src/io/touchscreen/builder_test.h"
+#include "firmware/src/io/touchscreen/builder/test/builder_test.h"
 #else
-#include "firmware/src/io/touchscreen/builder_stub.h"
+#include "firmware/src/io/touchscreen/builder/stub/builder_stub.h"
 #endif
 #else
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_TOUCHSCREEN
-#include "firmware/src/io/touchscreen/builder_hw.h"
+#include "firmware/src/io/touchscreen/builder/hw/builder_hw.h"
 #else
-#include "firmware/src/io/touchscreen/builder_stub.h"
+#include "firmware/src/io/touchscreen/builder/stub/builder_stub.h"
 #endif
 #endif

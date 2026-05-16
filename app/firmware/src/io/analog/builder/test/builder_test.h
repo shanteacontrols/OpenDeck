@@ -9,7 +9,7 @@
 #include "firmware/src/io/analog/filter_test.h"
 #include "firmware/src/io/analog/hwa/test/hwa_test.h"
 #include "firmware/src/io/analog/mapper.h"
-#include "firmware/src/database/builder_test.h"
+#include "firmware/src/database/builder/test/builder_test.h"
 
 namespace opendeck::io::analog
 {

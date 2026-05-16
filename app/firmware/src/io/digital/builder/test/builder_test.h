@@ -8,7 +8,7 @@
 #include "firmware/src/io/base.h"
 #include "firmware/src/io/digital/switches/builder.h"
 #include "firmware/src/io/digital/encoders/builder.h"
-#include "firmware/src/database/builder_test.h"
+#include "firmware/src/database/builder/test/builder_test.h"
 
 namespace opendeck::io::digital
 {

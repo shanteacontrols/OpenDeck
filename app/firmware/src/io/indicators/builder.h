@@ -7,14 +7,14 @@
 
 #ifdef OPENDECK_TEST
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_TRAFFIC_INDICATORS
-#include "firmware/src/io/indicators/builder_test.h"
+#include "firmware/src/io/indicators/builder/test/builder_test.h"
 #else
-#include "firmware/src/io/indicators/builder_stub.h"
+#include "firmware/src/io/indicators/builder/stub/builder_stub.h"
 #endif
 #else
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_TRAFFIC_INDICATORS
-#include "firmware/src/io/indicators/builder_hw.h"
+#include "firmware/src/io/indicators/builder/hw/builder_hw.h"
 #else
-#include "firmware/src/io/indicators/builder_stub.h"
+#include "firmware/src/io/indicators/builder/stub/builder_stub.h"
 #endif
 #endif
