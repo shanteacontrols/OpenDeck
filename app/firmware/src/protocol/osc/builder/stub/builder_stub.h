@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "firmware/src/protocol/osc/osc_stub.h"
-#include "firmware/src/database/database.h"
+#include "firmware/src/protocol/osc/instance/stub/osc_stub.h"
+#include "firmware/src/database/instance/impl/database.h"
 
 namespace opendeck::protocol::osc
 {

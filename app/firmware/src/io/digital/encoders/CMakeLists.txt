@@ -9,6 +9,6 @@ target_link_libraries(encoders
 )
 
 zephyr_library_sources(
-    ${CMAKE_CURRENT_LIST_DIR}/encoders.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/mapper.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/instance/impl/encoders.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/instance/impl/mapper.cpp
 )

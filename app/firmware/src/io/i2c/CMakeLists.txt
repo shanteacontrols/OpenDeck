@@ -21,7 +21,7 @@ if(NOT BOARD MATCHES "^native_sim")
 endif()
 
 zephyr_library_sources(
-    ${CMAKE_CURRENT_LIST_DIR}/i2c.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/instance/impl/i2c.cpp
     ${CMAKE_CURRENT_LIST_DIR}/peripherals/display/display.cpp
     ${CMAKE_CURRENT_LIST_DIR}/peripherals/display/elements.cpp
     $ENV{ZEPHYR_WS}/modules/u8g2/csrc/u8x8_string.c

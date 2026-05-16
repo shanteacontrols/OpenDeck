@@ -5,18 +5,18 @@
 
 #pragma once
 
-#include "firmware/src/io/digital/digital.h"
-#include "firmware/src/io/digital/frame_store.h"
+#include "firmware/src/io/digital/instance/impl/digital.h"
+#include "firmware/src/io/digital/shared/frame_store.h"
 #include "firmware/src/io/digital/drivers/driver.h"
-#include "firmware/src/io/digital/switches/switches.h"
-#include "firmware/src/io/digital/switches/filter_hw.h"
+#include "firmware/src/io/digital/switches/instance/impl/switches.h"
+#include "firmware/src/io/digital/switches/filter/hw/filter_hw.h"
 #include "firmware/src/io/digital/switches/hwa/hw/hwa_hw.h"
-#include "firmware/src/io/digital/switches/mapper.h"
-#include "firmware/src/io/digital/encoders/encoders.h"
-#include "firmware/src/io/digital/encoders/filter_hw.h"
+#include "firmware/src/io/digital/switches/instance/impl/mapper.h"
+#include "firmware/src/io/digital/encoders/instance/impl/encoders.h"
+#include "firmware/src/io/digital/encoders/filter/hw/filter_hw.h"
 #include "firmware/src/io/digital/encoders/hwa/hw/hwa_hw.h"
-#include "firmware/src/io/digital/encoders/mapper.h"
-#include "firmware/src/database/builder.h"
+#include "firmware/src/io/digital/encoders/instance/impl/mapper.h"
+#include "firmware/src/database/builder/builder.h"
 
 namespace opendeck::io::digital
 {

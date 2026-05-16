@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "common/src/retained/common.h"
+#include "common/src/retained/shared/common.h"
 
 #include <cstdint>
 

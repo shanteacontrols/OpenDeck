@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "firmware/src/protocol/midi/midi.h"
+#include "firmware/src/protocol/midi/instance/impl/midi.h"
 #include "firmware/src/protocol/midi/hwa/hw/hwa_hw.h"
-#include "firmware/src/database/builder.h"
+#include "firmware/src/database/builder/builder.h"
 
 namespace opendeck::protocol::midi
 {

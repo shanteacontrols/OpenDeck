@@ -6,16 +6,16 @@
 #pragma once
 
 #include "firmware/src/database/config.h"
-#include "firmware/src/database/deps.h"
-#include "firmware/src/io/analog/common.h"
-#include "firmware/src/io/digital/switches/common.h"
-#include "firmware/src/io/digital/encoders/common.h"
-#include "firmware/src/io/i2c/peripherals/display/common.h"
-#include "firmware/src/io/outputs/common.h"
-#include "firmware/src/io/touchscreen/common.h"
-#include "firmware/src/protocol/midi/common.h"
-#include "firmware/src/protocol/mdns/common.h"
-#include "firmware/src/protocol/osc/common.h"
+#include "firmware/src/database/shared/deps.h"
+#include "firmware/src/io/analog/shared/common.h"
+#include "firmware/src/io/digital/switches/shared/common.h"
+#include "firmware/src/io/digital/encoders/shared/common.h"
+#include "firmware/src/io/i2c/peripherals/display/shared/common.h"
+#include "firmware/src/io/outputs/shared/common.h"
+#include "firmware/src/io/touchscreen/shared/common.h"
+#include "firmware/src/protocol/midi/shared/common.h"
+#include "firmware/src/protocol/mdns/shared/common.h"
+#include "firmware/src/protocol/osc/shared/common.h"
 
 #include <array>
 

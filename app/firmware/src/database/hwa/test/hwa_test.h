@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/database/deps.h"
+#include "firmware/src/database/shared/deps.h"
 #include "firmware/src/database/layout.h"
 
 #include "zlibs/utils/emueeprom/emueeprom.h"

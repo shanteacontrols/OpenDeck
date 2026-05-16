@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/protocol/webconfig/deps.h"
+#include "firmware/src/protocol/webconfig/shared/deps.h"
 
 #include "zlibs/utils/misc/mutex.h"
 

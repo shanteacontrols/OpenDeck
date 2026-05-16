@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "firmware/src/protocol/mdns/deps.h"
-#include "firmware/src/mcu/deps.h"
+#include "firmware/src/protocol/mdns/shared/deps.h"
+#include "firmware/src/mcu/shared/deps.h"
 
 #include "zlibs/utils/misc/userdata_struct.h"
 

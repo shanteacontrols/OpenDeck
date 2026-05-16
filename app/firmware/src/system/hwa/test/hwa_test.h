@@ -5,19 +5,19 @@
 
 #pragma once
 
-#include "firmware/src/system/deps.h"
-#include "firmware/src/database/builder.h"
-#include "firmware/src/mcu/builder.h"
-#include "firmware/src/mcu/common.h"
-#include "firmware/src/protocol/midi/builder.h"
-#include "firmware/src/protocol/webconfig/builder.h"
-#include "firmware/src/protocol/mdns/builder.h"
-#include "firmware/src/io/analog/builder.h"
-#include "firmware/src/io/digital/builder.h"
-#include "firmware/src/io/touchscreen/builder.h"
-#include "firmware/src/io/i2c/builder.h"
-#include "firmware/src/io/indicators/builder.h"
-#include "firmware/src/io/outputs/builder.h"
+#include "firmware/src/system/shared/deps.h"
+#include "firmware/src/database/builder/builder.h"
+#include "firmware/src/mcu/builder/builder.h"
+#include "firmware/src/mcu/shared/common.h"
+#include "firmware/src/protocol/midi/builder/builder.h"
+#include "firmware/src/protocol/webconfig/builder/builder.h"
+#include "firmware/src/protocol/mdns/builder/builder.h"
+#include "firmware/src/io/analog/builder/builder.h"
+#include "firmware/src/io/digital/builder/builder.h"
+#include "firmware/src/io/touchscreen/builder/builder.h"
+#include "firmware/src/io/i2c/builder/builder.h"
+#include "firmware/src/io/indicators/builder/builder.h"
+#include "firmware/src/io/outputs/builder/builder.h"
 
 #include <array>
 

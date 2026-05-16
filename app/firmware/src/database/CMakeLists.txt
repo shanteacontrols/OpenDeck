@@ -12,6 +12,6 @@ target_link_libraries(database
 )
 
 zephyr_library_sources(
-    ${CMAKE_CURRENT_LIST_DIR}/custom_init.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/database.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/instance/impl/custom_init.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/instance/impl/database.cpp
 )

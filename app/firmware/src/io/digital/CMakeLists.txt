@@ -10,5 +10,5 @@ target_link_libraries(digital
 )
 
 zephyr_library_sources(
-    ${CMAKE_CURRENT_LIST_DIR}/digital.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/instance/impl/digital.cpp
 )

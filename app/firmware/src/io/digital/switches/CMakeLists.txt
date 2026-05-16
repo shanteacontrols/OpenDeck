@@ -9,6 +9,6 @@ target_link_libraries(switches
 )
 
 zephyr_library_sources(
-    ${CMAKE_CURRENT_LIST_DIR}/switches.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/mapper.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/instance/impl/switches.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/instance/impl/mapper.cpp
 )

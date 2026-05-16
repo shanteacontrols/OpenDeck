@@ -13,5 +13,5 @@ target_link_libraries(protocol_webconfig
 zephyr_linker_sources(SECTIONS ${CMAKE_CURRENT_LIST_DIR}/sections-rom.ld)
 
 zephyr_library_sources(
-    ${CMAKE_CURRENT_LIST_DIR}/webconfig.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/instance/impl/webconfig.cpp
 )

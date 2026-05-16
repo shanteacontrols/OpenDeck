@@ -2,7 +2,7 @@ include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_library.cmake)
 opendeck_library_named(system)
 
 zephyr_library_sources(
-    system.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/instance/impl/system.cpp
 )
 
 target_link_libraries(system

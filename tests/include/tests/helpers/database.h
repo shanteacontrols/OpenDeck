@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/database/deps.h"
+#include "firmware/src/database/shared/deps.h"
 
 namespace opendeck::tests
 {

@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "firmware/src/io/touchscreen/touchscreen_stub.h"
+#include "firmware/src/io/touchscreen/instance/stub/touchscreen_stub.h"
 #include "firmware/src/io/touchscreen/hwa/stub/hwa_stub.h"
-#include "firmware/src/database/builder.h"
+#include "firmware/src/database/builder/builder.h"
 
 namespace opendeck::io::touchscreen
 {

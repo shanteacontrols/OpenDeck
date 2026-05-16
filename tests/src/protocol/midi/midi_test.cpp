@@ -5,7 +5,7 @@
 
 #include "tests/common.h"
 #include "tests/helpers/database.h"
-#include "firmware/src/protocol/midi/builder.h"
+#include "firmware/src/protocol/midi/builder/builder.h"
 #include "firmware/src/util/configurable/configurable.h"
 
 using namespace opendeck::io;

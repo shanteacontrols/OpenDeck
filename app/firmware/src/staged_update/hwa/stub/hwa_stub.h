@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/staged_update/deps.h"
+#include "firmware/src/staged_update/shared/deps.h"
 
 namespace opendeck::staged_update
 {

@@ -3,7 +3,7 @@ include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_library.cmake)
 opendeck_library_named(opendeck_bootloader_updater)
 
 target_sources(opendeck_bootloader_updater PRIVATE
-    updater.cpp
+    instance/impl/updater.cpp
 )
 
 

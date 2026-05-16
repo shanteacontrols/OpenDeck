@@ -5,10 +5,10 @@
 
 #include "tests/common.h"
 #include "firmware/src/protocol/webconfig/hwa/test/hwa_test.h"
-#include "firmware/src/protocol/webconfig/webconfig.h"
+#include "firmware/src/protocol/webconfig/instance/impl/webconfig.h"
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/staged_update/hwa/test/hwa_test.h"
-#include "firmware/src/staged_update/staged_update.h"
+#include "firmware/src/staged_update/instance/impl/staged_update.h"
 
 #include "zlibs/utils/midi/midi.h"
 #include "zlibs/utils/misc/mutex.h"

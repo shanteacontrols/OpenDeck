@@ -8,6 +8,6 @@ target_link_libraries(touchscreen
 )
 
 zephyr_library_sources(
-    ${CMAKE_CURRENT_LIST_DIR}/touchscreen.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/models/nextion/nextion.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/instance/impl/touchscreen.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/instance/impl/models/nextion/nextion.cpp
 )

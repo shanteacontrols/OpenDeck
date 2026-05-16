@@ -11,5 +11,5 @@ target_link_libraries(protocol_osc
 )
 
 zephyr_library_sources(
-    ${CMAKE_CURRENT_LIST_DIR}/osc.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/instance/impl/osc.cpp
 )

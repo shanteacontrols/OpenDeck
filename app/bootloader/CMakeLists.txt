@@ -39,5 +39,5 @@ endif()
 target_sources(app
     PRIVATE
     src/main.cpp
-    src/webusb/transport.cpp
+    src/webusb/instance/impl/transport.cpp
 )

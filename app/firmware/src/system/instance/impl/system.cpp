@@ -1,0 +1,1357 @@
+/*
+ * Copyright (c) 2026 Igor Petrovic
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#include "firmware/src/system/instance/impl/system.h"
+#include "firmware/src/signaling/signaling.h"
+#include "firmware/src/util/configurable/configurable.h"
+#include "firmware/src/util/conversion/conversion.h"
+#include "firmware/src/global/midi_program.h"
+#include "bootloader/src/fw_selector/shared/common.h"
+
+#include <zephyr/logging/log.h>
+#include <zephyr/logging/log_ctrl.h>
+
+#include <algorithm>
+#include <string_view>
+
+using namespace opendeck;
+using namespace opendeck::io;
+using namespace opendeck::sys;
+using namespace opendeck::protocol;
+
+namespace
+{
+    LOG_MODULE_REGISTER(system, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
+
+    std::string_view config_transport_name(signaling::ConfigTransport transport)
+    {
+        switch (transport)
+        {
+        case signaling::ConfigTransport::Usb:
+            return "USB";
+
+        case signaling::ConfigTransport::WebConfig:
+            return "WebConfig";
+        }
+
+        return "unknown";
+    }
+
+    struct SkipBackupSection
+    {
+        uint8_t block   = 0;
+        uint8_t section = 0;
+    };
+
+    constexpr std::array BACKUP_SKIPPED_SECTIONS = {
+        SkipBackupSection{
+            static_cast<uint8_t>(sys::Config::Block::Outputs),
+            static_cast<uint8_t>(sys::Config::Section::Outputs::TestColor),
+        },
+        SkipBackupSection{
+            static_cast<uint8_t>(sys::Config::Block::Outputs),
+            static_cast<uint8_t>(sys::Config::Section::Outputs::TestBlink),
+        },
+        SkipBackupSection{
+            static_cast<uint8_t>(sys::Config::Block::Global),
+            static_cast<uint8_t>(sys::Config::Section::Global::ConfigUnlock),
+        },
+    };
+
+    bool should_skip_backup_section(uint8_t block, uint8_t section)
+    {
+        return std::any_of(BACKUP_SKIPPED_SECTIONS.begin(),
+                           BACKUP_SKIPPED_SECTIONS.end(),
+                           [block, section](const SkipBackupSection& skipped)
+                           {
+                               return (skipped.block == block) && (skipped.section == section);
+                           });
+    }
+}    // namespace
+
+System::System(Hwa& hwa)
+    : _hwa(hwa)
+    , _database_handlers(*this)
+    , _sysex_data_handler(*this)
+    , _forced_refresh_work([this]()
+                           {
+                               force_component_refresh();
+                           },
+                           []()
+                           {
+                               return threads::SystemWorkqueue::handle();
+                           })
+    , _io_resume_work([]
+                      {
+                          LOG_INF("Resuming IO threads");
+
+                          io::Base::resume();
+
+                          LOG_INF("Indicating current program for all channels");
+
+                          static constexpr int MIDI_CHANNEL_COUNT = 16;
+
+                          for (int i = 1; i <= MIDI_CHANNEL_COUNT; i++)
+                          {
+                              signaling::InternalProgram signal = {};
+                              signal.channel                    = i;
+                              signal.index                      = MidiProgram.program(i);
+                              signal.value                      = 0;
+
+                              signaling::publish(signal);
+                          }
+                      },
+                      []()
+                      {
+                          return threads::SystemWorkqueue::handle();
+                      })
+    , _factory_reset_work([this]()
+                          {
+                              run_factory_reset();
+                          },
+                          []()
+                          {
+                              return threads::SystemWorkqueue::handle();
+                          })
+    , _backup_work([this]()
+                   {
+                       run_backup_step();
+                   },
+                   []()
+                   {
+                       return threads::SystemWorkqueue::handle();
+                   })
+    , _restore_work([this]()
+                    {
+                        run_restore_step();
+                    },
+                    []()
+                    {
+                        return threads::SystemWorkqueue::handle();
+                    })
+    , _reboot_work([this]()
+                   {
+                       prepare_for_reboot();
+                       _hwa.reboot(_reboot_type);
+                   },
+                   []()
+                   {
+                       return threads::SystemWorkqueue::handle();
+                   })
+    , _sysex_conf_close_work([this]()
+                             {
+                                 close_inactive_sysex_configuration_session();
+                             },
+                             []()
+                             {
+                                 return threads::SystemWorkqueue::handle();
+                             })
+    , _sysex_conf(_sysex_data_handler, SYS_EX_MANUFACTURER_ID)
+{
+    signaling::subscribe<signaling::UmpSignal>(
+        [this](const signaling::UmpSignal& event)
+        {
+            if (event.direction != signaling::SignalDirection::In)
+            {
+                return;
+            }
+
+            if (zlibs::utils::midi::is_sysex7_packet(event.packet))
+            {
+                if (!can_accept_config_transport(signaling::ConfigTransport::Usb))
+                {
+                    LOG_WRN_ONCE("Ignoring USB SysEx config request while another config session is active");
+                    return;
+                }
+
+                _config_transport = signaling::ConfigTransport::Usb;
+
+                // Keep the previous session state so ConnOpen/ConnClose transitions can be detected.
+                const bool was_configuration_enabled = _sysex_conf.is_configuration_enabled();
+
+                if (_backup_restore_state == BackupRestoreState::Restore)
+                {
+                    [[maybe_unused]] auto ret = queue_restore_packet(event.packet);
+                    return;
+                }
+
+                _sysex_conf.handle_packet(event.packet);
+                update_sysex_configuration_session(was_configuration_enabled);
+                return;
+            }
+
+            const auto message = midi::decode_message(event.packet);
+
+            if ((message.type == midi::MessageType::ProgramChange) &&
+                _hwa.database().read(database::Config::Section::Common::CommonSettings,
+                                     Config::SystemSetting::EnablePresetChangeWithProgramChangeIn))
+            {
+                _hwa.database().set_preset(message.data1);
+            }
+        });
+
+    signaling::subscribe<signaling::ConfigRequestSignal>(
+        [this](const signaling::ConfigRequestSignal& request)
+        {
+            handle_config_request(request);
+        });
+
+    signaling::subscribe<signaling::ConfigDisconnectSignal>(
+        [this](const signaling::ConfigDisconnectSignal& event)
+        {
+            handle_config_disconnect(event.transport);
+        });
+
+    signaling::subscribe<signaling::NetworkIdentitySignal>(
+        [this](const signaling::NetworkIdentitySignal& identity)
+        {
+            if (identity.ipv4_address().empty())
+            {
+                LOG_INF("Network identity has no address, skipping forced component refresh");
+                return;
+            }
+
+            LOG_INF("Network identity ready, scheduling forced component refresh");
+            schedule_forced_refresh(ForcedRefreshType::NetworkInit, NETWORK_CHANGE_FORCED_REFRESH_DELAY);
+        });
+
+    signaling::subscribe<signaling::SystemSignal>(
+        [this](const signaling::SystemSignal& event)
+        {
+            switch (event.system_event)
+            {
+            case signaling::SystemEvent::PresetChangeIncReq:
+            {
+                _hwa.database().set_preset(_hwa.database().current_preset() + 1);
+            }
+            break;
+
+            case signaling::SystemEvent::PresetChangeDecReq:
+            {
+                _hwa.database().set_preset(_hwa.database().current_preset() - 1);
+            }
+            break;
+
+            case signaling::SystemEvent::PresetChangeDirectReq:
+            {
+                _hwa.database().set_preset(event.value);
+            }
+            break;
+
+            case signaling::SystemEvent::UsbMidiReady:
+            {
+                LOG_INF("USB ready, scheduling forced component refresh");
+                schedule_forced_refresh(ForcedRefreshType::UsbInit, USB_CHANGE_FORCED_REFRESH_DELAY);
+            }
+            break;
+
+            case signaling::SystemEvent::OscRefreshReq:
+            {
+                LOG_INF("OSC refresh requested, scheduling forced component refresh");
+                schedule_forced_refresh(ForcedRefreshType::OscRequest, 0);
+            }
+            break;
+
+            default:
+                break;
+            }
+        });
+
+    ConfigHandler.register_config(
+        sys::Config::Block::Global,
+        // read
+        [this](uint8_t section, size_t index, uint16_t& value)
+        {
+            return sys_config_get(static_cast<sys::Config::Section::Global>(section), index, value);
+        },
+
+        // write
+        [this](uint8_t section, size_t index, uint16_t value)
+        {
+            return sys_config_set(static_cast<sys::Config::Section::Global>(section), index, value);
+        });
+}
+
+bool System::init()
+{
+    LOG_INF("Starting initialization");
+
+    io::Base::freeze();
+
+    LOG_INF("MCU: %s", CONFIG_SOC);
+    LOG_INF("Zephyr board: %s", CONFIG_BOARD);
+    LOG_INF("OpenDeck target: %s", OPENDECK_TARGET);
+    LOG_INF("Switches: %u", static_cast<unsigned>(io::switches::Collection::size(io::switches::GroupDigitalInputs)));
+    LOG_INF("Encoders: %u", static_cast<unsigned>(io::encoders::Collection::size()));
+    LOG_INF("Analog: %u", static_cast<unsigned>(io::analog::Collection::size()));
+    LOG_INF("Outputs: %u", static_cast<unsigned>(io::outputs::Collection::size()));
+    LOG_INF("Touchscreen components: %u", static_cast<unsigned>(io::touchscreen::Collection::size()));
+    LOG_INF("DIN MIDI supported: %s", IS_ENABLED(CONFIG_PROJECT_TARGET_SUPPORT_DIN_MIDI) ? "Yes" : "No");
+    LOG_INF("BLE MIDI supported: %s", IS_ENABLED(CONFIG_PROJECT_TARGET_SUPPORT_BLE) ? "Yes" : "No");
+
+    _cinfo.register_handler([this](size_t group, size_t index)
+                            {
+                                if (_sysex_conf.is_configuration_enabled())
+                                {
+                                    std::array<uint16_t, 4> cinfo_message = {
+                                        SYSEX_CM_COMPONENT_ID,
+                                        static_cast<uint16_t>(group),
+                                        0,
+                                        0
+                                    };
+
+                                    auto split = util::Conversion::Split14Bit(index);
+
+                                    cinfo_message[2] = split.high();
+                                    cinfo_message[3] = split.low();
+
+                                    _sysex_conf.send_custom_message(cinfo_message);
+                                }
+                            });
+
+    LOG_INF("Hwa init");
+
+    if (!_hwa.init())
+    {
+        return false;
+    }
+
+    LOG_INF("Init database");
+
+    if (!_hwa.database().init(_database_handlers))
+    {
+        return false;
+    }
+
+    if (_reboot_work.is_pending())
+    {
+        LOG_INF("Reboot scheduled during database initialization, skipping component initialization");
+        return true;
+    }
+
+    collection_init();
+
+    load_config_unlock_token();
+
+    LOG_INF("Init SysEx layout");
+
+    _sysex_conf.set_layout(_layout.layout());
+    _sysex_conf.setup_custom_requests(_layout.custom_requests());
+
+    LOG_INF("Initialization complete");
+
+    signaling::SystemSignal init_complete_signal = {};
+    init_complete_signal.system_event            = signaling::SystemEvent::InitComplete;
+    signaling::publish(init_complete_signal);
+
+    // allow io threads to continue after their readings have been settled
+    _io_resume_work.reschedule(INITIAL_IO_RESUME_DELAY_MS);
+
+    return true;
+}
+
+void System::collection_init()
+{
+    LOG_INF("Init IO collection");
+
+    for (size_t i = 0; i < _hwa.io().size(); i++)
+    {
+        auto component = _hwa.io().at(i);
+
+        if (component != nullptr)
+        {
+            component->init();
+        }
+    }
+
+    LOG_INF("Init protocol collection");
+
+    for (size_t i = 0; i < _hwa.protocol().size(); i++)
+    {
+        auto component = _hwa.protocol().at(i);
+
+        if (component != nullptr)
+        {
+            component->init();
+        }
+    }
+
+    _components_initialized = true;
+}
+
+void System::collection_deinit()
+{
+    LOG_PANIC();
+    LOG_INF("Deinit IO collection");
+
+    for (auto* component : _hwa.io())
+    {
+        if (component != nullptr)
+        {
+            component->deinit();
+        }
+    }
+
+    LOG_INF("Deinit protocol collection");
+
+    for (auto* component : _hwa.protocol())
+    {
+        if (component != nullptr)
+        {
+            component->deinit();
+        }
+    }
+
+    _components_initialized = false;
+}
+
+void System::start_backup()
+{
+    LOG_INF("Starting backup");
+
+    _sysex_conf_close_work.cancel();
+
+    signaling::SystemSignal signal = {};
+    signal.system_event            = signaling::SystemEvent::BackupStart;
+    signaling::publish(signal);
+
+    _backup_restore_state = BackupRestoreState::Backup;
+
+    _backup_session.active         = true;
+    _backup_session.phase          = BackupPhase::RestoreStart;
+    _backup_session.current_preset = _hwa.database().current_preset();
+    _backup_session.preset_index   = 0;
+    _backup_session.block_index    = 0;
+    _backup_session.section_index  = 0;
+    _backup_generated_packets      = 0;
+
+    io::Base::freeze();
+    _sysex_conf.set_user_error_ignore_mode(true);
+    _backup_work.reschedule(BACKUP_PROCESSING_START_DELAY_MS);
+}
+
+void System::run_backup_step()
+{
+    if (!_backup_session.active)
+    {
+        return;
+    }
+
+    switch (_backup_session.phase)
+    {
+    case BackupPhase::RestoreStart:
+    {
+        uint16_t restore_marker = SYSEX_CR_RESTORE_START;
+        _sysex_conf.send_custom_message(std::span<const uint16_t>(&restore_marker, 1), false);
+        _backup_session.phase = BackupPhase::PresetSelect;
+    }
+    break;
+
+    case BackupPhase::PresetSelect:
+    {
+        if (_backup_session.preset_index >= _hwa.database().supported_presets())
+        {
+            _backup_session.phase = BackupPhase::RestoreCurrentPreset;
+            break;
+        }
+
+        LOG_INF("Backup preset %d", _backup_session.preset_index);
+        _hwa.database().set_preset(_backup_session.preset_index);
+        emit_preset_change(_backup_session.preset_index);
+        _backup_session.block_index   = 0;
+        _backup_session.section_index = 0;
+        _backup_session.phase         = BackupPhase::PresetData;
+    }
+    break;
+
+    case BackupPhase::PresetData:
+    {
+        auto block   = _backup_session.block_index;
+        auto section = _backup_session.section_index;
+
+        if (!find_next_backup_section(block, section))
+        {
+            _backup_session.preset_index++;
+            _backup_session.phase = BackupPhase::PresetSelect;
+            break;
+        }
+
+        [[maybe_unused]] auto ret = emit_backup_request(block, section);
+        section++;
+        _backup_session.block_index   = block;
+        _backup_session.section_index = section;
+    }
+    break;
+
+    case BackupPhase::RestoreCurrentPreset:
+    {
+        _hwa.database().set_preset(_backup_session.current_preset);
+        emit_preset_change(_backup_session.current_preset);
+        _backup_session.phase = BackupPhase::RestoreEnd;
+    }
+    break;
+
+    case BackupPhase::RestoreEnd:
+    {
+        uint16_t restore_marker = SYSEX_CR_RESTORE_END;
+        _sysex_conf.send_custom_message(std::span<const uint16_t>(&restore_marker, 1), false);
+        _backup_session.phase = BackupPhase::FinalAck;
+    }
+    break;
+
+    case BackupPhase::FinalAck:
+    {
+        uint16_t end_marker = SYSEX_CR_FULL_BACKUP;
+        _sysex_conf.send_custom_message(std::span<const uint16_t>(&end_marker, 1));
+        finish_backup();
+        return;
+    }
+    break;
+
+    case BackupPhase::Idle:
+    default:
+        return;
+    }
+
+    _backup_work.reschedule(BACKUP_RESTORE_STEP_DELAY_MS);
+}
+
+bool System::emit_backup_request(uint8_t block, uint8_t section)
+{
+    static constexpr uint8_t SYSEX_REQUEST   = 0x00;
+    static constexpr uint8_t SYSEX_ALL_PARTS = 0x7F;
+
+    uint8_t backup_request[] = {
+        zlibs::utils::midi::SYS_EX_START,
+        SYS_EX_MANUFACTURER_ID.id1,
+        SYS_EX_MANUFACTURER_ID.id2,
+        SYS_EX_MANUFACTURER_ID.id3,
+        SYSEX_REQUEST,
+        SYSEX_ALL_PARTS,
+        static_cast<uint8_t>(zlibs::utils::sysex_conf::Wish::Backup),
+        static_cast<uint8_t>(zlibs::utils::sysex_conf::Amount::All),
+        block,
+        section,
+        0x00,    // index MSB - unused but required
+        0x00,    // index LSB - unused but required
+        0x00,    // new value MSB - unused but required
+        0x00,    // new value LSB - unused but required
+        zlibs::utils::midi::SYS_EX_END,
+    };
+
+    // Pretend this backup request arrived over MIDI by packaging it as inbound
+    // SysEx7 UMP packets and feeding it back into SysExConf.
+    return zlibs::utils::midi::write_sysex7_payload_as_ump_packets(
+        zlibs::utils::midi::DEFAULT_RX_GROUP,
+        std::span<const uint8_t>(&backup_request[1], sizeof(backup_request) - 2),
+        [this](const midi_ump& packet)
+        {
+            _sysex_conf.handle_packet(packet);
+            return true;
+        });
+}
+
+bool System::find_next_backup_section(uint8_t& block, uint8_t& section) const
+{
+    while (block < _layout.blocks())
+    {
+        while (section < _layout.sections(block))
+        {
+            if (!should_skip_backup_section(block, section))
+            {
+                return true;
+            }
+
+            section++;
+        }
+
+        block++;
+        section = 0;
+    }
+
+    return false;
+}
+
+void System::finish_backup()
+{
+    LOG_INF("Finishing backup");
+
+    _sysex_conf.set_user_error_ignore_mode(false);
+
+    _backup_session.active = false;
+    _backup_session.phase  = BackupPhase::Idle;
+    _backup_restore_state  = BackupRestoreState::None;
+
+    signaling::SystemSignal signal = {};
+    signal.system_event            = signaling::SystemEvent::BackupEnd;
+    signaling::publish(signal);
+
+    io::Base::resume();
+
+    if (_sysex_conf.is_configuration_enabled())
+    {
+        _sysex_conf_close_work.reschedule(SYSEX_CONFIGURATION_TIMEOUT_MS);
+    }
+}
+
+void System::start_restore()
+{
+    LOG_INF("Starting restore");
+
+    _sysex_conf_close_work.cancel();
+
+    io::Base::freeze();
+    _restore_queue.reset();
+    _backup_restore_state = BackupRestoreState::Restore;
+    _sysex_conf.set_user_error_ignore_mode(true);
+
+    signaling::SystemSignal signal = {};
+    signal.system_event            = signaling::SystemEvent::RestoreStart;
+    signaling::publish(signal);
+}
+
+bool System::queue_restore_packet(const midi_ump& packet)
+{
+    if (!_restore_queue.insert(packet))
+    {
+        LOG_ERR("Restore queue overflow");
+        return false;
+    }
+
+    _restore_work.reschedule(BACKUP_RESTORE_STEP_DELAY_MS);
+    return true;
+}
+
+void System::run_restore_step()
+{
+    while (auto packet = _restore_queue.remove())
+    {
+        _sysex_conf.handle_packet(*packet);
+    }
+}
+
+void System::finish_restore()
+{
+    LOG_INF("Finishing restore");
+
+    _backup_restore_state = BackupRestoreState::None;
+
+    signaling::SystemSignal signal = {};
+    signal.system_event            = signaling::SystemEvent::RestoreEnd;
+    signaling::publish(signal);
+
+    schedule_reboot(fw_selector::FwType::Application);
+}
+
+void System::emit_preset_change(uint8_t preset)
+{
+    uint16_t preset_change_request[] = {
+        static_cast<uint8_t>(zlibs::utils::sysex_conf::Wish::Set),
+        static_cast<uint8_t>(zlibs::utils::sysex_conf::Amount::Single),
+        static_cast<uint8_t>(sys::Config::Block::Global),
+        static_cast<uint8_t>(sys::Config::Section::Global::SystemSettings),
+        0x00,
+        0x00,
+        0x00,
+        preset
+    };
+
+    _sysex_conf.send_custom_message(preset_change_request, false);
+}
+
+void System::schedule_forced_refresh(ForcedRefreshType type, uint32_t delay_ms)
+{
+    _forced_refresh_session.type = type;
+    _forced_refresh_work.reschedule(delay_ms);
+}
+
+void System::start_forced_refresh()
+{
+    LOG_INF("Starting forced refresh");
+
+    _forced_refresh_session.active          = true;
+    _forced_refresh_session.io_index        = 0;
+    _forced_refresh_session.component_index = 0;
+
+    io::Base::freeze();
+
+    signaling::ForcedRefreshStart forced_refresh_start = {};
+    forced_refresh_start.type                          = _forced_refresh_session.type;
+    signaling::publish(forced_refresh_start);
+
+    signaling::SystemSignal burst_start = {};
+    burst_start.system_event            = signaling::SystemEvent::BurstMidiStart;
+    signaling::publish(burst_start);
+}
+
+void System::finish_forced_refresh()
+{
+    LOG_INF("Finishing forced refresh");
+
+    signaling::SystemSignal burst_stop = {};
+    burst_stop.system_event            = signaling::SystemEvent::BurstMidiStop;
+    signaling::publish(burst_stop);
+
+    signaling::ForcedRefreshStop forced_refresh_stop = {};
+    forced_refresh_stop.type                         = _forced_refresh_session.type;
+    signaling::publish(forced_refresh_stop);
+
+    _forced_refresh_session = {};
+    io::Base::resume();
+}
+
+void System::force_component_refresh()
+{
+    if ((_forced_refresh_session.type == ForcedRefreshType::PresetChange) &&
+        _hwa.database().read(database::Config::Section::Common::CommonSettings,
+                             Config::SystemSetting::DisableForcedRefreshAfterPresetChange))
+    {
+        if (_forced_refresh_session.active)
+        {
+            finish_forced_refresh();
+        }
+
+        LOG_INF("Forced refresh disabled for preset change");
+
+        return;
+    }
+
+    // extra check here - it's possible that preset was changed and then backup/restore procedure started
+    // in that case this would get called
+    if (_backup_restore_state != BackupRestoreState::None)
+    {
+        if (_forced_refresh_session.active)
+        {
+            finish_forced_refresh();
+        }
+
+        return;
+    }
+
+    if (!_forced_refresh_session.active)
+    {
+        start_forced_refresh();
+    }
+
+    while (_forced_refresh_session.io_index < _hwa.io().size())
+    {
+        auto* component = _hwa.io().at(_forced_refresh_session.io_index);
+
+        if (component == nullptr)
+        {
+            _forced_refresh_session.io_index++;
+            _forced_refresh_session.component_index = 0;
+            continue;
+        }
+
+        const auto total = component->refreshable_components();
+
+        if ((total == 0) || (_forced_refresh_session.component_index >= total))
+        {
+            _forced_refresh_session.io_index++;
+            _forced_refresh_session.component_index = 0;
+            continue;
+        }
+
+        const auto count = std::min(FORCED_UPDATE_MAX_COMPONENTS_PER_RUN, total - _forced_refresh_session.component_index);
+
+        component->force_refresh(_forced_refresh_session.component_index, count);
+        _forced_refresh_session.component_index += count;
+
+        if ((_forced_refresh_session.component_index < total) ||
+            (_forced_refresh_session.io_index + 1 < _hwa.io().size()))
+        {
+            _forced_refresh_work.reschedule(FORCED_REFRESH_STAGE_DELAY_MS);
+            return;
+        }
+    }
+
+    finish_forced_refresh();
+}
+
+bool System::SysExDataHandler::send_response(const midi_ump& packet)
+{
+    return _system.send_config_response(packet);
+}
+
+zlibs::utils::sysex_conf::Status System::SysExDataHandler::custom_request(uint16_t request, CustomResponse& custom_response)
+{
+    auto result = zlibs::utils::sysex_conf::Status::Ack;
+
+    static constexpr uint32_t UID_SHIFT_24  = 24;
+    static constexpr uint32_t UID_SHIFT_16  = 16;
+    static constexpr uint32_t UID_SHIFT_8   = 8;
+    static constexpr uint32_t UID_BYTE_MASK = 0xFF;
+
+    auto append_sw = [&custom_response]()
+    {
+        custom_response.append(OPENDECK_SW_VERSION_MAJOR);
+        custom_response.append(OPENDECK_SW_VERSION_MINOR);
+        custom_response.append(OPENDECK_SW_VERSION_REVISION);
+    };
+
+    auto append_hw = [&custom_response]()
+    {
+        custom_response.append((OPENDECK_TARGET_UID >> UID_SHIFT_24) & static_cast<uint32_t>(UID_BYTE_MASK));
+        custom_response.append((OPENDECK_TARGET_UID >> UID_SHIFT_16) & static_cast<uint32_t>(UID_BYTE_MASK));
+        custom_response.append((OPENDECK_TARGET_UID >> UID_SHIFT_8) & static_cast<uint32_t>(UID_BYTE_MASK));
+        custom_response.append(OPENDECK_TARGET_UID & static_cast<uint32_t>(UID_BYTE_MASK));
+    };
+
+    auto append_serial = [this, &custom_response]()
+    {
+        const auto serial = _system._hwa.serial_number();
+
+        if (serial.empty())
+        {
+            return false;
+        }
+
+        for (auto byte : serial)
+        {
+            custom_response.append(byte);
+        }
+
+        return true;
+    };
+
+    switch (request)
+    {
+    case SYSEX_CR_FIRMWARE_VERSION:
+    {
+        append_sw();
+    }
+    break;
+
+    case SYSEX_CR_HARDWARE_UID:
+    {
+        append_hw();
+    }
+    break;
+
+    case SYSEX_CR_SERIAL_NUM:
+    {
+        if (!append_serial())
+        {
+            result = zlibs::utils::sysex_conf::Status::ErrorRead;
+        }
+    }
+    break;
+
+    case SYSEX_CR_FIRMWARE_VERSION_HARDWARE_UID:
+    {
+        append_sw();
+        append_hw();
+    }
+    break;
+
+    case SYSEX_CR_FACTORY_RESET:
+    {
+        if (!_system.config_unlocked())
+        {
+            result = zlibs::utils::sysex_conf::Status::ErrorConnection;
+            break;
+        }
+
+        _system.schedule_factory_reset();
+    }
+    break;
+
+    case SYSEX_CR_REBOOT_APP:
+    {
+        _system.schedule_reboot(fw_selector::FwType::Application);
+    }
+    break;
+
+    case SYSEX_CR_REBOOT_BTLDR:
+    {
+        if (!_system.config_unlocked())
+        {
+            result = zlibs::utils::sysex_conf::Status::ErrorConnection;
+            break;
+        }
+
+        _system.schedule_reboot(fw_selector::FwType::Bootloader);
+    }
+    break;
+
+    case SYSEX_CR_MAX_COMPONENTS:
+    {
+        custom_response.append(switches::Collection::size());
+        custom_response.append(encoders::Collection::size());
+        custom_response.append(analog::Collection::size());
+        custom_response.append(outputs::Collection::size());
+        custom_response.append(touchscreen::Collection::size());
+    }
+    break;
+
+    case SYSEX_CR_SUPPORTED_PRESETS:
+    {
+        custom_response.append(_system._hwa.database().supported_presets());
+    }
+    break;
+
+    case SYSEX_CR_BOOTLOADER_SUPPORT:
+    {
+        custom_response.append(1);
+    }
+    break;
+
+    case SYSEX_CR_FULL_BACKUP:
+    {
+        if (!_system.config_unlocked())
+        {
+            result = zlibs::utils::sysex_conf::Status::ErrorConnection;
+            break;
+        }
+
+        if ((_system._backup_restore_state == BackupRestoreState::Backup) || _system._backup_session.active)
+        {
+            LOG_WRN("Ignoring duplicate backup request while a backup session is active");
+            break;
+        }
+
+        _system.start_backup();
+    }
+    break;
+
+    case SYSEX_CR_RESTORE_START:
+    {
+        if (!_system.config_unlocked())
+        {
+            result = zlibs::utils::sysex_conf::Status::ErrorConnection;
+            break;
+        }
+
+        _system.start_restore();
+    }
+    break;
+
+    case SYSEX_CR_RESTORE_END:
+    {
+        if (!_system.config_unlocked())
+        {
+            result = zlibs::utils::sysex_conf::Status::ErrorConnection;
+            break;
+        }
+
+        _system.finish_restore();
+    }
+    break;
+
+    default:
+    {
+        result = zlibs::utils::sysex_conf::Status::ErrorNotSupported;
+    }
+    break;
+    }
+
+    return result;
+}
+
+zlibs::utils::sysex_conf::Status System::SysExDataHandler::get(uint8_t   block,
+                                                               uint8_t   section,
+                                                               uint16_t  index,
+                                                               uint16_t& value)
+{
+    return static_cast<zlibs::utils::sysex_conf::Status>(ConfigHandler.get(static_cast<sys::Config::Block>(block), section, index, value));
+}
+
+zlibs::utils::sysex_conf::Status System::SysExDataHandler::set(uint8_t  block,
+                                                               uint8_t  section,
+                                                               uint16_t index,
+                                                               uint16_t value)
+{
+    if ((block == static_cast<uint8_t>(sys::Config::Block::Global)) &&
+        (section == static_cast<uint8_t>(sys::Config::Section::Global::ConfigUnlock)))
+    {
+        return static_cast<zlibs::utils::sysex_conf::Status>(_system.process_config_unlock_word(static_cast<size_t>(index), value));
+    }
+
+    if (!_system.config_unlocked())
+    {
+        LOG_WRN_ONCE("Ignoring locked SysEx configuration write");
+        return zlibs::utils::sysex_conf::Status::ErrorConnection;
+    }
+
+    return static_cast<zlibs::utils::sysex_conf::Status>(ConfigHandler.set(static_cast<sys::Config::Block>(block), section, index, value));
+}
+
+void System::DatabaseHandlers::preset_change([[maybe_unused]] uint8_t preset)
+{
+    if (!_system._components_initialized)
+    {
+        return;
+    }
+
+    signaling::SystemSignal signal = {};
+    signal.system_event            = signaling::SystemEvent::PresetChanged;
+    signal.value                   = preset;
+    signaling::publish(signal);
+
+    if (_system._backup_restore_state == BackupRestoreState::None)
+    {
+        LOG_INF("Preset changed, scheduling forced component refresh");
+        _system.schedule_forced_refresh(ForcedRefreshType::PresetChange, PRESET_CHANGE_FORCED_REFRESH_DELAY);
+    }
+}
+
+void System::DatabaseHandlers::initialized()
+{
+    // nothing to do here
+}
+
+void System::DatabaseHandlers::factory_reset_start()
+{
+    LOG_INF("Starting factory reset");
+
+    signaling::SystemSignal signal = {};
+    signal.system_event            = signaling::SystemEvent::FactoryResetStart;
+
+    signaling::publish(signal);
+}
+
+void System::DatabaseHandlers::factory_reset_done()
+{
+    LOG_INF("Factory reset done, rebooting");
+
+    signaling::SystemSignal signal = {};
+    signal.system_event            = signaling::SystemEvent::FactoryResetEnd;
+
+    signaling::publish(signal);
+
+    _system.schedule_reboot(fw_selector::FwType::Application);
+}
+
+void System::schedule_factory_reset()
+{
+    LOG_INF("Scheduling factory reset");
+    _factory_reset_work.reschedule(FACTORY_RESET_DELAY_MS);
+}
+
+void System::run_factory_reset()
+{
+    LOG_PANIC();
+    LOG_INF("Running scheduled factory reset");
+
+    if (_components_initialized)
+    {
+        io::Base::freeze();
+        protocol::Base::freeze();
+        collection_deinit();
+    }
+
+    if (!_hwa.database().factory_reset())
+    {
+        LOG_ERR("Factory reset failed");
+    }
+}
+
+void System::schedule_reboot(fw_selector::FwType type)
+{
+    LOG_INF("Scheduling reboot to %s", type == fw_selector::FwType::Bootloader ? "bootloader" : "application");
+    _reboot_type = type;
+    _reboot_work.reschedule(REBOOT_DELAY_MS);
+}
+
+void System::prepare_for_reboot()
+{
+    if (!_sysex_conf.is_configuration_enabled())
+    {
+        return;
+    }
+
+    [[maybe_unused]] const auto transport_name = config_transport_name(_config_transport);
+
+    LOG_INF("Closing SysEx configuration session before reboot via %.*s",
+            static_cast<int>(transport_name.size()),
+            transport_name.data());
+
+    _sysex_conf_close_work.cancel();
+    _sysex_conf.close_connection();
+    publish_configuration_session_state(signaling::SystemEvent::ConfigurationSessionClosed);
+}
+
+void System::update_sysex_configuration_session(bool was_open)
+{
+    const bool                  is_open        = _sysex_conf.is_configuration_enabled();
+    [[maybe_unused]] const auto transport_name = config_transport_name(_config_transport);
+
+    if (is_open)
+    {
+        if (_backup_restore_state != BackupRestoreState::None)
+        {
+            _sysex_conf_close_work.cancel();
+
+            if (!was_open)
+            {
+                LOG_INF("Opening SysEx configuration session via %.*s",
+                        static_cast<int>(transport_name.size()),
+                        transport_name.data());
+                publish_configuration_session_state(signaling::SystemEvent::ConfigurationSessionOpened);
+            }
+
+            return;
+        }
+
+        _sysex_conf_close_work.reschedule(SYSEX_CONFIGURATION_TIMEOUT_MS);
+
+        if (!was_open)
+        {
+            LOG_INF("Opening SysEx configuration session via %.*s",
+                    static_cast<int>(transport_name.size()),
+                    transport_name.data());
+            publish_configuration_session_state(signaling::SystemEvent::ConfigurationSessionOpened);
+        }
+
+        return;
+    }
+
+    _sysex_conf_close_work.cancel();
+
+    if (was_open)
+    {
+        LOG_INF("Closing SysEx configuration session via %.*s",
+                static_cast<int>(transport_name.size()),
+                transport_name.data());
+        publish_configuration_session_state(signaling::SystemEvent::ConfigurationSessionClosed);
+    }
+}
+
+void System::close_inactive_sysex_configuration_session()
+{
+    if (!_sysex_conf.is_configuration_enabled())
+    {
+        return;
+    }
+
+    if (_backup_restore_state != BackupRestoreState::None)
+    {
+        _sysex_conf_close_work.cancel();
+        return;
+    }
+
+    [[maybe_unused]] const auto transport_name = config_transport_name(_config_transport);
+
+    LOG_INF("Closing inactive SysEx configuration session via %.*s",
+            static_cast<int>(transport_name.size()),
+            transport_name.data());
+
+    _sysex_conf.close_connection();
+    publish_configuration_session_state(signaling::SystemEvent::ConfigurationSessionClosed);
+}
+
+void System::handle_config_disconnect(signaling::ConfigTransport transport)
+{
+    if ((_config_transport != transport) || !_sysex_conf.is_configuration_enabled())
+    {
+        return;
+    }
+
+    if (_backup_restore_state != BackupRestoreState::None)
+    {
+        return;
+    }
+
+    [[maybe_unused]] const auto transport_name = config_transport_name(_config_transport);
+
+    LOG_INF("Closing SysEx configuration session after %.*s disconnect",
+            static_cast<int>(transport_name.size()),
+            transport_name.data());
+
+    _sysex_conf_close_work.cancel();
+    _sysex_conf.close_connection();
+    publish_configuration_session_state(signaling::SystemEvent::ConfigurationSessionClosed);
+}
+
+bool System::can_accept_config_transport(signaling::ConfigTransport transport)
+{
+    const bool session_active = _sysex_conf.is_configuration_enabled() ||
+                                (_backup_restore_state != BackupRestoreState::None);
+
+    return !session_active || (_config_transport == transport);
+}
+
+void System::handle_config_request(const signaling::ConfigRequestSignal& request)
+{
+    static constexpr size_t SYSEX_MIN_FRAME_SIZE = 2;
+
+    if ((request.data.size() < SYSEX_MIN_FRAME_SIZE) ||
+        (request.data.front() != zlibs::utils::midi::SYS_EX_START) ||
+        (request.data.back() != zlibs::utils::midi::SYS_EX_END))
+    {
+        LOG_WRN_ONCE("Ignoring malformed config SysEx frame");
+        return;
+    }
+
+    if (!can_accept_config_transport(request.transport))
+    {
+        LOG_WRN_ONCE("Ignoring WebConfig SysEx request while another config session is active");
+        return;
+    }
+
+    _config_transport = request.transport;
+
+    const bool was_configuration_enabled = _sysex_conf.is_configuration_enabled();
+    const auto payload                   = request.data.subspan(1, request.data.size() - SYSEX_MIN_FRAME_SIZE);
+    const bool sent                      = zlibs::utils::midi::write_sysex7_payload_as_ump_packets(
+        zlibs::utils::midi::DEFAULT_RX_GROUP,
+        payload,
+        [this](const midi_ump& packet)
+        {
+            if (_backup_restore_state == BackupRestoreState::Restore)
+            {
+                return queue_restore_packet(packet);
+            }
+
+            _sysex_conf.handle_packet(packet);
+            return true;
+        });
+
+    if (!sent)
+    {
+        LOG_WRN_ONCE("Failed to process config SysEx frame");
+        return;
+    }
+
+    update_sysex_configuration_session(was_configuration_enabled);
+}
+
+bool System::send_config_response(const midi_ump& packet)
+{
+    if (_config_transport == signaling::ConfigTransport::WebConfig)
+    {
+        return signaling::publish(signaling::ConfigResponseSignal{
+            .transport = signaling::ConfigTransport::WebConfig,
+            .packet    = packet,
+        });
+    }
+
+    return signaling::publish(signaling::UsbUmpBurstSignal{ .packet = packet });
+}
+
+void System::publish_configuration_session_state(signaling::SystemEvent event)
+{
+    signaling::SystemSignal signal = {};
+    signal.system_event            = event;
+
+    signaling::publish(signal);
+}
+
+bool System::config_unlocked() const
+{
+    return _config_unlocked;
+}
+
+uint8_t System::process_config_unlock_word(size_t index, uint16_t value)
+{
+    if (index >= CONFIG_UNLOCK_TOKEN_WORDS)
+    {
+        return sys::Config::Status::ErrorIndex;
+    }
+
+    if (!_config_unlock_token)
+    {
+        LOG_WRN_ONCE("Configuration unlock rejected: serial number unavailable");
+        return sys::Config::Status::ErrorRead;
+    }
+
+    if (index != _config_unlock_word_index)
+    {
+        LOG_WRN("Configuration unlock token index mismatch: expected %u, got %u",
+                static_cast<unsigned int>(_config_unlock_word_index),
+                static_cast<unsigned int>(index));
+        _config_unlock_word_index = 0;
+        _config_unlocked          = false;
+        return sys::Config::Status::ErrorIndex;
+    }
+
+    if (value != _config_unlock_token->at(index))
+    {
+        LOG_WRN("Configuration unlock token mismatch at word %u", static_cast<unsigned int>(index));
+        _config_unlock_word_index = 0;
+        _config_unlocked          = false;
+        return sys::Config::Status::ErrorWrite;
+    }
+
+    _config_unlock_word_index++;
+
+    if (_config_unlock_word_index == CONFIG_UNLOCK_TOKEN_WORDS)
+    {
+        _config_unlock_word_index = 0;
+        _config_unlocked          = true;
+        LOG_INF("Configuration unlocked");
+    }
+
+    return sys::Config::Status::Ack;
+}
+
+bool System::load_config_unlock_token()
+{
+    const auto serial = _hwa.serial_number();
+
+    if (serial.empty())
+    {
+        LOG_WRN("Configuration unlock token unavailable: serial number unavailable");
+        _config_unlock_token = {};
+        return false;
+    }
+
+    _config_unlock_token = make_config_unlock_token(serial);
+
+    return true;
+}
+
+std::optional<uint8_t> System::sys_config_get(sys::Config::Section::Global section, size_t index, uint16_t& value)
+{
+    if (section != sys::Config::Section::Global::SystemSettings)
+    {
+        return {};
+    }
+
+    switch (index)
+    {
+    case static_cast<size_t>(sys::Config::SystemSetting::DisableForcedRefreshAfterPresetChange):
+    case static_cast<size_t>(sys::Config::SystemSetting::EnablePresetChangeWithProgramChangeIn):
+        break;
+
+    default:
+        return {};
+    }
+
+    uint32_t read_value = 0;
+
+    auto result = _hwa.database().read(database::Config::Section::Common::CommonSettings, index, read_value)
+                      ? sys::Config::Status::Ack
+                      : sys::Config::Status::ErrorRead;
+
+    value = read_value;
+
+    return result;
+}
+
+std::optional<uint8_t> System::sys_config_set(sys::Config::Section::Global section, size_t index, uint16_t value)
+{
+    if (section != sys::Config::Section::Global::SystemSettings)
+    {
+        return {};
+    }
+
+    switch (index)
+    {
+    case static_cast<size_t>(sys::Config::SystemSetting::DisableForcedRefreshAfterPresetChange):
+    case static_cast<size_t>(sys::Config::SystemSetting::EnablePresetChangeWithProgramChangeIn):
+        break;
+
+    default:
+        return {};
+    }
+
+    auto result = _hwa.database().update(database::Config::Section::Common::CommonSettings, index, value)
+                      ? sys::Config::Status::Ack
+                      : sys::Config::Status::ErrorWrite;
+
+    return result;
+}

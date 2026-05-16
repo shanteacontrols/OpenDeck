@@ -12,6 +12,5 @@ target_link_libraries(protocol_mdns
 )
 
 zephyr_library_sources(
-    ${CMAKE_CURRENT_LIST_DIR}/hwa/hw/hwa_hw.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/mdns.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/instance/impl/mdns.cpp
 )

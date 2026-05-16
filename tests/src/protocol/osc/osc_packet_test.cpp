@@ -5,7 +5,7 @@
 
 #include "tests/common.h"
 #include "firmware/src/protocol/osc/packet/packet.h"
-#include "firmware/src/protocol/osc/paths.h"
+#include "firmware/src/protocol/osc/shared/paths.h"
 
 #include <array>
 #include <cstdint>

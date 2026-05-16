@@ -8,7 +8,7 @@
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_OUTPUTS
 
-#include "firmware/src/io/outputs/builder.h"
+#include "firmware/src/io/outputs/builder/builder.h"
 #include "firmware/src/util/configurable/configurable.h"
 #include "firmware/src/global/midi_program.h"
 

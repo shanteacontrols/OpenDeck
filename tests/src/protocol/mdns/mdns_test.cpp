@@ -7,9 +7,9 @@
 #include "tests/helpers/database.h"
 #include "tests/helpers/misc.h"
 
-#include "firmware/src/database/builder.h"
+#include "firmware/src/database/builder/builder.h"
 #include "firmware/src/protocol/mdns/hwa/test/hwa_test.h"
-#include "firmware/src/protocol/mdns/mdns.h"
+#include "firmware/src/protocol/mdns/instance/impl/mdns.h"
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/util/configurable/configurable.h"
 

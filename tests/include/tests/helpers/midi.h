@@ -6,12 +6,12 @@
 #pragma once
 
 #include "tests/helpers/misc.h"
-#include "firmware/src/system/builder.h"
+#include "firmware/src/system/builder/builder.h"
 #include "firmware/src/system/config.h"
 #include "firmware/src/util/configurable/configurable.h"
 #include "firmware/src/util/conversion/conversion.h"
-#include "firmware/src/protocol/midi/common.h"
-#include "firmware/src/protocol/midi/midi.h"
+#include "firmware/src/protocol/midi/shared/common.h"
+#include "firmware/src/protocol/midi/instance/impl/midi.h"
 
 #include "zlibs/utils/midi/midi_common.h"
 

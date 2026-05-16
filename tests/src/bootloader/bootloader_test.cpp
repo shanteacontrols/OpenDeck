@@ -4,9 +4,9 @@
  */
 
 #include "tests/common.h"
-#include "bootloader/src/fw_selector/fw_selector.h"
-#include "bootloader/src/updater/builder.h"
-#include "bootloader/src/updater/common.h"
+#include "bootloader/src/fw_selector/instance/impl/fw_selector.h"
+#include "bootloader/src/updater/builder/builder.h"
+#include "bootloader/src/updater/shared/common.h"
 #include "app_validated_info.h"
 
 #include <zephyr/sys/crc.h>

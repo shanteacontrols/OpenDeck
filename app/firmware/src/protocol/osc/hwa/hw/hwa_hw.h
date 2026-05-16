@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/protocol/osc/deps.h"
+#include "firmware/src/protocol/osc/shared/deps.h"
 
 namespace opendeck::protocol::osc
 {

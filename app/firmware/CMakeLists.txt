@@ -20,6 +20,7 @@ add_subdirectory(src/system)
 
 add_subdirectory(src/protocol/midi/hwa/hw)
 add_subdirectory(src/protocol/webconfig/hwa/hw)
+add_subdirectory(src/protocol/mdns/hwa/hw)
 add_subdirectory(src/io/touchscreen/hwa/hw)
 
 set(OPENDECK_FIRMWARE_LIBS
@@ -46,6 +47,7 @@ set(OPENDECK_FIRMWARE_LIBS
 set(OPENDECK_FIRMWARE_HWA_LIBS
     protocol_midi_hwa_hw
     protocol_webconfig_hwa_hw
+    protocol_mdns_hwa_hw
     touchscreen_hwa_hw
 )
 

@@ -8,5 +8,5 @@ target_link_libraries(mcu
 )
 
 zephyr_library_sources(
-    ${CMAKE_CURRENT_LIST_DIR}/mcu.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/instance/impl/mcu.cpp
 )

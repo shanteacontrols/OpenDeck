@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "firmware/src/io/outputs/deps.h"
-#include "firmware/src/io/outputs/remap.h"
+#include "firmware/src/io/outputs/shared/deps.h"
+#include "firmware/src/io/outputs/instance/impl/remap.h"
 #include "firmware/src/io/outputs/drivers/driver_base.h"
 
 namespace opendeck::io::outputs

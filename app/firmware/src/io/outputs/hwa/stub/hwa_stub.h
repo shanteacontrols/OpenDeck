@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/io/outputs/deps.h"
+#include "firmware/src/io/outputs/shared/deps.h"
 
 namespace opendeck::io::outputs
 {

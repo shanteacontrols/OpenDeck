@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "firmware/src/protocol/mdns/common.h"
-#include "firmware/src/protocol/midi/common.h"
-#include "firmware/src/system/common.h"
+#include "firmware/src/protocol/mdns/shared/common.h"
+#include "firmware/src/protocol/midi/shared/common.h"
+#include "firmware/src/system/shared/common.h"
 
 #include "zlibs/utils/signaling/signaling.h"
 

@@ -7,7 +7,7 @@
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_ADC
 
-#include "firmware/src/io/analog/filter_hw.h"
+#include "firmware/src/io/analog/filter/hw/filter_hw.h"
 
 #include "zlibs/utils/misc/numeric.h"
 

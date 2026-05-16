@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include "firmware/src/io/analog/analog_stub.h"
-#include "firmware/src/io/analog/filter_stub.h"
+#include "firmware/src/io/analog/instance/stub/analog_stub.h"
+#include "firmware/src/io/analog/filter/stub/filter_stub.h"
 #include "firmware/src/io/analog/hwa/stub/hwa_stub.h"
-#include "firmware/src/io/analog/mapper.h"
-#include "firmware/src/database/builder.h"
+#include "firmware/src/io/analog/instance/impl/mapper.h"
+#include "firmware/src/database/builder/builder.h"
 
 namespace opendeck::io::analog
 {

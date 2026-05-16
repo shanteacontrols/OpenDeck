@@ -3,14 +3,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "bootloader/src/fw_selector/fw_selector.h"
+#include "bootloader/src/fw_selector/instance/impl/fw_selector.h"
 #include "bootloader/src/fw_selector/hwa/hw/hwa_hw.h"
-#include "bootloader/src/indicators/indicators.h"
+#include "bootloader/src/indicators/instance/impl/indicators.h"
 #ifdef CONFIG_PROJECT_BOOTLOADER_STAGED_UPDATE
-#include "bootloader/src/staged_update/staged_update.h"
+#include "bootloader/src/staged_update/instance/impl/staged_update.h"
 #endif
 #ifdef CONFIG_PROJECT_BOOTLOADER_SUPPORT_USB_DFU
-#include "bootloader/src/webusb/transport.h"
+#include "bootloader/src/webusb/instance/impl/transport.h"
 #endif
 
 #include <zephyr/kernel.h>

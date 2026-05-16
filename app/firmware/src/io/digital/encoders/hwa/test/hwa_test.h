@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/io/digital/encoders/deps.h"
+#include "firmware/src/io/digital/encoders/shared/deps.h"
 
 #include <gmock/gmock.h>
 

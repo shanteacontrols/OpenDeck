@@ -31,8 +31,8 @@ endif()
 target_sources(app
     PRIVATE
     bootloader_test.cpp
-    $ENV{ZEPHYR_PROJECT}/app/bootloader/src/fw_selector/fw_selector.cpp
-    $ENV{ZEPHYR_PROJECT}/app/bootloader/src/updater/updater.cpp
+    $ENV{ZEPHYR_PROJECT}/app/bootloader/src/fw_selector/instance/impl/fw_selector.cpp
+    $ENV{ZEPHYR_PROJECT}/app/bootloader/src/updater/instance/impl/updater.cpp
 )
 
 target_include_directories(app

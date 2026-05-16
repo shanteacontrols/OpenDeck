@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "firmware/src/mcu/common.h"
-#include "firmware/src/mcu/deps.h"
+#include "firmware/src/mcu/shared/common.h"
+#include "firmware/src/mcu/shared/deps.h"
 #include "common/src/retained/retained.h"
 
 #include "zlibs/utils/misc/mutex.h"

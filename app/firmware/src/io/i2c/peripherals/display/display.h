@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/io/i2c/peripherals/display/deps.h"
+#include "firmware/src/io/i2c/peripherals/display/shared/deps.h"
 #include "firmware/src/io/i2c/peripherals/display/element.h"
 #include "firmware/src/io/i2c/peripherals/display/strings.h"
 #include "firmware/src/signaling/signaling.h"

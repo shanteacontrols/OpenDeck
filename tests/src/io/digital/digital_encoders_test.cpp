@@ -9,7 +9,7 @@
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_ENCODERS
 
-#include "firmware/src/io/digital/builder.h"
+#include "firmware/src/io/digital/builder/builder.h"
 #include "firmware/src/util/configurable/configurable.h"
 
 #include "zlibs/utils/misc/mutex.h"

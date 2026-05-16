@@ -6,9 +6,9 @@
 #pragma once
 
 #include "firmware/src/protocol/webconfig/hwa/hw/hwa_hw.h"
-#include "firmware/src/mcu/builder.h"
-#include "firmware/src/staged_update/builder.h"
-#include "firmware/src/protocol/webconfig/webconfig.h"
+#include "firmware/src/mcu/builder/builder.h"
+#include "firmware/src/staged_update/builder/builder.h"
+#include "firmware/src/protocol/webconfig/instance/impl/webconfig.h"
 
 namespace opendeck::protocol::webconfig
 {

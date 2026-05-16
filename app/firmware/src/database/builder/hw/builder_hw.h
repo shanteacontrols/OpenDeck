@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/database/database.h"
+#include "firmware/src/database/instance/impl/database.h"
 #include "firmware/src/database/hwa/hw/hwa_hw.h"
 
 namespace opendeck::database

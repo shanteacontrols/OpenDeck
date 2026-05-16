@@ -9,5 +9,5 @@ target_link_libraries(staged_update
 )
 
 zephyr_library_sources(
-    ${CMAKE_CURRENT_LIST_DIR}/staged_update.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/instance/impl/staged_update.cpp
 )

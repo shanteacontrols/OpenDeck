@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/io/outputs/outputs.h"
+#include "firmware/src/io/outputs/instance/impl/outputs.h"
 #include "firmware/src/io/outputs/hwa/test/hwa_test.h"
 #include "firmware/src/database/builder/test/builder_test.h"
 

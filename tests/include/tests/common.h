@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/system/common.h"
+#include "firmware/src/system/shared/common.h"
 
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>

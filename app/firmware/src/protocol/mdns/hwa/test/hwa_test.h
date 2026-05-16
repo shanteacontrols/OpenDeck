@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/protocol/mdns/deps.h"
+#include "firmware/src/protocol/mdns/shared/deps.h"
 
 #include <algorithm>
 #include <array>

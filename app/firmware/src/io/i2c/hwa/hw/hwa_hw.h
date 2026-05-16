@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/io/i2c/deps.h"
+#include "firmware/src/io/i2c/shared/deps.h"
 
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>

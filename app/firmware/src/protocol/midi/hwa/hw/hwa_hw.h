@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include "firmware/src/protocol/midi/deps.h"
+#include "firmware/src/protocol/midi/shared/deps.h"
 #include "firmware/src/signaling/signaling.h"
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_BLE
-#include "firmware/src/protocol/midi/ble_service.h"
+#include "firmware/src/protocol/midi/instance/impl/ble_service.h"
 #endif
 
 #include "zlibs/drivers/uart/uart_hw.h"

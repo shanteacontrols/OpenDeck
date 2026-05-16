@@ -5,12 +5,12 @@
 
 #pragma once
 
-#include "firmware/src/io/analog/analog.h"
+#include "firmware/src/io/analog/instance/impl/analog.h"
 #include "firmware/src/io/analog/drivers/driver.h"
-#include "firmware/src/io/analog/filter_hw.h"
+#include "firmware/src/io/analog/filter/hw/filter_hw.h"
 #include "firmware/src/io/analog/hwa/hw/hwa_hw.h"
-#include "firmware/src/io/analog/mapper.h"
-#include "firmware/src/database/builder.h"
+#include "firmware/src/io/analog/instance/impl/mapper.h"
+#include "firmware/src/database/builder/builder.h"
 
 namespace opendeck::io::analog
 {

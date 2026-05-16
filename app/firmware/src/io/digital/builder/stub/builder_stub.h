@@ -6,7 +6,7 @@
 #pragma once
 
 #include "firmware/src/io/base.h"
-#include "firmware/src/database/builder.h"
+#include "firmware/src/database/builder/builder.h"
 
 namespace opendeck::io::digital
 {

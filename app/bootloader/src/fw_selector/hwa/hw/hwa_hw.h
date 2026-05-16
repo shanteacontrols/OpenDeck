@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "bootloader/src/fw_selector/fw_selector.h"
+#include "bootloader/src/fw_selector/instance/impl/fw_selector.h"
 #include "common/src/retained/retained.h"
 
 #include <zephyr/devicetree.h>

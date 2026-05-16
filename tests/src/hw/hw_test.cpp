@@ -9,8 +9,8 @@
 #include "tests/helpers/database.h"
 #include "tests/helpers/misc.h"
 #include "tests/helpers/midi.h"
-#include "firmware/src/database/builder.h"
-#include "firmware/src/system/common.h"
+#include "firmware/src/database/builder/builder.h"
+#include "firmware/src/system/shared/common.h"
 
 #include <string>
 #include <filesystem>

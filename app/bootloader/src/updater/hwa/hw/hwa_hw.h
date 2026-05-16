@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "bootloader/src/updater/deps.h"
-#include "bootloader/src/indicators/indicators.h"
-#include "bootloader/src/webusb/transport.h"
+#include "bootloader/src/updater/shared/deps.h"
+#include "bootloader/src/indicators/instance/impl/indicators.h"
+#include "bootloader/src/webusb/instance/impl/transport.h"
 
 #include <zephyr/devicetree.h>
 #include <zephyr/devicetree/fixed-partitions.h>

@@ -6,7 +6,7 @@
 #pragma once
 
 #include "firmware/src/io/i2c/peripherals/display/display.h"
-#include "firmware/src/database/database.h"
+#include "firmware/src/database/instance/impl/database.h"
 
 namespace opendeck::io::i2c
 {

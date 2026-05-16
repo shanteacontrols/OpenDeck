@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/io/touchscreen/deps.h"
+#include "firmware/src/io/touchscreen/shared/deps.h"
 
 #include "zlibs/drivers/uart/uart_hw.h"
 #include "zlibs/utils/misc/ring_buffer.h"

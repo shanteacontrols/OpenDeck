@@ -7,9 +7,9 @@
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_MDNS
 
-#include "firmware/src/protocol/mdns/common.h"
-#include "firmware/src/protocol/osc/common.h"
-#include "firmware/src/protocol/webconfig/common.h"
+#include "firmware/src/protocol/mdns/shared/common.h"
+#include "firmware/src/protocol/osc/shared/common.h"
+#include "firmware/src/protocol/webconfig/shared/common.h"
 
 #include <zephyr/init.h>
 #include <zephyr/logging/log.h>
