@@ -4,6 +4,8 @@
  */
 
 #include "bootloader/src/webusb/transport.h"
+
+#ifdef CONFIG_PROJECT_BOOTLOADER_SUPPORT_USB_DFU
 #include "bootloader/src/updater/builder.h"
 
 #include "zlibs/drivers/usb/usb_hw.h"
@@ -494,3 +496,20 @@ bool webusb::Transport::deinit()
     const bool deinitialized = usb_device.deinit();
     return deinitialized;
 }
+#else
+namespace opendeck::webusb
+{
+    void status(const char*)
+    {}
+
+    bool Transport::init()
+    {
+        return false;
+    }
+
+    bool Transport::deinit()
+    {
+        return true;
+    }
+}    // namespace opendeck::webusb
+#endif

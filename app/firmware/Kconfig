@@ -187,6 +187,7 @@ config PROJECT_TARGET_SUPPORT_DISPLAY
 config PROJECT_TARGET_SUPPORT_DIN_MIDI
     bool
     default y if $(dt_path_enabled,$(OPENDECK_DIN_MIDI_NODE))
+    select ZLIBS_UTILS_MIDI_TRANSPORT_SERIAL
     help
       Hidden symbol indicating DIN MIDI support is present on this target
       when the chosen OpenDeck DIN MIDI devicetree node exists.
@@ -194,10 +195,27 @@ config PROJECT_TARGET_SUPPORT_DIN_MIDI
 config PROJECT_TARGET_SUPPORT_BLE
     bool
     default y if BT && BT_PERIPHERAL
+    select ZLIBS_UTILS_MIDI_TRANSPORT_BLE
     help
       Hidden symbol indicating BLE MIDI transport support is present on
       this target when Bluetooth peripheral support is enabled for the
       build.
+
+config PROJECT_TARGET_SUPPORT_CONFIG_INTERFACE
+    bool
+    help
+      Hidden symbol indicating at least one configuration transport is
+      enabled for this target.
+
+config PROJECT_TARGET_SUPPORT_USB_MIDI
+    bool "USB MIDI support"
+    select MIDI2_UMP_STREAM_RESPONDER
+    select USBD_MIDI2_CLASS
+    select ZLIBS_DRIVERS_USB_HW
+    select ZLIBS_UTILS_MIDI_TRANSPORT_USB
+    select PROJECT_TARGET_SUPPORT_CONFIG_INTERFACE
+    help
+      Enables USB MIDI transport and SysEx configuration over USB.
 
 config PROJECT_TARGET_SUPPORT_TRAFFIC_INDICATORS
     bool
@@ -277,6 +295,7 @@ config PROJECT_TARGET_SUPPORT_WEBCONFIG
     select NET_TCP
     select HTTP_SERVER
     select HTTP_SERVER_WEBSOCKET
+    select PROJECT_TARGET_SUPPORT_CONFIG_INTERFACE
     help
       Hidden symbol indicating WebSocket configuration support is present
       on this target.

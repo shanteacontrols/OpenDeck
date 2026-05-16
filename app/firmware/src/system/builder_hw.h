@@ -18,6 +18,9 @@
 
 namespace opendeck::sys
 {
+    static_assert(IS_ENABLED(CONFIG_PROJECT_TARGET_SUPPORT_CONFIG_INTERFACE),
+                  "At least one OpenDeck configuration interface must be enabled.");
+
     /**
      * @brief Hardware-system builder that wires all production subsystem instances.
      */

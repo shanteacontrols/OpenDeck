@@ -20,13 +20,19 @@ target_link_libraries(app
     opendeck_bootloader_fw_selector
     opendeck_bootloader_indicators
     opendeck_bootloader_updater
-    zlibs-drivers-usb_hw
 )
 
 if(CONFIG_PROJECT_BOOTLOADER_STAGED_UPDATE)
     target_link_libraries(app
         PRIVATE
         opendeck_bootloader_staged_update
+    )
+endif()
+
+if(CONFIG_PROJECT_BOOTLOADER_SUPPORT_USB_DFU)
+    target_link_libraries(app
+        PRIVATE
+        zlibs-drivers-usb_hw
     )
 endif()
 

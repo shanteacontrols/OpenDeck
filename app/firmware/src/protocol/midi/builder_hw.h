@@ -24,7 +24,7 @@ namespace opendeck::protocol::midi
          */
         explicit Builder(database::Admin& database)
             : _database(database)
-            , _instance(_hwa_usb, _hwa_serial, _hwa_ble, _database)
+            , _instance(_usb, _serial, _ble, _database)
         {}
 
         /**
@@ -41,6 +41,9 @@ namespace opendeck::protocol::midi
         HwaUsbHw    _hwa_usb;
         HwaSerialHw _hwa_serial;
         HwaBleHw    _hwa_ble;
+        UsbMidi     _usb    = UsbMidi(_hwa_usb);
+        SerialMidi  _serial = SerialMidi(_hwa_serial);
+        BleMidi     _ble    = BleMidi(_hwa_ble);
         Database    _database;
         Midi        _instance;
     };

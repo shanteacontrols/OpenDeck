@@ -12,7 +12,6 @@
 #include "firmware/src/global/bpm.h"
 
 #include <zephyr/logging/log.h>
-#include <zephyr/kernel.h>
 
 #include <span>
 
@@ -42,13 +41,13 @@ namespace
 
 }    // namespace
 
-Midi::Midi(HwaUsb&    hwa_usb,
-           HwaSerial& hwa_serial,
-           HwaBle&    hwa_ble,
-           Database&  database)
-    : _hwa_usb(hwa_usb)
-    , _hwa_serial(hwa_serial)
-    , _hwa_ble(hwa_ble)
+Midi::Midi(UsbMidi&    usb,
+           SerialMidi& serial,
+           BleMidi&    ble,
+           Database&   database)
+    : _usb(usb)
+    , _serial(serial)
+    , _ble(ble)
     , _database(database)
     , _clock_timer(
           zmisc::Timer::Type::Repeating,
@@ -62,39 +61,13 @@ Midi::Midi(HwaUsb&    hwa_usb,
               },
               [this]()
               {
-                  for (auto& event : _poll_events)
-                  {
-                      k_poll_signal_raise(event.signal, 0);
-                  }
+                  OpenDeckTransport::wake_all(_interfaces);
               })
 {
-    _hwa_usb.register_on_ready_handler([]()
-                                       {
-                                           signaling::SystemSignal signal = {};
-                                           signal.system_event            = signaling::SystemEvent::UsbMidiReady;
-                                           signaling::publish(signal);
-                                       });
-
     // place all interfaces in array for easier access
-    _midi_interface[static_cast<size_t>(Interface::Usb)]    = &_usb;
-    _midi_interface[static_cast<size_t>(Interface::Serial)] = &_serial;
-    _midi_interface[static_cast<size_t>(Interface::Ble)]    = &_ble;
-
-    k_poll_event_init(
-        &_poll_events[static_cast<size_t>(Interface::Usb)],
-        K_POLL_TYPE_SIGNAL,
-        K_POLL_MODE_NOTIFY_ONLY,
-        _hwa_usb.data_available_signal());
-    k_poll_event_init(
-        &_poll_events[static_cast<size_t>(Interface::Serial)],
-        K_POLL_TYPE_SIGNAL,
-        K_POLL_MODE_NOTIFY_ONLY,
-        _hwa_serial.data_available_signal());
-    k_poll_event_init(
-        &_poll_events[static_cast<size_t>(Interface::Ble)],
-        K_POLL_TYPE_SIGNAL,
-        K_POLL_MODE_NOTIFY_ONLY,
-        _hwa_ble.data_available_signal());
+    _interfaces[static_cast<size_t>(Interface::Usb)]    = &_usb;
+    _interfaces[static_cast<size_t>(Interface::Serial)] = &_serial;
+    _interfaces[static_cast<size_t>(Interface::Ble)]    = &_ble;
 
     signaling::subscribe<signaling::SystemSignal>(
         [this](const signaling::SystemSignal& event)
@@ -251,8 +224,6 @@ bool Midi::shutdown()
         return false;
     }
 
-    _din_loopback = false;
-
     return true;
 }
 
@@ -281,7 +252,7 @@ bool Midi::flush_usb_burst()
         return true;
     }
 
-    const auto written = _hwa_usb.write(std::span<const midi_ump>(_usb_burst_packets.data(), _usb_burst_count));
+    const auto written = _usb.write(std::span<const midi_ump>(_usb_burst_packets.data(), _usb_burst_count));
     _usb_burst_count   = 0;
     _usb_burst_size    = 0;
     return written;
@@ -312,11 +283,6 @@ bool Midi::setup_serial()
         {
             _serial.init();
         }
-
-        if (!apply_din_loopback())
-        {
-            return false;
-        }
     }
     else
     {
@@ -324,7 +290,6 @@ bool Midi::setup_serial()
         {
             _serial.deinit();
         }
-        _din_loopback = false;
     }
 
     if (is_setting_enabled(Setting::SendMidiClockDin))
@@ -361,88 +326,31 @@ bool Midi::setup_ble()
 
 bool Midi::setup_thru()
 {
-    if (is_setting_enabled(Setting::DinThruDin))
+    auto route = [](zmidi::Base& source, zmidi::Thru& destination, bool enabled)
     {
-        _serial.register_thru_interface(_serial.thru_interface());
-    }
-    else
-    {
-        _serial.unregister_thru_interface(_serial.thru_interface());
-    }
+        source.unregister_thru_interface(destination);
 
-    if (is_setting_enabled(Setting::DinThruUsb))
-    {
-        _serial.register_thru_interface(_usb.thru_interface());
-    }
-    else
-    {
-        _serial.unregister_thru_interface(_usb.thru_interface());
-    }
+        if (!enabled)
+        {
+            return true;
+        }
 
-    if (is_setting_enabled(Setting::DinThruBle))
-    {
-        _serial.register_thru_interface(_ble.thru_interface());
-    }
-    else
-    {
-        _serial.unregister_thru_interface(_ble.thru_interface());
-    }
+        return source.register_thru_interface(destination);
+    };
 
-    if (is_setting_enabled(Setting::UsbThruDin))
-    {
-        _usb.register_thru_interface(_serial.thru_interface());
-    }
-    else
-    {
-        _usb.unregister_thru_interface(_serial.thru_interface());
-    }
+    bool result = true;
 
-    if (is_setting_enabled(Setting::UsbThruUsb))
-    {
-        _usb.register_thru_interface(_usb.thru_interface());
-    }
-    else
-    {
-        _usb.unregister_thru_interface(_usb.thru_interface());
-    }
+    result = route(_serial, _serial.thru_interface(), is_setting_enabled(Setting::DinThruDin)) && result;
+    result = route(_serial, _usb.thru_interface(), is_setting_enabled(Setting::DinThruUsb)) && result;
+    result = route(_serial, _ble.thru_interface(), is_setting_enabled(Setting::DinThruBle)) && result;
+    result = route(_usb, _serial.thru_interface(), is_setting_enabled(Setting::UsbThruDin)) && result;
+    result = route(_usb, _usb.thru_interface(), is_setting_enabled(Setting::UsbThruUsb)) && result;
+    result = route(_usb, _ble.thru_interface(), is_setting_enabled(Setting::UsbThruBle)) && result;
+    result = route(_ble, _serial.thru_interface(), is_setting_enabled(Setting::BleThruDin)) && result;
+    result = route(_ble, _usb.thru_interface(), is_setting_enabled(Setting::BleThruUsb)) && result;
+    result = route(_ble, _ble.thru_interface(), is_setting_enabled(Setting::BleThruBle)) && result;
 
-    if (is_setting_enabled(Setting::UsbThruBle))
-    {
-        _usb.register_thru_interface(_ble.thru_interface());
-    }
-    else
-    {
-        _usb.unregister_thru_interface(_ble.thru_interface());
-    }
-
-    if (is_setting_enabled(Setting::BleThruDin))
-    {
-        _ble.register_thru_interface(_serial.thru_interface());
-    }
-    else
-    {
-        _ble.unregister_thru_interface(_serial.thru_interface());
-    }
-
-    if (is_setting_enabled(Setting::BleThruUsb))
-    {
-        _ble.register_thru_interface(_usb.thru_interface());
-    }
-    else
-    {
-        _ble.unregister_thru_interface(_usb.thru_interface());
-    }
-
-    if (is_setting_enabled(Setting::BleThruBle))
-    {
-        _ble.register_thru_interface(_ble.thru_interface());
-    }
-    else
-    {
-        _ble.unregister_thru_interface(_ble.thru_interface());
-    }
-
-    return true;
+    return result;
 }
 
 void Midi::read_loop()
@@ -451,12 +359,7 @@ void Midi::read_loop()
     {
         protocol::Base::wait_until_running();
 
-        for (auto& event : _poll_events)
-        {
-            event.state = K_POLL_STATE_NOT_READY;
-        }
-
-        [[maybe_unused]] auto ret = k_poll(_poll_events.data(), static_cast<int>(_poll_events.size()), K_FOREVER);
+        const auto interface_index = OpenDeckTransport::wait_for_data(_interfaces);
 
         if (!_initialized)
         {
@@ -468,22 +371,18 @@ void Midi::read_loop()
             continue;
         }
 
-        for (size_t i = 0; i < _poll_events.size(); i++)
+        if (!interface_index.has_value())
         {
-            if (_poll_events[i].state != K_POLL_STATE_SIGNALED)
-            {
-                continue;
-            }
-
-            k_poll_signal_reset(_poll_events[i].signal);
-            read_interface(i);
+            continue;
         }
+
+        read_interface(interface_index.value());
     }
 }
 
 void Midi::read_interface(size_t interface_index)
 {
-    auto interface_instance = _midi_interface[interface_index];
+    auto interface_instance = _interfaces[interface_index];
 
     if (!interface_instance->initialized())
     {
@@ -538,38 +437,6 @@ void Midi::read_interface(size_t interface_index)
 bool Midi::is_setting_enabled(Setting feature)
 {
     return _database.read(database::Config::Section::Global::MidiSettings, feature);
-}
-
-bool Midi::is_din_loopback_required()
-{
-    return (is_setting_enabled(Setting::DinEnabled) &&
-            is_setting_enabled(Setting::DinThruDin) &&
-            !is_setting_enabled(Setting::DinThruUsb) &&
-            !is_setting_enabled(Setting::DinThruBle));
-}
-
-bool Midi::apply_din_loopback()
-{
-    if (!is_setting_enabled(Setting::DinEnabled))
-    {
-        _din_loopback = false;
-        return true;
-    }
-
-    const bool desired = is_din_loopback_required();
-
-    if (_din_loopback == desired)
-    {
-        return true;
-    }
-
-    if (!_hwa_serial.set_loopback(desired))
-    {
-        return false;
-    }
-
-    _din_loopback = desired;
-    return true;
 }
 
 void Midi::send(const signaling::MidiIoSignal& event)
@@ -785,9 +652,9 @@ void Midi::send(const signaling::UmpSignal& event)
         return;
     }
 
-    for (size_t i = 0; i < _midi_interface.size(); i++)
+    for (size_t i = 0; i < _interfaces.size(); i++)
     {
-        auto*      interface_instance = _midi_interface[i];
+        auto*      interface_instance = _interfaces[i];
         const auto transport          = interface_to_transport(i);
 
         if ((interface_instance != nullptr) && interface_instance->initialized())
@@ -828,12 +695,12 @@ void Midi::send(const signaling::UmpSignal& event)
                 }
             }
 
-            if ((transport == signaling::TrafficTransport::Ble) && !_hwa_ble.ready())
+            if ((transport == signaling::TrafficTransport::Ble) && !_ble.ready())
             {
                 continue;
             }
 
-            if ((transport == signaling::TrafficTransport::Usb) && !_hwa_usb.ready())
+            if ((transport == signaling::TrafficTransport::Usb) && !_usb.ready())
             {
                 continue;
             }
@@ -889,33 +756,55 @@ std::optional<uint8_t> Midi::sys_config_get(sys::Config::Section::Global section
 
     auto feature = static_cast<Setting>(index);
 
+    auto read_midi_setting = [&]()
+    {
+        return _database.read(util::Conversion::sys_2_db_section(section), index, read_value)
+                   ? sys::Config::Status::Ack
+                   : sys::Config::Status::ErrorRead;
+    };
+
     switch (feature)
     {
     case Setting::StandardNoteOff:
     {
-        result = _database.read(util::Conversion::sys_2_db_section(section), index, read_value)
-                     ? sys::Config::Status::Ack
-                     : sys::Config::Status::ErrorRead;
+        result = read_midi_setting();
     }
     break;
 
     case Setting::RunningStatus:
     case Setting::DinEnabled:
     case Setting::DinThruDin:
-    case Setting::DinThruUsb:
-    case Setting::UsbThruDin:
     {
-        if (_hwa_serial.supported())
+        if (_serial.supported())
         {
-            if (!is_setting_enabled(Setting::DinEnabled) && _hwa_serial.allocated(io::common::Allocatable::Interface::Uart))
+            if (!is_setting_enabled(Setting::DinEnabled) && _serial.allocated(io::common::Allocatable::Interface::Uart))
             {
                 result = sys::Config::Status::SerialPeripheralAllocatedError;
             }
             else
             {
-                result = _database.read(util::Conversion::sys_2_db_section(section), index, read_value)
-                             ? sys::Config::Status::Ack
-                             : sys::Config::Status::ErrorRead;
+                result = read_midi_setting();
+            }
+        }
+        else
+        {
+            result = sys::Config::Status::ErrorNotSupported;
+        }
+    }
+    break;
+
+    case Setting::DinThruUsb:
+    case Setting::UsbThruDin:
+    {
+        if (_usb.supported() && _serial.supported())
+        {
+            if (!is_setting_enabled(Setting::DinEnabled) && _serial.allocated(io::common::Allocatable::Interface::Uart))
+            {
+                result = sys::Config::Status::SerialPeripheralAllocatedError;
+            }
+            else
+            {
+                result = read_midi_setting();
             }
         }
         else
@@ -926,15 +815,25 @@ std::optional<uint8_t> Midi::sys_config_get(sys::Config::Section::Global section
     break;
 
     case Setting::BleEnabled:
-    case Setting::BleThruUsb:
     case Setting::BleThruBle:
-    case Setting::UsbThruBle:
     {
-        if (_hwa_ble.supported())
+        if (_ble.supported())
         {
-            result = _database.read(util::Conversion::sys_2_db_section(section), index, read_value)
-                         ? sys::Config::Status::Ack
-                         : sys::Config::Status::ErrorRead;
+            result = read_midi_setting();
+        }
+        else
+        {
+            result = sys::Config::Status::ErrorNotSupported;
+        }
+    }
+    break;
+
+    case Setting::UsbThruBle:
+    case Setting::BleThruUsb:
+    {
+        if (_usb.supported() && _ble.supported())
+        {
+            result = read_midi_setting();
         }
         else
         {
@@ -946,19 +845,17 @@ std::optional<uint8_t> Midi::sys_config_get(sys::Config::Section::Global section
     case Setting::DinThruBle:
     case Setting::BleThruDin:
     {
-        if (_hwa_serial.supported())
+        if (_serial.supported())
         {
-            if (!is_setting_enabled(Setting::DinEnabled) && _hwa_serial.allocated(io::common::Allocatable::Interface::Uart))
+            if (!is_setting_enabled(Setting::DinEnabled) && _serial.allocated(io::common::Allocatable::Interface::Uart))
             {
                 result = sys::Config::Status::SerialPeripheralAllocatedError;
             }
             else
             {
-                if (_hwa_ble.supported())
+                if (_ble.supported())
                 {
-                    result = _database.read(util::Conversion::sys_2_db_section(section), index, read_value)
-                                 ? sys::Config::Status::Ack
-                                 : sys::Config::Status::ErrorRead;
+                    result = read_midi_setting();
                 }
                 else
                 {
@@ -973,11 +870,15 @@ std::optional<uint8_t> Midi::sys_config_get(sys::Config::Section::Global section
     }
     break;
 
+    case Setting::UsbThruUsb:
+    {
+        result = _usb.supported() ? read_midi_setting() : sys::Config::Status::ErrorNotSupported;
+    }
+    break;
+
     default:
     {
-        result = _database.read(util::Conversion::sys_2_db_section(section), index, read_value)
-                     ? sys::Config::Status::Ack
-                     : sys::Config::Status::ErrorRead;
+        result = read_midi_setting();
     }
     break;
     }
@@ -997,31 +898,31 @@ std::optional<uint8_t> Midi::sys_config_set(sys::Config::Section::Global section
     [[maybe_unused]] bool    write_to_db          = true;
     [[maybe_unused]] auto    din_midi_init_action = io::common::InitAction::AsIs;
     [[maybe_unused]] auto    ble_midi_init_action = io::common::InitAction::AsIs;
-    [[maybe_unused]] bool    check_din_loopback   = false;
+    [[maybe_unused]] bool    refresh_thru         = false;
 
     auto setting = static_cast<Setting>(index);
+
+    auto din_available = [&]()
+    {
+        if (!_serial.supported())
+        {
+            return sys::Config::Status::ErrorNotSupported;
+        }
+
+        if (!is_setting_enabled(Setting::DinEnabled) && _serial.allocated(io::common::Allocatable::Interface::Uart))
+        {
+            return sys::Config::Status::SerialPeripheralAllocatedError;
+        }
+
+        return sys::Config::Status::Ack;
+    };
 
     switch (setting)
     {
     case Setting::RunningStatus:
     {
         // this setting applies to din midi only
-        if (_hwa_serial.supported())
-        {
-            if (!is_setting_enabled(Setting::DinEnabled) && _hwa_serial.allocated(io::common::Allocatable::Interface::Uart))
-            {
-                result = sys::Config::Status::SerialPeripheralAllocatedError;
-            }
-            else
-            {
-                // Running status handling is internal to the zlibs serial parser.
-                result = sys::Config::Status::Ack;
-            }
-        }
-        else
-        {
-            result = sys::Config::Status::ErrorNotSupported;
-        }
+        result = din_available();
     }
     break;
 
@@ -1034,37 +935,27 @@ std::optional<uint8_t> Midi::sys_config_set(sys::Config::Section::Global section
 
     case Setting::DinEnabled:
     {
-        if (_hwa_serial.supported())
+        result = din_available();
+
+        if (result == sys::Config::Status::Ack)
         {
-            if (!is_setting_enabled(Setting::DinEnabled) && _hwa_serial.allocated(io::common::Allocatable::Interface::Uart))
+            if (value)
             {
-                result = sys::Config::Status::SerialPeripheralAllocatedError;
+                din_midi_init_action = io::common::InitAction::Init;
             }
             else
             {
-                if (value)
-                {
-                    din_midi_init_action = io::common::InitAction::Init;
-                }
-                else
-                {
-                    din_midi_init_action = io::common::InitAction::DeInit;
-                }
-
-                check_din_loopback = true;
-                result             = sys::Config::Status::Ack;
+                din_midi_init_action = io::common::InitAction::DeInit;
             }
-        }
-        else
-        {
-            result = sys::Config::Status::ErrorNotSupported;
+
+            refresh_thru = true;
         }
     }
     break;
 
     case Setting::BleEnabled:
     {
-        if (_hwa_ble.supported())
+        if (_ble.supported())
         {
             if (value)
             {
@@ -1075,7 +966,8 @@ std::optional<uint8_t> Midi::sys_config_set(sys::Config::Section::Global section
                 ble_midi_init_action = io::common::InitAction::DeInit;
             }
 
-            result = sys::Config::Status::Ack;
+            refresh_thru = true;
+            result       = sys::Config::Status::Ack;
         }
         else
         {
@@ -1086,101 +978,61 @@ std::optional<uint8_t> Midi::sys_config_set(sys::Config::Section::Global section
 
     case Setting::DinThruDin:
     {
-        if (_hwa_serial.supported())
-        {
-            if (value)
-            {
-                _serial.register_thru_interface(_serial.thru_interface());
-            }
-            else
-            {
-                _serial.unregister_thru_interface(_serial.thru_interface());
-            }
-
-            result             = sys::Config::Status::Ack;
-            check_din_loopback = true;
-        }
-        else
-        {
-            result = sys::Config::Status::ErrorNotSupported;
-        }
+        result       = din_available();
+        refresh_thru = result == sys::Config::Status::Ack;
     }
     break;
 
     case Setting::DinThruUsb:
     {
-        if (_hwa_serial.supported())
-        {
-            if (value)
-            {
-                _serial.register_thru_interface(_usb.thru_interface());
-            }
-            else
-            {
-                _serial.unregister_thru_interface(_usb.thru_interface());
-            }
+        result = din_available();
 
-            result             = sys::Config::Status::Ack;
-            check_din_loopback = true;
-        }
-        else
+        if ((result == sys::Config::Status::Ack) && !_usb.supported())
         {
             result = sys::Config::Status::ErrorNotSupported;
         }
+
+        refresh_thru = result == sys::Config::Status::Ack;
     }
     break;
 
     case Setting::DinThruBle:
     {
-        if (_hwa_serial.supported())
+        result = din_available();
+
+        if (result == sys::Config::Status::Ack)
         {
-            if (!is_setting_enabled(Setting::DinEnabled) && _hwa_serial.allocated(io::common::Allocatable::Interface::Uart))
+            if (_ble.supported())
             {
-                result = sys::Config::Status::SerialPeripheralAllocatedError;
+                refresh_thru = true;
             }
             else
             {
-                if (_hwa_ble.supported())
-                {
-                    if (value)
-                    {
-                        _serial.register_thru_interface(_ble.thru_interface());
-                    }
-                    else
-                    {
-                        _serial.unregister_thru_interface(_ble.thru_interface());
-                    }
-
-                    result             = sys::Config::Status::Ack;
-                    check_din_loopback = true;
-                }
-                else
-                {
-                    result = sys::Config::Status::ErrorNotSupported;
-                }
+                result = sys::Config::Status::ErrorNotSupported;
             }
-        }
-        else
-        {
-            result = sys::Config::Status::ErrorNotSupported;
         }
     }
     break;
 
     case Setting::UsbThruDin:
     {
-        if (_hwa_serial.supported())
-        {
-            if (value)
-            {
-                _usb.register_thru_interface(_serial.thru_interface());
-            }
-            else
-            {
-                _usb.unregister_thru_interface(_serial.thru_interface());
-            }
+        result = din_available();
 
-            result = sys::Config::Status::Ack;
+        if ((result == sys::Config::Status::Ack) && !_usb.supported())
+        {
+            result = sys::Config::Status::ErrorNotSupported;
+        }
+
+        refresh_thru = result == sys::Config::Status::Ack;
+    }
+    break;
+
+    case Setting::UsbThruUsb:
+    {
+        if (_usb.supported())
+        {
+            refresh_thru = true;
+            result       = sys::Config::Status::Ack;
         }
         else
         {
@@ -1189,35 +1041,12 @@ std::optional<uint8_t> Midi::sys_config_set(sys::Config::Section::Global section
     }
     break;
 
-    case Setting::UsbThruUsb:
-    {
-        if (value)
-        {
-            _usb.register_thru_interface(_usb.thru_interface());
-        }
-        else
-        {
-            _usb.unregister_thru_interface(_usb.thru_interface());
-        }
-
-        result = sys::Config::Status::Ack;
-    }
-    break;
-
     case Setting::UsbThruBle:
     {
-        if (_hwa_ble.supported())
+        if (_usb.supported() && _ble.supported())
         {
-            if (value)
-            {
-                _usb.register_thru_interface(_ble.thru_interface());
-            }
-            else
-            {
-                _usb.unregister_thru_interface(_ble.thru_interface());
-            }
-
-            result = sys::Config::Status::Ack;
+            refresh_thru = true;
+            result       = sys::Config::Status::Ack;
         }
         else
         {
@@ -1228,54 +1057,28 @@ std::optional<uint8_t> Midi::sys_config_set(sys::Config::Section::Global section
 
     case Setting::BleThruDin:
     {
-        if (_hwa_serial.supported())
+        result = din_available();
+
+        if (result == sys::Config::Status::Ack)
         {
-            if (!is_setting_enabled(Setting::DinEnabled) && _hwa_serial.allocated(io::common::Allocatable::Interface::Uart))
+            if (_ble.supported())
             {
-                result = sys::Config::Status::SerialPeripheralAllocatedError;
+                refresh_thru = true;
             }
             else
             {
-                if (_hwa_ble.supported())
-                {
-                    if (value)
-                    {
-                        _ble.register_thru_interface(_serial.thru_interface());
-                    }
-                    else
-                    {
-                        _ble.unregister_thru_interface(_serial.thru_interface());
-                    }
-
-                    result = sys::Config::Status::Ack;
-                }
-                else
-                {
-                    result = sys::Config::Status::ErrorNotSupported;
-                }
+                result = sys::Config::Status::ErrorNotSupported;
             }
-        }
-        else
-        {
-            result = sys::Config::Status::ErrorNotSupported;
         }
     }
     break;
 
     case Setting::BleThruUsb:
     {
-        if (_hwa_ble.supported())
+        if (_ble.supported() && _usb.supported())
         {
-            if (value)
-            {
-                _ble.register_thru_interface(_usb.thru_interface());
-            }
-            else
-            {
-                _ble.unregister_thru_interface(_usb.thru_interface());
-            }
-
-            result = sys::Config::Status::Ack;
+            refresh_thru = true;
+            result       = sys::Config::Status::Ack;
         }
         else
         {
@@ -1286,18 +1089,10 @@ std::optional<uint8_t> Midi::sys_config_set(sys::Config::Section::Global section
 
     case Setting::BleThruBle:
     {
-        if (_hwa_ble.supported())
+        if (_ble.supported())
         {
-            if (value)
-            {
-                _ble.register_thru_interface(_ble.thru_interface());
-            }
-            else
-            {
-                _ble.unregister_thru_interface(_ble.thru_interface());
-            }
-
-            result = sys::Config::Status::Ack;
+            refresh_thru = true;
+            result       = sys::Config::Status::Ack;
         }
         else
         {
@@ -1391,21 +1186,11 @@ std::optional<uint8_t> Midi::sys_config_set(sys::Config::Section::Global section
         default:
             break;
         }
-    }
 
-    // no need to check this if init/deinit has been already called for DIN
-    if (result && check_din_loopback && din_midi_init_action == io::common::InitAction::AsIs)
-    {
-        // Special consideration for DIN MIDI:
-        // To make DIN to DIN thruing as fast as possible,
-        // if certain criteria matches (DIN enabled, just DIN to DIN
-        // thru enabled for DIN interface), enable BSP loopback:
-        // this will ensure that incoming serial data is transmitted
-        // to output port as soon as it is received in the BSP layer,
-        // without even storing incoming data to internal buffers. This
-        // will also ensure that nothing will be read from serial via
-        // HWA interface.
-        result = apply_din_loopback();
+        if (refresh_thru)
+        {
+            result = setup_thru() ? sys::Config::Status::Ack : sys::Config::Status::ErrorWrite;
+        }
     }
 
     return result;

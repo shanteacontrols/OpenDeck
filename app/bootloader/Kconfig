@@ -10,4 +10,14 @@ config PROJECT_BOOTLOADER_STAGED_UPDATE
       bootloader can apply raw dfu.bin images written there by the
       application.
 
+config PROJECT_BOOTLOADER_SUPPORT_USB_DFU
+    bool "USB DFU support"
+    select NET_BUF
+    select USB_DEVICE_STACK_NEXT
+    select ZLIBS_DRIVERS_USB_HW
+    select ZLIBS_DRIVERS_USB_20_EXTENSION_DESC
+    help
+      Enables the bootloader USB DFU transport when selected by the target
+      USB configuration.
+
 source "Kconfig.zephyr"

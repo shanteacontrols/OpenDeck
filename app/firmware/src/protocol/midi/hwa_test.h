@@ -99,16 +99,6 @@ namespace opendeck::protocol::midi
         }
 
         /**
-         * @brief Reports that USB MIDI is supported in the test backend.
-         *
-         * @return Always `true`.
-         */
-        bool supported() override
-        {
-            return true;
-        }
-
-        /**
          * @brief Returns the poll signal used for USB input readiness.
          *
          * @return USB data-available poll signal.
@@ -116,16 +106,6 @@ namespace opendeck::protocol::midi
         k_poll_signal* data_available_signal() override
         {
             return &_data_available_signal;
-        }
-
-        /**
-         * @brief Stores the USB-ready callback for later invocation.
-         *
-         * @param handler Callback to invoke from `init()`.
-         */
-        void register_on_ready_handler(UsbReadyHandler&& handler) override
-        {
-            _readyHandler = std::move(handler);
         }
 
         /**
@@ -147,11 +127,6 @@ namespace opendeck::protocol::midi
         {
             clear();
             k_poll_signal_reset(&_data_available_signal);
-
-            if (_readyHandler != nullptr)
-            {
-                _readyHandler();
-            }
 
             return true;
         }
@@ -214,8 +189,7 @@ namespace opendeck::protocol::midi
         WrittenMessageLog     _writeParser;
 
         private:
-        k_poll_signal   _data_available_signal = {};
-        UsbReadyHandler _readyHandler          = nullptr;
+        k_poll_signal _data_available_signal = {};
     };
 
     /**
@@ -230,20 +204,6 @@ namespace opendeck::protocol::midi
         HwaSerialTest()
         {
             k_poll_signal_init(&_data_available_signal);
-        }
-
-        /**
-         * @brief Returns whether serial MIDI support is enabled for the build.
-         *
-         * @return `true` when DIN MIDI support is compiled in, otherwise `false`.
-         */
-        bool supported() override
-        {
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_DIN_MIDI
-            return true;
-#else
-            return false;
-#endif
         }
 
         /**
@@ -335,20 +295,6 @@ namespace opendeck::protocol::midi
         HwaBleTest()
         {
             k_poll_signal_init(&_data_available_signal);
-        }
-
-        /**
-         * @brief Returns whether BLE MIDI support is enabled for the build.
-         *
-         * @return `true` when BLE support is compiled in, otherwise `false`.
-         */
-        bool supported() override
-        {
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_BLE
-            return true;
-#else
-            return false;
-#endif
         }
 
         /**

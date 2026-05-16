@@ -32,22 +32,6 @@ namespace opendeck::protocol::midi
     using Note = zlibs::utils::midi::Note;
 
     /**
-     * @brief Raw USB MIDI packet container.
-     */
-    struct UsbPacket
-    {
-        std::array<uint8_t, 4> data = {};
-    };
-
-    /**
-     * @brief Raw serial MIDI packet container.
-     */
-    struct SerialPacket
-    {
-        uint8_t data = 0;
-    };
-
-    /**
      * @brief Selects how note-off events are encoded on output.
      */
     enum class NoteOffType : uint8_t

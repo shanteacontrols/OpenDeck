@@ -156,7 +156,13 @@ app/boards/
 
 `sysbuild.cmake` in the board layer is optional. Target-level `firmware.overlay` and
 `firmware.conf` are also optional and only needed when the target has extra OpenDeck-specific
-wiring or config on top of the shared Zephyr board layer.
+wiring or config on top of the shared Zephyr board layer. Target-level
+`bootloader.overlay` and `bootloader.conf` follow the same rule for bootloader-specific
+OpenDeck changes.
+
+Use board-layer `.conf` files for low-level Zephyr board setup. Use target-level `.conf`
+files for OpenDeck target support decisions, such as disabling USB MIDI or USB DFU on a
+target that uses a board family where other targets may still enable it.
 
 When a target only needs abstract OpenDeck UART/I2C labels for bootloader or host-test DTS
 parsing, those alias lines are generated automatically from the target `firmware.overlay`.
@@ -217,17 +223,29 @@ Firmware config order:
 1. shared build config from `app/presets.yml`
 2. `app/firmware/firmware.conf`
 3. `app/boards/zephyr/<board>/firmware.conf`
-4. generated firmware USB product config
-5. generated firmware BLE device-name config, when BLE peripheral support is enabled
-6. `app/boards/opendeck/<target>/firmware.conf`, if the file exists
+4. `app/common/usb.conf`, when USB MIDI support is enabled
+5. `app/firmware/usb.conf`, when USB MIDI support is enabled
+6. generated firmware USB product config, when USB MIDI support is enabled
+7. generated firmware BLE device-name config, when BLE peripheral support is enabled
+8. `app/boards/opendeck/<target>/firmware.conf`, if the file exists
+
+The target `firmware.conf` is also consulted by sysbuild before finalizing this list, so a
+target can control whether USB MIDI support is enabled without changing the shared Zephyr
+board layer.
 
 Bootloader config order:
 
 1. shared build config from `app/presets.yml`
 2. `app/bootloader/bootloader.conf`
 3. `app/boards/zephyr/<board>/bootloader.conf`
-4. generated bootloader USB product config
-5. `app/boards/opendeck/<target>/bootloader.conf`, if the file exists
+4. `app/common/usb.conf`, when bootloader USB DFU support is enabled
+5. `app/bootloader/usb.conf`, when bootloader USB DFU support is enabled
+6. generated bootloader USB product config, when bootloader USB DFU support is enabled
+7. `app/boards/opendeck/<target>/bootloader.conf`, if the file exists
+
+The target `bootloader.conf` is also consulted by sysbuild before finalizing this list, so a
+target can control whether bootloader USB DFU support is enabled without changing the shared
+Zephyr board layer.
 
 ## Index Remapping
 
@@ -258,9 +276,10 @@ To add a new target:
    - `test.overlay`, only if host tests need shared emulated devices or partition labels for that board family
 4. Add `app/boards/opendeck/<target>/opendeck.overlay`.
 5. Add `app/boards/opendeck/<target>/firmware.overlay` only if the target needs extra OpenDeck-specific bus aliases or target-local DTS tweaks.
-6. Add the required `opendeck,metadata` node with the correct `zephyr-board` value.
-7. Describe the actual OpenDeck hardware in `opendeck.overlay`.
-8. Add optional `opendeck,tests` and `opendeck,bulk-build` nodes if the target should participate in test or helper-script flows.
+6. Add `app/boards/opendeck/<target>/firmware.conf` or `bootloader.conf` only if the target needs OpenDeck-specific support flags or target-local config.
+7. Add the required `opendeck,metadata` node with the correct `zephyr-board` value.
+8. Describe the actual OpenDeck hardware in `opendeck.overlay`.
+9. Add optional `opendeck,tests` and `opendeck,bulk-build` nodes if the target should participate in test or helper-script flows.
 
 In practice:
 

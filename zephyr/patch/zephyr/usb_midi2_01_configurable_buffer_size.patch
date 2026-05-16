@@ -8,7 +8,7 @@ index cd991c93e69..e019d6a8942 100644
  
 +config USBD_MIDI2_BUFFER_COUNT
 +	int "USB MIDI 2.0 buffer count"
-+	default 8
++	default 16
 +	range 2 256
 +	help
 +	  Number of net_buf instances reserved for the USB MIDI 2.0 class.

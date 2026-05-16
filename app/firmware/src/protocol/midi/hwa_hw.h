@@ -6,25 +6,33 @@
 #pragma once
 
 #include "firmware/src/protocol/midi/deps.h"
+#include "firmware/src/signaling/signaling.h"
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_BLE
 #include "firmware/src/protocol/midi/ble_service.h"
 #endif
 
-#include "zlibs/drivers/usb/usb_hw.h"
 #include "zlibs/drivers/uart/uart_hw.h"
 #include "zlibs/utils/misc/ring_buffer.h"
+
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_USB_MIDI
+#include "zlibs/drivers/usb/usb_hw.h"
+#endif
 
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
 #include <zephyr/drivers/uart.h>
 #include <zephyr/kernel.h>
+
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_USB_MIDI
 #include <zephyr/usb/class/usbd_midi2.h>
+#endif
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_BLE
 #include <zephyr/bluetooth/bluetooth.h>
 #endif
 
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_USB_MIDI
 #ifdef __cplusplus
 extern "C"
 {
@@ -32,6 +40,7 @@ extern "C"
 #include <ump_stream_responder.h>
 #ifdef __cplusplus
 }
+#endif
 #endif
 
 #include <algorithm>
@@ -57,6 +66,7 @@ namespace opendeck::protocol::midi
     /**
      * @brief Hardware-backed USB MIDI transport backend.
      */
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_USB_MIDI
     class HwaUsbHw : public HwaUsb
     {
         public:
@@ -68,16 +78,6 @@ namespace opendeck::protocol::midi
         HwaUsbHw() = default;
 
         /**
-         * @brief Returns whether USB MIDI transport is supported.
-         *
-         * @return Always `true`.
-         */
-        bool supported() override
-        {
-            return true;
-        }
-
-        /**
          * @brief Returns the poll signal raised when USB MIDI data becomes available.
          *
          * @return Pointer to the receive-data poll signal.
@@ -85,16 +85,6 @@ namespace opendeck::protocol::midi
         k_poll_signal* data_available_signal() override
         {
             return &_data_available_signal;
-        }
-
-        /**
-         * @brief Registers the callback invoked after the USB MIDI device becomes ready.
-         *
-         * @param handler Callback to invoke when the transport reports readiness.
-         */
-        void register_on_ready_handler(UsbReadyHandler&& handler) override
-        {
-            _ready_handler = std::move(handler);
         }
 
         /**
@@ -151,9 +141,11 @@ namespace opendeck::protocol::midi
                 {
                     instance->_ready = ready;
 
-                    if (ready && (instance->_ready_handler != nullptr))
+                    if (ready)
                     {
-                        instance->_ready_handler();
+                        signaling::SystemSignal signal = {};
+                        signal.system_event            = signaling::SystemEvent::UsbMidiReady;
+                        signaling::publish(signal);
                     }
                 }
             };
@@ -265,9 +257,8 @@ namespace opendeck::protocol::midi
         k_fifo                      _rx_fifo                                          = {};
         k_mem_slab                  _rx_slab                                          = {};
         alignas(RxPacket) uint8_t _rx_slab_buffer[RX_PACKET_COUNT * sizeof(RxPacket)] = {};
-        k_poll_signal   _data_available_signal                                        = {};
-        UsbReadyHandler _ready_handler                                                = nullptr;
-        bool            _ready                                                        = false;
+        k_poll_signal _data_available_signal                                          = {};
+        bool          _ready                                                          = false;
 
         static constexpr EndpointStorage ENDPOINT_STORAGE = {
             .name     = DT_PROP_OR(DT_NODELABEL(usb_midi), label, nullptr),
@@ -333,6 +324,53 @@ namespace opendeck::protocol::midi
             return (k_mem_slab_alloc(&_rx_slab, &memory, K_NO_WAIT) == 0) ? static_cast<RxPacket*>(memory) : nullptr;
         }
     };
+#else
+    class HwaUsbHw : public HwaUsb
+    {
+        public:
+        using HwaUsb::write;
+
+        HwaUsbHw()
+        {
+            k_poll_signal_init(&_data_available_signal);
+        }
+
+        k_poll_signal* data_available_signal() override
+        {
+            return &_data_available_signal;
+        }
+
+        bool ready() override
+        {
+            return false;
+        }
+
+        bool init() override
+        {
+            k_poll_signal_reset(&_data_available_signal);
+            return true;
+        }
+
+        bool deinit() override
+        {
+            k_poll_signal_reset(&_data_available_signal);
+            return true;
+        }
+
+        bool write([[maybe_unused]] const midi_ump& packet) override
+        {
+            return false;
+        }
+
+        std::optional<midi_ump> read() override
+        {
+            return {};
+        }
+
+        private:
+        k_poll_signal _data_available_signal = {};
+    };
+#endif
 
     /**
      * @brief Hardware-backed serial/DIN MIDI transport backend.
@@ -362,20 +400,6 @@ namespace opendeck::protocol::midi
                   _tx_buffer)
         {
             k_poll_signal_init(&_data_available_signal);
-        }
-
-        /**
-         * @brief Returns whether DIN MIDI transport is enabled in the target configuration.
-         *
-         * @return `true` when DIN MIDI support is compiled in, otherwise `false`.
-         */
-        bool supported() override
-        {
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_DIN_MIDI
-            return true;
-#else
-            return false;
-#endif
         }
 
         /**
@@ -629,20 +653,6 @@ namespace opendeck::protocol::midi
         HwaBleHw()
         {
             k_poll_signal_init(&_data_available_signal);
-        }
-
-        /**
-         * @brief Returns whether BLE MIDI transport is supported.
-         *
-         * @return `true` when BLE MIDI support is enabled for the build.
-         */
-        bool supported() override
-        {
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_BLE
-            return true;
-#else
-            return false;
-#endif
         }
 
         /**

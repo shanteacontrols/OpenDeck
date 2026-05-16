@@ -13,9 +13,15 @@ target_link_libraries(protocol_midi
 if(NOT OPENDECK_TEST)
     target_link_libraries(protocol_midi
         PUBLIC
-        zlibs-drivers-usb_hw
         zlibs-drivers-uart_hw
     )
+
+    if(CONFIG_PROJECT_TARGET_SUPPORT_USB_MIDI)
+        target_link_libraries(protocol_midi
+            PUBLIC
+            zlibs-drivers-usb_hw
+        )
+    endif()
 endif()
 
 zephyr_library_sources(

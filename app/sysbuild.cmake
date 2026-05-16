@@ -39,6 +39,9 @@ set(opendeck_target_bootloader_conf     ${APP_DIR}/boards/opendeck/${TARGET}/boo
 set(opendeck_board_bootloader_overlay   ${opendeck_zephyr_board_dir_path}/bootloader.overlay)
 set(opendeck_board_bootloader_conf      ${opendeck_zephyr_board_dir_path}/bootloader.conf)
 set(opendeck_common_bootloader_conf     ${APP_DIR}/bootloader/bootloader.conf)
+set(opendeck_common_usb_conf            ${APP_DIR}/common/usb.conf)
+set(opendeck_firmware_usb_conf          ${APP_DIR}/firmware/usb.conf)
+set(opendeck_bootloader_usb_conf        ${APP_DIR}/bootloader/usb.conf)
 set(opendeck_generated_dir              ${CMAKE_BINARY_DIR}/generated)
 set(opendeck_metadata_query_script      $ENV{ZEPHYR_PROJECT}/scripts/query_metadata.sh)
 
@@ -51,6 +54,28 @@ function(opendeck_read_config_value config_file variable_name output_var)
 
     set(${output_var} "${config_value}" PARENT_SCOPE)
 endfunction()
+
+function(opendeck_read_config_chain_value variable_name default_value output_var)
+    set(config_chain_args config --key "${variable_name}" --default "${default_value}")
+
+    foreach(config_file ${ARGN})
+        list(APPEND config_chain_args --file "${config_file}")
+    endforeach()
+
+    execute_process(
+        COMMAND bash "${opendeck_metadata_query_script}" ${config_chain_args}
+        OUTPUT_VARIABLE config_value
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    set(${output_var} "${config_value}" PARENT_SCOPE)
+endfunction()
+
+set(opendeck_shared_conf_files)
+
+if(DEFINED CONF_FILE AND NOT "${CONF_FILE}" STREQUAL "")
+    set(opendeck_shared_conf_files ${CONF_FILE})
+endif()
 
 file(MAKE_DIRECTORY ${opendeck_generated_dir})
 
@@ -111,15 +136,49 @@ if(NOT EXISTS ${opendeck_common_bootloader_conf})
     message(FATAL_ERROR "Missing common bootloader conf: ${opendeck_common_bootloader_conf}")
 endif()
 
-set(opendeck_shared_conf_files)
+if(NOT EXISTS ${opendeck_common_usb_conf})
+    message(FATAL_ERROR "Missing common USB conf: ${opendeck_common_usb_conf}")
+endif()
 
-if(DEFINED CONF_FILE AND NOT "${CONF_FILE}" STREQUAL "")
-    set(opendeck_shared_conf_files ${CONF_FILE})
+if(NOT EXISTS ${opendeck_firmware_usb_conf})
+    message(FATAL_ERROR "Missing firmware USB conf: ${opendeck_firmware_usb_conf}")
+endif()
+
+if(NOT EXISTS ${opendeck_bootloader_usb_conf})
+    message(FATAL_ERROR "Missing bootloader USB conf: ${opendeck_bootloader_usb_conf}")
 endif()
 
 set(opendeck_ble_enabled            FALSE)
 set(opendeck_bt_enabled             FALSE)
 set(opendeck_bt_peripheral_enabled  FALSE)
+set(opendeck_usb_midi_enabled       FALSE)
+set(opendeck_usb_dfu_enabled        FALSE)
+
+opendeck_read_config_chain_value(
+    CONFIG_PROJECT_TARGET_SUPPORT_USB_MIDI
+    y
+    opendeck_usb_midi_config_value
+    ${opendeck_shared_conf_files}
+    ${opendeck_common_firmware_conf}
+    ${opendeck_target_firmware_conf}
+)
+
+opendeck_read_config_chain_value(
+    CONFIG_PROJECT_BOOTLOADER_SUPPORT_USB_DFU
+    y
+    opendeck_usb_dfu_config_value
+    ${opendeck_shared_conf_files}
+    ${opendeck_common_bootloader_conf}
+    ${opendeck_target_bootloader_conf}
+)
+
+if("${opendeck_usb_midi_config_value}" STREQUAL "y")
+    set(opendeck_usb_midi_enabled TRUE)
+endif()
+
+if("${opendeck_usb_dfu_config_value}" STREQUAL "y")
+    set(opendeck_usb_dfu_enabled TRUE)
+endif()
 
 opendeck_read_config_value(${opendeck_board_firmware_conf}   CONFIG_BT               opendeck_board_bt_enabled)
 opendeck_read_config_value(${opendeck_board_firmware_conf}   CONFIG_BT_PERIPHERAL    opendeck_board_bt_peripheral_enabled)
@@ -160,7 +219,10 @@ set(opendeck_firmware_extra_dtc_overlay_files)
 list(APPEND opendeck_firmware_extra_dtc_overlay_files ${opendeck_board_partitions_overlay})
 list(APPEND opendeck_firmware_extra_dtc_overlay_files ${opendeck_board_firmware_overlay})
 list(APPEND opendeck_firmware_extra_dtc_overlay_files ${opendeck_board_overlay})
-list(APPEND opendeck_firmware_extra_dtc_overlay_files ${opendeck_generated_dir}/firmware_usb_midi_label.overlay)
+
+if(opendeck_usb_midi_enabled)
+    list(APPEND opendeck_firmware_extra_dtc_overlay_files ${opendeck_generated_dir}/firmware_usb_midi_label.overlay)
+endif()
 
 if(EXISTS ${opendeck_target_firmware_overlay})
     list(APPEND opendeck_firmware_extra_dtc_overlay_files ${opendeck_target_firmware_overlay})
@@ -176,7 +238,12 @@ set(${DEFAULT_IMAGE}_CONF_FILE ${opendeck_firmware_conf_files} CACHE INTERNAL ""
 
 set(opendeck_firmware_extra_conf_files)
 list(APPEND opendeck_firmware_extra_conf_files ${opendeck_board_firmware_conf})
-list(APPEND opendeck_firmware_extra_conf_files ${opendeck_generated_dir}/firmware_usb_product.conf)
+
+if(opendeck_usb_midi_enabled)
+    list(APPEND opendeck_firmware_extra_conf_files ${opendeck_common_usb_conf})
+    list(APPEND opendeck_firmware_extra_conf_files ${opendeck_firmware_usb_conf})
+    list(APPEND opendeck_firmware_extra_conf_files ${opendeck_generated_dir}/firmware_usb_product.conf)
+endif()
 
 if(opendeck_ble_enabled)
     list(APPEND opendeck_firmware_extra_conf_files ${opendeck_generated_dir}/firmware_bluetooth_device_name.conf)
@@ -242,7 +309,12 @@ set(opendeck_bootloader_CONF_FILE ${opendeck_bootloader_conf_files} CACHE INTERN
 
 set(opendeck_bootloader_extra_conf_files)
 list(APPEND opendeck_bootloader_extra_conf_files ${opendeck_board_bootloader_conf})
-list(APPEND opendeck_bootloader_extra_conf_files ${opendeck_generated_dir}/bootloader_usb_product.conf)
+
+if(opendeck_usb_dfu_enabled)
+    list(APPEND opendeck_bootloader_extra_conf_files ${opendeck_common_usb_conf})
+    list(APPEND opendeck_bootloader_extra_conf_files ${opendeck_bootloader_usb_conf})
+    list(APPEND opendeck_bootloader_extra_conf_files ${opendeck_generated_dir}/bootloader_usb_product.conf)
+endif()
 
 if(EXISTS ${opendeck_target_bootloader_conf})
     list(APPEND opendeck_bootloader_extra_conf_files ${opendeck_target_bootloader_conf})

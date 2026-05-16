@@ -37,10 +37,13 @@ function usage
       --key <app_base|app_size|sram_base|sram_size>
 
     config
-    Reads one value from a Kconfig-style .conf or .config file.
+    Reads the effective value for one Kconfig symbol from an ordered list
+    of .conf/.config files. Later files override earlier files.
     Required options:
-      --file <config_file>
       --key <CONFIG_NAME>
+    Optional:
+      --default <value>
+      --file <config_file> (can be passed multiple times)
     "
 }
 
@@ -200,18 +203,25 @@ function testcase_metadata
 
 function config_metadata
 {
-    local config_file=
     local key=
+    local default_value=
+    local config_files=()
+    local config_file
+    local value
 
     while [[ $# -gt 0 ]]
     do
         case "$1" in
             --file)
-                config_file=$2
+                config_files+=("$2")
                 shift 2
                 ;;
             --key)
                 key=$2
+                shift 2
+                ;;
+            --default)
+                default_value=$2
                 shift 2
                 ;;
             *)
@@ -221,22 +231,32 @@ function config_metadata
         esac
     done
 
-    if [[ -z "$config_file" || -z "$key" ]]
+    if [[ -z "$key" ]]
     then
-        echo "ERROR: config mode requires --file and --key." >&2
+        echo "ERROR: config mode requires --key." >&2
         exit 1
     fi
 
-    if [[ ! -f "$config_file" ]]
-    then
-        return
-    fi
+    value=$default_value
 
-    local value
+    for config_file in "${config_files[@]}"
+    do
+        if [[ ! -f "$config_file" ]]
+        then
+            continue
+        fi
 
-    value=$(sed -n "s/^${key}=\\(.*\\)$/\\1/p" "$config_file" | head -n1)
-    value=${value#\"}
-    value=${value%\"}
+        local file_value
+
+        file_value=$(sed -n "s/^${key}=\\(.*\\)$/\\1/p" "$config_file" | head -n1)
+        file_value=${file_value#\"}
+        file_value=${file_value%\"}
+
+        if [[ -n "$file_value" ]]
+        then
+            value=$file_value
+        fi
+    done
 
     printf '%s\n' "$value"
 }

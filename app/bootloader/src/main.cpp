@@ -9,7 +9,9 @@
 #ifdef CONFIG_PROJECT_BOOTLOADER_STAGED_UPDATE
 #include "bootloader/src/staged_update/staged_update.h"
 #endif
+#ifdef CONFIG_PROJECT_BOOTLOADER_SUPPORT_USB_DFU
 #include "bootloader/src/webusb/transport.h"
+#endif
 
 #include <zephyr/kernel.h>
 #include <zephyr/sys/reboot.h>
@@ -20,7 +22,9 @@ namespace
 {
     fw_selector::HwaHw      hwa_fw_selector = {};
     fw_selector::FwSelector selector(hwa_fw_selector);
-    webusb::Transport       webusb_transport;
+#ifdef CONFIG_PROJECT_BOOTLOADER_SUPPORT_USB_DFU
+    webusb::Transport webusb_transport;
+#endif
 }    // namespace
 
 int main()
@@ -47,6 +51,7 @@ int main()
 
     indicators::init();
 
+#ifdef CONFIG_PROJECT_BOOTLOADER_SUPPORT_USB_DFU
     if (!webusb_transport.init())
     {
         while (true)
@@ -79,6 +84,7 @@ int main()
     default:
         break;
     }
+#endif
 
     while (true)
     {

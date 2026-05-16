@@ -10,7 +10,6 @@
 #include "firmware/src/protocol/base.h"
 #include "firmware/src/database/database.h"
 #include "firmware/src/system/config.h"
-#include "firmware/src/protocol/base.h"
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/threads.h"
 
@@ -25,10 +24,10 @@ namespace opendeck::protocol::midi
     class Midi : public protocol::Base
     {
         public:
-        Midi(HwaUsb&    hwa_usb,
-             HwaSerial& hwa_serial,
-             HwaBle&    hwa_ble,
-             Database&  database);
+        Midi(UsbMidi&    usb,
+             SerialMidi& serial,
+             BleMidi&    ble,
+             Database&   database);
         ~Midi() override;
 
         /**
@@ -57,24 +56,19 @@ namespace opendeck::protocol::midi
             Count
         };
 
-        HwaUsb&                                                                      _hwa_usb;
-        HwaSerial&                                                                   _hwa_serial;
-        HwaBle&                                                                      _hwa_ble;
-        zlibs::utils::midi::usb::Usb                                                 _usb    = zlibs::utils::midi::usb::Usb(_hwa_usb);
-        zlibs::utils::midi::serial::Serial                                           _serial = zlibs::utils::midi::serial::Serial(_hwa_serial);
-        zlibs::utils::midi::ble::Ble                                                 _ble    = zlibs::utils::midi::ble::Ble(_hwa_ble);
-        Database&                                                                    _database;
-        std::array<zlibs::utils::midi::Base*, static_cast<size_t>(Interface::Count)> _midi_interface = {};
-        zlibs::utils::misc::Timer                                                    _clock_timer;
-        std::array<k_poll_event, static_cast<size_t>(Interface::Count)>              _poll_events = {};
-        threads::MidiThread                                                          _thread;
-        bool                                                                         _initialized       = false;
-        bool                                                                         _standard_note_off = true;
-        bool                                                                         _din_loopback      = false;
-        bool                                                                         _burst_midi_active = false;
-        std::array<midi_ump, USB_UMP_BURST_PACKET_COUNT>                             _usb_burst_packets = {};
-        size_t                                                                       _usb_burst_count   = 0;
-        size_t                                                                       _usb_burst_size    = 0;
+        UsbMidi&                                                              _usb;
+        SerialMidi&                                                           _serial;
+        BleMidi&                                                              _ble;
+        Database&                                                             _database;
+        std::array<OpenDeckTransport*, static_cast<size_t>(Interface::Count)> _interfaces = {};
+        zlibs::utils::misc::Timer                                             _clock_timer;
+        threads::MidiThread                                                   _thread;
+        bool                                                                  _initialized       = false;
+        bool                                                                  _standard_note_off = true;
+        bool                                                                  _burst_midi_active = false;
+        std::array<midi_ump, USB_UMP_BURST_PACKET_COUNT>                      _usb_burst_packets = {};
+        size_t                                                                _usb_burst_count   = 0;
+        size_t                                                                _usb_burst_size    = 0;
 
         /**
          * @brief Reads a boolean MIDI feature flag from the global configuration section.
@@ -84,20 +78,6 @@ namespace opendeck::protocol::midi
          * @return `true` when the setting is enabled, otherwise `false`.
          */
         bool is_setting_enabled(Setting feature);
-
-        /**
-         * @brief Determines whether DIN loopback should currently be enabled.
-         *
-         * @return `true` when the active MIDI routing requires DIN loopback.
-         */
-        bool is_din_loopback_required();
-
-        /**
-         * @brief Applies the desired DIN loopback state to the serial backend.
-         *
-         * @return `true` when the backend accepted the requested loopback state.
-         */
-        bool apply_din_loopback();
 
         /**
          * @brief Handles SysEx reads for global MIDI settings.
