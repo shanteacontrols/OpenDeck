@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "bootloader/src/updater/hwa_test.h"
+#include "bootloader/src/updater/hwa/test/hwa_test.h"
 #include "bootloader/src/updater/updater.h"
 
 namespace opendeck::updater

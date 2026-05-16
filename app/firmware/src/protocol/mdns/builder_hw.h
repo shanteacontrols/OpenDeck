@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/protocol/mdns/hwa_hw.h"
+#include "firmware/src/protocol/mdns/hwa/hw/hwa_hw.h"
 #include "firmware/src/protocol/mdns/mdns.h"
 #include "firmware/src/database/builder.h"
 #include "firmware/src/mcu/builder.h"

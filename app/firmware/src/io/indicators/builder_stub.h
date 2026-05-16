@@ -6,7 +6,7 @@
 #pragma once
 
 #include "firmware/src/io/indicators/indicators.h"
-#include "firmware/src/io/indicators/hwa_stub.h"
+#include "firmware/src/io/indicators/hwa/stub/hwa_stub.h"
 
 namespace opendeck::io::indicators
 {

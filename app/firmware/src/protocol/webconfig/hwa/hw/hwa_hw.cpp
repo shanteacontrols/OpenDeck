@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#if defined(CONFIG_PROJECT_TARGET_SUPPORT_WEBCONFIG) && !defined(OPENDECK_TEST)
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_WEBCONFIG
 
-#include "firmware/src/protocol/webconfig/hwa_hw.h"
+#include "firmware/src/protocol/webconfig/hwa/hw/hwa_hw.h"
 #include "firmware/src/protocol/webconfig/common.h"
 #include "bootloader/src/fw_selector/common.h"
 #include "firmware/src/protocol/webconfig/webconfig.h"

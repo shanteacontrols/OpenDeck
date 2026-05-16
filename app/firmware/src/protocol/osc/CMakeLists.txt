@@ -3,7 +3,6 @@ add_subdirectory(packet)
 
 opendeck_library_named(protocol_osc)
 
-
 target_link_libraries(protocol_osc
     PUBLIC
     kernel

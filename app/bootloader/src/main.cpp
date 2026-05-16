@@ -4,7 +4,7 @@
  */
 
 #include "bootloader/src/fw_selector/fw_selector.h"
-#include "bootloader/src/fw_selector/hwa_hw.h"
+#include "bootloader/src/fw_selector/hwa/hw/hwa_hw.h"
 #include "bootloader/src/indicators/indicators.h"
 #ifdef CONFIG_PROJECT_BOOTLOADER_STAGED_UPDATE
 #include "bootloader/src/staged_update/staged_update.h"

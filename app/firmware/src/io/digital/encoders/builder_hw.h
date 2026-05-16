@@ -7,7 +7,7 @@
 
 #include "firmware/src/io/digital/encoders/encoders.h"
 #include "firmware/src/io/digital/encoders/filter_hw.h"
-#include "firmware/src/io/digital/encoders/hwa_hw.h"
+#include "firmware/src/io/digital/encoders/hwa/hw/hwa_hw.h"
 #include "firmware/src/io/digital/switches/deps.h"
 #include "firmware/src/database/builder.h"
 

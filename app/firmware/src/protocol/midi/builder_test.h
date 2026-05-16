@@ -6,7 +6,7 @@
 #pragma once
 
 #include "firmware/src/protocol/midi/midi.h"
-#include "firmware/src/protocol/midi/hwa_test.h"
+#include "firmware/src/protocol/midi/hwa/test/hwa_test.h"
 #include "firmware/src/database/builder_test.h"
 
 namespace opendeck::protocol::midi

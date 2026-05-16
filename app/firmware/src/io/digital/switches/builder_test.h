@@ -7,7 +7,7 @@
 
 #include "firmware/src/io/digital/switches/switches.h"
 #include "firmware/src/io/digital/switches/filter_test.h"
-#include "firmware/src/io/digital/switches/hwa_test.h"
+#include "firmware/src/io/digital/switches/hwa/test/hwa_test.h"
 #include "firmware/src/io/digital/switches/mapper.h"
 #include "firmware/src/database/builder_test.h"
 

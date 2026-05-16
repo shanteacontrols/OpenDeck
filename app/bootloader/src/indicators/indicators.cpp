@@ -5,7 +5,7 @@
 
 #include "bootloader/src/indicators/indicators.h"
 #include "firmware/src/io/indicators/common.h"
-#include "firmware/src/io/indicators/hwa_hw.h"
+#include "firmware/src/io/indicators/hwa/hw/hwa_hw.h"
 
 #include "zlibs/utils/misc/kwork_delayable.h"
 

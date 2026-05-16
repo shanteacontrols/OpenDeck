@@ -7,7 +7,7 @@
 
 #include "firmware/src/io/digital/switches/switches.h"
 #include "firmware/src/io/digital/switches/filter_hw.h"
-#include "firmware/src/io/digital/switches/hwa_hw.h"
+#include "firmware/src/io/digital/switches/hwa/hw/hwa_hw.h"
 #include "firmware/src/io/digital/switches/mapper.h"
 #include "firmware/src/io/digital/drivers/driver.h"
 #include "firmware/src/database/builder.h"

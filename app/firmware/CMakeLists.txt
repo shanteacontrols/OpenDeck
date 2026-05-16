@@ -18,6 +18,10 @@ add_subdirectory(src/io/i2c)
 add_subdirectory(src/io/indicators)
 add_subdirectory(src/system)
 
+add_subdirectory(src/protocol/midi/hwa/hw)
+add_subdirectory(src/protocol/webconfig/hwa/hw)
+add_subdirectory(src/io/touchscreen/hwa/hw)
+
 set(OPENDECK_FIRMWARE_LIBS
     metadata
     mcu
@@ -39,6 +43,12 @@ set(OPENDECK_FIRMWARE_LIBS
     system
 )
 
+set(OPENDECK_FIRMWARE_HWA_LIBS
+    protocol_midi_hwa_hw
+    protocol_webconfig_hwa_hw
+    touchscreen_hwa_hw
+)
+
 target_sources(app
     PRIVATE
     src/atomic_compat.cpp
@@ -48,4 +58,5 @@ target_sources(app
 target_link_libraries(app
     PRIVATE
     ${OPENDECK_FIRMWARE_LIBS}
+    ${OPENDECK_FIRMWARE_HWA_LIBS}
 )

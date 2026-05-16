@@ -6,7 +6,7 @@
 #pragma once
 
 #include "firmware/src/io/outputs/outputs.h"
-#include "firmware/src/io/outputs/hwa_hw.h"
+#include "firmware/src/io/outputs/hwa/hw/hwa_hw.h"
 #include "firmware/src/io/outputs/drivers/driver.h"
 #include "firmware/src/database/builder.h"
 

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/mcu/hwa_hw.h"
+#include "firmware/src/mcu/hwa/hw/hwa_hw.h"
 
 namespace opendeck::mcu
 {

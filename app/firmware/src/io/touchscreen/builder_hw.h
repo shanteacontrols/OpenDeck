@@ -6,7 +6,7 @@
 #pragma once
 
 #include "firmware/src/io/touchscreen/touchscreen.h"
-#include "firmware/src/io/touchscreen/hwa_hw.h"
+#include "firmware/src/io/touchscreen/hwa/hw/hwa_hw.h"
 #include "firmware/src/io/touchscreen/models/builder.h"
 #include "firmware/src/database/builder.h"
 

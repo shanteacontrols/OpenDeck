@@ -6,7 +6,7 @@
 #pragma once
 
 #include "firmware/src/io/outputs/outputs_stub.h"
-#include "firmware/src/io/outputs/hwa_stub.h"
+#include "firmware/src/io/outputs/hwa/stub/hwa_stub.h"
 #include "firmware/src/database/builder.h"
 
 namespace opendeck::io::outputs

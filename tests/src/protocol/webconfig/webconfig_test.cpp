@@ -5,7 +5,7 @@
 
 #include "tests/common.h"
 #include "firmware/src/protocol/webconfig/firmware_upload/firmware_upload.h"
-#include "firmware/src/staged_update/hwa_test.h"
+#include "firmware/src/staged_update/hwa/test/hwa_test.h"
 #include "firmware/src/staged_update/staged_update.h"
 
 #include <array>
