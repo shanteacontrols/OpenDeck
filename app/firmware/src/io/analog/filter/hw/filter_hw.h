@@ -22,11 +22,12 @@ namespace opendeck::io::analog
      * @brief Hardware-oriented analog filter for potentiometers, FSRs, and analog switches.
      *
      * Continuously varying analog inputs use a lightweight path tuned for real-time response on
-     * both dense native ADC scans and large multiplexed matrices: bucket-sized ADC deadbanding,
-     * raw-sample reversal confirmation, smoothing against the last accepted ADC value, endpoint
-     * assist, and light position publish gating for idle drift. Switch-style analog inputs
-     * bypass continuous-value filtering and use threshold-based analog-to-digital conversion with
-     * hysteresis instead.
+     * both dense native ADC scans and large multiplexed matrices: position-resolution ADC
+     * deadbanding, raw-sample reversal confirmation, smoothing against the last accepted ADC
+     * value, endpoint assist, and a coarser movement gate for idle/reversal anti-flap decisions.
+     * The published continuous value remains a physical position value independent of MIDI/OSC
+     * output scaling. Switch-style analog inputs bypass continuous-value filtering and use
+     * threshold-based analog-to-digital conversion with hysteresis instead.
      */
     class FilterHw : public Filter
     {
@@ -38,11 +39,12 @@ namespace opendeck::io::analog
         {
             for (size_t i = 0; i < io::analog::Collection::size(); i++)
             {
-                _last_sample_value[i]      = NO_VALUE;
-                _last_value[i]             = NO_VALUE;
-                _last_position_value[i]    = NO_VALUE;
-                _pending_position_value[i] = NO_VALUE;
-                _last_movement_time[i]     = NO_TIME;
+                _last_sample_value[i]   = NO_VALUE;
+                _last_value[i]          = NO_VALUE;
+                _last_position_value[i] = NO_VALUE;
+                _last_gate_value[i]     = NO_VALUE;
+                _pending_gate_value[i]  = NO_VALUE;
+                _last_movement_time[i]  = NO_TIME;
             }
         }
 
@@ -50,8 +52,8 @@ namespace opendeck::io::analog
          * @brief Returns the inactivity timeout after which motion context expires.
          *
          * Once this timeout elapses without a newly accepted movement, fast-mode state, pending
-         * reversal confirmation, and pending idle-drift position confirmation are discarded. The
-         * last published position is kept.
+         * reversal confirmation, and pending idle movement-gate confirmation are discarded. The
+         * last published position and movement-gate value are kept.
          *
          * @return Motion-context timeout in milliseconds.
          */
@@ -155,8 +157,8 @@ namespace opendeck::io::analog
         /**
          * @brief Resets filter state for one analog input.
          *
-         * This clears fast-mode state, pending position confirmation, raw ADC history, and cached
-         * last-published position value for the specified input.
+         * This clears fast-mode state, pending gate confirmation, raw ADC history, and cached
+         * last-published position/gate values for the specified input.
          *
          * @param index Analog input index to reset.
          */
@@ -169,11 +171,12 @@ namespace opendeck::io::analog
 
             clear_motion_context(index);
 
-            _last_movement_time[index]     = NO_TIME;
-            _last_sample_value[index]      = NO_VALUE;
-            _last_value[index]             = NO_VALUE;
-            _last_position_value[index]    = NO_VALUE;
-            _pending_position_value[index] = NO_VALUE;
+            _last_movement_time[index]  = NO_TIME;
+            _last_sample_value[index]   = NO_VALUE;
+            _last_value[index]          = NO_VALUE;
+            _last_position_value[index] = NO_VALUE;
+            _last_gate_value[index]     = NO_VALUE;
+            _pending_gate_value[index]  = NO_VALUE;
         }
 
         private:
@@ -198,16 +201,22 @@ namespace opendeck::io::analog
 
         /**
          * @brief Cached per-sample state for one continuous analog input.
+         *
+         * Position state tracks the final 0..511 physical output. Gate state tracks a coarser
+         * output-independent movement bucket used only for idle wake, endpoint hold, and
+         * anti-flap decisions.
          */
         struct ContinuousInputState
         {
             bool                has_last_filtered_value = false;
             bool                has_last_position_value = false;
+            bool                has_last_gate_value     = false;
             uint16_t            last_filtered_value     = 0;
             uint16_t            old_position_value      = NO_VALUE;
+            uint16_t            old_gate_value          = NO_VALUE;
             uint16_t            raw_position_value      = 0;
+            uint16_t            raw_gate_value          = 0;
             uint16_t            min_step_diff           = 1;
-            uint16_t            endpoint_range          = ENDPOINT_ASSIST_POSITION_RANGE;
             bool                direction               = false;
             EndpointAssistState endpoint_assist         = {};
         };
@@ -218,9 +227,12 @@ namespace opendeck::io::analog
         static constexpr uint8_t  FAST_FILTER_ENTER_SAMPLE_COUNT            = 2;
         static constexpr uint32_t MOTION_CONTEXT_TIMEOUT_MS                 = 100;
         static constexpr uint8_t  ENDPOINT_ASSIST_POSITION_RANGE            = 1;
-        static constexpr uint8_t  POSITION_DIRECTION_CHANGE_THRESHOLD       = 3;
-        static constexpr uint8_t  IDLE_WAKE_POSITION_THRESHOLD              = 4;
-        static constexpr uint8_t  IDLE_POSITION_CHANGE_SAMPLE_COUNT         = 2;
+        static constexpr uint16_t MOVEMENT_GATE_STEP_COUNT                  = 128;
+        static constexpr uint16_t MOVEMENT_GATE_MAX_VALUE                   = MOVEMENT_GATE_STEP_COUNT - 1U;
+        static constexpr uint8_t  ENDPOINT_ASSIST_GATE_RANGE                = 1;
+        static constexpr uint8_t  GATE_DIRECTION_CHANGE_THRESHOLD           = 3;
+        static constexpr uint8_t  IDLE_WAKE_GATE_THRESHOLD                  = 4;
+        static constexpr uint8_t  IDLE_GATE_CHANGE_SAMPLE_COUNT             = 2;
         static constexpr uint32_t PERCENTAGE_DIVISOR                        = 100;
         static constexpr uint8_t  FAST_FILTER_DIRECTION_CHANGE_SAMPLE_COUNT = 2;
         static constexpr size_t   BITS_PER_STORAGE_UNIT                     = 8;
@@ -230,16 +242,17 @@ namespace opendeck::io::analog
         static constexpr size_t   STORAGE_SIZE                              = io::analog::Collection::size() ? io::analog::Collection::size() : 1;
         static constexpr size_t   BIT_STORAGE_SIZE                          = (STORAGE_SIZE + BITS_PER_STORAGE_UNIT - 1) / BITS_PER_STORAGE_UNIT;
 
-        std::array<uint8_t, STORAGE_SIZE>     _direction_change_counter     = {};
-        std::array<uint8_t, STORAGE_SIZE>     _fast_mode_entry_counter      = {};
-        std::array<uint8_t, STORAGE_SIZE>     _idle_position_change_counter = {};
-        std::array<uint32_t, STORAGE_SIZE>    _last_movement_time           = {};
-        std::array<uint8_t, BIT_STORAGE_SIZE> _fast_mode                    = {};
-        std::array<uint8_t, BIT_STORAGE_SIZE> _last_direction               = {};
-        std::array<uint16_t, STORAGE_SIZE>    _last_sample_value            = {};
-        std::array<uint16_t, STORAGE_SIZE>    _last_value                   = {};
-        std::array<uint16_t, STORAGE_SIZE>    _last_position_value          = {};
-        std::array<uint16_t, STORAGE_SIZE>    _pending_position_value       = {};
+        std::array<uint8_t, STORAGE_SIZE>     _direction_change_counter = {};
+        std::array<uint8_t, STORAGE_SIZE>     _fast_mode_entry_counter  = {};
+        std::array<uint8_t, STORAGE_SIZE>     _idle_gate_change_counter = {};
+        std::array<uint32_t, STORAGE_SIZE>    _last_movement_time       = {};
+        std::array<uint8_t, BIT_STORAGE_SIZE> _fast_mode                = {};
+        std::array<uint8_t, BIT_STORAGE_SIZE> _last_direction           = {};
+        std::array<uint16_t, STORAGE_SIZE>    _last_sample_value        = {};
+        std::array<uint16_t, STORAGE_SIZE>    _last_value               = {};
+        std::array<uint16_t, STORAGE_SIZE>    _last_position_value      = {};
+        std::array<uint16_t, STORAGE_SIZE>    _last_gate_value          = {};
+        std::array<uint16_t, STORAGE_SIZE>    _pending_gate_value       = {};
 
         /**
          * @brief Stores the last movement direction for one analog input.
@@ -349,10 +362,10 @@ namespace opendeck::io::analog
         }
 
         /**
-         * @brief Clears motion-tracking state while keeping the last published value intact.
+         * @brief Clears motion-tracking state while keeping the last published values intact.
          *
          * This is used when motion context expires so the next sample starts a fresh gesture
-         * instead of continuing stale fast-mode, reversal-confirmation, or pending position
+         * instead of continuing stale fast-mode, reversal-confirmation, or pending gate
          * confirmation state.
          *
          * @param index Analog input index to reset.
@@ -360,7 +373,7 @@ namespace opendeck::io::analog
         void clear_motion_context(size_t index)
         {
             clear_direction_change_state(index);
-            clear_pending_position_state(index);
+            clear_pending_gate_state(index);
             _fast_mode_entry_counter[index] = 0;
             set_fast_mode(index, false);
         }
@@ -376,14 +389,14 @@ namespace opendeck::io::analog
         }
 
         /**
-         * @brief Clears pending position publish confirmation state for one input.
+         * @brief Clears pending movement-gate confirmation state for one input.
          *
          * @param index Analog input index to update.
          */
-        void clear_pending_position_state(size_t index)
+        void clear_pending_gate_state(size_t index)
         {
-            _idle_position_change_counter[index] = 0;
-            _pending_position_value[index]       = NO_VALUE;
+            _idle_gate_change_counter[index] = 0;
+            _pending_gate_value[index]       = NO_VALUE;
         }
 
         /**
@@ -447,6 +460,30 @@ namespace opendeck::io::analog
         }
 
         /**
+         * @brief Maps one ADC sample into the fixed movement-gate space.
+         *
+         * The movement gate is deliberately coarser than the published position scale. It is not
+         * used as the output resolution; it only classifies small idle, reversal, and endpoint
+         * hold changes so noisy ADCs do not flap around while the final position remains high
+         * resolution.
+         *
+         * @param value Input ADC sample.
+         * @param adc_min_value Lower bound of the active ADC range.
+         * @param adc_max_value Upper bound of the active ADC range.
+         * @return Movement-gate value corresponding to the ADC sample.
+         */
+        static constexpr uint16_t adc_to_gate_value(uint16_t value,
+                                                    uint16_t adc_min_value,
+                                                    uint16_t adc_max_value)
+        {
+            return static_cast<uint16_t>(zlibs::utils::misc::map_range(static_cast<uint32_t>(value),
+                                                                       static_cast<uint32_t>(adc_min_value),
+                                                                       static_cast<uint32_t>(adc_max_value),
+                                                                       static_cast<uint32_t>(0),
+                                                                       static_cast<uint32_t>(MOVEMENT_GATE_MAX_VALUE)));
+        }
+
+        /**
          * @brief Prepares motion-context timing state for one sample.
          *
          * @param index Analog input index being processed.
@@ -487,26 +524,29 @@ namespace opendeck::io::analog
             const auto           raw_position_value = adc_to_position_value(descriptor.value,
                                                                             adc_min_value,
                                                                             adc_max_value);
+            const auto           raw_gate_value     = adc_to_gate_value(descriptor.value,
+                                                                        adc_min_value,
+                                                                        adc_max_value);
             const bool           raw_at_endpoint    = (raw_position_value == 0) || (raw_position_value == POSITION_MAX_VALUE);
-            const auto           steps              = POSITION_STEP_COUNT;
             const auto           base_step_diff     = step_diff(adc_min_value,
                                                                 adc_max_value,
-                                                                steps);
+                                                                POSITION_STEP_COUNT);
             const auto           adc_delta          = has_last_sample ? abs_diff(descriptor.value, _last_sample_value[index]) : static_cast<uint16_t>(0);
             const auto           fast_enter_thres   = static_cast<uint16_t>(base_step_diff * FAST_FILTER_ENTER_MULTIPLIER);
             const auto           fast_exit_thres    = static_cast<uint16_t>(base_step_diff * FAST_FILTER_EXIT_MULTIPLIER);
 
             state.has_last_filtered_value = _last_value[index] != NO_VALUE;
             state.has_last_position_value = _last_position_value[index] != NO_VALUE;
+            state.has_last_gate_value     = _last_gate_value[index] != NO_VALUE;
             state.last_filtered_value     = state.has_last_filtered_value ? _last_value[index] : descriptor.value;
             state.old_position_value      = state.has_last_position_value ? _last_position_value[index] : NO_VALUE;
+            state.old_gate_value          = state.has_last_gate_value ? _last_gate_value[index] : NO_VALUE;
             state.raw_position_value      = raw_position_value;
+            state.raw_gate_value          = raw_gate_value;
             state.direction               = descriptor.value >= state.last_filtered_value;
-            state.endpoint_range          = endpoint_assist_range();
             state.endpoint_assist         = endpoint_assist_state(state.has_last_position_value,
                                                                   state.old_position_value,
-                                                                  raw_position_value,
-                                                                  state.endpoint_range);
+                                                                  raw_position_value);
 
             update_fast_filter_state(index,
                                      has_last_sample,
@@ -586,6 +626,9 @@ namespace opendeck::io::analog
             auto position_value = adc_to_position_value(descriptor.value,
                                                         adc_min_value,
                                                         adc_max_value);
+            auto gate_value     = adc_to_gate_value(descriptor.value,
+                                                    adc_min_value,
+                                                    adc_max_value);
 
             if (!apply_position_publish_policy(index,
                                                state.endpoint_assist,
@@ -593,9 +636,11 @@ namespace opendeck::io::analog
                                                descriptor.type != Type::Fsr,
                                                state.has_last_position_value,
                                                state.old_position_value,
-                                               state.raw_position_value,
-                                               state.endpoint_range,
+                                               state.has_last_gate_value,
+                                               state.old_gate_value,
+                                               state.raw_gate_value,
                                                state.direction,
+                                               gate_value,
                                                position_value))
             {
                 return false;
@@ -608,6 +653,7 @@ namespace opendeck::io::analog
                                   state.direction,
                                   descriptor.value,
                                   position_value,
+                                  gate_value,
                                   now);
 
             if (descriptor.type == Type::Fsr)
@@ -680,18 +726,16 @@ namespace opendeck::io::analog
          * @param has_last_position_value Whether a previous position value exists.
          * @param old_position_value Last published position value.
          * @param raw_position_value Position value corresponding to the unclamped raw ADC sample.
-         * @param endpoint_range How close a value must be to min/max before it snaps.
          *
          * @return Endpoint-assist state for the current sample.
          */
         EndpointAssistState endpoint_assist_state(bool     has_last_position_value,
                                                   uint16_t old_position_value,
-                                                  uint16_t raw_position_value,
-                                                  uint16_t endpoint_range) const
+                                                  uint16_t raw_position_value) const
         {
-            const auto upper_endpoint_floor  = POSITION_MAX_VALUE > endpoint_range ? static_cast<uint16_t>(POSITION_MAX_VALUE - endpoint_range) : static_cast<uint16_t>(0);
+            const auto upper_endpoint_floor  = POSITION_MAX_VALUE > ENDPOINT_ASSIST_POSITION_RANGE ? static_cast<uint16_t>(POSITION_MAX_VALUE - ENDPOINT_ASSIST_POSITION_RANGE) : static_cast<uint16_t>(0);
             const bool near_upper_endpoint   = has_last_position_value && (old_position_value >= upper_endpoint_floor);
-            const bool near_lower_endpoint   = has_last_position_value && (old_position_value <= endpoint_range);
+            const bool near_lower_endpoint   = has_last_position_value && (old_position_value <= ENDPOINT_ASSIST_POSITION_RANGE);
             const bool upper_endpoint_assist = near_upper_endpoint &&
                                                (raw_position_value == POSITION_MAX_VALUE) &&
                                                (old_position_value < POSITION_MAX_VALUE);
@@ -707,21 +751,11 @@ namespace opendeck::io::analog
         }
 
         /**
-         * @brief Returns how close a value must be to min/max before it snaps.
-         *
-         * @return Distance from min/max that still counts as the endpoint.
-         */
-        uint16_t endpoint_assist_range() const
-        {
-            return ENDPOINT_ASSIST_POSITION_RANGE;
-        }
-
-        /**
          * @brief Returns the ADC deadband threshold for the current sample.
          *
          * @param index Analog input index being processed.
          * @param direction Current movement direction inferred from ADC values.
-         * @param raw_at_position_endpoint Whether the raw sample already maps to an endpoint.
+         * @param raw_at_position_endpoint Whether the raw sample already maps to a position endpoint.
          * @param has_last_position_value Whether a previous position value exists.
          * @param old_position_value Last published position value.
          * @param base_step_diff ADC delta corresponding to one position step.
@@ -781,7 +815,7 @@ namespace opendeck::io::analog
             }
 
             clear_direction_change_state(index);
-            clear_pending_position_state(index);
+            clear_pending_gate_state(index);
             _fast_mode_entry_counter[index] = 0;
             set_fast_mode(index, false);
 
@@ -825,7 +859,12 @@ namespace opendeck::io::analog
         }
 
         /**
-         * @brief Applies position publish rules for the current sample.
+         * @brief Applies publish rules for the current sample.
+         *
+         * Same-position suppression remains in position space so continuous values can still use
+         * the full filter resolution. Endpoint snapping itself remains in position space. The
+         * coarser movement gate is consulted only for endpoint hold, idle wake confirmation, and
+         * tiny opposite-direction anti-flap.
          *
          * @param index Analog input index being processed.
          * @param endpoint_assist Endpoint-assist state for the current sample.
@@ -833,10 +872,12 @@ namespace opendeck::io::analog
          * @param apply_idle_wake_gate Whether tiny idle movements should be blocked.
          * @param has_last_position_value Whether a previous position value exists.
          * @param old_position_value Last published position value.
-         * @param raw_position_value Current raw position before EMA smoothing.
-         * @param endpoint_range How close a value must be to min/max before it snaps.
+         * @param has_last_gate_value Whether a previous movement-gate value exists.
+         * @param old_gate_value Last published movement-gate value.
+         * @param raw_gate_value Current raw movement-gate value before EMA smoothing.
          * @param direction Current movement direction; may be updated by endpoint assist.
-         * @param position_value Current position value; may be replaced by endpoint assist.
+         * @param gate_value Current movement-gate value; may be replaced by endpoint assist.
+         * @param position_value Current position value; may be snapped by endpoint assist.
          *
          * @return `true` when the current position value should be published.
          */
@@ -846,70 +887,74 @@ namespace opendeck::io::analog
                                            bool                       apply_idle_wake_gate,
                                            bool                       has_last_position_value,
                                            uint16_t                   old_position_value,
-                                           uint16_t                   raw_position_value,
-                                           uint16_t                   endpoint_range,
+                                           bool                       has_last_gate_value,
+                                           uint16_t                   old_gate_value,
+                                           uint16_t                   raw_gate_value,
                                            bool&                      direction,
+                                           uint16_t&                  gate_value,
                                            uint16_t&                  position_value)
         {
             if (endpoint_assist.upper)
             {
+                gate_value     = MOVEMENT_GATE_MAX_VALUE;
                 position_value = POSITION_MAX_VALUE;
                 direction      = true;
             }
             else if (endpoint_assist.lower)
             {
+                gate_value     = 0;
                 position_value = 0;
                 direction      = false;
             }
 
-            if (endpoint_hold_active(has_last_position_value,
-                                     old_position_value,
-                                     position_value,
-                                     endpoint_range))
+            if (!endpoint_assist.enabled &&
+                endpoint_hold_active(has_last_gate_value,
+                                     old_gate_value,
+                                     gate_value))
             {
-                clear_pending_position_state(index);
+                clear_pending_gate_state(index);
                 return false;
             }
 
             if (has_last_position_value && (position_value == old_position_value))
             {
-                clear_pending_position_state(index);
+                clear_pending_gate_state(index);
                 return false;
             }
 
-            if (!endpoint_assist.enabled && idle_context && has_last_position_value)
+            if (!endpoint_assist.enabled && idle_context && has_last_gate_value)
             {
-                // While motion context is expired, ignore tiny position changes entirely.
+                // While motion context is expired, ignore tiny movement-gate changes entirely.
                 // Larger changes still need repeated-sample confirmation below; once accepted,
                 // commit_filtered_state() refreshes motion context and this idle gate is skipped.
                 if (apply_idle_wake_gate &&
-                    (abs_diff(raw_position_value, old_position_value) < IDLE_WAKE_POSITION_THRESHOLD))
+                    (abs_diff(raw_gate_value, old_gate_value) < IDLE_WAKE_GATE_THRESHOLD))
                 {
-                    clear_pending_position_state(index);
+                    clear_pending_gate_state(index);
                     return false;
                 }
 
-                if (_pending_position_value[index] != position_value)
+                if (_pending_gate_value[index] != gate_value)
                 {
-                    _pending_position_value[index]       = position_value;
-                    _idle_position_change_counter[index] = 1;
+                    _pending_gate_value[index]       = gate_value;
+                    _idle_gate_change_counter[index] = 1;
                     return false;
                 }
 
-                _idle_position_change_counter[index]++;
+                _idle_gate_change_counter[index]++;
 
-                if (_idle_position_change_counter[index] < IDLE_POSITION_CHANGE_SAMPLE_COUNT)
+                if (_idle_gate_change_counter[index] < IDLE_GATE_CHANGE_SAMPLE_COUNT)
                 {
                     return false;
                 }
             }
 
             if (!endpoint_assist.enabled &&
-                has_last_position_value &&
+                has_last_gate_value &&
                 (direction != last_direction(index)) &&
-                (abs_diff(position_value, old_position_value) < POSITION_DIRECTION_CHANGE_THRESHOLD))
+                (abs_diff(gate_value, old_gate_value) < GATE_DIRECTION_CHANGE_THRESHOLD))
             {
-                clear_pending_position_state(index);
+                clear_pending_gate_state(index);
                 return false;
             }
 
@@ -923,25 +968,23 @@ namespace opendeck::io::analog
          * Without this hold check, edge noise can immediately publish a small value next to the
          * endpoint and then snap back again on the next sample.
          *
-         * @param has_last_position_value Whether a previous position value exists.
-         * @param old_position_value Last published position value.
-         * @param position_value Current position value.
-         * @param endpoint_range How close a value must be to min/max before it snaps.
+         * @param has_last_gate_value Whether a previous movement-gate value exists.
+         * @param old_gate_value Last published movement-gate value.
+         * @param gate_value Current movement-gate value.
          *
          * @return `true` when the previous endpoint value should remain published.
          */
-        bool endpoint_hold_active(bool     has_last_position_value,
-                                  uint16_t old_position_value,
-                                  uint16_t position_value,
-                                  uint16_t endpoint_range) const
+        bool endpoint_hold_active(bool     has_last_gate_value,
+                                  uint16_t old_gate_value,
+                                  uint16_t gate_value) const
         {
             const auto hold_range = static_cast<uint16_t>(std::min<uint32_t>(
-                POSITION_MAX_VALUE,
-                static_cast<uint32_t>(endpoint_range) * FAST_FILTER_STEP_MULTIPLIER));
+                MOVEMENT_GATE_MAX_VALUE,
+                static_cast<uint32_t>(ENDPOINT_ASSIST_GATE_RANGE) * FAST_FILTER_STEP_MULTIPLIER));
 
-            return has_last_position_value &&
-                   (((old_position_value == 0) && (position_value <= hold_range)) ||
-                    ((old_position_value == POSITION_MAX_VALUE) && (position_value >= (POSITION_MAX_VALUE - hold_range))));
+            return has_last_gate_value &&
+                   (((old_gate_value == 0) && (gate_value <= hold_range)) ||
+                    ((old_gate_value == MOVEMENT_GATE_MAX_VALUE) && (gate_value >= (MOVEMENT_GATE_MAX_VALUE - hold_range))));
         }
 
         /**
@@ -951,19 +994,22 @@ namespace opendeck::io::analog
          * @param direction Accepted movement direction.
          * @param value Accepted filtered ADC value.
          * @param position_value Accepted position value.
+         * @param gate_value Accepted movement-gate value.
          * @param now Current uptime in milliseconds.
          */
         void commit_filtered_state(size_t   index,
                                    bool     direction,
                                    uint16_t value,
                                    uint16_t position_value,
+                                   uint16_t gate_value,
                                    uint32_t now)
         {
             set_last_direction(index, direction);
             clear_direction_change_state(index);
-            clear_pending_position_state(index);
+            clear_pending_gate_state(index);
             _last_value[index]          = value;
             _last_position_value[index] = position_value;
+            _last_gate_value[index]     = gate_value;
             _last_movement_time[index]  = now;
         }
 

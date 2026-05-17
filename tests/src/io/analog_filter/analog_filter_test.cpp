@@ -518,9 +518,9 @@ TEST_F(AnalogFilterTest, IdlePotDriftRequiresRepeatConfirmation)
 
     k_msleep(analog::FilterHw::motion_context_timeout_ms() + 20);
 
-    EXPECT_FALSE(sample(adc_value_for_output(static_cast<uint16_t>(baseline + 6))).has_value());
+    EXPECT_FALSE(sample(adc_value_for_output(static_cast<uint16_t>(baseline + 20))).has_value());
 
-    const auto filtered = sample(adc_value_for_output(static_cast<uint16_t>(baseline + 6)));
+    const auto filtered = sample(adc_value_for_output(static_cast<uint16_t>(baseline + 20)));
 
     ASSERT_TRUE(filtered.has_value());
     EXPECT_GT(filtered.value(), baseline);
@@ -543,9 +543,9 @@ TEST_F(AnalogFilterTest, ConfirmedIdlePotMovementWakesFilter)
 
     k_msleep(analog::FilterHw::motion_context_timeout_ms() + 20);
 
-    EXPECT_FALSE(sample(adc_value_for_output(static_cast<uint16_t>(baseline + 4))).has_value());
+    EXPECT_FALSE(sample(adc_value_for_output(static_cast<uint16_t>(baseline + 20))).has_value());
 
-    const auto filtered = sample(adc_value_for_output(static_cast<uint16_t>(baseline + 4)));
+    const auto filtered = sample(adc_value_for_output(static_cast<uint16_t>(baseline + 20)));
 
     ASSERT_TRUE(filtered.has_value());
     EXPECT_GT(filtered.value(), baseline);
@@ -629,6 +629,16 @@ TEST_F(AnalogFilterTest, ActivePotMovementPublishesWithoutIdleRepeat)
     const auto baseline = prime_position(64);
 
     const auto filtered = sample(adc_value_for_output(static_cast<uint16_t>(baseline + 6)));
+
+    ASSERT_TRUE(filtered.has_value());
+    EXPECT_GT(filtered.value(), baseline);
+}
+
+TEST_F(AnalogFilterTest, ActivePotMovementInsideSameGateStillPublishes)
+{
+    const auto baseline = prime_position(100);
+
+    const auto filtered = sample(adc_value_for_output(static_cast<uint16_t>(baseline + 2)));
 
     ASSERT_TRUE(filtered.has_value());
     EXPECT_GT(filtered.value(), baseline);
