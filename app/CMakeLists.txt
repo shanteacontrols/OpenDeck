@@ -13,6 +13,25 @@ endif()
 
 set(TARGET "$ENV{TARGET}")
 
+set(OPENDECK_GENERATED_DIR ${CMAKE_CURRENT_BINARY_DIR}/../generated)
+cmake_path(NORMAL_PATH OPENDECK_GENERATED_DIR)
+
+execute_process(
+    COMMAND
+    bash
+    $ENV{ZEPHYR_PROJECT}/scripts/query_metadata.sh
+    target-config
+    --kconfig
+    ${CMAKE_CURRENT_SOURCE_DIR}/firmware/Kconfig
+    --config
+    ${CMAKE_CURRENT_BINARY_DIR}/zephyr/.config
+    --output
+    ${OPENDECK_GENERATED_DIR}/target.conf
+    --kconfig-output
+    ${OPENDECK_GENERATED_DIR}/target.kconfig
+    COMMAND_ERROR_IS_FATAL ANY
+)
+
 zephyr_compile_options(-Wno-psabi)
 zephyr_compile_options($<$<COMPILE_LANGUAGE:CXX>:-fno-threadsafe-statics>)
 zephyr_include_directories(${CMAKE_CURRENT_SOURCE_DIR})

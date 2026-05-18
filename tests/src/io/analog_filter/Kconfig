@@ -1,3 +1,14 @@
 mainmenu "Project-specific configuration"
 
+# The filter test is target-independent, but FilterHw stores state in
+# Collection-sized arrays. Provide one analog slot without importing a
+# real target config.
+config PROJECT_TARGET_ANALOG_PHYSICAL_COUNT
+    int
+    default 1
+
+config PROJECT_TARGET_ANALOG_LOGICAL_COUNT
+    int
+    default 1
+
 rsource "$ZEPHYR_PROJECT/app/Kconfig"

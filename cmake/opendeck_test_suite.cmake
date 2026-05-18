@@ -1,7 +1,7 @@
 include_guard(GLOBAL)
 
 macro(opendeck_test_bootstrap)
-    set(options APPLY_TARGET)
+    set(options IMPORT_TARGET_CONFIG)
     set(multiValueArgs COMPILE_DEFINITIONS)
     cmake_parse_arguments(OPENDECK_TEST "${options}" "" "${multiValueArgs}" ${ARGN})
 
@@ -9,13 +9,12 @@ macro(opendeck_test_bootstrap)
         set(KCONFIG_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/Kconfig)
     endif()
 
-    list(APPEND CONF_FILE "${CMAKE_CURRENT_SOURCE_DIR}/prj.conf")
-
-    if(OPENDECK_TEST_APPLY_TARGET)
-        list(APPEND DTS_ROOT "$ENV{ZEPHYR_PROJECT}/app")
+    if(OPENDECK_TEST_IMPORT_TARGET_CONFIG)
         include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_test_target.cmake)
-        opendeck_test_apply_target()
+        opendeck_test_import_target_config()
     endif()
+
+    list(APPEND CONF_FILE "${CMAKE_CURRENT_SOURCE_DIR}/prj.conf")
 
     include($ENV{ZEPHYR_WS}/zenv/cmake/test.cmake)
 

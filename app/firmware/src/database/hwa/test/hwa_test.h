@@ -33,7 +33,7 @@ namespace opendeck::database
         /**
          * @brief Logical size of each test EmuEEPROM page.
          */
-        static constexpr size_t EMUEEPROM_PAGE_SIZE = OPENDECK_TEST_EMUEEPROM_PAGE_SIZE;
+        static constexpr size_t EMUEEPROM_PAGE_SIZE = CONFIG_PROJECT_TARGET_EMUEEPROM_PAGE_SIZE;
 
         /**
          * @brief Number of logical addresses supported by the physical EmuEEPROM journal.

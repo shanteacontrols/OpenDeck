@@ -267,6 +267,12 @@ config PROJECT_TARGET_TOUCHSCREEN_COMPONENT_COUNT
     help
       Hidden resolved touchscreen component count for the selected target.
 
+config PROJECT_TARGET_EMUEEPROM_PAGE_SIZE
+    int
+    default $(dt_nodelabel_reg_size_int,emueeprom_page1_partition)
+    help
+      Hidden resolved logical EmuEEPROM page size for the selected target.
+
 config PROJECT_TARGET_SUPPORT_I2C
     bool
     default y if $(dt_path_enabled,$(OPENDECK_DISPLAY_NODE))
@@ -416,5 +422,47 @@ config PROJECT_TARGET_SUPPORT_STAGED_UPDATE
     default y if $(dt_path_enabled,$(OPENDECK_STAGED_DFU_NODE))
     help
       Hidden symbol indicating staged DFU storage is present on this target.
+
+config PROJECT_TARGET_SUPPORT_HOST_TEST
+    bool
+    default y if $(dt_nodelabel_bool_prop,opendeck_tests,host)
+    help
+      Hidden resolved flag indicating whether this target participates in
+      host-side preset tests.
+
+config PROJECT_TARGET_SUPPORT_HW_TEST
+    bool
+    default y if $(dt_nodelabel_bool_prop,opendeck_tests,hw)
+    help
+      Hidden resolved flag indicating whether this target participates in
+      hardware preset tests.
+
+config PROJECT_TARGET_BULK_APP
+    bool
+    default y if $(dt_nodelabel_bool_prop,opendeck_bulk_build,app)
+    help
+      Hidden resolved flag indicating whether this target participates in
+      bulk application builds.
+
+config PROJECT_TARGET_BULK_HOST_TEST
+    bool
+    default y if $(dt_nodelabel_bool_prop,opendeck_bulk_build,host-test)
+    help
+      Hidden resolved flag indicating whether this target participates in
+      bulk host-test runs.
+
+config PROJECT_TARGET_BULK_HW_TEST
+    bool
+    default y if $(dt_nodelabel_bool_prop,opendeck_bulk_build,hw-test)
+    help
+      Hidden resolved flag indicating whether this target participates in
+      bulk hardware-test runs.
+
+config PROJECT_TARGET_BULK_LINT
+    bool
+    default y if $(dt_nodelabel_bool_prop,opendeck_bulk_build,lint)
+    help
+      Hidden resolved flag indicating whether this target participates in
+      bulk lint runs.
 
 rsource "src/Kconfig"

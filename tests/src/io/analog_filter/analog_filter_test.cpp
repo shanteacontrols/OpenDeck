@@ -5,8 +5,6 @@
 
 #include "tests/common.h"
 
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_ADC
-
 #include "firmware/src/io/analog/filter/hw/filter_hw.h"
 
 #include "zlibs/utils/misc/numeric.h"
@@ -679,5 +677,3 @@ TEST_F(AnalogFilterTest, ActiveFsrMovementPublishesWithoutIdleRepeat)
     ASSERT_TRUE(filtered.has_value());
     EXPECT_GT(filtered.value(), baseline);
 }
-
-#endif

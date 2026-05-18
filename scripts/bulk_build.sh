@@ -55,12 +55,44 @@ function load_targets
     mapfile -t build_targets < <(find "$project_root/app/boards/opendeck" -mindepth 2 -maxdepth 2 -type f -name opendeck.overlay -printf '%h\n' | xargs -r -n1 basename | sort)
 }
 
+function load_built_app_targets
+{
+    mapfile -t build_targets < <(find "$project_root/build/app/default/release" -mindepth 4 -maxdepth 4 -type f -path '*/app/zephyr/.config' -printf '%P\n' | cut -d/ -f1 | sort)
+}
+
 function metadata_value
 {
     local metadata=$1
     local key=$2
 
     printf '%s\n' "$metadata" | sed -n "s/^${key}=//p" | head -n1
+}
+
+function app_config_path
+{
+    local target=$1
+
+    printf '%s\n' "${project_root}/build/app/default/release/${target}/app/zephyr/.config"
+}
+
+function app_config_bool_enabled
+{
+    local target=$1
+    local key=$2
+    local value
+
+    value=$(bash "$metadata_query_script" config --file "$(app_config_path "$target")" --key "$key" --default n)
+
+    [[ "$value" == "y" ]]
+}
+
+function testcase_tags
+{
+    local testcase_file=$1
+    local test_name=$2
+    local escaped_test_name=${test_name//./\\.}
+
+    $yaml_parser -m --plain -f "$testcase_file" "tests.${escaped_test_name}.tags.[*]"
 }
 
 function list_tests_by_tag
@@ -72,13 +104,24 @@ function list_tests_by_tag
     do
         while IFS= read -r test_name
         do
-            local metadata
             local mode
             local bulk_mode
+            local tag
 
-            metadata=$(bash "$metadata_query_script" testcase --file "$testcase_file" --name "$test_name")
-            mode=$(metadata_value "$metadata" "mode")
-            bulk_mode=$(metadata_value "$metadata" "bulk_mode")
+            mode=unknown
+            bulk_mode=shared
+
+            while IFS= read -r tag
+            do
+                case "$tag" in
+                    host|hw)
+                        mode=$tag
+                        ;;
+                    preset)
+                        bulk_mode=preset
+                        ;;
+                esac
+            done < <(testcase_tags "$testcase_file" "$test_name")
 
             if [[ "$mode" != "$required_tag" ]]
             then
@@ -182,15 +225,13 @@ case $type in
     ;;
 
     host-test)
-        load_targets
+        load_built_app_targets
         host_targets=()
 
         for target in "${build_targets[@]}"
         do
-            target_metadata=$(bash "$metadata_query_script" target --target "$target")
-
-            if [[ "$(metadata_value "$target_metadata" "bulk_host_test")" == "true" ]] &&
-               [[ "$(metadata_value "$target_metadata" "test_host")" == "true" ]]
+            if app_config_bool_enabled "$target" "CONFIG_PROJECT_TARGET_BULK_HOST_TEST" &&
+               app_config_bool_enabled "$target" "CONFIG_PROJECT_TARGET_SUPPORT_HOST_TEST"
             then
                 host_targets+=("$target")
             fi
@@ -212,15 +253,13 @@ case $type in
     ;;
 
     hw-test)
-        load_targets
+        load_built_app_targets
         hw_targets=()
 
         for target in "${build_targets[@]}"
         do
-            target_metadata=$(bash "$metadata_query_script" target --target "$target")
-
-            if [[ "$(metadata_value "$target_metadata" "bulk_hw_test")" == "true" ]] &&
-               [[ "$(metadata_value "$target_metadata" "test_hw")" == "true" ]]
+            if app_config_bool_enabled "$target" "CONFIG_PROJECT_TARGET_BULK_HW_TEST" &&
+               app_config_bool_enabled "$target" "CONFIG_PROJECT_TARGET_SUPPORT_HW_TEST"
             then
                 hw_targets+=("$target")
             fi

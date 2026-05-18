@@ -58,10 +58,13 @@ namespace opendeck::database
                           (EMUEEPROM_PAGE1_PARTITION_SIZE == EMUEEPROM_FACTORY_PARTITION_SIZE),
                       "EmuEEPROM partitions must have matching physical sizes.");
 
+        static_assert(CONFIG_PROJECT_TARGET_EMUEEPROM_PAGE_SIZE == EMUEEPROM_PAGE1_PARTITION_SIZE,
+                      "Resolved target EmuEEPROM page size must match the physical EmuEEPROM partition size.");
+
         /**
          * @brief Logical size of each EmuEEPROM page.
          */
-        static constexpr size_t EMUEEPROM_PAGE_SIZE = EMUEEPROM_PAGE1_PARTITION_SIZE;
+        static constexpr size_t EMUEEPROM_PAGE_SIZE = CONFIG_PROJECT_TARGET_EMUEEPROM_PAGE_SIZE;
 
         /**
          * @brief Number of logical addresses supported by the physical EmuEEPROM journal.

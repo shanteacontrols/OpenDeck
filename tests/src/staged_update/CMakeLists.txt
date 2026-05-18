@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_test_suite.cmake)
 opendeck_test_bootstrap(
-    APPLY_TARGET
+    IMPORT_TARGET_CONFIG
     COMPILE_DEFINITIONS
     CONFIG_OPENDECK_LOG_LEVEL=3
 )

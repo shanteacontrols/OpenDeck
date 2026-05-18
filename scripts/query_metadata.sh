@@ -10,15 +10,7 @@ function usage
 
     echo -e "
     This helper reads normalized OpenDeck metadata for scripts and CMake helpers.
-    It can be launched in four modes:
-
-    testcase
-    Reads metadata from one testcase.yaml entry.
-    Required options:
-      --file <testcase.yaml>
-      --name <test_name>
-    Optional:
-      --key <name|mode|bulk_mode>
+    It can be launched in three modes:
 
     target
     Reads metadata from one OpenDeck target overlay.
@@ -27,7 +19,7 @@ function usage
     Alternative option:
       --overlay <opendeck.overlay>
     Optional:
-      --key <target|zephyr_board|zephyr_board_dir|zephyr_overlay_dir|board_name|emueeprom_page_size|test_host|test_hw|bulk_app|bulk_host_test|bulk_hw_test|bulk_lint|target_alias_overlay_line>
+      --key <target|board_name|bulk_app|bulk_lint|target_alias_overlay_line>
 
     dts
     Reads metadata from one generated zephyr.dts file by converting it to YAML.
@@ -44,6 +36,15 @@ function usage
     Optional:
       --default <value>
       --file <config_file> (can be passed multiple times)
+
+    target-config
+    Exports all PROJECT_TARGET_* symbols declared in app/firmware/Kconfig
+    from one resolved app .config file.
+    Required options:
+      --kconfig <app/firmware/Kconfig>
+      --config <app/zephyr/.config>
+      --output <target.conf>
+      --kconfig-output <target.kconfig>
     "
 }
 
@@ -61,72 +62,6 @@ function print_metadata
     printf '%s\n' "$metadata"
 }
 
-function parse_dts_int
-{
-    local value=$1
-
-    case "$value" in
-        0x*|0X*)
-            printf '%u\n' "$((16#${value:2}))"
-            ;;
-
-        DT_SIZE_K\(*\))
-            value=${value#DT_SIZE_K(}
-            value=${value%)}
-            printf '%u\n' "$((value * 1024))"
-            ;;
-
-        DT_SIZE_M\(*\))
-            value=${value#DT_SIZE_M(}
-            value=${value%)}
-            printf '%u\n' "$((value * 1024 * 1024))"
-            ;;
-
-        *)
-            printf '%u\n' "$value"
-            ;;
-    esac
-}
-
-function partition_size
-{
-    local partitions_overlay=$1
-    local partition_label=$2
-    local in_partition=false
-    local line
-
-    while IFS= read -r line
-    do
-        line="${line#"${line%%[![:space:]]*}"}"
-        line="${line%"${line##*[![:space:]]}"}"
-
-        if [[ $line == "${partition_label}:"* ]]
-        then
-            in_partition=true
-            continue
-        fi
-
-        if [[ $in_partition != true ]]
-        then
-            continue
-        fi
-
-        if [[ $line == "};" ]]
-        then
-            break
-        fi
-
-        if [[ $line =~ reg[[:space:]]*=[[:space:]]*\<[^[:space:]]+[[:space:]]+([^[:space:]]+)\>\; ]]
-        then
-            parse_dts_int "${BASH_REMATCH[1]}"
-            return
-        fi
-    done < "$partitions_overlay"
-
-    echo "ERROR: Unable to find ${partition_label} size in ${partitions_overlay}." >&2
-    exit 1
-}
-
 function target_alias_overlay_lines
 {
     local firmware_overlay=$1
@@ -137,68 +72,6 @@ function target_alias_overlay_lines
     fi
 
     sed -n 's/^\(opendeck_\(uart_din_midi\|uart_touchscreen\|i2c_display\):.*\)$/target_alias_overlay_line=\1/p' "$firmware_overlay"
-}
-
-function testcase_metadata
-{
-    local testcase_file=
-    local test_name=
-    local key=
-
-    while [[ $# -gt 0 ]]
-    do
-        case "$1" in
-            --file)
-                testcase_file=$2
-                shift 2
-                ;;
-            --name)
-                test_name=$2
-                shift 2
-                ;;
-            --key)
-                key=$2
-                shift 2
-                ;;
-            *)
-                echo "ERROR: Unknown testcase argument '$1'" >&2
-                exit 1
-                ;;
-        esac
-    done
-
-    if [[ -z "$testcase_file" || -z "$test_name" ]]
-    then
-        echo "ERROR: testcase mode requires --file and --name." >&2
-        exit 1
-    fi
-
-    local escaped_test_name=${test_name//./\\.}
-    local tags=()
-    local mode=unknown
-    local bulk_mode=shared
-    local tag
-
-    mapfile -t tags < <($yaml_parser -m --plain -f "$testcase_file" "tests.${escaped_test_name}.tags.[*]")
-
-    if [[ ${#tags[@]} -eq 1 && "${tags[0]}" == "null" ]]
-    then
-        tags=()
-    fi
-
-    for tag in "${tags[@]}"
-    do
-        case "$tag" in
-            host|hw)
-                mode=$tag
-                ;;
-            preset)
-                bulk_mode=preset
-                ;;
-        esac
-    done
-
-    print_metadata "$(printf 'name=%s\nmode=%s\nbulk_mode=%s\n' "$test_name" "$mode" "$bulk_mode")" "$key"
 }
 
 function config_metadata
@@ -255,10 +128,107 @@ function config_metadata
         if [[ -n "$file_value" ]]
         then
             value=$file_value
+            continue
+        fi
+
+        if grep -q "^# ${key} is not set$" "$config_file"
+        then
+            value=n
         fi
     done
 
     printf '%s\n' "$value"
+}
+
+function target_config_metadata
+{
+    local kconfig_file=
+    local config_file=
+    local output_file=
+    local kconfig_output_file=
+
+    while [[ $# -gt 0 ]]
+    do
+        case "$1" in
+            --kconfig)
+                kconfig_file=$2
+                shift 2
+                ;;
+            --config)
+                config_file=$2
+                shift 2
+                ;;
+            --output)
+                output_file=$2
+                shift 2
+                ;;
+            --kconfig-output)
+                kconfig_output_file=$2
+                shift 2
+                ;;
+            *)
+                echo "ERROR: Unknown target-config argument '$1'" >&2
+                exit 1
+                ;;
+        esac
+    done
+
+    if [[ -z "$kconfig_file" || -z "$config_file" || -z "$output_file" || -z "$kconfig_output_file" ]]
+    then
+        echo "ERROR: target-config mode requires --kconfig, --config, --output and --kconfig-output." >&2
+        exit 1
+    fi
+
+    if [[ ! -f "$kconfig_file" ]]
+    then
+        echo "ERROR: Kconfig file '$kconfig_file' does not exist." >&2
+        exit 1
+    fi
+
+    if [[ ! -f "$config_file" ]]
+    then
+        echo "ERROR: Config file '$config_file' does not exist." >&2
+        exit 1
+    fi
+
+    mkdir -p "$(dirname "$output_file")"
+    mkdir -p "$(dirname "$kconfig_output_file")"
+
+    {
+        sed -n 's/^config \(PROJECT_TARGET_[A-Z0-9_]*\)$/\1/p' "$kconfig_file" |
+            while read -r name
+            do
+                local line
+
+                line=$(grep -E "^(CONFIG_${name}=|# CONFIG_${name} is not set$)" "$config_file" | head -n1 || true)
+
+                if [[ -z "$line" ]]
+                then
+                    line="# CONFIG_${name} is not set"
+                fi
+
+                printf '%s\n' "$line"
+            done
+    } > "$output_file"
+
+    {
+        printf 'menu "Imported OpenDeck target metadata"\n\n'
+
+        awk '
+            /^config PROJECT_TARGET_[A-Z0-9_]+$/ {
+                name = $2
+                next
+            }
+
+            name != "" && /^[[:space:]]+(bool|int)([[:space:]]|$)/ {
+                type = $1
+                printf("config %s\n    %s \"Imported target metadata\"\n\n", name, type)
+                name = ""
+            }
+        ' "$kconfig_file"
+
+        printf 'endmenu\n'
+    } > "$kconfig_output_file"
 }
 
 function target_metadata
@@ -312,50 +282,21 @@ function target_metadata
         target=$(basename "$(dirname "$overlay")")
     fi
 
-    local zephyr_board
-    local zephyr_board_dir
-    local zephyr_overlay_dir
-    local partitions_overlay
     local target_firmware_overlay
-    local emueeprom_page_size
     local board_name
 
-    zephyr_board=$(sed -n 's/.*zephyr-board[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' "$overlay" | head -n1)
     board_name=$(sed -n 's/.*board-name[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' "$overlay" | head -n1)
-    zephyr_board_dir=${zephyr_board//\//_}
-    zephyr_overlay_dir="${project_root}/app/boards/zephyr/${zephyr_board_dir}"
-    partitions_overlay="${zephyr_overlay_dir}/partitions.overlay"
     target_firmware_overlay="${project_root}/app/boards/opendeck/${target}/firmware.overlay"
 
-    if [[ -n "$zephyr_board" && -f "$partitions_overlay" ]]
-    then
-        emueeprom_page_size=$(partition_size "$partitions_overlay" "emueeprom_page1_partition")
-    fi
-
-    print_metadata "$(awk -v target="$target" -v zephyr_board="$zephyr_board" -v zephyr_board_dir="$zephyr_board_dir" -v board_name="$board_name" -v zephyr_overlay_dir="$zephyr_overlay_dir" -v emueeprom_page_size="$emueeprom_page_size" '
+    print_metadata "$(awk -v target="$target" -v board_name="$board_name" '
         BEGIN {
-            in_tests = 0;
             in_bulk = 0;
-            test_host = "false";
-            test_hw = "false";
             bulk_app = "false";
-            bulk_host_test = "false";
-            bulk_hw_test = "false";
             bulk_lint = "false";
-        }
-
-        /opendeck_tests:[[:space:]]+opendeck-tests/ {
-            in_tests = 1;
-            next;
         }
 
         /opendeck_bulk_build:[[:space:]]+opendeck-bulk-build/ {
             in_bulk = 1;
-            next;
-        }
-
-        in_tests && /^[[:space:]]*};/ {
-            in_tests = 0;
             next;
         }
 
@@ -364,24 +305,8 @@ function target_metadata
             next;
         }
 
-        in_tests && /^[[:space:]]*host;/ {
-            test_host = "true";
-        }
-
-        in_tests && /^[[:space:]]*hw;/ {
-            test_hw = "true";
-        }
-
         in_bulk && /^[[:space:]]*app;/ {
             bulk_app = "true";
-        }
-
-        in_bulk && /^[[:space:]]*host-test;/ {
-            bulk_host_test = "true";
-        }
-
-        in_bulk && /^[[:space:]]*hw-test;/ {
-            bulk_hw_test = "true";
         }
 
         in_bulk && /^[[:space:]]*lint;/ {
@@ -390,16 +315,8 @@ function target_metadata
 
         END {
             printf "target=%s\n", target;
-            printf "zephyr_board=%s\n", zephyr_board;
-            printf "zephyr_board_dir=%s\n", zephyr_board_dir;
-            printf "zephyr_overlay_dir=%s\n", zephyr_overlay_dir;
             printf "board_name=%s\n", board_name;
-            printf "emueeprom_page_size=%s\n", emueeprom_page_size;
-            printf "test_host=%s\n", test_host;
-            printf "test_hw=%s\n", test_hw;
             printf "bulk_app=%s\n", bulk_app;
-            printf "bulk_host_test=%s\n", bulk_host_test;
-            printf "bulk_hw_test=%s\n", bulk_hw_test;
             printf "bulk_lint=%s\n", bulk_lint;
         }
     ' "$overlay")
@@ -574,9 +491,6 @@ mode=$1
 shift
 
 case "$mode" in
-    testcase)
-        testcase_metadata "$@"
-        ;;
     target)
         target_metadata "$@"
         ;;
@@ -585,6 +499,9 @@ case "$mode" in
         ;;
     config)
         config_metadata "$@"
+        ;;
+    target-config)
+        target_config_metadata "$@"
         ;;
     *)
         echo "ERROR: Unknown mode '$mode'" >&2
