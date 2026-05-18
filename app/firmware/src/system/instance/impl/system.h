@@ -14,6 +14,7 @@
 #include "firmware/src/util/cinfo/cinfo.h"
 
 #include "zlibs/utils/misc/kwork_delayable.h"
+#include "zlibs/utils/misc/mutex.h"
 #include "zlibs/utils/misc/ring_buffer.h"
 
 namespace opendeck::sys
@@ -200,6 +201,12 @@ namespace opendeck::sys
         static constexpr uint32_t BACKUP_PROCESSING_START_DELAY_MS = 100;
         static constexpr uint32_t BACKUP_RESTORE_STEP_DELAY_MS     = 4;
 
+        struct ConfigSession
+        {
+            signaling::ConfigTransport transport  = signaling::ConfigTransport::Usb;
+            uint32_t                   session_id = signaling::CONFIG_SESSION_ID_DEFAULT;
+        };
+
         Hwa&                                                                        _hwa;
         DatabaseHandlers                                                            _database_handlers;
         SysExDataHandler                                                            _sysex_data_handler;
@@ -213,9 +220,11 @@ namespace opendeck::sys
         zlibs::utils::sysex_conf::SysExConf                                         _sysex_conf;
         util::ComponentInfo                                                         _cinfo;
         Layout                                                                      _layout;
-        BackupRestoreState                                                          _backup_restore_state     = BackupRestoreState::None;
-        BackupSession                                                               _backup_session           = {};
-        signaling::ConfigTransport                                                  _config_transport         = signaling::ConfigTransport::Usb;
+        BackupRestoreState                                                          _backup_restore_state = BackupRestoreState::None;
+        BackupSession                                                               _backup_session       = {};
+        signaling::ConfigTransport                                                  _config_transport     = signaling::ConfigTransport::Usb;
+        uint32_t                                                                    _config_session_id    = signaling::CONFIG_SESSION_ID_DEFAULT;
+        mutable zlibs::utils::misc::Mutex                                           _config_session_lock;
         bool                                                                        _components_initialized   = false;
         bool                                                                        _config_unlocked          = false;
         std::optional<ConfigUnlockToken>                                            _config_unlock_token      = {};
@@ -361,9 +370,9 @@ namespace opendeck::sys
         /**
          * @brief Closes the active configuration session when its transport disconnects.
          *
-         * @param transport Transport that disconnected.
+         * @param disconnect Disconnect event emitted by the transport.
          */
-        void handle_config_disconnect(signaling::ConfigTransport transport);
+        void handle_config_disconnect(const signaling::ConfigDisconnectSignal& disconnect);
 
         /**
          * @brief Checks whether a transport is allowed to use the current config session.
@@ -377,6 +386,21 @@ namespace opendeck::sys
          * @return `true` if the request may be processed, otherwise `false`.
          */
         bool can_accept_config_transport(signaling::ConfigTransport transport);
+
+        /**
+         * @brief Updates the active configuration session routing.
+         *
+         * @param transport Transport that owns the session.
+         * @param session_id Transport-local session identifier.
+         */
+        void set_config_session(signaling::ConfigTransport transport, uint32_t session_id);
+
+        /**
+         * @brief Returns a consistent snapshot of active configuration routing.
+         *
+         * @return Active configuration session routing state.
+         */
+        ConfigSession config_session() const;
 
         /**
          * @brief Handles one raw SysEx configuration frame from a non-MIDI config endpoint.

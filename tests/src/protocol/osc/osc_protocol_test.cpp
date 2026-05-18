@@ -154,12 +154,14 @@ namespace
 
         void publish_network_identity()
         {
-            signaling::publish(signaling::NetworkIdentitySignal("opendeck-test.local", "192.168.1.112"));
+            ASSERT_TRUE(signaling::publish(signaling::NetworkIdentitySignal("opendeck-test.local", "192.168.1.112")));
+            ASSERT_TRUE(zlibs::utils::signaling::drain());
         }
 
         void publish_network_identity_without_ip()
         {
-            signaling::publish(signaling::NetworkIdentitySignal("opendeck-test.local", {}));
+            ASSERT_TRUE(signaling::publish(signaling::NetworkIdentitySignal("opendeck-test.local", {})));
+            ASSERT_TRUE(zlibs::utils::signaling::drain());
         }
 
         tests::NoOpDatabaseHandlers _handlers;

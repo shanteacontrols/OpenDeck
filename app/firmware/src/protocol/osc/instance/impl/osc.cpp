@@ -220,40 +220,15 @@ bool Osc::enqueue_input(const signaling::OscIoSignal& event)
     }
 
     TxEvent queued = {
-        .path             = {},
-        .component_index  = event.component_index,
-        .value            = event.int32_value.value_or(0),
-        .float_value      = false,
-        .normalized_value = 0.0F,
-        .control          = false,
-        .shutdown         = false,
+        .signal   = event,
+        .control  = false,
+        .shutdown = false,
     };
 
-    switch (event.source)
-    {
-    case signaling::IoEventSource::Switch:
-    case signaling::IoEventSource::TouchscreenSwitch:
-    {
-        queued.path  = paths::SWITCH.c_str();
-        queued.value = event.int32_value.value_or(0) != 0 ? 1 : 0;
-    }
-    break;
+    PacketBuffer packet = {};
 
-    case signaling::IoEventSource::Encoder:
+    if (!make_packet(packet, event))
     {
-        queued.path = paths::ENCODER.c_str();
-    }
-    break;
-
-    case signaling::IoEventSource::Analog:
-    {
-        queued.path             = paths::ANALOG.c_str();
-        queued.float_value      = event.float_value.has_value();
-        queued.normalized_value = event.float_value.value_or(0.0F);
-    }
-    break;
-
-    default:
         return true;
     }
 
@@ -386,48 +361,12 @@ void Osc::send_loop()
 
 bool Osc::send_event(const TxEvent& event, int sock)
 {
-    if (event.float_value)
-    {
-        return send_normalized_float(OscIndexedAddress{
-                                         .prefix = event.path,
-                                         .index  = event.component_index,
-                                     },
-                                     event.normalized_value,
-                                     sock);
-    }
-
-    return send_int(OscIndexedAddress{
-                        .prefix = event.path,
-                        .index  = event.component_index,
-                    },
-                    event.value,
-                    sock);
-}
-
-bool Osc::send_int(OscIndexedAddress address, int32_t value, int sock)
-{
     PacketBuffer packet = {};
-    const auto   size   = make_packet(packet, address, OscInt32{ value });
+    const auto   size   = make_packet(packet, event.signal);
 
     if (!size)
     {
-        LOG_ERR("Failed to build OSC int packet");
-        return false;
-    }
-
-    return send_packet(std::span<const uint8_t>(packet.data(), *size), sock);
-}
-
-bool Osc::send_normalized_float(OscIndexedAddress address, float value, int sock)
-{
-    PacketBuffer packet = {};
-    const auto   size   = make_packet(packet,
-                                      address,
-                                      OscFloat32{ value });
-
-    if (!size)
-    {
-        LOG_ERR("Failed to build OSC float packet");
+        LOG_ERR("Failed to build OSC IO packet");
         return false;
     }
 
@@ -544,11 +483,6 @@ bool Osc::send_packet_to(std::span<const uint8_t> packet, const sockaddr_in& des
                 send_errno);
         return false;
     }
-
-    signaling::publish(signaling::OscSignal{
-        .direction = signaling::SignalDirection::Out,
-        .packet    = packet,
-    });
 
     signaling::publish(signaling::TrafficSignal{
         .transport = signaling::TrafficTransport::Network,
@@ -678,11 +612,6 @@ bool Osc::receive_packet(int listen_sock)
     }
 
     const auto payload = std::span<const uint8_t>(packet.data(), static_cast<size_t>(received));
-
-    signaling::publish(signaling::OscSignal{
-        .direction = signaling::SignalDirection::In,
-        .packet    = payload,
-    });
 
     const auto message = parse_message(payload);
 

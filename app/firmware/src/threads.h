@@ -78,6 +78,13 @@ namespace opendeck::threads
                                                               THREAD_STACK_SIZE * 2>;
 
     /**
+     * @brief Thread type used for WebSocket configuration frame transmission.
+     */
+    using WebConfigTxThread = zlibs::utils::threads::UserThread<zlibs::utils::misc::StringLiteral{ "protocol_webtx" },
+                                                                K_PRIO_PREEMPT(1),
+                                                                THREAD_STACK_SIZE * 2>;
+
+    /**
      * @brief Workqueue type used for deferred system tasks.
      */
     using SystemWorkqueue = zlibs::utils::threads::WorkqueueThread<zlibs::utils::misc::StringLiteral{ "system_work" },

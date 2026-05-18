@@ -7,6 +7,8 @@
 
 #include "firmware/src/protocol/osc/packet/shared/common.h"
 #include "firmware/src/protocol/osc/packet/internal.h"
+#include "firmware/src/protocol/osc/shared/paths.h"
+#include "firmware/src/signaling/signaling.h"
 
 #include <array>
 #include <cstddef>
@@ -169,6 +171,64 @@ namespace opendeck::protocol::osc
     std::optional<size_t> make_packet(PacketBuffer& packet, OscIndexedAddress address, const Args&... args)
     {
         return internal::make_packet_impl(packet, address, args...);
+    }
+
+    /**
+     * @brief Builds one OSC packet from a protocol-neutral IO signal.
+     *
+     * @param packet Packet buffer to fill.
+     * @param signal IO event to encode as an OSC message.
+     *
+     * @return Number of bytes written, or empty if the IO source is not mapped
+     *         to outbound OSC.
+     */
+    inline std::optional<size_t> make_packet(PacketBuffer&                 packet,
+                                             const signaling::OscIoSignal& signal)
+    {
+        std::string_view path  = {};
+        int32_t          value = signal.int32_value.value_or(0);
+
+        switch (signal.source)
+        {
+        case signaling::IoEventSource::Switch:
+        case signaling::IoEventSource::TouchscreenSwitch:
+        {
+            path  = paths::SWITCH.c_str();
+            value = value != 0 ? 1 : 0;
+        }
+        break;
+
+        case signaling::IoEventSource::Encoder:
+        {
+            path = paths::ENCODER.c_str();
+        }
+        break;
+
+        case signaling::IoEventSource::Analog:
+        {
+            const auto address = OscIndexedAddress{
+                .prefix = paths::ANALOG.c_str(),
+                .index  = signal.component_index,
+            };
+
+            if (signal.float_value.has_value())
+            {
+                return make_packet(packet, address, OscFloat32{ signal.float_value.value() });
+            }
+
+            return make_packet(packet, address, OscInt32{ value });
+        }
+
+        default:
+            return {};
+        }
+
+        return make_packet(packet,
+                           OscIndexedAddress{
+                               .prefix = path,
+                               .index  = signal.component_index,
+                           },
+                           OscInt32{ value });
     }
 
     /**

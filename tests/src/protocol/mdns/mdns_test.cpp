@@ -90,6 +90,7 @@ namespace
 
         void TearDown() override
         {
+            _mdns.deinit();
             signaling::clear_registry();
             ConfigHandler.clear();
         }

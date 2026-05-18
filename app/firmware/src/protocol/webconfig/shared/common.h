@@ -19,6 +19,4 @@ namespace opendeck::protocol::webconfig
     /** @brief WebSocket receive buffer size used by Zephyr's HTTP upgrade handler. */
     constexpr inline size_t UPGRADE_BUFFER_SIZE = 256;
 
-    /** @brief Maximum binary WebConfig frame size accepted by the endpoint. */
-    constexpr inline size_t FRAME_BUFFER_SIZE = 2304;
 }    // namespace opendeck::protocol::webconfig

@@ -53,13 +53,9 @@ namespace opendeck::protocol::osc
          */
         struct TxEvent
         {
-            std::string_view path             = {};
-            size_t           component_index  = 0;
-            int32_t          value            = 0;
-            bool             float_value      = false;
-            float            normalized_value = 0.0F;
-            bool             control          = false;
-            bool             shutdown         = false;
+            signaling::OscIoSignal signal   = {};
+            bool                   control  = false;
+            bool                   shutdown = false;
         };
 
         Hwa&                                                          _hwa;
@@ -110,37 +106,14 @@ namespace opendeck::protocol::osc
         void send_loop();
 
         /**
-         * @brief Sends one queued event as an OSC integer message.
+         * @brief Encodes and sends one queued OSC IO event.
          *
          * @param event TX event to encode and transmit.
-         *
          * @param sock Open UDP socket used for sending.
          *
          * @return `true` when the OSC packet was sent.
          */
         bool send_event(const TxEvent& event, int sock);
-
-        /**
-         * @brief Encodes and sends an OSC message with one 32-bit integer argument.
-         *
-         * @param address OSC address to send.
-         * @param value Integer argument value.
-         * @param sock Open UDP socket used for sending.
-         *
-         * @return `true` when the OSC packet was sent.
-         */
-        bool send_int(OscIndexedAddress address, int32_t value, int sock);
-
-        /**
-         * @brief Encodes and sends an OSC message with one normalized float argument.
-         *
-         * @param address OSC address to send.
-         * @param value Normalized float argument value.
-         * @param sock Open UDP socket used for sending.
-         *
-         * @return `true` when the OSC packet was sent.
-         */
-        bool send_normalized_float(OscIndexedAddress address, float value, int sock);
 
         /**
          * @brief Encodes and sends an OSC discovery response to one sender.

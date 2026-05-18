@@ -13,6 +13,12 @@ namespace opendeck::protocol::webconfig
     /** @brief Bytes in a firmware-upload ACK frame. */
     constexpr inline size_t FIRMWARE_UPLOAD_ACK_SIZE = 7;
 
+    /** @brief Maximum dfu.bin payload bytes carried by one upload chunk frame. */
+    constexpr inline size_t FIRMWARE_UPLOAD_CHUNK_SIZE = 2048;
+
+    /** @brief Maximum firmware-upload command frame size accepted by WebConfig. */
+    constexpr inline size_t FIRMWARE_UPLOAD_FRAME_SIZE = 1 + FIRMWARE_UPLOAD_CHUNK_SIZE;
+
     /** @brief Commands used to upload dfu.bin over WebConfig. */
     enum class FirmwareUploadCommand : uint8_t
     {

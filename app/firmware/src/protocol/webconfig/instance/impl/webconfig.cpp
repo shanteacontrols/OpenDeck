@@ -7,6 +7,7 @@
 
 #include "firmware/src/protocol/webconfig/instance/impl/webconfig.h"
 #include "firmware/src/protocol/webconfig/shared/common.h"
+#include "firmware/src/protocol/osc/packet/packet.h"
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/system/shared/common.h"
 
@@ -16,6 +17,7 @@
 #include <zephyr/logging/log.h>
 
 #include <cerrno>
+#include <optional>
 #include <span>
 
 using namespace opendeck::protocol::webconfig;
@@ -40,6 +42,16 @@ WebConfig::WebConfig(Hwa& hwa, staged_update::StagedUpdate& staged_update)
               close_client();
               k_sem_give(&_client_wakeup);
           })
+    , _tx_thread(
+          [this]()
+          {
+              tx_loop();
+          },
+          [this]()
+          {
+              _shutdown = true;
+              k_sem_give(&_tx_wakeup);
+          })
     , _firmware_upload_handler(staged_update)
     , _reboot_work([this]
                    {
@@ -51,6 +63,7 @@ WebConfig::WebConfig(Hwa& hwa, staged_update::StagedUpdate& staged_update)
                    })
 {
     k_sem_init(&_client_wakeup, 0, 1);
+    k_sem_init(&_tx_wakeup, 0, 1);
 
     signaling::subscribe<signaling::ConfigResponseSignal>(
         [this](const signaling::ConfigResponseSignal& response)
@@ -60,13 +73,13 @@ WebConfig::WebConfig(Hwa& hwa, staged_update::StagedUpdate& staged_update)
                 return;
             }
 
-            send_response_packet(response.packet);
+            send_response_packet(response.packet, response.session_id);
         });
 
-    signaling::subscribe<signaling::OscSignal>(
-        [this](const signaling::OscSignal& event)
+    signaling::subscribe<signaling::OscIoSignal>(
+        [this](const signaling::OscIoSignal& event)
         {
-            send_osc_packet(event.packet);
+            mirror_osc_packet(event);
         });
 
     signaling::subscribe<signaling::NetworkIdentitySignal>(
@@ -83,9 +96,7 @@ WebConfig::~WebConfig()
 
 bool WebConfig::init()
 {
-    _shutdown = false;
-    _client_thread.run();
-
+    _shutdown        = false;
     const int status = _hwa.start_server(*this);
 
     if (status == -EALREADY)
@@ -100,7 +111,8 @@ bool WebConfig::init()
     }
 
     _server_running = true;
-    log_endpoint();
+    _client_thread.run();
+    _tx_thread.run();
 
     return true;
 }
@@ -114,21 +126,34 @@ bool WebConfig::stop()
 {
     _server_running = false;
     _client_thread.destroy();
+    _tx_thread.destroy();
     _hwa.stop_server();
     return true;
 }
 
 int WebConfig::accept_client(int socket)
 {
-    const int active_socket = _client_socket.load();
+    int      active_socket     = -1;
+    uint32_t active_generation = 0;
+
+    {
+        const zmisc::LockGuard lock(_client_state_lock);
+        active_socket     = _client_socket.load();
+        active_generation = _client_generation;
+    }
 
     if (active_socket >= 0)
     {
         LOG_WRN("Replacing active WebConfig client");
-        close_client(active_socket);
+        close_client(active_socket, active_generation);
     }
 
-    _client_socket.store(socket);
+    {
+        const zmisc::LockGuard lock(_client_state_lock);
+        ++_client_generation;
+        _client_socket.store(socket);
+    }
+
     LOG_INF("Accepted WebConfig client");
     k_sem_give(&_client_wakeup);
 
@@ -146,7 +171,14 @@ void WebConfig::client_loop()
             return;
         }
 
-        const int sock = _client_socket.load();
+        int      sock              = -1;
+        uint32_t client_generation = 0;
+
+        {
+            const zmisc::LockGuard lock(_client_state_lock);
+            sock              = _client_socket.load();
+            client_generation = _client_generation;
+        }
 
         if (sock < 0)
         {
@@ -166,7 +198,15 @@ void WebConfig::client_loop()
 
             if (received < 0)
             {
-                if (_client_socket.load() != sock)
+                bool superseded = false;
+
+                {
+                    const zmisc::LockGuard lock(_client_state_lock);
+                    superseded = (_client_socket.load() != sock) ||
+                                 (_client_generation != client_generation);
+                }
+
+                if (superseded)
                 {
                     LOG_INF("WebConfig client superseded");
                 }
@@ -207,22 +247,21 @@ void WebConfig::client_loop()
 
             if (!frame.empty() && (frame.front() == zlibs::utils::midi::SYS_EX_START))
             {
-                publish_config_request(frame);
+                publish_config_request(frame, client_generation);
             }
             else
             {
-                handle_command_frame(frame);
+                handle_command_frame(frame, client_generation);
             }
         }
 
-        const bool active_client_disconnected = _client_socket.load() == sock;
-
-        close_client(sock);
+        const bool active_client_disconnected = close_client(sock, client_generation);
 
         if (active_client_disconnected)
         {
             signaling::publish(signaling::ConfigDisconnectSignal{
-                .transport = signaling::ConfigTransport::WebConfig,
+                .transport  = signaling::ConfigTransport::WebConfig,
+                .session_id = client_generation,
             });
         }
 
@@ -230,55 +269,129 @@ void WebConfig::client_loop()
     }
 }
 
-void WebConfig::close_client()
+void WebConfig::tx_loop()
 {
-    const int sock = _client_socket.exchange(-1);
-
-    if (sock >= 0)
+    while (true)
     {
-        _hwa.unregister(sock);
-    }
+        k_sem_take(&_tx_wakeup, K_FOREVER);
 
-    _response_size = 0;
+        if (_shutdown)
+        {
+            return;
+        }
+
+        process_tx_queue();
+    }
 }
 
-void WebConfig::close_client(int socket)
+void WebConfig::close_client()
 {
-    int expected = socket;
+    int sock = -1;
 
-    if (!_client_socket.compare_exchange_strong(expected, -1))
     {
+        const zmisc::LockGuard send_lock(_send_mutex);
+        const zmisc::LockGuard state_lock(_client_state_lock);
+
+        sock = _client_socket.exchange(-1);
+        ++_client_generation;
+
+        if (sock >= 0)
+        {
+            _hwa.unregister(sock);
+        }
+    }
+
+    clear_tx();
+}
+
+bool WebConfig::close_client(int socket, uint32_t generation)
+{
+    bool closed = false;
+
+    {
+        const zmisc::LockGuard send_lock(_send_mutex);
+        const zmisc::LockGuard state_lock(_client_state_lock);
+        int                    expected = socket;
+
+        if ((_client_generation != generation) ||
+            !_client_socket.compare_exchange_strong(expected, -1))
+        {
+            return false;
+        }
+
+        ++_client_generation;
+        _hwa.unregister(socket);
+        closed = true;
+    }
+
+    if (closed)
+    {
+        clear_tx();
+    }
+
+    return closed;
+}
+
+void WebConfig::clear_tx()
+{
+    {
+        const zmisc::LockGuard lock(_response_lock);
+        _response_size = 0;
+    }
+
+    {
+        const zmisc::LockGuard lock(_tx_queue_lock);
+        _tx_queue.reset();
+    }
+}
+
+void WebConfig::publish_config_request(std::span<const uint8_t> data, uint32_t session_id)
+{
+    if (data.empty())
+    {
+        LOG_WRN_ONCE("Ignoring empty WebConfig SysEx frame");
         return;
     }
 
-    _hwa.unregister(socket);
-    _response_size = 0;
-}
+    if (data.size() > signaling::ConfigRequestSignal::DATA_SIZE)
+    {
+        LOG_WRN_ONCE("Ignoring oversized WebConfig SysEx frame");
+        return;
+    }
 
-void WebConfig::publish_config_request(std::span<const uint8_t> data)
-{
-    signaling::publish(signaling::ConfigRequestSignal{
-        .transport = signaling::ConfigTransport::WebConfig,
-        .data      = data,
-    });
+    signaling::ConfigRequestSignal request(signaling::ConfigTransport::WebConfig, data, session_id);
+
+    signaling::publish(request);
 }
 
 void WebConfig::handle_network_identity(const signaling::NetworkIdentitySignal& identity)
 {
-    _network_identity          = identity;
-    _network_identity_received = true;
+    {
+        const zmisc::LockGuard lock(_network_identity_lock);
+        _network_identity          = identity;
+        _network_identity_received = true;
+    }
+
     log_endpoint();
 }
 
 void WebConfig::log_endpoint() const
 {
-    if (!_server_running || !_network_identity_received)
+    signaling::NetworkIdentitySignal identity = {};
+
     {
-        return;
+        const zmisc::LockGuard lock(_network_identity_lock);
+
+        if (!_server_running || !_network_identity_received)
+        {
+            return;
+        }
+
+        identity = _network_identity;
     }
 
-    [[maybe_unused]] const auto network_name = _network_identity.name();
-    const auto                  ip_address   = _network_identity.ipv4_address();
+    [[maybe_unused]] const auto network_name = identity.name();
+    const auto                  ip_address   = identity.ipv4_address();
 
     if (ip_address.empty())
     {
@@ -295,7 +408,7 @@ void WebConfig::log_endpoint() const
             ip_address.data());
 }
 
-void WebConfig::handle_command_frame(std::span<const uint8_t> data)
+void WebConfig::handle_command_frame(std::span<const uint8_t> data, uint32_t session_id)
 {
     if (data.empty())
     {
@@ -306,10 +419,11 @@ void WebConfig::handle_command_frame(std::span<const uint8_t> data)
 #ifndef CONFIG_PROJECT_TARGET_SUPPORT_STAGED_UPDATE
     if (static_cast<FirmwareUploadCommand>(data.front()) == FirmwareUploadCommand::Begin)
     {
-        send_binary_frame(FirmwareUploadHandler::make_ack(
-            FirmwareUploadCommand::Begin,
-            FirmwareUploadStatus::Unsupported,
-            0));
+        queue_binary_frame(FirmwareUploadHandler::make_ack(
+                               FirmwareUploadCommand::Begin,
+                               FirmwareUploadStatus::Unsupported,
+                               0),
+                           session_id);
         return;
     }
 #endif
@@ -322,7 +436,7 @@ void WebConfig::handle_command_frame(std::span<const uint8_t> data)
         return;
     }
 
-    send_binary_frame(*response);
+    queue_binary_frame(*response, session_id);
 
     if (_firmware_upload_handler.take_reboot_request())
     {
@@ -336,8 +450,15 @@ void WebConfig::schedule_firmware_reboot()
     _reboot_work.reschedule(sys::REBOOT_DELAY_MS);
 }
 
-void WebConfig::send_response_packet(const midi_ump& packet)
+void WebConfig::send_response_packet(const midi_ump& packet, uint32_t session_id)
 {
+    const zmisc::LockGuard lock(_response_lock);
+
+    if (!client_session_active(session_id))
+    {
+        return;
+    }
+
     const bool serialized = zlibs::utils::midi::write_ump_as_midi1_bytes(
         packet,
         zlibs::utils::midi::DEFAULT_RX_GROUP,
@@ -363,54 +484,136 @@ void WebConfig::send_response_packet(const midi_ump& packet)
         (_response_buffer.at(_response_size - 1) == zlibs::utils::midi::SYS_EX_END))
     {
         LOG_DBG("Sending WebConfig binary response (%zu bytes)", _response_size);
-        flush_response();
+        queue_binary_frame(std::span<const uint8_t>(_response_buffer.data(), _response_size), session_id);
+        _response_size = 0;
     }
 }
 
-void WebConfig::send_osc_packet(std::span<const uint8_t> packet)
+bool WebConfig::client_session_active(uint32_t session_id)
 {
-    if (packet.empty())
-    {
-        return;
-    }
+    const zmisc::LockGuard lock(_client_state_lock);
 
-    send_binary_frame(packet);
+    return (_client_socket.load() >= 0) &&
+           (_client_generation == session_id);
 }
 
-void WebConfig::send_binary_frame(std::span<const uint8_t> data)
+void WebConfig::mirror_osc_packet(const signaling::OscIoSignal& signal)
 {
-    const zmisc::LockGuard lock(_send_mutex);
-    const int              sock = _client_socket.load();
-
-    if ((sock < 0) || data.empty())
+    if (signal.direction != signaling::SignalDirection::Out)
     {
         return;
     }
 
-    const int sent = _hwa.send(sock, data);
+    protocol::osc::PacketBuffer packet = {};
+    const auto                  size   = protocol::osc::make_packet(packet, signal);
 
-    if (sent < 0)
+    if (!size)
     {
-        LOG_ERR("WebConfig send failed: %d", sent);
         return;
     }
 
-    signaling::publish(signaling::TrafficSignal{
-        .transport = signaling::TrafficTransport::Network,
-        .direction = signaling::SignalDirection::Out,
-    });
+    uint32_t session_id = signaling::CONFIG_SESSION_ID_DEFAULT;
+
+    {
+        const zmisc::LockGuard lock(_client_state_lock);
+        session_id = _client_generation;
+    }
+
+    queue_binary_frame(std::span<const uint8_t>(packet.data(), *size), session_id);
 }
 
-void WebConfig::flush_response()
+void WebConfig::queue_binary_frame(std::span<const uint8_t> data, uint32_t session_id)
 {
-    if (_response_size == 0)
+    int sock = -1;
+
+    {
+        const zmisc::LockGuard lock(_client_state_lock);
+
+        if (_client_generation != session_id)
+        {
+            return;
+        }
+
+        sock = _client_socket.load();
+    }
+
+    if (_shutdown || (sock < 0) || data.empty())
     {
         return;
     }
 
-    send_binary_frame(std::span<const uint8_t>(_response_buffer.data(), _response_size));
+    TxFrame frame = {
+        .size              = data.size(),
+        .socket            = sock,
+        .client_generation = session_id,
+    };
 
-    _response_size = 0;
+    if (data.size() > frame.data.size())
+    {
+        LOG_WRN_ONCE("Ignoring oversized WebConfig TX frame");
+        return;
+    }
+
+    std::copy(data.begin(), data.end(), frame.data.begin());
+
+    bool inserted = false;
+
+    {
+        const zmisc::LockGuard lock(_tx_queue_lock);
+        inserted = _tx_queue.insert(frame);
+    }
+
+    if (!inserted)
+    {
+        LOG_WRN_ONCE("WebConfig TX queue full, dropping frame");
+        return;
+    }
+
+    k_sem_give(&_tx_wakeup);
+}
+
+void WebConfig::process_tx_queue()
+{
+    while (true)
+    {
+        std::optional<TxFrame> queued = {};
+
+        {
+            const zmisc::LockGuard lock(_tx_queue_lock);
+            queued = _tx_queue.remove();
+        }
+
+        if (!queued.has_value())
+        {
+            break;
+        }
+
+        const zmisc::LockGuard lock(_send_mutex);
+
+        {
+            const zmisc::LockGuard state_lock(_client_state_lock);
+
+            if ((_client_socket.load() != queued->socket) ||
+                (_client_generation != queued->client_generation))
+            {
+                continue;
+            }
+        }
+
+        const auto data = std::span<const uint8_t>(queued->data.data(), queued->size);
+        const int  sent = _hwa.send(queued->socket, data);
+
+        if (sent < 0)
+        {
+            LOG_ERR("WebConfig send failed: %d", sent);
+            continue;
+        }
+
+        signaling::publish(signaling::TrafficSignal{
+            .transport = signaling::TrafficTransport::Network,
+            .direction = signaling::SignalDirection::Out,
+        });
+    }
 }
 
 #endif

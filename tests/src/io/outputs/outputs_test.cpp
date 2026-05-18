@@ -57,7 +57,7 @@ namespace
 
         void wait_for_signal_dispatch()
         {
-            k_msleep(1);
+            ASSERT_TRUE(zlibs::utils::signaling::drain());
         }
 
         void subscribe_touchscreen_listener()
@@ -73,7 +73,7 @@ namespace
                     _touchscreen_listener.on_message(dispatch_message);
                 });
 
-            k_msleep(50);
+            wait_for_signal_dispatch();
             _touchscreen_listener.event_log.clear();
         }
 

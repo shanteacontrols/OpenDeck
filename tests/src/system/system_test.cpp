@@ -34,9 +34,6 @@ namespace
 
         void TearDown() override
         {
-            // Signaling delivery is asynchronous; let any in-flight callbacks
-            // finish before clearing registries and destroying subscriptions.
-            k_msleep(50);
             io::Base::resume();
             protocol::Base::resume();
             ConfigHandler.clear();
@@ -574,10 +571,8 @@ TEST_F(SystemTest, WebConfigDisconnectClosesConfigurationSession)
     ASSERT_TRUE(_system._hwa.database().init(_database_handlers));
     ASSERT_TRUE(_system._instance.init());
 
-    signaling::publish(signaling::ConfigRequestSignal{
-        .transport = signaling::ConfigTransport::WebConfig,
-        .data      = handshake_req,
-    });
+    ASSERT_TRUE(signaling::publish(signaling::ConfigRequestSignal(signaling::ConfigTransport::WebConfig, handshake_req, 1)));
+    ASSERT_TRUE(zlibs::utils::signaling::drain());
 
     ASSERT_TRUE(tests::wait_until(
         [&]()
@@ -585,9 +580,70 @@ TEST_F(SystemTest, WebConfigDisconnectClosesConfigurationSession)
             return opened_cnt.load() == 1;
         }));
 
-    signaling::publish(signaling::ConfigDisconnectSignal{
-        .transport = signaling::ConfigTransport::WebConfig,
-    });
+    ASSERT_TRUE(signaling::publish(signaling::ConfigDisconnectSignal{
+        .transport  = signaling::ConfigTransport::WebConfig,
+        .session_id = 1,
+    }));
+    ASSERT_TRUE(zlibs::utils::signaling::drain());
+
+    ASSERT_TRUE(tests::wait_until(
+        [&]()
+        {
+            return closed_cnt.load() == 1;
+        }));
+}
+
+TEST_F(SystemTest, StaleWebConfigDisconnectDoesNotCloseNewerConfigurationSession)
+{
+    std::atomic_size_t opened_cnt = 0;
+    std::atomic_size_t closed_cnt = 0;
+
+    signaling::subscribe<signaling::SystemSignal>(
+        [&](const signaling::SystemSignal& event)
+        {
+            switch (event.system_event)
+            {
+            case signaling::SystemEvent::ConfigurationSessionOpened:
+                opened_cnt++;
+                break;
+
+            case signaling::SystemEvent::ConfigurationSessionClosed:
+                closed_cnt++;
+                break;
+
+            default:
+                break;
+            }
+        });
+
+    ASSERT_TRUE(_system._hwa.database().init(_database_handlers));
+    ASSERT_TRUE(_system._instance.init());
+
+    ASSERT_TRUE(signaling::publish(signaling::ConfigRequestSignal(signaling::ConfigTransport::WebConfig, handshake_req, 1)));
+    ASSERT_TRUE(zlibs::utils::signaling::drain());
+
+    ASSERT_TRUE(tests::wait_until(
+        [&]()
+        {
+            return opened_cnt.load() == 1;
+        }));
+
+    ASSERT_TRUE(signaling::publish(signaling::ConfigRequestSignal(signaling::ConfigTransport::WebConfig, handshake_req, 2)));
+    ASSERT_TRUE(zlibs::utils::signaling::drain());
+
+    ASSERT_TRUE(signaling::publish(signaling::ConfigDisconnectSignal{
+        .transport  = signaling::ConfigTransport::WebConfig,
+        .session_id = 1,
+    }));
+    ASSERT_TRUE(zlibs::utils::signaling::drain());
+
+    EXPECT_EQ(closed_cnt.load(), 0U);
+
+    ASSERT_TRUE(signaling::publish(signaling::ConfigDisconnectSignal{
+        .transport  = signaling::ConfigTransport::WebConfig,
+        .session_id = 2,
+    }));
+    ASSERT_TRUE(zlibs::utils::signaling::drain());
 
     ASSERT_TRUE(tests::wait_until(
         [&]()

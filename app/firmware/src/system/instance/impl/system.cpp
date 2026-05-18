@@ -166,7 +166,7 @@ System::System(Hwa& hwa)
                     return;
                 }
 
-                _config_transport = signaling::ConfigTransport::Usb;
+                set_config_session(signaling::ConfigTransport::Usb, signaling::CONFIG_SESSION_ID_DEFAULT);
 
                 // Keep the previous session state so ConnOpen/ConnClose transitions can be detected.
                 const bool was_configuration_enabled = _sysex_conf.is_configuration_enabled();
@@ -201,7 +201,7 @@ System::System(Hwa& hwa)
     signaling::subscribe<signaling::ConfigDisconnectSignal>(
         [this](const signaling::ConfigDisconnectSignal& event)
         {
-            handle_config_disconnect(event.transport);
+            handle_config_disconnect(event);
         });
 
     signaling::subscribe<signaling::NetworkIdentitySignal>(
@@ -1063,7 +1063,8 @@ void System::prepare_for_reboot()
         return;
     }
 
-    [[maybe_unused]] const auto transport_name = config_transport_name(_config_transport);
+    const auto                  session        = config_session();
+    [[maybe_unused]] const auto transport_name = config_transport_name(session.transport);
 
     LOG_INF("Closing SysEx configuration session before reboot via %.*s",
             static_cast<int>(transport_name.size()),
@@ -1077,7 +1078,8 @@ void System::prepare_for_reboot()
 void System::update_sysex_configuration_session(bool was_open)
 {
     const bool                  is_open        = _sysex_conf.is_configuration_enabled();
-    [[maybe_unused]] const auto transport_name = config_transport_name(_config_transport);
+    const auto                  session        = config_session();
+    [[maybe_unused]] const auto transport_name = config_transport_name(session.transport);
 
     if (is_open)
     {
@@ -1133,7 +1135,8 @@ void System::close_inactive_sysex_configuration_session()
         return;
     }
 
-    [[maybe_unused]] const auto transport_name = config_transport_name(_config_transport);
+    const auto                  session        = config_session();
+    [[maybe_unused]] const auto transport_name = config_transport_name(session.transport);
 
     LOG_INF("Closing inactive SysEx configuration session via %.*s",
             static_cast<int>(transport_name.size()),
@@ -1143,9 +1146,13 @@ void System::close_inactive_sysex_configuration_session()
     publish_configuration_session_state(signaling::SystemEvent::ConfigurationSessionClosed);
 }
 
-void System::handle_config_disconnect(signaling::ConfigTransport transport)
+void System::handle_config_disconnect(const signaling::ConfigDisconnectSignal& disconnect)
 {
-    if ((_config_transport != transport) || !_sysex_conf.is_configuration_enabled())
+    const auto session = config_session();
+
+    if ((session.transport != disconnect.transport) ||
+        (session.session_id != disconnect.session_id) ||
+        !_sysex_conf.is_configuration_enabled())
     {
         return;
     }
@@ -1155,7 +1162,7 @@ void System::handle_config_disconnect(signaling::ConfigTransport transport)
         return;
     }
 
-    [[maybe_unused]] const auto transport_name = config_transport_name(_config_transport);
+    [[maybe_unused]] const auto transport_name = config_transport_name(session.transport);
 
     LOG_INF("Closing SysEx configuration session after %.*s disconnect",
             static_cast<int>(transport_name.size()),
@@ -1170,17 +1177,37 @@ bool System::can_accept_config_transport(signaling::ConfigTransport transport)
 {
     const bool session_active = _sysex_conf.is_configuration_enabled() ||
                                 (_backup_restore_state != BackupRestoreState::None);
+    const auto session        = config_session();
 
-    return !session_active || (_config_transport == transport);
+    return !session_active || (session.transport == transport);
+}
+
+void System::set_config_session(signaling::ConfigTransport transport, uint32_t session_id)
+{
+    const zlibs::utils::misc::LockGuard lock(_config_session_lock);
+
+    _config_transport  = transport;
+    _config_session_id = session_id;
+}
+
+System::ConfigSession System::config_session() const
+{
+    const zlibs::utils::misc::LockGuard lock(_config_session_lock);
+
+    return ConfigSession{
+        .transport  = _config_transport,
+        .session_id = _config_session_id,
+    };
 }
 
 void System::handle_config_request(const signaling::ConfigRequestSignal& request)
 {
     static constexpr size_t SYSEX_MIN_FRAME_SIZE = 2;
+    const auto              data                 = request.data();
 
-    if ((request.data.size() < SYSEX_MIN_FRAME_SIZE) ||
-        (request.data.front() != zlibs::utils::midi::SYS_EX_START) ||
-        (request.data.back() != zlibs::utils::midi::SYS_EX_END))
+    if ((data.size() < SYSEX_MIN_FRAME_SIZE) ||
+        (data.front() != zlibs::utils::midi::SYS_EX_START) ||
+        (data.back() != zlibs::utils::midi::SYS_EX_END))
     {
         LOG_WRN_ONCE("Ignoring malformed config SysEx frame");
         return;
@@ -1192,10 +1219,10 @@ void System::handle_config_request(const signaling::ConfigRequestSignal& request
         return;
     }
 
-    _config_transport = request.transport;
+    set_config_session(request.transport, request.session_id);
 
     const bool was_configuration_enabled = _sysex_conf.is_configuration_enabled();
-    const auto payload                   = request.data.subspan(1, request.data.size() - SYSEX_MIN_FRAME_SIZE);
+    const auto payload                   = data.subspan(1, data.size() - SYSEX_MIN_FRAME_SIZE);
     const bool sent                      = zlibs::utils::midi::write_sysex7_payload_as_ump_packets(
         zlibs::utils::midi::DEFAULT_RX_GROUP,
         payload,
@@ -1221,11 +1248,14 @@ void System::handle_config_request(const signaling::ConfigRequestSignal& request
 
 bool System::send_config_response(const midi_ump& packet)
 {
-    if (_config_transport == signaling::ConfigTransport::WebConfig)
+    const auto session = config_session();
+
+    if (session.transport == signaling::ConfigTransport::WebConfig)
     {
         return signaling::publish(signaling::ConfigResponseSignal{
-            .transport = signaling::ConfigTransport::WebConfig,
-            .packet    = packet,
+            .transport  = signaling::ConfigTransport::WebConfig,
+            .packet     = packet,
+            .session_id = session.session_id,
         });
     }
 

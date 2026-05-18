@@ -972,6 +972,7 @@ TEST_F(AnalogTest, PresetChangeUpdatesPhysicalScanMask)
         .system_event = signaling::SystemEvent::PresetChanged,
         .value        = 0,
     });
+    ASSERT_TRUE(zlibs::utils::signaling::drain());
 
     expected_mask[analog::Remap::physical(0)] = true;
     EXPECT_EQ(expected_mask, _analog._hwa.scan_mask());
@@ -981,6 +982,7 @@ TEST_F(AnalogTest, PresetChangeUpdatesPhysicalScanMask)
         .system_event = signaling::SystemEvent::PresetChanged,
         .value        = 1,
     });
+    ASSERT_TRUE(zlibs::utils::signaling::drain());
 
     expected_mask[analog::Remap::physical(0)] = false;
     EXPECT_EQ(expected_mask, _analog._hwa.scan_mask());

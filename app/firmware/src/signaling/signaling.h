@@ -10,13 +10,18 @@
 #include "firmware/src/system/shared/common.h"
 
 #include "zlibs/utils/signaling/signaling.h"
+#include "zlibs/utils/sysex_conf/sysex_conf_common.h"
 
 #include <algorithm>
 #include <array>
+#include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <span>
 #include <string_view>
 #include <vector>
+
+#include <zephyr/sys/__assert.h>
 
 namespace opendeck::signaling
 {
@@ -78,6 +83,9 @@ namespace opendeck::signaling
         WebConfig,
     };
 
+    /** @brief Fixed configuration session id used by transports without client generations. */
+    constexpr inline uint32_t CONFIG_SESSION_ID_DEFAULT = 0;
+
     /**
      * @brief Identifies which IO component originated an event.
      */
@@ -92,7 +100,12 @@ namespace opendeck::signaling
     };
 
     /**
-     * @brief Describes one protocol-neutral IO event.
+     * @brief Requests OSC processing for one IO component event.
+     *
+     * Outbound events are produced by IO modules when a component changes and
+     * consumed by the OSC protocol to build and send the configured OSC packet.
+     * Inbound events are produced by the OSC protocol after parsing a received
+     * OSC packet and consumed by IO modules that can apply the requested state.
      */
     struct OscIoSignal
     {
@@ -154,38 +167,69 @@ namespace opendeck::signaling
     };
 
     /**
-     * @brief Carries one raw SysEx configuration frame.
+     * @brief Carries one owned raw SysEx configuration frame from a config transport.
+     *
+     * `session_id` is a transport-local generation used to route responses and
+     * ignore stale disconnects from earlier WebConfig clients.
      */
     struct ConfigRequestSignal
     {
-        ConfigTransport          transport = ConfigTransport::WebConfig;
-        std::span<const uint8_t> data      = {};
+        static constexpr size_t DATA_SIZE = zlibs::utils::sysex_conf::MAX_MESSAGE_SIZE;
+        using Data                        = std::array<uint8_t, DATA_SIZE>;
+
+        ConfigTransport transport  = ConfigTransport::WebConfig;
+        uint32_t        session_id = CONFIG_SESSION_ID_DEFAULT;
+
+        ConfigRequestSignal() = default;
+
+        ConfigRequestSignal(ConfigTransport transport, std::span<const uint8_t> data, uint32_t session_id = CONFIG_SESSION_ID_DEFAULT)
+            : transport(transport)
+            , session_id(session_id)
+        {
+            set_data(data);
+        }
+
+        bool set_data(std::span<const uint8_t> data)
+        {
+            if (data.size() > _data.size())
+            {
+                _size = 0;
+                return false;
+            }
+
+            std::copy(data.begin(), data.end(), _data.begin());
+            _size = data.size();
+
+            return true;
+        }
+
+        std::span<const uint8_t> data() const
+        {
+            return std::span<const uint8_t>(_data.data(), _size);
+        }
+
+        private:
+        Data   _data = {};
+        size_t _size = 0;
     };
 
     /**
-     * @brief Carries one SysEx configuration response packet.
+     * @brief Carries one SysEx configuration response packet for a config session.
      */
     struct ConfigResponseSignal
     {
-        ConfigTransport transport = ConfigTransport::WebConfig;
-        ::midi_ump      packet    = {};
+        ConfigTransport transport  = ConfigTransport::WebConfig;
+        ::midi_ump      packet     = {};
+        uint32_t        session_id = CONFIG_SESSION_ID_DEFAULT;
     };
 
     /**
-     * @brief Reports that a SysEx configuration transport disconnected.
+     * @brief Reports that a SysEx configuration transport session disconnected.
      */
     struct ConfigDisconnectSignal
     {
-        ConfigTransport transport = ConfigTransport::WebConfig;
-    };
-
-    /**
-     * @brief Carries one raw OSC packet observed by the network protocol.
-     */
-    struct OscSignal
-    {
-        SignalDirection          direction = SignalDirection::Out;
-        std::span<const uint8_t> packet    = {};
+        ConfigTransport transport  = ConfigTransport::WebConfig;
+        uint32_t        session_id = CONFIG_SESSION_ID_DEFAULT;
     };
 
     /**
@@ -324,19 +368,6 @@ namespace opendeck::signaling
         }
 
         /**
-         * @brief Publishes one signal instance synchronously to current subscribers.
-         *
-         * @param signal Signal payload to publish.
-         *
-         * @return Always `true`.
-         */
-        bool publish_immediate(const Signal& signal)
-        {
-            zlibs::utils::signaling::Channel<Signal>::publish(signal);
-            return true;
-        }
-
-        /**
          * @brief Removes every subscription owned by this registry instance.
          */
         void clear()
@@ -389,12 +420,12 @@ namespace opendeck::signaling
      *
      * @param signal Signal payload to publish.
      *
-     * @return Always `true`.
+     * @return `true` if the signal was queued successfully, otherwise `false`.
      */
     template<typename Signal>
     bool publish(const Signal& signal)
     {
-        return SignalRegistry<Signal>::instance().publish_immediate(signal);
+        return SignalRegistry<Signal>::instance().publish(signal);
     }
 
     /**
@@ -405,18 +436,23 @@ namespace opendeck::signaling
      */
     inline void clear_registry()
     {
-        SignalRegistry<OscIoSignal>::instance().clear();
-        SignalRegistry<MidiIoSignal>::instance().clear();
-        SignalRegistry<InternalProgram>::instance().clear();
-        SignalRegistry<SystemSignal>::instance().clear();
-        SignalRegistry<TouchscreenScreenChangedSignal>::instance().clear();
-        SignalRegistry<UmpSignal>::instance().clear();
-        SignalRegistry<ConfigRequestSignal>::instance().clear();
-        SignalRegistry<ConfigResponseSignal>::instance().clear();
-        SignalRegistry<ConfigDisconnectSignal>::instance().clear();
-        SignalRegistry<OscSignal>::instance().clear();
-        SignalRegistry<NetworkIdentitySignal>::instance().clear();
-        SignalRegistry<UsbUmpBurstSignal>::instance().clear();
-        SignalRegistry<TrafficSignal>::instance().clear();
+        [[maybe_unused]] const auto cleared = zlibs::utils::signaling::dispatch_sync(
+            []()
+            {
+                SignalRegistry<OscIoSignal>::instance().clear();
+                SignalRegistry<MidiIoSignal>::instance().clear();
+                SignalRegistry<InternalProgram>::instance().clear();
+                SignalRegistry<SystemSignal>::instance().clear();
+                SignalRegistry<TouchscreenScreenChangedSignal>::instance().clear();
+                SignalRegistry<UmpSignal>::instance().clear();
+                SignalRegistry<ConfigRequestSignal>::instance().clear();
+                SignalRegistry<ConfigResponseSignal>::instance().clear();
+                SignalRegistry<ConfigDisconnectSignal>::instance().clear();
+                SignalRegistry<NetworkIdentitySignal>::instance().clear();
+                SignalRegistry<UsbUmpBurstSignal>::instance().clear();
+                SignalRegistry<TrafficSignal>::instance().clear();
+            });
+
+        __ASSERT(cleared, "Failed to clear signaling registries");
     }
 }    // namespace opendeck::signaling

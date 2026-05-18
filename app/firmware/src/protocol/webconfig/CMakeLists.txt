@@ -7,6 +7,7 @@ target_link_libraries(protocol_webconfig
     PUBLIC
     kernel
     mcu
+    protocol_osc_packet
     protocol_webconfig_firmware_upload
 )
 
