@@ -102,21 +102,25 @@ builders, HWA variants, instances, tests, and other modules. Typical files are:
 Root-level `common.h` and `deps.h` files should be avoided. If a header is part
 of the module contract, put it under `shared/`.
 
-## Drivers and Counts
+## Drivers and Target Counts
 
-Driver topology belongs under `drivers/`. Aggregation headers such as
-`drivers/count.h` stay with the driver family because they describe hardware or
-devicetree topology, not the module's public contract.
+Driver topology belongs under `drivers/`. Resolved target facts such as switch,
+analog, output, touchscreen, and storage sizes are exposed through hidden
+`CONFIG_PROJECT_TARGET_*` symbols generated from the selected target
+devicetree.
 
-Current examples:
+Runtime code should use those Kconfig symbols directly when it needs fixed-size
+collections or compile-time feature selection. For example, shared IO headers
+define collection sizes from symbols such as:
 
-- `io/analog/drivers/count.h`
-- `io/digital/drivers/count.h`
-- `io/outputs/drivers/count.h`
-- `io/touchscreen/drivers/count.h`
+- `CONFIG_PROJECT_TARGET_ANALOG_LOGICAL_COUNT`
+- `CONFIG_PROJECT_TARGET_SWITCH_LOGICAL_COUNT`
+- `CONFIG_PROJECT_TARGET_OUTPUT_LOGICAL_COUNT`
+- `CONFIG_PROJECT_TARGET_TOUCHSCREEN_COMPONENT_COUNT`
 
-Shared module headers may include these count headers when collection sizes or
-cross-module layout depend on them.
+This keeps the target topology resolved in one place: the build's
+devicetree/Kconfig pass. Tests that need target-shaped data import the generated
+target config from a built application image instead of parsing target overlays.
 
 ## Common Image Code
 

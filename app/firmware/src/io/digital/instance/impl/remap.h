@@ -5,8 +5,6 @@
 
 #pragma once
 
-#include "firmware/src/io/digital/drivers/count.h"
-
 #include <zephyr/devicetree.h>
 
 #include <array>
@@ -29,7 +27,7 @@ namespace opendeck::io::digital
          */
         static constexpr size_t physical(size_t logical)
         {
-#if OPENDECK_SWITCH_HAS_REMAP
+#if CONFIG_PROJECT_TARGET_SWITCH_HAS_REMAP
             return INDEX_REMAP[logical];
 #else
             return logical;
@@ -45,7 +43,7 @@ namespace opendeck::io::digital
          */
         static constexpr size_t logical(size_t physical)
         {
-#if OPENDECK_SWITCH_HAS_REMAP
+#if CONFIG_PROJECT_TARGET_SWITCH_HAS_REMAP
             for (size_t i = 0; i < INDEX_REMAP.size(); i++)
             {
                 if (INDEX_REMAP[i] == physical)
@@ -58,10 +56,10 @@ namespace opendeck::io::digital
         }
 
         private:
-#if OPENDECK_SWITCH_HAS_REMAP
+#if CONFIG_PROJECT_TARGET_SWITCH_HAS_REMAP
 #define OPENDECK_SWITCH_REMAP_ENTRY(index, _) DT_PROP_BY_IDX(DT_NODELABEL(opendeck_switches), index_remap, index)
-        inline static constexpr std::array<size_t, OPENDECK_SWITCH_LOGICAL_COUNT> INDEX_REMAP = {
-            LISTIFY(OPENDECK_SWITCH_LOGICAL_COUNT, OPENDECK_SWITCH_REMAP_ENTRY, (, ))
+        inline static constexpr std::array<size_t, CONFIG_PROJECT_TARGET_SWITCH_LOGICAL_COUNT> INDEX_REMAP = {
+            LISTIFY(CONFIG_PROJECT_TARGET_SWITCH_LOGICAL_COUNT, OPENDECK_SWITCH_REMAP_ENTRY, (, ))
         };
 #undef OPENDECK_SWITCH_REMAP_ENTRY
 #endif

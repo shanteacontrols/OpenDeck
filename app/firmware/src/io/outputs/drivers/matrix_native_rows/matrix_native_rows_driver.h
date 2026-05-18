@@ -6,7 +6,6 @@
 #pragma once
 
 #include "firmware/src/io/outputs/drivers/driver_base.h"
-#include "firmware/src/io/outputs/drivers/matrix_native_rows/count.h"
 
 namespace opendeck::io::outputs
 {

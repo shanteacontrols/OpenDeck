@@ -6,7 +6,8 @@
 #pragma once
 
 #include "firmware/src/io/digital/drivers/driver_base.h"
-#include "firmware/src/io/digital/drivers/native/count.h"
+
+#include <zephyr/drivers/gpio.h>
 
 #define OPENDECK_SWITCH_NATIVE_GPIO_ENTRY(index, node_id) GPIO_DT_SPEC_GET_BY_IDX(node_id, native_gpios, index)
 
@@ -88,10 +89,10 @@ namespace opendeck::io::digital::drivers
         }
 
         private:
-        static constexpr size_t SWITCH_COUNT  = OPENDECK_SWITCH_PHYSICAL_COUNT;
+        static constexpr size_t SWITCH_COUNT  = CONFIG_PROJECT_TARGET_SWITCH_PHYSICAL_COUNT;
         static constexpr size_t ENCODER_COUNT = SWITCH_COUNT / 2;
 
-        std::array<gpio_dt_spec, SWITCH_COUNT> _pins = { { LISTIFY(OPENDECK_SWITCH_PHYSICAL_COUNT, OPENDECK_SWITCH_NATIVE_GPIO_ENTRY, (, ), DT_NODELABEL(opendeck_switches)) } };
+        std::array<gpio_dt_spec, SWITCH_COUNT> _pins = { { LISTIFY(CONFIG_PROJECT_TARGET_SWITCH_PHYSICAL_COUNT, OPENDECK_SWITCH_NATIVE_GPIO_ENTRY, (, ), DT_NODELABEL(opendeck_switches)) } };
 
         /**
          * @brief Reads one GPIO input pin.

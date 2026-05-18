@@ -6,14 +6,13 @@
 #pragma once
 
 #include "firmware/src/io/common/shared/common.h"
-#include "firmware/src/io/digital/drivers/count.h"
 
 namespace opendeck::io::encoders
 {
     /**
      * @brief Flattened collection of encoder inputs.
      */
-    class Collection : public io::common::BaseCollection<OPENDECK_ENCODER_COUNT>
+    class Collection : public io::common::BaseCollection<CONFIG_PROJECT_TARGET_ENCODER_COUNT>
     {
         public:
         /**
@@ -67,5 +66,3 @@ namespace opendeck::io::encoders
         Count
     };
 }    // namespace opendeck::io::encoders
-
-#undef OPENDECK_ENCODER_COUNT

@@ -6,7 +6,6 @@
 #pragma once
 
 #include "firmware/src/io/analog/drivers/scan_driver_base.h"
-#include "firmware/src/io/analog/drivers/native/count.h"
 
 #define OPENDECK_ANALOG_NATIVE_CHANNEL_ENTRY(index, node_id) ADC_DT_SPEC_GET_BY_IDX(node_id, index)
 
@@ -92,10 +91,10 @@ namespace opendeck::io::analog
         }
 
         private:
-        static constexpr size_t ANALOG_COUNT = OPENDECK_ANALOG_PHYSICAL_COUNT;
+        static constexpr size_t ANALOG_COUNT = CONFIG_PROJECT_TARGET_ANALOG_PHYSICAL_COUNT;
 
         const device* const                   _adc_device   = DEVICE_DT_GET(DT_IO_CHANNELS_CTLR_BY_IDX(DT_NODELABEL(opendeck_analog), 0));
-        std::array<adc_dt_spec, ANALOG_COUNT> _channels     = { { LISTIFY(OPENDECK_ANALOG_PHYSICAL_COUNT, OPENDECK_ANALOG_NATIVE_CHANNEL_ENTRY, (, ), DT_NODELABEL(opendeck_analog)) } };
+        std::array<adc_dt_spec, ANALOG_COUNT> _channels     = { { LISTIFY(CONFIG_PROJECT_TARGET_ANALOG_PHYSICAL_COUNT, OPENDECK_ANALOG_NATIVE_CHANNEL_ENTRY, (, ), DT_NODELABEL(opendeck_analog)) } };
         size_t                                _active_index = 0;
     };
 }    // namespace opendeck::io::analog

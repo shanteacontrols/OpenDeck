@@ -7,7 +7,6 @@
 
 #include "firmware/src/io/common/shared/common.h"
 #include "firmware/src/database/instance/impl/database.h"
-#include "firmware/src/io/analog/drivers/count.h"
 
 #include <array>
 #include <cstdint>
@@ -17,17 +16,17 @@ namespace opendeck::io::analog
     /**
      * @brief Frame of raw analog samples, indexed by analog input.
      */
-    using Frame = std::array<uint16_t, OPENDECK_ANALOG_PHYSICAL_COUNT>;
+    using Frame = std::array<uint16_t, CONFIG_PROJECT_TARGET_ANALOG_PHYSICAL_COUNT>;
 
     /**
      * @brief Physical-channel scan mask used to skip disabled analog inputs.
      */
-    using ScanMask = std::array<bool, OPENDECK_ANALOG_PHYSICAL_COUNT>;
+    using ScanMask = std::array<bool, CONFIG_PROJECT_TARGET_ANALOG_PHYSICAL_COUNT>;
 
     /**
      * @brief Flattened collection of analog-capable inputs.
      */
-    class Collection : public io::common::BaseCollection<OPENDECK_ANALOG_LOGICAL_COUNT>
+    class Collection : public io::common::BaseCollection<CONFIG_PROJECT_TARGET_ANALOG_LOGICAL_COUNT>
     {
         public:
         /**

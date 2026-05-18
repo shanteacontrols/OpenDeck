@@ -1,0 +1,76 @@
+diff --git a/scripts/kconfig/kconfigfunctions.py b/scripts/kconfig/kconfigfunctions.py
+index 0bf09c2215d..b153d366a1b 100644
+--- a/scripts/kconfig/kconfigfunctions.py
++++ b/scripts/kconfig/kconfigfunctions.py
+@@ -321,6 +321,20 @@ def _node_ph_array_prop(node, prop, index, cell, unit=None):
+         return 0
+     return node.props[prop].val[int(index)].data[cell] >> _dt_units_to_scale(unit)
+ 
++def _node_prop_len(node, prop):
++    if not node:
++        return 0
++
++    if prop not in node.props:
++        return 0
++
++    value = node.props[prop].val
++
++    if isinstance(value, list):
++        return len(value)
++
++    return 1
++
+ def _dt_chosen_reg_addr(kconf, chosen, index=0, unit=None):
+     """
+     This function takes a 'chosen' property and treats that property as a path
+@@ -663,6 +677,41 @@ def dt_nodelabel_has_prop(kconf, _, label, prop):
+ 
+     return _dt_node_has_prop_generic(edt.label2node.get, label, prop)
+ 
++def dt_node_prop_len(kconf, _, path, prop):
++    """
++    This function takes a 'path' and property name ('prop') and returns the
++    number of entries in the devicetree property. Missing nodes and missing
++    properties return 0. Scalar properties return 1.
++    """
++    if doc_mode or edt is None:
++        return "0"
++
++    try:
++        node = edt.get_node(path)
++    except edtlib.EDTError:
++        return "0"
++
++    return str(_node_prop_len(node, prop))
++
++def dt_nodelabel_prop_len(kconf, _, label, prop):
++    """
++    This function takes a node label and property name ('prop') and returns
++    the number of entries in the devicetree property. Missing nodes and
++    missing properties return 0. Scalar properties return 1.
++    """
++    if doc_mode or edt is None:
++        return "0"
++
++    try:
++        node = edt.label2node.get(label)
++    except edtlib.EDTError:
++        return "0"
++
++    if node is None:
++        return "0"
++
++    return str(_node_prop_len(node, prop))
++
+ def dt_node_int_prop(kconf, name, path, prop, unit=None):
+     """
+     This function takes a 'path' and property name ('prop') looks for an EDT
+@@ -1282,6 +1328,8 @@ functions = {
+         "dt_chosen_bool_prop": (dt_chosen_bool_prop, 2, 2),
+         "dt_node_has_prop": (dt_node_has_prop, 2, 2),
+         "dt_nodelabel_has_prop": (dt_nodelabel_has_prop, 2, 2),
++        "dt_node_prop_len": (dt_node_prop_len, 2, 2),
++        "dt_nodelabel_prop_len": (dt_nodelabel_prop_len, 2, 2),
+         "dt_node_int_prop_int": (dt_node_int_prop, 2, 3),
+         "dt_node_int_prop_hex": (dt_node_int_prop, 2, 3),
+         "dt_node_array_prop_int": (dt_node_array_prop, 3, 4),

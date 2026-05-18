@@ -6,9 +6,6 @@
 #pragma once
 
 #include "firmware/src/io/common/shared/common.h"
-#include "firmware/src/io/analog/drivers/count.h"
-#include "firmware/src/io/digital/drivers/count.h"
-#include "firmware/src/io/touchscreen/drivers/count.h"
 
 namespace opendeck::io::switches
 {
@@ -18,9 +15,9 @@ namespace opendeck::io::switches
     /**
      * @brief Flattened collection of all switch-capable inputs.
      */
-    class Collection : public io::common::BaseCollection<OPENDECK_SWITCH_LOGICAL_COUNT,
-                                                         OPENDECK_ANALOG_LOGICAL_COUNT,
-                                                         OPENDECK_TOUCHSCREEN_COMPONENT_COUNT>
+    class Collection : public io::common::BaseCollection<CONFIG_PROJECT_TARGET_SWITCH_LOGICAL_COUNT,
+                                                         CONFIG_PROJECT_TARGET_ANALOG_LOGICAL_COUNT,
+                                                         CONFIG_PROJECT_TARGET_TOUCHSCREEN_COMPONENT_COUNT>
     {
         public:
         /**

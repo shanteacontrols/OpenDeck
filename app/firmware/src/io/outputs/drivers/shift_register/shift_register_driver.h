@@ -6,7 +6,6 @@
 #pragma once
 
 #include "firmware/src/io/outputs/drivers/driver_base.h"
-#include "firmware/src/io/outputs/drivers/shift_register/count.h"
 
 #include "zlibs/utils/misc/bit.h"
 

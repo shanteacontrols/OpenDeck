@@ -170,6 +170,103 @@ config PROJECT_TARGET_DRIVER_ANALOG_INPUT_MUXONMUX
     help
       Hidden selector for the mux-on-mux analog backend.
 
+config PROJECT_TARGET_SWITCH_PHYSICAL_COUNT
+    int
+    default $(dt_node_prop_len,$(OPENDECK_SWITCHES_NODE),native-gpios) if PROJECT_TARGET_DRIVER_DIGITAL_INPUT_NATIVE
+    default $(mul,$(dt_node_int_prop_int,$(OPENDECK_SWITCHES_NODE),shift-registers),8) if PROJECT_TARGET_DRIVER_DIGITAL_INPUT_SHIFT_REGISTER
+    default $(mul,$(dt_node_int_prop_int,$(OPENDECK_SWITCHES_NODE),rows),$(dt_node_int_prop_int,$(OPENDECK_SWITCHES_NODE),columns)) if PROJECT_TARGET_DRIVER_DIGITAL_INPUT_MATRIX_NATIVE_ROWS
+    default $(mul,$(dt_node_int_prop_int,$(OPENDECK_SWITCHES_NODE),rows),$(dt_node_int_prop_int,$(OPENDECK_SWITCHES_NODE),columns)) if PROJECT_TARGET_DRIVER_DIGITAL_INPUT_MATRIX_SHIFT_REGISTER_ROWS
+    default 0
+    help
+      Hidden resolved physical switch count for the selected target.
+
+config PROJECT_TARGET_SWITCH_HAS_REMAP
+    int
+    default 1 if $(dt_node_has_prop,$(OPENDECK_SWITCHES_NODE),index-remap)
+    default 0
+    help
+      Hidden resolved switch remap presence for the selected target.
+
+config PROJECT_TARGET_SWITCH_LOGICAL_COUNT
+    int
+    default $(dt_node_prop_len,$(OPENDECK_SWITCHES_NODE),index-remap) if $(dt_node_has_prop,$(OPENDECK_SWITCHES_NODE),index-remap)
+    default PROJECT_TARGET_SWITCH_PHYSICAL_COUNT
+    help
+      Hidden resolved logical switch count for the selected target.
+
+config PROJECT_TARGET_ENCODER_COUNT
+    int
+    default $(div,$(dt_node_prop_len,$(OPENDECK_SWITCHES_NODE),index-remap),2) if $(dt_node_has_prop,$(OPENDECK_SWITCHES_NODE),index-remap)
+    default $(div,$(dt_node_prop_len,$(OPENDECK_SWITCHES_NODE),native-gpios),2) if PROJECT_TARGET_DRIVER_DIGITAL_INPUT_NATIVE
+    default $(mul,$(dt_node_int_prop_int,$(OPENDECK_SWITCHES_NODE),shift-registers),4) if PROJECT_TARGET_DRIVER_DIGITAL_INPUT_SHIFT_REGISTER
+    default $(div,$(mul,$(dt_node_int_prop_int,$(OPENDECK_SWITCHES_NODE),rows),$(dt_node_int_prop_int,$(OPENDECK_SWITCHES_NODE),columns)),2) if PROJECT_TARGET_DRIVER_DIGITAL_INPUT_MATRIX_NATIVE_ROWS
+    default $(div,$(mul,$(dt_node_int_prop_int,$(OPENDECK_SWITCHES_NODE),rows),$(dt_node_int_prop_int,$(OPENDECK_SWITCHES_NODE),columns)),2) if PROJECT_TARGET_DRIVER_DIGITAL_INPUT_MATRIX_SHIFT_REGISTER_ROWS
+    default 0
+    help
+      Hidden resolved encoder count for the selected target.
+
+config PROJECT_TARGET_DIGITAL_INPUT_COUNT
+    int
+    default PROJECT_TARGET_SWITCH_PHYSICAL_COUNT
+    help
+      Hidden resolved digital input count for the selected target.
+
+config PROJECT_TARGET_ANALOG_PHYSICAL_COUNT
+    int
+    default $(dt_node_prop_len,$(OPENDECK_ANALOG_NODE),io-channels) if PROJECT_TARGET_DRIVER_ANALOG_INPUT_NATIVE
+    default $(mul,$(dt_node_prop_len,$(OPENDECK_ANALOG_NODE),io-channels),16) if PROJECT_TARGET_DRIVER_ANALOG_INPUT_MULTIPLEXER
+    default 256 if PROJECT_TARGET_DRIVER_ANALOG_INPUT_MUXONMUX && $(dt_node_has_prop,$(OPENDECK_ANALOG_NODE),controller-s3-gpios)
+    default 128 if PROJECT_TARGET_DRIVER_ANALOG_INPUT_MUXONMUX && $(dt_node_has_prop,$(OPENDECK_ANALOG_NODE),controller-s2-gpios)
+    default 64 if PROJECT_TARGET_DRIVER_ANALOG_INPUT_MUXONMUX
+    default 0
+    help
+      Hidden resolved physical analog input count for the selected target.
+
+config PROJECT_TARGET_ANALOG_HAS_REMAP
+    int
+    default 1 if $(dt_node_has_prop,$(OPENDECK_ANALOG_NODE),index-remap)
+    default 0
+    help
+      Hidden resolved analog remap presence for the selected target.
+
+config PROJECT_TARGET_ANALOG_LOGICAL_COUNT
+    int
+    default $(dt_node_prop_len,$(OPENDECK_ANALOG_NODE),index-remap) if $(dt_node_has_prop,$(OPENDECK_ANALOG_NODE),index-remap)
+    default PROJECT_TARGET_ANALOG_PHYSICAL_COUNT
+    help
+      Hidden resolved logical analog input count for the selected target.
+
+config PROJECT_TARGET_OUTPUT_PHYSICAL_COUNT
+    int
+    default $(dt_node_prop_len,$(OPENDECK_OUTPUTS_NODE),native-gpios) if PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_NATIVE
+    default $(mul,$(dt_node_int_prop_int,$(OPENDECK_OUTPUTS_NODE),shift-registers),8) if PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_SHIFT_REGISTER
+    default $(mul,$(dt_node_int_prop_int,$(OPENDECK_OUTPUTS_NODE),rows),$(dt_node_int_prop_int,$(OPENDECK_OUTPUTS_NODE),columns)) if PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_MATRIX_NATIVE_ROWS
+    default $(mul,$(dt_node_int_prop_int,$(OPENDECK_OUTPUTS_NODE),drivers),64) if PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_MAX7219
+    default 0
+    help
+      Hidden resolved physical output count for the selected target.
+
+config PROJECT_TARGET_OUTPUT_HAS_REMAP
+    int
+    default 1 if $(dt_node_has_prop,$(OPENDECK_OUTPUTS_NODE),index-remap)
+    default 0
+    help
+      Hidden resolved output remap presence for the selected target.
+
+config PROJECT_TARGET_OUTPUT_LOGICAL_COUNT
+    int
+    default $(dt_node_prop_len,$(OPENDECK_OUTPUTS_NODE),index-remap) if $(dt_node_has_prop,$(OPENDECK_OUTPUTS_NODE),index-remap)
+    default PROJECT_TARGET_OUTPUT_PHYSICAL_COUNT
+    help
+      Hidden resolved logical output count for the selected target.
+
+config PROJECT_TARGET_TOUCHSCREEN_COMPONENT_COUNT
+    int
+    default $(dt_node_int_prop_int,$(OPENDECK_TOUCHSCREEN_NODE),component-count) if PROJECT_TARGET_SUPPORT_TOUCHSCREEN
+    default 0
+    help
+      Hidden resolved touchscreen component count for the selected target.
+
 config PROJECT_TARGET_SUPPORT_I2C
     bool
     default y if $(dt_path_enabled,$(OPENDECK_DISPLAY_NODE))

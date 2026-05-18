@@ -5,8 +5,6 @@
 
 #pragma once
 
-#include "firmware/src/io/digital/drivers/count.h"
-
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -26,7 +24,7 @@ namespace opendeck::io::digital::drivers
     /**
      * @brief Frame of sampled digital input states, indexed by flattened input index.
      */
-    using Frame = std::array<bool, OPENDECK_DIGITAL_INPUT_COUNT>;
+    using Frame = std::array<bool, CONFIG_PROJECT_TARGET_DIGITAL_INPUT_COUNT>;
 
     /**
      * @brief Base interface for digital input drivers.

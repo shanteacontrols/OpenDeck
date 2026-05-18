@@ -6,7 +6,6 @@
 #pragma once
 
 #include "firmware/src/io/outputs/drivers/driver_base.h"
-#include "firmware/src/io/outputs/drivers/native/count.h"
 
 #include <zephyr/device.h>
 #include <zephyr/drivers/gpio.h>
@@ -87,9 +86,9 @@ namespace opendeck::io::outputs
         }
 
         private:
-        static constexpr size_t OUTPUT_COUNT = OPENDECK_OUTPUT_PHYSICAL_COUNT;
+        static constexpr size_t OUTPUT_COUNT = CONFIG_PROJECT_TARGET_OUTPUT_PHYSICAL_COUNT;
 
-        std::array<gpio_dt_spec, OUTPUT_COUNT> _gpios = { { LISTIFY(OPENDECK_OUTPUT_PHYSICAL_COUNT, OPENDECK_OUTPUT_NATIVE_GPIO_ENTRY, (, ), DT_NODELABEL(opendeck_outputs)) } };
+        std::array<gpio_dt_spec, OUTPUT_COUNT> _gpios = { { LISTIFY(CONFIG_PROJECT_TARGET_OUTPUT_PHYSICAL_COUNT, OPENDECK_OUTPUT_NATIVE_GPIO_ENTRY, (, ), DT_NODELABEL(opendeck_outputs)) } };
 
         /**
          * @brief Returns the number of complete RGB outputs exposed by the driver.

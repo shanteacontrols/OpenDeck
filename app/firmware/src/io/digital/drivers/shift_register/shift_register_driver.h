@@ -6,7 +6,6 @@
 #pragma once
 
 #include "firmware/src/io/digital/drivers/driver_base.h"
-#include "firmware/src/io/digital/drivers/shift_register/count.h"
 
 namespace opendeck::io::digital::drivers
 {
@@ -85,7 +84,7 @@ namespace opendeck::io::digital::drivers
         }
 
         private:
-        static constexpr size_t SWITCH_COUNT              = OPENDECK_SWITCH_PHYSICAL_COUNT;
+        static constexpr size_t SWITCH_COUNT              = CONFIG_PROJECT_TARGET_SWITCH_PHYSICAL_COUNT;
         static constexpr size_t ENCODER_COUNT             = SWITCH_COUNT / 2;
         static constexpr size_t INPUTS_PER_SHIFT_REGISTER = 8;
 

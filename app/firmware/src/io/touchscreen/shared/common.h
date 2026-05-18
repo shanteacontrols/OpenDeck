@@ -6,14 +6,13 @@
 #pragma once
 
 #include "firmware/src/io/common/shared/common.h"
-#include "firmware/src/io/touchscreen/drivers/count.h"
 
 namespace opendeck::io::touchscreen
 {
     /**
      * @brief Flattened collection of touchscreen components.
      */
-    class Collection : public io::common::BaseCollection<OPENDECK_TOUCHSCREEN_COMPONENT_COUNT>
+    class Collection : public io::common::BaseCollection<CONFIG_PROJECT_TARGET_TOUCHSCREEN_COMPONENT_COUNT>
     {
         public:
         /**

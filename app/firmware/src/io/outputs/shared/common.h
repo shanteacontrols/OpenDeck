@@ -6,16 +6,14 @@
 #pragma once
 
 #include "firmware/src/io/common/shared/common.h"
-#include "firmware/src/io/outputs/drivers/count.h"
-#include "firmware/src/io/touchscreen/drivers/count.h"
 
 namespace opendeck::io::outputs
 {
     /**
      * @brief Flattened collection of OUTPUT-capable outputs.
      */
-    class Collection : public io::common::BaseCollection<OPENDECK_OUTPUT_LOGICAL_COUNT,
-                                                         OPENDECK_TOUCHSCREEN_COMPONENT_COUNT>
+    class Collection : public io::common::BaseCollection<CONFIG_PROJECT_TARGET_OUTPUT_LOGICAL_COUNT,
+                                                         CONFIG_PROJECT_TARGET_TOUCHSCREEN_COMPONENT_COUNT>
     {
         public:
         /**
