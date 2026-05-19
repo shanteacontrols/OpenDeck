@@ -5,8 +5,16 @@
 
 #pragma once
 
+#ifdef OPENDECK_TEST
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_WEBCONFIG
+#include "firmware/src/protocol/webconfig/builder/test/builder_test.h"
+#else
+#include "firmware/src/protocol/webconfig/builder/stub/builder_stub.h"
+#endif
+#else
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_WEBCONFIG
 #include "firmware/src/protocol/webconfig/builder/hw/builder_hw.h"
 #else
 #include "firmware/src/protocol/webconfig/builder/stub/builder_stub.h"
+#endif
 #endif
