@@ -8,7 +8,7 @@
 #include "firmware/src/protocol/webconfig/shared/common.h"
 #include "firmware/src/protocol/webconfig/shared/deps.h"
 #include "firmware/src/protocol/webconfig/firmware_upload/firmware_upload.h"
-#include "firmware/src/protocol/osc/packet/shared/common.h"
+#include "firmware/src/protocol/osc/shared/packet.h"
 #include "firmware/src/protocol/base.h"
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/staged_update/instance/impl/staged_update.h"

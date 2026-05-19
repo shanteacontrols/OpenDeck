@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/protocol/webconfig/firmware_upload/shared/common.h"
+#include "firmware/src/protocol/webconfig/shared/firmware_upload.h"
 #include "firmware/src/staged_update/instance/impl/staged_update.h"
 
 #include <array>

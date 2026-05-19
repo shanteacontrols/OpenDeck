@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/protocol/osc/packet/shared/common.h"
+#include "firmware/src/protocol/osc/shared/packet.h"
 #include "firmware/src/signaling/signaling.h"
 
 #include <array>
