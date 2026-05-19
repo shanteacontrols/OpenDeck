@@ -30,6 +30,9 @@ namespace
         protected:
         void SetUp() override
         {
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_MDNS
+            _system._hwa._builder_mdns._hwa.ip_address_value.clear();
+#endif
         }
 
         void TearDown() override
