@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "firmware/src/protocol/midi/instance/impl/ble_service.h"
+#include "firmware/src/protocol/midi/hwa/hw/ble_service.h"
 
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/conn.h>
