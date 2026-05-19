@@ -35,7 +35,6 @@ namespace opendeck::io::i2c
             return _instance;
         }
 
-        private:
         HwaTest _hwa;
         I2c     _instance;
     };

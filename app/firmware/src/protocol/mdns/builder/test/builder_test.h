@@ -42,7 +42,6 @@ namespace opendeck::protocol::mdns
             return _instance;
         }
 
-        private:
         database::Builder _default_database_builder;
         HwaTest           _hwa;
         Database          _database;

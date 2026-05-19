@@ -30,7 +30,6 @@ namespace opendeck::staged_update
             return _hwa;
         }
 
-        private:
         HwaTest      _hwa;
         StagedUpdate _instance;
     };

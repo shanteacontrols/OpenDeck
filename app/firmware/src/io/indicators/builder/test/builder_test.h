@@ -35,7 +35,6 @@ namespace opendeck::io::indicators
             return _instance;
         }
 
-        private:
         HwaTest    _hwa;
         Indicators _instance;
     };
