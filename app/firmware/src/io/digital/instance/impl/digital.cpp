@@ -8,11 +8,11 @@
 
 using namespace opendeck::io::digital;
 
-Digital::Digital(drivers::DriverBase&    driver,
+Digital::Digital(Hwa&                    hwa,
                  FrameStore&             frame_store,
                  io::switches::Switches& switches,
                  io::encoders::Encoders& encoders)
-    : _driver(driver)
+    : _hwa(hwa)
     , _frame_store(frame_store)
     , _switches(switches)
     , _encoders(encoders)
@@ -28,7 +28,7 @@ Digital::Digital(drivers::DriverBase&    driver,
                           continue;
                       }
 
-                      auto frame = _driver.read();
+                      auto frame = _hwa.read();
 
                       if (frame.has_value())
                       {
@@ -51,7 +51,7 @@ Digital::~Digital()
 
 bool Digital::init()
 {
-    auto ret = _driver.init() && _switches.init() && _encoders.init();
+    auto ret = _hwa.init() && _switches.init() && _encoders.init();
 
     if (!ret)
     {

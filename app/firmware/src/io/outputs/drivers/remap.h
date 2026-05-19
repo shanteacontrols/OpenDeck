@@ -13,17 +13,17 @@
 namespace opendeck::io::outputs
 {
     /**
-     * @brief Resolves logical OUTPUT indices against the physical driver order.
+     * @brief Resolves logical output indices against the physical driver order.
      */
     class Remap
     {
         public:
         /**
-         * @brief Maps one logical OUTPUT index to the physical output index.
+         * @brief Maps one logical output index to the physical output index.
          *
-         * @param logical Logical OUTPUT index.
+         * @param logical Logical output index.
          *
-         * @return Physical OUTPUT output index.
+         * @return Physical output index.
          */
         static constexpr size_t physical(size_t logical)
         {
@@ -35,11 +35,11 @@ namespace opendeck::io::outputs
         }
 
         /**
-         * @brief Maps one physical OUTPUT output index back to its logical index.
+         * @brief Maps one physical output index back to its logical index.
          *
-         * @param physical Physical OUTPUT output index.
+         * @param physical Physical output index.
          *
-         * @return Logical OUTPUT index when remapped, otherwise the original index.
+         * @return Logical output index when remapped, otherwise the original index.
          */
         static constexpr size_t logical(size_t physical)
         {

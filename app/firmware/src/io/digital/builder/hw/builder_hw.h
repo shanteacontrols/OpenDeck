@@ -8,6 +8,7 @@
 #include "firmware/src/io/digital/instance/impl/digital.h"
 #include "firmware/src/io/digital/shared/frame_store.h"
 #include "firmware/src/io/digital/drivers/driver.h"
+#include "firmware/src/io/digital/hwa/hw/hwa_hw.h"
 #include "firmware/src/io/digital/switches/instance/impl/switches.h"
 #include "firmware/src/io/digital/switches/filter/hw/filter_hw.h"
 #include "firmware/src/io/digital/switches/hwa/hw/hwa_hw.h"
@@ -34,14 +35,15 @@ namespace opendeck::io::digital
         explicit Builder(database::Admin& database)
             : _switches_database(database)
             , _encoders_database(database)
-            , _frame_store(_driver)
+            , _hwa(_driver)
+            , _frame_store(_hwa)
             , _switches_hwa(_frame_store)
             , _switches_mapper(_switches_database)
             , _switches(_switches_hwa, _switches_filter, _switches_mapper, _switches_database)
             , _encoders_hwa(_frame_store)
             , _encoders_mapper(_encoders_database)
             , _encoders(_encoders_hwa, _encoders_filter, _encoders_database, _encoders_mapper)
-            , _instance(_driver, _frame_store, _switches, _encoders)
+            , _instance(_hwa, _frame_store, _switches, _encoders)
         {}
 
         /**
@@ -58,6 +60,7 @@ namespace opendeck::io::digital
         io::switches::Database _switches_database;
         io::encoders::Database _encoders_database;
         drivers::Driver        _driver;
+        HwaHw                  _hwa;
         FrameStore             _frame_store;
         io::switches::HwaHw    _switches_hwa;
         io::switches::FilterHw _switches_filter;

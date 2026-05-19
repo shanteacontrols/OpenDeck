@@ -6,8 +6,7 @@
 #pragma once
 
 #include "firmware/src/io/outputs/shared/deps.h"
-#include "firmware/src/io/outputs/instance/impl/remap.h"
-#include "firmware/src/io/outputs/drivers/driver_base.h"
+#include "firmware/src/io/outputs/drivers/remap.h"
 
 namespace opendeck::io::outputs
 {
@@ -22,7 +21,7 @@ namespace opendeck::io::outputs
          *
          * @param driver Low-level OUTPUT driver implementation.
          */
-        explicit HwaHw(DriverBase& driver)
+        explicit HwaHw(Hwa& driver)
             : _driver(driver)
         {}
 
@@ -71,6 +70,6 @@ namespace opendeck::io::outputs
         }
 
         private:
-        DriverBase& _driver;
+        Hwa& _driver;
     };
 }    // namespace opendeck::io::outputs

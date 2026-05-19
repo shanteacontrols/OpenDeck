@@ -6,6 +6,7 @@
 #pragma once
 
 #include "firmware/src/io/analog/shared/deps.h"
+#include "firmware/src/io/analog/shared/frame_store.h"
 #include "firmware/src/io/analog/instance/impl/mapper.h"
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/system/config.h"
@@ -30,12 +31,15 @@ namespace opendeck::io::analog
          *
          * @param hwa Hardware abstraction used to read analog frames.
          * @param filter Filter used to smooth and validate analog readings.
+         * @param frame_store Shared frame cache populated from the hardware backend.
+         * @param mapper Mapper used to convert filtered readings into protocol actions.
          * @param database Database interface used to read analog configuration.
          */
-        Analog(Hwa&      hwa,
-               Filter&   filter,
-               Mapper&   mapper,
-               Database& database);
+        Analog(Hwa&        hwa,
+               Filter&     filter,
+               FrameStore& frame_store,
+               Mapper&     mapper,
+               Database&   database);
 
         /**
          * @brief Shuts the controller down.
@@ -70,6 +74,7 @@ namespace opendeck::io::analog
         private:
         Hwa&                      _hwa;
         Filter&                   _filter;
+        FrameStore&               _frame_store;
         Mapper&                   _mapper;
         Database&                 _database;
         zlibs::utils::misc::Mutex _hwa_mutex;
@@ -77,11 +82,9 @@ namespace opendeck::io::analog
         threads::AnalogThread     _thread;
 
         /**
-         * @brief Processes one sampled frame containing the current values for all analog inputs.
-         *
-         * @param frame Sampled analog frame to process.
+         * @brief Processes state changes from the currently cached analog frame.
          */
-        void process_frame(const Frame& frame);
+        void process_state_changes();
 
         /**
          * @brief Builds the runtime filter descriptor for one analog input.

@@ -5,14 +5,14 @@
 
 #pragma once
 
-#include "firmware/src/io/outputs/drivers/driver_base.h"
+#include "firmware/src/io/outputs/shared/deps.h"
 
 namespace opendeck::io::outputs
 {
     /**
      * @brief No-op output driver used for touchscreen-only targets.
      */
-    class Driver : public DriverBase
+    class Driver : public Hwa
     {
         public:
         void update() override

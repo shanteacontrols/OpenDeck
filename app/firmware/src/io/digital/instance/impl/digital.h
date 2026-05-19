@@ -5,8 +5,8 @@
 
 #pragma once
 
+#include "firmware/src/io/digital/shared/deps.h"
 #include "firmware/src/io/digital/shared/frame_store.h"
-#include "firmware/src/io/digital/drivers/driver_base.h"
 #include "firmware/src/io/base.h"
 #include "firmware/src/io/digital/switches/instance/impl/switches.h"
 #include "firmware/src/io/digital/encoders/instance/impl/encoders.h"
@@ -28,7 +28,7 @@ namespace opendeck::io::digital
          * @param switches Switch subsystem instance.
          * @param encoders Encoder subsystem instance.
          */
-        Digital(drivers::DriverBase&    driver,
+        Digital(Hwa&                    hwa,
                 FrameStore&             frame_store,
                 io::switches::Switches& switches,
                 io::encoders::Encoders& encoders);
@@ -60,7 +60,7 @@ namespace opendeck::io::digital
         void force_refresh(size_t start_index, size_t count) override;
 
         private:
-        drivers::DriverBase&    _driver;
+        Hwa&                    _hwa;
         FrameStore&             _frame_store;
         io::switches::Switches& _switches;
         io::encoders::Encoders& _encoders;

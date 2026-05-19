@@ -11,7 +11,6 @@
 
 #include "firmware/src/io/analog/builder/builder.h"
 #include "firmware/src/io/analog/drivers/scan_driver_base.h"
-#include "firmware/src/io/analog/instance/impl/remap.h"
 #include "firmware/src/io/digital/switches/builder/builder.h"
 #include "firmware/src/io/digital/switches/instance/impl/switches.h"
 #include "firmware/src/util/configurable/configurable.h"
@@ -936,7 +935,7 @@ TEST_F(AnalogTest, EnableChangesUpdatePhysicalScanMask)
                                 0,
                                 1));
 
-    expected_mask[analog::Remap::physical(0)] = true;
+    expected_mask[0] = true;
     EXPECT_EQ(expected_mask, _analog._hwa.scan_mask());
 
     ASSERT_EQ(static_cast<uint8_t>(sys::Config::Status::Ack),
@@ -945,7 +944,7 @@ TEST_F(AnalogTest, EnableChangesUpdatePhysicalScanMask)
                                 0,
                                 0));
 
-    expected_mask[analog::Remap::physical(0)] = false;
+    expected_mask[0] = false;
     EXPECT_EQ(expected_mask, _analog._hwa.scan_mask());
 }
 
@@ -974,7 +973,7 @@ TEST_F(AnalogTest, PresetChangeUpdatesPhysicalScanMask)
     });
     ASSERT_TRUE(zlibs::utils::signaling::drain());
 
-    expected_mask[analog::Remap::physical(0)] = true;
+    expected_mask[0] = true;
     EXPECT_EQ(expected_mask, _analog._hwa.scan_mask());
 
     ASSERT_TRUE(_database_admin.set_preset(1));
@@ -984,7 +983,7 @@ TEST_F(AnalogTest, PresetChangeUpdatesPhysicalScanMask)
     });
     ASSERT_TRUE(zlibs::utils::signaling::drain());
 
-    expected_mask[analog::Remap::physical(0)] = false;
+    expected_mask[0] = false;
     EXPECT_EQ(expected_mask, _analog._hwa.scan_mask());
 }
 

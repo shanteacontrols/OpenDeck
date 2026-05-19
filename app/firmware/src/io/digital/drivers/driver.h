@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/io/digital/drivers/driver_base.h"
+#include "firmware/src/io/digital/shared/deps.h"
 
 #if defined(CONFIG_PROJECT_TARGET_DRIVER_DIGITAL_INPUT_NATIVE)
 #include "firmware/src/io/digital/drivers/native/native_driver.h"
@@ -21,7 +21,7 @@ namespace opendeck::io::digital::drivers
     /**
      * @brief Fallback no-op digital driver used when no hardware-specific driver is selected.
      */
-    class Driver : public DriverBase
+    class Driver : public Hwa
     {
         public:
         /**

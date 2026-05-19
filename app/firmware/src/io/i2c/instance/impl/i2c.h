@@ -7,7 +7,7 @@
 
 #include "firmware/src/io/i2c/shared/deps.h"
 #include "firmware/src/io/base.h"
-#include "firmware/src/io/common/shared/common.h"
+#include "firmware/src/io/shared/common.h"
 #include "firmware/src/threads.h"
 
 #include <array>

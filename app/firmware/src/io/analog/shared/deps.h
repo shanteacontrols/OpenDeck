@@ -45,9 +45,9 @@ namespace opendeck::io::analog
         virtual std::optional<Frame> read() = 0;
 
         /**
-         * @brief Updates which physical analog channels should be scanned.
+         * @brief Updates which analog channels should be scanned.
          *
-         * @param mask Physical-channel scan mask.
+         * @param mask Analog scan mask.
          */
         virtual void set_scan_mask(const ScanMask& mask) = 0;
     };

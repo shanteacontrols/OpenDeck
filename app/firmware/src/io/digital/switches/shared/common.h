@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/io/common/shared/common.h"
+#include "firmware/src/io/shared/common.h"
 
 namespace opendeck::io::switches
 {

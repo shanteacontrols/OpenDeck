@@ -5,14 +5,14 @@
 
 #pragma once
 
-#include "firmware/src/io/outputs/drivers/driver_base.h"
+#include "firmware/src/io/outputs/shared/deps.h"
 
 namespace opendeck::io::outputs
 {
     /**
      * @brief Output driver for matrix-addressed outputs with native row handling.
      */
-    class Driver : public DriverBase
+    class Driver : public Hwa
     {
         public:
         /**

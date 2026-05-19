@@ -6,7 +6,6 @@
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_ADC
 
 #include "firmware/src/io/analog/instance/impl/analog.h"
-#include "firmware/src/io/analog/instance/impl/remap.h"
 #include "firmware/src/system/config.h"
 #include "firmware/src/util/conversion/conversion.h"
 #include "firmware/src/util/configurable/configurable.h"
@@ -27,12 +26,14 @@ namespace
     LOG_MODULE_REGISTER(analog, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
 }    // namespace
 
-Analog::Analog(Hwa&      hwa,
-               Filter&   filter,
-               Mapper&   mapper,
-               Database& database)
+Analog::Analog(Hwa&        hwa,
+               Filter&     filter,
+               FrameStore& frame_store,
+               Mapper&     mapper,
+               Database&   database)
     : _hwa(hwa)
     , _filter(filter)
+    , _frame_store(frame_store)
     , _mapper(mapper)
     , _database(database)
     , _thread([&]()
@@ -57,7 +58,9 @@ Analog::Analog(Hwa&      hwa,
                       if (frame.has_value())
                       {
                           const zlibs::utils::misc::LockGuard lock(_state_mutex);
-                          process_frame(frame.value());
+                          _frame_store.set_frame(frame.value());
+                          process_state_changes();
+                          _frame_store.clear();
                       }
 
                       util::thread_sleep(CONFIG_ANALOG_THREAD_SLEEP_MS);
@@ -165,7 +168,7 @@ void Analog::force_refresh(size_t start_index, size_t count)
     }
 }
 
-void Analog::process_frame(const Frame& frame)
+void Analog::process_state_changes()
 {
     if (is_frozen())
     {
@@ -174,14 +177,14 @@ void Analog::process_frame(const Frame& frame)
 
     for (size_t i = 0; i < Collection::size(GroupAnalogInputs); i++)
     {
-        const auto physical_index = Remap::physical(i);
+        const auto value = _frame_store.value(i);
 
-        if (physical_index >= frame.size())
+        if (!value.has_value())
         {
             continue;
         }
 
-        process_reading(i, frame[physical_index]);
+        process_reading(i, value.value());
     }
 }
 
@@ -252,11 +255,9 @@ void Analog::update_scan_mask()
             continue;
         }
 
-        const auto physical_index = Remap::physical(i);
-
-        if (physical_index < mask.size())
+        if (i < mask.size())
         {
-            mask[physical_index] = true;
+            mask[i] = true;
         }
     }
 

@@ -10,6 +10,7 @@
 #include "firmware/src/io/analog/filter/hw/filter_hw.h"
 #include "firmware/src/io/analog/hwa/hw/hwa_hw.h"
 #include "firmware/src/io/analog/instance/impl/mapper.h"
+#include "firmware/src/io/analog/shared/frame_store.h"
 #include "firmware/src/database/builder/builder.h"
 
 namespace opendeck::io::analog
@@ -29,7 +30,7 @@ namespace opendeck::io::analog
             : _database(database)
             , _hwa(_driver)
             , _mapper(_database)
-            , _instance(_hwa, _filter, _mapper, _database)
+            , _instance(_hwa, _filter, _frame_store, _mapper, _database)
         {}
 
         /**
@@ -43,11 +44,12 @@ namespace opendeck::io::analog
         }
 
         private:
-        Database _database;
-        Driver   _driver;
-        HwaHw    _hwa;
-        FilterHw _filter;
-        Mapper   _mapper;
-        Analog   _instance;
+        Database   _database;
+        Driver     _driver;
+        HwaHw      _hwa;
+        FilterHw   _filter;
+        FrameStore _frame_store;
+        Mapper     _mapper;
+        Analog     _instance;
     };
 }    // namespace opendeck::io::analog

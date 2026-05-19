@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/io/outputs/drivers/driver_base.h"
+#include "firmware/src/io/outputs/shared/deps.h"
 
 #include "zlibs/utils/misc/bit.h"
 
@@ -19,7 +19,7 @@ namespace opendeck::io::outputs
     /**
      * @brief Output driver for an 8x8 matrix controlled by a MAX7219.
      */
-    class Driver : public DriverBase
+    class Driver : public Hwa
     {
         public:
         /**

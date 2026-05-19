@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/io/outputs/drivers/driver_base.h"
+#include "firmware/src/io/outputs/shared/deps.h"
 
 #include <zephyr/device.h>
 #include <zephyr/drivers/gpio.h>
@@ -19,7 +19,7 @@ namespace opendeck::io::outputs
     /**
      * @brief Output driver that drives native GPIO outputs directly.
      */
-    class Driver : public DriverBase
+    class Driver : public Hwa
     {
         public:
         /**

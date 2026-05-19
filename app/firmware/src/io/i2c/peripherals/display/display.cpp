@@ -8,7 +8,7 @@
 #include "firmware/src/io/i2c/peripherals/display/display.h"
 #include "firmware/src/io/i2c/instance/impl/i2c.h"
 #include "firmware/src/protocol/midi/instance/impl/midi.h"
-#include "firmware/src/io/common/shared/common.h"
+#include "firmware/src/io/shared/common.h"
 #include "firmware/src/util/conversion/conversion.h"
 #include "firmware/src/util/configurable/configurable.h"
 

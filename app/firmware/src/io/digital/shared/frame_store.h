@@ -5,8 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/io/digital/drivers/driver_base.h"
-#include "firmware/src/io/digital/instance/impl/remap.h"
+#include "firmware/src/io/digital/shared/deps.h"
 
 #include <optional>
 
@@ -21,10 +20,10 @@ namespace opendeck::io::digital
         /**
          * @brief Constructs the frame store around the active digital driver.
          *
-         * @param driver Driver used for switch/encoder index mapping.
+         * @param hwa Hardware adapter used for switch/encoder index mapping.
          */
-        explicit FrameStore(drivers::DriverBase& driver)
-            : _driver(driver)
+        explicit FrameStore(Hwa& hwa)
+            : _hwa(hwa)
         {}
 
         /**
@@ -32,7 +31,7 @@ namespace opendeck::io::digital
          *
          * @param frame Frame to cache.
          */
-        void set_frame(const drivers::Frame& frame)
+        void set_frame(const Frame& frame)
         {
             _frame       = frame;
             _frame_valid = true;
@@ -55,14 +54,12 @@ namespace opendeck::io::digital
          */
         std::optional<bool> state(size_t index) const
         {
-            const size_t physical_index = Remap::physical(index);
-
-            if (!_frame_valid || (physical_index >= _frame.size()))
+            if (!_frame_valid || (index >= _frame.size()))
             {
                 return {};
             }
 
-            return _frame[physical_index];
+            return _frame[index];
         }
 
         /**
@@ -77,15 +74,15 @@ namespace opendeck::io::digital
             static constexpr uint8_t ENCODER_A_MASK = 0x02;
             static constexpr uint8_t ENCODER_B_MASK = 0x01;
 
-            const size_t encoder_count = _driver.encoder_count();
+            const size_t encoder_count = _hwa.encoder_count();
 
             if (!_frame_valid || (encoder_count == 0) || (index >= encoder_count))
             {
                 return {};
             }
 
-            const size_t component_a = Remap::physical(_driver.encoder_component_from_encoder(index, drivers::EncoderComponent::A));
-            const size_t component_b = Remap::physical(_driver.encoder_component_from_encoder(index, drivers::EncoderComponent::B));
+            const size_t component_a = _hwa.encoder_component_from_encoder(index, EncoderComponent::A);
+            const size_t component_b = _hwa.encoder_component_from_encoder(index, EncoderComponent::B);
 
             if ((component_a >= _frame.size()) || (component_b >= _frame.size()))
             {
@@ -105,12 +102,12 @@ namespace opendeck::io::digital
          */
         size_t switch_to_encoder_index(size_t index) const
         {
-            return _driver.switch_to_encoder_index(index);
+            return _hwa.switch_to_encoder_index(index);
         }
 
         private:
-        drivers::DriverBase& _driver;
-        drivers::Frame       _frame       = {};
-        bool                 _frame_valid = false;
+        Hwa&  _hwa;
+        Frame _frame       = {};
+        bool  _frame_valid = false;
     };
 }    // namespace opendeck::io::digital

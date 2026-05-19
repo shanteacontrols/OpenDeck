@@ -5,14 +5,16 @@
 
 #pragma once
 
-#include "firmware/src/io/digital/drivers/driver_base.h"
+#include "firmware/src/io/digital/shared/deps.h"
+
+#include <zephyr/drivers/gpio.h>
 
 namespace opendeck::io::digital::drivers
 {
     /**
      * @brief Digital input driver for shift-register based switch inputs.
      */
-    class Driver : public DriverBase
+    class Driver : public Hwa
     {
         public:
         /**

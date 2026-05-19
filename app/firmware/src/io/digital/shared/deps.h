@@ -5,51 +5,36 @@
 
 #pragma once
 
-#include <array>
-#include <cstddef>
-#include <cstdint>
+#include "firmware/src/io/digital/shared/common.h"
+
 #include <optional>
 
-namespace opendeck::io::digital::drivers
+namespace opendeck::io::digital
 {
     /**
-     * @brief Identifies which physical pin of an encoder is being addressed.
+     * @brief Hardware abstraction interface used by the digital subsystem.
      */
-    enum class EncoderComponent : uint8_t
-    {
-        A,
-        B,
-    };
-
-    /**
-     * @brief Frame of sampled digital input states, indexed by flattened input index.
-     */
-    using Frame = std::array<bool, CONFIG_PROJECT_TARGET_DIGITAL_INPUT_COUNT>;
-
-    /**
-     * @brief Base interface for digital input drivers.
-     */
-    class DriverBase
+    class Hwa
     {
         public:
-        virtual ~DriverBase() = default;
+        virtual ~Hwa() = default;
 
         /**
-         * @brief Initializes the concrete digital input driver.
+         * @brief Initializes the digital hardware backend.
          *
          * @return `true` if initialization succeeded, otherwise `false`.
          */
         virtual bool init() = 0;
 
         /**
-         * @brief Returns the next sampled digital frame when available.
+         * @brief Returns the next sampled logical digital frame when available.
          *
          * @return Sampled frame, or `std::nullopt` when no frame is ready.
          */
         virtual std::optional<Frame> read() = 0;
 
         /**
-         * @brief Returns the number of encoders represented by the driver layout.
+         * @brief Returns the number of encoders represented by the hardware layout.
          *
          * @return Encoder count.
          */
@@ -74,4 +59,4 @@ namespace opendeck::io::digital::drivers
          */
         virtual size_t encoder_component_from_encoder(size_t index, EncoderComponent c) = 0;
     };
-}    // namespace opendeck::io::digital::drivers
+}    // namespace opendeck::io::digital

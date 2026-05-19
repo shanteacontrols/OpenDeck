@@ -63,7 +63,7 @@ namespace opendeck::io::analog
         /**
          * @brief Stores the most recently requested scan mask.
          *
-         * @param mask Physical-channel scan mask.
+         * @param mask Analog scan mask.
          */
         void set_scan_mask(const ScanMask& mask) override
         {
@@ -103,7 +103,7 @@ namespace opendeck::io::analog
         /**
          * @brief Returns the most recently requested scan mask.
          *
-         * @return Stored physical-channel scan mask.
+         * @return Stored analog scan mask.
          */
         ScanMask scan_mask() const
         {

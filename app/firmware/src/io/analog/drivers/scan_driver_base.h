@@ -5,7 +5,10 @@
 
 #pragma once
 
-#include "firmware/src/io/analog/drivers/driver_base.h"
+#include "firmware/src/io/analog/shared/deps.h"
+
+#include <zephyr/drivers/adc.h>
+#include <zephyr/drivers/gpio.h>
 
 #include <algorithm>
 
@@ -17,7 +20,7 @@ namespace opendeck::io::analog::drivers
      * @tparam T Concrete driver type that provides the hardware-specific hooks.
      */
     template<typename T>
-    class ScanDriverBase : public DriverBase
+    class ScanDriverBase : public Hwa
     {
         public:
         /**

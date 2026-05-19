@@ -8,7 +8,7 @@
 #include "firmware/src/io/outputs/shared/deps.h"
 #include "firmware/src/database/instance/impl/database.h"
 #include "firmware/src/protocol/midi/instance/impl/midi.h"
-#include "firmware/src/io/common/shared/common.h"
+#include "firmware/src/io/shared/common.h"
 #include "firmware/src/system/config.h"
 #include "firmware/src/io/base.h"
 #include "firmware/src/threads.h"
