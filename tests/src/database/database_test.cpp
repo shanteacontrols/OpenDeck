@@ -127,10 +127,22 @@ TEST_F(DatabaseTest, ReadInitialValues)
         }
 
         // OSC settings section
-        // all values should be set to 0 when OSC is not enabled for the test target
         for (int i = 0; i < static_cast<uint8_t>(protocol::osc::Setting::Count); i++)
         {
-            DB_READ_VERIFY(0, database::Config::Section::Global::OscSettings, i);
+            uint32_t expected_value = 0;
+
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_OSC
+            if (i == static_cast<int>(protocol::osc::Setting::DestPort))
+            {
+                expected_value = protocol::osc::DEFAULT_DEST_PORT;
+            }
+            else if (i == static_cast<int>(protocol::osc::Setting::ListenPort))
+            {
+                expected_value = protocol::osc::DEFAULT_LISTEN_PORT;
+            }
+#endif
+
+            DB_READ_VERIFY(expected_value, database::Config::Section::Global::OscSettings, i);
         }
 
         // switch block
