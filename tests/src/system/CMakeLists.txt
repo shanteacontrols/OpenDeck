@@ -10,6 +10,7 @@ opendeck_test_add_modules(
     cinfo         "app/firmware/src/util/cinfo"
     protocol_midi "app/firmware/src/protocol/midi"
     protocol_mdns "app/firmware/src/protocol/mdns"
+    staged_update "app/firmware/src/staged_update"
     digital       "app/firmware/src/io/digital"
     switches      "app/firmware/src/io/digital/switches"
     encoders      "app/firmware/src/io/digital/encoders"
