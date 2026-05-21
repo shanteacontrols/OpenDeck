@@ -1,0 +1,27 @@
+diff --git a/boards/espressif/esp32_ethernet_kit/board_init.c b/boards/espressif/esp32_ethernet_kit/board_init.c
+index 38be4e11f93..3e0a38b1f8a 100644
+--- a/boards/espressif/esp32_ethernet_kit/board_init.c
++++ b/boards/espressif/esp32_ethernet_kit/board_init.c
+@@ -14,6 +14,9 @@
+ 
+ static int board_esp32_ethernet_kit_init(void)
+ {
++	int res = 0;
++
++#if DT_REG_ADDR(DT_NODELABEL(phy)) == 1
+ 	const struct device *gpio = DEVICE_DT_GET(DT_NODELABEL(gpio0));
+ 
+ 	if (!device_is_ready(gpio)) {
+@@ -22,9 +25,10 @@ static int board_esp32_ethernet_kit_init(void)
+ 	}
+ 
+ 	/* Enable the Ethernet phy */
+-	int res = gpio_pin_configure(
++	res = gpio_pin_configure(
+ 		gpio, IP101GRI_RESET_N_PIN,
+ 		GPIO_OUTPUT | GPIO_OUTPUT_INIT_HIGH);
+ 
++#endif
+ 	return res;
+ }
+ 

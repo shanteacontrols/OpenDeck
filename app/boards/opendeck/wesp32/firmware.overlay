@@ -1,0 +1,65 @@
+/ {
+    opendeck_metadata: opendeck-metadata {
+        compatible = "opendeck,metadata";
+        zephyr-board = "esp32_ethernet_kit/esp32/procpu";
+        board-name = "wESP32";
+    };
+
+    opendeck_bulk_build: opendeck-bulk-build {
+        compatible = "opendeck,bulk-build";
+        app;
+    };
+
+    opendeck_switches: opendeck-switches {
+        compatible = "opendeck,switches";
+        mode = "native";
+        native-gpios =
+            <&gpio1 2 GPIO_ACTIVE_LOW>, /* GPIO34 / input-only */
+            <&gpio1 3 GPIO_ACTIVE_LOW>, /* GPIO35 / input-only */
+            <&gpio1 4 GPIO_ACTIVE_LOW>, /* GPIO36 / input-only */
+            <&gpio1 7 GPIO_ACTIVE_LOW>; /* GPIO39 / input-only */
+    };
+
+    opendeck_outputs: opendeck-outputs {
+        compatible = "opendeck,outputs";
+        mode = "native";
+        native-gpios =
+            <&gpio0 4 GPIO_ACTIVE_HIGH>,  /* GPIO4 */
+            <&gpio0 5 GPIO_ACTIVE_HIGH>,  /* GPIO5 */
+            <&gpio0 13 GPIO_ACTIVE_HIGH>, /* GPIO13 */
+            <&gpio0 14 GPIO_ACTIVE_HIGH>, /* GPIO14 */
+            <&gpio0 18 GPIO_ACTIVE_HIGH>, /* GPIO18 */
+            <&gpio0 23 GPIO_ACTIVE_HIGH>, /* GPIO23 */
+            <&gpio1 0 GPIO_ACTIVE_HIGH>,  /* GPIO32 */
+            <&gpio1 1 GPIO_ACTIVE_HIGH>;  /* GPIO33 */
+    };
+};
+
+&psram0 {
+    status = "disabled";
+};
+
+/delete-node/ &phy;
+
+&pinctrl {
+    wesp32_mdio_default: wesp32_mdio_default {
+        group1 {
+            pinmux = <SMI_MDC_GPIO16>,
+                     <SMI_MDIO_GPIO17>;
+        };
+    };
+};
+
+&mdio {
+    pinctrl-0 = <&wesp32_mdio_default>;
+
+    phy: ethernet-phy@0 {
+        compatible = "ethernet-phy";
+        reg = <0>;
+        no-reset;
+    };
+};
+
+&eth {
+    phy-handle = <&phy>;
+};

@@ -1,0 +1,67 @@
+diff --git a/scripts/west_commands/runners/esp32.py b/scripts/west_commands/runners/esp32.py
+index 6e4de13b9f5..c84afca8225 100644
+--- a/scripts/west_commands/runners/esp32.py
++++ b/scripts/west_commands/runners/esp32.py
+@@ -6,6 +6,7 @@
+ '''Runner for flashing ESP32 devices with esptool.'''
+ 
+ import os
++import re
+ 
+ from runners.core import RunnerCaps, ZephyrBinaryRunner
+ 
+@@ -79,7 +80,32 @@ class Esp32BinaryRunner(ZephyrBinaryRunner):
+             reset=args.reset, baud=args.esp_baud_rate, flash_size=args.esp_flash_size,
+             flash_freq=args.esp_flash_freq, flash_mode=args.esp_flash_mode,
+             espidf=args.esp_idf_path, encrypt=args.esp_encrypt, no_stub=args.esp_no_stub)
+ 
++    def get_chosen_code_partition_address(self):
++        edt_path = os.path.join(self.cfg.build_dir, 'zephyr', 'edt.pickle.cmake')
++
++        try:
++            with open(edt_path, encoding='utf-8') as edt_file:
++                edt_text = edt_file.read()
++        except OSError:
++            return None
++
++        chosen_match = re.search(r'DT_CHOSEN\|zephyr,code-partition" "([^"]+)"',
++                                 edt_text)
++        if chosen_match is None:
++            return None
++
++        chosen_path = re.escape(chosen_match.group(1))
++        addr_match = re.search(rf'DT_REG\|{chosen_path}\|ADDR" "([^"]+)"',
++                               edt_text)
++        if addr_match is None:
++            return None
++
++        return addr_match.group(1)
++
++    def get_app_address(self):
++        return self.get_chosen_code_partition_address() or self.app_address
++
+     def do_run(self, command, **kwargs):
+ 
+         cmd_flash = ['esptool']
+@@ -94,16 +121,19 @@ class Esp32BinaryRunner(ZephyrBinaryRunner):
+             cmd_flash.extend(['--no-stub'])
+         cmd_flash.extend(['--baud', self.baud])
+         cmd_flash.extend(['--before', 'default-reset'])
+         if self.reset:
+-            cmd_flash.extend(['--after', 'hard-reset', 'write-flash', '-u'])
++            cmd_flash.extend(['--after', 'hard-reset'])
++        else:
++            cmd_flash.extend(['--after', 'no-reset'])
++        cmd_flash.extend(['write-flash', '-u'])
+         cmd_flash.extend(['--flash-mode', self.flash_mode])
+         cmd_flash.extend(['--flash-freq', self.flash_freq])
+         cmd_flash.extend(['--flash-size', self.flash_size])
+ 
+         if self.encrypt:
+             cmd_flash.extend(['--encrypt'])
+ 
+-        cmd_flash.extend([self.app_address, self.app_bin])
++        cmd_flash.extend([self.get_app_address(), self.app_bin])
+ 
+         self.logger.info(f"Flashing esp32 chip on {self.device} ({self.baud}bps)")
+         self.check_call(cmd_flash)

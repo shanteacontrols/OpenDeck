@@ -1,0 +1,55 @@
+/ {
+    opendeck_metadata: opendeck-metadata {
+        compatible = "opendeck,metadata";
+        zephyr-board = "esp32_ethernet_kit/esp32/procpu";
+        board-name = "Olimex ESP32-POE";
+    };
+
+    opendeck_bulk_build: opendeck-bulk-build {
+        compatible = "opendeck,bulk-build";
+        app;
+    };
+
+    opendeck_switches: opendeck-switches {
+        compatible = "opendeck,switches";
+        mode = "native";
+        native-gpios =
+            <&gpio1 2 GPIO_ACTIVE_LOW>, /* GPIO34 / on-board button */
+            <&gpio0 13 GPIO_ACTIVE_LOW>, /* GPIO13 / free */
+            <&gpio0 16 GPIO_ACTIVE_LOW>, /* GPIO16 / free */
+            <&gpio1 4 GPIO_ACTIVE_LOW>; /* GPIO36 / free input-only */
+    };
+
+    opendeck_outputs: opendeck-outputs {
+        compatible = "opendeck,outputs";
+        mode = "native";
+        native-gpios =
+            <&gpio0 4 GPIO_ACTIVE_HIGH>, /* GPIO4 / free */
+            <&gpio0 5 GPIO_ACTIVE_HIGH>, /* GPIO5 / free */
+            <&gpio1 0 GPIO_ACTIVE_HIGH>, /* GPIO32 / free */
+            <&gpio1 1 GPIO_ACTIVE_HIGH>; /* GPIO33 / free */
+    };
+};
+
+&psram0 {
+    status = "disabled";
+};
+
+/delete-node/ &phy;
+
+&mdio {
+    ref-clk-output-gpios = <&gpio0 17 GPIO_ACTIVE_HIGH>;
+
+    phy: ethernet-phy@0 {
+        compatible = "ethernet-phy";
+        reg = <0>;
+        reset-gpios = <&gpio0 12 GPIO_ACTIVE_LOW>;
+        reset-assert-duration-us = <300000>;
+        reset-deassertion-timeout-ms = <50>;
+    };
+};
+
+&eth {
+    phy-handle = <&phy>;
+    ref-clk-output-gpios = <&gpio0 17 GPIO_ACTIVE_HIGH>;
+};

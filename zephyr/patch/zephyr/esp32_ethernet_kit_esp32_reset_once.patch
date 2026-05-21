@@ -1,0 +1,18 @@
+diff --git a/boards/espressif/esp32_ethernet_kit/board.yml b/boards/espressif/esp32_ethernet_kit/board.yml
+index 3f68df078ac..ac56829fe22 100644
+--- a/boards/espressif/esp32_ethernet_kit/board.yml
++++ b/boards/espressif/esp32_ethernet_kit/board.yml
+@@ -4,3 +4,13 @@ board:
+   vendor: espressif
+   socs:
+   - name: esp32
++
++runners:
++  run_once:
++    '--reset':
++    - runners:
++      - esp32
++      run: last
++      groups:
++      - boards:
++        - esp32_ethernet_kit/esp32/procpu

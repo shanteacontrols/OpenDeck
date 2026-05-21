@@ -1,0 +1,11 @@
+&psram0 {
+    status = "disabled";
+};
+
+/ {
+    opendeck_bootloader: opendeck-bootloader {
+        compatible = "opendeck,bootloader";
+        gpios = <&gpio1 2 GPIO_ACTIVE_LOW>;
+        label = "OpenDeck recovery";
+    };
+};
