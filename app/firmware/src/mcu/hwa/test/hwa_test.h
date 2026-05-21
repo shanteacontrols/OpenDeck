@@ -34,7 +34,7 @@ namespace opendeck::mcu
          *
          * @param type Firmware target requested by the caller.
          */
-        void reboot(fw_selector::FwType type) override
+        void reboot(mcu::BootTarget type) override
         {
             reboot_type = type;
         }
@@ -43,6 +43,6 @@ namespace opendeck::mcu
         std::array<uint8_t, SERIAL_NUMBER_BUFFER_SIZE> serial = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
 
         /** @brief Last firmware target requested through reboot(). */
-        std::optional<fw_selector::FwType> reboot_type = {};
+        std::optional<mcu::BootTarget> reboot_type = {};
     };
 }    // namespace opendeck::mcu

@@ -7,7 +7,7 @@
 
 #include "firmware/src/protocol/webconfig/hwa/hw/hwa_hw.h"
 #include "firmware/src/protocol/webconfig/shared/common.h"
-#include "bootloader/src/fw_selector/shared/common.h"
+#include "firmware/src/mcu/shared/common.h"
 #include "firmware/src/protocol/webconfig/instance/impl/webconfig.h"
 
 #include <zephyr/kernel.h>
@@ -115,7 +115,7 @@ void HwaHw::unregister(int socket)
 
 void HwaHw::reboot_to_bootloader()
 {
-    _mcu.reboot(fw_selector::FwType::Bootloader);
+    _mcu.reboot(mcu::BootTarget::Bootloader);
 }
 
 #endif

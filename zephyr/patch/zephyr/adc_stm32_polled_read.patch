@@ -1,5 +1,5 @@
 diff --git a/drivers/adc/adc_stm32.c b/drivers/adc/adc_stm32.c
-index 594bbc31549..6dfa4e13774 100644
+index f8a9277159f..f9c8b8ffc98 100644
 --- a/drivers/adc/adc_stm32.c
 +++ b/drivers/adc/adc_stm32.c
 @@ -245,6 +245,8 @@ struct adc_stm32_data {
@@ -50,7 +50,7 @@ index 594bbc31549..6dfa4e13774 100644
  	err = set_sequencer(dev);
  	if (err < 0) {
  		LOG_ERR("Error setting the ADC sequencer");
-@@ -1254,6 +1258,167 @@ static int start_read(const struct device *dev,
+@@ -1254,6 +1258,175 @@ static int start_read(const struct device *dev,
  #endif
  	}
  
@@ -226,7 +226,7 @@ index 594bbc31549..6dfa4e13774 100644
  	/*
  	 * Make sure the ADC is enabled as it might have been disabled earlier
  	 * to set the resolution, to set the oversampling or to perform the
-@@ -1478,10 +1643,14 @@ static int adc_stm32_read(const struct device *dev,
+@@ -1478,10 +1651,14 @@ static int adc_stm32_read(const struct device *dev,
  		return -EINVAL;
  	}
  	ctx = is_injected ? &data->inj_ctx : &data->ctx;

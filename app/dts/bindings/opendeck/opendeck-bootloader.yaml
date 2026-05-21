@@ -1,24 +1,14 @@
-description: OpenDeck bootloader trigger configuration
+description: OpenDeck bootloader entry configuration
 
 compatible: "opendeck,bootloader"
 
 properties:
-  switch-gpios:
+  gpios:
     type: phandle-array
-    required: false
-    description: Optional bootloader entry switch GPIO. Use GPIO flags for polarity and pull mode.
+    required: true
+    description: GPIO used to enter the OpenDeck recovery bootloader.
 
-  boot-partition:
-    type: phandle
+  label:
+    type: string
     required: false
-    description: Fixed flash partition where the bootloader image is placed.
-
-  app-partition:
-    type: phandle
-    required: false
-    description: Fixed flash partition of the application image boot target.
-
-  staged-dfu-partition:
-    type: phandle
-    required: false
-    description: Fixed flash partition used to stage a wrapped dfu.bin update before bootloader application.
+    description: Human-readable bootloader entry control name.

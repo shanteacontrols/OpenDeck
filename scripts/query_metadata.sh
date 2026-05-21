@@ -17,7 +17,7 @@ function usage
     Required option:
       --target <target_name>
     Alternative option:
-      --overlay <opendeck.overlay>
+      --overlay <firmware.overlay>
     Optional:
       --key <target|board_name|bulk_app|bulk_lint|target_alias_overlay_line>
 
@@ -262,7 +262,7 @@ function target_metadata
 
     if [[ -z "$overlay" && -n "$target" ]]
     then
-        overlay="${project_root}/app/boards/opendeck/${target}/opendeck.overlay"
+        overlay="${project_root}/app/boards/opendeck/${target}/firmware.overlay"
     fi
 
     if [[ -z "$overlay" ]]
@@ -282,11 +282,9 @@ function target_metadata
         target=$(basename "$(dirname "$overlay")")
     fi
 
-    local target_firmware_overlay
     local board_name
 
     board_name=$(sed -n 's/.*board-name[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' "$overlay" | head -n1)
-    target_firmware_overlay="${project_root}/app/boards/opendeck/${target}/firmware.overlay"
 
     print_metadata "$(awk -v target="$target" -v board_name="$board_name" '
         BEGIN {
@@ -320,7 +318,7 @@ function target_metadata
             printf "bulk_lint=%s\n", bulk_lint;
         }
     ' "$overlay")
-$(target_alias_overlay_lines "$target_firmware_overlay")" "$key"
+$(target_alias_overlay_lines "$overlay")" "$key"
 }
 
 function dts_path_to_selector

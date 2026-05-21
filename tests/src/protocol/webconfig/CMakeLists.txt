@@ -6,11 +6,12 @@ opendeck_test_bootstrap(
 )
 
 opendeck_test_add_modules(
-    mcu                 "app/firmware/src/mcu"
-    metadata            "app/common/src/metadata"
-    protocol_osc_packet "app/firmware/src/protocol/osc/packet"
-    staged_update       "app/firmware/src/staged_update"
-    protocol_webconfig  "app/firmware/src/protocol/webconfig"
+    mcu                  "app/firmware/src/mcu"
+    metadata             "app/common/src/metadata"
+    flash_stream_writer  "app/common/src/flash_stream_writer"
+    protocol_osc_packet  "app/firmware/src/protocol/osc/packet"
+    staged_update_writer "app/firmware/src/staged_update_writer"
+    protocol_webconfig   "app/firmware/src/protocol/webconfig"
 )
 
 target_sources(app

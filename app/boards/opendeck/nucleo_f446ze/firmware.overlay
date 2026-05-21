@@ -1,5 +1,0 @@
-opendeck_uart_din_midi: &usart6 {};
-
-opendeck_uart_touchscreen: &usart6 {};
-
-opendeck_i2c_display: &i2c1 {};

@@ -4,10 +4,15 @@ endif()
 
 set(TARGET "$ENV{TARGET}")
 
-set(opendeck_board_overlay ${APP_DIR}/boards/opendeck/${TARGET}/opendeck.overlay)
+set(opendeck_target_firmware_overlay ${APP_DIR}/boards/opendeck/${TARGET}/firmware.overlay)
+set(opendeck_target_bootloader_overlay ${APP_DIR}/boards/opendeck/${TARGET}/bootloader.overlay)
 
-if(NOT EXISTS ${opendeck_board_overlay})
-    message(FATAL_ERROR "Missing OpenDeck board overlay for target '${TARGET}': ${opendeck_board_overlay}")
+if(NOT EXISTS ${opendeck_target_firmware_overlay})
+    message(FATAL_ERROR "Missing OpenDeck firmware overlay for target '${TARGET}': ${opendeck_target_firmware_overlay}")
+endif()
+
+if(NOT EXISTS ${opendeck_target_bootloader_overlay})
+    message(FATAL_ERROR "Missing OpenDeck bootloader overlay for target '${TARGET}': ${opendeck_target_bootloader_overlay}")
 endif()
 
 if(NOT DEFINED BOARD OR "${BOARD}" STREQUAL "")
@@ -28,22 +33,25 @@ if(NOT EXISTS ${opendeck_zephyr_board_dir_path})
     message(FATAL_ERROR "Missing Zephyr board layer for target '${TARGET}': ${opendeck_zephyr_board_dir_path}")
 endif()
 
-set(opendeck_board_partitions_overlay   ${opendeck_zephyr_board_dir_path}/partitions.overlay)
-set(opendeck_board_firmware_overlay     ${opendeck_zephyr_board_dir_path}/firmware.overlay)
-set(opendeck_board_firmware_conf        ${opendeck_zephyr_board_dir_path}/firmware.conf)
-set(opendeck_common_firmware_conf       ${APP_DIR}/firmware/firmware.conf)
-set(opendeck_target_firmware_overlay    ${APP_DIR}/boards/opendeck/${TARGET}/firmware.overlay)
-set(opendeck_target_firmware_conf       ${APP_DIR}/boards/opendeck/${TARGET}/firmware.conf)
-set(opendeck_target_bootloader_overlay  ${APP_DIR}/boards/opendeck/${TARGET}/bootloader.overlay)
-set(opendeck_target_bootloader_conf     ${APP_DIR}/boards/opendeck/${TARGET}/bootloader.conf)
-set(opendeck_board_bootloader_overlay   ${opendeck_zephyr_board_dir_path}/bootloader.overlay)
-set(opendeck_board_bootloader_conf      ${opendeck_zephyr_board_dir_path}/bootloader.conf)
-set(opendeck_common_bootloader_conf     ${APP_DIR}/bootloader/bootloader.conf)
-set(opendeck_common_usb_conf            ${APP_DIR}/common/usb.conf)
-set(opendeck_firmware_usb_conf          ${APP_DIR}/firmware/usb.conf)
-set(opendeck_bootloader_usb_conf        ${APP_DIR}/bootloader/usb.conf)
-set(opendeck_generated_dir              ${CMAKE_BINARY_DIR}/generated)
-set(opendeck_metadata_query_script      $ENV{ZEPHYR_PROJECT}/scripts/query_metadata.sh)
+set(opendeck_board_partitions_overlay           ${opendeck_zephyr_board_dir_path}/partitions.overlay)
+set(opendeck_board_firmware_overlay             ${opendeck_zephyr_board_dir_path}/firmware.overlay)
+set(opendeck_board_firmware_conf                ${opendeck_zephyr_board_dir_path}/firmware.conf)
+set(opendeck_board_mcuboot_conf                 ${opendeck_zephyr_board_dir_path}/mcuboot.conf)
+set(opendeck_common_firmware_conf               ${APP_DIR}/firmware/firmware.conf)
+set(opendeck_target_firmware_conf               ${APP_DIR}/boards/opendeck/${TARGET}/firmware.conf)
+set(opendeck_target_bootloader_conf             ${APP_DIR}/boards/opendeck/${TARGET}/bootloader.conf)
+set(opendeck_board_bootloader_overlay           ${opendeck_zephyr_board_dir_path}/bootloader.overlay)
+set(opendeck_board_bootloader_conf              ${opendeck_zephyr_board_dir_path}/bootloader.conf)
+set(opendeck_common_bootloader_conf             ${APP_DIR}/bootloader/bootloader.conf)
+set(opendeck_bootloader_firmware_loader_overlay ${APP_DIR}/bootloader/firmware_loader.overlay)
+set(opendeck_mcuboot_overlay                    ${APP_DIR}/sysbuild/mcuboot.overlay)
+set(opendeck_mcuboot_conf                       ${APP_DIR}/sysbuild/mcuboot.conf)
+set(opendeck_target_mcuboot_conf                ${APP_DIR}/boards/opendeck/${TARGET}/mcuboot.conf)
+set(opendeck_common_usb_conf                    ${APP_DIR}/common/usb.conf)
+set(opendeck_firmware_usb_conf                  ${APP_DIR}/firmware/usb.conf)
+set(opendeck_bootloader_usb_conf                ${APP_DIR}/bootloader/usb.conf)
+set(opendeck_generated_dir                      ${CMAKE_BINARY_DIR}/generated)
+set(opendeck_metadata_query_script              $ENV{ZEPHYR_PROJECT}/scripts/query_metadata.sh)
 
 function(opendeck_read_config_value config_file variable_name output_var)
     execute_process(
@@ -136,6 +144,18 @@ if(NOT EXISTS ${opendeck_common_bootloader_conf})
     message(FATAL_ERROR "Missing common bootloader conf: ${opendeck_common_bootloader_conf}")
 endif()
 
+if(NOT EXISTS ${opendeck_bootloader_firmware_loader_overlay})
+    message(FATAL_ERROR "Missing bootloader firmware-loader overlay: ${opendeck_bootloader_firmware_loader_overlay}")
+endif()
+
+if(NOT EXISTS ${opendeck_mcuboot_overlay})
+    message(FATAL_ERROR "Missing MCUboot overlay: ${opendeck_mcuboot_overlay}")
+endif()
+
+if(NOT EXISTS ${opendeck_mcuboot_conf})
+    message(FATAL_ERROR "Missing MCUboot conf: ${opendeck_mcuboot_conf}")
+endif()
+
 if(NOT EXISTS ${opendeck_common_usb_conf})
     message(FATAL_ERROR "Missing common USB conf: ${opendeck_common_usb_conf}")
 endif()
@@ -218,14 +238,10 @@ endif()
 set(opendeck_firmware_extra_dtc_overlay_files)
 list(APPEND opendeck_firmware_extra_dtc_overlay_files ${opendeck_board_partitions_overlay})
 list(APPEND opendeck_firmware_extra_dtc_overlay_files ${opendeck_board_firmware_overlay})
-list(APPEND opendeck_firmware_extra_dtc_overlay_files ${opendeck_board_overlay})
+list(APPEND opendeck_firmware_extra_dtc_overlay_files ${opendeck_target_firmware_overlay})
 
 if(opendeck_usb_midi_enabled)
     list(APPEND opendeck_firmware_extra_dtc_overlay_files ${opendeck_generated_dir}/firmware_usb_midi_label.overlay)
-endif()
-
-if(EXISTS ${opendeck_target_firmware_overlay})
-    list(APPEND opendeck_firmware_extra_dtc_overlay_files ${opendeck_target_firmware_overlay})
 endif()
 
 set(${DEFAULT_IMAGE}_EXTRA_DTC_OVERLAY_FILE ${opendeck_firmware_extra_dtc_overlay_files} CACHE INTERNAL "")
@@ -253,54 +269,36 @@ if(EXISTS ${opendeck_target_firmware_conf})
     list(APPEND opendeck_firmware_extra_conf_files ${opendeck_target_firmware_conf})
 endif()
 
-set(${DEFAULT_IMAGE}_EXTRA_CONF_FILE    ${opendeck_firmware_extra_conf_files} CACHE INTERNAL "" FORCE)
-set(${DEFAULT_IMAGE}_SIGNING_SCRIPT     $ENV{ZEPHYR_PROJECT}/cmake/app_runner_files.cmake CACHE INTERNAL "" FORCE)
+set(${DEFAULT_IMAGE}_EXTRA_CONF_FILE ${opendeck_firmware_extra_conf_files} CACHE INTERNAL "" FORCE)
+
+set(opendeck_mcuboot_extra_dtc_overlay_files)
+list(APPEND opendeck_mcuboot_extra_dtc_overlay_files ${opendeck_board_partitions_overlay})
+list(APPEND opendeck_mcuboot_extra_dtc_overlay_files ${opendeck_target_bootloader_overlay})
+list(APPEND opendeck_mcuboot_extra_dtc_overlay_files ${opendeck_mcuboot_overlay})
+
+set(mcuboot_EXTRA_DTC_OVERLAY_FILE ${opendeck_mcuboot_extra_dtc_overlay_files} CACHE INTERNAL "" FORCE)
+set(mcuboot_DTS_ROOT ${APP_DIR} CACHE INTERNAL "" FORCE)
+
+set(opendeck_mcuboot_extra_conf_files)
+list(APPEND opendeck_mcuboot_extra_conf_files ${opendeck_mcuboot_conf})
+
+if(EXISTS ${opendeck_board_mcuboot_conf})
+    list(APPEND opendeck_mcuboot_extra_conf_files ${opendeck_board_mcuboot_conf})
+endif()
+
+if(EXISTS ${opendeck_target_mcuboot_conf})
+    list(APPEND opendeck_mcuboot_extra_conf_files ${opendeck_target_mcuboot_conf})
+endif()
+
+set(mcuboot_EXTRA_CONF_FILE ${opendeck_mcuboot_extra_conf_files} CACHE INTERNAL "" FORCE)
 
 set(opendeck_bootloader_extra_dtc_overlay_files)
 list(APPEND opendeck_bootloader_extra_dtc_overlay_files ${opendeck_board_partitions_overlay})
 list(APPEND opendeck_bootloader_extra_dtc_overlay_files ${opendeck_board_bootloader_overlay})
-list(APPEND opendeck_bootloader_extra_dtc_overlay_files ${opendeck_board_overlay})
+list(APPEND opendeck_bootloader_extra_dtc_overlay_files ${opendeck_bootloader_firmware_loader_overlay})
+list(APPEND opendeck_bootloader_extra_dtc_overlay_files ${opendeck_target_bootloader_overlay})
 
-if(EXISTS ${opendeck_target_bootloader_overlay})
-    list(APPEND opendeck_bootloader_extra_dtc_overlay_files ${opendeck_target_bootloader_overlay})
-elseif(EXISTS ${opendeck_target_firmware_overlay})
-    set(opendeck_generated_bootloader_alias_overlay ${opendeck_generated_dir}/bootloader_target_alias.overlay)
-
-    # Most targets only need the shared opendeck.overlay to resolve abstract
-    # OpenDeck resource labels during bootloader DTS parsing. The bootloader
-    # does not normally use these buses at runtime, but opendeck.overlay still
-    # contains properties such as:
-    #
-    #   &opendeck_din_midi {
-    #       uart = <&opendeck_uart_din_midi>;
-    #   };
-    #
-    # So if a target has no real bootloader-specific DTS changes, reuse the
-    # alias declarations from the target firmware.overlay instead of keeping a
-    # separate alias-only app/boards/opendeck/<target>/bootloader.overlay.
-    # For example, a target firmware.overlay may contain:
-    #
-    #   opendeck_uart_din_midi: &uart1 {};
-    #   opendeck_uart_touchscreen: &uart1 {};
-    #   opendeck_i2c_display: &i2c1 {};
-    #
-    # and this block will generate bootloader_target_alias.overlay with those
-    # same lines. Targets with real bootloader-specific DTS changes still
-    # provide their own bootloader.overlay and bypass this fallback.
-    execute_process(
-        COMMAND bash "${opendeck_metadata_query_script}" target --target "${TARGET}" --key target_alias_overlay_line
-        OUTPUT_VARIABLE opendeck_bootloader_alias_lines
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-
-    if(NOT opendeck_bootloader_alias_lines STREQUAL "")
-        file(WRITE ${opendeck_generated_bootloader_alias_overlay} "${opendeck_bootloader_alias_lines}\n")
-
-        list(APPEND opendeck_bootloader_extra_dtc_overlay_files ${opendeck_generated_bootloader_alias_overlay})
-    endif()
-endif()
-
-set(opendeck_bootloader_EXTRA_DTC_OVERLAY_FILE  ${opendeck_bootloader_extra_dtc_overlay_files} CACHE INTERNAL "" FORCE)
+set(opendeck_bootloader_EXTRA_DTC_OVERLAY_FILE ${opendeck_bootloader_extra_dtc_overlay_files} CACHE INTERNAL "" FORCE)
 set(opendeck_bootloader_conf_files)
 list(APPEND opendeck_bootloader_conf_files ${opendeck_shared_conf_files})
 list(APPEND opendeck_bootloader_conf_files ${opendeck_common_bootloader_conf})
@@ -324,102 +322,41 @@ set(opendeck_bootloader_EXTRA_CONF_FILE ${opendeck_bootloader_extra_conf_files} 
 
 set(opendeck_board_sysbuild_cmake ${opendeck_zephyr_board_dir_path}/sysbuild.cmake)
 
-if(EXISTS ${opendeck_board_sysbuild_cmake}) 
+if(EXISTS ${opendeck_board_sysbuild_cmake})
     include(${opendeck_board_sysbuild_cmake})
 endif()
 
-ExternalZephyrProject_Add(
-  APPLICATION opendeck_bootloader
-  SOURCE_DIR ${APP_DIR}/bootloader
-)
-
-add_dependencies(${DEFAULT_IMAGE} opendeck_bootloader)
-sysbuild_add_dependencies(FLASH ${DEFAULT_IMAGE} opendeck_bootloader)
-
 function(opendeck_add_merged_artifacts)
-    set(opendeck_firmware_validated_hex_file ${CMAKE_BINARY_DIR}/${DEFAULT_IMAGE}/app_validated.hex)
-    set(opendeck_merged_app_hex_file         ${CMAKE_BINARY_DIR}/app_validated.hex)
-    set(opendeck_bootloader_hex_file         ${CMAKE_BINARY_DIR}/opendeck_bootloader/zephyr/zephyr.hex)
-    set(opendeck_merged_hex_inputs           ${opendeck_bootloader_hex_file}
-                                             ${opendeck_merged_app_hex_file}
-                                             ${opendeck_extra_merged_hex_files})
-    set(opendeck_merged_hex                  ${CMAKE_BINARY_DIR}/merged.hex)
-    set(opendeck_merged_bin                  ${CMAKE_BINARY_DIR}/merged.bin)
-    set(opendeck_merged_uf2                  ${CMAKE_BINARY_DIR}/merged.uf2)
-    set(opendeck_merged_outputs              ${opendeck_merged_hex}
-                                             ${opendeck_merged_bin})
+    set(opendeck_merged_bin ${CMAKE_BINARY_DIR}/merged.bin)
+    set(opendeck_merged_uf2 ${CMAKE_BINARY_DIR}/merged.uf2)
+    set(opendeck_merged_outputs)
 
-    sysbuild_get(opendeck_has_uf2    IMAGE opendeck_bootloader VAR CONFIG_BUILD_OUTPUT_UF2 KCONFIG)
-    sysbuild_get(opendeck_uf2_base   IMAGE opendeck_bootloader VAR CONFIG_FLASH_BASE_ADDRESS KCONFIG)
-    sysbuild_get(opendeck_uf2_family IMAGE opendeck_bootloader VAR CONFIG_BUILD_OUTPUT_UF2_FAMILY_ID KCONFIG)
-    sysbuild_get(opendeck_objcopy    IMAGE opendeck_bootloader VAR CMAKE_OBJCOPY CACHE)
+    set(opendeck_merged_hex_inputs)
+
+    sysbuild_get(opendeck_mcuboot_dir IMAGE mcuboot VAR APPLICATION_BINARY_DIR CACHE)
+    sysbuild_get(opendeck_app_signed_hex IMAGE ${DEFAULT_IMAGE} VAR BYPRODUCT_KERNEL_SIGNED_HEX_NAME CACHE)
+    sysbuild_get(opendeck_bootloader_signed_hex IMAGE opendeck_bootloader VAR BYPRODUCT_KERNEL_SIGNED_HEX_NAME CACHE)
+    sysbuild_get(opendeck_objcopy IMAGE ${DEFAULT_IMAGE} VAR CMAKE_OBJCOPY CACHE)
+    sysbuild_get(opendeck_has_uf2 IMAGE ${DEFAULT_IMAGE} VAR CONFIG_BUILD_OUTPUT_UF2 KCONFIG)
+    sysbuild_get(opendeck_flash_base IMAGE ${DEFAULT_IMAGE} VAR CONFIG_FLASH_BASE_ADDRESS KCONFIG)
+    sysbuild_get(opendeck_flash_load_offset IMAGE ${DEFAULT_IMAGE} VAR CONFIG_FLASH_LOAD_OFFSET KCONFIG)
+    sysbuild_get(opendeck_uf2_use_flash_base IMAGE ${DEFAULT_IMAGE} VAR CONFIG_BUILD_OUTPUT_UF2_USE_FLASH_BASE KCONFIG)
+    sysbuild_get(opendeck_uf2_use_flash_offset IMAGE ${DEFAULT_IMAGE} VAR CONFIG_BUILD_OUTPUT_UF2_USE_FLASH_OFFSET KCONFIG)
+    sysbuild_get(opendeck_uf2_family IMAGE ${DEFAULT_IMAGE} VAR CONFIG_BUILD_OUTPUT_UF2_FAMILY_ID KCONFIG)
+
+    list(APPEND opendeck_merged_hex_inputs
+        ${opendeck_mcuboot_dir}/zephyr/zephyr.hex
+        ${opendeck_bootloader_signed_hex}
+        ${opendeck_app_signed_hex}
+        ${opendeck_extra_merged_hex_files}
+    )
 
     if(DEFINED opendeck_uf2_family)
         string(REGEX REPLACE "^\"([^\"]*)\"$" "\\1" opendeck_uf2_family "${opendeck_uf2_family}")
     endif()
 
-    add_custom_command(
-        OUTPUT
-        ${opendeck_merged_app_hex_file}
-
-        COMMAND
-        ${CMAKE_COMMAND}
-        -E copy
-        ${opendeck_firmware_validated_hex_file}
-        ${opendeck_merged_app_hex_file}
-
-        DEPENDS
-        ${DEFAULT_IMAGE}
-
-        COMMENT
-        "Copying validated application HEX image"
-
-        VERBATIM
-    )
-
-    add_custom_command(
-        OUTPUT
-        ${opendeck_merged_hex}
-
-        COMMAND
-        $ENV{ZEPHYR_BASE}/scripts/build/mergehex.py
-        -o ${opendeck_merged_hex}
-        ${opendeck_merged_hex_inputs}
-
-        DEPENDS
-        ${opendeck_merged_hex_inputs}
-
-        COMMENT
-        "Generating merged OpenDeck HEX image"
-
-        VERBATIM
-    )
-
-    add_custom_command(
-        OUTPUT
-        ${opendeck_merged_bin}
-
-        COMMAND
-        ${opendeck_objcopy}
-        -I ihex
-        --gap-fill 0xFF
-        -O binary
-        ${opendeck_merged_hex}
-        ${opendeck_merged_bin}
-
-        DEPENDS
-        ${opendeck_merged_hex}
-
-        COMMENT
-        "Generating merged OpenDeck BIN image"
-
-        VERBATIM
-    )
-
     if(opendeck_has_uf2)
-        if(NOT DEFINED opendeck_uf2_base)
-            message(FATAL_ERROR "UF2 output is enabled, but CONFIG_FLASH_BASE_ADDRESS is unavailable")
-        endif()
+        set(opendeck_merged_hex ${CMAKE_BINARY_DIR}/merged.hex)
 
         if(NOT DEFINED opendeck_uf2_family)
             message(FATAL_ERROR "UF2 output is enabled, but CONFIG_BUILD_OUTPUT_UF2_FAMILY_ID is unavailable")
@@ -427,14 +364,64 @@ function(opendeck_add_merged_artifacts)
 
         list(APPEND opendeck_merged_outputs ${opendeck_merged_uf2})
 
+        if(NOT DEFINED opendeck_flash_base OR "${opendeck_flash_base}" STREQUAL "")
+            message(FATAL_ERROR "UF2 output is enabled, but unable to resolve UF2 base address")
+        endif()
+
+        add_custom_command(
+            OUTPUT
+            ${opendeck_merged_hex}
+
+            COMMAND
+            ${PYTHON_EXECUTABLE}
+            $ENV{ZEPHYR_BASE}/scripts/build/mergehex.py
+            -o ${opendeck_merged_hex}
+            --overlap replace
+            ${opendeck_merged_hex_inputs}
+
+            DEPENDS
+            mcuboot
+            opendeck_bootloader
+            ${DEFAULT_IMAGE}
+            ${opendeck_extra_merged_image_targets}
+            ${opendeck_merged_hex_inputs}
+
+            COMMENT
+            "Generating merged OpenDeck HEX image"
+
+            VERBATIM
+        )
+
+        add_custom_command(
+            OUTPUT
+            ${opendeck_merged_bin}
+
+            COMMAND
+            ${opendeck_objcopy}
+            -I ihex
+            --gap-fill 0xFF
+            -O binary
+            ${opendeck_merged_hex}
+            ${opendeck_merged_bin}
+
+            DEPENDS
+            ${opendeck_merged_hex}
+
+            COMMENT
+            "Generating merged OpenDeck BIN image"
+
+            VERBATIM
+        )
+
         add_custom_command(
             OUTPUT
             ${opendeck_merged_uf2}
 
             COMMAND
+            ${PYTHON_EXECUTABLE}
             $ENV{ZEPHYR_BASE}/scripts/build/uf2conv.py
             -c
-            -b ${opendeck_uf2_base}
+            -b ${opendeck_flash_base}
             -f ${opendeck_uf2_family}
             -o ${opendeck_merged_uf2}
             ${opendeck_merged_bin}
@@ -443,21 +430,15 @@ function(opendeck_add_merged_artifacts)
             ${opendeck_merged_bin}
 
             COMMENT
-            "Generating merged bootloader and application UF2 image"
+            "Generating merged OpenDeck UF2 image"
 
             VERBATIM
         )
     endif()
 
-    add_custom_target(opendeck_merged_uf2_target ALL
+    add_custom_target(opendeck_merged_artifacts ALL
         DEPENDS
         ${opendeck_merged_outputs}
-    )
-
-    add_dependencies(opendeck_merged_uf2_target
-        ${DEFAULT_IMAGE}
-        opendeck_bootloader
-        ${opendeck_extra_merged_image_targets}
     )
 endfunction()
 

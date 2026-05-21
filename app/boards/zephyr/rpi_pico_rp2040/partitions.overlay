@@ -2,12 +2,12 @@
     /delete-node/ partitions;
 
     partitions {
-        compatible = "fixed-partitions";
         ranges;
         #address-cells = <1>;
         #size-cells = <1>;
 
         second_stage_bootloader: partition@0 {
+            compatible = "zephyr,mapped-partition";
             label = "second_stage_bootloader";
             reg = <0x00000000 0x00000100>;
             read-only;
@@ -16,15 +16,21 @@
         boot_partition: partition@100 {
             compatible = "zephyr,mapped-partition";
             label = "boot";
-            reg = <0x00000100 0x00017f00>;
+            reg = <0x00000100 0x0000bf00>;
             read-only;
         };
 
-        code_partition: partition@18000 {
+        /* image-1 is the OpenDeck bootloader; keep it before image-0 so merged UF2 files stay compact. */
+        slot1_partition: partition@c000 {
             compatible = "zephyr,mapped-partition";
-            label = "code-partition";
-            reg = <0x00018000 0x00128000>;
-            read-only;
+            label = "image-1";
+            reg = <0x0000c000 0x00010000>;
+        };
+
+        slot0_partition: partition@1c000 {
+            compatible = "zephyr,mapped-partition";
+            label = "image-0";
+            reg = <0x0001c000 0x00110000>;
         };
 
         factory_partition: partition@140000 {
@@ -58,7 +64,8 @@
 
 / {
     chosen {
-        zephyr,code-partition = &code_partition;
+        zephyr,code-partition = &slot0_partition;
+        zephyr,boot-mode = &opendeck_retained;
     };
 
     opendeck_retained_mem: memory@20000000 {
@@ -83,7 +90,3 @@
         };
     };
 };
-
-opendeck_partition_boot: &boot_partition {};
-
-opendeck_partition_app: &code_partition {};

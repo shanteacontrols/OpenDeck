@@ -18,7 +18,7 @@ namespace opendeck::webusb
     void status(const char* message);
 
     /**
-     * @brief Bootloader WebUSB transport that feeds incoming DFU bytes into the updater.
+     * @brief Bootloader WebUSB transport that feeds incoming DFU bytes into the installer.
      */
     class Transport
     {

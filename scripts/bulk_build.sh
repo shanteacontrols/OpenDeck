@@ -52,7 +52,7 @@ metadata_query_script="${project_root}/scripts/query_metadata.sh"
 
 function load_targets
 {
-    mapfile -t build_targets < <(find "$project_root/app/boards/opendeck" -mindepth 2 -maxdepth 2 -type f -name opendeck.overlay -printf '%h\n' | xargs -r -n1 basename | sort)
+    mapfile -t build_targets < <(find "$project_root/app/boards/opendeck" -mindepth 2 -maxdepth 2 -type f -name firmware.overlay -printf '%h\n' | xargs -r -n1 basename | sort)
 }
 
 function load_built_app_targets

@@ -6,7 +6,7 @@
 #pragma once
 
 #include "firmware/src/system/shared/common.h"
-#include "bootloader/src/fw_selector/shared/common.h"
+#include "firmware/src/mcu/shared/common.h"
 #include "firmware/src/io/base.h"
 #include "firmware/src/protocol/base.h"
 #include "firmware/src/database/instance/impl/database.h"
@@ -46,7 +46,7 @@ namespace opendeck::sys
          *
          * @param type Firmware target to reboot into.
          */
-        virtual void reboot(fw_selector::FwType type) = 0;
+        virtual void reboot(mcu::BootTarget type) = 0;
 
         /**
          * @brief Reads the hardware serial number bytes.

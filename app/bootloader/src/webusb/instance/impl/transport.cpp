@@ -6,7 +6,7 @@
 #include "bootloader/src/webusb/instance/impl/transport.h"
 
 #ifdef CONFIG_PROJECT_BOOTLOADER_SUPPORT_USB_DFU
-#include "bootloader/src/updater/builder/builder.h"
+#include "bootloader/src/installer/builder/builder.h"
 
 #include "zlibs/drivers/usb/usb_hw.h"
 
@@ -17,7 +17,6 @@
 #include <zephyr/sys/atomic.h>
 #include <zephyr/net_buf.h>
 #include <zephyr/sys/byteorder.h>
-#include <zephyr/sys/printk.h>
 #include <zephyr/usb/usbd.h>
 
 #include <cstring>
@@ -48,7 +47,7 @@ namespace
         (void)usb_device.deinit();
     }
 
-    updater::Builder updater_builder(cleanup_callback);
+    installer::Builder installer_builder(cleanup_callback);
 
     struct UsbBosWebusbDesc
     {
@@ -360,7 +359,7 @@ namespace
         {
             for (uint16_t i = 0; i < buffer->len; i++)
             {
-                updater_builder.instance().feed(buffer->data[i]);
+                installer_builder.instance().feed(buffer->data[i]);
             }
 
             net_buf_reset(buffer);
@@ -453,8 +452,6 @@ void webusb::status(const char* message)
     {
         return;
     }
-
-    printk("%s\n", message);
 
     if ((active_class_data == nullptr) ||
         !atomic_test_bit(&function_data.enabled, 0) ||

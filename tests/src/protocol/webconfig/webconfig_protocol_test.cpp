@@ -9,8 +9,8 @@
 #include "firmware/src/protocol/webconfig/hwa/test/hwa_test.h"
 #include "firmware/src/protocol/webconfig/instance/impl/webconfig.h"
 #include "firmware/src/signaling/signaling.h"
-#include "firmware/src/staged_update/hwa/test/hwa_test.h"
-#include "firmware/src/staged_update/instance/impl/staged_update.h"
+#include "firmware/src/staged_update_writer/hwa/test/hwa_test.h"
+#include "firmware/src/staged_update_writer/instance/impl/staged_update_writer.h"
 
 #include "zlibs/utils/midi/midi.h"
 #include "zlibs/utils/misc/mutex.h"
@@ -141,10 +141,10 @@ namespace
             return packets.empty() ? midi_ump{} : packets.back();
         }
 
-        webconfig::HwaTest          hwa;
-        staged_update::HwaTest      firmware_hwa;
-        staged_update::StagedUpdate firmware_update = staged_update::StagedUpdate(firmware_hwa);
-        webconfig::WebConfig        webconfig       = webconfig::WebConfig(hwa, firmware_update);
+        webconfig::HwaTest                       hwa;
+        staged_update_writer::HwaTest            firmware_hwa;
+        staged_update_writer::StagedUpdateWriter firmware_update = staged_update_writer::StagedUpdateWriter(firmware_hwa);
+        webconfig::WebConfig                     webconfig       = webconfig::WebConfig(hwa, firmware_update);
     };
 }    // namespace
 

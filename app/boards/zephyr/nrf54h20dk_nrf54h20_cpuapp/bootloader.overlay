@@ -1,5 +1,5 @@
 / {
     chosen {
-        zephyr,code-partition = &cpuapp_boot_partition;
+        zephyr,code-partition = &boot_partition;
     };
 };

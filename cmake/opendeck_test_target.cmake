@@ -119,7 +119,7 @@ endfunction()
 # The app build therefore exports resolved PROJECT_TARGET_* values into
 # generated/target.conf and generated/target.kconfig. This helper imports those
 # generated files so tests use the same target shape, feature flags, and storage
-# geometry as firmware without parsing opendeck.overlay or applying target DTS
+# geometry as firmware without parsing firmware.overlay or applying target DTS
 # overlays.
 #
 # The suite prj.conf is appended later by opendeck_test_bootstrap(), allowing a

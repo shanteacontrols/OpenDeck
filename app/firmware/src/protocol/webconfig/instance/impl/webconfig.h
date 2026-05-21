@@ -11,7 +11,7 @@
 #include "firmware/src/protocol/osc/shared/packet.h"
 #include "firmware/src/protocol/base.h"
 #include "firmware/src/signaling/signaling.h"
-#include "firmware/src/staged_update/instance/impl/staged_update.h"
+#include "firmware/src/staged_update_writer/instance/impl/staged_update_writer.h"
 #include "firmware/src/threads.h"
 
 #include "zlibs/utils/midi/midi.h"
@@ -35,7 +35,7 @@ namespace opendeck::protocol::webconfig
     class WebConfig : public protocol::Base
     {
         public:
-        WebConfig(Hwa& hwa, staged_update::StagedUpdate& staged_update);
+        WebConfig(Hwa& hwa, staged_update_writer::StagedUpdateWriter& staged_update_writer);
         ~WebConfig() override;
 
         bool init() override;

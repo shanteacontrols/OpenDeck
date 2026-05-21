@@ -1,4 +1,4 @@
-FROM ghcr.io/paradajz/zenv:9f8f73bab9c28ff54d158dcc096deb13e3aed7bd
+FROM ghcr.io/paradajz/zenv:3ad0d9930b1386e314ba5753293cc2a6483bd753
 
 ARG jlink_version=V926
 ARG tmp_deps_dir=/tmp/deps

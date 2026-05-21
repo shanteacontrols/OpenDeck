@@ -7,11 +7,11 @@
 
 #include "firmware/src/mcu/shared/common.h"
 #include "firmware/src/mcu/shared/deps.h"
-#include "common/src/retained/retained.h"
 
 #include "zlibs/utils/misc/mutex.h"
 
 #include <zephyr/drivers/hwinfo.h>
+#include <zephyr/retention/bootmode.h>
 #include <zephyr/sys/reboot.h>
 
 #include <array>
@@ -57,9 +57,17 @@ namespace opendeck::mcu
          *
          * @param type Firmware target to reboot into.
          */
-        void reboot(fw_selector::FwType type) override
+        void reboot(mcu::BootTarget type) override
         {
-            retained::data.boot_mode.set(static_cast<uint32_t>(type));
+            if (type == mcu::BootTarget::Bootloader)
+            {
+                bootmode_set(BOOT_MODE_TYPE_BOOTLOADER);
+            }
+            else
+            {
+                bootmode_clear();
+            }
+
             sys_reboot(SYS_REBOOT_COLD);
         }
 

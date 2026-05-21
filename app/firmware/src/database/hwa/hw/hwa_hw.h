@@ -14,6 +14,7 @@
 
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
+#include <zephyr/devicetree/partitions.h>
 #include <zephyr/drivers/flash.h>
 #include <zephyr/kernel.h>
 #include <zephyr/storage/flash_map.h>
@@ -26,6 +27,14 @@
 #include <optional>
 #include <span>
 
+#define OPENDECK_EMUEEPROM_PARTITION_NODE DT_NODELABEL(emueeprom_page1_partition)
+#define OPENDECK_EMUEEPROM_MEMORY_NODE    DT_MEM_FROM_PARTITION(OPENDECK_EMUEEPROM_PARTITION_NODE)
+#define OPENDECK_EMUEEPROM_MTD_NODE       DT_MTD_FROM_PARTITION(OPENDECK_EMUEEPROM_PARTITION_NODE)
+#define OPENDECK_EMUEEPROM_FLASH_WRITE_BLOCK_SIZE                            \
+    COND_CODE_1(DT_NODE_EXISTS(OPENDECK_EMUEEPROM_MEMORY_NODE),              \
+                (DT_PROP(OPENDECK_EMUEEPROM_MEMORY_NODE, write_block_size)), \
+                (DT_PROP_OR(OPENDECK_EMUEEPROM_MTD_NODE, write_block_size, 1)))
+
 namespace opendeck::database
 {
     /**
@@ -37,7 +46,7 @@ namespace opendeck::database
         /**
          * @brief Flash write granularity reported by Zephyr for the EEPROM partitions.
          */
-        static constexpr size_t FLASH_WRITE_BLOCK_SIZE = DT_PROP(DT_MEM_FROM_FIXED_PARTITION(DT_NODELABEL(emueeprom_page1_partition)), write_block_size);
+        static constexpr size_t FLASH_WRITE_BLOCK_SIZE = OPENDECK_EMUEEPROM_FLASH_WRITE_BLOCK_SIZE;
 
         /**
          * @brief Smallest block size EmuEEPROM writes through this backend.
@@ -472,4 +481,10 @@ namespace opendeck::database
         HwaEmuEeprom _hwa_emueeprom;
         EmuEeprom    _emueeprom = EmuEeprom(_hwa_emueeprom);
     };
+
 }    // namespace opendeck::database
+
+#undef OPENDECK_EMUEEPROM_PARTITION_NODE
+#undef OPENDECK_EMUEEPROM_MEMORY_NODE
+#undef OPENDECK_EMUEEPROM_MTD_NODE
+#undef OPENDECK_EMUEEPROM_FLASH_WRITE_BLOCK_SIZE

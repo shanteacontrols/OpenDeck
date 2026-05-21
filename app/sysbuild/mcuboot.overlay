@@ -1,0 +1,10 @@
+/ {
+    chosen {
+        zephyr,code-partition = &boot_partition;
+        zephyr,boot-mode = &opendeck_retained;
+    };
+
+    aliases {
+        mcuboot-button0 = &opendeck_bootloader;
+    };
+};

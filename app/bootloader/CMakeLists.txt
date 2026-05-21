@@ -6,26 +6,25 @@ project(opendeck_bootloader)
 zephyr_include_directories(${CMAKE_CURRENT_LIST_DIR}/..)
 
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/metadata ${CMAKE_CURRENT_BINARY_DIR}/metadata)
-add_subdirectory(src/fw_selector)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/flash_stream_writer ${CMAKE_CURRENT_BINARY_DIR}/flash_stream_writer)
 add_subdirectory(src/indicators)
-add_subdirectory(src/updater)
+add_subdirectory(src/installer)
 
 if(CONFIG_PROJECT_BOOTLOADER_STAGED_UPDATE)
-    add_subdirectory(src/staged_update)
+    add_subdirectory(src/staged_update_reader)
 endif()
 
 target_link_libraries(app
     PRIVATE
     metadata
-    opendeck_bootloader_fw_selector
     opendeck_bootloader_indicators
-    opendeck_bootloader_updater
+    opendeck_bootloader_installer
 )
 
 if(CONFIG_PROJECT_BOOTLOADER_STAGED_UPDATE)
     target_link_libraries(app
         PRIVATE
-        opendeck_bootloader_staged_update
+        opendeck_bootloader_staged_update_reader
     )
 endif()
 

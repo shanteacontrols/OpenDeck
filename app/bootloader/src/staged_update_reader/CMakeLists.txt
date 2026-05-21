@@ -1,0 +1,13 @@
+include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_library.cmake)
+
+opendeck_library_named(opendeck_bootloader_staged_update_reader)
+
+target_sources(opendeck_bootloader_staged_update_reader PRIVATE
+    instance/impl/staged_update_reader.cpp
+)
+
+target_link_libraries(opendeck_bootloader_staged_update_reader
+    PRIVATE
+    metadata
+    zephyr_interface
+)

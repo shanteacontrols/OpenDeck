@@ -1,0 +1,18 @@
+diff --git a/soc/raspberrypi/rpi_pico/Kconfig b/soc/raspberrypi/rpi_pico/Kconfig
+index ba52010529a..cd80d773d24 100644
+--- a/soc/raspberrypi/rpi_pico/Kconfig
++++ b/soc/raspberrypi/rpi_pico/Kconfig
+@@ -9,9 +9,12 @@ if SOC_FAMILY_RPI_PICO
+ rsource "*/Kconfig"
+ 
+ config RPI_PICO_ROM_BOOTLOADER
+-	bool
++	bool "RP Pico ROM bootloader retained boot mode"
+ 	default y
+ 	depends on RETENTION_BOOT_MODE
++	help
++	  Enable the RP Pico ROM BOOTSEL bootloader hook when the
++	  Zephyr retained boot mode requests bootloader entry.
+ 
+ config RPI_PICO_USE_ROMFUNC
+ 	bool

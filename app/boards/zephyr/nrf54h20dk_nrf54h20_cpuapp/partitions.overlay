@@ -1,34 +1,49 @@
-&cpuapp_boot_partition {
+&boot_partition {
     compatible = "zephyr,mapped-partition";
-    reg = <0x30000 DT_SIZE_K(96)>;
+    reg = <0x30000 DT_SIZE_K(64)>;
 };
 
 &mram1x {
     partitions {
         ranges;
         /delete-node/ partition@40000;
+        /delete-node/ partition@100000;
+        /delete-node/ partition@1a4000;
+        /delete-node/ partition@1ae000;
+        /delete-node/ partition@1b0000;
+        /delete-node/ partition@1c0000;
+        /delete-node/ partition@1c2000;
+        /delete-node/ partition@1c2200;
 
-        cpuapp_slot0_partition: partition@48000 {
+        /* image-1 is the OpenDeck bootloader; keep it before image-0 so merged images stay compact. */
+        cpuapp_slot1_partition: slot1_partition: partition@40000 {
             compatible = "zephyr,mapped-partition";
-            reg = <0x48000 DT_SIZE_K(296)>;
+            label = "image-1";
+            reg = <0x40000 DT_SIZE_K(96)>;
         };
 
-        factory_partition: partition@1d0000 {
+        cpuapp_slot0_partition: slot0_partition: partition@58000 {
+            compatible = "zephyr,mapped-partition";
+            label = "image-0";
+            reg = <0x58000 0x14c000>;
+        };
+
+        factory_partition: partition@1a4000 {
             compatible = "zephyr,mapped-partition";
             label = "factory";
-            reg = <0x1d0000 DT_SIZE_K(64)>;
+            reg = <0x1a4000 DT_SIZE_K(64)>;
         };
 
-        emueeprom_page1_partition: partition@1e0000 {
+        emueeprom_page1_partition: partition@1b4000 {
             compatible = "zephyr,mapped-partition";
             label = "emueeprom-page1";
-            reg = <0x1e0000 DT_SIZE_K(64)>;
+            reg = <0x1b4000 DT_SIZE_K(64)>;
         };
 
-        emueeprom_page2_partition: partition@1f0000 {
+        emueeprom_page2_partition: partition@1c4000 {
             compatible = "zephyr,mapped-partition";
             label = "emueeprom-page2";
-            reg = <0x1f0000 DT_SIZE_K(64)>;
+            reg = <0x1c4000 DT_SIZE_K(64)>;
         };
     };
 };
@@ -38,6 +53,10 @@
 };
 
 / {
+    chosen {
+        zephyr,boot-mode = &opendeck_retained;
+    };
+
     opendeck_retained_mem: memory@2f0bd000 {
         compatible = "zephyr,memory-region", "mmio-sram";
         reg = <0x2f0bd000 DT_SIZE_K(4)>;
@@ -60,7 +79,3 @@
         };
     };
 };
-
-opendeck_partition_boot: &cpuapp_boot_partition {};
-
-opendeck_partition_app: &cpuapp_slot0_partition {};

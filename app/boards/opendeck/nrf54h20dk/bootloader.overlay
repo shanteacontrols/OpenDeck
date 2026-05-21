@@ -1,0 +1,17 @@
+/ {
+    opendeck_bootloader: opendeck-bootloader {
+        compatible = "opendeck,bootloader";
+        gpios = <&gpio0 8 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+        label = "OpenDeck recovery";
+    };
+
+    opendeck_traffic_indicators: opendeck-traffic-indicators {
+        compatible = "opendeck,traffic-indicators";
+        usb-in-gpios = <&gpio9 0 GPIO_ACTIVE_HIGH>;
+        usb-out-gpios = <&gpio9 1 GPIO_ACTIVE_HIGH>;
+        din-in-gpios = <&gpio9 2 GPIO_ACTIVE_HIGH>;
+        din-out-gpios = <&gpio9 3 GPIO_ACTIVE_HIGH>;
+        ble-in-gpios = <&gpio9 2 GPIO_ACTIVE_HIGH>;
+        ble-out-gpios = <&gpio9 3 GPIO_ACTIVE_HIGH>;
+    };
+};

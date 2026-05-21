@@ -8,7 +8,7 @@
 #include "firmware/src/util/configurable/configurable.h"
 #include "firmware/src/util/conversion/conversion.h"
 #include "firmware/src/global/midi_program.h"
-#include "bootloader/src/fw_selector/shared/common.h"
+#include "firmware/src/mcu/shared/common.h"
 
 #include <zephyr/logging/log.h>
 #include <zephyr/logging/log_ctrl.h>
@@ -133,6 +133,7 @@ System::System(Hwa& hwa)
                     })
     , _reboot_work([this]()
                    {
+                       _reboot_in_progress = true;
                        prepare_for_reboot();
                        _hwa.reboot(_reboot_type);
                    },
@@ -160,6 +161,11 @@ System::System(Hwa& hwa)
 
             if (zlibs::utils::midi::is_sysex7_packet(event.packet))
             {
+                if (_reboot_in_progress)
+                {
+                    return;
+                }
+
                 if (!can_accept_config_transport(signaling::ConfigTransport::Usb))
                 {
                     LOG_WRN_ONCE("Ignoring USB SysEx config request while another config session is active");
@@ -642,7 +648,7 @@ void System::finish_restore()
     signal.system_event            = signaling::SystemEvent::RestoreEnd;
     signaling::publish(signal);
 
-    schedule_reboot(fw_selector::FwType::Application);
+    schedule_reboot(mcu::BootTarget::Application);
 }
 
 void System::emit_preset_change(uint8_t preset)
@@ -861,7 +867,7 @@ zlibs::utils::sysex_conf::Status System::SysExDataHandler::custom_request(uint16
 
     case SYSEX_CR_REBOOT_APP:
     {
-        _system.schedule_reboot(fw_selector::FwType::Application);
+        _system.schedule_reboot(mcu::BootTarget::Application);
     }
     break;
 
@@ -873,7 +879,7 @@ zlibs::utils::sysex_conf::Status System::SysExDataHandler::custom_request(uint16
             break;
         }
 
-        _system.schedule_reboot(fw_selector::FwType::Bootloader);
+        _system.schedule_reboot(mcu::BootTarget::Bootloader);
     }
     break;
 
@@ -1022,7 +1028,7 @@ void System::DatabaseHandlers::factory_reset_done()
 
     signaling::publish(signal);
 
-    _system.schedule_reboot(fw_selector::FwType::Application);
+    _system.schedule_reboot(mcu::BootTarget::Application);
 }
 
 void System::schedule_factory_reset()
@@ -1049,9 +1055,9 @@ void System::run_factory_reset()
     }
 }
 
-void System::schedule_reboot(fw_selector::FwType type)
+void System::schedule_reboot(mcu::BootTarget type)
 {
-    LOG_INF("Scheduling reboot to %s", type == fw_selector::FwType::Bootloader ? "bootloader" : "application");
+    LOG_INF("Scheduling reboot to %s", type == mcu::BootTarget::Bootloader ? "bootloader" : "application");
     _reboot_type = type;
     _reboot_work.reschedule(REBOOT_DELAY_MS);
 }

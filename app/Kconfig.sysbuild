@@ -1,0 +1,19 @@
+source "$(ZEPHYR_BASE)/share/sysbuild/Kconfig"
+
+choice FIRMWARE_LOADER
+
+config FIRMWARE_LOADER_IMAGE_OPENDECK
+    bool "OpenDeck bootloader recovery image"
+    depends on MCUBOOT_MODE_FIRMWARE_UPDATER
+    help
+      Build the OpenDeck bootloader as MCUboot's firmware-loader image.
+      In this mode slot1_partition contains the OpenDeck recovery image,
+      not a pending application update.
+
+endchoice
+
+config FIRMWARE_LOADER_IMAGE_NAME
+    default "opendeck_bootloader" if FIRMWARE_LOADER_IMAGE_OPENDECK
+
+config FIRMWARE_LOADER_IMAGE_PATH
+    default "$(ZEPHYR_PROJECT)/app/bootloader" if FIRMWARE_LOADER_IMAGE_OPENDECK

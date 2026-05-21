@@ -9,8 +9,8 @@
 
 using namespace opendeck::protocol::webconfig;
 
-FirmwareUploadHandler::FirmwareUploadHandler(staged_update::StagedUpdate& staged_update)
-    : _staged_update(staged_update)
+FirmwareUploadHandler::FirmwareUploadHandler(staged_update_writer::StagedUpdateWriter& staged_update_writer)
+    : _staged_update(staged_update_writer)
 {}
 
 FirmwareUploadHandler::Response FirmwareUploadHandler::make_ack(const FirmwareUploadCommand command,

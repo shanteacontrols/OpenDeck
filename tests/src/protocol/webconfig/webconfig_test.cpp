@@ -5,8 +5,8 @@
 
 #include "tests/common.h"
 #include "firmware/src/protocol/webconfig/firmware_upload/firmware_upload.h"
-#include "firmware/src/staged_update/hwa/test/hwa_test.h"
-#include "firmware/src/staged_update/instance/impl/staged_update.h"
+#include "firmware/src/staged_update_writer/hwa/test/hwa_test.h"
+#include "firmware/src/staged_update_writer/instance/impl/staged_update_writer.h"
 
 #include <array>
 #include <cstring>
@@ -20,9 +20,9 @@ namespace
     class FirmwareUploadTest : public ::testing::Test
     {
         protected:
-        opendeck::staged_update::HwaTest      hwa;
-        opendeck::staged_update::StagedUpdate staged_update = opendeck::staged_update::StagedUpdate(hwa);
-        FirmwareUploadHandler                 handler       = FirmwareUploadHandler(staged_update);
+        opendeck::staged_update_writer::HwaTest            hwa;
+        opendeck::staged_update_writer::StagedUpdateWriter staged_update_writer = opendeck::staged_update_writer::StagedUpdateWriter(hwa);
+        FirmwareUploadHandler                              handler              = FirmwareUploadHandler(staged_update_writer);
 
         static std::vector<uint8_t> begin_frame(uint32_t size)
         {
@@ -199,5 +199,5 @@ TEST_F(FirmwareUploadTest, AbortsUpload)
 
     ASSERT_TRUE(response);
     expect_ack(*response, FirmwareUploadCommand::Abort, FirmwareUploadStatus::Ok, 0);
-    EXPECT_EQ(staged_update.bytes_written(), 0);
+    EXPECT_EQ(staged_update_writer.bytes_written(), 0);
 }

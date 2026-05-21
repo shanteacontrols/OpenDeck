@@ -1,6 +1,6 @@
 mainmenu "OpenDeck bootloader"
 
-OPENDECK_STAGED_DFU_NODE := $(dt_nodelabel_path,opendeck_partition_staged_dfu)
+OPENDECK_STAGED_DFU_NODE := $(dt_nodelabel_path,staged_dfu_partition)
 
 config PROJECT_BOOTLOADER_STAGED_UPDATE
     bool

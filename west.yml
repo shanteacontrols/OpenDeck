@@ -1,11 +1,17 @@
 manifest:
   remotes:
+    - name: zephyrproject-rtos
+      url-base: https://github.com/zephyrproject-rtos
     - name: paradajz
       url-base: https://github.com/paradajz
     - name: olikraus
       url-base: https://github.com/olikraus
 
   projects:
+    - name: zephyr
+      remote: zephyrproject-rtos
+      revision: bcf31c20f01f11609dbff940483d5172d7897691
+      import: true
     - name: u8g2
       remote: olikraus
       revision: 8430f65c9e2bc7ca393bf0e9d8cf58a84ae081d7
@@ -13,5 +19,5 @@ manifest:
       submodules: true
     - name: zlibs
       remote: paradajz
-      revision: 60bb840cf647dc7931e0a12ac77d008cd00f77bb
+      revision: 1c950f4119c206bd1ea9f2dfd0b19ea108024f95
       path: modules/zlibs

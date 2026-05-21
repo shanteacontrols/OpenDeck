@@ -7,7 +7,7 @@
 
 #include "firmware/src/protocol/webconfig/hwa/hw/hwa_hw.h"
 #include "firmware/src/mcu/builder/builder.h"
-#include "firmware/src/staged_update/builder/builder.h"
+#include "firmware/src/staged_update_writer/builder/builder.h"
 #include "firmware/src/protocol/webconfig/instance/impl/webconfig.h"
 
 namespace opendeck::protocol::webconfig
@@ -47,9 +47,9 @@ namespace opendeck::protocol::webconfig
         }
 
         private:
-        mcu::Builder           _default_mcu_builder;
-        staged_update::Builder _firmware_builder;
-        HwaHw                  _hwa;
-        WebConfig              _instance;
+        mcu::Builder                  _default_mcu_builder;
+        staged_update_writer::Builder _firmware_builder;
+        HwaHw                         _hwa;
+        WebConfig                     _instance;
     };
 }    // namespace opendeck::protocol::webconfig

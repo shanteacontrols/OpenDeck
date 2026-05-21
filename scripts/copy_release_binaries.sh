@@ -6,7 +6,7 @@
 #
 # Copied files are named after the OpenDeck target:
 #
-#   <target>.hex      merged bootloader + validated app image
+#   <target>.hex      merged bootloader + app image
 #   <target>.bin      binary form of the merged image
 #   <target>.uf2      merged UF2 image, when generated
 #   <target>.dfu.bin  WebUSB bootloader update package

@@ -5,37 +5,46 @@
         /delete-node/ slot0_partition;
         /delete-node/ slot1_partition;
         /delete-node/ storage_partition;
+        /delete-node/ partition@c000;
+        /delete-node/ partition@82000;
+        /delete-node/ partition@f8000;
 
         boot_partition: partition@0 {
             compatible = "zephyr,mapped-partition";
             label = "boot";
-            reg = <0x00000000 0x00018000>;
+            reg = <0x00000000 0x0000c000>;
             read-only;
         };
 
-        code_partition: partition@18000 {
+        /* image-1 is the OpenDeck bootloader; keep it before image-0 so merged images stay compact. */
+        slot1_partition: partition@c000 {
             compatible = "zephyr,mapped-partition";
-            label = "code-partition";
-            reg = <0x00018000 0x00040000>;
-            read-only;
+            label = "image-1";
+            reg = <0x0000c000 0x00010000>;
         };
 
-        factory_partition: partition@58000 {
+        slot0_partition: partition@1c000 {
+            compatible = "zephyr,mapped-partition";
+            label = "image-0";
+            reg = <0x0001c000 0x0007c000>;
+        };
+
+        factory_partition: partition@98000 {
             compatible = "zephyr,mapped-partition";
             label = "factory";
-            reg = <0x00058000 0x00002000>;
+            reg = <0x00098000 0x00002000>;
         };
 
-        emueeprom_page1_partition: partition@5a000 {
+        emueeprom_page1_partition: partition@9a000 {
             compatible = "zephyr,mapped-partition";
             label = "emueeprom-page1";
-            reg = <0x0005a000 0x00002000>;
+            reg = <0x0009a000 0x00002000>;
         };
 
-        emueeprom_page2_partition: partition@5c000 {
+        emueeprom_page2_partition: partition@9c000 {
             compatible = "zephyr,mapped-partition";
             label = "emueeprom-page2";
-            reg = <0x0005c000 0x00002000>;
+            reg = <0x0009c000 0x00002000>;
         };
     };
 };
@@ -47,7 +56,8 @@
 
 / {
     chosen {
-        zephyr,code-partition = &code_partition;
+        zephyr,code-partition = &slot0_partition;
+        zephyr,boot-mode = &opendeck_retained;
     };
 
     opendeck_retained_mem: memory@2003f000 {
@@ -72,7 +82,3 @@
         };
     };
 };
-
-opendeck_partition_boot: &boot_partition {};
-
-opendeck_partition_app: &code_partition {};

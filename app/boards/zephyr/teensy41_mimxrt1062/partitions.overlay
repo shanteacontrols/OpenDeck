@@ -6,14 +6,19 @@
 
         boot_partition: partition@0 {
             label = "boot";
-            reg = <0x00000000 0x00020000>;
+            reg = <0x00000000 0x00010000>;
             read-only;
         };
 
-        code_partition: partition@20000 {
-            label = "code-partition";
-            reg = <0x00020000 0x007b0000>;
-            read-only;
+        /* image-1 is the OpenDeck bootloader; keep it before image-0 so merged images stay compact. */
+        slot1_partition: partition@10000 {
+            label = "image-1";
+            reg = <0x00010000 0x00020000>;
+        };
+
+        slot0_partition: partition@30000 {
+            label = "image-0";
+            reg = <0x00030000 0x007a0000>;
         };
 
         factory_partition: partition@7d0000 {
@@ -45,7 +50,8 @@
 
 / {
     chosen {
-        zephyr,code-partition = &code_partition;
+        zephyr,code-partition = &slot0_partition;
+        zephyr,boot-mode = &opendeck_retained;
     };
 
     opendeck_retained_mem: memory@2023f000 {
@@ -70,7 +76,3 @@
         };
     };
 };
-
-opendeck_partition_boot: &boot_partition {};
-
-opendeck_partition_app: &code_partition {};

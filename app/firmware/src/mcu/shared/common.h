@@ -6,9 +6,19 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 
 namespace opendeck::mcu
 {
+    /**
+     * @brief Boot targets the firmware can request from the platform boot chain.
+     */
+    enum class BootTarget : uint8_t
+    {
+        Application,
+        Bootloader,
+    };
+
     /**
      * @brief Maximum number of hardware serial-number bytes exposed by firmware APIs.
      */

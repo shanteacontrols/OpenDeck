@@ -6,7 +6,7 @@
 #pragma once
 
 #include "firmware/src/protocol/webconfig/shared/firmware_upload.h"
-#include "firmware/src/staged_update/instance/impl/staged_update.h"
+#include "firmware/src/staged_update_writer/instance/impl/staged_update_writer.h"
 
 #include <array>
 #include <cstdint>
@@ -29,9 +29,9 @@ namespace opendeck::protocol::webconfig
         /**
          * @brief Constructs the handler around staged-update storage.
          *
-         * @param staged_update Staged-update storage used for firmware uploads.
+         * @param staged_update_writer Staged-update storage used for firmware uploads.
          */
-        explicit FirmwareUploadHandler(staged_update::StagedUpdate& staged_update);
+        explicit FirmwareUploadHandler(staged_update_writer::StagedUpdateWriter& staged_update_writer);
 
         /**
          * @brief Builds an ACK for a firmware-upload command.
@@ -61,8 +61,8 @@ namespace opendeck::protocol::webconfig
         bool take_reboot_request();
 
         private:
-        staged_update::StagedUpdate& _staged_update;
-        bool                         _reboot_requested = false;
+        staged_update_writer::StagedUpdateWriter& _staged_update;
+        bool                                      _reboot_requested = false;
 
         /**
          * @brief Starts a new staged firmware upload.

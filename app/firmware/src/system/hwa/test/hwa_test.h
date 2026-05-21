@@ -61,7 +61,7 @@ namespace opendeck::sys
          *
          * @param type Firmware target requested for reboot.
          */
-        void reboot(fw_selector::FwType type) override
+        void reboot(mcu::BootTarget type) override
         {
             _mcu.reboot(type);
         }

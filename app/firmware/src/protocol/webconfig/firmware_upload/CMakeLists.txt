@@ -4,7 +4,7 @@ opendeck_library_named(protocol_webconfig_firmware_upload)
 
 target_link_libraries(protocol_webconfig_firmware_upload
     PUBLIC
-    staged_update
+    staged_update_writer
 )
 
 zephyr_library_sources(

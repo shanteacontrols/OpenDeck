@@ -29,7 +29,7 @@ namespace
     LOG_MODULE_REGISTER(webconfig, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
 }    // namespace
 
-WebConfig::WebConfig(Hwa& hwa, staged_update::StagedUpdate& staged_update)
+WebConfig::WebConfig(Hwa& hwa, staged_update_writer::StagedUpdateWriter& staged_update_writer)
     : _hwa(hwa)
     , _client_thread(
           [this]()
@@ -52,7 +52,7 @@ WebConfig::WebConfig(Hwa& hwa, staged_update::StagedUpdate& staged_update)
               _shutdown = true;
               k_sem_give(&_tx_wakeup);
           })
-    , _firmware_upload_handler(staged_update)
+    , _firmware_upload_handler(staged_update_writer)
     , _reboot_work([this]
                    {
                        _hwa.reboot_to_bootloader();

@@ -13,7 +13,6 @@ target_link_libraries(system
     configurable
     cinfo
     protocol_midi
-    protocol_mdns
     digital
     switches
     analog
@@ -22,3 +21,10 @@ target_link_libraries(system
     touchscreen
     i2c
 )
+
+if(CONFIG_PROJECT_TARGET_SUPPORT_MDNS)
+    target_link_libraries(system
+        PUBLIC
+        protocol_mdns
+    )
+endif()

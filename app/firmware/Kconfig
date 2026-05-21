@@ -5,7 +5,7 @@ OPENDECK_TOUCHSCREEN_NODE := $(dt_nodelabel_path,opendeck_touchscreen)
 OPENDECK_DIN_MIDI_NODE := $(dt_nodelabel_path,opendeck_din_midi)
 OPENDECK_TRAFFIC_INDICATORS_NODE := $(dt_nodelabel_path,opendeck_traffic_indicators)
 OPENDECK_DISPLAY_NODE := $(dt_nodelabel_path,opendeck_display)
-OPENDECK_STAGED_DFU_NODE := $(dt_nodelabel_path,opendeck_partition_staged_dfu)
+OPENDECK_STAGED_DFU_NODE := $(dt_nodelabel_path,staged_dfu_partition)
 
 config PROJECT_TARGET_SWITCHES_DISABLED
     bool

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "bootloader/src/fw_selector/shared/common.h"
+#include "firmware/src/mcu/shared/common.h"
 
 #include <cstdint>
 #include <span>
@@ -32,6 +32,6 @@ namespace opendeck::mcu
          *
          * @param type Firmware target to reboot into.
          */
-        virtual void reboot(fw_selector::FwType type) = 0;
+        virtual void reboot(mcu::BootTarget type) = 0;
     };
 }    // namespace opendeck::mcu

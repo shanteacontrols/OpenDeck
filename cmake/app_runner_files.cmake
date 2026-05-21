@@ -4,6 +4,6 @@ if(TARGET runners_yaml_props_target)
         set_target_properties(runners_yaml_props_target PROPERTIES "${type}_file" "${path}")
     endfunction()
 
-    opendeck_runner_file(bin ${APPLICATION_BINARY_DIR}/app_validated.bin)
-    opendeck_runner_file(hex ${APPLICATION_BINARY_DIR}/app_validated.hex)
+    opendeck_runner_file(bin ${APPLICATION_BINARY_DIR}/zephyr/zephyr.signed.bin)
+    opendeck_runner_file(hex ${APPLICATION_BINARY_DIR}/zephyr/zephyr.signed.hex)
 endif()
