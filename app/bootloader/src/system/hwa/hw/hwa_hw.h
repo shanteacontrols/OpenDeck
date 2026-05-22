@@ -6,7 +6,7 @@
 #pragma once
 
 #include "bootloader/src/indicators/builder/builder.h"
-#include "bootloader/src/installer/builder/builder.h"
+#include "bootloader/src/direct_update_writer/builder/builder.h"
 #include "bootloader/src/mdns/builder/builder.h"
 #include "bootloader/src/staged_update_reader/builder/builder.h"
 #include "bootloader/src/system/shared/deps.h"
@@ -30,7 +30,7 @@ namespace opendeck::bootloader::system
          */
         bool consume_staged_update() override
         {
-            return _staged_update_reader.instance().consume(_staged_update_installer.instance());
+            return _staged_update_reader.instance().consume(_staged_update_direct_update_writer.instance());
         }
 
         /**
@@ -73,9 +73,9 @@ namespace opendeck::bootloader::system
         mcu::HwaHw                    _mcu;
         indicators::Builder           _indicators;
         staged_update_reader::Builder _staged_update_reader;
-        installer::Builder            _staged_update_installer = installer::Builder(_mcu);
-        installer::Builder            _webusb_installer        = installer::Builder(_mcu);
-        webusb::Builder               _webusb                  = webusb::Builder(_webusb_installer.instance());
-        bootloader::mdns::Builder     _mdns                    = bootloader::mdns::Builder(_mcu);
+        direct_update_writer::Builder _staged_update_direct_update_writer = direct_update_writer::Builder(_mcu);
+        direct_update_writer::Builder _webusb_direct_update_writer        = direct_update_writer::Builder(_mcu);
+        webusb::Builder               _webusb                             = webusb::Builder(_webusb_direct_update_writer.instance());
+        bootloader::mdns::Builder     _mdns                               = bootloader::mdns::Builder(_mcu);
     };
 }    // namespace opendeck::bootloader::system

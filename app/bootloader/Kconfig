@@ -1,5 +1,9 @@
 mainmenu "OpenDeck bootloader"
 
+module = OPENDECK
+module-str = OpenDeck
+source "subsys/logging/Kconfig.template.log_config"
+
 OPENDECK_STAGED_DFU_NODE := $(dt_nodelabel_path,staged_dfu_partition)
 OPENDECK_TRAFFIC_INDICATORS_NODE := $(dt_nodelabel_path,opendeck_traffic_indicators)
 
@@ -43,9 +47,11 @@ config PROJECT_BOOTLOADER_SUPPORT_MDNS
     select NETWORKING
     select NET_CONFIG_SETTINGS
     select NET_DHCPV4
+    select NET_DHCPV4_OPTION_CALLBACKS
     select NET_HOSTNAME_DYNAMIC
     select NET_HOSTNAME_ENABLE
     select NET_IPV4
+    select NET_CONFIG_NEED_IPV4
     help
       Enables bootloader mDNS advertisement for network recovery targets.
 

@@ -4,6 +4,7 @@ opendeck_library_named(protocol_webconfig_firmware_upload)
 
 target_link_libraries(protocol_webconfig_firmware_upload
     PUBLIC
+    dfu_stream
     staged_update_writer
 )
 

@@ -6,7 +6,6 @@
 #pragma once
 
 #include "firmware/src/protocol/webconfig/shared/deps.h"
-#include "common/src/mcu/shared/deps.h"
 
 namespace opendeck::protocol::webconfig
 {
@@ -16,7 +15,7 @@ namespace opendeck::protocol::webconfig
     class HwaHw : public Hwa
     {
         public:
-        explicit HwaHw(mcu::Hwa& mcu);
+        HwaHw() = default;
 
         /**
          * @brief Starts Zephyr's HTTP server for the WebConfig endpoint.
@@ -59,13 +58,5 @@ namespace opendeck::protocol::webconfig
          * @param socket Socket to close.
          */
         void unregister(int socket) override;
-
-        /**
-         * @brief Reboots into the bootloader so a staged update can be applied.
-         */
-        void reboot_to_bootloader() override;
-
-        private:
-        mcu::Hwa& _mcu;
     };
 }    // namespace opendeck::protocol::webconfig

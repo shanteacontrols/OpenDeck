@@ -9,15 +9,22 @@
 #include <stddef.h>
 #include <stdint.h>
 
-namespace opendeck::installer
+namespace opendeck::direct_update_writer
 {
     /**
-     * @brief Hardware abstraction used by the bootloader firmware installer.
+     * @brief Hardware abstraction used by the bootloader direct-update writer.
      */
     class Hwa
     {
         public:
         virtual ~Hwa() = default;
+
+        /**
+         * @brief Returns the writable firmware slot size.
+         *
+         * @return Slot size in bytes.
+         */
+        virtual uint32_t size() = 0;
 
         /**
          * @brief Returns the size of one writable flash sector.
@@ -60,4 +67,4 @@ namespace opendeck::installer
          */
         virtual void apply() = 0;
     };
-}    // namespace opendeck::installer
+}    // namespace opendeck::direct_update_writer

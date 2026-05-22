@@ -133,7 +133,6 @@ System::System(Hwa& hwa)
                     })
     , _reboot_work([this]()
                    {
-                       _reboot_in_progress = true;
                        prepare_for_reboot();
                        _hwa.reboot(_reboot_type);
                    },
@@ -257,6 +256,12 @@ System::System(Hwa& hwa)
             {
                 LOG_INF("OSC refresh requested, scheduling forced component refresh");
                 schedule_forced_refresh(ForcedRefreshType::OscRequest, 0);
+            }
+            break;
+
+            case signaling::SystemEvent::BootloaderRebootReq:
+            {
+                schedule_reboot(mcu::BootTarget::Bootloader);
             }
             break;
 
@@ -1058,7 +1063,8 @@ void System::run_factory_reset()
 void System::schedule_reboot(mcu::BootTarget type)
 {
     LOG_INF("Scheduling reboot to %s", type == mcu::BootTarget::Bootloader ? "bootloader" : "application");
-    _reboot_type = type;
+    _reboot_type        = type;
+    _reboot_in_progress = true;
     _reboot_work.reschedule(REBOOT_DELAY_MS);
 }
 
@@ -1208,6 +1214,11 @@ System::ConfigSession System::config_session() const
 
 void System::handle_config_request(const signaling::ConfigRequestSignal& request)
 {
+    if (_reboot_in_progress)
+    {
+        return;
+    }
+
     static constexpr size_t SYSEX_MIN_FRAME_SIZE = 2;
     const auto              data                 = request.data();
 

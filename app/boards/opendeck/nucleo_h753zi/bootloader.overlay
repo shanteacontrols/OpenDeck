@@ -24,3 +24,11 @@ opendeck_i2c_display: &i2c1 {};
         network-up-gpios = <&gpiob 14 GPIO_ACTIVE_HIGH>;
     };
 };
+
+&mac {
+    status = "okay";
+};
+
+&mdio {
+    status = "okay";
+};

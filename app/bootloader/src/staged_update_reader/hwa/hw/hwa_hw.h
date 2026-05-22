@@ -44,6 +44,16 @@ namespace opendeck::staged_update_reader
         }
 
         /**
+         * @brief Returns the staged DFU flash write-block size.
+         *
+         * @return Native write-block size in bytes.
+         */
+        size_t write_block_size() const override
+        {
+            return _area.write_block_size();
+        }
+
+        /**
          * @brief Reads bytes from the staged DFU partition.
          *
          * @param offset Byte offset within the staged DFU partition.
@@ -57,16 +67,16 @@ namespace opendeck::staged_update_reader
         }
 
         /**
-         * @brief Clears the staged-update marker without erasing the whole partition.
+         * @brief Clears the staged-update marker by erasing the header sector.
+         *
+         * @return `true` when the header sector was erased, otherwise `false`.
          */
-        void clear_pending() override
+        bool clear_pending() override
         {
-            const uint32_t invalid_magic = 0U;
-            const auto     data          = std::span<const uint8_t>(
-                reinterpret_cast<const uint8_t*>(&invalid_magic),
-                sizeof(invalid_magic));
+            const auto sector = _area.sector(0);
 
-            _area.write(0, data);
+            return sector.has_value() &&
+                   _area.erase(sector->offset, sector->size);
         }
 
         private:

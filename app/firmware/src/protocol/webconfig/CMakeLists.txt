@@ -6,6 +6,7 @@ opendeck_library_named(protocol_webconfig)
 target_link_libraries(protocol_webconfig
     PUBLIC
     kernel
+    dfu_stream
     mcu
     protocol_osc_packet
     protocol_webconfig_firmware_upload

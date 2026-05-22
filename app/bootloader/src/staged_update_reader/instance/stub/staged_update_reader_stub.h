@@ -20,7 +20,7 @@ namespace opendeck::staged_update_reader
          *
          * @return Always `false`.
          */
-        bool consume(Consumer&)
+        bool consume(dfu_stream::Sink&)
         {
             return false;
         }

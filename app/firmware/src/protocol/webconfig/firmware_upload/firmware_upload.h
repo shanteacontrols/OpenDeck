@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "common/src/dfu_stream/instance/impl/dfu_stream.h"
 #include "firmware/src/protocol/webconfig/shared/firmware_upload.h"
 #include "firmware/src/staged_update_writer/instance/impl/staged_update_writer.h"
 
@@ -38,7 +39,7 @@ namespace opendeck::protocol::webconfig
          *
          * @param command Command being acknowledged.
          * @param status Result of the command.
-         * @param bytes_written Number of dfu.bin bytes stored so far.
+         * @param bytes_written Number of accepted firmware payload bytes.
          *
          * @return Complete ACK frame.
          */
@@ -62,12 +63,13 @@ namespace opendeck::protocol::webconfig
 
         private:
         staged_update_writer::StagedUpdateWriter& _staged_update;
+        dfu_stream::DfuStream                     _dfu_stream;
         bool                                      _reboot_requested = false;
 
         /**
          * @brief Starts a new staged firmware upload.
          *
-         * @param payload Begin-frame payload containing the total dfu.bin byte count.
+         * @param payload Empty begin-frame payload.
          *
          * @return ACK frame for the begin command.
          */
@@ -97,7 +99,7 @@ namespace opendeck::protocol::webconfig
         Response handle_firmware_abort();
 
         /**
-         * @brief Builds an ACK using the current staged-update byte count.
+         * @brief Builds an ACK using the current accepted firmware payload byte count.
          *
          * @param command Command being acknowledged.
          * @param status Result of the command.

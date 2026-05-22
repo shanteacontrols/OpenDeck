@@ -9,7 +9,6 @@
 #include "firmware/src/protocol/webconfig/shared/common.h"
 #include "firmware/src/protocol/osc/packet/packet.h"
 #include "firmware/src/signaling/signaling.h"
-#include "firmware/src/system/shared/common.h"
 
 #include "zlibs/utils/midi/midi.h"
 
@@ -53,14 +52,6 @@ WebConfig::WebConfig(Hwa& hwa, staged_update_writer::StagedUpdateWriter& staged_
               k_sem_give(&_tx_wakeup);
           })
     , _firmware_upload_handler(staged_update_writer)
-    , _reboot_work([this]
-                   {
-                       _hwa.reboot_to_bootloader();
-                   },
-                   []
-                   {
-                       return threads::SystemWorkqueue::handle();
-                   })
 {
     k_sem_init(&_client_wakeup, 0, 1);
     k_sem_init(&_tx_wakeup, 0, 1);
@@ -416,8 +407,20 @@ void WebConfig::handle_command_frame(std::span<const uint8_t> data, uint32_t ses
         return;
     }
 
+    const auto command = static_cast<FirmwareUploadCommand>(data.front());
+
+    if ((command == FirmwareUploadCommand::Begin) && (data.size() == 1U))
+    {
+        LOG_INF("Closing WebConfig SysEx configuration session before firmware upload");
+
+        signaling::publish(signaling::ConfigDisconnectSignal{
+            .transport  = signaling::ConfigTransport::WebConfig,
+            .session_id = session_id,
+        });
+    }
+
 #ifndef CONFIG_PROJECT_TARGET_SUPPORT_STAGED_UPDATE
-    if (static_cast<FirmwareUploadCommand>(data.front()) == FirmwareUploadCommand::Begin)
+    if (command == FirmwareUploadCommand::Begin)
     {
         queue_binary_frame(FirmwareUploadHandler::make_ack(
                                FirmwareUploadCommand::Begin,
@@ -447,7 +450,9 @@ void WebConfig::handle_command_frame(std::span<const uint8_t> data, uint32_t ses
 void WebConfig::schedule_firmware_reboot()
 {
     LOG_INF("Staged firmware upload complete, rebooting to apply update");
-    _reboot_work.reschedule(sys::REBOOT_DELAY_MS);
+    signaling::publish(signaling::SystemSignal{
+        .system_event = signaling::SystemEvent::BootloaderRebootReq,
+    });
 }
 
 void WebConfig::send_response_packet(const midi_ump& packet, uint32_t session_id)

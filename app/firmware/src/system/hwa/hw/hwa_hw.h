@@ -86,9 +86,9 @@ namespace opendeck::sys
         io::indicators::Builder      _builder_indicators  = io::indicators::Builder(_database);
         protocol::midi::Builder      _builder_midi        = protocol::midi::Builder(_database);
         protocol::osc::Builder       _builder_osc         = protocol::osc::Builder(_database);
-        protocol::webconfig::Builder _builder_webconfig   = protocol::webconfig::Builder(_mcu);
-        protocol::mdns::Builder      _builder_mdns        = protocol::mdns::Builder(_database, _mcu);
-        IoCollection                 _io                  = {
+        protocol::webconfig::Builder _builder_webconfig;
+        protocol::mdns::Builder      _builder_mdns = protocol::mdns::Builder(_database, _mcu);
+        IoCollection                 _io           = {
             &_builder_digital.instance(),
             &_builder_analog.instance(),
             &_builder_outputs.instance(),

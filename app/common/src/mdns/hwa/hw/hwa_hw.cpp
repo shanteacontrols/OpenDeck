@@ -4,6 +4,7 @@
  */
 
 #include "common/src/mdns/hwa/hw/hwa_hw.h"
+#include "common/src/mdns/shared/common.h"
 
 #include <zephyr/device.h>
 #include <zephyr/init.h>
@@ -13,6 +14,7 @@
 #include <zephyr/net/net_ip.h>
 #include <zephyr/sys/byteorder.h>
 
+#include <array>
 #include <algorithm>
 #include <utility>
 
@@ -162,15 +164,30 @@ bool HwaHw::advertise_service(std::string_view instance,
     return true;
 }
 
-void HwaHw::ip_event_handler(net_mgmt_event_callback*  callback,
-                             [[maybe_unused]] uint64_t event,
-                             [[maybe_unused]] net_if*  iface)
+void HwaHw::ip_event_handler(net_mgmt_event_callback* callback,
+                             uint64_t                 event,
+                             [[maybe_unused]] net_if* iface)
 {
     auto self = IpEventCallback::extract_user_data(static_cast<void*>(callback));
 
     if (self == nullptr)
     {
         return;
+    }
+
+    if (event == NET_EVENT_IPV4_ADDR_ADD)
+    {
+        std::array<char, IPV4_ADDRESS_SIZE> buffer  = {};
+        const auto                          address = self->ip_address(buffer);
+
+        if (!address.empty())
+        {
+            LOG_INF("IPv4 address assigned: %.*s", static_cast<int>(address.size()), address.data());
+        }
+    }
+    else if (event == NET_EVENT_IPV4_ADDR_DEL)
+    {
+        LOG_INF("IPv4 address removed");
     }
 
     if (self->_ip_address_changed_callback)

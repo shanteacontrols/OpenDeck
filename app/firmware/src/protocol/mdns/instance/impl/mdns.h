@@ -78,18 +78,11 @@ namespace opendeck::protocol::mdns
         void load_custom_hostname();
 
         /**
-         * @brief Builds the `.local` name published to other protocols.
-         *
-         * @return Full mDNS name, or an empty view if it does not fit.
-         */
-        std::string_view make_network_name();
-
-        /**
          * @brief Publishes the network identity built by mDNS.
          *
-         * @param name Full `.local` name advertised by mDNS.
+         * @param identity Full `.local` name and current IPv4 address.
          */
-        void publish_network_identity(std::string_view name);
+        void publish_network_identity(const opendeck::mdns::NetworkIdentity& identity);
 
         /**
          * @brief Schedules network identity publishing outside the caller's stack context.

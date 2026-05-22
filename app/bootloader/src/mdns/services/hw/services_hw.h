@@ -16,10 +16,10 @@ namespace opendeck::bootloader::mdns
     {
         public:
         /**
-         * @brief Returns the mutable recovery DNS-SD service descriptor.
+         * @brief Returns the mutable DFU DNS-SD service descriptor.
          *
-         * @return Recovery service descriptor.
+         * @return DFU service descriptor.
          */
-        opendeck::mdns::Service recovery() override;
+        opendeck::mdns::Service dfu() override;
     };
 }    // namespace opendeck::bootloader::mdns

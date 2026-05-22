@@ -72,10 +72,5 @@ namespace opendeck::protocol::webconfig
          * @param socket Socket to close.
          */
         virtual void unregister(int socket) = 0;
-
-        /**
-         * @brief Reboots into the bootloader so a staged update can be applied.
-         */
-        virtual void reboot_to_bootloader() = 0;
     };
 }    // namespace opendeck::protocol::webconfig

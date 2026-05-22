@@ -7,6 +7,7 @@ opendeck_test_bootstrap(
 
 add_subdirectory($ENV{ZEPHYR_PROJECT}/app/common/src/metadata ${CMAKE_CURRENT_BINARY_DIR}/metadata)
 add_subdirectory($ENV{ZEPHYR_PROJECT}/app/common/src/flash_stream_writer ${CMAKE_CURRENT_BINARY_DIR}/flash_stream_writer)
+add_subdirectory($ENV{ZEPHYR_PROJECT}/app/common/src/dfu_stream ${CMAKE_CURRENT_BINARY_DIR}/dfu_stream)
 
 if(NOT DEFINED ENV{TARGET} OR "$ENV{TARGET}" STREQUAL "")
     message(FATAL_ERROR "Bootloader tests require TARGET to be exported")
@@ -28,19 +29,21 @@ target_sources(app
     PRIVATE
     bootloader_test.cpp
     $ENV{ZEPHYR_PROJECT}/app/bootloader/src/indicators/instance/impl/indicators.cpp
-    $ENV{ZEPHYR_PROJECT}/app/bootloader/src/installer/instance/impl/installer.cpp
+    $ENV{ZEPHYR_PROJECT}/app/bootloader/src/direct_update_writer/instance/impl/direct_update_writer.cpp
     $ENV{ZEPHYR_PROJECT}/app/bootloader/src/staged_update_reader/instance/impl/staged_update_reader.cpp
 )
 
 add_dependencies(app
     metadata
     flash_stream_writer
+    dfu_stream
 )
 
 target_link_libraries(app
     PUBLIC
     metadata
     flash_stream_writer
+    dfu_stream
 )
 
 target_compile_definitions(app

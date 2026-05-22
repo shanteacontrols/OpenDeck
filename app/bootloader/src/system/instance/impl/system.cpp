@@ -11,7 +11,7 @@ using namespace opendeck;
 
 namespace
 {
-    LOG_MODULE_REGISTER(opendeck_bootloader_system, LOG_LEVEL_INF);    // NOLINT
+    LOG_MODULE_REGISTER(opendeck_bootloader_system, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
 }    // namespace
 
 bootloader::system::System::System(Hwa& hwa)
@@ -26,13 +26,21 @@ bool bootloader::system::System::init()
 
     if (_hwa.consume_staged_update())
     {
+        LOG_INF("Staged firmware update consumed, rebooting to application");
         _hwa.reboot_application();
     }
 
     if (!_hwa.init_webusb())
     {
+        LOG_ERR("Failed to initialize WebUSB DFU transport");
         return false;
     }
 
-    return _hwa.init_mdns();
+    if (!_hwa.init_mdns())
+    {
+        LOG_ERR("Failed to initialize mDNS recovery advertisement");
+        return false;
+    }
+
+    return true;
 }

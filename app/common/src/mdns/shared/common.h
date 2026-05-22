@@ -45,4 +45,13 @@ namespace opendeck::mdns
         uint16_t&       port;
         uint16_t        service_port = 0;
     };
+
+    /**
+     * @brief Current mDNS name and IPv4 address advertised by OpenDeck.
+     */
+    struct NetworkIdentity
+    {
+        std::string_view name;
+        std::string_view ip_address;
+    };
 }    // namespace opendeck::mdns

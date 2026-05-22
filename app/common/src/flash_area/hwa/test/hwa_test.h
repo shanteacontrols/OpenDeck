@@ -98,14 +98,14 @@ namespace opendeck::flash_area
             return true;
         }
 
-        bool first_sector(Sector& sector) const override
+        std::optional<Sector> sector(const size_t index) const override
         {
-            sector = {
-                .offset = 0,
-                .size   = SECTOR_SIZE,
-            };
+            if (index >= this->sector_count())
+            {
+                return std::nullopt;
+            }
 
-            return true;
+            return this->sector_at(index);
         }
 
         bool sectors(std::span<Sector> sectors, size_t& sector_count) const override
@@ -117,14 +117,14 @@ namespace opendeck::flash_area
 
             for (size_t i = 0; i < this->sector_count(); i++)
             {
-                sectors[i] = sector(i);
+                sectors[i] = sector_at(i);
             }
 
             sector_count = this->sector_count();
             return true;
         }
 
-        Sector sector(size_t index) const
+        Sector sector_at(size_t index) const
         {
             return {
                 .offset = static_cast<uint32_t>(index * SECTOR_SIZE),

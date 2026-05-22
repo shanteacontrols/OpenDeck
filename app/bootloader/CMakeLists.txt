@@ -7,8 +7,9 @@ zephyr_include_directories(${CMAKE_CURRENT_LIST_DIR}/..)
 
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/metadata ${CMAKE_CURRENT_BINARY_DIR}/metadata)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/flash_stream_writer ${CMAKE_CURRENT_BINARY_DIR}/flash_stream_writer)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/dfu_stream ${CMAKE_CURRENT_BINARY_DIR}/dfu_stream)
 add_subdirectory(src/indicators)
-add_subdirectory(src/installer)
+add_subdirectory(src/direct_update_writer)
 add_subdirectory(src/signaling)
 add_subdirectory(src/system)
 add_subdirectory(src/webusb)
@@ -28,8 +29,9 @@ endif()
 target_link_libraries(app
     PRIVATE
     metadata
+    dfu_stream
     opendeck_bootloader_indicators
-    opendeck_bootloader_installer
+    opendeck_bootloader_direct_update_writer
     opendeck_bootloader_signaling
     opendeck_bootloader_system
     opendeck_bootloader_webusb

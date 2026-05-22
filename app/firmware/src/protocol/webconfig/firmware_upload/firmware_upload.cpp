@@ -11,6 +11,7 @@ using namespace opendeck::protocol::webconfig;
 
 FirmwareUploadHandler::FirmwareUploadHandler(staged_update_writer::StagedUpdateWriter& staged_update_writer)
     : _staged_update(staged_update_writer)
+    , _dfu_stream(staged_update_writer)
 {}
 
 FirmwareUploadHandler::Response FirmwareUploadHandler::make_ack(const FirmwareUploadCommand command,
@@ -71,19 +72,14 @@ bool FirmwareUploadHandler::take_reboot_request()
 
 FirmwareUploadHandler::Response FirmwareUploadHandler::handle_firmware_begin(std::span<const uint8_t> payload)
 {
-    static constexpr size_t SIZE_FIELD_BYTES = sizeof(uint32_t);
-
-    if (payload.size() != SIZE_FIELD_BYTES)
+    if (!payload.empty())
     {
         return make_ack(FirmwareUploadCommand::Begin, FirmwareUploadStatus::BadRequest);
     }
 
-    uint32_t size = 0;
-    std::memcpy(&size, payload.data(), sizeof(size));
+    _dfu_stream.reset();
 
-    return make_ack(
-        FirmwareUploadCommand::Begin,
-        _staged_update.begin(size) ? FirmwareUploadStatus::Ok : FirmwareUploadStatus::Failed);
+    return make_ack(FirmwareUploadCommand::Begin, FirmwareUploadStatus::Ok);
 }
 
 FirmwareUploadHandler::Response FirmwareUploadHandler::handle_firmware_chunk(std::span<const uint8_t> payload)
@@ -93,18 +89,25 @@ FirmwareUploadHandler::Response FirmwareUploadHandler::handle_firmware_chunk(std
         return make_ack(FirmwareUploadCommand::Chunk, FirmwareUploadStatus::BadRequest);
     }
 
+    const auto status = _dfu_stream.feed(payload);
+
     return make_ack(
         FirmwareUploadCommand::Chunk,
-        _staged_update.write(payload) ? FirmwareUploadStatus::Ok : FirmwareUploadStatus::Failed);
+        status == dfu_stream::StreamStatus::Invalid ? FirmwareUploadStatus::Failed : FirmwareUploadStatus::Ok);
 }
 
 FirmwareUploadHandler::Response FirmwareUploadHandler::handle_firmware_finish()
 {
-    const bool finished = _staged_update.finish();
+    const bool finished = _dfu_stream.status() == dfu_stream::StreamStatus::Complete;
 
     if (finished)
     {
         _reboot_requested = true;
+    }
+
+    if (!finished)
+    {
+        _staged_update.abort();
     }
 
     return make_ack(
@@ -115,11 +118,12 @@ FirmwareUploadHandler::Response FirmwareUploadHandler::handle_firmware_finish()
 FirmwareUploadHandler::Response FirmwareUploadHandler::handle_firmware_abort()
 {
     _staged_update.abort();
+    _dfu_stream.reset();
     return make_ack(FirmwareUploadCommand::Abort, FirmwareUploadStatus::Ok);
 }
 
 FirmwareUploadHandler::Response FirmwareUploadHandler::make_ack(const FirmwareUploadCommand command,
                                                                 const FirmwareUploadStatus  status) const
 {
-    return make_ack(command, status, _staged_update.bytes_written());
+    return make_ack(command, status, _dfu_stream.bytes_written());
 }

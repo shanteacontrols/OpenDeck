@@ -10,6 +10,8 @@
 #include <zephyr/drivers/flash.h>
 #include <zephyr/storage/flash_map.h>
 
+#include <optional>
+
 namespace opendeck::flash_area
 {
     /**
@@ -121,32 +123,43 @@ namespace opendeck::flash_area
         }
 
         /**
-         * @brief Returns the first sector in the opened flash-map area.
+         * @brief Returns one sector in the opened flash-map area.
          *
-         * @param sector Destination sector descriptor with area-relative offset.
+         * @param index Sector index to query.
          *
-         * @return `true` if the sector was found, otherwise `false`.
+         * @return Sector descriptor with area-relative offset when found.
          */
-        bool first_sector(Sector& sector) const override
+        std::optional<Sector> sector(const size_t index) const override
         {
             if (_area == nullptr)
             {
-                return false;
+                return std::nullopt;
             }
 
-            flash_pages_info page_info = {};
+            const uint32_t area_end = _area->fa_off + _area->fa_size;
+            uint32_t       offset   = _area->fa_off;
 
-            if (flash_get_page_info_by_offs(_area->fa_dev, _area->fa_off, &page_info) != 0)
+            for (size_t count = 0; offset < area_end; count++)
             {
-                return false;
+                flash_pages_info page_info = {};
+
+                if (flash_get_page_info_by_offs(_area->fa_dev, static_cast<off_t>(offset), &page_info) != 0)
+                {
+                    return std::nullopt;
+                }
+
+                if (count == index)
+                {
+                    return Sector{
+                        .offset = static_cast<uint32_t>(page_info.start_offset - _area->fa_off),
+                        .size   = page_info.size,
+                    };
+                }
+
+                offset = page_info.start_offset + page_info.size;
             }
 
-            sector = {
-                .offset = static_cast<uint32_t>(page_info.start_offset - _area->fa_off),
-                .size   = page_info.size,
-            };
-
-            return true;
+            return std::nullopt;
         }
 
         /**

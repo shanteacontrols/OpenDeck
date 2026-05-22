@@ -5,23 +5,26 @@
 
 #pragma once
 
-#include "bootloader/src/installer/instance/impl/installer.h"
+#include "bootloader/src/direct_update_writer/instance/impl/direct_update_writer.h"
 #include "bootloader/src/webusb/shared/deps.h"
+#include "common/src/dfu_stream/instance/impl/dfu_stream.h"
+
+#include <span>
 
 namespace opendeck::webusb
 {
     /**
-     * @brief Bootloader WebUSB endpoint that feeds incoming DFU bytes into the installer.
+     * @brief Bootloader WebUSB endpoint that feeds incoming DFU bytes into the direct-update writer.
      */
     class WebUsbHw : public Hwa
     {
         public:
         /**
-         * @brief Constructs WebUSB around an installer instance.
+         * @brief Constructs WebUSB around a direct-update writer instance.
          *
-         * @param installer Installer that receives incoming DFU bytes.
+         * @param direct_update_writer Direct-update writer that receives incoming DFU bytes.
          */
-        explicit WebUsbHw(installer::Installer& installer);
+        explicit WebUsbHw(direct_update_writer::DirectUpdateWriter& direct_update_writer);
 
         /**
          * @brief Initializes bootloader WebUSB.
@@ -44,7 +47,14 @@ namespace opendeck::webusb
          */
         void status(std::string_view message) override;
 
+        /**
+         * @brief Processes one received WebUSB DFU chunk.
+         *
+         * @param data Raw DFU stream bytes.
+         */
+        void feed(std::span<const uint8_t> data);
+
         private:
-        installer::Installer& _installer;
+        dfu_stream::DfuStream _dfu_stream;
     };
 }    // namespace opendeck::webusb

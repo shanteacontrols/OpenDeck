@@ -119,12 +119,6 @@ namespace opendeck::protocol::webconfig
             k_sem_give(&_receive_wakeup);
         }
 
-        void reboot_to_bootloader() override
-        {
-            const zlibs::utils::misc::LockGuard lock(_mutex);
-            _reboot_requested = true;
-        }
-
         /**
          * @brief Queues one binary frame for the WebConfig receive loop.
          *
@@ -239,28 +233,16 @@ namespace opendeck::protocol::webconfig
             return _server_stopped;
         }
 
-        /**
-         * @brief Reports whether a bootloader reboot was requested.
-         *
-         * @return True after reboot_to_bootloader() runs.
-         */
-        bool reboot_requested() const
-        {
-            const zlibs::utils::misc::LockGuard lock(_mutex);
-            return _reboot_requested;
-        }
-
         private:
         mutable zlibs::utils::misc::Mutex _mutex;
-        k_sem                             _receive_wakeup   = {};
-        WebConfig*                        _endpoint         = nullptr;
-        std::deque<ReceivedFrame>         _received_frames  = {};
-        std::vector<SentFrame>            _sent_frames      = {};
-        std::vector<int>                  _closed_sockets   = {};
-        int                               _start_result     = 0;
-        int                               _send_result      = 0;
-        bool                              _server_stopped   = false;
-        bool                              _reboot_requested = false;
+        k_sem                             _receive_wakeup  = {};
+        WebConfig*                        _endpoint        = nullptr;
+        std::deque<ReceivedFrame>         _received_frames = {};
+        std::vector<SentFrame>            _sent_frames     = {};
+        std::vector<int>                  _closed_sockets  = {};
+        int                               _start_result    = 0;
+        int                               _send_result     = 0;
+        bool                              _server_stopped  = false;
 
         /**
          * @brief Checks whether the test backend already closed a socket.

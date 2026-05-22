@@ -4,6 +4,7 @@
  */
 
 #include "tests/common.h"
+#include "common/src/dfu_stream/shared/common.h"
 #include "firmware/src/protocol/webconfig/firmware_upload/firmware_upload.h"
 #include "firmware/src/staged_update_writer/hwa/test/hwa_test.h"
 #include "firmware/src/staged_update_writer/instance/impl/staged_update_writer.h"
@@ -24,18 +25,38 @@ namespace
         opendeck::staged_update_writer::StagedUpdateWriter staged_update_writer = opendeck::staged_update_writer::StagedUpdateWriter(hwa);
         FirmwareUploadHandler                              handler              = FirmwareUploadHandler(staged_update_writer);
 
-        static std::vector<uint8_t> begin_frame(uint32_t size)
+        static std::array<uint8_t, 1> begin_frame()
         {
-            std::vector<uint8_t> frame = {
+            return {
                 static_cast<uint8_t>(FirmwareUploadCommand::Begin),
-                0,
-                0,
-                0,
-                0,
             };
+        }
 
-            std::memcpy(frame.data() + 1, &size, sizeof(size));
-            return frame;
+        static void append_u32(std::vector<uint8_t>& data, uint32_t value)
+        {
+            constexpr uint32_t BYTE_MASK      = 0xFF;
+            constexpr uint8_t  BITS_PER_OCTET = 8;
+
+            for (size_t i = 0; i < sizeof(value); i++)
+            {
+                data.push_back((value >> (i * BITS_PER_OCTET)) & BYTE_MASK);
+            }
+        }
+
+        static std::vector<uint8_t> make_dfu_stream(std::span<const uint8_t> payload,
+                                                    uint32_t                 target_uid     = OPENDECK_TARGET_UID,
+                                                    uint32_t                 format_version = opendeck::dfu_stream::FORMAT_VERSION)
+        {
+            std::vector<uint8_t> stream;
+
+            append_u32(stream, opendeck::dfu_stream::START_COMMAND);
+            append_u32(stream, format_version);
+            append_u32(stream, target_uid);
+            append_u32(stream, payload.size());
+            stream.insert(stream.end(), payload.begin(), payload.end());
+            append_u32(stream, opendeck::dfu_stream::END_COMMAND);
+
+            return stream;
         }
 
         static std::vector<uint8_t> chunk_frame(std::span<const uint8_t> payload)
@@ -101,7 +122,7 @@ TEST_F(FirmwareUploadTest, RejectsMalformedBegin)
 
 TEST_F(FirmwareUploadTest, BeginsUpload)
 {
-    const auto frame    = begin_frame(16);
+    const auto frame    = begin_frame();
     const auto response = handler.handle(frame);
 
     ASSERT_TRUE(response);
@@ -110,7 +131,7 @@ TEST_F(FirmwareUploadTest, BeginsUpload)
 
 TEST_F(FirmwareUploadTest, RejectsEmptyChunk)
 {
-    const auto begin = begin_frame(4);
+    const auto begin = begin_frame();
     ASSERT_TRUE(handler.handle(begin));
 
     const auto frame    = command_frame(FirmwareUploadCommand::Chunk);
@@ -129,8 +150,9 @@ TEST_F(FirmwareUploadTest, WritesChunks)
         0xF7U,
     };
 
-    const auto begin = begin_frame(payload.size());
-    const auto chunk = chunk_frame(payload);
+    const auto dfu   = make_dfu_stream(payload);
+    const auto begin = begin_frame();
+    const auto chunk = chunk_frame(dfu);
     ASSERT_TRUE(handler.handle(begin));
 
     const auto response = handler.handle(chunk);
@@ -146,7 +168,7 @@ TEST_F(FirmwareUploadTest, RejectsIncompleteFinish)
         0xF7U,
     };
 
-    const auto begin = begin_frame(4);
+    const auto begin = begin_frame();
     const auto chunk = chunk_frame(payload);
     ASSERT_TRUE(handler.handle(begin));
     ASSERT_TRUE(handler.handle(chunk));
@@ -168,8 +190,9 @@ TEST_F(FirmwareUploadTest, FinishesCompleteUpload)
         0xF7U,
     };
 
-    const auto begin = begin_frame(payload.size());
-    const auto chunk = chunk_frame(payload);
+    const auto dfu   = make_dfu_stream(payload);
+    const auto begin = begin_frame();
+    const auto chunk = chunk_frame(dfu);
     ASSERT_TRUE(handler.handle(begin));
     ASSERT_TRUE(handler.handle(chunk));
 
@@ -189,8 +212,9 @@ TEST_F(FirmwareUploadTest, AbortsUpload)
         0xF7U,
     };
 
-    const auto begin = begin_frame(payload.size());
-    const auto chunk = chunk_frame(payload);
+    const auto dfu   = make_dfu_stream(payload);
+    const auto begin = begin_frame();
+    const auto chunk = chunk_frame(dfu);
     ASSERT_TRUE(handler.handle(begin));
     ASSERT_TRUE(handler.handle(chunk));
 
@@ -199,5 +223,24 @@ TEST_F(FirmwareUploadTest, AbortsUpload)
 
     ASSERT_TRUE(response);
     expect_ack(*response, FirmwareUploadCommand::Abort, FirmwareUploadStatus::Ok, 0);
-    EXPECT_EQ(staged_update_writer.bytes_written(), 0);
+}
+
+TEST_F(FirmwareUploadTest, RejectsDfuTargetMismatch)
+{
+    constexpr std::array<uint8_t, 4> payload = {
+        0xF0U,
+        0x00U,
+        0x53U,
+        0xF7U,
+    };
+
+    const auto dfu   = make_dfu_stream(payload, OPENDECK_TARGET_UID + 1);
+    const auto begin = begin_frame();
+    const auto chunk = chunk_frame(dfu);
+    ASSERT_TRUE(handler.handle(begin));
+
+    const auto response = handler.handle(chunk);
+
+    ASSERT_TRUE(response);
+    expect_ack(*response, FirmwareUploadCommand::Chunk, FirmwareUploadStatus::Failed, 0);
 }

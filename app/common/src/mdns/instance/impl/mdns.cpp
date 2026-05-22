@@ -5,6 +5,7 @@
 
 #include "common/src/mdns/instance/impl/mdns.h"
 
+#include <zephyr/logging/log.h>
 #include <zephyr/sys/util.h>
 
 #include <algorithm>
@@ -15,6 +16,8 @@ using namespace opendeck::mdns;
 
 namespace
 {
+    LOG_MODULE_REGISTER(mdns, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
+
     constexpr char HEX_DIGITS[]           = "0123456789abcdef";
     constexpr int  TARGET_UID_START_SHIFT = 24;
     constexpr auto BYTE_MASK              = 0xFFU;
@@ -121,6 +124,31 @@ std::string_view BaseMdns::network_name()
 std::string_view BaseMdns::ip_address(std::span<char> buffer)
 {
     return _hwa.ip_address(buffer);
+}
+
+NetworkIdentity BaseMdns::network_identity(std::span<char> ip_address_buffer)
+{
+    return {
+        .name       = network_name(),
+        .ip_address = ip_address(ip_address_buffer),
+    };
+}
+
+void BaseMdns::log_network_identity(const NetworkIdentity& identity)
+{
+    if (identity.ip_address.empty())
+    {
+        LOG_INF("mDNS network identity: %.*s",
+                static_cast<int>(identity.name.size()),
+                identity.name.data());
+        return;
+    }
+
+    LOG_INF("mDNS network identity: %.*s %.*s",
+            static_cast<int>(identity.name.size()),
+            identity.name.data(),
+            static_cast<int>(identity.ip_address.size()),
+            identity.ip_address.data());
 }
 
 void BaseMdns::register_ip_address_changed_callback(Hwa::IpAddressChangedCallback callback)

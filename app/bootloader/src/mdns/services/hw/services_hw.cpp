@@ -7,39 +7,34 @@
 
 #ifdef CONFIG_PROJECT_BOOTLOADER_SUPPORT_MDNS
 
+#include "bootloader/src/mdns/shared/common.h"
 #include "common/src/mdns/shared/common.h"
 #include "firmware/src/protocol/webconfig/shared/common.h"
 
 #include <zephyr/net/dns_sd.h>
 #include <zephyr/net/hostname.h>
 
-#include <string_view>
-
 using namespace opendeck::bootloader::mdns;
 
 namespace
 {
-    constexpr std::string_view RECOVERY_SERVICE = "_opendeck-recovery";
-    constexpr char             RECOVERY_TXT[]   = "\x0e"
-                                                  "path=/recovery";
+    char     dfu_instance[NET_HOSTNAME_SIZE] = CONFIG_NET_HOSTNAME;
+    uint16_t dfu_port                        = 0;
 
-    char     recovery_instance[NET_HOSTNAME_SIZE] = CONFIG_NET_HOSTNAME;
-    uint16_t recovery_port                        = 0;
-
-    DNS_SD_REGISTER_SERVICE(opendeck_recovery,
-                            recovery_instance,
-                            RECOVERY_SERVICE.data(),
+    DNS_SD_REGISTER_SERVICE(opendeck_dfu,
+                            dfu_instance,
+                            DFU_SERVICE.data(),
                             opendeck::mdns::TCP_PROTOCOL.data(),
                             opendeck::mdns::LOCAL_DOMAIN.data(),
-                            RECOVERY_TXT,
-                            &recovery_port);
+                            DFU_TXT,
+                            &dfu_port);
 }    // namespace
 
-opendeck::mdns::Service ServicesHw::recovery()
+opendeck::mdns::Service ServicesHw::dfu()
 {
     return {
-        .instance     = recovery_instance,
-        .port         = recovery_port,
+        .instance     = dfu_instance,
+        .port         = dfu_port,
         .service_port = protocol::webconfig::DEFAULT_PORT,
     };
 }

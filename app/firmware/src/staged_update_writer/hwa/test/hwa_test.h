@@ -45,8 +45,8 @@ namespace opendeck::staged_update_writer
             const auto sector = _area.sector(index);
 
             return Sector{
-                .offset = sector.offset,
-                .size   = sector.size,
+                .offset = sector->offset,
+                .size   = sector->size,
             };
         }
 

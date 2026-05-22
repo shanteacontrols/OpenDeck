@@ -26,14 +26,14 @@ Mdns::Mdns(opendeck::mdns::BaseMdns& base_mdns, Services& services, Database& da
     , _database(database)
     , _network_identity_work([this]()
                              {
-                                 const auto name = make_network_name();
+                                 const auto identity = _base_mdns.network_identity(_ip_address);
 
-                                 if (name.empty())
+                                 if (identity.name.empty())
                                  {
                                      return;
                                  }
 
-                                 publish_network_identity(name);
+                                 publish_network_identity(identity);
                              },
                              []()
                              {
@@ -65,9 +65,9 @@ bool Mdns::init()
         return false;
     }
 
-    const auto name = make_network_name();
+    const auto identity = _base_mdns.network_identity(_ip_address);
 
-    if (name.empty())
+    if (identity.name.empty())
     {
         LOG_WRN("Failed to build mDNS network name");
         return false;
@@ -164,31 +164,11 @@ void Mdns::load_custom_hostname()
     _custom_hostname_loaded = true;
 }
 
-std::string_view Mdns::make_network_name()
+void Mdns::publish_network_identity(const opendeck::mdns::NetworkIdentity& identity)
 {
-    return _base_mdns.network_name();
-}
+    opendeck::mdns::BaseMdns::log_network_identity(identity);
 
-void Mdns::publish_network_identity(std::string_view name)
-{
-    const auto ip_address = _base_mdns.ip_address(_ip_address);
-
-    if (ip_address.empty())
-    {
-        LOG_INF("mDNS network identity: %.*s",
-                static_cast<int>(name.size()),
-                name.data());
-    }
-    else
-    {
-        LOG_INF("mDNS network identity: %.*s %.*s",
-                static_cast<int>(name.size()),
-                name.data(),
-                static_cast<int>(ip_address.size()),
-                ip_address.data());
-    }
-
-    signaling::publish(signaling::NetworkIdentitySignal(name, ip_address));
+    signaling::publish(signaling::NetworkIdentitySignal(identity.name, identity.ip_address));
 }
 
 void Mdns::schedule_network_identity_publish()

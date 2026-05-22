@@ -8,6 +8,8 @@
 #include "bootloader/src/mdns/shared/deps.h"
 #include "common/src/mdns/instance/impl/mdns.h"
 
+#include <array>
+
 namespace opendeck::bootloader::mdns
 {
     /**
@@ -32,7 +34,20 @@ namespace opendeck::bootloader::mdns
         bool init();
 
         private:
-        opendeck::mdns::BaseMdns& _base_mdns;
-        Services&                 _services;
+        opendeck::mdns::BaseMdns&                           _base_mdns;
+        Services&                                           _services;
+        std::array<char, opendeck::mdns::IPV4_ADDRESS_SIZE> _ip_address = {};
+
+        /**
+         * @brief Logs the bootloader mDNS network identity.
+         *
+         * @param identity Full `.local` name and current IPv4 address.
+         */
+        void publish_network_identity(const opendeck::mdns::NetworkIdentity& identity);
+
+        /**
+         * @brief Republishes network identity after the local IP address changes.
+         */
+        void handle_ip_address_changed();
     };
 }    // namespace opendeck::bootloader::mdns

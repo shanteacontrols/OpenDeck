@@ -18,10 +18,10 @@ namespace opendeck::bootloader::mdns
         virtual ~Services() = default;
 
         /**
-         * @brief Returns the mutable recovery DNS-SD service descriptor.
+         * @brief Returns the mutable DFU DNS-SD service descriptor.
          *
-         * @return Recovery service descriptor.
+         * @return DFU service descriptor.
          */
-        virtual opendeck::mdns::Service recovery() = 0;
+        virtual opendeck::mdns::Service dfu() = 0;
     };
 }    // namespace opendeck::bootloader::mdns

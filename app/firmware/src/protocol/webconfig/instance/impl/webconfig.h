@@ -15,7 +15,6 @@
 #include "firmware/src/threads.h"
 
 #include "zlibs/utils/midi/midi.h"
-#include "zlibs/utils/misc/kwork_delayable.h"
 #include "zlibs/utils/misc/mutex.h"
 #include "zlibs/utils/misc/ring_buffer.h"
 
@@ -82,7 +81,6 @@ namespace opendeck::protocol::webconfig
         signaling::NetworkIdentitySignal                              _network_identity = {};
         size_t                                                        _response_size    = 0;
         FirmwareUploadHandler                                         _firmware_upload_handler;
-        zlibs::utils::misc::KworkDelayable                            _reboot_work;
         zlibs::utils::misc::RingBuffer<TX_QUEUE_SIZE, false, TxFrame> _tx_queue = {};
         zlibs::utils::misc::Mutex                                     _tx_queue_lock;
 

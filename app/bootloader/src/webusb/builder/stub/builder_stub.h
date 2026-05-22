@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "bootloader/src/installer/instance/impl/installer.h"
+#include "bootloader/src/direct_update_writer/instance/impl/direct_update_writer.h"
 #include "bootloader/src/webusb/instance/impl/webusb.h"
 #include "bootloader/src/webusb/instance/stub/webusb_stub.h"
 
@@ -20,9 +20,9 @@ namespace opendeck::webusb
         /**
          * @brief Constructs the stub WebUSB builder.
          *
-         * @param installer Installer dependency kept for the shared builder shape.
+         * @param direct_update_writer Direct-update writer dependency kept for the shared builder shape.
          */
-        explicit Builder([[maybe_unused]] installer::Installer& installer)
+        explicit Builder([[maybe_unused]] direct_update_writer::DirectUpdateWriter& direct_update_writer)
             : _instance(_hwa)
         {}
 

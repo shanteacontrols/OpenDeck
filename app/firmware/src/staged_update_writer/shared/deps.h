@@ -27,7 +27,7 @@ namespace opendeck::staged_update_writer
         virtual ~Hwa() = default;
 
         /**
-         * @brief Opens the staged DFU storage and prepares flash metadata.
+         * @brief Opens the staged DFU storage.
          */
         virtual bool init() = 0;
 

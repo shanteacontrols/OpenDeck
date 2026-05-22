@@ -7,6 +7,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <span>
 
 namespace opendeck::flash_area
@@ -93,13 +94,12 @@ namespace opendeck::flash_area
         virtual bool erase(uint32_t offset, uint32_t size) const = 0;
 
         /**
-         * @brief Returns the first flash sector from the opened area.
+         * @brief Returns one flash sector from the opened area.
          *
-         * @param sector Destination sector descriptor.
-         *
-         * @return `true` if the sector was found, otherwise `false`.
+         * @param index Sector index to query.
+         * @return Sector descriptor when found, otherwise `std::nullopt`.
          */
-        virtual bool first_sector(Sector& sector) const = 0;
+        virtual std::optional<Sector> sector(size_t index) const = 0;
 
         /**
          * @brief Fills a caller-provided sector buffer with the opened area's sectors.

@@ -24,7 +24,7 @@ using namespace opendeck;
 
 namespace
 {
-    LOG_MODULE_REGISTER(opendeck_bootloader_webusb, LOG_LEVEL_INF);    // NOLINT
+    LOG_MODULE_REGISTER(opendeck_bootloader_webusb, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
 
     constexpr uint8_t WEBUSB_VENDOR_CODE     = 0x01U;
     constexpr uint8_t WEBUSB_LANDING_PAGE    = 0x01U;
@@ -41,8 +41,7 @@ namespace
     const device* const         udc_device = DEVICE_DT_GET(DT_NODELABEL(zephyr_udc0));
     zlibs::drivers::usb::UsbHw& usb_device = zlibs::drivers::usb::UsbHw::instance(udc_device);
 
-    installer::Installer* installer_instance = nullptr;
-    webusb::WebUsbHw*     webusb_instance    = nullptr;
+    webusb::WebUsbHw* webusb_instance = nullptr;
 
     struct UsbBosWebusbDesc
     {
@@ -353,12 +352,9 @@ namespace
 
         if (buf_info->ep == bulk_out_ep(class_data))
         {
-            for (uint16_t i = 0; i < buffer->len; i++)
+            if (webusb_instance != nullptr)
             {
-                if (installer_instance != nullptr)
-                {
-                    installer_instance->feed(buffer->data[i]);
-                }
+                webusb_instance->feed(std::span<const uint8_t>(buffer->data, buffer->len));
             }
 
             net_buf_reset(buffer);
@@ -448,11 +444,10 @@ namespace
 
 }    // namespace
 
-webusb::WebUsbHw::WebUsbHw(installer::Installer& installer)
-    : _installer(installer)
+webusb::WebUsbHw::WebUsbHw(direct_update_writer::DirectUpdateWriter& direct_update_writer)
+    : _dfu_stream(direct_update_writer)
 {
-    installer_instance = &_installer;
-    webusb_instance    = this;
+    webusb_instance = this;
 }
 
 void webusb::WebUsbHw::status(std::string_view message)
@@ -482,6 +477,14 @@ void webusb::WebUsbHw::status(std::string_view message)
     }
 
     status_work.reschedule(0);
+}
+
+void webusb::WebUsbHw::feed(std::span<const uint8_t> data)
+{
+    if (_dfu_stream.feed(data) == dfu_stream::StreamStatus::Invalid)
+    {
+        _dfu_stream.reset();
+    }
 }
 
 bool webusb::WebUsbHw::init()

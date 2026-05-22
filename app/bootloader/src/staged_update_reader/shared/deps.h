@@ -5,46 +5,16 @@
 
 #pragma once
 
+#include "common/src/dfu_stream/shared/deps.h"
+
+#include <cstddef>
 #include <cstdint>
 #include <span>
 
 namespace opendeck::staged_update_reader
 {
     /**
-     * @brief Result of feeding one byte into a staged-update consumer.
-     */
-    enum class StreamStatus : uint8_t
-    {
-        Complete,
-        Incomplete,
-        Invalid
-    };
-
-    /**
-     * @brief Destination that accepts dfu.bin bytes streamed by the staged-update reader.
-     */
-    class Consumer
-    {
-        public:
-        virtual ~Consumer() = default;
-
-        /**
-         * @brief Prepares the destination for a new staged update stream.
-         */
-        virtual void reset() = 0;
-
-        /**
-         * @brief Accepts one dfu.bin byte from staged storage.
-         *
-         * @param byte Next byte from staged storage.
-         *
-         * @return Consumer status after processing the byte.
-         */
-        virtual StreamStatus feed(uint8_t byte) = 0;
-    };
-
-    /**
-     * @brief Hardware abstraction used to access staged DFU storage.
+     * @brief Hardware abstraction used to access staged firmware payload storage.
      */
     class Hwa
     {
@@ -66,6 +36,13 @@ namespace opendeck::staged_update_reader
         virtual uint32_t size() const = 0;
 
         /**
+         * @brief Returns the native write-block size of staged DFU storage.
+         *
+         * @return Native write-block size in bytes.
+         */
+        virtual size_t write_block_size() const = 0;
+
+        /**
          * @brief Reads bytes from staged DFU storage.
          *
          * @param offset Byte offset within staged storage.
@@ -77,7 +54,9 @@ namespace opendeck::staged_update_reader
 
         /**
          * @brief Invalidates the staged-update marker.
+         *
+         * @return `true` when the marker was invalidated, otherwise `false`.
          */
-        virtual void clear_pending() = 0;
+        virtual bool clear_pending() = 0;
     };
 }    // namespace opendeck::staged_update_reader

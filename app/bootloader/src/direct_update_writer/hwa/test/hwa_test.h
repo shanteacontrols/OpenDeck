@@ -5,16 +5,16 @@
 
 #pragma once
 
-#include "bootloader/src/installer/shared/deps.h"
+#include "bootloader/src/direct_update_writer/shared/deps.h"
 
 #include <algorithm>
 #include <span>
 #include <vector>
 
-namespace opendeck::installer
+namespace opendeck::direct_update_writer
 {
     /**
-     * @brief Test installer backend backed by an in-memory flash sector image.
+     * @brief Test direct-update writer backend backed by an in-memory flash sector image.
      */
     class HwaTest : public Hwa
     {
@@ -27,6 +27,16 @@ namespace opendeck::installer
             , _sectors(sector_count)
             , _written_sectors(sector_count, false)
         {}
+
+        /**
+         * @brief Returns the writable emulated firmware slot size.
+         *
+         * @return Emulated slot size in bytes.
+         */
+        uint32_t size() override
+        {
+            return static_cast<uint32_t>(_sector_size * _sectors.size());
+        }
 
         /**
          * @brief Returns the size of the emulated flash sector.
@@ -134,4 +144,4 @@ namespace opendeck::installer
         std::vector<std::vector<uint8_t>> _sectors          = {};
         std::vector<bool>                 _written_sectors  = {};
     };
-}    // namespace opendeck::installer
+}    // namespace opendeck::direct_update_writer

@@ -6,13 +6,10 @@
 #pragma once
 
 #include "bootloader/src/staged_update_reader/shared/deps.h"
+#include "common/src/dfu_stream/shared/common.h"
 #include "common/src/flash_area/hwa/test/hwa_test.h"
-#include "common/src/staged_update/shared/common.h"
-
-#include <zephyr/sys/crc.h>
 
 #include <cstring>
-#include <optional>
 #include <span>
 
 namespace opendeck::staged_update_reader
@@ -33,19 +30,24 @@ namespace opendeck::staged_update_reader
             return _area.size();
         }
 
+        size_t write_block_size() const override
+        {
+            return _area.write_block_size();
+        }
+
         bool read(uint32_t offset, std::span<uint8_t> data) override
         {
             return _area.read(offset, data);
         }
 
-        void clear_pending() override
+        bool clear_pending() override
         {
             _clear_pending_calls++;
 
-            const uint32_t invalid_magic = 0U;
-            _area.write(
-                0,
-                std::span<const uint8_t>(reinterpret_cast<const uint8_t*>(&invalid_magic), sizeof(invalid_magic)));
+            const auto sector = _area.sector(0);
+
+            return sector.has_value() &&
+                   _area.erase(sector->offset, sector->size);
         }
 
         void reset_storage()
@@ -55,26 +57,21 @@ namespace opendeck::staged_update_reader
         }
 
         void stage(std::span<const uint8_t> payload,
-                   std::optional<uint32_t>  crc_override = std::nullopt,
-                   uint32_t                 magic        = staged_update::METADATA_MAGIC,
-                   uint32_t                 format       = staged_update::METADATA_FORMAT_VERSION,
-                   uint32_t                 target_uid   = OPENDECK_TARGET_UID)
+                   uint32_t                 start_magic    = dfu_stream::START_COMMAND,
+                   uint32_t                 format_version = dfu_stream::FORMAT_VERSION,
+                   uint32_t                 target_uid     = OPENDECK_TARGET_UID)
         {
-            staged_update::Metadata metadata = {
-                .magic          = magic,
-                .format_version = format,
-                .target_uid     = target_uid,
-                .size           = static_cast<uint32_t>(payload.size()),
-                .crc32          = crc_override.value_or(crc32_ieee(payload.data(), payload.size())),
-            };
+            dfu_stream::Header header = {};
+            write_word(header, 0, start_magic);
+            write_word(header, 1, format_version);
+            write_word(header, 2, target_uid);
+            write_word(header, 3, payload.size());
 
-            _area.write(
-                0,
-                std::span<const uint8_t>(reinterpret_cast<const uint8_t*>(&metadata), sizeof(metadata)));
-            _area.write(staged_update::METADATA_SIZE, payload);
+            _area.write(0, header);
+            _area.write(header_storage_size(), payload);
         }
 
-        uint32_t metadata_magic() const
+        uint32_t header_start_magic() const
         {
             uint32_t   magic   = 0;
             const auto storage = _area.storage();
@@ -103,6 +100,25 @@ namespace opendeck::staged_update_reader
         }
 
         private:
+        size_t header_storage_size() const
+        {
+            const size_t write_block_size = _area.write_block_size();
+
+            return ((dfu_stream::HEADER_SIZE + write_block_size - 1U) / write_block_size) * write_block_size;
+        }
+
+        static void write_word(dfu_stream::Header& header, size_t word_index, uint32_t value)
+        {
+            constexpr uint32_t BYTE_MASK      = 0xFF;
+            constexpr uint8_t  BITS_PER_OCTET = 8;
+            const size_t       offset         = word_index * sizeof(value);
+
+            for (size_t i = 0; i < sizeof(value); i++)
+            {
+                header[offset + i] = (value >> (i * BITS_PER_OCTET)) & BYTE_MASK;
+            }
+        }
+
         flash_area::HwaTest _area;
         size_t              _clear_pending_calls = 0;
     };

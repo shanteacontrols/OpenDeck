@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "bootloader/src/installer/shared/deps.h"
+#include "bootloader/src/direct_update_writer/shared/deps.h"
 #include "common/src/flash_area/hwa/hw/hwa_hw.h"
 #include "common/src/mcu/shared/deps.h"
 
@@ -20,16 +20,16 @@
 
 #define FIRMWARE_SLOT_NODE DT_NODELABEL(slot0_partition)
 
-namespace opendeck::installer
+namespace opendeck::direct_update_writer
 {
     /**
-     * @brief Hardware-backed installer backend that writes the firmware image to the primary slot.
+     * @brief Hardware-backed direct-update writer backend that writes the firmware image to the primary slot.
      */
     class HwaHw : public Hwa
     {
         public:
         /**
-         * @brief Constructs the hardware installer backend.
+         * @brief Constructs the hardware direct-update writer backend.
          *
          * @param mcu Shared MCU services.
          */
@@ -40,6 +40,16 @@ namespace opendeck::installer
                                reboot();
                            })
         {
+        }
+
+        /**
+         * @brief Returns the writable firmware slot size.
+         *
+         * @return Firmware slot size in bytes.
+         */
+        uint32_t size() override
+        {
+            return FIRMWARE_SLOT_SIZE;
         }
 
         /**
@@ -151,6 +161,11 @@ namespace opendeck::installer
         static constexpr size_t FLASH_WRITE_BLOCK_SIZE = DT_PROP(DT_MEM_FROM_PARTITION(FIRMWARE_SLOT_NODE), write_block_size);
 
         /**
+         * @brief Writable firmware slot size from the partition table.
+         */
+        static constexpr uint32_t FIRMWARE_SLOT_SIZE = DT_REG_SIZE(FIRMWARE_SLOT_NODE);
+
+        /**
          * @brief Native flash write granularity used for alignment checks.
          *
          * Firmware payloads are byte streams, so unlike EmuEEPROM there is no
@@ -234,4 +249,4 @@ namespace opendeck::installer
         zlibs::utils::misc::KworkDelayable                    _reboot_work;
         bool                                                  _initialized = false;
     };
-}    // namespace opendeck::installer
+}    // namespace opendeck::direct_update_writer

@@ -46,6 +46,7 @@ namespace opendeck::signaling
         InitComplete,
         UsbMidiReady,
         OscRefreshReq,
+        BootloaderRebootReq,
         MidiBpmChange,
         ConfigurationSessionOpened,
         ConfigurationSessionClosed,

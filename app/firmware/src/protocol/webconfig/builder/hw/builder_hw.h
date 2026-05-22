@@ -6,7 +6,6 @@
 #pragma once
 
 #include "firmware/src/protocol/webconfig/hwa/hw/hwa_hw.h"
-#include "firmware/src/mcu/builder/builder.h"
 #include "firmware/src/staged_update_writer/builder/builder.h"
 #include "firmware/src/protocol/webconfig/instance/impl/webconfig.h"
 
@@ -18,22 +17,8 @@ namespace opendeck::protocol::webconfig
     class Builder
     {
         public:
-        /**
-         * @brief Constructs WebConfig with a private MCU services backend.
-         */
         Builder()
-            : _hwa(_default_mcu_builder.instance())
-            , _instance(_hwa, _firmware_builder.instance())
-        {}
-
-        /**
-         * @brief Constructs WebConfig with shared MCU services.
-         *
-         * @param mcu MCU services shared by firmware subsystems.
-         */
-        explicit Builder(mcu::Hwa& mcu)
-            : _hwa(mcu)
-            , _instance(_hwa, _firmware_builder.instance())
+            : _instance(_hwa, _firmware_builder.instance())
         {}
 
         /**
@@ -47,7 +32,6 @@ namespace opendeck::protocol::webconfig
         }
 
         private:
-        mcu::Builder                  _default_mcu_builder;
         staged_update_writer::Builder _firmware_builder;
         HwaHw                         _hwa;
         WebConfig                     _instance;

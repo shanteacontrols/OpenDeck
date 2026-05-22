@@ -4,13 +4,13 @@
  */
 
 #include "tests/common.h"
+#include "common/src/dfu_stream/shared/common.h"
 #include "common/src/flash_area/hwa/test/hwa_test.h"
-#include "common/src/staged_update/shared/common.h"
 #include "firmware/src/staged_update_writer/hwa/test/hwa_test.h"
 #include "firmware/src/staged_update_writer/instance/impl/staged_update_writer.h"
 
-#include <zephyr/sys/crc.h>
-
+#include <algorithm>
+#include <array>
 #include <cstring>
 #include <vector>
 
@@ -26,12 +26,35 @@ namespace
         HwaTest            hwa;
         StagedUpdateWriter staged_update_writer = StagedUpdateWriter(hwa);
 
-        static opendeck::staged_update::Metadata read_metadata(const HwaTest& hwa)
+        static void write_word(opendeck::dfu_stream::Header& header, size_t word_index, uint32_t value)
         {
-            opendeck::staged_update::Metadata metadata = {};
-            const auto                        storage  = hwa.storage();
-            std::memcpy(&metadata, storage.data(), sizeof(metadata));
-            return metadata;
+            constexpr uint32_t BYTE_MASK      = 0xFF;
+            constexpr uint8_t  BITS_PER_OCTET = 8;
+            const size_t       offset         = word_index * sizeof(value);
+
+            for (size_t i = 0; i < sizeof(value); i++)
+            {
+                header[offset + i] = (value >> (i * BITS_PER_OCTET)) & BYTE_MASK;
+            }
+        }
+
+        static opendeck::dfu_stream::Header header(uint32_t payload_size)
+        {
+            opendeck::dfu_stream::Header header = {};
+
+            write_word(header, 0, opendeck::dfu_stream::START_COMMAND);
+            write_word(header, 1, opendeck::dfu_stream::FORMAT_VERSION);
+            write_word(header, 2, OPENDECK_TARGET_UID);
+            write_word(header, 3, payload_size);
+
+            return header;
+        }
+
+        static constexpr size_t header_storage_size()
+        {
+            return ((opendeck::dfu_stream::HEADER_SIZE + FlashAreaHwaTest::WRITE_BLOCK_SIZE - 1U) /
+                    FlashAreaHwaTest::WRITE_BLOCK_SIZE) *
+                   FlashAreaHwaTest::WRITE_BLOCK_SIZE;
         }
 
         static std::vector<uint8_t> payload()
@@ -53,93 +76,112 @@ namespace
 
 TEST_F(StagedUpdateWriterTest, RejectsInvalidUploadSize)
 {
-    EXPECT_FALSE(staged_update_writer.begin(0));
-    EXPECT_FALSE(staged_update_writer.begin(staged_update_writer.capacity() + 1));
+    EXPECT_FALSE(staged_update_writer.begin(header(0), 0));
+    EXPECT_FALSE(staged_update_writer.begin(header(hwa.size()), hwa.size()));
 }
 
-TEST_F(StagedUpdateWriterTest, WritesPayloadAndCommitsMetadata)
+TEST_F(StagedUpdateWriterTest, WritesHeaderAndPayload)
 {
     const auto data = payload();
 
-    ASSERT_TRUE(staged_update_writer.begin(data.size()));
+    const auto dfu_header = header(data.size());
+
+    ASSERT_TRUE(staged_update_writer.begin(dfu_header, data.size()));
     ASSERT_TRUE(staged_update_writer.write(std::span<const uint8_t>(data.data(), 4)));
     ASSERT_TRUE(staged_update_writer.write(std::span<const uint8_t>(data.data() + 4, data.size() - 4)));
     ASSERT_TRUE(staged_update_writer.finish());
 
-    const auto metadata = read_metadata(hwa);
-    EXPECT_EQ(metadata.magic, opendeck::staged_update::METADATA_MAGIC);
-    EXPECT_EQ(metadata.format_version, opendeck::staged_update::METADATA_FORMAT_VERSION);
-    EXPECT_EQ(metadata.target_uid, OPENDECK_TARGET_UID);
-    EXPECT_EQ(metadata.size, data.size());
-    EXPECT_EQ(metadata.crc32, crc32_ieee(data.data(), data.size()));
-    EXPECT_EQ(staged_update_writer.bytes_written(), data.size());
-
     const auto storage = hwa.storage();
+    EXPECT_TRUE(std::equal(dfu_header.begin(), dfu_header.end(), storage.begin()));
 
     for (size_t i = 0; i < data.size(); i++)
     {
-        EXPECT_EQ(storage[opendeck::staged_update::METADATA_SIZE + i], data[i]);
+        EXPECT_EQ(storage[header_storage_size() + i], data[i]);
     }
 
     for (size_t i = data.size(); i < FlashAreaHwaTest::WRITE_BLOCK_SIZE; i++)
     {
-        EXPECT_EQ(storage[opendeck::staged_update::METADATA_SIZE + i], FlashAreaHwaTest::ERASED_BYTE);
+        EXPECT_EQ(storage[header_storage_size() + i], FlashAreaHwaTest::ERASED_BYTE);
     }
 }
 
-TEST_F(StagedUpdateWriterTest, RejectsWritePastExpectedSize)
+TEST_F(StagedUpdateWriterTest, WritesHeaderOnlyAfterPayloadFinish)
 {
-    const auto data = payload();
+    const auto data       = payload();
+    const auto dfu_header = header(data.size());
 
-    ASSERT_TRUE(staged_update_writer.begin(2));
-    EXPECT_FALSE(staged_update_writer.write(std::span<const uint8_t>(data.data(), 3)));
-    EXPECT_EQ(staged_update_writer.bytes_written(), 0);
+    ASSERT_TRUE(staged_update_writer.begin(dfu_header, data.size()));
 
-    const auto metadata = read_metadata(hwa);
-    EXPECT_NE(metadata.magic, opendeck::staged_update::METADATA_MAGIC);
+    const auto storage_before_finish = hwa.storage();
+    EXPECT_FALSE(std::equal(dfu_header.begin(), dfu_header.end(), storage_before_finish.begin()));
+
+    ASSERT_TRUE(staged_update_writer.write(data));
+
+    const auto storage_after_write = hwa.storage();
+    EXPECT_FALSE(std::equal(dfu_header.begin(), dfu_header.end(), storage_after_write.begin()));
+
+    ASSERT_TRUE(staged_update_writer.finish());
+
+    const auto storage_after_finish = hwa.storage();
+    EXPECT_TRUE(std::equal(dfu_header.begin(), dfu_header.end(), storage_after_finish.begin()));
 }
 
-TEST_F(StagedUpdateWriterTest, RejectsIncompleteUpload)
+TEST_F(StagedUpdateWriterTest, BeginOnlyInvalidatesHeaderSector)
 {
-    const auto data = payload();
+    const auto data       = payload();
+    const auto dfu_header = header(data.size());
 
-    ASSERT_TRUE(staged_update_writer.begin(data.size()));
-    ASSERT_TRUE(staged_update_writer.write(std::span<const uint8_t>(data.data(), data.size() - 1)));
-    EXPECT_FALSE(staged_update_writer.finish());
-    EXPECT_EQ(staged_update_writer.bytes_written(), 0);
+    ASSERT_TRUE(staged_update_writer.begin(dfu_header, data.size()));
 
-    const auto metadata = read_metadata(hwa);
-    EXPECT_NE(metadata.magic, opendeck::staged_update::METADATA_MAGIC);
+    ASSERT_EQ(hwa.erase_calls().size(), 1U);
+    EXPECT_EQ(hwa.erase_calls().front().offset, 0);
+    EXPECT_EQ(hwa.erase_calls().front().size, FlashAreaHwaTest::SECTOR_SIZE);
 }
 
-TEST_F(StagedUpdateWriterTest, AbortClearsMetadataSector)
+TEST_F(StagedUpdateWriterTest, ErasesPayloadSectorsAsNeeded)
 {
-    const auto data = payload();
+    const std::vector<uint8_t> data(FlashAreaHwaTest::SECTOR_SIZE, 0x42);
+    const auto                 dfu_header = header(data.size());
 
-    ASSERT_TRUE(staged_update_writer.begin(data.size()));
+    ASSERT_TRUE(staged_update_writer.begin(dfu_header, data.size()));
+    ASSERT_TRUE(staged_update_writer.write(data));
+    ASSERT_TRUE(staged_update_writer.finish());
+
+    ASSERT_EQ(hwa.erase_calls().size(), 2U);
+    EXPECT_EQ(hwa.erase_calls()[0].offset, 0);
+    EXPECT_EQ(hwa.erase_calls()[0].size, FlashAreaHwaTest::SECTOR_SIZE);
+    EXPECT_EQ(hwa.erase_calls()[1].offset, FlashAreaHwaTest::SECTOR_SIZE);
+    EXPECT_EQ(hwa.erase_calls()[1].size, FlashAreaHwaTest::SECTOR_SIZE);
+}
+
+TEST_F(StagedUpdateWriterTest, AbortClearsHeaderSector)
+{
+    const auto data       = payload();
+    const auto dfu_header = header(data.size());
+
+    ASSERT_TRUE(staged_update_writer.begin(dfu_header, data.size()));
     ASSERT_TRUE(staged_update_writer.write(data));
     staged_update_writer.abort();
 
     ASSERT_FALSE(hwa.erase_calls().empty());
     EXPECT_EQ(hwa.erase_calls().back().offset, 0);
     EXPECT_EQ(hwa.erase_calls().back().size, FlashAreaHwaTest::SECTOR_SIZE);
-    EXPECT_EQ(staged_update_writer.bytes_written(), 0);
 }
 
 TEST_F(StagedUpdateWriterTest, RejectsUnsupportedWriteBlockSize)
 {
     hwa.set_write_block_size(0);
 
-    EXPECT_FALSE(staged_update_writer.begin(1));
+    EXPECT_FALSE(staged_update_writer.begin(header(1), 1));
 }
 
 TEST_F(StagedUpdateWriterTest, AbortsWhenFlashWriteFails)
 {
-    const auto data = payload();
+    const auto data       = payload();
+    const auto dfu_header = header(data.size());
 
-    ASSERT_TRUE(staged_update_writer.begin(data.size()));
+    ASSERT_TRUE(staged_update_writer.begin(dfu_header, data.size()));
     hwa.set_write_result(false);
 
     EXPECT_FALSE(staged_update_writer.write(std::span<const uint8_t>(data.data(), FlashAreaHwaTest::WRITE_BLOCK_SIZE)));
-    EXPECT_EQ(staged_update_writer.bytes_written(), 0);
 }

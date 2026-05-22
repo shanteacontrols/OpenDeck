@@ -4,8 +4,11 @@
  */
 
 #include "tests/common.h"
+#include "tests/helpers/misc.h"
+#include "common/src/dfu_stream/shared/common.h"
 #include "firmware/src/protocol/osc/packet/packet.h"
 #include "firmware/src/protocol/osc/shared/paths.h"
+#include "firmware/src/protocol/webconfig/shared/firmware_upload.h"
 #include "firmware/src/protocol/webconfig/hwa/test/hwa_test.h"
 #include "firmware/src/protocol/webconfig/instance/impl/webconfig.h"
 #include "firmware/src/signaling/signaling.h"
@@ -77,6 +80,74 @@ namespace
         std::vector<std::vector<uint8_t>>       _frames      = {};
     };
 
+    class SystemEventCollector
+    {
+        public:
+        SystemEventCollector()
+        {
+            signaling::subscribe<signaling::SystemSignal>(
+                [this](const signaling::SystemSignal& signal)
+                {
+                    const zlibs::utils::misc::LockGuard lock(_mutex);
+                    _events.push_back(signal.system_event);
+                });
+        }
+
+        size_t count() const
+        {
+            const zlibs::utils::misc::LockGuard lock(_mutex);
+            return _events.size();
+        }
+
+        signaling::SystemEvent event(size_t index) const
+        {
+            const zlibs::utils::misc::LockGuard lock(_mutex);
+            return _events.at(index);
+        }
+
+        private:
+        mutable zlibs::utils::misc::Mutex   _mutex;
+        std::vector<signaling::SystemEvent> _events = {};
+    };
+
+    class ConfigDisconnectCollector
+    {
+        public:
+        ConfigDisconnectCollector()
+        {
+            signaling::subscribe<signaling::ConfigDisconnectSignal>(
+                [this](const signaling::ConfigDisconnectSignal& signal)
+                {
+                    const zlibs::utils::misc::LockGuard lock(_mutex);
+                    _transports.push_back(signal.transport);
+                    _session_ids.push_back(signal.session_id);
+                });
+        }
+
+        size_t count() const
+        {
+            const zlibs::utils::misc::LockGuard lock(_mutex);
+            return _session_ids.size();
+        }
+
+        signaling::ConfigTransport transport(size_t index) const
+        {
+            const zlibs::utils::misc::LockGuard lock(_mutex);
+            return _transports.at(index);
+        }
+
+        uint32_t session_id(size_t index) const
+        {
+            const zlibs::utils::misc::LockGuard lock(_mutex);
+            return _session_ids.at(index);
+        }
+
+        private:
+        mutable zlibs::utils::misc::Mutex       _mutex;
+        std::vector<signaling::ConfigTransport> _transports  = {};
+        std::vector<uint32_t>                   _session_ids = {};
+    };
+
     class WebConfigProtocolTest : public ::testing::Test
     {
         protected:
@@ -88,32 +159,78 @@ namespace
 
         bool wait_for_sent_frames(size_t count) const
         {
-            for (size_t i = 0; i < 200; i++)
-            {
-                if (hwa.sent_frame_count() >= count)
-                {
-                    return true;
-                }
-
-                k_msleep(1);
-            }
-
-            return false;
+            return tests::wait_until([this, count]
+                                     {
+                                         return hwa.sent_frame_count() >= count;
+                                     },
+                                     200,
+                                     1);
         }
 
         bool wait_for_config_requests(const ConfigRequestCollector& collector, size_t count) const
         {
-            for (size_t i = 0; i < 200; i++)
+            return tests::wait_until([&collector, count]
+                                     {
+                                         return collector.count() >= count;
+                                     },
+                                     200,
+                                     1);
+        }
+
+        bool wait_for_system_events(const SystemEventCollector& collector, size_t count) const
+        {
+            return tests::wait_until([&collector, count]
+                                     {
+                                         return collector.count() >= count;
+                                     },
+                                     200,
+                                     1);
+        }
+
+        bool wait_for_config_disconnects(const ConfigDisconnectCollector& collector, size_t count) const
+        {
+            return tests::wait_until([&collector, count]
+                                     {
+                                         return collector.count() >= count;
+                                     },
+                                     200,
+                                     1);
+        }
+
+        static void append_u32(std::vector<uint8_t>& data, uint32_t value)
+        {
+            constexpr uint32_t BYTE_MASK      = 0xFF;
+            constexpr uint8_t  BITS_PER_OCTET = 8;
+
+            for (size_t i = 0; i < sizeof(value); i++)
             {
-                if (collector.count() >= count)
-                {
-                    return true;
-                }
-
-                k_msleep(1);
+                data.push_back((value >> (i * BITS_PER_OCTET)) & BYTE_MASK);
             }
+        }
 
-            return false;
+        static std::vector<uint8_t> make_dfu_stream(std::span<const uint8_t> payload)
+        {
+            std::vector<uint8_t> stream = {};
+
+            append_u32(stream, dfu_stream::START_COMMAND);
+            append_u32(stream, dfu_stream::FORMAT_VERSION);
+            append_u32(stream, OPENDECK_TARGET_UID);
+            append_u32(stream, payload.size());
+            stream.insert(stream.end(), payload.begin(), payload.end());
+            append_u32(stream, dfu_stream::END_COMMAND);
+
+            return stream;
+        }
+
+        static std::vector<uint8_t> firmware_command_frame(webconfig::FirmwareUploadCommand command,
+                                                           std::span<const uint8_t>         payload = {})
+        {
+            std::vector<uint8_t> frame = {
+                static_cast<uint8_t>(command),
+            };
+
+            frame.insert(frame.end(), payload.begin(), payload.end());
+            return frame;
         }
 
         static std::vector<midi_ump> make_sysex_response_packets(std::span<const uint8_t> payload)
@@ -272,6 +389,48 @@ TEST_F(WebConfigProtocolTest, SendsConfigResponsesAsSysExBytes)
 
     EXPECT_EQ(sent.front().socket, CLIENT_SOCKET);
     EXPECT_EQ(sent.front().data, expected);
+}
+
+TEST_F(WebConfigProtocolTest, FirmwareUploadRequestsBootloaderRebootThroughSystem)
+{
+    SystemEventCollector collector;
+
+    constexpr std::array<uint8_t, 4> payload = {
+        0xF0U,
+        0x00U,
+        0x53U,
+        0xF7U,
+    };
+
+    const auto dfu = make_dfu_stream(payload);
+
+    ASSERT_TRUE(webconfig.init());
+    ASSERT_EQ(webconfig.accept_client(CLIENT_SOCKET), 0);
+
+    hwa.push_frame(firmware_command_frame(webconfig::FirmwareUploadCommand::Begin));
+    hwa.push_frame(firmware_command_frame(webconfig::FirmwareUploadCommand::Chunk, dfu));
+    hwa.push_frame(firmware_command_frame(webconfig::FirmwareUploadCommand::Finish));
+
+    ASSERT_TRUE(wait_for_sent_frames(3));
+    ASSERT_TRUE(wait_for_system_events(collector, 1));
+
+    EXPECT_EQ(collector.event(0), signaling::SystemEvent::BootloaderRebootReq);
+}
+
+TEST_F(WebConfigProtocolTest, FirmwareUploadBeginClosesActiveConfigSession)
+{
+    ConfigDisconnectCollector collector;
+
+    ASSERT_TRUE(webconfig.init());
+    ASSERT_EQ(webconfig.accept_client(CLIENT_SOCKET), 0);
+
+    hwa.push_frame(firmware_command_frame(webconfig::FirmwareUploadCommand::Begin));
+
+    ASSERT_TRUE(wait_for_sent_frames(1));
+    ASSERT_TRUE(wait_for_config_disconnects(collector, 1));
+
+    EXPECT_EQ(collector.transport(0), signaling::ConfigTransport::WebConfig);
+    EXPECT_EQ(collector.session_id(0), ACTIVE_CLIENT_SESSION);
 }
 
 TEST_F(WebConfigProtocolTest, DropsConfigResponsesFromStaleClientSession)

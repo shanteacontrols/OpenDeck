@@ -64,6 +64,22 @@ namespace opendeck::mdns
         std::string_view ip_address(std::span<char> buffer);
 
         /**
+         * @brief Builds the current mDNS network identity.
+         *
+         * @param ip_address_buffer Storage used for the IPv4 address text.
+         *
+         * @return Current `.local` name and IPv4 address, when available.
+         */
+        NetworkIdentity network_identity(std::span<char> ip_address_buffer);
+
+        /**
+         * @brief Logs an mDNS network identity in the common OpenDeck format.
+         *
+         * @param identity Network name and optional IPv4 address.
+         */
+        static void log_network_identity(const NetworkIdentity& identity);
+
+        /**
          * @brief Registers the callback called when the local IPv4 address changes.
          *
          * @param callback Callback to store. Passing an empty callback disables notifications.

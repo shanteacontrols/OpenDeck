@@ -4,10 +4,9 @@
  */
 
 #include "bootloader/src/staged_update_reader/instance/impl/staged_update_reader.h"
-#include "common/src/staged_update/shared/common.h"
+#include "common/src/dfu_stream/instance/impl/dfu_stream.h"
 
 #include <zephyr/logging/log.h>
-#include <zephyr/sys/crc.h>
 
 #include <algorithm>
 #include <array>
@@ -15,54 +14,40 @@
 
 namespace
 {
-    LOG_MODULE_REGISTER(staged_update_reader, LOG_LEVEL_INF);    // NOLINT
+    LOG_MODULE_REGISTER(staged_update_reader, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
 
-    static constexpr uint32_t STAGED_DFU_DATA_OFFSET = opendeck::staged_update::METADATA_SIZE;
-    static constexpr size_t   BUFFER_SIZE            = 256U;
-
-    /**
-     * @brief Reads the staged-update metadata block from the start of the partition.
-     */
-    bool read_metadata(opendeck::staged_update_reader::Hwa& hwa, opendeck::staged_update::Metadata& metadata)
-    {
-        return hwa.read(0, std::span<uint8_t>(reinterpret_cast<uint8_t*>(&metadata), sizeof(metadata)));
-    }
+    static constexpr size_t BUFFER_SIZE = 256U;
 
     /**
-     * @brief Checks whether the metadata describes a readable staged payload.
+     * @brief Returns the flash-aligned space reserved for the DFU header.
      */
-    bool metadata_valid(const opendeck::staged_update::Metadata& metadata, const uint32_t storage_size)
+    uint32_t header_storage_size(const size_t write_block_size)
     {
-        return (metadata.magic == opendeck::staged_update::METADATA_MAGIC) &&
-               (metadata.format_version == opendeck::staged_update::METADATA_FORMAT_VERSION) &&
-               (metadata.size > 0U) &&
-               (storage_size >= STAGED_DFU_DATA_OFFSET) &&
-               (metadata.size <= (storage_size - STAGED_DFU_DATA_OFFSET));
-    }
-
-    /**
-     * @brief Verifies that the staged dfu.bin payload matches the stored CRC.
-     */
-    bool crc_valid(opendeck::staged_update_reader::Hwa& hwa, const opendeck::staged_update::Metadata& metadata)
-    {
-        std::array<uint8_t, BUFFER_SIZE> buffer = {};
-        uint32_t                         crc    = 0;
-        uint32_t                         offset = 0;
-
-        while (offset < metadata.size)
+        if (write_block_size == 0U)
         {
-            const uint32_t chunk_size = std::min<uint32_t>(buffer.size(), metadata.size - offset);
-
-            if (!hwa.read(STAGED_DFU_DATA_OFFSET + offset, std::span<uint8_t>(buffer.data(), chunk_size)))
-            {
-                return false;
-            }
-
-            crc = crc32_ieee_update(crc, buffer.data(), chunk_size);
-            offset += chunk_size;
+            return 0;
         }
 
-        return crc == metadata.crc32;
+        return static_cast<uint32_t>(((opendeck::dfu_stream::HEADER_SIZE + write_block_size - 1U) / write_block_size) *
+                                     write_block_size);
+    }
+
+    /**
+     * @brief Reads the staged DFU header from the start of the partition.
+     */
+    bool read_header(opendeck::staged_update_reader::Hwa& hwa, opendeck::dfu_stream::Header& header)
+    {
+        return hwa.read(0, header);
+    }
+
+    /**
+     * @brief Checks whether the header describes a readable staged payload.
+     */
+    bool staged_payload_fits(const opendeck::dfu_stream::Header& header, const uint32_t storage_size)
+    {
+        const uint32_t payload_size = opendeck::dfu_stream::DfuStream::payload_size(header);
+
+        return payload_size <= storage_size;
     }
 
 }    // namespace
@@ -71,68 +56,117 @@ opendeck::staged_update_reader::StagedUpdateReader::StagedUpdateReader(Hwa& hwa)
     : _hwa(hwa)
 {}
 
-bool opendeck::staged_update_reader::StagedUpdateReader::consume(Consumer& consumer)
+bool opendeck::staged_update_reader::StagedUpdateReader::consume(dfu_stream::Sink& consumer)
 {
-    opendeck::staged_update::Metadata metadata;
+    dfu_stream::Header header = {};
 
-    if (!_hwa.init() || !read_metadata(_hwa, metadata) || !metadata_valid(metadata, _hwa.size()))
+    if (!_hwa.init())
     {
+        LOG_ERR("Failed to initialize staged DFU storage");
         return false;
     }
 
-    if (!crc_valid(_hwa, metadata))
+    const uint32_t header_size = header_storage_size(_hwa.write_block_size());
+
+    if (!read_header(_hwa, header))
     {
-        LOG_ERR("Staged DFU CRC mismatch");
-        clear_pending();
+        LOG_ERR("Failed to read staged DFU header");
         return false;
     }
 
-    LOG_INF("Applying staged DFU update (%u bytes)", metadata.size);
+    if (!dfu_stream::DfuStream::header_valid(header))
+    {
+        LOG_DBG("No valid staged DFU header");
+        return false;
+    }
 
-    consumer.reset();
+    if ((header_size == 0U) || (_hwa.size() < header_size))
+    {
+        LOG_ERR("Invalid staged DFU storage geometry");
+        return false;
+    }
+
+    if (!staged_payload_fits(header, _hwa.size() - header_size))
+    {
+        LOG_ERR("Staged firmware payload does not fit");
+        return false;
+    }
+
+    const uint32_t payload_size = dfu_stream::DfuStream::payload_size(header);
+
+    LOG_INF("Applying staged firmware payload (%u bytes)", payload_size);
+
+    if (!consumer.begin(header, payload_size))
+    {
+        LOG_ERR("Staged firmware payload rejected");
+
+        if (!clear_pending())
+        {
+            LOG_ERR("Failed to clear staged firmware marker");
+        }
+
+        return false;
+    }
 
     std::array<uint8_t, BUFFER_SIZE> buffer = {};
     uint32_t                         offset = 0;
-    auto                             status = StreamStatus::Incomplete;
 
-    while (offset < metadata.size)
+    while (offset < payload_size)
     {
-        const uint32_t chunk_size = std::min<uint32_t>(buffer.size(), metadata.size - offset);
+        const uint32_t chunk_size = std::min<uint32_t>(buffer.size(), payload_size - offset);
 
-        if (!_hwa.read(STAGED_DFU_DATA_OFFSET + offset, std::span<uint8_t>(buffer.data(), chunk_size)))
+        if (!_hwa.read(header_size + offset, std::span<uint8_t>(buffer.data(), chunk_size)))
         {
             LOG_ERR("Failed to read staged DFU data");
-            clear_pending();
+
+            if (!clear_pending())
+            {
+                LOG_ERR("Failed to clear staged firmware marker");
+            }
+
             return true;
         }
 
-        for (size_t i = 0; i < chunk_size; i++)
+        if (!consumer.write(std::span<uint8_t>(buffer.data(), chunk_size)))
         {
-            status = consumer.feed(buffer[i]);
+            LOG_ERR("Staged firmware payload rejected");
+            consumer.abort();
 
-            if (status == StreamStatus::Invalid)
+            if (!clear_pending())
             {
-                LOG_ERR("Staged DFU stream rejected");
-                clear_pending();
-                return false;
+                LOG_ERR("Failed to clear staged firmware marker");
             }
+
+            return false;
         }
 
         offset += chunk_size;
     }
 
-    if (status != StreamStatus::Complete)
+    if (!consumer.finish())
     {
-        LOG_ERR("Staged DFU stream rejected");
-        clear_pending();
+        LOG_ERR("Staged firmware payload rejected");
+        consumer.abort();
+
+        if (!clear_pending())
+        {
+            LOG_ERR("Failed to clear staged firmware marker");
+        }
+
         return false;
     }
 
-    clear_pending();
+    if (!clear_pending())
+    {
+        LOG_ERR("Failed to clear staged firmware marker");
+        return false;
+    }
+
+    LOG_INF("Staged firmware update applied");
     return true;
 }
 
-void opendeck::staged_update_reader::StagedUpdateReader::clear_pending()
+bool opendeck::staged_update_reader::StagedUpdateReader::clear_pending()
 {
-    _hwa.clear_pending();
+    return _hwa.clear_pending();
 }

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "bootloader/src/installer/instance/impl/installer.h"
+#include "bootloader/src/direct_update_writer/instance/impl/direct_update_writer.h"
 #include "bootloader/src/webusb/hwa/hw/webusb_hw.h"
 #include "bootloader/src/webusb/instance/impl/webusb.h"
 
@@ -20,10 +20,10 @@ namespace opendeck::webusb
         /**
          * @brief Constructs the hardware WebUSB builder.
          *
-         * @param installer Installer that receives incoming DFU bytes.
+         * @param direct_update_writer Direct-update writer that receives incoming DFU bytes.
          */
-        explicit Builder(installer::Installer& installer)
-            : _hwa(installer)
+        explicit Builder(direct_update_writer::DirectUpdateWriter& direct_update_writer)
+            : _hwa(direct_update_writer)
             , _instance(_hwa)
         {}
 

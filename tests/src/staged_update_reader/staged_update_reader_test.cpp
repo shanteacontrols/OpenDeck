@@ -14,36 +14,49 @@ using namespace opendeck;
 
 namespace
 {
-    class ConsumerTest : public staged_update_reader::Consumer
+    class SinkTest : public dfu_stream::Sink
     {
         public:
-        void reset() override
+        bool begin(const dfu_stream::Header& header, uint32_t size) override
         {
-            reset_count++;
+            begin_count++;
+            accepted_header = header;
+            expected_size   = size;
             received.clear();
+            return begin_result;
         }
 
-        staged_update_reader::StreamStatus feed(uint8_t byte) override
+        bool write(std::span<const uint8_t> data) override
         {
-            received.push_back(byte);
-
-            if ((invalid_after != 0) && (received.size() >= invalid_after))
+            if (!write_result)
             {
-                return staged_update_reader::StreamStatus::Invalid;
+                return false;
             }
 
-            if ((complete_after != 0) && (received.size() >= complete_after))
-            {
-                return staged_update_reader::StreamStatus::Complete;
-            }
-
-            return staged_update_reader::StreamStatus::Incomplete;
+            received.insert(received.end(), data.begin(), data.end());
+            return true;
         }
 
-        size_t               reset_count    = 0;
-        size_t               complete_after = 0;
-        size_t               invalid_after  = 0;
-        std::vector<uint8_t> received       = {};
+        bool finish() override
+        {
+            finish_count++;
+            return finish_result;
+        }
+
+        void abort() override
+        {
+            abort_count++;
+        }
+
+        bool                 begin_result    = true;
+        bool                 write_result    = true;
+        bool                 finish_result   = true;
+        size_t               begin_count     = 0;
+        size_t               finish_count    = 0;
+        size_t               abort_count     = 0;
+        uint32_t             expected_size   = 0;
+        dfu_stream::Header   accepted_header = {};
+        std::vector<uint8_t> received        = {};
     };
 
     class StagedUpdateReaderTest : public ::testing::Test
@@ -66,16 +79,16 @@ namespace
 
         staged_update_reader::HwaTest            hwa;
         staged_update_reader::StagedUpdateReader reader = staged_update_reader::StagedUpdateReader(hwa);
-        ConsumerTest                             consumer;
+        SinkTest                                 sink;
     };
 }    // namespace
 
 TEST_F(StagedUpdateReaderTest, IgnoresMissingPendingUpdate)
 {
-    EXPECT_FALSE(reader.consume(consumer));
+    EXPECT_FALSE(reader.consume(sink));
     EXPECT_TRUE(hwa.init_called());
-    EXPECT_EQ(consumer.reset_count, 0);
-    EXPECT_TRUE(consumer.received.empty());
+    EXPECT_EQ(sink.begin_count, 0);
+    EXPECT_TRUE(sink.received.empty());
     EXPECT_EQ(hwa.clear_pending_calls(), 0);
 }
 
@@ -83,10 +96,10 @@ TEST_F(StagedUpdateReaderTest, IgnoresUnavailableStorage)
 {
     hwa.set_init_result(false);
 
-    EXPECT_FALSE(reader.consume(consumer));
+    EXPECT_FALSE(reader.consume(sink));
     EXPECT_TRUE(hwa.init_called());
-    EXPECT_EQ(consumer.reset_count, 0);
-    EXPECT_TRUE(consumer.received.empty());
+    EXPECT_EQ(sink.begin_count, 0);
+    EXPECT_TRUE(sink.received.empty());
     EXPECT_EQ(hwa.clear_pending_calls(), 0);
 }
 
@@ -95,84 +108,68 @@ TEST_F(StagedUpdateReaderTest, StreamsValidPendingUpdateAndClearsMarker)
     const auto data = payload();
 
     hwa.stage(data);
-    consumer.complete_after = data.size();
 
-    EXPECT_TRUE(reader.consume(consumer));
-    EXPECT_EQ(consumer.reset_count, 1);
-    EXPECT_EQ(consumer.received, data);
-    EXPECT_EQ(hwa.update_start_calls(), 1);
+    EXPECT_TRUE(reader.consume(sink));
+    EXPECT_EQ(sink.begin_count, 1);
+    EXPECT_EQ(sink.finish_count, 1);
+    EXPECT_EQ(sink.expected_size, data.size());
+    EXPECT_EQ(sink.received, data);
     EXPECT_EQ(hwa.clear_pending_calls(), 1);
-    EXPECT_EQ(hwa.metadata_magic(), 0);
+    EXPECT_NE(hwa.header_start_magic(), dfu_stream::START_COMMAND);
 }
 
-TEST_F(StagedUpdateReaderTest, RejectsCrcMismatchAndClearsMarker)
-{
-    const auto data = payload();
-
-    hwa.stage(data, 0x12345678U);
-
-    EXPECT_FALSE(reader.consume(consumer));
-    EXPECT_EQ(consumer.reset_count, 0);
-    EXPECT_TRUE(consumer.received.empty());
-    EXPECT_EQ(hwa.update_start_calls(), 0);
-    EXPECT_EQ(hwa.clear_pending_calls(), 1);
-    EXPECT_EQ(hwa.metadata_magic(), 0);
-}
-
-TEST_F(StagedUpdateReaderTest, RejectsInvalidConsumerStatusAndClearsMarker)
+TEST_F(StagedUpdateReaderTest, RejectsSinkWriteFailureAndClearsMarker)
 {
     const auto data = payload();
 
     hwa.stage(data);
-    consumer.invalid_after = 3;
+    sink.write_result = false;
 
-    EXPECT_FALSE(reader.consume(consumer));
-    EXPECT_EQ(consumer.reset_count, 1);
-    EXPECT_EQ(consumer.received.size(), 3);
+    EXPECT_FALSE(reader.consume(sink));
+    EXPECT_EQ(sink.begin_count, 1);
+    EXPECT_EQ(sink.abort_count, 1);
+    EXPECT_TRUE(sink.received.empty());
     EXPECT_EQ(hwa.clear_pending_calls(), 1);
-    EXPECT_EQ(hwa.metadata_magic(), 0);
+    EXPECT_NE(hwa.header_start_magic(), dfu_stream::START_COMMAND);
 }
 
-TEST_F(StagedUpdateReaderTest, RejectsIncompleteConsumerAndClearsMarker)
+TEST_F(StagedUpdateReaderTest, RejectsSinkFinishFailureAndClearsMarker)
 {
     const auto data = payload();
 
     hwa.stage(data);
+    sink.finish_result = false;
 
-    EXPECT_FALSE(reader.consume(consumer));
-    EXPECT_EQ(consumer.reset_count, 1);
-    EXPECT_EQ(consumer.received, data);
+    EXPECT_FALSE(reader.consume(sink));
+    EXPECT_EQ(sink.begin_count, 1);
+    EXPECT_EQ(sink.finish_count, 1);
+    EXPECT_EQ(sink.abort_count, 1);
+    EXPECT_EQ(sink.received, data);
     EXPECT_EQ(hwa.clear_pending_calls(), 1);
-    EXPECT_EQ(hwa.metadata_magic(), 0);
+    EXPECT_NE(hwa.header_start_magic(), dfu_stream::START_COMMAND);
 }
 
-TEST_F(StagedUpdateReaderTest, RejectsInvalidMetadataWithoutClearingAgain)
+TEST_F(StagedUpdateReaderTest, RejectsInvalidHeaderWithoutClearingAgain)
 {
     const auto data = payload();
 
-    hwa.stage(data, std::nullopt, 0U);
+    hwa.stage(data, 0U);
 
-    EXPECT_FALSE(reader.consume(consumer));
-    EXPECT_EQ(consumer.reset_count, 0);
-    EXPECT_TRUE(consumer.received.empty());
+    EXPECT_FALSE(reader.consume(sink));
+    EXPECT_EQ(sink.begin_count, 0);
+    EXPECT_TRUE(sink.received.empty());
     EXPECT_EQ(hwa.clear_pending_calls(), 0);
-    EXPECT_EQ(hwa.metadata_magic(), 0);
+    EXPECT_EQ(hwa.header_start_magic(), 0);
 }
 
-TEST_F(StagedUpdateReaderTest, IgnoresMetadataTargetUid)
+TEST_F(StagedUpdateReaderTest, RejectsWrongTargetUid)
 {
     const auto data = payload();
 
-    hwa.stage(
-        data,
-        std::nullopt,
-        staged_update::METADATA_MAGIC,
-        staged_update::METADATA_FORMAT_VERSION,
-        OPENDECK_TARGET_UID ^ 0x01U);
-    consumer.complete_after = data.size();
+    hwa.stage(data, dfu_stream::START_COMMAND, dfu_stream::FORMAT_VERSION, OPENDECK_TARGET_UID ^ 0x01U);
 
-    EXPECT_TRUE(reader.consume(consumer));
-    EXPECT_EQ(consumer.reset_count, 1);
-    EXPECT_EQ(consumer.received, data);
-    EXPECT_EQ(hwa.clear_pending_calls(), 1);
+    EXPECT_FALSE(reader.consume(sink));
+    EXPECT_EQ(sink.begin_count, 0);
+    EXPECT_TRUE(sink.received.empty());
+    EXPECT_EQ(hwa.clear_pending_calls(), 0);
 }

@@ -33,18 +33,6 @@ namespace opendeck::staged_update_writer
                 return false;
             }
 
-            flash_area::Hwa::Sector first_sector = {};
-
-            if (!_flash_area.first_sector(first_sector))
-            {
-                return false;
-            }
-
-            _first_sector = Sector{
-                .offset = first_sector.offset,
-                .size   = first_sector.size,
-            };
-
             _initialized = true;
             return true;
         }
@@ -61,12 +49,22 @@ namespace opendeck::staged_update_writer
 
         std::optional<Sector> sector(size_t index) const override
         {
-            if (index != 0U)
+            if (!_initialized)
             {
                 return std::nullopt;
             }
 
-            return _first_sector;
+            const auto sector = _flash_area.sector(index);
+
+            if (!sector)
+            {
+                return std::nullopt;
+            }
+
+            return Sector{
+                .offset = sector->offset,
+                .size   = sector->size,
+            };
         }
 
         bool erase(uint32_t offset, uint32_t size) override
@@ -85,8 +83,7 @@ namespace opendeck::staged_update_writer
         static constexpr size_t   STAGED_DFU_WRITE_BLOCK_SIZE = DT_PROP(DT_MEM_FROM_PARTITION(OPENDECK_STAGED_DFU_NODE), write_block_size);
         static constexpr uint32_t STAGED_DFU_PARTITION_SIZE   = DT_REG_SIZE(OPENDECK_STAGED_DFU_NODE);
 
-        flash_area::HwaHw _flash_area   = {};
-        Sector            _first_sector = {};
-        bool              _initialized  = false;
+        flash_area::HwaHw _flash_area  = {};
+        bool              _initialized = false;
     };
 }    // namespace opendeck::staged_update_writer

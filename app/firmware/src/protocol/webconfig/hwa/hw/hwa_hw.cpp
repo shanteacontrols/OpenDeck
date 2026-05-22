@@ -7,7 +7,6 @@
 
 #include "firmware/src/protocol/webconfig/hwa/hw/hwa_hw.h"
 #include "firmware/src/protocol/webconfig/shared/common.h"
-#include "common/src/mcu/shared/common.h"
 #include "firmware/src/protocol/webconfig/instance/impl/webconfig.h"
 
 #include <zephyr/kernel.h>
@@ -63,10 +62,6 @@ namespace
 HTTP_SERVICE_DEFINE(webconfig_service, nullptr, &http_port, CLIENT_COUNT, 1, nullptr, nullptr, nullptr);
 HTTP_RESOURCE_DEFINE(webconfig_resource, webconfig_service, "/config", &webconfig_resource_detail);
 
-HwaHw::HwaHw(mcu::Hwa& mcu)
-    : _mcu(mcu)
-{}
-
 int HwaHw::start_server(WebConfig& endpoint)
 {
     webconfig_resource_detail.user_data = &endpoint;
@@ -111,11 +106,6 @@ int HwaHw::send(int socket, std::span<const uint8_t> data)
 void HwaHw::unregister(int socket)
 {
     websocket_unregister(socket);
-}
-
-void HwaHw::reboot_to_bootloader()
-{
-    _mcu.reboot(mcu::BootTarget::Bootloader);
 }
 
 #endif

@@ -45,6 +45,7 @@ if(CONFIG_PROJECT_TARGET_SUPPORT_OSC)
 endif()
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_WEBCONFIG)
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/dfu_stream ${CMAKE_CURRENT_BINARY_DIR}/dfu_stream)
     add_subdirectory(src/staged_update_writer)
     add_subdirectory(src/protocol/webconfig)
 endif()
@@ -70,6 +71,7 @@ endif()
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_WEBCONFIG)
     list(APPEND OPENDECK_FIRMWARE_LIBS
+        dfu_stream
         protocol_webconfig
         staged_update_writer
     )

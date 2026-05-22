@@ -5,18 +5,19 @@
 
 #pragma once
 
-#include "firmware/src/staged_update_writer/shared/deps.h"
-#include "common/src/staged_update/shared/common.h"
+#include "common/src/dfu_stream/shared/deps.h"
 #include "common/src/flash_stream_writer/instance/impl/flash_stream_writer.h"
+#include "firmware/src/staged_update_writer/shared/deps.h"
 
+#include <optional>
 #include <span>
 
 namespace opendeck::staged_update_writer
 {
     /**
-     * @brief Stores a raw dfu.bin stream in the configured staging partition.
+     * @brief Stores a validated firmware payload in the configured staging partition.
      */
-    class StagedUpdateWriter : private flash_stream_writer::Sink
+    class StagedUpdateWriter : public dfu_stream::Sink, private flash_stream_writer::Sink
     {
         public:
         /**
@@ -27,55 +28,42 @@ namespace opendeck::staged_update_writer
         explicit StagedUpdateWriter(Hwa& hwa);
 
         /**
-         * @brief Erases the staging partition and starts a new upload.
+         * @brief Invalidates any old staged update and starts a new upload.
          *
-         * @param expected_size Number of raw dfu.bin bytes expected.
+         * @param header Raw DFU header accepted by the parser.
+         * @param expected_size Number of firmware payload bytes expected.
          *
          * @return `true` on success, otherwise `false`.
          */
-        bool begin(uint32_t expected_size);
+        bool begin(const dfu_stream::Header& header, uint32_t expected_size) override;
 
         /**
-         * @brief Appends bytes to the staged raw dfu.bin stream.
+         * @brief Appends bytes to the staged firmware payload.
          *
          * @param data Upload chunk to append.
          *
          * @return `true` on success, otherwise `false`.
          */
-        bool write(std::span<const uint8_t> data);
+        bool write(std::span<const uint8_t> data) override;
 
         /**
-         * @brief Commits staging metadata after the upload completed.
+         * @brief Flushes staged payload bytes after the upload completed.
          *
          * @return `true` if the staged stream is complete and committed, otherwise `false`.
          */
-        bool finish();
+        bool finish() override;
 
         /**
-         * @brief Invalidates staged update metadata and resets writer state.
+         * @brief Invalidates staged update header and resets writer state.
          */
-        void abort();
-
-        /**
-         * @brief Returns the number of payload bytes written so far.
-         *
-         * @return Current staged dfu.bin byte count.
-         */
-        uint32_t bytes_written() const;
-
-        /**
-         * @brief Returns the usable staged dfu.bin capacity.
-         *
-         * @return Maximum number of raw dfu.bin bytes that fit after metadata.
-         */
-        uint32_t capacity() const;
+        void abort() override;
 
         private:
         Hwa&                                   _hwa;
         flash_stream_writer::FlashStreamWriter _writer;
+        dfu_stream::Header                     _header        = {};
         uint32_t                               _expected_size = 0;
-        uint32_t                               _bytes_written = 0;
-        uint32_t                               _crc           = 0;
+        std::optional<size_t>                  _erased_sector = std::nullopt;
         bool                                   _initialized   = false;
         bool                                   _active        = false;
 
@@ -85,14 +73,28 @@ namespace opendeck::staged_update_writer
         bool init_flash_area();
 
         /**
-         * @brief Erases the whole staged DFU partition before a new upload.
+         * @brief Returns the usable staged firmware payload capacity.
+         *
+         * @return Maximum firmware payload bytes that fit after the DFU header.
          */
-        bool erase_partition();
+        uint32_t staging_capacity() const;
+
+        /**
+         * @brief Returns the flash-aligned space reserved for the DFU header.
+         *
+         * @return Header storage size in bytes.
+         */
+        uint32_t header_storage_size() const;
 
         /**
          * @brief Erases the first sector so the bootloader ignores any old upload.
          */
-        bool erase_metadata_sector();
+        bool erase_header_sector();
+
+        /**
+         * @brief Erases staged DFU sectors that overlap a pending payload write.
+         */
+        bool erase_payload_range(uint32_t offset, size_t size);
 
         /**
          * @brief Writes one flash-aligned block into the staged DFU partition.
@@ -110,9 +112,9 @@ namespace opendeck::staged_update_writer
         bool flush_write_block();
 
         /**
-         * @brief Writes the metadata marker after the full dfu.bin stream is stored.
+         * @brief Writes the accepted DFU header at the beginning of the staged partition.
          */
-        bool write_metadata();
+        bool write_header(const dfu_stream::Header& header);
 
         /**
          * @brief Clears upload counters and cached write state.
