@@ -8,7 +8,6 @@
 #include "firmware/src/protocol/mdns/shared/deps.h"
 
 #include <algorithm>
-#include <array>
 #include <string>
 #include <utility>
 #include <vector>
@@ -21,28 +20,24 @@ namespace opendeck::protocol::mdns
     class HwaTest : public Hwa
     {
         public:
-        std::array<uint8_t, 12>  serial              = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+        std::string              serial              = "08090a0b";
         std::string              ip_address_value    = "192.168.1.112";
         std::string              hostname            = {};
-        std::string              webconfig_instance  = {};
-        std::string              osc_instance        = {};
+        std::string              service_instance    = {};
         IpAddressChangedCallback ip_changed_callback = {};
         bool                     hostname_result     = true;
-        bool                     webconfig_result    = true;
-        bool                     osc_result          = true;
+        bool                     service_result      = true;
+        size_t                   advertise_count     = 0;
+        size_t                   advertise_fail_at   = 0;
 
         /**
-         * @brief Copies the configured test serial number.
+         * @brief Returns the configured test serial number suffix.
          *
-         * @param buffer Destination buffer.
-         *
-         * @return Number of bytes copied.
+         * @return Serial suffix text.
          */
-        ssize_t serial_number(std::span<uint8_t> buffer) override
+        std::string_view serial_number() override
         {
-            const auto size = std::min(buffer.size(), serial.size());
-            std::copy_n(serial.begin(), size, buffer.begin());
-            return static_cast<ssize_t>(size);
+            return serial;
         }
 
         /**
@@ -89,29 +84,39 @@ namespace opendeck::protocol::mdns
         }
 
         /**
-         * @brief Stores the requested DNS-SD WebConfig instance name.
+         * @brief Stores the requested generic DNS-SD service instance name.
          *
          * @param instance Service instance name.
+         * @param buffer DNS-SD record instance storage.
+         * @param service_port DNS-SD record port storage.
+         * @param port Service port in host byte order.
          *
          * @return Configured test result.
          */
-        bool advertise_webconfig(std::string_view instance) override
+        bool advertise_service(std::string_view instance,
+                               std::span<char>  buffer,
+                               uint16_t&        service_port,
+                               const uint16_t   port) override
         {
-            webconfig_instance = std::string(instance);
-            return webconfig_result;
-        }
+            advertise_count++;
 
-        /**
-         * @brief Stores the requested DNS-SD OSC instance name.
-         *
-         * @param instance Service instance name.
-         *
-         * @return Configured test result.
-         */
-        bool advertise_osc(std::string_view instance) override
-        {
-            osc_instance = std::string(instance);
-            return osc_result;
+            if ((advertise_fail_at != 0U) && (advertise_count == advertise_fail_at))
+            {
+                return false;
+            }
+
+            service_instance = std::string(instance);
+
+            if (instance.size() >= buffer.size())
+            {
+                return false;
+            }
+
+            std::fill(buffer.begin(), buffer.end(), '\0');
+            std::copy(instance.begin(), instance.end(), buffer.begin());
+            service_port = port;
+
+            return service_result;
         }
 
         /**

@@ -50,6 +50,8 @@ if(CONFIG_PROJECT_TARGET_SUPPORT_WEBCONFIG)
 endif()
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_MDNS)
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/mdns ${CMAKE_CURRENT_BINARY_DIR}/mdns)
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/mdns/hwa/hw ${CMAKE_CURRENT_BINARY_DIR}/mdns_hwa_hw)
     add_subdirectory(src/protocol/mdns)
 endif()
 
@@ -59,6 +61,7 @@ endif()
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_MDNS)
     add_subdirectory(src/protocol/mdns/hwa/hw)
+    add_subdirectory(src/protocol/mdns/services/hw)
 endif()
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_OSC)
@@ -81,7 +84,10 @@ if(CONFIG_PROJECT_TARGET_SUPPORT_WEBCONFIG)
 endif()
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_MDNS)
-    list(APPEND OPENDECK_FIRMWARE_HWA_LIBS protocol_mdns_hwa_hw)
+    list(APPEND OPENDECK_FIRMWARE_HWA_LIBS
+        protocol_mdns_hwa_hw
+        protocol_mdns_services_hw
+    )
 endif()
 
 target_sources(app

@@ -7,7 +7,7 @@
 
 #include "firmware/src/protocol/mdns/instance/stub/mdns_stub.h"
 #include "firmware/src/database/builder/builder.h"
-#include "firmware/src/mcu/shared/deps.h"
+#include "common/src/mcu/shared/deps.h"
 
 namespace opendeck::protocol::mdns
 {

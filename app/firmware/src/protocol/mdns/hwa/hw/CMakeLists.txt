@@ -3,7 +3,7 @@ opendeck_library_named(protocol_mdns_hwa_hw)
 
 target_link_libraries(protocol_mdns_hwa_hw
     PUBLIC
-    mcu
+    opendeck_mdns_hwa_hw
     protocol_mdns
     protocol_osc
     protocol_webconfig

@@ -238,8 +238,8 @@ namespace opendeck::signaling
     class NetworkIdentitySignal
     {
         public:
-        static constexpr size_t NAME_SIZE         = opendeck::protocol::mdns::NETWORK_NAME_SIZE;
-        static constexpr size_t IPV4_ADDRESS_SIZE = opendeck::protocol::mdns::IPV4_ADDRESS_SIZE;
+        static constexpr size_t NAME_SIZE         = opendeck::mdns::NETWORK_NAME_SIZE;
+        static constexpr size_t IPV4_ADDRESS_SIZE = opendeck::mdns::IPV4_ADDRESS_SIZE;
 
         NetworkIdentitySignal() = default;
 

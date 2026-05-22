@@ -7,7 +7,9 @@
 
 #include "firmware/src/protocol/mdns/hwa/test/hwa_test.h"
 #include "firmware/src/protocol/mdns/instance/impl/mdns.h"
+#include "firmware/src/protocol/mdns/services/test/services_test.h"
 #include "firmware/src/database/builder/builder.h"
+#include "common/src/mdns/instance/impl/mdns.h"
 
 namespace opendeck::protocol::mdns
 {
@@ -19,7 +21,8 @@ namespace opendeck::protocol::mdns
         public:
         Builder()
             : _database(_default_database_builder.instance())
-            , _instance(_hwa, _database)
+            , _base_mdns(_hwa)
+            , _instance(_base_mdns, _services, _database)
         {}
 
         /**
@@ -29,7 +32,8 @@ namespace opendeck::protocol::mdns
          */
         explicit Builder(database::Admin& database)
             : _database(database)
-            , _instance(_hwa, _database)
+            , _base_mdns(_hwa)
+            , _instance(_base_mdns, _services, _database)
         {}
 
         /**
@@ -42,9 +46,11 @@ namespace opendeck::protocol::mdns
             return _instance;
         }
 
-        database::Builder _default_database_builder;
-        HwaTest           _hwa;
-        Database          _database;
-        Mdns              _instance;
+        database::Builder        _default_database_builder;
+        HwaTest                  _hwa;
+        Database                 _database;
+        opendeck::mdns::BaseMdns _base_mdns;
+        ServicesTest             _services;
+        Mdns                     _instance;
     };
 }    // namespace opendeck::protocol::mdns

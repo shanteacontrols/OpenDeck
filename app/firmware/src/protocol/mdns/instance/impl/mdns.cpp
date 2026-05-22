@@ -9,10 +9,8 @@
 #include "firmware/src/util/configurable/configurable.h"
 
 #include <zephyr/logging/log.h>
-#include <zephyr/sys/util.h>
 
-#include <algorithm>
-#include <cctype>
+#include <array>
 
 using namespace opendeck::protocol::mdns;
 
@@ -20,32 +18,11 @@ namespace
 {
     LOG_MODULE_REGISTER(mdns, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
 
-    constexpr char HEX_DIGITS[]           = "0123456789abcdef";
-    constexpr int  TARGET_UID_START_SHIFT = 24;
-    constexpr auto BYTE_MASK              = 0xFFU;
-    constexpr auto HEX_NIBBLE_SHIFT       = 4U;
-    constexpr auto HEX_NIBBLE_MASK        = 0x0FU;
-
-    /**
-     * @brief Converts one character to a hostname-safe lowercase character.
-     *
-     * @param character Character from the OpenDeck target name.
-     *
-     * @return Lowercase alphanumeric character, or `-`.
-     */
-    char hostname_safe_char(char character)
-    {
-        if (std::isalnum(static_cast<unsigned char>(character)) != 0)
-        {
-            return static_cast<char>(std::tolower(static_cast<unsigned char>(character)));
-        }
-
-        return '-';
-    }
 }    // namespace
 
-Mdns::Mdns(Hwa& hwa, Database& database)
-    : _hwa(hwa)
+Mdns::Mdns(opendeck::mdns::BaseMdns& base_mdns, Services& services, Database& database)
+    : _base_mdns(base_mdns)
+    , _services(services)
     , _database(database)
     , _network_identity_work([this]()
                              {
@@ -96,25 +73,25 @@ bool Mdns::init()
         return false;
     }
 
-    if (!_hwa.set_hostname(hostname))
+    if (!_base_mdns.set_hostname(hostname))
     {
         LOG_WRN("Failed to set mDNS hostname");
         return false;
     }
 
-    if (!_hwa.advertise_webconfig(hostname))
+    if (!_base_mdns.advertise_service(_services.webconfig(), hostname))
     {
         LOG_WRN("Failed to advertise WebConfig over mDNS");
         return false;
     }
 
-    if (!_hwa.advertise_osc(hostname))
+    if (!_base_mdns.advertise_service(_services.osc(), hostname))
     {
         LOG_WRN("Failed to advertise OSC over mDNS");
         return false;
     }
 
-    _hwa.register_ip_address_changed_callback(
+    _base_mdns.register_ip_address_changed_callback(
         [this]()
         {
             handle_ip_address_changed();
@@ -128,88 +105,39 @@ bool Mdns::init()
 bool Mdns::deinit()
 {
     _network_identity_work.cancel();
-    _hwa.register_ip_address_changed_callback({});
+    _base_mdns.register_ip_address_changed_callback({});
     return true;
 }
 
 std::string_view Mdns::make_hostname()
 {
-    reset_hostname();
+    const auto custom_hostname = append_custom_hostname();
 
-    if (append_custom_hostname())
+    if (!custom_hostname.empty())
     {
-        return std::string_view(_hostname.data(), _hostname_size);
+        return custom_hostname;
     }
 
-    for (const auto character : HOSTNAME_PREFIX)
-    {
-        if (!append_char(character))
-        {
-            return {};
-        }
-    }
-
-    if (!append_char('-') || !append_target() || !append_char('-') || !append_serial())
-    {
-        return {};
-    }
-
-    return std::string_view(_hostname.data(), _hostname_size);
+    return _base_mdns.default_hostname();
 }
 
-bool Mdns::append_custom_hostname()
+std::string_view Mdns::append_custom_hostname()
 {
     load_custom_hostname();
-    reset_hostname();
 
-    bool terminated = false;
+    const auto hostname = _base_mdns.custom_hostname(_custom_hostname);
 
-    for (size_t i = 0; i < CUSTOM_HOSTNAME_DB_SIZE; i++)
+    if (!hostname.empty())
     {
-        const auto value = _custom_hostname[i];
-
-        if (value == '\0')
-        {
-            terminated = true;
-            break;
-        }
-
-        const auto character = static_cast<char>(value);
-
-        if ((std::isalnum(static_cast<unsigned char>(character)) == 0) && (character != '-'))
-        {
-            LOG_WRN("Ignoring invalid custom mDNS hostname");
-            reset_hostname();
-            return false;
-        }
-
-        if (!append_char(static_cast<char>(std::tolower(static_cast<unsigned char>(character)))))
-        {
-            reset_hostname();
-            return false;
-        }
+        return hostname;
     }
 
-    if (!terminated)
-    {
-        LOG_WRN("Ignoring unterminated custom mDNS hostname");
-        reset_hostname();
-        return false;
-    }
-
-    if (_hostname_size == 0)
-    {
-        return false;
-    }
-
-    if ((_hostname.front() == '-') || (_hostname[_hostname_size - 1] == '-'))
+    if (_custom_hostname.front() != '\0')
     {
         LOG_WRN("Ignoring invalid custom mDNS hostname");
-        reset_hostname();
-        return false;
     }
 
-    return true;
+    return {};
 }
 
 void Mdns::load_custom_hostname()
@@ -238,20 +166,12 @@ void Mdns::load_custom_hostname()
 
 std::string_view Mdns::make_network_name()
 {
-    if (_hostname_size + LOCAL_SUFFIX.size() >= _hostname.size())
-    {
-        return {};
-    }
-
-    std::copy(LOCAL_SUFFIX.begin(), LOCAL_SUFFIX.end(), _hostname.begin() + _hostname_size);
-    _hostname[_hostname_size + LOCAL_SUFFIX.size()] = '\0';
-
-    return std::string_view(_hostname.data(), _hostname_size + LOCAL_SUFFIX.size());
+    return _base_mdns.network_name();
 }
 
 void Mdns::publish_network_identity(std::string_view name)
 {
-    const auto ip_address = _hwa.ip_address(_ip_address);
+    const auto ip_address = _base_mdns.ip_address(_ip_address);
 
     if (ip_address.empty())
     {
@@ -279,76 +199,6 @@ void Mdns::schedule_network_identity_publish()
 void Mdns::handle_ip_address_changed()
 {
     schedule_network_identity_publish();
-}
-
-bool Mdns::append_target()
-{
-    for (const auto* character = OPENDECK_TARGET; *character != '\0'; character++)
-    {
-        if (!append_char(hostname_safe_char(*character)))
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool Mdns::append_serial()
-{
-    std::array<uint8_t, SERIAL_BUFFER_SIZE> serial = {};
-    const auto                              size   = _hwa.serial_number(serial);
-
-    if (size > 0)
-    {
-        const auto copied = static_cast<size_t>(size);
-        const auto start  = copied > SERIAL_SUFFIX_BYTES ? copied - SERIAL_SUFFIX_BYTES : 0;
-
-        for (size_t i = start; i < copied; i++)
-        {
-            if (!append_hex_byte(serial[i]))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    for (int shift = TARGET_UID_START_SHIFT; shift >= 0; shift -= BITS_PER_BYTE)
-    {
-        if (!append_hex_byte(static_cast<uint8_t>((OPENDECK_TARGET_UID >> shift) & BYTE_MASK)))
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool Mdns::append_hex_byte(uint8_t byte)
-{
-    return append_char(HEX_DIGITS[(byte >> HEX_NIBBLE_SHIFT) & HEX_NIBBLE_MASK]) &&
-           append_char(HEX_DIGITS[byte & HEX_NIBBLE_MASK]);
-}
-
-bool Mdns::append_char(char character)
-{
-    if (_hostname_size + 1 >= _hostname.size())
-    {
-        return false;
-    }
-
-    _hostname[_hostname_size++] = character;
-    _hostname[_hostname_size]   = '\0';
-
-    return true;
-}
-
-void Mdns::reset_hostname()
-{
-    _hostname.fill('\0');
-    _hostname_size = 0;
 }
 
 std::optional<uint8_t> Mdns::sys_config_get(sys::Config::Section::Global section, size_t index, uint16_t& value)

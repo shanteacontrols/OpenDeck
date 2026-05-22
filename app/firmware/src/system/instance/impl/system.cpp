@@ -8,7 +8,7 @@
 #include "firmware/src/util/configurable/configurable.h"
 #include "firmware/src/util/conversion/conversion.h"
 #include "firmware/src/global/midi_program.h"
-#include "firmware/src/mcu/shared/common.h"
+#include "common/src/mcu/shared/common.h"
 
 #include <zephyr/logging/log.h>
 #include <zephyr/logging/log_ctrl.h>

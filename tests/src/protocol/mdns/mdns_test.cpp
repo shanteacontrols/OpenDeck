@@ -10,6 +10,7 @@
 #include "firmware/src/database/builder/builder.h"
 #include "firmware/src/protocol/mdns/hwa/test/hwa_test.h"
 #include "firmware/src/protocol/mdns/instance/impl/mdns.h"
+#include "firmware/src/protocol/mdns/services/test/services_test.h"
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/util/configurable/configurable.h"
 
@@ -97,7 +98,7 @@ namespace
 
         void set_custom_hostname(std::string_view hostname)
         {
-            ASSERT_LT(hostname.size(), mdns::CUSTOM_HOSTNAME_DB_SIZE);
+            ASSERT_LT(hostname.size(), opendeck::mdns::CUSTOM_HOSTNAME_SIZE);
 
             for (size_t i = 0; i < hostname.size(); i++)
             {
@@ -116,12 +117,14 @@ namespace
                 }));
         }
 
-        tests::NoOpDatabaseHandlers _handlers;
-        database::Builder           _database_builder;
-        database::Admin&            _database_admin = _database_builder.instance();
-        mdns::Database              _database       = mdns::Database(_database_admin);
-        mdns::HwaTest               _hwa;
-        mdns::Mdns                  _mdns = mdns::Mdns(_hwa, _database);
+        tests::NoOpDatabaseHandlers  _handlers;
+        database::Builder            _database_builder;
+        database::Admin&             _database_admin = _database_builder.instance();
+        protocol::mdns::Database     _database       = protocol::mdns::Database(_database_admin);
+        protocol::mdns::HwaTest      _hwa;
+        opendeck::mdns::BaseMdns     _base_mdns = opendeck::mdns::BaseMdns(_hwa);
+        protocol::mdns::ServicesTest _services;
+        protocol::mdns::Mdns         _mdns = protocol::mdns::Mdns(_base_mdns, _services, _database);
     };
 }    // namespace
 
@@ -135,8 +138,8 @@ TEST_F(MdnsTest, PublishesNetworkIdentityOnInit)
     const auto signals = collector.signals();
     EXPECT_EQ(signals.front().name, make_expected_name());
     EXPECT_EQ(signals.front().ipv4_address, "192.168.1.112");
-    EXPECT_EQ(_hwa.webconfig_instance + ".local", make_expected_name());
-    EXPECT_EQ(_hwa.osc_instance + ".local", make_expected_name());
+    EXPECT_EQ(std::string(_services.webconfig_instance.data()) + ".local", make_expected_name());
+    EXPECT_EQ(std::string(_services.osc_instance.data()) + ".local", make_expected_name());
 }
 
 TEST_F(MdnsTest, UsesCustomHostnameFromCommonDatabase)
@@ -149,8 +152,8 @@ TEST_F(MdnsTest, UsesCustomHostnameFromCommonDatabase)
     wait_for_signals(collector, 1);
     EXPECT_EQ(collector.signals().front().name, "studio-left.local");
     EXPECT_EQ(_hwa.hostname, "studio-left");
-    EXPECT_EQ(_hwa.webconfig_instance, "studio-left");
-    EXPECT_EQ(_hwa.osc_instance, "studio-left");
+    EXPECT_EQ(std::string(_services.webconfig_instance.data()), "studio-left");
+    EXPECT_EQ(std::string(_services.osc_instance.data()), "studio-left");
 }
 
 TEST_F(MdnsTest, HandlesHostnameSysExConfig)
@@ -236,7 +239,7 @@ TEST_F(MdnsTest, StopsIpChangeCallbackOnDeinit)
 
 TEST_F(MdnsTest, FailsWhenOscServiceCannotBeAdvertised)
 {
-    _hwa.osc_result = false;
+    _hwa.advertise_fail_at = 2;
 
     EXPECT_FALSE(_mdns.init());
 }

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/mcu/shared/common.h"
+#include "common/src/mcu/shared/common.h"
 
 #include <cstdint>
 #include <span>
@@ -13,7 +13,7 @@
 namespace opendeck::mcu
 {
     /**
-     * @brief MCU-level hardware services shared by firmware subsystems.
+     * @brief MCU-level hardware services shared by OpenDeck images.
      */
     class Hwa
     {

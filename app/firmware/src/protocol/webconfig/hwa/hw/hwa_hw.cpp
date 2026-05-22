@@ -7,7 +7,7 @@
 
 #include "firmware/src/protocol/webconfig/hwa/hw/hwa_hw.h"
 #include "firmware/src/protocol/webconfig/shared/common.h"
-#include "firmware/src/mcu/shared/common.h"
+#include "common/src/mcu/shared/common.h"
 #include "firmware/src/protocol/webconfig/instance/impl/webconfig.h"
 
 #include <zephyr/kernel.h>

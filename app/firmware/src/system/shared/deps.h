@@ -6,7 +6,7 @@
 #pragma once
 
 #include "firmware/src/system/shared/common.h"
-#include "firmware/src/mcu/shared/common.h"
+#include "common/src/mcu/shared/common.h"
 #include "firmware/src/io/base.h"
 #include "firmware/src/protocol/base.h"
 #include "firmware/src/database/instance/impl/database.h"

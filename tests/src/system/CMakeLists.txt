@@ -5,6 +5,7 @@ opendeck_test_bootstrap(IMPORT_TARGET_CONFIG)
 opendeck_test_add_modules(
     metadata             "app/common/src/metadata"
     flash_stream_writer  "app/common/src/flash_stream_writer"
+    opendeck_mdns        "app/common/src/mdns"
     mcu                  "app/firmware/src/mcu"
     database             "app/firmware/src/database"
     configurable         "app/firmware/src/util/configurable"

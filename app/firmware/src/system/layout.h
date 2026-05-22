@@ -12,6 +12,7 @@
 #include "firmware/src/io/outputs/shared/common.h"
 #include "firmware/src/io/i2c/peripherals/display/shared/common.h"
 #include "firmware/src/io/touchscreen/shared/common.h"
+#include "common/src/mdns/shared/common.h"
 #include "firmware/src/protocol/midi/shared/common.h"
 #include "firmware/src/protocol/mdns/shared/common.h"
 #include "firmware/src/protocol/osc/shared/common.h"
@@ -64,7 +65,7 @@ namespace opendeck::sys
                                               0),
 
             // mDNS hostname byte section
-            zlibs::utils::sysex_conf::Section(static_cast<uint16_t>(protocol::mdns::CUSTOM_HOSTNAME_DB_SIZE),
+            zlibs::utils::sysex_conf::Section(static_cast<uint16_t>(mdns::CUSTOM_HOSTNAME_SIZE),
                                               0,
                                               255),
 

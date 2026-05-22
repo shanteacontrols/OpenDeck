@@ -13,6 +13,7 @@
 #include "firmware/src/io/i2c/peripherals/display/shared/common.h"
 #include "firmware/src/io/outputs/shared/common.h"
 #include "firmware/src/io/touchscreen/shared/common.h"
+#include "common/src/mdns/shared/common.h"
 #include "firmware/src/protocol/midi/shared/common.h"
 #include "firmware/src/protocol/mdns/shared/common.h"
 #include "firmware/src/protocol/osc/shared/common.h"
@@ -142,7 +143,7 @@ namespace opendeck::database
                 0),
             // MdnsHostname
             Section(
-                static_cast<uint8_t>(protocol::mdns::CUSTOM_HOSTNAME_DB_SIZE),
+                static_cast<uint8_t>(mdns::CUSTOM_HOSTNAME_SIZE),
                 SectionParameterType::Byte,
                 PreserveSetting::Disable,
                 AutoIncrementSetting::Disable,

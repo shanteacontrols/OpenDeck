@@ -8,7 +8,7 @@
 #include "firmware/src/system/shared/deps.h"
 #include "firmware/src/database/builder/builder.h"
 #include "firmware/src/mcu/builder/builder.h"
-#include "firmware/src/mcu/shared/common.h"
+#include "common/src/mcu/shared/common.h"
 #include "firmware/src/protocol/midi/builder/builder.h"
 #include "firmware/src/protocol/webconfig/builder/builder.h"
 #include "firmware/src/protocol/mdns/builder/builder.h"
