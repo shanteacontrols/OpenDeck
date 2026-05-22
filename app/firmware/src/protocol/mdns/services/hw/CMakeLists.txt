@@ -6,7 +6,7 @@ target_link_libraries(protocol_mdns_services_hw
     opendeck_mdns
     protocol_mdns
     protocol_osc
-    protocol_webconfig
+    protocol_websockets
 )
 
 zephyr_library_sources(

@@ -8,7 +8,7 @@
 #ifdef CONFIG_PROJECT_BOOTLOADER_SUPPORT_MDNS
 
 #include "bootloader/src/mdns/shared/common.h"
-#include "firmware/src/protocol/webconfig/shared/common.h"
+#include "common/src/websockets/shared/common.h"
 
 #include <zephyr/logging/log.h>
 
@@ -61,7 +61,7 @@ bool Mdns::init()
             static_cast<int>(DFU_SERVICE.size()),
             DFU_SERVICE.data(),
             opendeck::mdns::TCP_PROTOCOL.data(),
-            opendeck::protocol::webconfig::DEFAULT_PORT);
+            opendeck::websockets::DEFAULT_PORT);
 
     _base_mdns.register_ip_address_changed_callback([this]
                                                     {

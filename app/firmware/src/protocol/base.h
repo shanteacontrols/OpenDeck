@@ -19,7 +19,7 @@ namespace opendeck::protocol
     {
         Midi,
         Osc,
-        WebConfig,
+        WebSockets,
         Mdns,
         Count
     };

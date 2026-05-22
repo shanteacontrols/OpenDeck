@@ -79,9 +79,9 @@ bool Mdns::init()
         return false;
     }
 
-    if (!_base_mdns.advertise_service(_services.webconfig(), hostname))
+    if (!_base_mdns.advertise_service(_services.websockets(), hostname))
     {
-        LOG_WRN("Failed to advertise WebConfig over mDNS");
+        LOG_WRN("Failed to advertise WebSockets over mDNS");
         return false;
     }
 

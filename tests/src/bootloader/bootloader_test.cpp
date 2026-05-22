@@ -4,6 +4,7 @@
  */
 
 #include "tests/common.h"
+#include "tests/helpers/dfu_stream.h"
 #include "bootloader/src/indicators/builder/test/builder_test.h"
 #include "bootloader/src/direct_update_writer/builder/builder.h"
 #include "bootloader/src/signaling/signaling.h"
@@ -11,7 +12,6 @@
 #include "common/src/dfu_stream/instance/impl/dfu_stream.h"
 
 #include <algorithm>
-#include <cstdint>
 #include <fstream>
 #include <iterator>
 #include <string>
@@ -26,33 +26,6 @@ namespace
         EXPECT_TRUE(file.is_open()) << "Failed to open " << path;
 
         return std::vector<uint8_t>(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
-    }
-
-    void append_u32(std::vector<uint8_t>& data, uint32_t value)
-    {
-        constexpr uint32_t BYTE_MASK      = 0xFF;
-        constexpr uint8_t  BITS_PER_OCTET = 8;
-
-        for (size_t i = 0; i < sizeof(value); i++)
-        {
-            data.push_back((value >> (i * BITS_PER_OCTET)) & BYTE_MASK);
-        }
-    }
-
-    std::vector<uint8_t> make_dfu_stream(const std::vector<uint8_t>& payload,
-                                         uint32_t                    target_uid     = OPENDECK_TARGET_UID,
-                                         uint32_t                    format_version = dfu_stream::FORMAT_VERSION)
-    {
-        std::vector<uint8_t> stream;
-
-        append_u32(stream, dfu_stream::START_COMMAND);
-        append_u32(stream, format_version);
-        append_u32(stream, target_uid);
-        append_u32(stream, payload.size());
-        stream.insert(stream.end(), payload.begin(), payload.end());
-        append_u32(stream, dfu_stream::END_COMMAND);
-
-        return stream;
     }
 
     void feed_stream(dfu_stream::DfuStream& parser, const std::vector<uint8_t>& stream)
@@ -133,7 +106,7 @@ TEST(Bootloader, SupportsDifferentFlashWriteBlockSizes)
         direct_update_writer::DirectUpdateWriter writer(hwa);
         dfu_stream::DfuStream                    parser(writer);
 
-        feed_stream(parser, make_dfu_stream(payload));
+        feed_stream(parser, opendeck::tests::dfu_stream::make_stream(payload));
 
         ASSERT_TRUE(hwa.updated);
         assert_written_image(payload, hwa.written_bytes);
@@ -149,7 +122,7 @@ TEST(Bootloader, PadsPayloadShorterThanOneWriteBlock)
     direct_update_writer::DirectUpdateWriter writer(hwa);
     dfu_stream::DfuStream                    parser(writer);
 
-    feed_stream(parser, make_dfu_stream(payload));
+    feed_stream(parser, opendeck::tests::dfu_stream::make_stream(payload));
 
     ASSERT_TRUE(hwa.updated);
     ASSERT_EQ(1, hwa.write_count);
@@ -165,7 +138,7 @@ TEST(Bootloader, CommitsPayloadEndingMidSector)
     direct_update_writer::DirectUpdateWriter writer(hwa);
     dfu_stream::DfuStream                    parser(writer);
 
-    feed_stream(parser, make_dfu_stream(payload));
+    feed_stream(parser, opendeck::tests::dfu_stream::make_stream(payload));
 
     const std::vector<size_t> expected_erased_sectors = { 0 };
 
@@ -190,7 +163,7 @@ TEST(Bootloader, WritesAcrossSectorBoundary)
     direct_update_writer::DirectUpdateWriter writer(hwa);
     dfu_stream::DfuStream                    parser(writer);
 
-    feed_stream(parser, make_dfu_stream(payload));
+    feed_stream(parser, opendeck::tests::dfu_stream::make_stream(payload));
 
     const std::vector<size_t> expected_erased_sectors = { 0, 1, 2 };
 
@@ -210,7 +183,7 @@ TEST(Bootloader, WriteFailurePreventsApply)
 
     hwa.fail_write = true;
 
-    feed_stream(parser, make_dfu_stream(payload));
+    feed_stream(parser, opendeck::tests::dfu_stream::make_stream(payload));
 
     ASSERT_FALSE(hwa.updated);
     ASSERT_TRUE(hwa.written_bytes.empty());
@@ -225,7 +198,7 @@ TEST(Bootloader, PayloadTooLargeDoesNotEraseOrWrite)
     direct_update_writer::DirectUpdateWriter writer(hwa);
     dfu_stream::DfuStream                    parser(writer);
 
-    feed_stream(parser, make_dfu_stream(payload));
+    feed_stream(parser, opendeck::tests::dfu_stream::make_stream(payload));
 
     ASSERT_FALSE(hwa.updated);
     ASSERT_TRUE(hwa.erased_sectors.empty());
@@ -241,9 +214,9 @@ TEST(Bootloader, InvalidDfuHeaderDoesNotEraseOrWrite)
     direct_update_writer::DirectUpdateWriter writer(hwa);
     dfu_stream::DfuStream                    parser(writer);
 
-    feed_stream(parser, make_dfu_stream(payload, OPENDECK_TARGET_UID ^ 0x01));
+    feed_stream(parser, opendeck::tests::dfu_stream::make_stream(payload, OPENDECK_TARGET_UID ^ 0x01));
     parser.reset();
-    feed_stream(parser, make_dfu_stream(payload, OPENDECK_TARGET_UID, dfu_stream::FORMAT_VERSION + 1));
+    feed_stream(parser, opendeck::tests::dfu_stream::make_stream(payload, OPENDECK_TARGET_UID, dfu_stream::FORMAT_VERSION + 1));
 
     ASSERT_FALSE(hwa.updated);
     ASSERT_TRUE(hwa.erased_sectors.empty());
@@ -260,7 +233,7 @@ TEST(Bootloader, DirectUpdateWriterPublishesUpdateLifecycleSignals)
     direct_update_writer::DirectUpdateWriter writer(hwa);
     dfu_stream::DfuStream                    parser(writer);
 
-    feed_stream(parser, make_dfu_stream(payload));
+    feed_stream(parser, opendeck::tests::dfu_stream::make_stream(payload));
 
     ASSERT_TRUE(hwa.updated);
     ASSERT_EQ(1, capture.firmware_update_started_count);

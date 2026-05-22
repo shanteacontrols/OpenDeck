@@ -4,43 +4,15 @@
  */
 
 #include "tests/common.h"
+#include "tests/helpers/dfu_stream.h"
 #include "common/src/dfu_stream/instance/impl/dfu_stream.h"
 
 #include <algorithm>
-#include <cstdint>
 #include <span>
 #include <vector>
 
 namespace
 {
-    void append_u32(std::vector<uint8_t>& data, const uint32_t value)
-    {
-        constexpr uint32_t BYTE_MASK      = 0xFF;
-        constexpr uint8_t  BITS_PER_OCTET = 8;
-
-        for (size_t i = 0; i < sizeof(value); i++)
-        {
-            data.push_back((value >> (i * BITS_PER_OCTET)) & BYTE_MASK);
-        }
-    }
-
-    std::vector<uint8_t> make_dfu_stream(const std::vector<uint8_t>& payload,
-                                         const uint32_t              target_uid     = OPENDECK_TARGET_UID,
-                                         const uint32_t              format_version = opendeck::dfu_stream::FORMAT_VERSION,
-                                         const uint32_t              end_command    = opendeck::dfu_stream::END_COMMAND)
-    {
-        std::vector<uint8_t> stream;
-
-        append_u32(stream, opendeck::dfu_stream::START_COMMAND);
-        append_u32(stream, format_version);
-        append_u32(stream, target_uid);
-        append_u32(stream, payload.size());
-        stream.insert(stream.end(), payload.begin(), payload.end());
-        append_u32(stream, end_command);
-
-        return stream;
-    }
-
     class SinkTest : public opendeck::dfu_stream::Sink
     {
         public:
@@ -108,14 +80,14 @@ TEST(DfuStream, AcceptsValidStream)
     SinkTest                        sink;
     opendeck::dfu_stream::DfuStream parser(sink);
 
-    const auto status = feed(parser, make_dfu_stream(payload));
+    const auto status = feed(parser, opendeck::tests::dfu_stream::make_stream(payload));
 
     ASSERT_EQ(status, opendeck::dfu_stream::StreamStatus::Complete);
     ASSERT_EQ(sink.begin_called, 1);
     ASSERT_EQ(sink.finish_called, 1);
     ASSERT_EQ(sink.abort_called, 0);
     ASSERT_EQ(sink.expected_size, payload.size());
-    ASSERT_TRUE(std::equal(sink.accepted_header.begin(), sink.accepted_header.end(), make_dfu_stream(payload).begin()));
+    ASSERT_TRUE(std::equal(sink.accepted_header.begin(), sink.accepted_header.end(), opendeck::tests::dfu_stream::make_stream(payload).begin()));
     ASSERT_EQ(sink.payload, payload);
     ASSERT_EQ(parser.bytes_written(), payload.size());
     ASSERT_EQ(parser.expected_size(), payload.size());
@@ -124,7 +96,7 @@ TEST(DfuStream, AcceptsValidStream)
 TEST(DfuStream, AcceptsStreamInChunks)
 {
     const std::vector<uint8_t>      payload = { 0x20, 0x21, 0x22, 0x23 };
-    const auto                      stream  = make_dfu_stream(payload);
+    const auto                      stream  = opendeck::tests::dfu_stream::make_stream(payload);
     SinkTest                        sink;
     opendeck::dfu_stream::DfuStream parser(sink);
 
@@ -138,7 +110,7 @@ TEST(DfuStream, AcceptsStreamInChunks)
 
 TEST(DfuStream, RejectsWrongStartMagic)
 {
-    auto stream = make_dfu_stream({ 0x01, 0x02 });
+    auto stream = opendeck::tests::dfu_stream::make_stream({ 0x01, 0x02 });
     stream[0] ^= 0xFF;
 
     SinkTest                        sink;
@@ -154,7 +126,7 @@ TEST(DfuStream, RejectsUnsupportedFormat)
     SinkTest                        sink;
     opendeck::dfu_stream::DfuStream parser(sink);
 
-    const auto status = feed(parser, make_dfu_stream({ 0x01 }, OPENDECK_TARGET_UID, opendeck::dfu_stream::FORMAT_VERSION + 1));
+    const auto status = feed(parser, opendeck::tests::dfu_stream::make_stream({ 0x01 }, OPENDECK_TARGET_UID, opendeck::dfu_stream::FORMAT_VERSION + 1));
 
     ASSERT_EQ(status, opendeck::dfu_stream::StreamStatus::Invalid);
     ASSERT_EQ(sink.begin_called, 0);
@@ -166,7 +138,7 @@ TEST(DfuStream, RejectsWrongTargetUid)
     SinkTest                        sink;
     opendeck::dfu_stream::DfuStream parser(sink);
 
-    const auto status = feed(parser, make_dfu_stream({ 0x01 }, OPENDECK_TARGET_UID + 1));
+    const auto status = feed(parser, opendeck::tests::dfu_stream::make_stream({ 0x01 }, OPENDECK_TARGET_UID + 1));
 
     ASSERT_EQ(status, opendeck::dfu_stream::StreamStatus::Invalid);
     ASSERT_EQ(sink.begin_called, 0);
@@ -178,7 +150,7 @@ TEST(DfuStream, RejectsEmptyPayload)
     SinkTest                        sink;
     opendeck::dfu_stream::DfuStream parser(sink);
 
-    const auto status = feed(parser, make_dfu_stream({}));
+    const auto status = feed(parser, opendeck::tests::dfu_stream::make_stream({}));
 
     ASSERT_EQ(status, opendeck::dfu_stream::StreamStatus::Invalid);
     ASSERT_EQ(sink.begin_called, 0);
@@ -190,7 +162,7 @@ TEST(DfuStream, RejectsWrongEndMagicAndAbortsActiveSink)
     SinkTest                        sink;
     opendeck::dfu_stream::DfuStream parser(sink);
 
-    const auto status = feed(parser, make_dfu_stream({ 0x01, 0x02 }, OPENDECK_TARGET_UID, opendeck::dfu_stream::FORMAT_VERSION, 0));
+    const auto status = feed(parser, opendeck::tests::dfu_stream::make_stream({ 0x01, 0x02 }, OPENDECK_TARGET_UID, opendeck::dfu_stream::FORMAT_VERSION, 0));
 
     ASSERT_EQ(status, opendeck::dfu_stream::StreamStatus::Invalid);
     ASSERT_EQ(sink.begin_called, 1);
@@ -205,7 +177,7 @@ TEST(DfuStream, RejectsBeginFailure)
     opendeck::dfu_stream::DfuStream parser(sink);
     sink.begin_result = false;
 
-    const auto status = feed(parser, make_dfu_stream({ 0x01 }));
+    const auto status = feed(parser, opendeck::tests::dfu_stream::make_stream({ 0x01 }));
 
     ASSERT_EQ(status, opendeck::dfu_stream::StreamStatus::Invalid);
     ASSERT_EQ(sink.begin_called, 1);
@@ -218,7 +190,7 @@ TEST(DfuStream, RejectsWriteFailureAndAbortsActiveSink)
     opendeck::dfu_stream::DfuStream parser(sink);
     sink.write_result = false;
 
-    const auto status = feed(parser, make_dfu_stream({ 0x01 }));
+    const auto status = feed(parser, opendeck::tests::dfu_stream::make_stream({ 0x01 }));
 
     ASSERT_EQ(status, opendeck::dfu_stream::StreamStatus::Invalid);
     ASSERT_EQ(sink.begin_called, 1);
@@ -231,7 +203,7 @@ TEST(DfuStream, RejectsFinishFailureAndAbortsActiveSink)
     opendeck::dfu_stream::DfuStream parser(sink);
     sink.finish_result = false;
 
-    const auto status = feed(parser, make_dfu_stream({ 0x01 }));
+    const auto status = feed(parser, opendeck::tests::dfu_stream::make_stream({ 0x01 }));
 
     ASSERT_EQ(status, opendeck::dfu_stream::StreamStatus::Invalid);
     ASSERT_EQ(sink.begin_called, 1);

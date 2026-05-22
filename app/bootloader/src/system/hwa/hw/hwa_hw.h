@@ -11,6 +11,7 @@
 #include "bootloader/src/staged_update_reader/builder/builder.h"
 #include "bootloader/src/system/shared/deps.h"
 #include "bootloader/src/webusb/builder/builder.h"
+#include "bootloader/src/websockets/builder/builder.h"
 #include "common/src/mcu/hwa/hw/hwa_hw.h"
 
 namespace opendeck::bootloader::system
@@ -60,6 +61,16 @@ namespace opendeck::bootloader::system
         }
 
         /**
+         * @brief Initializes the WebSocket network recovery transport.
+         *
+         * @return `true` if WebSockets are disabled or initialized successfully, otherwise `false`.
+         */
+        bool init_websockets() override
+        {
+            return _websockets.instance().init();
+        }
+
+        /**
          * @brief Initializes network discovery for recovery transports.
          *
          * @return `true` if mDNS is disabled or initialized successfully, otherwise `false`.
@@ -70,12 +81,14 @@ namespace opendeck::bootloader::system
         }
 
         private:
-        mcu::HwaHw                    _mcu;
-        indicators::Builder           _indicators;
-        staged_update_reader::Builder _staged_update_reader;
-        direct_update_writer::Builder _staged_update_direct_update_writer = direct_update_writer::Builder(_mcu);
-        direct_update_writer::Builder _webusb_direct_update_writer        = direct_update_writer::Builder(_mcu);
-        webusb::Builder               _webusb                             = webusb::Builder(_webusb_direct_update_writer.instance());
-        bootloader::mdns::Builder     _mdns                               = bootloader::mdns::Builder(_mcu);
+        mcu::HwaHw                      _mcu;
+        indicators::Builder             _indicators;
+        staged_update_reader::Builder   _staged_update_reader;
+        direct_update_writer::Builder   _staged_update_direct_update_writer = direct_update_writer::Builder(_mcu);
+        direct_update_writer::Builder   _webusb_direct_update_writer        = direct_update_writer::Builder(_mcu);
+        direct_update_writer::Builder   _websockets_direct_update_writer    = direct_update_writer::Builder(_mcu);
+        webusb::Builder                 _webusb                             = webusb::Builder(_webusb_direct_update_writer.instance());
+        bootloader::websockets::Builder _websockets                         = bootloader::websockets::Builder(_websockets_direct_update_writer.instance());
+        bootloader::mdns::Builder       _mdns                               = bootloader::mdns::Builder(_mcu);
     };
 }    // namespace opendeck::bootloader::system

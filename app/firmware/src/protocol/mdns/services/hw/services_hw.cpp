@@ -9,7 +9,7 @@
 
 #include "firmware/src/protocol/mdns/shared/common.h"
 #include "firmware/src/protocol/osc/shared/common.h"
-#include "firmware/src/protocol/webconfig/shared/common.h"
+#include "common/src/websockets/shared/common.h"
 
 #include <zephyr/net/dns_sd.h>
 #include <zephyr/net/hostname.h>
@@ -18,18 +18,18 @@ using namespace opendeck::protocol::mdns;
 
 namespace
 {
-    char     webconfig_instance[NET_HOSTNAME_SIZE] = CONFIG_NET_HOSTNAME;
-    uint16_t webconfig_port                        = 0;
-    char     osc_instance[NET_HOSTNAME_SIZE]       = CONFIG_NET_HOSTNAME;
-    uint16_t osc_port                              = 0;
+    char     websockets_instance[NET_HOSTNAME_SIZE] = CONFIG_NET_HOSTNAME;
+    uint16_t websockets_port                        = 0;
+    char     osc_instance[NET_HOSTNAME_SIZE]        = CONFIG_NET_HOSTNAME;
+    uint16_t osc_port                               = 0;
 
-    DNS_SD_REGISTER_SERVICE(opendeck_webconfig,
-                            webconfig_instance,
-                            WEBCONFIG_SERVICE.data(),
+    DNS_SD_REGISTER_SERVICE(opendeck_websockets,
+                            websockets_instance,
+                            WEBSOCKETS_SERVICE.data(),
                             opendeck::mdns::TCP_PROTOCOL.data(),
                             opendeck::mdns::LOCAL_DOMAIN.data(),
-                            WEBCONFIG_TXT,
-                            &webconfig_port);
+                            WEBSOCKETS_TXT,
+                            &websockets_port);
 
     DNS_SD_REGISTER_SERVICE(opendeck_osc,
                             osc_instance,
@@ -40,12 +40,12 @@ namespace
                             &osc_port);
 }    // namespace
 
-opendeck::mdns::Service ServicesHw::webconfig()
+opendeck::mdns::Service ServicesHw::websockets()
 {
     return {
-        .instance     = webconfig_instance,
-        .port         = webconfig_port,
-        .service_port = protocol::webconfig::DEFAULT_PORT,
+        .instance     = websockets_instance,
+        .port         = websockets_port,
+        .service_port = opendeck::websockets::DEFAULT_PORT,
     };
 }
 

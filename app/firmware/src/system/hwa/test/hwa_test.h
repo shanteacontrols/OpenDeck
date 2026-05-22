@@ -10,7 +10,7 @@
 #include "firmware/src/mcu/builder/builder.h"
 #include "common/src/mcu/shared/common.h"
 #include "firmware/src/protocol/midi/builder/builder.h"
-#include "firmware/src/protocol/webconfig/builder/builder.h"
+#include "firmware/src/protocol/websockets/builder/builder.h"
 #include "firmware/src/protocol/mdns/builder/builder.h"
 #include "firmware/src/io/analog/builder/builder.h"
 #include "firmware/src/io/digital/builder/builder.h"
@@ -88,7 +88,7 @@ namespace opendeck::sys
         io::i2c::Builder                                     _builder_i2c         = io::i2c::Builder(_database);
         io::indicators::Builder                              _builder_indicators  = io::indicators::Builder(_database);
         protocol::midi::Builder                              _builder_midi        = protocol::midi::Builder(_database);
-        protocol::webconfig::Builder                         _builder_webconfig;
+        protocol::websockets::Builder                        _builder_websockets;
         protocol::mdns::Builder                              _builder_mdns = protocol::mdns::Builder(_database);
         IoCollection                                         _io           = {
             &_builder_digital.instance(),
@@ -100,7 +100,7 @@ namespace opendeck::sys
         };
         ProtocolCollection _protocol = {
             &_builder_midi.instance(),
-            &_builder_webconfig.instance(),
+            &_builder_websockets.instance(),
             &_builder_mdns.instance(),
         };
     };

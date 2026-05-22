@@ -20,7 +20,7 @@ retention, or by the target's MCUboot button when the board provides one.
 
 There are two update paths.
 
-The application update path is used by WebConfig on Ethernet targets with
+The application update path is used by WebSockets on Ethernet targets with
 enough flash for staging. The application receives `dfu.bin`, writes it to the
 `staged_dfu_partition`, requests bootloader entry, and reboots. The OpenDeck
 bootloader then reads the staged DFU package, installs the signed firmware image
@@ -29,8 +29,8 @@ MCUboot.
 
 The recovery update path is used when the OpenDeck bootloader is entered
 directly. In this mode the bootloader receives `dfu.bin` over its transport,
-currently WebUSB on USB-capable targets, and installs the signed firmware image
-directly into `slot0_partition`.
+currently WebUSB on USB-capable targets or WebSockets on network targets, and
+installs the signed firmware image directly into `slot0_partition`.
 
 In both paths, MCUboot remains responsible for validating the image before it is
 started.

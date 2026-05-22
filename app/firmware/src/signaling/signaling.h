@@ -81,7 +81,7 @@ namespace opendeck::signaling
     enum class ConfigTransport : uint8_t
     {
         Usb,
-        WebConfig,
+        WebSockets,
     };
 
     /** @brief Fixed configuration session id used by transports without client generations. */
@@ -171,14 +171,14 @@ namespace opendeck::signaling
      * @brief Carries one owned raw SysEx configuration frame from a config transport.
      *
      * `session_id` is a transport-local generation used to route responses and
-     * ignore stale disconnects from earlier WebConfig clients.
+     * ignore stale disconnects from earlier WebSockets clients.
      */
     struct ConfigRequestSignal
     {
         static constexpr size_t DATA_SIZE = zlibs::utils::sysex_conf::MAX_MESSAGE_SIZE;
         using Data                        = std::array<uint8_t, DATA_SIZE>;
 
-        ConfigTransport transport  = ConfigTransport::WebConfig;
+        ConfigTransport transport  = ConfigTransport::WebSockets;
         uint32_t        session_id = CONFIG_SESSION_ID_DEFAULT;
 
         ConfigRequestSignal() = default;
@@ -219,7 +219,7 @@ namespace opendeck::signaling
      */
     struct ConfigResponseSignal
     {
-        ConfigTransport transport  = ConfigTransport::WebConfig;
+        ConfigTransport transport  = ConfigTransport::WebSockets;
         ::midi_ump      packet     = {};
         uint32_t        session_id = CONFIG_SESSION_ID_DEFAULT;
     };
@@ -229,7 +229,7 @@ namespace opendeck::signaling
      */
     struct ConfigDisconnectSignal
     {
-        ConfigTransport transport  = ConfigTransport::WebConfig;
+        ConfigTransport transport  = ConfigTransport::WebSockets;
         uint32_t        session_id = CONFIG_SESSION_ID_DEFAULT;
     };
 

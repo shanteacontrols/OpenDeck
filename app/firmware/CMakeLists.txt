@@ -44,10 +44,12 @@ if(CONFIG_PROJECT_TARGET_SUPPORT_OSC)
     add_subdirectory(src/protocol/osc)
 endif()
 
-if(CONFIG_PROJECT_TARGET_SUPPORT_WEBCONFIG)
+if(CONFIG_PROJECT_TARGET_SUPPORT_WEBSOCKETS)
     add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/dfu_stream ${CMAKE_CURRENT_BINARY_DIR}/dfu_stream)
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/websockets/firmware_upload ${CMAKE_CURRENT_BINARY_DIR}/websockets_firmware_upload)
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/websockets/hwa/hw ${CMAKE_CURRENT_BINARY_DIR}/websockets_hwa_hw)
     add_subdirectory(src/staged_update_writer)
-    add_subdirectory(src/protocol/webconfig)
+    add_subdirectory(src/protocol/websockets)
 endif()
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_MDNS)
@@ -56,8 +58,8 @@ if(CONFIG_PROJECT_TARGET_SUPPORT_MDNS)
     add_subdirectory(src/protocol/mdns)
 endif()
 
-if(CONFIG_PROJECT_TARGET_SUPPORT_WEBCONFIG)
-    add_subdirectory(src/protocol/webconfig/hwa/hw)
+if(CONFIG_PROJECT_TARGET_SUPPORT_WEBSOCKETS)
+    add_subdirectory(src/protocol/websockets/hwa/hw)
 endif()
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_MDNS)
@@ -69,10 +71,11 @@ if(CONFIG_PROJECT_TARGET_SUPPORT_OSC)
     list(APPEND OPENDECK_FIRMWARE_LIBS protocol_osc)
 endif()
 
-if(CONFIG_PROJECT_TARGET_SUPPORT_WEBCONFIG)
+if(CONFIG_PROJECT_TARGET_SUPPORT_WEBSOCKETS)
     list(APPEND OPENDECK_FIRMWARE_LIBS
         dfu_stream
-        protocol_webconfig
+        opendeck_websockets_firmware_upload
+        protocol_websockets
         staged_update_writer
     )
 endif()
@@ -81,8 +84,8 @@ if(CONFIG_PROJECT_TARGET_SUPPORT_MDNS)
     list(APPEND OPENDECK_FIRMWARE_LIBS protocol_mdns)
 endif()
 
-if(CONFIG_PROJECT_TARGET_SUPPORT_WEBCONFIG)
-    list(APPEND OPENDECK_FIRMWARE_HWA_LIBS protocol_webconfig_hwa_hw)
+if(CONFIG_PROJECT_TARGET_SUPPORT_WEBSOCKETS)
+    list(APPEND OPENDECK_FIRMWARE_HWA_LIBS protocol_websockets_hwa_hw)
 endif()
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_MDNS)

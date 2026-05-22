@@ -30,11 +30,11 @@ namespace opendeck::protocol::mdns
         virtual ~Services() = default;
 
         /**
-         * @brief Returns the mutable WebConfig DNS-SD service descriptor.
+         * @brief Returns the mutable WebSockets DNS-SD service descriptor.
          *
-         * @return WebConfig service descriptor.
+         * @return WebSockets service descriptor.
          */
-        virtual opendeck::mdns::Service webconfig() = 0;
+        virtual opendeck::mdns::Service websockets() = 0;
 
         /**
          * @brief Returns the mutable OSC DNS-SD service descriptor.

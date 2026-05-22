@@ -36,6 +36,12 @@ bool bootloader::system::System::init()
         return false;
     }
 
+    if (!_hwa.init_websockets())
+    {
+        LOG_ERR("Failed to initialize WebSocket DFU transport");
+        return false;
+    }
+
     if (!_hwa.init_mdns())
     {
         LOG_ERR("Failed to initialize mDNS recovery advertisement");

@@ -32,8 +32,8 @@ namespace
         case signaling::ConfigTransport::Usb:
             return "USB";
 
-        case signaling::ConfigTransport::WebConfig:
-            return "WebConfig";
+        case signaling::ConfigTransport::WebSockets:
+            return "WebSockets";
         }
 
         return "unknown";
@@ -1232,7 +1232,7 @@ void System::handle_config_request(const signaling::ConfigRequestSignal& request
 
     if (!can_accept_config_transport(request.transport))
     {
-        LOG_WRN_ONCE("Ignoring WebConfig SysEx request while another config session is active");
+        LOG_WRN_ONCE("Ignoring WebSockets SysEx request while another config session is active");
         return;
     }
 
@@ -1267,10 +1267,10 @@ bool System::send_config_response(const midi_ump& packet)
 {
     const auto session = config_session();
 
-    if (session.transport == signaling::ConfigTransport::WebConfig)
+    if (session.transport == signaling::ConfigTransport::WebSockets)
     {
         return signaling::publish(signaling::ConfigResponseSignal{
-            .transport  = signaling::ConfigTransport::WebConfig,
+            .transport  = signaling::ConfigTransport::WebSockets,
             .packet     = packet,
             .session_id = session.session_id,
         });

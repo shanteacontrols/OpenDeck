@@ -395,7 +395,7 @@ config PROJECT_TARGET_SUPPORT_OSC
     help
       Hidden symbol indicating OSC support is present on this target.
 
-config PROJECT_TARGET_SUPPORT_WEBCONFIG
+config PROJECT_TARGET_SUPPORT_WEBSOCKETS
     bool
     default y if PROJECT_TARGET_SUPPORT_NETWORK
     depends on PROJECT_TARGET_SUPPORT_NETWORK
@@ -409,7 +409,7 @@ config PROJECT_TARGET_SUPPORT_WEBCONFIG
 
 config PROJECT_TARGET_SUPPORT_MDNS
     bool
-    default y if PROJECT_TARGET_SUPPORT_WEBCONFIG
+    default y if PROJECT_TARGET_SUPPORT_WEBSOCKETS
     depends on PROJECT_TARGET_SUPPORT_NETWORK
     select DNS_SD
     select HWINFO

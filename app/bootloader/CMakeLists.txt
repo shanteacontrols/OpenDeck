@@ -14,6 +14,13 @@ add_subdirectory(src/signaling)
 add_subdirectory(src/system)
 add_subdirectory(src/webusb)
 
+if(CONFIG_PROJECT_BOOTLOADER_SUPPORT_WEBSOCKETS)
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/websockets/firmware_upload ${CMAKE_CURRENT_BINARY_DIR}/websockets_firmware_upload)
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/websockets/hwa/hw ${CMAKE_CURRENT_BINARY_DIR}/websockets_hwa_hw)
+    add_subdirectory(src/websockets)
+    add_subdirectory(src/websockets/hwa/hw)
+endif()
+
 if(CONFIG_PROJECT_BOOTLOADER_SUPPORT_MDNS)
     add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/mdns ${CMAKE_CURRENT_BINARY_DIR}/mdns)
     add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/mdns/hwa/hw ${CMAKE_CURRENT_BINARY_DIR}/mdns_hwa_hw)
@@ -36,6 +43,14 @@ target_link_libraries(app
     opendeck_bootloader_system
     opendeck_bootloader_webusb
 )
+
+if(CONFIG_PROJECT_BOOTLOADER_SUPPORT_WEBSOCKETS)
+    target_link_libraries(app
+        PRIVATE
+        opendeck_bootloader_websockets
+        opendeck_bootloader_websockets_hwa_hw
+    )
+endif()
 
 if(CONFIG_PROJECT_BOOTLOADER_STAGED_UPDATE)
     target_link_libraries(app

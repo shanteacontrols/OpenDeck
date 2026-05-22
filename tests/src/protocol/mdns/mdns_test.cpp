@@ -138,7 +138,7 @@ TEST_F(MdnsTest, PublishesNetworkIdentityOnInit)
     const auto signals = collector.signals();
     EXPECT_EQ(signals.front().name, make_expected_name());
     EXPECT_EQ(signals.front().ipv4_address, "192.168.1.112");
-    EXPECT_EQ(std::string(_services.webconfig_instance.data()) + ".local", make_expected_name());
+    EXPECT_EQ(std::string(_services.websockets_instance.data()) + ".local", make_expected_name());
     EXPECT_EQ(std::string(_services.osc_instance.data()) + ".local", make_expected_name());
 }
 
@@ -152,7 +152,7 @@ TEST_F(MdnsTest, UsesCustomHostnameFromCommonDatabase)
     wait_for_signals(collector, 1);
     EXPECT_EQ(collector.signals().front().name, "studio-left.local");
     EXPECT_EQ(_hwa.hostname, "studio-left");
-    EXPECT_EQ(std::string(_services.webconfig_instance.data()), "studio-left");
+    EXPECT_EQ(std::string(_services.websockets_instance.data()), "studio-left");
     EXPECT_EQ(std::string(_services.osc_instance.data()), "studio-left");
 }
 

@@ -548,7 +548,7 @@ TEST_F(SystemTest, ConfigurationSessionTimeoutDoesNotCloseBackup)
     ASSERT_FALSE(closed_during_backup);
 }
 
-TEST_F(SystemTest, WebConfigDisconnectClosesConfigurationSession)
+TEST_F(SystemTest, WebSocketsDisconnectClosesConfigurationSession)
 {
     std::atomic_size_t opened_cnt = 0;
     std::atomic_size_t closed_cnt = 0;
@@ -574,7 +574,7 @@ TEST_F(SystemTest, WebConfigDisconnectClosesConfigurationSession)
     ASSERT_TRUE(_system._hwa.database().init(_database_handlers));
     ASSERT_TRUE(_system._instance.init());
 
-    ASSERT_TRUE(signaling::publish(signaling::ConfigRequestSignal(signaling::ConfigTransport::WebConfig, handshake_req, 1)));
+    ASSERT_TRUE(signaling::publish(signaling::ConfigRequestSignal(signaling::ConfigTransport::WebSockets, handshake_req, 1)));
     ASSERT_TRUE(zlibs::utils::signaling::drain());
 
     ASSERT_TRUE(tests::wait_until(
@@ -584,7 +584,7 @@ TEST_F(SystemTest, WebConfigDisconnectClosesConfigurationSession)
         }));
 
     ASSERT_TRUE(signaling::publish(signaling::ConfigDisconnectSignal{
-        .transport  = signaling::ConfigTransport::WebConfig,
+        .transport  = signaling::ConfigTransport::WebSockets,
         .session_id = 1,
     }));
     ASSERT_TRUE(zlibs::utils::signaling::drain());
@@ -596,7 +596,7 @@ TEST_F(SystemTest, WebConfigDisconnectClosesConfigurationSession)
         }));
 }
 
-TEST_F(SystemTest, StaleWebConfigDisconnectDoesNotCloseNewerConfigurationSession)
+TEST_F(SystemTest, StaleWebSocketsDisconnectDoesNotCloseNewerConfigurationSession)
 {
     std::atomic_size_t opened_cnt = 0;
     std::atomic_size_t closed_cnt = 0;
@@ -622,7 +622,7 @@ TEST_F(SystemTest, StaleWebConfigDisconnectDoesNotCloseNewerConfigurationSession
     ASSERT_TRUE(_system._hwa.database().init(_database_handlers));
     ASSERT_TRUE(_system._instance.init());
 
-    ASSERT_TRUE(signaling::publish(signaling::ConfigRequestSignal(signaling::ConfigTransport::WebConfig, handshake_req, 1)));
+    ASSERT_TRUE(signaling::publish(signaling::ConfigRequestSignal(signaling::ConfigTransport::WebSockets, handshake_req, 1)));
     ASSERT_TRUE(zlibs::utils::signaling::drain());
 
     ASSERT_TRUE(tests::wait_until(
@@ -631,11 +631,11 @@ TEST_F(SystemTest, StaleWebConfigDisconnectDoesNotCloseNewerConfigurationSession
             return opened_cnt.load() == 1;
         }));
 
-    ASSERT_TRUE(signaling::publish(signaling::ConfigRequestSignal(signaling::ConfigTransport::WebConfig, handshake_req, 2)));
+    ASSERT_TRUE(signaling::publish(signaling::ConfigRequestSignal(signaling::ConfigTransport::WebSockets, handshake_req, 2)));
     ASSERT_TRUE(zlibs::utils::signaling::drain());
 
     ASSERT_TRUE(signaling::publish(signaling::ConfigDisconnectSignal{
-        .transport  = signaling::ConfigTransport::WebConfig,
+        .transport  = signaling::ConfigTransport::WebSockets,
         .session_id = 1,
     }));
     ASSERT_TRUE(zlibs::utils::signaling::drain());
@@ -643,7 +643,7 @@ TEST_F(SystemTest, StaleWebConfigDisconnectDoesNotCloseNewerConfigurationSession
     EXPECT_EQ(closed_cnt.load(), 0U);
 
     ASSERT_TRUE(signaling::publish(signaling::ConfigDisconnectSignal{
-        .transport  = signaling::ConfigTransport::WebConfig,
+        .transport  = signaling::ConfigTransport::WebSockets,
         .session_id = 2,
     }));
     ASSERT_TRUE(zlibs::utils::signaling::drain());

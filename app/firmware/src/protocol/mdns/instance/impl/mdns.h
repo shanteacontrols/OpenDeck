@@ -36,7 +36,7 @@ namespace opendeck::protocol::mdns
         Mdns(opendeck::mdns::BaseMdns& base_mdns, Services& services, Database& database);
 
         /**
-         * @brief Configures the mDNS hostname and WebConfig service advertisement.
+         * @brief Configures the mDNS hostname and WebSockets service advertisement.
          *
          * @return `true` if discovery was configured, otherwise `false`.
          */

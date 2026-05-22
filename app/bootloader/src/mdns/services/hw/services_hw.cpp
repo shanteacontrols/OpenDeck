@@ -9,7 +9,7 @@
 
 #include "bootloader/src/mdns/shared/common.h"
 #include "common/src/mdns/shared/common.h"
-#include "firmware/src/protocol/webconfig/shared/common.h"
+#include "common/src/websockets/shared/common.h"
 
 #include <zephyr/net/dns_sd.h>
 #include <zephyr/net/hostname.h>
@@ -35,7 +35,7 @@ opendeck::mdns::Service ServicesHw::dfu()
     return {
         .instance     = dfu_instance,
         .port         = dfu_port,
-        .service_port = protocol::webconfig::DEFAULT_PORT,
+        .service_port = opendeck::websockets::DEFAULT_PORT,
     };
 }
 

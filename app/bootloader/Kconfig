@@ -55,4 +55,16 @@ config PROJECT_BOOTLOADER_SUPPORT_MDNS
     help
       Enables bootloader mDNS advertisement for network recovery targets.
 
+config PROJECT_BOOTLOADER_SUPPORT_WEBSOCKETS
+    bool "WebSocket DFU support"
+    default y if PROJECT_BOOTLOADER_SUPPORT_MDNS
+    depends on PROJECT_BOOTLOADER_SUPPORT_MDNS
+    select HTTP_SERVER
+    select HTTP_SERVER_WEBSOCKET
+    select NET_SOCKETS
+    select NET_TCP
+    help
+      Enables the bootloader WebSocket DFU endpoint for network recovery
+      targets.
+
 source "Kconfig.zephyr"

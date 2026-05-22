@@ -16,11 +16,11 @@ namespace opendeck::protocol::mdns
     {
         public:
         /**
-         * @brief Returns the mutable WebConfig DNS-SD service descriptor.
+         * @brief Returns the mutable WebSockets DNS-SD service descriptor.
          *
-         * @return WebConfig service descriptor.
+         * @return WebSockets service descriptor.
          */
-        opendeck::mdns::Service webconfig() override;
+        opendeck::mdns::Service websockets() override;
 
         /**
          * @brief Returns the mutable OSC DNS-SD service descriptor.

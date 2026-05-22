@@ -40,6 +40,13 @@ namespace opendeck::bootloader::system
         virtual bool init_webusb() = 0;
 
         /**
+         * @brief Initializes the WebSocket network recovery transport.
+         *
+         * @return `true` if WebSockets are disabled or initialized successfully, otherwise `false`.
+         */
+        virtual bool init_websockets() = 0;
+
+        /**
          * @brief Initializes network discovery for recovery transports.
          *
          * @return `true` if mDNS is disabled or initialized successfully, otherwise `false`.

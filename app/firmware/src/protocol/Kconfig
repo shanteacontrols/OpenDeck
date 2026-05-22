@@ -1,4 +1,4 @@
 rsource "midi/Kconfig"
 rsource "osc/Kconfig"
-rsource "webconfig/Kconfig"
+rsource "websockets/Kconfig"
 rsource "mdns/Kconfig"
