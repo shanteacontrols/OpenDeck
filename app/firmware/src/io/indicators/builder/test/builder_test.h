@@ -6,7 +6,7 @@
 #pragma once
 
 #include "firmware/src/io/indicators/instance/impl/indicators.h"
-#include "common/src/indicators/hwa/test/hwa_test.h"
+#include "common/src/io/indicators/hwa/test/hwa_test.h"
 
 namespace opendeck::io::indicators
 {
@@ -35,7 +35,7 @@ namespace opendeck::io::indicators
             return _instance;
         }
 
-        HwaTest    _hwa;
-        Indicators _instance;
+        opendeck::common::io::indicators::HwaTest _hwa;
+        Indicators                                _instance;
     };
 }    // namespace opendeck::io::indicators

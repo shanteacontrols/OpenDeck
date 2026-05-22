@@ -8,16 +8,16 @@ opendeck_test_bootstrap(
 
 opendeck_test_add_modules(
     metadata                            "app/common/src/metadata"
-    flash_stream_writer                 "app/common/src/flash_stream_writer"
-    dfu_stream                          "app/common/src/dfu_stream"
-    opendeck_websockets_firmware_upload "app/common/src/websockets/firmware_upload"
+    flash_stream_writer                 "app/common/src/dfu/flash_stream_writer"
+    dfu_stream                          "app/common/src/dfu/dfu_stream"
+    opendeck_websockets_firmware_upload "app/common/src/protocols/websockets/firmware_upload"
 )
 
 target_sources(app
     PRIVATE
     bootloader_websockets_test.cpp
-    $ENV{ZEPHYR_PROJECT}/app/bootloader/src/direct_update_writer/instance/impl/direct_update_writer.cpp
-    $ENV{ZEPHYR_PROJECT}/app/bootloader/src/websockets/instance/impl/websockets.cpp
+    $ENV{ZEPHYR_PROJECT}/app/bootloader/src/dfu/direct_update_writer/instance/impl/direct_update_writer.cpp
+    $ENV{ZEPHYR_PROJECT}/app/bootloader/src/protocols/websockets/instance/impl/websockets.cpp
 )
 
 target_link_libraries(app

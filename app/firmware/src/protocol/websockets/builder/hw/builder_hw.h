@@ -6,7 +6,7 @@
 #pragma once
 
 #include "firmware/src/protocol/websockets/hwa/hw/hwa_hw.h"
-#include "firmware/src/staged_update_writer/builder/builder.h"
+#include "firmware/src/dfu/staged_update_writer/builder/builder.h"
 #include "firmware/src/protocol/websockets/instance/impl/websockets.h"
 
 namespace opendeck::protocol::websockets
@@ -32,8 +32,8 @@ namespace opendeck::protocol::websockets
         }
 
         private:
-        staged_update_writer::Builder _firmware_builder;
-        HwaHw                         _hwa;
-        WebSockets                    _instance;
+        firmware::dfu::staged_update_writer::Builder _firmware_builder;
+        HwaHw                                        _hwa;
+        WebSockets                                   _instance;
     };
 }    // namespace opendeck::protocol::websockets

@@ -20,15 +20,15 @@ namespace opendeck::protocol::mdns
     class HwaTest : public Hwa
     {
         public:
-        std::string              serial              = "08090a0b";
-        std::string              ip_address_value    = "192.168.1.112";
-        std::string              hostname            = {};
-        std::string              service_instance    = {};
-        IpAddressChangedCallback ip_changed_callback = {};
-        bool                     hostname_result     = true;
-        bool                     service_result      = true;
-        size_t                   advertise_count     = 0;
-        size_t                   advertise_fail_at   = 0;
+        std::string                   serial              = "08090a0b";
+        std::string                   ip_address_value    = "192.168.1.112";
+        std::string                   hostname            = {};
+        std::string                   service_instance    = {};
+        Hwa::IpAddressChangedCallback ip_changed_callback = {};
+        bool                          hostname_result     = true;
+        bool                          service_result      = true;
+        size_t                        advertise_count     = 0;
+        size_t                        advertise_fail_at   = 0;
 
         /**
          * @brief Returns the configured test serial number suffix.
@@ -65,7 +65,7 @@ namespace opendeck::protocol::mdns
          *
          * @param callback Callback to store.
          */
-        void register_ip_address_changed_callback(IpAddressChangedCallback callback) override
+        void register_ip_address_changed_callback(Hwa::IpAddressChangedCallback callback) override
         {
             ip_changed_callback = std::move(callback);
         }

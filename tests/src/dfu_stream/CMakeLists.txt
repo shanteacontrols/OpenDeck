@@ -6,7 +6,7 @@ opendeck_test_bootstrap(
 
 opendeck_test_add_modules(
     metadata   "app/common/src/metadata"
-    dfu_stream "app/common/src/dfu_stream"
+    dfu_stream "app/common/src/dfu/dfu_stream"
 )
 
 target_sources(app

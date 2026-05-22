@@ -13,7 +13,7 @@
 #include "firmware/src/io/i2c/peripherals/display/shared/common.h"
 #include "firmware/src/io/outputs/shared/common.h"
 #include "firmware/src/io/touchscreen/shared/common.h"
-#include "common/src/mdns/shared/common.h"
+#include "common/src/protocols/mdns/shared/common.h"
 #include "firmware/src/protocol/midi/shared/common.h"
 #include "firmware/src/protocol/mdns/shared/common.h"
 #include "firmware/src/protocol/osc/shared/common.h"
@@ -22,6 +22,8 @@
 
 namespace opendeck::database
 {
+    namespace common_mdns = opendeck::common::protocols::mdns;
+
     /**
      * @brief Application-specific LessDb layout for common and preset data.
      */
@@ -143,7 +145,7 @@ namespace opendeck::database
                 0),
             // MdnsHostname
             Section(
-                static_cast<uint8_t>(mdns::CUSTOM_HOSTNAME_SIZE),
+                static_cast<uint8_t>(common_mdns::CUSTOM_HOSTNAME_SIZE),
                 SectionParameterType::Byte,
                 PreserveSetting::Disable,
                 AutoIncrementSetting::Disable,

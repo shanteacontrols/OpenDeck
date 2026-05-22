@@ -16,7 +16,7 @@
 
 #include <array>
 
-namespace opendeck::mcu
+namespace opendeck::common::mcu
 {
     /**
      * @brief Zephyr-backed MCU services.
@@ -57,9 +57,9 @@ namespace opendeck::mcu
          *
          * @param type Firmware target to reboot into.
          */
-        void reboot(mcu::BootTarget type) override
+        void reboot(opendeck::common::mcu::BootTarget type) override
         {
-            if (type == mcu::BootTarget::Bootloader)
+            if (type == opendeck::common::mcu::BootTarget::Bootloader)
             {
                 bootmode_set(BOOT_MODE_TYPE_BOOTLOADER);
             }
@@ -72,9 +72,9 @@ namespace opendeck::mcu
         }
 
         private:
-        std::array<uint8_t, SERIAL_NUMBER_BUFFER_SIZE> _serial_number = {};
-        size_t                                         _serial_size   = 0;
-        bool                                           _serial_loaded = false;
-        zlibs::utils::misc::Mutex                      _serial_mutex;
+        std::array<uint8_t, opendeck::common::mcu::SERIAL_NUMBER_BUFFER_SIZE> _serial_number = {};
+        size_t                                                                _serial_size   = 0;
+        bool                                                                  _serial_loaded = false;
+        zlibs::utils::misc::Mutex                                             _serial_mutex;
     };
-}    // namespace opendeck::mcu
+}    // namespace opendeck::common::mcu

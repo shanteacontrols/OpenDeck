@@ -7,7 +7,7 @@
 
 #include "firmware/src/system/shared/deps.h"
 #include "firmware/src/database/builder/builder.h"
-#include "firmware/src/mcu/builder/builder.h"
+#include "common/src/mcu/builder/builder.h"
 #include "firmware/src/protocol/midi/builder/builder.h"
 #include "firmware/src/protocol/osc/builder/builder.h"
 #include "firmware/src/protocol/websockets/builder/builder.h"
@@ -59,7 +59,7 @@ namespace opendeck::sys
          *
          * @param type Firmware target to reboot into.
          */
-        void reboot(mcu::BootTarget type) override
+        void reboot(opendeck::common::mcu::BootTarget type) override
         {
             _mcu.reboot(type);
         }
@@ -75,20 +75,20 @@ namespace opendeck::sys
         }
 
         private:
-        mcu::Builder                  _builder_mcu;
-        mcu::Hwa&                     _mcu                 = _builder_mcu.instance();
-        database::Admin&              _database            = database::Builder::instance();
-        io::digital::Builder          _builder_digital     = io::digital::Builder(_database);
-        io::analog::Builder           _builder_analog      = io::analog::Builder(_database);
-        io::outputs::Builder          _builder_outputs     = io::outputs::Builder(_database);
-        io::touchscreen::Builder      _builder_touchscreen = io::touchscreen::Builder(_database);
-        io::i2c::Builder              _builder_i2c         = io::i2c::Builder(_database);
-        io::indicators::Builder       _builder_indicators  = io::indicators::Builder(_database);
-        protocol::midi::Builder       _builder_midi        = protocol::midi::Builder(_database);
-        protocol::osc::Builder        _builder_osc         = protocol::osc::Builder(_database);
-        protocol::websockets::Builder _builder_websockets;
-        protocol::mdns::Builder       _builder_mdns = protocol::mdns::Builder(_database, _mcu);
-        IoCollection                  _io           = {
+        opendeck::common::mcu::Builder _builder_mcu;
+        opendeck::common::mcu::Hwa&    _mcu                 = _builder_mcu.instance();
+        database::Admin&               _database            = database::Builder::instance();
+        io::digital::Builder           _builder_digital     = io::digital::Builder(_database);
+        io::analog::Builder            _builder_analog      = io::analog::Builder(_database);
+        io::outputs::Builder           _builder_outputs     = io::outputs::Builder(_database);
+        io::touchscreen::Builder       _builder_touchscreen = io::touchscreen::Builder(_database);
+        io::i2c::Builder               _builder_i2c         = io::i2c::Builder(_database);
+        io::indicators::Builder        _builder_indicators  = io::indicators::Builder(_database);
+        protocol::midi::Builder        _builder_midi        = protocol::midi::Builder(_database);
+        protocol::osc::Builder         _builder_osc         = protocol::osc::Builder(_database);
+        protocol::websockets::Builder  _builder_websockets;
+        protocol::mdns::Builder        _builder_mdns = protocol::mdns::Builder(_database, _mcu);
+        IoCollection                   _io           = {
             &_builder_digital.instance(),
             &_builder_analog.instance(),
             &_builder_outputs.instance(),

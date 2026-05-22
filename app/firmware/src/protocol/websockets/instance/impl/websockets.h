@@ -8,10 +8,10 @@
 #include "firmware/src/protocol/osc/shared/packet.h"
 #include "firmware/src/protocol/base.h"
 #include "firmware/src/signaling/signaling.h"
-#include "firmware/src/staged_update_writer/instance/impl/staged_update_writer.h"
+#include "firmware/src/dfu/staged_update_writer/instance/impl/staged_update_writer.h"
 #include "firmware/src/threads.h"
-#include "common/src/websockets/firmware_upload/firmware_upload.h"
-#include "common/src/websockets/shared/deps.h"
+#include "common/src/protocols/websockets/firmware_upload/firmware_upload.h"
+#include "common/src/protocols/websockets/shared/deps.h"
 
 #include "zlibs/utils/midi/midi.h"
 #include "zlibs/utils/misc/mutex.h"
@@ -30,10 +30,10 @@ namespace opendeck::protocol::websockets
     /**
      * @brief Browser-facing WebSocket configuration endpoint.
      */
-    class WebSockets : public protocol::Base, public opendeck::websockets::Endpoint
+    class WebSockets : public protocol::Base, public opendeck::common::protocols::websockets::Endpoint
     {
         public:
-        WebSockets(opendeck::websockets::Hwa& hwa, staged_update_writer::StagedUpdateWriter& staged_update_writer);
+        WebSockets(opendeck::common::protocols::websockets::Hwa& hwa, firmware::dfu::staged_update_writer::StagedUpdateWriter& staged_update_writer);
         ~WebSockets() override;
 
         bool init() override;
@@ -61,27 +61,27 @@ namespace opendeck::protocol::websockets
             uint32_t                           client_generation = 0;
         };
 
-        opendeck::websockets::Hwa&                                            _hwa;
-        k_sem                                                                 _client_wakeup             = {};
-        k_sem                                                                 _tx_wakeup                 = {};
-        std::atomic<int>                                                      _client_socket             = -1;
-        uint32_t                                                              _client_generation         = 0;
-        std::atomic<bool>                                                     _shutdown                  = false;
-        std::atomic<bool>                                                     _server_running            = false;
-        bool                                                                  _network_identity_received = false;
-        threads::WebSocketsThread                                             _client_thread;
-        threads::WebSocketsTxThread                                           _tx_thread;
-        zlibs::utils::misc::Mutex                                             _send_mutex;
-        zlibs::utils::misc::Mutex                                             _client_state_lock;
-        zlibs::utils::misc::Mutex                                             _response_lock;
-        mutable zlibs::utils::misc::Mutex                                     _network_identity_lock;
-        std::array<uint8_t, opendeck::websockets::FIRMWARE_UPLOAD_FRAME_SIZE> _rx_buffer        = {};
-        signaling::ConfigRequestSignal::Data                                  _response_buffer  = {};
-        signaling::NetworkIdentitySignal                                      _network_identity = {};
-        size_t                                                                _response_size    = 0;
-        opendeck::websockets::FirmwareUpload                                  _firmware_upload;
-        zlibs::utils::misc::RingBuffer<TX_QUEUE_SIZE, false, TxFrame>         _tx_queue = {};
-        zlibs::utils::misc::Mutex                                             _tx_queue_lock;
+        opendeck::common::protocols::websockets::Hwa&                                            _hwa;
+        k_sem                                                                                    _client_wakeup             = {};
+        k_sem                                                                                    _tx_wakeup                 = {};
+        std::atomic<int>                                                                         _client_socket             = -1;
+        uint32_t                                                                                 _client_generation         = 0;
+        std::atomic<bool>                                                                        _shutdown                  = false;
+        std::atomic<bool>                                                                        _server_running            = false;
+        bool                                                                                     _network_identity_received = false;
+        threads::WebSocketsThread                                                                _client_thread;
+        threads::WebSocketsTxThread                                                              _tx_thread;
+        zlibs::utils::misc::Mutex                                                                _send_mutex;
+        zlibs::utils::misc::Mutex                                                                _client_state_lock;
+        zlibs::utils::misc::Mutex                                                                _response_lock;
+        mutable zlibs::utils::misc::Mutex                                                        _network_identity_lock;
+        std::array<uint8_t, opendeck::common::protocols::websockets::FIRMWARE_UPLOAD_FRAME_SIZE> _rx_buffer        = {};
+        signaling::ConfigRequestSignal::Data                                                     _response_buffer  = {};
+        signaling::NetworkIdentitySignal                                                         _network_identity = {};
+        size_t                                                                                   _response_size    = 0;
+        opendeck::common::protocols::websockets::FirmwareUpload                                  _firmware_upload;
+        zlibs::utils::misc::RingBuffer<TX_QUEUE_SIZE, false, TxFrame>                            _tx_queue = {};
+        zlibs::utils::misc::Mutex                                                                _tx_queue_lock;
 
         /**
          * @brief Worker loop that forwards binary WebSocket frames to the config parser.

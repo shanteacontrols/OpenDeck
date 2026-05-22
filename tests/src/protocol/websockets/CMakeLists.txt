@@ -6,13 +6,13 @@ opendeck_test_bootstrap(
 )
 
 opendeck_test_add_modules(
-    mcu                                 "app/firmware/src/mcu"
+    mcu                                 "app/common/src/mcu"
     metadata                            "app/common/src/metadata"
-    flash_stream_writer                 "app/common/src/flash_stream_writer"
-    dfu_stream                          "app/common/src/dfu_stream"
-    opendeck_websockets_firmware_upload "app/common/src/websockets/firmware_upload"
+    flash_stream_writer                 "app/common/src/dfu/flash_stream_writer"
+    dfu_stream                          "app/common/src/dfu/dfu_stream"
+    opendeck_websockets_firmware_upload "app/common/src/protocols/websockets/firmware_upload"
     protocol_osc_packet                 "app/firmware/src/protocol/osc/packet"
-    staged_update_writer                "app/firmware/src/staged_update_writer"
+    staged_update_writer                "app/firmware/src/dfu/staged_update_writer"
     protocol_websockets                 "app/firmware/src/protocol/websockets"
 )
 

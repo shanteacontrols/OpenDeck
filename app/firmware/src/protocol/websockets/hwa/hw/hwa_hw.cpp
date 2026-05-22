@@ -7,7 +7,7 @@
 
 #include "firmware/src/protocol/websockets/hwa/hw/hwa_hw.h"
 #include "firmware/src/protocol/websockets/instance/impl/websockets.h"
-#include "common/src/websockets/shared/common.h"
+#include "common/src/protocols/websockets/shared/common.h"
 
 #include <zephyr/net/http/service.h>
 #include <zephyr/sys/util.h>
@@ -16,8 +16,8 @@ using namespace opendeck::protocol::websockets;
 
 namespace
 {
-    uint16_t http_port = opendeck::websockets::DEFAULT_PORT;
-    uint8_t  upgrade_buffer[opendeck::websockets::UPGRADE_BUFFER_SIZE];
+    uint16_t http_port = opendeck::common::protocols::websockets::DEFAULT_PORT;
+    uint8_t  upgrade_buffer[opendeck::common::protocols::websockets::UPGRADE_BUFFER_SIZE];
 
     http_resource_detail_websocket websockets_resource_detail = {
         .common = {
@@ -33,11 +33,11 @@ namespace
 }    // namespace
 
 // NOLINTNEXTLINE(misc-use-anonymous-namespace): Zephyr macro defines service storage with internal linkage.
-HTTP_SERVICE_DEFINE(websockets_service, nullptr, &http_port, opendeck::websockets::CLIENT_COUNT, 1, nullptr, nullptr, nullptr);
+HTTP_SERVICE_DEFINE(websockets_service, nullptr, &http_port, opendeck::common::protocols::websockets::CLIENT_COUNT, 1, nullptr, nullptr, nullptr);
 HTTP_RESOURCE_DEFINE(websockets_resource, websockets_service, "/config", &websockets_resource_detail);
 
 HwaHw::HwaHw()
-    : opendeck::websockets::HwaHw(websockets_resource_detail)
+    : opendeck::common::protocols::websockets::HwaHw(websockets_resource_detail)
 {}
 
 #endif

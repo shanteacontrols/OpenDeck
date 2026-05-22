@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "common/src/indicators/shared/deps.h"
+#include "common/src/io/indicators/shared/deps.h"
 #include "firmware/src/io/base.h"
 #include "firmware/src/signaling/signaling.h"
 
@@ -33,7 +33,7 @@ namespace opendeck::io::indicators
          *
          * @param hwa Hardware abstraction used to drive indicator outputs.
          */
-        explicit Indicators(Hwa& hwa);
+        explicit Indicators(opendeck::common::io::indicators::Hwa& hwa);
         ~Indicators() override;
 
         /**
@@ -49,18 +49,18 @@ namespace opendeck::io::indicators
         void deinit() override;
 
         private:
-        Hwa&                               _hwa;
-        zlibs::utils::misc::KworkDelayable _usb_in_off_work;
-        zlibs::utils::misc::KworkDelayable _usb_out_off_work;
-        zlibs::utils::misc::KworkDelayable _din_in_off_work;
-        zlibs::utils::misc::KworkDelayable _din_out_off_work;
-        zlibs::utils::misc::KworkDelayable _ble_in_off_work;
-        zlibs::utils::misc::KworkDelayable _ble_out_off_work;
-        zlibs::utils::misc::KworkDelayable _network_in_off_work;
-        zlibs::utils::misc::KworkDelayable _network_out_off_work;
-        bool                               _factory_reset_in_progress = false;
-        bool                               _invert                    = false;
-        bool                               _network_up                = false;
+        opendeck::common::io::indicators::Hwa& _hwa;
+        zlibs::utils::misc::KworkDelayable     _usb_in_off_work;
+        zlibs::utils::misc::KworkDelayable     _usb_out_off_work;
+        zlibs::utils::misc::KworkDelayable     _din_in_off_work;
+        zlibs::utils::misc::KworkDelayable     _din_out_off_work;
+        zlibs::utils::misc::KworkDelayable     _ble_in_off_work;
+        zlibs::utils::misc::KworkDelayable     _ble_out_off_work;
+        zlibs::utils::misc::KworkDelayable     _network_in_off_work;
+        zlibs::utils::misc::KworkDelayable     _network_out_off_work;
+        bool                                   _factory_reset_in_progress = false;
+        bool                                   _invert                    = false;
+        bool                                   _network_up                = false;
 
         /**
          * @brief Handles one traffic notification.
@@ -81,21 +81,21 @@ namespace opendeck::io::indicators
          *
          * @param type Indicator to update.
          */
-        void set_idle(Type type);
+        void set_idle(opendeck::common::io::indicators::Type type);
 
         /**
          * @brief Applies the active traffic state to one indicator.
          *
          * @param type Indicator to update.
          */
-        void set_active(Type type);
+        void set_active(opendeck::common::io::indicators::Type type);
 
         /**
          * @brief Schedules automatic return to idle state for the selected indicator.
          *
          * @param type Indicator to return to idle later.
          */
-        void schedule_idle(Type type);
+        void schedule_idle(opendeck::common::io::indicators::Type type);
 
         /**
          * @brief Cancels all pending indicator idle work.
@@ -115,7 +115,8 @@ namespace opendeck::io::indicators
          *
          * @return Indicator type that represents the traffic source.
          */
-        Type indicator_type(signaling::TrafficTransport transport, signaling::SignalDirection direction);
+        opendeck::common::io::indicators::Type indicator_type(signaling::TrafficTransport transport,
+                                                              signaling::SignalDirection  direction);
 
         /**
          * @brief Sets the state of all input indicators.

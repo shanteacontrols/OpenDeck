@@ -129,7 +129,7 @@ when both images need the same low-level contract or HWA, but not necessarily
 the same behavior.
 
 For example, indicators share HWA and dependency types through
-`common/src/indicators/`, while firmware and bootloader keep separate indicator
+`common/src/io/indicators/`, while firmware and bootloader keep separate indicator
 instances because their runtime behavior is different.
 
 ## Include Style
@@ -138,7 +138,7 @@ Project includes are written relative to `app/`:
 
 ```cpp
 #include "firmware/src/system/builder/builder.h"
-#include "common/src/indicators/shared/deps.h"
+#include "common/src/io/indicators/shared/deps.h"
 ```
 
 This avoids ambiguity between firmware, bootloader, common, and test include

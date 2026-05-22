@@ -31,8 +31,8 @@ namespace opendeck::protocol::mdns
          * @param database Unused database administrator retained for builder compatibility.
          * @param mcu Unused MCU services retained for builder compatibility.
          */
-        Builder([[maybe_unused]] database::Admin& database,
-                [[maybe_unused]] mcu::Hwa&        mcu)
+        Builder([[maybe_unused]] database::Admin&            database,
+                [[maybe_unused]] opendeck::common::mcu::Hwa& mcu)
         {}
 
         /**

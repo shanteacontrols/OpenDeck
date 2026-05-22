@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "common/src/mdns/shared/common.h"
-#include "common/src/mdns/shared/deps.h"
+#include "common/src/protocols/mdns/shared/common.h"
+#include "common/src/protocols/mdns/shared/deps.h"
 #include "firmware/src/database/instance/impl/database.h"
 
 namespace opendeck::protocol::mdns
@@ -19,7 +19,7 @@ namespace opendeck::protocol::mdns
     /**
      * @brief Platform hooks used by the shared mDNS backend.
      */
-    using Hwa = opendeck::mdns::Hwa;
+    using Hwa = opendeck::common::protocols::mdns::Hwa;
 
     /**
      * @brief DNS-SD services advertised by the firmware mDNS backend.
@@ -34,13 +34,13 @@ namespace opendeck::protocol::mdns
          *
          * @return WebSockets service descriptor.
          */
-        virtual opendeck::mdns::Service websockets() = 0;
+        virtual opendeck::common::protocols::mdns::Service websockets() = 0;
 
         /**
          * @brief Returns the mutable OSC DNS-SD service descriptor.
          *
          * @return OSC service descriptor.
          */
-        virtual opendeck::mdns::Service osc() = 0;
+        virtual opendeck::common::protocols::mdns::Service osc() = 0;
     };
 }    // namespace opendeck::protocol::mdns

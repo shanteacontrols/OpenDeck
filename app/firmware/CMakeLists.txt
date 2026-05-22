@@ -1,6 +1,6 @@
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/metadata ${CMAKE_CURRENT_BINARY_DIR}/metadata)
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/flash_stream_writer ${CMAKE_CURRENT_BINARY_DIR}/flash_stream_writer)
-add_subdirectory(src/mcu)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/dfu/flash_stream_writer ${CMAKE_CURRENT_BINARY_DIR}/flash_stream_writer)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/mcu ${CMAKE_CURRENT_BINARY_DIR}/mcu)
 add_subdirectory(src/database)
 add_subdirectory(src/util/configurable)
 add_subdirectory(src/util/cinfo)
@@ -45,16 +45,16 @@ if(CONFIG_PROJECT_TARGET_SUPPORT_OSC)
 endif()
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_WEBSOCKETS)
-    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/dfu_stream ${CMAKE_CURRENT_BINARY_DIR}/dfu_stream)
-    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/websockets/firmware_upload ${CMAKE_CURRENT_BINARY_DIR}/websockets_firmware_upload)
-    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/websockets/hwa/hw ${CMAKE_CURRENT_BINARY_DIR}/websockets_hwa_hw)
-    add_subdirectory(src/staged_update_writer)
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/dfu/dfu_stream ${CMAKE_CURRENT_BINARY_DIR}/dfu_stream)
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/protocols/websockets/firmware_upload ${CMAKE_CURRENT_BINARY_DIR}/websockets_firmware_upload)
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/protocols/websockets/hwa/hw ${CMAKE_CURRENT_BINARY_DIR}/websockets_hwa_hw)
+    add_subdirectory(src/dfu/staged_update_writer)
     add_subdirectory(src/protocol/websockets)
 endif()
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_MDNS)
-    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/mdns ${CMAKE_CURRENT_BINARY_DIR}/mdns)
-    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/mdns/hwa/hw ${CMAKE_CURRENT_BINARY_DIR}/mdns_hwa_hw)
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/protocols/mdns ${CMAKE_CURRENT_BINARY_DIR}/mdns)
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/protocols/mdns/hwa/hw ${CMAKE_CURRENT_BINARY_DIR}/mdns_hwa_hw)
     add_subdirectory(src/protocol/mdns)
 endif()
 
@@ -63,7 +63,6 @@ if(CONFIG_PROJECT_TARGET_SUPPORT_WEBSOCKETS)
 endif()
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_MDNS)
-    add_subdirectory(src/protocol/mdns/hwa/hw)
     add_subdirectory(src/protocol/mdns/services/hw)
 endif()
 
@@ -90,7 +89,7 @@ endif()
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_MDNS)
     list(APPEND OPENDECK_FIRMWARE_HWA_LIBS
-        protocol_mdns_hwa_hw
+        opendeck_mdns_hwa_hw
         protocol_mdns_services_hw
     )
 endif()

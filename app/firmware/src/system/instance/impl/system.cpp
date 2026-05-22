@@ -261,7 +261,7 @@ System::System(Hwa& hwa)
 
             case signaling::SystemEvent::BootloaderRebootReq:
             {
-                schedule_reboot(mcu::BootTarget::Bootloader);
+                schedule_reboot(opendeck::common::mcu::BootTarget::Bootloader);
             }
             break;
 
@@ -653,7 +653,7 @@ void System::finish_restore()
     signal.system_event            = signaling::SystemEvent::RestoreEnd;
     signaling::publish(signal);
 
-    schedule_reboot(mcu::BootTarget::Application);
+    schedule_reboot(opendeck::common::mcu::BootTarget::Application);
 }
 
 void System::emit_preset_change(uint8_t preset)
@@ -872,7 +872,7 @@ zlibs::utils::sysex_conf::Status System::SysExDataHandler::custom_request(uint16
 
     case SYSEX_CR_REBOOT_APP:
     {
-        _system.schedule_reboot(mcu::BootTarget::Application);
+        _system.schedule_reboot(opendeck::common::mcu::BootTarget::Application);
     }
     break;
 
@@ -884,7 +884,7 @@ zlibs::utils::sysex_conf::Status System::SysExDataHandler::custom_request(uint16
             break;
         }
 
-        _system.schedule_reboot(mcu::BootTarget::Bootloader);
+        _system.schedule_reboot(opendeck::common::mcu::BootTarget::Bootloader);
     }
     break;
 
@@ -1033,7 +1033,7 @@ void System::DatabaseHandlers::factory_reset_done()
 
     signaling::publish(signal);
 
-    _system.schedule_reboot(mcu::BootTarget::Application);
+    _system.schedule_reboot(opendeck::common::mcu::BootTarget::Application);
 }
 
 void System::schedule_factory_reset()
@@ -1060,9 +1060,9 @@ void System::run_factory_reset()
     }
 }
 
-void System::schedule_reboot(mcu::BootTarget type)
+void System::schedule_reboot(opendeck::common::mcu::BootTarget type)
 {
-    LOG_INF("Scheduling reboot to %s", type == mcu::BootTarget::Bootloader ? "bootloader" : "application");
+    LOG_INF("Scheduling reboot to %s", type == opendeck::common::mcu::BootTarget::Bootloader ? "bootloader" : "application");
     _reboot_type        = type;
     _reboot_in_progress = true;
     _reboot_work.reschedule(REBOOT_DELAY_MS);

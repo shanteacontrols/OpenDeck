@@ -4,21 +4,21 @@
  */
 
 #include "tests/common.h"
-#include "common/src/dfu_stream/shared/common.h"
-#include "common/src/flash_area/hwa/test/hwa_test.h"
-#include "firmware/src/staged_update_writer/hwa/test/hwa_test.h"
-#include "firmware/src/staged_update_writer/instance/impl/staged_update_writer.h"
+#include "common/src/dfu/dfu_stream/shared/common.h"
+#include "common/src/dfu/flash_area/hwa/test/hwa_test.h"
+#include "firmware/src/dfu/staged_update_writer/hwa/test/hwa_test.h"
+#include "firmware/src/dfu/staged_update_writer/instance/impl/staged_update_writer.h"
 
 #include <algorithm>
 #include <array>
 #include <cstring>
 #include <vector>
 
-using namespace opendeck::staged_update_writer;
+using namespace opendeck::firmware::dfu::staged_update_writer;
 
 namespace
 {
-    using FlashAreaHwaTest = opendeck::flash_area::HwaTest;
+    using FlashAreaHwaTest = opendeck::common::dfu::flash_area::HwaTest;
 
     class StagedUpdateWriterTest : public ::testing::Test
     {
@@ -26,7 +26,7 @@ namespace
         HwaTest            hwa;
         StagedUpdateWriter staged_update_writer = StagedUpdateWriter(hwa);
 
-        static void write_word(opendeck::dfu_stream::Header& header, size_t word_index, uint32_t value)
+        static void write_word(opendeck::common::dfu::dfu_stream::Header& header, size_t word_index, uint32_t value)
         {
             constexpr uint32_t BYTE_MASK      = 0xFF;
             constexpr uint8_t  BITS_PER_OCTET = 8;
@@ -38,12 +38,12 @@ namespace
             }
         }
 
-        static opendeck::dfu_stream::Header header(uint32_t payload_size)
+        static opendeck::common::dfu::dfu_stream::Header header(uint32_t payload_size)
         {
-            opendeck::dfu_stream::Header header = {};
+            opendeck::common::dfu::dfu_stream::Header header = {};
 
-            write_word(header, 0, opendeck::dfu_stream::START_COMMAND);
-            write_word(header, 1, opendeck::dfu_stream::FORMAT_VERSION);
+            write_word(header, 0, opendeck::common::dfu::dfu_stream::START_COMMAND);
+            write_word(header, 1, opendeck::common::dfu::dfu_stream::FORMAT_VERSION);
             write_word(header, 2, OPENDECK_TARGET_UID);
             write_word(header, 3, payload_size);
 
@@ -52,7 +52,7 @@ namespace
 
         static constexpr size_t header_storage_size()
         {
-            return ((opendeck::dfu_stream::HEADER_SIZE + FlashAreaHwaTest::WRITE_BLOCK_SIZE - 1U) /
+            return ((opendeck::common::dfu::dfu_stream::HEADER_SIZE + FlashAreaHwaTest::WRITE_BLOCK_SIZE - 1U) /
                     FlashAreaHwaTest::WRITE_BLOCK_SIZE) *
                    FlashAreaHwaTest::WRITE_BLOCK_SIZE;
         }

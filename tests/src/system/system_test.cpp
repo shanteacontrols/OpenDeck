@@ -8,7 +8,7 @@
 #include "tests/helpers/midi.h"
 #include "tests/helpers/misc.h"
 #include "firmware/src/system/builder/builder.h"
-#include "common/src/indicators/hwa/test/hwa_test.h"
+#include "common/src/io/indicators/hwa/test/hwa_test.h"
 #include "firmware/src/io/indicators/instance/impl/indicators.h"
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/util/configurable/configurable.h"
@@ -431,12 +431,12 @@ TEST_F(SystemTest, ConfigurationSessionTimesOutAfterInactivity)
 
 TEST_F(SystemTest, IndicatorsInvertWhileConfigurationSessionIsOpen)
 {
-    io::indicators::HwaTest    hwa;
-    io::indicators::Indicators indicators(hwa);
+    opendeck::common::io::indicators::HwaTest hwa;
+    io::indicators::Indicators                indicators(hwa);
 
     ASSERT_TRUE(indicators.init());
-    ASSERT_FALSE(hwa.is_on(io::indicators::Type::UsbIn));
-    ASSERT_FALSE(hwa.is_on(io::indicators::Type::UsbOut));
+    ASSERT_FALSE(hwa.is_on(opendeck::common::io::indicators::Type::UsbIn));
+    ASSERT_FALSE(hwa.is_on(opendeck::common::io::indicators::Type::UsbOut));
 
     signaling::SystemSignal open_signal = {};
     open_signal.system_event            = signaling::SystemEvent::ConfigurationSessionOpened;
@@ -445,8 +445,8 @@ TEST_F(SystemTest, IndicatorsInvertWhileConfigurationSessionIsOpen)
     ASSERT_TRUE(tests::wait_until(
         [&]()
         {
-            return hwa.is_on(io::indicators::Type::UsbIn) &&
-                   hwa.is_on(io::indicators::Type::UsbOut);
+            return hwa.is_on(opendeck::common::io::indicators::Type::UsbIn) &&
+                   hwa.is_on(opendeck::common::io::indicators::Type::UsbOut);
         }));
 
     signaling::TrafficSignal traffic_signal = {};
@@ -457,11 +457,11 @@ TEST_F(SystemTest, IndicatorsInvertWhileConfigurationSessionIsOpen)
     ASSERT_TRUE(tests::wait_until(
         [&]()
         {
-            return !hwa.is_on(io::indicators::Type::UsbIn);
+            return !hwa.is_on(opendeck::common::io::indicators::Type::UsbIn);
         }));
 
     k_msleep(io::indicators::Indicators::TRAFFIC_INDICATOR_TIMEOUT_MS + 20);
-    ASSERT_TRUE(hwa.is_on(io::indicators::Type::UsbIn));
+    ASSERT_TRUE(hwa.is_on(opendeck::common::io::indicators::Type::UsbIn));
 
     signaling::SystemSignal close_signal = {};
     close_signal.system_event            = signaling::SystemEvent::ConfigurationSessionClosed;
@@ -470,8 +470,8 @@ TEST_F(SystemTest, IndicatorsInvertWhileConfigurationSessionIsOpen)
     ASSERT_TRUE(tests::wait_until(
         [&]()
         {
-            return !hwa.is_on(io::indicators::Type::UsbIn) &&
-                   !hwa.is_on(io::indicators::Type::UsbOut);
+            return !hwa.is_on(opendeck::common::io::indicators::Type::UsbIn) &&
+                   !hwa.is_on(opendeck::common::io::indicators::Type::UsbOut);
         }));
 }
 

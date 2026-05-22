@@ -6,7 +6,7 @@
 #pragma once
 
 #include "firmware/src/protocol/base.h"
-#include "common/src/websockets/shared/deps.h"
+#include "common/src/protocols/websockets/shared/deps.h"
 
 #include <cerrno>
 
@@ -15,7 +15,7 @@ namespace opendeck::protocol::websockets
     /**
      * @brief Stub WebSocket configuration endpoint used when support is disabled.
      */
-    class WebSockets : public protocol::Base, public opendeck::websockets::Endpoint
+    class WebSockets : public protocol::Base, public opendeck::common::protocols::websockets::Endpoint
     {
         public:
         WebSockets()           = default;

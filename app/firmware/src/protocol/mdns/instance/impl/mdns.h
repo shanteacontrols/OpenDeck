@@ -10,7 +10,7 @@
 #include "firmware/src/protocol/base.h"
 #include "firmware/src/system/config.h"
 #include "firmware/src/threads.h"
-#include "common/src/mdns/instance/impl/mdns.h"
+#include "common/src/protocols/mdns/instance/impl/mdns.h"
 
 #include "zlibs/utils/misc/kwork_delayable.h"
 
@@ -33,7 +33,7 @@ namespace opendeck::protocol::mdns
          * @param services DNS-SD service descriptors advertised by firmware mDNS.
          * @param database Device-wide database settings used by mDNS.
          */
-        Mdns(opendeck::mdns::BaseMdns& base_mdns, Services& services, Database& database);
+        Mdns(opendeck::common::protocols::mdns::BaseMdns& base_mdns, Services& services, Database& database);
 
         /**
          * @brief Configures the mDNS hostname and WebSockets service advertisement.
@@ -50,13 +50,13 @@ namespace opendeck::protocol::mdns
         bool deinit() override;
 
         private:
-        opendeck::mdns::BaseMdns&                                 _base_mdns;
-        Services&                                                 _services;
-        Database&                                                 _database;
-        zlibs::utils::misc::KworkDelayable                        _network_identity_work;
-        std::array<char, opendeck::mdns::IPV4_ADDRESS_SIZE>       _ip_address             = {};
-        std::array<uint8_t, opendeck::mdns::CUSTOM_HOSTNAME_SIZE> _custom_hostname        = {};
-        bool                                                      _custom_hostname_loaded = false;
+        opendeck::common::protocols::mdns::BaseMdns&                                 _base_mdns;
+        Services&                                                                    _services;
+        Database&                                                                    _database;
+        zlibs::utils::misc::KworkDelayable                                           _network_identity_work;
+        std::array<char, opendeck::common::protocols::mdns::IPV4_ADDRESS_SIZE>       _ip_address             = {};
+        std::array<uint8_t, opendeck::common::protocols::mdns::CUSTOM_HOSTNAME_SIZE> _custom_hostname        = {};
+        bool                                                                         _custom_hostname_loaded = false;
 
         /**
          * @brief Builds the hostname used by mDNS.
@@ -82,7 +82,7 @@ namespace opendeck::protocol::mdns
          *
          * @param identity Full `.local` name and current IPv4 address.
          */
-        void publish_network_identity(const opendeck::mdns::NetworkIdentity& identity);
+        void publish_network_identity(const opendeck::common::protocols::mdns::NetworkIdentity& identity);
 
         /**
          * @brief Schedules network identity publishing outside the caller's stack context.

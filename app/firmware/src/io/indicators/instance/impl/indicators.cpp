@@ -16,39 +16,39 @@ namespace
     LOG_MODULE_REGISTER(indicators, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
 }    // namespace
 
-Indicators::Indicators(Hwa& hwa)
+Indicators::Indicators(opendeck::common::io::indicators::Hwa& hwa)
     : _hwa(hwa)
     , _usb_in_off_work([this]()
                        {
-                           set_idle(Type::UsbIn);
+                           set_idle(opendeck::common::io::indicators::Type::UsbIn);
                        })
     , _usb_out_off_work([this]()
                         {
-                            set_idle(Type::UsbOut);
+                            set_idle(opendeck::common::io::indicators::Type::UsbOut);
                         })
     , _din_in_off_work([this]()
                        {
-                           set_idle(Type::DinIn);
+                           set_idle(opendeck::common::io::indicators::Type::DinIn);
                        })
     , _din_out_off_work([this]()
                         {
-                            set_idle(Type::DinOut);
+                            set_idle(opendeck::common::io::indicators::Type::DinOut);
                         })
     , _ble_in_off_work([this]()
                        {
-                           set_idle(Type::BleIn);
+                           set_idle(opendeck::common::io::indicators::Type::BleIn);
                        })
     , _ble_out_off_work([this]()
                         {
-                            set_idle(Type::BleOut);
+                            set_idle(opendeck::common::io::indicators::Type::BleOut);
                         })
     , _network_in_off_work([this]()
                            {
-                               set_idle(Type::NetworkIn);
+                               set_idle(opendeck::common::io::indicators::Type::NetworkIn);
                            })
     , _network_out_off_work([this]()
                             {
-                                set_idle(Type::NetworkOut);
+                                set_idle(opendeck::common::io::indicators::Type::NetworkOut);
                             })
 {
     signaling::subscribe<signaling::TrafficSignal>(
@@ -71,8 +71,8 @@ Indicators::Indicators(Hwa& hwa)
                 return;
             }
 
-            set_active(Type::UsbOut);
-            schedule_idle(Type::UsbOut);
+            set_active(opendeck::common::io::indicators::Type::UsbOut);
+            schedule_idle(opendeck::common::io::indicators::Type::UsbOut);
         });
 
     signaling::subscribe<signaling::SystemSignal>(
@@ -90,7 +90,7 @@ Indicators::Indicators(Hwa& hwa)
             {
                 _invert = true;
                 cancel_idle_work();
-                _hwa.on(Type::TrafficAll);
+                _hwa.on(opendeck::common::io::indicators::Type::TrafficAll);
             }
             break;
 
@@ -98,7 +98,7 @@ Indicators::Indicators(Hwa& hwa)
             {
                 _invert = false;
                 cancel_idle_work();
-                _hwa.off(Type::TrafficAll);
+                _hwa.off(opendeck::common::io::indicators::Type::TrafficAll);
                 apply_network_up_state();
             }
             break;
@@ -121,7 +121,7 @@ bool Indicators::init()
         return false;
     }
 
-    _hwa.off(Type::All);
+    _hwa.off(opendeck::common::io::indicators::Type::All);
     apply_network_up_state();
     return true;
 }
@@ -135,7 +135,7 @@ void Indicators::shutdown()
 {
     cancel_idle_work();
 
-    _hwa.off(Type::All);
+    _hwa.off(opendeck::common::io::indicators::Type::All);
 }
 
 void Indicators::on_traffic(const signaling::TrafficSignal& signal)
@@ -157,7 +157,7 @@ void Indicators::on_network_identity(const signaling::NetworkIdentitySignal& ide
     apply_network_up_state();
 }
 
-void Indicators::set_idle(Type type)
+void Indicators::set_idle(opendeck::common::io::indicators::Type type)
 {
     if (_invert)
     {
@@ -169,7 +169,7 @@ void Indicators::set_idle(Type type)
     }
 }
 
-void Indicators::set_active(Type type)
+void Indicators::set_active(opendeck::common::io::indicators::Type type)
 {
     if (_invert)
     {
@@ -181,59 +181,59 @@ void Indicators::set_active(Type type)
     }
 }
 
-void Indicators::schedule_idle(Type type)
+void Indicators::schedule_idle(opendeck::common::io::indicators::Type type)
 {
     switch (type)
     {
-    case Type::UsbIn:
+    case opendeck::common::io::indicators::Type::UsbIn:
     {
         _usb_in_off_work.reschedule(TRAFFIC_INDICATOR_TIMEOUT_MS);
     }
     break;
 
-    case Type::UsbOut:
+    case opendeck::common::io::indicators::Type::UsbOut:
     {
         _usb_out_off_work.reschedule(TRAFFIC_INDICATOR_TIMEOUT_MS);
     }
     break;
 
-    case Type::DinIn:
+    case opendeck::common::io::indicators::Type::DinIn:
     {
         _din_in_off_work.reschedule(TRAFFIC_INDICATOR_TIMEOUT_MS);
     }
     break;
 
-    case Type::DinOut:
+    case opendeck::common::io::indicators::Type::DinOut:
     {
         _din_out_off_work.reschedule(TRAFFIC_INDICATOR_TIMEOUT_MS);
     }
     break;
 
-    case Type::BleIn:
+    case opendeck::common::io::indicators::Type::BleIn:
     {
         _ble_in_off_work.reschedule(TRAFFIC_INDICATOR_TIMEOUT_MS);
     }
     break;
 
-    case Type::BleOut:
+    case opendeck::common::io::indicators::Type::BleOut:
     {
         _ble_out_off_work.reschedule(TRAFFIC_INDICATOR_TIMEOUT_MS);
     }
     break;
 
-    case Type::NetworkIn:
+    case opendeck::common::io::indicators::Type::NetworkIn:
     {
         _network_in_off_work.reschedule(TRAFFIC_INDICATOR_TIMEOUT_MS);
     }
     break;
 
-    case Type::NetworkOut:
+    case opendeck::common::io::indicators::Type::NetworkOut:
     {
         _network_out_off_work.reschedule(TRAFFIC_INDICATOR_TIMEOUT_MS);
     }
     break;
 
-    case Type::All:
+    case opendeck::common::io::indicators::Type::All:
     default:
         break;
     }
@@ -260,32 +260,33 @@ void Indicators::apply_network_up_state()
 
     if (_network_up)
     {
-        _hwa.on(Type::NetworkUp);
+        _hwa.on(opendeck::common::io::indicators::Type::NetworkUp);
     }
     else
     {
-        _hwa.off(Type::NetworkUp);
+        _hwa.off(opendeck::common::io::indicators::Type::NetworkUp);
     }
 }
 
-Type Indicators::indicator_type(signaling::TrafficTransport transport, signaling::SignalDirection direction)
+opendeck::common::io::indicators::Type Indicators::indicator_type(signaling::TrafficTransport transport,
+                                                                  signaling::SignalDirection  direction)
 {
     switch (transport)
     {
     case signaling::TrafficTransport::Usb:
-        return direction == signaling::SignalDirection::In ? Type::UsbIn : Type::UsbOut;
+        return direction == signaling::SignalDirection::In ? opendeck::common::io::indicators::Type::UsbIn : opendeck::common::io::indicators::Type::UsbOut;
 
     case signaling::TrafficTransport::Din:
-        return direction == signaling::SignalDirection::In ? Type::DinIn : Type::DinOut;
+        return direction == signaling::SignalDirection::In ? opendeck::common::io::indicators::Type::DinIn : opendeck::common::io::indicators::Type::DinOut;
 
     case signaling::TrafficTransport::Ble:
-        return direction == signaling::SignalDirection::In ? Type::BleIn : Type::BleOut;
+        return direction == signaling::SignalDirection::In ? opendeck::common::io::indicators::Type::BleIn : opendeck::common::io::indicators::Type::BleOut;
 
     case signaling::TrafficTransport::Network:
-        return direction == signaling::SignalDirection::In ? Type::NetworkIn : Type::NetworkOut;
+        return direction == signaling::SignalDirection::In ? opendeck::common::io::indicators::Type::NetworkIn : opendeck::common::io::indicators::Type::NetworkOut;
 
     default:
-        return Type::All;
+        return opendeck::common::io::indicators::Type::All;
     }
 }
 
@@ -293,17 +294,17 @@ void Indicators::set_input_indicators(bool state)
 {
     if (state)
     {
-        _hwa.on(Type::UsbIn);
-        _hwa.on(Type::DinIn);
-        _hwa.on(Type::BleIn);
-        _hwa.on(Type::NetworkIn);
+        _hwa.on(opendeck::common::io::indicators::Type::UsbIn);
+        _hwa.on(opendeck::common::io::indicators::Type::DinIn);
+        _hwa.on(opendeck::common::io::indicators::Type::BleIn);
+        _hwa.on(opendeck::common::io::indicators::Type::NetworkIn);
     }
     else
     {
-        _hwa.off(Type::UsbIn);
-        _hwa.off(Type::DinIn);
-        _hwa.off(Type::BleIn);
-        _hwa.off(Type::NetworkIn);
+        _hwa.off(opendeck::common::io::indicators::Type::UsbIn);
+        _hwa.off(opendeck::common::io::indicators::Type::DinIn);
+        _hwa.off(opendeck::common::io::indicators::Type::BleIn);
+        _hwa.off(opendeck::common::io::indicators::Type::NetworkIn);
     }
 }
 
@@ -311,17 +312,17 @@ void Indicators::set_output_indicators(bool state)
 {
     if (state)
     {
-        _hwa.on(Type::UsbOut);
-        _hwa.on(Type::DinOut);
-        _hwa.on(Type::BleOut);
-        _hwa.on(Type::NetworkOut);
+        _hwa.on(opendeck::common::io::indicators::Type::UsbOut);
+        _hwa.on(opendeck::common::io::indicators::Type::DinOut);
+        _hwa.on(opendeck::common::io::indicators::Type::BleOut);
+        _hwa.on(opendeck::common::io::indicators::Type::NetworkOut);
     }
     else
     {
-        _hwa.off(Type::UsbOut);
-        _hwa.off(Type::DinOut);
-        _hwa.off(Type::BleOut);
-        _hwa.off(Type::NetworkOut);
+        _hwa.off(opendeck::common::io::indicators::Type::UsbOut);
+        _hwa.off(opendeck::common::io::indicators::Type::DinOut);
+        _hwa.off(opendeck::common::io::indicators::Type::BleOut);
+        _hwa.off(opendeck::common::io::indicators::Type::NetworkOut);
     }
 }
 
@@ -334,9 +335,9 @@ void Indicators::indicate_startup()
 
     for (size_t flash = 0; flash < STARTUP_INDICATOR_FLASH_COUNT; flash++)
     {
-        _hwa.on(Type::TrafficAll);
+        _hwa.on(opendeck::common::io::indicators::Type::TrafficAll);
         k_msleep(STARTUP_INDICATOR_TIMEOUT_MS);
-        _hwa.off(Type::TrafficAll);
+        _hwa.off(opendeck::common::io::indicators::Type::TrafficAll);
         k_msleep(STARTUP_INDICATOR_TIMEOUT_MS);
     }
 }

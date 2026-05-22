@@ -20,13 +20,13 @@ namespace opendeck::protocol::mdns
          *
          * @return WebSockets service descriptor.
          */
-        opendeck::mdns::Service websockets() override;
+        opendeck::common::protocols::mdns::Service websockets() override;
 
         /**
          * @brief Returns the mutable OSC DNS-SD service descriptor.
          *
          * @return OSC service descriptor.
          */
-        opendeck::mdns::Service osc() override;
+        opendeck::common::protocols::mdns::Service osc() override;
     };
 }    // namespace opendeck::protocol::mdns

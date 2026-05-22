@@ -10,7 +10,7 @@
 #include <cstdint>
 #include <span>
 
-namespace opendeck::mcu
+namespace opendeck::common::mcu
 {
     /**
      * @brief MCU-level hardware services shared by OpenDeck images.
@@ -32,6 +32,6 @@ namespace opendeck::mcu
          *
          * @param type Firmware target to reboot into.
          */
-        virtual void reboot(mcu::BootTarget type) = 0;
+        virtual void reboot(opendeck::common::mcu::BootTarget type) = 0;
     };
-}    // namespace opendeck::mcu
+}    // namespace opendeck::common::mcu

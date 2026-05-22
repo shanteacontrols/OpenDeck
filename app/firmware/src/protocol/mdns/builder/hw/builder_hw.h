@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include "firmware/src/protocol/mdns/hwa/hw/hwa_hw.h"
 #include "firmware/src/protocol/mdns/instance/impl/mdns.h"
 #include "firmware/src/protocol/mdns/services/hw/services_hw.h"
 #include "firmware/src/database/builder/builder.h"
-#include "common/src/mdns/instance/impl/mdns.h"
+#include "common/src/protocols/mdns/hwa/hw/hwa_hw.h"
+#include "common/src/protocols/mdns/instance/impl/mdns.h"
 
 namespace opendeck::protocol::mdns
 {
@@ -25,7 +25,7 @@ namespace opendeck::protocol::mdns
          * @param database Database administrator used for device-wide settings.
          * @param mcu MCU services shared by firmware subsystems.
          */
-        Builder(database::Admin& database, mcu::Hwa& mcu)
+        Builder(database::Admin& database, opendeck::common::mcu::Hwa& mcu)
             : _database(database)
             , _hwa(mcu)
             , _base_mdns(_hwa)
@@ -43,10 +43,10 @@ namespace opendeck::protocol::mdns
         }
 
         private:
-        Database                 _database;
-        HwaHw                    _hwa;
-        opendeck::mdns::BaseMdns _base_mdns;
-        ServicesHw               _services;
-        Mdns                     _instance;
+        Database                                    _database;
+        opendeck::common::protocols::mdns::HwaHw    _hwa;
+        opendeck::common::protocols::mdns::BaseMdns _base_mdns;
+        ServicesHw                                  _services;
+        Mdns                                        _instance;
     };
 }    // namespace opendeck::protocol::mdns

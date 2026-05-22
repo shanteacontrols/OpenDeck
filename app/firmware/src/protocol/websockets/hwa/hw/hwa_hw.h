@@ -5,14 +5,14 @@
 
 #pragma once
 
-#include "common/src/websockets/hwa/hw/hwa_hw.h"
+#include "common/src/protocols/websockets/hwa/hw/hwa_hw.h"
 
 namespace opendeck::protocol::websockets
 {
     /**
      * @brief Zephyr-backed WebSockets platform hooks.
      */
-    class HwaHw : public opendeck::websockets::HwaHw
+    class HwaHw : public opendeck::common::protocols::websockets::HwaHw
     {
         public:
         HwaHw();

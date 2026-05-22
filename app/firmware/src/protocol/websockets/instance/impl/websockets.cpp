@@ -27,7 +27,7 @@ namespace
     LOG_MODULE_REGISTER(websockets, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
 }    // namespace
 
-WebSockets::WebSockets(opendeck::websockets::Hwa& hwa, staged_update_writer::StagedUpdateWriter& staged_update_writer)
+WebSockets::WebSockets(opendeck::common::protocols::websockets::Hwa& hwa, firmware::dfu::staged_update_writer::StagedUpdateWriter& staged_update_writer)
     : _hwa(hwa)
     , _client_thread(
           [this]()
@@ -177,8 +177,8 @@ void WebSockets::client_loop()
 
         while (!_shutdown)
         {
-            opendeck::websockets::FrameInfo frame_info = {};
-            const int                       received   = _hwa.receive(sock, _rx_buffer, frame_info);
+            opendeck::common::protocols::websockets::FrameInfo frame_info = {};
+            const int                                          received   = _hwa.receive(sock, _rx_buffer, frame_info);
 
             if (received == -ENOTCONN)
             {
@@ -406,9 +406,9 @@ void WebSockets::handle_command_frame(std::span<const uint8_t> data, uint32_t se
         return;
     }
 
-    const auto command = static_cast<opendeck::websockets::FirmwareUploadCommand>(data.front());
+    const auto command = static_cast<opendeck::common::protocols::websockets::FirmwareUploadCommand>(data.front());
 
-    if ((command == opendeck::websockets::FirmwareUploadCommand::Begin) && (data.size() == 1U))
+    if ((command == opendeck::common::protocols::websockets::FirmwareUploadCommand::Begin) && (data.size() == 1U))
     {
         LOG_INF("Closing WebSockets SysEx configuration session before firmware upload");
 
@@ -419,11 +419,11 @@ void WebSockets::handle_command_frame(std::span<const uint8_t> data, uint32_t se
     }
 
 #ifndef CONFIG_PROJECT_TARGET_SUPPORT_STAGED_UPDATE
-    if (command == opendeck::websockets::FirmwareUploadCommand::Begin)
+    if (command == opendeck::common::protocols::websockets::FirmwareUploadCommand::Begin)
     {
-        queue_binary_frame(opendeck::websockets::FirmwareUpload::make_ack(
-                               opendeck::websockets::FirmwareUploadCommand::Begin,
-                               opendeck::websockets::FirmwareUploadStatus::Unsupported,
+        queue_binary_frame(opendeck::common::protocols::websockets::FirmwareUpload::make_ack(
+                               opendeck::common::protocols::websockets::FirmwareUploadCommand::Begin,
+                               opendeck::common::protocols::websockets::FirmwareUploadStatus::Unsupported,
                                0),
                            session_id);
         return;

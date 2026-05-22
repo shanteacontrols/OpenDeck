@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "common/src/websockets/shared/deps.h"
+#include "common/src/protocols/websockets/shared/deps.h"
 
 #include "zlibs/utils/misc/mutex.h"
 
@@ -21,7 +21,7 @@ namespace opendeck::protocol::websockets
     /**
      * @brief In-memory WebSockets backend used by tests.
      */
-    class HwaTest : public opendeck::websockets::Hwa
+    class HwaTest : public opendeck::common::protocols::websockets::Hwa
     {
         public:
         /**
@@ -29,9 +29,9 @@ namespace opendeck::protocol::websockets
          */
         struct ReceivedFrame
         {
-            std::vector<uint8_t>            data = {};
-            opendeck::websockets::FrameInfo info = {};
-            int                             ret  = 0;
+            std::vector<uint8_t>                               data = {};
+            opendeck::common::protocols::websockets::FrameInfo info = {};
+            int                                                ret  = 0;
         };
 
         /**
@@ -48,7 +48,7 @@ namespace opendeck::protocol::websockets
             k_sem_init(&_receive_wakeup, 0, 1);
         }
 
-        int start_server(opendeck::websockets::Endpoint& endpoint) override
+        int start_server(opendeck::common::protocols::websockets::Endpoint& endpoint) override
         {
             const zlibs::utils::misc::LockGuard lock(_mutex);
             _endpoint = &endpoint;
@@ -61,7 +61,7 @@ namespace opendeck::protocol::websockets
             _server_stopped = true;
         }
 
-        int receive(int socket, std::span<uint8_t> buffer, opendeck::websockets::FrameInfo& info) override
+        int receive(int socket, std::span<uint8_t> buffer, opendeck::common::protocols::websockets::FrameInfo& info) override
         {
             while (true)
             {
@@ -126,7 +126,7 @@ namespace opendeck::protocol::websockets
          */
         void push_frame(std::span<const uint8_t> data)
         {
-            push_frame(data, opendeck::websockets::FrameInfo{
+            push_frame(data, opendeck::common::protocols::websockets::FrameInfo{
                                  .binary    = true,
                                  .close     = false,
                                  .remaining = 0,
@@ -139,8 +139,8 @@ namespace opendeck::protocol::websockets
          * @param data Frame payload bytes.
          * @param info Metadata returned with the frame.
          */
-        void push_frame(std::span<const uint8_t>        data,
-                        opendeck::websockets::FrameInfo info)
+        void push_frame(std::span<const uint8_t>                           data,
+                        opendeck::common::protocols::websockets::FrameInfo info)
         {
             const zlibs::utils::misc::LockGuard lock(_mutex);
             _received_frames.push_back({
@@ -234,15 +234,15 @@ namespace opendeck::protocol::websockets
         }
 
         private:
-        mutable zlibs::utils::misc::Mutex _mutex;
-        k_sem                             _receive_wakeup  = {};
-        opendeck::websockets::Endpoint*   _endpoint        = nullptr;
-        std::deque<ReceivedFrame>         _received_frames = {};
-        std::vector<SentFrame>            _sent_frames     = {};
-        std::vector<int>                  _closed_sockets  = {};
-        int                               _start_result    = 0;
-        int                               _send_result     = 0;
-        bool                              _server_stopped  = false;
+        mutable zlibs::utils::misc::Mutex                  _mutex;
+        k_sem                                              _receive_wakeup  = {};
+        opendeck::common::protocols::websockets::Endpoint* _endpoint        = nullptr;
+        std::deque<ReceivedFrame>                          _received_frames = {};
+        std::vector<SentFrame>                             _sent_frames     = {};
+        std::vector<int>                                   _closed_sockets  = {};
+        int                                                _start_result    = 0;
+        int                                                _send_result     = 0;
+        bool                                               _server_stopped  = false;
 
         /**
          * @brief Checks whether the test backend already closed a socket.

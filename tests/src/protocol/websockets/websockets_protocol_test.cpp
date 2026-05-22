@@ -6,15 +6,15 @@
 #include "tests/common.h"
 #include "tests/helpers/dfu_stream.h"
 #include "tests/helpers/misc.h"
-#include "common/src/dfu_stream/shared/common.h"
+#include "common/src/dfu/dfu_stream/shared/common.h"
 #include "firmware/src/protocol/osc/packet/packet.h"
 #include "firmware/src/protocol/osc/shared/paths.h"
-#include "common/src/websockets/shared/firmware_upload.h"
+#include "common/src/protocols/websockets/shared/firmware_upload.h"
 #include "firmware/src/protocol/websockets/hwa/test/hwa_test.h"
 #include "firmware/src/protocol/websockets/instance/impl/websockets.h"
 #include "firmware/src/signaling/signaling.h"
-#include "firmware/src/staged_update_writer/hwa/test/hwa_test.h"
-#include "firmware/src/staged_update_writer/instance/impl/staged_update_writer.h"
+#include "firmware/src/dfu/staged_update_writer/hwa/test/hwa_test.h"
+#include "firmware/src/dfu/staged_update_writer/instance/impl/staged_update_writer.h"
 
 #include "zlibs/utils/midi/midi.h"
 #include "zlibs/utils/misc/mutex.h"
@@ -198,8 +198,8 @@ namespace
                                      1);
         }
 
-        static std::vector<uint8_t> firmware_command_frame(opendeck::websockets::FirmwareUploadCommand command,
-                                                           std::span<const uint8_t>                    payload = {})
+        static std::vector<uint8_t> firmware_command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand command,
+                                                           std::span<const uint8_t>                                       payload = {})
         {
             std::vector<uint8_t> frame = {
                 static_cast<uint8_t>(command),
@@ -234,10 +234,10 @@ namespace
             return packets.empty() ? midi_ump{} : packets.back();
         }
 
-        opendeck::protocol::websockets::HwaTest    hwa;
-        staged_update_writer::HwaTest              firmware_hwa;
-        staged_update_writer::StagedUpdateWriter   firmware_update = staged_update_writer::StagedUpdateWriter(firmware_hwa);
-        opendeck::protocol::websockets::WebSockets websockets      = opendeck::protocol::websockets::WebSockets(hwa, firmware_update);
+        opendeck::protocol::websockets::HwaTest                 hwa;
+        firmware::dfu::staged_update_writer::HwaTest            firmware_hwa;
+        firmware::dfu::staged_update_writer::StagedUpdateWriter firmware_update = firmware::dfu::staged_update_writer::StagedUpdateWriter(firmware_hwa);
+        opendeck::protocol::websockets::WebSockets              websockets      = opendeck::protocol::websockets::WebSockets(hwa, firmware_update);
     };
 }    // namespace
 
@@ -309,7 +309,7 @@ TEST_F(WebSocketsProtocolTest, IgnoresNonBinaryFrames)
         0xF7U,
     };
 
-    hwa.push_frame(request, opendeck::websockets::FrameInfo{
+    hwa.push_frame(request, opendeck::common::protocols::websockets::FrameInfo{
                                 .binary    = false,
                                 .close     = false,
                                 .remaining = 0,
@@ -383,9 +383,9 @@ TEST_F(WebSocketsProtocolTest, FirmwareUploadRequestsBootloaderRebootThroughSyst
     ASSERT_TRUE(websockets.init());
     ASSERT_EQ(websockets.accept_client(CLIENT_SOCKET), 0);
 
-    hwa.push_frame(firmware_command_frame(opendeck::websockets::FirmwareUploadCommand::Begin));
-    hwa.push_frame(firmware_command_frame(opendeck::websockets::FirmwareUploadCommand::Chunk, dfu));
-    hwa.push_frame(firmware_command_frame(opendeck::websockets::FirmwareUploadCommand::Finish));
+    hwa.push_frame(firmware_command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand::Begin));
+    hwa.push_frame(firmware_command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand::Chunk, dfu));
+    hwa.push_frame(firmware_command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand::Finish));
 
     ASSERT_TRUE(wait_for_sent_frames(3));
     ASSERT_TRUE(wait_for_system_events(collector, 1));
@@ -400,7 +400,7 @@ TEST_F(WebSocketsProtocolTest, FirmwareUploadBeginClosesActiveConfigSession)
     ASSERT_TRUE(websockets.init());
     ASSERT_EQ(websockets.accept_client(CLIENT_SOCKET), 0);
 
-    hwa.push_frame(firmware_command_frame(opendeck::websockets::FirmwareUploadCommand::Begin));
+    hwa.push_frame(firmware_command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand::Begin));
 
     ASSERT_TRUE(wait_for_sent_frames(1));
     ASSERT_TRUE(wait_for_config_disconnects(collector, 1));

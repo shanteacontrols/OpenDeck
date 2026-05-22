@@ -5,13 +5,13 @@
 
 #pragma once
 
-#include "bootloader/src/indicators/builder/builder.h"
-#include "bootloader/src/direct_update_writer/builder/builder.h"
-#include "bootloader/src/mdns/builder/builder.h"
-#include "bootloader/src/staged_update_reader/builder/builder.h"
+#include "bootloader/src/io/indicators/builder/builder.h"
+#include "bootloader/src/dfu/direct_update_writer/builder/builder.h"
+#include "bootloader/src/protocols/mdns/builder/builder.h"
+#include "bootloader/src/dfu/staged_update_reader/builder/builder.h"
 #include "bootloader/src/system/shared/deps.h"
-#include "bootloader/src/webusb/builder/builder.h"
-#include "bootloader/src/websockets/builder/builder.h"
+#include "bootloader/src/protocols/webusb/builder/builder.h"
+#include "bootloader/src/protocols/websockets/builder/builder.h"
 #include "common/src/mcu/hwa/hw/hwa_hw.h"
 
 namespace opendeck::bootloader::system
@@ -39,7 +39,7 @@ namespace opendeck::bootloader::system
          */
         void reboot_application() override
         {
-            _mcu.reboot(mcu::BootTarget::Application);
+            _mcu.reboot(opendeck::common::mcu::BootTarget::Application);
         }
 
         /**
@@ -81,14 +81,14 @@ namespace opendeck::bootloader::system
         }
 
         private:
-        mcu::HwaHw                      _mcu;
-        indicators::Builder             _indicators;
-        staged_update_reader::Builder   _staged_update_reader;
-        direct_update_writer::Builder   _staged_update_direct_update_writer = direct_update_writer::Builder(_mcu);
-        direct_update_writer::Builder   _webusb_direct_update_writer        = direct_update_writer::Builder(_mcu);
-        direct_update_writer::Builder   _websockets_direct_update_writer    = direct_update_writer::Builder(_mcu);
-        webusb::Builder                 _webusb                             = webusb::Builder(_webusb_direct_update_writer.instance());
-        bootloader::websockets::Builder _websockets                         = bootloader::websockets::Builder(_websockets_direct_update_writer.instance());
-        bootloader::mdns::Builder       _mdns                               = bootloader::mdns::Builder(_mcu);
+        opendeck::common::mcu::HwaHw                   _mcu;
+        bootloader::io::indicators::Builder            _indicators;
+        bootloader::dfu::staged_update_reader::Builder _staged_update_reader;
+        bootloader::dfu::direct_update_writer::Builder _staged_update_direct_update_writer = bootloader::dfu::direct_update_writer::Builder(_mcu);
+        bootloader::dfu::direct_update_writer::Builder _webusb_direct_update_writer        = bootloader::dfu::direct_update_writer::Builder(_mcu);
+        bootloader::dfu::direct_update_writer::Builder _websockets_direct_update_writer    = bootloader::dfu::direct_update_writer::Builder(_mcu);
+        bootloader::protocols::webusb::Builder         _webusb                             = bootloader::protocols::webusb::Builder(_webusb_direct_update_writer.instance());
+        bootloader::protocols::websockets::Builder     _websockets                         = bootloader::protocols::websockets::Builder(_websockets_direct_update_writer.instance());
+        bootloader::protocols::mdns::Builder           _mdns                               = bootloader::protocols::mdns::Builder(_mcu);
     };
 }    // namespace opendeck::bootloader::system

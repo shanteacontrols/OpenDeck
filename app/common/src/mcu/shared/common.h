@@ -8,7 +8,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace opendeck::mcu
+namespace opendeck::common::mcu
 {
     /**
      * @brief Boot targets the firmware can request from the platform boot chain.
@@ -23,4 +23,4 @@ namespace opendeck::mcu
      * @brief Maximum number of hardware serial-number bytes exposed by firmware APIs.
      */
     constexpr inline size_t SERIAL_NUMBER_BUFFER_SIZE = 16;
-}    // namespace opendeck::mcu
+}    // namespace opendeck::common::mcu

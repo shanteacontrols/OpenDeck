@@ -230,7 +230,7 @@ namespace opendeck::sys
         std::optional<ConfigUnlockToken>                                            _config_unlock_token      = {};
         size_t                                                                      _config_unlock_word_index = 0;
         uint32_t                                                                    _backup_generated_packets = 0;
-        mcu::BootTarget                                                             _reboot_type              = mcu::BootTarget::Application;
+        opendeck::common::mcu::BootTarget                                           _reboot_type              = opendeck::common::mcu::BootTarget::Application;
         bool                                                                        _reboot_in_progress       = false;
         ForcedRefreshSession                                                        _forced_refresh_session   = {};
         zlibs::utils::misc::RingBuffer<RESTORE_QUEUE_PACKET_COUNT, false, midi_ump> _restore_queue            = {};
@@ -349,7 +349,7 @@ namespace opendeck::sys
          *
          * @param type Firmware target to boot after restart.
          */
-        void schedule_reboot(mcu::BootTarget type);
+        void schedule_reboot(opendeck::common::mcu::BootTarget type);
 
         /**
          * @brief Closes active sessions that must be flushed before reboot.

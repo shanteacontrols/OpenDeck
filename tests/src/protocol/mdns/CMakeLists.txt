@@ -7,11 +7,11 @@ opendeck_test_bootstrap(
 )
 
 opendeck_test_add_modules(
-    mcu           "app/firmware/src/mcu"
+    mcu           "app/common/src/mcu"
     database      "app/firmware/src/database"
     configurable  "app/firmware/src/util/configurable"
     metadata      "app/common/src/metadata"
-    opendeck_mdns "app/common/src/mdns"
+    opendeck_mdns "app/common/src/protocols/mdns"
     protocol_mdns "app/firmware/src/protocol/mdns"
 )
 

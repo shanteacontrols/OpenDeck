@@ -20,7 +20,7 @@ namespace
 
 }    // namespace
 
-Mdns::Mdns(opendeck::mdns::BaseMdns& base_mdns, Services& services, Database& database)
+Mdns::Mdns(opendeck::common::protocols::mdns::BaseMdns& base_mdns, Services& services, Database& database)
     : _base_mdns(base_mdns)
     , _services(services)
     , _database(database)
@@ -164,9 +164,9 @@ void Mdns::load_custom_hostname()
     _custom_hostname_loaded = true;
 }
 
-void Mdns::publish_network_identity(const opendeck::mdns::NetworkIdentity& identity)
+void Mdns::publish_network_identity(const opendeck::common::protocols::mdns::NetworkIdentity& identity)
 {
-    opendeck::mdns::BaseMdns::log_network_identity(identity);
+    opendeck::common::protocols::mdns::BaseMdns::log_network_identity(identity);
 
     signaling::publish(signaling::NetworkIdentitySignal(identity.name, identity.ip_address));
 }

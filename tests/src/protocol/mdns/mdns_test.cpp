@@ -98,7 +98,7 @@ namespace
 
         void set_custom_hostname(std::string_view hostname)
         {
-            ASSERT_LT(hostname.size(), opendeck::mdns::CUSTOM_HOSTNAME_SIZE);
+            ASSERT_LT(hostname.size(), opendeck::common::protocols::mdns::CUSTOM_HOSTNAME_SIZE);
 
             for (size_t i = 0; i < hostname.size(); i++)
             {
@@ -117,14 +117,14 @@ namespace
                 }));
         }
 
-        tests::NoOpDatabaseHandlers  _handlers;
-        database::Builder            _database_builder;
-        database::Admin&             _database_admin = _database_builder.instance();
-        protocol::mdns::Database     _database       = protocol::mdns::Database(_database_admin);
-        protocol::mdns::HwaTest      _hwa;
-        opendeck::mdns::BaseMdns     _base_mdns = opendeck::mdns::BaseMdns(_hwa);
-        protocol::mdns::ServicesTest _services;
-        protocol::mdns::Mdns         _mdns = protocol::mdns::Mdns(_base_mdns, _services, _database);
+        tests::NoOpDatabaseHandlers                 _handlers;
+        database::Builder                           _database_builder;
+        database::Admin&                            _database_admin = _database_builder.instance();
+        protocol::mdns::Database                    _database       = protocol::mdns::Database(_database_admin);
+        protocol::mdns::HwaTest                     _hwa;
+        opendeck::common::protocols::mdns::BaseMdns _base_mdns = opendeck::common::protocols::mdns::BaseMdns(_hwa);
+        protocol::mdns::ServicesTest                _services;
+        protocol::mdns::Mdns                        _mdns = protocol::mdns::Mdns(_base_mdns, _services, _database);
     };
 }    // namespace
 

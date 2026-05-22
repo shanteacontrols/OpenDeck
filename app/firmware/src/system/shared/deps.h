@@ -46,7 +46,7 @@ namespace opendeck::sys
          *
          * @param type Firmware target to reboot into.
          */
-        virtual void reboot(mcu::BootTarget type) = 0;
+        virtual void reboot(opendeck::common::mcu::BootTarget type) = 0;
 
         /**
          * @brief Reads the hardware serial number bytes.

@@ -5,10 +5,10 @@
 
 #include "tests/common.h"
 #include "tests/helpers/dfu_stream.h"
-#include "common/src/dfu_stream/shared/common.h"
-#include "common/src/websockets/firmware_upload/firmware_upload.h"
-#include "firmware/src/staged_update_writer/hwa/test/hwa_test.h"
-#include "firmware/src/staged_update_writer/instance/impl/staged_update_writer.h"
+#include "common/src/dfu/dfu_stream/shared/common.h"
+#include "common/src/protocols/websockets/firmware_upload/firmware_upload.h"
+#include "firmware/src/dfu/staged_update_writer/hwa/test/hwa_test.h"
+#include "firmware/src/dfu/staged_update_writer/instance/impl/staged_update_writer.h"
 
 #include <array>
 #include <cstring>
@@ -20,47 +20,47 @@ namespace
     class FirmwareUploadTest : public ::testing::Test
     {
         protected:
-        opendeck::staged_update_writer::HwaTest            hwa;
-        opendeck::staged_update_writer::StagedUpdateWriter staged_update_writer = opendeck::staged_update_writer::StagedUpdateWriter(hwa);
-        opendeck::websockets::FirmwareUpload               handler              = opendeck::websockets::FirmwareUpload(staged_update_writer);
+        opendeck::firmware::dfu::staged_update_writer::HwaTest            hwa;
+        opendeck::firmware::dfu::staged_update_writer::StagedUpdateWriter staged_update_writer = opendeck::firmware::dfu::staged_update_writer::StagedUpdateWriter(hwa);
+        opendeck::common::protocols::websockets::FirmwareUpload           handler              = opendeck::common::protocols::websockets::FirmwareUpload(staged_update_writer);
 
         static std::array<uint8_t, 1> begin_frame()
         {
             return {
-                static_cast<uint8_t>(opendeck::websockets::FirmwareUploadCommand::Begin),
+                static_cast<uint8_t>(opendeck::common::protocols::websockets::FirmwareUploadCommand::Begin),
             };
         }
 
         static std::vector<uint8_t> chunk_frame(std::span<const uint8_t> payload)
         {
             std::vector<uint8_t> frame = {
-                static_cast<uint8_t>(opendeck::websockets::FirmwareUploadCommand::Chunk),
+                static_cast<uint8_t>(opendeck::common::protocols::websockets::FirmwareUploadCommand::Chunk),
             };
 
             frame.insert(frame.end(), payload.begin(), payload.end());
             return frame;
         }
 
-        static std::array<uint8_t, 1> command_frame(opendeck::websockets::FirmwareUploadCommand command)
+        static std::array<uint8_t, 1> command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand command)
         {
             return {
                 static_cast<uint8_t>(command),
             };
         }
 
-        static uint32_t ack_bytes_written(const opendeck::websockets::FirmwareUploadAck& response)
+        static uint32_t ack_bytes_written(const opendeck::common::protocols::websockets::FirmwareUploadAck& response)
         {
             uint32_t bytes_written = 0;
             std::memcpy(&bytes_written, response.data() + 3, sizeof(bytes_written));
             return bytes_written;
         }
 
-        static void expect_ack(const opendeck::websockets::FirmwareUploadAck& response,
-                               opendeck::websockets::FirmwareUploadCommand    command,
-                               opendeck::websockets::FirmwareUploadStatus     status,
-                               uint32_t                                       bytes_written)
+        static void expect_ack(const opendeck::common::protocols::websockets::FirmwareUploadAck& response,
+                               opendeck::common::protocols::websockets::FirmwareUploadCommand    command,
+                               opendeck::common::protocols::websockets::FirmwareUploadStatus     status,
+                               uint32_t                                                          bytes_written)
         {
-            EXPECT_EQ(response.at(0), static_cast<uint8_t>(opendeck::websockets::FirmwareUploadResponse::Ack));
+            EXPECT_EQ(response.at(0), static_cast<uint8_t>(opendeck::common::protocols::websockets::FirmwareUploadResponse::Ack));
             EXPECT_EQ(response.at(1), static_cast<uint8_t>(command));
             EXPECT_EQ(response.at(2), static_cast<uint8_t>(status));
             EXPECT_EQ(ack_bytes_written(response), bytes_written);
@@ -82,14 +82,14 @@ TEST_F(FirmwareUploadTest, IgnoresUnknownFrames)
 TEST_F(FirmwareUploadTest, RejectsMalformedBegin)
 {
     constexpr std::array<uint8_t, 2> frame = {
-        static_cast<uint8_t>(opendeck::websockets::FirmwareUploadCommand::Begin),
+        static_cast<uint8_t>(opendeck::common::protocols::websockets::FirmwareUploadCommand::Begin),
         0x01U,
     };
 
     const auto response = handler.handle(frame);
 
     ASSERT_TRUE(response);
-    expect_ack(response->response, opendeck::websockets::FirmwareUploadCommand::Begin, opendeck::websockets::FirmwareUploadStatus::BadRequest, 0);
+    expect_ack(response->response, opendeck::common::protocols::websockets::FirmwareUploadCommand::Begin, opendeck::common::protocols::websockets::FirmwareUploadStatus::BadRequest, 0);
     EXPECT_FALSE(response->finished);
 }
 
@@ -99,7 +99,7 @@ TEST_F(FirmwareUploadTest, BeginsUpload)
     const auto response = handler.handle(frame);
 
     ASSERT_TRUE(response);
-    expect_ack(response->response, opendeck::websockets::FirmwareUploadCommand::Begin, opendeck::websockets::FirmwareUploadStatus::Ok, 0);
+    expect_ack(response->response, opendeck::common::protocols::websockets::FirmwareUploadCommand::Begin, opendeck::common::protocols::websockets::FirmwareUploadStatus::Ok, 0);
     EXPECT_FALSE(response->finished);
 }
 
@@ -108,11 +108,11 @@ TEST_F(FirmwareUploadTest, RejectsEmptyChunk)
     const auto begin = begin_frame();
     ASSERT_TRUE(handler.handle(begin));
 
-    const auto frame    = command_frame(opendeck::websockets::FirmwareUploadCommand::Chunk);
+    const auto frame    = command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand::Chunk);
     const auto response = handler.handle(frame);
 
     ASSERT_TRUE(response);
-    expect_ack(response->response, opendeck::websockets::FirmwareUploadCommand::Chunk, opendeck::websockets::FirmwareUploadStatus::BadRequest, 0);
+    expect_ack(response->response, opendeck::common::protocols::websockets::FirmwareUploadCommand::Chunk, opendeck::common::protocols::websockets::FirmwareUploadStatus::BadRequest, 0);
     EXPECT_FALSE(response->finished);
 }
 
@@ -133,7 +133,7 @@ TEST_F(FirmwareUploadTest, WritesChunks)
     const auto response = handler.handle(chunk);
 
     ASSERT_TRUE(response);
-    expect_ack(response->response, opendeck::websockets::FirmwareUploadCommand::Chunk, opendeck::websockets::FirmwareUploadStatus::Ok, payload.size());
+    expect_ack(response->response, opendeck::common::protocols::websockets::FirmwareUploadCommand::Chunk, opendeck::common::protocols::websockets::FirmwareUploadStatus::Ok, payload.size());
     EXPECT_FALSE(response->finished);
 }
 
@@ -149,11 +149,11 @@ TEST_F(FirmwareUploadTest, RejectsIncompleteFinish)
     ASSERT_TRUE(handler.handle(begin));
     ASSERT_TRUE(handler.handle(chunk));
 
-    const auto frame    = command_frame(opendeck::websockets::FirmwareUploadCommand::Finish);
+    const auto frame    = command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand::Finish);
     const auto response = handler.handle(frame);
 
     ASSERT_TRUE(response);
-    expect_ack(response->response, opendeck::websockets::FirmwareUploadCommand::Finish, opendeck::websockets::FirmwareUploadStatus::Failed, 0);
+    expect_ack(response->response, opendeck::common::protocols::websockets::FirmwareUploadCommand::Finish, opendeck::common::protocols::websockets::FirmwareUploadStatus::Failed, 0);
     EXPECT_FALSE(response->finished);
 }
 
@@ -172,11 +172,11 @@ TEST_F(FirmwareUploadTest, FinishesCompleteUpload)
     ASSERT_TRUE(handler.handle(begin));
     ASSERT_TRUE(handler.handle(chunk));
 
-    const auto frame    = command_frame(opendeck::websockets::FirmwareUploadCommand::Finish);
+    const auto frame    = command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand::Finish);
     const auto response = handler.handle(frame);
 
     ASSERT_TRUE(response);
-    expect_ack(response->response, opendeck::websockets::FirmwareUploadCommand::Finish, opendeck::websockets::FirmwareUploadStatus::Ok, payload.size());
+    expect_ack(response->response, opendeck::common::protocols::websockets::FirmwareUploadCommand::Finish, opendeck::common::protocols::websockets::FirmwareUploadStatus::Ok, payload.size());
     EXPECT_TRUE(response->finished);
 }
 
@@ -193,11 +193,11 @@ TEST_F(FirmwareUploadTest, AbortsUpload)
     ASSERT_TRUE(handler.handle(begin));
     ASSERT_TRUE(handler.handle(chunk));
 
-    const auto frame    = command_frame(opendeck::websockets::FirmwareUploadCommand::Abort);
+    const auto frame    = command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand::Abort);
     const auto response = handler.handle(frame);
 
     ASSERT_TRUE(response);
-    expect_ack(response->response, opendeck::websockets::FirmwareUploadCommand::Abort, opendeck::websockets::FirmwareUploadStatus::Ok, 0);
+    expect_ack(response->response, opendeck::common::protocols::websockets::FirmwareUploadCommand::Abort, opendeck::common::protocols::websockets::FirmwareUploadStatus::Ok, 0);
     EXPECT_FALSE(response->finished);
 }
 
@@ -218,6 +218,6 @@ TEST_F(FirmwareUploadTest, RejectsDfuTargetMismatch)
     const auto response = handler.handle(chunk);
 
     ASSERT_TRUE(response);
-    expect_ack(response->response, opendeck::websockets::FirmwareUploadCommand::Chunk, opendeck::websockets::FirmwareUploadStatus::Failed, 0);
+    expect_ack(response->response, opendeck::common::protocols::websockets::FirmwareUploadCommand::Chunk, opendeck::common::protocols::websockets::FirmwareUploadStatus::Failed, 0);
     EXPECT_FALSE(response->finished);
 }

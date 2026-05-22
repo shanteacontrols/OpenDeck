@@ -9,7 +9,7 @@
 
 #include "firmware/src/protocol/mdns/shared/common.h"
 #include "firmware/src/protocol/osc/shared/common.h"
-#include "common/src/websockets/shared/common.h"
+#include "common/src/protocols/websockets/shared/common.h"
 
 #include <zephyr/net/dns_sd.h>
 #include <zephyr/net/hostname.h>
@@ -26,30 +26,30 @@ namespace
     DNS_SD_REGISTER_SERVICE(opendeck_websockets,
                             websockets_instance,
                             WEBSOCKETS_SERVICE.data(),
-                            opendeck::mdns::TCP_PROTOCOL.data(),
-                            opendeck::mdns::LOCAL_DOMAIN.data(),
+                            opendeck::common::protocols::mdns::TCP_PROTOCOL.data(),
+                            opendeck::common::protocols::mdns::LOCAL_DOMAIN.data(),
                             WEBSOCKETS_TXT,
                             &websockets_port);
 
     DNS_SD_REGISTER_SERVICE(opendeck_osc,
                             osc_instance,
                             OSC_SERVICE.data(),
-                            opendeck::mdns::UDP_PROTOCOL.data(),
-                            opendeck::mdns::LOCAL_DOMAIN.data(),
+                            opendeck::common::protocols::mdns::UDP_PROTOCOL.data(),
+                            opendeck::common::protocols::mdns::LOCAL_DOMAIN.data(),
                             DNS_SD_EMPTY_TXT,
                             &osc_port);
 }    // namespace
 
-opendeck::mdns::Service ServicesHw::websockets()
+opendeck::common::protocols::mdns::Service ServicesHw::websockets()
 {
     return {
         .instance     = websockets_instance,
         .port         = websockets_port,
-        .service_port = opendeck::websockets::DEFAULT_PORT,
+        .service_port = opendeck::common::protocols::websockets::DEFAULT_PORT,
     };
 }
 
-opendeck::mdns::Service ServicesHw::osc()
+opendeck::common::protocols::mdns::Service ServicesHw::osc()
 {
     return {
         .instance     = osc_instance,

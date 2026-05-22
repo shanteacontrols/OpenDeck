@@ -8,8 +8,8 @@ opendeck_test_bootstrap(
 
 opendeck_test_add_modules(
     metadata             "app/common/src/metadata"
-    flash_stream_writer  "app/common/src/flash_stream_writer"
-    staged_update_writer "app/firmware/src/staged_update_writer"
+    flash_stream_writer  "app/common/src/dfu/flash_stream_writer"
+    staged_update_writer "app/firmware/src/dfu/staged_update_writer"
 )
 
 target_sources(app

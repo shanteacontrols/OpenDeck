@@ -4,8 +4,8 @@
  */
 
 #include "tests/common.h"
-#include "bootloader/src/staged_update_reader/hwa/test/hwa_test.h"
-#include "bootloader/src/staged_update_reader/instance/impl/staged_update_reader.h"
+#include "bootloader/src/dfu/staged_update_reader/hwa/test/hwa_test.h"
+#include "bootloader/src/dfu/staged_update_reader/instance/impl/staged_update_reader.h"
 
 #include <optional>
 #include <vector>
@@ -14,10 +14,10 @@ using namespace opendeck;
 
 namespace
 {
-    class SinkTest : public dfu_stream::Sink
+    class SinkTest : public opendeck::common::dfu::dfu_stream::Sink
     {
         public:
-        bool begin(const dfu_stream::Header& header, uint32_t size) override
+        bool begin(const opendeck::common::dfu::dfu_stream::Header& header, uint32_t size) override
         {
             begin_count++;
             accepted_header = header;
@@ -48,15 +48,15 @@ namespace
             abort_count++;
         }
 
-        bool                 begin_result    = true;
-        bool                 write_result    = true;
-        bool                 finish_result   = true;
-        size_t               begin_count     = 0;
-        size_t               finish_count    = 0;
-        size_t               abort_count     = 0;
-        uint32_t             expected_size   = 0;
-        dfu_stream::Header   accepted_header = {};
-        std::vector<uint8_t> received        = {};
+        bool                                      begin_result    = true;
+        bool                                      write_result    = true;
+        bool                                      finish_result   = true;
+        size_t                                    begin_count     = 0;
+        size_t                                    finish_count    = 0;
+        size_t                                    abort_count     = 0;
+        uint32_t                                  expected_size   = 0;
+        opendeck::common::dfu::dfu_stream::Header accepted_header = {};
+        std::vector<uint8_t>                      received        = {};
     };
 
     class StagedUpdateReaderTest : public ::testing::Test
@@ -77,9 +77,9 @@ namespace
             };
         }
 
-        staged_update_reader::HwaTest            hwa;
-        staged_update_reader::StagedUpdateReader reader = staged_update_reader::StagedUpdateReader(hwa);
-        SinkTest                                 sink;
+        bootloader::dfu::staged_update_reader::HwaTest            hwa;
+        bootloader::dfu::staged_update_reader::StagedUpdateReader reader = bootloader::dfu::staged_update_reader::StagedUpdateReader(hwa);
+        SinkTest                                                  sink;
     };
 }    // namespace
 
@@ -115,7 +115,7 @@ TEST_F(StagedUpdateReaderTest, StreamsValidPendingUpdateAndClearsMarker)
     EXPECT_EQ(sink.expected_size, data.size());
     EXPECT_EQ(sink.received, data);
     EXPECT_EQ(hwa.clear_pending_calls(), 1);
-    EXPECT_NE(hwa.header_start_magic(), dfu_stream::START_COMMAND);
+    EXPECT_NE(hwa.header_start_magic(), opendeck::common::dfu::dfu_stream::START_COMMAND);
 }
 
 TEST_F(StagedUpdateReaderTest, RejectsSinkWriteFailureAndClearsMarker)
@@ -130,7 +130,7 @@ TEST_F(StagedUpdateReaderTest, RejectsSinkWriteFailureAndClearsMarker)
     EXPECT_EQ(sink.abort_count, 1);
     EXPECT_TRUE(sink.received.empty());
     EXPECT_EQ(hwa.clear_pending_calls(), 1);
-    EXPECT_NE(hwa.header_start_magic(), dfu_stream::START_COMMAND);
+    EXPECT_NE(hwa.header_start_magic(), opendeck::common::dfu::dfu_stream::START_COMMAND);
 }
 
 TEST_F(StagedUpdateReaderTest, RejectsSinkFinishFailureAndClearsMarker)
@@ -146,7 +146,7 @@ TEST_F(StagedUpdateReaderTest, RejectsSinkFinishFailureAndClearsMarker)
     EXPECT_EQ(sink.abort_count, 1);
     EXPECT_EQ(sink.received, data);
     EXPECT_EQ(hwa.clear_pending_calls(), 1);
-    EXPECT_NE(hwa.header_start_magic(), dfu_stream::START_COMMAND);
+    EXPECT_NE(hwa.header_start_magic(), opendeck::common::dfu::dfu_stream::START_COMMAND);
 }
 
 TEST_F(StagedUpdateReaderTest, RejectsInvalidHeaderWithoutClearingAgain)
@@ -166,7 +166,7 @@ TEST_F(StagedUpdateReaderTest, RejectsWrongTargetUid)
 {
     const auto data = payload();
 
-    hwa.stage(data, dfu_stream::START_COMMAND, dfu_stream::FORMAT_VERSION, OPENDECK_TARGET_UID ^ 0x01U);
+    hwa.stage(data, opendeck::common::dfu::dfu_stream::START_COMMAND, opendeck::common::dfu::dfu_stream::FORMAT_VERSION, OPENDECK_TARGET_UID ^ 0x01U);
 
     EXPECT_FALSE(reader.consume(sink));
     EXPECT_EQ(sink.begin_count, 0);

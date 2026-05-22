@@ -9,7 +9,7 @@
 #include "firmware/src/protocol/mdns/instance/impl/mdns.h"
 #include "firmware/src/protocol/mdns/services/test/services_test.h"
 #include "firmware/src/database/builder/builder.h"
-#include "common/src/mdns/instance/impl/mdns.h"
+#include "common/src/protocols/mdns/instance/impl/mdns.h"
 
 namespace opendeck::protocol::mdns
 {
@@ -46,11 +46,11 @@ namespace opendeck::protocol::mdns
             return _instance;
         }
 
-        database::Builder        _default_database_builder;
-        HwaTest                  _hwa;
-        Database                 _database;
-        opendeck::mdns::BaseMdns _base_mdns;
-        ServicesTest             _services;
-        Mdns                     _instance;
+        database::Builder                           _default_database_builder;
+        HwaTest                                     _hwa;
+        Database                                    _database;
+        opendeck::common::protocols::mdns::BaseMdns _base_mdns;
+        ServicesTest                                _services;
+        Mdns                                        _instance;
     };
 }    // namespace opendeck::protocol::mdns

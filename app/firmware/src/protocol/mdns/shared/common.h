@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "common/src/mdns/shared/common.h"
+#include "common/src/protocols/mdns/shared/common.h"
 
 namespace opendeck::protocol::mdns
 {

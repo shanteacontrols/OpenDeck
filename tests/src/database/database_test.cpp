@@ -485,7 +485,7 @@ TEST_F(DatabaseTest, CommonSectionsDoNotAlias)
     EXPECT_EQ(42U, common_value);
     EXPECT_EQ(static_cast<uint32_t>('o'), hostname_value);
 
-    for (size_t i = 1; i < protocol::mdns::CUSTOM_HOSTNAME_DB_SIZE; i++)
+    for (size_t i = 1; i < common::protocols::mdns::CUSTOM_HOSTNAME_SIZE; i++)
     {
         ASSERT_TRUE(_database.instance().read(database::Config::Section::Common::MdnsHostname, i, hostname_value));
         EXPECT_EQ(0U, hostname_value);
