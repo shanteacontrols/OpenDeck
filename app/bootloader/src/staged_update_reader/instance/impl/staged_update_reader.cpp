@@ -88,7 +88,6 @@ bool opendeck::staged_update_reader::StagedUpdateReader::consume(Consumer& consu
     }
 
     LOG_INF("Applying staged DFU update (%u bytes)", metadata.size);
-    _hwa.on_update_start();
 
     consumer.reset();
 

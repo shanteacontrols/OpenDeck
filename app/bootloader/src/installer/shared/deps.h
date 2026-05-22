@@ -12,11 +12,6 @@
 namespace opendeck::installer
 {
     /**
-     * @brief Callback invoked before the installer hands control back to the platform.
-     */
-    using CleanupCallback = void (*)();
-
-    /**
      * @brief Hardware abstraction used by the bootloader firmware installer.
      */
     class Hwa
@@ -61,18 +56,8 @@ namespace opendeck::installer
         virtual bool write_sector(size_t index, uint32_t offset, std::span<const uint8_t> data) = 0;
 
         /**
-         * @brief Performs any platform-specific cleanup before leaving the installer.
-         */
-        virtual void cleanup() = 0;
-
-        /**
          * @brief Applies the completed update, typically by rebooting or swapping images.
          */
         virtual void apply() = 0;
-
-        /**
-         * @brief Notifies the platform that firmware update processing is starting.
-         */
-        virtual void on_firmware_update_start() = 0;
     };
 }    // namespace opendeck::installer

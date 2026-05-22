@@ -10,6 +10,8 @@
 #include "bootloader/src/staged_update_reader/shared/deps.h"
 #include "common/src/flash_stream_writer/instance/impl/flash_stream_writer.h"
 
+#include <string_view>
+
 namespace opendeck::installer
 {
     /**
@@ -167,6 +169,13 @@ namespace opendeck::installer
          *
          * @return Always returns `false` for concise call sites.
          */
-        bool fail(const char* status);
+        bool fail(std::string_view status);
+
+        /**
+         * @brief Publishes one installer status message.
+         *
+         * @param message Status text sent to bootloader status subscribers.
+         */
+        void status(std::string_view message);
     };
 }    // namespace opendeck::installer

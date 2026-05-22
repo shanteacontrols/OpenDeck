@@ -9,6 +9,17 @@ add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/metadata ${CMAKE_CURREN
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/flash_stream_writer ${CMAKE_CURRENT_BINARY_DIR}/flash_stream_writer)
 add_subdirectory(src/indicators)
 add_subdirectory(src/installer)
+add_subdirectory(src/signaling)
+add_subdirectory(src/system)
+add_subdirectory(src/webusb)
+
+if(CONFIG_PROJECT_BOOTLOADER_SUPPORT_MDNS)
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/mdns ${CMAKE_CURRENT_BINARY_DIR}/mdns)
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/mdns/hwa/hw ${CMAKE_CURRENT_BINARY_DIR}/mdns_hwa_hw)
+    add_subdirectory(src/mdns)
+    add_subdirectory(src/mdns/hwa/hw)
+    add_subdirectory(src/mdns/services/hw)
+endif()
 
 if(CONFIG_PROJECT_BOOTLOADER_STAGED_UPDATE)
     add_subdirectory(src/staged_update_reader)
@@ -19,6 +30,9 @@ target_link_libraries(app
     metadata
     opendeck_bootloader_indicators
     opendeck_bootloader_installer
+    opendeck_bootloader_signaling
+    opendeck_bootloader_system
+    opendeck_bootloader_webusb
 )
 
 if(CONFIG_PROJECT_BOOTLOADER_STAGED_UPDATE)
@@ -28,15 +42,27 @@ if(CONFIG_PROJECT_BOOTLOADER_STAGED_UPDATE)
     )
 endif()
 
+if(CONFIG_PROJECT_BOOTLOADER_SUPPORT_MDNS)
+    target_link_libraries(app
+        PRIVATE
+        opendeck_bootloader_mdns
+        opendeck_bootloader_mdns_hwa_hw
+        opendeck_bootloader_mdns_services_hw
+    )
+endif()
+
+if(CONFIG_PROJECT_BOOTLOADER_SUPPORT_USB_DFU)
+    add_subdirectory(src/webusb/hwa/hw)
+endif()
+
 if(CONFIG_PROJECT_BOOTLOADER_SUPPORT_USB_DFU)
     target_link_libraries(app
         PRIVATE
-        zlibs-drivers-usb_hw
+        opendeck_bootloader_webusb_hwa_hw
     )
 endif()
 
 target_sources(app
     PRIVATE
     src/main.cpp
-    src/webusb/instance/impl/transport.cpp
 )

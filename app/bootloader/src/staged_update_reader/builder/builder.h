@@ -7,6 +7,8 @@
 
 #ifdef OPENDECK_TEST
 #include "bootloader/src/staged_update_reader/builder/test/builder_test.h"
-#else
+#elif defined(CONFIG_PROJECT_BOOTLOADER_STAGED_UPDATE)
 #include "bootloader/src/staged_update_reader/builder/hw/builder_hw.h"
+#else
+#include "bootloader/src/staged_update_reader/builder/stub/builder_stub.h"
 #endif

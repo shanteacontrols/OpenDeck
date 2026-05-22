@@ -7,13 +7,13 @@
 
 #include "bootloader/src/installer/shared/deps.h"
 #include "common/src/flash_area/hwa/hw/hwa_hw.h"
-#include "bootloader/src/indicators/instance/impl/indicators.h"
-#include "bootloader/src/webusb/instance/impl/transport.h"
+#include "common/src/mcu/shared/deps.h"
+
+#include "zlibs/utils/misc/kwork_delayable.h"
 
 #include <zephyr/devicetree.h>
 #include <zephyr/devicetree/partitions.h>
 #include <zephyr/kernel.h>
-#include <zephyr/sys/reboot.h>
 
 #include <array>
 #include <span>
@@ -31,13 +31,15 @@ namespace opendeck::installer
         /**
          * @brief Constructs the hardware installer backend.
          *
-         * @param cleanup_callback Callback invoked from `cleanup()`.
+         * @param mcu Shared MCU services.
          */
-        explicit HwaHw(CleanupCallback cleanup_callback)
-            : _cleanup_callback(cleanup_callback)
+        explicit HwaHw(mcu::Hwa& mcu)
+            : _mcu(mcu)
+            , _reboot_work([this]()
+                           {
+                               reboot();
+                           })
         {
-            reboot_instance = this;
-            k_work_init_delayable(&_reboot_work, reboot_handler);
         }
 
         /**
@@ -87,7 +89,6 @@ namespace opendeck::installer
 
             if (!_flash_area.erase(sector.offset, sector.size))
             {
-                webusb::status("Flash erase failed");
                 return false;
             }
 
@@ -108,7 +109,6 @@ namespace opendeck::installer
         {
             if (_buffered_sector != index)
             {
-                webusb::status("Invalid firmware sector write");
                 return false;
             }
 
@@ -116,7 +116,6 @@ namespace opendeck::installer
                 ((data.size() % WRITE_BLOCK_SIZE) != 0) ||
                 ((offset % WRITE_BLOCK_SIZE) != 0))
             {
-                webusb::status("Invalid flash write block");
                 return false;
             }
 
@@ -124,7 +123,6 @@ namespace opendeck::installer
                 (data.size() > _sectors[index].size) ||
                 (offset > (_sectors[index].size - data.size())))
             {
-                webusb::status("Flash buffer overflow");
                 return false;
             }
 
@@ -132,7 +130,6 @@ namespace opendeck::installer
 
             if (!_flash_area.write(sector.offset + offset, data))
             {
-                webusb::status("Flash write failed");
                 return false;
             }
 
@@ -144,29 +141,7 @@ namespace opendeck::installer
          */
         void apply() override
         {
-            webusb::status("Firmware update complete, rebooting");
-            k_work_reschedule(&_reboot_work, K_MSEC(REBOOT_DELAY_MS));
-        }
-
-        /**
-         * @brief Invokes the optional platform cleanup callback.
-         */
-        void cleanup() override
-        {
-            if (_cleanup_callback != nullptr)
-            {
-                _cleanup_callback();
-            }
-        }
-
-        /**
-         * @brief Logs the beginning of a firmware update session.
-         */
-        void on_firmware_update_start() override
-        {
-            ensure_flash_area_ready();
-            indicators::start_blinking_all();
-            webusb::status("Firmware update started");
+            _reboot_work.reschedule(REBOOT_DELAY_MS);
         }
 
         private:
@@ -210,7 +185,6 @@ namespace opendeck::installer
 
             if (!_flash_area.open(FIRMWARE_SLOT_AREA_ID))
             {
-                webusb::status("Failed to open firmware slot");
                 return;
             }
 
@@ -218,7 +192,6 @@ namespace opendeck::installer
 
             if (!_flash_area.sectors(_sectors, _sector_count))
             {
-                webusb::status("Failed to query firmware slot sectors");
                 _sector_count = 0;
                 return;
             }
@@ -239,7 +212,6 @@ namespace opendeck::installer
 
             if (!_initialized || (index >= _sector_count))
             {
-                webusb::status("Invalid firmware sector index");
                 return false;
             }
 
@@ -247,33 +219,19 @@ namespace opendeck::installer
         }
 
         /**
-         * @brief Handles the delayed reboot work item.
-         *
-         * @param work Zephyr work item embedded in this installer backend.
+         * @brief Performs the delayed reboot after a successful firmware update.
          */
-        static void reboot_handler([[maybe_unused]] k_work* work)
+        void reboot()
         {
-            if (reboot_instance == nullptr)
-            {
-                return;
-            }
-
-            if (reboot_instance->_cleanup_callback != nullptr)
-            {
-                reboot_instance->_cleanup_callback();
-            }
-
-            sys_reboot(SYS_REBOOT_COLD);
+            _mcu.reboot(mcu::BootTarget::Application);
         }
 
-        flash_area::HwaHw                                     _flash_area       = {};
-        std::array<flash_area::Hwa::Sector, MAX_SECTOR_COUNT> _sectors          = {};
-        size_t                                                _sector_count     = 0;
-        size_t                                                _buffered_sector  = INVALID_SECTOR_INDEX;
-        CleanupCallback                                       _cleanup_callback = nullptr;
-        k_work_delayable                                      _reboot_work      = {};
-        bool                                                  _initialized      = false;
-
-        static inline HwaHw* reboot_instance = nullptr;
+        flash_area::HwaHw                                     _flash_area = {};
+        mcu::Hwa&                                             _mcu;
+        std::array<flash_area::Hwa::Sector, MAX_SECTOR_COUNT> _sectors         = {};
+        size_t                                                _sector_count    = 0;
+        size_t                                                _buffered_sector = INVALID_SECTOR_INDEX;
+        zlibs::utils::misc::KworkDelayable                    _reboot_work;
+        bool                                                  _initialized = false;
     };
 }    // namespace opendeck::installer

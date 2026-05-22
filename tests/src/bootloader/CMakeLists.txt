@@ -27,7 +27,9 @@ endif()
 target_sources(app
     PRIVATE
     bootloader_test.cpp
+    $ENV{ZEPHYR_PROJECT}/app/bootloader/src/indicators/instance/impl/indicators.cpp
     $ENV{ZEPHYR_PROJECT}/app/bootloader/src/installer/instance/impl/installer.cpp
+    $ENV{ZEPHYR_PROJECT}/app/bootloader/src/staged_update_reader/instance/impl/staged_update_reader.cpp
 )
 
 add_dependencies(app

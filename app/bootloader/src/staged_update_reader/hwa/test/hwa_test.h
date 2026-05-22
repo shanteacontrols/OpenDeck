@@ -48,16 +48,10 @@ namespace opendeck::staged_update_reader
                 std::span<const uint8_t>(reinterpret_cast<const uint8_t*>(&invalid_magic), sizeof(invalid_magic)));
         }
 
-        void on_update_start() override
-        {
-            _update_start_calls++;
-        }
-
         void reset_storage()
         {
             _area.reset_storage();
             _clear_pending_calls = 0;
-            _update_start_calls  = 0;
         }
 
         void stage(std::span<const uint8_t> payload,
@@ -93,11 +87,6 @@ namespace opendeck::staged_update_reader
             return _clear_pending_calls;
         }
 
-        size_t update_start_calls() const
-        {
-            return _update_start_calls;
-        }
-
         bool init_called() const
         {
             return _area.open_called();
@@ -116,6 +105,5 @@ namespace opendeck::staged_update_reader
         private:
         flash_area::HwaTest _area;
         size_t              _clear_pending_calls = 0;
-        size_t              _update_start_calls  = 0;
     };
 }    // namespace opendeck::staged_update_reader

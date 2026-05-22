@@ -4,59 +4,57 @@
  */
 
 #include "bootloader/src/indicators/instance/impl/indicators.h"
-#include "common/src/indicators/shared/common.h"
-#include "common/src/indicators/hwa/hw/hwa_hw.h"
-
-#include "zlibs/utils/misc/kwork_delayable.h"
 
 using namespace opendeck;
 
-namespace
+bootloader::indicators::Indicators::Indicators(Hwa& hwa)
+    : _hwa(hwa)
+    , _blink_work([this]()
+                  {
+                      blink();
+                  })
 {
-    constexpr uint32_t    BLINK_INTERVAL_MS = 50U;
-    io::indicators::HwaHw hwa;
-    bool                  configured = false;
-    bool                  blink_on   = false;
+    bootloader::signaling::subscribe<bootloader::signaling::FirmwareUpdateStartedSignal>(
+        [this](const bootloader::signaling::FirmwareUpdateStartedSignal&)
+        {
+            start_blinking_all();
+        });
+}
 
-    void blink_handler();
-
-    zlibs::utils::misc::KworkDelayable blink_work(blink_handler);
-
-    void blink_handler()
-    {
-        blink_on = !blink_on;
-        blink_on ? hwa.on(io::indicators::Type::All) : hwa.off(io::indicators::Type::All);
-        blink_work.reschedule(BLINK_INTERVAL_MS);
-    }
-}    // namespace
-
-bool indicators::init()
+bool bootloader::indicators::Indicators::init()
 {
-    if (configured)
+    if (_configured)
     {
         return true;
     }
 
-    configured = hwa.init();
+    _configured = _hwa.init();
 
-    if (configured)
+    if (_configured)
     {
-        blink_work.cancel();
-        blink_on = true;
-        hwa.on(io::indicators::Type::All);
+        _blink_work.cancel();
+        _blink_on = true;
+        _hwa.on();
     }
 
-    return configured;
+    return _configured;
 }
 
-void indicators::start_blinking_all()
+void bootloader::indicators::Indicators::start_blinking_all()
 {
-    if (!configured)
+    if (!_configured)
     {
         return;
     }
 
-    blink_on = false;
-    hwa.off(io::indicators::Type::All);
-    blink_work.reschedule(0);
+    _blink_on = false;
+    _hwa.off();
+    _blink_work.reschedule(0);
+}
+
+void bootloader::indicators::Indicators::blink()
+{
+    _blink_on = !_blink_on;
+    _blink_on ? _hwa.on() : _hwa.off();
+    _blink_work.reschedule(BLINK_INTERVAL_MS);
 }

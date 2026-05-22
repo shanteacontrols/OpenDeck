@@ -4,13 +4,17 @@
  */
 
 #include "tests/common.h"
+#include "bootloader/src/indicators/builder/test/builder_test.h"
 #include "bootloader/src/installer/builder/builder.h"
 #include "bootloader/src/installer/shared/common.h"
+#include "bootloader/src/signaling/signaling.h"
+#include "bootloader/src/staged_update_reader/builder/test/builder_test.h"
 
 #include <algorithm>
 #include <cstdint>
 #include <fstream>
 #include <iterator>
+#include <string>
 #include <vector>
 
 namespace
@@ -74,17 +78,34 @@ namespace
         }
     }
 
-}    // namespace
-
-namespace opendeck::webusb
-{
-    void status(const char*)
+    class SignalCapture
     {
-    }
-}    // namespace opendeck::webusb
+        public:
+        SignalCapture()
+        {
+            bootloader::signaling::subscribe<bootloader::signaling::StatusSignal>(
+                [this](const bootloader::signaling::StatusSignal& signal)
+                {
+                    statuses.emplace_back(signal.message());
+                });
+
+            bootloader::signaling::subscribe<bootloader::signaling::FirmwareUpdateStartedSignal>(
+                [this](const bootloader::signaling::FirmwareUpdateStartedSignal&)
+                {
+                    firmware_update_started_count++;
+                });
+        }
+
+        std::vector<std::string> statuses;
+        size_t                   firmware_update_started_count = 0;
+    };
+
+}    // namespace
 
 TEST(Bootloader, FwUpdate)
 {
+    bootloader::signaling::clear_registry();
+
     const auto           app_payload   = read_binary_file(OPENDECK_TEST_APP_PAYLOAD_FILE);
     const auto           update_stream = read_binary_file(OPENDECK_TEST_DFU_FILE);
     const auto           sector_count  = (app_payload.size() + BOOTLOADER_TEST_FLASH_SECTOR_SIZE - 1U) / BOOTLOADER_TEST_FLASH_SECTOR_SIZE;
@@ -101,6 +122,8 @@ TEST(Bootloader, FwUpdate)
 
 TEST(Bootloader, SupportsDifferentFlashWriteBlockSizes)
 {
+    bootloader::signaling::clear_registry();
+
     const std::vector<uint8_t> payload = {
         0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30, 0x31, 0x32, 0x33, 0x34
     };
@@ -119,6 +142,8 @@ TEST(Bootloader, SupportsDifferentFlashWriteBlockSizes)
 
 TEST(Bootloader, PadsPayloadShorterThanOneWriteBlock)
 {
+    bootloader::signaling::clear_registry();
+
     const std::vector<uint8_t> payload = { 0x01, 0x02, 0x03 };
     installer::HwaTest         hwa(32, 64, 1);
     installer::Installer       installer(hwa);
@@ -132,6 +157,8 @@ TEST(Bootloader, PadsPayloadShorterThanOneWriteBlock)
 
 TEST(Bootloader, CommitsPayloadEndingMidSector)
 {
+    bootloader::signaling::clear_registry();
+
     const std::vector<uint8_t> payload(40, 0x5A);
     installer::HwaTest         hwa(8, 128, 1);
     installer::Installer       installer(hwa);
@@ -148,6 +175,8 @@ TEST(Bootloader, CommitsPayloadEndingMidSector)
 
 TEST(Bootloader, WritesAcrossSectorBoundary)
 {
+    bootloader::signaling::clear_registry();
+
     std::vector<uint8_t> payload;
 
     for (size_t i = 0; i < 40; i++)
@@ -169,6 +198,8 @@ TEST(Bootloader, WritesAcrossSectorBoundary)
 
 TEST(Bootloader, WriteFailurePreventsApply)
 {
+    bootloader::signaling::clear_registry();
+
     const std::vector<uint8_t> payload = { 0xAA, 0xBB, 0xCC, 0xDD };
     installer::HwaTest         hwa(4, 64, 1);
     installer::Installer       installer(hwa);
@@ -183,6 +214,8 @@ TEST(Bootloader, WriteFailurePreventsApply)
 
 TEST(Bootloader, InvalidMetadataDoesNotEraseOrWrite)
 {
+    bootloader::signaling::clear_registry();
+
     const std::vector<uint8_t> payload = { 0xAA, 0xBB, 0xCC, 0xDD };
     installer::HwaTest         hwa(4, 64, 1);
     installer::Installer       installer(hwa);
@@ -197,6 +230,8 @@ TEST(Bootloader, InvalidMetadataDoesNotEraseOrWrite)
 
 TEST(Bootloader, RestartMarkerClearsStagedWriteState)
 {
+    bootloader::signaling::clear_registry();
+
     const std::vector<uint8_t> abandoned_payload = { 0x01, 0x02, 0x03 };
     const std::vector<uint8_t> final_payload     = { 0x10, 0x11, 0x12, 0x13, 0x14 };
 
@@ -213,4 +248,55 @@ TEST(Bootloader, RestartMarkerClearsStagedWriteState)
 
     ASSERT_TRUE(hwa.updated);
     assert_written_image(final_payload, hwa.written_bytes);
+}
+
+TEST(Bootloader, InstallerPublishesUpdateLifecycleSignals)
+{
+    bootloader::signaling::clear_registry();
+
+    SignalCapture              capture;
+    const std::vector<uint8_t> payload = { 0xAA, 0xBB, 0xCC, 0xDD };
+    installer::HwaTest         hwa(4, 64, 1);
+    installer::Installer       installer(hwa);
+
+    feed_stream(installer, make_dfu_stream(payload));
+
+    ASSERT_TRUE(hwa.updated);
+    ASSERT_EQ(1, capture.firmware_update_started_count);
+    ASSERT_NE(std::find(capture.statuses.begin(), capture.statuses.end(), "DFU metadata accepted"), capture.statuses.end());
+    ASSERT_NE(std::find(capture.statuses.begin(), capture.statuses.end(), "Firmware update started"), capture.statuses.end());
+    ASSERT_NE(std::find(capture.statuses.begin(), capture.statuses.end(), "Firmware update complete, rebooting"), capture.statuses.end());
+}
+
+TEST(Bootloader, StagedUpdateReaderPublishesUpdateStartedSignal)
+{
+    bootloader::signaling::clear_registry();
+
+    SignalCapture                 capture;
+    const std::vector<uint8_t>    payload = make_dfu_stream({ 0x10, 0x11, 0x12, 0x13 });
+    staged_update_reader::Builder staged_update_reader;
+    installer::HwaTest            installer_hwa(4, 64, 1);
+    installer::Installer          installer(installer_hwa);
+
+    staged_update_reader._hwa.stage(payload);
+
+    ASSERT_TRUE(staged_update_reader.instance().consume(installer));
+    ASSERT_TRUE(installer_hwa.updated);
+    ASSERT_EQ(1, capture.firmware_update_started_count);
+}
+
+TEST(Bootloader, IndicatorsBlinkWhenFirmwareUpdateStarts)
+{
+    bootloader::signaling::clear_registry();
+
+    bootloader::indicators::Builder indicators;
+
+    ASSERT_TRUE(indicators.instance().init());
+    ASSERT_TRUE(indicators._hwa._init_called);
+    ASSERT_TRUE(indicators._hwa._on_called);
+    ASSERT_FALSE(indicators._hwa._off_called);
+
+    bootloader::signaling::publish(bootloader::signaling::FirmwareUpdateStartedSignal{});
+
+    ASSERT_TRUE(indicators._hwa._off_called);
 }

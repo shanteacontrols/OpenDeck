@@ -4,7 +4,7 @@
  */
 
 #include "bootloader/src/installer/instance/impl/installer.h"
-#include "bootloader/src/webusb/instance/impl/transport.h"
+#include "bootloader/src/signaling/signaling.h"
 
 #include <zephyr/sys/util.h>
 
@@ -33,7 +33,7 @@ installer::Installer::StreamStatus installer::Installer::feed(const uint8_t data
     {
         if (process_start(data) == StreamStatus::Complete)
         {
-            webusb::status("Restarting DFU session");
+            status("Restarting DFU session");
             reset();
             _current_stage = static_cast<uint8_t>(ReceiveStage::FwMetadata);
             return StreamStatus::Incomplete;
@@ -46,7 +46,7 @@ installer::Installer::StreamStatus installer::Installer::feed(const uint8_t data
     {
         if (process_start(data) == StreamStatus::Complete)
         {
-            webusb::status("Restarting DFU session");
+            status("Restarting DFU session");
             reset();
             return advance_stage();
         }
@@ -92,7 +92,7 @@ installer::Installer::StreamStatus installer::Installer::process_start(const uin
     if (++_start_bytes_received == START_MAGIC_BYTES)
     {
         _start_bytes_received = 0;
-        webusb::status("DFU session started");
+        status("DFU session started");
         return StreamStatus::Complete;
     }
 
@@ -118,18 +118,19 @@ installer::Installer::StreamStatus installer::Installer::process_fw_metadata(con
     {
         if (_received_format_version != FORMAT_VERSION)
         {
-            webusb::status("Unsupported DFU format version");
+            status("Unsupported DFU format version");
             return StreamStatus::Invalid;
         }
 
         if (_received_uid != OPENDECK_TARGET_UID)
         {
-            webusb::status("DFU target UID mismatch");
+            status("DFU target UID mismatch");
             return StreamStatus::Invalid;
         }
 
-        webusb::status("DFU metadata accepted");
-        _hwa.on_firmware_update_start();
+        status("DFU metadata accepted");
+        bootloader::signaling::publish(bootloader::signaling::FirmwareUpdateStartedSignal{});
+        status("Firmware update started");
 
         if (!prepare_write_block_size())
         {
@@ -160,7 +161,7 @@ installer::Installer::StreamStatus installer::Installer::process_fw_chunk(const 
         }
 
         _stage_bytes_received = 0;
-        webusb::status("Firmware payload fully received");
+        status("Firmware payload fully received");
         return StreamStatus::Complete;
     }
 
@@ -181,7 +182,7 @@ installer::Installer::StreamStatus installer::Installer::process_end(const uint8
 {
     if (((END_COMMAND >> (_stage_bytes_received * BITS_PER_BYTE)) & static_cast<uint32_t>(BYTE_MASK)) != data)
     {
-        webusb::status("DFU end marker mismatch");
+        status("DFU end marker mismatch");
         _stage_bytes_received = 0;
         return StreamStatus::Invalid;
     }
@@ -189,7 +190,7 @@ installer::Installer::StreamStatus installer::Installer::process_end(const uint8
     if (++_stage_bytes_received == END_COMMAND_BYTES)
     {
         _stage_bytes_received = 0;
-        webusb::status("DFU end marker detected");
+        status("DFU end marker detected");
         return StreamStatus::Complete;
     }
 
@@ -225,7 +226,8 @@ installer::Installer::StreamStatus installer::Installer::advance_stage()
     {
         if (!_failed)
         {
-            webusb::status("DFU stream complete, applying update");
+            status("DFU stream complete, applying update");
+            status("Firmware update complete, rebooting");
             _hwa.apply();
         }
 
@@ -363,11 +365,16 @@ bool installer::Installer::finish_current_sector()
     return true;
 }
 
-bool installer::Installer::fail(const char* status)
+bool installer::Installer::fail(std::string_view status)
 {
-    webusb::status(status);
+    this->status(status);
     _failed = true;
     reset_state(false);
 
     return false;
+}
+
+void installer::Installer::status(std::string_view message)
+{
+    bootloader::signaling::publish(bootloader::signaling::StatusSignal(message));
 }

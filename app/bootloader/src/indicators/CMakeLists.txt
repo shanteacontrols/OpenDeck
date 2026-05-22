@@ -5,4 +5,3 @@ opendeck_library_named(opendeck_bootloader_indicators)
 target_sources(opendeck_bootloader_indicators PRIVATE
     instance/impl/indicators.cpp
 )
-

@@ -3,12 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "bootloader/src/webusb/instance/impl/transport.h"
-
-#ifdef CONFIG_PROJECT_BOOTLOADER_SUPPORT_USB_DFU
-#include "bootloader/src/installer/builder/builder.h"
+#include "bootloader/src/webusb/hwa/hw/webusb_hw.h"
 
 #include "zlibs/drivers/usb/usb_hw.h"
+#include "zlibs/utils/misc/kwork_delayable.h"
 
 #include <zephyr/device.h>
 #include <zephyr/drivers/usb/udc.h>
@@ -19,6 +17,7 @@
 #include <zephyr/sys/byteorder.h>
 #include <zephyr/usb/usbd.h>
 
+#include <algorithm>
 #include <cstring>
 
 using namespace opendeck;
@@ -42,12 +41,8 @@ namespace
     const device* const         udc_device = DEVICE_DT_GET(DT_NODELABEL(zephyr_udc0));
     zlibs::drivers::usb::UsbHw& usb_device = zlibs::drivers::usb::UsbHw::instance(udc_device);
 
-    void cleanup_callback()
-    {
-        (void)usb_device.deinit();
-    }
-
-    installer::Builder installer_builder(cleanup_callback);
+    installer::Installer* installer_instance = nullptr;
+    webusb::WebUsbHw*     webusb_instance    = nullptr;
 
     struct UsbBosWebusbDesc
     {
@@ -245,11 +240,10 @@ namespace
     usbd_class_data* active_class_data = nullptr;
     bool             status_saturated  = false;
     bool             status_in_flight  = false;
-    struct k_work    status_work;
 
     uint8_t bulk_in_ep(usbd_class_data* const class_data);
 
-    void flush_status_queue(struct k_work*)
+    void flush_status_queue()
     {
         if ((active_class_data == nullptr) ||
             !atomic_test_bit(&function_data.enabled, 0) ||
@@ -290,6 +284,8 @@ namespace
 
         status_in_flight = true;
     }
+
+    zlibs::utils::misc::KworkDelayable status_work(flush_status_queue);
 
     void clear_status_queue()
     {
@@ -359,7 +355,10 @@ namespace
         {
             for (uint16_t i = 0; i < buffer->len; i++)
             {
-                installer_builder.instance().feed(buffer->data[i]);
+                if (installer_instance != nullptr)
+                {
+                    installer_instance->feed(buffer->data[i]);
+                }
             }
 
             net_buf_reset(buffer);
@@ -376,7 +375,7 @@ namespace
             status_in_flight = false;
             status_saturated = false;
             usbd_ep_buf_free(context, buffer);
-            k_work_submit(&status_work);
+            status_work.reschedule(0);
         }
 
         return 0;
@@ -417,7 +416,10 @@ namespace
             usbd_ep_buf_free(usbd_class_get_ctx(class_data), buffer);
         }
 
-        webusb::status("WebUSB connected");
+        if (webusb_instance != nullptr)
+        {
+            webusb_instance->status("WebUSB connected");
+        }
     }
 
     void disable(usbd_class_data* const)
@@ -446,9 +448,16 @@ namespace
 
 }    // namespace
 
-void webusb::status(const char* message)
+webusb::WebUsbHw::WebUsbHw(installer::Installer& installer)
+    : _installer(installer)
 {
-    if (message == nullptr)
+    installer_instance = &_installer;
+    webusb_instance    = this;
+}
+
+void webusb::WebUsbHw::status(std::string_view message)
+{
+    if (message.empty())
     {
         return;
     }
@@ -461,9 +470,9 @@ void webusb::status(const char* message)
     }
 
     char         status_message[STATUS_BUFFER_SIZE] = {};
-    const size_t message_length                     = strnlen(message, STATUS_BUFFER_SIZE - 2U);
+    const size_t message_length                     = std::min(message.size(), STATUS_BUFFER_SIZE - 2U);
 
-    std::memcpy(status_message, message, message_length);
+    std::memcpy(status_message, message.data(), message_length);
     status_message[message_length] = '\0';
 
     if (k_msgq_put(&webusb_status_msgq, status_message, K_NO_WAIT) != 0)
@@ -472,13 +481,11 @@ void webusb::status(const char* message)
         return;
     }
 
-    k_work_submit(&status_work);
+    status_work.reschedule(0);
 }
 
-bool webusb::Transport::init()
+bool webusb::WebUsbHw::init()
 {
-    k_work_init(&status_work, flush_status_queue);
-
     usbd_desc_node* descriptors[] = {
         &bootloader_webusb_bos,
     };
@@ -488,25 +495,8 @@ bool webusb::Transport::init()
     });
 }
 
-bool webusb::Transport::deinit()
+bool webusb::WebUsbHw::deinit()
 {
     const bool deinitialized = usb_device.deinit();
     return deinitialized;
 }
-#else
-namespace opendeck::webusb
-{
-    void status(const char*)
-    {}
-
-    bool Transport::init()
-    {
-        return false;
-    }
-
-    bool Transport::deinit()
-    {
-        return true;
-    }
-}    // namespace opendeck::webusb
-#endif

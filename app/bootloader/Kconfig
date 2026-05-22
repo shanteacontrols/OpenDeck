@@ -1,6 +1,11 @@
 mainmenu "OpenDeck bootloader"
 
 OPENDECK_STAGED_DFU_NODE := $(dt_nodelabel_path,staged_dfu_partition)
+OPENDECK_TRAFFIC_INDICATORS_NODE := $(dt_nodelabel_path,opendeck_traffic_indicators)
+
+config PROJECT_BOOTLOADER_TRAFFIC_INDICATORS_DISABLED
+    bool
+    default y if !$(dt_path_enabled,$(OPENDECK_TRAFFIC_INDICATORS_NODE))
 
 config PROJECT_BOOTLOADER_STAGED_UPDATE
     bool
@@ -19,5 +24,29 @@ config PROJECT_BOOTLOADER_SUPPORT_USB_DFU
     help
       Enables the bootloader USB DFU transport when selected by the target
       USB configuration.
+
+config PROJECT_BOOTLOADER_SUPPORT_TRAFFIC_INDICATORS
+    bool
+    default y if $(dt_path_enabled,$(OPENDECK_TRAFFIC_INDICATORS_NODE))
+    help
+      Hidden symbol indicating traffic indicator support is present
+      in the bootloader when the chosen traffic indicators devicetree node
+      exists.
+
+config PROJECT_BOOTLOADER_SUPPORT_MDNS
+    bool "mDNS recovery discovery support"
+    select DNS_SD
+    select ERRNO
+    select HWINFO
+    select MDNS_RESPONDER
+    select MDNS_RESPONDER_DNS_SD
+    select NETWORKING
+    select NET_CONFIG_SETTINGS
+    select NET_DHCPV4
+    select NET_HOSTNAME_DYNAMIC
+    select NET_HOSTNAME_ENABLE
+    select NET_IPV4
+    help
+      Enables bootloader mDNS advertisement for network recovery targets.
 
 source "Kconfig.zephyr"

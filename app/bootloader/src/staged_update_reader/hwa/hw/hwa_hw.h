@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include "bootloader/src/indicators/instance/impl/indicators.h"
 #include "bootloader/src/staged_update_reader/shared/deps.h"
 #include "common/src/flash_area/hwa/hw/hwa_hw.h"
 
@@ -68,14 +67,6 @@ namespace opendeck::staged_update_reader
                 sizeof(invalid_magic));
 
             _area.write(0, data);
-        }
-
-        /**
-         * @brief Initializes bootloader indicators before staged update processing.
-         */
-        void on_update_start() override
-        {
-            indicators::init();
         }
 
         private:

@@ -7,6 +7,7 @@
 
 #include "bootloader/src/installer/hwa/hw/hwa_hw.h"
 #include "bootloader/src/installer/instance/impl/installer.h"
+#include "common/src/mcu/shared/deps.h"
 
 namespace opendeck::installer
 {
@@ -19,10 +20,10 @@ namespace opendeck::installer
         /**
          * @brief Constructs the installer builder.
          *
-         * @param cleanup_callback Callback passed to the hardware backend.
+         * @param mcu Shared MCU services.
          */
-        explicit Builder(CleanupCallback cleanup_callback)
-            : _hwa(cleanup_callback)
+        explicit Builder(mcu::Hwa& mcu)
+            : _hwa(mcu)
             , _instance(_hwa)
         {}
 

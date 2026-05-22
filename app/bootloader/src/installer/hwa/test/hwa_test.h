@@ -101,24 +101,12 @@ namespace opendeck::installer
         }
 
         /**
-         * @brief Performs no cleanup in the test backend.
-         */
-        void cleanup() override
-        {}
-
-        /**
          * @brief Marks the test backend as updated.
          */
         void apply() override
         {
             updated = true;
         }
-
-        /**
-         * @brief Performs no action when an update session starts.
-         */
-        void on_firmware_update_start() override
-        {}
 
         bool                 updated        = false;
         bool                 fail_erase     = false;

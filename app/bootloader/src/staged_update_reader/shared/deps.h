@@ -79,10 +79,5 @@ namespace opendeck::staged_update_reader
          * @brief Invalidates the staged-update marker.
          */
         virtual void clear_pending() = 0;
-
-        /**
-         * @brief Notifies the platform that a staged update is about to be consumed.
-         */
-        virtual void on_update_start() = 0;
     };
 }    // namespace opendeck::staged_update_reader
