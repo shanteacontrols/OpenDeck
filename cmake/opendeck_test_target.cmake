@@ -117,28 +117,15 @@ endfunction()
 # just to learn counts such as "this target has 64 analog inputs".
 #
 # The app build therefore exports resolved PROJECT_TARGET_* values into
-# generated/target.conf and generated/target.kconfig. This helper imports those
-# generated files so tests use the same target shape, feature flags, and storage
-# geometry as firmware without parsing firmware.overlay or applying target DTS
-# overlays.
+# generated/target.conf and generated/target.kconfig. This helper appends the
+# generated config values and validates whether the selected target supports the
+# test mode. Tests that need imported Kconfig symbols explicitly rsource
+# generated/target.kconfig from their own Kconfig root.
 #
 # The suite prj.conf is appended later by opendeck_test_bootstrap(), allowing a
 # test to override imported feature flags while keeping the imported target
 # shape.
 function(opendeck_test_import_target_config)
-    file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/opendeck")
-    set(opendeck_test_kconfig "${CMAKE_CURRENT_BINARY_DIR}/opendeck/Kconfig")
-
-    file(WRITE "${opendeck_test_kconfig}"
-        "mainmenu \"Project-specific configuration\"\n\n"
-        "module = OPENDECK\n"
-        "module-str = OpenDeck\n"
-        "source \"subsys/logging/Kconfig.template.log_config\"\n\n"
-        "source \"Kconfig.zephyr\"\n"
-        "rsource \"${opendeck_target_kconfig}\"\n"
-        "rsource \"$ENV{ZENV_PROJECT_ROOT}/app/firmware/src/Kconfig\"\n"
-    )
-
     list(APPEND CONF_FILE "${opendeck_target_config}")
 
     opendeck_read_app_bool(target_host_test_enabled CONFIG_PROJECT_TARGET_SUPPORT_HOST_TEST)
@@ -156,6 +143,5 @@ function(opendeck_test_import_target_config)
         message(FATAL_ERROR "Unknown OPENDECK_TEST_MODE '${OPENDECK_TEST_MODE}'. Expected 'host' or 'hw'.")
     endif()
 
-    set(KCONFIG_ROOT "${opendeck_test_kconfig}" PARENT_SCOPE)
     set(CONF_FILE "${CONF_FILE}" PARENT_SCOPE)
 endfunction()

@@ -1,0 +1,3 @@
+module = OPENDECK
+module-str = OpenDeck
+source "subsys/logging/Kconfig.template.log_config"

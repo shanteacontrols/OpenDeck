@@ -1,6 +1,4 @@
-module = OPENDECK
-module-str = OpenDeck
-source "subsys/logging/Kconfig.template.log_config"
+rsource "../logging/Kconfig"
 
 OPENDECK_SWITCHES_NODE := $(dt_nodelabel_path,opendeck_switches)
 OPENDECK_ANALOG_NODE := $(dt_nodelabel_path,opendeck_analog)

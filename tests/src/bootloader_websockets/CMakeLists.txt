@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.20)
 include($ENV{ZENV_PROJECT_ROOT}/cmake/opendeck_test_suite.cmake)
 opendeck_test_bootstrap(
     COMPILE_DEFINITIONS
-    CONFIG_OPENDECK_LOG_LEVEL=3
     BOOTLOADER_TEST_FLASH_SECTOR_SIZE=256
 )
 

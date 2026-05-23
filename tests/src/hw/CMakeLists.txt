@@ -4,7 +4,6 @@ opendeck_test_bootstrap(
     IMPORT_TARGET_CONFIG
     COMPILE_DEFINITIONS
     PROJECT_TARGET_HW_TESTS_SUPPORTED
-    CONFIG_OPENDECK_LOG_LEVEL=3
 )
 
 add_subdirectory($ENV{ZENV_PROJECT_ROOT}/app/common/src/metadata ${CMAKE_CURRENT_BINARY_DIR}/metadata)

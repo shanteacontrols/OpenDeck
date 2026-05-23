@@ -1,0 +1,4 @@
+mainmenu "Project-specific configuration"
+
+source "Kconfig.zephyr"
+rsource "$ZENV_PROJECT_ROOT/app/logging/Kconfig"
