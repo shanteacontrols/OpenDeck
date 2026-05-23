@@ -7,7 +7,7 @@ properties:
     type: boolean
     required: false
     description: Enable this target for host-based test execution.
-  hw:
+  hardware:
     type: boolean
     required: false
     description: Enable this target for hardware-backed test execution.

@@ -8,13 +8,13 @@
     opendeck_tests: opendeck-tests {
         compatible = "opendeck,tests";
         host;
-        hw;
+        hardware;
     };
 
     opendeck_bulk_build: opendeck-bulk-build {
         compatible = "opendeck,bulk-build";
         app;
-        hw-test;
+        hardware-test;
     };
 
     opendeck_switches: opendeck-switches {

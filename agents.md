@@ -46,14 +46,15 @@ Testing uses Twister from Zephyr wrapped inside `make tests`.
 Examples:
 
 - `make tests TAG=host`
-- `make tests TEST=digital TAG=host`
-- `make tests TEST=analog TAG=host`
-- `make tests TEST=bootloader TAG=host`
+- `make tests TEST=firmware_io_digital TAG=host`
+- `make tests TEST=firmware_io_analog TAG=host`
+- `make tests TEST=bootloader_dfu TAG=host`
+- `make tests TEST=hardware TAG=hardware`
 - `make tests RUN=1 TAG=host`
 
 Guidelines:
 
-- Always add `TAG=host` unless you are intentionally working with hardware-tagged tests.
+- Always add `TAG=host` unless you are intentionally working with `TAG=hardware` tests.
 - If Twister behaves oddly, run `make clean` and retry before changing code.
 - When fixing failing tests, start with logs in the relevant firmware path instead of introducing timing workarounds.
 
@@ -66,16 +67,16 @@ Examples:
 
 - `./scripts/bulk_build.sh --type=app`
 - `./scripts/bulk_build.sh --type=host-test`
-- `./scripts/bulk_build.sh --type=hw-test`
+- `./scripts/bulk_build.sh --type=hardware-test`
 - `./scripts/bulk_build.sh --type=lint`
 
 Notes:
 
-- Run `--type=app` before `--type=host-test` or `--type=hw-test`; bulk tests
+- Run `--type=app` before `--type=host-test` or `--type=hardware-test`; bulk tests
   consume generated target configs from `build/app/default/release/<target>/`.
-- `host-test` and `hw-test` run shared suites once using a representative target,
+- `host-test` and `hardware-test` run shared suites once using a representative target,
   then run `preset` suites once per eligible target.
-- never run bulk build with `hw-test` unless explicitly instructed to do so.
+- never run bulk build with `hardware-test` unless explicitly instructed to do so.
 - `lint` runs `make CHECK=1 TARGET=<target>` for targets opted into bulk lint.
 
 ## CodeChecker

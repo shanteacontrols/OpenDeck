@@ -272,7 +272,7 @@ namespace opendeck::tests
         {
             auto request = generate_sysex_get_req(section, index);
 
-#ifdef PROJECT_TARGET_HW_TESTS_SUPPORTED
+#ifdef PROJECT_TARGET_HARDWARE_TESTS_SUPPORTED
             if (_use_hardware)
             {
                 return send_request_to_device(request, true);
@@ -300,7 +300,7 @@ namespace opendeck::tests
         {
             auto request = generate_sysex_set_req(section, index, value);
 
-#ifdef PROJECT_TARGET_HW_TESTS_SUPPORTED
+#ifdef PROJECT_TARGET_HARDWARE_TESTS_SUPPORTED
             if (_use_hardware)
             {
                 return send_write_request_to_device(request);
@@ -310,7 +310,7 @@ namespace opendeck::tests
             return send_request_to_stub(request, false) == static_cast<uint16_t>(sys::Config::Status::Ack);
         }
 
-#ifdef PROJECT_TARGET_HW_TESTS_SUPPORTED
+#ifdef PROJECT_TARGET_HARDWARE_TESTS_SUPPORTED
         /**
          * @brief Sends a SysEx request to the device and captures every matching response frame.
          *
@@ -641,7 +641,7 @@ namespace opendeck::tests
             k_msleep(1);
         }
 
-#ifdef PROJECT_TARGET_HW_TESTS_SUPPORTED
+#ifdef PROJECT_TARGET_HARDWARE_TESTS_SUPPORTED
         /**
          * @brief Sends a SysEx request to a real device and decodes the response payload.
          *
@@ -805,7 +805,7 @@ namespace opendeck::tests
         sys::Builder*               _system = nullptr;
         [[maybe_unused]] const bool _use_hardware;
 
-#ifdef PROJECT_TARGET_HW_TESTS_SUPPORTED
+#ifdef PROJECT_TARGET_HARDWARE_TESTS_SUPPORTED
         /**
          * @brief Serializes a SysEx request payload for the `sendmidi` CLI.
          *

@@ -18,8 +18,8 @@ function usage
     Host tests tagged with preset are run for every eligible target; host tests without preset are
     run once using the first eligible target as the representative preset.
 
-    --type=hw-test
-    This option will build and run hardware tests for targets whose opendeck-bulk-build node contains hw-test.
+    --type=hardware-test
+    This option will build and run hardware tests for targets whose opendeck-bulk-build node contains hardware-test.
     Hardware tests tagged with preset are run for every eligible target; hardware tests without
     preset are run once using the first eligible target as the representative preset.
 
@@ -114,7 +114,7 @@ function list_tests_by_tag
             while IFS= read -r tag
             do
                 case "$tag" in
-                    host|hw)
+                    host|hardware)
                         mode=$tag
                         ;;
                     preset)
@@ -252,32 +252,32 @@ case $type in
         run_tests_for_each_target "host" "${host_targets[@]}"
     ;;
 
-    hw-test)
+    hardware-test)
         load_built_app_targets
-        hw_targets=()
+        hardware_targets=()
 
         for target in "${build_targets[@]}"
         do
-            if app_config_bool_enabled "$target" "CONFIG_PROJECT_TARGET_BULK_HW_TEST" &&
-               app_config_bool_enabled "$target" "CONFIG_PROJECT_TARGET_SUPPORT_HW_TEST"
+            if app_config_bool_enabled "$target" "CONFIG_PROJECT_TARGET_BULK_HARDWARE_TEST" &&
+               app_config_bool_enabled "$target" "CONFIG_PROJECT_TARGET_SUPPORT_HARDWARE_TEST"
             then
-                hw_targets+=("$target")
+                hardware_targets+=("$target")
             fi
         done
 
-        mapfile -t shared_hw_tests < <(list_tests_by_tag "hw" "without" | sort)
-        mapfile -t preset_hw_tests < <(list_tests_by_tag "hw" "with" | sort)
+        mapfile -t shared_hardware_tests < <(list_tests_by_tag "hardware" "without" | sort)
+        mapfile -t preset_hardware_tests < <(list_tests_by_tag "hardware" "with" | sort)
 
-        if (( ${#hw_targets[@]} == 0 ))
+        if (( ${#hardware_targets[@]} == 0 ))
         then
-            echo "ERROR: No hw-test targets are enabled for bulk execution."
+            echo "ERROR: No hardware-test targets are enabled for bulk execution."
             exit 1
         fi
 
-        run_tests_once_per_suite "${hw_targets[0]}" "shared_hw" "${shared_hw_tests[@]}"
+        run_tests_once_per_suite "${hardware_targets[0]}" "shared_hardware" "${shared_hardware_tests[@]}"
 
-        hw_tests=("${preset_hw_tests[@]}")
-        run_tests_for_each_target "hw" "${hw_targets[@]}"
+        hardware_tests=("${preset_hardware_tests[@]}")
+        run_tests_for_each_target "hardware" "${hardware_targets[@]}"
     ;;
 
     lint)

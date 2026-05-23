@@ -7,7 +7,7 @@
 #   and generated/target.kconfig
 #
 # The helper then prepares the test build by:
-# - checking whether the built target allows host/hw tests
+# - checking whether the built target allows host/hardware tests
 # - letting tests use that generated config as the target fact source without
 #   sourcing the firmware target-derivation Kconfig layer
 #
@@ -76,15 +76,15 @@ string(REPLACE "\r\n" "\n" opendeck_testcase_tags "${opendeck_testcase_tags}")
 string(REPLACE "\n" ";" opendeck_testcase_tag_list "${opendeck_testcase_tags}")
 
 foreach(opendeck_testcase_tag IN LISTS opendeck_testcase_tag_list)
-    if(opendeck_testcase_tag STREQUAL "host" OR opendeck_testcase_tag STREQUAL "hw")
+    if(opendeck_testcase_tag STREQUAL "host" OR opendeck_testcase_tag STREQUAL "hardware")
         set(OPENDECK_TEST_MODE "${opendeck_testcase_tag}")
     endif()
 endforeach()
 
-if(NOT OPENDECK_TEST_MODE STREQUAL "host" AND NOT OPENDECK_TEST_MODE STREQUAL "hw")
+if(NOT OPENDECK_TEST_MODE STREQUAL "host" AND NOT OPENDECK_TEST_MODE STREQUAL "hardware")
     message(FATAL_ERROR
         "Unable to infer OpenDeck test mode from ${opendeck_testcase_yaml}. "
-        "Expected a 'host' or 'hw' tag."
+        "Expected a 'host' or 'hardware' tag."
     )
 endif()
 
@@ -129,18 +129,18 @@ function(opendeck_test_import_target_config)
     list(APPEND CONF_FILE "${opendeck_target_config}")
 
     opendeck_read_app_bool(target_host_test_enabled CONFIG_PROJECT_TARGET_SUPPORT_HOST_TEST)
-    opendeck_read_app_bool(target_hw_test_enabled CONFIG_PROJECT_TARGET_SUPPORT_HW_TEST)
+    opendeck_read_app_bool(target_hardware_test_enabled CONFIG_PROJECT_TARGET_SUPPORT_HARDWARE_TEST)
 
     if("${OPENDECK_TEST_MODE}" STREQUAL "host")
         if(NOT target_host_test_enabled STREQUAL "y")
             message(FATAL_ERROR "Target '${OPENDECK_TARGET}' is disabled for host tests in ${opendeck_app_config}.")
         endif()
-    elseif("${OPENDECK_TEST_MODE}" STREQUAL "hw")
-        if(NOT target_hw_test_enabled STREQUAL "y")
+    elseif("${OPENDECK_TEST_MODE}" STREQUAL "hardware")
+        if(NOT target_hardware_test_enabled STREQUAL "y")
             message(FATAL_ERROR "Target '${OPENDECK_TARGET}' is disabled for hardware tests in ${opendeck_app_config}.")
         endif()
     else()
-        message(FATAL_ERROR "Unknown OPENDECK_TEST_MODE '${OPENDECK_TEST_MODE}'. Expected 'host' or 'hw'.")
+        message(FATAL_ERROR "Unknown OPENDECK_TEST_MODE '${OPENDECK_TEST_MODE}'. Expected 'host' or 'hardware'.")
     endif()
 
     set(CONF_FILE "${CONF_FILE}" PARENT_SCOPE)

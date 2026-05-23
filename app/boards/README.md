@@ -94,7 +94,7 @@ Test capability node:
 opendeck_tests: opendeck-tests {
     compatible = "opendeck,tests";
     host;
-    hw;
+    hardware;
 };
 ```
 
@@ -110,7 +110,7 @@ opendeck_bulk_build: opendeck-bulk-build {
     compatible = "opendeck,bulk-build";
     app;
     host-test;
-    hw-test;
+    hardware-test;
     lint;
 };
 ```
@@ -126,7 +126,7 @@ This controls whether helper scripts such as `scripts/bulk_build.sh` include the
 
 Test suites under `tests/src/**/testcase.yaml` can also control how bulk helpers schedule them.
 
-- `host` or `hw` selects the test mode.
+- `host` or `hardware` selects the test mode.
 - `preset` tells `scripts/bulk_build.sh` to run that suite once per eligible target.
 
 If `preset` is omitted, bulk helpers run the suite once using the first eligible target as the

@@ -11,7 +11,7 @@ properties:
     type: boolean
     required: false
     description: Include this target in bulk host test runs launched by helper scripts.
-  hw-test:
+  hardware-test:
     type: boolean
     required: false
     description: Include this target in bulk hardware test runs launched by helper scripts.
