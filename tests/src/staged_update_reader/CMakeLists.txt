@@ -1,12 +1,13 @@
 cmake_minimum_required(VERSION 3.20)
 include($ENV{ZENV_PROJECT_ROOT}/cmake/opendeck_test_suite.cmake)
 opendeck_test_bootstrap(
-    IMPORT_TARGET_CONFIG
+    COMPILE_DEFINITIONS
+    CONFIG_OPENDECK_LOG_LEVEL=3
 )
 
 opendeck_test_add_modules(
-    opendeck_common_metadata                                 "app/common/src/metadata"
-    opendeck_common_dfu_dfu_stream                               "app/common/src/dfu/dfu_stream"
+    opendeck_common_metadata                     "app/common/src/metadata"
+    opendeck_common_dfu_dfu_stream               "app/common/src/dfu/dfu_stream"
     opendeck_bootloader_dfu_staged_update_reader "app/bootloader/src/dfu/staged_update_reader"
 )
 

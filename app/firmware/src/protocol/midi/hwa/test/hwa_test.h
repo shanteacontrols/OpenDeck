@@ -7,8 +7,6 @@
 
 #include "firmware/src/protocol/midi/shared/deps.h"
 
-#include <zephyr/sys/util.h>
-
 #include <gmock/gmock.h>
 
 namespace opendeck::protocol::midi
@@ -199,7 +197,7 @@ namespace opendeck::protocol::midi
         std::vector<midi_ump> _readPackets  = {};
         std::vector<midi_ump> _writePackets = {};
         WrittenMessageLog     _writeParser;
-        bool                  _supported = IS_ENABLED(CONFIG_PROJECT_TARGET_SUPPORT_USB_MIDI);
+        bool                  _supported = true;
 
         private:
         k_poll_signal _data_available_signal = {};
@@ -300,7 +298,7 @@ namespace opendeck::protocol::midi
         std::vector<uint8_t> _readPackets     = {};
         std::vector<uint8_t> _writePackets    = {};
         bool                 _loopbackEnabled = false;
-        bool                 _supported       = IS_ENABLED(CONFIG_PROJECT_TARGET_SUPPORT_DIN_MIDI);
+        bool                 _supported       = true;
         WrittenMessageLog    _writeParser;
 
         private:
@@ -394,7 +392,7 @@ namespace opendeck::protocol::midi
         std::vector<BlePacket> _writePackets = {};
         WrittenMessageLog      _writeParser;
         bool                   _ready     = true;
-        bool                   _supported = IS_ENABLED(CONFIG_PROJECT_TARGET_SUPPORT_BLE);
+        bool                   _supported = true;
 
         private:
         k_poll_signal _data_available_signal = {};

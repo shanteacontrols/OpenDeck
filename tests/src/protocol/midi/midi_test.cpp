@@ -41,6 +41,19 @@ namespace
                                      value);
         }
 
+        void expect_ble_enable()
+        {
+            EXPECT_CALL(_midi._hwaBle, init()).WillOnce(testing::Return(true));
+            EXPECT_CALL(_midi._hwaBle, deinit()).WillRepeatedly(testing::Return(true));
+        }
+
+        void expect_din_enable()
+        {
+            EXPECT_CALL(_midi._hwaSerial, init()).WillOnce(testing::Return(true));
+            EXPECT_CALL(_midi._hwaSerial, deinit()).WillRepeatedly(testing::Return(true));
+            EXPECT_CALL(_midi._hwaSerial, set_loopback(testing::_)).WillRepeatedly(testing::Return(true));
+        }
+
         tests::NoOpDatabaseHandlers _handlers;
         database::Builder           _builder_database;
         database::Admin&            _database_admin = _builder_database.instance();
@@ -87,31 +100,31 @@ TEST_F(MIDITest, OmniChannel)
     }
 }
 
-TEST_F(MIDITest, TestBackendSupportDefaultsMatchTargetConfig)
+TEST_F(MIDITest, TestBackendSupportDefaultsToEnabled)
 {
-    ASSERT_EQ(IS_ENABLED(CONFIG_PROJECT_TARGET_SUPPORT_USB_MIDI), _midi._hwaUsb.supported());
-    ASSERT_EQ(IS_ENABLED(CONFIG_PROJECT_TARGET_SUPPORT_DIN_MIDI), _midi._hwaSerial.supported());
-    ASSERT_EQ(IS_ENABLED(CONFIG_PROJECT_TARGET_SUPPORT_BLE), _midi._hwaBle.supported());
+    ASSERT_TRUE(_midi._hwaUsb.supported());
+    ASSERT_TRUE(_midi._hwaSerial.supported());
+    ASSERT_TRUE(_midi._hwaBle.supported());
 }
 
-TEST_F(MIDITest, BleEnabledSupportMatchesBuild)
+TEST_F(MIDITest, BleEnabledIsAppliedWhenBleIsSupported)
 {
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_BLE
-    EXPECT_CALL(_midi._hwaBle, init()).WillOnce(testing::Return(true));
-    EXPECT_CALL(_midi._hwaBle, deinit()).WillRepeatedly(testing::Return(true));
+    expect_ble_enable();
 
     ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(midi::Setting::BleEnabled, 1));
     ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(midi::Setting::BleEnabled, 0));
-#else
+}
+
+TEST_F(MIDITest, BleEnabledIsRejectedWhenBleIsNotSupported)
+{
+    _midi._hwaBle._supported = false;
+
     ASSERT_EQ(sys::Config::Status::ErrorNotSupported, set_midi_setting(midi::Setting::BleEnabled, 1));
-#endif
 }
 
 TEST_F(MIDITest, BleTxIsSkippedUntilReady)
 {
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_BLE
-    EXPECT_CALL(_midi._hwaBle, init()).WillOnce(testing::Return(true));
-    EXPECT_CALL(_midi._hwaBle, deinit()).WillRepeatedly(testing::Return(true));
+    expect_ble_enable();
 
     ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(midi::Setting::BleEnabled, 1));
 
@@ -129,14 +142,11 @@ TEST_F(MIDITest, BleTxIsSkippedUntilReady)
     wait_for_signal_dispatch();
 
     ASSERT_TRUE(_midi._hwaBle._writePackets.empty());
-#endif
 }
 
-TEST_F(MIDITest, UsbThruBleSupportMatchesBuild)
+TEST_F(MIDITest, UsbThruBleRouteIsAppliedWhenUsbAndBleAreSupported)
 {
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_BLE
-    EXPECT_CALL(_midi._hwaBle, init()).WillOnce(testing::Return(true));
-    EXPECT_CALL(_midi._hwaBle, deinit()).WillRepeatedly(testing::Return(true));
+    expect_ble_enable();
 
     ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(midi::Setting::BleEnabled, 1));
     ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(midi::Setting::UsbThruBle, 1));
@@ -147,16 +157,18 @@ TEST_F(MIDITest, UsbThruBleSupportMatchesBuild)
     wait_for_signal_dispatch();
 
     ASSERT_FALSE(_midi._hwaBle._writePackets.empty());
-#else
-    ASSERT_EQ(sys::Config::Status::ErrorNotSupported, set_midi_setting(midi::Setting::UsbThruBle, 1));
-#endif
 }
 
-TEST_F(MIDITest, BleThruUsbSupportMatchesBuild)
+TEST_F(MIDITest, UsbThruBleRouteIsRejectedWhenBleIsNotSupported)
 {
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_BLE
-    EXPECT_CALL(_midi._hwaBle, init()).WillOnce(testing::Return(true));
-    EXPECT_CALL(_midi._hwaBle, deinit()).WillRepeatedly(testing::Return(true));
+    _midi._hwaBle._supported = false;
+
+    ASSERT_EQ(sys::Config::Status::ErrorNotSupported, set_midi_setting(midi::Setting::UsbThruBle, 1));
+}
+
+TEST_F(MIDITest, BleThruUsbRouteIsAppliedWhenBleAndUsbAreSupported)
+{
+    expect_ble_enable();
 
     ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(midi::Setting::BleEnabled, 1));
     ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(midi::Setting::BleThruUsb, 1));
@@ -172,19 +184,19 @@ TEST_F(MIDITest, BleThruUsbSupportMatchesBuild)
     wait_for_signal_dispatch();
 
     ASSERT_FALSE(_midi._hwaUsb._writePackets.empty());
-#else
-    ASSERT_EQ(sys::Config::Status::ErrorNotSupported, set_midi_setting(midi::Setting::BleThruUsb, 1));
-#endif
 }
 
-#if defined(CONFIG_PROJECT_TARGET_SUPPORT_DIN_MIDI) && defined(CONFIG_PROJECT_TARGET_SUPPORT_BLE)
+TEST_F(MIDITest, BleThruUsbRouteIsRejectedWhenBleIsNotSupported)
+{
+    _midi._hwaBle._supported = false;
+
+    ASSERT_EQ(sys::Config::Status::ErrorNotSupported, set_midi_setting(midi::Setting::BleThruUsb, 1));
+}
+
 TEST_F(MIDITest, DinAndBleThruRoutesAreApplied)
 {
-    EXPECT_CALL(_midi._hwaSerial, init()).WillOnce(testing::Return(true));
-    EXPECT_CALL(_midi._hwaSerial, deinit()).WillRepeatedly(testing::Return(true));
-    EXPECT_CALL(_midi._hwaSerial, set_loopback(testing::_)).WillRepeatedly(testing::Return(true));
-    EXPECT_CALL(_midi._hwaBle, init()).WillOnce(testing::Return(true));
-    EXPECT_CALL(_midi._hwaBle, deinit()).WillRepeatedly(testing::Return(true));
+    expect_din_enable();
+    expect_ble_enable();
 
     ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(midi::Setting::DinEnabled, 1));
     ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(midi::Setting::BleEnabled, 1));
@@ -208,4 +220,11 @@ TEST_F(MIDITest, DinAndBleThruRoutesAreApplied)
     wait_for_signal_dispatch();
     ASSERT_FALSE(_midi._hwaSerial._writePackets.empty());
 }
-#endif
+
+TEST_F(MIDITest, DinRoutesAreRejectedWhenDinIsNotSupported)
+{
+    _midi._hwaSerial._supported = false;
+
+    ASSERT_EQ(sys::Config::Status::ErrorNotSupported, set_midi_setting(midi::Setting::DinEnabled, 1));
+    ASSERT_EQ(sys::Config::Status::ErrorNotSupported, set_midi_setting(midi::Setting::DinThruUsb, 1));
+}

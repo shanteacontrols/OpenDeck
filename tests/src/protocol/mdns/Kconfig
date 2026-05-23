@@ -1,3 +1,19 @@
 mainmenu "Project-specific configuration"
 
+config PROJECT_TARGET_EMUEEPROM_PAGE_SIZE
+    int
+    default 65536
+
+config PROJECT_TARGET_SUPPORT_NETWORK
+    bool
+    default y
+
+config PROJECT_TARGET_SUPPORT_WEBSOCKETS
+    bool
+    default y
+
+config PROJECT_TARGET_SUPPORT_MDNS
+    bool
+    default y
+
 rsource "$ZENV_PROJECT_ROOT/app/Kconfig"
