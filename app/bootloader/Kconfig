@@ -1,6 +1,6 @@
 mainmenu "OpenDeck bootloader"
 
-rsource "../logging/Kconfig"
+rsource "../Kconfig.logging"
 
 OPENDECK_STAGED_DFU_NODE := $(dt_nodelabel_path,staged_dfu_partition)
 OPENDECK_TRAFFIC_INDICATORS_NODE := $(dt_nodelabel_path,opendeck_traffic_indicators)
