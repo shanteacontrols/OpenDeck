@@ -8,4 +8,9 @@
         gpios = <&gpio1 2 GPIO_ACTIVE_LOW>;
         label = "OpenDeck recovery";
     };
+
+    opendeck_transports: opendeck-transports {
+        compatible = "opendeck,transports";
+        network;
+    };
 };

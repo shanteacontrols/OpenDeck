@@ -74,6 +74,48 @@ function target_alias_overlay_lines
     sed -n 's/^\(opendeck_\(uart_din_midi\|uart_touchscreen\|i2c_display\):.*\)$/target_alias_overlay_line=\1/p' "$firmware_overlay"
 }
 
+function target_transport_metadata
+{
+    local overlay=$1
+
+    awk '
+        BEGIN {
+            in_transports = 0;
+            transport_usb = "false";
+            transport_network = "false";
+            transport_ble = "false";
+        }
+
+        /opendeck_transports:[[:space:]]+opendeck-transports/ {
+            in_transports = 1;
+            next;
+        }
+
+        in_transports && /^[[:space:]]*};/ {
+            in_transports = 0;
+            next;
+        }
+
+        in_transports && /^[[:space:]]*usb;/ {
+            transport_usb = "true";
+        }
+
+        in_transports && /^[[:space:]]*network;/ {
+            transport_network = "true";
+        }
+
+        in_transports && /^[[:space:]]*ble;/ {
+            transport_ble = "true";
+        }
+
+        END {
+            printf "transport_usb=%s\n", transport_usb;
+            printf "transport_network=%s\n", transport_network;
+            printf "transport_ble=%s\n", transport_ble;
+        }
+    ' "$overlay"
+}
+
 function config_metadata
 {
     local key=
@@ -318,6 +360,7 @@ function target_metadata
             printf "bulk_lint=%s\n", bulk_lint;
         }
     ' "$overlay")
+$(target_transport_metadata "$overlay")
 $(target_alias_overlay_lines "$overlay")" "$key"
 }
 

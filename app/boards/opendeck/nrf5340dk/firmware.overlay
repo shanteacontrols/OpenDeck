@@ -5,6 +5,13 @@
         board-name = "nRF5340 DK";
     };
 
+    opendeck_transports: opendeck-transports {
+        compatible = "opendeck,transports";
+        uart = <&opendeck_uart_din_midi>;
+        usb;
+        ble;
+    };
+
     opendeck_tests: opendeck-tests {
         compatible = "opendeck,tests";
         host;
@@ -63,11 +70,6 @@
         compatible = "opendeck,touchscreen";
         component-count = <64>;
         uart = <&opendeck_uart_touchscreen>;
-    };
-
-    opendeck_din_midi: opendeck-din-midi {
-        compatible = "opendeck,midi-uart";
-        uart = <&opendeck_uart_din_midi>;
     };
 
     opendeck_traffic_indicators: opendeck-traffic-indicators {

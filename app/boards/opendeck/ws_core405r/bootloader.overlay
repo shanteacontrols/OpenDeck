@@ -10,4 +10,9 @@ opendeck_i2c_display: &i2c1 {};
         gpios = <&gpiob 12 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
         label = "OpenDeck recovery";
     };
+
+    opendeck_transports: opendeck-transports {
+        compatible = "opendeck,transports";
+        usb;
+    };
 };

@@ -5,6 +5,11 @@
         label = "OpenDeck recovery";
     };
 
+    opendeck_transports: opendeck-transports {
+        compatible = "opendeck,transports";
+        usb;
+    };
+
     opendeck_traffic_indicators: opendeck-traffic-indicators {
         compatible = "opendeck,traffic-indicators";
         usb-in-gpios = <&gpio9 0 GPIO_ACTIVE_HIGH>;

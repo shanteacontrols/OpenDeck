@@ -4,4 +4,9 @@
         gpios = <&gpioc 5 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
         label = "OpenDeck recovery";
     };
+
+    opendeck_transports: opendeck-transports {
+        compatible = "opendeck,transports";
+        usb;
+    };
 };

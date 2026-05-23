@@ -4,6 +4,11 @@
         zephyr-board = "weact_stm32f405_core/stm32f405xx";
     };
 
+    opendeck_transports: opendeck-transports {
+        compatible = "opendeck,transports";
+        usb;
+    };
+
     opendeck_tests: opendeck-tests {
         compatible = "opendeck,tests";
         host;

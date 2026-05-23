@@ -51,15 +51,15 @@ extern "C"
 
 namespace opendeck::protocol::midi
 {
-#define OPENDECK_DIN_MIDI_NODE DT_NODELABEL(opendeck_din_midi)
+#define OPENDECK_TRANSPORTS_NODE DT_NODELABEL(opendeck_transports)
 
-#if DT_NODE_HAS_PROP(OPENDECK_DIN_MIDI_NODE, uart)
-#define OPENDECK_DIN_MIDI_UART_NODE DT_PHANDLE(OPENDECK_DIN_MIDI_NODE, uart)
+#if DT_NODE_HAS_PROP(OPENDECK_TRANSPORTS_NODE, uart)
+#define OPENDECK_DIN_MIDI_UART_NODE DT_PHANDLE(OPENDECK_TRANSPORTS_NODE, uart)
 #endif
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_DIN_MIDI
 #ifndef OPENDECK_DIN_MIDI_UART_NODE
-#error "Chosen OpenDeck DIN MIDI node must define a UART phandle."
+#error "Chosen OpenDeck transports node must define a UART phandle."
 #endif
 #endif
 

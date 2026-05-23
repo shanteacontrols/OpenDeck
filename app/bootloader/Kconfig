@@ -4,6 +4,7 @@ rsource "../logging/Kconfig"
 
 OPENDECK_STAGED_DFU_NODE := $(dt_nodelabel_path,staged_dfu_partition)
 OPENDECK_TRAFFIC_INDICATORS_NODE := $(dt_nodelabel_path,opendeck_traffic_indicators)
+OPENDECK_TRANSPORTS_NODE := $(dt_nodelabel_path,opendeck_transports)
 
 config PROJECT_BOOTLOADER_TRAFFIC_INDICATORS_DISABLED
     bool
@@ -19,6 +20,8 @@ config PROJECT_BOOTLOADER_STAGED_UPDATE
 
 config PROJECT_BOOTLOADER_SUPPORT_USB_DFU
     bool "USB DFU support"
+    default y if $(dt_path_enabled,$(OPENDECK_TRANSPORTS_NODE)) && \
+             $(dt_nodelabel_bool_prop,opendeck_transports,usb)
     select NET_BUF
     select USB_DEVICE_STACK_NEXT
     select ZLIBS_DRIVERS_USB_HW
@@ -37,6 +40,8 @@ config PROJECT_BOOTLOADER_SUPPORT_TRAFFIC_INDICATORS
 
 config PROJECT_BOOTLOADER_SUPPORT_MDNS
     bool "mDNS recovery discovery support"
+    default y if $(dt_path_enabled,$(OPENDECK_TRANSPORTS_NODE)) && \
+             $(dt_nodelabel_bool_prop,opendeck_transports,network)
     select DNS_SD
     select ERRNO
     select HWINFO

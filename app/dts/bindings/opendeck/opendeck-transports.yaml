@@ -1,0 +1,24 @@
+description: OpenDeck transport capability configuration
+
+compatible: "opendeck,transports"
+
+properties:
+  usb:
+    type: boolean
+    required: false
+    description: Controls whether USB transport is enabled for this OpenDeck image.
+
+  network:
+    type: boolean
+    required: false
+    description: Controls whether network transport is enabled for this OpenDeck image.
+
+  ble:
+    type: boolean
+    required: false
+    description: Controls whether BLE transport is enabled for this OpenDeck image.
+
+  uart:
+    type: phandle
+    required: false
+    description: Controls which UART device is used for DIN MIDI transport.

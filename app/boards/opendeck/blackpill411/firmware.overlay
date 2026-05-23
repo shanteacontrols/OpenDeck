@@ -4,6 +4,12 @@
         zephyr-board = "blackpill_f411ce/stm32f411xe";
     };
 
+    opendeck_transports: opendeck-transports {
+        compatible = "opendeck,transports";
+        uart = <&opendeck_uart_din_midi>;
+        usb;
+    };
+
     opendeck_tests: opendeck-tests {
         compatible = "opendeck,tests";
         host;
@@ -61,11 +67,6 @@
         compatible = "opendeck,touchscreen";
         component-count = <64>;
         uart = <&opendeck_uart_touchscreen>;
-    };
-
-    opendeck_din_midi: opendeck-din-midi {
-        compatible = "opendeck,midi-uart";
-        uart = <&opendeck_uart_din_midi>;
     };
 
     opendeck_display: opendeck-display {

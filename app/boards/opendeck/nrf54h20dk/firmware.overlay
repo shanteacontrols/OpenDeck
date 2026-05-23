@@ -4,6 +4,11 @@
         zephyr-board = "nrf54h20dk/nrf54h20/cpuapp";
     };
 
+    opendeck_transports: opendeck-transports {
+        compatible = "opendeck,transports";
+        usb;
+    };
+
     opendeck_tests: opendeck-tests {
         compatible = "opendeck,tests";
         host;

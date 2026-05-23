@@ -4,10 +4,10 @@ OPENDECK_SWITCHES_NODE := $(dt_nodelabel_path,opendeck_switches)
 OPENDECK_ANALOG_NODE := $(dt_nodelabel_path,opendeck_analog)
 OPENDECK_OUTPUTS_NODE := $(dt_nodelabel_path,opendeck_outputs)
 OPENDECK_TOUCHSCREEN_NODE := $(dt_nodelabel_path,opendeck_touchscreen)
-OPENDECK_DIN_MIDI_NODE := $(dt_nodelabel_path,opendeck_din_midi)
 OPENDECK_TRAFFIC_INDICATORS_NODE := $(dt_nodelabel_path,opendeck_traffic_indicators)
 OPENDECK_DISPLAY_NODE := $(dt_nodelabel_path,opendeck_display)
 OPENDECK_STAGED_DFU_NODE := $(dt_nodelabel_path,staged_dfu_partition)
+OPENDECK_TRANSPORTS_NODE := $(dt_nodelabel_path,opendeck_transports)
 
 config PROJECT_TARGET_SWITCHES_DISABLED
     bool
@@ -27,7 +27,8 @@ config PROJECT_TARGET_TOUCHSCREEN_DISABLED
 
 config PROJECT_TARGET_DIN_MIDI_DISABLED
     bool
-    default y if !$(dt_path_enabled,$(OPENDECK_DIN_MIDI_NODE))
+    default y if !$(dt_path_enabled,$(OPENDECK_TRANSPORTS_NODE)) || \
+             !$(dt_node_has_prop,$(OPENDECK_TRANSPORTS_NODE),uart)
 
 config PROJECT_TARGET_TRAFFIC_INDICATORS_DISABLED
     bool
@@ -291,20 +292,23 @@ config PROJECT_TARGET_SUPPORT_DISPLAY
 
 config PROJECT_TARGET_SUPPORT_DIN_MIDI
     bool
-    default y if $(dt_path_enabled,$(OPENDECK_DIN_MIDI_NODE))
+    default y if $(dt_path_enabled,$(OPENDECK_TRANSPORTS_NODE)) && \
+             $(dt_node_has_prop,$(OPENDECK_TRANSPORTS_NODE),uart)
     select ZLIBS_UTILS_MIDI_TRANSPORT_SERIAL
     help
       Hidden symbol indicating DIN MIDI support is present on this target
-      when the chosen OpenDeck DIN MIDI devicetree node exists.
+      when the chosen OpenDeck transports devicetree node provides a DIN
+      MIDI UART.
 
 config PROJECT_TARGET_SUPPORT_BLE
     bool
-    default y if BT && BT_PERIPHERAL
+    default y if $(dt_path_enabled,$(OPENDECK_TRANSPORTS_NODE)) && \
+             $(dt_nodelabel_bool_prop,opendeck_transports,ble)
     select ZLIBS_UTILS_MIDI_TRANSPORT_BLE
     help
       Hidden symbol indicating BLE MIDI transport support is present on
-      this target when Bluetooth peripheral support is enabled for the
-      build.
+      this target when the chosen OpenDeck transports devicetree node
+      enables BLE.
 
 config PROJECT_TARGET_SUPPORT_CONFIG_INTERFACE
     bool
@@ -314,6 +318,8 @@ config PROJECT_TARGET_SUPPORT_CONFIG_INTERFACE
 
 config PROJECT_TARGET_SUPPORT_USB_MIDI
     bool "USB MIDI support"
+    default y if $(dt_path_enabled,$(OPENDECK_TRANSPORTS_NODE)) && \
+             $(dt_nodelabel_bool_prop,opendeck_transports,usb)
     select MIDI2_UMP_STREAM_RESPONDER
     select USBD_MIDI2_CLASS
     select ZLIBS_DRIVERS_USB_HW
@@ -371,9 +377,12 @@ config PROJECT_TARGET_SUPPORT_NETWORK_UP_INDICATOR
 
 config PROJECT_TARGET_SUPPORT_NETWORK
     bool
-    default y if NETWORKING && NET_L2_ETHERNET
+    default y if $(dt_path_enabled,$(OPENDECK_TRANSPORTS_NODE)) && \
+             $(dt_nodelabel_bool_prop,opendeck_transports,network)
     select FPU if CPU_HAS_FPU
     select FPU_SHARING if CPU_HAS_FPU
+    select NETWORKING
+    select NET_L2_ETHERNET
     select NET_IPV4
     select NET_ARP
     select NET_UDP

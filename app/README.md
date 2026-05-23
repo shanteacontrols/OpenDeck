@@ -22,8 +22,9 @@ Image configuration is split between common and image-specific `.conf` files:
   configure the firmware image.
 - `bootloader/common.conf`, `bootloader/release.conf`, and
   `bootloader/debug.conf` configure the bootloader image.
-- `firmware/usb.conf` and `bootloader/usb.conf` enable image-specific USB
-  transport support when sysbuild selects them for a target.
+- `common/network.conf`, `common/usb.conf`, `firmware/usb.conf`,
+  `firmware/ble.conf`, and `bootloader/usb.conf` provide transport-specific
+  settings when sysbuild selects them from the target transport devicetree node.
 
 Per-board and per-target configuration should stay in `boards/`.
 

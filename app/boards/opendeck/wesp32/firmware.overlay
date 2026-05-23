@@ -5,6 +5,11 @@
         board-name = "wESP32";
     };
 
+    opendeck_transports: opendeck-transports {
+        compatible = "opendeck,transports";
+        network;
+    };
+
     opendeck_bulk_build: opendeck-bulk-build {
         compatible = "opendeck,bulk-build";
         app;

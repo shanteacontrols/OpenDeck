@@ -220,15 +220,19 @@ Firmware config order:
 2. `app/firmware/common.conf`
 3. `app/firmware/release.conf` or `app/firmware/debug.conf`
 4. `app/boards/zephyr/<board>/firmware.conf`
-5. `app/common/usb.conf`, when USB MIDI support is enabled
-6. `app/firmware/usb.conf`, when USB MIDI support is enabled
-7. generated firmware USB product config, when USB MIDI support is enabled
-8. generated firmware BLE device-name config, when BLE peripheral support is enabled
-9. `app/boards/opendeck/<target>/firmware.conf`, if the file exists
+5. `app/common/network.conf`, when `opendeck_transports` enables network
+6. `app/boards/zephyr/<board>/network.conf`, if the file exists and network is enabled
+7. `app/common/usb.conf`, when `opendeck_transports` enables USB
+8. `app/boards/zephyr/<board>/usb.conf`, if the file exists and USB is enabled
+9. `app/firmware/usb.conf`, when `opendeck_transports` enables USB
+10. generated firmware USB product config, when USB is enabled
+11. `app/firmware/ble.conf`, when `opendeck_transports` enables BLE
+12. generated firmware BLE device-name config, when BLE is enabled
+13. `app/boards/opendeck/<target>/firmware.conf`, if the file exists
 
-The target `firmware.conf` is also consulted by sysbuild before finalizing this list, so a
-target can control whether USB MIDI support is enabled without changing the shared Zephyr
-board layer.
+The target `firmware.overlay` is consulted by sysbuild before finalizing this
+list. Its `opendeck_transports` node controls whether USB, BLE, and network transport
+fragments are included.
 
 Bootloader config order:
 
@@ -236,14 +240,17 @@ Bootloader config order:
 2. `app/bootloader/common.conf`
 3. `app/bootloader/release.conf` or `app/bootloader/debug.conf`
 4. `app/boards/zephyr/<board>/bootloader.conf`
-5. `app/common/usb.conf`, when bootloader USB DFU support is enabled
-6. `app/bootloader/usb.conf`, when bootloader USB DFU support is enabled
-7. generated bootloader USB product config, when bootloader USB DFU support is enabled
-8. `app/boards/opendeck/<target>/bootloader.conf`, if the file exists
+5. `app/common/network.conf`, when `opendeck_transports` enables network
+6. `app/boards/zephyr/<board>/network.conf`, if the file exists and network is enabled
+7. `app/common/usb.conf`, when `opendeck_transports` enables USB
+8. `app/boards/zephyr/<board>/usb.conf`, if the file exists and USB is enabled
+9. `app/bootloader/usb.conf`, when `opendeck_transports` enables USB
+10. generated bootloader USB product config, when USB is enabled
+11. `app/boards/opendeck/<target>/bootloader.conf`, if the file exists
 
-The target `bootloader.conf` is also consulted by sysbuild before finalizing this list, so a
-target can control whether bootloader USB DFU support is enabled without changing the shared
-Zephyr board layer.
+The target `bootloader.overlay` is consulted by sysbuild before finalizing this
+list. Its `opendeck_transports` node controls whether USB and network transport
+fragments are included.
 
 ## Index Remapping
 
