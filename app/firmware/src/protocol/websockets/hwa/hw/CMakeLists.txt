@@ -1,11 +1,11 @@
 include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_library.cmake)
-opendeck_library_named(protocol_websockets_hwa_hw)
+opendeck_library_named(opendeck_firmware_protocol_websockets_hwa_hw)
 
-target_link_libraries(protocol_websockets_hwa_hw
+target_link_libraries(opendeck_firmware_protocol_websockets_hwa_hw
     PUBLIC
-    mcu
-    opendeck_websockets_hwa_hw
-    protocol_websockets
+    opendeck_common_mcu
+    opendeck_common_protocols_websockets_hwa_hw
+    opendeck_firmware_protocol_websockets
 )
 
 zephyr_library_sources(

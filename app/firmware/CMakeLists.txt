@@ -18,26 +18,26 @@ add_subdirectory(src/protocol/midi/hwa/hw)
 add_subdirectory(src/io/touchscreen/hwa/hw)
 
 set(OPENDECK_FIRMWARE_LIBS
-    metadata
-    flash_stream_writer
-    mcu
-    database
-    configurable
-    cinfo
-    protocol_midi
-    switches
-    analog
-    outputs
-    encoders
-    touchscreen
-    i2c
-    indicators
-    system
+    opendeck_common_metadata
+    opendeck_common_dfu_flash_stream_writer
+    opendeck_common_mcu
+    opendeck_firmware_database
+    opendeck_firmware_util_configurable
+    opendeck_firmware_util_cinfo
+    opendeck_firmware_protocol_midi
+    opendeck_firmware_io_digital_switches
+    opendeck_firmware_io_analog
+    opendeck_firmware_io_outputs
+    opendeck_firmware_io_digital_encoders
+    opendeck_firmware_io_touchscreen
+    opendeck_firmware_io_i2c
+    opendeck_firmware_io_indicators
+    opendeck_firmware_system
 )
 
 set(OPENDECK_FIRMWARE_HWA_LIBS
-    protocol_midi_hwa_hw
-    touchscreen_hwa_hw
+    opendeck_firmware_protocol_midi_hwa_hw
+    opendeck_firmware_io_touchscreen_hwa_hw
 )
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_OSC)
@@ -67,30 +67,30 @@ if(CONFIG_PROJECT_TARGET_SUPPORT_MDNS)
 endif()
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_OSC)
-    list(APPEND OPENDECK_FIRMWARE_LIBS protocol_osc)
+    list(APPEND OPENDECK_FIRMWARE_LIBS opendeck_firmware_protocol_osc)
 endif()
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_WEBSOCKETS)
     list(APPEND OPENDECK_FIRMWARE_LIBS
-        dfu_stream
-        opendeck_websockets_firmware_upload
-        protocol_websockets
-        staged_update_writer
+        opendeck_common_dfu_dfu_stream
+        opendeck_common_protocols_websockets_firmware_upload
+        opendeck_firmware_protocol_websockets
+        opendeck_firmware_dfu_staged_update_writer
     )
 endif()
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_MDNS)
-    list(APPEND OPENDECK_FIRMWARE_LIBS protocol_mdns)
+    list(APPEND OPENDECK_FIRMWARE_LIBS opendeck_firmware_protocol_mdns)
 endif()
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_WEBSOCKETS)
-    list(APPEND OPENDECK_FIRMWARE_HWA_LIBS protocol_websockets_hwa_hw)
+    list(APPEND OPENDECK_FIRMWARE_HWA_LIBS opendeck_firmware_protocol_websockets_hwa_hw)
 endif()
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_MDNS)
     list(APPEND OPENDECK_FIRMWARE_HWA_LIBS
-        opendeck_mdns_hwa_hw
-        protocol_mdns_services_hw
+        opendeck_common_protocols_mdns_hwa_hw
+        opendeck_firmware_protocol_mdns_services_hw
     )
 endif()
 

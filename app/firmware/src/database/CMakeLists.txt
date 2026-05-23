@@ -1,11 +1,11 @@
 include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_library.cmake)
-opendeck_library_named(database)
+opendeck_library_named(opendeck_firmware_database)
 
 
-target_link_libraries(database
+target_link_libraries(opendeck_firmware_database
     PUBLIC
-    configurable
-    metadata
+    opendeck_firmware_util_configurable
+    opendeck_common_metadata
     zlibs-utils-lessdb
     zlibs-utils-misc
     zlibs-utils-sysex_conf

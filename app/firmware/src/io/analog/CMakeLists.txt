@@ -1,11 +1,11 @@
 include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_library.cmake)
-opendeck_library_named(analog)
+opendeck_library_named(opendeck_firmware_io_analog)
 
 
-target_link_libraries(analog
+target_link_libraries(opendeck_firmware_io_analog
     PUBLIC
-    configurable
-    database
+    opendeck_firmware_util_configurable
+    opendeck_firmware_database
 )
 
 zephyr_library_sources(

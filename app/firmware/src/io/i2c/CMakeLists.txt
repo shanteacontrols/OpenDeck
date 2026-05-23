@@ -1,20 +1,20 @@
 include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_library.cmake)
-opendeck_library_named(i2c)
+opendeck_library_named(opendeck_firmware_io_i2c)
 
-target_include_directories(i2c
+target_include_directories(opendeck_firmware_io_i2c
     PUBLIC
     $ENV{ZEPHYR_WS}/modules/u8g2/csrc
 )
 
-target_link_libraries(i2c
+target_link_libraries(opendeck_firmware_io_i2c
     PUBLIC
-    metadata
-    configurable
-    database
+    opendeck_common_metadata
+    opendeck_firmware_util_configurable
+    opendeck_firmware_database
 )
 
 if(NOT BOARD MATCHES "^native_sim")
-    target_compile_definitions(i2c
+    target_compile_definitions(opendeck_firmware_io_i2c
         PUBLIC
         U8X8_WITH_USER_PTR
     )

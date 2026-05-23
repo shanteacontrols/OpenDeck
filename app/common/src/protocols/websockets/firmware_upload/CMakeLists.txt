@@ -1,10 +1,10 @@
 include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_library.cmake)
 
-opendeck_library_named(opendeck_websockets_firmware_upload)
+opendeck_library_named(opendeck_common_protocols_websockets_firmware_upload)
 
-target_link_libraries(opendeck_websockets_firmware_upload
+target_link_libraries(opendeck_common_protocols_websockets_firmware_upload
     PUBLIC
-    dfu_stream
+    opendeck_common_dfu_dfu_stream
 )
 
 zephyr_library_sources(

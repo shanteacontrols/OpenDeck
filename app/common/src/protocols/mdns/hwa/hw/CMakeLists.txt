@@ -1,10 +1,10 @@
 include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_library.cmake)
 
-opendeck_library_named(opendeck_mdns_hwa_hw)
+opendeck_library_named(opendeck_common_protocols_mdns_hwa_hw)
 
-target_link_libraries(opendeck_mdns_hwa_hw
+target_link_libraries(opendeck_common_protocols_mdns_hwa_hw
     PUBLIC
-    opendeck_mdns
+    opendeck_common_protocols_mdns
     zlibs-utils-misc
 )
 

@@ -1,11 +1,11 @@
 include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_library.cmake)
-opendeck_library_named(staged_update_writer)
+opendeck_library_named(opendeck_firmware_dfu_staged_update_writer)
 
 
-target_link_libraries(staged_update_writer
+target_link_libraries(opendeck_firmware_dfu_staged_update_writer
     PUBLIC
-    flash_stream_writer
-    metadata
+    opendeck_common_dfu_flash_stream_writer
+    opendeck_common_metadata
     kernel
 )
 

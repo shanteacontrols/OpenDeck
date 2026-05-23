@@ -34,36 +34,36 @@ endif()
 
 target_link_libraries(app
     PRIVATE
-    metadata
-    dfu_stream
-    opendeck_bootloader_indicators
-    opendeck_bootloader_direct_update_writer
+    opendeck_common_metadata
+    opendeck_common_dfu_dfu_stream
+    opendeck_bootloader_io_indicators
+    opendeck_bootloader_dfu_direct_update_writer
     opendeck_bootloader_signaling
     opendeck_bootloader_system
-    opendeck_bootloader_webusb
+    opendeck_bootloader_protocols_webusb
 )
 
 if(CONFIG_PROJECT_BOOTLOADER_SUPPORT_WEBSOCKETS)
     target_link_libraries(app
         PRIVATE
-        opendeck_bootloader_websockets
-        opendeck_bootloader_websockets_hwa_hw
+        opendeck_bootloader_protocols_websockets
+        opendeck_bootloader_protocols_websockets_hwa_hw
     )
 endif()
 
 if(CONFIG_PROJECT_BOOTLOADER_STAGED_UPDATE)
     target_link_libraries(app
         PRIVATE
-        opendeck_bootloader_staged_update_reader
+        opendeck_bootloader_dfu_staged_update_reader
     )
 endif()
 
 if(CONFIG_PROJECT_BOOTLOADER_SUPPORT_MDNS)
     target_link_libraries(app
         PRIVATE
-        opendeck_mdns_hwa_hw
-        opendeck_bootloader_mdns
-        opendeck_bootloader_mdns_services_hw
+        opendeck_common_protocols_mdns_hwa_hw
+        opendeck_bootloader_protocols_mdns
+        opendeck_bootloader_protocols_mdns_services_hw
     )
 endif()
 
@@ -74,7 +74,7 @@ endif()
 if(CONFIG_PROJECT_BOOTLOADER_SUPPORT_USB_DFU)
     target_link_libraries(app
         PRIVATE
-        opendeck_bootloader_webusb_hwa_hw
+        opendeck_bootloader_protocols_webusb_hwa_hw
     )
 endif()
 

@@ -17,14 +17,14 @@ target_sources(app
 )
 
 add_dependencies(app
-    metadata
-    database
-    configurable
+    opendeck_common_metadata
+    opendeck_firmware_database
+    opendeck_firmware_util_configurable
 )
 
 target_link_libraries(app
     PUBLIC
-    metadata
-    database
-    configurable
+    opendeck_common_metadata
+    opendeck_firmware_database
+    opendeck_firmware_util_configurable
 )

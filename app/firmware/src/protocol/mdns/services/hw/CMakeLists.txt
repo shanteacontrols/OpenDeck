@@ -1,12 +1,12 @@
 include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_library.cmake)
-opendeck_library_named(protocol_mdns_services_hw)
+opendeck_library_named(opendeck_firmware_protocol_mdns_services_hw)
 
-target_link_libraries(protocol_mdns_services_hw
+target_link_libraries(opendeck_firmware_protocol_mdns_services_hw
     PUBLIC
-    opendeck_mdns
-    protocol_mdns
-    protocol_osc
-    protocol_websockets
+    opendeck_common_protocols_mdns
+    opendeck_firmware_protocol_mdns
+    opendeck_firmware_protocol_osc
+    opendeck_firmware_protocol_websockets
 )
 
 zephyr_library_sources(

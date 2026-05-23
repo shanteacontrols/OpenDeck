@@ -7,10 +7,10 @@ opendeck_test_bootstrap(
 )
 
 opendeck_test_add_modules(
-    metadata                            "app/common/src/metadata"
-    flash_stream_writer                 "app/common/src/dfu/flash_stream_writer"
-    dfu_stream                          "app/common/src/dfu/dfu_stream"
-    opendeck_websockets_firmware_upload "app/common/src/protocols/websockets/firmware_upload"
+    opendeck_common_metadata                            "app/common/src/metadata"
+    opendeck_common_dfu_flash_stream_writer                 "app/common/src/dfu/flash_stream_writer"
+    opendeck_common_dfu_dfu_stream                          "app/common/src/dfu/dfu_stream"
+    opendeck_common_protocols_websockets_firmware_upload "app/common/src/protocols/websockets/firmware_upload"
 )
 
 target_sources(app

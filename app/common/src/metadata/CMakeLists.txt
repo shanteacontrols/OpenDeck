@@ -1,4 +1,4 @@
-add_library(metadata INTERFACE)
+add_library(opendeck_common_metadata INTERFACE)
 
 if(NOT DEFINED ENV{TARGET} OR "$ENV{TARGET}" STREQUAL "")
     message(FATAL_ERROR "Metadata requires TARGET to be exported by the makefile")
@@ -42,7 +42,7 @@ set(OPENDECK_DFU_BEGIN_MAGIC        0x5546444F CACHE INTERNAL "OpenDeck DFU begi
 set(OPENDECK_DFU_END_MAGIC          0x4546444F CACHE INTERNAL "OpenDeck DFU end magic")
 set(OPENDECK_DFU_FORMAT_VERSION     1 CACHE INTERNAL "OpenDeck DFU format version")
 
-target_compile_definitions(metadata
+target_compile_definitions(opendeck_common_metadata
     INTERFACE
     OPENDECK_TARGET="${_opendeck_target}"
     OPENDECK_TARGET_UID=${OPENDECK_TARGET_UID}

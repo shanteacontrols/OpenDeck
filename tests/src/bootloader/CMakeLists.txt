@@ -34,16 +34,16 @@ target_sources(app
 )
 
 add_dependencies(app
-    metadata
-    flash_stream_writer
-    dfu_stream
+    opendeck_common_metadata
+    opendeck_common_dfu_flash_stream_writer
+    opendeck_common_dfu_dfu_stream
 )
 
 target_link_libraries(app
     PUBLIC
-    metadata
-    flash_stream_writer
-    dfu_stream
+    opendeck_common_metadata
+    opendeck_common_dfu_flash_stream_writer
+    opendeck_common_dfu_dfu_stream
 )
 
 target_compile_definitions(app

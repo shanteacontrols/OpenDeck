@@ -1,5 +1,5 @@
 include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_library.cmake)
-opendeck_library_named(indicators)
+opendeck_library_named(opendeck_firmware_io_indicators)
 
 
 zephyr_library_sources(

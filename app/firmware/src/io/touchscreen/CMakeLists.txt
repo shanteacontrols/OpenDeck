@@ -1,10 +1,10 @@
 include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_library.cmake)
-opendeck_library_named(touchscreen)
+opendeck_library_named(opendeck_firmware_io_touchscreen)
 
-target_link_libraries(touchscreen
+target_link_libraries(opendeck_firmware_io_touchscreen
     PUBLIC
-    database
-    configurable
+    opendeck_firmware_database
+    opendeck_firmware_util_configurable
 )
 
 zephyr_library_sources(
