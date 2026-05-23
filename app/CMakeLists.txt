@@ -3,7 +3,6 @@ list(APPEND BOARD_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 list(APPEND DTS_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 set(KCONFIG_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/Kconfig)
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
-zephyr_get(PRESET_NAME MERGE SYSBUILD GLOBAL)
 
 project(project)
 
@@ -19,7 +18,7 @@ cmake_path(NORMAL_PATH OPENDECK_GENERATED_DIR)
 execute_process(
     COMMAND
     bash
-    $ENV{ZEPHYR_PROJECT}/scripts/query_metadata.sh
+    $ENV{ZENV_PROJECT_ROOT}/scripts/query_metadata.sh
     target-config
     --kconfig
     ${CMAKE_CURRENT_SOURCE_DIR}/firmware/Kconfig
@@ -51,7 +50,7 @@ add_custom_target(firmware_dfu ALL
     -DFORMAT_VERSION=${OPENDECK_DFU_FORMAT_VERSION}
     -DBEGIN_MAGIC=${OPENDECK_DFU_BEGIN_MAGIC}
     -DEND_MAGIC=${OPENDECK_DFU_END_MAGIC}
-    -P $ENV{ZEPHYR_PROJECT}/cmake/dfu_bin.cmake
+    -P $ENV{ZENV_PROJECT_ROOT}/cmake/dfu_bin.cmake
     DEPENDS app ${DFU_PAYLOAD_BIN_FILE}
     COMMENT "Generating wrapped DFU binary"
     VERBATIM

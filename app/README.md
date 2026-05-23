@@ -18,8 +18,10 @@ Image configuration is split between common and image-specific `.conf` files:
 
 - `common.conf` contains settings shared by both firmware and bootloader where
   applicable.
-- `firmware/firmware.conf` configures the firmware image.
-- `bootloader/bootloader.conf` configures the bootloader image.
+- `firmware/common.conf`, `firmware/release.conf`, and `firmware/debug.conf`
+  configure the firmware image.
+- `bootloader/common.conf`, `bootloader/release.conf`, and
+  `bootloader/debug.conf` configure the bootloader image.
 - `firmware/usb.conf` and `bootloader/usb.conf` enable image-specific USB
   transport support when sysbuild selects them for a target.
 

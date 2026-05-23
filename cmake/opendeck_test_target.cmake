@@ -18,12 +18,12 @@ endif()
 
 set(OPENDECK_TARGET "$ENV{TARGET}" CACHE STRING "OpenDeck topology target")
 
-set(opendeck_testcase_yaml "${CMAKE_CURRENT_SOURCE_DIR}/testcase.yaml")
-set(opendeck_metadata_query_script "$ENV{ZEPHYR_PROJECT}/scripts/query_metadata.sh")
-set(opendeck_app_build_dir "$ENV{ZEPHYR_PROJECT}/build/app/default/release/${OPENDECK_TARGET}")
-set(opendeck_app_config "${opendeck_app_build_dir}/app/zephyr/.config")
-set(opendeck_target_config "${opendeck_app_build_dir}/generated/target.conf")
-set(opendeck_target_kconfig "${opendeck_app_build_dir}/generated/target.kconfig")
+set(opendeck_testcase_yaml         "${CMAKE_CURRENT_SOURCE_DIR}/testcase.yaml")
+set(opendeck_metadata_query_script "$ENV{ZENV_PROJECT_ROOT}/scripts/query_metadata.sh")
+set(opendeck_app_build_dir         "$ENV{ZENV_PROJECT_ROOT}/build/app/default/release/${OPENDECK_TARGET}")
+set(opendeck_app_config            "${opendeck_app_build_dir}/app/zephyr/.config")
+set(opendeck_target_config         "${opendeck_app_build_dir}/generated/target.conf")
+set(opendeck_target_kconfig        "${opendeck_app_build_dir}/generated/target.kconfig")
 
 if(NOT EXISTS "${opendeck_app_config}")
     message(FATAL_ERROR
@@ -136,7 +136,7 @@ function(opendeck_test_import_target_config)
         "source \"subsys/logging/Kconfig.template.log_config\"\n\n"
         "source \"Kconfig.zephyr\"\n"
         "rsource \"${opendeck_target_kconfig}\"\n"
-        "rsource \"$ENV{ZEPHYR_PROJECT}/app/firmware/src/Kconfig\"\n"
+        "rsource \"$ENV{ZENV_PROJECT_ROOT}/app/firmware/src/Kconfig\"\n"
     )
 
     list(APPEND CONF_FILE "${opendeck_target_config}")

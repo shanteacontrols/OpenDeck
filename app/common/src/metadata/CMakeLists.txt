@@ -8,28 +8,28 @@ set(_opendeck_target "$ENV{TARGET}")
 
 execute_process(
     COMMAND sh "-c" "git describe --tags --abbrev=0 | cut -c 2- | cut -d. -f1"
-    WORKING_DIRECTORY $ENV{ZEPHYR_PROJECT}/app
+    WORKING_DIRECTORY $ENV{ZENV_PROJECT_ROOT}/app
     OUTPUT_VARIABLE OPENDECK_SW_VERSION_MAJOR
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
 execute_process(
     COMMAND sh "-c" "git describe --tags --abbrev=0 | cut -c 2- | cut -d. -f2"
-    WORKING_DIRECTORY $ENV{ZEPHYR_PROJECT}/app
+    WORKING_DIRECTORY $ENV{ZENV_PROJECT_ROOT}/app
     OUTPUT_VARIABLE OPENDECK_SW_VERSION_MINOR
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
 execute_process(
     COMMAND sh "-c" "git describe --tags --abbrev=0 | cut -c 2- | cut -d. -f3"
-    WORKING_DIRECTORY $ENV{ZEPHYR_PROJECT}/app
+    WORKING_DIRECTORY $ENV{ZENV_PROJECT_ROOT}/app
     OUTPUT_VARIABLE OPENDECK_SW_VERSION_REVISION
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
 execute_process(
-    COMMAND $ENV{ZEPHYR_PROJECT}/scripts/gen/gen_fw_uid.sh ${_opendeck_target}
-    WORKING_DIRECTORY $ENV{ZEPHYR_PROJECT}/app
+    COMMAND $ENV{ZENV_PROJECT_ROOT}/scripts/gen/gen_fw_uid.sh ${_opendeck_target}
+    WORKING_DIRECTORY $ENV{ZENV_PROJECT_ROOT}/app
     OUTPUT_VARIABLE OPENDECK_TARGET_UID
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )

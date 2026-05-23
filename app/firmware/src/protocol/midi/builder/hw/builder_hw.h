@@ -7,6 +7,7 @@
 
 #include "firmware/src/protocol/midi/instance/impl/midi.h"
 #include "firmware/src/protocol/midi/hwa/hw/hwa_hw.h"
+#include "firmware/src/protocol/midi/hwa/stub/hwa_stub.h"
 #include "firmware/src/database/builder/builder.h"
 
 namespace opendeck::protocol::midi
@@ -38,13 +39,31 @@ namespace opendeck::protocol::midi
         }
 
         private:
-        HwaUsbHw    _hwa_usb;
-        HwaSerialHw _hwa_serial;
-        HwaBleHw    _hwa_ble;
-        UsbMidi     _usb    = UsbMidi(_hwa_usb);
-        SerialMidi  _serial = SerialMidi(_hwa_serial);
-        BleMidi     _ble    = BleMidi(_hwa_ble);
-        Database    _database;
-        Midi        _instance;
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_USB_MIDI
+        using HwaUsbBuilder = HwaUsbHw;
+#else
+        using HwaUsbBuilder = HwaUsbStub;
+#endif
+
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_DIN_MIDI
+        using HwaSerialBuilder = HwaSerialHw;
+#else
+        using HwaSerialBuilder = HwaSerialStub;
+#endif
+
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_BLE
+        using HwaBleBuilder = HwaBleHw;
+#else
+        using HwaBleBuilder = HwaBleStub;
+#endif
+
+        HwaUsbBuilder    _hwa_usb;
+        HwaSerialBuilder _hwa_serial;
+        HwaBleBuilder    _hwa_ble;
+        UsbMidi          _usb    = UsbMidi(_hwa_usb);
+        SerialMidi       _serial = SerialMidi(_hwa_serial);
+        BleMidi          _ble    = BleMidi(_hwa_ble);
+        Database         _database;
+        Midi             _instance;
     };
 }    // namespace opendeck::protocol::midi

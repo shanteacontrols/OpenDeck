@@ -11,4 +11,4 @@ config PROJECT_TARGET_ANALOG_LOGICAL_COUNT
     int
     default 1
 
-rsource "$ZEPHYR_PROJECT/app/Kconfig"
+rsource "$ZENV_PROJECT_ROOT/app/Kconfig"

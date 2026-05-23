@@ -37,12 +37,16 @@ set(opendeck_board_partitions_overlay           ${opendeck_zephyr_board_dir_path
 set(opendeck_board_firmware_overlay             ${opendeck_zephyr_board_dir_path}/firmware.overlay)
 set(opendeck_board_firmware_conf                ${opendeck_zephyr_board_dir_path}/firmware.conf)
 set(opendeck_board_mcuboot_conf                 ${opendeck_zephyr_board_dir_path}/mcuboot.conf)
-set(opendeck_common_firmware_conf               ${APP_DIR}/firmware/firmware.conf)
+set(opendeck_common_firmware_conf               ${APP_DIR}/firmware/common.conf)
+set(opendeck_firmware_release_conf              ${APP_DIR}/firmware/release.conf)
+set(opendeck_firmware_debug_conf                ${APP_DIR}/firmware/debug.conf)
 set(opendeck_target_firmware_conf               ${APP_DIR}/boards/opendeck/${TARGET}/firmware.conf)
 set(opendeck_target_bootloader_conf             ${APP_DIR}/boards/opendeck/${TARGET}/bootloader.conf)
 set(opendeck_board_bootloader_overlay           ${opendeck_zephyr_board_dir_path}/bootloader.overlay)
 set(opendeck_board_bootloader_conf              ${opendeck_zephyr_board_dir_path}/bootloader.conf)
-set(opendeck_common_bootloader_conf             ${APP_DIR}/bootloader/bootloader.conf)
+set(opendeck_common_bootloader_conf             ${APP_DIR}/bootloader/common.conf)
+set(opendeck_bootloader_release_conf            ${APP_DIR}/bootloader/release.conf)
+set(opendeck_bootloader_debug_conf              ${APP_DIR}/bootloader/debug.conf)
 set(opendeck_bootloader_firmware_loader_overlay ${APP_DIR}/bootloader/firmware_loader.overlay)
 set(opendeck_mcuboot_overlay                    ${APP_DIR}/sysbuild/mcuboot.overlay)
 set(opendeck_mcuboot_conf                       ${APP_DIR}/sysbuild/mcuboot.conf)
@@ -51,7 +55,7 @@ set(opendeck_common_usb_conf                    ${APP_DIR}/common/usb.conf)
 set(opendeck_firmware_usb_conf                  ${APP_DIR}/firmware/usb.conf)
 set(opendeck_bootloader_usb_conf                ${APP_DIR}/bootloader/usb.conf)
 set(opendeck_generated_dir                      ${CMAKE_BINARY_DIR}/generated)
-set(opendeck_metadata_query_script              $ENV{ZEPHYR_PROJECT}/scripts/query_metadata.sh)
+set(opendeck_metadata_query_script              $ENV{ZENV_PROJECT_ROOT}/scripts/query_metadata.sh)
 
 function(opendeck_read_config_value config_file variable_name output_var)
     execute_process(
@@ -85,6 +89,16 @@ if(DEFINED CONF_FILE AND NOT "${CONF_FILE}" STREQUAL "")
     set(opendeck_shared_conf_files ${CONF_FILE})
 endif()
 
+if("${ZENV_BUILD_TYPE}" STREQUAL "release")
+    set(opendeck_firmware_mode_conf   ${opendeck_firmware_release_conf})
+    set(opendeck_bootloader_mode_conf ${opendeck_bootloader_release_conf})
+elseif("${ZENV_BUILD_TYPE}" STREQUAL "debug")
+    set(opendeck_firmware_mode_conf   ${opendeck_firmware_debug_conf})
+    set(opendeck_bootloader_mode_conf ${opendeck_bootloader_debug_conf})
+else()
+    message(FATAL_ERROR "OpenDeck sysbuild requires ZENV_BUILD_TYPE to be either 'release' or 'debug'")
+endif()
+
 file(MAKE_DIRECTORY ${opendeck_generated_dir})
 
 set(opendeck_runtime_board_name "${TARGET}")
@@ -102,17 +116,17 @@ endif()
 set(OPENDECK_USB_MIDI_LABEL   "OpenDeck | ${opendeck_runtime_board_name}")
 set(OPENDECK_USB_PRODUCT_NAME "OpenDeck | ${opendeck_runtime_board_name}")
 
-configure_file($ENV{ZEPHYR_PROJECT}/cmake/usb_midi_label.overlay.in
+configure_file($ENV{ZENV_PROJECT_ROOT}/cmake/usb_midi_label.overlay.in
                ${opendeck_generated_dir}/firmware_usb_midi_label.overlay
                @ONLY)
 
-configure_file($ENV{ZEPHYR_PROJECT}/cmake/usb_product.conf.in
+configure_file($ENV{ZENV_PROJECT_ROOT}/cmake/usb_product.conf.in
                ${opendeck_generated_dir}/firmware_usb_product.conf
                @ONLY)
 
 set(OPENDECK_USB_PRODUCT_NAME "OpenDeck DFU | ${opendeck_runtime_board_name}")
 
-configure_file($ENV{ZEPHYR_PROJECT}/cmake/usb_product.conf.in
+configure_file($ENV{ZENV_PROJECT_ROOT}/cmake/usb_product.conf.in
                ${opendeck_generated_dir}/bootloader_usb_product.conf
                @ONLY)
 
@@ -132,6 +146,10 @@ if(NOT EXISTS ${opendeck_common_firmware_conf})
     message(FATAL_ERROR "Missing common firmware conf: ${opendeck_common_firmware_conf}")
 endif()
 
+if(NOT EXISTS ${opendeck_firmware_mode_conf})
+    message(FATAL_ERROR "Missing firmware ${ZENV_BUILD_TYPE} conf: ${opendeck_firmware_mode_conf}")
+endif()
+
 if(NOT EXISTS ${opendeck_board_bootloader_overlay})
     message(FATAL_ERROR "Missing bootloader overlay for target '${TARGET}': ${opendeck_board_bootloader_overlay}")
 endif()
@@ -142,6 +160,10 @@ endif()
 
 if(NOT EXISTS ${opendeck_common_bootloader_conf})
     message(FATAL_ERROR "Missing common bootloader conf: ${opendeck_common_bootloader_conf}")
+endif()
+
+if(NOT EXISTS ${opendeck_bootloader_mode_conf})
+    message(FATAL_ERROR "Missing bootloader ${ZENV_BUILD_TYPE} conf: ${opendeck_bootloader_mode_conf}")
 endif()
 
 if(NOT EXISTS ${opendeck_bootloader_firmware_loader_overlay})
@@ -230,7 +252,7 @@ if(opendeck_bt_enabled AND opendeck_bt_peripheral_enabled)
     set(opendeck_ble_enabled TRUE)
     set(OPENDECK_BT_DEVICE_NAME "OpenDeck | ${opendeck_runtime_board_name}")
 
-    configure_file($ENV{ZEPHYR_PROJECT}/cmake/bluetooth_device_name.conf.in
+    configure_file($ENV{ZENV_PROJECT_ROOT}/cmake/bluetooth_device_name.conf.in
                    ${opendeck_generated_dir}/firmware_bluetooth_device_name.conf
                    @ONLY)
 endif()
@@ -249,6 +271,7 @@ set(${DEFAULT_IMAGE}_EXTRA_DTC_OVERLAY_FILE ${opendeck_firmware_extra_dtc_overla
 set(opendeck_firmware_conf_files)
 list(APPEND opendeck_firmware_conf_files ${opendeck_shared_conf_files})
 list(APPEND opendeck_firmware_conf_files ${opendeck_common_firmware_conf})
+list(APPEND opendeck_firmware_conf_files ${opendeck_firmware_mode_conf})
 
 set(${DEFAULT_IMAGE}_CONF_FILE ${opendeck_firmware_conf_files} CACHE INTERNAL "" FORCE)
 
@@ -290,6 +313,8 @@ if(EXISTS ${opendeck_target_mcuboot_conf})
     list(APPEND opendeck_mcuboot_extra_conf_files ${opendeck_target_mcuboot_conf})
 endif()
 
+list(APPEND opendeck_mcuboot_extra_conf_files ${opendeck_shared_conf_files})
+
 set(mcuboot_EXTRA_CONF_FILE ${opendeck_mcuboot_extra_conf_files} CACHE INTERNAL "" FORCE)
 
 set(opendeck_bootloader_extra_dtc_overlay_files)
@@ -302,6 +327,7 @@ set(opendeck_bootloader_EXTRA_DTC_OVERLAY_FILE ${opendeck_bootloader_extra_dtc_o
 set(opendeck_bootloader_conf_files)
 list(APPEND opendeck_bootloader_conf_files ${opendeck_shared_conf_files})
 list(APPEND opendeck_bootloader_conf_files ${opendeck_common_bootloader_conf})
+list(APPEND opendeck_bootloader_conf_files ${opendeck_bootloader_mode_conf})
 
 set(opendeck_bootloader_CONF_FILE ${opendeck_bootloader_conf_files} CACHE INTERNAL "" FORCE)
 

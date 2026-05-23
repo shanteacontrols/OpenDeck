@@ -88,6 +88,16 @@ namespace opendeck::protocol::midi
         }
 
         /**
+         * @brief Returns whether the USB MIDI backend is supported.
+         *
+         * @return Always `true` for USB MIDI enabled builds.
+         */
+        bool supported() override
+        {
+            return true;
+        }
+
+        /**
          * @brief Returns whether USB MIDI is ready for packet exchange.
          *
          * @return `true` when the USB MIDI function is ready for TX/RX.
@@ -324,57 +334,12 @@ namespace opendeck::protocol::midi
             return (k_mem_slab_alloc(&_rx_slab, &memory, K_NO_WAIT) == 0) ? static_cast<RxPacket*>(memory) : nullptr;
         }
     };
-#else
-    class HwaUsbHw : public HwaUsb
-    {
-        public:
-        using HwaUsb::write;
-
-        HwaUsbHw()
-        {
-            k_poll_signal_init(&_data_available_signal);
-        }
-
-        k_poll_signal* data_available_signal() override
-        {
-            return &_data_available_signal;
-        }
-
-        bool ready() override
-        {
-            return false;
-        }
-
-        bool init() override
-        {
-            k_poll_signal_reset(&_data_available_signal);
-            return true;
-        }
-
-        bool deinit() override
-        {
-            k_poll_signal_reset(&_data_available_signal);
-            return true;
-        }
-
-        bool write([[maybe_unused]] const midi_ump& packet) override
-        {
-            return false;
-        }
-
-        std::optional<midi_ump> read() override
-        {
-            return {};
-        }
-
-        private:
-        k_poll_signal _data_available_signal = {};
-    };
 #endif
 
     /**
      * @brief Hardware-backed serial/DIN MIDI transport backend.
      */
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_DIN_MIDI
     class HwaSerialHw : public HwaSerial
     {
         public:
@@ -413,20 +378,26 @@ namespace opendeck::protocol::midi
         }
 
         /**
+         * @brief Returns whether the DIN MIDI backend is supported.
+         *
+         * @return Always `true` for DIN MIDI enabled builds.
+         */
+        bool supported() override
+        {
+            return true;
+        }
+
+        /**
          * @brief Initializes the DIN MIDI UART transport.
          *
          * @return `true` if initialization succeeded, otherwise `false`.
          */
         bool init() override
         {
-#ifndef CONFIG_PROJECT_TARGET_SUPPORT_DIN_MIDI
-            return false;
-#else
             k_poll_signal_reset(&_data_available_signal);
             _initialized = _uart.init(_config);
 
             return _initialized;
-#endif
         }
 
         /**
@@ -436,14 +407,10 @@ namespace opendeck::protocol::midi
          */
         bool deinit() override
         {
-#ifndef CONFIG_PROJECT_TARGET_SUPPORT_DIN_MIDI
-            return true;
-#else
             auto ret     = _uart.deinit();
             _initialized = false;
             k_poll_signal_reset(&_data_available_signal);
             return ret;
-#endif
         }
 
         /**
@@ -453,11 +420,8 @@ namespace opendeck::protocol::midi
          *
          * @return `true` if the requested loopback state was applied, otherwise `false`.
          */
-        bool set_loopback([[maybe_unused]] bool state) override
+        bool set_loopback(bool state) override
         {
-#ifndef CONFIG_PROJECT_TARGET_SUPPORT_DIN_MIDI
-            return false;
-#else
             if (_config.loopback == state)
             {
                 return true;
@@ -480,7 +444,6 @@ namespace opendeck::protocol::midi
 
             _initialized = _uart.init(_config);
             return _initialized;
-#endif
         }
 
         /**
@@ -490,13 +453,9 @@ namespace opendeck::protocol::midi
          *
          * @return `true` if the byte was queued successfully, otherwise `false`.
          */
-        bool write([[maybe_unused]] uint8_t data) override
+        bool write(uint8_t data) override
         {
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_DIN_MIDI
             return _uart.write(data);
-#else
-            return false;
-#endif
         }
 
         /**
@@ -506,11 +465,7 @@ namespace opendeck::protocol::midi
          */
         std::optional<uint8_t> read() override
         {
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_DIN_MIDI
             return _uart.read();
-#else
-            return {};
-#endif
         }
 
         /**
@@ -623,11 +578,7 @@ namespace opendeck::protocol::midi
             k_poll_signal&                                              _signal;
         };
 
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_DIN_MIDI
-        const device* const _uart_device = DEVICE_DT_GET(OPENDECK_DIN_MIDI_UART_NODE);
-#else
-        const device* const _uart_device = nullptr;
-#endif
+        const device* const                           _uart_device           = DEVICE_DT_GET(OPENDECK_DIN_MIDI_UART_NODE);
         k_poll_signal                                 _data_available_signal = {};
         SignalAwareRingBuffer                         _rx_buffer;
         zlibs::drivers::uart::RingBuffer<BUFFER_SIZE> _tx_buffer = {};
@@ -635,10 +586,12 @@ namespace opendeck::protocol::midi
         zlibs::drivers::uart::UartHw                  _uart        = zlibs::drivers::uart::UartHw(_uart_device);
         bool                                          _initialized = false;
     };
+#endif
 
     /**
      * @brief Hardware-backed BLE MIDI transport backend.
      */
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_BLE
     class HwaBleHw : public HwaBle
     {
         public:
@@ -666,15 +619,22 @@ namespace opendeck::protocol::midi
         }
 
         /**
+         * @brief Returns whether the BLE MIDI backend is supported.
+         *
+         * @return Always `true` for BLE MIDI enabled builds.
+         */
+        bool supported() override
+        {
+            return true;
+        }
+
+        /**
          * @brief Initializes the BLE MIDI backend and starts advertising.
          *
          * @return `true` if initialization succeeded, otherwise `false`.
          */
         bool init() override
         {
-#ifndef CONFIG_PROJECT_TARGET_SUPPORT_BLE
-            return false;
-#else
             if (_initialized)
             {
                 return true;
@@ -708,7 +668,6 @@ namespace opendeck::protocol::midi
 
             _initialized = true;
             return true;
-#endif
         }
 
         /**
@@ -718,16 +677,12 @@ namespace opendeck::protocol::midi
          */
         bool deinit() override
         {
-#ifndef CONFIG_PROJECT_TARGET_SUPPORT_BLE
-            return true;
-#else
             _initialized = false;
             _ready       = false;
             _drop_logged = false;
             _rx_packets.reset();
             k_poll_signal_reset(&_data_available_signal);
             return ble_service::stop_advertising();
-#endif
         }
 
         /**
@@ -737,18 +692,14 @@ namespace opendeck::protocol::midi
          *
          * @return `true` if the packet was sent successfully, otherwise `false`.
          */
-        bool write([[maybe_unused]] BlePacket& packet) override
+        bool write(BlePacket& packet) override
         {
-#ifndef CONFIG_PROJECT_TARGET_SUPPORT_BLE
-            return false;
-#else
             if (!_initialized || !_ready)
             {
                 return false;
             }
 
             return ble_service::send_packet(packet.data.data(), static_cast<uint16_t>(packet.size));
-#endif
         }
 
         /**
@@ -840,10 +791,9 @@ namespace opendeck::protocol::midi
         k_poll_signal                                                     _data_available_signal = {};
         zlibs::utils::misc::RingBuffer<RX_PACKET_COUNT, false, BlePacket> _rx_packets            = {};
         BlePacket                                                         _rx_scratch            = {};
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_BLE
-        bool _initialized = false;
-#endif
-        bool _ready       = false;
-        bool _drop_logged = false;
+        bool                                                              _initialized           = false;
+        bool                                                              _ready                 = false;
+        bool                                                              _drop_logged           = false;
     };
+#endif
 }    // namespace opendeck::protocol::midi

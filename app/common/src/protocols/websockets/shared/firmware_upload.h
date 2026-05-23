@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "zlibs/utils/misc/bit.h"
+
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -73,10 +75,10 @@ namespace opendeck::common::protocols::websockets
             static_cast<uint8_t>(FirmwareUploadResponse::Ack),
             static_cast<uint8_t>(command),
             static_cast<uint8_t>(status),
-            static_cast<uint8_t>((bytes_written >> 0U) & 0xFFU),
-            static_cast<uint8_t>((bytes_written >> 8U) & 0xFFU),
-            static_cast<uint8_t>((bytes_written >> 16U) & 0xFFU),
-            static_cast<uint8_t>((bytes_written >> 24U) & 0xFFU),
+            static_cast<uint8_t>((bytes_written >> (0U * zlibs::utils::misc::BYTE_BIT_COUNT)) & zlibs::utils::misc::BYTE_MASK),
+            static_cast<uint8_t>((bytes_written >> (1U * zlibs::utils::misc::BYTE_BIT_COUNT)) & zlibs::utils::misc::BYTE_MASK),
+            static_cast<uint8_t>((bytes_written >> (2U * zlibs::utils::misc::BYTE_BIT_COUNT)) & zlibs::utils::misc::BYTE_MASK),
+            static_cast<uint8_t>((bytes_written >> (3U * zlibs::utils::misc::BYTE_BIT_COUNT)) & zlibs::utils::misc::BYTE_MASK),
         };
 
         return response;

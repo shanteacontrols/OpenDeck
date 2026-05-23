@@ -25,11 +25,11 @@ namespace opendeck::bootloader::dfu::staged_update_reader
         /**
          * @brief Streams a staged firmware payload into a sink when a valid marker is present.
          *
-         * @param sink Destination for staged firmware payload bytes.
+         * @param consumer Destination for staged firmware payload bytes.
          *
          * @return `true` when a staged update was found and consumed, otherwise `false`.
          */
-        bool consume(opendeck::common::dfu::dfu_stream::Sink& sink);
+        bool consume(opendeck::common::dfu::dfu_stream::Sink& consumer);
 
         /**
          * @brief Invalidates the staged-update marker.

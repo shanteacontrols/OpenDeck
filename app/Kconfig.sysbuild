@@ -16,4 +16,4 @@ config FIRMWARE_LOADER_IMAGE_NAME
     default "opendeck_bootloader" if FIRMWARE_LOADER_IMAGE_OPENDECK
 
 config FIRMWARE_LOADER_IMAGE_PATH
-    default "$(ZEPHYR_PROJECT)/app/bootloader" if FIRMWARE_LOADER_IMAGE_OPENDECK
+    default "$(ZENV_PROJECT_ROOT)/app/bootloader" if FIRMWARE_LOADER_IMAGE_OPENDECK

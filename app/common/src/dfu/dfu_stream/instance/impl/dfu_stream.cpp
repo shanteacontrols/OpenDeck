@@ -5,21 +5,21 @@
 
 #include "common/src/dfu/dfu_stream/instance/impl/dfu_stream.h"
 
+#include "zlibs/utils/misc/bit.h"
+
 #include <array>
 
 using namespace opendeck::common::dfu::dfu_stream;
 
 namespace
 {
-    constexpr uint32_t BYTE_MASK              = 0xFFU;
-    constexpr uint8_t  BITS_PER_BYTE          = 8U;
-    constexpr uint8_t  WORD_BYTES             = sizeof(uint32_t);
-    constexpr uint8_t  METADATA_WORD_COUNT    = 3U;
-    constexpr uint8_t  METADATA_PAYLOAD_BYTES = WORD_BYTES * METADATA_WORD_COUNT;
+    constexpr uint8_t WORD_BYTES             = sizeof(uint32_t);
+    constexpr uint8_t METADATA_WORD_COUNT    = 3U;
+    constexpr uint8_t METADATA_PAYLOAD_BYTES = WORD_BYTES * METADATA_WORD_COUNT;
 
     uint8_t expected_byte(const uint32_t value, const uint8_t byte_index)
     {
-        return static_cast<uint8_t>((value >> (byte_index * BITS_PER_BYTE)) & BYTE_MASK);
+        return static_cast<uint8_t>((value >> (byte_index * zlibs::utils::misc::BYTE_BIT_COUNT)) & zlibs::utils::misc::BYTE_MASK);
     }
 
     uint32_t read_word(const Header& header, const size_t word_index)
@@ -29,7 +29,7 @@ namespace
 
         for (size_t i = 0; i < sizeof(value); i++)
         {
-            value |= static_cast<uint32_t>(header[offset + i]) << (i * BITS_PER_BYTE);
+            value |= static_cast<uint32_t>(header[offset + i]) << (i * zlibs::utils::misc::BYTE_BIT_COUNT);
         }
 
         return value;
@@ -152,15 +152,15 @@ StreamStatus DfuStream::process_metadata(const uint8_t data)
 
     if (_stage_bytes_received < WORD_BYTES)
     {
-        _received_format_version |= (static_cast<uint32_t>(data) << (BITS_PER_BYTE * _stage_bytes_received));
+        _received_format_version |= (static_cast<uint32_t>(data) << (zlibs::utils::misc::BYTE_BIT_COUNT * _stage_bytes_received));
     }
     else if (_stage_bytes_received < (WORD_BYTES * 2U))
     {
-        _received_uid |= (static_cast<uint32_t>(data) << (BITS_PER_BYTE * (_stage_bytes_received - WORD_BYTES)));
+        _received_uid |= (static_cast<uint32_t>(data) << (zlibs::utils::misc::BYTE_BIT_COUNT * (_stage_bytes_received - WORD_BYTES)));
     }
     else
     {
-        _expected_size |= (static_cast<uint32_t>(data) << (BITS_PER_BYTE * (_stage_bytes_received - (WORD_BYTES * 2U))));
+        _expected_size |= (static_cast<uint32_t>(data) << (zlibs::utils::misc::BYTE_BIT_COUNT * (_stage_bytes_received - (WORD_BYTES * 2U))));
     }
 
     if (++_stage_bytes_received != METADATA_PAYLOAD_BYTES)

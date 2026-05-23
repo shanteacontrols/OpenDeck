@@ -45,7 +45,7 @@ for arg in "$@"; do
     esac
 done
 
-project_root=$ZEPHYR_PROJECT
+project_root=${ZENV_PROJECT_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
 build_targets=()
 yaml_parser="dasel -n -p yaml"
 metadata_query_script="${project_root}/scripts/query_metadata.sh"

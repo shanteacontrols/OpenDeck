@@ -6,12 +6,12 @@
 #pragma once
 
 #include "bootloader/src/dfu/direct_update_writer/instance/impl/direct_update_writer.h"
+#include "bootloader/src/threads.h"
 #include "common/src/protocols/websockets/firmware_upload/firmware_upload.h"
 #include "common/src/protocols/websockets/shared/deps.h"
 #include "common/src/protocols/websockets/shared/firmware_upload.h"
 
 #include "zlibs/utils/misc/mutex.h"
-#include "zlibs/utils/threads/threads.h"
 
 #include <zephyr/kernel.h>
 
@@ -36,7 +36,7 @@ namespace opendeck::bootloader::protocols::websockets
          * @param direct_update_writer Writer that installs validated firmware payloads.
          */
         WebSockets(opendeck::common::protocols::websockets::Hwa& hwa, bootloader::dfu::direct_update_writer::DirectUpdateWriter& direct_update_writer);
-        ~WebSockets();
+        ~WebSockets() override;
 
         /**
          * @brief Starts the network DFU endpoint.
@@ -62,17 +62,13 @@ namespace opendeck::bootloader::protocols::websockets
         int accept_client(int socket) override;
 
         private:
-        using ClientThread = zlibs::utils::threads::UserThread<zlibs::utils::misc::StringLiteral{ "boot_websocket" },
-                                                               K_PRIO_PREEMPT(1),
-                                                               4096>;
-
         opendeck::common::protocols::websockets::Hwa&                                            _hwa;
         opendeck::common::protocols::websockets::FirmwareUpload                                  _firmware_upload;
         k_sem                                                                                    _client_wakeup  = {};
         std::atomic<int>                                                                         _client_socket  = -1;
         std::atomic<bool>                                                                        _shutdown       = false;
         bool                                                                                     _server_running = false;
-        ClientThread                                                                             _client_thread;
+        threads::WebSocketsClientThread                                                          _client_thread;
         zlibs::utils::misc::Mutex                                                                _client_state_lock;
         std::array<uint8_t, opendeck::common::protocols::websockets::FIRMWARE_UPLOAD_FRAME_SIZE> _rx_buffer = {};
 

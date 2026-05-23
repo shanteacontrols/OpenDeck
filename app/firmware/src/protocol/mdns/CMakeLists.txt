@@ -1,5 +1,4 @@
-include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_library.cmake)
-
+include($ENV{ZENV_PROJECT_ROOT}/cmake/opendeck_library.cmake)
 opendeck_library_named(opendeck_firmware_protocol_mdns)
 
 target_link_libraries(opendeck_firmware_protocol_mdns

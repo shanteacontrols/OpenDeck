@@ -5,6 +5,8 @@
 
 #include "common/src/protocols/mdns/instance/impl/mdns.h"
 
+#include "zlibs/utils/misc/bit.h"
+
 #include <zephyr/logging/log.h>
 #include <zephyr/sys/util.h>
 
@@ -20,9 +22,6 @@ namespace
 
     constexpr char HEX_DIGITS[]           = "0123456789abcdef";
     constexpr int  TARGET_UID_START_SHIFT = 24;
-    constexpr auto BYTE_MASK              = 0xFFU;
-    constexpr auto HEX_NIBBLE_SHIFT       = 4U;
-    constexpr auto HEX_NIBBLE_MASK        = 0x0FU;
 
     char hostname_safe_char(const char character)
     {
@@ -207,9 +206,9 @@ bool BaseMdns::append_serial(std::string_view serial)
 
 bool BaseMdns::append_target_uid()
 {
-    for (int shift = TARGET_UID_START_SHIFT; shift >= 0; shift -= BITS_PER_BYTE)
+    for (int shift = TARGET_UID_START_SHIFT; shift >= 0; shift -= zlibs::utils::misc::BYTE_BIT_COUNT)
     {
-        if (!append_hex_byte(static_cast<uint8_t>((OPENDECK_TARGET_UID >> shift) & BYTE_MASK)))
+        if (!append_hex_byte(static_cast<uint8_t>((OPENDECK_TARGET_UID >> shift) & zlibs::utils::misc::BYTE_MASK)))
         {
             return false;
         }
@@ -220,8 +219,8 @@ bool BaseMdns::append_target_uid()
 
 bool BaseMdns::append_hex_byte(const uint8_t byte)
 {
-    return append_char(HEX_DIGITS[(byte >> HEX_NIBBLE_SHIFT) & HEX_NIBBLE_MASK]) &&
-           append_char(HEX_DIGITS[byte & HEX_NIBBLE_MASK]);
+    return append_char(HEX_DIGITS[(byte >> zlibs::utils::misc::NIBBLE_BIT_COUNT) & zlibs::utils::misc::LOW_NIBBLE_MASK]) &&
+           append_char(HEX_DIGITS[byte & zlibs::utils::misc::LOW_NIBBLE_MASK]);
 }
 
 bool BaseMdns::append_char(const char character)

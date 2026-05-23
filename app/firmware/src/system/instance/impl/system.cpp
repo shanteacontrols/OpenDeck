@@ -10,6 +10,8 @@
 #include "firmware/src/global/midi_program.h"
 #include "common/src/mcu/shared/common.h"
 
+#include "zlibs/utils/misc/bit.h"
+
 #include <zephyr/logging/log.h>
 #include <zephyr/logging/log_ctrl.h>
 
@@ -791,10 +793,9 @@ zlibs::utils::sysex_conf::Status System::SysExDataHandler::custom_request(uint16
 {
     auto result = zlibs::utils::sysex_conf::Status::Ack;
 
-    static constexpr uint32_t UID_SHIFT_24  = 24;
-    static constexpr uint32_t UID_SHIFT_16  = 16;
-    static constexpr uint32_t UID_SHIFT_8   = 8;
-    static constexpr uint32_t UID_BYTE_MASK = 0xFF;
+    static constexpr uint32_t UID_SHIFT_24 = 24;
+    static constexpr uint32_t UID_SHIFT_16 = 16;
+    static constexpr uint32_t UID_SHIFT_8  = 8;
 
     auto append_sw = [&custom_response]()
     {
@@ -805,10 +806,10 @@ zlibs::utils::sysex_conf::Status System::SysExDataHandler::custom_request(uint16
 
     auto append_hw = [&custom_response]()
     {
-        custom_response.append((OPENDECK_TARGET_UID >> UID_SHIFT_24) & static_cast<uint32_t>(UID_BYTE_MASK));
-        custom_response.append((OPENDECK_TARGET_UID >> UID_SHIFT_16) & static_cast<uint32_t>(UID_BYTE_MASK));
-        custom_response.append((OPENDECK_TARGET_UID >> UID_SHIFT_8) & static_cast<uint32_t>(UID_BYTE_MASK));
-        custom_response.append(OPENDECK_TARGET_UID & static_cast<uint32_t>(UID_BYTE_MASK));
+        custom_response.append((OPENDECK_TARGET_UID >> UID_SHIFT_24) & zlibs::utils::misc::BYTE_MASK);
+        custom_response.append((OPENDECK_TARGET_UID >> UID_SHIFT_16) & zlibs::utils::misc::BYTE_MASK);
+        custom_response.append((OPENDECK_TARGET_UID >> UID_SHIFT_8) & zlibs::utils::misc::BYTE_MASK);
+        custom_response.append(OPENDECK_TARGET_UID & zlibs::utils::misc::BYTE_MASK);
     };
 
     auto append_serial = [this, &custom_response]()

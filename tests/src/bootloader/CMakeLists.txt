@@ -1,21 +1,21 @@
 cmake_minimum_required(VERSION 3.20)
-include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_test_suite.cmake)
+include($ENV{ZENV_PROJECT_ROOT}/cmake/opendeck_test_suite.cmake)
 opendeck_test_bootstrap(
     COMPILE_DEFINITIONS
     BOOTLOADER_TEST_FLASH_SECTOR_SIZE=256
 )
 
-add_subdirectory($ENV{ZEPHYR_PROJECT}/app/common/src/metadata ${CMAKE_CURRENT_BINARY_DIR}/metadata)
-add_subdirectory($ENV{ZEPHYR_PROJECT}/app/common/src/dfu/flash_stream_writer ${CMAKE_CURRENT_BINARY_DIR}/flash_stream_writer)
-add_subdirectory($ENV{ZEPHYR_PROJECT}/app/common/src/dfu/dfu_stream ${CMAKE_CURRENT_BINARY_DIR}/dfu_stream)
+add_subdirectory($ENV{ZENV_PROJECT_ROOT}/app/common/src/metadata ${CMAKE_CURRENT_BINARY_DIR}/metadata)
+add_subdirectory($ENV{ZENV_PROJECT_ROOT}/app/common/src/dfu/flash_stream_writer ${CMAKE_CURRENT_BINARY_DIR}/flash_stream_writer)
+add_subdirectory($ENV{ZENV_PROJECT_ROOT}/app/common/src/dfu/dfu_stream ${CMAKE_CURRENT_BINARY_DIR}/dfu_stream)
 
 if(NOT DEFINED ENV{TARGET} OR "$ENV{TARGET}" STREQUAL "")
     message(FATAL_ERROR "Bootloader tests require TARGET to be exported")
 endif()
 
-set(BOOTLOADER_TEST_APP_BUILD_DIR $ENV{ZEPHYR_PROJECT}/build/app/default/release/$ENV{TARGET}/app)
+set(BOOTLOADER_TEST_APP_BUILD_DIR    $ENV{ZENV_PROJECT_ROOT}/build/app/default/release/$ENV{TARGET}/app)
 set(BOOTLOADER_TEST_APP_PAYLOAD_FILE ${BOOTLOADER_TEST_APP_BUILD_DIR}/zephyr/zephyr.signed.bin)
-set(BOOTLOADER_TEST_DFU_FILE ${BOOTLOADER_TEST_APP_BUILD_DIR}/dfu.bin)
+set(BOOTLOADER_TEST_DFU_FILE         ${BOOTLOADER_TEST_APP_BUILD_DIR}/dfu.bin)
 
 if(NOT EXISTS ${BOOTLOADER_TEST_APP_PAYLOAD_FILE})
     message(FATAL_ERROR "Missing target app payload: ${BOOTLOADER_TEST_APP_PAYLOAD_FILE}. Build the app for TARGET=$ENV{TARGET} first.")
@@ -28,9 +28,9 @@ endif()
 target_sources(app
     PRIVATE
     bootloader_test.cpp
-    $ENV{ZEPHYR_PROJECT}/app/bootloader/src/io/indicators/instance/impl/indicators.cpp
-    $ENV{ZEPHYR_PROJECT}/app/bootloader/src/dfu/direct_update_writer/instance/impl/direct_update_writer.cpp
-    $ENV{ZEPHYR_PROJECT}/app/bootloader/src/dfu/staged_update_reader/instance/impl/staged_update_reader.cpp
+    $ENV{ZENV_PROJECT_ROOT}/app/bootloader/src/io/indicators/instance/impl/indicators.cpp
+    $ENV{ZENV_PROJECT_ROOT}/app/bootloader/src/dfu/direct_update_writer/instance/impl/direct_update_writer.cpp
+    $ENV{ZENV_PROJECT_ROOT}/app/bootloader/src/dfu/staged_update_reader/instance/impl/staged_update_reader.cpp
 )
 
 add_dependencies(app

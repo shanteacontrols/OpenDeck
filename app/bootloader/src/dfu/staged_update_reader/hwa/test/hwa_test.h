@@ -9,6 +9,8 @@
 #include "common/src/dfu/dfu_stream/shared/common.h"
 #include "common/src/dfu/flash_area/hwa/test/hwa_test.h"
 
+#include "zlibs/utils/misc/bit.h"
+
 #include <cstring>
 #include <span>
 
@@ -109,13 +111,11 @@ namespace opendeck::bootloader::dfu::staged_update_reader
 
         static void write_word(opendeck::common::dfu::dfu_stream::Header& header, size_t word_index, uint32_t value)
         {
-            constexpr uint32_t BYTE_MASK      = 0xFF;
-            constexpr uint8_t  BITS_PER_OCTET = 8;
-            const size_t       offset         = word_index * sizeof(value);
+            const size_t offset = word_index * sizeof(value);
 
             for (size_t i = 0; i < sizeof(value); i++)
             {
-                header[offset + i] = (value >> (i * BITS_PER_OCTET)) & BYTE_MASK;
+                header[offset + i] = (value >> (i * zlibs::utils::misc::BYTE_BIT_COUNT)) & zlibs::utils::misc::BYTE_MASK;
             }
         }
 

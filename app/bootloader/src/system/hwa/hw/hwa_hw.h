@@ -83,7 +83,7 @@ namespace opendeck::bootloader::system
         private:
         opendeck::common::mcu::HwaHw                   _mcu;
         bootloader::io::indicators::Builder            _indicators;
-        bootloader::dfu::staged_update_reader::Builder _staged_update_reader;
+        bootloader::dfu::staged_update_reader::Builder _staged_update_reader               = bootloader::dfu::staged_update_reader::Builder();
         bootloader::dfu::direct_update_writer::Builder _staged_update_direct_update_writer = bootloader::dfu::direct_update_writer::Builder(_mcu);
         bootloader::dfu::direct_update_writer::Builder _webusb_direct_update_writer        = bootloader::dfu::direct_update_writer::Builder(_mcu);
         bootloader::dfu::direct_update_writer::Builder _websockets_direct_update_writer    = bootloader::dfu::direct_update_writer::Builder(_mcu);

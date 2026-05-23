@@ -31,14 +31,14 @@ namespace opendeck::bootloader::protocols::webusb
          *
          * @return `true` on success, otherwise `false`.
          */
-        bool init();
+        bool init() override;
 
         /**
          * @brief Deinitializes bootloader WebUSB.
          *
          * @return `true` on success, otherwise `false`.
          */
-        bool deinit();
+        bool deinit() override;
 
         /**
          * @brief Sends one device-side status line to the host.

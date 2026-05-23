@@ -87,6 +87,13 @@ TEST_F(MIDITest, OmniChannel)
     }
 }
 
+TEST_F(MIDITest, TestBackendSupportDefaultsMatchTargetConfig)
+{
+    ASSERT_EQ(IS_ENABLED(CONFIG_PROJECT_TARGET_SUPPORT_USB_MIDI), _midi._hwaUsb.supported());
+    ASSERT_EQ(IS_ENABLED(CONFIG_PROJECT_TARGET_SUPPORT_DIN_MIDI), _midi._hwaSerial.supported());
+    ASSERT_EQ(IS_ENABLED(CONFIG_PROJECT_TARGET_SUPPORT_BLE), _midi._hwaBle.supported());
+}
+
 TEST_F(MIDITest, BleEnabledSupportMatchesBuild)
 {
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_BLE

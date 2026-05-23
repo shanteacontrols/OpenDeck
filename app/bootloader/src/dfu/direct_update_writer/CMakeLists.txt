@@ -1,5 +1,4 @@
-include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_library.cmake)
-
+include($ENV{ZENV_PROJECT_ROOT}/cmake/opendeck_library.cmake)
 opendeck_library_named(opendeck_bootloader_dfu_direct_update_writer)
 
 target_sources(opendeck_bootloader_dfu_direct_update_writer PRIVATE

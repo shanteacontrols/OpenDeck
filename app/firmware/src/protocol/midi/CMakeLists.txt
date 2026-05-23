@@ -1,11 +1,11 @@
-include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_library.cmake)
+include($ENV{ZENV_PROJECT_ROOT}/cmake/opendeck_library.cmake)
 opendeck_library_named(opendeck_firmware_protocol_midi)
 
 target_link_libraries(opendeck_firmware_protocol_midi
     PUBLIC
     opendeck_firmware_database
     opendeck_firmware_util_configurable
-    zlibs-utils-midi
+    zlibs_utils_midi
     kernel
 )
 

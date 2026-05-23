@@ -236,7 +236,7 @@ function target_metadata
     local target=
     local overlay=
     local key=
-    local project_root=${ZEPHYR_PROJECT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
+    local project_root=${ZENV_PROJECT_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
 
     while [[ $# -gt 0 ]]
     do

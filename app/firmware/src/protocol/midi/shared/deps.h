@@ -30,7 +30,7 @@ namespace opendeck::protocol::midi
     {
         public:
         ~HwaUsb() override = default;
-        using zlibs::utils::midi::Transport::write;
+        using zlibs::utils::midi::usb::Hwa::write;
 
         /**
          * @brief Returns the poll signal raised when USB MIDI input becomes available.

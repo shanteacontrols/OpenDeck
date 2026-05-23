@@ -10,7 +10,7 @@ macro(opendeck_test_bootstrap)
     endif()
 
     if(OPENDECK_TEST_IMPORT_TARGET_CONFIG)
-        include($ENV{ZEPHYR_PROJECT}/cmake/opendeck_test_target.cmake)
+        include($ENV{ZENV_PROJECT_ROOT}/cmake/opendeck_test_target.cmake)
         opendeck_test_import_target_config()
     endif()
 
@@ -20,7 +20,7 @@ macro(opendeck_test_bootstrap)
 
     project(test)
 
-    zephyr_include_directories($ENV{ZEPHYR_PROJECT}/app)
+    zephyr_include_directories($ENV{ZENV_PROJECT_ROOT}/app)
 
     add_compile_definitions(OPENDECK_TEST)
 
@@ -30,7 +30,7 @@ macro(opendeck_test_bootstrap)
 endmacro()
 
 function(opendeck_test_add_module target source_path)
-    add_subdirectory("$ENV{ZEPHYR_PROJECT}/${source_path}" "${CMAKE_CURRENT_BINARY_DIR}/${target}")
+    add_subdirectory("$ENV{ZENV_PROJECT_ROOT}/${source_path}" "${CMAKE_CURRENT_BINARY_DIR}/${target}")
     add_dependencies(app "${target}")
 
     if(TARGET "${target}")

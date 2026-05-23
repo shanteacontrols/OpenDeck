@@ -29,5 +29,5 @@
             ]
         }
     },
-    "onCreateCommand": "/home/ubuntu/zephyr_ws/zenv/scripts/cleanup.sh"
+    "onCreateCommand": "make clean-all"
 }
