@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "tests/common.h"
-#include "tests/helpers/dfu_stream.h"
+#include "tests/shared/common.h"
+#include "tests/shared/helpers/dfu_stream.h"
 #include "common/src/dfu/dfu_stream/shared/common.h"
 #include "common/src/protocols/websockets/firmware_upload/firmware_upload.h"
 #include "firmware/src/dfu/staged_update_writer/hwa/test/hwa_test.h"

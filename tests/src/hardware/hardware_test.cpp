@@ -5,10 +5,10 @@
 
 #ifdef PROJECT_TARGET_HARDWARE_TESTS_SUPPORTED
 
-#include "tests/common.h"
-#include "tests/helpers/database.h"
-#include "tests/helpers/misc.h"
-#include "tests/helpers/midi.h"
+#include "tests/shared/common.h"
+#include "tests/shared/helpers/database.h"
+#include "tests/shared/helpers/misc.h"
+#include "tests/shared/helpers/midi.h"
 #include "firmware/src/database/builder/builder.h"
 #include "firmware/src/system/shared/common.h"
 

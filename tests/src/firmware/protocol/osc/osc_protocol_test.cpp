@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "tests/common.h"
-#include "tests/helpers/database.h"
-#include "tests/helpers/misc.h"
+#include "tests/shared/common.h"
+#include "tests/shared/helpers/database.h"
+#include "tests/shared/helpers/misc.h"
 
 #include "firmware/src/database/builder/builder.h"
 #include "firmware/src/io/analog/shared/deps.h"

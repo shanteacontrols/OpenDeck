@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "tests/common.h"
-#include "tests/helpers/misc.h"
+#include "tests/shared/common.h"
+#include "tests/shared/helpers/misc.h"
 
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/util/cinfo/cinfo.h"

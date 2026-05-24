@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "tests/common.h"
+#include "tests/shared/common.h"
 #include "bootloader/src/dfu/staged_update_reader/hwa/test/hwa_test.h"
 #include "bootloader/src/dfu/staged_update_reader/instance/impl/staged_update_reader.h"
 

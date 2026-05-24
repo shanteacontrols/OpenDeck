@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "tests/helpers/misc.h"
+#include "tests/shared/helpers/misc.h"
 #include "firmware/src/system/builder/builder.h"
 #include "firmware/src/system/config.h"
 #include "firmware/src/util/configurable/configurable.h"

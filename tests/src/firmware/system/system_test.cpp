@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "tests/common.h"
-#include "tests/helpers/database.h"
-#include "tests/helpers/midi.h"
-#include "tests/helpers/misc.h"
+#include "tests/shared/common.h"
+#include "tests/shared/helpers/database.h"
+#include "tests/shared/helpers/midi.h"
+#include "tests/shared/helpers/misc.h"
 #include "firmware/src/system/builder/builder.h"
 #include "common/src/io/indicators/hwa/test/hwa_test.h"
 #include "firmware/src/io/indicators/instance/impl/indicators.h"

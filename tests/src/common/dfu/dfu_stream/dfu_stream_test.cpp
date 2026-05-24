@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "tests/common.h"
-#include "tests/helpers/dfu_stream.h"
+#include "tests/shared/common.h"
+#include "tests/shared/helpers/dfu_stream.h"
 #include "common/src/dfu/dfu_stream/instance/impl/dfu_stream.h"
 
 #include <algorithm>

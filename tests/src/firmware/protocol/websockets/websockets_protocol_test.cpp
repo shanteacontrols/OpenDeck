@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "tests/common.h"
-#include "tests/helpers/dfu_stream.h"
-#include "tests/helpers/misc.h"
+#include "tests/shared/common.h"
+#include "tests/shared/helpers/dfu_stream.h"
+#include "tests/shared/helpers/misc.h"
 #include "common/src/dfu/dfu_stream/shared/common.h"
 #include "firmware/src/protocol/osc/packet/packet.h"
 #include "firmware/src/protocol/osc/shared/paths.h"

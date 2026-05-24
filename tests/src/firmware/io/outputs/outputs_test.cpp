@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "tests/common.h"
-#include "tests/helpers/database.h"
+#include "tests/shared/common.h"
+#include "tests/shared/helpers/database.h"
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_OUTPUTS
 

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "tests/common.h"
+#include "tests/shared/common.h"
 
 #include "firmware/src/io/analog/filter/hw/filter_hw.h"
 
