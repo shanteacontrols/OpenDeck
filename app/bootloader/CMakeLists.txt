@@ -6,6 +6,7 @@ project(opendeck_bootloader)
 zephyr_include_directories(${CMAKE_CURRENT_LIST_DIR}/..)
 
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/metadata ${CMAKE_CURRENT_BINARY_DIR}/metadata)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/signaling ${CMAKE_CURRENT_BINARY_DIR}/signaling_common)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/dfu/flash_stream_writer ${CMAKE_CURRENT_BINARY_DIR}/flash_stream_writer)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/dfu/dfu_stream ${CMAKE_CURRENT_BINARY_DIR}/dfu_stream)
 add_subdirectory(src/io/indicators)
@@ -35,6 +36,7 @@ endif()
 target_link_libraries(app
     PRIVATE
     opendeck_common_metadata
+    opendeck_common_signaling
     opendeck_common_dfu_dfu_stream
     opendeck_bootloader_io_indicators
     opendeck_bootloader_dfu_direct_update_writer

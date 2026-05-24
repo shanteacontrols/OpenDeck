@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "common/src/signaling/shared/signaling.h"
+
 #include "firmware/src/protocol/mdns/shared/common.h"
 #include "firmware/src/protocol/midi/shared/common.h"
 #include "firmware/src/system/shared/common.h"
@@ -16,15 +18,15 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <functional>
 #include <span>
 #include <string_view>
-#include <vector>
 
 #include <zephyr/sys/__assert.h>
 
 namespace opendeck::signaling
 {
+    using SignalingBackend = common::signaling::QueuedBackend;
+
     /**
      * @brief Identifies system-level events exchanged over the signaling bus.
      */
@@ -331,72 +333,8 @@ namespace opendeck::signaling
         sys::ForcedRefreshType type = {};
     };
 
-    /**
-     * @brief Owns signal-bus subscriptions for one signal type.
-     *
-     * @tparam Signal Signal payload type managed by this registry.
-     */
     template<typename Signal>
-    class SignalRegistry
-    {
-        public:
-        /**
-         * @brief Registers one callback for the signal type handled by this registry.
-         *
-         * @tparam Callback Callable type that accepts a `const Signal&`.
-         *
-         * @param callback Callback to subscribe.
-         * @param replay Whether cached signal replay should be requested for
-         *               this subscription.
-         */
-        template<typename Callback>
-        void subscribe(Callback&& callback, bool replay = false)
-        {
-            _subscriptions.push_back(
-                zlibs::utils::signaling::subscribe<Signal>(std::forward<Callback>(callback), replay));
-        }
-
-        /**
-         * @brief Queues one signal instance through the owned signaling backend.
-         *
-         * @param signal Signal payload to publish.
-         *
-         * @return `true` if the signal was queued successfully, otherwise `false`.
-         */
-        bool publish(const Signal& signal)
-        {
-            return zlibs::utils::signaling::publish(signal);
-        }
-
-        /**
-         * @brief Removes every subscription owned by this registry instance.
-         */
-        void clear()
-        {
-            for (auto& subscription : _subscriptions)
-            {
-                subscription.reset();
-            }
-
-            _subscriptions.clear();
-        }
-
-        /**
-         * @brief Returns the singleton registry instance for the signal type.
-         *
-         * @return Registry singleton for `Signal`.
-         */
-        static SignalRegistry& instance()
-        {
-            static SignalRegistry instance;
-            return instance;
-        }
-
-        private:
-        SignalRegistry() = default;
-
-        std::vector<zlibs::utils::signaling::Subscription> _subscriptions = {};
-    };
+    using SignalRegistry = common::signaling::SignalRegistry<Signal, SignalingBackend>;
 
     /**
      * @brief Subscribes one callback to a signal type.

@@ -1,4 +1,5 @@
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/metadata ${CMAKE_CURRENT_BINARY_DIR}/metadata)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/signaling ${CMAKE_CURRENT_BINARY_DIR}/signaling_common)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/dfu/flash_stream_writer ${CMAKE_CURRENT_BINARY_DIR}/flash_stream_writer)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/mcu ${CMAKE_CURRENT_BINARY_DIR}/mcu)
 add_subdirectory(src/database)
@@ -19,6 +20,7 @@ add_subdirectory(src/io/touchscreen/hwa/hw)
 
 set(OPENDECK_FIRMWARE_LIBS
     opendeck_common_metadata
+    opendeck_common_signaling
     opendeck_common_dfu_flash_stream_writer
     opendeck_common_mcu
     opendeck_firmware_database
