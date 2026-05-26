@@ -131,6 +131,14 @@ config PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_NATIVE
     help
       Hidden selector for the native output backend.
 
+config PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_PWM
+    bool
+    select PWM
+    default y if $(dt_path_enabled,$(OPENDECK_OUTPUTS_NODE)) && \
+             $(dt_node_str_prop_equals,$(OPENDECK_OUTPUTS_NODE),mode,pwm)
+    help
+      Hidden selector for the PWM output backend.
+
 config PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_SHIFT_REGISTER
     bool
     default y if $(dt_path_enabled,$(OPENDECK_OUTPUTS_NODE)) && \
@@ -242,6 +250,7 @@ config PROJECT_TARGET_ANALOG_LOGICAL_COUNT
 config PROJECT_TARGET_OUTPUT_PHYSICAL_COUNT
     int
     default $(dt_node_prop_len,$(OPENDECK_OUTPUTS_NODE),native-gpios) if PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_NATIVE
+    default $(dt_node_prop_len,$(OPENDECK_OUTPUTS_NODE),pwms) if PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_PWM
     default $(mul,$(dt_node_int_prop_int,$(OPENDECK_OUTPUTS_NODE),shift-registers),8) if PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_SHIFT_REGISTER
     default $(mul,$(dt_node_int_prop_int,$(OPENDECK_OUTPUTS_NODE),rows),$(dt_node_int_prop_int,$(OPENDECK_OUTPUTS_NODE),columns)) if PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_MATRIX_NATIVE_ROWS
     default $(mul,$(dt_node_int_prop_int,$(OPENDECK_OUTPUTS_NODE),drivers),64) if PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_MAX7219

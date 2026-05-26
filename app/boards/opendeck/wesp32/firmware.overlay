@@ -27,16 +27,16 @@
 
     opendeck_outputs: opendeck-outputs {
         compatible = "opendeck,outputs";
-        mode = "native";
-        native-gpios =
-            <&gpio0 4 GPIO_ACTIVE_HIGH>,  /* GPIO4 */
-            <&gpio0 5 GPIO_ACTIVE_HIGH>,  /* GPIO5 */
-            <&gpio0 13 GPIO_ACTIVE_HIGH>, /* GPIO13 */
-            <&gpio0 14 GPIO_ACTIVE_HIGH>, /* GPIO14 */
-            <&gpio0 18 GPIO_ACTIVE_HIGH>, /* GPIO18 */
-            <&gpio0 23 GPIO_ACTIVE_HIGH>, /* GPIO23 */
-            <&gpio1 0 GPIO_ACTIVE_HIGH>,  /* GPIO32 */
-            <&gpio1 1 GPIO_ACTIVE_HIGH>;  /* GPIO33 */
+        mode = "pwm";
+        pwms =
+            <&ledc0 0 PWM_MSEC(1) PWM_POLARITY_NORMAL>, /* GPIO4 */
+            <&ledc0 1 PWM_MSEC(1) PWM_POLARITY_NORMAL>, /* GPIO5 */
+            <&ledc0 2 PWM_MSEC(1) PWM_POLARITY_NORMAL>, /* GPIO13 */
+            <&ledc0 3 PWM_MSEC(1) PWM_POLARITY_NORMAL>, /* GPIO14 */
+            <&ledc0 4 PWM_MSEC(1) PWM_POLARITY_NORMAL>, /* GPIO18 */
+            <&ledc0 5 PWM_MSEC(1) PWM_POLARITY_NORMAL>, /* GPIO23 */
+            <&ledc0 6 PWM_MSEC(1) PWM_POLARITY_NORMAL>, /* GPIO32 */
+            <&ledc0 7 PWM_MSEC(1) PWM_POLARITY_NORMAL>; /* GPIO33 */
     };
 };
 
@@ -67,4 +67,68 @@
 
 &eth {
     phy-handle = <&phy>;
+};
+
+&pinctrl {
+    opendeck_ledc0_default: opendeck_ledc0_default {
+        group1 {
+            pinmux = <LEDC_CH0_GPIO4>,
+                     <LEDC_CH1_GPIO5>,
+                     <LEDC_CH2_GPIO13>,
+                     <LEDC_CH3_GPIO14>,
+                     <LEDC_CH4_GPIO18>,
+                     <LEDC_CH5_GPIO23>,
+                     <LEDC_CH6_GPIO32>,
+                     <LEDC_CH7_GPIO33>;
+            output-enable;
+        };
+    };
+};
+
+&ledc0 {
+    pinctrl-0 = <&opendeck_ledc0_default>;
+    pinctrl-names = "default";
+    status = "okay";
+    #address-cells = <1>;
+    #size-cells = <0>;
+
+    channel0@0 {
+        reg = <0>;
+        timer = <0>;
+    };
+
+    channel1@1 {
+        reg = <1>;
+        timer = <0>;
+    };
+
+    channel2@2 {
+        reg = <2>;
+        timer = <0>;
+    };
+
+    channel3@3 {
+        reg = <3>;
+        timer = <0>;
+    };
+
+    channel4@4 {
+        reg = <4>;
+        timer = <0>;
+    };
+
+    channel5@5 {
+        reg = <5>;
+        timer = <0>;
+    };
+
+    channel6@6 {
+        reg = <6>;
+        timer = <0>;
+    };
+
+    channel7@7 {
+        reg = <7>;
+        timer = <0>;
+    };
 };

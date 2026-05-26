@@ -1,13 +1,29 @@
-&usart6 {
+/ {
+    chosen {
+        /delete-property/ zephyr,console;
+        /delete-property/ zephyr,shell-uart;
+        /delete-property/ zephyr,canbus;
+    };
+};
+
+&usart2 {
+    status = "disabled";
+};
+
+&can2 {
+    status = "disabled";
+};
+
+&usart3 {
     current-speed = <115200>;
-    pinctrl-0 = <&usart6_tx_pc6 &usart6_rx_pc7>;
+    pinctrl-0 = <&usart3_tx_pd8 &usart3_rx_pd9>;
     pinctrl-names = "default";
     status = "okay";
 };
 
-&i2c2 {
+&i2c3 {
     clock-frequency = <I2C_BITRATE_FAST>;
-    pinctrl-0 = <&i2c2_scl_pb10 &i2c2_sda_pb11>;
+    pinctrl-0 = <&i2c3_scl_pa8 &i2c3_sda_pc9>;
     pinctrl-names = "default";
     status = "okay";
 };

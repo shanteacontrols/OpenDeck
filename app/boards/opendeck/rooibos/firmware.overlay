@@ -58,3 +58,7 @@
 };
 
 opendeck_uart_touchscreen: &usart1 {};
+
+&i2c1 {
+    status = "disabled";
+};

@@ -27,12 +27,12 @@
         native-gpios =
             <&gpioa 0 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
             <&gpiob 0 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
-            <&gpiob 10 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
-            <&gpioa 8 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
             <&gpiob 15 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
             <&gpiob 14 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
             <&gpiob 13 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
-            <&gpiob 12 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+            <&gpiob 12 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpioc 14 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpioc 15 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
     };
 
     opendeck_analog: opendeck-analog {
@@ -42,25 +42,21 @@
             <&adc1 1>,
             <&adc1 2>,
             <&adc1 3>,
-            <&adc1 4>,
-            <&adc1 5>,
-            <&adc1 6>,
-            <&adc1 7>,
             <&adc1 9>;
     };
 
     opendeck_outputs: opendeck-outputs {
         compatible = "opendeck,outputs";
-        mode = "native";
-        native-gpios =
-            <&gpioa 15 GPIO_ACTIVE_HIGH>,
-            <&gpiob 3 GPIO_ACTIVE_HIGH>,
-            <&gpiob 4 GPIO_ACTIVE_HIGH>,
-            <&gpiob 5 GPIO_ACTIVE_HIGH>,
-            <&gpiob 8 GPIO_ACTIVE_HIGH>,
-            <&gpiob 9 GPIO_ACTIVE_HIGH>,
-            <&gpioc 14 GPIO_ACTIVE_HIGH>,
-            <&gpioc 15 GPIO_ACTIVE_HIGH>;
+        mode = "pwm";
+        pwms =
+            <&pwm1 1 PWM_MSEC(1) PWM_POLARITY_NORMAL>,
+            <&pwm2 1 PWM_MSEC(1) PWM_POLARITY_NORMAL>,
+            <&pwm2 2 PWM_MSEC(1) PWM_POLARITY_NORMAL>,
+            <&pwm3 1 PWM_MSEC(1) PWM_POLARITY_NORMAL>,
+            <&pwm3 2 PWM_MSEC(1) PWM_POLARITY_NORMAL>,
+            <&pwm4 1 PWM_MSEC(1) PWM_POLARITY_NORMAL>,
+            <&pwm4 2 PWM_MSEC(1) PWM_POLARITY_NORMAL>,
+            <&pwm2 3 PWM_MSEC(1) PWM_POLARITY_NORMAL>;
     };
 
     opendeck_touchscreen: opendeck-touchscreen {
@@ -88,3 +84,43 @@ opendeck_uart_din_midi: &usart1 {};
 opendeck_uart_touchscreen: &usart1 {};
 
 opendeck_i2c_display: &i2c1 {};
+
+&timers1 {
+    status = "okay";
+
+    pwm1: pwm {
+        status = "okay";
+        pinctrl-0 = <&tim1_ch1_pa8>;
+        pinctrl-names = "default";
+    };
+};
+
+&timers2 {
+    status = "okay";
+
+    pwm2: pwm {
+        status = "okay";
+        pinctrl-0 = <&tim2_ch1_pa15 &tim2_ch2_pb3 &tim2_ch3_pb10>;
+        pinctrl-names = "default";
+    };
+};
+
+&timers3 {
+    status = "okay";
+
+    pwm3: pwm {
+        status = "okay";
+        pinctrl-0 = <&tim3_ch1_pb4 &tim3_ch2_pb5>;
+        pinctrl-names = "default";
+    };
+};
+
+&timers4 {
+    status = "okay";
+
+    pwm4: pwm {
+        status = "okay";
+        pinctrl-0 = <&tim4_ch1_pb6 &tim4_ch2_pb7>;
+        pinctrl-names = "default";
+    };
+};

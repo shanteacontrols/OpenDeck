@@ -8,6 +8,7 @@ properties:
     required: false
     enum:
       - native
+      - pwm
       - shift-register
       - matrix
       - max7219
@@ -17,6 +18,11 @@ properties:
     type: phandle-array
     required: false
     description: Direct GPIO outputs for native output topology.
+
+  pwms:
+    type: phandle-array
+    required: false
+    description: Direct PWM outputs for PWM output topology.
 
   shift-registers:
     type: int

@@ -145,10 +145,10 @@ Outputs::Outputs(Hwa&      hwa,
 
             const zmisc::LockGuard lock(_state_mutex);
 
-            constexpr size_t start_index = Collection::start_index(GroupTouchscreenComponents);
-            constexpr size_t count       = Collection::size(GroupTouchscreenComponents);
+            constexpr size_t START_INDEX = Collection::start_index(GroupTouchscreenComponents);
+            constexpr size_t COUNT       = Collection::size(GroupTouchscreenComponents);
 
-            for (size_t i = start_index; i < start_index + count; i++)
+            for (size_t i = START_INDEX; i < START_INDEX + COUNT; i++)
             {
                 write_level(i, _level[i]);
             }
@@ -870,16 +870,6 @@ std::optional<uint8_t> Outputs::sys_config_get(sys::Config::Section::Outputs sec
     {
         read_value = bit(index, OutputBit::Active) ? 1 : 0;
         result     = sys::Config::Status::Ack;
-    }
-    break;
-
-    case sys::Config::Section::Outputs::Channel:
-    {
-        result = _database.read(util::Conversion::sys_2_db_section(section),
-                                index,
-                                read_value)
-                     ? sys::Config::Status::Ack
-                     : sys::Config::Status::ErrorRead;
     }
     break;
 

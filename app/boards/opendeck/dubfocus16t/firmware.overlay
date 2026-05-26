@@ -63,3 +63,7 @@
         latch-gpios = <&gpiob 15 GPIO_ACTIVE_HIGH>;
     };
 };
+
+&i2c1 {
+    status = "disabled";
+};

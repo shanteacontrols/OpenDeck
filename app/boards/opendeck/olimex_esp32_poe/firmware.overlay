@@ -27,12 +27,12 @@
 
     opendeck_outputs: opendeck-outputs {
         compatible = "opendeck,outputs";
-        mode = "native";
-        native-gpios =
-            <&gpio0 4 GPIO_ACTIVE_HIGH>, /* GPIO4 / free */
-            <&gpio0 5 GPIO_ACTIVE_HIGH>, /* GPIO5 / free */
-            <&gpio1 0 GPIO_ACTIVE_HIGH>, /* GPIO32 / free */
-            <&gpio1 1 GPIO_ACTIVE_HIGH>; /* GPIO33 / free */
+        mode = "pwm";
+        pwms =
+            <&ledc0 0 PWM_MSEC(1) PWM_POLARITY_NORMAL>, /* GPIO4 / free */
+            <&ledc0 1 PWM_MSEC(1) PWM_POLARITY_NORMAL>, /* GPIO5 / free */
+            <&ledc0 2 PWM_MSEC(1) PWM_POLARITY_NORMAL>, /* GPIO32 / free */
+            <&ledc0 3 PWM_MSEC(1) PWM_POLARITY_NORMAL>; /* GPIO33 / free */
     };
 };
 
@@ -57,4 +57,44 @@
 &eth {
     phy-handle = <&phy>;
     ref-clk-output-gpios = <&gpio0 17 GPIO_ACTIVE_HIGH>;
+};
+
+&pinctrl {
+    opendeck_ledc0_default: opendeck_ledc0_default {
+        group1 {
+            pinmux = <LEDC_CH0_GPIO4>,
+                     <LEDC_CH1_GPIO5>,
+                     <LEDC_CH2_GPIO32>,
+                     <LEDC_CH3_GPIO33>;
+            output-enable;
+        };
+    };
+};
+
+&ledc0 {
+    pinctrl-0 = <&opendeck_ledc0_default>;
+    pinctrl-names = "default";
+    status = "okay";
+    #address-cells = <1>;
+    #size-cells = <0>;
+
+    channel0@0 {
+        reg = <0>;
+        timer = <0>;
+    };
+
+    channel1@1 {
+        reg = <1>;
+        timer = <0>;
+    };
+
+    channel2@2 {
+        reg = <2>;
+        timer = <0>;
+    };
+
+    channel3@3 {
+        reg = <3>;
+        timer = <0>;
+    };
 };

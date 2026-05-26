@@ -52,16 +52,12 @@
 
     opendeck_outputs: opendeck-outputs {
         compatible = "opendeck,outputs";
-        mode = "native";
-        native-gpios =
-            <&gpio1 12 GPIO_ACTIVE_HIGH>, /* D10 */
-            <&gpio1 13 GPIO_ACTIVE_HIGH>, /* D11 */
-            <&gpio1 14 GPIO_ACTIVE_HIGH>, /* D12 */
-            <&gpio1 15 GPIO_ACTIVE_HIGH>, /* D13 */
-            <&gpio0 28 GPIO_ACTIVE_LOW>,  /* LED1 */
-            <&gpio0 29 GPIO_ACTIVE_LOW>,  /* LED2 */
-            <&gpio0 30 GPIO_ACTIVE_LOW>,  /* LED3 */
-            <&gpio0 31 GPIO_ACTIVE_LOW>;  /* LED4 */
+        mode = "pwm";
+        pwms =
+            <&pwm0 0 PWM_MSEC(1) PWM_POLARITY_NORMAL>,   /* D10 */
+            <&pwm0 1 PWM_MSEC(1) PWM_POLARITY_NORMAL>,   /* D11 */
+            <&pwm0 2 PWM_MSEC(1) PWM_POLARITY_NORMAL>,   /* D12 */
+            <&pwm0 3 PWM_MSEC(1) PWM_POLARITY_NORMAL>;   /* D13 */
     };
 
     opendeck_touchscreen: opendeck-touchscreen {
@@ -91,3 +87,32 @@ opendeck_uart_din_midi: &uart2 {};
 opendeck_uart_touchscreen: &uart2 {};
 
 opendeck_i2c_display: &i2c1 {};
+
+&pinctrl {
+    opendeck_pwm0_default: opendeck_pwm0_default {
+        group1 {
+            psels = <NRF_PSEL(PWM_OUT0, 1, 12)>,
+                    <NRF_PSEL(PWM_OUT1, 1, 13)>,
+                    <NRF_PSEL(PWM_OUT2, 1, 14)>,
+                    <NRF_PSEL(PWM_OUT3, 1, 15)>;
+        };
+    };
+
+    opendeck_pwm0_sleep: opendeck_pwm0_sleep {
+        group1 {
+            psels = <NRF_PSEL(PWM_OUT0, 1, 12)>,
+                    <NRF_PSEL(PWM_OUT1, 1, 13)>,
+                    <NRF_PSEL(PWM_OUT2, 1, 14)>,
+                    <NRF_PSEL(PWM_OUT3, 1, 15)>;
+            low-power-enable;
+        };
+    };
+
+};
+
+&pwm0 {
+    pinctrl-0 = <&opendeck_pwm0_default>;
+    pinctrl-1 = <&opendeck_pwm0_sleep>;
+    pinctrl-names = "default", "sleep";
+    status = "okay";
+};

@@ -7,6 +7,8 @@
 
 #if defined(CONFIG_PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_NATIVE)
 #include "firmware/src/io/outputs/drivers/native/native_driver.h"
+#elif defined(CONFIG_PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_PWM)
+#include "firmware/src/io/outputs/drivers/pwm/pwm_driver.h"
 #elif defined(CONFIG_PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_SHIFT_REGISTER)
 #include "firmware/src/io/outputs/drivers/shift_register/shift_register_driver.h"
 #elif defined(CONFIG_PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_MATRIX_NATIVE_ROWS)
