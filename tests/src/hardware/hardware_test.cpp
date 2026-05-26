@@ -401,7 +401,7 @@ TEST_F(HWTest, DatabaseInitialValues)
         }
     }
 
-    // OUTPUT block
+    // output block
     //----------------------------------
     for (size_t i = 0; i < static_cast<uint8_t>(io::outputs::Setting::Count); i += PARAM_SKIP)
     {
@@ -414,11 +414,6 @@ TEST_F(HWTest, DatabaseInitialValues)
         {
             ASSERT_EQ(i, _helper.database_read_from_system_via_sysex(sys::Config::Section::Outputs::ActivationId, i + io::outputs::Collection::start_index(group)));
         }
-    }
-
-    for (size_t i = 0; i < io::outputs::Collection::size() / 3 + (io::touchscreen::Collection::size() / 3); i += PARAM_SKIP)
-    {
-        ASSERT_EQ(0, _helper.database_read_from_system_via_sysex(sys::Config::Section::Outputs::RgbEnable, i));
     }
 
     for (size_t i = 0; i < io::outputs::Collection::size(); i += PARAM_SKIP)

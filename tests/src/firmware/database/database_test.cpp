@@ -317,7 +317,7 @@ TEST_F(DatabaseTest, ReadInitialValues)
             DB_READ_VERIFY(0, database::Config::Section::Analog::UpperOffset, i);
         }
 
-        // OUTPUT block
+        // output block
         //----------------------------------
         // global section
         // all values should be set to 0
@@ -334,13 +334,6 @@ TEST_F(DatabaseTest, ReadInitialValues)
             {
                 DB_READ_VERIFY(i, database::Config::Section::Outputs::ActivationId, i + io::outputs::Collection::start_index(group));
             }
-        }
-
-        // rgb enable section
-        // all values should be set to 0
-        for (size_t i = 0; i < io::outputs::Collection::size() / 3 + (io::touchscreen::Collection::size() / 3); i++)
-        {
-            DB_READ_VERIFY(0, database::Config::Section::Outputs::RgbEnable, i);
         }
 
         // control type section
@@ -569,23 +562,3 @@ TEST_F(DatabaseTest, FactoryReset)
 
     ASSERT_FALSE(_database.instance().preset_preserve_state());
 }
-
-#ifdef PROJECT_TARGET_SUPPORT_OUTPUTS
-TEST_F(DatabaseTest, Outputs)
-{
-    // regression test
-    // by default, rgb state should be disabled
-    for (size_t i = 0; i < io::outputs::Collection::size() / 3; i++)
-    {
-        ASSERT_FALSE(_database.instance().read(database::Config::Section::Outputs::RgbEnable, i));
-    }
-
-    ASSERT_TRUE(_database.instance().update(database::Config::Section::Outputs::ControlType, 0, io::outputs::ControlType::PC_SINGLE_VAL));
-
-    // rgb state shouldn't change
-    for (size_t i = 0; i < io::outputs::Collection::size() / 3; i++)
-    {
-        DB_READ_VERIFY(0, database::Config::Section::Outputs::RgbEnable, i);
-    }
-}
-#endif

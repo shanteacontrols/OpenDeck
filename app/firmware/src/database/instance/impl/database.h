@@ -256,9 +256,9 @@ namespace opendeck::database
         }
 
         /**
-         * @brief Maps an OUTPUT section enum to its containing database block.
+         * @brief Maps an output section enum to its containing database block.
          *
-         * @param section OUTPUT section selector.
+         * @param section output section selector.
          *
          * @return Database block containing the section.
          */
@@ -322,7 +322,7 @@ namespace opendeck::database
         /** @brief Hook invoked after analog preset data initialization. */
         void custom_init_analog();
 
-        /** @brief Hook invoked after OUTPUT preset data initialization. */
+        /** @brief Hook invoked after output preset data initialization. */
         void custom_init_outputs();
 
         /** @brief Hook invoked after display preset data initialization. */

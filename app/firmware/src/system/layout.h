@@ -234,12 +234,12 @@ namespace opendeck::sys
         });
 
         static constexpr auto OUTPUT_SECTIONS = zlibs::utils::sysex_conf::make_block(std::array<zlibs::utils::sysex_conf::Section, OUTPUT_SECTION_COUNT>{
-            // output color test section
+            // output state section
             zlibs::utils::sysex_conf::Section(io::outputs::Collection::size(),
                                               0,
-                                              static_cast<uint16_t>(io::outputs::Color::Count) - 1),
+                                              1),
 
-            // output blink test section
+            // output pulse test section
             zlibs::utils::sysex_conf::Section(io::outputs::Collection::size(),
                                               0,
                                               1),
@@ -254,10 +254,10 @@ namespace opendeck::sys
                                               0,
                                               127),
 
-            // rgb enabled section
-            zlibs::utils::sysex_conf::Section(io::outputs::Collection::size(),
+            // reserved section
+            zlibs::utils::sysex_conf::Section(0,
                                               0,
-                                              1),
+                                              0),
 
             // output control type section
             zlibs::utils::sysex_conf::Section(io::outputs::Collection::size(),

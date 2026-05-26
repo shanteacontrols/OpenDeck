@@ -10,14 +10,14 @@
 namespace opendeck::io::outputs
 {
     /**
-     * @brief Flattened collection of OUTPUT-capable outputs.
+     * @brief Flattened collection of physical outputs and touchscreen components.
      */
     class Collection : public io::common::BaseCollection<CONFIG_PROJECT_TARGET_OUTPUT_LOGICAL_COUNT,
                                                          CONFIG_PROJECT_TARGET_TOUCHSCREEN_COMPONENT_COUNT>
     {
         public:
         /**
-         * @brief Prevents instantiation of this compile-time OUTPUT collection descriptor.
+         * @brief Prevents instantiation of this compile-time output collection descriptor.
          */
         Collection() = delete;
     };
@@ -32,37 +32,11 @@ namespace opendeck::io::outputs
     };
 
     /**
-     * @brief Identifies one component of an RGB OUTPUT.
-     */
-    enum class RgbComponent : uint8_t
-    {
-        R,
-        G,
-        B
-    };
-
-    /**
-     * @brief Logical OUTPUT colors supported by the system.
-     */
-    enum class Color : uint8_t
-    {
-        Off,
-        Red,
-        Green,
-        Yellow,
-        Blue,
-        Magenta,
-        Cyan,
-        White,
-        Count
-    };
-
-    /**
-     * @brief Global OUTPUT settings stored in the database.
+     * @brief Global output settings stored in the database.
      */
     enum class Setting : uint8_t
     {
-        BlinkWithMidiClock,
+        PulseWithMidiClock,
         Unused,
         UseStartupAnimation,
         UseMidiProgramOffset,
@@ -70,7 +44,7 @@ namespace opendeck::io::outputs
     };
 
     /**
-     * @brief Selects which signal source controls an OUTPUT.
+     * @brief Selects which signal source controls an output.
      */
     enum class ControlType : uint8_t
     {
@@ -89,34 +63,28 @@ namespace opendeck::io::outputs
     };
 
     /**
-     * @brief Supported OUTPUT blink rates.
+     * @brief Supported output pulse rates.
      */
-    enum class BlinkSpeed : uint8_t
+    enum class PulseSpeed : uint8_t
     {
         Ms1000,
         Ms500,
         Ms250,
-        NoBlink
+        NoPulse
     };
 
     /**
-     * @brief Selects the timing source used for OUTPUT blinking.
+     * @brief Selects the timing source used for output pulsing.
      */
-    enum class BlinkType : uint8_t
+    enum class PulseMode : uint8_t
     {
         Timer,
         MidiClock
     };
 
-    /**
-     * @brief Supported logical OUTPUT brightness levels.
-     */
-    enum class Brightness : uint8_t
-    {
-        Off,
-        Level25,
-        Level50,
-        Level75,
-        Level100
-    };
+    /** @brief Minimum logical output level, expressed as percent. */
+    constexpr uint8_t OUTPUT_LEVEL_MIN = 0;
+
+    /** @brief Maximum logical output level, expressed as percent. */
+    constexpr uint8_t OUTPUT_LEVEL_MAX = 100;
 }    // namespace opendeck::io::outputs

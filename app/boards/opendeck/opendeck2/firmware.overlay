@@ -23,7 +23,6 @@
     opendeck_switches: opendeck-switches {
         compatible = "opendeck,switches";
         mode = "matrix";
-        touchscreen-components = <64>;
         row-mode = "native";
         rows = <8>;
         columns = <8>;
@@ -64,19 +63,19 @@
     opendeck_outputs: opendeck-outputs {
         compatible = "opendeck,outputs";
         mode = "matrix";
-        touchscreen-components = <64>;
-        rows = <6>;
-        columns = <8>;
         index-remap = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
                      32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
                      16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31>;
         row-gpios =
-            <&gpiob 9 GPIO_ACTIVE_HIGH>,
-            <&gpiob 8 GPIO_ACTIVE_HIGH>,
-            <&gpioa 3 GPIO_ACTIVE_HIGH>,
-            <&gpioa 6 GPIO_ACTIVE_HIGH>,
-            <&gpioa 7 GPIO_ACTIVE_HIGH>,
-            <&gpiob 0 GPIO_ACTIVE_HIGH>;
+            <&gpiob 9 GPIO_ACTIVE_LOW>,
+            <&gpiob 8 GPIO_ACTIVE_LOW>,
+            <&gpioa 3 GPIO_ACTIVE_LOW>,
+            <&gpioa 6 GPIO_ACTIVE_LOW>,
+            <&gpioa 7 GPIO_ACTIVE_LOW>,
+            <&gpiob 0 GPIO_ACTIVE_LOW>;
+        decoder-a0-gpios = <&gpioa 2 GPIO_ACTIVE_HIGH>;
+        decoder-a1-gpios = <&gpioa 1 GPIO_ACTIVE_HIGH>;
+        decoder-a2-gpios = <&gpioa 0 GPIO_ACTIVE_HIGH>;
     };
 
     opendeck_traffic_indicators: opendeck-traffic-indicators {

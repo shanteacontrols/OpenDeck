@@ -341,12 +341,6 @@ namespace opendeck::database
                     PreserveSetting::Disable,
                     AutoIncrementSetting::Disable,
                     0),
-            // RgbEnable
-            Section((io::outputs::Collection::size() / 3) + (io::touchscreen::Collection::size() / 3),
-                    SectionParameterType::Bit,
-                    PreserveSetting::Disable,
-                    AutoIncrementSetting::Disable,
-                    0),
             // ControlType
             Section(io::outputs::Collection::size(),
                     SectionParameterType::HalfByte,

@@ -6,44 +6,44 @@ properties:
   usb-in-gpios:
     type: phandle-array
     required: false
-    description: GPIO driving the USB incoming traffic indicator OUTPUT.
+    description: GPIO driving the USB incoming traffic indicator output.
 
   usb-out-gpios:
     type: phandle-array
     required: false
-    description: GPIO driving the USB outgoing traffic indicator OUTPUT.
+    description: GPIO driving the USB outgoing traffic indicator output.
 
   ble-in-gpios:
     type: phandle-array
     required: false
-    description: GPIO driving the BLE incoming traffic indicator OUTPUT.
+    description: GPIO driving the BLE incoming traffic indicator output.
 
   ble-out-gpios:
     type: phandle-array
     required: false
-    description: GPIO driving the BLE outgoing traffic indicator OUTPUT.
+    description: GPIO driving the BLE outgoing traffic indicator output.
 
   din-in-gpios:
     type: phandle-array
     required: false
-    description: GPIO driving the DIN incoming traffic indicator OUTPUT.
+    description: GPIO driving the DIN incoming traffic indicator output.
 
   din-out-gpios:
     type: phandle-array
     required: false
-    description: GPIO driving the DIN outgoing traffic indicator OUTPUT.
+    description: GPIO driving the DIN outgoing traffic indicator output.
 
   network-in-gpios:
     type: phandle-array
     required: false
-    description: GPIO driving the network incoming traffic indicator OUTPUT.
+    description: GPIO driving the network incoming traffic indicator output.
 
   network-out-gpios:
     type: phandle-array
     required: false
-    description: GPIO driving the network outgoing traffic indicator OUTPUT.
+    description: GPIO driving the network outgoing traffic indicator output.
 
   network-up-gpios:
     type: phandle-array
     required: false
-    description: GPIO driving the network link/address status indicator OUTPUT.
+    description: GPIO driving the network link/address status indicator output.

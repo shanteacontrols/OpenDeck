@@ -44,19 +44,12 @@ namespace opendeck::io::outputs
         }
 
         /**
-         * @brief Flushes no additional state because writes are pushed immediately.
-         */
-        void update() override
-        {
-        }
-
-        /**
          * @brief Sets one shift-register-driven output and flushes the register state.
          *
          * @param index Output index to update.
-         * @param brightness Brightness value to apply.
+         * @param level Output level percentage in the range [0, 100].
          */
-        void set_state(size_t index, Brightness brightness) override
+        void set_level(size_t index, uint8_t level) override
         {
             if (index >= register_count * 8)
             {
@@ -66,34 +59,8 @@ namespace opendeck::io::outputs
             const size_t byte = index / 8;
             const size_t bit  = index % 8;
 
-            zlibs::utils::misc::bit_write(_state[byte], bit, brightness != Brightness::Off);
+            zlibs::utils::misc::bit_write(_state[byte], bit, level > OUTPUT_LEVEL_MIN);
             flush();
-        }
-
-        /**
-         * @brief Maps a physical output index to the corresponding RGB output index.
-         *
-         * @param index Output index to map.
-         *
-         * @return RGB output index corresponding to the output.
-         */
-        size_t rgb_from_output(size_t index) override
-        {
-            const size_t result = index / 3;
-            return result < rgb_output_count() ? result : (rgb_output_count() ? rgb_output_count() - 1 : 0);
-        }
-
-        /**
-         * @brief Maps an RGB output index and component to a physical output index.
-         *
-         * @param index RGB output index to map.
-         * @param component RGB component to map.
-         *
-         * @return Physical output index corresponding to the RGB component.
-         */
-        size_t rgb_component_from_rgb(size_t index, RgbComponent component) override
-        {
-            return index * 3 + static_cast<uint8_t>(component);
         }
 
         private:
@@ -124,16 +91,6 @@ namespace opendeck::io::outputs
             }
 
             gpio_pin_set_dt(&_latch, 1);
-        }
-
-        /**
-         * @brief Returns the number of complete RGB outputs exposed by the driver.
-         *
-         * @return Number of RGB outputs.
-         */
-        static constexpr size_t rgb_output_count()
-        {
-            return (register_count * 8) / 3;
         }
     };
 }    // namespace opendeck::io::outputs

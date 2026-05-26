@@ -742,7 +742,7 @@ namespace opendeck::tests
             return sys::Config::Block::Analog;
         }
 
-        /** @brief Maps an OUTPUT section enum to its SysEx configuration block. */
+        /** @brief Maps an output section enum to its SysEx configuration block. */
         static constexpr sys::Config::Block block(sys::Config::Section::Outputs)
         {
             return sys::Config::Block::Outputs;

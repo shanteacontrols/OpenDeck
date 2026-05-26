@@ -12,13 +12,13 @@
 namespace opendeck::io::outputs
 {
     /**
-     * @brief Stub builder that wires the OUTPUT subsystem to a no-op backend.
+     * @brief Stub builder that wires the output subsystem to a no-op backend.
      */
     class Builder
     {
         public:
         /**
-         * @brief Constructs the OUTPUT stub builder around the shared database instance.
+         * @brief Constructs the output stub builder around the shared database instance.
          *
          * @param database Database administrator used for configuration access.
          */
@@ -28,9 +28,9 @@ namespace opendeck::io::outputs
         {}
 
         /**
-         * @brief Returns the constructed OUTPUT subsystem instance.
+         * @brief Returns the constructed output subsystem instance.
          *
-         * @return Stub-backed OUTPUT subsystem instance.
+         * @return Stub-backed output subsystem instance.
          */
         Outputs& instance()
         {

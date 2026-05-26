@@ -11,62 +11,29 @@
 namespace opendeck::io::outputs
 {
     /**
-     * @brief Hardware-backed OUTPUT backend that proxies to a low-level OUTPUT driver.
+     * @brief Hardware-backed output backend that proxies to a low-level output driver.
      */
     class HwaHw : public Hwa
     {
         public:
         /**
-         * @brief Constructs the backend around a low-level OUTPUT driver.
+         * @brief Constructs the backend around a low-level output driver.
          *
-         * @param driver Low-level OUTPUT driver implementation.
+         * @param driver Low-level output driver implementation.
          */
         explicit HwaHw(Hwa& driver)
             : _driver(driver)
         {}
 
         /**
-         * @brief Flushes any pending state updates through the driver.
+         * @brief Sets the level of one output.
+         *
+         * @param index output index to update.
+         * @param level Output level percentage in the range [0, 100].
          */
-        void update() override
+        void set_level(size_t index, uint8_t level) override
         {
-            _driver.update();
-        }
-
-        /**
-         * @brief Sets the state of one OUTPUT output.
-         *
-         * @param index OUTPUT output index to update.
-         * @param brightness Brightness value to apply.
-         */
-        void set_state(size_t index, Brightness brightness) override
-        {
-            _driver.set_state(Remap::physical(index), brightness);
-        }
-
-        /**
-         * @brief Maps one OUTPUT output index to its RGB OUTPUT index.
-         *
-         * @param index OUTPUT output index to map.
-         *
-         * @return RGB OUTPUT index corresponding to the output.
-         */
-        size_t rgb_from_output(size_t index) override
-        {
-            return _driver.rgb_from_output(Remap::physical(index));
-        }
-
-        /**
-         * @brief Maps an RGB OUTPUT index and component to a physical output index.
-         *
-         * @param index RGB OUTPUT index to map.
-         * @param component RGB component to map.
-         *
-         * @return Logical output index corresponding to the RGB component.
-         */
-        size_t rgb_component_from_rgb(size_t index, RgbComponent component) override
-        {
-            return Remap::logical(_driver.rgb_component_from_rgb(index, component));
+            _driver.set_level(Remap::physical(index), level);
         }
 
         private:

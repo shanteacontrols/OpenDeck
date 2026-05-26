@@ -13,13 +13,13 @@
 namespace opendeck::io::outputs
 {
     /**
-     * @brief Convenience builder that wires the hardware OUTPUT subsystem.
+     * @brief Convenience builder that wires the hardware output subsystem.
      */
     class Builder
     {
         public:
         /**
-         * @brief Constructs the OUTPUT builder around the shared database instance.
+         * @brief Constructs the output builder around the shared database instance.
          *
          * @param database Database administrator used for configuration access.
          */
@@ -30,9 +30,9 @@ namespace opendeck::io::outputs
         {}
 
         /**
-         * @brief Returns the constructed OUTPUT subsystem instance.
+         * @brief Returns the constructed output subsystem instance.
          *
-         * @return Hardware-backed OUTPUT subsystem instance.
+         * @return Hardware-backed output subsystem instance.
          */
         Outputs& instance()
         {

@@ -50,11 +50,11 @@ namespace
     constexpr std::array BACKUP_SKIPPED_SECTIONS = {
         SkipBackupSection{
             static_cast<uint8_t>(sys::Config::Block::Outputs),
-            static_cast<uint8_t>(sys::Config::Section::Outputs::TestColor),
+            static_cast<uint8_t>(sys::Config::Section::Outputs::State),
         },
         SkipBackupSection{
             static_cast<uint8_t>(sys::Config::Block::Outputs),
-            static_cast<uint8_t>(sys::Config::Section::Outputs::TestBlink),
+            static_cast<uint8_t>(sys::Config::Section::Outputs::TestPulse),
         },
         SkipBackupSection{
             static_cast<uint8_t>(sys::Config::Block::Global),

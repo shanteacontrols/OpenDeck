@@ -120,13 +120,12 @@ namespace opendeck::database
             };
 
             /**
-             * @brief Identifies sections stored in the OUTPUT preset block.
+             * @brief Identifies sections stored in the output preset block.
              */
             enum class Outputs : uint8_t
             {
                 Global,
                 ActivationId,
-                RgbEnable,
                 ControlType,
                 ActivationValue,
                 Channel,

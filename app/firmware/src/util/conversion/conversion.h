@@ -82,9 +82,9 @@ namespace opendeck::util
         }
 
         /**
-         * @brief Converts an OUTPUT system-config section into its database equivalent.
+         * @brief Converts an output system-config section into its database equivalent.
          *
-         * @param section System-config OUTPUT section.
+         * @param section System-config output section.
          *
          * @return Matching database-config section.
          */
@@ -170,7 +170,7 @@ namespace opendeck::util
             database::Config::Section::Outputs::Count,
             database::Config::Section::Outputs::Global,
             database::Config::Section::Outputs::ActivationId,
-            database::Config::Section::Outputs::RgbEnable,
+            database::Config::Section::Outputs::Count,
             database::Config::Section::Outputs::ControlType,
             database::Config::Section::Outputs::ActivationValue,
             database::Config::Section::Outputs::Channel,

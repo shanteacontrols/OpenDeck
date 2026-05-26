@@ -113,15 +113,15 @@ config PROJECT_TARGET_SUPPORT_OUTPUTS
     default y if $(dt_path_enabled,$(OPENDECK_OUTPUTS_NODE))
     default y if $(dt_path_enabled,$(OPENDECK_TOUCHSCREEN_NODE))
     help
-      Hidden compatibility symbol indicating OUTPUT support is present on
-      this target when the chosen OpenDeck OUTPUT devicetree node exists.
+      Hidden compatibility symbol indicating output support is present on
+      this target when the chosen OpenDeck output devicetree node exists.
 
 config PROJECT_TARGET_SUPPORT_DIGITAL_OUTPUTS
     bool
     default y if $(dt_path_enabled,$(OPENDECK_OUTPUTS_NODE))
     help
       Hidden compatibility symbol indicating digital output support is
-      present on this target when the chosen OpenDeck OUTPUT devicetree node
+      present on this target when the chosen OpenDeck output devicetree node
       exists.
 
 config PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_NATIVE
@@ -129,28 +129,28 @@ config PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_NATIVE
     default y if $(dt_path_enabled,$(OPENDECK_OUTPUTS_NODE)) && \
              $(dt_node_str_prop_equals,$(OPENDECK_OUTPUTS_NODE),mode,native)
     help
-      Hidden selector for the native OUTPUT backend.
+      Hidden selector for the native output backend.
 
 config PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_SHIFT_REGISTER
     bool
     default y if $(dt_path_enabled,$(OPENDECK_OUTPUTS_NODE)) && \
              $(dt_node_str_prop_equals,$(OPENDECK_OUTPUTS_NODE),mode,shift-register)
     help
-      Hidden selector for the shift-register OUTPUT backend.
+      Hidden selector for the shift-register output backend.
 
 config PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_MATRIX_NATIVE_ROWS
     bool
     default y if $(dt_path_enabled,$(OPENDECK_OUTPUTS_NODE)) && \
              $(dt_node_str_prop_equals,$(OPENDECK_OUTPUTS_NODE),mode,matrix)
     help
-      Hidden selector for the matrix OUTPUT backend with native rows.
+      Hidden selector for the matrix output backend with native rows.
 
 config PROJECT_TARGET_DRIVER_DIGITAL_OUTPUT_MAX7219
     bool
     default y if $(dt_path_enabled,$(OPENDECK_OUTPUTS_NODE)) && \
              $(dt_node_str_prop_equals,$(OPENDECK_OUTPUTS_NODE),mode,max7219)
     help
-      Hidden selector for the MAX7219 OUTPUT backend.
+      Hidden selector for the MAX7219 output backend.
 
 config PROJECT_TARGET_DRIVER_ANALOG_INPUT_NATIVE
     bool

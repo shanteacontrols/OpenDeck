@@ -12,13 +12,13 @@
 namespace opendeck::io::outputs
 {
     /**
-     * @brief Test builder that wires the OUTPUT subsystem to a test backend.
+     * @brief Test builder that wires the output subsystem to a test backend.
      */
     class Builder
     {
         public:
         /**
-         * @brief Constructs the OUTPUT test builder around the shared database instance.
+         * @brief Constructs the output test builder around the shared database instance.
          *
          * @param database Database administrator used for configuration access.
          */
@@ -28,9 +28,9 @@ namespace opendeck::io::outputs
         {}
 
         /**
-         * @brief Returns the constructed OUTPUT subsystem instance.
+         * @brief Returns the constructed output subsystem instance.
          *
-         * @return Test-backed OUTPUT subsystem instance.
+         * @return Test-backed output subsystem instance.
          */
         Outputs& instance()
         {

@@ -13,12 +13,6 @@ properties:
       - max7219
     description: Physical output topology.
 
-  touchscreen-components:
-    type: int
-    required: false
-    default: 0
-    description: Number of touchscreen-driven output-like components. Used only when touchscreen is used.
-
   native-gpios:
     type: phandle-array
     required: false
@@ -49,16 +43,6 @@ properties:
     required: false
     description: Optional output enable control for shift-register output topology.
 
-  rows:
-    type: int
-    required: false
-    description: Number of matrix output rows.
-
-  columns:
-    type: int
-    required: false
-    description: Number of matrix output columns.
-
   row-gpios:
     type: phandle-array
     required: false
@@ -68,6 +52,21 @@ properties:
     type: phandle-array
     required: false
     description: Matrix output column lines.
+
+  decoder-a0-gpios:
+    type: phandle-array
+    required: false
+    description: Decoder address bit 0 for matrix output column selection.
+
+  decoder-a1-gpios:
+    type: phandle-array
+    required: false
+    description: Decoder address bit 1 for matrix output column selection.
+
+  decoder-a2-gpios:
+    type: phandle-array
+    required: false
+    description: Decoder address bit 2 for matrix output column selection.
 
   drivers:
     type: int

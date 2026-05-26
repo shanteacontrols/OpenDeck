@@ -93,12 +93,6 @@ properties:
     required: false
     description: Enable logical encoder support derived from the switch topology.
 
-  touchscreen-components:
-    type: int
-    required: false
-    default: 0
-    description: Number of touchscreen-driven switch-like components. Used only when touchscreen is used.
-
   index-remap:
     type: array
     required: false

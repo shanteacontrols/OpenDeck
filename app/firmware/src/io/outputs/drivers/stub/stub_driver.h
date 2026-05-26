@@ -15,22 +15,8 @@ namespace opendeck::io::outputs
     class Driver : public Hwa
     {
         public:
-        void update() override
+        void set_level(size_t, uint8_t) override
         {
-        }
-
-        void set_state(size_t, Brightness) override
-        {
-        }
-
-        size_t rgb_from_output(size_t) override
-        {
-            return 0;
-        }
-
-        size_t rgb_component_from_rgb(size_t, RgbComponent) override
-        {
-            return 0;
         }
     };
 }    // namespace opendeck::io::outputs

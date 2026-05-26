@@ -56,59 +56,18 @@ namespace opendeck::io::outputs
         }
 
         /**
-         * @brief Flushes no additional state because writes are pushed immediately.
-         */
-        void update() override
-        {
-        }
-
-        /**
          * @brief Sets one matrix pixel and updates the corresponding MAX7219 column.
          *
          * @param index Output index to update.
-         * @param brightness Brightness value to apply.
+         * @param level Output level percentage in the range [0, 100].
          */
-        void set_state(size_t index, Brightness brightness) override
+        void set_level(size_t index, uint8_t level) override
         {
             const auto column = static_cast<uint8_t>(index % MATRIX_SIZE);
             const auto row    = static_cast<uint8_t>(index / MATRIX_SIZE);
 
-            zlibs::utils::misc::bit_write(_columns[column], row, brightness != Brightness::Off);
+            zlibs::utils::misc::bit_write(_columns[column], row, level > OUTPUT_LEVEL_MIN);
             send_command(static_cast<uint8_t>(column + MAX7219_COLUMN_OFFSET), _columns[column]);
-        }
-
-        /**
-         * @brief Maps a physical output index to the corresponding RGB output index.
-         *
-         * @param index Output index to map.
-         *
-         * @return RGB output index corresponding to the output.
-         */
-        size_t rgb_from_output(size_t index) override
-        {
-            const auto    row      = static_cast<uint8_t>(index / MATRIX_SIZE);
-            const auto    mod      = static_cast<uint8_t>(row % RGB_COMPONENT_COUNT);
-            const uint8_t base_row = row - mod;
-            const auto    column   = static_cast<uint8_t>(index % MATRIX_SIZE);
-            const auto    result =
-                static_cast<uint8_t>(((base_row * MATRIX_SIZE) / RGB_COMPONENT_COUNT) + column);
-            return result < rgb_output_count() ? result : (rgb_output_count() ? rgb_output_count() - 1 : 0);
-        }
-
-        /**
-         * @brief Maps an RGB output index and component to a physical output index.
-         *
-         * @param index RGB output index to map.
-         * @param component RGB component to map.
-         *
-         * @return Physical output index corresponding to the RGB component.
-         */
-        size_t rgb_component_from_rgb(size_t index, RgbComponent component) override
-        {
-            const auto column  = static_cast<uint8_t>(index % MATRIX_SIZE);
-            const auto row     = static_cast<uint8_t>((index / MATRIX_SIZE) * RGB_COMPONENT_COUNT);
-            const auto address = static_cast<uint8_t>(column + MATRIX_SIZE * row);
-            return address + MATRIX_SIZE * static_cast<uint8_t>(component);
         }
 
         private:
@@ -125,7 +84,6 @@ namespace opendeck::io::outputs
         static constexpr uint8_t DISPLAY_COLUMN_RESET    = 0;
         static constexpr uint8_t DEFAULT_INTENSITY       = 10;
         static constexpr uint8_t DISPLAY_ENABLED         = 1;
-        static constexpr uint8_t RGB_COMPONENT_COUNT     = 3;
         static constexpr int     LAST_DATA_BIT           = 7;
 
         gpio_dt_spec                     _data    = GPIO_DT_SPEC_GET(DT_NODELABEL(opendeck_outputs), data_gpios);
@@ -160,16 +118,6 @@ namespace opendeck::io::outputs
             send_byte(reg);
             send_byte(data);
             gpio_pin_set_dt(&_latch, 1);
-        }
-
-        /**
-         * @brief Returns the number of complete RGB outputs exposed by the matrix.
-         *
-         * @return Number of RGB outputs.
-         */
-        static constexpr size_t rgb_output_count()
-        {
-            return (MATRIX_SIZE * MATRIX_SIZE) / RGB_COMPONENT_COUNT;
         }
     };
 }    // namespace opendeck::io::outputs

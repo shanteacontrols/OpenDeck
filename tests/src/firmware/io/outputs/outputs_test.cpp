@@ -37,13 +37,13 @@ namespace
             ASSERT_TRUE(_database_admin.factory_reset());
             ASSERT_EQ(0, _database_admin.current_preset());
 
-            // OUTPUT tests exercise runtime update behavior directly, so unblock
+            // output tests exercise runtime update behavior directly, so unblock
             // the subsystem before init() requests its first refresh.
             io::Base::resume();
 
-            // Outputs calls HWA only for digital out group - for the other groups controls is done via dispatcher.
-            // Once init() is called, all Outputs should be turned off
-            EXPECT_CALL(_outputs._hwa, set_state(_, expected_brightness_value.at(0)))
+            // outputs calls HWA only for digital out group - for the other groups controls is done via dispatcher.
+            // Once init() is called, all outputs should be turned off
+            EXPECT_CALL(_outputs._hwa, set_level(_, outputs::OUTPUT_LEVEL_MIN))
                 .Times(outputs::Collection::size(outputs::GroupDigitalOutputs));
 
             _outputs._instance.init();
@@ -95,24 +95,20 @@ namespace
             ASSERT_GE(_touchscreen_listener.event_log.size(), expected_count);
         }
 
-        static outputs::Brightness expected_brightness(uint8_t value)
+        static uint8_t expected_level(uint8_t value)
         {
-            if (value < 16)
-            {
-                return outputs::Brightness::Off;
-            }
-
-            return static_cast<outputs::Brightness>((value % 16 % 4) + 1);
+            return static_cast<uint8_t>((static_cast<uint32_t>(value) * (outputs::OUTPUT_LEVEL_MAX + 1U)) /
+                                        (midi::MAX_VALUE_7BIT + 1U));
         }
 
-        static outputs::BlinkSpeed expected_blink_speed(uint8_t value)
+        static outputs::PulseSpeed expected_pulse_speed(uint8_t value)
         {
             if (value < 16)
             {
-                return outputs::BlinkSpeed::NoBlink;
+                return outputs::PulseSpeed::NoPulse;
             }
 
-            return static_cast<outputs::BlinkSpeed>(value % 16 / 4);
+            return static_cast<outputs::PulseSpeed>(value % 16 / 4);
         }
 
         void notify_midi_in(midi::MessageType message, uint8_t channel, uint16_t index, uint16_t value)
@@ -200,268 +196,24 @@ namespace
         static constexpr size_t                 MIDI_CHANNEL  = 1;
         static constexpr std::array<uint8_t, 3> SAMPLE_VALUES = { 0, 64, 127 };
 
-        // these tables should match with the one at https://github.com/shanteacontrols/OpenDeck/wiki/OUTPUT-control
-        std::vector<outputs::Brightness> expected_brightness_value = {
-            outputs::Brightness::Off,
-            outputs::Brightness::Off,
-            outputs::Brightness::Off,
-            outputs::Brightness::Off,
-            outputs::Brightness::Off,
-            outputs::Brightness::Off,
-            outputs::Brightness::Off,
-            outputs::Brightness::Off,
-            outputs::Brightness::Off,
-            outputs::Brightness::Off,
-            outputs::Brightness::Off,
-            outputs::Brightness::Off,
-            outputs::Brightness::Off,
-            outputs::Brightness::Off,
-            outputs::Brightness::Off,
-            outputs::Brightness::Off,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
-            outputs::Brightness::Level25,
-            outputs::Brightness::Level50,
-            outputs::Brightness::Level75,
-            outputs::Brightness::Level100,
+        struct PulseSpeedCase
+        {
+            uint8_t             value;
+            outputs::PulseSpeed speed;
         };
 
-        std::vector<outputs::BlinkSpeed> expected_blink_speed_value = {
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms1000,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms500,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::Ms250,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-            outputs::BlinkSpeed::NoBlink,
-        };
+        static constexpr std::array<PulseSpeedCase, 10> PULSE_SPEED_CASES = { {
+            { 0, outputs::PulseSpeed::NoPulse },
+            { 15, outputs::PulseSpeed::NoPulse },
+            { 16, outputs::PulseSpeed::Ms1000 },
+            { 19, outputs::PulseSpeed::Ms1000 },
+            { 20, outputs::PulseSpeed::Ms500 },
+            { 23, outputs::PulseSpeed::Ms500 },
+            { 24, outputs::PulseSpeed::Ms250 },
+            { 27, outputs::PulseSpeed::Ms250 },
+            { 28, outputs::PulseSpeed::NoPulse },
+            { 127, outputs::PulseSpeed::NoPulse },
+        } };
 
         tests::NoOpDatabaseHandlers _handlers;
         database::Builder           _builder_database;
@@ -488,19 +240,19 @@ TEST_F(OutputsTest, MultiValue)
 
     for (size_t output = 0; output < outputs::Collection::size(outputs::GroupDigitalOutputs); output++)
     {
-        EXPECT_CALL(_outputs._hwa, set_state(_, expected_brightness_value.at(0)))
+        EXPECT_CALL(_outputs._hwa, set_level(_, outputs::OUTPUT_LEVEL_MIN))
             .Times(outputs::Collection::size(outputs::GroupDigitalOutputs));
 
         _outputs._instance.set_all_off();
 
         for (auto value : SAMPLE_VALUES)
         {
-            EXPECT_CALL(_outputs._hwa, set_state(_, expected_brightness(value)))
+            EXPECT_CALL(_outputs._hwa, set_level(_, expected_level(value)))
                 .Times(1);
 
             notify_midi_in(midi::MessageType::NoteOn, MIDI_CHANNEL, static_cast<uint16_t>(output), value);
 
-            ASSERT_EQ(expected_blink_speed(value), _outputs._instance.blink_speed(output));
+            ASSERT_EQ(expected_pulse_speed(value), _outputs._instance.pulse_speed(output));
         }
     }
 
@@ -514,19 +266,19 @@ TEST_F(OutputsTest, MultiValue)
 
     for (size_t output = 0; output < outputs::Collection::size(outputs::GroupDigitalOutputs); output++)
     {
-        EXPECT_CALL(_outputs._hwa, set_state(_, expected_brightness_value.at(0)))
+        EXPECT_CALL(_outputs._hwa, set_level(_, outputs::OUTPUT_LEVEL_MIN))
             .Times(outputs::Collection::size(outputs::GroupDigitalOutputs));
 
         _outputs._instance.set_all_off();
 
         for (auto value : SAMPLE_VALUES)
         {
-            EXPECT_CALL(_outputs._hwa, set_state(_, expected_brightness(value)))
+            EXPECT_CALL(_outputs._hwa, set_level(_, expected_level(value)))
                 .Times(1);
 
             notify_midi_in(midi::MessageType::ControlChange, MIDI_CHANNEL, static_cast<uint16_t>(output), value);
 
-            ASSERT_EQ(expected_blink_speed(value), _outputs._instance.blink_speed(output));
+            ASSERT_EQ(expected_pulse_speed(value), _outputs._instance.pulse_speed(output));
         }
     }
 
@@ -540,38 +292,38 @@ TEST_F(OutputsTest, MultiValue)
 
     for (size_t output = 0; output < outputs::Collection::size(outputs::GroupDigitalOutputs); output++)
     {
-        EXPECT_CALL(_outputs._hwa, set_state(_, expected_brightness_value.at(0)))
+        EXPECT_CALL(_outputs._hwa, set_level(_, outputs::OUTPUT_LEVEL_MIN))
             .Times(outputs::Collection::size(outputs::GroupDigitalOutputs));
 
         _outputs._instance.set_all_off();
 
         for (auto value : SAMPLE_VALUES)
         {
-            EXPECT_CALL(_outputs._hwa, set_state(_, expected_brightness(value)))
+            EXPECT_CALL(_outputs._hwa, set_level(_, expected_level(value)))
                 .Times(1);
 
             notify_local(signaling::IoEventSource::Switch, midi::MessageType::NoteOn, MIDI_CHANNEL, static_cast<uint16_t>(output), value);
 
-            ASSERT_EQ(expected_blink_speed(value), _outputs._instance.blink_speed(output));
+            ASSERT_EQ(expected_pulse_speed(value), _outputs._instance.pulse_speed(output));
         }
     }
 
     // same test for analog components
     for (size_t output = 0; output < outputs::Collection::size(outputs::GroupDigitalOutputs); output++)
     {
-        EXPECT_CALL(_outputs._hwa, set_state(_, expected_brightness_value.at(0)))
+        EXPECT_CALL(_outputs._hwa, set_level(_, outputs::OUTPUT_LEVEL_MIN))
             .Times(outputs::Collection::size(outputs::GroupDigitalOutputs));
 
         _outputs._instance.set_all_off();
 
         for (auto value : SAMPLE_VALUES)
         {
-            EXPECT_CALL(_outputs._hwa, set_state(_, expected_brightness(value)))
+            EXPECT_CALL(_outputs._hwa, set_level(_, expected_level(value)))
                 .Times(1);
 
             notify_local(signaling::IoEventSource::Analog, midi::MessageType::NoteOn, MIDI_CHANNEL, static_cast<uint16_t>(output), value);
 
-            ASSERT_EQ(expected_blink_speed(value), _outputs._instance.blink_speed(output));
+            ASSERT_EQ(expected_pulse_speed(value), _outputs._instance.pulse_speed(output));
         }
     }
 
@@ -585,38 +337,60 @@ TEST_F(OutputsTest, MultiValue)
 
     for (size_t output = 0; output < outputs::Collection::size(outputs::GroupDigitalOutputs); output++)
     {
-        EXPECT_CALL(_outputs._hwa, set_state(_, expected_brightness_value.at(0)))
+        EXPECT_CALL(_outputs._hwa, set_level(_, outputs::OUTPUT_LEVEL_MIN))
             .Times(outputs::Collection::size(outputs::GroupDigitalOutputs));
 
         _outputs._instance.set_all_off();
 
         for (auto value : SAMPLE_VALUES)
         {
-            EXPECT_CALL(_outputs._hwa, set_state(_, expected_brightness(value)))
+            EXPECT_CALL(_outputs._hwa, set_level(_, expected_level(value)))
                 .Times(1);
 
             notify_local(signaling::IoEventSource::Switch, midi::MessageType::ControlChange, MIDI_CHANNEL, static_cast<uint16_t>(output), value);
 
-            ASSERT_EQ(expected_blink_speed(value), _outputs._instance.blink_speed(output));
+            ASSERT_EQ(expected_pulse_speed(value), _outputs._instance.pulse_speed(output));
         }
     }
 
     for (size_t output = 0; output < outputs::Collection::size(outputs::GroupDigitalOutputs); output++)
     {
-        EXPECT_CALL(_outputs._hwa, set_state(_, expected_brightness_value.at(0)))
+        EXPECT_CALL(_outputs._hwa, set_level(_, outputs::OUTPUT_LEVEL_MIN))
             .Times(outputs::Collection::size(outputs::GroupDigitalOutputs));
 
         _outputs._instance.set_all_off();
 
         for (auto value : SAMPLE_VALUES)
         {
-            EXPECT_CALL(_outputs._hwa, set_state(_, expected_brightness(value)))
+            EXPECT_CALL(_outputs._hwa, set_level(_, expected_level(value)))
                 .Times(1);
 
             notify_local(signaling::IoEventSource::Analog, midi::MessageType::ControlChange, MIDI_CHANNEL, static_cast<uint16_t>(output), value);
 
-            ASSERT_EQ(expected_blink_speed(value), _outputs._instance.blink_speed(output));
+            ASSERT_EQ(expected_pulse_speed(value), _outputs._instance.pulse_speed(output));
         }
+    }
+}
+
+TEST_F(OutputsTest, PulseSpeedBoundaries)
+{
+    if (!outputs::Collection::size(outputs::GroupDigitalOutputs))
+    {
+        return;
+    }
+
+    constexpr size_t OUTPUT_INDEX = 0;
+
+    ASSERT_TRUE(_outputs._database.update(database::Config::Section::Outputs::ControlType, OUTPUT_INDEX, outputs::ControlType::MidiInNoteMultiVal));
+
+    for (const auto& test_case : PULSE_SPEED_CASES)
+    {
+        EXPECT_CALL(_outputs._hwa, set_level(_, expected_level(test_case.value)))
+            .Times(1);
+
+        notify_midi_in(midi::MessageType::NoteOn, MIDI_CHANNEL, OUTPUT_INDEX, test_case.value);
+
+        ASSERT_EQ(test_case.speed, _outputs._instance.pulse_speed(OUTPUT_INDEX));
     }
 }
 
@@ -640,19 +414,19 @@ TEST_F(OutputsTest, SingleValue)
 
         for (size_t output = 0; output < outputs::Collection::size(outputs::GroupDigitalOutputs); output++)
         {
-            EXPECT_CALL(_outputs._hwa, set_state(_, outputs::Brightness::Off))
+            EXPECT_CALL(_outputs._hwa, set_level(_, outputs::OUTPUT_LEVEL_MIN))
                 .Times(outputs::Collection::size(outputs::GroupDigitalOutputs));
 
             _outputs._instance.set_all_off();
 
             for (auto value : SAMPLE_VALUES)
             {
-                EXPECT_CALL(_outputs._hwa, set_state(_, value == activation_value ? outputs::Brightness::Level100 : outputs::Brightness::Off))
+                EXPECT_CALL(_outputs._hwa, set_level(_, value == activation_value ? outputs::OUTPUT_LEVEL_MAX : outputs::OUTPUT_LEVEL_MIN))
                     .Times(1);
 
                 notify_midi_in(midi::MessageType::NoteOn, MIDI_CHANNEL, static_cast<uint16_t>(output), value);
 
-                ASSERT_EQ(outputs::BlinkSpeed::NoBlink, _outputs._instance.blink_speed(output));
+                ASSERT_EQ(outputs::PulseSpeed::NoPulse, _outputs._instance.pulse_speed(output));
             }
         }
     }
@@ -670,19 +444,19 @@ TEST_F(OutputsTest, SingleValue)
 
         for (size_t output = 0; output < outputs::Collection::size(outputs::GroupDigitalOutputs); output++)
         {
-            EXPECT_CALL(_outputs._hwa, set_state(_, outputs::Brightness::Off))
+            EXPECT_CALL(_outputs._hwa, set_level(_, outputs::OUTPUT_LEVEL_MIN))
                 .Times(outputs::Collection::size(outputs::GroupDigitalOutputs));
 
             _outputs._instance.set_all_off();
 
             for (auto value : SAMPLE_VALUES)
             {
-                EXPECT_CALL(_outputs._hwa, set_state(_, value == activation_value ? outputs::Brightness::Level100 : outputs::Brightness::Off))
+                EXPECT_CALL(_outputs._hwa, set_level(_, value == activation_value ? outputs::OUTPUT_LEVEL_MAX : outputs::OUTPUT_LEVEL_MIN))
                     .Times(1);
 
                 notify_midi_in(midi::MessageType::ControlChange, MIDI_CHANNEL, static_cast<uint16_t>(output), value);
 
-                ASSERT_EQ(outputs::BlinkSpeed::NoBlink, _outputs._instance.blink_speed(output));
+                ASSERT_EQ(outputs::PulseSpeed::NoPulse, _outputs._instance.pulse_speed(output));
             }
         }
     }
@@ -700,19 +474,19 @@ TEST_F(OutputsTest, SingleValue)
 
         for (size_t output = 0; output < outputs::Collection::size(outputs::GroupDigitalOutputs); output++)
         {
-            EXPECT_CALL(_outputs._hwa, set_state(_, outputs::Brightness::Off))
+            EXPECT_CALL(_outputs._hwa, set_level(_, outputs::OUTPUT_LEVEL_MIN))
                 .Times(outputs::Collection::size(outputs::GroupDigitalOutputs));
 
             _outputs._instance.set_all_off();
 
             for (auto value : SAMPLE_VALUES)
             {
-                EXPECT_CALL(_outputs._hwa, set_state(_, value == activation_value ? outputs::Brightness::Level100 : outputs::Brightness::Off))
+                EXPECT_CALL(_outputs._hwa, set_level(_, value == activation_value ? outputs::OUTPUT_LEVEL_MAX : outputs::OUTPUT_LEVEL_MIN))
                     .Times(1);
 
                 notify_local(signaling::IoEventSource::Switch, midi::MessageType::NoteOn, MIDI_CHANNEL, static_cast<uint16_t>(output), value);
 
-                ASSERT_EQ(outputs::BlinkSpeed::NoBlink, _outputs._instance.blink_speed(output));
+                ASSERT_EQ(outputs::PulseSpeed::NoPulse, _outputs._instance.pulse_speed(output));
             }
         }
     }
@@ -730,19 +504,19 @@ TEST_F(OutputsTest, SingleValue)
 
         for (size_t output = 0; output < outputs::Collection::size(outputs::GroupDigitalOutputs); output++)
         {
-            EXPECT_CALL(_outputs._hwa, set_state(_, outputs::Brightness::Off))
+            EXPECT_CALL(_outputs._hwa, set_level(_, outputs::OUTPUT_LEVEL_MIN))
                 .Times(outputs::Collection::size(outputs::GroupDigitalOutputs));
 
             _outputs._instance.set_all_off();
 
             for (auto value : SAMPLE_VALUES)
             {
-                EXPECT_CALL(_outputs._hwa, set_state(_, value == activation_value ? outputs::Brightness::Level100 : outputs::Brightness::Off))
+                EXPECT_CALL(_outputs._hwa, set_level(_, value == activation_value ? outputs::OUTPUT_LEVEL_MAX : outputs::OUTPUT_LEVEL_MIN))
                     .Times(1);
 
                 notify_local(signaling::IoEventSource::Switch, midi::MessageType::ControlChange, MIDI_CHANNEL, static_cast<uint16_t>(output), value);
 
-                ASSERT_EQ(outputs::BlinkSpeed::NoBlink, _outputs._instance.blink_speed(output));
+                ASSERT_EQ(outputs::PulseSpeed::NoPulse, _outputs._instance.pulse_speed(output));
             }
         }
     }
@@ -758,38 +532,60 @@ TEST_F(OutputsTest, SingleOutputState)
     static constexpr size_t MIDI_ID = 0;
 
     // By default, outputs are configured to react on MIDI Note On.
-    // Note 0 should turn the first OUTPUT on
-    EXPECT_CALL(_outputs._hwa, set_state(MIDI_ID, outputs::Brightness::Level100))
+    // Note 0 should turn the first output on
+    EXPECT_CALL(_outputs._hwa, set_level(MIDI_ID, outputs::OUTPUT_LEVEL_MAX))
         .Times(1);
 
     notify_midi_in(midi::MessageType::NoteOn, MIDI_CHANNEL, MIDI_ID, 127);
 
-    EXPECT_CALL(_outputs._hwa, set_state(MIDI_ID, outputs::Brightness::Off))
+    EXPECT_CALL(_outputs._hwa, set_level(MIDI_ID, outputs::OUTPUT_LEVEL_MIN))
         .Times(1);
 
-    // now turn the OUTPUT off
+    // now turn the output off
     notify_midi_in(midi::MessageType::NoteOn, MIDI_CHANNEL, MIDI_ID, 0);
+}
 
-    if (outputs::Collection::size(outputs::GroupDigitalOutputs) < 3)
+TEST_F(OutputsTest, SysExStateControlsOutput)
+{
+    if (!outputs::Collection::size(outputs::GroupDigitalOutputs))
     {
         return;
     }
 
-    // configure RGB OUTPUT 0
-    ASSERT_TRUE(_outputs._database.update(database::Config::Section::Outputs::RgbEnable, 0, 1));
+    static constexpr size_t OUTPUT_INDEX = 0;
+    uint16_t                state        = 0;
 
-    // now turn it on - expect three Outputs to be on
-
-    EXPECT_CALL(_outputs._hwa, set_state(_outputs._hwa.rgb_component_from_rgb(0, outputs::RgbComponent::R), outputs::Brightness::Level100))
+    EXPECT_CALL(_outputs._hwa, set_level(OUTPUT_INDEX, outputs::OUTPUT_LEVEL_MAX))
         .Times(1);
 
-    EXPECT_CALL(_outputs._hwa, set_state(_outputs._hwa.rgb_component_from_rgb(0, outputs::RgbComponent::G), outputs::Brightness::Level100))
+    ASSERT_EQ(sys::Config::Status::Ack,
+              ConfigHandler.set(sys::Config::Block::Outputs,
+                                static_cast<uint8_t>(sys::Config::Section::Outputs::State),
+                                OUTPUT_INDEX,
+                                1));
+
+    ASSERT_EQ(sys::Config::Status::Ack,
+              ConfigHandler.get(sys::Config::Block::Outputs,
+                                static_cast<uint8_t>(sys::Config::Section::Outputs::State),
+                                OUTPUT_INDEX,
+                                state));
+    ASSERT_EQ(1, state);
+
+    EXPECT_CALL(_outputs._hwa, set_level(OUTPUT_INDEX, outputs::OUTPUT_LEVEL_MIN))
         .Times(1);
 
-    EXPECT_CALL(_outputs._hwa, set_state(_outputs._hwa.rgb_component_from_rgb(0, outputs::RgbComponent::B), outputs::Brightness::Level100))
-        .Times(1);
+    ASSERT_EQ(sys::Config::Status::Ack,
+              ConfigHandler.set(sys::Config::Block::Outputs,
+                                static_cast<uint8_t>(sys::Config::Section::Outputs::State),
+                                OUTPUT_INDEX,
+                                0));
 
-    notify_midi_in(midi::MessageType::NoteOn, MIDI_CHANNEL, MIDI_ID, 127);
+    ASSERT_EQ(sys::Config::Status::Ack,
+              ConfigHandler.get(sys::Config::Block::Outputs,
+                                static_cast<uint8_t>(sys::Config::Section::Outputs::State),
+                                OUTPUT_INDEX,
+                                state));
+    ASSERT_EQ(0, state);
 }
 
 TEST_F(OutputsTest, ProgramChangeWithOffset)
@@ -799,7 +595,7 @@ TEST_F(OutputsTest, ProgramChangeWithOffset)
         return;
     }
 
-    // configure first four Outputs to indicate program change
+    // configure first four outputs to indicate program change
     static constexpr size_t PC_OUTPUTS = 4;
 
     for (size_t i = 0; i < PC_OUTPUTS; i++)
@@ -810,11 +606,11 @@ TEST_F(OutputsTest, ProgramChangeWithOffset)
     // notify program change
     uint8_t program = 0;
 
-    // first OUTPUT should be on, rest is off
-    EXPECT_CALL(_outputs._hwa, set_state(_, outputs::Brightness::Level100))
+    // first output should be on, rest is off
+    EXPECT_CALL(_outputs._hwa, set_level(_, outputs::OUTPUT_LEVEL_MAX))
         .Times(1);
 
-    EXPECT_CALL(_outputs._hwa, set_state(_, outputs::Brightness::Off))
+    EXPECT_CALL(_outputs._hwa, set_level(_, outputs::OUTPUT_LEVEL_MIN))
         .Times(3);
 
     notify_program(MIDI_CHANNEL, program);
@@ -822,17 +618,17 @@ TEST_F(OutputsTest, ProgramChangeWithOffset)
     // now increase the program by 1
     program++;
 
-    // second OUTPUT should be on, rest is off
-    EXPECT_CALL(_outputs._hwa, set_state(0, outputs::Brightness::Off))
+    // second output should be on, rest is off
+    EXPECT_CALL(_outputs._hwa, set_level(0, outputs::OUTPUT_LEVEL_MIN))
         .Times(1);
 
-    EXPECT_CALL(_outputs._hwa, set_state(1, outputs::Brightness::Level100))
+    EXPECT_CALL(_outputs._hwa, set_level(1, outputs::OUTPUT_LEVEL_MAX))
         .Times(1);
 
-    EXPECT_CALL(_outputs._hwa, set_state(2, outputs::Brightness::Off))
+    EXPECT_CALL(_outputs._hwa, set_level(2, outputs::OUTPUT_LEVEL_MIN))
         .Times(1);
 
-    EXPECT_CALL(_outputs._hwa, set_state(3, outputs::Brightness::Off))
+    EXPECT_CALL(_outputs._hwa, set_level(3, outputs::OUTPUT_LEVEL_MIN))
         .Times(1);
 
     notify_program(MIDI_CHANNEL, program);
@@ -841,31 +637,31 @@ TEST_F(OutputsTest, ProgramChangeWithOffset)
     MidiProgram.set_offset(1);
 
     // nothing should change yet
-    // second OUTPUT should be on, rest is off
-    EXPECT_CALL(_outputs._hwa, set_state(0, outputs::Brightness::Off))
+    // second output should be on, rest is off
+    EXPECT_CALL(_outputs._hwa, set_level(0, outputs::OUTPUT_LEVEL_MIN))
         .Times(1);
 
-    EXPECT_CALL(_outputs._hwa, set_state(1, outputs::Brightness::Level100))
+    EXPECT_CALL(_outputs._hwa, set_level(1, outputs::OUTPUT_LEVEL_MAX))
         .Times(1);
 
-    EXPECT_CALL(_outputs._hwa, set_state(2, outputs::Brightness::Off))
+    EXPECT_CALL(_outputs._hwa, set_level(2, outputs::OUTPUT_LEVEL_MIN))
         .Times(1);
 
-    EXPECT_CALL(_outputs._hwa, set_state(3, outputs::Brightness::Off))
+    EXPECT_CALL(_outputs._hwa, set_level(3, outputs::OUTPUT_LEVEL_MIN))
         .Times(1);
 
     notify_program(MIDI_CHANNEL, program);
 
-    // enable OUTPUT sync with offset
+    // enable output sync with offset
     ASSERT_TRUE(_outputs._database.update(database::Config::Section::Outputs::Global, outputs::Setting::UseMidiProgramOffset, 1));
 
     // notify the program 1 again
-    // this time, due to the offset, first OUTPUT should be on, and the rest should be off
-    // when sync is active, all activation IDs for Outputs that use program change message type are incremented by the program offset
-    EXPECT_CALL(_outputs._hwa, set_state(_, outputs::Brightness::Level100))
+    // this time, due to the offset, first output should be on, and the rest should be off
+    // when sync is active, all activation IDs for outputs that use program change message type are incremented by the program offset
+    EXPECT_CALL(_outputs._hwa, set_level(_, outputs::OUTPUT_LEVEL_MAX))
         .Times(1);
 
-    EXPECT_CALL(_outputs._hwa, set_state(_, outputs::Brightness::Off))
+    EXPECT_CALL(_outputs._hwa, set_level(_, outputs::OUTPUT_LEVEL_MIN))
         .Times(3);
 
     notify_program(MIDI_CHANNEL, program);
@@ -878,12 +674,12 @@ TEST_F(OutputsTest, StaticOutputsOnInitially)
 
     if constexpr (outputs::Collection::size(outputs::GroupDigitalOutputs) != 0)
     {
-        // Once init() is called, all Outputs should be turned off
-        EXPECT_CALL(_outputs._hwa, set_state(_, expected_brightness_value.at(0)))
+        // Once init() is called, all outputs should be turned off
+        EXPECT_CALL(_outputs._hwa, set_level(_, outputs::OUTPUT_LEVEL_MIN))
             .Times(outputs::Collection::size(outputs::GroupDigitalOutputs));
 
-        // OUTPUT_INDEX should be turned on
-        EXPECT_CALL(_outputs._hwa, set_state(OUTPUT_INDEX, outputs::Brightness::Level100))
+        // output at OUTPUT_INDEX should be turned on
+        EXPECT_CALL(_outputs._hwa, set_level(OUTPUT_INDEX, outputs::OUTPUT_LEVEL_MAX))
             .Times(1);
     }
     else if constexpr (outputs::Collection::size(outputs::GroupTouchscreenComponents) != 0)
@@ -905,7 +701,7 @@ TEST_F(OutputsTest, StaticOutputsOnInitially)
                                                  [](const signaling::OscIoSignal& event)
                                                  {
                                                      return event.component_index == EXPECTED_COMPONENT_INDEX &&
-                                                            event.int32_value == static_cast<int32_t>(outputs::Brightness::Level100);
+                                                            event.int32_value == static_cast<int32_t>(outputs::OUTPUT_LEVEL_MAX);
                                                  });
 
         ASSERT_NE(_touchscreen_listener.event_log.end(), matching_event);
@@ -928,15 +724,15 @@ TEST_F(OutputsTest, GlobalChannel)
     ASSERT_TRUE(_outputs._database.update(database::Config::Section::Global::MidiSettings, midi::Setting::UseGlobalChannel, true));
     ASSERT_TRUE(_outputs._database.update(database::Config::Section::Outputs::ControlType, OUTPUT_INDEX, outputs::ControlType::MidiInNoteMultiVal));
 
-    EXPECT_CALL(_outputs._hwa, set_state(_, _))
+    EXPECT_CALL(_outputs._hwa, set_level(_, _))
         .Times(0);
 
     // this shouldn't turn the output on because global channel is used instead of the default one
 
     notify_midi_in(midi::MessageType::NoteOn, default_channel, OUTPUT_INDEX, ON_VALUE);
 
-    // verify that the output OUTPUT_INDEX is turned on with global channel
-    EXPECT_CALL(_outputs._hwa, set_state(_, expected_brightness(ON_VALUE)))
+    // verify that the output at OUTPUT_INDEX is turned on with global channel
+    EXPECT_CALL(_outputs._hwa, set_level(_, expected_level(ON_VALUE)))
         .Times(1);
 
     notify_midi_in(midi::MessageType::NoteOn, global_channel, OUTPUT_INDEX, ON_VALUE);
@@ -948,7 +744,7 @@ TEST_F(OutputsTest, GlobalChannel)
     for (size_t i = 0; i < 16; i++)
     {
         // the output should be turned on for every received channel
-        EXPECT_CALL(_outputs._hwa, set_state(_, expected_brightness(ON_VALUE)))
+        EXPECT_CALL(_outputs._hwa, set_level(_, expected_level(ON_VALUE)))
             .Times(1);
 
         notify_midi_in(midi::MessageType::NoteOn, i, OUTPUT_INDEX, ON_VALUE);
@@ -962,7 +758,7 @@ TEST_F(OutputsTest, GlobalChannel)
     for (size_t i = 0; i < 16; i++)
     {
         // the output should be turned on for every received channel
-        EXPECT_CALL(_outputs._hwa, set_state(_, expected_brightness(ON_VALUE)))
+        EXPECT_CALL(_outputs._hwa, set_level(_, expected_level(ON_VALUE)))
             .Times(1);
 
         notify_midi_in(midi::MessageType::NoteOn, i, OUTPUT_INDEX, ON_VALUE);

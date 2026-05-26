@@ -12,6 +12,7 @@
 #include "firmware/src/util/configurable/configurable.h"
 
 #include "zlibs/utils/misc/bit.h"
+#include "zlibs/utils/misc/numeric.h"
 
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
@@ -53,14 +54,14 @@ Outputs::Outputs(Hwa&      hwa,
 {
     k_sem_init(&_update_semaphore, 0, K_SEM_MAX_LIMIT);
 
-    for (size_t i = 0; i < TOTAL_BLINK_SPEEDS; i++)
+    for (size_t i = 0; i < TOTAL_PULSE_SPEEDS; i++)
     {
-        _blink_state[i] = true;
+        _pulse_state[i] = true;
     }
 
     for (size_t i = 0; i < Collection::size(); i++)
     {
-        _brightness[i] = Brightness::Off;
+        _level[i] = OUTPUT_LEVEL_MIN;
     }
 
     signaling::subscribe<signaling::UmpSignal>(
@@ -100,7 +101,7 @@ Outputs::Outputs(Hwa&      hwa,
             case protocol::midi::MessageType::SysRealTimeStart:
             {
                 const zmisc::LockGuard lock(_state_mutex);
-                reset_blinking();
+                reset_pulsing();
                 request_update(true);
             }
             break;
@@ -143,7 +144,15 @@ Outputs::Outputs(Hwa&      hwa,
             }
 
             const zmisc::LockGuard lock(_state_mutex);
-            refresh();
+
+            constexpr size_t start_index = Collection::start_index(GroupTouchscreenComponents);
+            constexpr size_t count       = Collection::size(GroupTouchscreenComponents);
+
+            for (size_t i = start_index; i < start_index + count; i++)
+            {
+                write_level(i, _level[i]);
+            }
+
             request_update(false);
         });
 
@@ -173,9 +182,8 @@ Outputs::Outputs(Hwa&      hwa,
             const zmisc::LockGuard lock(_state_mutex);
             const auto             value = signal.int32_value.value_or(0);
 
-            set_color(static_cast<uint8_t>(signal.component_index),
-                      value != 0 ? Color::Red : Color::Off,
-                      value != 0 ? Brightness::Level100 : Brightness::Off);
+            set_level(static_cast<uint8_t>(signal.component_index),
+                      value != 0 ? OUTPUT_LEVEL_MAX : OUTPUT_LEVEL_MIN);
             request_update(false);
         });
 
@@ -264,7 +272,7 @@ bool Outputs::init()
         start_up_animation();
     }
 
-    set_blink_type(static_cast<BlinkType>(_database.read(database::Config::Section::Outputs::Global, Setting::BlinkWithMidiClock)));
+    set_pulse_mode(static_cast<PulseMode>(_database.read(database::Config::Section::Outputs::Global, Setting::PulseWithMidiClock)));
     set_all_static_on();
     internal_preset_to_state(_database.current_preset());
 
@@ -299,10 +307,8 @@ void Outputs::force_refresh(size_t start_index, size_t count)
 
     for (size_t i = start_index; i < end; i++)
     {
-        set_state(i, _brightness[i]);
+        write_level(i, _level[i]);
     }
-
-    _hwa.update();
 }
 
 void Outputs::shutdown()
@@ -339,31 +345,28 @@ void Outputs::process_update(bool force_refresh)
 
     const zmisc::LockGuard lock(_state_mutex);
 
-    if (_blink_reset_array_ptr == nullptr)
+    if (_pulse_reset_array_ptr == nullptr)
     {
-        _hwa.update();
         return;
     }
 
-    switch (_output_blink_type)
+    switch (_output_pulse_mode)
     {
-    case BlinkType::Timer:
+    case PulseMode::Timer:
     {
-        if ((k_uptime_get_32() - _last_output_blink_update_time) < OUTPUT_BLINK_TIMER_TYPE_CHECK_TIME)
+        if ((k_uptime_get_32() - _last_output_pulse_update_time) < OUTPUT_PULSE_TIMER_MODE_CHECK_TIME)
         {
-            _hwa.update();
             return;
         }
 
-        _last_output_blink_update_time = k_uptime_get_32();
+        _last_output_pulse_update_time = k_uptime_get_32();
     }
     break;
 
-    case BlinkType::MidiClock:
+    case PulseMode::MidiClock:
     {
         if (!force_refresh)
         {
-            _hwa.update();
             return;
         }
     }
@@ -371,45 +374,42 @@ void Outputs::process_update(bool force_refresh)
 
     default:
     {
-        _hwa.update();
         return;
     }
     break;
     }
 
-    // change the blink state for specific blink rate
-    for (size_t i = 0; i < TOTAL_BLINK_SPEEDS; i++)
+    // change the pulse state for specific pulse rate
+    for (size_t i = 0; i < TOTAL_PULSE_SPEEDS; i++)
     {
-        if (++_blink_counter[i] < _blink_reset_array_ptr[i])
+        if (++_pulse_counter[i] < _pulse_reset_array_ptr[i])
         {
             continue;
         }
 
-        _blink_state[i]   = !_blink_state[i];
-        _blink_counter[i] = 0;
+        _pulse_state[i]   = !_pulse_state[i];
+        _pulse_counter[i] = 0;
 
         // assign changed state to all outputs which have this speed
         for (size_t j = 0; j < Collection::size(); j++)
         {
-            if (!bit(j, OutputBit::BlinkOn))
+            if (!bit(j, OutputBit::PulseOn))
             {
                 continue;
             }
 
-            if (_blink_timer[j] != i)
+            if (_pulse_timer[j] != i)
             {
                 continue;
             }
 
-            update_bit(j, OutputBit::State, _blink_state[i]);
-            set_state(j, bit(j, OutputBit::State) ? _brightness[j] : Brightness::Off);
+            update_bit(j, OutputBit::State, _pulse_state[i]);
+            write_level(j, bit(j, OutputBit::State) ? _level[j] : OUTPUT_LEVEL_MIN);
         }
     }
-
-    _hwa.update();
 }
 
-__attribute__((weak)) void Outputs::start_up_animation()
+void Outputs::start_up_animation()
 {
     // turn all outputs on first
     set_all_on();
@@ -418,19 +418,19 @@ __attribute__((weak)) void Outputs::start_up_animation()
 
     for (size_t i = 0; i < Collection::size(GroupDigitalOutputs); i++)
     {
-        set_state(i, Brightness::Off);
+        set_level(i, OUTPUT_LEVEL_MIN);
         k_msleep(STARTUP_ANIMATION_STEP_DELAY_MS);
     }
 
     for (size_t i = 0; i < Collection::size(GroupDigitalOutputs); i++)
     {
-        set_state(Collection::size(GroupDigitalOutputs) - 1 - i, Brightness::Level100);
+        set_level(Collection::size(GroupDigitalOutputs) - 1 - i, OUTPUT_LEVEL_MAX);
         k_msleep(STARTUP_ANIMATION_STEP_DELAY_MS);
     }
 
     for (size_t i = 0; i < Collection::size(GroupDigitalOutputs); i++)
     {
-        set_state(i, Brightness::Off);
+        set_level(i, OUTPUT_LEVEL_MIN);
         k_msleep(STARTUP_ANIMATION_STEP_DELAY_MS);
     }
 
@@ -438,31 +438,24 @@ __attribute__((weak)) void Outputs::start_up_animation()
     set_all_off();
 }
 
-Color Outputs::value_to_color(uint8_t value)
-{
-    // there are 7 total colors (+ off)
-    return static_cast<Color>(value / MIDI_VALUE_GROUP_SIZE);
-}
-
-BlinkSpeed Outputs::value_to_blink_speed(uint8_t value)
+PulseSpeed Outputs::value_to_pulse_speed(uint8_t value)
 {
     if (value < MIDI_VALUE_GROUP_SIZE)
     {
-        return BlinkSpeed::NoBlink;
+        return PulseSpeed::NoPulse;
     }
 
-    // there are 4 total blink speeds
-    return static_cast<BlinkSpeed>(value % MIDI_VALUE_GROUP_SIZE / TOTAL_BLINK_SPEEDS);
+    // there are 4 total pulse speeds
+    return static_cast<PulseSpeed>(value % MIDI_VALUE_GROUP_SIZE / TOTAL_PULSE_SPEEDS);
 }
 
-Brightness Outputs::value_to_brightness(uint8_t value)
+uint8_t Outputs::value_to_level(uint8_t value)
 {
-    if (value < MIDI_VALUE_GROUP_SIZE)
-    {
-        return Brightness::Off;
-    }
-
-    return static_cast<Brightness>((value % MIDI_VALUE_GROUP_SIZE % TOTAL_BRIGHTNESS_VALUES) + 1);
+    return static_cast<uint8_t>(zmisc::map_range(static_cast<uint32_t>(value),
+                                                 0U,
+                                                 static_cast<uint32_t>(protocol::midi::MAX_VALUE_7BIT),
+                                                 static_cast<uint32_t>(OUTPUT_LEVEL_MIN),
+                                                 static_cast<uint32_t>(OUTPUT_LEVEL_MAX)));
 }
 
 void Outputs::midi_to_state(const protocol::midi::Message& message, signaling::SignalDirection direction)
@@ -488,17 +481,17 @@ void Outputs::midi_to_state(const protocol::midi::Message& message, signaling::S
     {
         auto control_type = static_cast<ControlType>(_database.read(database::Config::Section::Outputs::ControlType, i));
 
-        // match received midi message with the assigned OUTPUT control type
+        // match received midi message with the assigned output control type
         if (!is_control_type_matched(midi_message, control_type))
         {
             continue;
         }
 
         bool set_state     = false;
-        bool set_blink     = false;
+        bool set_pulse     = false;
         bool check_channel = true;
 
-        // determine whether output state or blink state should be changed
+        // determine whether output state or pulse state should be changed
         // received MIDI message must match with defined control type
         if (direction != signaling::SignalDirection::In)
         {
@@ -542,7 +535,7 @@ void Outputs::midi_to_state(const protocol::midi::Message& message, signaling::S
                 if (midi_message == protocol::midi::MessageType::NoteOn)
                 {
                     set_state = true;
-                    set_blink = true;
+                    set_pulse = true;
                 }
             }
             break;
@@ -552,7 +545,7 @@ void Outputs::midi_to_state(const protocol::midi::Message& message, signaling::S
                 if (midi_message == protocol::midi::MessageType::ControlChange)
                 {
                     set_state = true;
-                    set_blink = true;
+                    set_pulse = true;
                 }
             }
             break;
@@ -597,7 +590,7 @@ void Outputs::midi_to_state(const protocol::midi::Message& message, signaling::S
                 if (midi_message == protocol::midi::MessageType::NoteOn)
                 {
                     set_state = true;
-                    set_blink = true;
+                    set_pulse = true;
                 }
             }
             break;
@@ -607,7 +600,7 @@ void Outputs::midi_to_state(const protocol::midi::Message& message, signaling::S
                 if (midi_message == protocol::midi::MessageType::ControlChange)
                 {
                     set_state = true;
-                    set_blink = true;
+                    set_pulse = true;
                 }
             }
             break;
@@ -630,12 +623,11 @@ void Outputs::midi_to_state(const protocol::midi::Message& message, signaling::S
             }
         }
 
-        if (set_state || set_blink)
+        if (set_state || set_pulse)
         {
-            auto color      = Color::Off;
-            auto brightness = Brightness::Off;
+            auto level = OUTPUT_LEVEL_MIN;
 
-            // in single value modes, brightness and blink speed cannot be controlled since we're dealing
+            // in single value modes, level and pulse speed cannot be controlled since we're dealing
             // with one value only
 
             uint8_t activation_id = _database.read(database::Config::Section::Outputs::ActivationId, i);
@@ -649,52 +641,50 @@ void Outputs::midi_to_state(const protocol::midi::Message& message, signaling::S
                 }
             }
 
+            const bool activation_id_matches = activation_id == message.data1;
+
+            if (set_pulse && activation_id_matches)
+            {
+                set_pulse_speed(i, value_to_pulse_speed(message.data2));
+            }
+
             if (set_state)
             {
                 // match activation ID with received ID
-                if (activation_id == message.data1)
+                if (activation_id_matches)
                 {
                     if (midi_message == protocol::midi::MessageType::ProgramChange)
                     {
                         // byte2 doesn't exist on program change message
-                        color      = Color::Red;
-                        brightness = Brightness::Level100;
+                        level = OUTPUT_LEVEL_MAX;
                     }
                     else
                     {
-                        // when note/cc are used to control both state and blinking ignore activation velocity
-                        if (set_blink)
+                        // when note/cc are used to control both state and pulsing ignore activation velocity
+                        if (set_pulse)
                         {
-                            color      = value_to_color(message.data2);
-                            brightness = value_to_brightness(message.data2);
+                            level = value_to_level(message.data2);
                         }
                         else
                         {
-                            // this has side effect that it will always set RGB OUTPUT to red color since no color information is available
-                            color      = (_database.read(database::Config::Section::Outputs::ActivationValue, i) == message.data2) ? Color::Red : Color::Off;
-                            brightness = Brightness::Level100;
+                            level = (_database.read(database::Config::Section::Outputs::ActivationValue, i) == message.data2) ? OUTPUT_LEVEL_MAX : OUTPUT_LEVEL_MIN;
                         }
                     }
 
-                    set_color(i, color, brightness);
+                    set_level(i, level);
                 }
                 else
                 {
                     if (midi_message == protocol::midi::MessageType::ProgramChange)
                     {
-                        set_color(i, Color::Off, Brightness::Off);
+                        set_level(i, OUTPUT_LEVEL_MIN);
                     }
                 }
             }
-
-            if (set_blink)
+            else if (set_pulse && activation_id_matches)
             {
-                // match activation ID with received ID
-                if (activation_id == message.data1)
-                {
-                    // if both state and blink speed should be set, then don't update the state again in set_blink_speed
-                    set_blink_speed(i, value_to_blink_speed(message.data2), !(set_state && set_blink));
-                }
+                // Pulse-only controls change timing, then write the current level.
+                write_level(i, _level[i]);
             }
         }
     }
@@ -711,8 +701,7 @@ void Outputs::internal_preset_to_state(uint8_t preset)
             continue;
         }
 
-        auto    color         = Color::Off;
-        auto    brightness    = Brightness::Off;
+        auto    level         = OUTPUT_LEVEL_MIN;
         uint8_t activation_id = _database.read(database::Config::Section::Outputs::ActivationId, i);
 
         if (_database.read(database::Config::Section::Outputs::Global, Setting::UseMidiProgramOffset))
@@ -723,187 +712,82 @@ void Outputs::internal_preset_to_state(uint8_t preset)
 
         if (activation_id == preset)
         {
-            color      = Color::Red;
-            brightness = Brightness::Level100;
+            level = OUTPUT_LEVEL_MAX;
         }
 
-        set_color(i, color, brightness);
+        set_level(i, level);
     }
 }
 
-void Outputs::set_blink_speed(uint8_t index, BlinkSpeed state, bool update_state)
+void Outputs::set_pulse_speed(size_t index, PulseSpeed state)
 {
-    uint8_t output_array[3] = {};
-    uint8_t outputs         = 0;
-    uint8_t rgb_from_output = _hwa.rgb_from_output(index);
-
-    if (_database.read(database::Config::Section::Outputs::RgbEnable, rgb_from_output))
+    if (state != PulseSpeed::NoPulse)
     {
-        output_array[0] = _hwa.rgb_component_from_rgb(rgb_from_output, RgbComponent::R);
-        output_array[1] = _hwa.rgb_component_from_rgb(rgb_from_output, RgbComponent::G);
-        output_array[2] = _hwa.rgb_component_from_rgb(rgb_from_output, RgbComponent::B);
-
-        outputs = 3;
+        update_bit(index, OutputBit::PulseOn, true);
+        update_bit(index, OutputBit::State, true);
     }
     else
     {
-        output_array[0] = index;
-
-        outputs = 1;
+        update_bit(index, OutputBit::PulseOn, false);
+        update_bit(index, OutputBit::State, bit(index, OutputBit::Active));
     }
 
-    for (int i = 0; i < outputs; i++)
-    {
-        if (state != BlinkSpeed::NoBlink)
-        {
-            update_bit(output_array[i], OutputBit::BlinkOn, true);
-            update_bit(output_array[i], OutputBit::State, true);
-        }
-        else
-        {
-            update_bit(output_array[i], OutputBit::BlinkOn, false);
-            update_bit(output_array[i], OutputBit::State, bit(output_array[i], OutputBit::Active));
-        }
-
-        _blink_timer[index] = static_cast<uint8_t>(state);
-
-        if (update_state)
-        {
-            set_state(output_array[i], _brightness[output_array[i]]);
-        }
-    }
+    _pulse_timer[index] = static_cast<uint8_t>(state);
 }
 
 void Outputs::set_all_on()
 {
-    // turn on all Outputs
+    // turn on all outputs
     for (size_t i = 0; i < Collection::size(); i++)
     {
-        set_color(i, Color::Red, Brightness::Level100);
+        set_level(i, OUTPUT_LEVEL_MAX);
     }
 }
 
 void Outputs::set_all_static_on()
 {
-    // turn on all static Outputs
+    // turn on all static outputs
     for (size_t i = 0; i < Collection::size(); i++)
     {
         if (_database.read(database::Config::Section::Outputs::ControlType, i) == static_cast<uint8_t>(ControlType::Static))
         {
-            set_color(i, Color::Red, Brightness::Level100);
+            set_level(i, OUTPUT_LEVEL_MAX);
         }
     }
 }
 
 void Outputs::set_all_off()
 {
-    // turn off all Outputs
+    // turn off all outputs
     for (size_t i = 0; i < Collection::size(); i++)
     {
         reset_state(i);
     }
 }
 
-void Outputs::refresh()
+PulseSpeed Outputs::pulse_speed(size_t index)
 {
-    for (size_t i = 0; i < Collection::size(); i++)
+    if (!bit(index, OutputBit::PulseOn))
     {
-        set_state(i, _brightness[i]);
+        return PulseSpeed::NoPulse;
     }
+
+    return static_cast<PulseSpeed>(_pulse_timer[index]);
 }
 
-void Outputs::set_color(uint8_t index, Color color, Brightness brightness)
+void Outputs::set_pulse_mode(PulseMode pulse_mode)
 {
-    uint8_t rgb_from_output = _hwa.rgb_from_output(index);
-
-    auto handle_output = [&](uint8_t output_index, RgbComponent rgb_component, bool state, bool is_rgb)
+    switch (pulse_mode)
     {
-        if (state)
-        {
-            update_bit(output_index, OutputBit::Active, true);
-            update_bit(output_index, OutputBit::State, true);
-
-            if (is_rgb)
-            {
-                update_bit(output_index, OutputBit::Rgb, true);
-
-                switch (rgb_component)
-                {
-                case RgbComponent::R:
-                {
-                    update_bit(output_index, OutputBit::RgbR, state);
-                }
-                break;
-
-                case RgbComponent::G:
-                {
-                    update_bit(output_index, OutputBit::RgbG, state);
-                }
-                break;
-
-                case RgbComponent::B:
-                {
-                    update_bit(output_index, OutputBit::RgbB, state);
-                }
-                break;
-                }
-            }
-            else
-            {
-                update_bit(output_index, OutputBit::Rgb, false);
-            }
-
-            _brightness[output_index] = brightness;
-            set_state(output_index, brightness);
-        }
-        else
-        {
-            // turn off the output
-            reset_state(output_index);
-        }
-    };
-
-    if (_database.read(database::Config::Section::Outputs::RgbEnable, rgb_from_output))
+    case PulseMode::Timer:
     {
-        // rgb output is composed of three standard Outputs
-        // get indexes of individual Outputs first
-        uint8_t red_output   = _hwa.rgb_component_from_rgb(rgb_from_output, RgbComponent::R);
-        uint8_t green_output = _hwa.rgb_component_from_rgb(rgb_from_output, RgbComponent::G);
-        uint8_t blue_output  = _hwa.rgb_component_from_rgb(rgb_from_output, RgbComponent::B);
-
-        handle_output(red_output, RgbComponent::R, zmisc::bit_read(static_cast<uint8_t>(color), static_cast<size_t>(RgbComponent::R)), true);
-        handle_output(green_output, RgbComponent::G, zmisc::bit_read(static_cast<uint8_t>(color), static_cast<size_t>(RgbComponent::G)), true);
-        handle_output(blue_output, RgbComponent::B, zmisc::bit_read(static_cast<uint8_t>(color), static_cast<size_t>(RgbComponent::B)), true);
-    }
-    else
-    {
-        handle_output(index, RgbComponent::R, static_cast<bool>(color), false);
-    }
-}
-
-BlinkSpeed Outputs::blink_speed(uint8_t index)
-{
-    if (!bit(index, OutputBit::BlinkOn))
-    {
-        return BlinkSpeed::NoBlink;
-    }
-
-    return static_cast<BlinkSpeed>(_blink_timer[index]);
-}
-
-void Outputs::set_blink_type(BlinkType blink_type)
-{
-    switch (blink_type)
-    {
-    case BlinkType::Timer:
-    {
-        _blink_reset_array_ptr = BLINK_RESET_TIMER;
+        _pulse_reset_array_ptr = PULSE_RESET_TIMER;
     }
     break;
 
-    case BlinkType::MidiClock:
+    case PulseMode::MidiClock:
     {
-        _blink_reset_array_ptr = BLINK_RESET_MIDI_CLOCK;
+        _pulse_reset_array_ptr = PULSE_RESET_MIDI_CLOCK;
     }
     break;
 
@@ -911,75 +795,67 @@ void Outputs::set_blink_type(BlinkType blink_type)
         return;
     }
 
-    _output_blink_type = blink_type;
+    _output_pulse_mode = pulse_mode;
 }
 
-void Outputs::reset_blinking()
+void Outputs::reset_pulsing()
 {
     // reset all counters in this case
     // also make sure all outputs are in sync again
-    for (size_t i = 0; i < TOTAL_BLINK_SPEEDS; i++)
+    for (size_t i = 0; i < TOTAL_PULSE_SPEEDS; i++)
     {
-        _blink_counter[i] = 0;
-        _blink_state[i]   = true;
+        _pulse_counter[i] = 0;
+        _pulse_state[i]   = true;
     }
 }
 
-void Outputs::update_bit(uint8_t index, OutputBit bit, bool state)
+void Outputs::update_bit(size_t index, OutputBit bit, bool state)
 {
     zmisc::bit_write(_output_state[index], static_cast<uint8_t>(bit), state);
 }
 
-bool Outputs::bit(uint8_t index, OutputBit bit)
+bool Outputs::bit(size_t index, OutputBit bit)
 {
     return zmisc::bit_read(_output_state[index], static_cast<size_t>(bit));
 }
 
-Color Outputs::color(uint8_t index)
-{
-    if (!bit(index, OutputBit::Active))
-    {
-        return Color::Off;
-    }
-
-    if (!bit(index, OutputBit::Rgb))
-    {
-        // single color output
-        return Color::Red;
-    }
-
-    // rgb output
-    uint8_t rgb_from_output = _hwa.rgb_from_output(index);
-
-    uint8_t color = 0;
-    color |= bit(_hwa.rgb_component_from_rgb(rgb_from_output, RgbComponent::B), OutputBit::RgbB);
-    color <<= 1;
-    color |= bit(_hwa.rgb_component_from_rgb(rgb_from_output, RgbComponent::G), OutputBit::RgbG);
-    color <<= 1;
-    color |= bit(_hwa.rgb_component_from_rgb(rgb_from_output, RgbComponent::R), OutputBit::RgbR);
-
-    return static_cast<Color>(color);
-}
-
-void Outputs::reset_state(uint8_t index)
+void Outputs::reset_state(size_t index)
 {
     _output_state[index] = 0;
-    _brightness[index]   = Brightness::Off;
-    set_state(index, Brightness::Off);
+    _level[index]        = OUTPUT_LEVEL_MIN;
+    write_level(index, OUTPUT_LEVEL_MIN);
 }
 
-void Outputs::set_state(size_t index, Brightness brightness)
+void Outputs::set_level(size_t index, uint8_t level)
+{
+    if (level > OUTPUT_LEVEL_MIN)
+    {
+        update_bit(index, OutputBit::Active, true);
+        update_bit(index, OutputBit::State, true);
+
+        _level[index] = level;
+    }
+    else
+    {
+        reset_state(index);
+        return;
+    }
+
+    write_level(index, level);
+}
+
+void Outputs::write_level(size_t index, uint8_t level)
 {
     signaling::publish(signaling::OscIoSignal{
         .source          = signaling::IoEventSource::Output,
         .component_index = index,
-        .int32_value     = static_cast<int32_t>(brightness),
+        .int32_value     = static_cast<int32_t>(level),
         .direction       = signaling::SignalDirection::Out,
     });
 
     if (index < Collection::size(GroupDigitalOutputs))
     {
-        _hwa.set_state(index, brightness);
+        _hwa.set_level(index, level);
     }
 }
 
@@ -990,9 +866,10 @@ std::optional<uint8_t> Outputs::sys_config_get(sys::Config::Section::Outputs sec
 
     switch (section)
     {
-    case sys::Config::Section::Outputs::TestColor:
+    case sys::Config::Section::Outputs::State:
     {
-        read_value = static_cast<uint32_t>(color(index));
+        read_value = bit(index, OutputBit::Active) ? 1 : 0;
+        result     = sys::Config::Status::Ack;
     }
     break;
 
@@ -1000,16 +877,6 @@ std::optional<uint8_t> Outputs::sys_config_get(sys::Config::Section::Outputs sec
     {
         result = _database.read(util::Conversion::sys_2_db_section(section),
                                 index,
-                                read_value)
-                     ? sys::Config::Status::Ack
-                     : sys::Config::Status::ErrorRead;
-    }
-    break;
-
-    case sys::Config::Section::Outputs::RgbEnable:
-    {
-        result = _database.read(util::Conversion::sys_2_db_section(section),
-                                _hwa.rgb_from_output(index),
                                 read_value)
                      ? sys::Config::Status::Ack
                      : sys::Config::Status::ErrorRead;
@@ -1038,10 +905,9 @@ std::optional<uint8_t> Outputs::sys_config_set(sys::Config::Section::Outputs sec
 
     switch (section)
     {
-    case sys::Config::Section::Outputs::TestColor:
+    case sys::Config::Section::Outputs::State:
     {
-        // no writing to database
-        set_color(index, static_cast<Color>(value), Brightness::Level100);
+        set_level(index, value ? OUTPUT_LEVEL_MAX : OUTPUT_LEVEL_MIN);
         result = sys::Config::Status::Ack;
     }
     break;
@@ -1052,12 +918,12 @@ std::optional<uint8_t> Outputs::sys_config_set(sys::Config::Section::Outputs sec
 
         switch (output_setting)
         {
-        case Setting::BlinkWithMidiClock:
+        case Setting::PulseWithMidiClock:
         {
             if ((value <= 1) && (value >= 0))
             {
                 result = sys::Config::Status::Ack;
-                set_blink_type(static_cast<BlinkType>(value));
+                set_pulse_mode(static_cast<PulseMode>(value));
             }
         }
         break;
@@ -1092,63 +958,6 @@ std::optional<uint8_t> Outputs::sys_config_set(sys::Config::Section::Outputs sec
     }
     break;
 
-    case sys::Config::Section::Outputs::RgbEnable:
-    {
-        // make sure to turn all three outputs off before setting new state
-        set_color(_hwa.rgb_component_from_rgb(_hwa.rgb_from_output(index), RgbComponent::R), Color::Off, Brightness::Off);
-        set_color(_hwa.rgb_component_from_rgb(_hwa.rgb_from_output(index), RgbComponent::G), Color::Off, Brightness::Off);
-        set_color(_hwa.rgb_component_from_rgb(_hwa.rgb_from_output(index), RgbComponent::B), Color::Off, Brightness::Off);
-
-        // write rgb enabled bit to output
-        result = _database.update(util::Conversion::sys_2_db_section(section),
-                                  _hwa.rgb_from_output(index),
-                                  value)
-                     ? sys::Config::Status::Ack
-                     : sys::Config::Status::ErrorWrite;
-
-        if (value && (result == sys::Config::Status::Ack))
-        {
-            // copy over note activation local control and midi channel settings to all three outputs from the current output index
-
-            for (int i = 0; i < 3; i++)
-            {
-                result = _database.update(util::Conversion::sys_2_db_section(sys::Config::Section::Outputs::ActivationId),
-                                          _hwa.rgb_component_from_rgb(_hwa.rgb_from_output(index), static_cast<RgbComponent>(i)),
-                                          _database.read(util::Conversion::sys_2_db_section(sys::Config::Section::Outputs::ActivationId), index))
-                             ? sys::Config::Status::Ack
-                             : sys::Config::Status::ErrorWrite;
-
-                if (result != sys::Config::Status::Ack)
-                {
-                    break;
-                }
-
-                result = _database.update(util::Conversion::sys_2_db_section(sys::Config::Section::Outputs::ControlType),
-                                          _hwa.rgb_component_from_rgb(_hwa.rgb_from_output(index), static_cast<RgbComponent>(i)),
-                                          _database.read(util::Conversion::sys_2_db_section(sys::Config::Section::Outputs::ControlType), index))
-                             ? sys::Config::Status::Ack
-                             : sys::Config::Status::ErrorWrite;
-
-                if (result != sys::Config::Status::Ack)
-                {
-                    break;
-                }
-
-                result = _database.update(util::Conversion::sys_2_db_section(sys::Config::Section::Outputs::Channel),
-                                          _hwa.rgb_component_from_rgb(_hwa.rgb_from_output(index), static_cast<RgbComponent>(i)),
-                                          _database.read(util::Conversion::sys_2_db_section(sys::Config::Section::Outputs::Channel), index))
-                             ? sys::Config::Status::Ack
-                             : sys::Config::Status::ErrorWrite;
-
-                if (result != sys::Config::Status::Ack)
-                {
-                    break;
-                }
-            }
-        }
-    }
-    break;
-
     case sys::Config::Section::Outputs::ActivationId:
     case sys::Config::Section::Outputs::ControlType:
     case sys::Config::Section::Outputs::Channel:
@@ -1156,36 +965,13 @@ std::optional<uint8_t> Outputs::sys_config_set(sys::Config::Section::Outputs sec
         // first, turn the output off if control type is being changed
         if (section == sys::Config::Section::Outputs::ControlType)
         {
-            set_color(index,
-                      value == static_cast<uint8_t>(ControlType::Static) ? Color::Red : Color::Off,
-                      value == static_cast<uint8_t>(ControlType::Static) ? Brightness::Level100 : Brightness::Off);
+            set_level(index,
+                      value == static_cast<uint8_t>(ControlType::Static) ? OUTPUT_LEVEL_MAX : OUTPUT_LEVEL_MIN);
         }
 
-        // find out if RGB output is enabled for this output index
-        if (_database.read(util::Conversion::sys_2_db_section(sys::Config::Section::Outputs::RgbEnable), _hwa.rgb_from_output(index)))
-        {
-            // rgb output enabled - copy these settings to all three outputs
-            for (int i = 0; i < 3; i++)
-            {
-                result = _database.update(util::Conversion::sys_2_db_section(section),
-                                          _hwa.rgb_component_from_rgb(_hwa.rgb_from_output(index), static_cast<RgbComponent>(i)),
-                                          value)
-                             ? sys::Config::Status::Ack
-                             : sys::Config::Status::ErrorWrite;
-
-                if (result != sys::Config::Status::Ack)
-                {
-                    break;
-                }
-            }
-        }
-        else
-        {
-            // apply to single output only
-            result = _database.update(util::Conversion::sys_2_db_section(section), index, value)
-                         ? sys::Config::Status::Ack
-                         : sys::Config::Status::ErrorWrite;
-        }
+        result = _database.update(util::Conversion::sys_2_db_section(section), index, value)
+                     ? sys::Config::Status::Ack
+                     : sys::Config::Status::ErrorWrite;
     }
     break;
 

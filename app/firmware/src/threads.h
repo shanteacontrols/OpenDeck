@@ -59,7 +59,7 @@ namespace opendeck::threads
                                                            ANALOG_THREAD_STACK_SIZE>;
 
     /**
-     * @brief Thread type used for OUTPUT state processing.
+     * @brief Thread type used for output state processing.
      */
     using OutputsThread = zlibs::utils::threads::UserThread<zlibs::utils::misc::StringLiteral{ "io_outputs" },
                                                             K_PRIO_PREEMPT(1),

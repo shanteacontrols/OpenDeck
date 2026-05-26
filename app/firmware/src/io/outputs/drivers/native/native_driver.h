@@ -37,68 +37,25 @@ namespace opendeck::io::outputs
         }
 
         /**
-         * @brief Flushes no additional state because writes are applied immediately.
-         */
-        void update() override
-        {
-        }
-
-        /**
          * @brief Sets one GPIO-backed output.
          *
          * @param index Output index to update.
-         * @param brightness Brightness value to apply.
+         * @param level Output level percentage in the range [0, 100].
          */
-        void set_state(size_t index, Brightness brightness) override
+        void set_level(size_t index, uint8_t level) override
         {
             if (index >= _gpios.size())
             {
                 return;
             }
 
-            gpio_pin_set_dt(&_gpios[index], brightness != Brightness::Off);
-        }
-
-        /**
-         * @brief Maps a physical output index to the corresponding RGB output index.
-         *
-         * @param index Output index to map.
-         *
-         * @return RGB output index corresponding to the output.
-         */
-        size_t rgb_from_output(size_t index) override
-        {
-            auto rgb_index = index / 3;
-            return rgb_index < rgb_output_count() ? rgb_index : (rgb_output_count() ? rgb_output_count() - 1 : 0);
-        }
-
-        /**
-         * @brief Maps an RGB output index and component to a physical output index.
-         *
-         * @param index RGB output index to map.
-         * @param component RGB component to map.
-         *
-         * @return Physical output index corresponding to the RGB component.
-         */
-        size_t rgb_component_from_rgb(size_t index, RgbComponent component) override
-        {
-            return index * 3 + static_cast<uint8_t>(component);
+            gpio_pin_set_dt(&_gpios[index], level > OUTPUT_LEVEL_MIN);
         }
 
         private:
         static constexpr size_t OUTPUT_COUNT = CONFIG_PROJECT_TARGET_OUTPUT_PHYSICAL_COUNT;
 
         std::array<gpio_dt_spec, OUTPUT_COUNT> _gpios = { { LISTIFY(CONFIG_PROJECT_TARGET_OUTPUT_PHYSICAL_COUNT, OPENDECK_OUTPUT_NATIVE_GPIO_ENTRY, (, ), DT_NODELABEL(opendeck_outputs)) } };
-
-        /**
-         * @brief Returns the number of complete RGB outputs exposed by the driver.
-         *
-         * @return Number of RGB outputs.
-         */
-        static constexpr size_t rgb_output_count()
-        {
-            return OUTPUT_COUNT / 3;
-        }
     };
 }    // namespace opendeck::io::outputs
 

@@ -11,13 +11,13 @@
 namespace opendeck::io::outputs
 {
     /**
-     * @brief Stub OUTPUT subsystem used when no OUTPUT implementation is available.
+     * @brief Stub output subsystem used when no output implementation is available.
      */
     class Outputs : public io::Base
     {
         public:
         /**
-         * @brief Constructs the stub OUTPUT subsystem.
+         * @brief Constructs the stub output subsystem.
          *
          * @param hwa Stub hardware backend.
          * @param database Database view used by the subsystem.
@@ -27,7 +27,7 @@ namespace opendeck::io::outputs
         {}
 
         /**
-         * @brief Reports that the stub OUTPUT subsystem cannot initialize.
+         * @brief Reports that the stub output subsystem cannot initialize.
          *
          * @return Always `false`.
          */
@@ -37,7 +37,7 @@ namespace opendeck::io::outputs
         }
 
         /**
-         * @brief Deinitializes the stub OUTPUT subsystem.
+         * @brief Deinitializes the stub output subsystem.
          */
         void deinit() override
         {

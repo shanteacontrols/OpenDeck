@@ -30,7 +30,6 @@
     opendeck_switches: opendeck-switches {
         compatible = "opendeck,switches";
         mode = "matrix";
-        touchscreen-components = <64>;
         row-mode = "shift-register";
         rows = <16>;
         columns = <8>;
@@ -70,7 +69,6 @@
     opendeck_outputs: opendeck-outputs {
         compatible = "opendeck,outputs";
         mode = "max7219";
-        touchscreen-components = <64>;
         drivers = <1>;
         index-remap = <48 8 40 0 32 16 56 24 52 12 44 4 36 20 60 28
                      54 14 46 6 38 22 62 30 50 10 42 2 34 18 58 26

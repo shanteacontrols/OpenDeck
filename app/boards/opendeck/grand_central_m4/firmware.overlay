@@ -25,7 +25,6 @@
     opendeck_switches: opendeck-switches {
         compatible = "opendeck,switches";
         mode = "native";
-        touchscreen-components = <64>;
         native-gpios =
             <&portc 18 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
             <&portc 19 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
@@ -64,7 +63,6 @@
     opendeck_outputs: opendeck-outputs {
         compatible = "opendeck,outputs";
         mode = "native";
-        touchscreen-components = <64>;
         native-gpios =
             <&portb 16 GPIO_ACTIVE_HIGH>,
             <&portb 17 GPIO_ACTIVE_HIGH>,

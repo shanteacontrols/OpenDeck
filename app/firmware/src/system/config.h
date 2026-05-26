@@ -133,15 +133,15 @@ namespace opendeck::sys
             };
 
             /**
-             * @brief Identifies OUTPUT SysEx configuration sections.
+             * @brief Identifies output SysEx configuration sections.
              */
             enum class Outputs : uint8_t
             {
-                TestColor,
-                TestBlink,
+                State,
+                TestPulse,
                 Global,
                 ActivationId,
-                RgbEnable,
+                Reserved2,
                 ControlType,
                 ActivationValue,
                 Channel,
