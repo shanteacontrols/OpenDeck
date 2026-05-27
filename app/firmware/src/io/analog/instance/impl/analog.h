@@ -32,13 +32,11 @@ namespace opendeck::io::analog
          * @param hwa Hardware abstraction used to read analog frames.
          * @param filter Filter used to smooth and validate analog readings.
          * @param frame_store Shared frame cache populated from the hardware backend.
-         * @param mapper Mapper used to convert filtered readings into protocol actions.
          * @param database Database interface used to read analog configuration.
          */
         Analog(Hwa&        hwa,
                Filter&     filter,
                FrameStore& frame_store,
-               Mapper&     mapper,
                Database&   database);
 
         /**
@@ -75,8 +73,8 @@ namespace opendeck::io::analog
         Hwa&                      _hwa;
         Filter&                   _filter;
         FrameStore&               _frame_store;
-        Mapper&                   _mapper;
         Database&                 _database;
+        Mapper                    _mapper;
         zlibs::utils::misc::Mutex _hwa_mutex;
         zlibs::utils::misc::Mutex _state_mutex;
         threads::AnalogThread     _thread;

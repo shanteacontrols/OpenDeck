@@ -24,8 +24,7 @@ namespace opendeck::io::outputs
          */
         Builder(database::Admin& database)
             : _database(database)
-            , _mapper(_database)
-            , _instance(_hwa, _mapper, _database)
+            , _instance(_hwa, _database)
         {}
 
         /**
@@ -40,7 +39,6 @@ namespace opendeck::io::outputs
 
         HwaTest  _hwa;
         Database _database;
-        Mapper   _mapper;
         Outputs  _instance;
     };
 }    // namespace opendeck::io::outputs

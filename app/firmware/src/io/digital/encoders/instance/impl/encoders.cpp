@@ -27,12 +27,11 @@ namespace
 
 Encoders::Encoders(Hwa&      hwa,
                    Filter&   filter,
-                   Database& database,
-                   Mapper&   mapper)
+                   Database& database)
     : _hwa(hwa)
     , _filter(filter)
     , _database(database)
-    , _mapper(mapper)
+    , _mapper(_database)
 {
     signaling::subscribe<signaling::UmpSignal>(
         [this](const signaling::UmpSignal& event)

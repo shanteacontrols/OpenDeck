@@ -30,7 +30,6 @@ namespace opendeck::io::switches
          */
         Switches(Hwa&      hwa,
                  Filter&   filter,
-                 Mapper&   mapper,
                  Database& database);
 
         ~Switches() override = default;
@@ -77,8 +76,8 @@ namespace opendeck::io::switches
 
         Hwa&      _hwa;
         Filter&   _filter;
-        Mapper&   _mapper;
         Database& _database;
+        Mapper    _mapper;
 
         /**
          * @brief Reads the current physical state for a switch when it is not claimed by an encoder.

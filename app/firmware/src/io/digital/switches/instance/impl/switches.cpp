@@ -23,12 +23,11 @@ namespace
 
 Switches::Switches(Hwa&      hwa,
                    Filter&   filter,
-                   Mapper&   mapper,
                    Database& database)
     : _hwa(hwa)
     , _filter(filter)
-    , _mapper(mapper)
     , _database(database)
+    , _mapper(_database)
 {
     signaling::subscribe<signaling::MidiIoSignal>(
         [this](const signaling::MidiIoSignal& event)

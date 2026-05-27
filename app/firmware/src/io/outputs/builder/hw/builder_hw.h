@@ -25,9 +25,8 @@ namespace opendeck::io::outputs
          */
         explicit Builder(database::Admin& database)
             : _database(database)
-            , _mapper(_database)
             , _hwa(_driver)
-            , _instance(_hwa, _mapper, _database)
+            , _instance(_hwa, _database)
         {}
 
         /**
@@ -42,7 +41,6 @@ namespace opendeck::io::outputs
 
         private:
         Database _database;
-        Mapper   _mapper;
         Driver   _driver;
         HwaHw    _hwa;
         Outputs  _instance;

@@ -28,12 +28,10 @@ namespace
     constexpr uint16_t STARTUP_ANIMATION_STEP_DELAY_MS = 35;
 }    // namespace
 
-Outputs::Outputs(Hwa&      hwa,
-                 Mapper&   mapper,
-                 Database& database)
+Outputs::Outputs(Hwa& hwa, Database& database)
     : _hwa(hwa)
-    , _mapper(mapper)
     , _database(database)
+    , _mapper(_database)
     , _thread([&]()
               {
                   while (1)

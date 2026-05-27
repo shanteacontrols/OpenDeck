@@ -30,8 +30,7 @@ namespace opendeck::io::encoders
          */
         Encoders(Hwa&      hwa,
                  Filter&   filter,
-                 Database& database,
-                 Mapper&   mapper);
+                 Database& database);
 
         /**
          * @brief Shuts the controller down.
@@ -95,7 +94,7 @@ namespace opendeck::io::encoders
         Hwa&      _hwa;
         Filter&   _filter;
         Database& _database;
-        Mapper&   _mapper;
+        Mapper    _mapper;
 
         std::array<uint8_t, Collection::size()> _encoder_speed = {};
 

@@ -8,7 +8,6 @@
 #include "firmware/src/io/analog/instance/impl/analog.h"
 #include "firmware/src/io/analog/filter/test/filter_test.h"
 #include "firmware/src/io/analog/hwa/test/hwa_test.h"
-#include "firmware/src/io/analog/instance/impl/mapper.h"
 #include "firmware/src/io/analog/shared/frame_store.h"
 #include "firmware/src/database/builder/test/builder_test.h"
 
@@ -27,8 +26,7 @@ namespace opendeck::io::analog
          */
         Builder(database::Admin& database)
             : _database(database)
-            , _mapper(_database)
-            , _instance(_hwa, _filter, _frame_store, _mapper, _database)
+            , _instance(_hwa, _filter, _frame_store, _database)
         {}
 
         /**
@@ -45,7 +43,6 @@ namespace opendeck::io::analog
         HwaTest    _hwa;
         FilterTest _filter;
         FrameStore _frame_store;
-        Mapper     _mapper;
         Analog     _instance;
     };
 }    // namespace opendeck::io::analog

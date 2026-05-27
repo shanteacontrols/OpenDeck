@@ -29,13 +29,12 @@ namespace
 Analog::Analog(Hwa&        hwa,
                Filter&     filter,
                FrameStore& frame_store,
-               Mapper&     mapper,
                Database&   database)
     : _hwa(hwa)
     , _filter(filter)
     , _frame_store(frame_store)
-    , _mapper(mapper)
     , _database(database)
+    , _mapper(_database)
     , _thread([&]()
               {
                   while (1)

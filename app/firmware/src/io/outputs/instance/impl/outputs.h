@@ -35,9 +35,7 @@ namespace opendeck::io::outputs
          * @param hwa Hardware abstraction used to update outputs.
          * @param database Database interface used to read output configuration.
          */
-        Outputs(Hwa&      hwa,
-                Mapper&   mapper,
-                Database& database);
+        Outputs(Hwa& hwa, Database& database);
 
         /**
          * @brief Stops the output worker thread and releases runtime resources.
@@ -112,8 +110,8 @@ namespace opendeck::io::outputs
         };
 
         Hwa&                      _hwa;
-        Mapper&                   _mapper;
         Database&                 _database;
+        Mapper                    _mapper;
         zlibs::utils::misc::Mutex _state_mutex;
 
         std::array<uint8_t, STORAGE_SIZE> _output_state                      = {};

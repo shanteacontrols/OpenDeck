@@ -8,7 +8,6 @@
 #include "firmware/src/io/digital/switches/instance/impl/switches.h"
 #include "firmware/src/io/digital/switches/filter/test/filter_test.h"
 #include "firmware/src/io/digital/switches/hwa/test/hwa_test.h"
-#include "firmware/src/io/digital/switches/instance/impl/mapper.h"
 #include "firmware/src/database/builder/test/builder_test.h"
 
 namespace opendeck::io::switches
@@ -26,8 +25,7 @@ namespace opendeck::io::switches
          */
         Builder(database::Admin& database)
             : _database(database)
-            , _mapper(_database)
-            , _instance(_hwa, _filter, _mapper, _database)
+            , _instance(_hwa, _filter, _database)
         {}
 
         /**
@@ -43,7 +41,6 @@ namespace opendeck::io::switches
         Database   _database;
         HwaTest    _hwa;
         FilterTest _filter;
-        Mapper     _mapper;
         Switches   _instance;
     };
 }    // namespace opendeck::io::switches

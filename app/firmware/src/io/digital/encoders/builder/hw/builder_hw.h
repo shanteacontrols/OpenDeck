@@ -29,8 +29,7 @@ namespace opendeck::io::encoders
                 io::switches::Hwa& switches_hwa)
             : _database(database)
             , _hwa(switches_hwa)
-            , _mapper(_database)
-            , _instance(_hwa, _filter, _database, _mapper)
+            , _instance(_hwa, _filter, _database)
         {}
 
         /**
@@ -47,7 +46,6 @@ namespace opendeck::io::encoders
         Database _database;
         HwaHw    _hwa;
         FilterHw _filter;
-        Mapper   _mapper;
         Encoders _instance;
     };
 }    // namespace opendeck::io::encoders
