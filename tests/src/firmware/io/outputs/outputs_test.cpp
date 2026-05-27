@@ -193,6 +193,18 @@ namespace
             wait_for_signal_dispatch();
         }
 
+        void notify_osc_output(size_t index, int32_t value)
+        {
+            signaling::publish(signaling::OscIoSignal{
+                .source          = signaling::IoEventSource::Output,
+                .component_index = index,
+                .int32_value     = value,
+                .direction       = signaling::SignalDirection::In,
+            });
+
+            wait_for_signal_dispatch();
+        }
+
         static constexpr size_t                 MIDI_CHANNEL  = 1;
         static constexpr std::array<uint8_t, 3> SAMPLE_VALUES = { 0, 64, 127 };
 
@@ -543,6 +555,28 @@ TEST_F(OutputsTest, SingleOutputState)
 
     // now turn the output off
     notify_midi_in(midi::MessageType::NoteOn, MIDI_CHANNEL, MIDI_ID, 0);
+}
+
+TEST_F(OutputsTest, OscOutputLevel)
+{
+    if (!outputs::Collection::size(outputs::GroupDigitalOutputs))
+    {
+        return;
+    }
+
+    constexpr size_t OUTPUT_INDEX = 0;
+
+    EXPECT_CALL(_outputs._hwa, set_level(OUTPUT_INDEX, outputs::OUTPUT_LEVEL_MIN))
+        .Times(1);
+    notify_osc_output(OUTPUT_INDEX, -1);
+
+    EXPECT_CALL(_outputs._hwa, set_level(OUTPUT_INDEX, 64))
+        .Times(1);
+    notify_osc_output(OUTPUT_INDEX, 64);
+
+    EXPECT_CALL(_outputs._hwa, set_level(OUTPUT_INDEX, outputs::OUTPUT_LEVEL_MAX))
+        .Times(1);
+    notify_osc_output(OUTPUT_INDEX, 127);
 }
 
 TEST_F(OutputsTest, SysExStateControlsOutput)

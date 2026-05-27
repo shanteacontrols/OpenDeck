@@ -304,7 +304,7 @@ TEST_F(OscProtocolTest, ReceivesOutputCommand)
                                                     .prefix = osc::paths::OUTPUT.c_str(),
                                                     .index  = 5,
                                                 },
-                                                osc::OscInt32{ 1 });
+                                                osc::OscInt32{ 64 });
 
     ASSERT_TRUE(size);
     _hwa.push_received(packet_span(packet, *size), endpoint(192, 168, 1, 10, 50000));
@@ -318,7 +318,7 @@ TEST_F(OscProtocolTest, ReceivesOutputCommand)
     EXPECT_EQ(signals.front().source, signaling::IoEventSource::Output);
     EXPECT_EQ(signals.front().component_index, 5U);
     ASSERT_TRUE(signals.front().int32_value.has_value());
-    EXPECT_EQ(*signals.front().int32_value, 1);
+    EXPECT_EQ(*signals.front().int32_value, 64);
     EXPECT_EQ(signals.front().direction, signaling::SignalDirection::In);
 }
 

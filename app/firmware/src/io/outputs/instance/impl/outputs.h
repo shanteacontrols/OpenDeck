@@ -5,9 +5,9 @@
 
 #pragma once
 
+#include "firmware/src/io/outputs/instance/impl/mapper.h"
 #include "firmware/src/io/outputs/shared/deps.h"
 #include "firmware/src/database/instance/impl/database.h"
-#include "firmware/src/protocol/midi/instance/impl/midi.h"
 #include "firmware/src/io/shared/common.h"
 #include "firmware/src/system/config.h"
 #include "firmware/src/io/base.h"
@@ -36,6 +36,7 @@ namespace opendeck::io::outputs
          * @param database Database interface used to read output configuration.
          */
         Outputs(Hwa&      hwa,
+                Mapper&   mapper,
                 Database& database);
 
         /**
@@ -110,21 +111,8 @@ namespace opendeck::io::outputs
             0,
         };
 
-        static constexpr protocol::midi::MessageType CONTROL_TYPE_TO_MIDI_MESSAGE[static_cast<uint8_t>(ControlType::Count)] = {
-            protocol::midi::MessageType::NoteOn,           // MIDI_IN_NOTE_SINGLE_VAL,
-            protocol::midi::MessageType::NoteOn,           // LOCAL_NOTE_SINGLE_VAL,
-            protocol::midi::MessageType::ControlChange,    // MIDI_IN_CC_SINGLE_VAL,
-            protocol::midi::MessageType::ControlChange,    // LOCAL_CC_SINGLE_VAL,
-            protocol::midi::MessageType::ProgramChange,    // PC_SINGLE_VAL,
-            protocol::midi::MessageType::ProgramChange,    // Preset,
-            protocol::midi::MessageType::NoteOn,           // MIDI_IN_NOTE_MULTI_VAL,
-            protocol::midi::MessageType::NoteOn,           // LOCAL_NOTE_MULTI_VAL,
-            protocol::midi::MessageType::ControlChange,    // MIDI_IN_CC_MULTI_VAL,
-            protocol::midi::MessageType::ControlChange,    // LOCAL_CC_MULTI_VAL,
-            protocol::midi::MessageType::Invalid,          // Static
-        };
-
         Hwa&                      _hwa;
+        Mapper&                   _mapper;
         Database&                 _database;
         zlibs::utils::misc::Mutex _state_mutex;
 
@@ -219,42 +207,24 @@ namespace opendeck::io::outputs
         void reset_state(size_t index);
 
         /**
-         * @brief Converts a stored numeric value into a pulse speed.
-         *
-         * @param value Stored pulse-speed value.
-         *
-         * @return Pulse speed corresponding to the stored value.
-         */
-        PulseSpeed value_to_pulse_speed(uint8_t value);
-
-        /**
-         * @brief Converts a stored numeric value into a level percentage.
-         *
-         * @param value Stored level value.
-         *
-         * @return uint8_t level corresponding to the stored value.
-         */
-        uint8_t value_to_level(uint8_t value);
-
-        /**
          * @brief Plays the startup output animation.
          */
         void start_up_animation();
 
         /**
-         * @brief Applies an incoming MIDI event to the output state machine.
+         * @brief Applies mapped output actions.
          *
-         * @param message Decoded MIDI message to process.
-         * @param direction Traffic direction associated with the message.
+         * @param result Mapped output actions to apply.
          */
-        void midi_to_state(const protocol::midi::Message& message, signaling::SignalDirection direction);
+        void apply_mapper_result(const Mapper::Result& result);
 
         /**
-         * @brief Updates internal preset-controlled outputs for the selected preset.
+         * @brief Applies one mapped output action.
          *
-         * @param preset Active preset index.
+         * @param index output index to update.
+         * @param action Mapped action to apply.
          */
-        void internal_preset_to_state(uint8_t preset);
+        void apply_mapper_action(size_t index, const Mapper::Action& action);
 
         /**
          * @brief Sets the logical level for one output.

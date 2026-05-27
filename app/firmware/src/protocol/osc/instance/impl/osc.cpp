@@ -716,7 +716,7 @@ bool Osc::handle_message(std::string_view address, int32_t value)
         signaling::publish(signaling::OscIoSignal{
             .source          = signaling::IoEventSource::Output,
             .component_index = *index,
-            .int32_value     = static_cast<int32_t>(value != 0 ? 1 : 0),
+            .int32_value     = value,
             .direction       = signaling::SignalDirection::In,
         });
 
