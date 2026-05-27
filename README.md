@@ -23,13 +23,13 @@ The following components are supported:
 
 * Buttons
 * Encoders
-* LEDs (single color or RGB)
+* Single-color LEDs and other types of outputs such as relays or transistors
 * Potentiometers
 * FSRs (force-sensitive resistors)
 * LCD/OLED displays
 * Touchscreen displays (Nextion)
 
-OpenDeck supports sending of both 7-bit and 14-bit Non-Registered Parameter Numbers (NRPN), latching messages on buttons, various encoding modes for quadrature encoders, LED control using MIDI In, configurable MIDI channels for each component individually, Bluetooth MIDI, OSC via Ethernet etc. Full list of supported features can be found [here](https://github.com/shanteacontrols/OpenDeck/wiki/Configurable-features).
+OpenDeck supports sending of both 7-bit and 14-bit Non-Registered Parameter Numbers (NRPN), latching messages on buttons, various encoding modes for quadrature encoders, output control using MIDI In, configurable MIDI channels for each component individually, Bluetooth MIDI, OSC via Ethernet etc. Full list of supported features can be found [here](https://github.com/shanteacontrols/OpenDeck/wiki/Configurable-features).
 
 If the feature you want isn't supported yet, don't feel discouraged. Open up a [discussion thread](https://github.com/shanteacontrols/OpenDeck/discussions) and let's talk about it.
 
