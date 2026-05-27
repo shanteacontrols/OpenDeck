@@ -1,10 +1,9 @@
-opendeck_uart_din_midi: &usart6 {};
-
-opendeck_uart_touchscreen: &usart6 {};
-
-opendeck_i2c_display: &i2c1 {};
-
 / {
+    chosen {
+        zephyr,console = &usart3;
+        zephyr,shell-uart = &usart3;
+    };
+
     opendeck_bootloader: opendeck-bootloader {
         compatible = "opendeck,bootloader";
         gpios = <&gpioc 13 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>;
@@ -15,25 +14,4 @@ opendeck_i2c_display: &i2c1 {};
         compatible = "opendeck,transports";
         network;
     };
-
-    opendeck_traffic_indicators: opendeck-traffic-indicators {
-        compatible = "opendeck,traffic-indicators";
-        usb-in-gpios = <&gpiob 0 GPIO_ACTIVE_HIGH>;
-        usb-out-gpios = <&gpiob 7 GPIO_ACTIVE_HIGH>;
-        din-in-gpios = <&gpiob 0 GPIO_ACTIVE_HIGH>;
-        din-out-gpios = <&gpiob 7 GPIO_ACTIVE_HIGH>;
-        ble-in-gpios = <&gpiob 0 GPIO_ACTIVE_HIGH>;
-        ble-out-gpios = <&gpiob 7 GPIO_ACTIVE_HIGH>;
-        network-in-gpios = <&gpiob 0 GPIO_ACTIVE_HIGH>;
-        network-out-gpios = <&gpiob 7 GPIO_ACTIVE_HIGH>;
-        network-up-gpios = <&gpiob 14 GPIO_ACTIVE_HIGH>;
-    };
-};
-
-&mac {
-    status = "okay";
-};
-
-&mdio {
-    status = "okay";
 };

@@ -1,52 +1,21 @@
 #include <zephyr/dt-bindings/clock/stm32h7_clock.h>
 
-/ {
-    chosen {
-        /delete-property/ zephyr,canbus;
-        zephyr,console = &usart3;
-        zephyr,shell-uart = &usart3;
-    };
-};
-
-&lpuart1 {
-    status = "disabled";
-};
-
 &usart3 {
     current-speed = <115200>;
     pinctrl-0 = <&usart3_tx_pd8 &usart3_rx_pd9>;
     pinctrl-names = "default";
-    status = "okay";
 };
 
 &usart6 {
     current-speed = <115200>;
     pinctrl-0 = <&usart6_tx_pc6 &usart6_rx_pc7>;
     pinctrl-names = "default";
-    status = "okay";
 };
 
 &i2c1 {
     clock-frequency = <I2C_BITRATE_FAST>;
     pinctrl-0 = <&i2c1_scl_pb8 &i2c1_sda_pb9>;
     pinctrl-names = "default";
-    status = "okay";
-};
-
-&i2c2 {
-    status = "disabled";
-};
-
-&timers12 {
-    status = "disabled";
-};
-
-&pwm12 {
-    status = "disabled";
-};
-
-&fdcan1 {
-    status = "disabled";
 };
 
 &mac {
@@ -60,22 +29,16 @@
     pinctrl-names = "default";
     phy-connection-type = "rmii";
     phy-handle = <&eth_phy>;
-    status = "okay";
 };
 
 &mdio {
     pinctrl-0 = <&eth_mdio_pa2 &eth_mdc_pc1>;
     pinctrl-names = "default";
-    status = "okay";
 
     eth_phy: ethernet-phy@0 {
         compatible = "ethernet-phy";
         reg = <0x00>;
     };
-};
-
-&spi1 {
-    status = "disabled";
 };
 
 &adc1 {
@@ -273,16 +236,4 @@
         zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 65)>;
         zephyr,resolution = <12>;
     };
-};
-
-&{/leds} {
-    status = "disabled";
-};
-
-&{/pwmleds} {
-    status = "disabled";
-};
-
-&{/gpio_keys} {
-    status = "disabled";
 };

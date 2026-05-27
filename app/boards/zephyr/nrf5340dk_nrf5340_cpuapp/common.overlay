@@ -1,0 +1,39 @@
+&uart1 {
+    status = "disabled";
+};
+
+&i2c1 {
+    status = "disabled";
+};
+
+&pwm0 {
+    status = "disabled";
+};
+
+&spi4 {
+    status = "disabled";
+};
+
+&gpio_fwd {
+    status = "disabled";
+};
+
+/ {
+    aliases {
+        /delete-property/ sw0;
+        /delete-property/ sw1;
+        /delete-property/ sw2;
+        /delete-property/ sw3;
+        /delete-property/ mcuboot-button0;
+        /delete-property/ led0;
+        /delete-property/ led1;
+        /delete-property/ led2;
+        /delete-property/ led3;
+        /delete-property/ pwm-led0;
+        /delete-property/ mcuboot-led0;
+    };
+
+    /delete-node/ buttons;
+    /delete-node/ leds;
+    /delete-node/ pwmleds;
+};

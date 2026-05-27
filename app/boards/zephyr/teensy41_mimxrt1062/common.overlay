@@ -1,0 +1,31 @@
+/ {
+    chosen {
+        /delete-property/ zephyr,canbus;
+    };
+
+    aliases {
+        /delete-property/ led0;
+    };
+
+    /delete-node/ leds;
+};
+
+&flexcan1 {
+    status = "disabled";
+};
+
+&enet_mac {
+    status = "disabled";
+};
+
+&enet_mdio {
+    status = "disabled";
+};
+
+&lpspi3 {
+    status = "disabled";
+};
+
+&usdhc1 {
+    status = "disabled";
+};

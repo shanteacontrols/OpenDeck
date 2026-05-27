@@ -1,4 +1,19 @@
-&wifi {
-    status = "disabled";
+&pinctrl {
+    opendeck_i2c0_default: opendeck_i2c0_default {
+        group1 {
+            pinmux = <I2C0_SDA_GPIO4>,
+                     <I2C0_SCL_GPIO5>;
+            bias-pull-up;
+            drive-open-drain;
+            output-high;
+        };
+    };
 };
 
+&i2c0 {
+    clock-frequency = <I2C_BITRATE_STANDARD>;
+    sda-gpios = <&gpio0 4 GPIO_OPEN_DRAIN>;
+    scl-gpios = <&gpio0 5 GPIO_OPEN_DRAIN>;
+    pinctrl-0 = <&opendeck_i2c0_default>;
+    pinctrl-names = "default";
+};

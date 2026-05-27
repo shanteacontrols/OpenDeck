@@ -1,0 +1,31 @@
+/ {
+    chosen {
+        /delete-property/ zephyr,console;
+        /delete-property/ zephyr,shell-uart;
+        /delete-property/ zephyr,canbus;
+    };
+};
+
+&usart2 {
+    status = "disabled";
+};
+
+&can1 {
+    status = "disabled";
+};
+
+&can2 {
+    status = "disabled";
+};
+
+/ {
+    aliases {
+        /delete-property/ led0;
+        /delete-property/ led1;
+        /delete-property/ led2;
+        /delete-property/ led3;
+    };
+
+    /delete-node/ leds;
+    /delete-node/ pwmleds;
+};

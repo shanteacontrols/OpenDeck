@@ -53,8 +53,10 @@
     };
 };
 
-opendeck_uart_touchscreen: &usart1 {};
+&usart1 {
+    status = "okay";
+};
 
-&i2c1 {
-    status = "disabled";
+&adc1 {
+    pinctrl-0 = <&adc1_in15_pc5>;
 };

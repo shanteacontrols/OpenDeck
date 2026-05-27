@@ -28,6 +28,10 @@
         compatible = "opendeck,switches";
         mode = "native";
         native-gpios =
+            <&gpio0 23 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>, /* Button 1 */
+            <&gpio0 24 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>, /* Button 2 */
+            <&gpio0 8 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,  /* Button 3 */
+            <&gpio0 9 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,  /* Button 4 */
             <&gpio1 4 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,  /* D2 */
             <&gpio1 5 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,  /* D3 */
             <&gpio1 6 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,  /* D4 */
@@ -65,28 +69,19 @@
         component-count = <64>;
         uart = <&opendeck_uart_touchscreen>;
     };
-
-    opendeck_traffic_indicators: opendeck-traffic-indicators {
-        compatible = "opendeck,traffic-indicators";
-        usb-in-gpios = <&gpio0 28 GPIO_ACTIVE_LOW>;
-        usb-out-gpios = <&gpio0 29 GPIO_ACTIVE_LOW>;
-        din-in-gpios = <&gpio0 30 GPIO_ACTIVE_LOW>;
-        din-out-gpios = <&gpio0 31 GPIO_ACTIVE_LOW>;
-        ble-in-gpios = <&gpio0 30 GPIO_ACTIVE_LOW>;
-        ble-out-gpios = <&gpio0 31 GPIO_ACTIVE_LOW>;
-    };
-
-    opendeck_display: opendeck-display {
-        compatible = "opendeck,display-i2c";
-        i2c = <&opendeck_i2c_display>;
+    opendeck_i2c: opendeck-i2c {
+        compatible = "opendeck,i2c";
+        bus = <&opendeck_i2c_bus>;
     };
 };
 
-opendeck_uart_din_midi: &uart2 {};
+&uart2 {
+    status = "okay";
+};
 
-opendeck_uart_touchscreen: &uart2 {};
-
-opendeck_i2c_display: &i2c1 {};
+&i2c1 {
+    status = "okay";
+};
 
 &pinctrl {
     opendeck_pwm0_default: opendeck_pwm0_default {

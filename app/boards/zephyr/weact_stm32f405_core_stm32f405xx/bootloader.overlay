@@ -3,3 +3,7 @@
         zephyr,code-partition = &boot_partition;
     };
 };
+
+&adc1 {
+    status = "disabled";
+};

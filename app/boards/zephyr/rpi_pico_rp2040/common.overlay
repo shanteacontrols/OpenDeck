@@ -1,0 +1,15 @@
+&led0 {
+    status = "disabled";
+};
+
+&pwm_led0 {
+    status = "disabled";
+};
+
+&i2c0 {
+    status = "disabled";
+};
+
+&spi0 {
+    status = "disabled";
+};

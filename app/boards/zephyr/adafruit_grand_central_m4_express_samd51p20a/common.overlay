@@ -1,0 +1,28 @@
+/ {
+    aliases {
+        /delete-property/ sdhc0;
+    };
+};
+
+&sercom2 {
+    compatible = "atmel,sam0-sercom";
+    status = "disabled";
+    /delete-property/ dipo;
+    /delete-property/ dopo;
+    /delete-property/ cs-gpios;
+    /delete-property/ pinctrl-0;
+    /delete-property/ pinctrl-names;
+    /delete-property/ #address-cells;
+    /delete-property/ #size-cells;
+
+    /delete-node/ sdhc@0;
+};
+
+&sercom7 {
+    compatible = "atmel,sam0-sercom";
+    status = "disabled";
+    /delete-property/ dipo;
+    /delete-property/ dopo;
+    /delete-property/ pinctrl-0;
+    /delete-property/ pinctrl-names;
+};

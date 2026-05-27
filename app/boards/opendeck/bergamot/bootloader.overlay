@@ -1,9 +1,7 @@
-opendeck_uart_touchscreen: &usart1 {};
-
 / {
     opendeck_bootloader: opendeck-bootloader {
         compatible = "opendeck,bootloader";
-        gpios = <&gpiob 7 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+        gpios = <&gpioa 8 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
         label = "OpenDeck recovery";
     };
 

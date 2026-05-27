@@ -58,9 +58,9 @@ namespace opendeck::io::i2c
         }
 
         private:
-        static_assert(DT_NODE_EXISTS(DT_NODELABEL(opendeck_display)), "OpenDeck display node must exist.");
-        static_assert(DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_display), i2c), "OpenDeck display node must define an i2c phandle.");
+        static_assert(DT_NODE_EXISTS(DT_NODELABEL(opendeck_i2c)), "OpenDeck I2C node must exist.");
+        static_assert(DT_NODE_HAS_PROP(DT_NODELABEL(opendeck_i2c), bus), "OpenDeck I2C node must define a bus phandle.");
 
-        const device* const _i2c_device = DEVICE_DT_GET(DT_PHANDLE(DT_NODELABEL(opendeck_display), i2c));
+        const device* const _i2c_device = DEVICE_DT_GET(DT_PHANDLE(DT_NODELABEL(opendeck_i2c), bus));
     };
 }    // namespace opendeck::io::i2c

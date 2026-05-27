@@ -1,25 +1,5 @@
 #include <zephyr/dt-bindings/adc/adc.h>
 
-&{/leds} {
-    status = "disabled";
-};
-
-&enet_mac {
-    status = "disabled";
-};
-
-&enet_mdio {
-    status = "disabled";
-};
-
-&lpspi3 {
-    status = "disabled";
-};
-
-&usdhc1 {
-    status = "disabled";
-};
-
 &pinctrl {
     adc1_opendeck_default: adc1_opendeck_default {
         group1 {
@@ -59,13 +39,11 @@
 &lpuart4 {
     /* Teensy pins 8 (TX4) / 7 (RX4) */
     current-speed = <115200>;
-    status = "okay";
 };
 
 &lpi2c4 {
     /* Teensy pins 24 (SCL2) / 25 (SDA2) */
     clock-frequency = <I2C_BITRATE_FAST>;
-    status = "okay";
 };
 
 &adc1 {

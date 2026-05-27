@@ -1,0 +1,15 @@
+/ {
+    chosen {
+        /delete-property/ zephyr,canbus;
+    };
+
+    aliases {
+        /delete-property/ led0;
+    };
+
+    /delete-node/ leds;
+};
+
+&flexcan1 {
+    status = "disabled";
+};

@@ -1,0 +1,9 @@
+description: OpenDeck I2C bus configuration
+
+compatible: "opendeck,i2c"
+
+properties:
+  bus:
+    type: phandle
+    required: true
+    description: I2C controller used by OpenDeck I2C peripherals.

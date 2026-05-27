@@ -1,30 +1,5 @@
 &uart0 {
     current-speed = <115200>;
-    status = "okay";
-};
-
-&i2c0 {
-    status = "okay";
-};
-
-&i2c1 {
-    status = "disabled";
-};
-
-&spi2 {
-    status = "disabled";
-};
-
-&pwm0 {
-    status = "disabled";
-};
-
-&pwm1 {
-    status = "disabled";
-};
-
-&pwm2 {
-    status = "disabled";
 };
 
 &adc {
@@ -103,16 +78,4 @@
         zephyr,resolution = <12>;
         zephyr,input-positive = <NRF_SAADC_AIN7>;
     };
-};
-
-&{/leds} {
-    status = "disabled";
-};
-
-&{/pwmleds} {
-    status = "disabled";
-};
-
-&{/pwmleds2} {
-    status = "disabled";
 };

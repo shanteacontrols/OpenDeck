@@ -4,6 +4,7 @@ endif()
 
 set(TARGET "$ENV{TARGET}")
 
+set(opendeck_target_common_overlay ${APP_DIR}/boards/opendeck/${TARGET}/common.overlay)
 set(opendeck_target_firmware_overlay ${APP_DIR}/boards/opendeck/${TARGET}/firmware.overlay)
 set(opendeck_target_bootloader_overlay ${APP_DIR}/boards/opendeck/${TARGET}/bootloader.overlay)
 
@@ -34,6 +35,7 @@ if(NOT EXISTS ${opendeck_zephyr_board_dir_path})
 endif()
 
 set(opendeck_board_partitions_overlay           ${opendeck_zephyr_board_dir_path}/partitions.overlay)
+set(opendeck_board_common_overlay               ${opendeck_zephyr_board_dir_path}/common.overlay)
 set(opendeck_board_firmware_overlay             ${opendeck_zephyr_board_dir_path}/firmware.overlay)
 set(opendeck_board_firmware_conf                ${opendeck_zephyr_board_dir_path}/firmware.conf)
 set(opendeck_board_mcuboot_conf                 ${opendeck_zephyr_board_dir_path}/mcuboot.conf)
@@ -224,8 +226,18 @@ if("${opendeck_firmware_ble_transport}" STREQUAL "true")
 endif()
 
 set(opendeck_firmware_extra_dtc_overlay_files)
+
+if(EXISTS ${opendeck_board_common_overlay})
+    list(APPEND opendeck_firmware_extra_dtc_overlay_files ${opendeck_board_common_overlay})
+endif()
+
 list(APPEND opendeck_firmware_extra_dtc_overlay_files ${opendeck_board_partitions_overlay})
 list(APPEND opendeck_firmware_extra_dtc_overlay_files ${opendeck_board_firmware_overlay})
+
+if(EXISTS ${opendeck_target_common_overlay})
+    list(APPEND opendeck_firmware_extra_dtc_overlay_files ${opendeck_target_common_overlay})
+endif()
+
 list(APPEND opendeck_firmware_extra_dtc_overlay_files ${opendeck_target_firmware_overlay})
 
 if(opendeck_firmware_usb_enabled)
@@ -275,7 +287,17 @@ endif()
 set(${DEFAULT_IMAGE}_EXTRA_CONF_FILE ${opendeck_firmware_extra_conf_files} CACHE INTERNAL "" FORCE)
 
 set(opendeck_mcuboot_extra_dtc_overlay_files)
+
+if(EXISTS ${opendeck_board_common_overlay})
+    list(APPEND opendeck_mcuboot_extra_dtc_overlay_files ${opendeck_board_common_overlay})
+endif()
+
 list(APPEND opendeck_mcuboot_extra_dtc_overlay_files ${opendeck_board_partitions_overlay})
+
+if(EXISTS ${opendeck_target_common_overlay})
+    list(APPEND opendeck_mcuboot_extra_dtc_overlay_files ${opendeck_target_common_overlay})
+endif()
+
 list(APPEND opendeck_mcuboot_extra_dtc_overlay_files ${opendeck_target_bootloader_overlay})
 list(APPEND opendeck_mcuboot_extra_dtc_overlay_files ${opendeck_mcuboot_overlay})
 
@@ -298,9 +320,19 @@ list(APPEND opendeck_mcuboot_extra_conf_files ${opendeck_shared_conf_files})
 set(mcuboot_EXTRA_CONF_FILE ${opendeck_mcuboot_extra_conf_files} CACHE INTERNAL "" FORCE)
 
 set(opendeck_bootloader_extra_dtc_overlay_files)
+
+if(EXISTS ${opendeck_board_common_overlay})
+    list(APPEND opendeck_bootloader_extra_dtc_overlay_files ${opendeck_board_common_overlay})
+endif()
+
 list(APPEND opendeck_bootloader_extra_dtc_overlay_files ${opendeck_board_partitions_overlay})
 list(APPEND opendeck_bootloader_extra_dtc_overlay_files ${opendeck_board_bootloader_overlay})
 list(APPEND opendeck_bootloader_extra_dtc_overlay_files ${opendeck_bootloader_firmware_loader_overlay})
+
+if(EXISTS ${opendeck_target_common_overlay})
+    list(APPEND opendeck_bootloader_extra_dtc_overlay_files ${opendeck_target_common_overlay})
+endif()
+
 list(APPEND opendeck_bootloader_extra_dtc_overlay_files ${opendeck_target_bootloader_overlay})
 
 set(opendeck_bootloader_EXTRA_DTC_OVERLAY_FILE ${opendeck_bootloader_extra_dtc_overlay_files} CACHE INTERNAL "" FORCE)

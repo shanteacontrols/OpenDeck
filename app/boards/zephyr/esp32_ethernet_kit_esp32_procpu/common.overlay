@@ -1,0 +1,13 @@
+/ {
+    chosen {
+        /delete-property/ zephyr,canbus;
+    };
+};
+
+&wifi {
+    status = "disabled";
+};
+
+&spi2 {
+    status = "disabled";
+};

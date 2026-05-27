@@ -1,7 +1,3 @@
-&led0 {
-    status = "disabled";
-};
-
-&pwm_led0 {
+&adc {
     status = "disabled";
 };

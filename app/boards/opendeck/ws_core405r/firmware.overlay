@@ -72,7 +72,10 @@
             <&pwm12 2 PWM_MSEC(1) PWM_POLARITY_NORMAL>,
             <&pwm1 1 PWM_MSEC(1) PWM_POLARITY_NORMAL>,
             <&pwm3 3 PWM_MSEC(1) PWM_POLARITY_NORMAL>,
-            <&pwm8 1 PWM_MSEC(1) PWM_POLARITY_NORMAL>;
+            <&pwm8 1 PWM_MSEC(1) PWM_POLARITY_NORMAL>,
+            <&pwm2 3 PWM_MSEC(1) PWM_POLARITY_NORMAL>,
+            <&pwm8 2 PWM_MSEC(1) PWM_POLARITY_NORMAL>,
+            <&pwm8 4 PWM_MSEC(1) PWM_POLARITY_NORMAL>;
     };
 
     opendeck_touchscreen: opendeck-touchscreen {
@@ -81,20 +84,23 @@
         uart = <&opendeck_uart_touchscreen>;
     };
 
-    opendeck_display: opendeck-display {
-        compatible = "opendeck,display-i2c";
-        i2c = <&opendeck_i2c_display>;
+    opendeck_i2c: opendeck-i2c {
+        compatible = "opendeck,i2c";
+        bus = <&opendeck_i2c_bus>;
     };
 };
 
-opendeck_uart_din_midi: &usart1 {};
+&usart1 {
+    status = "okay";
+};
 
-opendeck_uart_touchscreen: &usart1 {};
-
-opendeck_i2c_display: &i2c1 {};
+&i2c1 {
+    status = "okay";
+};
 
 &timers1 {
     status = "okay";
+    st,prescaler = <3>;
 
     pwm1: pwm {
         status = "okay";
@@ -105,26 +111,29 @@ opendeck_i2c_display: &i2c1 {};
 
 &timers2 {
     status = "okay";
+    st,prescaler = <3>;
 
     pwm2: pwm {
         status = "okay";
-        pinctrl-0 = <&tim2_ch4_pb11>;
+        pinctrl-0 = <&tim2_ch3_pb10 &tim2_ch4_pb11>;
         pinctrl-names = "default";
     };
 };
 
 &timers3 {
     status = "okay";
+    st,prescaler = <3>;
 
     pwm3: pwm {
         status = "okay";
-        pinctrl-0 = <&tim3_ch2_pb5 &tim3_ch3_pc8 &tim3_ch4_pc9>;
+        pinctrl-0 = <&tim3_ch2_pb5 &tim3_ch3_pc8>;
         pinctrl-names = "default";
     };
 };
 
 &timers4 {
     status = "okay";
+    st,prescaler = <3>;
 
     pwm4: pwm {
         status = "okay";
@@ -135,16 +144,18 @@ opendeck_i2c_display: &i2c1 {};
 
 &timers8 {
     status = "okay";
+    st,prescaler = <3>;
 
     pwm8: pwm {
         status = "okay";
-        pinctrl-0 = <&tim8_ch1_pc6>;
+        pinctrl-0 = <&tim8_ch1_pc6 &tim8_ch2_pc7 &tim8_ch4_pc9>;
         pinctrl-names = "default";
     };
 };
 
 &timers12 {
     status = "okay";
+    st,prescaler = <3>;
 
     pwm12: pwm {
         status = "okay";

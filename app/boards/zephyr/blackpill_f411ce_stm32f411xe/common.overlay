@@ -1,0 +1,16 @@
+/ {
+    chosen {
+        /delete-property/ zephyr,console;
+        /delete-property/ zephyr,shell-uart;
+    };
+
+    aliases {
+        /delete-property/ led0;
+    };
+
+    /delete-node/ leds;
+};
+
+&{/gpio_keys} {
+    status = "disabled";
+};

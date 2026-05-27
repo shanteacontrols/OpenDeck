@@ -1,9 +1,3 @@
-opendeck_uart_din_midi: &usart1 {};
-
-opendeck_uart_touchscreen: &usart1 {};
-
-opendeck_i2c_display: &i2c1 {};
-
 / {
     opendeck_bootloader: opendeck-bootloader {
         compatible = "opendeck,bootloader";

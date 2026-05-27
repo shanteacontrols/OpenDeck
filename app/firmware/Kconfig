@@ -5,7 +5,7 @@ OPENDECK_ANALOG_NODE := $(dt_nodelabel_path,opendeck_analog)
 OPENDECK_OUTPUTS_NODE := $(dt_nodelabel_path,opendeck_outputs)
 OPENDECK_TOUCHSCREEN_NODE := $(dt_nodelabel_path,opendeck_touchscreen)
 OPENDECK_TRAFFIC_INDICATORS_NODE := $(dt_nodelabel_path,opendeck_traffic_indicators)
-OPENDECK_DISPLAY_NODE := $(dt_nodelabel_path,opendeck_display)
+OPENDECK_I2C_NODE := $(dt_nodelabel_path,opendeck_i2c)
 OPENDECK_STAGED_DFU_NODE := $(dt_nodelabel_path,staged_dfu_partition)
 OPENDECK_TRANSPORTS_NODE := $(dt_nodelabel_path,opendeck_transports)
 
@@ -36,7 +36,7 @@ config PROJECT_TARGET_TRAFFIC_INDICATORS_DISABLED
 
 config PROJECT_TARGET_DISPLAY_DISABLED
     bool
-    default y if !$(dt_path_enabled,$(OPENDECK_DISPLAY_NODE))
+    default y if !$(dt_path_enabled,$(OPENDECK_I2C_NODE))
 
 config PROJECT_TARGET_SUPPORT_SWITCHES
     bool
@@ -287,17 +287,17 @@ config PROJECT_TARGET_EMUEEPROM_PAGE_SIZE
 
 config PROJECT_TARGET_SUPPORT_I2C
     bool
-    default y if $(dt_path_enabled,$(OPENDECK_DISPLAY_NODE))
+    default y if $(dt_path_enabled,$(OPENDECK_I2C_NODE))
     help
       Hidden compatibility symbol indicating I2C support is present on
-      this target when the chosen OpenDeck display devicetree node exists.
+      this target when the chosen OpenDeck I2C devicetree node exists.
 
 config PROJECT_TARGET_SUPPORT_DISPLAY
     bool
-    default y if $(dt_path_enabled,$(OPENDECK_DISPLAY_NODE))
+    default y if $(dt_path_enabled,$(OPENDECK_I2C_NODE))
     help
       Hidden compatibility symbol indicating display support is present on
-      this target when the chosen OpenDeck display devicetree node exists.
+      this target when the chosen OpenDeck I2C devicetree node exists.
 
 config PROJECT_TARGET_SUPPORT_DIN_MIDI
     bool

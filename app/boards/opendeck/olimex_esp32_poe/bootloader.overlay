@@ -1,7 +1,3 @@
-&psram0 {
-    status = "disabled";
-};
-
 / {
     opendeck_bootloader: opendeck-bootloader {
         compatible = "opendeck,bootloader";

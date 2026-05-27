@@ -1,0 +1,28 @@
+/delete-node/ &phy;
+
+&pinctrl {
+    wesp32_mdio_default: wesp32_mdio_default {
+        group1 {
+            pinmux = <SMI_MDC_GPIO16>,
+                     <SMI_MDIO_GPIO17>;
+        };
+    };
+};
+
+&mdio {
+    pinctrl-0 = <&wesp32_mdio_default>;
+
+    phy: ethernet-phy@0 {
+        compatible = "ethernet-phy";
+        reg = <0>;
+        no-reset;
+    };
+};
+
+&eth {
+    phy-handle = <&phy>;
+};
+
+&psram0 {
+    status = "disabled";
+};

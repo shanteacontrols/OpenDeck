@@ -1,22 +1,13 @@
-/ {
-    chosen {
-        /delete-property/ zephyr,console;
-        /delete-property/ zephyr,shell-uart;
-    };
-};
-
 &usart1 {
     current-speed = <115200>;
     pinctrl-0 = <&usart1_tx_pa9 &usart1_rx_pa10>;
     pinctrl-names = "default";
-    status = "okay";
 };
 
 &i2c1 {
     clock-frequency = <I2C_BITRATE_FAST>;
     pinctrl-0 = <&i2c1_scl_pb8 &i2c1_sda_pb9>;
     pinctrl-names = "default";
-    status = "okay";
 };
 
 &adc1 {
@@ -62,12 +53,4 @@
         zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 112)>;
         zephyr,resolution = <12>;
     };
-};
-
-&{/leds} {
-    status = "disabled";
-};
-
-&{/gpio_keys} {
-    status = "disabled";
 };

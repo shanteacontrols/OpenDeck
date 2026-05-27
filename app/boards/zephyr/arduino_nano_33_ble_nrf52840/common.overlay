@@ -1,0 +1,49 @@
+&uart0 {
+    status = "disabled";
+};
+
+&i2c0 {
+    status = "disabled";
+};
+
+&i2c1 {
+    status = "disabled";
+};
+
+&spi2 {
+    status = "disabled";
+};
+
+&pwm0 {
+    status = "disabled";
+};
+
+&pwm1 {
+    status = "disabled";
+};
+
+&pwm2 {
+    status = "disabled";
+};
+
+/ {
+    aliases {
+        /delete-property/ led0;
+        /delete-property/ led1;
+        /delete-property/ led2;
+        /delete-property/ led3;
+        /delete-property/ led4;
+        /delete-property/ red-pwm-led;
+        /delete-property/ green-pwm-led;
+        /delete-property/ blue-pwm-led;
+        /delete-property/ pwm-led0;
+        /delete-property/ pwm-led1;
+        /delete-property/ pwm-led2;
+        /delete-property/ pwm-led3;
+        /delete-property/ pwm-led4;
+    };
+
+    /delete-node/ leds;
+    /delete-node/ pwmleds;
+    /delete-node/ pwmleds2;
+};

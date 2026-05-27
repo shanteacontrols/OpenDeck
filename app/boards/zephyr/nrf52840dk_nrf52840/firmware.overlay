@@ -2,22 +2,6 @@
     current-speed = <115200>;
 };
 
-&uart1 {
-    status = "okay";
-};
-
-&qspi {
-    status = "disabled";
-};
-
-&spi3 {
-    status = "disabled";
-};
-
-&pwm0 {
-    status = "disabled";
-};
-
 &adc {
     status = "okay";
     #address-cells = <1>;
@@ -94,16 +78,4 @@
         zephyr,resolution = <12>;
         zephyr,input-positive = <NRF_SAADC_AIN7>;
     };
-};
-
-&{/buttons} {
-    status = "disabled";
-};
-
-&{/leds} {
-    status = "disabled";
-};
-
-&{/pwmleds} {
-    status = "disabled";
 };

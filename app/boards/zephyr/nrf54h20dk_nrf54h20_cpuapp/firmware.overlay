@@ -1,7 +1,3 @@
-&can120 {
-    status = "disabled";
-};
-
 &adc {
     #address-cells = <1>;
     #size-cells = <0>;
@@ -79,8 +75,4 @@
         zephyr,resolution = <12>;
         zephyr,input-positive = <NRF_SAADC_AIN7>;
     };
-};
-
-&{/buttons} {
-    status = "disabled";
 };

@@ -1,0 +1,63 @@
+#include <zephyr/dt-bindings/i2c/i2c.h>
+
+&can120 {
+    status = "disabled";
+};
+
+/ {
+    chosen {
+        /delete-property/ zephyr,canbus;
+    };
+
+    aliases {
+        /delete-property/ led0;
+        /delete-property/ led1;
+        /delete-property/ led2;
+        /delete-property/ led3;
+        /delete-property/ pwm-led0;
+        /delete-property/ mcuboot-led0;
+        /delete-property/ sw0;
+        /delete-property/ sw1;
+        /delete-property/ sw2;
+        /delete-property/ sw3;
+        /delete-property/ mcuboot-button0;
+    };
+
+    /delete-node/ buttons;
+    /delete-node/ leds;
+    /delete-node/ pwmleds;
+};
+
+&pinctrl {
+    opendeck_i2c130_default: opendeck_i2c130_default {
+        group1 {
+            psels = <NRF_PSEL(TWIM_SDA, 1, 0)>,
+                <NRF_PSEL(TWIM_SCL, 1, 1)>;
+        };
+    };
+
+    opendeck_i2c130_sleep: opendeck_i2c130_sleep {
+        group1 {
+            low-power-enable;
+            psels = <NRF_PSEL(TWIM_SDA, 1, 0)>,
+                <NRF_PSEL(TWIM_SCL, 1, 1)>;
+        };
+    };
+};
+
+&pwm130 {
+    status = "disabled";
+};
+
+&gpio1 {
+    status = "okay";
+};
+
+&i2c130 {
+    status = "disabled";
+    clock-frequency = <I2C_BITRATE_STANDARD>;
+    memory-regions = <&cpuapp_dma_region>;
+    pinctrl-0 = <&opendeck_i2c130_default>;
+    pinctrl-1 = <&opendeck_i2c130_sleep>;
+    pinctrl-names = "default", "sleep";
+};

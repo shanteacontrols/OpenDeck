@@ -19,6 +19,7 @@
         app;
         host-test;
     };
+
     opendeck_switches: opendeck-switches {
         compatible = "opendeck,switches";
         mode = "shift-register";
@@ -64,6 +65,10 @@
     };
 };
 
-&i2c1 {
-    status = "disabled";
+&adc1 {
+    pinctrl-0 = <&adc1_in3_pa3
+                 &adc1_in4_pa4
+                 &adc1_in5_pa5
+                 &adc1_in6_pa6
+                 &adc1_in7_pa7>;
 };

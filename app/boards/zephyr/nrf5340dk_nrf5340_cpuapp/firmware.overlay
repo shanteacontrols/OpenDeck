@@ -2,24 +2,12 @@
     current-speed = <115200>;
 };
 
-&uart1 {
-    status = "disabled";
-};
-
 &uart2 {
-    status = "okay";
+    status = "disabled";
     current-speed = <115200>;
     pinctrl-0 = <&uart2_default>;
     pinctrl-1 = <&uart2_sleep>;
     pinctrl-names = "default", "sleep";
-};
-
-&pwm0 {
-    status = "disabled";
-};
-
-&spi4 {
-    status = "disabled";
 };
 
 &pinctrl {
@@ -101,16 +89,4 @@
         zephyr,resolution = <12>;
         zephyr,input-positive = <NRF_SAADC_AIN5>;
     };
-};
-
-&{/buttons} {
-    status = "disabled";
-};
-
-&{/leds} {
-    status = "disabled";
-};
-
-&{/pwmleds} {
-    status = "disabled";
 };
