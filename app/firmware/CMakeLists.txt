@@ -98,7 +98,7 @@ endif()
 
 target_sources(app
     PRIVATE
-    src/atomic_compat.cpp
+    ../common/src/atomic_compat.cpp
     src/main.cpp
 )
 

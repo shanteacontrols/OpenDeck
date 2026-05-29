@@ -1,0 +1,26 @@
+/ {
+    chosen {
+        /delete-property/ zephyr,console;
+        /delete-property/ zephyr,shell-uart;
+    };
+
+    aliases {
+        /delete-property/ led-strip;
+    };
+};
+
+&red_led {
+    status = "disabled";
+};
+
+&ws2812 {
+    status = "disabled";
+};
+
+&spi0 {
+    status = "disabled";
+};
+
+&pio0 {
+    status = "disabled";
+};

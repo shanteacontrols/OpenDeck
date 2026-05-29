@@ -1,0 +1,112 @@
+#include <zephyr/dt-bindings/pwm/pwm.h>
+#include <zephyr/dt-bindings/pinctrl/esp32s3-pinctrl.h>
+
+/ {
+    opendeck_metadata: opendeck-metadata {
+        compatible = "opendeck,metadata";
+        zephyr-board = "esp32s3_devkitc/esp32s3/procpu";
+        board-name = "Metro ESP32-S3";
+    };
+
+    opendeck_transports: opendeck-transports {
+        compatible = "opendeck,transports";
+        uart = <&opendeck_uart_din_midi>;
+        usb;
+    };
+
+    opendeck_tests: opendeck-tests {
+        compatible = "opendeck,tests";
+        host;
+    };
+
+    opendeck_bulk_build: opendeck-bulk-build {
+        compatible = "opendeck,bulk-build";
+        app;
+    };
+
+    opendeck_switches: opendeck-switches {
+        compatible = "opendeck,switches";
+        mode = "native";
+        native-gpios =
+            <&gpio0 2 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpio0 3 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpio0 4 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpio0 5 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpio0 6 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpio0 7 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+    };
+
+    opendeck_analog: opendeck-analog {
+        compatible = "opendeck,analog";
+        mode = "native";
+        io-channels =
+            <&adc1 3>, /* A0 / GPIO14 */
+            <&adc1 4>, /* A1 / GPIO15 */
+            <&adc1 5>, /* A2 / GPIO16 */
+            <&adc1 6>, /* A3 / GPIO17 */
+            <&adc1 7>, /* A4 / GPIO18 */
+            <&adc0 0>; /* A5 / GPIO1 */
+    };
+
+    opendeck_outputs: opendeck-outputs {
+        compatible = "opendeck,outputs";
+        mode = "pwm";
+        pwms =
+            <&ledc0 0 PWM_MSEC(1) PWM_POLARITY_NORMAL>,
+            <&ledc0 1 PWM_MSEC(1) PWM_POLARITY_NORMAL>,
+            <&ledc0 2 PWM_MSEC(1) PWM_POLARITY_NORMAL>,
+            <&ledc0 3 PWM_MSEC(1) PWM_POLARITY_NORMAL>,
+            <&ledc0 4 PWM_MSEC(1) PWM_POLARITY_NORMAL>;
+    };
+
+    opendeck_i2c: opendeck-i2c {
+        compatible = "opendeck,i2c";
+        bus = <&opendeck_i2c_bus>;
+    };
+};
+
+&pinctrl {
+    opendeck_ledc0_default: opendeck_ledc0_default {
+        group1 {
+            pinmux = <LEDC_CH0_GPIO8>,
+                     <LEDC_CH1_GPIO9>,
+                     <LEDC_CH2_GPIO10>,
+                     <LEDC_CH3_GPIO11>,
+                     <LEDC_CH4_GPIO12>;
+            output-enable;
+        };
+    };
+};
+
+&ledc0 {
+    pinctrl-0 = <&opendeck_ledc0_default>;
+    pinctrl-names = "default";
+    status = "okay";
+    #address-cells = <1>;
+    #size-cells = <0>;
+
+    channel0@0 {
+        reg = <0>;
+        timer = <0>;
+    };
+
+    channel1@1 {
+        reg = <1>;
+        timer = <0>;
+    };
+
+    channel2@2 {
+        reg = <2>;
+        timer = <0>;
+    };
+
+    channel3@3 {
+        reg = <3>;
+        timer = <0>;
+    };
+
+    channel4@4 {
+        reg = <4>;
+        timer = <0>;
+    };
+};

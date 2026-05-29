@@ -1,0 +1,27 @@
+/ {
+    chosen {
+        /delete-property/ zephyr,console;
+        /delete-property/ zephyr,shell-uart;
+    };
+
+    aliases {
+        /delete-property/ led0;
+        /delete-property/ pwm-led0;
+    };
+};
+
+&led0 {
+    status = "disabled";
+};
+
+&pwm_led0 {
+    status = "disabled";
+};
+
+&uart0 {
+    status = "disabled";
+};
+
+&ethernet {
+    spi-max-frequency = <50000000>;
+};

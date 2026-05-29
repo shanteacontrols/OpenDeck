@@ -1,0 +1,18 @@
+diff --git a/boards/espressif/esp32s3_devkitc/board.yml b/boards/espressif/esp32s3_devkitc/board.yml
+index 7a366e8c2ad..d1fdb858a46 100644
+--- a/boards/espressif/esp32s3_devkitc/board.yml
++++ b/boards/espressif/esp32s3_devkitc/board.yml
+@@ -4,3 +4,13 @@ board:
+   vendor: espressif
+   socs:
+   - name: esp32s3
++
++runners:
++  run_once:
++    '--reset':
++    - runners:
++      - esp32
++      run: last
++      groups:
++      - boards:
++        - esp32s3_devkitc/esp32s3/procpu

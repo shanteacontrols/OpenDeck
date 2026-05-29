@@ -1,0 +1,25 @@
+diff --git a/boards/espressif/esp32s3_devkitc/Kconfig.esp32s3_devkitc b/boards/espressif/esp32s3_devkitc/Kconfig.esp32s3_devkitc
+index 2c86cfa2d8e..52e3552ca86 100644
+--- a/boards/espressif/esp32s3_devkitc/Kconfig.esp32s3_devkitc
++++ b/boards/espressif/esp32s3_devkitc/Kconfig.esp32s3_devkitc
+@@ -2,6 +2,6 @@
+ # SPDX-License-Identifier: Apache-2.0
+ 
+ config BOARD_ESP32S3_DEVKITC
+-	select SOC_ESP32S3_WROOM_N8
++	select SOC_ESP32S3_WROOM_N16R8
+ 	select SOC_ESP32S3_PROCPU if BOARD_ESP32S3_DEVKITC_ESP32S3_PROCPU
+ 	select SOC_ESP32S3_APPCPU if BOARD_ESP32S3_DEVKITC_ESP32S3_APPCPU
+diff --git a/boards/espressif/esp32s3_devkitc/esp32s3_devkitc_procpu.dts b/boards/espressif/esp32s3_devkitc/esp32s3_devkitc_procpu.dts
+index 9d6119538a1..b81527cba74 100644
+--- a/boards/espressif/esp32s3_devkitc/esp32s3_devkitc_procpu.dts
++++ b/boards/espressif/esp32s3_devkitc/esp32s3_devkitc_procpu.dts
+@@ -5,7 +5,7 @@
+  */
+ /dts-v1/;
+ 
+-#include <espressif/esp32s3/esp32s3_wroom_n8.dtsi>
++#include <espressif/esp32s3/esp32s3_wroom_n16r8.dtsi>
+ #include <zephyr/dt-bindings/input/input-event-codes.h>
+ #include <zephyr/dt-bindings/input/esp32-touch-sensor-input.h>
+ #include <espressif/partitions_0x0_amp.dtsi>

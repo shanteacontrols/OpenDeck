@@ -1,0 +1,12 @@
+diff --git a/soc/espressif/esp32s3/mcuboot.ld b/soc/espressif/esp32s3/mcuboot.ld
+index 50e214f14d2..7a31124e412 100644
+--- a/soc/espressif/esp32s3/mcuboot.ld
++++ b/soc/espressif/esp32s3/mcuboot.ld
+@@ -147,6 +147,7 @@ SECTIONS
+     . = ALIGN(4);
+     __data_start = ABSOLUTE(.);
+ 
++    __rodata_region_start = ABSOLUTE(.);
+     #include <snippets-rodata.ld>
+ 
+     . = ALIGN(4);

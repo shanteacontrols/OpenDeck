@@ -1,0 +1,13 @@
+/ {
+    chosen {
+        zephyr,code-partition = &boot_partition;
+    };
+};
+
+&adc0 {
+    status = "disabled";
+};
+
+&adc1 {
+    status = "disabled";
+};

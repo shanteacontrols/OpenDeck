@@ -1,0 +1,27 @@
+/ {
+    chosen {
+        /delete-property/ zephyr,canbus;
+    };
+
+    aliases {
+        /delete-property/ led0;
+        /delete-property/ led-strip;
+        /delete-property/ sdhc0;
+    };
+};
+
+&usb_otg {
+    status = "okay";
+};
+
+&wifi {
+    status = "disabled";
+};
+
+&spi2 {
+    status = "disabled";
+};
+
+&spi3 {
+    status = "disabled";
+};

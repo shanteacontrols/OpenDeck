@@ -1,0 +1,99 @@
+#include <zephyr/dt-bindings/pinctrl/esp32s3-pinctrl.h>
+
+&pinctrl {
+    metro_esp32s3_uart1_default: metro_esp32s3_uart1_default {
+        group1 {
+            pinmux = <UART1_TX_GPIO40>;
+            output-high;
+        };
+
+        group2 {
+            pinmux = <UART1_RX_GPIO41>;
+            bias-pull-up;
+        };
+    };
+
+    metro_esp32s3_i2c0_default: metro_esp32s3_i2c0_default {
+        group1 {
+            pinmux = <I2C0_SDA_GPIO47>,
+                     <I2C0_SCL_GPIO48>;
+            bias-pull-up;
+            drive-open-drain;
+            output-high;
+        };
+    };
+};
+
+&uart1 {
+    status = "okay";
+    current-speed = <31250>;
+    pinctrl-0 = <&metro_esp32s3_uart1_default>;
+    pinctrl-names = "default";
+};
+
+&i2c0 {
+    status = "okay";
+    clock-frequency = <I2C_BITRATE_STANDARD>;
+    pinctrl-0 = <&metro_esp32s3_i2c0_default>;
+    pinctrl-names = "default";
+};
+
+&adc0 {
+    status = "okay";
+    #address-cells = <1>;
+    #size-cells = <0>;
+
+    channel@0 {
+        reg = <0>;
+        zephyr,gain = "ADC_GAIN_1_4";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+        zephyr,resolution = <12>;
+    };
+};
+
+&adc1 {
+    status = "okay";
+    #address-cells = <1>;
+    #size-cells = <0>;
+
+    channel@3 {
+        reg = <3>;
+        zephyr,gain = "ADC_GAIN_1_4";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+        zephyr,resolution = <12>;
+    };
+
+    channel@4 {
+        reg = <4>;
+        zephyr,gain = "ADC_GAIN_1_4";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+        zephyr,resolution = <12>;
+    };
+
+    channel@5 {
+        reg = <5>;
+        zephyr,gain = "ADC_GAIN_1_4";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+        zephyr,resolution = <12>;
+    };
+
+    channel@6 {
+        reg = <6>;
+        zephyr,gain = "ADC_GAIN_1_4";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+        zephyr,resolution = <12>;
+    };
+
+    channel@7 {
+        reg = <7>;
+        zephyr,gain = "ADC_GAIN_1_4";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+        zephyr,resolution = <12>;
+    };
+};

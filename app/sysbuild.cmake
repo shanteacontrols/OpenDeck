@@ -36,6 +36,7 @@ endif()
 
 set(opendeck_board_partitions_overlay           ${opendeck_zephyr_board_dir_path}/partitions.overlay)
 set(opendeck_board_common_overlay               ${opendeck_zephyr_board_dir_path}/common.overlay)
+set(opendeck_board_common_conf                  ${opendeck_zephyr_board_dir_path}/common.conf)
 set(opendeck_board_firmware_overlay             ${opendeck_zephyr_board_dir_path}/firmware.overlay)
 set(opendeck_board_firmware_conf                ${opendeck_zephyr_board_dir_path}/firmware.conf)
 set(opendeck_board_mcuboot_conf                 ${opendeck_zephyr_board_dir_path}/mcuboot.conf)
@@ -254,6 +255,11 @@ list(APPEND opendeck_firmware_conf_files ${opendeck_firmware_mode_conf})
 set(${DEFAULT_IMAGE}_CONF_FILE ${opendeck_firmware_conf_files} CACHE INTERNAL "" FORCE)
 
 set(opendeck_firmware_extra_conf_files)
+
+if(EXISTS ${opendeck_board_common_conf})
+    list(APPEND opendeck_firmware_extra_conf_files ${opendeck_board_common_conf})
+endif()
+
 list(APPEND opendeck_firmware_extra_conf_files ${opendeck_board_firmware_conf})
 
 if(opendeck_firmware_network_enabled)
@@ -307,6 +313,10 @@ set(mcuboot_DTS_ROOT ${APP_DIR} CACHE INTERNAL "" FORCE)
 set(opendeck_mcuboot_extra_conf_files)
 list(APPEND opendeck_mcuboot_extra_conf_files ${opendeck_mcuboot_conf})
 
+if(EXISTS ${opendeck_board_common_conf})
+    list(APPEND opendeck_mcuboot_extra_conf_files ${opendeck_board_common_conf})
+endif()
+
 if(EXISTS ${opendeck_board_mcuboot_conf})
     list(APPEND opendeck_mcuboot_extra_conf_files ${opendeck_board_mcuboot_conf})
 endif()
@@ -344,6 +354,10 @@ list(APPEND opendeck_bootloader_conf_files ${opendeck_bootloader_mode_conf})
 set(opendeck_bootloader_CONF_FILE ${opendeck_bootloader_conf_files} CACHE INTERNAL "" FORCE)
 
 set(opendeck_bootloader_extra_conf_files)
+if(EXISTS ${opendeck_board_common_conf})
+    list(APPEND opendeck_bootloader_extra_conf_files ${opendeck_board_common_conf})
+endif()
+
 list(APPEND opendeck_bootloader_extra_conf_files ${opendeck_board_bootloader_conf})
 
 if(opendeck_bootloader_network_enabled)

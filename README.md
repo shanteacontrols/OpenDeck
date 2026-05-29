@@ -57,6 +57,8 @@ The firmware supports various other boards, both small and large:
 | Board | MIDI | OSC |
 | --- | --- | --- |
 | [Adafruit Grand Central M4 Express](https://www.adafruit.com/product/4064) | USB, DIN | No |
+| [Adafruit Metro ESP32-S3](https://www.adafruit.com/product/5500) | USB, DIN | No |
+| [Adafruit Metro RP2040](https://www.adafruit.com/product/5786) | USB, DIN | No |
 | [Arduino Nano 33 BLE](https://store.arduino.cc/products/arduino-nano-33-ble) | USB, DIN, BLE | No |
 | [nRF52840 DK](https://www.nordicsemi.com/Products/Development-hardware/nrf52840-dk) | USB, DIN, BLE | No |
 | [nRF5340 DK](https://www.nordicsemi.com/Products/Development-hardware/nrf5340-dk) | USB, DIN, BLE | No |
@@ -70,6 +72,10 @@ The firmware supports various other boards, both small and large:
 | [Teensy 4.0](https://www.pjrc.com/store/teensy40.html) | USB, DIN | No |
 | [Teensy 4.1](https://www.pjrc.com/store/teensy41.html) | USB, DIN | No |
 | [Waveshare Core405R](https://www.waveshare.com/core405r.htm) | USB, DIN | No |
+| [W5500-EVB-Pico](https://docs.wiznet.io/Product/Open-Source-Hardware/w5500-evb-pico) | USB | Ethernet |
+| [W5500-EVB-Pico2](https://docs.wiznet.io/Product/Open-Source-Hardware/w5500-evb-pico2) | USB, DIN | Ethernet |
+| [W6100-EVB-Pico](https://docs.wiznet.io/Product/Open-Source-Hardware/w6100-evb-pico) | USB, DIN | Ethernet |
+| [W6100-EVB-Pico2](https://docs.wiznet.io/Product/Open-Source-Hardware/w6100-evb-pico2) | USB, DIN | Ethernet |
 | [wESP32](https://wesp32.com/) | No | Ethernet |
 
 For more details on supported boards, check the [wiki page](https://github.com/shanteacontrols/OpenDeck/wiki). A page with [instructions on how to flash OpenDeck firmware](https://github.com/shanteacontrols/OpenDeck/wiki/Flashing-the-OpenDeck-firmware) to supported boards is also available. Support for custom boards [can also be added](https://github.com/shanteacontrols/OpenDeck/wiki/Creating-custom-board-variant).

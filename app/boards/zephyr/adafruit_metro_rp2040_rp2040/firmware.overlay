@@ -1,0 +1,3 @@
+&adc {
+    raspberrypi,adc-clkdiv = <2>;
+};
