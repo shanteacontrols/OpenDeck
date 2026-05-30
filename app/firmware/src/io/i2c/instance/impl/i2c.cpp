@@ -8,6 +8,7 @@
 #include "firmware/src/io/i2c/instance/impl/i2c.h"
 #include "firmware/src/util/thread_sleep.h"
 
+#include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
 using namespace opendeck::io::i2c;
@@ -20,17 +21,12 @@ namespace
 I2c::~I2c()
 {
     shutdown();
-
-    for (size_t i = 0; i < I2c::MAX_PERIPHERALS; i++)
-    {
-        peripherals.at(i) = nullptr;
-    }
-
-    peripheral_counter = 0;
+    peripherals.clear();
 }
 
-I2c::I2c()
-    : _thread([&]()
+I2c::I2c(HwaBase& hwa)
+    : _hwa(hwa)
+    , _thread([&]()
               {
                   while (1)
                   {
@@ -44,15 +40,19 @@ I2c::I2c()
 
 bool I2c::init()
 {
-    for (size_t i = 0; i < peripheral_counter; i++)
+    if (!_hwa.init())
     {
-        if (peripherals.at(i) != nullptr)
-        {
-            if (!peripherals.at(i)->init())
-            {
-                return false;
-            }
-        }
+        LOG_WRN("I2C backend init failed");
+        return false;
+    }
+
+    LOG_INF("I2C backend initialized, registered peripherals=%u", static_cast<unsigned int>(peripherals.size()));
+
+    const auto now_ms = k_uptime_get();
+
+    for (auto& peripheral : peripherals)
+    {
+        update_peripheral(peripheral, now_ms);
     }
 
     _thread.run();
@@ -72,12 +72,31 @@ void I2c::shutdown()
 
 void I2c::register_peripheral(Peripheral* instance)
 {
-    if (peripheral_counter >= MAX_PERIPHERALS)
+    peripherals.push_back({
+        .instance = instance,
+    });
+}
+
+std::optional<size_t> I2c::find_address(Peripheral& peripheral)
+{
+    size_t address_index = 0;
+
+    for (const auto address : peripheral.i2c_addresses())
     {
-        return;
+        if (_hwa.device_available(address))
+        {
+            return address_index;
+        }
+
+        address_index++;
     }
 
-    peripherals[peripheral_counter++] = instance;
+    return std::nullopt;
+}
+
+uint8_t I2c::address_at(Peripheral& peripheral, size_t address_index)
+{
+    return peripheral.i2c_addresses()[address_index];
 }
 
 void I2c::update_peripherals()
@@ -87,12 +106,58 @@ void I2c::update_peripherals()
         return;
     }
 
-    for (size_t i = 0; i < peripheral_counter; i++)
+    const auto now_ms = k_uptime_get();
+
+    for (auto& peripheral : peripherals)
     {
-        if (peripherals.at(i) != nullptr)
+        update_peripheral(peripheral, now_ms);
+    }
+}
+
+void I2c::update_peripheral(PeripheralState& state, int64_t now_ms)
+{
+    auto* peripheral = state.instance;
+
+    if (peripheral == nullptr)
+    {
+        return;
+    }
+
+    if (now_ms >= state.next_probe_ms)
+    {
+        state.next_probe_ms = now_ms + DEVICE_PROBE_INTERVAL_MS;
+
+        if (!state.initialized)
         {
-            peripherals.at(i)->update();
+            const auto address_index = find_address(*peripheral);
+
+            if (!address_index.has_value())
+            {
+                LOG_DBG("I2C peripheral %s not found", peripheral->name().data());
+                return;
+            }
+
+            state.address_index = address_index.value();
+            state.initialized   = peripheral->init(state.address_index);
+
+            if (!state.initialized)
+            {
+                peripheral->deinit();
+                return;
+            }
+
+            LOG_INF("I2C peripheral %s initialized at address 0x%02x",
+                    peripheral->name().data(),
+                    address_at(*peripheral, state.address_index));
+            return;
         }
+    }
+
+    if (state.initialized && !peripheral->update())
+    {
+        LOG_WRN("I2C peripheral %s update failed, deinitializing", peripheral->name().data());
+        peripheral->deinit();
+        state.initialized = false;
     }
 }
 

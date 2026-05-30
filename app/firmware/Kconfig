@@ -292,13 +292,6 @@ config PROJECT_TARGET_SUPPORT_I2C
       Hidden compatibility symbol indicating I2C support is present on
       this target when the chosen OpenDeck I2C devicetree node exists.
 
-config PROJECT_TARGET_SUPPORT_DISPLAY
-    bool
-    default y if $(dt_path_enabled,$(OPENDECK_I2C_NODE))
-    help
-      Hidden compatibility symbol indicating display support is present on
-      this target when the chosen OpenDeck I2C devicetree node exists.
-
 config PROJECT_TARGET_SUPPORT_DIN_MIDI
     bool
     default y if $(dt_path_enabled,$(OPENDECK_TRANSPORTS_NODE)) && \

@@ -16,6 +16,7 @@
 #include <span>
 #include <string_view>
 #include <type_traits>
+#include <variant>
 
 namespace opendeck::protocol::osc
 {
@@ -229,6 +230,84 @@ namespace opendeck::protocol::osc
                                .index  = signal.component_index,
                            },
                            OscInt32{ value });
+    }
+
+    /**
+     * @brief Builds one OSC packet from a sensor signal.
+     *
+     * @param packet Packet buffer to fill.
+     * @param signal Sensor event to encode as an OSC message.
+     *
+     * @return Number of bytes written, or empty if the sensor event is not mapped.
+     */
+    inline std::optional<size_t> make_packet(PacketBuffer&                     packet,
+                                             const signaling::OscSensorSignal& signal)
+    {
+        return std::visit(
+            [&packet](const auto& payload) -> std::optional<size_t>
+            {
+                using Payload = std::decay_t<decltype(payload)>;
+
+                if constexpr (std::is_same_v<Payload, signaling::OscSensorProximitySignal>)
+                {
+                    return make_packet(packet, paths::SENSOR_PROXIMITY.c_str(), OscInt32{ payload.value });
+                }
+                else if constexpr (std::is_same_v<Payload, signaling::OscSensorAmbientLightSignal>)
+                {
+                    return make_packet(packet, paths::SENSOR_AMBIENT_LIGHT.c_str(), OscInt32{ payload.value });
+                }
+                else if constexpr (std::is_same_v<Payload, signaling::OscSensorDistanceSignal>)
+                {
+                    return make_packet(packet, paths::SENSOR_DISTANCE.c_str(), OscInt32{ payload.value });
+                }
+                else if constexpr (std::is_same_v<Payload, signaling::OscSensorRgbSignal>)
+                {
+                    return make_packet(packet,
+                                       paths::SENSOR_RGB.c_str(),
+                                       OscInt32{ payload.red },
+                                       OscInt32{ payload.green },
+                                       OscInt32{ payload.blue });
+                }
+                else if constexpr (std::is_same_v<Payload, signaling::OscSensorGestureSignal>)
+                {
+                    std::string_view gesture = {};
+
+                    switch (payload.gesture)
+                    {
+                    case signaling::OscSensorGesture::Up:
+                    {
+                        gesture = "up";
+                    }
+                    break;
+
+                    case signaling::OscSensorGesture::Down:
+                    {
+                        gesture = "down";
+                    }
+                    break;
+
+                    case signaling::OscSensorGesture::Left:
+                    {
+                        gesture = "left";
+                    }
+                    break;
+
+                    case signaling::OscSensorGesture::Right:
+                    {
+                        gesture = "right";
+                    }
+                    break;
+
+                    default:
+                        return {};
+                    }
+
+                    return make_packet(packet, paths::SENSOR_GESTURE.c_str(), OscString{ gesture });
+                }
+
+                return {};
+            },
+            signal.payload);
     }
 
     /**

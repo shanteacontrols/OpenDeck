@@ -16,7 +16,7 @@ namespace opendeck::io::i2c
     /**
      * @brief Hardware-backed I2C backend that proxies to the Zephyr I2C driver.
      */
-    class HwaHw : public Hwa
+    class HwaHw : public HwaBase, public HwaPeripheral
     {
         public:
         HwaHw() = default;
@@ -36,13 +36,26 @@ namespace opendeck::io::i2c
          *
          * @param address 7-bit I2C device address.
          * @param buffer Buffer containing bytes to transmit.
-         * @param size Number of bytes to write.
          *
          * @return `true` if the transfer succeeded, otherwise `false`.
          */
-        bool write(uint8_t address, uint8_t* buffer, size_t size) override
+        bool write(uint8_t address, std::span<const uint8_t> buffer) override
         {
-            return i2c_write(_i2c_device, buffer, size, address) == 0;
+            return i2c_write(_i2c_device, buffer.data(), buffer.size(), address) == 0;
+        }
+
+        /**
+         * @brief Writes one buffer and then reads one buffer from the requested I2C address.
+         *
+         * @param address 7-bit I2C device address.
+         * @param write_buffer Buffer containing bytes to transmit before the read.
+         * @param read_buffer Buffer that receives bytes read from the device.
+         *
+         * @return `true` if the transfer succeeded, otherwise `false`.
+         */
+        bool write_read(uint8_t address, std::span<const uint8_t> write_buffer, std::span<uint8_t> read_buffer) override
+        {
+            return i2c_write_read(_i2c_device, address, write_buffer.data(), write_buffer.size(), read_buffer.data(), read_buffer.size()) == 0;
         }
 
         /**

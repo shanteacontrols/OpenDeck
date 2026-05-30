@@ -154,6 +154,8 @@ namespace opendeck::sys
             enum class I2c : uint8_t
             {
                 Display,
+                Apds9960,
+                Vl53l4cx,
                 Count
             };
 

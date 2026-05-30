@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_DISPLAY
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_I2C
 
 #include "firmware/src/io/i2c/peripherals/display/display.h"
 

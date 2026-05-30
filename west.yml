@@ -6,6 +6,8 @@ manifest:
       url-base: https://github.com/paradajz
     - name: olikraus
       url-base: https://github.com/olikraus
+    - name: stm32duino
+      url-base: https://github.com/stm32duino
 
   projects:
     - name: zephyr
@@ -21,3 +23,7 @@ manifest:
       remote: paradajz
       revision: 4d80fb4ebe7611f35cc311887d403f1f0ab51ae0
       path: modules/zlibs
+    - name: vl53l4cx
+      remote: stm32duino
+      revision: 8ef5e558f4617ac52f559563e9ffe285a8b345f8
+      path: modules/vl53l4cx

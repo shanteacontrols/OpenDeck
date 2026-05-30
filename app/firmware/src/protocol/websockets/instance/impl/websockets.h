@@ -169,11 +169,13 @@ namespace opendeck::protocol::websockets
         bool client_session_active(uint32_t session_id);
 
         /**
-         * @brief Queues the WebSockets OSC preview packet for one IO event.
+         * @brief Queues the WebSockets OSC preview packet for one outbound OSC signal.
          *
-         * @param signal IO event that would be sent on the OSC UDP path.
+         * @tparam Signal OSC signal type.
+         * @param signal Event that would be sent on the OSC UDP path.
          */
-        void mirror_osc_packet(const signaling::OscIoSignal& signal);
+        template<typename Signal>
+        void mirror_osc_packet(const Signal& signal);
 
         /**
          * @brief Queues one binary WebSocket frame for a specific client session.

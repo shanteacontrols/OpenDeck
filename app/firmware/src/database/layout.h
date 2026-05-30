@@ -13,6 +13,8 @@
 #include "firmware/src/io/i2c/peripherals/display/shared/common.h"
 #include "firmware/src/io/outputs/shared/common.h"
 #include "firmware/src/io/touchscreen/shared/common.h"
+#include "firmware/src/io/i2c/peripherals/sensor_apds9960/shared/common.h"
+#include "firmware/src/io/i2c/peripherals/sensor_vl53l4cx/shared/common.h"
 #include "common/src/protocols/mdns/shared/common.h"
 #include "firmware/src/protocol/midi/shared/common.h"
 #include "firmware/src/protocol/mdns/shared/common.h"
@@ -368,7 +370,21 @@ namespace opendeck::database
                 SectionParameterType::Byte,
                 PreserveSetting::Disable,
                 AutoIncrementSetting::Disable,
-                0),
+                io::i2c::display::DISPLAY_DEFAULTS),
+            // APDS9960
+            Section(
+                static_cast<uint8_t>(io::i2c::sensor_apds9960::Setting::Count),
+                SectionParameterType::Byte,
+                PreserveSetting::Disable,
+                AutoIncrementSetting::Disable,
+                io::i2c::sensor_apds9960::APDS9960_DEFAULTS),
+            // VL53L4CX
+            Section(
+                static_cast<uint8_t>(io::i2c::sensor_vl53l4cx::Setting::Count),
+                SectionParameterType::Byte,
+                PreserveSetting::Disable,
+                AutoIncrementSetting::Disable,
+                io::i2c::sensor_vl53l4cx::VL53L4CX_DEFAULTS),
         });
 
         inline static constexpr auto TOUCHSCREEN_SECTIONS = zlibs::utils::lessdb::make_block(std::array{

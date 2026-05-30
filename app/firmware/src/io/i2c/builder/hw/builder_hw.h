@@ -24,6 +24,7 @@ namespace opendeck::io::i2c
          */
         explicit Builder(database::Admin& database)
             : _peripherals(_hwa, database)
+            , _instance(_hwa)
         {}
 
         /**

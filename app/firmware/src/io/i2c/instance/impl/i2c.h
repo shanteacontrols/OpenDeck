@@ -10,7 +10,8 @@
 #include "firmware/src/io/shared/common.h"
 #include "firmware/src/threads.h"
 
-#include <array>
+#include <optional>
+#include <vector>
 
 namespace opendeck::io::i2c
 {
@@ -22,8 +23,10 @@ namespace opendeck::io::i2c
         public:
         /**
          * @brief Constructs the I2C subsystem.
+         *
+         * @param hwa Hardware abstraction used for bus init and device probing.
          */
-        I2c();
+        explicit I2c(HwaBase& hwa);
 
         ~I2c() override;
 
@@ -47,16 +50,51 @@ namespace opendeck::io::i2c
         static void register_peripheral(Peripheral* instance);
 
         private:
-        static constexpr size_t MAX_PERIPHERALS = 5;
+        static constexpr int64_t DEVICE_PROBE_INTERVAL_MS = 1000;
 
-        threads::I2cThread                                     _thread;
-        static inline size_t                                   peripheral_counter = 0;
-        static inline std::array<Peripheral*, MAX_PERIPHERALS> peripherals        = {};
+        struct PeripheralState
+        {
+            Peripheral* instance      = nullptr;
+            bool        initialized   = false;
+            size_t      address_index = 0;
+            int64_t     next_probe_ms = 0;
+        };
+
+        static inline std::vector<PeripheralState> peripherals = {};
+        HwaBase&                                   _hwa;
+        threads::I2cThread                         _thread;
 
         /**
          * @brief Updates every registered peripheral.
          */
         void update_peripherals();
+
+        /**
+         * @brief Probes a registered peripheral's candidate addresses.
+         *
+         * @param peripheral Peripheral to probe.
+         *
+         * @return Responding address index, or empty if none responds.
+         */
+        std::optional<size_t> find_address(Peripheral& peripheral);
+
+        /**
+         * @brief Returns one candidate address by index.
+         *
+         * @param peripheral Peripheral containing the address list.
+         * @param address_index Index into the peripheral address list.
+         *
+         * @return Candidate 7-bit I2C address.
+         */
+        static uint8_t address_at(Peripheral& peripheral, size_t address_index);
+
+        /**
+         * @brief Updates one peripheral state slot.
+         *
+         * @param state State to update.
+         * @param now_ms Current uptime in milliseconds.
+         */
+        void update_peripheral(PeripheralState& state, int64_t now_ms);
 
         /**
          * @brief Stops subsystem activity and releases runtime resources.

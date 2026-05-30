@@ -18,8 +18,10 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <span>
 #include <string_view>
+#include <variant>
 
 #include <zephyr/sys/__assert.h>
 
@@ -117,6 +119,75 @@ namespace opendeck::signaling
         std::optional<int32_t> int32_value     = {};
         std::optional<float>   float_value     = {};
         SignalDirection        direction       = SignalDirection::Out;
+    };
+
+    /**
+     * @brief Identifies a decoded APDS9960 gesture direction.
+     */
+    enum class OscSensorGesture : uint8_t
+    {
+        None,
+        Up,
+        Down,
+        Left,
+        Right,
+    };
+
+    /**
+     * @brief Carries one proximity sensor value for OSC.
+     */
+    struct OscSensorProximitySignal
+    {
+        int32_t value = 0;
+    };
+
+    /**
+     * @brief Carries one ambient light sensor value for OSC.
+     */
+    struct OscSensorAmbientLightSignal
+    {
+        int32_t value = 0;
+    };
+
+    /**
+     * @brief Carries one distance sensor value for OSC.
+     */
+    struct OscSensorDistanceSignal
+    {
+        int32_t value = 0;
+    };
+
+    /**
+     * @brief Carries one RGB sensor value tuple for OSC.
+     */
+    struct OscSensorRgbSignal
+    {
+        int32_t red   = 0;
+        int32_t green = 0;
+        int32_t blue  = 0;
+    };
+
+    /**
+     * @brief Carries one decoded gesture sensor value for OSC.
+     */
+    struct OscSensorGestureSignal
+    {
+        OscSensorGesture gesture = OscSensorGesture::None;
+    };
+
+    using OscSensorSignalPayload = std::variant<OscSensorProximitySignal,
+                                                OscSensorAmbientLightSignal,
+                                                OscSensorDistanceSignal,
+                                                OscSensorRgbSignal,
+                                                OscSensorGestureSignal>;
+
+    /**
+     * @brief Requests OSC processing for one sensor event.
+     */
+    struct OscSensorSignal
+    {
+        OscSensorSignalPayload payload   = OscSensorProximitySignal{};
+        SignalDirection        direction = SignalDirection::Out;
     };
 
     /**
@@ -379,6 +450,7 @@ namespace opendeck::signaling
             []()
             {
                 SignalRegistry<OscIoSignal>::instance().clear();
+                SignalRegistry<OscSensorSignal>::instance().clear();
                 SignalRegistry<MidiIoSignal>::instance().clear();
                 SignalRegistry<InternalProgram>::instance().clear();
                 SignalRegistry<SystemSignal>::instance().clear();
@@ -388,6 +460,8 @@ namespace opendeck::signaling
                 SignalRegistry<ConfigResponseSignal>::instance().clear();
                 SignalRegistry<ConfigDisconnectSignal>::instance().clear();
                 SignalRegistry<NetworkIdentitySignal>::instance().clear();
+                SignalRegistry<ForcedRefreshStart>::instance().clear();
+                SignalRegistry<ForcedRefreshStop>::instance().clear();
                 SignalRegistry<UsbUmpBurstSignal>::instance().clear();
                 SignalRegistry<TrafficSignal>::instance().clear();
             });

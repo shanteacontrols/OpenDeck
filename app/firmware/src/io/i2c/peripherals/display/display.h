@@ -34,16 +34,41 @@ namespace opendeck::io::i2c::display
                 Database& database);
 
         /**
-         * @brief Detects, configures, and initializes the display controller.
+         * @brief Configures and initializes the display controller.
+         *
+         * @param address_index Index into the supported I2C address list.
          *
          * @return `true` if a supported display was found and initialized, otherwise `false`.
          */
-        bool init() override;
+        bool init(size_t address_index) override;
 
         /**
          * @brief Refreshes display elements when the display is initialized.
+         *
+         * @return `true` when the display is initialized, otherwise `false`.
          */
-        void update() override;
+        bool update() override;
+
+        /**
+         * @brief Deinitializes the display runtime state.
+         *
+         * @return `true` if the display was deinitialized.
+         */
+        bool deinit() override;
+
+        /**
+         * @brief Returns the peripheral name used in diagnostics.
+         *
+         * @return Static peripheral name.
+         */
+        constexpr std::string_view name() const override;
+
+        /**
+         * @brief Returns supported display I2C addresses.
+         *
+         * @return Candidate 7-bit I2C addresses.
+         */
+        std::span<const uint8_t> i2c_addresses() const override;
 
         private:
         static constexpr uint8_t MAX_ROWS              = 4;
@@ -54,8 +79,7 @@ namespace opendeck::io::i2c::display
         static constexpr uint8_t INDICATOR_TEXT_LENGTH = 1;
         static constexpr uint8_t PRESET_COLUMN         = 13;
 
-        using RowMapArray     = std::array<std::array<uint8_t, MAX_ROWS>, static_cast<uint8_t>(DisplayResolution::Count)>;
-        using I2cAddressArray = std::array<uint8_t, 2>;
+        using RowMapArray = std::array<std::array<uint8_t, MAX_ROWS>, static_cast<uint8_t>(DisplayResolution::Count)>;
 
         static constexpr RowMapArray ROW_MAP = {
             {
@@ -74,11 +98,6 @@ namespace opendeck::io::i2c::display
                     6,
                 },
             },
-        };
-
-        static constexpr I2cAddressArray I2C_ADDRESS = {
-            0x3C,
-            0x3D,
         };
 
         /**
@@ -377,7 +396,7 @@ namespace opendeck::io::i2c::display
         DisplayResolution _resolution                    = DisplayResolution::Count;
         bool              _initialized                   = false;
         bool              _startup_info_shown            = false;
-        uint8_t           _selected_i2c_address          = 0;
+        size_t            _selected_i2c_address_index    = 0;
         size_t            _rows                          = 0;
 
         /**
@@ -392,11 +411,11 @@ namespace opendeck::io::i2c::display
         bool init_u8x8(uint8_t i2c_address, DisplayController controller, DisplayResolution resolution);
 
         /**
-         * @brief Deinitializes the display runtime state.
+         * @brief Returns the selected display I2C address.
          *
-         * @return `true` if the display was initialized and is now deinitialized, otherwise `false`.
+         * @return Selected 7-bit I2C address.
          */
-        bool deinit();
+        uint8_t i2c_address() const;
 
         /**
          * @brief Shows the startup welcome message.

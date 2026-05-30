@@ -53,9 +53,10 @@ namespace opendeck::protocol::osc
          */
         struct TxEvent
         {
-            signaling::OscIoSignal signal   = {};
-            bool                   control  = false;
-            bool                   shutdown = false;
+            PacketBuffer packet   = {};
+            size_t       size     = 0;
+            bool         control  = false;
+            bool         shutdown = false;
         };
 
         Hwa&                                                          _hwa;
@@ -73,13 +74,14 @@ namespace opendeck::protocol::osc
         threads::OscSendThread                                        _send_thread;
 
         /**
-         * @brief Converts a raw IO signal into a queued OSC event.
+         * @brief Converts a signal into a queued OSC event.
          *
-         * @param event Raw IO signal published by an IO component.
+         * @param event Signal to publish over OSC.
          *
          * @return `true` when the signal was queued or intentionally ignored.
          */
-        bool enqueue_input(const signaling::OscIoSignal& event);
+        template<typename Signal>
+        bool enqueue(const Signal& event);
 
         /**
          * @brief Returns whether OSC output is enabled in the database.

@@ -3,6 +3,8 @@ opendeck_library_named(opendeck_firmware_io_i2c)
 
 target_include_directories(opendeck_firmware_io_i2c
     PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}/peripherals/sensor_vl53l4cx/port
+    $ENV{ZEPHYR_WS}/modules/vl53l4cx/src
     $ENV{ZEPHYR_WS}/modules/u8g2/csrc
 )
 
@@ -24,6 +26,29 @@ zephyr_library_sources(
     ${CMAKE_CURRENT_LIST_DIR}/instance/impl/i2c.cpp
     ${CMAKE_CURRENT_LIST_DIR}/peripherals/display/display.cpp
     ${CMAKE_CURRENT_LIST_DIR}/peripherals/display/elements.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/peripherals/sensor_apds9960/sensor_apds9960.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/peripherals/sensor_vl53l4cx/sensor_vl53l4cx.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/peripherals/sensor_vl53l4cx/port/vl53l4cx_port.cpp
+    $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_api.cpp
+    $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_api_calibration.cpp
+    $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_api_core.cpp
+    $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_api_debug.cpp
+    $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_api_preset_modes.cpp
+    $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_core.cpp
+    $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_core_support.cpp
+    $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_dmax.cpp
+    $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_hist_algos_gen3.cpp
+    $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_hist_algos_gen4.cpp
+    $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_hist_char.cpp
+    $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_hist_core.cpp
+    $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_hist_funcs.cpp
+    $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_nvm.cpp
+    $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_platform_ipp.cpp
+    $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_register_funcs.cpp
+    $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_sigma_estimate.cpp
+    $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_silicon_core.cpp
+    $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_wait.cpp
+    $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_xtalk.cpp
     $ENV{ZEPHYR_WS}/modules/u8g2/csrc/u8x8_string.c
     $ENV{ZEPHYR_WS}/modules/u8g2/csrc/u8x8_setup.c
     $ENV{ZEPHYR_WS}/modules/u8g2/csrc/u8x8_u8toa.c

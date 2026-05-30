@@ -63,6 +63,47 @@ namespace
 
 }    // namespace
 
+template<typename Signal>
+bool Osc::enqueue(const Signal& event)
+{
+    if (!_initialized || protocol::Base::is_frozen() || (event.direction != signaling::SignalDirection::Out))
+    {
+        return true;
+    }
+
+    PacketBuffer packet = {};
+    const auto   size   = make_packet(packet, event);
+
+    if (!size)
+    {
+        return true;
+    }
+
+    TxEvent queued = {
+        .packet   = packet,
+        .size     = *size,
+        .control  = false,
+        .shutdown = false,
+    };
+
+    bool inserted = false;
+
+    {
+        const zmisc::LockGuard lock(_queue_lock);
+        inserted = _queue.insert(queued);
+    }
+
+    if (!inserted)
+    {
+        LOG_WRN("OSC event queue full, dropping event");
+        return false;
+    }
+
+    k_sem_give(&_send_wakeup);
+
+    return true;
+}
+
 Osc::Osc(Hwa& hwa, Database& database)
     : _hwa(hwa)
     , _database(database)
@@ -104,7 +145,13 @@ Osc::Osc(Hwa& hwa, Database& database)
     signaling::subscribe<signaling::OscIoSignal>(
         [this](const signaling::OscIoSignal& event)
         {
-            [[maybe_unused]] const auto ret = enqueue_input(event);
+            [[maybe_unused]] const auto ret = enqueue(event);
+        });
+
+    signaling::subscribe<signaling::OscSensorSignal>(
+        [this](const signaling::OscSensorSignal& event)
+        {
+            [[maybe_unused]] const auto ret = enqueue(event);
         });
 
     signaling::subscribe<signaling::NetworkIdentitySignal>(
@@ -210,44 +257,6 @@ bool Osc::has_network_identity() const
     return _network_identity_received.load() &&
            !_network_identity.name().empty() &&
            !_network_identity.ipv4_address().empty();
-}
-
-bool Osc::enqueue_input(const signaling::OscIoSignal& event)
-{
-    if (!_initialized || protocol::Base::is_frozen() || (event.direction != signaling::SignalDirection::Out))
-    {
-        return true;
-    }
-
-    TxEvent queued = {
-        .signal   = event,
-        .control  = false,
-        .shutdown = false,
-    };
-
-    PacketBuffer packet = {};
-
-    if (!make_packet(packet, event))
-    {
-        return true;
-    }
-
-    bool inserted = false;
-
-    {
-        const zmisc::LockGuard lock(_queue_lock);
-        inserted = _queue.insert(queued);
-    }
-
-    if (!inserted)
-    {
-        LOG_WRN("OSC event queue full, dropping input %zu", event.component_index);
-        return false;
-    }
-
-    k_sem_give(&_send_wakeup);
-
-    return true;
 }
 
 void Osc::read_loop()
@@ -361,16 +370,13 @@ void Osc::send_loop()
 
 bool Osc::send_event(const TxEvent& event, int sock)
 {
-    PacketBuffer packet = {};
-    const auto   size   = make_packet(packet, event.signal);
-
-    if (!size)
+    if (event.size == 0)
     {
-        LOG_ERR("Failed to build OSC IO packet");
+        LOG_ERR("Failed to send empty OSC packet");
         return false;
     }
 
-    return send_packet(std::span<const uint8_t>(packet.data(), *size), sock);
+    return send_packet(std::span<const uint8_t>(event.packet.data(), event.size), sock);
 }
 
 bool Osc::send_discovery_response(const sockaddr_in& sender, int sock)

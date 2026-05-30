@@ -27,6 +27,32 @@ namespace
     LOG_MODULE_REGISTER(websockets, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
 }    // namespace
 
+template<typename Signal>
+void WebSockets::mirror_osc_packet(const Signal& signal)
+{
+    if (signal.direction != signaling::SignalDirection::Out)
+    {
+        return;
+    }
+
+    protocol::osc::PacketBuffer packet = {};
+    const auto                  size   = protocol::osc::make_packet(packet, signal);
+
+    if (!size)
+    {
+        return;
+    }
+
+    uint32_t session_id = signaling::CONFIG_SESSION_ID_DEFAULT;
+
+    {
+        const zmisc::LockGuard lock(_client_state_lock);
+        session_id = _client_generation;
+    }
+
+    queue_binary_frame(std::span<const uint8_t>(packet.data(), *size), session_id);
+}
+
 WebSockets::WebSockets(opendeck::common::protocols::websockets::Hwa& hwa, firmware::dfu::staged_update_writer::StagedUpdateWriter& staged_update_writer)
     : _hwa(hwa)
     , _client_thread(
@@ -68,6 +94,12 @@ WebSockets::WebSockets(opendeck::common::protocols::websockets::Hwa& hwa, firmwa
 
     signaling::subscribe<signaling::OscIoSignal>(
         [this](const signaling::OscIoSignal& event)
+        {
+            mirror_osc_packet(event);
+        });
+
+    signaling::subscribe<signaling::OscSensorSignal>(
+        [this](const signaling::OscSensorSignal& event)
         {
             mirror_osc_packet(event);
         });
@@ -499,31 +531,6 @@ bool WebSockets::client_session_active(uint32_t session_id)
 
     return (_client_socket.load() >= 0) &&
            (_client_generation == session_id);
-}
-
-void WebSockets::mirror_osc_packet(const signaling::OscIoSignal& signal)
-{
-    if (signal.direction != signaling::SignalDirection::Out)
-    {
-        return;
-    }
-
-    protocol::osc::PacketBuffer packet = {};
-    const auto                  size   = protocol::osc::make_packet(packet, signal);
-
-    if (!size)
-    {
-        return;
-    }
-
-    uint32_t session_id = signaling::CONFIG_SESSION_ID_DEFAULT;
-
-    {
-        const zmisc::LockGuard lock(_client_state_lock);
-        session_id = _client_generation;
-    }
-
-    queue_binary_frame(std::span<const uint8_t>(packet.data(), *size), session_id);
 }
 
 void WebSockets::queue_binary_frame(std::span<const uint8_t> data, uint32_t session_id)

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_DISPLAY
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_I2C
 
 #include "firmware/src/io/i2c/peripherals/display/display.h"
 #include "firmware/src/io/i2c/instance/impl/i2c.h"
@@ -48,60 +48,42 @@ Display::Display(Hwa&      hwa,
     I2c::register_peripheral(this);
 }
 
-bool Display::init()
+bool Display::init(size_t address_index)
 {
-    if (!_hwa.init())
+    if (address_index >= I2C_ADDRESSES.size())
     {
         return false;
     }
 
-    bool address_found = false;
+    _selected_i2c_address_index = address_index;
 
-    for (size_t address = 0; address < I2C_ADDRESS.size(); address++)
+    auto controller = static_cast<DisplayController>(_database.read(database::Config::Section::I2c::Display, Setting::Controller));
+    auto resolution = static_cast<DisplayResolution>(_database.read(database::Config::Section::I2c::Display, Setting::Resolution));
+
+    if (init_u8x8(i2c_address(), controller, resolution))
     {
-        if (_hwa.device_available(I2C_ADDRESS[address]))
+        _resolution  = resolution;
+        _initialized = true;
+
+        if (!_startup_info_shown)
         {
-            address_found         = true;
-            _selected_i2c_address = I2C_ADDRESS[address];
-            break;
-        }
-    }
-
-    if (!address_found)
-    {
-        return false;
-    }
-
-    if (_database.read(database::Config::Section::I2c::Display, Setting::Enable))
-    {
-        auto controller = static_cast<DisplayController>(_database.read(database::Config::Section::I2c::Display, Setting::Controller));
-        auto resolution = static_cast<DisplayResolution>(_database.read(database::Config::Section::I2c::Display, Setting::Resolution));
-
-        if (init_u8x8(_selected_i2c_address, controller, resolution))
-        {
-            _resolution  = resolution;
-            _initialized = true;
-
-            if (!_startup_info_shown)
+            if (_database.read(database::Config::Section::I2c::Display, Setting::DeviceInfoMsg) && !_startup_info_shown)
             {
-                if (_database.read(database::Config::Section::I2c::Display, Setting::DeviceInfoMsg) && !_startup_info_shown)
-                {
-                    display_welcome_message();
-                    u8x8_ClearDisplay(&_u8x8);
-                }
+                display_welcome_message();
+                u8x8_ClearDisplay(&_u8x8);
             }
+        }
 
-            _elements.use_alternate_note(_database.read(database::Config::Section::I2c::Display,
-                                                        Setting::MidiNotesAlternate));
-            _elements.set_preset(_database.current_preset());
-            _elements.set_retention_time(_database.read(database::Config::Section::I2c::Display, Setting::EventTime) *
-                                         EVENT_RETENTION_TIME_SCALE_MS);
-        }
-        else
-        {
-            _initialized = false;
-            return false;
-        }
+        _elements.use_alternate_note(_database.read(database::Config::Section::I2c::Display,
+                                                    Setting::MidiNotesAlternate));
+        _elements.set_preset(_database.current_preset());
+        _elements.set_retention_time(_database.read(database::Config::Section::I2c::Display, Setting::EventTime) *
+                                     EVENT_RETENTION_TIME_SCALE_MS);
+    }
+    else
+    {
+        _initialized = false;
+        return false;
     }
 
     // make sure welcome message on startup isn't shown anymore when init is called
@@ -154,7 +136,7 @@ bool Display::init_u8x8(uint8_t i2c_address, DisplayController controller, Displ
         break;
 
         case U8X8_MSG_BYTE_END_TRANSFER:
-            return self->_hwa.write(u8x8_GetI2CAddress(u8x8), self->_u8x8_buffer, self->_u8x8_counter);
+            return self->_hwa.write(u8x8_GetI2CAddress(u8x8), std::span<const uint8_t>(self->_u8x8_buffer, self->_u8x8_counter));
 
         default:
             return 0;
@@ -213,14 +195,31 @@ bool Display::deinit()
     return true;
 }
 
-void Display::update()
+bool Display::update()
 {
     if (!_initialized)
     {
-        return;
+        return false;
     }
 
     _elements.update();
+
+    return true;
+}
+
+constexpr std::string_view Display::name() const
+{
+    return "display";
+}
+
+std::span<const uint8_t> Display::i2c_addresses() const
+{
+    return I2C_ADDRESSES;
+}
+
+uint8_t Display::i2c_address() const
+{
+    return I2C_ADDRESSES.at(_selected_i2c_address_index);
 }
 
 uint8_t Display::get_text_center(uint8_t text_size)
@@ -331,12 +330,6 @@ std::optional<uint8_t> Display::sys_config_set(sys::Config::Section::I2c section
 
         switch (setting)
         {
-        case Setting::Enable:
-        {
-            init_action = value ? common::InitAction::Init : common::InitAction::DeInit;
-        }
-        break;
-
         case Setting::Controller:
         {
             if ((value <= static_cast<uint8_t>(DisplayController::Count)) && (value >= 0))
@@ -385,7 +378,7 @@ std::optional<uint8_t> Display::sys_config_set(sys::Config::Section::I2c section
     {
         if (init_action == common::InitAction::Init)
         {
-            init();
+            init(_selected_i2c_address_index);
         }
         else if (init_action == common::InitAction::DeInit)
         {

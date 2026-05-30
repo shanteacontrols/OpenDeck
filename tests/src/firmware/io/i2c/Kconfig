@@ -1,0 +1,59 @@
+mainmenu "Project-specific configuration"
+
+source "Kconfig.zephyr"
+
+rsource "$ZENV_PROJECT_ROOT/app/Kconfig.logging"
+
+config PROJECT_TARGET_EMUEEPROM_PAGE_SIZE
+    int
+    default 65536
+
+config PROJECT_TARGET_SWITCH_LOGICAL_COUNT
+    int
+    default 8
+
+config PROJECT_TARGET_ENCODER_COUNT
+    int
+    default 4
+
+config PROJECT_TARGET_ANALOG_LOGICAL_COUNT
+    int
+    default 6
+
+config PROJECT_TARGET_ANALOG_PHYSICAL_COUNT
+    int
+    default 6
+
+config PROJECT_TARGET_OUTPUT_LOGICAL_COUNT
+    int
+    default 3
+
+config PROJECT_TARGET_TOUCHSCREEN_COMPONENT_COUNT
+    int
+    default 64
+
+config PROJECT_TARGET_SUPPORT_I2C
+    bool
+    default y
+
+config PROJECT_TARGET_SUPPORT_SWITCHES
+    bool
+    default y
+
+config PROJECT_TARGET_SUPPORT_ENCODERS
+    bool
+    default y
+
+config PROJECT_TARGET_SUPPORT_ADC
+    bool
+    default y
+
+config PROJECT_TARGET_SUPPORT_OUTPUTS
+    bool
+    default y
+
+config PROJECT_TARGET_SUPPORT_TOUCHSCREEN
+    bool
+    default y
+
+rsource "$ZENV_PROJECT_ROOT/app/firmware/src/Kconfig"

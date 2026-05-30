@@ -23,6 +23,7 @@ namespace opendeck::io::i2c
          * @param database Unused database handle kept for builder-interface consistency.
          */
         Builder([[maybe_unused]] database::Admin& database)
+            : _instance(_hwa)
         {}
 
         /**
