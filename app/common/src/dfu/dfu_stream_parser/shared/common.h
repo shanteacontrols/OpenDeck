@@ -9,7 +9,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace opendeck::common::dfu::dfu_stream
+namespace opendeck::common::dfu::dfu_stream_parser
 {
     /**
      * @brief Magic value that marks the beginning of an OpenDeck DFU stream.
@@ -45,4 +45,4 @@ namespace opendeck::common::dfu::dfu_stream
         Incomplete,
         Invalid
     };
-}    // namespace opendeck::common::dfu::dfu_stream
+}    // namespace opendeck::common::dfu::dfu_stream_parser

@@ -7,7 +7,6 @@ opendeck_test_add_modules(
     opendeck_firmware_database          "app/firmware/src/database"
     opendeck_firmware_util_configurable "app/firmware/src/util/configurable"
     opendeck_common_metadata            "app/common/src/metadata"
-    opendeck_common_protocols_mdns      "app/common/src/protocols/mdns"
     opendeck_firmware_protocol_mdns     "app/firmware/src/protocol/mdns"
 )
 

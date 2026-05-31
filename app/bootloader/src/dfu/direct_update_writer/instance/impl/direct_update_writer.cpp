@@ -28,8 +28,8 @@ void bootloader::dfu::direct_update_writer::DirectUpdateWriter::reset()
     reset_state(true);
 }
 
-bool bootloader::dfu::direct_update_writer::DirectUpdateWriter::begin([[maybe_unused]] const opendeck::common::dfu::dfu_stream::Header& header,
-                                                                      const uint32_t                                                    size)
+bool bootloader::dfu::direct_update_writer::DirectUpdateWriter::begin([[maybe_unused]] const opendeck::common::dfu::dfu_stream_parser::Header& header,
+                                                                      const uint32_t                                                           size)
 {
     reset();
 
@@ -139,7 +139,7 @@ bool bootloader::dfu::direct_update_writer::DirectUpdateWriter::prepare_write_bl
     const size_t native_write_block_size = _hwa.write_block_size();
 
     if ((native_write_block_size == 0) ||
-        (native_write_block_size > opendeck::common::dfu::flash_stream_writer::FlashStreamWriter::MAX_FLASH_WRITE_BLOCK_SIZE))
+        (native_write_block_size > opendeck::common::dfu::flash_stream_writer::MAX_FLASH_WRITE_BLOCK_SIZE))
     {
         LOG_ERR("Unsupported flash write block size: %u", static_cast<unsigned int>(native_write_block_size));
         return fail("Unsupported flash write block size");
@@ -156,7 +156,7 @@ bool bootloader::dfu::direct_update_writer::DirectUpdateWriter::prepare_write_bl
     }
 
     _write_block_size = std::min(static_cast<size_t>(sector_size),
-                                 opendeck::common::dfu::flash_stream_writer::FlashStreamWriter::MAX_FLASH_WRITE_BLOCK_SIZE);
+                                 opendeck::common::dfu::flash_stream_writer::MAX_FLASH_WRITE_BLOCK_SIZE);
 
     while ((_write_block_size > native_write_block_size) &&
            (((_write_block_size % native_write_block_size) != 0) ||

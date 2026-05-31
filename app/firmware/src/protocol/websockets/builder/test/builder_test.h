@@ -5,28 +5,45 @@
 
 #pragma once
 
-#include "firmware/src/protocol/websockets/instance/stub/websockets_stub.h"
+#include "firmware/src/protocol/websockets/hwa/test/hwa_test.h"
+#include "firmware/src/protocol/websockets/handler/builder/builder.h"
+#include "firmware/src/protocol/websockets/instance/impl/websockets.h"
 
 namespace opendeck::protocol::websockets
 {
     /**
-     * @brief Test builder that keeps WebSockets out of host-test network stacks.
+     * @brief Test builder that wires WebSockets to test backends.
      */
     class Builder
     {
         public:
-        Builder() = default;
+        Builder()
+            : _instance(_hwa)
+        {}
 
         /**
          * @brief Returns the test WebSockets protocol instance.
          *
-         * @return Stub WebSockets protocol instance.
+         * @return Test-backed WebSockets protocol instance.
          */
         WebSockets& instance()
         {
             return _instance;
         }
 
-        WebSockets _instance;
+        /**
+         * @brief Returns the test WebSockets backend.
+         *
+         * @return Test WebSockets backend.
+         */
+        HwaTest& hwa()
+        {
+            return _hwa;
+        }
+
+        private:
+        handler::Builder _handlers;
+        HwaTest          _hwa;
+        WebSockets       _instance;
     };
 }    // namespace opendeck::protocol::websockets

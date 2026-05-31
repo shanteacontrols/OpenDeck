@@ -10,7 +10,7 @@
 namespace opendeck::bootloader::dfu::staged_update_reader
 {
     /**
-     * @brief Reads a staged firmware payload from storage and streams it into a sink.
+     * @brief Reads a staged firmware payload from storage and streams it into a DFU stream destination.
      */
     class StagedUpdateReader
     {
@@ -23,13 +23,13 @@ namespace opendeck::bootloader::dfu::staged_update_reader
         explicit StagedUpdateReader(Hwa& hwa);
 
         /**
-         * @brief Streams a staged firmware payload into a sink when a valid marker is present.
+         * @brief Streams a staged firmware payload into a DFU stream destination when a valid marker is present.
          *
          * @param consumer Destination for staged firmware payload bytes.
          *
          * @return `true` when a staged update was found and consumed, otherwise `false`.
          */
-        bool consume(opendeck::common::dfu::dfu_stream::Sink& consumer);
+        bool consume(opendeck::common::dfu::dfu_stream_parser::Destination& consumer);
 
         /**
          * @brief Invalidates the staged-update marker.

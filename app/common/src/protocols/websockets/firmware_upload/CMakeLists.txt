@@ -3,7 +3,7 @@ opendeck_library_named(opendeck_common_protocols_websockets_firmware_upload)
 
 target_link_libraries(opendeck_common_protocols_websockets_firmware_upload
     PUBLIC
-    opendeck_common_dfu_dfu_stream
+    opendeck_common_dfu_dfu_stream_parser
 )
 
 zephyr_library_sources(

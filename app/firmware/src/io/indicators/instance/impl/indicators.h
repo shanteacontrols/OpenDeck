@@ -7,6 +7,7 @@
 
 #include "common/src/io/indicators/shared/deps.h"
 #include "firmware/src/io/base.h"
+#include "firmware/src/io/indicators/shared/common.h"
 #include "firmware/src/signaling/signaling.h"
 
 #include "zlibs/utils/misc/kwork_delayable.h"
@@ -19,15 +20,6 @@ namespace opendeck::io::indicators
     class Indicators : public io::Base
     {
         public:
-        /** @brief Timeout used for transient traffic indications. */
-        static constexpr uint32_t TRAFFIC_INDICATOR_TIMEOUT_MS = 50;
-        /** @brief Timeout used for factory-reset flashing. */
-        static constexpr uint32_t FACTORY_RESET_INDICATOR_TIMEOUT_MS = 250;
-        /** @brief On-time used for startup flashes. */
-        static constexpr uint32_t STARTUP_INDICATOR_TIMEOUT_MS = 150;
-        /** @brief Number of startup flashes emitted during initialization. */
-        static constexpr size_t STARTUP_INDICATOR_FLASH_COUNT = 3;
-
         /**
          * @brief Constructs the indicators subsystem.
          *

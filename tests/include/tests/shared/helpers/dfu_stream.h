@@ -5,14 +5,14 @@
 
 #pragma once
 
-#include "common/src/dfu/dfu_stream/shared/common.h"
+#include "common/src/dfu/dfu_stream_parser/shared/common.h"
 
 #include <cstdint>
 #include <initializer_list>
 #include <span>
 #include <vector>
 
-namespace opendeck::tests::dfu_stream
+namespace opendeck::tests::dfu_stream_parser
 {
     inline void append_u32(std::vector<uint8_t>& data, const uint32_t value)
     {
@@ -27,12 +27,12 @@ namespace opendeck::tests::dfu_stream
 
     inline std::vector<uint8_t> make_stream(std::span<const uint8_t> payload,
                                             const uint32_t           target_uid     = OPENDECK_TARGET_UID,
-                                            const uint32_t           format_version = opendeck::common::dfu::dfu_stream::FORMAT_VERSION,
-                                            const uint32_t           end_command    = opendeck::common::dfu::dfu_stream::END_COMMAND)
+                                            const uint32_t           format_version = opendeck::common::dfu::dfu_stream_parser::FORMAT_VERSION,
+                                            const uint32_t           end_command    = opendeck::common::dfu::dfu_stream_parser::END_COMMAND)
     {
         std::vector<uint8_t> stream;
 
-        append_u32(stream, opendeck::common::dfu::dfu_stream::START_COMMAND);
+        append_u32(stream, opendeck::common::dfu::dfu_stream_parser::START_COMMAND);
         append_u32(stream, format_version);
         append_u32(stream, target_uid);
         append_u32(stream, payload.size());
@@ -44,9 +44,9 @@ namespace opendeck::tests::dfu_stream
 
     inline std::vector<uint8_t> make_stream(std::initializer_list<uint8_t> payload,
                                             const uint32_t                 target_uid     = OPENDECK_TARGET_UID,
-                                            const uint32_t                 format_version = opendeck::common::dfu::dfu_stream::FORMAT_VERSION,
-                                            const uint32_t                 end_command    = opendeck::common::dfu::dfu_stream::END_COMMAND)
+                                            const uint32_t                 format_version = opendeck::common::dfu::dfu_stream_parser::FORMAT_VERSION,
+                                            const uint32_t                 end_command    = opendeck::common::dfu::dfu_stream_parser::END_COMMAND)
     {
         return make_stream(std::span<const uint8_t>(payload.begin(), payload.size()), target_uid, format_version, end_command);
     }
-}    // namespace opendeck::tests::dfu_stream
+}    // namespace opendeck::tests::dfu_stream_parser

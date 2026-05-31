@@ -20,7 +20,7 @@ namespace opendeck::bootloader::dfu::staged_update_reader
          *
          * @return Always `false`.
          */
-        bool consume(opendeck::common::dfu::dfu_stream::Sink&)
+        bool consume(opendeck::common::dfu::dfu_stream_parser::Destination&)
         {
             return false;
         }

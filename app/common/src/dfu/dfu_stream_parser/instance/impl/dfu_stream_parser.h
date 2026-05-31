@@ -5,26 +5,26 @@
 
 #pragma once
 
-#include "common/src/dfu/dfu_stream/shared/common.h"
-#include "common/src/dfu/dfu_stream/shared/deps.h"
+#include "common/src/dfu/dfu_stream_parser/shared/common.h"
+#include "common/src/dfu/dfu_stream_parser/shared/deps.h"
 
 #include <cstdint>
 #include <span>
 
-namespace opendeck::common::dfu::dfu_stream
+namespace opendeck::common::dfu::dfu_stream_parser
 {
     /**
-     * @brief Parses an OpenDeck dfu.bin stream and forwards firmware payload bytes to a sink.
+     * @brief Parses an OpenDeck dfu.bin stream and forwards firmware payload bytes to a backend.
      */
-    class DfuStream
+    class DfuStreamParser
     {
         public:
         /**
-         * @brief Constructs the parser around a payload sink.
+         * @brief Constructs the parser around a payload backend.
          *
-         * @param sink Destination for accepted firmware payload bytes.
+         * @param destination Destination for accepted firmware payload bytes.
          */
-        explicit DfuStream(Sink& sink);
+        explicit DfuStreamParser(Destination& destination);
 
         /**
          * @brief Reads the firmware payload size declared by a DFU header.
@@ -75,7 +75,7 @@ namespace opendeck::common::dfu::dfu_stream
         StreamStatus status() const;
 
         /**
-         * @brief Returns firmware payload bytes accepted by the sink.
+         * @brief Returns firmware payload bytes accepted by the backend.
          *
          * @return Number of accepted payload bytes.
          */
@@ -99,7 +99,7 @@ namespace opendeck::common::dfu::dfu_stream
             Count
         };
 
-        Sink&        _sink;
+        Destination& _destination;
         ReceiveStage _stage                   = ReceiveStage::Start;
         StreamStatus _status                  = StreamStatus::Incomplete;
         uint8_t      _stage_bytes_received    = 0;
@@ -108,7 +108,7 @@ namespace opendeck::common::dfu::dfu_stream
         uint32_t     _expected_size           = 0;
         uint32_t     _bytes_written           = 0;
         Header       _header                  = {};
-        bool         _sink_active             = false;
+        bool         _destination_active      = false;
 
         StreamStatus process_start(uint8_t data);
         StreamStatus process_metadata(uint8_t data);
@@ -118,4 +118,4 @@ namespace opendeck::common::dfu::dfu_stream
         StreamStatus advance_stage();
         StreamStatus reject();
     };
-}    // namespace opendeck::common::dfu::dfu_stream
+}    // namespace opendeck::common::dfu::dfu_stream_parser

@@ -1,5 +1,5 @@
 tests:
-  common_dfu_dfu_stream.test:
+  common_dfu_dfu_stream_parser.test:
     build_only: false
     platform_allow: native_sim/native/64
     harness: gtest

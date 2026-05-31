@@ -7,6 +7,12 @@
 
 #include "firmware/src/protocol/mdns/instance/impl/mdns.h"
 #include "firmware/src/protocol/mdns/services/hw/services_hw.h"
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_OSC
+#include "firmware/src/protocol/mdns/services/hw/services_osc.h"
+#endif
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_WEBSOCKETS
+#include "firmware/src/protocol/mdns/services/hw/services_websockets.h"
+#endif
 #include "firmware/src/database/builder/builder.h"
 #include "common/src/protocols/mdns/hwa/hw/hwa_hw.h"
 #include "common/src/protocols/mdns/instance/impl/mdns.h"
@@ -47,6 +53,12 @@ namespace opendeck::protocol::mdns
         opendeck::common::protocols::mdns::HwaHw    _hwa;
         opendeck::common::protocols::mdns::BaseMdns _base_mdns;
         ServicesHw                                  _services;
-        Mdns                                        _instance;
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_OSC
+        OscService _osc_service;
+#endif
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_WEBSOCKETS
+        WebSocketsService _websockets_service;
+#endif
+        Mdns _instance;
     };
 }    // namespace opendeck::protocol::mdns

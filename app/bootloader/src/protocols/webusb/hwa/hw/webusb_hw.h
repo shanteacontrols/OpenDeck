@@ -7,7 +7,7 @@
 
 #include "bootloader/src/dfu/direct_update_writer/instance/impl/direct_update_writer.h"
 #include "bootloader/src/protocols/webusb/shared/deps.h"
-#include "common/src/dfu/dfu_stream/instance/impl/dfu_stream.h"
+#include "common/src/dfu/dfu_stream_parser/instance/impl/dfu_stream_parser.h"
 
 #include <span>
 
@@ -55,6 +55,6 @@ namespace opendeck::bootloader::protocols::webusb
         void feed(std::span<const uint8_t> data);
 
         private:
-        opendeck::common::dfu::dfu_stream::DfuStream _dfu_stream;
+        opendeck::common::dfu::dfu_stream_parser::DfuStreamParser _dfu_stream;
     };
 }    // namespace opendeck::bootloader::protocols::webusb

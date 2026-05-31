@@ -6,7 +6,11 @@
 #pragma once
 
 #ifdef OPENDECK_TEST
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_STAGED_UPDATE
 #include "firmware/src/dfu/staged_update_writer/builder/test/builder_test.h"
+#else
+#include "firmware/src/dfu/staged_update_writer/builder/stub/builder_stub.h"
+#endif
 #else
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_STAGED_UPDATE
 #include "firmware/src/dfu/staged_update_writer/builder/hw/builder_hw.h"

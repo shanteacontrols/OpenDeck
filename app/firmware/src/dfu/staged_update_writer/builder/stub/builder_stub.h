@@ -5,20 +5,17 @@
 
 #pragma once
 
-#include "firmware/src/dfu/staged_update_writer/hwa/stub/hwa_stub.h"
-#include "firmware/src/dfu/staged_update_writer/instance/impl/staged_update_writer.h"
+#include "firmware/src/dfu/staged_update_writer/instance/stub/staged_update_writer_stub.h"
 
 namespace opendeck::firmware::dfu::staged_update_writer
 {
     /**
-     * @brief Builder that wires staged-update storage to a no-op backend.
+     * @brief Builder that exposes a disabled staged-update destination.
      */
     class Builder
     {
         public:
-        Builder()
-            : _instance(_hwa)
-        {}
+        Builder() = default;
 
         StagedUpdateWriter& instance()
         {
@@ -26,7 +23,6 @@ namespace opendeck::firmware::dfu::staged_update_writer
         }
 
         private:
-        HwaStub            _hwa;
         StagedUpdateWriter _instance;
     };
 }    // namespace opendeck::firmware::dfu::staged_update_writer

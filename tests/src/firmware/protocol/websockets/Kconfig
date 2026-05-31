@@ -12,4 +12,16 @@ config PROJECT_TARGET_SUPPORT_WEBSOCKETS
     bool
     default y
 
+config PROJECT_TARGET_SUPPORT_CONFIG_INTERFACE_WEBSOCKETS
+    bool
+    default y
+
+config PROJECT_TARGET_SUPPORT_OSC
+    bool
+    default y
+
+config PROJECT_TARGET_SUPPORT_STAGED_UPDATE
+    bool
+    default y
+
 rsource "$ZENV_PROJECT_ROOT/app/Kconfig"

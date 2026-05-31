@@ -8,7 +8,6 @@
 #include <zephyr/logging/log.h>
 
 #include <cerrno>
-#include <cstring>
 
 using namespace opendeck;
 using namespace opendeck::bootloader::protocols::websockets;
@@ -18,9 +17,8 @@ namespace
     LOG_MODULE_REGISTER(opendeck_bootloader_websockets, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
 }
 
-WebSockets::WebSockets(opendeck::common::protocols::websockets::Hwa& hwa, bootloader::dfu::direct_update_writer::DirectUpdateWriter& direct_update_writer)
+WebSockets::WebSockets(opendeck::common::protocols::websockets::Hwa& hwa)
     : _hwa(hwa)
-    , _firmware_upload(direct_update_writer)
     , _client_thread(
           [this]()
           {
@@ -39,6 +37,7 @@ WebSockets::WebSockets(opendeck::common::protocols::websockets::Hwa& hwa, bootlo
 WebSockets::~WebSockets()
 {
     stop();
+    opendeck::common::protocols::websockets::CommandHandler::clear_command_handlers();
 }
 
 bool WebSockets::init()
@@ -169,6 +168,11 @@ void WebSockets::client_loop()
                 continue;
             }
 
+            if (response->empty())
+            {
+                continue;
+            }
+
             const int sent = _hwa.send(sock, *response);
 
             if (sent < 0)
@@ -179,7 +183,7 @@ void WebSockets::client_loop()
         }
 
         close_client();
-        _firmware_upload.abort();
+        reset_command_handlers();
         LOG_INF("Bootloader WebSockets client disconnected");
     }
 }
@@ -195,19 +199,39 @@ void WebSockets::close_client()
     }
 }
 
-std::optional<opendeck::common::protocols::websockets::FirmwareUploadAck> WebSockets::handle_command_frame(std::span<const uint8_t> data)
+void WebSockets::reset_command_handlers()
 {
-    const auto response = _firmware_upload.handle(data);
-
-    if (response && response->finished)
+    for (auto* handler : opendeck::common::protocols::websockets::CommandHandler::command_handlers())
     {
-        LOG_INF("Bootloader network DFU upload complete");
+        if (handler != nullptr)
+        {
+            handler->reset();
+        }
     }
+}
 
-    if (!response)
+std::optional<std::span<const uint8_t>> WebSockets::handle_command_frame(std::span<const uint8_t> data)
+{
+    if (data.empty())
     {
+        LOG_WRN_ONCE("Ignoring empty bootloader WebSockets command frame");
         return std::nullopt;
     }
 
-    return response->response;
+    for (auto* handler : opendeck::common::protocols::websockets::CommandHandler::command_handlers())
+    {
+        if (handler == nullptr)
+        {
+            continue;
+        }
+
+        const auto response = handler->handle(data, 0U);
+
+        if (response)
+        {
+            return response;
+        }
+    }
+
+    return std::nullopt;
 }

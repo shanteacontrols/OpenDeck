@@ -7,7 +7,9 @@ target_link_libraries(opendeck_firmware_io_touchscreen
     opendeck_firmware_util_configurable
 )
 
-zephyr_library_sources(
-    ${CMAKE_CURRENT_LIST_DIR}/instance/impl/touchscreen.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/instance/impl/models/nextion/nextion.cpp
-)
+if(CONFIG_PROJECT_TARGET_SUPPORT_TOUCHSCREEN)
+    zephyr_library_sources(
+        ${CMAKE_CURRENT_LIST_DIR}/instance/impl/touchscreen.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/instance/impl/models/nextion/nextion.cpp
+    )
+endif()

@@ -7,7 +7,7 @@ opendeck_test_bootstrap(
 
 add_subdirectory($ENV{ZENV_PROJECT_ROOT}/app/common/src/metadata ${CMAKE_CURRENT_BINARY_DIR}/metadata)
 add_subdirectory($ENV{ZENV_PROJECT_ROOT}/app/common/src/dfu/flash_stream_writer ${CMAKE_CURRENT_BINARY_DIR}/flash_stream_writer)
-add_subdirectory($ENV{ZENV_PROJECT_ROOT}/app/common/src/dfu/dfu_stream ${CMAKE_CURRENT_BINARY_DIR}/dfu_stream)
+add_subdirectory($ENV{ZENV_PROJECT_ROOT}/app/common/src/dfu/dfu_stream_parser ${CMAKE_CURRENT_BINARY_DIR}/dfu_stream_parser)
 
 if(NOT DEFINED ENV{TARGET} OR "$ENV{TARGET}" STREQUAL "")
     message(FATAL_ERROR "Bootloader tests require TARGET to be exported")
@@ -36,14 +36,14 @@ target_sources(app
 add_dependencies(app
     opendeck_common_metadata
     opendeck_common_dfu_flash_stream_writer
-    opendeck_common_dfu_dfu_stream
+    opendeck_common_dfu_dfu_stream_parser
 )
 
 target_link_libraries(app
     PUBLIC
     opendeck_common_metadata
     opendeck_common_dfu_flash_stream_writer
-    opendeck_common_dfu_dfu_stream
+    opendeck_common_dfu_dfu_stream_parser
 )
 
 target_compile_definitions(app

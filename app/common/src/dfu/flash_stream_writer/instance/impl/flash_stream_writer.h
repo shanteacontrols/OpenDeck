@@ -5,6 +5,9 @@
 
 #pragma once
 
+#include "common/src/dfu/flash_stream_writer/shared/common.h"
+#include "common/src/dfu/flash_stream_writer/shared/deps.h"
+
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -13,46 +16,21 @@
 namespace opendeck::common::dfu::flash_stream_writer
 {
     /**
-     * @brief Destination for aligned flash write blocks produced by `FlashStreamWriter`.
-     */
-    class Sink
-    {
-        public:
-        virtual ~Sink() = default;
-
-        /**
-         * @brief Writes one flash-aligned block.
-         *
-         * @param offset Absolute or destination-local byte offset for this block.
-         * @param data Block bytes. Size is the write block size passed to `FlashStreamWriter::begin()`.
-         *
-         * @return `true` on success, otherwise `false`.
-         */
-        virtual bool write_block(uint32_t offset, std::span<const uint8_t> data) = 0;
-    };
-
-    /**
      * @brief Buffers a byte stream into aligned flash write blocks.
      *
      * The writer accepts individual bytes, groups them into the configured
      * native write block size, pads the final partial block with erased bytes,
-     * and forwards aligned blocks to a sink.
+     * and forwards aligned blocks to a destination.
      */
     class FlashStreamWriter
     {
         public:
-        /** @brief Erased flash byte used to pad the final partial block. */
-        static constexpr uint8_t ERASED_BYTE = 0xFFU;
-
-        /** @brief Largest native write block this helper buffers internally. */
-        static constexpr size_t MAX_FLASH_WRITE_BLOCK_SIZE = 256U;
-
         /**
-         * @brief Constructs a stream writer around a destination sink.
+         * @brief Constructs a stream writer around a destination.
          *
-         * @param sink Destination that receives aligned blocks.
+         * @param destination Destination that receives aligned blocks.
          */
-        explicit FlashStreamWriter(Sink& sink);
+        explicit FlashStreamWriter(Destination& destination);
 
         /**
          * @brief Starts a new byte stream.
@@ -103,7 +81,7 @@ namespace opendeck::common::dfu::flash_stream_writer
             bool     dirty        = false;
         };
 
-        Sink&                                           _sink;
+        Destination&                                    _destination;
         size_t                                          _write_block_size   = 0;
         uint32_t                                        _next_offset        = 0;
         WriteBlockCache                                 _write_block_cache  = {};

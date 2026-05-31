@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_ENCODERS
-
 #include "firmware/src/io/digital/encoders/instance/impl/encoders.h"
 #include "firmware/src/util/conversion/conversion.h"
 #include "firmware/src/util/configurable/configurable.h"
@@ -310,5 +308,3 @@ std::optional<uint8_t> Encoders::sys_config_set(sys::Config::Section::Encoder se
 
     return result;
 }
-
-#endif

@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_WEBSOCKETS
-
 #include "firmware/src/protocol/websockets/hwa/hw/hwa_hw.h"
 #include "firmware/src/protocol/websockets/instance/impl/websockets.h"
 #include "common/src/protocols/websockets/shared/common.h"
@@ -39,5 +37,3 @@ HTTP_RESOURCE_DEFINE(websockets_resource, websockets_service, "/config", &websoc
 HwaHw::HwaHw()
     : opendeck::common::protocols::websockets::HwaHw(websockets_resource_detail)
 {}
-
-#endif

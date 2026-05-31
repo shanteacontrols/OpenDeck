@@ -7,7 +7,9 @@ target_link_libraries(opendeck_firmware_io_digital_encoders
     opendeck_firmware_database
 )
 
-zephyr_library_sources(
-    ${CMAKE_CURRENT_LIST_DIR}/instance/impl/encoders.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/instance/impl/mapper.cpp
-)
+if(CONFIG_PROJECT_TARGET_SUPPORT_ENCODERS)
+    zephyr_library_sources(
+        ${CMAKE_CURRENT_LIST_DIR}/instance/impl/encoders.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/instance/impl/mapper.cpp
+    )
+endif()

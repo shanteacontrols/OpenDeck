@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_I2C
-
 #include "firmware/src/io/i2c/peripherals/display/display.h"
 
 #include "zlibs/utils/misc/bit.h"
@@ -160,5 +158,3 @@ void Display::Elements::MIDIUpdater::update_midi_value(DisplayTextControl& eleme
         break;
     }
 }
-
-#endif

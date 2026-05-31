@@ -79,16 +79,13 @@ bool Mdns::init()
         return false;
     }
 
-    if (!_base_mdns.advertise_service(_services.websockets(), hostname))
+    for (auto* service : _services.services())
     {
-        LOG_WRN("Failed to advertise WebSockets over mDNS");
-        return false;
-    }
-
-    if (!_base_mdns.advertise_service(_services.osc(), hostname))
-    {
-        LOG_WRN("Failed to advertise OSC over mDNS");
-        return false;
+        if (!_base_mdns.advertise_service(service->service(), hostname))
+        {
+            LOG_WRN("Failed to advertise service over mDNS");
+            return false;
+        }
     }
 
     _base_mdns.register_ip_address_changed_callback(

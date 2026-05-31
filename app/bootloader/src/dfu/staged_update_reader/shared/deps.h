@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "common/src/dfu/dfu_stream/shared/deps.h"
+#include "common/src/dfu/dfu_stream_parser/shared/deps.h"
 
 #include <cstddef>
 #include <cstdint>

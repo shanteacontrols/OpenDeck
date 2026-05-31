@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_I2C
-
 #include "firmware/src/io/i2c/peripherals/sensor_vl53l4cx/sensor_vl53l4cx.h"
 #include "firmware/src/io/i2c/instance/impl/i2c.h"
 #include "firmware/src/util/configurable/configurable.h"
@@ -566,5 +564,3 @@ std::optional<uint8_t> SensorVl53l4cx::sys_config_set(sys::Config::Section::I2c 
 
     return result;
 }
-
-#endif

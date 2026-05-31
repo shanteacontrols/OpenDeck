@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_OUTPUTS
-
 #include "firmware/src/io/outputs/instance/impl/outputs.h"
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/util/conversion/conversion.h"
@@ -748,5 +746,3 @@ std::optional<uint8_t> Outputs::sys_config_set(sys::Config::Section::Outputs sec
 
     return result;
 }
-
-#endif

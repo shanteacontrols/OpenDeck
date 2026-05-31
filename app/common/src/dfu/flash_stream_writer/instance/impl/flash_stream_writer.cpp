@@ -9,8 +9,8 @@
 
 using namespace opendeck::common::dfu::flash_stream_writer;
 
-FlashStreamWriter::FlashStreamWriter(Sink& sink)
-    : _sink(sink)
+FlashStreamWriter::FlashStreamWriter(Destination& destination)
+    : _destination(destination)
 {}
 
 bool FlashStreamWriter::begin(const size_t write_block_size, const uint32_t start_offset)
@@ -71,7 +71,7 @@ bool FlashStreamWriter::flush()
 
     const auto block = std::span<const uint8_t>(_write_block_buffer.data(), _write_block_size);
 
-    if (!_sink.write_block(_write_block_cache.offset, block))
+    if (!_destination.write_block(_write_block_cache.offset, block))
     {
         return false;
     }

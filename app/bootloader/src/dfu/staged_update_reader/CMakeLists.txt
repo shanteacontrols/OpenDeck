@@ -7,7 +7,7 @@ target_sources(opendeck_bootloader_dfu_staged_update_reader PRIVATE
 
 target_link_libraries(opendeck_bootloader_dfu_staged_update_reader
     PRIVATE
-    opendeck_common_dfu_dfu_stream
+    opendeck_common_dfu_dfu_stream_parser
     opendeck_common_metadata
     zephyr_interface
 )

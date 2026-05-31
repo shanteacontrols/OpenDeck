@@ -6,7 +6,15 @@
 #pragma once
 
 #ifdef OPENDECK_TEST
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_MIDI
 #include "firmware/src/protocol/midi/builder/test/builder_test.h"
 #else
+#include "firmware/src/protocol/midi/builder/stub/builder_stub.h"
+#endif
+#else
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_MIDI
 #include "firmware/src/protocol/midi/builder/hw/builder_hw.h"
+#else
+#include "firmware/src/protocol/midi/builder/stub/builder_stub.h"
+#endif
 #endif

@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_SWITCHES
-
 #include "firmware/src/io/digital/switches/instance/impl/switches.h"
 #include "firmware/src/system/config.h"
 #include "firmware/src/util/conversion/conversion.h"
@@ -233,5 +231,3 @@ std::optional<uint8_t> Switches::sys_config_set(sys::Config::Section::Switch sec
 
     return result;
 }
-
-#endif

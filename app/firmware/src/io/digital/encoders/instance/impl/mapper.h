@@ -7,7 +7,7 @@
 
 #include "firmware/src/io/digital/encoders/shared/deps.h"
 #include "firmware/src/global/midi_program.h"
-#include "firmware/src/protocol/midi/instance/impl/midi.h"
+#include "firmware/src/protocol/midi/shared/common.h"
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/util/incdec/inc_dec.h"
 

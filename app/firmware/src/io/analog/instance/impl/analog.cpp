@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_ADC
-
 #include "firmware/src/io/analog/instance/impl/analog.h"
 #include "firmware/src/system/config.h"
 #include "firmware/src/util/conversion/conversion.h"
@@ -396,5 +394,3 @@ std::optional<uint8_t> Analog::sys_config_set(sys::Config::Section::Analog secti
 
     return sys::Config::Status::Ack;
 }
-
-#endif

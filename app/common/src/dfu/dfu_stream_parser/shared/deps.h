@@ -5,20 +5,27 @@
 
 #pragma once
 
-#include "common/src/dfu/dfu_stream/shared/common.h"
+#include "common/src/dfu/dfu_stream_parser/shared/common.h"
 
 #include <cstdint>
 #include <span>
 
-namespace opendeck::common::dfu::dfu_stream
+namespace opendeck::common::dfu::dfu_stream_parser
 {
     /**
      * @brief Destination that receives validated firmware payload bytes from an OpenDeck DFU stream.
      */
-    class Sink
+    class Destination
     {
         public:
-        virtual ~Sink() = default;
+        virtual ~Destination() = default;
+
+        /**
+         * @brief Reports whether this backend can accept a firmware payload.
+         *
+         * @return `true` when firmware upload is supported.
+         */
+        virtual bool supported() const = 0;
 
         /**
          * @brief Starts a new firmware payload transfer.
@@ -51,4 +58,4 @@ namespace opendeck::common::dfu::dfu_stream
          */
         virtual void abort() = 0;
     };
-}    // namespace opendeck::common::dfu::dfu_stream
+}    // namespace opendeck::common::dfu::dfu_stream_parser

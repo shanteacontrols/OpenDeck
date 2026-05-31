@@ -43,7 +43,7 @@ namespace opendeck::common::protocols::websockets
         Abort  = 0x04,
     };
 
-    /** @brief Responses emitted by the firmware-upload command handler. */
+    /** @brief Responses emitted by the firmware-upload flow. */
     enum class FirmwareUploadResponse : uint8_t
     {
         Ack = 0x81,

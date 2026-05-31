@@ -10,6 +10,7 @@
 #include "common/src/protocols/websockets/shared/common.h"
 
 #include <array>
+#include <vector>
 
 namespace opendeck::protocol::mdns
 {
@@ -18,38 +19,50 @@ namespace opendeck::protocol::mdns
      */
     class ServicesTest : public Services
     {
+        class Provider : public ServiceProvider
+        {
+            public:
+            explicit Provider(opendeck::common::protocols::mdns::Service service)
+                : _service(service)
+            {}
+
+            opendeck::common::protocols::mdns::Service service() override
+            {
+                return _service;
+            }
+
+            private:
+            opendeck::common::protocols::mdns::Service _service;
+        };
+
         public:
         std::array<char, opendeck::common::protocols::mdns::NETWORK_NAME_SIZE> websockets_instance = {};
         std::array<char, opendeck::common::protocols::mdns::NETWORK_NAME_SIZE> osc_instance        = {};
         uint16_t                                                               websockets_port     = 0;
         uint16_t                                                               osc_port            = 0;
 
-        /**
-         * @brief Returns the mutable WebSockets DNS-SD service descriptor.
-         *
-         * @return WebSockets service descriptor.
-         */
-        opendeck::common::protocols::mdns::Service websockets() override
+        ServicesTest()
+            : _websockets({
+                  .instance     = websockets_instance,
+                  .port         = websockets_port,
+                  .service_port = opendeck::common::protocols::websockets::DEFAULT_PORT,
+              })
+            , _osc({
+                  .instance     = osc_instance,
+                  .port         = osc_port,
+                  .service_port = protocol::osc::DEFAULT_LISTEN_PORT,
+              })
+            , _services({ &_websockets, &_osc })
+        {}
+
+        std::span<ServiceProvider* const> services() override
         {
-            return {
-                .instance     = websockets_instance,
-                .port         = websockets_port,
-                .service_port = opendeck::common::protocols::websockets::DEFAULT_PORT,
-            };
+            return std::span<ServiceProvider* const>(_services.data(), _services.size());
         }
 
-        /**
-         * @brief Returns the mutable OSC DNS-SD service descriptor.
-         *
-         * @return OSC service descriptor.
-         */
-        opendeck::common::protocols::mdns::Service osc() override
-        {
-            return {
-                .instance     = osc_instance,
-                .port         = osc_port,
-                .service_port = protocol::osc::DEFAULT_LISTEN_PORT,
-            };
-        }
+        private:
+        Provider                      _websockets;
+        Provider                      _osc;
+        std::vector<ServiceProvider*> _services;
     };
 }    // namespace opendeck::protocol::mdns

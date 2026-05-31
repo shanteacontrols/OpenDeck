@@ -5,9 +5,8 @@
 
 #pragma once
 
-#include "bootloader/src/dfu/direct_update_writer/instance/impl/direct_update_writer.h"
 #include "bootloader/src/threads.h"
-#include "common/src/protocols/websockets/firmware_upload/firmware_upload.h"
+#include "common/src/protocols/websockets/handler/handler.h"
 #include "common/src/protocols/websockets/shared/deps.h"
 #include "common/src/protocols/websockets/shared/firmware_upload.h"
 
@@ -30,12 +29,11 @@ namespace opendeck::bootloader::protocols::websockets
     {
         public:
         /**
-         * @brief Constructs the endpoint around platform hooks and direct update storage.
+         * @brief Constructs the endpoint around platform hooks.
          *
          * @param hwa Platform hooks used for WebSocket I/O.
-         * @param direct_update_writer Writer that installs validated firmware payloads.
          */
-        WebSockets(opendeck::common::protocols::websockets::Hwa& hwa, bootloader::dfu::direct_update_writer::DirectUpdateWriter& direct_update_writer);
+        explicit WebSockets(opendeck::common::protocols::websockets::Hwa& hwa);
         ~WebSockets() override;
 
         /**
@@ -63,7 +61,6 @@ namespace opendeck::bootloader::protocols::websockets
 
         private:
         opendeck::common::protocols::websockets::Hwa&                                            _hwa;
-        opendeck::common::protocols::websockets::FirmwareUpload                                  _firmware_upload;
         k_sem                                                                                    _client_wakeup  = {};
         std::atomic<int>                                                                         _client_socket  = -1;
         std::atomic<bool>                                                                        _shutdown       = false;
@@ -88,12 +85,17 @@ namespace opendeck::bootloader::protocols::websockets
         void close_client();
 
         /**
+         * @brief Resets state owned by registered WebSockets handlers.
+         */
+        void reset_handlers();
+
+        /**
          * @brief Processes one WebSockets command frame.
          *
          * @param data Frame payload bytes received from the active client.
          *
          * @return ACK frame when a command was handled, otherwise `std::nullopt`.
          */
-        std::optional<opendeck::common::protocols::websockets::FirmwareUploadAck> handle_command_frame(std::span<const uint8_t> data);
+        std::optional<std::span<const uint8_t>> handle_command_frame(std::span<const uint8_t> data);
     };
 }    // namespace opendeck::bootloader::protocols::websockets

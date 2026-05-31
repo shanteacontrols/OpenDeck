@@ -3,11 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_I2C
-
 #include "firmware/src/io/i2c/peripherals/display/display.h"
 #include "firmware/src/io/i2c/instance/impl/i2c.h"
-#include "firmware/src/protocol/midi/instance/impl/midi.h"
+#include "firmware/src/protocol/midi/shared/common.h"
 #include "firmware/src/io/shared/common.h"
 #include "firmware/src/util/conversion/conversion.h"
 #include "firmware/src/util/configurable/configurable.h"
@@ -405,5 +403,3 @@ std::optional<uint8_t> Display::sys_config_set(sys::Config::Section::I2c section
 
     return result;
 }
-
-#endif

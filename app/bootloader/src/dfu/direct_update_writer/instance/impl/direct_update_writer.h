@@ -6,8 +6,8 @@
 #pragma once
 
 #include "bootloader/src/dfu/direct_update_writer/shared/deps.h"
-#include "common/src/dfu/dfu_stream/shared/common.h"
-#include "common/src/dfu/dfu_stream/shared/deps.h"
+#include "common/src/dfu/dfu_stream_parser/shared/common.h"
+#include "common/src/dfu/dfu_stream_parser/shared/deps.h"
 #include "common/src/dfu/flash_stream_writer/instance/impl/flash_stream_writer.h"
 
 #include <string_view>
@@ -16,8 +16,14 @@ namespace opendeck::bootloader::dfu::direct_update_writer
 {
     /**
      * @brief Writes validated firmware payload bytes to the application slot.
+     *
+     * `DfuStreamParser` calls this object through `dfu_stream_parser::Destination`.
+     * This object then feeds those bytes into `FlashStreamWriter`.
+     * `FlashStreamWriter` calls back into this same object through
+     * `flash_stream_writer::Destination` once it has a flash-aligned block ready.
      */
-    class DirectUpdateWriter : public opendeck::common::dfu::dfu_stream::Sink, private opendeck::common::dfu::flash_stream_writer::Sink
+    class DirectUpdateWriter : public opendeck::common::dfu::dfu_stream_parser::Destination,
+                               private opendeck::common::dfu::flash_stream_writer::Destination
     {
         public:
         /**
@@ -28,6 +34,16 @@ namespace opendeck::bootloader::dfu::direct_update_writer
         explicit DirectUpdateWriter(Hwa& hwa);
 
         /**
+         * @brief Reports whether direct firmware writes are supported.
+         *
+         * @return Always `true` for the direct-update writer.
+         */
+        bool supported() const override
+        {
+            return true;
+        }
+
+        /**
          * @brief Starts installing a validated firmware payload.
          *
          * @param header Raw DFU stream header accepted by the parser.
@@ -35,7 +51,7 @@ namespace opendeck::bootloader::dfu::direct_update_writer
          *
          * @return `true` on success, otherwise `false`.
          */
-        bool begin(const opendeck::common::dfu::dfu_stream::Header& header, uint32_t size) override;
+        bool begin(const opendeck::common::dfu::dfu_stream_parser::Header& header, uint32_t size) override;
 
         /**
          * @brief Writes validated firmware payload bytes.

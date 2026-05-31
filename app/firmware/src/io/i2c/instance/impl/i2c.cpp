@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_I2C
-
 #include "firmware/src/io/i2c/instance/impl/i2c.h"
 #include "firmware/src/util/thread_sleep.h"
 
@@ -160,5 +158,3 @@ void I2c::update_peripheral(PeripheralState& state, int64_t now_ms)
         state.initialized = false;
     }
 }
-
-#endif

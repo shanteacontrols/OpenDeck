@@ -6,6 +6,7 @@
 #pragma once
 
 #include "bootloader/src/dfu/direct_update_writer/instance/impl/direct_update_writer.h"
+#include "bootloader/src/protocols/websockets/handler/builder/builder.h"
 #include "bootloader/src/protocols/websockets/hwa/hw/hwa_hw.h"
 #include "bootloader/src/protocols/websockets/instance/impl/websockets.h"
 
@@ -23,7 +24,8 @@ namespace opendeck::bootloader::protocols::websockets
          * @param direct_update_writer Writer that installs validated firmware payloads.
          */
         explicit Builder(bootloader::dfu::direct_update_writer::DirectUpdateWriter& direct_update_writer)
-            : _instance(_hwa, direct_update_writer)
+            : _handlers(direct_update_writer)
+            , _instance(_hwa)
         {}
 
         /**
@@ -37,7 +39,8 @@ namespace opendeck::bootloader::protocols::websockets
         }
 
         private:
-        HwaHw      _hwa;
-        WebSockets _instance;
+        handler::Builder _handlers;
+        HwaHw            _hwa;
+        WebSockets       _instance;
     };
 }    // namespace opendeck::bootloader::protocols::websockets

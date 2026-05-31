@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_TOUCHSCREEN
-
 #include "firmware/src/io/touchscreen/instance/impl/models/nextion/nextion.h"
 #include "firmware/src/io/touchscreen/instance/impl/touchscreen.h"
 
@@ -179,5 +177,3 @@ TsEvent Nextion::response(Data& data)
 
     return TsEvent::None;
 }
-
-#endif

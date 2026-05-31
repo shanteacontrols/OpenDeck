@@ -7,7 +7,9 @@ target_link_libraries(opendeck_firmware_io_outputs
     opendeck_firmware_database
 )
 
-zephyr_library_sources(
-    ${CMAKE_CURRENT_LIST_DIR}/instance/impl/mapper.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/instance/impl/outputs.cpp
-)
+if(CONFIG_PROJECT_TARGET_SUPPORT_OUTPUTS)
+    zephyr_library_sources(
+        ${CMAKE_CURRENT_LIST_DIR}/instance/impl/mapper.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/instance/impl/outputs.cpp
+    )
+endif()

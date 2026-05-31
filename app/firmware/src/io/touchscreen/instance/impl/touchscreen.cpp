@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_TOUCHSCREEN
-
 #include "firmware/src/io/touchscreen/instance/impl/touchscreen.h"
 #include "firmware/src/io/outputs/shared/common.h"
 #include "firmware/src/util/conversion/conversion.h"
@@ -517,5 +515,3 @@ std::optional<uint8_t> Touchscreen::sys_config_set(sys::Config::Section::Touchsc
 
     return sys::Config::Status::ErrorWrite;
 }
-
-#endif

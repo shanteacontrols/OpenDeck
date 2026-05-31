@@ -5,13 +5,13 @@
 
 #pragma once
 
-#include "firmware/src/io/indicators/instance/impl/indicators.h"
-#include "common/src/io/indicators/hwa/stub/hwa_stub.h"
+#include "firmware/src/database/instance/impl/database.h"
+#include "firmware/src/io/indicators/instance/stub/indicators_stub.h"
 
 namespace opendeck::io::indicators
 {
     /**
-     * @brief Stub builder that wires the indicator subsystem to a no-op backend.
+     * @brief Stub builder that exposes a no-op indicator subsystem.
      */
     class Builder
     {
@@ -22,7 +22,6 @@ namespace opendeck::io::indicators
          * @param database Unused database handle kept for builder-interface consistency.
          */
         explicit Builder([[maybe_unused]] database::Admin& database)
-            : _instance(_hwa)
         {}
 
         /**
@@ -36,7 +35,6 @@ namespace opendeck::io::indicators
         }
 
         private:
-        opendeck::common::io::indicators::HwaStub _hwa;
-        Indicators                                _instance;
+        Indicators _instance;
     };
 }    // namespace opendeck::io::indicators

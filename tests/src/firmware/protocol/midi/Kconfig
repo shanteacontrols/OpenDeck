@@ -4,4 +4,8 @@ config PROJECT_TARGET_EMUEEPROM_PAGE_SIZE
     int
     default 65536
 
+config PROJECT_TARGET_SUPPORT_MIDI
+    bool
+    default y
+
 rsource "$ZENV_PROJECT_ROOT/app/Kconfig"

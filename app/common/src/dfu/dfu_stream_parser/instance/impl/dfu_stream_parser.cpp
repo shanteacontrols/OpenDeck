@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "common/src/dfu/dfu_stream/instance/impl/dfu_stream.h"
+#include "common/src/dfu/dfu_stream_parser/instance/impl/dfu_stream_parser.h"
 
 #include "zlibs/utils/misc/bit.h"
 
 #include <array>
 
-using namespace opendeck::common::dfu::dfu_stream;
+using namespace opendeck::common::dfu::dfu_stream_parser;
 
 namespace
 {
@@ -36,16 +36,16 @@ namespace
     }
 }    // namespace
 
-DfuStream::DfuStream(Sink& sink)
-    : _sink(sink)
+DfuStreamParser::DfuStreamParser(Destination& destination)
+    : _destination(destination)
 {}
 
-uint32_t DfuStream::payload_size(const Header& header)
+uint32_t DfuStreamParser::payload_size(const Header& header)
 {
     return read_word(header, 3);
 }
 
-bool DfuStream::header_valid(const Header& header)
+bool DfuStreamParser::header_valid(const Header& header)
 {
     return (read_word(header, 0) == START_COMMAND) &&
            (read_word(header, 1) == FORMAT_VERSION) &&
@@ -53,7 +53,7 @@ bool DfuStream::header_valid(const Header& header)
            (payload_size(header) > 0U);
 }
 
-void DfuStream::reset()
+void DfuStreamParser::reset()
 {
     _stage                   = ReceiveStage::Start;
     _status                  = StreamStatus::Incomplete;
@@ -63,10 +63,10 @@ void DfuStream::reset()
     _expected_size           = 0;
     _bytes_written           = 0;
     _header.fill(0);
-    _sink_active = false;
+    _destination_active = false;
 }
 
-StreamStatus DfuStream::feed(const uint8_t data)
+StreamStatus DfuStreamParser::feed(const uint8_t data)
 {
     if (_status == StreamStatus::Invalid)
     {
@@ -97,7 +97,7 @@ StreamStatus DfuStream::feed(const uint8_t data)
     return _status;
 }
 
-StreamStatus DfuStream::feed(std::span<const uint8_t> data)
+StreamStatus DfuStreamParser::feed(std::span<const uint8_t> data)
 {
     auto status = _status;
 
@@ -114,22 +114,22 @@ StreamStatus DfuStream::feed(std::span<const uint8_t> data)
     return status;
 }
 
-StreamStatus DfuStream::status() const
+StreamStatus DfuStreamParser::status() const
 {
     return _status;
 }
 
-uint32_t DfuStream::bytes_written() const
+uint32_t DfuStreamParser::bytes_written() const
 {
     return _bytes_written;
 }
 
-uint32_t DfuStream::expected_size() const
+uint32_t DfuStreamParser::expected_size() const
 {
     return _expected_size;
 }
 
-StreamStatus DfuStream::process_start(const uint8_t data)
+StreamStatus DfuStreamParser::process_start(const uint8_t data)
 {
     _header[_stage_bytes_received] = data;
 
@@ -146,7 +146,7 @@ StreamStatus DfuStream::process_start(const uint8_t data)
     return StreamStatus::Incomplete;
 }
 
-StreamStatus DfuStream::process_metadata(const uint8_t data)
+StreamStatus DfuStreamParser::process_metadata(const uint8_t data)
 {
     _header[WORD_BYTES + _stage_bytes_received] = data;
 
@@ -168,20 +168,20 @@ StreamStatus DfuStream::process_metadata(const uint8_t data)
         return StreamStatus::Incomplete;
     }
 
-    if (!header_valid(_header) || !_sink.begin(_header, _expected_size))
+    if (!header_valid(_header) || !_destination.begin(_header, _expected_size))
     {
         return StreamStatus::Invalid;
     }
 
-    _sink_active = true;
+    _destination_active = true;
     return StreamStatus::Complete;
 }
 
-StreamStatus DfuStream::process_payload(const uint8_t data)
+StreamStatus DfuStreamParser::process_payload(const uint8_t data)
 {
     const std::array<uint8_t, 1> payload = { data };
 
-    if (!_sink.write(payload))
+    if (!_destination.write(payload))
     {
         return StreamStatus::Invalid;
     }
@@ -196,7 +196,7 @@ StreamStatus DfuStream::process_payload(const uint8_t data)
     return StreamStatus::Incomplete;
 }
 
-StreamStatus DfuStream::process_end(const uint8_t data)
+StreamStatus DfuStreamParser::process_end(const uint8_t data)
 {
     if (expected_byte(END_COMMAND, _stage_bytes_received) != data)
     {
@@ -205,13 +205,13 @@ StreamStatus DfuStream::process_end(const uint8_t data)
 
     if (++_stage_bytes_received == WORD_BYTES)
     {
-        return _sink.finish() ? StreamStatus::Complete : StreamStatus::Invalid;
+        return _destination.finish() ? StreamStatus::Complete : StreamStatus::Invalid;
     }
 
     return StreamStatus::Incomplete;
 }
 
-StreamStatus DfuStream::process_current_stage(const uint8_t data)
+StreamStatus DfuStreamParser::process_current_stage(const uint8_t data)
 {
     switch (_stage)
     {
@@ -235,12 +235,12 @@ StreamStatus DfuStream::process_current_stage(const uint8_t data)
     return StreamStatus::Invalid;
 }
 
-StreamStatus DfuStream::advance_stage()
+StreamStatus DfuStreamParser::advance_stage()
 {
     if (_stage == ReceiveStage::End)
     {
-        _stage       = ReceiveStage::Done;
-        _sink_active = false;
+        _stage              = ReceiveStage::Done;
+        _destination_active = false;
         return StreamStatus::Complete;
     }
 
@@ -250,11 +250,11 @@ StreamStatus DfuStream::advance_stage()
     return StreamStatus::Incomplete;
 }
 
-StreamStatus DfuStream::reject()
+StreamStatus DfuStreamParser::reject()
 {
-    if (_sink_active)
+    if (_destination_active)
     {
-        _sink.abort();
+        _destination.abort();
     }
 
     reset();

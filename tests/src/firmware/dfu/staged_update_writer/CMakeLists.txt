@@ -4,7 +4,6 @@ opendeck_test_bootstrap()
 
 opendeck_test_add_modules(
     opendeck_common_metadata                   "app/common/src/metadata"
-    opendeck_common_dfu_flash_stream_writer    "app/common/src/dfu/flash_stream_writer"
     opendeck_firmware_dfu_staged_update_writer "app/firmware/src/dfu/staged_update_writer"
 )
 

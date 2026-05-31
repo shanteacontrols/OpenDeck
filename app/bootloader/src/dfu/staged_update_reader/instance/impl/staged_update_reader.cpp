@@ -4,7 +4,7 @@
  */
 
 #include "bootloader/src/dfu/staged_update_reader/instance/impl/staged_update_reader.h"
-#include "common/src/dfu/dfu_stream/instance/impl/dfu_stream.h"
+#include "common/src/dfu/dfu_stream_parser/instance/impl/dfu_stream_parser.h"
 
 #include <zephyr/logging/log.h>
 
@@ -28,14 +28,14 @@ namespace
             return 0;
         }
 
-        return static_cast<uint32_t>(((opendeck::common::dfu::dfu_stream::HEADER_SIZE + write_block_size - 1U) / write_block_size) *
+        return static_cast<uint32_t>(((opendeck::common::dfu::dfu_stream_parser::HEADER_SIZE + write_block_size - 1U) / write_block_size) *
                                      write_block_size);
     }
 
     /**
      * @brief Reads the staged DFU header from the start of the partition.
      */
-    bool read_header(opendeck::bootloader::dfu::staged_update_reader::Hwa& hwa, opendeck::common::dfu::dfu_stream::Header& header)
+    bool read_header(opendeck::bootloader::dfu::staged_update_reader::Hwa& hwa, opendeck::common::dfu::dfu_stream_parser::Header& header)
     {
         return hwa.read(0, header);
     }
@@ -43,9 +43,9 @@ namespace
     /**
      * @brief Checks whether the header describes a readable staged payload.
      */
-    bool staged_payload_fits(const opendeck::common::dfu::dfu_stream::Header& header, const uint32_t storage_size)
+    bool staged_payload_fits(const opendeck::common::dfu::dfu_stream_parser::Header& header, const uint32_t storage_size)
     {
-        const uint32_t payload_size = opendeck::common::dfu::dfu_stream::DfuStream::payload_size(header);
+        const uint32_t payload_size = opendeck::common::dfu::dfu_stream_parser::DfuStreamParser::payload_size(header);
 
         return payload_size <= storage_size;
     }
@@ -56,9 +56,9 @@ opendeck::bootloader::dfu::staged_update_reader::StagedUpdateReader::StagedUpdat
     : _hwa(hwa)
 {}
 
-bool opendeck::bootloader::dfu::staged_update_reader::StagedUpdateReader::consume(opendeck::common::dfu::dfu_stream::Sink& consumer)
+bool opendeck::bootloader::dfu::staged_update_reader::StagedUpdateReader::consume(opendeck::common::dfu::dfu_stream_parser::Destination& consumer)
 {
-    opendeck::common::dfu::dfu_stream::Header header = {};
+    opendeck::common::dfu::dfu_stream_parser::Header header = {};
 
     if (!_hwa.init())
     {
@@ -74,7 +74,7 @@ bool opendeck::bootloader::dfu::staged_update_reader::StagedUpdateReader::consum
         return false;
     }
 
-    if (!opendeck::common::dfu::dfu_stream::DfuStream::header_valid(header))
+    if (!opendeck::common::dfu::dfu_stream_parser::DfuStreamParser::header_valid(header))
     {
         LOG_DBG("No valid staged DFU header");
         return false;
@@ -92,7 +92,7 @@ bool opendeck::bootloader::dfu::staged_update_reader::StagedUpdateReader::consum
         return false;
     }
 
-    const uint32_t payload_size = opendeck::common::dfu::dfu_stream::DfuStream::payload_size(header);
+    const uint32_t payload_size = opendeck::common::dfu::dfu_stream_parser::DfuStreamParser::payload_size(header);
 
     LOG_INF("Applying staged firmware payload (%u bytes)", payload_size);
 

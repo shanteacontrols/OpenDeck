@@ -9,6 +9,8 @@
 #include "common/src/protocols/mdns/shared/deps.h"
 #include "firmware/src/database/instance/impl/database.h"
 
+#include <span>
+
 namespace opendeck::protocol::mdns
 {
     /**
@@ -22,6 +24,22 @@ namespace opendeck::protocol::mdns
     using Hwa = opendeck::common::protocols::mdns::Hwa;
 
     /**
+     * @brief Produces one DNS-SD service descriptor advertised by mDNS.
+     */
+    class ServiceProvider
+    {
+        public:
+        virtual ~ServiceProvider() = default;
+
+        /**
+         * @brief Returns the DNS-SD service descriptor.
+         *
+         * @return DNS-SD service descriptor.
+         */
+        virtual opendeck::common::protocols::mdns::Service service() = 0;
+    };
+
+    /**
      * @brief DNS-SD services advertised by the firmware mDNS backend.
      */
     class Services
@@ -30,17 +48,10 @@ namespace opendeck::protocol::mdns
         virtual ~Services() = default;
 
         /**
-         * @brief Returns the mutable WebSockets DNS-SD service descriptor.
+         * @brief Returns DNS-SD service providers to advertise.
          *
-         * @return WebSockets service descriptor.
+         * @return DNS-SD service providers.
          */
-        virtual opendeck::common::protocols::mdns::Service websockets() = 0;
-
-        /**
-         * @brief Returns the mutable OSC DNS-SD service descriptor.
-         *
-         * @return OSC service descriptor.
-         */
-        virtual opendeck::common::protocols::mdns::Service osc() = 0;
+        virtual std::span<ServiceProvider* const> services() = 0;
     };
 }    // namespace opendeck::protocol::mdns

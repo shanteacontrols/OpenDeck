@@ -12,7 +12,7 @@
 #include "firmware/src/system/config.h"
 #include "firmware/src/threads.h"
 #include "firmware/src/io/base.h"
-#include "firmware/src/protocol/midi/instance/impl/midi.h"
+#include "firmware/src/protocol/midi/shared/common.h"
 
 #include "zlibs/utils/misc/mutex.h"
 

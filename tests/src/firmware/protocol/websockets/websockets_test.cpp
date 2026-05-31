@@ -5,7 +5,8 @@
 
 #include "tests/shared/common.h"
 #include "tests/shared/helpers/dfu_stream.h"
-#include "common/src/dfu/dfu_stream/shared/common.h"
+#include "common/src/dfu/dfu_stream_parser/destination/test/destination_test.h"
+#include "common/src/dfu/dfu_stream_parser/shared/common.h"
 #include "common/src/protocols/websockets/firmware_upload/firmware_upload.h"
 #include "firmware/src/dfu/staged_update_writer/hwa/test/hwa_test.h"
 #include "firmware/src/dfu/staged_update_writer/instance/impl/staged_update_writer.h"
@@ -103,6 +104,20 @@ TEST_F(FirmwareUploadTest, BeginsUpload)
     EXPECT_FALSE(response->finished);
 }
 
+TEST_F(FirmwareUploadTest, RejectsUnsupportedUpload)
+{
+    opendeck::common::dfu::dfu_stream_parser::DestinationTest unsupported_destination;
+    unsupported_destination.supported_result = false;
+    opendeck::common::protocols::websockets::FirmwareUpload unsupported_handler(unsupported_destination);
+
+    const auto frame    = begin_frame();
+    const auto response = unsupported_handler.handle(frame);
+
+    ASSERT_TRUE(response);
+    expect_ack(response->response, opendeck::common::protocols::websockets::FirmwareUploadCommand::Begin, opendeck::common::protocols::websockets::FirmwareUploadStatus::Unsupported, 0);
+    EXPECT_FALSE(response->finished);
+}
+
 TEST_F(FirmwareUploadTest, RejectsEmptyChunk)
 {
     const auto begin = begin_frame();
@@ -125,7 +140,7 @@ TEST_F(FirmwareUploadTest, WritesChunks)
         0xF7U,
     };
 
-    const auto dfu   = opendeck::tests::dfu_stream::make_stream(payload);
+    const auto dfu   = opendeck::tests::dfu_stream_parser::make_stream(payload);
     const auto begin = begin_frame();
     const auto chunk = chunk_frame(dfu);
     ASSERT_TRUE(handler.handle(begin));
@@ -166,7 +181,7 @@ TEST_F(FirmwareUploadTest, FinishesCompleteUpload)
         0xF7U,
     };
 
-    const auto dfu   = opendeck::tests::dfu_stream::make_stream(payload);
+    const auto dfu   = opendeck::tests::dfu_stream_parser::make_stream(payload);
     const auto begin = begin_frame();
     const auto chunk = chunk_frame(dfu);
     ASSERT_TRUE(handler.handle(begin));
@@ -187,7 +202,7 @@ TEST_F(FirmwareUploadTest, AbortsUpload)
         0xF7U,
     };
 
-    const auto dfu   = opendeck::tests::dfu_stream::make_stream(payload);
+    const auto dfu   = opendeck::tests::dfu_stream_parser::make_stream(payload);
     const auto begin = begin_frame();
     const auto chunk = chunk_frame(dfu);
     ASSERT_TRUE(handler.handle(begin));
@@ -210,7 +225,7 @@ TEST_F(FirmwareUploadTest, RejectsDfuTargetMismatch)
         0xF7U,
     };
 
-    const auto dfu   = opendeck::tests::dfu_stream::make_stream(payload, OPENDECK_TARGET_UID + 1);
+    const auto dfu   = opendeck::tests::dfu_stream_parser::make_stream(payload, OPENDECK_TARGET_UID + 1);
     const auto begin = begin_frame();
     const auto chunk = chunk_frame(dfu);
     ASSERT_TRUE(handler.handle(begin));

@@ -60,8 +60,7 @@ builder variant for the current build:
 - `builder/hw/` is used by real firmware or bootloader images.
 - `builder/test/` is used by host tests when a module needs a test-specific
   object graph.
-- `builder/stub/` is used when the feature is compiled in but intentionally has
-  no real implementation for the current target.
+- `builder/stub/` is used when the selected target does not support the feature
 
 Code outside the module should include only `module/builder/builder.h` unless it
 has a very specific reason to depend on a concrete variant.

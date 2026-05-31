@@ -8,7 +8,7 @@
 #include "firmware/src/database/shared/deps.h"
 #include "firmware/src/database/layout.h"
 #include "firmware/src/signaling/signaling.h"
-#include "firmware/src/io/indicators/instance/impl/indicators.h"
+#include "firmware/src/io/indicators/shared/common.h"
 
 #include "zlibs/utils/emueeprom/emueeprom.h"
 
@@ -197,12 +197,10 @@ namespace opendeck::database
          */
         bool clear() override
         {
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_TRAFFIC_INDICATORS
             // It's possible that output indicators are still on since
             // this command is most likely given via USB.
             // Wait until all indicators are turned off
-            k_msleep(io::indicators::Indicators::TRAFFIC_INDICATOR_TIMEOUT_MS);
-#endif
+            k_msleep(io::indicators::TRAFFIC_INDICATOR_TIMEOUT_MS);
 
             return _emueeprom.format();
         }

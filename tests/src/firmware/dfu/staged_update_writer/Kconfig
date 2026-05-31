@@ -1,3 +1,7 @@
 mainmenu "Project-specific configuration"
 
+config PROJECT_TARGET_SUPPORT_STAGED_UPDATE
+    bool
+    default y
+
 rsource "$ZENV_PROJECT_ROOT/app/Kconfig"

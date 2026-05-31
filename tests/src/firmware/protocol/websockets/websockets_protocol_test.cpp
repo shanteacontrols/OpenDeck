@@ -6,15 +6,12 @@
 #include "tests/shared/common.h"
 #include "tests/shared/helpers/dfu_stream.h"
 #include "tests/shared/helpers/misc.h"
-#include "common/src/dfu/dfu_stream/shared/common.h"
+#include "common/src/dfu/dfu_stream_parser/shared/common.h"
 #include "firmware/src/protocol/osc/packet/packet.h"
 #include "firmware/src/protocol/osc/shared/paths.h"
 #include "common/src/protocols/websockets/shared/firmware_upload.h"
-#include "firmware/src/protocol/websockets/hwa/test/hwa_test.h"
-#include "firmware/src/protocol/websockets/instance/impl/websockets.h"
+#include "firmware/src/protocol/websockets/builder/builder.h"
 #include "firmware/src/signaling/signaling.h"
-#include "firmware/src/dfu/staged_update_writer/hwa/test/hwa_test.h"
-#include "firmware/src/dfu/staged_update_writer/instance/impl/staged_update_writer.h"
 
 #include "zlibs/utils/midi/midi.h"
 #include "zlibs/utils/misc/mutex.h"
@@ -234,10 +231,9 @@ namespace
             return packets.empty() ? midi_ump{} : packets.back();
         }
 
-        opendeck::protocol::websockets::HwaTest                 hwa;
-        firmware::dfu::staged_update_writer::HwaTest            firmware_hwa;
-        firmware::dfu::staged_update_writer::StagedUpdateWriter firmware_update = firmware::dfu::staged_update_writer::StagedUpdateWriter(firmware_hwa);
-        opendeck::protocol::websockets::WebSockets              websockets      = opendeck::protocol::websockets::WebSockets(hwa, firmware_update);
+        opendeck::protocol::websockets::Builder     builder;
+        opendeck::protocol::websockets::HwaTest&    hwa        = builder.hwa();
+        opendeck::protocol::websockets::WebSockets& websockets = builder.instance();
     };
 }    // namespace
 
@@ -378,7 +374,7 @@ TEST_F(WebSocketsProtocolTest, FirmwareUploadRequestsBootloaderRebootThroughSyst
         0xF7U,
     };
 
-    const auto dfu = opendeck::tests::dfu_stream::make_stream(payload);
+    const auto dfu = opendeck::tests::dfu_stream_parser::make_stream(payload);
 
     ASSERT_TRUE(websockets.init());
     ASSERT_EQ(websockets.accept_client(CLIENT_SOCKET), 0);

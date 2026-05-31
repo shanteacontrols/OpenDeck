@@ -7,6 +7,8 @@
 
 #include "firmware/src/protocol/mdns/shared/deps.h"
 
+#include <vector>
+
 namespace opendeck::protocol::mdns
 {
     /**
@@ -16,17 +18,20 @@ namespace opendeck::protocol::mdns
     {
         public:
         /**
-         * @brief Returns the mutable WebSockets DNS-SD service descriptor.
+         * @brief Registers one DNS-SD service provider.
          *
-         * @return WebSockets service descriptor.
+         * @param provider Service provider owned by the mDNS builder.
          */
-        opendeck::common::protocols::mdns::Service websockets() override;
+        static void register_service(ServiceProvider* provider);
 
         /**
-         * @brief Returns the mutable OSC DNS-SD service descriptor.
+         * @brief Returns DNS-SD service providers to advertise.
          *
-         * @return OSC service descriptor.
+         * @return DNS-SD service providers.
          */
-        opendeck::common::protocols::mdns::Service osc() override;
+        std::span<ServiceProvider* const> services() override;
+
+        private:
+        static inline std::vector<ServiceProvider*> _providers;
     };
 }    // namespace opendeck::protocol::mdns

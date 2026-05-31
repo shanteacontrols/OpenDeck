@@ -22,7 +22,7 @@ StagedUpdateWriter::StagedUpdateWriter(Hwa& hwa)
     , _writer(*this)
 {}
 
-bool StagedUpdateWriter::begin(const opendeck::common::dfu::dfu_stream::Header& header, const uint32_t expected_size)
+bool StagedUpdateWriter::begin(const opendeck::common::dfu::dfu_stream_parser::Header& header, const uint32_t expected_size)
 {
     LOG_INF("Staged DFU upload started: size=%u", expected_size);
 
@@ -110,6 +110,11 @@ bool StagedUpdateWriter::finish()
     return true;
 }
 
+bool StagedUpdateWriter::supported() const
+{
+    return true;
+}
+
 void StagedUpdateWriter::abort()
 {
     if (_active)
@@ -144,12 +149,12 @@ uint32_t StagedUpdateWriter::header_storage_size() const
     const size_t write_block_size = _hwa.write_block_size();
 
     if ((write_block_size == 0U) ||
-        (write_block_size > opendeck::common::dfu::flash_stream_writer::FlashStreamWriter::MAX_FLASH_WRITE_BLOCK_SIZE))
+        (write_block_size > opendeck::common::dfu::flash_stream_writer::MAX_FLASH_WRITE_BLOCK_SIZE))
     {
         return 0;
     }
 
-    return static_cast<uint32_t>(((opendeck::common::dfu::dfu_stream::HEADER_SIZE + write_block_size - 1U) / write_block_size) *
+    return static_cast<uint32_t>(((opendeck::common::dfu::dfu_stream_parser::HEADER_SIZE + write_block_size - 1U) / write_block_size) *
                                  write_block_size);
 }
 
@@ -163,7 +168,7 @@ bool StagedUpdateWriter::init_flash_area()
     const size_t write_block_size = _hwa.write_block_size();
 
     if ((write_block_size == 0U) ||
-        (write_block_size > opendeck::common::dfu::flash_stream_writer::FlashStreamWriter::MAX_FLASH_WRITE_BLOCK_SIZE) ||
+        (write_block_size > opendeck::common::dfu::flash_stream_writer::MAX_FLASH_WRITE_BLOCK_SIZE) ||
         (header_storage_size() == 0U))
     {
         LOG_ERR("Unsupported staged DFU flash write block size");
@@ -311,12 +316,12 @@ bool StagedUpdateWriter::flush_write_block()
     return true;
 }
 
-bool StagedUpdateWriter::write_header(const opendeck::common::dfu::dfu_stream::Header& header)
+bool StagedUpdateWriter::write_header(const opendeck::common::dfu::dfu_stream_parser::Header& header)
 {
     const auto write_block_size = _hwa.write_block_size();
 
     if ((write_block_size == 0U) ||
-        (write_block_size > opendeck::common::dfu::flash_stream_writer::FlashStreamWriter::MAX_FLASH_WRITE_BLOCK_SIZE))
+        (write_block_size > opendeck::common::dfu::flash_stream_writer::MAX_FLASH_WRITE_BLOCK_SIZE))
     {
         LOG_ERR("Unsupported staged DFU flash write block size");
         return false;
@@ -330,9 +335,9 @@ bool StagedUpdateWriter::write_header(const opendeck::common::dfu::dfu_stream::H
         return false;
     }
 
-    std::array<uint8_t, opendeck::common::dfu::flash_stream_writer::FlashStreamWriter::MAX_FLASH_WRITE_BLOCK_SIZE> data = {};
+    std::array<uint8_t, opendeck::common::dfu::flash_stream_writer::MAX_FLASH_WRITE_BLOCK_SIZE> data = {};
 
-    std::fill(data.begin(), data.end(), opendeck::common::dfu::flash_stream_writer::FlashStreamWriter::ERASED_BYTE);
+    std::fill(data.begin(), data.end(), opendeck::common::dfu::flash_stream_writer::ERASED_BYTE);
     std::copy(header.begin(), header.end(), data.begin());
 
     if (!_hwa.write(0, std::span<const uint8_t>(data.data(), header_size)))

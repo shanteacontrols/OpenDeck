@@ -7,9 +7,9 @@
 
 using namespace opendeck::common::protocols::websockets;
 
-FirmwareUpload::FirmwareUpload(opendeck::common::dfu::dfu_stream::Sink& sink)
-    : _sink(sink)
-    , _dfu_stream(sink)
+FirmwareUpload::FirmwareUpload(opendeck::common::dfu::dfu_stream_parser::Destination& destination)
+    : _destination(destination)
+    , _dfu_stream(destination)
 {}
 
 FirmwareUploadAck FirmwareUpload::make_ack(const FirmwareUploadCommand command,
@@ -50,7 +50,7 @@ std::optional<FirmwareUploadCommandResult> FirmwareUpload::handle(std::span<cons
 
 void FirmwareUpload::abort()
 {
-    _sink.abort();
+    _destination.abort();
     _dfu_stream.reset();
 }
 
@@ -59,6 +59,11 @@ FirmwareUploadCommandResult FirmwareUpload::handle_begin(std::span<const uint8_t
     if (!payload.empty())
     {
         return result(FirmwareUploadCommand::Begin, FirmwareUploadStatus::BadRequest);
+    }
+
+    if (!_destination.supported())
+    {
+        return result(FirmwareUploadCommand::Begin, FirmwareUploadStatus::Unsupported);
     }
 
     abort();
@@ -76,17 +81,17 @@ FirmwareUploadCommandResult FirmwareUpload::handle_chunk(std::span<const uint8_t
     const auto status = _dfu_stream.feed(payload);
 
     return result(FirmwareUploadCommand::Chunk,
-                  status == opendeck::common::dfu::dfu_stream::StreamStatus::Invalid ? FirmwareUploadStatus::Failed
-                                                                                     : FirmwareUploadStatus::Ok);
+                  status == opendeck::common::dfu::dfu_stream_parser::StreamStatus::Invalid ? FirmwareUploadStatus::Failed
+                                                                                            : FirmwareUploadStatus::Ok);
 }
 
 FirmwareUploadCommandResult FirmwareUpload::handle_finish()
 {
-    const bool finished = _dfu_stream.status() == opendeck::common::dfu::dfu_stream::StreamStatus::Complete;
+    const bool finished = _dfu_stream.status() == opendeck::common::dfu::dfu_stream_parser::StreamStatus::Complete;
 
     if (!finished)
     {
-        _sink.abort();
+        _destination.abort();
     }
 
     return result(FirmwareUploadCommand::Finish,

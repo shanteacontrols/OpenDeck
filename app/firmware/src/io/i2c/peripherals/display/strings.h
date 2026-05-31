@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/protocol/midi/instance/impl/midi.h"
+#include "firmware/src/protocol/midi/shared/common.h"
 
 namespace opendeck::io::i2c::display
 {

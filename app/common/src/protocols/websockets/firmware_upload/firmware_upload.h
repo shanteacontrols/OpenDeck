@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "common/src/dfu/dfu_stream/instance/impl/dfu_stream.h"
+#include "common/src/dfu/dfu_stream_parser/instance/impl/dfu_stream_parser.h"
 #include "common/src/protocols/websockets/shared/firmware_upload.h"
 
 #include <cstdint>
@@ -21,11 +21,11 @@ namespace opendeck::common::protocols::websockets
     {
         public:
         /**
-         * @brief Constructs the handler around a validated-payload sink.
+         * @brief Constructs the handler around a validated-payload destination.
          *
-         * @param sink Destination for firmware payload bytes accepted by the DFU parser.
+         * @param destination Destination for firmware payload bytes accepted by the DFU parser.
          */
-        explicit FirmwareUpload(opendeck::common::dfu::dfu_stream::Sink& sink);
+        explicit FirmwareUpload(opendeck::common::dfu::dfu_stream_parser::Destination& destination);
 
         /**
          * @brief Builds an ACK for a firmware-upload command.
@@ -55,8 +55,8 @@ namespace opendeck::common::protocols::websockets
         void abort();
 
         private:
-        opendeck::common::dfu::dfu_stream::Sink&     _sink;
-        opendeck::common::dfu::dfu_stream::DfuStream _dfu_stream;
+        opendeck::common::dfu::dfu_stream_parser::Destination&    _destination;
+        opendeck::common::dfu::dfu_stream_parser::DfuStreamParser _dfu_stream;
 
         FirmwareUploadCommandResult result(FirmwareUploadCommand command,
                                            FirmwareUploadStatus  status,

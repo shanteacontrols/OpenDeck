@@ -482,7 +482,7 @@ void webusb::WebUsbHw::status(std::string_view message)
 
 void webusb::WebUsbHw::feed(std::span<const uint8_t> data)
 {
-    if (_dfu_stream.feed(data) == opendeck::common::dfu::dfu_stream::StreamStatus::Invalid)
+    if (_dfu_stream.feed(data) == opendeck::common::dfu::dfu_stream_parser::StreamStatus::Invalid)
     {
         _dfu_stream.reset();
     }

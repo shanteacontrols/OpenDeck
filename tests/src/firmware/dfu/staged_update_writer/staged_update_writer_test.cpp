@@ -4,7 +4,7 @@
  */
 
 #include "tests/shared/common.h"
-#include "common/src/dfu/dfu_stream/shared/common.h"
+#include "common/src/dfu/dfu_stream_parser/shared/common.h"
 #include "common/src/dfu/flash_area/hwa/test/hwa_test.h"
 #include "firmware/src/dfu/staged_update_writer/hwa/test/hwa_test.h"
 #include "firmware/src/dfu/staged_update_writer/instance/impl/staged_update_writer.h"
@@ -26,7 +26,7 @@ namespace
         HwaTest            hwa;
         StagedUpdateWriter staged_update_writer = StagedUpdateWriter(hwa);
 
-        static void write_word(opendeck::common::dfu::dfu_stream::Header& header, size_t word_index, uint32_t value)
+        static void write_word(opendeck::common::dfu::dfu_stream_parser::Header& header, size_t word_index, uint32_t value)
         {
             constexpr uint32_t BYTE_MASK      = 0xFF;
             constexpr uint8_t  BITS_PER_OCTET = 8;
@@ -38,12 +38,12 @@ namespace
             }
         }
 
-        static opendeck::common::dfu::dfu_stream::Header header(uint32_t payload_size)
+        static opendeck::common::dfu::dfu_stream_parser::Header header(uint32_t payload_size)
         {
-            opendeck::common::dfu::dfu_stream::Header header = {};
+            opendeck::common::dfu::dfu_stream_parser::Header header = {};
 
-            write_word(header, 0, opendeck::common::dfu::dfu_stream::START_COMMAND);
-            write_word(header, 1, opendeck::common::dfu::dfu_stream::FORMAT_VERSION);
+            write_word(header, 0, opendeck::common::dfu::dfu_stream_parser::START_COMMAND);
+            write_word(header, 1, opendeck::common::dfu::dfu_stream_parser::FORMAT_VERSION);
             write_word(header, 2, OPENDECK_TARGET_UID);
             write_word(header, 3, payload_size);
 
@@ -52,7 +52,7 @@ namespace
 
         static constexpr size_t header_storage_size()
         {
-            return ((opendeck::common::dfu::dfu_stream::HEADER_SIZE + FlashAreaHwaTest::WRITE_BLOCK_SIZE - 1U) /
+            return ((opendeck::common::dfu::dfu_stream_parser::HEADER_SIZE + FlashAreaHwaTest::WRITE_BLOCK_SIZE - 1U) /
                     FlashAreaHwaTest::WRITE_BLOCK_SIZE) *
                    FlashAreaHwaTest::WRITE_BLOCK_SIZE;
         }
@@ -78,6 +78,11 @@ TEST_F(StagedUpdateWriterTest, RejectsInvalidUploadSize)
 {
     EXPECT_FALSE(staged_update_writer.begin(header(0), 0));
     EXPECT_FALSE(staged_update_writer.begin(header(hwa.size()), hwa.size()));
+}
+
+TEST_F(StagedUpdateWriterTest, ReportsBackendSupport)
+{
+    EXPECT_TRUE(staged_update_writer.supported());
 }
 
 TEST_F(StagedUpdateWriterTest, WritesHeaderAndPayload)

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "common/src/dfu/dfu_stream/shared/deps.h"
+#include "common/src/dfu/dfu_stream_parser/shared/deps.h"
 #include "common/src/dfu/flash_stream_writer/instance/impl/flash_stream_writer.h"
 #include "firmware/src/dfu/staged_update_writer/shared/deps.h"
 
@@ -17,7 +17,7 @@ namespace opendeck::firmware::dfu::staged_update_writer
     /**
      * @brief Stores a validated firmware payload in the configured staging partition.
      */
-    class StagedUpdateWriter : public opendeck::common::dfu::dfu_stream::Sink, private opendeck::common::dfu::flash_stream_writer::Sink
+    class StagedUpdateWriter : public opendeck::common::dfu::dfu_stream_parser::Destination, private opendeck::common::dfu::flash_stream_writer::Destination
     {
         public:
         /**
@@ -35,7 +35,7 @@ namespace opendeck::firmware::dfu::staged_update_writer
          *
          * @return `true` on success, otherwise `false`.
          */
-        bool begin(const opendeck::common::dfu::dfu_stream::Header& header, uint32_t expected_size) override;
+        bool begin(const opendeck::common::dfu::dfu_stream_parser::Header& header, uint32_t expected_size) override;
 
         /**
          * @brief Appends bytes to the staged firmware payload.
@@ -54,6 +54,13 @@ namespace opendeck::firmware::dfu::staged_update_writer
         bool finish() override;
 
         /**
+         * @brief Reports whether staged-update storage is supported.
+         *
+         * @return `true` if the backend supports staged updates.
+         */
+        bool supported() const override;
+
+        /**
          * @brief Invalidates staged update header and resets writer state.
          */
         void abort() override;
@@ -61,7 +68,7 @@ namespace opendeck::firmware::dfu::staged_update_writer
         private:
         Hwa&                                                          _hwa;
         opendeck::common::dfu::flash_stream_writer::FlashStreamWriter _writer;
-        opendeck::common::dfu::dfu_stream::Header                     _header        = {};
+        opendeck::common::dfu::dfu_stream_parser::Header              _header        = {};
         uint32_t                                                      _expected_size = 0;
         std::optional<size_t>                                         _erased_sector = std::nullopt;
         bool                                                          _initialized   = false;
@@ -114,7 +121,7 @@ namespace opendeck::firmware::dfu::staged_update_writer
         /**
          * @brief Writes the accepted DFU header at the beginning of the staged partition.
          */
-        bool write_header(const opendeck::common::dfu::dfu_stream::Header& header);
+        bool write_header(const opendeck::common::dfu::dfu_stream_parser::Header& header);
 
         /**
          * @brief Clears upload counters and cached write state.

@@ -35,12 +35,6 @@ namespace opendeck::threads
     /** @brief Stack size, in bytes, assigned to OSC packet transmission. */
     constexpr inline size_t OSC_SEND_THREAD_STACK_SIZE = 6144;
 
-    /** @brief Stack size, in bytes, assigned to WebSocket client handling. */
-    constexpr inline size_t WEBSOCKETS_THREAD_STACK_SIZE = 4096;
-
-    /** @brief Stack size, in bytes, assigned to WebSocket frame transmission. */
-    constexpr inline size_t WEBSOCKETS_TX_THREAD_STACK_SIZE = 4096;
-
     /** @brief Stack size, in bytes, assigned to the system workqueue. */
     constexpr inline size_t SYSTEM_WORKQUEUE_STACK_SIZE = 6144;
 
@@ -99,20 +93,6 @@ namespace opendeck::threads
     using OscSendThread = zlibs::utils::threads::UserThread<zlibs::utils::misc::StringLiteral{ "protocol_osc_tx" },
                                                             K_PRIO_PREEMPT(1),
                                                             OSC_SEND_THREAD_STACK_SIZE>;
-
-    /**
-     * @brief Thread type used for WebSocket configuration client handling.
-     */
-    using WebSocketsThread = zlibs::utils::threads::UserThread<zlibs::utils::misc::StringLiteral{ "protocol_ws" },
-                                                               K_PRIO_PREEMPT(1),
-                                                               WEBSOCKETS_THREAD_STACK_SIZE>;
-
-    /**
-     * @brief Thread type used for WebSocket configuration frame transmission.
-     */
-    using WebSocketsTxThread = zlibs::utils::threads::UserThread<zlibs::utils::misc::StringLiteral{ "protocol_wstx" },
-                                                                 K_PRIO_PREEMPT(1),
-                                                                 WEBSOCKETS_TX_THREAD_STACK_SIZE>;
 
     /**
      * @brief Workqueue type used for deferred system tasks.

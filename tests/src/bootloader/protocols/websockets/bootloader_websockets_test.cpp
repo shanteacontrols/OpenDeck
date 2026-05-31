@@ -8,6 +8,7 @@
 #include "tests/shared/helpers/misc.h"
 #include "bootloader/src/dfu/direct_update_writer/builder/builder.h"
 #include "bootloader/src/signaling/signaling.h"
+#include "bootloader/src/protocols/websockets/command_handler/builder/builder.h"
 #include "bootloader/src/protocols/websockets/instance/impl/websockets.h"
 #include "common/src/protocols/websockets/shared/firmware_upload.h"
 
@@ -202,16 +203,17 @@ TEST(BootloaderWebSockets, NetworkDfuWritesDirectUpdate)
         0x10, 0x11, 0x12, 0x13, 0x14
     };
 
-    WebSocketsHwaTest                                         websockets_hwa;
-    bootloader::dfu::direct_update_writer::HwaTest            writer_hwa(4, 64, 1);
-    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(writer_hwa);
-    bootloader::protocols::websockets::WebSockets             websockets(websockets_hwa, writer);
+    WebSocketsHwaTest                                           websockets_hwa;
+    bootloader::dfu::direct_update_writer::HwaTest              writer_hwa(4, 64, 1);
+    bootloader::dfu::direct_update_writer::DirectUpdateWriter   writer(writer_hwa);
+    bootloader::protocols::websockets::command_handler::Builder command_handlers(writer);
+    bootloader::protocols::websockets::WebSockets               websockets(websockets_hwa);
 
     ASSERT_TRUE(websockets.init());
     ASSERT_EQ(websockets.accept_client(CLIENT_SOCKET), 0);
 
     websockets_hwa.push_frame(command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand::Begin));
-    websockets_hwa.push_frame(chunk_frame(opendeck::tests::dfu_stream::make_stream(payload)));
+    websockets_hwa.push_frame(chunk_frame(opendeck::tests::dfu_stream_parser::make_stream(payload)));
     websockets_hwa.push_frame(command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand::Finish));
 
     ASSERT_TRUE(wait_for_sent_frames(websockets_hwa, 3));
@@ -247,16 +249,17 @@ TEST(BootloaderWebSockets, NetworkDfuRejectsInvalidHeader)
         0xAA, 0xBB, 0xCC, 0xDD
     };
 
-    WebSocketsHwaTest                                         websockets_hwa;
-    bootloader::dfu::direct_update_writer::HwaTest            writer_hwa(4, 64, 1);
-    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(writer_hwa);
-    bootloader::protocols::websockets::WebSockets             websockets(websockets_hwa, writer);
+    WebSocketsHwaTest                                           websockets_hwa;
+    bootloader::dfu::direct_update_writer::HwaTest              writer_hwa(4, 64, 1);
+    bootloader::dfu::direct_update_writer::DirectUpdateWriter   writer(writer_hwa);
+    bootloader::protocols::websockets::command_handler::Builder command_handlers(writer);
+    bootloader::protocols::websockets::WebSockets               websockets(websockets_hwa);
 
     ASSERT_TRUE(websockets.init());
     ASSERT_EQ(websockets.accept_client(CLIENT_SOCKET), 0);
 
     websockets_hwa.push_frame(command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand::Begin));
-    websockets_hwa.push_frame(chunk_frame(opendeck::tests::dfu_stream::make_stream(payload, OPENDECK_TARGET_UID ^ 0x01)));
+    websockets_hwa.push_frame(chunk_frame(opendeck::tests::dfu_stream_parser::make_stream(payload, OPENDECK_TARGET_UID ^ 0x01)));
 
     ASSERT_TRUE(wait_for_sent_frames(websockets_hwa, 2));
     websockets.deinit();
@@ -284,10 +287,11 @@ TEST(BootloaderWebSockets, NetworkDfuAbortResetsDirectUpdate)
 
     constexpr int CLIENT_SOCKET = 7;
 
-    WebSocketsHwaTest                                         websockets_hwa;
-    bootloader::dfu::direct_update_writer::HwaTest            writer_hwa(4, 64, 1);
-    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(writer_hwa);
-    bootloader::protocols::websockets::WebSockets             websockets(websockets_hwa, writer);
+    WebSocketsHwaTest                                           websockets_hwa;
+    bootloader::dfu::direct_update_writer::HwaTest              writer_hwa(4, 64, 1);
+    bootloader::dfu::direct_update_writer::DirectUpdateWriter   writer(writer_hwa);
+    bootloader::protocols::websockets::command_handler::Builder command_handlers(writer);
+    bootloader::protocols::websockets::WebSockets               websockets(websockets_hwa);
 
     ASSERT_TRUE(websockets.init());
     ASSERT_EQ(websockets.accept_client(CLIENT_SOCKET), 0);

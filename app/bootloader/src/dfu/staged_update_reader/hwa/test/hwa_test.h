@@ -6,7 +6,7 @@
 #pragma once
 
 #include "bootloader/src/dfu/staged_update_reader/shared/deps.h"
-#include "common/src/dfu/dfu_stream/shared/common.h"
+#include "common/src/dfu/dfu_stream_parser/shared/common.h"
 #include "common/src/dfu/flash_area/hwa/test/hwa_test.h"
 
 #include "zlibs/utils/misc/bit.h"
@@ -59,11 +59,11 @@ namespace opendeck::bootloader::dfu::staged_update_reader
         }
 
         void stage(std::span<const uint8_t> payload,
-                   uint32_t                 start_magic    = opendeck::common::dfu::dfu_stream::START_COMMAND,
-                   uint32_t                 format_version = opendeck::common::dfu::dfu_stream::FORMAT_VERSION,
+                   uint32_t                 start_magic    = opendeck::common::dfu::dfu_stream_parser::START_COMMAND,
+                   uint32_t                 format_version = opendeck::common::dfu::dfu_stream_parser::FORMAT_VERSION,
                    uint32_t                 target_uid     = OPENDECK_TARGET_UID)
         {
-            opendeck::common::dfu::dfu_stream::Header header = {};
+            opendeck::common::dfu::dfu_stream_parser::Header header = {};
             write_word(header, 0, start_magic);
             write_word(header, 1, format_version);
             write_word(header, 2, target_uid);
@@ -106,10 +106,10 @@ namespace opendeck::bootloader::dfu::staged_update_reader
         {
             const size_t write_block_size = _area.write_block_size();
 
-            return ((opendeck::common::dfu::dfu_stream::HEADER_SIZE + write_block_size - 1U) / write_block_size) * write_block_size;
+            return ((opendeck::common::dfu::dfu_stream_parser::HEADER_SIZE + write_block_size - 1U) / write_block_size) * write_block_size;
         }
 
-        static void write_word(opendeck::common::dfu::dfu_stream::Header& header, size_t word_index, uint32_t value)
+        static void write_word(opendeck::common::dfu::dfu_stream_parser::Header& header, size_t word_index, uint32_t value)
         {
             const size_t offset = word_index * sizeof(value);
 

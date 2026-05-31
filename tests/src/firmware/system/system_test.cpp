@@ -661,6 +661,7 @@ TEST_F(SystemTest, ConfigurationSessionTimesOutAfterInactivity)
     ASSERT_EQ(static_cast<uint8_t>(zlibs::utils::sysex_conf::Status::ErrorConnection), response.at(4));
 }
 
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_TRAFFIC_INDICATORS
 TEST_F(SystemTest, IndicatorsInvertWhileConfigurationSessionIsOpen)
 {
     opendeck::common::io::indicators::HwaTest hwa;
@@ -706,6 +707,7 @@ TEST_F(SystemTest, IndicatorsInvertWhileConfigurationSessionIsOpen)
                    !hwa.is_on(opendeck::common::io::indicators::Type::UsbOut);
         }));
 }
+#endif
 
 TEST_F(SystemTest, ConfigurationSessionTimeoutDoesNotCloseBackup)
 {

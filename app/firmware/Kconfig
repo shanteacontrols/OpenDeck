@@ -318,6 +318,18 @@ config PROJECT_TARGET_SUPPORT_CONFIG_INTERFACE
       Hidden symbol indicating at least one configuration transport is
       enabled for this target.
 
+config PROJECT_TARGET_SUPPORT_CONFIG_INTERFACE_USB_MIDI
+    bool
+    help
+      Hidden symbol indicating USB MIDI SysEx configuration support is
+      enabled for this target.
+
+config PROJECT_TARGET_SUPPORT_CONFIG_INTERFACE_WEBSOCKETS
+    bool
+    help
+      Hidden symbol indicating WebSockets SysEx configuration support is
+      enabled for this target.
+
 config PROJECT_TARGET_SUPPORT_USB_MIDI
     bool "USB MIDI support"
     default y if $(dt_path_enabled,$(OPENDECK_TRANSPORTS_NODE)) && \
@@ -327,8 +339,18 @@ config PROJECT_TARGET_SUPPORT_USB_MIDI
     select ZLIBS_DRIVERS_USB_HW
     select ZLIBS_UTILS_MIDI_TRANSPORT_USB
     select PROJECT_TARGET_SUPPORT_CONFIG_INTERFACE
+    select PROJECT_TARGET_SUPPORT_CONFIG_INTERFACE_USB_MIDI
     help
       Enables USB MIDI transport and SysEx configuration over USB.
+
+config PROJECT_TARGET_SUPPORT_MIDI
+    bool
+    default y if PROJECT_TARGET_SUPPORT_USB_MIDI || \
+             PROJECT_TARGET_SUPPORT_DIN_MIDI || \
+             PROJECT_TARGET_SUPPORT_BLE
+    help
+      Hidden symbol indicating the MIDI protocol module is present when at
+      least one MIDI transport is supported.
 
 config PROJECT_TARGET_SUPPORT_TRAFFIC_INDICATORS
     bool
@@ -412,6 +434,7 @@ config PROJECT_TARGET_SUPPORT_WEBSOCKETS
     select HTTP_SERVER
     select HTTP_SERVER_WEBSOCKET
     select PROJECT_TARGET_SUPPORT_CONFIG_INTERFACE
+    select PROJECT_TARGET_SUPPORT_CONFIG_INTERFACE_WEBSOCKETS
     help
       Hidden symbol indicating WebSocket configuration support is present
       on this target.
