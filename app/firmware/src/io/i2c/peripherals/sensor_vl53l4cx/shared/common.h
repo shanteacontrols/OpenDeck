@@ -55,13 +55,6 @@ namespace opendeck::io::i2c::sensor_vl53l4cx
         Count
     };
 
-    constexpr inline std::array<uint32_t, static_cast<uint8_t>(Setting::Count)> VL53L4CX_DEFAULTS = {
-        0,
-        static_cast<uint8_t>(TrackingArea::Narrow),
-        static_cast<uint8_t>(Response::Stable),
-        static_cast<uint8_t>(DistanceMode::Medium),
-    };
-
     constexpr inline std::array<uint8_t, 1> I2C_ADDRESSES = {
         0x29,
     };

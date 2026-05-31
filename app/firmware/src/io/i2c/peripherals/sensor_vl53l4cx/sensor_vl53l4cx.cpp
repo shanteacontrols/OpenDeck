@@ -105,6 +105,26 @@ SensorVl53l4cx::SensorVl53l4cx(Hwa&      hwa,
     : _hwa(hwa)
     , _database(database)
 {
+    _database.register_layout_init_provider(
+        database::Config::Section::I2c::Vl53l4cx,
+        [](size_t index) -> std::optional<uint32_t>
+        {
+            switch (static_cast<Setting>(index))
+            {
+            case Setting::TrackingArea:
+                return static_cast<uint32_t>(TrackingArea::Narrow);
+
+            case Setting::Response:
+                return static_cast<uint32_t>(Response::Stable);
+
+            case Setting::DistanceMode:
+                return static_cast<uint32_t>(DistanceMode::Medium);
+
+            default:
+                return {};
+            }
+        });
+
     ConfigHandler.register_config(
         sys::Config::Block::I2c,
         // read
@@ -281,7 +301,7 @@ TrackingArea SensorVl53l4cx::tracking_area()
 
     if (value >= static_cast<uint8_t>(TrackingArea::Count))
     {
-        return static_cast<TrackingArea>(VL53L4CX_DEFAULTS[static_cast<uint8_t>(Setting::TrackingArea)]);
+        return TrackingArea::Narrow;
     }
 
     return static_cast<TrackingArea>(value);
@@ -293,7 +313,7 @@ Response SensorVl53l4cx::response()
 
     if (value >= static_cast<uint8_t>(Response::Count))
     {
-        return static_cast<Response>(VL53L4CX_DEFAULTS[static_cast<uint8_t>(Setting::Response)]);
+        return Response::Stable;
     }
 
     return static_cast<Response>(value);
@@ -305,7 +325,7 @@ DistanceMode SensorVl53l4cx::distance_mode()
 
     if (value >= static_cast<uint8_t>(DistanceMode::Count))
     {
-        return static_cast<DistanceMode>(VL53L4CX_DEFAULTS[static_cast<uint8_t>(Setting::DistanceMode)]);
+        return DistanceMode::Medium;
     }
 
     return static_cast<DistanceMode>(value);

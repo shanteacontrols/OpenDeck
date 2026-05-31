@@ -11,6 +11,5 @@ target_link_libraries(opendeck_firmware_database
 )
 
 zephyr_library_sources(
-    ${CMAKE_CURRENT_LIST_DIR}/instance/impl/custom_init.cpp
     ${CMAKE_CURRENT_LIST_DIR}/instance/impl/database.cpp
 )

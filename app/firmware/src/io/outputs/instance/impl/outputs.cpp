@@ -59,6 +59,31 @@ Outputs::Outputs(Hwa& hwa, Database& database)
         _level[i] = OUTPUT_LEVEL_MIN;
     }
 
+    _database.register_layout_init_provider(
+        database::Config::Section::Outputs::ActivationId,
+        [](size_t index) -> std::optional<uint32_t>
+        {
+            for (size_t group = 0; group < Collection::groups(); group++)
+            {
+                const auto start = Collection::start_index(group);
+                const auto end   = start + Collection::size(group);
+
+                if ((index >= start) && (index < end))
+                {
+                    return index - start;
+                }
+            }
+
+            return {};
+        });
+
+    _database.register_layout_init_provider(
+        database::Config::Section::Outputs::ControlType,
+        [](size_t) -> std::optional<uint32_t>
+        {
+            return static_cast<uint32_t>(ControlType::MidiInNoteMultiVal);
+        });
+
     signaling::subscribe<signaling::UmpSignal>(
         [this](const signaling::UmpSignal& signal)
         {

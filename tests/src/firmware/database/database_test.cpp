@@ -113,36 +113,16 @@ TEST_F(DatabaseTest, ReadInitialValues)
         // global block
         //----------------------------------
         // MIDI settings section
-        // all values should be set to 0 except for the global channel which should be 1
+        // all values should be set to 0; module-specific initializers live outside the database layer
         for (int i = 0; i < static_cast<uint8_t>(protocol::midi::Setting::Count); i++)
         {
-            if (i == static_cast<int>(protocol::midi::Setting::GlobalChannel))
-            {
-                DB_READ_VERIFY(1, database::Config::Section::Global::MidiSettings, i);
-            }
-            else
-            {
-                DB_READ_VERIFY(0, database::Config::Section::Global::MidiSettings, i);
-            }
+            DB_READ_VERIFY(0, database::Config::Section::Global::MidiSettings, i);
         }
 
         // OSC settings section
         for (int i = 0; i < static_cast<uint8_t>(protocol::osc::Setting::Count); i++)
         {
-            uint32_t expected_value = 0;
-
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_OSC
-            if (i == static_cast<int>(protocol::osc::Setting::DestPort))
-            {
-                expected_value = protocol::osc::DEFAULT_DEST_PORT;
-            }
-            else if (i == static_cast<int>(protocol::osc::Setting::ListenPort))
-            {
-                expected_value = protocol::osc::DEFAULT_LISTEN_PORT;
-            }
-#endif
-
-            DB_READ_VERIFY(expected_value, database::Config::Section::Global::OscSettings, i);
+            DB_READ_VERIFY(0, database::Config::Section::Global::OscSettings, i);
         }
 
         // switch block
@@ -162,12 +142,10 @@ TEST_F(DatabaseTest, ReadInitialValues)
         }
 
         // midi id section
-        for (size_t group = 0; group < io::switches::Collection::groups(); group++)
+        // all values should be set to 0; grouped defaults are provided by the switch module
+        for (size_t i = 0; i < io::switches::Collection::size(); i++)
         {
-            for (size_t i = 0; i < io::switches::Collection::size(group); i++)
-            {
-                DB_READ_VERIFY(i, database::Config::Section::Switch::MidiId, i + io::switches::Collection::start_index(group));
-            }
+            DB_READ_VERIFY(0, database::Config::Section::Switch::MidiId, i);
         }
 
         // midi velocity section
@@ -273,13 +251,10 @@ TEST_F(DatabaseTest, ReadInitialValues)
         }
 
         // midi id section
-        // incremental values - first value should be 0, each successive value should be incremented by 1 for each group
-        for (size_t group = 0; group < io::analog::Collection::groups(); group++)
+        // incremental layout default; grouped defaults are provided by the analog module
+        for (size_t i = 0; i < io::analog::Collection::size(); i++)
         {
-            for (size_t i = 0; i < io::analog::Collection::size(group); i++)
-            {
-                DB_READ_VERIFY(i, database::Config::Section::Analog::MidiId, i + io::analog::Collection::start_index(group));
-            }
+            DB_READ_VERIFY(i, database::Config::Section::Analog::MidiId, i);
         }
 
         // lower limit section
@@ -327,20 +302,17 @@ TEST_F(DatabaseTest, ReadInitialValues)
         }
 
         // activation id section
-        // incremental values - first value should be 0, each successive value should be incremented by 1 for each group
-        for (size_t group = 0; group < io::outputs::Collection::groups(); group++)
+        // all values should be set to 0; grouped defaults are provided by the output module
+        for (size_t i = 0; i < io::outputs::Collection::size(); i++)
         {
-            for (size_t i = 0; i < io::outputs::Collection::size(group); i++)
-            {
-                DB_READ_VERIFY(i, database::Config::Section::Outputs::ActivationId, i + io::outputs::Collection::start_index(group));
-            }
+            DB_READ_VERIFY(0, database::Config::Section::Outputs::ActivationId, i);
         }
 
         // control type section
-        // all values should be set to MIDI_IN_NOTE_MULTI_VAL
+        // all values should be set to 0; output control defaults are provided by the output module
         for (size_t i = 0; i < io::outputs::Collection::size(); i++)
         {
-            DB_READ_VERIFY(static_cast<uint32_t>(io::outputs::ControlType::MidiInNoteMultiVal), database::Config::Section::Outputs::ControlType, i);
+            DB_READ_VERIFY(0, database::Config::Section::Outputs::ControlType, i);
         }
 
         // activation value section

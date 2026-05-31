@@ -46,16 +46,6 @@ namespace opendeck::io::i2c::display
         Count
     };
 
-    constexpr inline std::array<uint32_t, static_cast<uint8_t>(Setting::Count)> DISPLAY_DEFAULTS = {
-        0,
-        static_cast<uint8_t>(DisplayController::Ssd1306),
-        static_cast<uint8_t>(DisplayResolution::Res128x64),
-        0,
-        0,
-        0,
-        0,
-    };
-
     constexpr inline std::array<uint8_t, 2> I2C_ADDRESSES = {
         0x3C,
         0x3D,

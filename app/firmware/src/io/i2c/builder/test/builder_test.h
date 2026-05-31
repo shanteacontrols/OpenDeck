@@ -7,6 +7,7 @@
 
 #include "firmware/src/io/i2c/instance/impl/i2c.h"
 #include "firmware/src/io/i2c/hwa/test/hwa_test.h"
+#include "firmware/src/io/i2c/peripherals/builder/builder.h"
 #include "firmware/src/database/builder/test/builder_test.h"
 
 namespace opendeck::io::i2c
@@ -22,8 +23,9 @@ namespace opendeck::io::i2c
          *
          * @param database Unused database handle kept for builder-interface consistency.
          */
-        Builder([[maybe_unused]] database::Admin& database)
-            : _instance(_hwa)
+        explicit Builder(database::Admin& database)
+            : _peripherals(_hwa, database)
+            , _instance(_hwa)
         {}
 
         /**
@@ -37,6 +39,9 @@ namespace opendeck::io::i2c
         }
 
         HwaTest _hwa;
-        I2c     _instance;
+
+        private:
+        BuilderPeripherals _peripherals;
+        I2c                _instance;
     };
 }    // namespace opendeck::io::i2c

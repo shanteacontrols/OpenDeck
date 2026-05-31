@@ -7,6 +7,17 @@
 #include "tests/shared/helpers/database.h"
 #include "tests/shared/helpers/midi.h"
 #include "tests/shared/helpers/misc.h"
+#include "firmware/src/database/layout.h"
+#include "firmware/src/io/analog/shared/common.h"
+#include "firmware/src/io/digital/encoders/shared/common.h"
+#include "firmware/src/io/digital/switches/shared/common.h"
+#include "firmware/src/io/i2c/peripherals/display/shared/common.h"
+#include "firmware/src/io/i2c/peripherals/sensor_apds9960/shared/common.h"
+#include "firmware/src/io/i2c/peripherals/sensor_vl53l4cx/shared/common.h"
+#include "firmware/src/io/outputs/shared/common.h"
+#include "firmware/src/io/touchscreen/shared/common.h"
+#include "firmware/src/protocol/midi/shared/common.h"
+#include "firmware/src/protocol/osc/shared/common.h"
 #include "firmware/src/system/builder/builder.h"
 #include "common/src/io/indicators/hwa/test/hwa_test.h"
 #include "firmware/src/io/indicators/instance/impl/indicators.h"
@@ -119,6 +130,227 @@ TEST_F(SystemTest, FirstBootDatabaseInitializationSkipsComponentInitialization)
 
     ASSERT_EQ(0, init_complete_cnt);
     ASSERT_EQ(0, program_msg_cnt);
+}
+
+TEST_F(SystemTest, FullDatabaseInitialValues)
+{
+    init_initialized_system();
+
+    auto& db = _system._hwa.database();
+
+    const auto expected_signature = static_cast<uint16_t>(database::AppLayout::common_uid() ^
+                                                          database::AppLayout::preset_uid() ^
+                                                          static_cast<uint16_t>(OPENDECK_TARGET_UID) ^
+                                                          static_cast<uint16_t>(db.supported_presets()));
+
+    auto verify = [&](uint32_t expected, auto section, auto index)
+    {
+        uint32_t actual = 0;
+
+        ASSERT_TRUE(db.read(section, index, actual));
+        ASSERT_EQ(expected, actual);
+    };
+
+    auto verify_common = [&](uint32_t expected, auto index)
+    {
+        verify(expected, database::Config::Section::Common::CommonSettings, index);
+    };
+
+    for (int preset = 0; preset < db.supported_presets(); preset++)
+    {
+        ASSERT_TRUE(db.set_preset(preset));
+
+        verify_common(preset, database::Config::CommonSetting::ActivePreset);
+        verify_common(0, database::Config::CommonSetting::PresetPreserve);
+
+        for (int i = static_cast<int>(database::Config::CommonSetting::CustomCommonSettingStart);
+             i < static_cast<int>(database::Config::CommonSetting::CustomCommonSettingEnd);
+             i++)
+        {
+            verify_common(0, i);
+        }
+
+        verify_common(expected_signature, database::Config::CommonSetting::Uid);
+
+        for (int i = 0; i < static_cast<uint8_t>(protocol::midi::Setting::Count); i++)
+        {
+            const auto expected = (i == static_cast<int>(protocol::midi::Setting::GlobalChannel)) ? 1U : 0U;
+
+            verify(expected, database::Config::Section::Global::MidiSettings, i);
+        }
+
+        for (int i = 0; i < static_cast<uint8_t>(protocol::osc::Setting::Count); i++)
+        {
+            uint32_t expected = 0;
+
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_OSC
+            if (i == static_cast<int>(protocol::osc::Setting::DestPort))
+            {
+                expected = protocol::osc::DEFAULT_DEST_PORT;
+            }
+            else if (i == static_cast<int>(protocol::osc::Setting::ListenPort))
+            {
+                expected = protocol::osc::DEFAULT_LISTEN_PORT;
+            }
+#endif
+
+            verify(expected, database::Config::Section::Global::OscSettings, i);
+        }
+
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_SWITCHES
+        for (size_t i = 0; i < io::switches::Collection::size(); i++)
+        {
+            verify(0, database::Config::Section::Switch::Type, i);
+            verify(0, database::Config::Section::Switch::MessageType, i);
+            verify(127, database::Config::Section::Switch::Value, i);
+            verify(1, database::Config::Section::Switch::Channel, i);
+        }
+
+        for (size_t group = 0; group < io::switches::Collection::groups(); group++)
+        {
+            for (size_t i = 0; i < io::switches::Collection::size(group); i++)
+            {
+                verify(i, database::Config::Section::Switch::MidiId, i + io::switches::Collection::start_index(group));
+            }
+        }
+#endif
+
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_ENCODERS
+        for (size_t i = 0; i < io::encoders::Collection::size(); i++)
+        {
+            verify(0, database::Config::Section::Encoder::Enable, i);
+            verify(0, database::Config::Section::Encoder::Invert, i);
+            verify(0, database::Config::Section::Encoder::Mode, i);
+            verify(i, database::Config::Section::Encoder::MidiId1, i);
+            verify(1, database::Config::Section::Encoder::Channel, i);
+            verify(0, database::Config::Section::Encoder::LowerLimit, i);
+            verify(16383, database::Config::Section::Encoder::UpperLimit, i);
+            verify(127, database::Config::Section::Encoder::RepeatedValue, i);
+            verify(i, database::Config::Section::Encoder::MidiId2, i);
+        }
+#endif
+
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_ADC
+        for (size_t i = 0; i < io::analog::Collection::size(); i++)
+        {
+            verify(0, database::Config::Section::Analog::Enable, i);
+            verify(0, database::Config::Section::Analog::Invert, i);
+            verify(0, database::Config::Section::Analog::Type, i);
+            verify(0, database::Config::Section::Analog::LowerLimit, i);
+            verify(16383, database::Config::Section::Analog::UpperLimit, i);
+            verify(1, database::Config::Section::Analog::Channel, i);
+            verify(0, database::Config::Section::Analog::LowerOffset, i);
+            verify(0, database::Config::Section::Analog::UpperOffset, i);
+        }
+
+        for (size_t group = 0; group < io::analog::Collection::groups(); group++)
+        {
+            for (size_t i = 0; i < io::analog::Collection::size(group); i++)
+            {
+                verify(i, database::Config::Section::Analog::MidiId, i + io::analog::Collection::start_index(group));
+            }
+        }
+#endif
+
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_OUTPUTS
+        for (int i = 0; i < static_cast<uint8_t>(io::outputs::Setting::Count); i++)
+        {
+            verify(0, database::Config::Section::Outputs::Global, i);
+        }
+
+        for (size_t group = 0; group < io::outputs::Collection::groups(); group++)
+        {
+            for (size_t i = 0; i < io::outputs::Collection::size(group); i++)
+            {
+                const auto index = i + io::outputs::Collection::start_index(group);
+
+                verify(i, database::Config::Section::Outputs::ActivationId, index);
+                verify(static_cast<uint32_t>(io::outputs::ControlType::MidiInNoteMultiVal),
+                       database::Config::Section::Outputs::ControlType,
+                       index);
+            }
+        }
+
+        for (size_t i = 0; i < io::outputs::Collection::size(); i++)
+        {
+            verify(127, database::Config::Section::Outputs::ActivationValue, i);
+            verify(1, database::Config::Section::Outputs::Channel, i);
+        }
+#endif
+
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_I2C
+        for (int i = 0; i < static_cast<uint8_t>(io::i2c::display::Setting::Count); i++)
+        {
+            uint32_t expected = 0;
+
+            if (i == static_cast<int>(io::i2c::display::Setting::Controller))
+            {
+                expected = static_cast<uint32_t>(io::i2c::display::DisplayController::Ssd1306);
+            }
+            else if (i == static_cast<int>(io::i2c::display::Setting::Resolution))
+            {
+                expected = static_cast<uint32_t>(io::i2c::display::DisplayResolution::Res128x64);
+            }
+
+            verify(expected, database::Config::Section::I2c::Display, i);
+        }
+
+        for (int i = 0; i < static_cast<uint8_t>(io::i2c::sensor_apds9960::Setting::Count); i++)
+        {
+            uint32_t expected = 0;
+
+            if (i == static_cast<int>(io::i2c::sensor_apds9960::Setting::ProximityGain))
+            {
+                expected = 2;
+            }
+            else if (i == static_cast<int>(io::i2c::sensor_apds9960::Setting::AlsGain))
+            {
+                expected = 1;
+            }
+
+            verify(expected, database::Config::Section::I2c::Apds9960, i);
+        }
+
+        for (int i = 0; i < static_cast<uint8_t>(io::i2c::sensor_vl53l4cx::Setting::Count); i++)
+        {
+            uint32_t expected = 0;
+
+            if (i == static_cast<int>(io::i2c::sensor_vl53l4cx::Setting::TrackingArea))
+            {
+                expected = static_cast<uint32_t>(io::i2c::sensor_vl53l4cx::TrackingArea::Narrow);
+            }
+            else if (i == static_cast<int>(io::i2c::sensor_vl53l4cx::Setting::Response))
+            {
+                expected = static_cast<uint32_t>(io::i2c::sensor_vl53l4cx::Response::Stable);
+            }
+            else if (i == static_cast<int>(io::i2c::sensor_vl53l4cx::Setting::DistanceMode))
+            {
+                expected = static_cast<uint32_t>(io::i2c::sensor_vl53l4cx::DistanceMode::Medium);
+            }
+
+            verify(expected, database::Config::Section::I2c::Vl53l4cx, i);
+        }
+#endif
+
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_TOUCHSCREEN
+        for (int i = 0; i < static_cast<uint8_t>(io::touchscreen::Setting::Count); i++)
+        {
+            verify(0, database::Config::Section::Touchscreen::Setting, i);
+        }
+
+        for (size_t i = 0; i < io::touchscreen::Collection::size(); i++)
+        {
+            verify(0, database::Config::Section::Touchscreen::XPos, i);
+            verify(0, database::Config::Section::Touchscreen::YPos, i);
+            verify(0, database::Config::Section::Touchscreen::Width, i);
+            verify(0, database::Config::Section::Touchscreen::Height, i);
+            verify(0, database::Config::Section::Touchscreen::OnScreen, i);
+            verify(0, database::Config::Section::Touchscreen::OffScreen, i);
+            verify(0, database::Config::Section::Touchscreen::PageSwitchEnabled, i);
+            verify(0, database::Config::Section::Touchscreen::PageSwitchIndex, i);
+        }
+#endif
+    }
 }
 
 TEST_F(SystemTest, ForcedResendOnPresetChange)

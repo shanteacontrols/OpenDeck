@@ -69,6 +69,8 @@ bool database::Admin::init(Handlers& handlers)
     _preset_layout_size = AppLayout::preset_layout_size();
     _active_context     = Context::Preset;
 
+    install_layout_init_providers();
+
     _supported_presets = AppLayout::supported_preset_count_for(LessDb::address_count());
 
     bool ret_val = true;
@@ -222,15 +224,6 @@ bool database::Admin::initialize_default_data()
         {
             return false;
         }
-
-        // perform custom init as well
-        custom_init_global();
-        custom_init_switches();
-        custom_init_encoders();
-        custom_init_analog();
-        custom_init_outputs();
-        custom_init_display();
-        custom_init_touchscreen();
     }
 
     if (!set_preset_preserve_state(false))
@@ -244,6 +237,22 @@ bool database::Admin::initialize_default_data()
     }
 
     return true;
+}
+
+void database::Admin::install_layout_init_providers()
+{
+    zlibs::utils::lessdb::LessDb::clear_init_providers();
+
+    for (const auto& entry : _layout_init_providers)
+    {
+        zlibs::utils::lessdb::LessDb::register_layout_init_provider(
+            entry.block_index,
+            entry.section_index,
+            [provider = entry.provider](const zlibs::utils::lessdb::InitRequest& request)
+            {
+                return provider(request.parameter_index);
+            });
+    }
 }
 
 bool database::Admin::set_preset(uint8_t preset)

@@ -9,8 +9,10 @@
 #include "firmware/src/database/shared/deps.h"
 #include "firmware/src/system/config.h"
 
+#include <functional>
 #include <type_traits>
 #include <optional>
+#include <vector>
 
 namespace opendeck::database
 {
@@ -33,6 +35,8 @@ namespace opendeck::database
 
         using zlibs::utils::lessdb::LessDb::read;
         using zlibs::utils::lessdb::LessDb::update;
+
+        using LayoutInitProvider = std::function<std::optional<uint32_t>(size_t index)>;
 
         /**
          * @brief Reads a value from the active preset region.
@@ -208,6 +212,24 @@ namespace opendeck::database
         bool preset_preserve_state();
 
         /**
+         * @brief Registers an initializer for one database section in the active layout.
+         *
+         * @tparam T Section enum type.
+         *
+         * @param section  Section to initialize.
+         * @param provider Provider called once per parameter index during init_data().
+         */
+        template<typename T>
+        void register_layout_init_provider(T section, LayoutInitProvider&& provider)
+        {
+            _layout_init_providers.push_back({
+                .block_index   = static_cast<size_t>(block(section)),
+                .section_index = static_cast<size_t>(section),
+                .provider      = std::move(provider),
+            });
+        }
+
+        /**
          * @brief Maps a global section enum to its containing database block.
          *
          * @param section Global section selector.
@@ -310,26 +332,14 @@ namespace opendeck::database
         bool      _initialized               = false;
         Context   _active_context            = Context::Common;
 
-        /** @brief Hook invoked after global preset data initialization. */
-        void custom_init_global();
+        struct LayoutInitProviderEntry
+        {
+            size_t             block_index   = 0;
+            size_t             section_index = 0;
+            LayoutInitProvider provider      = nullptr;
+        };
 
-        /** @brief Hook invoked after switch preset data initialization. */
-        void custom_init_switches();
-
-        /** @brief Hook invoked after encoder preset data initialization. */
-        void custom_init_encoders();
-
-        /** @brief Hook invoked after analog preset data initialization. */
-        void custom_init_analog();
-
-        /** @brief Hook invoked after output preset data initialization. */
-        void custom_init_outputs();
-
-        /** @brief Hook invoked after display preset data initialization. */
-        void custom_init_display();
-
-        /** @brief Hook invoked after touchscreen preset data initialization. */
-        void custom_init_touchscreen();
+        std::vector<LayoutInitProviderEntry> _layout_init_providers;
 
         /**
          * @brief Applies the stored preset selection and preservation state.
@@ -344,6 +354,11 @@ namespace opendeck::database
          * @return `true` on success, otherwise `false`.
          */
         bool initialize_default_data();
+
+        /**
+         * @brief Installs registered layout initializers into the active LessDb layout.
+         */
+        void install_layout_init_providers();
 
         /**
          * @brief Selects the common database region.
@@ -632,6 +647,21 @@ namespace opendeck::database
         uint8_t current_preset()
         {
             return _admin.current_preset();
+        }
+
+        /**
+         * @brief Registers an initializer for an allowed preset section.
+         *
+         * @tparam T Section enum type.
+         *
+         * @param section  Preset section selector.
+         * @param provider Provider called once per parameter index during init_data().
+         */
+        template<typename T>
+            requires(std::is_same_v<T, Sections> || ...)
+        void register_layout_init_provider(T section, Admin::LayoutInitProvider&& provider)
+        {
+            _admin.register_layout_init_provider(section, std::move(provider));
         }
 
         private:

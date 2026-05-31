@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_OSC
-
 #include "firmware/src/protocol/osc/instance/impl/osc.h"
 #include "firmware/src/protocol/osc/packet/packet.h"
 #include "firmware/src/protocol/osc/shared/paths.h"
@@ -139,6 +137,23 @@ Osc::Osc(Hwa& hwa, Database& database)
               k_sem_give(&_send_wakeup);
           })
 {
+    _database.register_layout_init_provider(
+        database::Config::Section::Global::OscSettings,
+        [](size_t index) -> std::optional<uint32_t>
+        {
+            if (index == static_cast<size_t>(Setting::DestPort))
+            {
+                return DEFAULT_DEST_PORT;
+            }
+
+            if (index == static_cast<size_t>(Setting::ListenPort))
+            {
+                return DEFAULT_LISTEN_PORT;
+            }
+
+            return {};
+        });
+
     k_sem_init(&_send_wakeup, 0, 1);
     k_sem_init(&_read_wakeup, 0, 1);
 
@@ -825,5 +840,3 @@ std::optional<uint8_t> Osc::sys_config_set(sys::Config::Section::Global section,
 
     return result;
 }
-
-#endif

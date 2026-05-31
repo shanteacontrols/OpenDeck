@@ -66,6 +66,24 @@ Analog::Analog(Hwa&        hwa,
                   }
               })
 {
+    _database.register_layout_init_provider(
+        database::Config::Section::Analog::MidiId,
+        [](size_t index) -> std::optional<uint32_t>
+        {
+            for (size_t group = 0; group < Collection::groups(); group++)
+            {
+                const auto start = Collection::start_index(group);
+                const auto end   = start + Collection::size(group);
+
+                if ((index >= start) && (index < end))
+                {
+                    return index - start;
+                }
+            }
+
+            return {};
+        });
+
     ConfigHandler.register_config(
         sys::Config::Block::Analog,
         // read

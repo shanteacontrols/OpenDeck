@@ -56,6 +56,23 @@ SensorApds9960::SensorApds9960(Hwa&      hwa,
     : _hwa(hwa)
     , _database(database)
 {
+    _database.register_layout_init_provider(
+        database::Config::Section::I2c::Apds9960,
+        [](size_t index) -> std::optional<uint32_t>
+        {
+            switch (static_cast<Setting>(index))
+            {
+            case Setting::ProximityGain:
+                return 2;
+
+            case Setting::AlsGain:
+                return 1;
+
+            default:
+                return {};
+            }
+        });
+
     ConfigHandler.register_config(
         sys::Config::Block::I2c,
         // read

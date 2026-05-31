@@ -69,6 +69,18 @@ Midi::Midi(UsbMidi&    usb,
     _interfaces[static_cast<size_t>(Interface::Serial)] = &_serial;
     _interfaces[static_cast<size_t>(Interface::Ble)]    = &_ble;
 
+    _database.register_layout_init_provider(
+        database::Config::Section::Global::MidiSettings,
+        [](size_t index) -> std::optional<uint32_t>
+        {
+            if (index == static_cast<size_t>(Setting::GlobalChannel))
+            {
+                return 1;
+            }
+
+            return {};
+        });
+
     signaling::subscribe<signaling::SystemSignal>(
         [this](const signaling::SystemSignal& event)
         {

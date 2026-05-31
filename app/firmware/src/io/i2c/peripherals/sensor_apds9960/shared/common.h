@@ -24,15 +24,6 @@ namespace opendeck::io::i2c::sensor_apds9960
         Count
     };
 
-    constexpr inline std::array<uint32_t, static_cast<uint8_t>(Setting::Count)> APDS9960_DEFAULTS = {
-        0,
-        0,
-        0,
-        0,
-        2,
-        1,
-    };
-
     constexpr inline std::array<uint8_t, 4> APDS9960_DEVICE_IDS = {
         0xAB,
         0x9C,

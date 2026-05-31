@@ -39,7 +39,7 @@ namespace opendeck::database
          *
          * @return Span of LessDb blocks describing common data.
          */
-        static std::span<const zlibs::utils::lessdb::Block> common_layout()
+        static constexpr const auto& common_layout()
         {
             return COMMON_LAYOUT;
         }
@@ -49,7 +49,7 @@ namespace opendeck::database
          *
          * @return Span of LessDb blocks describing preset data.
          */
-        static std::span<const zlibs::utils::lessdb::Block> preset_layout()
+        static constexpr const auto& preset_layout()
         {
             return PRESET_LAYOUT;
         }
@@ -369,22 +369,19 @@ namespace opendeck::database
                 static_cast<uint8_t>(io::i2c::display::Setting::Count),
                 SectionParameterType::Byte,
                 PreserveSetting::Disable,
-                AutoIncrementSetting::Disable,
-                io::i2c::display::DISPLAY_DEFAULTS),
+                AutoIncrementSetting::Disable),
             // APDS9960
             Section(
                 static_cast<uint8_t>(io::i2c::sensor_apds9960::Setting::Count),
                 SectionParameterType::Byte,
                 PreserveSetting::Disable,
-                AutoIncrementSetting::Disable,
-                io::i2c::sensor_apds9960::APDS9960_DEFAULTS),
+                AutoIncrementSetting::Disable),
             // VL53L4CX
             Section(
                 static_cast<uint8_t>(io::i2c::sensor_vl53l4cx::Setting::Count),
                 SectionParameterType::Byte,
                 PreserveSetting::Disable,
-                AutoIncrementSetting::Disable,
-                io::i2c::sensor_vl53l4cx::VL53L4CX_DEFAULTS),
+                AutoIncrementSetting::Disable),
         });
 
         inline static constexpr auto TOUCHSCREEN_SECTIONS = zlibs::utils::lessdb::make_block(std::array{

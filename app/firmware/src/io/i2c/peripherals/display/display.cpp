@@ -31,6 +31,23 @@ Display::Display(Hwa&      hwa,
     : _hwa(hwa)
     , _database(database)
 {
+    _database.register_layout_init_provider(
+        database::Config::Section::I2c::Display,
+        [](size_t index) -> std::optional<uint32_t>
+        {
+            switch (static_cast<Setting>(index))
+            {
+            case Setting::Controller:
+                return static_cast<uint32_t>(DisplayController::Ssd1306);
+
+            case Setting::Resolution:
+                return static_cast<uint32_t>(DisplayResolution::Res128x64);
+
+            default:
+                return {};
+            }
+        });
+
     ConfigHandler.register_config(
         sys::Config::Block::I2c,
         // read
