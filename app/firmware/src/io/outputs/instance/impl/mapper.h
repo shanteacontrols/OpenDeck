@@ -51,7 +51,7 @@ namespace opendeck::io::outputs
          *
          * @return Output actions requested by the MIDI event.
          */
-        Result midi_result(const protocol::midi::Message& message, signaling::SignalDirection direction);
+        Result midi_result(const protocol::midi::Message& message, opendeck::firmware::signaling::SignalDirection direction);
 
         /**
          * @brief Maps one preset change into output actions.

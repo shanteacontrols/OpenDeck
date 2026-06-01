@@ -10,6 +10,7 @@
 
 using namespace opendeck;
 using namespace opendeck::io::outputs;
+using namespace opendeck::firmware;
 
 namespace
 {

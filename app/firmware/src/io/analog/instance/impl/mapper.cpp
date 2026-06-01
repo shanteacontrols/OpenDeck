@@ -9,6 +9,7 @@
 #include "zlibs/utils/misc/numeric.h"
 
 using namespace opendeck::io::analog;
+using namespace opendeck::firmware;
 
 namespace
 {

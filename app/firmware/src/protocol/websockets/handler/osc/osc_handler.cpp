@@ -8,13 +8,14 @@
 #include "firmware/src/signaling/signaling.h"
 
 using namespace opendeck::protocol::websockets::osc;
+using namespace opendeck::firmware;
 
 namespace
 {
     template<typename Signal>
     void forward_osc_event(opendeck::common::protocols::websockets::HandlerEndpoint& endpoint, const Signal& signal)
     {
-        if (signal.direction != opendeck::signaling::SignalDirection::Out)
+        if (signal.direction != signaling::SignalDirection::Out)
         {
             return;
         }
@@ -33,14 +34,14 @@ namespace
 
 void OscHandler::init(opendeck::common::protocols::websockets::HandlerEndpoint& endpoint)
 {
-    opendeck::signaling::subscribe<opendeck::signaling::OscIoSignal>(
-        [&endpoint](const opendeck::signaling::OscIoSignal& event)
+    signaling::subscribe<signaling::OscIoSignal>(
+        [&endpoint](const signaling::OscIoSignal& event)
         {
             forward_osc_event(endpoint, event);
         });
 
-    opendeck::signaling::subscribe<opendeck::signaling::OscSensorSignal>(
-        [&endpoint](const opendeck::signaling::OscSensorSignal& event)
+    signaling::subscribe<signaling::OscSensorSignal>(
+        [&endpoint](const signaling::OscSensorSignal& event)
         {
             forward_osc_event(endpoint, event);
         });

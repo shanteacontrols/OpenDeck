@@ -184,11 +184,11 @@ namespace opendeck::global
         {
             _offset = offset;
 
-            signaling::SystemSignal signal = {};
-            signal.system_event            = signaling::SystemEvent::MidiProgramOffsetChange;
-            signal.value                   = offset;
+            opendeck::firmware::signaling::SystemSignal signal = {};
+            signal.system_event                                = opendeck::firmware::signaling::SystemEvent::MidiProgramOffsetChange;
+            signal.value                                       = offset;
 
-            signaling::publish(signal);
+            opendeck::firmware::signaling::publish(signal);
         }
 
         /**

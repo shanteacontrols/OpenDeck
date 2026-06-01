@@ -27,6 +27,7 @@
 
 using namespace opendeck;
 using namespace opendeck::protocol;
+using namespace opendeck::firmware;
 
 namespace
 {

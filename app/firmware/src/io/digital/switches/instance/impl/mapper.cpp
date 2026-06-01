@@ -11,6 +11,7 @@
 
 using namespace opendeck::io::switches;
 using namespace opendeck::protocol;
+using namespace opendeck::firmware;
 
 namespace
 {

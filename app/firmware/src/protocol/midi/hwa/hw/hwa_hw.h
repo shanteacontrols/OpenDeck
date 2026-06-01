@@ -153,9 +153,9 @@ namespace opendeck::protocol::midi
 
                     if (ready)
                     {
-                        signaling::SystemSignal signal = {};
-                        signal.system_event            = signaling::SystemEvent::UsbMidiReady;
-                        signaling::publish(signal);
+                        opendeck::firmware::signaling::SystemSignal signal = {};
+                        signal.system_event                                = opendeck::firmware::signaling::SystemEvent::UsbMidiReady;
+                        opendeck::firmware::signaling::publish(signal);
                     }
                 }
             };

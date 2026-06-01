@@ -45,7 +45,7 @@ namespace opendeck::protocol::websockets::sysex_config
 
         private:
         opendeck::common::protocols::websockets::HandlerEndpoint* _destination     = nullptr;
-        signaling::ConfigRequestSignal::Data                      _response_buffer = {};
+        opendeck::firmware::signaling::ConfigRequestSignal::Data  _response_buffer = {};
         zlibs::utils::misc::Mutex                                 _response_lock;
         size_t                                                    _response_size     = 0;
         uint32_t                                                  _active_session_id = 0;

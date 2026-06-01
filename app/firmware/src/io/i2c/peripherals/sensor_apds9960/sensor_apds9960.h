@@ -233,7 +233,7 @@ namespace opendeck::io::i2c::sensor_apds9960
          *
          * @return Gesture direction, or empty if no complete gesture was available.
          */
-        std::optional<signaling::OscSensorGesture> decode_gesture_fifo();
+        std::optional<opendeck::firmware::signaling::OscSensorGesture> decode_gesture_fifo();
 
         /**
          * @brief Processes one U/D/L/R gesture sample group using edge-state detection.
@@ -251,7 +251,7 @@ namespace opendeck::io::i2c::sensor_apds9960
          *
          * @return Gesture direction, or empty if the edge pair is incomplete.
          */
-        std::optional<signaling::OscSensorGesture> process_gesture_sample(uint8_t up, uint8_t down, uint8_t left, uint8_t right);
+        std::optional<opendeck::firmware::signaling::OscSensorGesture> process_gesture_sample(uint8_t up, uint8_t down, uint8_t left, uint8_t right);
 
         /**
          * @brief Resets transient gesture decoding counters.

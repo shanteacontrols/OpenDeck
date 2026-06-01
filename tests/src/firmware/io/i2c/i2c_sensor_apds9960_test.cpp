@@ -24,6 +24,7 @@
 using namespace opendeck;
 using namespace opendeck::io::i2c;
 using namespace opendeck::io::i2c::sensor_apds9960;
+using namespace opendeck::firmware;
 
 namespace
 {

@@ -12,6 +12,7 @@
 
 using namespace opendeck;
 using namespace opendeck::util;
+using namespace opendeck::firmware;
 
 namespace
 {

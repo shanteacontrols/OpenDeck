@@ -69,7 +69,7 @@ namespace opendeck::protocol::osc
         std::atomic<bool>                                             _initialized               = false;
         std::atomic<bool>                                             _shutdown                  = false;
         std::atomic<bool>                                             _network_identity_received = false;
-        signaling::NetworkIdentitySignal                              _network_identity          = {};
+        opendeck::firmware::signaling::NetworkIdentitySignal          _network_identity          = {};
         threads::OscReadThread                                        _read_thread;
         threads::OscSendThread                                        _send_thread;
 

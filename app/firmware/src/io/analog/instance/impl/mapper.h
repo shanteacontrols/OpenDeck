@@ -35,8 +35,8 @@ namespace opendeck::io::analog
          */
         struct Result
         {
-            std::optional<signaling::OscIoSignal>  osc  = {};
-            std::optional<signaling::MidiIoSignal> midi = {};
+            std::optional<opendeck::firmware::signaling::OscIoSignal>  osc  = {};
+            std::optional<opendeck::firmware::signaling::MidiIoSignal> midi = {};
         };
 
         explicit Mapper(Database& database)
@@ -113,7 +113,7 @@ namespace opendeck::io::analog
          * @param value Effective mapped analog value.
          * @param message MIDI message type to publish.
          */
-        void fill_midi_signal(signaling::MidiIoSignal& signal, const DatabaseInfo& info, uint16_t value, protocol::midi::MessageType message) const;
+        void fill_midi_signal(opendeck::firmware::signaling::MidiIoSignal& signal, const DatabaseInfo& info, uint16_t value, protocol::midi::MessageType message) const;
 
         /**
          * @brief Fills one OSC signal from the analog position and runtime mapping configuration.
@@ -122,7 +122,7 @@ namespace opendeck::io::analog
          * @param info Runtime mapping configuration.
          * @param signal Output storage for the OSC signal.
          */
-        void fill_osc_signal(uint16_t position, const DatabaseInfo& info, signaling::OscIoSignal& signal) const;
+        void fill_osc_signal(uint16_t position, const DatabaseInfo& info, opendeck::firmware::signaling::OscIoSignal& signal) const;
 
         /**
          * @brief Computes the effective mapped analog value for one stable position.

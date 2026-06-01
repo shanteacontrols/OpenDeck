@@ -167,10 +167,10 @@ namespace opendeck::io::i2c::display
                 public:
                 MessageTypeIn()
                 {
-                    signaling::subscribe<signaling::UmpSignal>(
-                        [this](const signaling::UmpSignal& event)
+                    opendeck::firmware::signaling::subscribe<opendeck::firmware::signaling::UmpSignal>(
+                        [this](const opendeck::firmware::signaling::UmpSignal& event)
                         {
-                            if (event.direction != signaling::SignalDirection::In)
+                            if (event.direction != opendeck::firmware::signaling::SignalDirection::In)
                             {
                                 return;
                             }
@@ -194,10 +194,10 @@ namespace opendeck::io::i2c::display
                 explicit MessageValueIn(MIDIUpdater& midi_updater)
                     : _midi_updater(midi_updater)
                 {
-                    signaling::subscribe<signaling::UmpSignal>(
-                        [this](const signaling::UmpSignal& event)
+                    opendeck::firmware::signaling::subscribe<opendeck::firmware::signaling::UmpSignal>(
+                        [this](const opendeck::firmware::signaling::UmpSignal& event)
                         {
-                            if (event.direction != signaling::SignalDirection::In)
+                            if (event.direction != opendeck::firmware::signaling::SignalDirection::In)
                             {
                                 return;
                             }
@@ -227,14 +227,14 @@ namespace opendeck::io::i2c::display
                 public:
                 MessageTypeOut()
                 {
-                    signaling::subscribe<signaling::MidiIoSignal>(
-                        [this](const signaling::MidiIoSignal& signal)
+                    opendeck::firmware::signaling::subscribe<opendeck::firmware::signaling::MidiIoSignal>(
+                        [this](const opendeck::firmware::signaling::MidiIoSignal& signal)
                         {
                             switch (signal.source)
                             {
-                            case signaling::IoEventSource::Analog:
-                            case signaling::IoEventSource::Switch:
-                            case signaling::IoEventSource::Encoder:
+                            case opendeck::firmware::signaling::IoEventSource::Analog:
+                            case opendeck::firmware::signaling::IoEventSource::Switch:
+                            case opendeck::firmware::signaling::IoEventSource::Encoder:
                             {
                                 set_text("%s", Strings::midi_message(signal.message));
                             }
@@ -256,14 +256,14 @@ namespace opendeck::io::i2c::display
                 explicit MessageValueOut(MIDIUpdater& midi_updater)
                     : _midi_updater(midi_updater)
                 {
-                    signaling::subscribe<signaling::MidiIoSignal>(
-                        [this](const signaling::MidiIoSignal& signal)
+                    opendeck::firmware::signaling::subscribe<opendeck::firmware::signaling::MidiIoSignal>(
+                        [this](const opendeck::firmware::signaling::MidiIoSignal& signal)
                         {
                             switch (signal.source)
                             {
-                            case signaling::IoEventSource::Analog:
-                            case signaling::IoEventSource::Switch:
-                            case signaling::IoEventSource::Encoder:
+                            case opendeck::firmware::signaling::IoEventSource::Analog:
+                            case opendeck::firmware::signaling::IoEventSource::Switch:
+                            case opendeck::firmware::signaling::IoEventSource::Encoder:
                             {
                                 _midi_updater.update_midi_value(*this,
                                                                 signal.channel,
@@ -291,10 +291,10 @@ namespace opendeck::io::i2c::display
                 public:
                 Preset()
                 {
-                    signaling::subscribe<signaling::SystemSignal>(
-                        [this](const signaling::SystemSignal& event)
+                    opendeck::firmware::signaling::subscribe<opendeck::firmware::signaling::SystemSignal>(
+                        [this](const opendeck::firmware::signaling::SystemSignal& event)
                         {
-                            if (event.system_event == signaling::SystemEvent::PresetChanged)
+                            if (event.system_event == opendeck::firmware::signaling::SystemEvent::PresetChanged)
                             {
                                 set_preset(event.value + 1);
                             }

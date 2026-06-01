@@ -25,9 +25,9 @@ namespace opendeck::io::switches
          */
         struct Result
         {
-            std::optional<signaling::OscIoSignal>  osc    = {};
-            std::optional<signaling::MidiIoSignal> midi   = {};
-            std::optional<signaling::SystemSignal> system = {};
+            std::optional<opendeck::firmware::signaling::OscIoSignal>  osc    = {};
+            std::optional<opendeck::firmware::signaling::MidiIoSignal> midi   = {};
+            std::optional<opendeck::firmware::signaling::SystemSignal> system = {};
         };
 
         explicit Mapper(Database& database)
@@ -119,7 +119,7 @@ namespace opendeck::io::switches
          * @param signal Output storage for the MIDI signal.
          * @param info Runtime mapping configuration.
          */
-        void fill_midi_signal(signaling::MidiIoSignal& signal, const DatabaseInfo& info) const;
+        void fill_midi_signal(opendeck::firmware::signaling::MidiIoSignal& signal, const DatabaseInfo& info) const;
 
         /**
          * @brief Fills one OSC signal from the effective logical switch state.

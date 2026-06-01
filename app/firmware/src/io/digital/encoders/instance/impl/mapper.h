@@ -27,9 +27,9 @@ namespace opendeck::io::encoders
          */
         struct Result
         {
-            std::optional<signaling::OscIoSignal>  osc    = {};
-            std::optional<signaling::MidiIoSignal> midi   = {};
-            std::optional<signaling::SystemSignal> system = {};
+            std::optional<opendeck::firmware::signaling::OscIoSignal>  osc    = {};
+            std::optional<opendeck::firmware::signaling::MidiIoSignal> midi   = {};
+            std::optional<opendeck::firmware::signaling::SystemSignal> system = {};
         };
 
         explicit Mapper(Database& database)
@@ -125,7 +125,7 @@ namespace opendeck::io::encoders
          * @param info Runtime mapping configuration.
          * @param value Effective mapped encoder value.
          */
-        void fill_midi_signal(signaling::MidiIoSignal& signal, const DatabaseInfo& info, uint16_t value) const;
+        void fill_midi_signal(opendeck::firmware::signaling::MidiIoSignal& signal, const DatabaseInfo& info, uint16_t value) const;
 
         /**
          * @brief Fills one OSC signal from the mapped encoder value.
@@ -134,7 +134,7 @@ namespace opendeck::io::encoders
          * @param info Runtime mapping configuration.
          * @param value Effective mapped encoder value.
          */
-        void fill_osc_signal(signaling::OscIoSignal& signal, const DatabaseInfo& info, uint16_t value) const;
+        void fill_osc_signal(opendeck::firmware::signaling::OscIoSignal& signal, const DatabaseInfo& info, uint16_t value) const;
 
         /**
          * @brief Checks whether one encoder type keeps a refreshable cached value.

@@ -108,14 +108,14 @@ namespace opendeck::protocol::midi
          *
          * @param event MIDI-interpreted IO event to transmit.
          */
-        void send(const signaling::MidiIoSignal& event);
+        void send(const opendeck::firmware::signaling::MidiIoSignal& event);
 
         /**
          * @brief Sends one prebuilt UMP event to the enabled transports.
          *
          * @param event UMP signal to transmit.
          */
-        void send(const signaling::UmpSignal& event);
+        void send(const opendeck::firmware::signaling::UmpSignal& event);
 
         /**
          * @brief Updates the note-off encoding mode used for outbound events.
@@ -171,7 +171,7 @@ namespace opendeck::protocol::midi
          *
          * @return Matching public MIDI transport identifier.
          */
-        signaling::TrafficTransport interface_to_transport(size_t index) const;
+        opendeck::firmware::signaling::TrafficTransport interface_to_transport(size_t index) const;
 
         /**
          * @brief Adds one UMP packet to the pending USB burst buffer.

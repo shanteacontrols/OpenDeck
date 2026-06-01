@@ -10,6 +10,7 @@
 
 using namespace opendeck;
 using namespace opendeck::io::indicators;
+using namespace opendeck::firmware;
 
 namespace
 {

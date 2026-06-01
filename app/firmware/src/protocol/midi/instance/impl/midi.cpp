@@ -17,6 +17,7 @@
 
 using namespace opendeck;
 using namespace opendeck::protocol::midi;
+using namespace opendeck::firmware;
 
 namespace zmidi = zlibs::utils::midi;
 namespace zmisc = zlibs::utils::misc;

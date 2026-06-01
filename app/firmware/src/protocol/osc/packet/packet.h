@@ -183,29 +183,29 @@ namespace opendeck::protocol::osc
      * @return Number of bytes written, or empty if the IO source is not mapped
      *         to outbound OSC.
      */
-    inline std::optional<size_t> make_packet(PacketBuffer&                 packet,
-                                             const signaling::OscIoSignal& signal)
+    inline std::optional<size_t> make_packet(PacketBuffer&                                     packet,
+                                             const opendeck::firmware::signaling::OscIoSignal& signal)
     {
         std::string_view path  = {};
         int32_t          value = signal.int32_value.value_or(0);
 
         switch (signal.source)
         {
-        case signaling::IoEventSource::Switch:
-        case signaling::IoEventSource::TouchscreenSwitch:
+        case opendeck::firmware::signaling::IoEventSource::Switch:
+        case opendeck::firmware::signaling::IoEventSource::TouchscreenSwitch:
         {
             path  = paths::SWITCH.c_str();
             value = value != 0 ? 1 : 0;
         }
         break;
 
-        case signaling::IoEventSource::Encoder:
+        case opendeck::firmware::signaling::IoEventSource::Encoder:
         {
             path = paths::ENCODER.c_str();
         }
         break;
 
-        case signaling::IoEventSource::Analog:
+        case opendeck::firmware::signaling::IoEventSource::Analog:
         {
             const auto address = OscIndexedAddress{
                 .prefix = paths::ANALOG.c_str(),
@@ -240,27 +240,27 @@ namespace opendeck::protocol::osc
      *
      * @return Number of bytes written, or empty if the sensor event is not mapped.
      */
-    inline std::optional<size_t> make_packet(PacketBuffer&                     packet,
-                                             const signaling::OscSensorSignal& signal)
+    inline std::optional<size_t> make_packet(PacketBuffer&                                         packet,
+                                             const opendeck::firmware::signaling::OscSensorSignal& signal)
     {
         return std::visit(
             [&packet](const auto& payload) -> std::optional<size_t>
             {
                 using Payload = std::decay_t<decltype(payload)>;
 
-                if constexpr (std::is_same_v<Payload, signaling::OscSensorProximitySignal>)
+                if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorProximitySignal>)
                 {
                     return make_packet(packet, paths::SENSOR_PROXIMITY.c_str(), OscInt32{ payload.value });
                 }
-                else if constexpr (std::is_same_v<Payload, signaling::OscSensorAmbientLightSignal>)
+                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorAmbientLightSignal>)
                 {
                     return make_packet(packet, paths::SENSOR_AMBIENT_LIGHT.c_str(), OscInt32{ payload.value });
                 }
-                else if constexpr (std::is_same_v<Payload, signaling::OscSensorDistanceSignal>)
+                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorDistanceSignal>)
                 {
                     return make_packet(packet, paths::SENSOR_DISTANCE.c_str(), OscInt32{ payload.value });
                 }
-                else if constexpr (std::is_same_v<Payload, signaling::OscSensorRgbSignal>)
+                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorRgbSignal>)
                 {
                     return make_packet(packet,
                                        paths::SENSOR_RGB.c_str(),
@@ -268,31 +268,31 @@ namespace opendeck::protocol::osc
                                        OscInt32{ payload.green },
                                        OscInt32{ payload.blue });
                 }
-                else if constexpr (std::is_same_v<Payload, signaling::OscSensorGestureSignal>)
+                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorGestureSignal>)
                 {
                     std::string_view gesture = {};
 
                     switch (payload.gesture)
                     {
-                    case signaling::OscSensorGesture::Up:
+                    case opendeck::firmware::signaling::OscSensorGesture::Up:
                     {
                         gesture = "up";
                     }
                     break;
 
-                    case signaling::OscSensorGesture::Down:
+                    case opendeck::firmware::signaling::OscSensorGesture::Down:
                     {
                         gesture = "down";
                     }
                     break;
 
-                    case signaling::OscSensorGesture::Left:
+                    case opendeck::firmware::signaling::OscSensorGesture::Left:
                     {
                         gesture = "left";
                     }
                     break;
 
-                    case signaling::OscSensorGesture::Right:
+                    case opendeck::firmware::signaling::OscSensorGesture::Right:
                     {
                         gesture = "right";
                     }

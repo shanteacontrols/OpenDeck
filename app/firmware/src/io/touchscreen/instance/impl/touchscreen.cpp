@@ -12,6 +12,7 @@
 
 using namespace opendeck;
 using namespace opendeck::io::touchscreen;
+using namespace opendeck::firmware;
 
 namespace
 {

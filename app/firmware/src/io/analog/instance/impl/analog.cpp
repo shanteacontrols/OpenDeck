@@ -18,6 +18,7 @@
 using namespace opendeck;
 using namespace opendeck::io::analog;
 using namespace opendeck::protocol;
+using namespace opendeck::firmware;
 
 namespace
 {

@@ -18,9 +18,9 @@
 #include <cstdlib>
 
 using namespace opendeck::io::i2c::sensor_apds9960;
+using namespace opendeck::firmware;
 
-namespace signaling = opendeck::signaling;
-namespace zmisc     = zlibs::utils::misc;
+namespace zmisc = zlibs::utils::misc;
 
 namespace
 {

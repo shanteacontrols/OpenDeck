@@ -25,7 +25,7 @@
 
 #include <zephyr/sys/__assert.h>
 
-namespace opendeck::signaling
+namespace opendeck::firmware::signaling
 {
     using SignalingBackend = common::signaling::QueuedBackend;
 
@@ -465,4 +465,4 @@ namespace opendeck::signaling
 
         __ASSERT(cleared, "Failed to clear signaling registries");
     }
-}    // namespace opendeck::signaling
+}    // namespace opendeck::firmware::signaling

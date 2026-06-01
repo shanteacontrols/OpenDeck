@@ -43,7 +43,7 @@ namespace opendeck::protocol::websockets
         private:
         using WebSocketsBuffers = opendeck::common::protocols::websockets::Buffers<
             opendeck::common::protocols::websockets::FIRMWARE_UPLOAD_FRAME_SIZE,
-            std::max(signaling::ConfigRequestSignal::DATA_SIZE, opendeck::protocol::osc::PACKET_BUFFER_SIZE),
+            std::max(opendeck::firmware::signaling::ConfigRequestSignal::DATA_SIZE, opendeck::protocol::osc::PACKET_BUFFER_SIZE),
             32>;
 
         opendeck::common::protocols::websockets::BuffersBase& buffers() override

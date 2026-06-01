@@ -10,15 +10,16 @@
 #include <zephyr/logging/log.h>
 
 using namespace opendeck::protocol::websockets::sysex_config;
+using namespace opendeck::firmware;
 
 namespace
 {
     LOG_MODULE_REGISTER(websockets_sysex_config, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
 
-    void publish_network_traffic(opendeck::signaling::SignalDirection direction)
+    void publish_network_traffic(signaling::SignalDirection direction)
     {
-        opendeck::signaling::publish(opendeck::signaling::TrafficSignal{
-            .transport = opendeck::signaling::TrafficTransport::Network,
+        signaling::publish(signaling::TrafficSignal{
+            .transport = signaling::TrafficTransport::Network,
             .direction = direction,
         });
     }
@@ -28,10 +29,10 @@ void SysexConfigHandler::init(opendeck::common::protocols::websockets::HandlerEn
 {
     _destination = &endpoint;
 
-    opendeck::signaling::subscribe<opendeck::signaling::ConfigResponseSignal>(
-        [this](const opendeck::signaling::ConfigResponseSignal& response)
+    signaling::subscribe<signaling::ConfigResponseSignal>(
+        [this](const signaling::ConfigResponseSignal& response)
         {
-            if (response.transport != opendeck::signaling::ConfigTransport::WebSockets)
+            if (response.transport != signaling::ConfigTransport::WebSockets)
             {
                 return;
             }
@@ -47,23 +48,23 @@ std::optional<std::span<const uint8_t>> SysexConfigHandler::handle_frame(std::sp
         return std::nullopt;
     }
 
-    if (data.size() > opendeck::signaling::ConfigRequestSignal::DATA_SIZE)
+    if (data.size() > signaling::ConfigRequestSignal::DATA_SIZE)
     {
         LOG_WRN_ONCE("Ignoring oversized WebSockets SysEx frame");
-        publish_network_traffic(opendeck::signaling::SignalDirection::In);
+        publish_network_traffic(signaling::SignalDirection::In);
         return std::span<const uint8_t>();
     }
 
-    opendeck::signaling::ConfigRequestSignal request(
-        opendeck::signaling::ConfigTransport::WebSockets,
+    signaling::ConfigRequestSignal request(
+        signaling::ConfigTransport::WebSockets,
         data,
         session_id);
 
     _active_session_id = session_id;
     _session_active    = true;
 
-    opendeck::signaling::publish(request);
-    publish_network_traffic(opendeck::signaling::SignalDirection::In);
+    signaling::publish(request);
+    publish_network_traffic(signaling::SignalDirection::In);
 
     return std::span<const uint8_t>();
 }
@@ -82,8 +83,8 @@ void SysexConfigHandler::on_close_session(uint32_t session_id)
         _response_size = 0;
     }
 
-    opendeck::signaling::publish(opendeck::signaling::ConfigDisconnectSignal{
-        .transport  = opendeck::signaling::ConfigTransport::WebSockets,
+    signaling::publish(signaling::ConfigDisconnectSignal{
+        .transport  = signaling::ConfigTransport::WebSockets,
         .session_id = session_id,
     });
 }
@@ -123,7 +124,7 @@ void SysexConfigHandler::send_response_packet(const midi_ump& packet, uint32_t s
     {
         LOG_DBG("Sending WebSockets binary response (%zu bytes)", _response_size);
         _destination->queue_frame(std::span<const uint8_t>(_response_buffer.data(), _response_size), session_id);
-        publish_network_traffic(opendeck::signaling::SignalDirection::Out);
+        publish_network_traffic(signaling::SignalDirection::Out);
         _response_size = 0;
     }
 }

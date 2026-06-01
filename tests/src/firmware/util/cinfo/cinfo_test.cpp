@@ -19,6 +19,7 @@
 #include <vector>
 
 using namespace opendeck;
+using namespace opendeck::firmware;
 
 namespace
 {

@@ -204,8 +204,8 @@ namespace opendeck::sys
 
         struct ConfigSession
         {
-            signaling::ConfigTransport transport  = signaling::ConfigTransport::Usb;
-            uint32_t                   session_id = DEFAULT_CONFIG_SESSION_ID;
+            opendeck::firmware::signaling::ConfigTransport transport  = opendeck::firmware::signaling::ConfigTransport::Usb;
+            uint32_t                                       session_id = DEFAULT_CONFIG_SESSION_ID;
         };
 
         Hwa&                                                                        _hwa;
@@ -223,7 +223,7 @@ namespace opendeck::sys
         Layout                                                                      _layout;
         BackupRestoreState                                                          _backup_restore_state = BackupRestoreState::None;
         BackupSession                                                               _backup_session       = {};
-        signaling::ConfigTransport                                                  _config_transport     = signaling::ConfigTransport::Usb;
+        opendeck::firmware::signaling::ConfigTransport                              _config_transport     = opendeck::firmware::signaling::ConfigTransport::Usb;
         uint32_t                                                                    _config_session_id    = DEFAULT_CONFIG_SESSION_ID;
         mutable zlibs::utils::misc::Mutex                                           _config_session_lock;
         bool                                                                        _components_initialized   = false;
@@ -374,7 +374,7 @@ namespace opendeck::sys
          *
          * @param disconnect Disconnect event emitted by the transport.
          */
-        void handle_config_disconnect(const signaling::ConfigDisconnectSignal& disconnect);
+        void handle_config_disconnect(const opendeck::firmware::signaling::ConfigDisconnectSignal& disconnect);
 
         /**
          * @brief Checks whether a transport is allowed to use the current config session.
@@ -387,7 +387,7 @@ namespace opendeck::sys
          *
          * @return `true` if the request may be processed, otherwise `false`.
          */
-        bool can_accept_config_transport(signaling::ConfigTransport transport);
+        bool can_accept_config_transport(opendeck::firmware::signaling::ConfigTransport transport);
 
         /**
          * @brief Updates the active configuration session routing.
@@ -395,7 +395,7 @@ namespace opendeck::sys
          * @param transport Transport that owns the session.
          * @param session_id Transport-local session identifier.
          */
-        void set_config_session(signaling::ConfigTransport transport, uint32_t session_id);
+        void set_config_session(opendeck::firmware::signaling::ConfigTransport transport, uint32_t session_id);
 
         /**
          * @brief Returns a consistent snapshot of active configuration routing.
@@ -409,7 +409,7 @@ namespace opendeck::sys
          *
          * @param request Config request containing MIDI 1 SysEx bytes, including F0/F7.
          */
-        void handle_config_request(const signaling::ConfigRequestSignal& request);
+        void handle_config_request(const opendeck::firmware::signaling::ConfigRequestSignal& request);
 
         /**
          * @brief Routes one SysExConf response packet to the active configuration endpoint.
@@ -423,7 +423,7 @@ namespace opendeck::sys
         /**
          * @brief Emits a configuration-session state change.
          */
-        void publish_configuration_session_state(signaling::SystemEvent event);
+        void publish_configuration_session_state(opendeck::firmware::signaling::SystemEvent event);
 
         /**
          * @brief Reports whether privileged configuration actions are unlocked.

@@ -9,15 +9,16 @@
 #include <zephyr/logging/log.h>
 
 using namespace opendeck::protocol::websockets::firmware_upload;
+using namespace opendeck::firmware;
 
 namespace
 {
     LOG_MODULE_REGISTER(websockets_firmware_upload, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
 
-    void publish_network_traffic(opendeck::signaling::SignalDirection direction)
+    void publish_network_traffic(signaling::SignalDirection direction)
     {
-        opendeck::signaling::publish(opendeck::signaling::TrafficSignal{
-            .transport = opendeck::signaling::TrafficTransport::Network,
+        signaling::publish(signaling::TrafficSignal{
+            .transport = signaling::TrafficTransport::Network,
             .direction = direction,
         });
     }
@@ -40,8 +41,8 @@ std::optional<std::span<const uint8_t>> FirmwareUploadHandler::handle_frame(std:
     {
         LOG_INF("Closing WebSockets SysEx configuration session before firmware upload");
 
-        opendeck::signaling::publish(opendeck::signaling::ConfigDisconnectSignal{
-            .transport  = opendeck::signaling::ConfigTransport::WebSockets,
+        signaling::publish(signaling::ConfigDisconnectSignal{
+            .transport  = signaling::ConfigTransport::WebSockets,
             .session_id = session_id,
         });
     }
@@ -53,20 +54,20 @@ std::optional<std::span<const uint8_t>> FirmwareUploadHandler::handle_frame(std:
         return std::nullopt;
     }
 
-    publish_network_traffic(opendeck::signaling::SignalDirection::In);
+    publish_network_traffic(signaling::SignalDirection::In);
 
     _response = response->response;
 
     if (!_response.empty())
     {
-        publish_network_traffic(opendeck::signaling::SignalDirection::Out);
+        publish_network_traffic(signaling::SignalDirection::Out);
     }
 
     if (response->finished)
     {
         LOG_INF("Staged firmware upload complete, rebooting to apply update");
-        opendeck::signaling::publish(opendeck::signaling::SystemSignal{
-            .system_event = opendeck::signaling::SystemEvent::BootloaderRebootReq,
+        signaling::publish(signaling::SystemSignal{
+            .system_event = signaling::SystemEvent::BootloaderRebootReq,
         });
     }
 

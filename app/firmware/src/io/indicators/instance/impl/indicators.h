@@ -59,14 +59,14 @@ namespace opendeck::io::indicators
          *
          * @param signal Transport traffic event to visualize.
          */
-        void on_traffic(const signaling::TrafficSignal& signal);
+        void on_traffic(const opendeck::firmware::signaling::TrafficSignal& signal);
 
         /**
          * @brief Handles a network identity update.
          *
          * @param identity Current advertised network identity.
          */
-        void on_network_identity(const signaling::NetworkIdentitySignal& identity);
+        void on_network_identity(const opendeck::firmware::signaling::NetworkIdentitySignal& identity);
 
         /**
          * @brief Applies the idle state to one indicator.
@@ -107,8 +107,8 @@ namespace opendeck::io::indicators
          *
          * @return Indicator type that represents the traffic source.
          */
-        opendeck::common::io::indicators::Type indicator_type(signaling::TrafficTransport transport,
-                                                              signaling::SignalDirection  direction);
+        opendeck::common::io::indicators::Type indicator_type(opendeck::firmware::signaling::TrafficTransport transport,
+                                                              opendeck::firmware::signaling::SignalDirection  direction);
 
         /**
          * @brief Sets the state of all input indicators.

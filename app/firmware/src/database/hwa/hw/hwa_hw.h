@@ -97,27 +97,27 @@ namespace opendeck::database
          */
         HwaHw()
         {
-            signaling::subscribe<signaling::SystemSignal>(
-                [this](const signaling::SystemSignal& signal)
+            opendeck::firmware::signaling::subscribe<opendeck::firmware::signaling::SystemSignal>(
+                [this](const opendeck::firmware::signaling::SystemSignal& signal)
                 {
                     switch (signal.system_event)
                     {
-                    case signaling::SystemEvent::BackupStart:
+                    case opendeck::firmware::signaling::SystemEvent::BackupStart:
                     {
                         _backup_restore_active = true;
                     }
                     break;
 
-                    case signaling::SystemEvent::BackupEnd:
+                    case opendeck::firmware::signaling::SystemEvent::BackupEnd:
                     {
                         _backup_restore_active = false;
                     }
                     break;
 
-                    case signaling::SystemEvent::RestoreStart:
-                    case signaling::SystemEvent::FactoryResetStart:
+                    case opendeck::firmware::signaling::SystemEvent::RestoreStart:
+                    case opendeck::firmware::signaling::SystemEvent::FactoryResetStart:
                     {
-                        if (signal.system_event == signaling::SystemEvent::RestoreStart)
+                        if (signal.system_event == opendeck::firmware::signaling::SystemEvent::RestoreStart)
                         {
                             _backup_restore_active = true;
                         }
@@ -127,12 +127,12 @@ namespace opendeck::database
                     }
                     break;
 
-                    case signaling::SystemEvent::RestoreEnd:
-                    case signaling::SystemEvent::FactoryResetEnd:
+                    case opendeck::firmware::signaling::SystemEvent::RestoreEnd:
+                    case opendeck::firmware::signaling::SystemEvent::FactoryResetEnd:
                     {
                         _bulk_write_active = false;
 
-                        if (signal.system_event == signaling::SystemEvent::RestoreEnd)
+                        if (signal.system_event == opendeck::firmware::signaling::SystemEvent::RestoreEnd)
                         {
                             _backup_restore_active = false;
                         }
@@ -141,7 +141,7 @@ namespace opendeck::database
                     }
                     break;
 
-                    case signaling::SystemEvent::PresetChanged:
+                    case opendeck::firmware::signaling::SystemEvent::PresetChanged:
                     {
                         if (!_backup_restore_active && !_bulk_write_active && !_configuration_session_open)
                         {
@@ -150,14 +150,14 @@ namespace opendeck::database
                     }
                     break;
 
-                    case signaling::SystemEvent::ConfigurationSessionOpened:
+                    case opendeck::firmware::signaling::SystemEvent::ConfigurationSessionOpened:
                     {
                         _configuration_session_open = true;
                         update_cached_write_state();
                     }
                     break;
 
-                    case signaling::SystemEvent::ConfigurationSessionClosed:
+                    case opendeck::firmware::signaling::SystemEvent::ConfigurationSessionClosed:
                     {
                         _configuration_session_open = false;
                         update_cached_write_state();

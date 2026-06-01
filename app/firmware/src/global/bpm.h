@@ -120,11 +120,11 @@ namespace opendeck::global
         {
             _bpm = bpm;
 
-            signaling::SystemSignal signal = {};
-            signal.system_event            = signaling::SystemEvent::MidiBpmChange;
-            signal.value                   = bpm;
+            opendeck::firmware::signaling::SystemSignal signal = {};
+            signal.system_event                                = opendeck::firmware::signaling::SystemEvent::MidiBpmChange;
+            signal.value                                       = bpm;
 
-            signaling::publish(signal);
+            opendeck::firmware::signaling::publish(signal);
         }
     };
 }    // namespace opendeck::global
