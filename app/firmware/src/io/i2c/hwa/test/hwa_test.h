@@ -68,6 +68,31 @@ namespace opendeck::io::i2c
         }
 
         /**
+         * @brief Returns queued raw read data in tests.
+         *
+         * @param address Target I2C address.
+         * @param buffer Buffer that receives test data.
+         *
+         * @return Configurable read status.
+         */
+        bool read(uint8_t address, std::span<uint8_t> buffer) override
+        {
+            read_addresses.push_back(address);
+
+            if (!connected || !address_allowed(address))
+            {
+                return false;
+            }
+
+            for (size_t i = 0; i < buffer.size(); i++)
+            {
+                buffer[i] = i < read_data.size() ? read_data[i] : 0;
+            }
+
+            return read_succeeds;
+        }
+
+        /**
          * @brief Accepts all write/read requests in tests.
          *
          * @param address Target I2C address.
@@ -205,6 +230,7 @@ namespace opendeck::io::i2c
         bool                     initialized                             = false;
         bool                     connected                               = true;
         bool                     write_succeeds                          = true;
+        bool                     read_succeeds                           = true;
         bool                     write_read_succeeds                     = true;
         bool                     register_write_mode                     = false;
         bool                     register_read_mode                      = false;
@@ -212,8 +238,10 @@ namespace opendeck::io::i2c
         size_t                   written_bytes                           = 0;
         std::vector<uint8_t>     available_addresses                     = {};
         std::vector<uint8_t>     write_addresses                         = {};
+        std::vector<uint8_t>     read_addresses                          = {};
         std::vector<uint8_t>     write_read_addresses                    = {};
         std::vector<uint8_t>     last_write                              = {};
+        std::vector<uint8_t>     read_data                               = {};
         std::vector<uint8_t>     last_write_read                         = {};
         std::array<uint8_t, 256> registers                               = {};
         std::array<uint8_t, 128> fifo                                    = {};

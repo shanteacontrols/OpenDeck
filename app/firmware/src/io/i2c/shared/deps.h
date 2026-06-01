@@ -56,6 +56,16 @@ namespace opendeck::io::i2c
         virtual bool write(uint8_t address, std::span<const uint8_t> buffer) = 0;
 
         /**
+         * @brief Reads one buffer from the specified I2C address.
+         *
+         * @param address 7-bit I2C device address.
+         * @param buffer Buffer that receives bytes read from the device.
+         *
+         * @return `true` if the transfer succeeded, otherwise `false`.
+         */
+        virtual bool read(uint8_t address, std::span<uint8_t> buffer) = 0;
+
+        /**
          * @brief Writes one buffer and then reads one buffer from the specified I2C address.
          *
          * @param address 7-bit I2C device address.

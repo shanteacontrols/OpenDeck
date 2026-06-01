@@ -41,6 +41,19 @@ namespace opendeck::io::i2c
         }
 
         /**
+         * @brief Rejects all read requests.
+         *
+         * @param address Target I2C address.
+         * @param buffer Buffer that would receive bytes from the device.
+         *
+         * @return Always `false`.
+         */
+        bool read([[maybe_unused]] uint8_t address, [[maybe_unused]] std::span<uint8_t> buffer) override
+        {
+            return false;
+        }
+
+        /**
          * @brief Rejects all write/read requests.
          *
          * @param address Target I2C address.

@@ -45,6 +45,19 @@ namespace opendeck::io::i2c
         }
 
         /**
+         * @brief Reads one buffer from the requested I2C address.
+         *
+         * @param address 7-bit I2C device address.
+         * @param buffer Buffer that receives bytes read from the device.
+         *
+         * @return `true` if the transfer succeeded, otherwise `false`.
+         */
+        bool read(uint8_t address, std::span<uint8_t> buffer) override
+        {
+            return i2c_read(_i2c_device, buffer.data(), buffer.size(), address) == 0;
+        }
+
+        /**
          * @brief Writes one buffer and then reads one buffer from the requested I2C address.
          *
          * @param address 7-bit I2C device address.
