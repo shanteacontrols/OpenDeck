@@ -8,7 +8,7 @@
 #include "tests/shared/helpers/misc.h"
 #include "bootloader/src/dfu/direct_update_writer/builder/builder.h"
 #include "bootloader/src/signaling/signaling.h"
-#include "bootloader/src/protocols/websockets/command_handler/builder/builder.h"
+#include "bootloader/src/protocols/websockets/handler/builder/builder.h"
 #include "bootloader/src/protocols/websockets/instance/impl/websockets.h"
 #include "common/src/protocols/websockets/shared/firmware_upload.h"
 
@@ -167,6 +167,18 @@ namespace
             return _sent_frames;
         }
 
+        std::vector<int> closed_sockets() const
+        {
+            const zlibs::utils::misc::LockGuard lock(_mutex);
+            return _closed_sockets;
+        }
+
+        bool server_stopped() const
+        {
+            const zlibs::utils::misc::LockGuard lock(_mutex);
+            return _server_stopped;
+        }
+
         private:
         bool socket_closed(int socket) const
         {
@@ -193,6 +205,32 @@ namespace
     }
 }    // namespace
 
+TEST(BootloaderWebSockets, DestructorStopsActiveServer)
+{
+    bootloader::signaling::clear_registry();
+
+    constexpr int CLIENT_SOCKET = 7;
+
+    WebSocketsHwaTest                                         websockets_hwa;
+    bootloader::dfu::direct_update_writer::HwaTest            writer_hwa(4, 64, 1);
+    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(writer_hwa);
+    bootloader::protocols::websockets::handler::Builder       handlers(writer);
+
+    {
+        bootloader::protocols::websockets::WebSockets websockets(websockets_hwa);
+
+        ASSERT_TRUE(websockets.init());
+        ASSERT_EQ(websockets.accept_client(CLIENT_SOCKET), 0);
+    }
+
+    EXPECT_TRUE(websockets_hwa.server_stopped());
+
+    const auto closed_sockets = websockets_hwa.closed_sockets();
+
+    ASSERT_EQ(closed_sockets.size(), 1U);
+    EXPECT_EQ(closed_sockets.front(), CLIENT_SOCKET);
+}
+
 TEST(BootloaderWebSockets, NetworkDfuWritesDirectUpdate)
 {
     bootloader::signaling::clear_registry();
@@ -203,11 +241,11 @@ TEST(BootloaderWebSockets, NetworkDfuWritesDirectUpdate)
         0x10, 0x11, 0x12, 0x13, 0x14
     };
 
-    WebSocketsHwaTest                                           websockets_hwa;
-    bootloader::dfu::direct_update_writer::HwaTest              writer_hwa(4, 64, 1);
-    bootloader::dfu::direct_update_writer::DirectUpdateWriter   writer(writer_hwa);
-    bootloader::protocols::websockets::command_handler::Builder command_handlers(writer);
-    bootloader::protocols::websockets::WebSockets               websockets(websockets_hwa);
+    WebSocketsHwaTest                                         websockets_hwa;
+    bootloader::dfu::direct_update_writer::HwaTest            writer_hwa(4, 64, 1);
+    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(writer_hwa);
+    bootloader::protocols::websockets::handler::Builder       handlers(writer);
+    bootloader::protocols::websockets::WebSockets             websockets(websockets_hwa);
 
     ASSERT_TRUE(websockets.init());
     ASSERT_EQ(websockets.accept_client(CLIENT_SOCKET), 0);
@@ -249,11 +287,11 @@ TEST(BootloaderWebSockets, NetworkDfuRejectsInvalidHeader)
         0xAA, 0xBB, 0xCC, 0xDD
     };
 
-    WebSocketsHwaTest                                           websockets_hwa;
-    bootloader::dfu::direct_update_writer::HwaTest              writer_hwa(4, 64, 1);
-    bootloader::dfu::direct_update_writer::DirectUpdateWriter   writer(writer_hwa);
-    bootloader::protocols::websockets::command_handler::Builder command_handlers(writer);
-    bootloader::protocols::websockets::WebSockets               websockets(websockets_hwa);
+    WebSocketsHwaTest                                         websockets_hwa;
+    bootloader::dfu::direct_update_writer::HwaTest            writer_hwa(4, 64, 1);
+    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(writer_hwa);
+    bootloader::protocols::websockets::handler::Builder       handlers(writer);
+    bootloader::protocols::websockets::WebSockets             websockets(websockets_hwa);
 
     ASSERT_TRUE(websockets.init());
     ASSERT_EQ(websockets.accept_client(CLIENT_SOCKET), 0);
@@ -287,11 +325,11 @@ TEST(BootloaderWebSockets, NetworkDfuAbortResetsDirectUpdate)
 
     constexpr int CLIENT_SOCKET = 7;
 
-    WebSocketsHwaTest                                           websockets_hwa;
-    bootloader::dfu::direct_update_writer::HwaTest              writer_hwa(4, 64, 1);
-    bootloader::dfu::direct_update_writer::DirectUpdateWriter   writer(writer_hwa);
-    bootloader::protocols::websockets::command_handler::Builder command_handlers(writer);
-    bootloader::protocols::websockets::WebSockets               websockets(websockets_hwa);
+    WebSocketsHwaTest                                         websockets_hwa;
+    bootloader::dfu::direct_update_writer::HwaTest            writer_hwa(4, 64, 1);
+    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(writer_hwa);
+    bootloader::protocols::websockets::handler::Builder       handlers(writer);
+    bootloader::protocols::websockets::WebSockets             websockets(websockets_hwa);
 
     ASSERT_TRUE(websockets.init());
     ASSERT_EQ(websockets.accept_client(CLIENT_SOCKET), 0);

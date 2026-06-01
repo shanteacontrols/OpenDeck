@@ -173,7 +173,7 @@ System::System(Hwa& hwa)
                     return;
                 }
 
-                set_config_session(signaling::ConfigTransport::Usb, signaling::CONFIG_SESSION_ID_DEFAULT);
+                set_config_session(signaling::ConfigTransport::Usb, DEFAULT_CONFIG_SESSION_ID);
 
                 // Keep the previous session state so ConnOpen/ConnClose transitions can be detected.
                 const bool was_configuration_enabled = _sysex_conf.is_configuration_enabled();

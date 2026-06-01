@@ -200,11 +200,12 @@ namespace opendeck::sys
         static constexpr size_t   RESTORE_QUEUE_PACKET_COUNT       = 2048;
         static constexpr uint32_t BACKUP_PROCESSING_START_DELAY_MS = 100;
         static constexpr uint32_t BACKUP_RESTORE_STEP_DELAY_MS     = 4;
+        static constexpr uint32_t DEFAULT_CONFIG_SESSION_ID        = 0;
 
         struct ConfigSession
         {
             signaling::ConfigTransport transport  = signaling::ConfigTransport::Usb;
-            uint32_t                   session_id = signaling::CONFIG_SESSION_ID_DEFAULT;
+            uint32_t                   session_id = DEFAULT_CONFIG_SESSION_ID;
         };
 
         Hwa&                                                                        _hwa;
@@ -223,7 +224,7 @@ namespace opendeck::sys
         BackupRestoreState                                                          _backup_restore_state = BackupRestoreState::None;
         BackupSession                                                               _backup_session       = {};
         signaling::ConfigTransport                                                  _config_transport     = signaling::ConfigTransport::Usb;
-        uint32_t                                                                    _config_session_id    = signaling::CONFIG_SESSION_ID_DEFAULT;
+        uint32_t                                                                    _config_session_id    = DEFAULT_CONFIG_SESSION_ID;
         mutable zlibs::utils::misc::Mutex                                           _config_session_lock;
         bool                                                                        _components_initialized   = false;
         bool                                                                        _config_unlocked          = false;

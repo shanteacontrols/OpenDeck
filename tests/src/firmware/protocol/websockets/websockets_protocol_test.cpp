@@ -245,6 +245,29 @@ TEST_F(WebSocketsProtocolTest, StartsAndStopsServerThroughHwa)
     EXPECT_TRUE(hwa.server_stopped());
 }
 
+TEST(WebSocketsProtocol, DestructorStopsActiveServer)
+{
+    signaling::clear_registry();
+
+    opendeck::protocol::websockets::HwaTest hwa;
+
+    {
+        opendeck::protocol::websockets::WebSockets websockets(hwa);
+
+        ASSERT_TRUE(websockets.init());
+        ASSERT_EQ(websockets.accept_client(CLIENT_SOCKET), 0);
+    }
+
+    EXPECT_TRUE(hwa.server_stopped());
+
+    const auto closed_sockets = hwa.closed_sockets();
+
+    ASSERT_EQ(closed_sockets.size(), 1U);
+    EXPECT_EQ(closed_sockets.front(), CLIENT_SOCKET);
+
+    signaling::clear_registry();
+}
+
 TEST_F(WebSocketsProtocolTest, InitFailsWhenServerCannotStart)
 {
     ConfigRequestCollector collector;

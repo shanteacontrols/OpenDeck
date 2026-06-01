@@ -88,9 +88,6 @@ namespace opendeck::signaling
         WebSockets,
     };
 
-    /** @brief Fixed configuration session id used by transports without client generations. */
-    constexpr inline uint32_t CONFIG_SESSION_ID_DEFAULT = 0;
-
     /**
      * @brief Identifies which IO component originated an event.
      */
@@ -252,11 +249,11 @@ namespace opendeck::signaling
         using Data                        = std::array<uint8_t, DATA_SIZE>;
 
         ConfigTransport transport  = ConfigTransport::WebSockets;
-        uint32_t        session_id = CONFIG_SESSION_ID_DEFAULT;
+        uint32_t        session_id = 0;
 
         ConfigRequestSignal() = default;
 
-        ConfigRequestSignal(ConfigTransport transport, std::span<const uint8_t> data, uint32_t session_id = CONFIG_SESSION_ID_DEFAULT)
+        ConfigRequestSignal(ConfigTransport transport, std::span<const uint8_t> data, uint32_t session_id = 0)
             : transport(transport)
             , session_id(session_id)
         {
@@ -294,7 +291,7 @@ namespace opendeck::signaling
     {
         ConfigTransport transport  = ConfigTransport::WebSockets;
         ::midi_ump      packet     = {};
-        uint32_t        session_id = CONFIG_SESSION_ID_DEFAULT;
+        uint32_t        session_id = 0;
     };
 
     /**
@@ -303,7 +300,7 @@ namespace opendeck::signaling
     struct ConfigDisconnectSignal
     {
         ConfigTransport transport  = ConfigTransport::WebSockets;
-        uint32_t        session_id = CONFIG_SESSION_ID_DEFAULT;
+        uint32_t        session_id = 0;
     };
 
     /**

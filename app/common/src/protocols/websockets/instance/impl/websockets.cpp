@@ -3,18 +3,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "firmware/src/protocol/websockets/instance/impl/websockets.h"
-#include "common/src/protocols/websockets/handler/handler.h"
-#include "firmware/src/signaling/signaling.h"
+#include "common/src/protocols/websockets/instance/impl/websockets.h"
 
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
 #include <cerrno>
-#include <optional>
 #include <span>
 
-using namespace opendeck::protocol::websockets;
+using namespace opendeck::common::protocols::websockets;
 
 namespace zmisc = zlibs::utils::misc;
 
@@ -23,7 +20,7 @@ namespace
     LOG_MODULE_REGISTER(websockets, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
 }    // namespace
 
-WebSockets::WebSockets(opendeck::common::protocols::websockets::Hwa& hwa)
+BaseWebSockets::BaseWebSockets(Hwa& hwa)
     : _hwa(hwa)
     , _client_thread(
           [this]()
@@ -49,17 +46,14 @@ WebSockets::WebSockets(opendeck::common::protocols::websockets::Hwa& hwa)
 {
     k_sem_init(&_client_wakeup, 0, 1);
     k_sem_init(&_tx_wakeup, 0, 1);
-
-    init_handlers();
 }
 
-WebSockets::~WebSockets()
+BaseWebSockets::~BaseWebSockets()
 {
-    stop();
-    opendeck::common::protocols::websockets::Handler::clear_handlers();
+    Handler::clear_handlers();
 }
 
-bool WebSockets::init()
+bool BaseWebSockets::init()
 {
     _shutdown        = false;
     const int status = _hwa.start_server(*this);
@@ -76,18 +70,19 @@ bool WebSockets::init()
     }
 
     _server_running = true;
+    init_handlers();
     _client_thread.run();
     _tx_thread.run();
 
     return true;
 }
 
-bool WebSockets::deinit()
+bool BaseWebSockets::deinit()
 {
     return stop();
 }
 
-bool WebSockets::stop()
+bool BaseWebSockets::stop()
 {
     _server_running = false;
     _client_thread.destroy();
@@ -96,7 +91,7 @@ bool WebSockets::stop()
     return true;
 }
 
-int WebSockets::accept_client(int socket)
+int BaseWebSockets::accept_client(int socket)
 {
     int      active_socket     = -1;
     uint32_t active_generation = 0;
@@ -125,7 +120,7 @@ int WebSockets::accept_client(int socket)
     return 0;
 }
 
-void WebSockets::client_loop()
+void BaseWebSockets::client_loop()
 {
     while (true)
     {
@@ -152,8 +147,9 @@ void WebSockets::client_loop()
 
         while (!_shutdown)
         {
-            opendeck::common::protocols::websockets::FrameInfo frame_info = {};
-            const int                                          received   = _hwa.receive(sock, _buffers._rx_buffer, frame_info);
+            FrameInfo frame_info = {};
+            auto      rx_buffer  = buffers().rx_buffer();
+            const int received   = _hwa.receive(sock, rx_buffer, frame_info);
 
             if (received == -ENOTCONN)
             {
@@ -203,7 +199,7 @@ void WebSockets::client_loop()
 
             LOG_DBG("Received WebSockets binary frame (%d bytes)", received);
 
-            const auto frame = std::span<const uint8_t>(_buffers._rx_buffer.data(), static_cast<size_t>(received));
+            const auto frame = std::span<const uint8_t>(rx_buffer.data(), static_cast<size_t>(received));
 
             handle_command_frame(frame, client_generation);
         }
@@ -214,7 +210,7 @@ void WebSockets::client_loop()
     }
 }
 
-void WebSockets::tx_loop()
+void BaseWebSockets::tx_loop()
 {
     while (true)
     {
@@ -229,7 +225,7 @@ void WebSockets::tx_loop()
     }
 }
 
-void WebSockets::close_client()
+void BaseWebSockets::close_client()
 {
     int      sock       = -1;
     uint32_t generation = 0;
@@ -246,9 +242,9 @@ void WebSockets::close_client()
         {
             _hwa.unregister(sock);
         }
-    }
 
-    clear_tx();
+        clear_tx();
+    }
 
     if (sock >= 0)
     {
@@ -256,7 +252,7 @@ void WebSockets::close_client()
     }
 }
 
-bool WebSockets::close_client(int socket, uint32_t generation)
+bool BaseWebSockets::close_client(int socket, uint32_t generation)
 {
     bool closed = false;
 
@@ -273,21 +269,21 @@ bool WebSockets::close_client(int socket, uint32_t generation)
 
         ++_client_generation;
         _hwa.unregister(socket);
+        clear_tx();
         closed = true;
     }
 
     if (closed)
     {
-        clear_tx();
         close_session(generation);
     }
 
     return closed;
 }
 
-void WebSockets::close_session(uint32_t session_id)
+void BaseWebSockets::close_session(uint32_t session_id)
 {
-    for (auto* handler : opendeck::common::protocols::websockets::Handler::handlers())
+    for (auto* handler : Handler::handlers())
     {
         if (handler != nullptr)
         {
@@ -296,12 +292,12 @@ void WebSockets::close_session(uint32_t session_id)
     }
 }
 
-void WebSockets::clear_tx()
+void BaseWebSockets::clear_tx()
 {
-    _buffers.reset();
+    buffers().reset_tx();
 }
 
-void WebSockets::handle_command_frame(std::span<const uint8_t> data, uint32_t session_id)
+void BaseWebSockets::handle_command_frame(std::span<const uint8_t> data, uint32_t session_id)
 {
     if (data.empty())
     {
@@ -309,7 +305,7 @@ void WebSockets::handle_command_frame(std::span<const uint8_t> data, uint32_t se
         return;
     }
 
-    for (auto* handler : opendeck::common::protocols::websockets::Handler::handlers())
+    for (auto* handler : Handler::handlers())
     {
         if (handler == nullptr)
         {
@@ -332,18 +328,25 @@ void WebSockets::handle_command_frame(std::span<const uint8_t> data, uint32_t se
     LOG_WRN_ONCE("Ignoring unsupported WebSockets command frame");
 }
 
-void WebSockets::init_handlers()
+void BaseWebSockets::init_handlers()
 {
-    for (auto* handler : opendeck::common::protocols::websockets::Handler::handlers())
+    if (_handlers_initialized)
+    {
+        return;
+    }
+
+    for (auto* handler : Handler::handlers())
     {
         if (handler != nullptr)
         {
             handler->init(*this);
         }
     }
+
+    _handlers_initialized = true;
 }
 
-bool WebSockets::session_active(uint32_t session_id)
+bool BaseWebSockets::session_active(uint32_t session_id)
 {
     const zmisc::LockGuard lock(_client_state_lock);
 
@@ -351,9 +354,9 @@ bool WebSockets::session_active(uint32_t session_id)
            (_client_generation == session_id);
 }
 
-void WebSockets::queue_frame(std::span<const uint8_t> data, uint32_t session_id)
+void BaseWebSockets::queue_frame(std::span<const uint8_t> data, uint32_t session_id)
 {
-    int sock = -1;
+    bool queued = false;
 
     {
         const zmisc::LockGuard lock(_client_state_lock);
@@ -363,40 +366,26 @@ void WebSockets::queue_frame(std::span<const uint8_t> data, uint32_t session_id)
             return;
         }
 
-        sock = _client_socket.load();
+        if (_shutdown || (_client_socket.load() < 0) || data.empty())
+        {
+            return;
+        }
+
+        queued = buffers().insert_tx(data);
     }
 
-    if (_shutdown || (sock < 0) || data.empty())
+    if (queued)
     {
+        k_sem_give(&_tx_wakeup);
         return;
     }
 
-    Buffers::TxFrame frame = {
-        .size       = data.size(),
-        .socket     = sock,
-        .session_id = session_id,
-    };
-
-    if (data.size() > frame.data.size())
-    {
-        LOG_WRN_ONCE("Ignoring oversized WebSockets TX frame");
-        return;
-    }
-
-    std::copy(data.begin(), data.end(), frame.data.begin());
-
-    if (!_buffers.insert(frame))
-    {
-        LOG_WRN_ONCE("WebSockets TX queue full, dropping frame");
-        return;
-    }
-
-    k_sem_give(&_tx_wakeup);
+    LOG_WRN_ONCE("Ignoring oversized WebSockets TX frame or full TX queue");
 }
 
-void WebSockets::queue_frame(std::span<const uint8_t> data)
+void BaseWebSockets::queue_frame(std::span<const uint8_t> data)
 {
-    uint32_t session_id = signaling::CONFIG_SESSION_ID_DEFAULT;
+    uint32_t session_id = 0;
 
     {
         const zmisc::LockGuard lock(_client_state_lock);
@@ -406,33 +395,27 @@ void WebSockets::queue_frame(std::span<const uint8_t> data)
     queue_frame(data, session_id);
 }
 
-void WebSockets::process_tx_queue()
+void BaseWebSockets::process_tx_queue()
 {
     while (true)
     {
-        std::optional<Buffers::TxFrame> queued = {};
+        const zmisc::LockGuard send_lock(_send_mutex);
+        const zmisc::LockGuard state_lock(_client_state_lock);
+        const int              socket = _client_socket.load();
 
-        queued = _buffers.remove();
-
-        if (!queued.has_value())
+        if (socket < 0)
         {
             break;
         }
 
-        const zmisc::LockGuard lock(_send_mutex);
+        const auto data = buffers().remove_tx();
 
+        if (!data)
         {
-            const zmisc::LockGuard state_lock(_client_state_lock);
-
-            if ((_client_socket.load() != queued->socket) ||
-                (_client_generation != queued->session_id))
-            {
-                continue;
-            }
+            break;
         }
 
-        const auto data = std::span<const uint8_t>(queued->data.data(), queued->size);
-        const int  sent = _hwa.send(queued->socket, data);
+        const int sent = _hwa.send(socket, *data);
 
         if (sent < 0)
         {

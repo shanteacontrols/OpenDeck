@@ -5,27 +5,16 @@
 
 #pragma once
 
-#include "bootloader/src/threads.h"
-#include "common/src/protocols/websockets/handler/handler.h"
-#include "common/src/protocols/websockets/shared/deps.h"
+#include "common/src/protocols/websockets/instance/impl/websockets.h"
+#include "common/src/protocols/websockets/shared/buffers.h"
 #include "common/src/protocols/websockets/shared/firmware_upload.h"
-
-#include "zlibs/utils/misc/mutex.h"
-
-#include <zephyr/kernel.h>
-
-#include <array>
-#include <atomic>
-#include <cstdint>
-#include <optional>
-#include <span>
 
 namespace opendeck::bootloader::protocols::websockets
 {
     /**
-     * @brief Minimal bootloader WebSockets endpoint for network DFU.
+     * @brief Bootloader WebSockets endpoint for network DFU.
      */
-    class WebSockets : public opendeck::common::protocols::websockets::Endpoint
+    class WebSockets : public opendeck::common::protocols::websockets::BaseWebSockets
     {
         public:
         /**
@@ -33,69 +22,26 @@ namespace opendeck::bootloader::protocols::websockets
          *
          * @param hwa Platform hooks used for WebSocket I/O.
          */
-        explicit WebSockets(opendeck::common::protocols::websockets::Hwa& hwa);
-        ~WebSockets() override;
+        explicit WebSockets(opendeck::common::protocols::websockets::Hwa& hwa)
+            : opendeck::common::protocols::websockets::BaseWebSockets(hwa)
+        {}
 
-        /**
-         * @brief Starts the network DFU endpoint.
-         *
-         * @return `true` on success, otherwise `false`.
-         */
-        bool init() override;
-
-        /**
-         * @brief Stops the network DFU endpoint.
-         *
-         * @return `true` on success.
-         */
-        bool deinit();
-
-        /**
-         * @brief Accepts a WebSocket client handed off by Zephyr's HTTP server.
-         *
-         * @param socket WebSocket socket descriptor.
-         *
-         * @return 0 on success, otherwise a negative errno value.
-         */
-        int accept_client(int socket) override;
+        ~WebSockets() override
+        {
+            deinit();
+        }
 
         private:
-        opendeck::common::protocols::websockets::Hwa&                                            _hwa;
-        k_sem                                                                                    _client_wakeup  = {};
-        std::atomic<int>                                                                         _client_socket  = -1;
-        std::atomic<bool>                                                                        _shutdown       = false;
-        bool                                                                                     _server_running = false;
-        threads::WebSocketsClientThread                                                          _client_thread;
-        zlibs::utils::misc::Mutex                                                                _client_state_lock;
-        std::array<uint8_t, opendeck::common::protocols::websockets::FIRMWARE_UPLOAD_FRAME_SIZE> _rx_buffer = {};
+        using WebSocketsBuffers = opendeck::common::protocols::websockets::Buffers<
+            opendeck::common::protocols::websockets::FIRMWARE_UPLOAD_FRAME_SIZE,
+            opendeck::common::protocols::websockets::FIRMWARE_UPLOAD_ACK_SIZE,
+            4>;
 
-        /**
-         * @brief Runs the active-client receive loop.
-         */
-        void client_loop();
+        opendeck::common::protocols::websockets::BuffersBase& buffers() override
+        {
+            return _buffers;
+        }
 
-        /**
-         * @brief Stops the server and worker thread.
-         */
-        bool stop();
-
-        /**
-         * @brief Closes the active WebSocket client, if one is connected.
-         */
-        void close_client();
-
-        /**
-         * @brief Resets state owned by registered WebSockets handlers.
-         */
-        void reset_handlers();
-
-        /**
-         * @brief Processes one WebSockets command frame.
-         *
-         * @param data Frame payload bytes received from the active client.
-         *
-         * @return ACK frame when a command was handled, otherwise `std::nullopt`.
-         */
-        std::optional<std::span<const uint8_t>> handle_command_frame(std::span<const uint8_t> data);
+        WebSocketsBuffers _buffers;
     };
 }    // namespace opendeck::bootloader::protocols::websockets
