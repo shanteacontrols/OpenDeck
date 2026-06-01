@@ -1,5 +1,3 @@
-rsource "../Kconfig.logging"
-
 OPENDECK_SWITCHES_NODE := $(dt_nodelabel_path,opendeck_switches)
 OPENDECK_ANALOG_NODE := $(dt_nodelabel_path,opendeck_analog)
 OPENDECK_OUTPUTS_NODE := $(dt_nodelabel_path,opendeck_outputs)

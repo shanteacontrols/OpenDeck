@@ -10,6 +10,15 @@ if(CONFIG_PROJECT_TARGET_SUPPORT_MIDI)
         kernel
     )
 
+    if(CONFIG_HW_BUILD)
+        add_subdirectory(hwa/hw)
+
+        target_link_libraries(opendeck_firmware_protocol_midi
+            PUBLIC
+            opendeck_firmware_protocol_midi_hwa_hw
+        )
+    endif()
+
     zephyr_library_sources(
         ${CMAKE_CURRENT_LIST_DIR}/instance/impl/midi.cpp
     )

@@ -9,7 +9,6 @@ opendeck_test_add_modules(
     opendeck_common_metadata                                 "app/common/src/metadata"
     opendeck_common_dfu_flash_stream_writer                  "app/common/src/dfu/flash_stream_writer"
     opendeck_common_dfu_dfu_stream_parser                    "app/common/src/dfu/dfu_stream_parser"
-    opendeck_common_protocols_websockets_firmware_upload     "app/common/src/protocols/websockets/firmware_upload"
     opendeck_bootloader_dfu_direct_update_writer             "app/bootloader/src/dfu/direct_update_writer"
     opendeck_bootloader_protocols_websockets                 "app/bootloader/src/protocols/websockets"
 )

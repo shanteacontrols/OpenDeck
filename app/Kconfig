@@ -1,4 +1,4 @@
 mainmenu "Project-specific configuration"
 
-source "Kconfig.zephyr"
+rsource "Kconfig.common"
 rsource "firmware/Kconfig"

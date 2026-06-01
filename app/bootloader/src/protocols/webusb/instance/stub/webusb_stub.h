@@ -5,24 +5,22 @@
 
 #pragma once
 
-#include "bootloader/src/protocols/webusb/shared/deps.h"
-
 namespace opendeck::bootloader::protocols::webusb
 {
     /**
      * @brief Stub WebUSB endpoint used when WebUSB recovery is disabled.
      */
-    class WebUsbStub : public Hwa
+    class WebUsb
     {
         public:
-        WebUsbStub() = default;
+        WebUsb() = default;
 
         /**
          * @brief Initializes the disabled WebUSB endpoint.
          *
          * @return Always `true`.
          */
-        bool init() override
+        bool init()
         {
             return true;
         }
@@ -32,17 +30,9 @@ namespace opendeck::bootloader::protocols::webusb
          *
          * @return Always `true`.
          */
-        bool deinit() override
+        bool deinit()
         {
             return true;
         }
-
-        /**
-         * @brief Ignores one status message.
-         *
-         * @param message Null-terminated status string.
-         */
-        void status(std::string_view) override
-        {}
     };
 }    // namespace opendeck::bootloader::protocols::webusb

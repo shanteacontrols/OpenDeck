@@ -12,6 +12,15 @@ if(CONFIG_PROJECT_TARGET_SUPPORT_MDNS)
         opendeck_common_protocols_mdns
     )
 
+    if(CONFIG_HW_BUILD)
+        add_subdirectory(services/hw)
+
+        target_link_libraries(opendeck_firmware_protocol_mdns
+            PUBLIC
+            opendeck_firmware_protocol_mdns_services_hw
+        )
+    endif()
+
     zephyr_library_sources(
         ${CMAKE_CURRENT_LIST_DIR}/instance/impl/mdns.cpp
     )

@@ -1,6 +1,6 @@
 mainmenu "OpenDeck bootloader"
 
-rsource "../Kconfig.logging"
+rsource "../Kconfig.common"
 
 OPENDECK_STAGED_DFU_NODE := $(dt_nodelabel_path,staged_dfu_partition)
 OPENDECK_TRAFFIC_INDICATORS_NODE := $(dt_nodelabel_path,opendeck_traffic_indicators)
@@ -69,5 +69,3 @@ config PROJECT_BOOTLOADER_SUPPORT_WEBSOCKETS
     help
       Enables the bootloader WebSocket DFU endpoint for network recovery
       targets.
-
-source "Kconfig.zephyr"

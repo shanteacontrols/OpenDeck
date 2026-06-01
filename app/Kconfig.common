@@ -1,0 +1,9 @@
+source "Kconfig.zephyr"
+rsource "Kconfig.logging"
+
+config HW_BUILD
+    bool
+    default y if !BOARD_NATIVE_SIM_NATIVE_64
+    help
+      Hidden symbol indicating that the application is being built for
+      hardware rather than host tests.

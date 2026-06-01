@@ -16,8 +16,6 @@ set(OPENDECK_FIRMWARE_LIBS
     opendeck_firmware_system
 )
 
-set(OPENDECK_FIRMWARE_HWA_LIBS)
-
 if(CONFIG_PROJECT_TARGET_SUPPORT_SWITCHES)
     add_subdirectory(src/io/digital/switches)
     list(APPEND OPENDECK_FIRMWARE_LIBS opendeck_firmware_io_digital_switches)
@@ -45,9 +43,7 @@ endif()
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_TOUCHSCREEN)
     add_subdirectory(src/io/touchscreen)
-    add_subdirectory(src/io/touchscreen/hwa/hw)
     list(APPEND OPENDECK_FIRMWARE_LIBS opendeck_firmware_io_touchscreen)
-    list(APPEND OPENDECK_FIRMWARE_HWA_LIBS opendeck_firmware_io_touchscreen_hwa_hw)
 endif()
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_I2C)
@@ -62,9 +58,7 @@ endif()
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_MIDI)
     add_subdirectory(src/protocol/midi)
-    add_subdirectory(src/protocol/midi/hwa/hw)
     list(APPEND OPENDECK_FIRMWARE_LIBS opendeck_firmware_protocol_midi)
-    list(APPEND OPENDECK_FIRMWARE_HWA_LIBS opendeck_firmware_protocol_midi_hwa_hw)
 endif()
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_OSC)
@@ -74,24 +68,16 @@ endif()
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_WEBSOCKETS)
     add_subdirectory(src/protocol/websockets)
-    add_subdirectory(src/protocol/websockets/hwa/hw)
 
     list(APPEND OPENDECK_FIRMWARE_LIBS
         opendeck_firmware_protocol_websockets
     )
-
-    list(APPEND OPENDECK_FIRMWARE_HWA_LIBS opendeck_firmware_protocol_websockets_hwa_hw)
 endif()
 
 if(CONFIG_PROJECT_TARGET_SUPPORT_MDNS)
     add_subdirectory(src/protocol/mdns)
-    add_subdirectory(src/protocol/mdns/services/hw)
 
     list(APPEND OPENDECK_FIRMWARE_LIBS opendeck_firmware_protocol_mdns)
-
-    list(APPEND OPENDECK_FIRMWARE_HWA_LIBS
-        opendeck_firmware_protocol_mdns_services_hw
-    )
 endif()
 
 target_sources(app
@@ -103,5 +89,4 @@ target_sources(app
 target_link_libraries(app
     PRIVATE
     ${OPENDECK_FIRMWARE_LIBS}
-    ${OPENDECK_FIRMWARE_HWA_LIBS}
 )

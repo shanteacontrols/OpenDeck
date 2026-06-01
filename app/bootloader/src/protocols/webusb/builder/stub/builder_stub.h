@@ -6,7 +6,6 @@
 #pragma once
 
 #include "bootloader/src/dfu/direct_update_writer/instance/impl/direct_update_writer.h"
-#include "bootloader/src/protocols/webusb/instance/impl/webusb.h"
 #include "bootloader/src/protocols/webusb/instance/stub/webusb_stub.h"
 
 namespace opendeck::bootloader::protocols::webusb
@@ -23,7 +22,6 @@ namespace opendeck::bootloader::protocols::webusb
          * @param direct_update_writer Direct-update writer dependency kept for the shared builder shape.
          */
         explicit Builder([[maybe_unused]] bootloader::dfu::direct_update_writer::DirectUpdateWriter& direct_update_writer)
-            : _instance(_hwa)
         {}
 
         /**
@@ -37,7 +35,6 @@ namespace opendeck::bootloader::protocols::webusb
         }
 
         private:
-        WebUsbStub _hwa;
-        WebUsb     _instance;
+        WebUsb _instance;
     };
 }    // namespace opendeck::bootloader::protocols::webusb

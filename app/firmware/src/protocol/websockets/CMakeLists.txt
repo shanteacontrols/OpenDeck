@@ -17,5 +17,14 @@ if(CONFIG_PROJECT_TARGET_SUPPORT_WEBSOCKETS)
         opendeck_firmware_protocol_websockets_handler
     )
 
+    if(CONFIG_HW_BUILD)
+        add_subdirectory(hwa/hw)
+
+        target_link_libraries(opendeck_firmware_protocol_websockets
+            INTERFACE
+            opendeck_firmware_protocol_websockets_hwa_hw
+        )
+    endif()
+
     zephyr_linker_sources(SECTIONS ${CMAKE_CURRENT_LIST_DIR}/sections-rom.ld)
 endif()
