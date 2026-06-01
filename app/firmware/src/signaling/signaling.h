@@ -172,11 +172,67 @@ namespace opendeck::firmware::signaling
         OscSensorGesture gesture = OscSensorGesture::None;
     };
 
+    /**
+     * @brief Carries one normalized IMU quaternion tuple for OSC.
+     */
+    struct OscSensorImuQuaternionSignal
+    {
+        float real = 0.0F;
+        float i    = 0.0F;
+        float j    = 0.0F;
+        float k    = 0.0F;
+    };
+
+    /**
+     * @brief Carries one IMU Euler angle tuple in degrees for OSC.
+     */
+    struct OscSensorImuEulerSignal
+    {
+        float yaw   = 0.0F;
+        float pitch = 0.0F;
+        float roll  = 0.0F;
+    };
+
+    /**
+     * @brief Carries one IMU gyroscope tuple for OSC.
+     */
+    struct OscSensorImuGyroscopeSignal
+    {
+        float x = 0.0F;
+        float y = 0.0F;
+        float z = 0.0F;
+    };
+
+    /**
+     * @brief Carries one IMU linear acceleration tuple for OSC.
+     */
+    struct OscSensorImuLinearAccelerationSignal
+    {
+        float x = 0.0F;
+        float y = 0.0F;
+        float z = 0.0F;
+    };
+
+    /**
+     * @brief Carries one IMU gravity tuple for OSC.
+     */
+    struct OscSensorImuGravitySignal
+    {
+        float x = 0.0F;
+        float y = 0.0F;
+        float z = 0.0F;
+    };
+
     using OscSensorSignalPayload = std::variant<OscSensorProximitySignal,
                                                 OscSensorAmbientLightSignal,
                                                 OscSensorDistanceSignal,
                                                 OscSensorRgbSignal,
-                                                OscSensorGestureSignal>;
+                                                OscSensorGestureSignal,
+                                                OscSensorImuQuaternionSignal,
+                                                OscSensorImuEulerSignal,
+                                                OscSensorImuGyroscopeSignal,
+                                                OscSensorImuLinearAccelerationSignal,
+                                                OscSensorImuGravitySignal>;
 
     /**
      * @brief Requests OSC processing for one sensor event.

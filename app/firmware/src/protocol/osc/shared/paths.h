@@ -27,23 +27,35 @@ namespace opendeck::protocol::osc::paths
     constexpr inline auto DISTANCE          = misc::StringLiteral{ "/distance" };
     constexpr inline auto RGB               = misc::StringLiteral{ "/rgb" };
     constexpr inline auto GESTURE           = misc::StringLiteral{ "/gesture" };
+    constexpr inline auto IMU               = misc::StringLiteral{ "/imu" };
+    constexpr inline auto QUATERNION        = misc::StringLiteral{ "/quaternion" };
+    constexpr inline auto EULER             = misc::StringLiteral{ "/euler" };
+    constexpr inline auto GYROSCOPE         = misc::StringLiteral{ "/gyro" };
+    constexpr inline auto LINEAR_ACCEL      = misc::StringLiteral{ "/linear_accel" };
+    constexpr inline auto GRAVITY           = misc::StringLiteral{ "/gravity" };
     constexpr inline auto REFRESH           = misc::StringLiteral{ "/refresh" };
     constexpr inline auto DISCOVER          = misc::StringLiteral{ "/discover" };
     constexpr inline auto DEVICE            = misc::StringLiteral{ "/device" };
 
-    constexpr inline auto SWITCH               = misc::string_join(ROOT, SWITCH_COMPONENT);
-    constexpr inline auto ENCODER              = misc::string_join(ROOT, ENCODER_COMPONENT);
-    constexpr inline auto ANALOG               = misc::string_join(ROOT, ANALOG_COMPONENT);
-    constexpr inline auto OUTPUT               = misc::string_join(ROOT, OUTPUT_COMPONENT);
-    constexpr inline auto SENSORS              = misc::string_join(ROOT, SENSORS_COMPONENT);
-    constexpr inline auto SENSOR_PROXIMITY     = misc::string_join(SENSORS, PROXIMITY);
-    constexpr inline auto SENSOR_AMBIENT_LIGHT = misc::string_join(SENSORS, AMBIENT_LIGHT);
-    constexpr inline auto SENSOR_DISTANCE      = misc::string_join(SENSORS, DISTANCE);
-    constexpr inline auto SENSOR_RGB           = misc::string_join(SENSORS, RGB);
-    constexpr inline auto SENSOR_GESTURE       = misc::string_join(SENSORS, GESTURE);
-    constexpr inline auto REFRESH_REQ          = misc::string_join(ROOT, REFRESH);
-    constexpr inline auto DISCOVERY            = misc::string_join(ROOT, DISCOVER);
-    constexpr inline auto DEVICE_INFO          = misc::string_join(ROOT, DEVICE);
+    constexpr inline auto SWITCH                  = misc::string_join(ROOT, SWITCH_COMPONENT);
+    constexpr inline auto ENCODER                 = misc::string_join(ROOT, ENCODER_COMPONENT);
+    constexpr inline auto ANALOG                  = misc::string_join(ROOT, ANALOG_COMPONENT);
+    constexpr inline auto OUTPUT                  = misc::string_join(ROOT, OUTPUT_COMPONENT);
+    constexpr inline auto SENSORS                 = misc::string_join(ROOT, SENSORS_COMPONENT);
+    constexpr inline auto SENSOR_PROXIMITY        = misc::string_join(SENSORS, PROXIMITY);
+    constexpr inline auto SENSOR_AMBIENT_LIGHT    = misc::string_join(SENSORS, AMBIENT_LIGHT);
+    constexpr inline auto SENSOR_DISTANCE         = misc::string_join(SENSORS, DISTANCE);
+    constexpr inline auto SENSOR_RGB              = misc::string_join(SENSORS, RGB);
+    constexpr inline auto SENSOR_GESTURE          = misc::string_join(SENSORS, GESTURE);
+    constexpr inline auto SENSOR_IMU              = misc::string_join(SENSORS, IMU);
+    constexpr inline auto SENSOR_IMU_QUATERNION   = misc::string_join(SENSOR_IMU, QUATERNION);
+    constexpr inline auto SENSOR_IMU_EULER        = misc::string_join(SENSOR_IMU, EULER);
+    constexpr inline auto SENSOR_IMU_GYROSCOPE    = misc::string_join(SENSOR_IMU, GYROSCOPE);
+    constexpr inline auto SENSOR_IMU_LINEAR_ACCEL = misc::string_join(SENSOR_IMU, LINEAR_ACCEL);
+    constexpr inline auto SENSOR_IMU_GRAVITY      = misc::string_join(SENSOR_IMU, GRAVITY);
+    constexpr inline auto REFRESH_REQ             = misc::string_join(ROOT, REFRESH);
+    constexpr inline auto DISCOVERY               = misc::string_join(ROOT, DISCOVER);
+    constexpr inline auto DEVICE_INFO             = misc::string_join(ROOT, DEVICE);
 
     /**
      * @brief Extracts a component index from an address with a fixed OpenDeck path prefix.

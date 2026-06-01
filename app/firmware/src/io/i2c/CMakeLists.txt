@@ -28,6 +28,7 @@ if(CONFIG_PROJECT_TARGET_SUPPORT_I2C)
         ${CMAKE_CURRENT_LIST_DIR}/peripherals/display/display.cpp
         ${CMAKE_CURRENT_LIST_DIR}/peripherals/display/elements.cpp
         ${CMAKE_CURRENT_LIST_DIR}/peripherals/sensor_apds9960/sensor_apds9960.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/peripherals/sensor_bno085/sensor_bno085.cpp
         ${CMAKE_CURRENT_LIST_DIR}/peripherals/sensor_vl53l4cx/sensor_vl53l4cx.cpp
         ${CMAKE_CURRENT_LIST_DIR}/peripherals/sensor_vl53l4cx/port/vl53l4cx_port.cpp
         $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_api.cpp
