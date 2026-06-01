@@ -11,5 +11,5 @@ opendeck_test_add_modules(
 
 target_sources(app
     PRIVATE
-    cinfo_test.cpp
+    firmware_util_cinfo_test.cpp
 )

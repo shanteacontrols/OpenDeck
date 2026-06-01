@@ -10,5 +10,5 @@ opendeck_test_add_modules(
 
 target_sources(app
     PRIVATE
-    database_test.cpp
+    firmware_database_test.cpp
 )

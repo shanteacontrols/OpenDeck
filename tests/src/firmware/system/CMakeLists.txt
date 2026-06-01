@@ -85,7 +85,7 @@ endif()
 
 target_sources(app
     PRIVATE
-    system_test.cpp
+    firmware_system_test.cpp
 )
 
 target_link_libraries(app

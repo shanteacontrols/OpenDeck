@@ -15,7 +15,7 @@ opendeck_test_add_modules(
 
 target_sources(app
     PRIVATE
-    bootloader_websockets_test.cpp
+    bootloader_protocols_websockets_test.cpp
 )
 
 target_link_libraries(app

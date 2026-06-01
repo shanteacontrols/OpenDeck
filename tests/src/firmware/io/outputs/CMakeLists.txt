@@ -11,5 +11,5 @@ opendeck_test_add_modules(
 
 target_sources(app
     PRIVATE
-    outputs_test.cpp
+    firmware_io_outputs_test.cpp
 )

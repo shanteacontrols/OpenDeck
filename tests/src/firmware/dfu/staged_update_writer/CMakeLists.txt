@@ -9,5 +9,5 @@ opendeck_test_add_modules(
 
 target_sources(app
     PRIVATE
-    staged_update_writer_test.cpp
+    firmware_dfu_staged_update_writer_test.cpp
 )

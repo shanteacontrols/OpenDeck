@@ -11,6 +11,6 @@ opendeck_test_add_modules(
 
 target_sources(app
     PRIVATE
-    osc_packet_test.cpp
-    osc_protocol_test.cpp
+    firmware_protocol_osc_packet_test.cpp
+    firmware_protocol_osc_protocol_test.cpp
 )

@@ -12,6 +12,6 @@ opendeck_test_add_modules(
 
 target_sources(app
     PRIVATE
-    digital_switches_test.cpp
-    digital_encoders_test.cpp
+    firmware_io_digital_switches_test.cpp
+    firmware_io_digital_encoders_test.cpp
 )

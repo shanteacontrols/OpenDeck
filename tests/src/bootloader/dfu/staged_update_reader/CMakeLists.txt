@@ -10,5 +10,5 @@ opendeck_test_add_modules(
 
 target_sources(app
     PRIVATE
-    staged_update_reader_test.cpp
+    bootloader_dfu_staged_update_reader_test.cpp
 )

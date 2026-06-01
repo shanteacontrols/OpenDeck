@@ -9,5 +9,5 @@ opendeck_test_add_modules(
 
 target_sources(app
     PRIVATE
-    dfu_stream_parser_test.cpp
+    common_dfu_dfu_stream_parser_test.cpp
 )

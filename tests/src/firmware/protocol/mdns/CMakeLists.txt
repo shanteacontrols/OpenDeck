@@ -12,5 +12,5 @@ opendeck_test_add_modules(
 
 target_sources(app
     PRIVATE
-    mdns_test.cpp
+    firmware_protocol_mdns_test.cpp
 )

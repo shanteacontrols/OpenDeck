@@ -11,7 +11,7 @@ opendeck_test_add_modules(
 
 target_sources(app
     PRIVATE
-    midi_test.cpp
+    firmware_protocol_midi_test.cpp
 )
 
 target_link_libraries(app

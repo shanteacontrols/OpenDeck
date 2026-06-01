@@ -11,6 +11,6 @@ opendeck_test_add_modules(
 
 target_sources(app
     PRIVATE
-    websockets_protocol_test.cpp
-    websockets_test.cpp
+    firmware_protocol_websockets_protocol_test.cpp
+    firmware_protocol_websockets_test.cpp
 )

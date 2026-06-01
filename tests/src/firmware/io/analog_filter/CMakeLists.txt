@@ -4,5 +4,5 @@ opendeck_test_bootstrap()
 
 target_sources(app
     PRIVATE
-    analog_filter_test.cpp
+    firmware_io_analog_filter_test.cpp
 )
