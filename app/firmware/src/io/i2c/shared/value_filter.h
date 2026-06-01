@@ -8,6 +8,7 @@
 #include <array>
 #include <stddef.h>
 #include <stdint.h>
+#include <type_traits>
 
 namespace opendeck::io::i2c
 {
@@ -17,11 +18,12 @@ namespace opendeck::io::i2c
      * A multi-component value is treated as one reading. A change is measured
      * by the largest absolute delta among its components.
      */
-    template<size_t Size>
+    template<size_t Size, typename T = uint16_t>
+        requires std::is_integral_v<T>
     class ValueFilter
     {
         public:
-        using Values = std::array<uint16_t, Size>;
+        using Values = std::array<T, Size>;
 
         enum class ConfirmationMode : uint8_t
         {
@@ -199,11 +201,14 @@ namespace opendeck::io::i2c
          */
         static uint16_t diff(const Values& current, const Values& previous)
         {
+            using DiffValue = int32_t;
+
             uint16_t max_diff = 0;
 
             for (size_t i = 0; i < Size; i++)
             {
-                const auto component_diff = current[i] > previous[i] ? current[i] - previous[i] : previous[i] - current[i];
+                const DiffValue delta          = static_cast<DiffValue>(current[i]) - static_cast<DiffValue>(previous[i]);
+                const auto      component_diff = static_cast<uint16_t>(delta >= 0 ? delta : -delta);
 
                 if (component_diff > max_diff)
                 {
