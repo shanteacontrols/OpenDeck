@@ -101,6 +101,7 @@ config PROJECT_TARGET_SUPPORT_ADC
 config PROJECT_TARGET_SUPPORT_TOUCHSCREEN
     bool
     default y if $(dt_path_enabled,$(OPENDECK_TOUCHSCREEN_NODE))
+    select ZLIBS_DRIVERS_UART_HW
     help
       Hidden compatibility symbol indicating touchscreen support is
       present on this target when the chosen OpenDeck touchscreen
@@ -294,6 +295,7 @@ config PROJECT_TARGET_SUPPORT_DIN_MIDI
     bool
     default y if $(dt_path_enabled,$(OPENDECK_TRANSPORTS_NODE)) && \
              $(dt_node_has_prop,$(OPENDECK_TRANSPORTS_NODE),uart)
+    select ZLIBS_DRIVERS_UART_HW
     select ZLIBS_UTILS_MIDI_TRANSPORT_SERIAL
     help
       Hidden symbol indicating DIN MIDI support is present on this target
