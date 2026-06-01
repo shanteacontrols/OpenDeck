@@ -60,6 +60,7 @@ The firmware supports various other boards, both small and large:
 | [Adafruit Metro ESP32-S3](https://www.adafruit.com/product/5500) | USB, DIN | No |
 | [Adafruit Metro RP2040](https://www.adafruit.com/product/5786) | USB, DIN | No |
 | [Arduino Nano 33 BLE](https://store.arduino.cc/products/arduino-nano-33-ble) | USB, DIN, BLE | No |
+| [LILYGO T-ETH Elite](https://lilygo.cc/products/t-eth-elite-1) | USB | Ethernet |
 | [nRF52840 DK](https://www.nordicsemi.com/Products/Development-hardware/nrf52840-dk) | USB, DIN, BLE | No |
 | [nRF5340 DK](https://www.nordicsemi.com/Products/Development-hardware/nrf5340-dk) | USB, DIN, BLE | No |
 | [Olimex ESP32-POE](https://www.olimex.com/Products/IoT/ESP32/ESP32-POE/open-source-hardware) | No | Ethernet |

@@ -1,0 +1,65 @@
+#include <zephyr/dt-bindings/pinctrl/esp32s3-pinctrl.h>
+
+opendeck_i2c_bus: &i2c0 {};
+
+/ {
+    opendeck_traffic_indicators: opendeck-traffic-indicators {
+        compatible = "opendeck,traffic-indicators";
+        usb-in-gpios = <&gpio0 16 GPIO_ACTIVE_HIGH>;
+        usb-out-gpios = <&gpio0 16 GPIO_ACTIVE_HIGH>;
+        network-in-gpios = <&gpio0 16 GPIO_ACTIVE_HIGH>;
+        network-out-gpios = <&gpio0 16 GPIO_ACTIVE_HIGH>;
+        network-up-gpios = <&gpio0 16 GPIO_ACTIVE_HIGH>;
+    };
+};
+
+&pinctrl {
+    lilygo_t_eth_elite_i2c0_default: lilygo_t_eth_elite_i2c0_default {
+        group1 {
+            pinmux = <I2C0_SDA_GPIO17>,
+                     <I2C0_SCL_GPIO18>;
+            bias-pull-up;
+            drive-open-drain;
+            output-high;
+        };
+    };
+
+    lilygo_t_eth_elite_spim2_default: lilygo_t_eth_elite_spim2_default {
+        group1 {
+            pinmux = <SPIM2_MISO_GPIO47>,
+                     <SPIM2_SCLK_GPIO48>,
+                     <SPIM2_CSEL_GPIO45>;
+        };
+
+        group2 {
+            pinmux = <SPIM2_MOSI_GPIO21>;
+            output-low;
+        };
+    };
+};
+
+&i2c0 {
+    status = "okay";
+    clock-frequency = <I2C_BITRATE_STANDARD>;
+    pinctrl-0 = <&lilygo_t_eth_elite_i2c0_default>;
+    pinctrl-names = "default";
+};
+
+&uart1 {
+    status = "disabled";
+};
+
+&spi2 {
+    status = "okay";
+    pinctrl-0 = <&lilygo_t_eth_elite_spim2_default>;
+    pinctrl-names = "default";
+
+    ethernet: w5500@0 {
+        compatible = "wiznet,w5500";
+        status = "okay";
+        reg = <0>;
+        spi-max-frequency = <20000000>;
+        int-gpios = <&gpio0 14 GPIO_ACTIVE_LOW>;
+        zephyr,random-mac-address;
+    };
+};
