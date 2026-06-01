@@ -19,8 +19,10 @@
 #include "firmware/src/protocol/midi/shared/common.h"
 #include "firmware/src/protocol/osc/shared/common.h"
 #include "firmware/src/system/builder/builder.h"
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_TRAFFIC_INDICATORS
 #include "common/src/io/indicators/hwa/test/hwa_test.h"
 #include "firmware/src/io/indicators/instance/impl/indicators.h"
+#endif
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/util/configurable/configurable.h"
 
@@ -694,7 +696,7 @@ TEST_F(SystemTest, IndicatorsInvertWhileConfigurationSessionIsOpen)
             return !hwa.is_on(opendeck::common::io::indicators::Type::UsbIn);
         }));
 
-    k_msleep(io::indicators::Indicators::TRAFFIC_INDICATOR_TIMEOUT_MS + 20);
+    k_msleep(io::indicators::TRAFFIC_INDICATOR_TIMEOUT_MS + 20);
     ASSERT_TRUE(hwa.is_on(opendeck::common::io::indicators::Type::UsbIn));
 
     signaling::SystemSignal close_signal = {};
