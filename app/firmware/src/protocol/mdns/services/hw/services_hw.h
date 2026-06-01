@@ -32,6 +32,6 @@ namespace opendeck::protocol::mdns
         std::span<ServiceProvider* const> services() override;
 
         private:
-        static inline std::vector<ServiceProvider*> _providers;
+        static inline std::vector<ServiceProvider*> providers;
     };
 }    // namespace opendeck::protocol::mdns

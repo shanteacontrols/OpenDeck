@@ -9,10 +9,10 @@ using namespace opendeck::protocol::mdns;
 
 void ServicesHw::register_service(ServiceProvider* provider)
 {
-    _providers.push_back(provider);
+    providers.push_back(provider);
 }
 
 std::span<ServiceProvider* const> ServicesHw::services()
 {
-    return std::span<ServiceProvider* const>(_providers.data(), _providers.size());
+    return std::span<ServiceProvider* const>(providers.data(), providers.size());
 }

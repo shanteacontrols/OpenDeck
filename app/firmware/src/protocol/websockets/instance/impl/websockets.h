@@ -41,10 +41,12 @@ namespace opendeck::protocol::websockets
         }
 
         private:
+        static constexpr size_t TX_QUEUE_SIZE = 32;
+
         using WebSocketsBuffers = opendeck::common::protocols::websockets::Buffers<
             opendeck::common::protocols::websockets::FIRMWARE_UPLOAD_FRAME_SIZE,
             std::max(opendeck::firmware::signaling::ConfigRequestSignal::DATA_SIZE, opendeck::protocol::osc::PACKET_BUFFER_SIZE),
-            32>;
+            TX_QUEUE_SIZE>;
 
         opendeck::common::protocols::websockets::BuffersBase& buffers() override
         {
