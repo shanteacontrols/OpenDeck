@@ -144,6 +144,7 @@ app/boards/
 │       ├── common.overlay
 │       ├── firmware.overlay
 │       ├── bootloader.overlay
+│       └── network.conf
 └── zephyr/
     └── rpi_pico_rp2040/
         ├── common.overlay
@@ -153,6 +154,7 @@ app/boards/
         ├── bootloader.overlay
         ├── bootloader.conf
         ├── mcuboot.conf
+        ├── network.conf
         └── sysbuild.cmake
 ```
 
@@ -171,6 +173,9 @@ there; transports stay image-specific in `firmware.overlay` and `bootloader.over
 Use board-layer `.conf` files for low-level Zephyr board setup. Use target-level `.conf`
 files for OpenDeck target support decisions, such as disabling USB MIDI or USB DFU on a
 target that uses a board family where other targets may still enable it.
+Target-level `network.conf` is optional and applies to both firmware and bootloader
+when that image enables network transport. Use it for network-driver tuning that belongs
+to the OpenDeck target hardware, not to every target using the same Zephyr board layer.
 
 Board-layer `common.overlay` files under `app/boards/zephyr/<board>/` are optional and
 own low-level DTS changes shared by firmware, MCUboot, and the OpenDeck bootloader,
@@ -247,13 +252,14 @@ Firmware config order:
 5. `app/firmware/release.conf` or `app/firmware/debug.conf`
 6. `app/common/network.conf`, when `opendeck_transports` enables network
 7. `app/boards/zephyr/<board>/network.conf`, if the file exists and network is enabled
-8. `app/common/usb.conf`, when `opendeck_transports` enables USB
-9. `app/boards/zephyr/<board>/usb.conf`, if the file exists and USB is enabled
-10. `app/firmware/usb.conf`, when `opendeck_transports` enables USB
-11. generated firmware USB product config, when USB is enabled
-12. `app/firmware/ble.conf`, when `opendeck_transports` enables BLE
-13. generated firmware BLE device-name config, when BLE is enabled
-14. `app/boards/opendeck/<target>/firmware.conf`, if the file exists
+8. `app/boards/opendeck/<target>/network.conf`, if the file exists and network is enabled
+9. `app/common/usb.conf`, when `opendeck_transports` enables USB
+10. `app/boards/zephyr/<board>/usb.conf`, if the file exists and USB is enabled
+11. `app/firmware/usb.conf`, when `opendeck_transports` enables USB
+12. generated firmware USB product config, when USB is enabled
+13. `app/firmware/ble.conf`, when `opendeck_transports` enables BLE
+14. generated firmware BLE device-name config, when BLE is enabled
+15. `app/boards/opendeck/<target>/firmware.conf`, if the file exists
 
 The target `firmware.overlay` is consulted by sysbuild before finalizing this
 list. Its `opendeck_transports` node controls whether USB, BLE, and network transport
@@ -268,11 +274,12 @@ Bootloader config order:
 5. `app/bootloader/release.conf` or `app/bootloader/debug.conf`
 6. `app/common/network.conf`, when `opendeck_transports` enables network
 7. `app/boards/zephyr/<board>/network.conf`, if the file exists and network is enabled
-8. `app/common/usb.conf`, when `opendeck_transports` enables USB
-9. `app/boards/zephyr/<board>/usb.conf`, if the file exists and USB is enabled
-10. `app/bootloader/usb.conf`, when `opendeck_transports` enables USB
-11. generated bootloader USB product config, when USB is enabled
-12. `app/boards/opendeck/<target>/bootloader.conf`, if the file exists
+8. `app/boards/opendeck/<target>/network.conf`, if the file exists and network is enabled
+9. `app/common/usb.conf`, when `opendeck_transports` enables USB
+10. `app/boards/zephyr/<board>/usb.conf`, if the file exists and USB is enabled
+11. `app/bootloader/usb.conf`, when `opendeck_transports` enables USB
+12. generated bootloader USB product config, when USB is enabled
+13. `app/boards/opendeck/<target>/bootloader.conf`, if the file exists
 
 The target `bootloader.overlay` is consulted by sysbuild before finalizing this
 list. Its `opendeck_transports` node controls whether USB and network transport
@@ -317,10 +324,11 @@ To add a new target:
 4. Add `app/boards/opendeck/<target>/firmware.overlay`.
 5. Add `app/boards/opendeck/<target>/bootloader.overlay`.
 6. Add `app/boards/opendeck/<target>/common.overlay` if firmware and bootloader images share OpenDeck DTS.
-7. Add `app/boards/opendeck/<target>/firmware.conf` or `bootloader.conf` only if the target needs OpenDeck-specific support flags or target-local config.
-8. Add the required `opendeck,metadata` node with the correct `zephyr-board` value.
-9. Describe the actual OpenDeck firmware hardware in `firmware.overlay`.
-10. Add optional `opendeck,tests` and `opendeck,bulk-build` nodes if the target should participate in test or helper-script flows.
+7. Add `app/boards/opendeck/<target>/network.conf` only if network-enabled firmware or bootloader images need target-local network tuning.
+8. Add `app/boards/opendeck/<target>/firmware.conf` or `bootloader.conf` only if the target needs OpenDeck-specific support flags or target-local config.
+9. Add the required `opendeck,metadata` node with the correct `zephyr-board` value.
+10. Describe the actual OpenDeck firmware hardware in `firmware.overlay`.
+11. Add optional `opendeck,tests` and `opendeck,bulk-build` nodes if the target should participate in test or helper-script flows.
 
 In practice:
 
@@ -330,6 +338,7 @@ In practice:
 - `app/boards/opendeck/<target>/common.overlay` should own target hardware shared by firmware and bootloader images
 - `app/boards/opendeck/<target>/firmware.overlay` should own firmware `opendeck_*` hardware nodes and firmware bus aliases
 - `app/boards/opendeck/<target>/bootloader.overlay` should own bootloader-only hardware, including the `opendeck,bootloader` entry button node
+- `app/boards/opendeck/<target>/network.conf` should own network tuning for target-specific hardware added in the OpenDeck target layer
 
 For a fuller walkthrough, see the wiki page on creating a custom board variant:
 https://github.com/shanteacontrols/OpenDeck/wiki/Creating-custom-board-variant

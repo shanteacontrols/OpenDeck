@@ -44,6 +44,7 @@ set(opendeck_firmware_release_conf              ${APP_DIR}/firmware/release.conf
 set(opendeck_firmware_debug_conf                ${APP_DIR}/firmware/debug.conf)
 set(opendeck_target_firmware_conf               ${APP_DIR}/boards/opendeck/${TARGET}/firmware.conf)
 set(opendeck_target_bootloader_conf             ${APP_DIR}/boards/opendeck/${TARGET}/bootloader.conf)
+set(opendeck_target_network_conf                ${APP_DIR}/boards/opendeck/${TARGET}/network.conf)
 set(opendeck_board_bootloader_overlay           ${opendeck_zephyr_board_dir_path}/bootloader.overlay)
 set(opendeck_board_bootloader_conf              ${opendeck_zephyr_board_dir_path}/bootloader.conf)
 set(opendeck_common_bootloader_conf             ${APP_DIR}/bootloader/common.conf)
@@ -262,6 +263,10 @@ if(opendeck_firmware_network_enabled)
     if(EXISTS ${opendeck_board_network_conf})
         list(APPEND opendeck_firmware_extra_conf_files ${opendeck_board_network_conf})
     endif()
+
+    if(EXISTS ${opendeck_target_network_conf})
+        list(APPEND opendeck_firmware_extra_conf_files ${opendeck_target_network_conf})
+    endif()
 endif()
 
 if(opendeck_firmware_usb_enabled)
@@ -357,6 +362,10 @@ if(opendeck_bootloader_network_enabled)
 
     if(EXISTS ${opendeck_board_network_conf})
         list(APPEND opendeck_bootloader_extra_conf_files ${opendeck_board_network_conf})
+    endif()
+
+    if(EXISTS ${opendeck_target_network_conf})
+        list(APPEND opendeck_bootloader_extra_conf_files ${opendeck_target_network_conf})
     endif()
 endif()
 
