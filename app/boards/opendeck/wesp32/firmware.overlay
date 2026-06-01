@@ -10,9 +10,16 @@
         network;
     };
 
+    opendeck_tests: opendeck-tests {
+        compatible = "opendeck,tests";
+        host;
+    };
+
     opendeck_bulk_build: opendeck-bulk-build {
         compatible = "opendeck,bulk-build";
         app;
+        host-test;
+        lint;
     };
 
     opendeck_switches: opendeck-switches {

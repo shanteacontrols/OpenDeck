@@ -18,8 +18,10 @@
     opendeck_bulk_build: opendeck-bulk-build {
         compatible = "opendeck,bulk-build";
         app;
+        host-test;
         lint;
     };
+
     opendeck_switches: opendeck-switches {
         compatible = "opendeck,switches";
         mode = "matrix";
