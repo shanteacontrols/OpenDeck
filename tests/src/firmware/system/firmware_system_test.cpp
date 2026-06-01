@@ -5,7 +5,9 @@
 
 #include "tests/shared/common.h"
 #include "tests/shared/helpers/database.h"
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_MIDI
 #include "tests/shared/helpers/midi.h"
+#endif
 #include "tests/shared/helpers/misc.h"
 #include "firmware/src/database/layout.h"
 #include "firmware/src/io/analog/shared/common.h"
@@ -57,6 +59,24 @@ namespace
             signaling::clear_registry();
         }
 
+        void init_initialized_system()
+        {
+            ASSERT_TRUE(_system._hwa.database().init(_database_handlers));
+            ASSERT_TRUE(_system._instance.init());
+
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_CONFIG_INTERFACE_USB_MIDI
+            handshake();
+            unlock_config();
+#endif
+        }
+
+        sys::Builder _system;
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_MIDI
+        tests::MIDIHelper _helper = tests::MIDIHelper(_system);
+#endif
+        tests::NoOpDatabaseHandlers _database_handlers;
+
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_CONFIG_INTERFACE_USB_MIDI
         int supported_presets()
         {
             LOG_INF("Checking the number of supported presets");
@@ -92,18 +112,7 @@ namespace
                                                                        token.at(i)));
             }
         }
-
-        void init_initialized_system()
-        {
-            ASSERT_TRUE(_system._hwa.database().init(_database_handlers));
-            ASSERT_TRUE(_system._instance.init());
-            handshake();
-            unlock_config();
-        }
-
-        sys::Builder                _system;
-        tests::MIDIHelper           _helper = tests::MIDIHelper(_system);
-        tests::NoOpDatabaseHandlers _database_handlers;
+#endif
     };
 }    // namespace
 
@@ -177,7 +186,14 @@ TEST_F(SystemTest, FullDatabaseInitialValues)
 
         for (int i = 0; i < static_cast<uint8_t>(protocol::midi::Setting::Count); i++)
         {
-            const auto expected = (i == static_cast<int>(protocol::midi::Setting::GlobalChannel)) ? 1U : 0U;
+            uint32_t expected = 0;
+
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_MIDI
+            if (i == static_cast<int>(protocol::midi::Setting::GlobalChannel))
+            {
+                expected = 1;
+            }
+#endif
 
             verify(expected, database::Config::Section::Global::MidiSettings, i);
         }
@@ -356,6 +372,7 @@ TEST_F(SystemTest, FullDatabaseInitialValues)
     }
 }
 
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_CONFIG_INTERFACE_USB_MIDI
 TEST_F(SystemTest, ForcedResendOnPresetChange)
 {
     constexpr uint32_t END_WAIT_TIMEOUT_MS           = 1000;
@@ -434,6 +451,7 @@ TEST_F(SystemTest, ForcedResendOnPresetChange)
         },
         END_WAIT_TIMEOUT_MS));
 }
+#endif
 
 TEST_F(SystemTest, ForcedResendOnNetworkIdentity)
 {
@@ -556,9 +574,14 @@ TEST_F(SystemTest, ProgramIndicatedOnStartup)
     init_initialized_system();
     k_msleep(sys::INITIAL_IO_RESUME_DELAY_MS);
 
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_CONFIG_INTERFACE_USB_MIDI
     ASSERT_EQ(16, program_msg_cnt);
+#else
+    ASSERT_EQ(0, program_msg_cnt);
+#endif
 }
 
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_CONFIG_INTERFACE_USB_MIDI
 TEST_F(SystemTest, SerialNumberCustomRequestReturnsHwaSerial)
 {
     init_initialized_system();
@@ -663,6 +686,7 @@ TEST_F(SystemTest, ConfigurationSessionTimesOutAfterInactivity)
     ASSERT_FALSE(response.empty());
     ASSERT_EQ(static_cast<uint8_t>(zlibs::utils::sysex_conf::Status::ErrorConnection), response.at(4));
 }
+#endif
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_TRAFFIC_INDICATORS
 TEST_F(SystemTest, IndicatorsInvertWhileConfigurationSessionIsOpen)
@@ -712,6 +736,7 @@ TEST_F(SystemTest, IndicatorsInvertWhileConfigurationSessionIsOpen)
 }
 #endif
 
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_CONFIG_INTERFACE_USB_MIDI
 TEST_F(SystemTest, ConfigurationSessionTimeoutDoesNotCloseBackup)
 {
     bool   backup_active             = false;
@@ -784,6 +809,7 @@ TEST_F(SystemTest, ConfigurationSessionTimeoutDoesNotCloseBackup)
 
     ASSERT_FALSE(closed_during_backup);
 }
+#endif
 
 TEST_F(SystemTest, WebSocketsDisconnectClosesConfigurationSession)
 {
@@ -892,6 +918,7 @@ TEST_F(SystemTest, StaleWebSocketsDisconnectDoesNotCloseNewerConfigurationSessio
         }));
 }
 
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_CONFIG_INTERFACE_USB_MIDI
 TEST_F(SystemTest, FactoryResetRequestIsDeferred)
 {
     size_t factory_reset_start_cnt = 0;
@@ -929,8 +956,9 @@ TEST_F(SystemTest, FactoryResetRequestIsDeferred)
         },
         sys::FACTORY_RESET_DELAY_MS));
 }
+#endif
 
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_DIN_MIDI
+#if defined(CONFIG_PROJECT_TARGET_SUPPORT_DIN_MIDI) && defined(CONFIG_PROJECT_TARGET_SUPPORT_USB_MIDI)
 TEST_F(SystemTest, UsbThruDin)
 {
     init_initialized_system();
