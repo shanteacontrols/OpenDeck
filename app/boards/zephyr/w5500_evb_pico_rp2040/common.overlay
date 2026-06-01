@@ -19,7 +19,9 @@
 };
 
 &ethernet {
+    /delete-property/ local-mac-address;
     spi-max-frequency = <50000000>;
+    zephyr,random-mac-address;
 };
 
 &uart0 {
