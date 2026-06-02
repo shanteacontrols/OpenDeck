@@ -153,14 +153,13 @@ namespace opendeck::database
                     case opendeck::firmware::signaling::SystemEvent::ConfigurationSessionOpened:
                     {
                         _configuration_session_open = true;
-                        update_cached_write_state();
                     }
                     break;
 
                     case opendeck::firmware::signaling::SystemEvent::ConfigurationSessionClosed:
                     {
                         _configuration_session_open = false;
-                        update_cached_write_state();
+                        _emueeprom.flush();
                     }
                     break;
 
@@ -264,8 +263,22 @@ namespace opendeck::database
             case zlibs::utils::lessdb::SectionParameterType::Byte:
             case zlibs::utils::lessdb::SectionParameterType::HalfByte:
             case zlibs::utils::lessdb::SectionParameterType::Word:
-                return _emueeprom.write(zlibs::utils::emueeprom::make_entry(static_cast<uint16_t>(address), write_value),
-                                        _write_to_cache) == zlibs::utils::emueeprom::WriteStatus::Ok;
+            {
+                const auto status = _emueeprom.write(zlibs::utils::emueeprom::make_entry(static_cast<uint16_t>(address), write_value),
+                                                     _write_to_cache);
+
+                if (status != zlibs::utils::emueeprom::WriteStatus::Ok)
+                {
+                    return false;
+                }
+
+                if (_write_to_cache || !_configuration_session_open)
+                {
+                    return true;
+                }
+
+                return _emueeprom.flush();
+            }
 
             default:
                 return false;
@@ -312,7 +325,7 @@ namespace opendeck::database
         void update_cached_write_state()
         {
             const bool was_cache_enabled = _write_to_cache;
-            const bool enable_cache      = _bulk_write_active || _configuration_session_open;
+            const bool enable_cache      = _bulk_write_active;
 
             _write_to_cache = enable_cache;
 
