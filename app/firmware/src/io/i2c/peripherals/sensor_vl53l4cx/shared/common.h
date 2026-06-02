@@ -8,7 +8,7 @@
 #include <array>
 #include <inttypes.h>
 
-namespace opendeck::io::i2c::sensor_vl53l4cx
+namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
 {
     /**
      * @brief Identifies configurable VL53L4CX sensor settings stored in the database.
@@ -60,4 +60,4 @@ namespace opendeck::io::i2c::sensor_vl53l4cx
     };
 
     constexpr inline uint16_t VL53L4CX_REGISTER_SOFT_RESET = 0x0000;
-}    // namespace opendeck::io::i2c::sensor_vl53l4cx
+}    // namespace opendeck::firmware::io::i2c::sensor_vl53l4cx

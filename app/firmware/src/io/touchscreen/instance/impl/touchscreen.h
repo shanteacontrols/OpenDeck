@@ -17,7 +17,7 @@
 
 #include <optional>
 
-namespace opendeck::io::touchscreen
+namespace opendeck::firmware::io::touchscreen
 {
     /**
      * @brief Coordinates touchscreen model initialization, polling, and system integration.
@@ -195,4 +195,4 @@ namespace opendeck::io::touchscreen
          */
         std::optional<uint8_t> sys_config_set(sys::Config::Section::Touchscreen section, size_t index, uint16_t value);
     };
-}    // namespace opendeck::io::touchscreen
+}    // namespace opendeck::firmware::io::touchscreen

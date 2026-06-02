@@ -8,8 +8,7 @@
 #include "firmware/src/protocol/midi/builder/builder.h"
 #include "firmware/src/util/configurable/configurable.h"
 
-using namespace opendeck::io;
-using namespace opendeck::protocol;
+using namespace opendeck;
 using namespace opendeck::firmware;
 
 namespace
@@ -34,7 +33,7 @@ namespace
             k_msleep(5);
         }
 
-        uint8_t set_midi_setting(midi::Setting setting, uint16_t value)
+        uint8_t set_midi_setting(protocol::midi::Setting setting, uint16_t value)
         {
             return ConfigHandler.set(sys::Config::Block::Global,
                                      static_cast<uint8_t>(sys::Config::Section::Global::MidiSettings),
@@ -70,23 +69,23 @@ TEST_F(MIDITest, OmniChannel)
         .channel         = 1,
         .index           = 0,
         .value           = 127,
-        .message         = midi::MessageType::NoteOn,
+        .message         = protocol::midi::MessageType::NoteOn,
     });
     wait_for_signal_dispatch();
 
     // only 1 message should be written out
     ASSERT_EQ(1, _midi._hwaUsb._writeParser.total_written_channel_messages());
-    ASSERT_EQ(midi::MessageType::NoteOn, _midi._hwaUsb._writeParser.written_messages().at(0).type);
+    ASSERT_EQ(protocol::midi::MessageType::NoteOn, _midi._hwaUsb._writeParser.written_messages().at(0).type);
 
     // now set the channel to omni and verify that 16 messages are sent
     _midi._hwaUsb.clear();
     signaling::publish(signaling::MidiIoSignal{
         .source          = signaling::IoEventSource::Switch,
         .component_index = 0,
-        .channel         = midi::OMNI_CHANNEL,
+        .channel         = protocol::midi::OMNI_CHANNEL,
         .index           = 0,
         .value           = 127,
-        .message         = midi::MessageType::NoteOn,
+        .message         = protocol::midi::MessageType::NoteOn,
     });
     wait_for_signal_dispatch();
 
@@ -112,22 +111,22 @@ TEST_F(MIDITest, BleEnabledIsAppliedWhenBleIsSupported)
 {
     expect_ble_enable();
 
-    ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(midi::Setting::BleEnabled, 1));
-    ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(midi::Setting::BleEnabled, 0));
+    ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(protocol::midi::Setting::BleEnabled, 1));
+    ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(protocol::midi::Setting::BleEnabled, 0));
 }
 
 TEST_F(MIDITest, BleEnabledIsRejectedWhenBleIsNotSupported)
 {
     _midi._hwaBle._supported = false;
 
-    ASSERT_EQ(sys::Config::Status::ErrorNotSupported, set_midi_setting(midi::Setting::BleEnabled, 1));
+    ASSERT_EQ(sys::Config::Status::ErrorNotSupported, set_midi_setting(protocol::midi::Setting::BleEnabled, 1));
 }
 
 TEST_F(MIDITest, BleTxIsSkippedUntilReady)
 {
     expect_ble_enable();
 
-    ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(midi::Setting::BleEnabled, 1));
+    ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(protocol::midi::Setting::BleEnabled, 1));
 
     _midi._hwaBle.clear();
     _midi._hwaBle._ready = false;
@@ -138,7 +137,7 @@ TEST_F(MIDITest, BleTxIsSkippedUntilReady)
         .channel         = 1,
         .index           = 0,
         .value           = 127,
-        .message         = midi::MessageType::NoteOn,
+        .message         = protocol::midi::MessageType::NoteOn,
     });
     wait_for_signal_dispatch();
 
@@ -149,8 +148,8 @@ TEST_F(MIDITest, UsbThruBleRouteIsAppliedWhenUsbAndBleAreSupported)
 {
     expect_ble_enable();
 
-    ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(midi::Setting::BleEnabled, 1));
-    ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(midi::Setting::UsbThruBle, 1));
+    ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(protocol::midi::Setting::BleEnabled, 1));
+    ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(protocol::midi::Setting::UsbThruBle, 1));
 
     _midi._hwaBle.clear();
     _midi._hwaUsb._readPackets.push_back(zlibs::utils::midi::midi1::note_on(0, 0, 60, 127));
@@ -164,21 +163,21 @@ TEST_F(MIDITest, UsbThruBleRouteIsRejectedWhenBleIsNotSupported)
 {
     _midi._hwaBle._supported = false;
 
-    ASSERT_EQ(sys::Config::Status::ErrorNotSupported, set_midi_setting(midi::Setting::UsbThruBle, 1));
+    ASSERT_EQ(sys::Config::Status::ErrorNotSupported, set_midi_setting(protocol::midi::Setting::UsbThruBle, 1));
 }
 
 TEST_F(MIDITest, BleThruUsbRouteIsAppliedWhenBleAndUsbAreSupported)
 {
     expect_ble_enable();
 
-    ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(midi::Setting::BleEnabled, 1));
-    ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(midi::Setting::BleThruUsb, 1));
+    ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(protocol::midi::Setting::BleEnabled, 1));
+    ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(protocol::midi::Setting::BleThruUsb, 1));
 
     _midi._hwaUsb.clear();
 
-    midi::BlePacket packet = {};
-    packet.size            = 5;
-    packet.data            = { 0x80, 0x80, 0x90, 0x3C, 0x7F };
+    protocol::midi::BlePacket packet = {};
+    packet.size                      = 5;
+    packet.data                      = { 0x80, 0x80, 0x90, 0x3C, 0x7F };
 
     _midi._hwaBle._readPackets.push_back(packet);
     k_poll_signal_raise(_midi._hwaBle.data_available_signal(), 0);
@@ -191,7 +190,7 @@ TEST_F(MIDITest, BleThruUsbRouteIsRejectedWhenBleIsNotSupported)
 {
     _midi._hwaBle._supported = false;
 
-    ASSERT_EQ(sys::Config::Status::ErrorNotSupported, set_midi_setting(midi::Setting::BleThruUsb, 1));
+    ASSERT_EQ(sys::Config::Status::ErrorNotSupported, set_midi_setting(protocol::midi::Setting::BleThruUsb, 1));
 }
 
 TEST_F(MIDITest, DinAndBleThruRoutesAreApplied)
@@ -199,10 +198,10 @@ TEST_F(MIDITest, DinAndBleThruRoutesAreApplied)
     expect_din_enable();
     expect_ble_enable();
 
-    ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(midi::Setting::DinEnabled, 1));
-    ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(midi::Setting::BleEnabled, 1));
-    ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(midi::Setting::DinThruBle, 1));
-    ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(midi::Setting::BleThruDin, 1));
+    ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(protocol::midi::Setting::DinEnabled, 1));
+    ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(protocol::midi::Setting::BleEnabled, 1));
+    ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(protocol::midi::Setting::DinThruBle, 1));
+    ASSERT_EQ(sys::Config::Status::Ack, set_midi_setting(protocol::midi::Setting::BleThruDin, 1));
 
     _midi._hwaBle.clear();
     _midi._hwaSerial._readPackets = { 0x90, 0x3C, 0x7F };
@@ -212,9 +211,9 @@ TEST_F(MIDITest, DinAndBleThruRoutesAreApplied)
 
     _midi._hwaSerial._writePackets.clear();
 
-    midi::BlePacket packet = {};
-    packet.size            = 5;
-    packet.data            = { 0x80, 0x80, 0x90, 0x3C, 0x7F };
+    protocol::midi::BlePacket packet = {};
+    packet.size                      = 5;
+    packet.data                      = { 0x80, 0x80, 0x90, 0x3C, 0x7F };
 
     _midi._hwaBle._readPackets.push_back(packet);
     k_poll_signal_raise(_midi._hwaBle.data_available_signal(), 0);
@@ -226,6 +225,6 @@ TEST_F(MIDITest, DinRoutesAreRejectedWhenDinIsNotSupported)
 {
     _midi._hwaSerial._supported = false;
 
-    ASSERT_EQ(sys::Config::Status::ErrorNotSupported, set_midi_setting(midi::Setting::DinEnabled, 1));
-    ASSERT_EQ(sys::Config::Status::ErrorNotSupported, set_midi_setting(midi::Setting::DinThruUsb, 1));
+    ASSERT_EQ(sys::Config::Status::ErrorNotSupported, set_midi_setting(protocol::midi::Setting::DinEnabled, 1));
+    ASSERT_EQ(sys::Config::Status::ErrorNotSupported, set_midi_setting(protocol::midi::Setting::DinThruUsb, 1));
 }

@@ -39,12 +39,12 @@ namespace opendeck::tests
      */
     struct MIDIInputEvent
     {
-        uint8_t                     channel       = 0;
-        uint16_t                    index         = 0;
-        uint16_t                    value         = 0;
-        protocol::midi::MessageType message       = protocol::midi::MessageType::Invalid;
-        const uint8_t*              sys_ex        = nullptr;
-        size_t                      sys_ex_length = 0;
+        uint8_t                                         channel       = 0;
+        uint16_t                                        index         = 0;
+        uint16_t                                        value         = 0;
+        opendeck::firmware::protocol::midi::MessageType message       = opendeck::firmware::protocol::midi::MessageType::Invalid;
+        const uint8_t*                                  sys_ex        = nullptr;
+        size_t                                          sys_ex_length = 0;
     };
 
     /**
@@ -88,7 +88,7 @@ namespace opendeck::tests
          *
          * @param system System test builder used for stub-backed interaction.
          */
-        explicit MIDIHelper(sys::Builder& system)
+        explicit MIDIHelper(opendeck::firmware::sys::Builder& system)
             : _system(&system)
             , _use_hardware(false)
         {}
@@ -106,31 +106,31 @@ namespace opendeck::tests
 
             switch (event.message)
             {
-            case protocol::midi::MessageType::NoteOff:
+            case opendeck::firmware::protocol::midi::MessageType::NoteOff:
             {
                 packets.push_back(zlibs::utils::midi::midi1::note_off(0, event.channel - 1, event.index, event.value));
             }
             break;
 
-            case protocol::midi::MessageType::NoteOn:
+            case opendeck::firmware::protocol::midi::MessageType::NoteOn:
             {
                 packets.push_back(zlibs::utils::midi::midi1::note_on(0, event.channel - 1, event.index, event.value));
             }
             break;
 
-            case protocol::midi::MessageType::ControlChange:
+            case opendeck::firmware::protocol::midi::MessageType::ControlChange:
             {
                 packets.push_back(zlibs::utils::midi::midi1::control_change(0, event.channel - 1, event.index, event.value));
             }
             break;
 
-            case protocol::midi::MessageType::ProgramChange:
+            case opendeck::firmware::protocol::midi::MessageType::ProgramChange:
             {
                 packets.push_back(zlibs::utils::midi::midi1::program_change(0, event.channel - 1, event.index));
             }
             break;
 
-            case protocol::midi::MessageType::SysEx:
+            case opendeck::firmware::protocol::midi::MessageType::SysEx:
             {
                 size_t index = 0;
 
@@ -196,13 +196,13 @@ namespace opendeck::tests
         std::vector<uint8_t> generate_sysex_get_req(S section, I index)
         {
             const auto block_index = block(section);
-            const auto split       = util::Conversion::Split14Bit(static_cast<size_t>(index));
+            const auto split       = opendeck::firmware::util::Conversion::Split14Bit(static_cast<size_t>(index));
 
             return {
                 0xF0,
-                sys::Config::SYSEX_MANUFACTURER_ID_0,
-                sys::Config::SYSEX_MANUFACTURER_ID_1,
-                sys::Config::SYSEX_MANUFACTURER_ID_2,
+                opendeck::firmware::sys::Config::SYSEX_MANUFACTURER_ID_0,
+                opendeck::firmware::sys::Config::SYSEX_MANUFACTURER_ID_1,
+                opendeck::firmware::sys::Config::SYSEX_MANUFACTURER_ID_2,
                 0x00,
                 0x00,
                 0x00,
@@ -234,14 +234,14 @@ namespace opendeck::tests
         std::vector<uint8_t> generate_sysex_set_req(S section, I index, V value)
         {
             const auto block_index = block(section);
-            const auto split_index = util::Conversion::Split14Bit(static_cast<uint16_t>(index));
-            const auto split_value = util::Conversion::Split14Bit(static_cast<uint16_t>(value));
+            const auto split_index = opendeck::firmware::util::Conversion::Split14Bit(static_cast<uint16_t>(index));
+            const auto split_value = opendeck::firmware::util::Conversion::Split14Bit(static_cast<uint16_t>(value));
 
             return {
                 0xF0,
-                sys::Config::SYSEX_MANUFACTURER_ID_0,
-                sys::Config::SYSEX_MANUFACTURER_ID_1,
-                sys::Config::SYSEX_MANUFACTURER_ID_2,
+                opendeck::firmware::sys::Config::SYSEX_MANUFACTURER_ID_0,
+                opendeck::firmware::sys::Config::SYSEX_MANUFACTURER_ID_1,
+                opendeck::firmware::sys::Config::SYSEX_MANUFACTURER_ID_2,
                 0x00,
                 0x00,
                 0x01,
@@ -307,7 +307,7 @@ namespace opendeck::tests
             }
 #endif
 
-            return send_request_to_stub(request, false) == static_cast<uint16_t>(sys::Config::Status::Ack);
+            return send_request_to_stub(request, false) == static_cast<uint16_t>(opendeck::firmware::sys::Config::Status::Ack);
         }
 
 #ifdef PROJECT_TARGET_HARDWARE_TESTS_SUPPORTED
@@ -501,7 +501,7 @@ namespace opendeck::tests
             MIDIInputEvent event = {};
             event.sys_ex         = request.data();
             event.sys_ex_length  = request.size();
-            event.message        = protocol::midi::MessageType::SysEx;
+            event.message        = opendeck::firmware::protocol::midi::MessageType::SysEx;
 
             process_incoming(event);
 
@@ -552,7 +552,7 @@ namespace opendeck::tests
             MIDIInputEvent event = {};
             event.sys_ex         = request.data();
             event.sys_ex_length  = request.size();
-            event.message        = protocol::midi::MessageType::SysEx;
+            event.message        = opendeck::firmware::protocol::midi::MessageType::SysEx;
 
             process_incoming(event);
 
@@ -661,8 +661,8 @@ namespace opendeck::tests
 
             if (is_get)
             {
-                const auto merged = util::Conversion::Merge14Bit(response.at(response.size() - 3),
-                                                                 response.at(response.size() - 2));
+                const auto merged = opendeck::firmware::util::Conversion::Merge14Bit(response.at(response.size() - 3),
+                                                                                     response.at(response.size() - 2));
                 return merged.value();
             }
 
@@ -710,8 +710,8 @@ namespace opendeck::tests
 
             if (is_get)
             {
-                const auto merged = util::Conversion::Merge14Bit(response.at(response.size() - 3),
-                                                                 response.at(response.size() - 2));
+                const auto merged = opendeck::firmware::util::Conversion::Merge14Bit(response.at(response.size() - 3),
+                                                                                     response.at(response.size() - 2));
                 return merged.value();
             }
 
@@ -719,45 +719,45 @@ namespace opendeck::tests
         }
 
         /** @brief Maps a global section enum to its SysEx configuration block. */
-        static constexpr sys::Config::Block block(sys::Config::Section::Global)
+        static constexpr opendeck::firmware::sys::Config::Block block(opendeck::firmware::sys::Config::Section::Global)
         {
-            return sys::Config::Block::Global;
+            return opendeck::firmware::sys::Config::Block::Global;
         }
 
         /** @brief Maps a switch section enum to its SysEx configuration block. */
-        static constexpr sys::Config::Block block(sys::Config::Section::Switch)
+        static constexpr opendeck::firmware::sys::Config::Block block(opendeck::firmware::sys::Config::Section::Switch)
         {
-            return sys::Config::Block::Switches;
+            return opendeck::firmware::sys::Config::Block::Switches;
         }
 
         /** @brief Maps an encoder section enum to its SysEx configuration block. */
-        static constexpr sys::Config::Block block(sys::Config::Section::Encoder)
+        static constexpr opendeck::firmware::sys::Config::Block block(opendeck::firmware::sys::Config::Section::Encoder)
         {
-            return sys::Config::Block::Encoders;
+            return opendeck::firmware::sys::Config::Block::Encoders;
         }
 
         /** @brief Maps an analog section enum to its SysEx configuration block. */
-        static constexpr sys::Config::Block block(sys::Config::Section::Analog)
+        static constexpr opendeck::firmware::sys::Config::Block block(opendeck::firmware::sys::Config::Section::Analog)
         {
-            return sys::Config::Block::Analog;
+            return opendeck::firmware::sys::Config::Block::Analog;
         }
 
         /** @brief Maps an output section enum to its SysEx configuration block. */
-        static constexpr sys::Config::Block block(sys::Config::Section::Outputs)
+        static constexpr opendeck::firmware::sys::Config::Block block(opendeck::firmware::sys::Config::Section::Outputs)
         {
-            return sys::Config::Block::Outputs;
+            return opendeck::firmware::sys::Config::Block::Outputs;
         }
 
         /** @brief Maps an I2C section enum to its SysEx configuration block. */
-        static constexpr sys::Config::Block block(sys::Config::Section::I2c)
+        static constexpr opendeck::firmware::sys::Config::Block block(opendeck::firmware::sys::Config::Section::I2c)
         {
-            return sys::Config::Block::I2c;
+            return opendeck::firmware::sys::Config::Block::I2c;
         }
 
         /** @brief Maps a touchscreen section enum to its SysEx configuration block. */
-        static constexpr sys::Config::Block block(sys::Config::Section::Touchscreen)
+        static constexpr opendeck::firmware::sys::Config::Block block(opendeck::firmware::sys::Config::Section::Touchscreen)
         {
-            return sys::Config::Block::Touchscreen;
+            return opendeck::firmware::sys::Config::Block::Touchscreen;
         }
 
         /**
@@ -802,8 +802,8 @@ namespace opendeck::tests
             return responses;
         }
 
-        sys::Builder*               _system = nullptr;
-        [[maybe_unused]] const bool _use_hardware;
+        opendeck::firmware::sys::Builder* _system = nullptr;
+        [[maybe_unused]] const bool       _use_hardware;
 
 #ifdef PROJECT_TARGET_HARDWARE_TESTS_SUPPORTED
         /**

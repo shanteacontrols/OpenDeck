@@ -7,7 +7,7 @@
 
 #include "firmware/src/io/shared/common.h"
 
-namespace opendeck::io::encoders
+namespace opendeck::firmware::io::encoders
 {
     /**
      * @brief Flattened collection of encoder inputs.
@@ -65,4 +65,4 @@ namespace opendeck::io::encoders
         Fast,
         Count
     };
-}    // namespace opendeck::io::encoders
+}    // namespace opendeck::firmware::io::encoders

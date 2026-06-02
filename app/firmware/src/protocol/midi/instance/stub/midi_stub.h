@@ -7,7 +7,7 @@
 
 #include "firmware/src/protocol/base.h"
 
-namespace opendeck::protocol::midi
+namespace opendeck::firmware::protocol::midi
 {
     /**
      * @brief Stub MIDI protocol used when no MIDI transport is enabled.
@@ -28,4 +28,4 @@ namespace opendeck::protocol::midi
             return true;
         }
     };
-}    // namespace opendeck::protocol::midi
+}    // namespace opendeck::firmware::protocol::midi

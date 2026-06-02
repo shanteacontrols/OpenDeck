@@ -8,7 +8,7 @@
 #include "firmware/src/io/analog/shared/deps.h"
 #include "firmware/src/io/analog/drivers/remap.h"
 
-namespace opendeck::io::analog
+namespace opendeck::firmware::io::analog
 {
     /**
      * @brief Hardware-backed analog subsystem adapter.
@@ -97,4 +97,4 @@ namespace opendeck::io::analog
         private:
         Hwa& _driver;
     };
-}    // namespace opendeck::io::analog
+}    // namespace opendeck::firmware::io::analog

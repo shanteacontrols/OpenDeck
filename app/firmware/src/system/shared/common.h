@@ -5,13 +5,15 @@
 
 #pragma once
 
+#include "common/src/system/shared/common.h"
+
 #include <array>
 #include <inttypes.h>
 #include <stddef.h>
 #include <span>
 #include <string_view>
 
-namespace opendeck::sys
+namespace opendeck::firmware::sys
 {
     /**
      * @brief Number of 14-bit words in the configuration unlock token.
@@ -52,11 +54,6 @@ namespace opendeck::sys
      * @brief Second fixed seed mixed with the serial when deriving unlock token words.
      */
     constexpr inline std::string_view CONFIG_UNLOCK_TOKEN_SEED_B = "opendeck-config-unlock-v1-b";
-
-    /**
-     * @brief Delay before the system reboots into the selected firmware target.
-     */
-    constexpr inline uint32_t REBOOT_DELAY_MS = 1000;
 
     /**
      * @brief Delay before top-level I/O processing resumes after system initialization completes.
@@ -199,4 +196,4 @@ namespace opendeck::sys
             words_b.at(1),
         };
     }
-}    // namespace opendeck::sys
+}    // namespace opendeck::firmware::sys

@@ -9,7 +9,7 @@
 #include "firmware/src/protocol/websockets/handler/builder/builder.h"
 #include "firmware/src/protocol/websockets/instance/impl/websockets.h"
 
-namespace opendeck::protocol::websockets
+namespace opendeck::firmware::protocol::websockets
 {
     /**
      * @brief Convenience builder that wires the WebSocket configuration endpoint.
@@ -36,4 +36,4 @@ namespace opendeck::protocol::websockets
         HwaHw            _hwa;
         WebSockets       _instance;
     };
-}    // namespace opendeck::protocol::websockets
+}    // namespace opendeck::firmware::protocol::websockets

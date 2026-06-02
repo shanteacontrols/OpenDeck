@@ -15,9 +15,8 @@
 
 #include <zephyr/logging/log.h>
 
-using namespace opendeck;
-using namespace opendeck::io::analog;
-using namespace opendeck::protocol;
+using namespace opendeck::firmware::io::analog;
+using namespace opendeck::firmware::protocol;
 using namespace opendeck::firmware;
 
 namespace

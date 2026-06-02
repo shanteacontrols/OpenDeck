@@ -10,7 +10,7 @@
 #include <array>
 #include <cstddef>
 
-namespace opendeck::io::analog
+namespace opendeck::firmware::io::analog
 {
     /**
      * @brief Resolves logical analog indices to the underlying physical scan order.
@@ -64,4 +64,4 @@ namespace opendeck::io::analog
 #undef OPENDECK_ANALOG_REMAP_ENTRY
 #endif
     };
-}    // namespace opendeck::io::analog
+}    // namespace opendeck::firmware::io::analog

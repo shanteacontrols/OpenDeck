@@ -9,7 +9,7 @@
 
 #include <vector>
 
-namespace opendeck::protocol::mdns
+namespace opendeck::firmware::protocol::mdns
 {
     /**
      * @brief Zephyr DNS-SD service descriptors advertised by firmware mDNS.
@@ -34,4 +34,4 @@ namespace opendeck::protocol::mdns
         private:
         static inline std::vector<ServiceProvider*> providers;
     };
-}    // namespace opendeck::protocol::mdns
+}    // namespace opendeck::firmware::protocol::mdns

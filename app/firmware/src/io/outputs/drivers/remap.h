@@ -10,7 +10,7 @@
 #include <array>
 #include <cstddef>
 
-namespace opendeck::io::outputs
+namespace opendeck::firmware::io::outputs
 {
     /**
      * @brief Resolves logical output indices against the physical driver order.
@@ -64,4 +64,4 @@ namespace opendeck::io::outputs
 #undef OPENDECK_OUTPUT_REMAP_ENTRY
 #endif
     };
-}    // namespace opendeck::io::outputs
+}    // namespace opendeck::firmware::io::outputs

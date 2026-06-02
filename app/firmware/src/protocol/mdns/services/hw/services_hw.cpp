@@ -5,7 +5,7 @@
 
 #include "firmware/src/protocol/mdns/services/hw/services_hw.h"
 
-using namespace opendeck::protocol::mdns;
+using namespace opendeck::firmware::protocol::mdns;
 
 void ServicesHw::register_service(ServiceProvider* provider)
 {

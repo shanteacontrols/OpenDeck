@@ -14,7 +14,7 @@
 #include <array>
 #include <span>
 
-namespace opendeck::sys
+namespace opendeck::firmware::sys
 {
     /**
      * @brief Collection of top-level I/O subsystem instances indexed by `io::Io`.
@@ -76,4 +76,4 @@ namespace opendeck::sys
          */
         virtual database::Admin& database() = 0;
     };
-}    // namespace opendeck::sys
+}    // namespace opendeck::firmware::sys

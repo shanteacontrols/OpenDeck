@@ -8,8 +8,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
-using namespace opendeck;
-using namespace opendeck::io::indicators;
+using namespace opendeck::firmware::io::indicators;
 using namespace opendeck::firmware;
 
 namespace

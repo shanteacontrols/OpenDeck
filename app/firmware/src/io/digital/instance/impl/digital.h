@@ -12,7 +12,7 @@
 #include "firmware/src/io/digital/encoders/instance/impl/encoders.h"
 #include "firmware/src/threads.h"
 
-namespace opendeck::io::digital
+namespace opendeck::firmware::io::digital
 {
     /**
      * @brief Top-level digital-input subsystem that coordinates switches and encoders.
@@ -71,4 +71,4 @@ namespace opendeck::io::digital
          */
         void shutdown();
     };
-}    // namespace opendeck::io::digital
+}    // namespace opendeck::firmware::io::digital

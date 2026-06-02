@@ -9,7 +9,7 @@
 
 #define OPENDECK_ANALOG_NATIVE_CHANNEL_ENTRY(index, node_id) ADC_DT_SPEC_GET_BY_IDX(node_id, index)
 
-namespace opendeck::io::analog
+namespace opendeck::firmware::io::analog
 {
     /**
      * @brief Native ADC driver that scans each analog input directly.
@@ -97,6 +97,6 @@ namespace opendeck::io::analog
         std::array<adc_dt_spec, ANALOG_COUNT> _channels     = { { LISTIFY(CONFIG_PROJECT_TARGET_ANALOG_PHYSICAL_COUNT, OPENDECK_ANALOG_NATIVE_CHANNEL_ENTRY, (, ), DT_NODELABEL(opendeck_analog)) } };
         size_t                                _active_index = 0;
     };
-}    // namespace opendeck::io::analog
+}    // namespace opendeck::firmware::io::analog
 
 #undef OPENDECK_ANALOG_NATIVE_CHANNEL_ENTRY

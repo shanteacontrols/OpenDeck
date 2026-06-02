@@ -26,7 +26,7 @@
 #error "Matrix output topology requires decoder GPIOs or column GPIOs."
 #endif
 
-namespace opendeck::io::outputs
+namespace opendeck::firmware::io::outputs
 {
     /**
      * @brief Matrix output driver with native row GPIOs.
@@ -181,7 +181,7 @@ namespace opendeck::io::outputs
             }
         }
     };
-}    // namespace opendeck::io::outputs
+}    // namespace opendeck::firmware::io::outputs
 
 #undef OPENDECK_OUTPUT_MATRIX_COLUMN_COUNT
 #undef OPENDECK_OUTPUT_MATRIX_HAS_DECODER

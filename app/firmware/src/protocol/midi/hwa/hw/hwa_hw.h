@@ -49,7 +49,7 @@ extern "C"
 #include <span>
 #include <cerrno>
 
-namespace opendeck::protocol::midi
+namespace opendeck::firmware::protocol::midi
 {
 #define OPENDECK_TRANSPORTS_NODE DT_NODELABEL(opendeck_transports)
 
@@ -796,4 +796,4 @@ namespace opendeck::protocol::midi
         bool                                                              _drop_logged           = false;
     };
 #endif
-}    // namespace opendeck::protocol::midi
+}    // namespace opendeck::firmware::protocol::midi

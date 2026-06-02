@@ -8,7 +8,7 @@
 #include <array>
 #include <cstdint>
 
-namespace opendeck::io::digital
+namespace opendeck::firmware::io::digital
 {
     /**
      * @brief Identifies which physical pin of an encoder is being addressed.
@@ -23,4 +23,4 @@ namespace opendeck::io::digital
      * @brief Frame of sampled digital input states, indexed by flattened input index.
      */
     using Frame = std::array<bool, CONFIG_PROJECT_TARGET_DIGITAL_INPUT_COUNT>;
-}    // namespace opendeck::io::digital
+}    // namespace opendeck::firmware::io::digital

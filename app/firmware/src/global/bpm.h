@@ -8,7 +8,7 @@
 #include "firmware/src/util/incdec/inc_dec.h"
 #include "firmware/src/signaling/signaling.h"
 
-namespace opendeck::global
+namespace opendeck::firmware::global
 {
     /** @brief Number of microseconds in one minute. */
     constexpr inline uint32_t USEC_PER_MINUTE = 60000000;
@@ -127,6 +127,6 @@ namespace opendeck::global
             opendeck::firmware::signaling::publish(signal);
         }
     };
-}    // namespace opendeck::global
+}    // namespace opendeck::firmware::global
 
 #define Bpm global::Bpm::instance()

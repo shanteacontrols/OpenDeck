@@ -16,7 +16,7 @@
 #include "firmware/src/io/indicators/builder/builder.h"
 #include "firmware/src/io/outputs/builder/builder.h"
 
-namespace opendeck::sys
+namespace opendeck::firmware::sys
 {
     static_assert(IS_ENABLED(CONFIG_PROJECT_TARGET_SUPPORT_CONFIG_INTERFACE),
                   "At least one OpenDeck configuration interface must be enabled.");
@@ -38,4 +38,4 @@ namespace opendeck::sys
         HwaHw  _hwa;
         System _instance = System(_hwa);
     };
-}    // namespace opendeck::sys
+}    // namespace opendeck::firmware::sys

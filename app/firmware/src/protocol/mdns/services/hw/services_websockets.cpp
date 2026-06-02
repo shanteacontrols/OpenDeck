@@ -11,7 +11,7 @@
 #include <zephyr/net/dns_sd.h>
 #include <zephyr/net/hostname.h>
 
-using namespace opendeck::protocol::mdns;
+using namespace opendeck::firmware::protocol::mdns;
 
 namespace
 {
@@ -20,10 +20,10 @@ namespace
 
     DNS_SD_REGISTER_SERVICE(opendeck_websockets,
                             websockets_instance,
-                            opendeck::protocol::mdns::WEBSOCKETS_SERVICE.data(),
+                            opendeck::firmware::protocol::mdns::WEBSOCKETS_SERVICE.data(),
                             opendeck::common::protocols::mdns::TCP_PROTOCOL.data(),
                             opendeck::common::protocols::mdns::LOCAL_DOMAIN.data(),
-                            opendeck::protocol::mdns::WEBSOCKETS_TXT,
+                            opendeck::firmware::protocol::mdns::WEBSOCKETS_TXT,
                             &websockets_port);
 }    // namespace
 

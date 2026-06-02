@@ -7,7 +7,7 @@
 
 #include "firmware/src/io/shared/common.h"
 
-namespace opendeck::io::touchscreen
+namespace opendeck::firmware::io::touchscreen
 {
     /**
      * @brief Flattened collection of touchscreen components.
@@ -164,4 +164,4 @@ namespace opendeck::io::touchscreen
         static inline uint8_t rx_buffer[BUFFER_SIZE] = {};
         static inline size_t  buffer_count           = 0;
     };
-}    // namespace opendeck::io::touchscreen
+}    // namespace opendeck::firmware::io::touchscreen

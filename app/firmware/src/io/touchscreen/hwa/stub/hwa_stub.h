@@ -7,7 +7,7 @@
 
 #include "firmware/src/io/touchscreen/shared/deps.h"
 
-namespace opendeck::io::touchscreen
+namespace opendeck::firmware::io::touchscreen
 {
     /**
      * @brief Stub touchscreen backend that reports no hardware support.
@@ -71,4 +71,4 @@ namespace opendeck::io::touchscreen
             return false;
         }
     };
-}    // namespace opendeck::io::touchscreen
+}    // namespace opendeck::firmware::io::touchscreen

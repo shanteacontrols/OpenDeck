@@ -13,7 +13,7 @@
 
 #include <optional>
 
-namespace opendeck::io::analog
+namespace opendeck::firmware::io::analog
 {
     using Database = database::User<database::Config::Section::Analog>;
 
@@ -94,4 +94,4 @@ namespace opendeck::io::analog
          */
         virtual void reset(size_t index) = 0;
     };
-}    // namespace opendeck::io::analog
+}    // namespace opendeck::firmware::io::analog

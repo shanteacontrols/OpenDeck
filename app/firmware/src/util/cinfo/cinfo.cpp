@@ -10,8 +10,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
-using namespace opendeck;
-using namespace opendeck::util;
+using namespace opendeck::firmware::util;
 using namespace opendeck::firmware;
 
 namespace

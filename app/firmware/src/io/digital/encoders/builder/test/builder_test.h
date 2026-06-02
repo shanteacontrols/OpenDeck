@@ -11,7 +11,7 @@
 #include "firmware/src/io/digital/switches/shared/deps.h"
 #include "firmware/src/database/builder/test/builder_test.h"
 
-namespace opendeck::io::encoders
+namespace opendeck::firmware::io::encoders
 {
     /**
      * @brief Test builder that wires the encoder subsystem to test backends.
@@ -55,4 +55,4 @@ namespace opendeck::io::encoders
         Database   _database;
         Encoders   _instance;
     };
-}    // namespace opendeck::io::encoders
+}    // namespace opendeck::firmware::io::encoders

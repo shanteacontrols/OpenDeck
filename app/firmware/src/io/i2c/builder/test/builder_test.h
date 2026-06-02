@@ -10,7 +10,7 @@
 #include "firmware/src/io/i2c/peripherals/builder/builder.h"
 #include "firmware/src/database/builder/test/builder_test.h"
 
-namespace opendeck::io::i2c
+namespace opendeck::firmware::io::i2c
 {
     /**
      * @brief Test builder that exposes the I2C subsystem with a test backend.
@@ -44,4 +44,4 @@ namespace opendeck::io::i2c
         BuilderPeripherals _peripherals;
         I2c                _instance;
     };
-}    // namespace opendeck::io::i2c
+}    // namespace opendeck::firmware::io::i2c

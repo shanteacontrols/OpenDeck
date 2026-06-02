@@ -8,7 +8,7 @@
 #include "firmware/src/protocol/mdns/services/hw/services_hw.h"
 #include "firmware/src/protocol/mdns/shared/deps.h"
 
-namespace opendeck::protocol::mdns
+namespace opendeck::firmware::protocol::mdns
 {
     /**
      * @brief DNS-SD service provider for the WebSockets endpoint.
@@ -28,4 +28,4 @@ namespace opendeck::protocol::mdns
          */
         opendeck::common::protocols::mdns::Service service() override;
     };
-}    // namespace opendeck::protocol::mdns
+}    // namespace opendeck::firmware::protocol::mdns

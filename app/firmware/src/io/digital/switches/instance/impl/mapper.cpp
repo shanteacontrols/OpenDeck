@@ -9,45 +9,45 @@
 #include "firmware/src/util/incdec/inc_dec.h"
 #include "firmware/src/util/conversion/conversion.h"
 
-using namespace opendeck::io::switches;
-using namespace opendeck::protocol;
+using namespace opendeck::firmware::io::switches;
+using namespace opendeck::firmware::protocol;
 using namespace opendeck::firmware;
 
 namespace
 {
-    using ValueIncDecMidi7Bit = opendeck::util::IncDec<uint8_t, 0, opendeck::protocol::midi::MAX_VALUE_7BIT>;
+    using ValueIncDecMidi7Bit = opendeck::firmware::util::IncDec<uint8_t, 0, opendeck::firmware::protocol::midi::MAX_VALUE_7BIT>;
 
-    constexpr std::array<opendeck::protocol::midi::MessageType, static_cast<uint8_t>(MessageType::Count)> INTERNAL_MSG_TO_MIDI_TYPE = {
-        opendeck::protocol::midi::MessageType::NoteOn,                      // Note
-        opendeck::protocol::midi::MessageType::ProgramChange,               // ProgramChange
-        opendeck::protocol::midi::MessageType::ControlChange,               // ControlChange
-        opendeck::protocol::midi::MessageType::ControlChange,               // ControlChangeReset
-        opendeck::protocol::midi::MessageType::MmcStop,                     // MmcStop
-        opendeck::protocol::midi::MessageType::MmcPlay,                     // MmcPlay
-        opendeck::protocol::midi::MessageType::MmcRecordStart,              // MmcRecord
-        opendeck::protocol::midi::MessageType::MmcPause,                    // MmcPause
-        opendeck::protocol::midi::MessageType::SysRealTimeClock,            // RealTimeClock
-        opendeck::protocol::midi::MessageType::SysRealTimeStart,            // RealTimeStart
-        opendeck::protocol::midi::MessageType::SysRealTimeContinue,         // RealTimeContinue
-        opendeck::protocol::midi::MessageType::SysRealTimeStop,             // RealTimeStop
-        opendeck::protocol::midi::MessageType::SysRealTimeActiveSensing,    // RealTimeActiveSensing
-        opendeck::protocol::midi::MessageType::SysRealTimeSystemReset,      // RealTimeSystemReset
-        opendeck::protocol::midi::MessageType::ProgramChange,               // ProgramChangeInc
-        opendeck::protocol::midi::MessageType::ProgramChange,               // ProgramChangeDec
-        opendeck::protocol::midi::MessageType::Invalid,                     // None
-        opendeck::protocol::midi::MessageType::Invalid,                     // PresetChange
-        opendeck::protocol::midi::MessageType::NoteOn,                      // MultiValIncResetNote
-        opendeck::protocol::midi::MessageType::NoteOn,                      // MultiValIncDecNote
-        opendeck::protocol::midi::MessageType::ControlChange,               // MultiValIncResetCc
-        opendeck::protocol::midi::MessageType::ControlChange,               // MultiValIncDecCc
-        opendeck::protocol::midi::MessageType::NoteOn,                      // NoteOffOnly
-        opendeck::protocol::midi::MessageType::ControlChange,               // ControlChange0Only
-        opendeck::protocol::midi::MessageType::Invalid,                     // Reserved
-        opendeck::protocol::midi::MessageType::Invalid,                     // ProgramChangeOffsetInc
-        opendeck::protocol::midi::MessageType::Invalid,                     // ProgramChangeOffsetDec
-        opendeck::protocol::midi::MessageType::Invalid,                     // BpmInc
-        opendeck::protocol::midi::MessageType::Invalid,                     // BpmDec
-        opendeck::protocol::midi::MessageType::MmcPlay,                     // MmcPlayStop
+    constexpr std::array<opendeck::firmware::protocol::midi::MessageType, static_cast<uint8_t>(MessageType::Count)> INTERNAL_MSG_TO_MIDI_TYPE = {
+        opendeck::firmware::protocol::midi::MessageType::NoteOn,                      // Note
+        opendeck::firmware::protocol::midi::MessageType::ProgramChange,               // ProgramChange
+        opendeck::firmware::protocol::midi::MessageType::ControlChange,               // ControlChange
+        opendeck::firmware::protocol::midi::MessageType::ControlChange,               // ControlChangeReset
+        opendeck::firmware::protocol::midi::MessageType::MmcStop,                     // MmcStop
+        opendeck::firmware::protocol::midi::MessageType::MmcPlay,                     // MmcPlay
+        opendeck::firmware::protocol::midi::MessageType::MmcRecordStart,              // MmcRecord
+        opendeck::firmware::protocol::midi::MessageType::MmcPause,                    // MmcPause
+        opendeck::firmware::protocol::midi::MessageType::SysRealTimeClock,            // RealTimeClock
+        opendeck::firmware::protocol::midi::MessageType::SysRealTimeStart,            // RealTimeStart
+        opendeck::firmware::protocol::midi::MessageType::SysRealTimeContinue,         // RealTimeContinue
+        opendeck::firmware::protocol::midi::MessageType::SysRealTimeStop,             // RealTimeStop
+        opendeck::firmware::protocol::midi::MessageType::SysRealTimeActiveSensing,    // RealTimeActiveSensing
+        opendeck::firmware::protocol::midi::MessageType::SysRealTimeSystemReset,      // RealTimeSystemReset
+        opendeck::firmware::protocol::midi::MessageType::ProgramChange,               // ProgramChangeInc
+        opendeck::firmware::protocol::midi::MessageType::ProgramChange,               // ProgramChangeDec
+        opendeck::firmware::protocol::midi::MessageType::Invalid,                     // None
+        opendeck::firmware::protocol::midi::MessageType::Invalid,                     // PresetChange
+        opendeck::firmware::protocol::midi::MessageType::NoteOn,                      // MultiValIncResetNote
+        opendeck::firmware::protocol::midi::MessageType::NoteOn,                      // MultiValIncDecNote
+        opendeck::firmware::protocol::midi::MessageType::ControlChange,               // MultiValIncResetCc
+        opendeck::firmware::protocol::midi::MessageType::ControlChange,               // MultiValIncDecCc
+        opendeck::firmware::protocol::midi::MessageType::NoteOn,                      // NoteOffOnly
+        opendeck::firmware::protocol::midi::MessageType::ControlChange,               // ControlChange0Only
+        opendeck::firmware::protocol::midi::MessageType::Invalid,                     // Reserved
+        opendeck::firmware::protocol::midi::MessageType::Invalid,                     // ProgramChangeOffsetInc
+        opendeck::firmware::protocol::midi::MessageType::Invalid,                     // ProgramChangeOffsetDec
+        opendeck::firmware::protocol::midi::MessageType::Invalid,                     // BpmInc
+        opendeck::firmware::protocol::midi::MessageType::Invalid,                     // BpmDec
+        opendeck::firmware::protocol::midi::MessageType::MmcPlay,                     // MmcPlayStop
     };
 
 }    // namespace

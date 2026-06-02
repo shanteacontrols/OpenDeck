@@ -14,7 +14,7 @@
 #include <initializer_list>
 #include <vector>
 
-namespace opendeck::io::i2c
+namespace opendeck::firmware::io::i2c
 {
     /**
      * @brief Test I2C backend with optional register-map behavior.
@@ -253,4 +253,4 @@ namespace opendeck::io::i2c
         bool                     fifo_enabled                            = false;
         bool                     clear_register_after_fifo_read          = false;
     };
-}    // namespace opendeck::io::i2c
+}    // namespace opendeck::firmware::io::i2c

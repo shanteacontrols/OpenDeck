@@ -7,11 +7,11 @@
 
 #include <zephyr/kernel.h>
 
-using namespace opendeck;
+using namespace opendeck::bootloader;
 
 namespace
 {
-    bootloader::system::Builder system_builder;
+    system::Builder system_builder;
 }    // namespace
 
 int main()

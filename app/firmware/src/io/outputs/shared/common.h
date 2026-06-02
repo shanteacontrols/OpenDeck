@@ -7,7 +7,7 @@
 
 #include "firmware/src/io/shared/common.h"
 
-namespace opendeck::io::outputs
+namespace opendeck::firmware::io::outputs
 {
     /**
      * @brief Flattened collection of physical outputs and touchscreen components.
@@ -87,4 +87,4 @@ namespace opendeck::io::outputs
 
     /** @brief Maximum logical output level, expressed as percent. */
     constexpr uint8_t OUTPUT_LEVEL_MAX = 100;
-}    // namespace opendeck::io::outputs
+}    // namespace opendeck::firmware::io::outputs

@@ -21,8 +21,7 @@
 #include <cstdint>
 #include <optional>
 
-using namespace opendeck::protocol::osc;
-using namespace opendeck;
+using namespace opendeck::firmware::protocol::osc;
 using namespace opendeck::firmware;
 
 namespace zmisc = zlibs::utils::misc;

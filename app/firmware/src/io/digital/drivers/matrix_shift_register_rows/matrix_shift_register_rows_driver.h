@@ -9,7 +9,7 @@
 
 #include <zephyr/drivers/gpio.h>
 
-namespace opendeck::io::digital::drivers
+namespace opendeck::firmware::io::digital::drivers
 {
     /**
      * @brief Digital input driver for matrices that read rows through a shift register.
@@ -202,4 +202,4 @@ namespace opendeck::io::digital::drivers
             return frame;
         }
     };
-}    // namespace opendeck::io::digital::drivers
+}    // namespace opendeck::firmware::io::digital::drivers

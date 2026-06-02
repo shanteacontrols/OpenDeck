@@ -12,7 +12,7 @@
 
 #include <atomic>
 
-namespace opendeck::io
+namespace opendeck::firmware::io
 {
     /**
      * @brief Identifies a top-level I/O subsystem.
@@ -136,4 +136,4 @@ namespace opendeck::io
         static inline struct k_sem      resume_semaphore = {};
         static inline std::atomic<bool> frozen           = true;
     };
-}    // namespace opendeck::io
+}    // namespace opendeck::firmware::io

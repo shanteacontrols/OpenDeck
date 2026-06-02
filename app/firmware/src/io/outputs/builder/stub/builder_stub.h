@@ -9,7 +9,7 @@
 #include "firmware/src/io/outputs/hwa/stub/hwa_stub.h"
 #include "firmware/src/database/builder/builder.h"
 
-namespace opendeck::io::outputs
+namespace opendeck::firmware::io::outputs
 {
     /**
      * @brief Stub builder that wires the output subsystem to a no-op backend.
@@ -42,4 +42,4 @@ namespace opendeck::io::outputs
         Database _database;
         Outputs  _instance;
     };
-}    // namespace opendeck::io::outputs
+}    // namespace opendeck::firmware::io::outputs

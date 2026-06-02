@@ -7,7 +7,7 @@
 
 #include <zephyr/logging/log.h>
 
-using namespace opendeck;
+using namespace opendeck::firmware;
 
 namespace
 {

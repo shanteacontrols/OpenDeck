@@ -9,7 +9,7 @@
 
 #include <gmock/gmock.h>
 
-namespace opendeck::io::switches
+namespace opendeck::firmware::io::switches
 {
     /**
      * @brief Test switch backend with mockable state access.
@@ -35,4 +35,4 @@ namespace opendeck::io::switches
             return index / 2;
         }
     };
-}    // namespace opendeck::io::switches
+}    // namespace opendeck::firmware::io::switches

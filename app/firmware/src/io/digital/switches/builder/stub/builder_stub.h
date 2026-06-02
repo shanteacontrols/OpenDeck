@@ -10,7 +10,7 @@
 #include "firmware/src/io/digital/switches/hwa/stub/hwa_stub.h"
 #include "firmware/src/database/builder/builder.h"
 
-namespace opendeck::io::switches
+namespace opendeck::firmware::io::switches
 {
     /**
      * @brief Stub builder that wires the switch subsystem to no-op backends.
@@ -44,4 +44,4 @@ namespace opendeck::io::switches
         Database   _database;
         Switches   _instance;
     };
-}    // namespace opendeck::io::switches
+}    // namespace opendeck::firmware::io::switches

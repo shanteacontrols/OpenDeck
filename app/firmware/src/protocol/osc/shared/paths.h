@@ -12,7 +12,7 @@
 #include <optional>
 #include <string_view>
 
-namespace opendeck::protocol::osc::paths
+namespace opendeck::firmware::protocol::osc::paths
 {
     namespace misc = zlibs::utils::misc;
 
@@ -90,4 +90,4 @@ namespace opendeck::protocol::osc::paths
 
         return index;
     }
-}    // namespace opendeck::protocol::osc::paths
+}    // namespace opendeck::firmware::protocol::osc::paths

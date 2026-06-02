@@ -9,7 +9,7 @@
 #include "firmware/src/protocol/midi/hwa/stub/hwa_stub.h"
 #include "firmware/src/database/builder/builder.h"
 
-namespace opendeck::protocol::midi
+namespace opendeck::firmware::protocol::midi
 {
     /**
      * @brief Stub builder that exposes a disabled MIDI protocol.
@@ -42,4 +42,4 @@ namespace opendeck::protocol::midi
         private:
         Midi _instance;
     };
-}    // namespace opendeck::protocol::midi
+}    // namespace opendeck::firmware::protocol::midi

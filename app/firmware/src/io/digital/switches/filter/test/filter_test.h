@@ -7,7 +7,7 @@
 
 #include "firmware/src/io/digital/switches/shared/deps.h"
 
-namespace opendeck::io::switches
+namespace opendeck::firmware::io::switches
 {
     /**
      * @brief Test switch filter that accepts every switch reading.
@@ -30,4 +30,4 @@ namespace opendeck::io::switches
             return true;
         }
     };
-}    // namespace opendeck::io::switches
+}    // namespace opendeck::firmware::io::switches

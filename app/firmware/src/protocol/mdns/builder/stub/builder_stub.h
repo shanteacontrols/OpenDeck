@@ -9,7 +9,7 @@
 #include "firmware/src/database/builder/builder.h"
 #include "common/src/mcu/shared/deps.h"
 
-namespace opendeck::protocol::mdns
+namespace opendeck::firmware::protocol::mdns
 {
     /**
      * @brief Convenience builder that wires the disabled mDNS backend.
@@ -48,4 +48,4 @@ namespace opendeck::protocol::mdns
         private:
         Mdns _instance;
     };
-}    // namespace opendeck::protocol::mdns
+}    // namespace opendeck::firmware::protocol::mdns

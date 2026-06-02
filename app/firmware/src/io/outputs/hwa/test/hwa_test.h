@@ -9,7 +9,7 @@
 
 #include <gmock/gmock.h>
 
-namespace opendeck::io::outputs
+namespace opendeck::firmware::io::outputs
 {
     /**
      * @brief Test output backend with mockable state updates.
@@ -21,4 +21,4 @@ namespace opendeck::io::outputs
 
         MOCK_METHOD2(set_level, void(size_t index, uint8_t level));
     };
-}    // namespace opendeck::io::outputs
+}    // namespace opendeck::firmware::io::outputs

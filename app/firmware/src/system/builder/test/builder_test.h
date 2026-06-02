@@ -16,7 +16,7 @@
 #include "firmware/src/io/indicators/builder/builder.h"
 #include "firmware/src/io/outputs/builder/builder.h"
 
-namespace opendeck::sys
+namespace opendeck::firmware::sys
 {
     /**
      * @brief Test-system builder that wires all subsystem test implementations.
@@ -29,4 +29,4 @@ namespace opendeck::sys
         HwaTest _hwa;
         System  _instance = System(_hwa);
     };
-}    // namespace opendeck::sys
+}    // namespace opendeck::firmware::sys

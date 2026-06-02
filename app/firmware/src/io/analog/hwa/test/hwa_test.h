@@ -12,7 +12,7 @@
 #include <atomic>
 #include <deque>
 
-namespace opendeck::io::analog
+namespace opendeck::firmware::io::analog
 {
     /**
      * @brief Test analog hardware adapter backed by an in-memory frame queue.
@@ -117,4 +117,4 @@ namespace opendeck::io::analog
         std::atomic<size_t>               _read_count = { 0 };
         ScanMask                          _scan_mask  = {};
     };
-}    // namespace opendeck::io::analog
+}    // namespace opendeck::firmware::io::analog

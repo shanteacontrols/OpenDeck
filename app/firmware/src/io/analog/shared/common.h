@@ -11,7 +11,7 @@
 #include <array>
 #include <cstdint>
 
-namespace opendeck::io::analog
+namespace opendeck::firmware::io::analog
 {
     /**
      * @brief Frame of raw analog samples, indexed by analog input.
@@ -82,4 +82,4 @@ namespace opendeck::io::analog
         static constexpr uint16_t DIGITAL_VALUE_THRESHOLD_ON  = 3000;
         static constexpr uint16_t DIGITAL_VALUE_THRESHOLD_OFF = 1000;
     };
-}    // namespace opendeck::io::analog
+}    // namespace opendeck::firmware::io::analog

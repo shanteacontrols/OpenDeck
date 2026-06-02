@@ -18,7 +18,7 @@
 
 #include <optional>
 
-namespace opendeck::io::analog
+namespace opendeck::firmware::io::analog
 {
     /**
      * @brief Processes analog input frames, applies filtering, and publishes the configured actions.
@@ -150,4 +150,4 @@ namespace opendeck::io::analog
          */
         std::optional<uint8_t> sys_config_set(sys::Config::Section::Analog section, size_t index, uint16_t value);
     };
-}    // namespace opendeck::io::analog
+}    // namespace opendeck::firmware::io::analog

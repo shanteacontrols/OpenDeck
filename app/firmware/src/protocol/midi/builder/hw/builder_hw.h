@@ -10,7 +10,7 @@
 #include "firmware/src/protocol/midi/hwa/stub/hwa_stub.h"
 #include "firmware/src/database/builder/builder.h"
 
-namespace opendeck::protocol::midi
+namespace opendeck::firmware::protocol::midi
 {
     /**
      * @brief Convenience builder that wires the hardware MIDI subsystem.
@@ -66,4 +66,4 @@ namespace opendeck::protocol::midi
         Database         _database;
         Midi             _instance;
     };
-}    // namespace opendeck::protocol::midi
+}    // namespace opendeck::firmware::protocol::midi

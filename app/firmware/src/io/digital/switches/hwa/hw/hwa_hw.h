@@ -8,7 +8,7 @@
 #include "firmware/src/io/digital/switches/shared/deps.h"
 #include "firmware/src/io/digital/shared/frame_store.h"
 
-namespace opendeck::io::switches
+namespace opendeck::firmware::io::switches
 {
     /**
      * @brief Hardware-backed switch backend that reads state from the shared frame store.
@@ -74,4 +74,4 @@ namespace opendeck::io::switches
         private:
         io::digital::FrameStore& _frame_store;
     };
-}    // namespace opendeck::io::switches
+}    // namespace opendeck::firmware::io::switches

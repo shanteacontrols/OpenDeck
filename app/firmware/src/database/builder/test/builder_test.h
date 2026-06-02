@@ -8,7 +8,7 @@
 #include "firmware/src/database/instance/impl/database.h"
 #include "firmware/src/database/hwa/test/hwa_test.h"
 
-namespace opendeck::database
+namespace opendeck::firmware::database
 {
     /**
      * @brief Test-database builder that owns the test backend and layout.
@@ -31,4 +31,4 @@ namespace opendeck::database
         HwaTest _hwa;
         Admin   _instance = Admin(_hwa);
     };
-}    // namespace opendeck::database
+}    // namespace opendeck::firmware::database

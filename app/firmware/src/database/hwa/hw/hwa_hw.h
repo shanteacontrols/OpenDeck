@@ -35,7 +35,7 @@
                 (DT_PROP(OPENDECK_EMUEEPROM_MEMORY_NODE, write_block_size)), \
                 (DT_PROP_OR(OPENDECK_EMUEEPROM_MTD_NODE, write_block_size, 1)))
 
-namespace opendeck::database
+namespace opendeck::firmware::database
 {
     /**
      * @brief Hardware-backed database storage backend.
@@ -493,7 +493,7 @@ namespace opendeck::database
         EmuEeprom    _emueeprom = EmuEeprom(_hwa_emueeprom);
     };
 
-}    // namespace opendeck::database
+}    // namespace opendeck::firmware::database
 
 #undef OPENDECK_EMUEEPROM_PARTITION_NODE
 #undef OPENDECK_EMUEEPROM_MEMORY_NODE

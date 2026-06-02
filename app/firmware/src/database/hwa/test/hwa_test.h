@@ -17,7 +17,7 @@
 #include <optional>
 #include <span>
 
-namespace opendeck::database
+namespace opendeck::firmware::database
 {
     /**
      * @brief Test database storage backend.
@@ -303,4 +303,4 @@ namespace opendeck::database
         HwaEmuEeprom _hwa_emueeprom;
         EmuEeprom    _emueeprom = EmuEeprom(_hwa_emueeprom);
     };
-}    // namespace opendeck::database
+}    // namespace opendeck::firmware::database

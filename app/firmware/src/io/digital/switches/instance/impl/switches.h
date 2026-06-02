@@ -13,7 +13,7 @@
 
 #include <optional>
 
-namespace opendeck::io::switches
+namespace opendeck::firmware::io::switches
 {
     /**
      * @brief Samples switches, tracks latching state, and publishes the configured actions.
@@ -125,4 +125,4 @@ namespace opendeck::io::switches
          */
         std::optional<uint8_t> sys_config_set(sys::Config::Section::Switch section, size_t index, uint16_t value);
     };
-}    // namespace opendeck::io::switches
+}    // namespace opendeck::firmware::io::switches

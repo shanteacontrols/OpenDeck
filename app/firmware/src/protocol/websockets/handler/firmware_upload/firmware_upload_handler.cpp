@@ -8,7 +8,7 @@
 
 #include <zephyr/logging/log.h>
 
-using namespace opendeck::protocol::websockets::firmware_upload;
+using namespace opendeck::firmware::protocol::websockets::firmware_upload;
 using namespace opendeck::firmware;
 
 namespace

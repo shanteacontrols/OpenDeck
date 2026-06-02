@@ -11,7 +11,7 @@
 
 #include <span>
 
-namespace opendeck::protocol::mdns
+namespace opendeck::firmware::protocol::mdns
 {
     /**
      * @brief Database view used by mDNS for device-wide discovery settings.
@@ -54,4 +54,4 @@ namespace opendeck::protocol::mdns
          */
         virtual std::span<ServiceProvider* const> services() = 0;
     };
-}    // namespace opendeck::protocol::mdns
+}    // namespace opendeck::firmware::protocol::mdns

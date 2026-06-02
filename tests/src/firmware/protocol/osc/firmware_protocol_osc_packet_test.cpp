@@ -12,7 +12,8 @@
 #include <span>
 #include <string_view>
 
-using namespace opendeck::protocol::osc;
+using namespace opendeck;
+using namespace opendeck::firmware::protocol::osc;
 
 namespace
 {

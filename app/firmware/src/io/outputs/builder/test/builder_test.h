@@ -9,7 +9,7 @@
 #include "firmware/src/io/outputs/hwa/test/hwa_test.h"
 #include "firmware/src/database/builder/test/builder_test.h"
 
-namespace opendeck::io::outputs
+namespace opendeck::firmware::io::outputs
 {
     /**
      * @brief Test builder that wires the output subsystem to a test backend.
@@ -41,4 +41,4 @@ namespace opendeck::io::outputs
         Database _database;
         Outputs  _instance;
     };
-}    // namespace opendeck::io::outputs
+}    // namespace opendeck::firmware::io::outputs

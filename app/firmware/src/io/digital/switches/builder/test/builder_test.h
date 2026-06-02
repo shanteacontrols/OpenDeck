@@ -10,7 +10,7 @@
 #include "firmware/src/io/digital/switches/hwa/test/hwa_test.h"
 #include "firmware/src/database/builder/test/builder_test.h"
 
-namespace opendeck::io::switches
+namespace opendeck::firmware::io::switches
 {
     /**
      * @brief Test builder that wires the switch subsystem to test backends.
@@ -43,4 +43,4 @@ namespace opendeck::io::switches
         FilterTest _filter;
         Switches   _instance;
     };
-}    // namespace opendeck::io::switches
+}    // namespace opendeck::firmware::io::switches

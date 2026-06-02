@@ -19,5 +19,4 @@
 #include <cstddef>
 #include <iostream>
 
-using namespace opendeck;
 using namespace ::testing;

@@ -10,7 +10,7 @@
 #include "common/src/protocols/websockets/shared/firmware_upload.h"
 #include "firmware/src/dfu/staged_update_writer/builder/builder.h"
 
-namespace opendeck::protocol::websockets::firmware_upload
+namespace opendeck::firmware::protocol::websockets::firmware_upload
 {
     /**
      * @brief Handles staged firmware upload WebSockets frames.
@@ -38,4 +38,4 @@ namespace opendeck::protocol::websockets::firmware_upload
         opendeck::common::protocols::websockets::FirmwareUpload    _firmware_upload;
         opendeck::common::protocols::websockets::FirmwareUploadAck _response = {};
     };
-}    // namespace opendeck::protocol::websockets::firmware_upload
+}    // namespace opendeck::firmware::protocol::websockets::firmware_upload

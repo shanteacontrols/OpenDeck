@@ -10,7 +10,7 @@
 #include <zephyr/net/http/service.h>
 #include <zephyr/sys/util.h>
 
-using namespace opendeck::protocol::websockets;
+using namespace opendeck::firmware::protocol::websockets;
 
 namespace
 {

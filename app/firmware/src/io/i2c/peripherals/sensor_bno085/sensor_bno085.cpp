@@ -15,7 +15,7 @@
 #include <algorithm>
 #include <cmath>
 
-using namespace opendeck::io::i2c::sensor_bno085;
+using namespace opendeck::firmware::io::i2c::sensor_bno085;
 using namespace opendeck::firmware;
 namespace zmisc = zlibs::utils::misc;
 

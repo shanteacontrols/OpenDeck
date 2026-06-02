@@ -12,7 +12,7 @@
 #include "firmware/src/io/analog/shared/frame_store.h"
 #include "firmware/src/database/builder/builder.h"
 
-namespace opendeck::io::analog
+namespace opendeck::firmware::io::analog
 {
     /**
      * @brief Convenience builder that wires the hardware analog subsystem.
@@ -49,4 +49,4 @@ namespace opendeck::io::analog
         FrameStore _frame_store;
         Analog     _instance;
     };
-}    // namespace opendeck::io::analog
+}    // namespace opendeck::firmware::io::analog

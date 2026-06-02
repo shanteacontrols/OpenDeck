@@ -8,7 +8,7 @@
 #include "firmware/src/io/base.h"
 #include "firmware/src/database/builder/builder.h"
 
-namespace opendeck::io::digital
+namespace opendeck::firmware::io::digital
 {
     /**
      * @brief Stub digital subsystem used when no digital-input backend is enabled.
@@ -61,4 +61,4 @@ namespace opendeck::io::digital
         private:
         DigitalStub _instance;
     };
-}    // namespace opendeck::io::digital
+}    // namespace opendeck::firmware::io::digital

@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <cstdlib>
 
-using namespace opendeck::io::i2c::sensor_apds9960;
+using namespace opendeck::firmware::io::i2c::sensor_apds9960;
 using namespace opendeck::firmware;
 
 namespace zmisc = zlibs::utils::misc;

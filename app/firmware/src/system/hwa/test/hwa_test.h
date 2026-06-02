@@ -22,7 +22,7 @@
 
 #include <array>
 
-namespace opendeck::sys
+namespace opendeck::firmware::sys
 {
     /**
      * @brief Test system backend that accepts initialization and ignores reboot requests.
@@ -107,4 +107,4 @@ namespace opendeck::sys
             &_builder_mdns.instance(),
         };
     };
-}    // namespace opendeck::sys
+}    // namespace opendeck::firmware::sys

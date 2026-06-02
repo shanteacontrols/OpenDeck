@@ -5,9 +5,9 @@
 
 #include "bootloader/src/io/indicators/instance/impl/indicators.h"
 
-using namespace opendeck;
+using namespace opendeck::bootloader;
 
-bootloader::io::indicators::Indicators::Indicators(Hwa& hwa)
+io::indicators::Indicators::Indicators(Hwa& hwa)
     : _hwa(hwa)
     , _blink_work([this]()
                   {
@@ -21,7 +21,7 @@ bootloader::io::indicators::Indicators::Indicators(Hwa& hwa)
         });
 }
 
-bool bootloader::io::indicators::Indicators::init()
+bool io::indicators::Indicators::init()
 {
     if (_configured)
     {
@@ -40,7 +40,7 @@ bool bootloader::io::indicators::Indicators::init()
     return _configured;
 }
 
-void bootloader::io::indicators::Indicators::start_blinking_all()
+void io::indicators::Indicators::start_blinking_all()
 {
     if (!_configured)
     {
@@ -52,7 +52,7 @@ void bootloader::io::indicators::Indicators::start_blinking_all()
     _blink_work.reschedule(0);
 }
 
-void bootloader::io::indicators::Indicators::blink()
+void io::indicators::Indicators::blink()
 {
     _blink_on = !_blink_on;
     _blink_on ? _hwa.on() : _hwa.off();

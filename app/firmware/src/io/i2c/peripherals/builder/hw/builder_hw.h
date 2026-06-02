@@ -13,7 +13,7 @@
 #endif
 #include "firmware/src/database/instance/impl/database.h"
 
-namespace opendeck::io::i2c
+namespace opendeck::firmware::io::i2c
 {
     /**
      * @brief Builder that instantiates the I2C peripheral set.
@@ -55,4 +55,4 @@ namespace opendeck::io::i2c
         display::Database _display_database;
         display::Display  _display;
     };
-}    // namespace opendeck::io::i2c
+}    // namespace opendeck::firmware::io::i2c

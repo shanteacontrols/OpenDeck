@@ -30,8 +30,7 @@
 
 #include <atomic>
 
-using namespace opendeck::io;
-using namespace opendeck::protocol;
+using namespace opendeck;
 using namespace opendeck::firmware;
 
 namespace
@@ -693,12 +692,12 @@ TEST_F(SystemTest, ConfigurationSessionTimesOutAfterInactivity)
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_TRAFFIC_INDICATORS
 TEST_F(SystemTest, IndicatorsInvertWhileConfigurationSessionIsOpen)
 {
-    opendeck::common::io::indicators::HwaTest hwa;
-    io::indicators::Indicators                indicators(hwa);
+    common::io::indicators::HwaTest hwa;
+    io::indicators::Indicators      indicators(hwa);
 
     ASSERT_TRUE(indicators.init());
-    ASSERT_FALSE(hwa.is_on(opendeck::common::io::indicators::Type::UsbIn));
-    ASSERT_FALSE(hwa.is_on(opendeck::common::io::indicators::Type::UsbOut));
+    ASSERT_FALSE(hwa.is_on(common::io::indicators::Type::UsbIn));
+    ASSERT_FALSE(hwa.is_on(common::io::indicators::Type::UsbOut));
 
     signaling::SystemSignal open_signal = {};
     open_signal.system_event            = signaling::SystemEvent::ConfigurationSessionOpened;
@@ -707,8 +706,8 @@ TEST_F(SystemTest, IndicatorsInvertWhileConfigurationSessionIsOpen)
     ASSERT_TRUE(tests::wait_until(
         [&]()
         {
-            return hwa.is_on(opendeck::common::io::indicators::Type::UsbIn) &&
-                   hwa.is_on(opendeck::common::io::indicators::Type::UsbOut);
+            return hwa.is_on(common::io::indicators::Type::UsbIn) &&
+                   hwa.is_on(common::io::indicators::Type::UsbOut);
         }));
 
     signaling::TrafficSignal traffic_signal = {};
@@ -719,11 +718,11 @@ TEST_F(SystemTest, IndicatorsInvertWhileConfigurationSessionIsOpen)
     ASSERT_TRUE(tests::wait_until(
         [&]()
         {
-            return !hwa.is_on(opendeck::common::io::indicators::Type::UsbIn);
+            return !hwa.is_on(common::io::indicators::Type::UsbIn);
         }));
 
     k_msleep(io::indicators::TRAFFIC_INDICATOR_TIMEOUT_MS + 20);
-    ASSERT_TRUE(hwa.is_on(opendeck::common::io::indicators::Type::UsbIn));
+    ASSERT_TRUE(hwa.is_on(common::io::indicators::Type::UsbIn));
 
     signaling::SystemSignal close_signal = {};
     close_signal.system_event            = signaling::SystemEvent::ConfigurationSessionClosed;
@@ -732,8 +731,8 @@ TEST_F(SystemTest, IndicatorsInvertWhileConfigurationSessionIsOpen)
     ASSERT_TRUE(tests::wait_until(
         [&]()
         {
-            return !hwa.is_on(opendeck::common::io::indicators::Type::UsbIn) &&
-                   !hwa.is_on(opendeck::common::io::indicators::Type::UsbOut);
+            return !hwa.is_on(common::io::indicators::Type::UsbIn) &&
+                   !hwa.is_on(common::io::indicators::Type::UsbOut);
         }));
 }
 #endif
@@ -984,7 +983,7 @@ TEST_F(SystemTest, UsbThruDin)
     event.channel               = 1;
     event.index                 = 0;
     event.value                 = 127;
-    event.message               = midi::MessageType::ControlChange;
+    event.message               = protocol::midi::MessageType::ControlChange;
 
     _helper.process_incoming(event);
 

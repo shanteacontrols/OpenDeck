@@ -26,7 +26,6 @@
 #include <vector>
 
 using namespace opendeck;
-using namespace opendeck::protocol;
 using namespace opendeck::firmware;
 
 namespace
@@ -53,7 +52,7 @@ namespace
         return address;
     }
 
-    std::span<const uint8_t> packet_span(const osc::PacketBuffer& packet, size_t size)
+    std::span<const uint8_t> packet_span(const protocol::osc::PacketBuffer& packet, size_t size)
     {
         return std::span<const uint8_t>(packet.data(), size);
     }
@@ -108,17 +107,17 @@ namespace
 
         void configure_osc()
         {
-            ASSERT_TRUE(set_osc_setting(osc::Setting::Enable, 1));
-            ASSERT_TRUE(set_osc_setting(osc::Setting::DestIpv4Octet0, DEST_OCTET_0));
-            ASSERT_TRUE(set_osc_setting(osc::Setting::DestIpv4Octet1, DEST_OCTET_1));
-            ASSERT_TRUE(set_osc_setting(osc::Setting::DestIpv4Octet2, DEST_OCTET_2));
-            ASSERT_TRUE(set_osc_setting(osc::Setting::DestIpv4Octet3, DEST_OCTET_3));
-            ASSERT_TRUE(set_osc_setting(osc::Setting::DestPort, DEST_PORT));
-            ASSERT_TRUE(set_osc_setting(osc::Setting::ListenPort, LISTEN_PORT));
-            ASSERT_TRUE(set_osc_setting(osc::Setting::RestrictIncomingToDestIp, 0));
+            ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::Enable, 1));
+            ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::DestIpv4Octet0, DEST_OCTET_0));
+            ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::DestIpv4Octet1, DEST_OCTET_1));
+            ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::DestIpv4Octet2, DEST_OCTET_2));
+            ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::DestIpv4Octet3, DEST_OCTET_3));
+            ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::DestPort, DEST_PORT));
+            ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::ListenPort, LISTEN_PORT));
+            ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::RestrictIncomingToDestIp, 0));
         }
 
-        bool set_osc_setting(osc::Setting setting, uint16_t value)
+        bool set_osc_setting(protocol::osc::Setting setting, uint16_t value)
         {
             return _database_admin.update(database::Config::Section::Global::OscSettings, setting, value);
         }
@@ -168,9 +167,9 @@ namespace
         tests::NoOpDatabaseHandlers _handlers;
         database::Builder           _database_builder;
         database::Admin&            _database_admin = _database_builder.instance();
-        osc::HwaTest                _hwa;
-        osc::Database               _database = osc::Database(_database_admin);
-        osc::Osc                    _osc      = osc::Osc(_hwa, _database);
+        protocol::osc::HwaTest      _hwa;
+        protocol::osc::Database     _database = protocol::osc::Database(_database_admin);
+        protocol::osc::Osc          _osc      = protocol::osc::Osc(_hwa, _database);
     };
 }    // namespace
 
@@ -184,16 +183,16 @@ TEST_F(OscProtocolTest, SendsDiscoveryAnnouncementOnInit)
     const auto sent = _hwa.sent_packets();
     ASSERT_GE(sent.size(), 1U);
 
-    const auto message = osc::parse_message(sent.front().data);
+    const auto message = protocol::osc::parse_message(sent.front().data);
     ASSERT_TRUE(message);
 
-    EXPECT_EQ(message->address(), osc::paths::DEVICE_INFO.c_str());
+    EXPECT_EQ(message->address(), protocol::osc::paths::DEVICE_INFO.c_str());
     EXPECT_EQ(message->type_tags(), ",sssiss");
-    EXPECT_EQ(*message->arg<osc::OscString>(0), "opendeck");
-    EXPECT_EQ(*message->arg<osc::OscString>(1), OPENDECK_TARGET);
-    EXPECT_EQ(*message->arg<osc::OscInt32>(3), LISTEN_PORT);
-    EXPECT_EQ(*message->arg<osc::OscString>(4), "opendeck-test.local");
-    EXPECT_EQ(*message->arg<osc::OscString>(5), "192.168.1.112");
+    EXPECT_EQ(*message->arg<protocol::osc::OscString>(0), "opendeck");
+    EXPECT_EQ(*message->arg<protocol::osc::OscString>(1), OPENDECK_TARGET);
+    EXPECT_EQ(*message->arg<protocol::osc::OscInt32>(3), LISTEN_PORT);
+    EXPECT_EQ(*message->arg<protocol::osc::OscString>(4), "opendeck-test.local");
+    EXPECT_EQ(*message->arg<protocol::osc::OscString>(5), "192.168.1.112");
 
     EXPECT_EQ(sys_be16_to_cpu(sent.front().dest.sin_port), DEST_PORT);
 }
@@ -218,12 +217,12 @@ TEST_F(OscProtocolTest, SendsDiscoveryAnnouncementWhenNetworkIdentityArrives)
     const auto sent = _hwa.sent_packets();
     ASSERT_EQ(sent.size(), 1U);
 
-    const auto message = osc::parse_message(sent.front().data);
+    const auto message = protocol::osc::parse_message(sent.front().data);
     ASSERT_TRUE(message);
 
-    EXPECT_EQ(message->address(), osc::paths::DEVICE_INFO.c_str());
-    EXPECT_EQ(*message->arg<osc::OscString>(4), "opendeck-test.local");
-    EXPECT_EQ(*message->arg<osc::OscString>(5), "192.168.1.112");
+    EXPECT_EQ(message->address(), protocol::osc::paths::DEVICE_INFO.c_str());
+    EXPECT_EQ(*message->arg<protocol::osc::OscString>(4), "opendeck-test.local");
+    EXPECT_EQ(*message->arg<protocol::osc::OscString>(5), "192.168.1.112");
 }
 
 TEST_F(OscProtocolTest, SkipsDiscoveryAnnouncementWhenNetworkIdentityHasNoIpText)
@@ -258,12 +257,12 @@ TEST_F(OscProtocolTest, SendsInputAfterLateNetworkIdentity)
     const auto sent = _hwa.sent_packets();
     ASSERT_EQ(sent.size(), 1U);
 
-    const auto message = osc::parse_message(sent.front().data);
+    const auto message = protocol::osc::parse_message(sent.front().data);
     ASSERT_TRUE(message);
 
     EXPECT_EQ(message->address(), "/opendeck/analog/3");
     EXPECT_EQ(message->type_tags(), ",f");
-    EXPECT_FLOAT_EQ(*message->arg<osc::OscFloat32>(0), 0.5F);
+    EXPECT_FLOAT_EQ(*message->arg<protocol::osc::OscFloat32>(0), 0.5F);
 }
 
 TEST_F(OscProtocolTest, SendsRawAnalogInputAsNormalizedFloatOscPacket)
@@ -286,26 +285,26 @@ TEST_F(OscProtocolTest, SendsRawAnalogInputAsNormalizedFloatOscPacket)
     const auto sent = _hwa.sent_packets();
     ASSERT_EQ(sent.size(), 1U);
 
-    const auto message = osc::parse_message(sent.front().data);
+    const auto message = protocol::osc::parse_message(sent.front().data);
     ASSERT_TRUE(message);
 
     EXPECT_EQ(message->address(), "/opendeck/analog/3");
     EXPECT_EQ(message->type_tags(), ",f");
-    EXPECT_FLOAT_EQ(*message->arg<osc::OscFloat32>(0), 1.0F);
+    EXPECT_FLOAT_EQ(*message->arg<protocol::osc::OscFloat32>(0), 1.0F);
 }
 
 TEST_F(OscProtocolTest, ReceivesOutputCommand)
 {
     publish_network_identity();
 
-    RawIoCollector    collector;
-    osc::PacketBuffer packet = {};
-    const auto        size   = osc::make_packet(packet,
-                                                osc::OscIndexedAddress{
-                                                    .prefix = osc::paths::OUTPUT.c_str(),
-                                                    .index  = 5,
-                                                },
-                                                osc::OscInt32{ 64 });
+    RawIoCollector              collector;
+    protocol::osc::PacketBuffer packet = {};
+    const auto                  size   = protocol::osc::make_packet(packet,
+                                                                    protocol::osc::OscIndexedAddress{
+                                                                        .prefix = protocol::osc::paths::OUTPUT.c_str(),
+                                                                        .index  = 5,
+                                                                    },
+                                                                    protocol::osc::OscInt32{ 64 });
 
     ASSERT_TRUE(size);
     _hwa.push_received(packet_span(packet, *size), endpoint(192, 168, 1, 10, 50000));
@@ -327,8 +326,8 @@ TEST_F(OscProtocolTest, DiscoveryResponseUsesConfiguredDestinationPort)
 {
     publish_network_identity();
 
-    osc::PacketBuffer packet = {};
-    const auto        size   = osc::make_packet(packet, osc::paths::DISCOVERY.c_str());
+    protocol::osc::PacketBuffer packet = {};
+    const auto                  size   = protocol::osc::make_packet(packet, protocol::osc::paths::DISCOVERY.c_str());
     ASSERT_TRUE(size);
 
     _hwa.push_received(packet_span(packet, *size), endpoint(192, 168, 1, 77, 54321));
@@ -341,9 +340,9 @@ TEST_F(OscProtocolTest, DiscoveryResponseUsesConfiguredDestinationPort)
 
     for (const auto& sent_packet : sent)
     {
-        const auto message = osc::parse_message(sent_packet.data);
+        const auto message = protocol::osc::parse_message(sent_packet.data);
 
-        if (!message || (message->address() != osc::paths::DEVICE_INFO.c_str()))
+        if (!message || (message->address() != protocol::osc::paths::DEVICE_INFO.c_str()))
         {
             continue;
         }
@@ -356,9 +355,9 @@ TEST_F(OscProtocolTest, DiscoveryResponseUsesConfiguredDestinationPort)
         found_response = true;
         EXPECT_EQ(sys_be16_to_cpu(sent_packet.dest.sin_port), DEST_PORT);
         EXPECT_EQ(message->type_tags(), ",sssiss");
-        EXPECT_EQ(*message->arg<osc::OscInt32>(3), LISTEN_PORT);
-        EXPECT_EQ(*message->arg<osc::OscString>(4), "opendeck-test.local");
-        EXPECT_EQ(*message->arg<osc::OscString>(5), "192.168.1.112");
+        EXPECT_EQ(*message->arg<protocol::osc::OscInt32>(3), LISTEN_PORT);
+        EXPECT_EQ(*message->arg<protocol::osc::OscString>(4), "opendeck-test.local");
+        EXPECT_EQ(*message->arg<protocol::osc::OscString>(5), "192.168.1.112");
     }
 
     EXPECT_TRUE(found_response);
@@ -379,8 +378,8 @@ TEST_F(OscProtocolTest, ReceivesRefreshCommand)
             }
         });
 
-    osc::PacketBuffer packet = {};
-    const auto        size   = osc::make_packet(packet, osc::paths::REFRESH_REQ.c_str());
+    protocol::osc::PacketBuffer packet = {};
+    const auto                  size   = protocol::osc::make_packet(packet, protocol::osc::paths::REFRESH_REQ.c_str());
     ASSERT_TRUE(size);
 
     _hwa.push_received(packet_span(packet, *size), endpoint(192, 168, 1, 10, 50000));
@@ -399,16 +398,16 @@ TEST_F(OscProtocolTest, RestrictsIncomingPacketsToConfiguredDestinationIp)
 {
     publish_network_identity();
 
-    ASSERT_TRUE(set_osc_setting(osc::Setting::RestrictIncomingToDestIp, 1));
+    ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::RestrictIncomingToDestIp, 1));
 
-    RawIoCollector    collector;
-    osc::PacketBuffer packet = {};
-    const auto        size   = osc::make_packet(packet,
-                                                osc::OscIndexedAddress{
-                                                    .prefix = osc::paths::OUTPUT.c_str(),
-                                                    .index  = 5,
-                                                },
-                                                osc::OscInt32{ 1 });
+    RawIoCollector              collector;
+    protocol::osc::PacketBuffer packet = {};
+    const auto                  size   = protocol::osc::make_packet(packet,
+                                                                    protocol::osc::OscIndexedAddress{
+                                                                        .prefix = protocol::osc::paths::OUTPUT.c_str(),
+                                                                        .index  = 5,
+                                                                    },
+                                                                    protocol::osc::OscInt32{ 1 });
 
     ASSERT_TRUE(size);
     _hwa.push_received(packet_span(packet, *size), endpoint(192, 168, 1, 77, 50000));

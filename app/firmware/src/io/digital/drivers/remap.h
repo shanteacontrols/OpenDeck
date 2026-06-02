@@ -10,7 +10,7 @@
 #include <array>
 #include <cstddef>
 
-namespace opendeck::io::digital
+namespace opendeck::firmware::io::digital
 {
     /**
      * @brief Resolves logical digital indices to the underlying physical scan order.
@@ -64,4 +64,4 @@ namespace opendeck::io::digital
 #undef OPENDECK_SWITCH_REMAP_ENTRY
 #endif
     };
-}    // namespace opendeck::io::digital
+}    // namespace opendeck::firmware::io::digital

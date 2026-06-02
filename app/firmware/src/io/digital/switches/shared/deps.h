@@ -10,7 +10,7 @@
 
 #include <optional>
 
-namespace opendeck::io::switches
+namespace opendeck::firmware::io::switches
 {
     /**
      * @brief Database view used by the switch subsystem.
@@ -79,4 +79,4 @@ namespace opendeck::io::switches
          */
         virtual bool is_filtered(size_t index, bool& state) = 0;
     };
-}    // namespace opendeck::io::switches
+}    // namespace opendeck::firmware::io::switches

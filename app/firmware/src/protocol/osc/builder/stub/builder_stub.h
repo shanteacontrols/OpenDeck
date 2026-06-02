@@ -8,7 +8,7 @@
 #include "firmware/src/protocol/osc/instance/stub/osc_stub.h"
 #include "firmware/src/database/instance/impl/database.h"
 
-namespace opendeck::protocol::osc
+namespace opendeck::firmware::protocol::osc
 {
     /**
      * @brief Stub builder that wires OSC to a no-op backend.
@@ -37,4 +37,4 @@ namespace opendeck::protocol::osc
         private:
         Osc _instance;
     };
-}    // namespace opendeck::protocol::osc
+}    // namespace opendeck::firmware::protocol::osc

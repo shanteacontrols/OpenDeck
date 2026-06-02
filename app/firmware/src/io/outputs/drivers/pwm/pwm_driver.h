@@ -13,7 +13,7 @@
 
 #define OPENDECK_OUTPUT_PWM_ENTRY(index, node_id) PWM_DT_SPEC_GET_BY_IDX(node_id, index)
 
-namespace opendeck::io::outputs
+namespace opendeck::firmware::io::outputs
 {
     /**
      * @brief Output driver that drives native PWM outputs directly.
@@ -59,6 +59,6 @@ namespace opendeck::io::outputs
 
         std::array<pwm_dt_spec, OUTPUT_COUNT> _pwms = { { LISTIFY(CONFIG_PROJECT_TARGET_OUTPUT_PHYSICAL_COUNT, OPENDECK_OUTPUT_PWM_ENTRY, (, ), DT_NODELABEL(opendeck_outputs)) } };
     };
-}    // namespace opendeck::io::outputs
+}    // namespace opendeck::firmware::io::outputs
 
 #undef OPENDECK_OUTPUT_PWM_ENTRY

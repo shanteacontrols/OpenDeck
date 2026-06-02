@@ -7,7 +7,7 @@
 
 #include "firmware/src/io/i2c/shared/deps.h"
 
-namespace opendeck::io::i2c
+namespace opendeck::firmware::io::i2c
 {
     /**
      * @brief Stub I2C backend that reports no hardware support.
@@ -81,4 +81,4 @@ namespace opendeck::io::i2c
             return false;
         }
     };
-}    // namespace opendeck::io::i2c
+}    // namespace opendeck::firmware::io::i2c

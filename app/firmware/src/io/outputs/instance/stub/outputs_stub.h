@@ -8,7 +8,7 @@
 #include "firmware/src/io/outputs/shared/deps.h"
 #include "firmware/src/io/base.h"
 
-namespace opendeck::io::outputs
+namespace opendeck::firmware::io::outputs
 {
     /**
      * @brief Stub output subsystem used when no output implementation is available.
@@ -43,4 +43,4 @@ namespace opendeck::io::outputs
         {
         }
     };
-}    // namespace opendeck::io::outputs
+}    // namespace opendeck::firmware::io::outputs

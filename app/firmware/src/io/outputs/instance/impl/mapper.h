@@ -12,7 +12,7 @@
 #include <array>
 #include <optional>
 
-namespace opendeck::io::outputs
+namespace opendeck::firmware::io::outputs
 {
     /**
      * @brief Maps incoming protocol and internal events into output actions.
@@ -92,4 +92,4 @@ namespace opendeck::io::outputs
          */
         uint8_t midi_value_to_level(uint8_t value) const;
     };
-}    // namespace opendeck::io::outputs
+}    // namespace opendeck::firmware::io::outputs

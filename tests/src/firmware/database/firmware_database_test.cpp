@@ -18,6 +18,9 @@
 #include "firmware/src/protocol/osc/shared/common.h"
 #include "firmware/src/util/configurable/configurable.h"
 
+using namespace opendeck;
+using namespace opendeck::firmware;
+
 namespace
 {
     class CountingHandlers : public database::Handlers

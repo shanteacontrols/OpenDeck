@@ -14,7 +14,7 @@
 
 #include <array>
 
-namespace opendeck::io::outputs
+namespace opendeck::firmware::io::outputs
 {
     /**
      * @brief Output driver for an 8x8 matrix controlled by a MAX7219.
@@ -120,4 +120,4 @@ namespace opendeck::io::outputs
             gpio_pin_set_dt(&_latch, 1);
         }
     };
-}    // namespace opendeck::io::outputs
+}    // namespace opendeck::firmware::io::outputs

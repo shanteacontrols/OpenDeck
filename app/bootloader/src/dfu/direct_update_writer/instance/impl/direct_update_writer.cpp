@@ -12,25 +12,25 @@
 
 #include <span>
 
-using namespace opendeck;
+using namespace opendeck::bootloader;
 
 namespace
 {
     LOG_MODULE_REGISTER(direct_update_writer, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
 }    // namespace
 
-bootloader::dfu::direct_update_writer::DirectUpdateWriter::DirectUpdateWriter(Hwa& hwa)
+dfu::direct_update_writer::DirectUpdateWriter::DirectUpdateWriter(Hwa& hwa)
     : _hwa(hwa)
     , _writer(*this)
 {}
 
-void bootloader::dfu::direct_update_writer::DirectUpdateWriter::reset()
+void dfu::direct_update_writer::DirectUpdateWriter::reset()
 {
     reset_state(true);
 }
 
-bool bootloader::dfu::direct_update_writer::DirectUpdateWriter::begin([[maybe_unused]] const opendeck::common::dfu::dfu_stream_parser::Header& header,
-                                                                      const uint32_t                                                           size)
+bool dfu::direct_update_writer::DirectUpdateWriter::begin([[maybe_unused]] const opendeck::common::dfu::dfu_stream_parser::Header& header,
+                                                          const uint32_t                                                           size)
 {
     reset();
 
@@ -51,7 +51,7 @@ bool bootloader::dfu::direct_update_writer::DirectUpdateWriter::begin([[maybe_un
     return _active;
 }
 
-bool bootloader::dfu::direct_update_writer::DirectUpdateWriter::write(std::span<const uint8_t> data)
+bool dfu::direct_update_writer::DirectUpdateWriter::write(std::span<const uint8_t> data)
 {
     if (data.empty())
     {
@@ -86,7 +86,7 @@ bool bootloader::dfu::direct_update_writer::DirectUpdateWriter::write(std::span<
     return true;
 }
 
-bool bootloader::dfu::direct_update_writer::DirectUpdateWriter::finish()
+bool dfu::direct_update_writer::DirectUpdateWriter::finish()
 {
     if (_failed || !_active)
     {
@@ -114,12 +114,12 @@ bool bootloader::dfu::direct_update_writer::DirectUpdateWriter::finish()
     return true;
 }
 
-void bootloader::dfu::direct_update_writer::DirectUpdateWriter::abort()
+void dfu::direct_update_writer::DirectUpdateWriter::abort()
 {
     reset();
 }
 
-void bootloader::dfu::direct_update_writer::DirectUpdateWriter::reset_state(const bool clear_failure)
+void dfu::direct_update_writer::DirectUpdateWriter::reset_state(const bool clear_failure)
 {
     _current_sector        = 0;
     _sector_bytes_received = 0;
@@ -133,12 +133,12 @@ void bootloader::dfu::direct_update_writer::DirectUpdateWriter::reset_state(cons
     }
 }
 
-bool bootloader::dfu::direct_update_writer::DirectUpdateWriter::payload_fits(const uint32_t size)
+bool dfu::direct_update_writer::DirectUpdateWriter::payload_fits(const uint32_t size)
 {
     return size <= _hwa.size();
 }
 
-bool bootloader::dfu::direct_update_writer::DirectUpdateWriter::prepare_write_block_size()
+bool dfu::direct_update_writer::DirectUpdateWriter::prepare_write_block_size()
 {
     const size_t native_write_block_size = _hwa.write_block_size();
 
@@ -179,7 +179,7 @@ bool bootloader::dfu::direct_update_writer::DirectUpdateWriter::prepare_write_bl
     return true;
 }
 
-bool bootloader::dfu::direct_update_writer::DirectUpdateWriter::write_payload_byte(const uint8_t data)
+bool dfu::direct_update_writer::DirectUpdateWriter::write_payload_byte(const uint8_t data)
 {
     const auto sector_size = _hwa.sector_size(_current_sector);
 
@@ -220,7 +220,7 @@ bool bootloader::dfu::direct_update_writer::DirectUpdateWriter::write_payload_by
     return true;
 }
 
-bool bootloader::dfu::direct_update_writer::DirectUpdateWriter::flush_write_block()
+bool dfu::direct_update_writer::DirectUpdateWriter::flush_write_block()
 {
     if (!_writer.flush())
     {
@@ -231,7 +231,7 @@ bool bootloader::dfu::direct_update_writer::DirectUpdateWriter::flush_write_bloc
     return true;
 }
 
-bool bootloader::dfu::direct_update_writer::DirectUpdateWriter::write_block(const uint32_t offset, std::span<const uint8_t> data)
+bool dfu::direct_update_writer::DirectUpdateWriter::write_block(const uint32_t offset, std::span<const uint8_t> data)
 {
     if (!_hwa.write_sector(_current_sector, offset, data))
     {
@@ -244,7 +244,7 @@ bool bootloader::dfu::direct_update_writer::DirectUpdateWriter::write_block(cons
     return true;
 }
 
-bool bootloader::dfu::direct_update_writer::DirectUpdateWriter::finish_current_sector()
+bool dfu::direct_update_writer::DirectUpdateWriter::finish_current_sector()
 {
     if (!flush_write_block())
     {
@@ -257,7 +257,7 @@ bool bootloader::dfu::direct_update_writer::DirectUpdateWriter::finish_current_s
     return true;
 }
 
-bool bootloader::dfu::direct_update_writer::DirectUpdateWriter::fail(std::string_view status)
+bool dfu::direct_update_writer::DirectUpdateWriter::fail(std::string_view status)
 {
     this->status(status);
     _failed = true;
@@ -266,7 +266,7 @@ bool bootloader::dfu::direct_update_writer::DirectUpdateWriter::fail(std::string
     return false;
 }
 
-void bootloader::dfu::direct_update_writer::DirectUpdateWriter::status(std::string_view message)
+void dfu::direct_update_writer::DirectUpdateWriter::status(std::string_view message)
 {
     bootloader::signaling::publish(bootloader::signaling::StatusSignal(message));
 }

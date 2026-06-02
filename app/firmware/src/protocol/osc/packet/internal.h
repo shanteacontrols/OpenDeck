@@ -16,7 +16,7 @@
 #include <string_view>
 #include <type_traits>
 
-namespace opendeck::protocol::osc::internal
+namespace opendeck::firmware::protocol::osc::internal
 {
     /**
      * @brief Writes OSC packet fields into a fixed packet buffer.
@@ -157,4 +157,4 @@ namespace opendeck::protocol::osc::internal
 
         return writer.size();
     }
-}    // namespace opendeck::protocol::osc::internal
+}    // namespace opendeck::firmware::protocol::osc::internal

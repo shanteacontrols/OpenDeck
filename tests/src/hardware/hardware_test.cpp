@@ -15,10 +15,12 @@
 #include <string>
 #include <filesystem>
 
-LOG_MODULE_REGISTER(hardware_test, LOG_LEVEL_INF);
+using namespace opendeck;
 
 namespace
 {
+    LOG_MODULE_REGISTER(hardware_test, LOG_LEVEL_INF);
+
     std::vector<uint8_t> handshake_req             = { 0xF0, 0x00, 0x53, 0x43, 0x00, 0x00, 0x01, 0xF7 };
     std::vector<uint8_t> handshake_ack             = { 0xF0, 0x00, 0x53, 0x43, 0x01, 0x00, 0x01, 0xF7 };
     std::vector<uint8_t> reboot_req                = { 0xF0, 0x00, 0x53, 0x43, 0x00, 0x00, 0x7F, 0xF7 };

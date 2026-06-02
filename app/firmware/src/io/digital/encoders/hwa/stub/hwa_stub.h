@@ -7,7 +7,7 @@
 
 #include "firmware/src/io/digital/encoders/shared/deps.h"
 
-namespace opendeck::io::encoders
+namespace opendeck::firmware::io::encoders
 {
     /**
      * @brief Stub encoder backend that never returns hardware state.
@@ -29,4 +29,4 @@ namespace opendeck::io::encoders
             return {};
         }
     };
-}    // namespace opendeck::io::encoders
+}    // namespace opendeck::firmware::io::encoders

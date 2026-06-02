@@ -10,8 +10,9 @@
 
 #include <vector>
 
-using namespace opendeck::io::i2c;
-using namespace opendeck::io::i2c::sensor_bno085;
+using namespace opendeck;
+using namespace opendeck::firmware::io::i2c;
+using namespace opendeck::firmware::io::i2c::sensor_bno085;
 
 namespace
 {

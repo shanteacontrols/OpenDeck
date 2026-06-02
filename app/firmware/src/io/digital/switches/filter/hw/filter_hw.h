@@ -7,7 +7,7 @@
 
 #include "firmware/src/io/digital/switches/shared/deps.h"
 
-namespace opendeck::io::switches
+namespace opendeck::firmware::io::switches
 {
     /**
      * @brief Debouncing filter for digital switch readings.
@@ -61,4 +61,4 @@ namespace opendeck::io::switches
         private:
         uint8_t _debounce_state[Collection::size(GroupDigitalInputs)] = {};
     };
-}    // namespace opendeck::io::switches
+}    // namespace opendeck::firmware::io::switches

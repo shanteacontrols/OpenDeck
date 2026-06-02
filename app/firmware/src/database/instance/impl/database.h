@@ -14,7 +14,7 @@
 #include <optional>
 #include <vector>
 
-namespace opendeck::database
+namespace opendeck::firmware::database
 {
     /**
      * @brief High-level database administrator for common and preset regions.
@@ -667,4 +667,4 @@ namespace opendeck::database
         private:
         Admin& _admin;
     };
-}    // namespace opendeck::database
+}    // namespace opendeck::firmware::database

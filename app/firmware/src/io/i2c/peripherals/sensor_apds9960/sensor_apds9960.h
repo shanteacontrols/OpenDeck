@@ -13,7 +13,7 @@
 #include <array>
 #include <optional>
 
-namespace opendeck::io::i2c::sensor_apds9960
+namespace opendeck::firmware::io::i2c::sensor_apds9960
 {
     /**
      * @brief APDS9960 proximity, gesture, and color sensor detector.
@@ -295,4 +295,4 @@ namespace opendeck::io::i2c::sensor_apds9960
          */
         std::optional<uint8_t> sys_config_set(sys::Config::Section::I2c section, size_t index, uint16_t value);
     };
-}    // namespace opendeck::io::i2c::sensor_apds9960
+}    // namespace opendeck::firmware::io::i2c::sensor_apds9960

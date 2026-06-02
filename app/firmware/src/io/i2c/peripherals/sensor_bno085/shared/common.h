@@ -9,7 +9,7 @@
 #include <cstddef>
 #include <stdint.h>
 
-namespace opendeck::io::i2c::sensor_bno085
+namespace opendeck::firmware::io::i2c::sensor_bno085
 {
     static constexpr std::array<uint8_t, 2> I2C_ADDRESSES                     = { 0x4A, 0x4B };
     static constexpr std::array<uint8_t, 5> SHTP_SOFT_RESET                   = { 0x05, 0x00, 0x01, 0x00, 0x01 };
@@ -42,4 +42,4 @@ namespace opendeck::io::i2c::sensor_bno085
     static constexpr uint8_t                STARTUP_READ_RETRIES              = 10;
     static constexpr int32_t                STARTUP_READ_DELAY_MS             = 20;
     static constexpr size_t                 REPORT_COUNT                      = 4;
-}    // namespace opendeck::io::i2c::sensor_bno085
+}    // namespace opendeck::firmware::io::i2c::sensor_bno085

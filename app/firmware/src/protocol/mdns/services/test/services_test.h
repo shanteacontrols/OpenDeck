@@ -12,7 +12,7 @@
 #include <array>
 #include <vector>
 
-namespace opendeck::protocol::mdns
+namespace opendeck::firmware::protocol::mdns
 {
     /**
      * @brief In-memory DNS-SD service descriptors used by tests.
@@ -65,4 +65,4 @@ namespace opendeck::protocol::mdns
         Provider                      _osc;
         std::vector<ServiceProvider*> _services;
     };
-}    // namespace opendeck::protocol::mdns
+}    // namespace opendeck::firmware::protocol::mdns

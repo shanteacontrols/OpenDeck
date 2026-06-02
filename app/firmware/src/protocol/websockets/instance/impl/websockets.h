@@ -13,7 +13,7 @@
 
 #include <algorithm>
 
-namespace opendeck::protocol::websockets
+namespace opendeck::firmware::protocol::websockets
 {
     /**
      * @brief Firmware protocol wrapper for the shared WebSockets endpoint.
@@ -45,7 +45,7 @@ namespace opendeck::protocol::websockets
 
         using WebSocketsBuffers = opendeck::common::protocols::websockets::Buffers<
             opendeck::common::protocols::websockets::FIRMWARE_UPLOAD_FRAME_SIZE,
-            std::max(opendeck::firmware::signaling::ConfigRequestSignal::DATA_SIZE, opendeck::protocol::osc::PACKET_BUFFER_SIZE),
+            std::max(opendeck::firmware::signaling::ConfigRequestSignal::DATA_SIZE, opendeck::firmware::protocol::osc::PACKET_BUFFER_SIZE),
             TX_QUEUE_SIZE>;
 
         opendeck::common::protocols::websockets::BuffersBase& buffers() override
@@ -55,4 +55,4 @@ namespace opendeck::protocol::websockets
 
         WebSocketsBuffers _buffers;
     };
-}    // namespace opendeck::protocol::websockets
+}    // namespace opendeck::firmware::protocol::websockets

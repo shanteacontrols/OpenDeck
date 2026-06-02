@@ -10,8 +10,7 @@
 
 #include <zephyr/logging/log.h>
 
-using namespace opendeck;
-using namespace opendeck::io::touchscreen;
+using namespace opendeck::firmware::io::touchscreen;
 using namespace opendeck::firmware;
 
 namespace

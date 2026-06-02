@@ -14,7 +14,7 @@
 
 #include <optional>
 
-namespace opendeck::io::i2c::sensor_vl53l4cx
+namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
 {
     /**
      * @brief VL53L4CX time-of-flight distance sensor detector.
@@ -185,4 +185,4 @@ namespace opendeck::io::i2c::sensor_vl53l4cx
          */
         std::optional<uint8_t> sys_config_set(sys::Config::Section::I2c section, size_t index, uint16_t value);
     };
-}    // namespace opendeck::io::i2c::sensor_vl53l4cx
+}    // namespace opendeck::firmware::io::i2c::sensor_vl53l4cx

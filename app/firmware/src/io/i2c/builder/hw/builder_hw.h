@@ -9,7 +9,7 @@
 #include "firmware/src/io/i2c/hwa/hw/hwa_hw.h"
 #include "firmware/src/io/i2c/peripherals/builder/builder.h"
 
-namespace opendeck::io::i2c
+namespace opendeck::firmware::io::i2c
 {
     /**
      * @brief Convenience builder that wires the hardware I2C subsystem and peripherals.
@@ -42,4 +42,4 @@ namespace opendeck::io::i2c
         BuilderPeripherals _peripherals;
         I2c                _instance;
     };
-}    // namespace opendeck::io::i2c
+}    // namespace opendeck::firmware::io::i2c

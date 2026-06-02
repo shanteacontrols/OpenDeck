@@ -7,7 +7,7 @@
 
 #include "firmware/src/io/analog/shared/deps.h"
 
-namespace opendeck::io::analog
+namespace opendeck::firmware::io::analog
 {
     /**
      * @brief Stub analog hardware adapter used when no backend is available.
@@ -53,4 +53,4 @@ namespace opendeck::io::analog
         {
         }
     };
-}    // namespace opendeck::io::analog
+}    // namespace opendeck::firmware::io::analog

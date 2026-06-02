@@ -14,7 +14,8 @@
 #include <utility>
 #include <vector>
 
-using namespace opendeck::io;
+using namespace opendeck;
+using namespace opendeck::firmware::io;
 
 namespace
 {

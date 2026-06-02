@@ -11,7 +11,7 @@
 
 #include <optional>
 
-namespace opendeck::io::touchscreen
+namespace opendeck::firmware::io::touchscreen
 {
     /**
      * @brief Database view used by the touchscreen subsystem.
@@ -68,4 +68,4 @@ namespace opendeck::io::touchscreen
             return false;
         }
     };
-}    // namespace opendeck::io::touchscreen
+}    // namespace opendeck::firmware::io::touchscreen

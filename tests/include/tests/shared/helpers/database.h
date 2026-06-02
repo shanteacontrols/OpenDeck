@@ -12,7 +12,7 @@ namespace opendeck::tests
     /**
      * @brief No-op database lifecycle handler used by tests that only need a valid observer.
      */
-    class NoOpDatabaseHandlers : public database::Handlers
+    class NoOpDatabaseHandlers : public opendeck::firmware::database::Handlers
     {
         public:
         void preset_change(uint8_t) override

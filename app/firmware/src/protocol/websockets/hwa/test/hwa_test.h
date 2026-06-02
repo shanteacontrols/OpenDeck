@@ -16,7 +16,7 @@
 #include <span>
 #include <vector>
 
-namespace opendeck::protocol::websockets
+namespace opendeck::firmware::protocol::websockets
 {
     /**
      * @brief In-memory WebSockets backend used by tests.
@@ -256,4 +256,4 @@ namespace opendeck::protocol::websockets
             return std::find(_closed_sockets.begin(), _closed_sockets.end(), socket) != _closed_sockets.end();
         }
     };
-}    // namespace opendeck::protocol::websockets
+}    // namespace opendeck::firmware::protocol::websockets

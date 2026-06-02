@@ -9,8 +9,8 @@
 
 #include <zephyr/kernel.h>
 
-using namespace opendeck::io::i2c::display;
-using namespace opendeck::protocol;
+using namespace opendeck::firmware::io::i2c::display;
+using namespace opendeck::firmware::protocol;
 
 void Display::Elements::update()
 {

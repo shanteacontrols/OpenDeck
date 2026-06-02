@@ -6,7 +6,7 @@
 #include "firmware/src/io/digital/instance/impl/digital.h"
 #include "firmware/src/util/thread_sleep.h"
 
-using namespace opendeck::io::digital;
+using namespace opendeck::firmware::io::digital;
 
 Digital::Digital(Hwa&                    hwa,
                  FrameStore&             frame_store,

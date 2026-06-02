@@ -9,7 +9,7 @@
 
 #include <zephyr/kernel.h>
 
-namespace opendeck::io::analog
+namespace opendeck::firmware::io::analog
 {
     /**
      * @brief ADC driver for cascaded controller and node multiplexers.
@@ -262,4 +262,4 @@ namespace opendeck::io::analog
             _selected_node_input = input;
         }
     };
-}    // namespace opendeck::io::analog
+}    // namespace opendeck::firmware::io::analog

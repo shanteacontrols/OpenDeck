@@ -17,20 +17,19 @@
 
 #include <limits>
 
-using namespace opendeck::io;
-using namespace opendeck::protocol;
+using namespace opendeck;
 using namespace opendeck::firmware;
 
 namespace
 {
     struct TestEvent
     {
-        size_t                 component_index = 0;
-        uint8_t                channel         = 0;
-        uint16_t               index           = 0;
-        uint16_t               value           = 0;
-        midi::MessageType      message         = midi::MessageType::Invalid;
-        signaling::SystemEvent system_event    = {};
+        size_t                      component_index = 0;
+        uint8_t                     channel         = 0;
+        uint16_t                    index           = 0;
+        uint16_t                    value           = 0;
+        protocol::midi::MessageType message         = protocol::midi::MessageType::Invalid;
+        signaling::SystemEvent      system_event    = {};
     };
 
     struct OscEvent
@@ -64,7 +63,7 @@ namespace
                 .channel         = 0,
                 .index           = 0,
                 .value           = signal.value,
-                .message         = midi::MessageType::Invalid,
+                .message         = protocol::midi::MessageType::Invalid,
                 .system_event    = signal.system_event,
             });
         }
@@ -129,10 +128,10 @@ namespace
             ASSERT_TRUE(_database_admin.factory_reset());
             ASSERT_EQ(0, _database_admin.current_preset());
 
-            for (size_t i = 0; i < switches::Collection::size(switches::GroupDigitalInputs); i++)
+            for (size_t i = 0; i < io::switches::Collection::size(io::switches::GroupDigitalInputs); i++)
             {
-                ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type, i, switches::Type::Momentary));
-                ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, i, switches::MessageType::Note));
+                ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type, i, io::switches::Type::Momentary));
+                ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, i, io::switches::MessageType::Note));
                 ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Value, i, 127));
 
                 _digital._builderSwitches._instance.reset(i);
@@ -189,7 +188,7 @@ namespace
 
         void state_change_register_single(size_t index, bool state)
         {
-            ASSERT_LT(index, switches::Collection::size(switches::GroupDigitalInputs));
+            ASSERT_LT(index, io::switches::Collection::size(io::switches::GroupDigitalInputs));
 
             _listener.clear();
 
@@ -238,7 +237,7 @@ namespace
 
         static size_t digital_switch_count()
         {
-            return switches::Collection::size(switches::GroupDigitalInputs);
+            return io::switches::Collection::size(io::switches::GroupDigitalInputs);
         }
 
         tests::NoOpDatabaseHandlers _handlers;
@@ -310,10 +309,10 @@ TEST_F(DigitalSwitchesTest, Note)
     auto test = [&](uint8_t channel, uint8_t velocity)
     {
         // set known state
-        for (size_t i = 0; i < switches::Collection::size(switches::GroupDigitalInputs); i++)
+        for (size_t i = 0; i < io::switches::Collection::size(io::switches::GroupDigitalInputs); i++)
         {
-            ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type, i, switches::Type::Momentary));
-            ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, i, switches::MessageType::Note));
+            ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type, i, io::switches::Type::Momentary));
+            ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, i, io::switches::MessageType::Note));
             ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Value, i, velocity));
             ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Channel, i, channel));
 
@@ -323,15 +322,15 @@ TEST_F(DigitalSwitchesTest, Note)
         auto verify_value = [&](bool state)
         {
             // verify all received messages
-            for (size_t i = 0; i < switches::Collection::size(switches::GroupDigitalInputs); i++)
+            for (size_t i = 0; i < io::switches::Collection::size(io::switches::GroupDigitalInputs); i++)
             {
                 if (state)
                 {
-                    ASSERT_EQ(midi::MessageType::NoteOn, _listener.event_log.at(i).message);
+                    ASSERT_EQ(protocol::midi::MessageType::NoteOn, _listener.event_log.at(i).message);
                 }
                 else
                 {
-                    ASSERT_EQ(midi::MessageType::NoteOff, _listener.event_log.at(i).message);
+                    ASSERT_EQ(protocol::midi::MessageType::NoteOff, _listener.event_log.at(i).message);
                 }
 
                 ASSERT_EQ(state ? velocity : 0, _listener.event_log.at(i).value);
@@ -345,22 +344,22 @@ TEST_F(DigitalSwitchesTest, Note)
 
         // simulate switch press
         state_change_register_all(true);
-        ASSERT_EQ(switches::Collection::size(switches::GroupDigitalInputs), _listener.event_log.size());
+        ASSERT_EQ(io::switches::Collection::size(io::switches::GroupDigitalInputs), _listener.event_log.size());
         verify_value(true);
 
         // simulate switch release
         state_change_register_all(false);
-        ASSERT_EQ(switches::Collection::size(switches::GroupDigitalInputs), _listener.event_log.size());
+        ASSERT_EQ(io::switches::Collection::size(io::switches::GroupDigitalInputs), _listener.event_log.size());
         verify_value(false);
 
         // try with the latching mode
-        for (size_t i = 0; i < switches::Collection::size(switches::GroupDigitalInputs); i++)
+        for (size_t i = 0; i < io::switches::Collection::size(io::switches::GroupDigitalInputs); i++)
         {
-            ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type, i, switches::Type::Latching));
+            ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type, i, io::switches::Type::Latching));
         }
 
         state_change_register_all(true);
-        ASSERT_EQ(switches::Collection::size(switches::GroupDigitalInputs), _listener.event_log.size());
+        ASSERT_EQ(io::switches::Collection::size(io::switches::GroupDigitalInputs), _listener.event_log.size());
         verify_value(true);
 
         // nothing should happen on release
@@ -393,20 +392,20 @@ TEST_F(DigitalSwitchesTest, MidiTypeOverrideDoesNotChangeOscTypeBehavior)
 
     static constexpr size_t SWITCH_INDEX = 0;
 
-    ASSERT_EQ(switches::Type::Latching,
-              switches::Mapper::message_to_type(switches::MessageType::MmcRecord, switches::Type::Momentary));
-    ASSERT_EQ(switches::Type::Momentary,
-              switches::Mapper::message_to_type(switches::MessageType::Note, switches::Type::Momentary));
+    ASSERT_EQ(io::switches::Type::Latching,
+              io::switches::Mapper::message_to_type(io::switches::MessageType::MmcRecord, io::switches::Type::Momentary));
+    ASSERT_EQ(io::switches::Type::Momentary,
+              io::switches::Mapper::message_to_type(io::switches::MessageType::Note, io::switches::Type::Momentary));
 
-    ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type, SWITCH_INDEX, switches::Type::Momentary));
-    ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, SWITCH_INDEX, switches::MessageType::MmcRecord));
+    ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type, SWITCH_INDEX, io::switches::Type::Momentary));
+    ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, SWITCH_INDEX, io::switches::MessageType::MmcRecord));
     ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Channel, SWITCH_INDEX, 1));
 
     _digital._builderSwitches._instance.reset(SWITCH_INDEX);
 
     state_change_register_single(SWITCH_INDEX, true);
     ASSERT_EQ(1, _listener.event_log.size());
-    ASSERT_EQ(midi::MessageType::MmcRecordStart, _listener.event_log.at(0).message);
+    ASSERT_EQ(protocol::midi::MessageType::MmcRecordStart, _listener.event_log.at(0).message);
 
     auto osc_events = _listener.osc_snapshot();
     ASSERT_EQ(1, osc_events.size());
@@ -423,7 +422,7 @@ TEST_F(DigitalSwitchesTest, MidiTypeOverrideDoesNotChangeOscTypeBehavior)
 
     state_change_register_single(SWITCH_INDEX, true);
     ASSERT_EQ(1, _listener.event_log.size());
-    ASSERT_EQ(midi::MessageType::MmcRecordStop, _listener.event_log.at(0).message);
+    ASSERT_EQ(protocol::midi::MessageType::MmcRecordStop, _listener.event_log.at(0).message);
 
     osc_events = _listener.osc_snapshot();
     ASSERT_EQ(1, osc_events.size());
@@ -441,10 +440,10 @@ TEST_F(DigitalSwitchesTest, ProgramChange)
     auto test_program_change = [&](uint8_t channel)
     {
         // set known state
-        for (size_t i = 0; i < switches::Collection::size(switches::GroupDigitalInputs); i++)
+        for (size_t i = 0; i < io::switches::Collection::size(io::switches::GroupDigitalInputs); i++)
         {
-            ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type, i, switches::Type::Momentary));
-            ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, i, switches::MessageType::ProgramChange));
+            ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type, i, io::switches::Type::Momentary));
+            ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, i, io::switches::MessageType::ProgramChange));
             ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Channel, i, channel));
 
             _digital._builderSwitches._instance.reset(i);
@@ -453,9 +452,9 @@ TEST_F(DigitalSwitchesTest, ProgramChange)
         auto verify_message = [&]()
         {
             // verify all received messages are program change
-            for (size_t i = 0; i < switches::Collection::size(switches::GroupDigitalInputs); i++)
+            for (size_t i = 0; i < io::switches::Collection::size(io::switches::GroupDigitalInputs); i++)
             {
-                ASSERT_EQ(midi::MessageType::ProgramChange, _listener.event_log.at(i).message);
+                ASSERT_EQ(protocol::midi::MessageType::ProgramChange, _listener.event_log.at(i).message);
 
                 // program change value should always be set to 0
                 ASSERT_EQ(0, _listener.event_log.at(i).value);
@@ -471,7 +470,7 @@ TEST_F(DigitalSwitchesTest, ProgramChange)
 
         // simulate switch press
         state_change_register_all(true);
-        ASSERT_EQ(switches::Collection::size(switches::GroupDigitalInputs), _listener.event_log.size());
+        ASSERT_EQ(io::switches::Collection::size(io::switches::GroupDigitalInputs), _listener.event_log.size());
         verify_message();
 
         // program change shouldn't be sent on release
@@ -480,13 +479,13 @@ TEST_F(DigitalSwitchesTest, ProgramChange)
 
         // repeat the entire test again, but with switches configured as latching types
         // behaviour should be the same
-        for (size_t i = 0; i < switches::Collection::size(switches::GroupDigitalInputs); i++)
+        for (size_t i = 0; i < io::switches::Collection::size(io::switches::GroupDigitalInputs); i++)
         {
-            ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type, i, switches::Type::Latching));
+            ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type, i, io::switches::Type::Latching));
         }
 
         state_change_register_all(true);
-        ASSERT_EQ(switches::Collection::size(switches::GroupDigitalInputs), _listener.event_log.size());
+        ASSERT_EQ(io::switches::Collection::size(io::switches::GroupDigitalInputs), _listener.event_log.size());
         verify_message();
 
         state_change_register_all(false);
@@ -505,11 +504,11 @@ TEST_F(DigitalSwitchesTest, ProgramChange)
     auto configure_pc_switch = [&](size_t index, uint8_t channel, bool increase)
     {
         ASSERT_LT(index, DigitalSwitchesTest::digital_switch_count());
-        ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type, index, switches::Type::Momentary));
-        ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, index, increase ? switches::MessageType::ProgramChangeInc : switches::MessageType::ProgramChangeDec));
+        ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type, index, io::switches::Type::Momentary));
+        ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, index, increase ? io::switches::MessageType::ProgramChangeInc : io::switches::MessageType::ProgramChangeDec));
         ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Channel, index, channel));
 
-        for (size_t i = 0; i < switches::Collection::size(switches::GroupDigitalInputs); i++)
+        for (size_t i = 0; i < io::switches::Collection::size(io::switches::GroupDigitalInputs); i++)
         {
             _digital._builderSwitches._instance.reset(i);
         }
@@ -517,7 +516,7 @@ TEST_F(DigitalSwitchesTest, ProgramChange)
 
     auto verify_program_change = [&](size_t index, uint8_t channel, uint8_t program)
     {
-        ASSERT_EQ(midi::MessageType::ProgramChange, _listener.event_log.at(index).message);
+        ASSERT_EQ(protocol::midi::MessageType::ProgramChange, _listener.event_log.at(index).message);
 
         // program change value should always be set to 0
         ASSERT_EQ(0, _listener.event_log.at(index).value);
@@ -647,7 +646,7 @@ TEST_F(DigitalSwitchesTest, ProgramChange)
 
     for (size_t i = 0; i < _listener.event_log.size(); i++)
     {
-        if (_listener.event_log.at(i).message == midi::MessageType::ProgramChange)
+        if (_listener.event_log.at(i).message == protocol::midi::MessageType::ProgramChange)
         {
             pc_counter++;
         }
@@ -685,7 +684,7 @@ TEST_F(DigitalSwitchesTest, ProgramChangeWithOffset)
 
     auto verify_program_change = [&](size_t index, uint8_t channel, uint8_t program)
     {
-        ASSERT_EQ(midi::MessageType::ProgramChange, _listener.event_log.at(index).message);
+        ASSERT_EQ(protocol::midi::MessageType::ProgramChange, _listener.event_log.at(index).message);
 
         // program change value should always be set to 0
         ASSERT_EQ(0, _listener.event_log.at(index).value);
@@ -718,14 +717,14 @@ TEST_F(DigitalSwitchesTest, ProgramChangeWithOffset)
 
         for (const auto& event : events)
         {
-            if (event.message == midi::MessageType::ProgramChange)
+            if (event.message == protocol::midi::MessageType::ProgramChange)
             {
                 program_changes.push_back(event);
             }
         }
 
         ASSERT_EQ(1, program_changes.size());
-        ASSERT_EQ(midi::MessageType::ProgramChange, program_changes.at(0).message);
+        ASSERT_EQ(protocol::midi::MessageType::ProgramChange, program_changes.at(0).message);
         ASSERT_EQ(0, program_changes.at(0).value);
         ASSERT_EQ(PROGRAM_CHANGE_CHANNEL, program_changes.at(0).channel);
         ASSERT_EQ(SWITCH_INDEX_PROGRAM + MidiProgram.offset(), program_changes.at(0).index);
@@ -733,11 +732,11 @@ TEST_F(DigitalSwitchesTest, ProgramChangeWithOffset)
     };
 
     // set known state
-    ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, SWITCH_INDEX_OFFSET_DEC, switches::MessageType::ProgramChangeOffsetDec));
+    ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, SWITCH_INDEX_OFFSET_DEC, io::switches::MessageType::ProgramChangeOffsetDec));
     ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Value, SWITCH_INDEX_OFFSET_DEC, OFFSET_INC_DEC_AMOUNT));
-    ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, SWITCH_INDEX_OFFSET_INC, switches::MessageType::ProgramChangeOffsetInc));
+    ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, SWITCH_INDEX_OFFSET_INC, io::switches::MessageType::ProgramChangeOffsetInc));
     ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Value, SWITCH_INDEX_OFFSET_INC, OFFSET_INC_DEC_AMOUNT));
-    ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, SWITCH_INDEX_PROGRAM, switches::MessageType::ProgramChange));
+    ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, SWITCH_INDEX_PROGRAM, io::switches::MessageType::ProgramChange));
 
     _digital._builderSwitches._instance.reset(SWITCH_INDEX_OFFSET_DEC);
     _digital._builderSwitches._instance.reset(SWITCH_INDEX_OFFSET_INC);
@@ -793,10 +792,10 @@ TEST_F(DigitalSwitchesTest, ControlChange)
     auto control_change_test = [&](uint8_t control_value)
     {
         // set known state
-        for (size_t i = 0; i < switches::Collection::size(switches::GroupDigitalInputs); i++)
+        for (size_t i = 0; i < io::switches::Collection::size(io::switches::GroupDigitalInputs); i++)
         {
-            ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type, i, switches::Type::Momentary));
-            ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, i, switches::MessageType::ControlChange));
+            ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type, i, io::switches::Type::Momentary));
+            ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, i, io::switches::MessageType::ControlChange));
             ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Value, i, control_value));
 
             _digital._builderSwitches._instance.reset(i);
@@ -805,9 +804,9 @@ TEST_F(DigitalSwitchesTest, ControlChange)
         auto verify_message = [&](uint8_t midi_value)
         {
             // verify all received messages are control change
-            for (size_t i = 0; i < switches::Collection::size(switches::GroupDigitalInputs); i++)
+            for (size_t i = 0; i < io::switches::Collection::size(io::switches::GroupDigitalInputs); i++)
             {
-                ASSERT_EQ(midi::MessageType::ControlChange, _listener.event_log.at(i).message);
+                ASSERT_EQ(protocol::midi::MessageType::ControlChange, _listener.event_log.at(i).message);
                 ASSERT_EQ(midi_value, _listener.event_log.at(i).value);
                 ASSERT_EQ(1, _listener.event_log.at(i).channel);
                 ASSERT_EQ(i, _listener.event_log.at(i).index);
@@ -816,7 +815,7 @@ TEST_F(DigitalSwitchesTest, ControlChange)
 
         // simulate switch press
         state_change_register_all(true);
-        ASSERT_EQ(switches::Collection::size(switches::GroupDigitalInputs), _listener.event_log.size());
+        ASSERT_EQ(io::switches::Collection::size(io::switches::GroupDigitalInputs), _listener.event_log.size());
 
         verify_message(control_value);
 
@@ -827,13 +826,13 @@ TEST_F(DigitalSwitchesTest, ControlChange)
         // change to latching type
         // behaviour should be the same
 
-        for (size_t i = 0; i < switches::Collection::size(switches::GroupDigitalInputs); i++)
+        for (size_t i = 0; i < io::switches::Collection::size(io::switches::GroupDigitalInputs); i++)
         {
-            ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type, i, switches::Type::Latching));
+            ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type, i, io::switches::Type::Latching));
         }
 
         state_change_register_all(true);
-        ASSERT_EQ(switches::Collection::size(switches::GroupDigitalInputs), _listener.event_log.size());
+        ASSERT_EQ(io::switches::Collection::size(io::switches::GroupDigitalInputs), _listener.event_log.size());
 
         verify_message(control_value);
 
@@ -843,23 +842,23 @@ TEST_F(DigitalSwitchesTest, ControlChange)
         // change type to control change with 0 on reset, momentary mode
         // this means CC value 0 should be sent on release
 
-        for (size_t i = 0; i < switches::Collection::size(switches::GroupDigitalInputs); i++)
+        for (size_t i = 0; i < io::switches::Collection::size(io::switches::GroupDigitalInputs); i++)
         {
-            ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type, i, switches::Type::Momentary));
+            ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type, i, io::switches::Type::Momentary));
         }
 
-        for (size_t i = 0; i < switches::Collection::size(switches::GroupDigitalInputs); i++)
+        for (size_t i = 0; i < io::switches::Collection::size(io::switches::GroupDigitalInputs); i++)
         {
-            ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, i, switches::MessageType::ControlChangeReset));
+            ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, i, io::switches::MessageType::ControlChangeReset));
         }
 
         state_change_register_all(true);
-        ASSERT_EQ(switches::Collection::size(switches::GroupDigitalInputs), _listener.event_log.size());
+        ASSERT_EQ(io::switches::Collection::size(io::switches::GroupDigitalInputs), _listener.event_log.size());
 
         verify_message(control_value);
 
         state_change_register_all(false);
-        ASSERT_EQ(switches::Collection::size(switches::GroupDigitalInputs), _listener.event_log.size());
+        ASSERT_EQ(io::switches::Collection::size(io::switches::GroupDigitalInputs), _listener.event_log.size());
 
         verify_message(0);
 
@@ -868,13 +867,13 @@ TEST_F(DigitalSwitchesTest, ControlChange)
         // on release, nothing should happen
         // on second press reset should be sent (CC with value 0)
 
-        for (size_t i = 0; i < switches::Collection::size(switches::GroupDigitalInputs); i++)
+        for (size_t i = 0; i < io::switches::Collection::size(io::switches::GroupDigitalInputs); i++)
         {
-            ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type, i, switches::Type::Latching));
+            ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type, i, io::switches::Type::Latching));
         }
 
         state_change_register_all(true);
-        ASSERT_EQ(switches::Collection::size(switches::GroupDigitalInputs), _listener.event_log.size());
+        ASSERT_EQ(io::switches::Collection::size(io::switches::GroupDigitalInputs), _listener.event_log.size());
 
         verify_message(control_value);
 
@@ -882,7 +881,7 @@ TEST_F(DigitalSwitchesTest, ControlChange)
         ASSERT_EQ(0, _listener.event_log.size());
 
         state_change_register_all(true);
-        ASSERT_EQ(switches::Collection::size(switches::GroupDigitalInputs), _listener.event_log.size());
+        ASSERT_EQ(io::switches::Collection::size(io::switches::GroupDigitalInputs), _listener.event_log.size());
 
         verify_message(0);
     };
@@ -905,10 +904,10 @@ TEST_F(DigitalSwitchesTest, OscFollowsOnlyLogicalSwitchState)
 
     ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType,
                                                            SWITCH_INDEX,
-                                                           switches::MessageType::None));
+                                                           io::switches::MessageType::None));
     ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type,
                                                            SWITCH_INDEX,
-                                                           switches::Type::Momentary));
+                                                           io::switches::Type::Momentary));
     _digital._builderSwitches._instance.reset(SWITCH_INDEX);
 
     state_change_register_single(SWITCH_INDEX, true);
@@ -927,7 +926,7 @@ TEST_F(DigitalSwitchesTest, OscFollowsOnlyLogicalSwitchState)
 
     ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type,
                                                            SWITCH_INDEX,
-                                                           switches::Type::Latching));
+                                                           io::switches::Type::Latching));
     _digital._builderSwitches._instance.reset(SWITCH_INDEX);
 
     state_change_register_single(SWITCH_INDEX, true);
@@ -949,16 +948,16 @@ TEST_F(DigitalSwitchesTest, OscFollowsOnlyLogicalSwitchState)
 
 TEST_F(DigitalSwitchesTest, NoMessages)
 {
-    if (!switches::Collection::size(switches::GroupDigitalInputs))
+    if (!io::switches::Collection::size(io::switches::GroupDigitalInputs))
     {
         return;
     }
 
     // configure all switches to MessageType::None so that messages aren't sent
 
-    for (size_t i = 0; i < switches::Collection::size(switches::GroupDigitalInputs); i++)
+    for (size_t i = 0; i < io::switches::Collection::size(io::switches::GroupDigitalInputs); i++)
     {
-        ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, i, switches::MessageType::None));
+        ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, i, io::switches::MessageType::None));
 
         _digital._builderSwitches._instance.reset(i);
     }
@@ -969,9 +968,9 @@ TEST_F(DigitalSwitchesTest, NoMessages)
     state_change_register_all(false);
     ASSERT_EQ(0, _listener.event_log.size());
 
-    for (size_t i = 0; i < switches::Collection::size(switches::GroupDigitalInputs); i++)
+    for (size_t i = 0; i < io::switches::Collection::size(io::switches::GroupDigitalInputs); i++)
     {
-        ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type, i, switches::Type::Latching));
+        ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::Type, i, io::switches::Type::Latching));
     }
 
     state_change_register_all(true);
@@ -1003,7 +1002,7 @@ TEST_F(DigitalSwitchesTest, PresetChange)
     static constexpr size_t SWITCH_INDEX = 0;
 
     ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MidiId, SWITCH_INDEX, 1));
-    ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, SWITCH_INDEX, switches::MessageType::PresetChange));
+    ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, SWITCH_INDEX, io::switches::MessageType::PresetChange));
     _digital._builderSwitches._instance.reset(SWITCH_INDEX);
 
     // simulate switch press
@@ -1027,14 +1026,14 @@ TEST_F(DigitalSwitchesTest, MMCStartStop)
     // configure one switch to MMC_PLAY_STOP message type
     static constexpr size_t SWITCH_INDEX = 0;
 
-    ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, SWITCH_INDEX, switches::MessageType::MmcPlayStop));
+    ASSERT_TRUE(_digital._builderSwitches._database.update(database::Config::Section::Switch::MessageType, SWITCH_INDEX, io::switches::MessageType::MmcPlayStop));
     _digital._builderSwitches._instance.reset(SWITCH_INDEX);
 
     // simulate switch press
     state_change_register_single(SWITCH_INDEX, true);
 
     ASSERT_EQ(1, _listener.event_log.size());
-    ASSERT_EQ(midi::MessageType::MmcPlay, _listener.event_log.at(0).message);
+    ASSERT_EQ(protocol::midi::MessageType::MmcPlay, _listener.event_log.at(0).message);
 
     // verify that no new events are generated on switch release
     state_change_register_single(SWITCH_INDEX, false);
@@ -1045,7 +1044,7 @@ TEST_F(DigitalSwitchesTest, MMCStartStop)
 
     // the message should be MMC_STOP now
     ASSERT_EQ(1, _listener.event_log.size());
-    ASSERT_EQ(midi::MessageType::MmcStop, _listener.event_log.at(0).message);
+    ASSERT_EQ(protocol::midi::MessageType::MmcStop, _listener.event_log.at(0).message);
 }
 #else
 TEST(DigitalSwitchesTest, SkippedWhenPresetDoesNotSupportSwitches)

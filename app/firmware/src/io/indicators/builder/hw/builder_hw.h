@@ -8,7 +8,7 @@
 #include "firmware/src/io/indicators/instance/impl/indicators.h"
 #include "common/src/io/indicators/hwa/hw/hwa_hw.h"
 
-namespace opendeck::io::indicators
+namespace opendeck::firmware::io::indicators
 {
     /**
      * @brief Convenience builder that wires the hardware indicator subsystem.
@@ -39,4 +39,4 @@ namespace opendeck::io::indicators
         opendeck::common::io::indicators::HwaHw _hwa;
         Indicators                              _instance;
     };
-}    // namespace opendeck::io::indicators
+}    // namespace opendeck::firmware::io::indicators

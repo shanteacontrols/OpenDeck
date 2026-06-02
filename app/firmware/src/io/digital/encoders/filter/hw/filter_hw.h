@@ -11,7 +11,7 @@
 
 #include <array>
 
-namespace opendeck::io::encoders
+namespace opendeck::firmware::io::encoders
 {
     /**
      * @brief Debounces encoder direction changes by requiring repeated movement in the same direction.
@@ -162,4 +162,4 @@ namespace opendeck::io::encoders
         std::array<int8_t, STORAGE_SIZE>   _encoder_pulses     = {};
         std::array<uint32_t, STORAGE_SIZE> _last_movement_time = {};
     };
-}    // namespace opendeck::io::encoders
+}    // namespace opendeck::firmware::io::encoders

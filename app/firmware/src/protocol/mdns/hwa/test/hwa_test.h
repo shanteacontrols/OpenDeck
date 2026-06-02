@@ -12,7 +12,7 @@
 #include <utility>
 #include <vector>
 
-namespace opendeck::protocol::mdns
+namespace opendeck::firmware::protocol::mdns
 {
     /**
      * @brief In-memory mDNS platform hooks used by tests.
@@ -130,4 +130,4 @@ namespace opendeck::protocol::mdns
             }
         }
     };
-}    // namespace opendeck::protocol::mdns
+}    // namespace opendeck::firmware::protocol::mdns

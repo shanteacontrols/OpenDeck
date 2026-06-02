@@ -12,7 +12,7 @@
 #include <array>
 #include <optional>
 
-namespace opendeck::io::switches
+namespace opendeck::firmware::io::switches
 {
     /**
      * @brief Maps logical switch states into OSC, MIDI, and system-facing outputs.
@@ -130,4 +130,4 @@ namespace opendeck::io::switches
          */
         void fill_osc_signal(Result& result, size_t index, bool state) const;
     };
-}    // namespace opendeck::io::switches
+}    // namespace opendeck::firmware::io::switches

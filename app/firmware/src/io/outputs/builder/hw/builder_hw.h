@@ -10,7 +10,7 @@
 #include "firmware/src/io/outputs/drivers/driver.h"
 #include "firmware/src/database/builder/builder.h"
 
-namespace opendeck::io::outputs
+namespace opendeck::firmware::io::outputs
 {
     /**
      * @brief Convenience builder that wires the hardware output subsystem.
@@ -45,4 +45,4 @@ namespace opendeck::io::outputs
         HwaHw    _hwa;
         Outputs  _instance;
     };
-}    // namespace opendeck::io::outputs
+}    // namespace opendeck::firmware::io::outputs

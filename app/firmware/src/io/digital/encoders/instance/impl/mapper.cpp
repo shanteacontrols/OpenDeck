@@ -8,28 +8,28 @@
 
 #include "zlibs/utils/misc/numeric.h"
 
-using namespace opendeck::io::encoders;
-using namespace opendeck::protocol;
+using namespace opendeck::firmware::io::encoders;
+using namespace opendeck::firmware::protocol;
 using namespace opendeck::firmware;
 
 namespace
 {
-    constexpr std::array<opendeck::protocol::midi::MessageType, static_cast<uint8_t>(Type::Count)> INTERNAL_MSG_TO_MIDI_TYPE = {
-        opendeck::protocol::midi::MessageType::ControlChange,         // ControlChange7fh01h
-        opendeck::protocol::midi::MessageType::ControlChange,         // ControlChange3fh41h
-        opendeck::protocol::midi::MessageType::ProgramChange,         // ProgramChange
-        opendeck::protocol::midi::MessageType::ControlChange,         // ControlChange
-        opendeck::protocol::midi::MessageType::Invalid,               // PresetChange
-        opendeck::protocol::midi::MessageType::PitchBend,             // PitchBend
-        opendeck::protocol::midi::MessageType::Nrpn7Bit,              // Nrpn7Bit
-        opendeck::protocol::midi::MessageType::Nrpn14Bit,             // Nrpn14Bit
-        opendeck::protocol::midi::MessageType::ControlChange14Bit,    // ControlChange14Bit
-        opendeck::protocol::midi::MessageType::ControlChange,         // ControlChange41h01h
-        opendeck::protocol::midi::MessageType::Invalid,               // BpmChange
-        opendeck::protocol::midi::MessageType::NoteOn,                // SingleNoteVariableVal
-        opendeck::protocol::midi::MessageType::NoteOn,                // SingleNoteFixedValBothDir
-        opendeck::protocol::midi::MessageType::NoteOn,                // SingleNoteFixedValOneDir0OtherDir
-        opendeck::protocol::midi::MessageType::NoteOn,                // TwoNoteFixedValBothDir
+    constexpr std::array<opendeck::firmware::protocol::midi::MessageType, static_cast<uint8_t>(Type::Count)> INTERNAL_MSG_TO_MIDI_TYPE = {
+        opendeck::firmware::protocol::midi::MessageType::ControlChange,         // ControlChange7fh01h
+        opendeck::firmware::protocol::midi::MessageType::ControlChange,         // ControlChange3fh41h
+        opendeck::firmware::protocol::midi::MessageType::ProgramChange,         // ProgramChange
+        opendeck::firmware::protocol::midi::MessageType::ControlChange,         // ControlChange
+        opendeck::firmware::protocol::midi::MessageType::Invalid,               // PresetChange
+        opendeck::firmware::protocol::midi::MessageType::PitchBend,             // PitchBend
+        opendeck::firmware::protocol::midi::MessageType::Nrpn7Bit,              // Nrpn7Bit
+        opendeck::firmware::protocol::midi::MessageType::Nrpn14Bit,             // Nrpn14Bit
+        opendeck::firmware::protocol::midi::MessageType::ControlChange14Bit,    // ControlChange14Bit
+        opendeck::firmware::protocol::midi::MessageType::ControlChange,         // ControlChange41h01h
+        opendeck::firmware::protocol::midi::MessageType::Invalid,               // BpmChange
+        opendeck::firmware::protocol::midi::MessageType::NoteOn,                // SingleNoteVariableVal
+        opendeck::firmware::protocol::midi::MessageType::NoteOn,                // SingleNoteFixedValBothDir
+        opendeck::firmware::protocol::midi::MessageType::NoteOn,                // SingleNoteFixedValOneDir0OtherDir
+        opendeck::firmware::protocol::midi::MessageType::NoteOn,                // TwoNoteFixedValBothDir
     };
 }
 

@@ -18,7 +18,7 @@
 #include <optional>
 #include <string_view>
 
-namespace opendeck::protocol::mdns
+namespace opendeck::firmware::protocol::mdns
 {
     /**
      * @brief mDNS/DNS-SD discovery backend.
@@ -116,4 +116,4 @@ namespace opendeck::protocol::mdns
          */
         std::optional<uint8_t> sys_config_set(sys::Config::Section::Global section, size_t index, uint16_t value);
     };
-}    // namespace opendeck::protocol::mdns
+}    // namespace opendeck::firmware::protocol::mdns

@@ -7,7 +7,7 @@
 
 #include "common/src/protocols/websockets/handler/handler.h"
 
-namespace opendeck::protocol::websockets::osc
+namespace opendeck::firmware::protocol::websockets::osc
 {
     /**
      * @brief Queues outbound OSC events as WebSockets frames.
@@ -22,4 +22,4 @@ namespace opendeck::protocol::websockets::osc
          */
         void init(opendeck::common::protocols::websockets::HandlerEndpoint& endpoint) override;
     };
-}    // namespace opendeck::protocol::websockets::osc
+}    // namespace opendeck::firmware::protocol::websockets::osc

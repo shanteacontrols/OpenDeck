@@ -9,7 +9,7 @@
 #include "firmware/src/protocol/osc/hwa/test/hwa_test.h"
 #include "firmware/src/database/builder/builder.h"
 
-namespace opendeck::protocol::osc
+namespace opendeck::firmware::protocol::osc
 {
     /**
      * @brief Test builder that wires OSC to a test backend.
@@ -45,4 +45,4 @@ namespace opendeck::protocol::osc
         Database          _database;
         Osc               _instance;
     };
-}    // namespace opendeck::protocol::osc
+}    // namespace opendeck::firmware::protocol::osc

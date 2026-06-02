@@ -7,7 +7,7 @@
 
 #include "firmware/src/io/outputs/shared/deps.h"
 
-namespace opendeck::io::outputs
+namespace opendeck::firmware::io::outputs
 {
     /**
      * @brief No-op output driver used for touchscreen-only targets.
@@ -19,4 +19,4 @@ namespace opendeck::io::outputs
         {
         }
     };
-}    // namespace opendeck::io::outputs
+}    // namespace opendeck::firmware::io::outputs

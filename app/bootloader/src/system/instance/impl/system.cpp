@@ -7,18 +7,18 @@
 
 #include <zephyr/logging/log.h>
 
-using namespace opendeck;
+using namespace opendeck::bootloader;
 
 namespace
 {
     LOG_MODULE_REGISTER(opendeck_bootloader_system, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
 }    // namespace
 
-bootloader::system::System::System(Hwa& hwa)
+system::System::System(Hwa& hwa)
     : _hwa(hwa)
 {}
 
-bool bootloader::system::System::init()
+bool system::System::init()
 {
     LOG_INF("OpenDeck bootloader starting");
 

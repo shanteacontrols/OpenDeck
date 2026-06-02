@@ -18,10 +18,10 @@
 #include <algorithm>
 #include <string_view>
 
-using namespace opendeck;
-using namespace opendeck::io;
-using namespace opendeck::sys;
-using namespace opendeck::protocol;
+using namespace opendeck::common::system;
+using namespace opendeck::firmware::io;
+using namespace opendeck::firmware::sys;
+using namespace opendeck::firmware::protocol;
 using namespace opendeck::firmware;
 
 namespace

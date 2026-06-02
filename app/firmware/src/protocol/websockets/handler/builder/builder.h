@@ -19,7 +19,7 @@
 #include "firmware/src/protocol/websockets/handler/osc/osc_handler.h"
 #endif
 
-namespace opendeck::protocol::websockets::handler
+namespace opendeck::firmware::protocol::websockets::handler
 {
     /**
      * @brief Builder that instantiates WebSockets handlers.
@@ -42,4 +42,4 @@ namespace opendeck::protocol::websockets::handler
         websockets::osc::OscHandler _osc;
 #endif
     };
-}    // namespace opendeck::protocol::websockets::handler
+}    // namespace opendeck::firmware::protocol::websockets::handler

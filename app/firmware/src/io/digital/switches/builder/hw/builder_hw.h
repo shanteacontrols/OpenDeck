@@ -11,7 +11,7 @@
 #include "firmware/src/io/digital/drivers/driver.h"
 #include "firmware/src/database/builder/builder.h"
 
-namespace opendeck::io::switches
+namespace opendeck::firmware::io::switches
 {
     /**
      * @brief Convenience builder that wires the hardware switch subsystem.
@@ -57,4 +57,4 @@ namespace opendeck::io::switches
         FilterHw _filter;
         Switches _instance;
     };
-}    // namespace opendeck::io::switches
+}    // namespace opendeck::firmware::io::switches

@@ -8,7 +8,7 @@
 #include <array>
 #include <inttypes.h>
 
-namespace opendeck::io::i2c::display
+namespace opendeck::firmware::io::i2c::display
 {
     /**
      * @brief Identifies configurable display settings stored in the database.
@@ -50,4 +50,4 @@ namespace opendeck::io::i2c::display
         0x3C,
         0x3D,
     };
-}    // namespace opendeck::io::i2c::display
+}    // namespace opendeck::firmware::io::i2c::display

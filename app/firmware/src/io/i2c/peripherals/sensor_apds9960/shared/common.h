@@ -8,7 +8,7 @@
 #include <array>
 #include <inttypes.h>
 
-namespace opendeck::io::i2c::sensor_apds9960
+namespace opendeck::firmware::io::i2c::sensor_apds9960
 {
     /**
      * @brief Identifies configurable APDS9960 sensor settings stored in the database.
@@ -110,4 +110,4 @@ namespace opendeck::io::i2c::sensor_apds9960
     constexpr inline uint8_t  APDS9960_DEFAULT_GEXTH          = 0x1E;
     constexpr inline uint8_t  APDS9960_DEFAULT_GPULSE         = 0xC9;
     constexpr inline uint8_t  APDS9960_DEFAULT_GOFFSET        = 0;
-}    // namespace opendeck::io::i2c::sensor_apds9960
+}    // namespace opendeck::firmware::io::i2c::sensor_apds9960

@@ -7,7 +7,7 @@
 
 #include "firmware/src/io/digital/encoders/shared/deps.h"
 
-namespace opendeck::io::encoders
+namespace opendeck::firmware::io::encoders
 {
     /**
      * @brief Stub encoder subsystem used when no encoder implementation is available.
@@ -44,4 +44,4 @@ namespace opendeck::io::encoders
         {
         }
     };
-}    // namespace opendeck::io::encoders
+}    // namespace opendeck::firmware::io::encoders

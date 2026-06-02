@@ -14,11 +14,12 @@
 #include <cstring>
 #include <vector>
 
+using namespace opendeck;
 using namespace opendeck::firmware::dfu::staged_update_writer;
 
 namespace
 {
-    using FlashAreaHwaTest = opendeck::common::dfu::flash_area::HwaTest;
+    using FlashAreaHwaTest = common::dfu::flash_area::HwaTest;
 
     class StagedUpdateWriterTest : public ::testing::Test
     {
@@ -26,7 +27,7 @@ namespace
         HwaTest            hwa;
         StagedUpdateWriter staged_update_writer = StagedUpdateWriter(hwa);
 
-        static void write_word(opendeck::common::dfu::dfu_stream_parser::Header& header, size_t word_index, uint32_t value)
+        static void write_word(common::dfu::dfu_stream_parser::Header& header, size_t word_index, uint32_t value)
         {
             constexpr uint32_t BYTE_MASK      = 0xFF;
             constexpr uint8_t  BITS_PER_OCTET = 8;
@@ -38,12 +39,12 @@ namespace
             }
         }
 
-        static opendeck::common::dfu::dfu_stream_parser::Header header(uint32_t payload_size)
+        static common::dfu::dfu_stream_parser::Header header(uint32_t payload_size)
         {
-            opendeck::common::dfu::dfu_stream_parser::Header header = {};
+            common::dfu::dfu_stream_parser::Header header = {};
 
-            write_word(header, 0, opendeck::common::dfu::dfu_stream_parser::START_COMMAND);
-            write_word(header, 1, opendeck::common::dfu::dfu_stream_parser::FORMAT_VERSION);
+            write_word(header, 0, common::dfu::dfu_stream_parser::START_COMMAND);
+            write_word(header, 1, common::dfu::dfu_stream_parser::FORMAT_VERSION);
             write_word(header, 2, OPENDECK_TARGET_UID);
             write_word(header, 3, payload_size);
 
@@ -52,7 +53,7 @@ namespace
 
         static constexpr size_t header_storage_size()
         {
-            return ((opendeck::common::dfu::dfu_stream_parser::HEADER_SIZE + FlashAreaHwaTest::WRITE_BLOCK_SIZE - 1U) /
+            return ((common::dfu::dfu_stream_parser::HEADER_SIZE + FlashAreaHwaTest::WRITE_BLOCK_SIZE - 1U) /
                     FlashAreaHwaTest::WRITE_BLOCK_SIZE) *
                    FlashAreaHwaTest::WRITE_BLOCK_SIZE;
         }

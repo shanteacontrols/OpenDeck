@@ -17,7 +17,7 @@
 #include "firmware/src/io/digital/encoders/hwa/hw/hwa_hw.h"
 #include "firmware/src/database/builder/builder.h"
 
-namespace opendeck::io::digital
+namespace opendeck::firmware::io::digital
 {
     /**
      * @brief Convenience builder that wires the hardware digital subsystem.
@@ -66,4 +66,4 @@ namespace opendeck::io::digital
         io::encoders::Encoders _encoders;
         Digital                _instance;
     };
-}    // namespace opendeck::io::digital
+}    // namespace opendeck::firmware::io::digital

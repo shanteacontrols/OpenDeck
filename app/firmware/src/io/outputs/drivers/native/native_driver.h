@@ -14,7 +14,7 @@
 
 #define OPENDECK_OUTPUT_NATIVE_GPIO_ENTRY(index, node_id) GPIO_DT_SPEC_GET_BY_IDX(node_id, native_gpios, index)
 
-namespace opendeck::io::outputs
+namespace opendeck::firmware::io::outputs
 {
     /**
      * @brief Output driver that drives native GPIO outputs directly.
@@ -57,6 +57,6 @@ namespace opendeck::io::outputs
 
         std::array<gpio_dt_spec, OUTPUT_COUNT> _gpios = { { LISTIFY(CONFIG_PROJECT_TARGET_OUTPUT_PHYSICAL_COUNT, OPENDECK_OUTPUT_NATIVE_GPIO_ENTRY, (, ), DT_NODELABEL(opendeck_outputs)) } };
     };
-}    // namespace opendeck::io::outputs
+}    // namespace opendeck::firmware::io::outputs
 
 #undef OPENDECK_OUTPUT_NATIVE_GPIO_ENTRY

@@ -11,7 +11,7 @@
 #include <zephyr/devicetree.h>
 #include <zephyr/drivers/i2c.h>
 
-namespace opendeck::io::i2c
+namespace opendeck::firmware::io::i2c
 {
     /**
      * @brief Hardware-backed I2C backend that proxies to the Zephyr I2C driver.
@@ -89,4 +89,4 @@ namespace opendeck::io::i2c
 
         const device* const _i2c_device = DEVICE_DT_GET(DT_PHANDLE(DT_NODELABEL(opendeck_i2c), bus));
     };
-}    // namespace opendeck::io::i2c
+}    // namespace opendeck::firmware::io::i2c

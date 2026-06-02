@@ -20,8 +20,8 @@ namespace
 {
     LOG_MODULE_REGISTER(midi_ble_service, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
 
-    using opendeck::protocol::midi::ble_service::PacketHandler;
-    using opendeck::protocol::midi::ble_service::ReadyHandler;
+    using opendeck::firmware::protocol::midi::ble_service::PacketHandler;
+    using opendeck::firmware::protocol::midi::ble_service::ReadyHandler;
 
 #define BT_UUID_BLE_MIDI_SERVICE_VAL \
     BT_UUID_128_ENCODE(0x03B80E5A, 0xEDE8, 0x4B33, 0xA751, 0x6CE34EC4C700)
@@ -201,7 +201,7 @@ namespace
     };
 }    // namespace
 
-namespace opendeck::protocol::midi::ble_service
+namespace opendeck::firmware::protocol::midi::ble_service
 {
     bool init(ReadyHandler new_ready_handler, PacketHandler new_packet_handler)
     {
@@ -298,4 +298,4 @@ namespace opendeck::protocol::midi::ble_service
     {
         return is_connected && notify_enabled;
     }
-}    // namespace opendeck::protocol::midi::ble_service
+}    // namespace opendeck::firmware::protocol::midi::ble_service

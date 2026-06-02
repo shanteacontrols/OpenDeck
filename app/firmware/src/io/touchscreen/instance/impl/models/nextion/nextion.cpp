@@ -8,7 +8,7 @@
 
 #include <zephyr/kernel.h>
 
-using namespace opendeck::io::touchscreen;
+using namespace opendeck::firmware::io::touchscreen;
 
 Nextion::Nextion(Hwa& hwa)
     : _hwa(hwa)

@@ -9,7 +9,7 @@
 #include "firmware/src/protocol/websockets/handler/builder/builder.h"
 #include "firmware/src/protocol/websockets/instance/impl/websockets.h"
 
-namespace opendeck::protocol::websockets
+namespace opendeck::firmware::protocol::websockets
 {
     /**
      * @brief Test builder that wires WebSockets to test backends.
@@ -46,4 +46,4 @@ namespace opendeck::protocol::websockets
         HwaTest          _hwa;
         WebSockets       _instance;
     };
-}    // namespace opendeck::protocol::websockets
+}    // namespace opendeck::firmware::protocol::websockets

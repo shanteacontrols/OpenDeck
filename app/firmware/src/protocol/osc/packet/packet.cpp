@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <cstring>
 
-using namespace opendeck::protocol::osc;
+using namespace opendeck::firmware::protocol::osc;
 
 namespace zmisc = zlibs::utils::misc;
 
@@ -326,7 +326,7 @@ std::optional<float> OscMessageView::read_arg(size_t index, OscFloat32) const
     return value;
 }
 
-std::optional<OscMessageView> opendeck::protocol::osc::parse_message(std::span<const uint8_t> packet)
+std::optional<OscMessageView> opendeck::firmware::protocol::osc::parse_message(std::span<const uint8_t> packet)
 {
     std::array<size_t, MAX_ARGUMENT_COUNT> arg_offsets = {};
     size_t                                 offset      = 0;

@@ -22,9 +22,9 @@
 #include <vector>
 
 using namespace opendeck;
-using namespace opendeck::io::i2c;
-using namespace opendeck::io::i2c::sensor_apds9960;
 using namespace opendeck::firmware;
+using namespace opendeck::firmware::io::i2c;
+using namespace opendeck::firmware::io::i2c::sensor_apds9960;
 
 namespace
 {
@@ -681,7 +681,7 @@ TEST_F(Apds9960SensorTest, PublishesLastContinuousOutputsOnForcedRefreshStart)
     update_after(SAMPLE_DELAY_MS);
     _collector.clear();
 
-    ASSERT_TRUE(signaling::publish(signaling::ForcedRefreshStart{ opendeck::sys::ForcedRefreshType::OscRequest }));
+    ASSERT_TRUE(signaling::publish(signaling::ForcedRefreshStart{ firmware::sys::ForcedRefreshType::OscRequest }));
     drain();
 
     const auto signals = _collector.snapshot();

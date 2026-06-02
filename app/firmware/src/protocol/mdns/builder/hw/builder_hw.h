@@ -17,7 +17,7 @@
 #include "common/src/protocols/mdns/hwa/hw/hwa_hw.h"
 #include "common/src/protocols/mdns/instance/impl/mdns.h"
 
-namespace opendeck::protocol::mdns
+namespace opendeck::firmware::protocol::mdns
 {
     /**
      * @brief Convenience builder that wires the mDNS discovery backend.
@@ -61,4 +61,4 @@ namespace opendeck::protocol::mdns
 #endif
         Mdns _instance;
     };
-}    // namespace opendeck::protocol::mdns
+}    // namespace opendeck::firmware::protocol::mdns

@@ -14,7 +14,7 @@
 
 #include <array>
 
-namespace opendeck::io::outputs
+namespace opendeck::firmware::io::outputs
 {
     /**
      * @brief Output driver that shifts output state through one or more shift registers.
@@ -93,4 +93,4 @@ namespace opendeck::io::outputs
             gpio_pin_set_dt(&_latch, 1);
         }
     };
-}    // namespace opendeck::io::outputs
+}    // namespace opendeck::firmware::io::outputs

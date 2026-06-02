@@ -8,7 +8,7 @@
 #include "firmware/src/io/digital/switches/shared/deps.h"
 #include "firmware/src/io/base.h"
 
-namespace opendeck::io::switches
+namespace opendeck::firmware::io::switches
 {
     /**
      * @brief Stub switch subsystem used when no switch implementation is available.
@@ -54,4 +54,4 @@ namespace opendeck::io::switches
         {
         }
     };
-}    // namespace opendeck::io::switches
+}    // namespace opendeck::firmware::io::switches

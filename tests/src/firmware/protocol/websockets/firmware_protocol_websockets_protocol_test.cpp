@@ -23,7 +23,6 @@
 #include <vector>
 
 using namespace opendeck;
-using namespace opendeck::protocol;
 using namespace opendeck::firmware;
 
 namespace
@@ -196,8 +195,8 @@ namespace
                                      1);
         }
 
-        static std::vector<uint8_t> firmware_command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand command,
-                                                           std::span<const uint8_t>                                       payload = {})
+        static std::vector<uint8_t> firmware_command_frame(common::protocols::websockets::FirmwareUploadCommand command,
+                                                           std::span<const uint8_t>                             payload = {})
         {
             std::vector<uint8_t> frame = {
                 static_cast<uint8_t>(command),
@@ -232,9 +231,9 @@ namespace
             return packets.empty() ? midi_ump{} : packets.back();
         }
 
-        opendeck::protocol::websockets::Builder     builder;
-        opendeck::protocol::websockets::HwaTest&    hwa        = builder.hwa();
-        opendeck::protocol::websockets::WebSockets& websockets = builder.instance();
+        firmware::protocol::websockets::Builder     builder;
+        firmware::protocol::websockets::HwaTest&    hwa        = builder.hwa();
+        firmware::protocol::websockets::WebSockets& websockets = builder.instance();
     };
 }    // namespace
 
@@ -250,10 +249,10 @@ TEST(WebSocketsProtocol, DestructorStopsActiveServer)
 {
     signaling::clear_registry();
 
-    opendeck::protocol::websockets::HwaTest hwa;
+    firmware::protocol::websockets::HwaTest hwa;
 
     {
-        opendeck::protocol::websockets::WebSockets websockets(hwa);
+        firmware::protocol::websockets::WebSockets websockets(hwa);
 
         ASSERT_TRUE(websockets.init());
         ASSERT_EQ(websockets.accept_client(CLIENT_SOCKET), 0);
@@ -329,7 +328,7 @@ TEST_F(WebSocketsProtocolTest, IgnoresNonBinaryFrames)
         0xF7U,
     };
 
-    hwa.push_frame(request, opendeck::common::protocols::websockets::FrameInfo{
+    hwa.push_frame(request, common::protocols::websockets::FrameInfo{
                                 .binary    = false,
                                 .close     = false,
                                 .remaining = 0,
@@ -398,14 +397,14 @@ TEST_F(WebSocketsProtocolTest, FirmwareUploadRequestsBootloaderRebootThroughSyst
         0xF7U,
     };
 
-    const auto dfu = opendeck::tests::dfu_stream_parser::make_stream(payload);
+    const auto dfu = tests::dfu_stream_parser::make_stream(payload);
 
     ASSERT_TRUE(websockets.init());
     ASSERT_EQ(websockets.accept_client(CLIENT_SOCKET), 0);
 
-    hwa.push_frame(firmware_command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand::Begin));
-    hwa.push_frame(firmware_command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand::Chunk, dfu));
-    hwa.push_frame(firmware_command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand::Finish));
+    hwa.push_frame(firmware_command_frame(common::protocols::websockets::FirmwareUploadCommand::Begin));
+    hwa.push_frame(firmware_command_frame(common::protocols::websockets::FirmwareUploadCommand::Chunk, dfu));
+    hwa.push_frame(firmware_command_frame(common::protocols::websockets::FirmwareUploadCommand::Finish));
 
     ASSERT_TRUE(wait_for_sent_frames(3));
     ASSERT_TRUE(wait_for_system_events(collector, 1));
@@ -420,7 +419,7 @@ TEST_F(WebSocketsProtocolTest, FirmwareUploadBeginClosesActiveConfigSession)
     ASSERT_TRUE(websockets.init());
     ASSERT_EQ(websockets.accept_client(CLIENT_SOCKET), 0);
 
-    hwa.push_frame(firmware_command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand::Begin));
+    hwa.push_frame(firmware_command_frame(common::protocols::websockets::FirmwareUploadCommand::Begin));
 
     ASSERT_TRUE(wait_for_sent_frames(1));
     ASSERT_TRUE(wait_for_config_disconnects(collector, 1));
@@ -533,13 +532,13 @@ TEST_F(WebSocketsProtocolTest, ForwardsOscPacketsToBrowser)
     const auto sent = hwa.sent_frames();
     ASSERT_EQ(sent.size(), 1U);
     EXPECT_EQ(sent.front().socket, CLIENT_SOCKET);
-    osc::PacketBuffer expected = {};
-    const auto        size     = osc::make_packet(expected,
-                                                  osc::OscIndexedAddress{
-                                                      .prefix = osc::paths::SWITCH.c_str(),
-                                                      .index  = 0,
-                                                  },
-                                                  osc::OscInt32{ 1 });
+    protocol::osc::PacketBuffer expected = {};
+    const auto                  size     = protocol::osc::make_packet(expected,
+                                                                      protocol::osc::OscIndexedAddress{
+                                                                          .prefix = protocol::osc::paths::SWITCH.c_str(),
+                                                                          .index  = 0,
+                                                                      },
+                                                                      protocol::osc::OscInt32{ 1 });
 
     ASSERT_TRUE(size);
     EXPECT_EQ(sent.front().data, std::vector<uint8_t>(expected.begin(), expected.begin() + *size));

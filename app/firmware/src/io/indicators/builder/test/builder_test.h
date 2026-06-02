@@ -8,7 +8,7 @@
 #include "firmware/src/io/indicators/instance/impl/indicators.h"
 #include "common/src/io/indicators/hwa/test/hwa_test.h"
 
-namespace opendeck::io::indicators
+namespace opendeck::firmware::io::indicators
 {
     /**
      * @brief Test builder that wires the indicator subsystem to a test backend.
@@ -38,4 +38,4 @@ namespace opendeck::io::indicators
         opendeck::common::io::indicators::HwaTest _hwa;
         Indicators                                _instance;
     };
-}    // namespace opendeck::io::indicators
+}    // namespace opendeck::firmware::io::indicators

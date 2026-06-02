@@ -10,7 +10,7 @@
 #include <span>
 #include <string_view>
 
-namespace opendeck::io::i2c
+namespace opendeck::firmware::io::i2c
 {
     /**
      * @brief Hardware abstraction used by the I2C subsystem itself.
@@ -122,4 +122,4 @@ namespace opendeck::io::i2c
          */
         virtual std::span<const uint8_t> i2c_addresses() const = 0;
     };
-}    // namespace opendeck::io::i2c
+}    // namespace opendeck::firmware::io::i2c

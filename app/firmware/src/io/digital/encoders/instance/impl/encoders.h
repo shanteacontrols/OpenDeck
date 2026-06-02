@@ -13,7 +13,7 @@
 
 #include <optional>
 
-namespace opendeck::io::encoders
+namespace opendeck::firmware::io::encoders
 {
     /**
      * @brief Reads encoder movement, tracks per-encoder state, and publishes the configured actions.
@@ -134,4 +134,4 @@ namespace opendeck::io::encoders
          */
         void shutdown();
     };
-}    // namespace opendeck::io::encoders
+}    // namespace opendeck::firmware::io::encoders

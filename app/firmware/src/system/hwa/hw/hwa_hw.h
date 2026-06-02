@@ -19,7 +19,7 @@
 #include "firmware/src/io/indicators/builder/builder.h"
 #include "firmware/src/io/outputs/builder/builder.h"
 
-namespace opendeck::sys
+namespace opendeck::firmware::sys
 {
     /**
      * @brief Hardware-backed system backend that controls reboot mode selection.
@@ -103,4 +103,4 @@ namespace opendeck::sys
             &_builder_mdns.instance(),
         };
     };
-}    // namespace opendeck::sys
+}    // namespace opendeck::firmware::sys

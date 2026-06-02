@@ -16,7 +16,7 @@
 #include <span>
 #include <vector>
 
-namespace opendeck::protocol::osc
+namespace opendeck::firmware::protocol::osc
 {
     /**
      * @brief In-memory socket backend used by OSC tests.
@@ -242,4 +242,4 @@ namespace opendeck::protocol::osc
         bool                              _send_result      = true;
         bool                              _recv_result      = true;
     };
-}    // namespace opendeck::protocol::osc
+}    // namespace opendeck::firmware::protocol::osc

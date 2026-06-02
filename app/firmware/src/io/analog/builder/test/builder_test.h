@@ -11,7 +11,7 @@
 #include "firmware/src/io/analog/shared/frame_store.h"
 #include "firmware/src/database/builder/test/builder_test.h"
 
-namespace opendeck::io::analog
+namespace opendeck::firmware::io::analog
 {
     /**
      * @brief Test builder that wires the analog subsystem to test backends.
@@ -45,4 +45,4 @@ namespace opendeck::io::analog
         FrameStore _frame_store;
         Analog     _instance;
     };
-}    // namespace opendeck::io::analog
+}    // namespace opendeck::firmware::io::analog

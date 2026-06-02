@@ -10,7 +10,7 @@
 #include "firmware/src/io/analog/hwa/stub/hwa_stub.h"
 #include "firmware/src/database/builder/builder.h"
 
-namespace opendeck::io::analog
+namespace opendeck::firmware::io::analog
 {
     /**
      * @brief Stub builder that wires the analog subsystem to no-op backends.
@@ -44,4 +44,4 @@ namespace opendeck::io::analog
         Database   _database;
         Analog     _instance;
     };
-}    // namespace opendeck::io::analog
+}    // namespace opendeck::firmware::io::analog

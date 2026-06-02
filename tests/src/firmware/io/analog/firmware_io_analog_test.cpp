@@ -22,8 +22,7 @@
 #include <deque>
 #include <optional>
 
-using namespace opendeck::io;
-using namespace opendeck::protocol;
+using namespace opendeck;
 using namespace opendeck::firmware;
 
 namespace
@@ -72,14 +71,14 @@ namespace
         511,
     };
 
-    analog::Frame make_frame(uint16_t value)
+    io::analog::Frame make_frame(uint16_t value)
     {
-        analog::Frame frame = {};
+        io::analog::Frame frame = {};
         frame.fill(value);
         return frame;
     }
 
-    class FakeScanDriver : public analog::drivers::ScanDriverBase<FakeScanDriver>
+    class FakeScanDriver : public io::analog::drivers::ScanDriverBase<FakeScanDriver>
     {
         public:
         static constexpr size_t INPUT_COUNT = 3;
@@ -177,7 +176,7 @@ namespace
                 .WillOnce(Return(true));
             ASSERT_TRUE(_switches._instance.init());
 
-            for (size_t i = 0; i < analog::Collection::size(analog::GroupAnalogInputs); i++)
+            for (size_t i = 0; i < io::analog::Collection::size(io::analog::GroupAnalogInputs); i++)
             {
                 ASSERT_EQ(static_cast<uint8_t>(sys::Config::Status::Ack),
                           ConfigHandler.set(sys::Config::Block::Analog,
@@ -231,26 +230,26 @@ namespace
                                                                        static_cast<uint32_t>(0),
                                                                        static_cast<uint32_t>(max_value),
                                                                        static_cast<uint32_t>(0),
-                                                                       static_cast<uint32_t>(analog::Filter::POSITION_MAX_VALUE)));
+                                                                       static_cast<uint32_t>(io::analog::Filter::POSITION_MAX_VALUE)));
         }
 
         void state_change_register_midi_7bit(uint16_t value)
         {
-            state_change_register(position_for_midi_value(value, midi::MAX_VALUE_7BIT));
+            state_change_register(position_for_midi_value(value, protocol::midi::MAX_VALUE_7BIT));
         }
 
         void state_change_register_midi_14bit(uint16_t value)
         {
-            state_change_register(position_for_midi_value(value, midi::MAX_VALUE_14BIT));
+            state_change_register(position_for_midi_value(value, protocol::midi::MAX_VALUE_14BIT));
         }
 
         uint16_t midi_14bit_value_for_position(uint16_t value) const
         {
             return static_cast<uint16_t>(zlibs::utils::misc::map_range(static_cast<uint32_t>(value),
                                                                        static_cast<uint32_t>(0),
-                                                                       static_cast<uint32_t>(analog::Filter::POSITION_MAX_VALUE),
+                                                                       static_cast<uint32_t>(io::analog::Filter::POSITION_MAX_VALUE),
                                                                        static_cast<uint32_t>(0),
-                                                                       static_cast<uint32_t>(midi::MAX_VALUE_14BIT)));
+                                                                       static_cast<uint32_t>(protocol::midi::MAX_VALUE_14BIT)));
         }
 
         void state_change_register(const std::vector<uint16_t>& values)
@@ -294,8 +293,8 @@ namespace
         tests::NoOpDatabaseHandlers _handlers;
         database::Builder           _builder_database;
         database::Admin&            _database_admin = _builder_database.instance();
-        analog::Builder             _analog         = analog::Builder(_database_admin);
-        switches::Builder           _switches       = switches::Builder(_database_admin);
+        io::analog::Builder         _analog         = io::analog::Builder(_database_admin);
+        io::switches::Builder       _switches       = io::switches::Builder(_database_admin);
         MidiIoSignalCollector       _analog_messages;
         MidiIoSignalCollector       _analogSwitch_messages;
         MidiIoSignalCollector       _switch_messages;
@@ -304,8 +303,8 @@ namespace
 
 TEST(AnalogDriverBufferTest, KeepsNewestEightFrames)
 {
-    static constexpr size_t                                              BUFFER_CAPACITY = 8;
-    zlibs::utils::misc::RingBuffer<BUFFER_CAPACITY, true, analog::Frame> buffer;
+    static constexpr size_t                                                  BUFFER_CAPACITY = 8;
+    zlibs::utils::misc::RingBuffer<BUFFER_CAPACITY, true, io::analog::Frame> buffer;
 
     EXPECT_FALSE(buffer.remove().has_value());
 
@@ -332,8 +331,8 @@ TEST(AnalogDriverScanTest, PublishesFullFrames)
         return;
     }
 
-    FakeScanDriver   driver;
-    analog::ScanMask mask = {};
+    FakeScanDriver       driver;
+    io::analog::ScanMask mask = {};
 
     for (size_t i = 0; i < FakeScanDriver::INPUT_COUNT; i++)
     {
@@ -372,7 +371,7 @@ TEST(AnalogDriverScanTest, SkipsMaskedChannels)
     }
 
     FakeScanDriver          driver;
-    analog::ScanMask        mask         = {};
+    io::analog::ScanMask    mask         = {};
     static constexpr size_t FIRST_INPUT  = 0;
     static constexpr size_t SECOND_INPUT = 1;
     static constexpr size_t LAST_INPUT   = FakeScanDriver::INPUT_COUNT - 1;
@@ -409,19 +408,19 @@ TEST_F(AnalogTest, CC)
     wait_for_signals();
     auto analog_messages = _analog_messages.snapshot();
 
-    EXPECT_EQ((analog::Collection::size(analog::GroupAnalogInputs) * midi_7bit_test_values.size()), analog_messages.size());
+    EXPECT_EQ((io::analog::Collection::size(io::analog::GroupAnalogInputs) * midi_7bit_test_values.size()), analog_messages.size());
 
     // all received messages should be control change
     for (size_t i = 0; i < analog_messages.size(); i++)
     {
-        EXPECT_EQ(midi::MessageType::ControlChange, analog_messages.at(i).message);
+        EXPECT_EQ(protocol::midi::MessageType::ControlChange, analog_messages.at(i).message);
     }
 
     for (size_t i = 0; i < midi_7bit_test_values.size(); i++)
     {
-        for (size_t j = 0; j < analog::Collection::size(analog::GroupAnalogInputs); j++)
+        for (size_t j = 0; j < io::analog::Collection::size(io::analog::GroupAnalogInputs); j++)
         {
-            const size_t index = (i * analog::Collection::size(analog::GroupAnalogInputs)) + j;
+            const size_t index = (i * io::analog::Collection::size(io::analog::GroupAnalogInputs)) + j;
             EXPECT_EQ(midi_7bit_test_values.at(i), analog_messages.at(index).value);
         }
     }
@@ -440,13 +439,13 @@ TEST_F(AnalogTest, CC)
     wait_for_signals();
     analog_messages = _analog_messages.snapshot();
 
-    EXPECT_EQ((analog::Collection::size(analog::GroupAnalogInputs) * reverse_values.size()), analog_messages.size());
+    EXPECT_EQ((io::analog::Collection::size(io::analog::GroupAnalogInputs) * reverse_values.size()), analog_messages.size());
 
     for (size_t i = 0; i < reverse_values.size(); i++)
     {
-        for (size_t j = 0; j < analog::Collection::size(analog::GroupAnalogInputs); j++)
+        for (size_t j = 0; j < io::analog::Collection::size(io::analog::GroupAnalogInputs); j++)
         {
-            const size_t index = (i * analog::Collection::size(analog::GroupAnalogInputs)) + j;
+            const size_t index = (i * io::analog::Collection::size(io::analog::GroupAnalogInputs)) + j;
             EXPECT_EQ(reverse_values.at(i), analog_messages.at(index).value);
         }
     }
@@ -464,10 +463,10 @@ TEST_F(AnalogTest, CC)
 TEST_F(AnalogTest, NRPN7bit)
 {
     // set known state
-    for (size_t i = 0; i < analog::Collection::size(analog::GroupAnalogInputs); i++)
+    for (size_t i = 0; i < io::analog::Collection::size(io::analog::GroupAnalogInputs); i++)
     {
         // configure all analog components as potentiometers with 7-bit NRPN MIDI message
-        ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Type, i, analog::Type::Nrpn7Bit));
+        ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Type, i, io::analog::Type::Nrpn7Bit));
     }
 
     // feed all the values from minimum to maximum
@@ -480,22 +479,22 @@ TEST_F(AnalogTest, NRPN7bit)
     wait_for_signals();
     auto analog_messages = _analog_messages.snapshot();
 
-    EXPECT_EQ((analog::Collection::size(analog::GroupAnalogInputs) * midi_7bit_test_values.size()), analog_messages.size());
+    EXPECT_EQ((io::analog::Collection::size(io::analog::GroupAnalogInputs) * midi_7bit_test_values.size()), analog_messages.size());
 
     // all received messages should be NRPN
     for (size_t i = 0; i < analog_messages.size(); i++)
     {
-        EXPECT_EQ(midi::MessageType::Nrpn7Bit, analog_messages.at(i).message);
+        EXPECT_EQ(protocol::midi::MessageType::Nrpn7Bit, analog_messages.at(i).message);
     }
 }
 
 TEST_F(AnalogTest, NRPN14bit)
 {
     // set known state
-    for (size_t i = 0; i < analog::Collection::size(analog::GroupAnalogInputs); i++)
+    for (size_t i = 0; i < io::analog::Collection::size(io::analog::GroupAnalogInputs); i++)
     {
         // configure all analog components as potentiometers with 14-bit NRPN MIDI message
-        ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Type, i, analog::Type::Nrpn14Bit));
+        ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Type, i, io::analog::Type::Nrpn14Bit));
     }
 
     // feed all the values from minimum to maximum
@@ -508,12 +507,12 @@ TEST_F(AnalogTest, NRPN14bit)
     wait_for_signals();
     auto analog_messages = _analog_messages.snapshot();
 
-    EXPECT_EQ((analog::Collection::size(analog::GroupAnalogInputs) * midi_7bit_test_values.size()), analog_messages.size());
+    EXPECT_EQ((io::analog::Collection::size(io::analog::GroupAnalogInputs) * midi_7bit_test_values.size()), analog_messages.size());
 
     // all received messages should be NRPN
     for (size_t i = 0; i < analog_messages.size(); i++)
     {
-        EXPECT_EQ(midi::MessageType::Nrpn14Bit, analog_messages.at(i).message);
+        EXPECT_EQ(protocol::midi::MessageType::Nrpn14Bit, analog_messages.at(i).message);
     }
 }
 
@@ -523,13 +522,13 @@ TEST_F(AnalogTest, PitchBendTest)
         [&](const std::vector<signaling::MidiIoSignal>& analog_messages,
             const std::vector<uint16_t>&                expected_values)
     {
-        const auto input_count = analog::Collection::size(analog::GroupAnalogInputs);
+        const auto input_count = io::analog::Collection::size(io::analog::GroupAnalogInputs);
 
         EXPECT_EQ((input_count * expected_values.size()), analog_messages.size());
 
         for (size_t i = 0; i < analog_messages.size(); i++)
         {
-            EXPECT_EQ(midi::MessageType::PitchBend, analog_messages.at(i).message);
+            EXPECT_EQ(protocol::midi::MessageType::PitchBend, analog_messages.at(i).message);
         }
 
         for (size_t i = 0; i < expected_values.size(); i++)
@@ -543,10 +542,10 @@ TEST_F(AnalogTest, PitchBendTest)
     };
 
     // set known state
-    for (size_t i = 0; i < analog::Collection::size(analog::GroupAnalogInputs); i++)
+    for (size_t i = 0; i < io::analog::Collection::size(io::analog::GroupAnalogInputs); i++)
     {
         // configure all analog components as potentiometers with Pitch Bend MIDI message
-        ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Type, i, analog::Type::PitchBend));
+        ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Type, i, io::analog::Type::PitchBend));
     }
 
     std::vector<uint16_t> expected_values;
@@ -581,7 +580,7 @@ TEST_F(AnalogTest, PitchBendTest)
 TEST_F(AnalogTest, Inversion)
 {
     // enable inversion
-    for (size_t i = 0; i < analog::Collection::size(analog::GroupAnalogInputs); i++)
+    for (size_t i = 0; i < io::analog::Collection::size(io::analog::GroupAnalogInputs); i++)
     {
         ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Invert, i, 1));
     }
@@ -594,16 +593,16 @@ TEST_F(AnalogTest, Inversion)
     wait_for_signals();
     auto analog_messages = _analog_messages.snapshot();
 
-    EXPECT_EQ((analog::Collection::size(analog::GroupAnalogInputs) * midi_7bit_test_values.size()), analog_messages.size());
+    EXPECT_EQ((io::analog::Collection::size(io::analog::GroupAnalogInputs) * midi_7bit_test_values.size()), analog_messages.size());
 
     // first value should be 127
     // last value should be 0
 
     for (size_t i = 0; i < midi_7bit_test_values.size(); i++)
     {
-        for (size_t j = 0; j < analog::Collection::size(analog::GroupAnalogInputs); j++)
+        for (size_t j = 0; j < io::analog::Collection::size(io::analog::GroupAnalogInputs); j++)
         {
-            const size_t index = (i * analog::Collection::size(analog::GroupAnalogInputs)) + j;
+            const size_t index = (i * io::analog::Collection::size(io::analog::GroupAnalogInputs)) + j;
             EXPECT_EQ(127 - midi_7bit_test_values.at(i), analog_messages.at(index).value);
         }
     }
@@ -613,7 +612,7 @@ TEST_F(AnalogTest, Inversion)
     // funky setup: set lower limit to 127, upper to 0 while inversion is enabled
     // result should be the same as when default setup is used (no inversion / 0 as lower limit, 127 as upper limit)
 
-    for (size_t i = 0; i < analog::Collection::size(analog::GroupAnalogInputs); i++)
+    for (size_t i = 0; i < io::analog::Collection::size(io::analog::GroupAnalogInputs); i++)
     {
         ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Invert, i, 1));
         ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::LowerLimit, i, 127));
@@ -631,13 +630,13 @@ TEST_F(AnalogTest, Inversion)
     wait_for_signals();
     analog_messages = _analog_messages.snapshot();
 
-    EXPECT_EQ((analog::Collection::size(analog::GroupAnalogInputs) * midi_7bit_test_values.size()), analog_messages.size());
+    EXPECT_EQ((io::analog::Collection::size(io::analog::GroupAnalogInputs) * midi_7bit_test_values.size()), analog_messages.size());
 
     for (size_t i = 0; i < midi_7bit_test_values.size(); i++)
     {
-        for (size_t j = 0; j < analog::Collection::size(analog::GroupAnalogInputs); j++)
+        for (size_t j = 0; j < io::analog::Collection::size(io::analog::GroupAnalogInputs); j++)
         {
-            const size_t index = (i * analog::Collection::size(analog::GroupAnalogInputs)) + j;
+            const size_t index = (i * io::analog::Collection::size(io::analog::GroupAnalogInputs)) + j;
             EXPECT_EQ(midi_7bit_test_values.at(i), analog_messages.at(index).value);
         }
     }
@@ -647,7 +646,7 @@ TEST_F(AnalogTest, Inversion)
     // now disable inversion
     _analog_messages.clear();
 
-    for (size_t i = 0; i < analog::Collection::size(analog::GroupAnalogInputs); i++)
+    for (size_t i = 0; i < io::analog::Collection::size(io::analog::GroupAnalogInputs); i++)
     {
         ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Invert, i, 0));
         reset_analog(i);
@@ -662,13 +661,13 @@ TEST_F(AnalogTest, Inversion)
     wait_for_signals();
     analog_messages = _analog_messages.snapshot();
 
-    EXPECT_EQ((analog::Collection::size(analog::GroupAnalogInputs) * midi_7bit_test_values.size()), analog_messages.size());
+    EXPECT_EQ((io::analog::Collection::size(io::analog::GroupAnalogInputs) * midi_7bit_test_values.size()), analog_messages.size());
 
     for (size_t i = 0; i < midi_7bit_test_values.size(); i++)
     {
-        for (size_t j = 0; j < analog::Collection::size(analog::GroupAnalogInputs); j++)
+        for (size_t j = 0; j < io::analog::Collection::size(io::analog::GroupAnalogInputs); j++)
         {
-            const size_t index = (i * analog::Collection::size(analog::GroupAnalogInputs)) + j;
+            const size_t index = (i * io::analog::Collection::size(io::analog::GroupAnalogInputs)) + j;
             EXPECT_EQ(127 - midi_7bit_test_values.at(i), analog_messages.at(index).value);
         }
     }
@@ -676,7 +675,7 @@ TEST_F(AnalogTest, Inversion)
 
 TEST_F(AnalogTest, Scaling)
 {
-    if (!analog::Collection::size(analog::GroupAnalogInputs))
+    if (!io::analog::Collection::size(io::analog::GroupAnalogInputs))
     {
         return;
     }
@@ -685,7 +684,7 @@ TEST_F(AnalogTest, Scaling)
     static constexpr uint32_t SCALED_UPPER = 100;
 
     // set known state
-    for (size_t i = 0; i < analog::Collection::size(analog::GroupAnalogInputs); i++)
+    for (size_t i = 0; i < io::analog::Collection::size(io::analog::GroupAnalogInputs); i++)
     {
         ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::LowerLimit, i, 0));
         ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::UpperLimit, i, SCALED_UPPER));
@@ -701,18 +700,18 @@ TEST_F(AnalogTest, Scaling)
 
     // since the values are scaled, verify that all the messages aren't received
     std::cout << "Received " << analog_messages.size() << " messages" << std::endl;
-    ASSERT_TRUE((analog::Collection::size(analog::GroupAnalogInputs) * scaling_test_values.size()) > analog_messages.size());
+    ASSERT_TRUE((io::analog::Collection::size(io::analog::GroupAnalogInputs) * scaling_test_values.size()) > analog_messages.size());
 
     // first value should be 0
     // last value should match the configured scaled value (SCALED_UPPER)
-    for (size_t i = 0; i < analog::Collection::size(analog::GroupAnalogInputs); i++)
+    for (size_t i = 0; i < io::analog::Collection::size(io::analog::GroupAnalogInputs); i++)
     {
         EXPECT_EQ(0, analog_messages.at(i).value);
-        EXPECT_EQ(SCALED_UPPER, analog_messages.at(analog_messages.size() - analog::Collection::size(analog::GroupAnalogInputs) + i).value);
+        EXPECT_EQ(SCALED_UPPER, analog_messages.at(analog_messages.size() - io::analog::Collection::size(io::analog::GroupAnalogInputs) + i).value);
     }
 
     // now scale minimum value as well
-    for (size_t i = 0; i < analog::Collection::size(analog::GroupAnalogInputs); i++)
+    for (size_t i = 0; i < io::analog::Collection::size(io::analog::GroupAnalogInputs); i++)
     {
         ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::LowerLimit, i, SCALED_LOWER));
     }
@@ -727,16 +726,16 @@ TEST_F(AnalogTest, Scaling)
     wait_for_signals();
     analog_messages = _analog_messages.snapshot();
     std::cout << "Received " << analog_messages.size() << " messages" << std::endl;
-    ASSERT_TRUE((analog::Collection::size(analog::GroupAnalogInputs) * scaling_test_values.size()) > analog_messages.size());
+    ASSERT_TRUE((io::analog::Collection::size(io::analog::GroupAnalogInputs) * scaling_test_values.size()) > analog_messages.size());
 
-    for (size_t i = 0; i < analog::Collection::size(analog::GroupAnalogInputs); i++)
+    for (size_t i = 0; i < io::analog::Collection::size(io::analog::GroupAnalogInputs); i++)
     {
         ASSERT_TRUE(analog_messages.at(i).value >= SCALED_LOWER);
-        ASSERT_TRUE(analog_messages.at(analog_messages.size() - analog::Collection::size(analog::GroupAnalogInputs) + i).value <= SCALED_UPPER);
+        ASSERT_TRUE(analog_messages.at(analog_messages.size() - io::analog::Collection::size(io::analog::GroupAnalogInputs) + i).value <= SCALED_UPPER);
     }
 
     // now enable inversion
-    for (size_t i = 0; i < analog::Collection::size(analog::GroupAnalogInputs); i++)
+    for (size_t i = 0; i < io::analog::Collection::size(io::analog::GroupAnalogInputs); i++)
     {
         ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Invert, i, 1));
         reset_analog(i);
@@ -752,16 +751,16 @@ TEST_F(AnalogTest, Scaling)
     wait_for_signals();
     analog_messages = _analog_messages.snapshot();
 
-    for (size_t i = 0; i < analog::Collection::size(analog::GroupAnalogInputs); i++)
+    for (size_t i = 0; i < io::analog::Collection::size(io::analog::GroupAnalogInputs); i++)
     {
         ASSERT_TRUE(analog_messages.at(i).value >= SCALED_UPPER);
-        ASSERT_TRUE(analog_messages.at(analog_messages.size() - analog::Collection::size(analog::GroupAnalogInputs) + i).value <= SCALED_LOWER);
+        ASSERT_TRUE(analog_messages.at(analog_messages.size() - io::analog::Collection::size(io::analog::GroupAnalogInputs) + i).value <= SCALED_LOWER);
     }
 }
 
 TEST_F(AnalogTest, SwitchForwarding)
 {
-    if (!analog::Collection::size(analog::GroupAnalogInputs))
+    if (!io::analog::Collection::size(io::analog::GroupAnalogInputs))
     {
         return;
     }
@@ -771,13 +770,13 @@ TEST_F(AnalogTest, SwitchForwarding)
     static constexpr uint8_t SWITCH_MIDI_CHANNEL = 2;
     static constexpr uint8_t SWITCH_VELOCITY     = 100;
 
-    ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Type, SWITCH_INDEX, analog::Type::Switch) == true);
+    ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Type, SWITCH_INDEX, io::analog::Type::Switch) == true);
 
     // configure switch with the same INDEX (+offset) to certain parameters
-    ASSERT_TRUE(_database_admin.update(database::Config::Section::Switch::Type, switches::Collection::size(switches::GroupDigitalInputs) + SWITCH_INDEX, switches::Type::Momentary));
-    ASSERT_TRUE(_database_admin.update(database::Config::Section::Switch::Channel, switches::Collection::size(switches::GroupDigitalInputs) + SWITCH_INDEX, SWITCH_MIDI_CHANNEL));
-    ASSERT_TRUE(_database_admin.update(database::Config::Section::Switch::MessageType, switches::Collection::size(switches::GroupDigitalInputs) + SWITCH_INDEX, switches::MessageType::ControlChangeReset));
-    ASSERT_TRUE(_database_admin.update(database::Config::Section::Switch::Value, switches::Collection::size(switches::GroupDigitalInputs) + SWITCH_INDEX, SWITCH_VELOCITY));
+    ASSERT_TRUE(_database_admin.update(database::Config::Section::Switch::Type, io::switches::Collection::size(io::switches::GroupDigitalInputs) + SWITCH_INDEX, io::switches::Type::Momentary));
+    ASSERT_TRUE(_database_admin.update(database::Config::Section::Switch::Channel, io::switches::Collection::size(io::switches::GroupDigitalInputs) + SWITCH_INDEX, SWITCH_MIDI_CHANNEL));
+    ASSERT_TRUE(_database_admin.update(database::Config::Section::Switch::MessageType, io::switches::Collection::size(io::switches::GroupDigitalInputs) + SWITCH_INDEX, io::switches::MessageType::ControlChangeReset));
+    ASSERT_TRUE(_database_admin.update(database::Config::Section::Switch::Value, io::switches::Collection::size(io::switches::GroupDigitalInputs) + SWITCH_INDEX, SWITCH_VELOCITY));
 
     state_change_register(0xFFFF);
     wait_for_signals();
@@ -796,9 +795,9 @@ TEST_F(AnalogTest, SwitchForwarding)
     ASSERT_EQ(2, analog_switch_messages.size());
     EXPECT_EQ(SWITCH_INDEX, analog_switch_messages.at(1).component_index);
     ASSERT_EQ(2, switch_messages.size());
-    EXPECT_EQ(switches::Collection::size(switches::GroupDigitalInputs) + SWITCH_INDEX,
+    EXPECT_EQ(io::switches::Collection::size(io::switches::GroupDigitalInputs) + SWITCH_INDEX,
               switch_messages.at(0).component_index);
-    EXPECT_EQ(switches::Collection::size(switches::GroupDigitalInputs) + SWITCH_INDEX,
+    EXPECT_EQ(io::switches::Collection::size(io::switches::GroupDigitalInputs) + SWITCH_INDEX,
               switch_messages.at(1).component_index);
 
     // repeat the same input frame - analog class sends forwarding message again since it's not in charge of filtering it
@@ -812,7 +811,7 @@ TEST_F(AnalogTest, SwitchForwarding)
     _analogSwitch_messages.clear();
     _switch_messages.clear();
 
-    ASSERT_TRUE(_database_admin.update(database::Config::Section::Switch::MessageType, switches::Collection::size(switches::GroupDigitalInputs) + SWITCH_INDEX, switches::MessageType::ControlChange));
+    ASSERT_TRUE(_database_admin.update(database::Config::Section::Switch::MessageType, io::switches::Collection::size(io::switches::GroupDigitalInputs) + SWITCH_INDEX, io::switches::MessageType::ControlChange));
 
     state_change_register(0xFFFF);
     wait_for_signals();
@@ -834,9 +833,9 @@ TEST_F(AnalogTest, SwitchForwarding)
 
 TEST_F(AnalogTest, FsrPublishesOnlyWhenMappedValueBecomesNonZeroAndOnRelease)
 {
-    for (size_t i = 0; i < analog::Collection::size(analog::GroupAnalogInputs); i++)
+    for (size_t i = 0; i < io::analog::Collection::size(io::analog::GroupAnalogInputs); i++)
     {
-        ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Type, i, analog::Type::Fsr));
+        ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Type, i, io::analog::Type::Fsr));
         ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::LowerLimit, i, 0));
         ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::UpperLimit, i, 127));
         reset_analog(i);
@@ -851,16 +850,16 @@ TEST_F(AnalogTest, FsrPublishesOnlyWhenMappedValueBecomesNonZeroAndOnRelease)
 
     _analog_messages.clear();
 
-    state_change_register(analog::Filter::POSITION_MAX_VALUE);
+    state_change_register(io::analog::Filter::POSITION_MAX_VALUE);
     wait_for_signals();
 
     analog_messages = _analog_messages.snapshot();
 
-    ASSERT_EQ(analog::Collection::size(analog::GroupAnalogInputs), analog_messages.size());
+    ASSERT_EQ(io::analog::Collection::size(io::analog::GroupAnalogInputs), analog_messages.size());
 
     for (const auto& message : analog_messages)
     {
-        EXPECT_EQ(midi::MessageType::NoteOn, message.message);
+        EXPECT_EQ(protocol::midi::MessageType::NoteOn, message.message);
         EXPECT_EQ(127, message.value);
     }
 
@@ -871,11 +870,11 @@ TEST_F(AnalogTest, FsrPublishesOnlyWhenMappedValueBecomesNonZeroAndOnRelease)
 
     analog_messages = _analog_messages.snapshot();
 
-    ASSERT_EQ(analog::Collection::size(analog::GroupAnalogInputs), analog_messages.size());
+    ASSERT_EQ(io::analog::Collection::size(io::analog::GroupAnalogInputs), analog_messages.size());
 
     for (const auto& message : analog_messages)
     {
-        EXPECT_EQ(midi::MessageType::NoteOff, message.message);
+        EXPECT_EQ(protocol::midi::MessageType::NoteOff, message.message);
         EXPECT_EQ(0, message.value);
     }
 }
@@ -883,19 +882,19 @@ TEST_F(AnalogTest, FsrPublishesOnlyWhenMappedValueBecomesNonZeroAndOnRelease)
 TEST_F(AnalogTest, DrainsMultipleQueuedFramesInSingleUpdate)
 {
     state_change_register(std::vector<uint16_t>{
-        position_for_midi_value(10, midi::MAX_VALUE_7BIT),
-        position_for_midi_value(11, midi::MAX_VALUE_7BIT),
+        position_for_midi_value(10, protocol::midi::MAX_VALUE_7BIT),
+        position_for_midi_value(11, protocol::midi::MAX_VALUE_7BIT),
     });
     wait_for_signals();
 
     auto analog_messages = _analog_messages.snapshot();
 
-    ASSERT_EQ((analog::Collection::size(analog::GroupAnalogInputs) * 2), analog_messages.size());
+    ASSERT_EQ((io::analog::Collection::size(io::analog::GroupAnalogInputs) * 2), analog_messages.size());
 
-    for (size_t i = 0; i < analog::Collection::size(analog::GroupAnalogInputs); i++)
+    for (size_t i = 0; i < io::analog::Collection::size(io::analog::GroupAnalogInputs); i++)
     {
         EXPECT_EQ(10, analog_messages.at(i).value);
-        EXPECT_EQ(11, analog_messages.at(i + analog::Collection::size(analog::GroupAnalogInputs)).value);
+        EXPECT_EQ(11, analog_messages.at(i + io::analog::Collection::size(io::analog::GroupAnalogInputs)).value);
     }
 }
 
@@ -913,7 +912,7 @@ TEST_F(AnalogTest, ForceRefreshUsesLastValueWithoutNewFrames)
 
     auto analog_messages = _analog_messages.snapshot();
 
-    ASSERT_EQ(analog::Collection::size(analog::GroupAnalogInputs), analog_messages.size());
+    ASSERT_EQ(io::analog::Collection::size(io::analog::GroupAnalogInputs), analog_messages.size());
 
     for (const auto& message : analog_messages)
     {
@@ -923,12 +922,12 @@ TEST_F(AnalogTest, ForceRefreshUsesLastValueWithoutNewFrames)
 
 TEST_F(AnalogTest, EnableChangesUpdatePhysicalScanMask)
 {
-    if (!analog::Collection::size(analog::GroupAnalogInputs))
+    if (!io::analog::Collection::size(io::analog::GroupAnalogInputs))
     {
         return;
     }
 
-    analog::ScanMask expected_mask = _analog._hwa.scan_mask();
+    io::analog::ScanMask expected_mask = _analog._hwa.scan_mask();
 
     ASSERT_EQ(static_cast<uint8_t>(sys::Config::Status::Ack),
               ConfigHandler.set(sys::Config::Block::Analog,
@@ -956,11 +955,11 @@ TEST_F(AnalogTest, PresetChangeUpdatesPhysicalScanMask)
         return;
     }
 
-    analog::ScanMask expected_mask = _analog._hwa.scan_mask();
+    io::analog::ScanMask expected_mask = _analog._hwa.scan_mask();
 
     ASSERT_TRUE(_database_admin.set_preset(1));
 
-    for (size_t i = 0; i < analog::Collection::size(analog::GroupAnalogInputs); i++)
+    for (size_t i = 0; i < io::analog::Collection::size(io::analog::GroupAnalogInputs); i++)
     {
         ASSERT_TRUE(_analog._database.update(database::Config::Section::Analog::Enable, i, 1));
     }

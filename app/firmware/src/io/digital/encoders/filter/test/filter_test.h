@@ -9,7 +9,7 @@
 
 #include <array>
 
-namespace opendeck::io::encoders
+namespace opendeck::firmware::io::encoders
 {
     /**
      * @brief Test encoder filter that accepts every movement sample.
@@ -100,4 +100,4 @@ namespace opendeck::io::encoders
         std::array<uint8_t, STORAGE_SIZE> _encoder_data   = {};
         std::array<int8_t, STORAGE_SIZE>  _encoder_pulses = {};
     };
-}    // namespace opendeck::io::encoders
+}    // namespace opendeck::firmware::io::encoders

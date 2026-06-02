@@ -27,7 +27,7 @@
 #include <span>
 #include <string_view>
 
-namespace opendeck::protocol::osc
+namespace opendeck::firmware::protocol::osc
 {
     /**
      * @brief OSC protocol backend.
@@ -235,4 +235,4 @@ namespace opendeck::protocol::osc
          */
         std::optional<uint8_t> sys_config_set(sys::Config::Section::Global section, size_t index, uint16_t value);
     };
-}    // namespace opendeck::protocol::osc
+}    // namespace opendeck::firmware::protocol::osc

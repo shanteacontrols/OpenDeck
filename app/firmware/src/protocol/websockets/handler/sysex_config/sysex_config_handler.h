@@ -11,7 +11,7 @@
 #include "zlibs/utils/midi/midi.h"
 #include "zlibs/utils/misc/mutex.h"
 
-namespace opendeck::protocol::websockets::sysex_config
+namespace opendeck::firmware::protocol::websockets::sysex_config
 {
     /**
      * @brief Handles SysEx configuration requests received over WebSockets.
@@ -59,4 +59,4 @@ namespace opendeck::protocol::websockets::sysex_config
          */
         void send_response_packet(const midi_ump& packet, uint32_t session_id);
     };
-}    // namespace opendeck::protocol::websockets::sysex_config
+}    // namespace opendeck::firmware::protocol::websockets::sysex_config

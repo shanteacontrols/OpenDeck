@@ -9,7 +9,7 @@
 
 #include <cstddef>
 
-namespace opendeck::threads
+namespace opendeck::firmware::threads
 {
     /** @brief Stack size, in bytes, assigned to digital I/O processing. */
     constexpr inline size_t DIGITAL_THREAD_STACK_SIZE = 2048;
@@ -101,4 +101,4 @@ namespace opendeck::threads
                                                                    K_PRIO_PREEMPT(1),
                                                                    SYSTEM_WORKQUEUE_STACK_SIZE>;
 
-}    // namespace opendeck::threads
+}    // namespace opendeck::firmware::threads

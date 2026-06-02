@@ -17,7 +17,7 @@
 #include "zlibs/utils/misc/mutex.h"
 #include "zlibs/utils/misc/ring_buffer.h"
 
-namespace opendeck::sys
+namespace opendeck::firmware::sys
 {
     /**
      * @brief Top-level system coordinator for initialization, backup/restore, and reboot flows.
@@ -471,4 +471,4 @@ namespace opendeck::sys
          */
         std::optional<uint8_t> sys_config_set(sys::Config::Section::Global section, size_t index, uint16_t value);
     };
-}    // namespace opendeck::sys
+}    // namespace opendeck::firmware::sys

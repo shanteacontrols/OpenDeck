@@ -10,7 +10,7 @@
 #include <functional>
 #include <optional>
 
-namespace opendeck::util
+namespace opendeck::firmware::util
 {
     class Configurable
     {
@@ -53,6 +53,6 @@ namespace opendeck::util
         std::vector<GetHandlerInternal> _getters = {};
         std::vector<SetHandlerInternal> _setters = {};
     };
-}    // namespace opendeck::util
+}    // namespace opendeck::firmware::util
 
 #define ConfigHandler util::Configurable::instance()

@@ -9,7 +9,7 @@
 
 #include <gmock/gmock.h>
 
-namespace opendeck::io::encoders
+namespace opendeck::firmware::io::encoders
 {
     /**
      * @brief Test encoder backend with mockable state access.
@@ -21,4 +21,4 @@ namespace opendeck::io::encoders
 
         MOCK_METHOD1(state, std::optional<uint8_t>(size_t index));
     };
-}    // namespace opendeck::io::encoders
+}    // namespace opendeck::firmware::io::encoders

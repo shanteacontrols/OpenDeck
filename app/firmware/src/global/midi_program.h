@@ -8,7 +8,7 @@
 #include "firmware/src/util/incdec/inc_dec.h"
 #include "firmware/src/signaling/signaling.h"
 
-namespace opendeck::global
+namespace opendeck::firmware::global
 {
     /** @brief Number of MIDI channels tracked by the global program store. */
     constexpr inline uint8_t MIDI_PROGRAM_CHANNEL_COUNT = 16;
@@ -209,6 +209,6 @@ namespace opendeck::global
         std::array<uint8_t, MIDI_PROGRAM_CHANNEL_COUNT + 1> _program = {};
         uint8_t                                             _offset  = 0;
     };
-}    // namespace opendeck::global
+}    // namespace opendeck::firmware::global
 
 #define MidiProgram global::MidiProgram::instance()

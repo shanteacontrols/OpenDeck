@@ -7,7 +7,7 @@
 
 #include "common/src/protocols/mdns/shared/common.h"
 
-namespace opendeck::protocol::mdns
+namespace opendeck::firmware::protocol::mdns
 {
     /** @brief DNS-SD service type used by OpenDeck WebSockets. */
     constexpr inline std::string_view WEBSOCKETS_SERVICE = "_opendeck";
@@ -18,4 +18,4 @@ namespace opendeck::protocol::mdns
 
     /** @brief DNS-SD service type used by OpenDeck OSC. */
     constexpr inline std::string_view OSC_SERVICE = "_opendeck-osc";
-}    // namespace opendeck::protocol::mdns
+}    // namespace opendeck::firmware::protocol::mdns

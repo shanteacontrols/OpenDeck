@@ -28,7 +28,7 @@ namespace opendeck::tests
      */
     inline void resume_io()
     {
-        io::Base::resume();
+        opendeck::firmware::io::Base::resume();
         k_msleep(20);
     }
 

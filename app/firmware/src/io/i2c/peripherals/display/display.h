@@ -16,7 +16,7 @@
 #include <bits/char_traits.h>
 #include <optional>
 
-namespace opendeck::io::i2c::display
+namespace opendeck::firmware::io::i2c::display
 {
     /**
      * @brief OLED display peripheral that renders MIDI and preset status.
@@ -453,4 +453,4 @@ namespace opendeck::io::i2c::display
          */
         std::optional<uint8_t> sys_config_set(sys::Config::Section::I2c section, size_t index, uint16_t value);
     };
-}    // namespace opendeck::io::i2c::display
+}    // namespace opendeck::firmware::io::i2c::display

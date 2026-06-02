@@ -8,8 +8,7 @@
 
 #include "zlibs/utils/misc/numeric.h"
 
-using namespace opendeck;
-using namespace opendeck::io::outputs;
+using namespace opendeck::firmware::io::outputs;
 using namespace opendeck::firmware;
 
 namespace

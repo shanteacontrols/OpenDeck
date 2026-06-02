@@ -11,7 +11,7 @@
 #include "firmware/src/database/builder/builder.h"
 #include "common/src/protocols/mdns/instance/impl/mdns.h"
 
-namespace opendeck::protocol::mdns
+namespace opendeck::firmware::protocol::mdns
 {
     /**
      * @brief Convenience builder that wires the mDNS test backend.
@@ -53,4 +53,4 @@ namespace opendeck::protocol::mdns
         ServicesTest                                _services;
         Mdns                                        _instance;
     };
-}    // namespace opendeck::protocol::mdns
+}    // namespace opendeck::firmware::protocol::mdns

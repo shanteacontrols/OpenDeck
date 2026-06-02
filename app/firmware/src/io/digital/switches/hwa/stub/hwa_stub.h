@@ -7,7 +7,7 @@
 
 #include "firmware/src/io/digital/switches/shared/deps.h"
 
-namespace opendeck::io::switches
+namespace opendeck::firmware::io::switches
 {
     /**
      * @brief Stub switch backend that never returns live hardware state.
@@ -63,4 +63,4 @@ namespace opendeck::io::switches
             return {};
         }
     };
-}    // namespace opendeck::io::switches
+}    // namespace opendeck::firmware::io::switches

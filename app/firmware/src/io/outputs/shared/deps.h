@@ -8,7 +8,7 @@
 #include "firmware/src/io/outputs/shared/common.h"
 #include "firmware/src/database/instance/impl/database.h"
 
-namespace opendeck::io::outputs
+namespace opendeck::firmware::io::outputs
 {
     /**
      * @brief Database view used by the output subsystem.
@@ -32,4 +32,4 @@ namespace opendeck::io::outputs
          */
         virtual void set_level(size_t index, uint8_t level) = 0;
     };
-}    // namespace opendeck::io::outputs
+}    // namespace opendeck::firmware::io::outputs

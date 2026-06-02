@@ -7,7 +7,7 @@
 
 #include "common/src/protocols/websockets/hwa/hw/hwa_hw.h"
 
-namespace opendeck::protocol::websockets
+namespace opendeck::firmware::protocol::websockets
 {
     /**
      * @brief Zephyr-backed WebSockets platform hooks.
@@ -17,4 +17,4 @@ namespace opendeck::protocol::websockets
         public:
         HwaHw();
     };
-}    // namespace opendeck::protocol::websockets
+}    // namespace opendeck::firmware::protocol::websockets

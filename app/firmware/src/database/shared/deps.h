@@ -7,7 +7,7 @@
 
 #include "zlibs/utils/lessdb/lessdb.h"
 
-namespace opendeck::database
+namespace opendeck::firmware::database
 {
     /**
      * @brief Hardware abstraction interface for database storage access.
@@ -67,4 +67,4 @@ namespace opendeck::database
          */
         virtual void initialized() = 0;
     };
-}    // namespace opendeck::database
+}    // namespace opendeck::firmware::database

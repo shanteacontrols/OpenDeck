@@ -16,7 +16,7 @@
 #include <array>
 #include <limits>
 
-namespace opendeck::io::analog
+namespace opendeck::firmware::io::analog
 {
     /**
      * @brief Hardware-oriented analog filter for potentiometers, FSRs, and analog switches.
@@ -1178,4 +1178,4 @@ namespace opendeck::io::analog
             return true;
         }
     };
-}    // namespace opendeck::io::analog
+}    // namespace opendeck::firmware::io::analog

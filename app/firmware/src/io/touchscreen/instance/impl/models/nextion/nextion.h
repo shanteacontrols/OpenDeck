@@ -11,7 +11,7 @@
 #include <cstdio>
 #include <string_view>
 
-namespace opendeck::io::touchscreen
+namespace opendeck::firmware::io::touchscreen
 {
     /**
      * @brief Nextion touchscreen model implementation.
@@ -185,4 +185,4 @@ namespace opendeck::io::touchscreen
          */
         TsEvent response(Data& data);
     };
-}    // namespace opendeck::io::touchscreen
+}    // namespace opendeck::firmware::io::touchscreen

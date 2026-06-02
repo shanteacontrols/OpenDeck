@@ -11,7 +11,7 @@
 
 #define OPENDECK_SWITCH_NATIVE_GPIO_ENTRY(index, node_id) GPIO_DT_SPEC_GET_BY_IDX(node_id, native_gpios, index)
 
-namespace opendeck::io::digital::drivers
+namespace opendeck::firmware::io::digital::drivers
 {
     /**
      * @brief Digital input driver for directly connected GPIO switches.
@@ -121,6 +121,6 @@ namespace opendeck::io::digital::drivers
             return frame;
         }
     };
-}    // namespace opendeck::io::digital::drivers
+}    // namespace opendeck::firmware::io::digital::drivers
 
 #undef OPENDECK_SWITCH_NATIVE_GPIO_ENTRY

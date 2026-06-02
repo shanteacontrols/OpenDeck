@@ -8,7 +8,7 @@
 #include "firmware/src/io/digital/shared/deps.h"
 #include "firmware/src/io/digital/drivers/remap.h"
 
-namespace opendeck::io::digital
+namespace opendeck::firmware::io::digital
 {
     /**
      * @brief Hardware-backed digital subsystem adapter.
@@ -67,4 +67,4 @@ namespace opendeck::io::digital
         private:
         Hwa& _driver;
     };
-}    // namespace opendeck::io::digital
+}    // namespace opendeck::firmware::io::digital

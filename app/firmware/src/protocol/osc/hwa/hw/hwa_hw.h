@@ -7,7 +7,7 @@
 
 #include "firmware/src/protocol/osc/shared/deps.h"
 
-namespace opendeck::protocol::osc
+namespace opendeck::firmware::protocol::osc
 {
     /**
      * @brief Zephyr socket backend used by OSC on hardware targets.
@@ -50,4 +50,4 @@ namespace opendeck::protocol::osc
             return zsock_close(sock);
         }
     };
-}    // namespace opendeck::protocol::osc
+}    // namespace opendeck::firmware::protocol::osc

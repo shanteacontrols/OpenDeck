@@ -16,7 +16,7 @@
 #include "zlibs/utils/misc/kwork_delayable.h"
 #include "zlibs/utils/misc/timer.h"
 
-namespace opendeck::protocol::midi
+namespace opendeck::firmware::protocol::midi
 {
     /**
      * @brief Top-level MIDI protocol subsystem coordinating all active transports.
@@ -196,4 +196,4 @@ namespace opendeck::protocol::midi
          */
         bool shutdown();
     };
-}    // namespace opendeck::protocol::midi
+}    // namespace opendeck::firmware::protocol::midi

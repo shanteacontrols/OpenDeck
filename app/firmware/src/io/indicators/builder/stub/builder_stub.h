@@ -8,7 +8,7 @@
 #include "firmware/src/database/instance/impl/database.h"
 #include "firmware/src/io/indicators/instance/stub/indicators_stub.h"
 
-namespace opendeck::io::indicators
+namespace opendeck::firmware::io::indicators
 {
     /**
      * @brief Stub builder that exposes a no-op indicator subsystem.
@@ -37,4 +37,4 @@ namespace opendeck::io::indicators
         private:
         Indicators _instance;
     };
-}    // namespace opendeck::io::indicators
+}    // namespace opendeck::firmware::io::indicators

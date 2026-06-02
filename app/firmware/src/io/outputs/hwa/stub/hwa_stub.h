@@ -7,7 +7,7 @@
 
 #include "firmware/src/io/outputs/shared/deps.h"
 
-namespace opendeck::io::outputs
+namespace opendeck::firmware::io::outputs
 {
     /**
      * @brief Stub output backend that accepts requests without driving hardware.
@@ -28,4 +28,4 @@ namespace opendeck::io::outputs
         {
         }
     };
-}    // namespace opendeck::io::outputs
+}    // namespace opendeck::firmware::io::outputs

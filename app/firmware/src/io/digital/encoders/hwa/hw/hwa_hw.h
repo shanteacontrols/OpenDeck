@@ -8,7 +8,7 @@
 #include "firmware/src/io/digital/encoders/shared/deps.h"
 #include "firmware/src/io/digital/shared/frame_store.h"
 
-namespace opendeck::io::encoders
+namespace opendeck::firmware::io::encoders
 {
     /**
      * @brief Hardware-backed encoder backend that reads state from the digital frame store.
@@ -40,4 +40,4 @@ namespace opendeck::io::encoders
         private:
         io::digital::FrameStore& _frame_store;
     };
-}    // namespace opendeck::io::encoders
+}    // namespace opendeck::firmware::io::encoders

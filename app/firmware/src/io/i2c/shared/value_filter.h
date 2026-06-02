@@ -10,7 +10,7 @@
 #include <stdint.h>
 #include <type_traits>
 
-namespace opendeck::io::i2c
+namespace opendeck::firmware::io::i2c
 {
     /**
      * @brief Confirms sensor value changes without delaying by time.
@@ -226,4 +226,4 @@ namespace opendeck::io::i2c
         Values  _pending_value = {};
         uint8_t _pending_count = 0;
     };
-}    // namespace opendeck::io::i2c
+}    // namespace opendeck::firmware::io::i2c

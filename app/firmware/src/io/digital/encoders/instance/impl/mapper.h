@@ -14,7 +14,7 @@
 #include <array>
 #include <optional>
 
-namespace opendeck::io::encoders
+namespace opendeck::firmware::io::encoders
 {
     /**
      * @brief Maps logical encoder movement into OSC, MIDI, and system-facing outputs.
@@ -145,4 +145,4 @@ namespace opendeck::io::encoders
          */
         bool has_refresh_value(Type type) const;
     };
-}    // namespace opendeck::io::encoders
+}    // namespace opendeck::firmware::io::encoders

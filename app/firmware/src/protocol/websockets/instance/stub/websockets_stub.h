@@ -10,7 +10,7 @@
 
 #include <cerrno>
 
-namespace opendeck::protocol::websockets
+namespace opendeck::firmware::protocol::websockets
 {
     /**
      * @brief Stub WebSocket configuration endpoint used when support is disabled.
@@ -36,4 +36,4 @@ namespace opendeck::protocol::websockets
             return -ENOTSUP;
         }
     };
-}    // namespace opendeck::protocol::websockets
+}    // namespace opendeck::firmware::protocol::websockets

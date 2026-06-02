@@ -20,7 +20,7 @@
 #include "firmware/src/protocol/osc/shared/common.h"
 #include "firmware/src/system/config.h"
 
-namespace opendeck::sys
+namespace opendeck::firmware::sys
 {
     namespace common_mdns = opendeck::common::protocols::mdns;
 
@@ -447,4 +447,4 @@ namespace opendeck::sys
             }
         }
     };
-}    // namespace opendeck::sys
+}    // namespace opendeck::firmware::sys

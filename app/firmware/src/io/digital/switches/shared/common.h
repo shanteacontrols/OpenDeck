@@ -7,7 +7,7 @@
 
 #include "firmware/src/io/shared/common.h"
 
-namespace opendeck::io::switches
+namespace opendeck::firmware::io::switches
 {
     /** @brief Debounce interval applied to digital switch inputs in milliseconds. */
     constexpr inline uint32_t DEBOUNCE_TIME_MS = 8;
@@ -83,4 +83,4 @@ namespace opendeck::io::switches
         MmcPlayStop,
         Count
     };
-}    // namespace opendeck::io::switches
+}    // namespace opendeck::firmware::io::switches

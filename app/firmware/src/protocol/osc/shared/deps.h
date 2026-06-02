@@ -12,7 +12,7 @@
 #include <cstddef>
 #include <sys/types.h>
 
-namespace opendeck::protocol::osc
+namespace opendeck::firmware::protocol::osc
 {
     /**
      * @brief Database view used by the OSC subsystem for global settings.
@@ -96,4 +96,4 @@ namespace opendeck::protocol::osc
          */
         virtual int close(int sock) = 0;
     };
-}    // namespace opendeck::protocol::osc
+}    // namespace opendeck::firmware::protocol::osc

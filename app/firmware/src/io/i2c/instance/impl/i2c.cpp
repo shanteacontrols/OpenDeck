@@ -9,7 +9,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
-using namespace opendeck::io::i2c;
+using namespace opendeck::firmware::io::i2c;
 
 namespace
 {

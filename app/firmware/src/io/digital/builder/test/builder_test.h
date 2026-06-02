@@ -10,7 +10,7 @@
 #include "firmware/src/io/digital/encoders/builder/builder.h"
 #include "firmware/src/database/builder/test/builder_test.h"
 
-namespace opendeck::io::digital
+namespace opendeck::firmware::io::digital
 {
     /**
      * @brief Test-only digital subsystem wrapper used by the test builder.
@@ -109,4 +109,4 @@ namespace opendeck::io::digital
         io::encoders::Builder _builderEncoders;
         DigitalTest           _instance;
     };
-}    // namespace opendeck::io::digital
+}    // namespace opendeck::firmware::io::digital

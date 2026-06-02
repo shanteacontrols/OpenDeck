@@ -13,7 +13,7 @@
 #include <stddef.h>
 #include <string_view>
 
-namespace opendeck::io::i2c::sensor_bno085
+namespace opendeck::firmware::io::i2c::sensor_bno085
 {
     /**
      * @brief BNO085 IMU fusion sensor integration.
@@ -174,4 +174,4 @@ namespace opendeck::io::i2c::sensor_bno085
          */
         static uint16_t packet_size(std::span<const uint8_t, SHTP_HEADER_SIZE> header);
     };
-}    // namespace opendeck::io::i2c::sensor_bno085
+}    // namespace opendeck::firmware::io::i2c::sensor_bno085

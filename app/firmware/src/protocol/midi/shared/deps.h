@@ -16,7 +16,7 @@
 #include <optional>
 #include <span>
 
-namespace opendeck::protocol::midi
+namespace opendeck::firmware::protocol::midi
 {
     /**
      * @brief Database view used by the MIDI subsystem for global settings.
@@ -420,4 +420,4 @@ namespace opendeck::protocol::midi
         private:
         HwaBle& _hwa;
     };
-}    // namespace opendeck::protocol::midi
+}    // namespace opendeck::firmware::protocol::midi

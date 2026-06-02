@@ -12,9 +12,9 @@
 #include "firmware/src/util/configurable/configurable.h"
 
 using namespace opendeck;
-using namespace opendeck::io::i2c;
-using namespace opendeck::io::i2c::sensor_vl53l4cx;
 using namespace opendeck::firmware;
+using namespace opendeck::firmware::io::i2c;
+using namespace opendeck::firmware::io::i2c::sensor_vl53l4cx;
 
 namespace
 {

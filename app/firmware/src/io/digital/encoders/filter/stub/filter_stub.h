@@ -7,7 +7,7 @@
 
 #include "firmware/src/io/digital/encoders/shared/deps.h"
 
-namespace opendeck::io::encoders
+namespace opendeck::firmware::io::encoders
 {
     /**
      * @brief Stub encoder filter that rejects every movement sample.
@@ -56,4 +56,4 @@ namespace opendeck::io::encoders
             return 0;
         }
     };
-}    // namespace opendeck::io::encoders
+}    // namespace opendeck::firmware::io::encoders

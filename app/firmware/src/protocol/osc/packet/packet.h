@@ -18,7 +18,7 @@
 #include <type_traits>
 #include <variant>
 
-namespace opendeck::protocol::osc
+namespace opendeck::firmware::protocol::osc
 {
     /**
      * @brief Parsed view of one OSC message.
@@ -359,4 +359,4 @@ namespace opendeck::protocol::osc
      * @return Parsed message view, or empty if the packet is malformed or unsupported.
      */
     std::optional<OscMessageView> parse_message(std::span<const uint8_t> packet);
-}    // namespace opendeck::protocol::osc
+}    // namespace opendeck::firmware::protocol::osc

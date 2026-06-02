@@ -35,7 +35,7 @@ namespace
 
         bootloader::dfu::staged_update_reader::HwaTest            hwa;
         bootloader::dfu::staged_update_reader::StagedUpdateReader reader = bootloader::dfu::staged_update_reader::StagedUpdateReader(hwa);
-        opendeck::common::dfu::dfu_stream_parser::DestinationTest consumer_destination;
+        common::dfu::dfu_stream_parser::DestinationTest           consumer_destination;
     };
 }    // namespace
 
@@ -71,7 +71,7 @@ TEST_F(StagedUpdateReaderTest, StreamsValidPendingUpdateAndClearsMarker)
     EXPECT_EQ(consumer_destination.expected_size, data.size());
     EXPECT_EQ(consumer_destination.payload, data);
     EXPECT_EQ(hwa.clear_pending_calls(), 1);
-    EXPECT_NE(hwa.header_start_magic(), opendeck::common::dfu::dfu_stream_parser::START_COMMAND);
+    EXPECT_NE(hwa.header_start_magic(), common::dfu::dfu_stream_parser::START_COMMAND);
 }
 
 TEST_F(StagedUpdateReaderTest, RejectsDestinationWriteFailureAndClearsMarker)
@@ -86,7 +86,7 @@ TEST_F(StagedUpdateReaderTest, RejectsDestinationWriteFailureAndClearsMarker)
     EXPECT_EQ(consumer_destination.abort_called, 1);
     EXPECT_TRUE(consumer_destination.payload.empty());
     EXPECT_EQ(hwa.clear_pending_calls(), 1);
-    EXPECT_NE(hwa.header_start_magic(), opendeck::common::dfu::dfu_stream_parser::START_COMMAND);
+    EXPECT_NE(hwa.header_start_magic(), common::dfu::dfu_stream_parser::START_COMMAND);
 }
 
 TEST_F(StagedUpdateReaderTest, RejectsDestinationFinishFailureAndClearsMarker)
@@ -102,7 +102,7 @@ TEST_F(StagedUpdateReaderTest, RejectsDestinationFinishFailureAndClearsMarker)
     EXPECT_EQ(consumer_destination.abort_called, 1);
     EXPECT_EQ(consumer_destination.payload, data);
     EXPECT_EQ(hwa.clear_pending_calls(), 1);
-    EXPECT_NE(hwa.header_start_magic(), opendeck::common::dfu::dfu_stream_parser::START_COMMAND);
+    EXPECT_NE(hwa.header_start_magic(), common::dfu::dfu_stream_parser::START_COMMAND);
 }
 
 TEST_F(StagedUpdateReaderTest, RejectsInvalidHeaderWithoutClearingAgain)
@@ -122,7 +122,7 @@ TEST_F(StagedUpdateReaderTest, RejectsWrongTargetUid)
 {
     const auto data = payload();
 
-    hwa.stage(data, opendeck::common::dfu::dfu_stream_parser::START_COMMAND, opendeck::common::dfu::dfu_stream_parser::FORMAT_VERSION, OPENDECK_TARGET_UID ^ 0x01U);
+    hwa.stage(data, common::dfu::dfu_stream_parser::START_COMMAND, common::dfu::dfu_stream_parser::FORMAT_VERSION, OPENDECK_TARGET_UID ^ 0x01U);
 
     EXPECT_FALSE(reader.consume(consumer_destination));
     EXPECT_EQ(consumer_destination.begin_called, 0);

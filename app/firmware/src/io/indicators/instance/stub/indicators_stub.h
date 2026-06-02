@@ -7,7 +7,7 @@
 
 #include "firmware/src/io/base.h"
 
-namespace opendeck::io::indicators
+namespace opendeck::firmware::io::indicators
 {
     /**
      * @brief Stub indicator subsystem used when traffic indicators are not enabled.
@@ -23,4 +23,4 @@ namespace opendeck::io::indicators
         void deinit() override
         {}
     };
-}    // namespace opendeck::io::indicators
+}    // namespace opendeck::firmware::io::indicators

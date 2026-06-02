@@ -8,7 +8,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace opendeck::protocol::osc
+namespace opendeck::firmware::protocol::osc
 {
     /**
      * @brief OSC protocol settings stored in the global database block.
@@ -43,4 +43,4 @@ namespace opendeck::protocol::osc
 
     /** @brief Delay before retrying a failed OSC listen socket setup. */
     constexpr inline int LISTEN_SOCKET_RETRY_DELAY_MS = 100;
-}    // namespace opendeck::protocol::osc
+}    // namespace opendeck::firmware::protocol::osc

@@ -14,9 +14,8 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
-using namespace opendeck;
-using namespace opendeck::io::encoders;
-using namespace opendeck::protocol;
+using namespace opendeck::firmware::io::encoders;
+using namespace opendeck::firmware::protocol;
 using namespace opendeck::firmware;
 
 namespace

@@ -12,7 +12,7 @@
 
 #include "zlibs/utils/misc/kwork_delayable.h"
 
-namespace opendeck::io::indicators
+namespace opendeck::firmware::io::indicators
 {
     /**
      * @brief Top-level subsystem that drives transport traffic and status indicators.
@@ -134,4 +134,4 @@ namespace opendeck::io::indicators
          */
         void shutdown();
     };
-}    // namespace opendeck::io::indicators
+}    // namespace opendeck::firmware::io::indicators

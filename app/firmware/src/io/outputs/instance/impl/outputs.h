@@ -21,7 +21,7 @@
 #include <atomic>
 #include <optional>
 
-namespace opendeck::io::outputs
+namespace opendeck::firmware::io::outputs
 {
     /**
      * @brief Manages output state, pulsing, and refresh scheduling.
@@ -271,4 +271,4 @@ namespace opendeck::io::outputs
          */
         void shutdown();
     };
-}    // namespace opendeck::io::outputs
+}    // namespace opendeck::firmware::io::outputs

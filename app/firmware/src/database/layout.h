@@ -22,7 +22,7 @@
 
 #include <array>
 
-namespace opendeck::database
+namespace opendeck::firmware::database
 {
     namespace common_mdns = opendeck::common::protocols::mdns;
 
@@ -451,4 +451,4 @@ namespace opendeck::database
             Block(TOUCHSCREEN_SECTIONS),
         });
     };
-}    // namespace opendeck::database
+}    // namespace opendeck::firmware::database

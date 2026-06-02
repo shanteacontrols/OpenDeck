@@ -9,7 +9,7 @@
 #include "firmware/src/protocol/osc/hwa/hw/hwa_hw.h"
 #include "firmware/src/database/builder/builder.h"
 
-namespace opendeck::protocol::osc
+namespace opendeck::firmware::protocol::osc
 {
     /**
      * @brief Convenience builder that wires the OSC subsystem.
@@ -42,4 +42,4 @@ namespace opendeck::protocol::osc
         Database _database;
         Osc      _instance;
     };
-}    // namespace opendeck::protocol::osc
+}    // namespace opendeck::firmware::protocol::osc

@@ -7,7 +7,7 @@
 
 #include "firmware/src/protocol/midi/shared/deps.h"
 
-namespace opendeck::protocol::midi
+namespace opendeck::firmware::protocol::midi
 {
     /**
      * @brief Stub USB MIDI backend used when USB MIDI is disabled.
@@ -291,4 +291,4 @@ namespace opendeck::protocol::midi
         private:
         k_poll_signal _data_available_signal = {};
     };
-}    // namespace opendeck::protocol::midi
+}    // namespace opendeck::firmware::protocol::midi

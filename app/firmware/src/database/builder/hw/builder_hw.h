@@ -8,7 +8,7 @@
 #include "firmware/src/database/instance/impl/database.h"
 #include "firmware/src/database/hwa/hw/hwa_hw.h"
 
-namespace opendeck::database
+namespace opendeck::firmware::database
 {
     /**
      * @brief Convenience builder that exposes the shared hardware database instance.
@@ -31,4 +31,4 @@ namespace opendeck::database
             return admin;
         }
     };
-}    // namespace opendeck::database
+}    // namespace opendeck::firmware::database

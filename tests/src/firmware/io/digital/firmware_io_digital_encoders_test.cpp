@@ -14,20 +14,19 @@
 
 #include "zlibs/utils/misc/mutex.h"
 
-using namespace opendeck::io;
-using namespace opendeck::protocol;
+using namespace opendeck;
 using namespace opendeck::firmware;
 
 namespace
 {
     struct TestEvent
     {
-        size_t                 component_index = 0;
-        uint8_t                channel         = 0;
-        uint16_t               index           = 0;
-        uint16_t               value           = 0;
-        midi::MessageType      message         = midi::MessageType::Invalid;
-        signaling::SystemEvent system_event    = {};
+        size_t                      component_index = 0;
+        uint8_t                     channel         = 0;
+        uint16_t                    index           = 0;
+        uint16_t                    value           = 0;
+        protocol::midi::MessageType message         = protocol::midi::MessageType::Invalid;
+        signaling::SystemEvent      system_event    = {};
     };
 
     class Listener
@@ -92,11 +91,11 @@ namespace
             ASSERT_EQ(0, _database_admin.current_preset());
 
             // set known state
-            for (size_t i = 0; i < encoders::Collection::size(); i++)
+            for (size_t i = 0; i < io::encoders::Collection::size(); i++)
             {
                 ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Encoder::Enable, i, 1));
                 ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Encoder::Invert, i, 0));
-                ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Encoder::Mode, i, encoders::Type::ControlChange7fh01h));
+                ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Encoder::Mode, i, io::encoders::Type::ControlChange7fh01h));
             }
 
             signaling::subscribe<signaling::MidiIoSignal>(
@@ -182,23 +181,23 @@ namespace
 
 TEST_F(DigitalEncodersTest, StateDecoding)
 {
-    if (!encoders::Collection::size())
+    if (!io::encoders::Collection::size())
     {
         return;
     }
 
-    auto verify_value = [&](midi::MessageType message, uint16_t value)
+    auto verify_value = [&](protocol::midi::MessageType message, uint16_t value)
     {
-        for (size_t i = 0; i < encoders::Collection::size(); i++)
+        for (size_t i = 0; i < io::encoders::Collection::size(); i++)
         {
             ASSERT_EQ(message, _listener.event_log.at(i).message);
             ASSERT_EQ(value, _listener.event_log.at(i).value);
         }
     };
 
-    auto setup = [&](encoders::Type type)
+    auto setup = [&](io::encoders::Type type)
     {
-        for (size_t i = 0; i < encoders::Collection::size(); i++)
+        for (size_t i = 0; i < io::encoders::Collection::size(); i++)
         {
             ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Encoder::Mode, i, type));
             _digital._builderEncoders._instance.reset(i);
@@ -225,36 +224,36 @@ TEST_F(DigitalEncodersTest, StateDecoding)
             return ENCODER_STATE.at(state_index);
         };
 
-        for (size_t pulse = 0; pulse < encoders::Filter::PULSES_PER_STEP; pulse++)
+        for (size_t pulse = 0; pulse < io::encoders::Filter::PULSES_PER_STEP; pulse++)
         {
             state_change_register(next_value());
         }
     };
 
-    setup(encoders::Type::ControlChange7fh01h);
+    setup(io::encoders::Type::ControlChange7fh01h);
     rotate(true);
-    ASSERT_EQ(encoders::Collection::size(), _listener.event_log.size());
-    verify_value(midi::MessageType::ControlChange, 1);
+    ASSERT_EQ(io::encoders::Collection::size(), _listener.event_log.size());
+    verify_value(protocol::midi::MessageType::ControlChange, 1);
 
     rotate(true);
-    ASSERT_EQ(encoders::Collection::size(), _listener.event_log.size());
-    verify_value(midi::MessageType::ControlChange, 1);
+    ASSERT_EQ(io::encoders::Collection::size(), _listener.event_log.size());
+    verify_value(protocol::midi::MessageType::ControlChange, 1);
 
     rotate(false);
-    ASSERT_EQ(encoders::Collection::size(), _listener.event_log.size());
-    verify_value(midi::MessageType::ControlChange, 127);
+    ASSERT_EQ(io::encoders::Collection::size(), _listener.event_log.size());
+    verify_value(protocol::midi::MessageType::ControlChange, 127);
 }
 
 TEST_F(DigitalEncodersTest, Messages)
 {
-    if (!encoders::Collection::size())
+    if (!io::encoders::Collection::size())
     {
         return;
     }
 
-    auto setup = [&](encoders::Type type)
+    auto setup = [&](io::encoders::Type type)
     {
-        for (size_t i = 0; i < encoders::Collection::size(); i++)
+        for (size_t i = 0; i < io::encoders::Collection::size(); i++)
         {
             ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Encoder::Mode, i, type));
             _digital._builderEncoders._instance.reset(i);
@@ -264,9 +263,9 @@ TEST_F(DigitalEncodersTest, Messages)
         }
     };
 
-    auto verify_value = [&](midi::MessageType message, uint16_t value)
+    auto verify_value = [&](protocol::midi::MessageType message, uint16_t value)
     {
-        for (size_t i = 0; i < encoders::Collection::size(); i++)
+        for (size_t i = 0; i < io::encoders::Collection::size(); i++)
         {
             ASSERT_EQ(message, _listener.event_log.at(i).message);
             ASSERT_EQ(value, _listener.event_log.at(i).value);
@@ -293,43 +292,43 @@ TEST_F(DigitalEncodersTest, Messages)
             return ENCODER_STATE.at(state_index);
         };
 
-        for (size_t pulse = 0; pulse < encoders::Filter::PULSES_PER_STEP; pulse++)
+        for (size_t pulse = 0; pulse < io::encoders::Filter::PULSES_PER_STEP; pulse++)
         {
             state_change_register(next_value());
         }
     };
 
-    setup(encoders::Type::ControlChange7fh01h);
+    setup(io::encoders::Type::ControlChange7fh01h);
     rotate(true);
-    ASSERT_EQ(encoders::Collection::size(), _listener.event_log.size());
-    verify_value(midi::MessageType::ControlChange, 1);
+    ASSERT_EQ(io::encoders::Collection::size(), _listener.event_log.size());
+    verify_value(protocol::midi::MessageType::ControlChange, 1);
     rotate(false);
-    ASSERT_EQ(encoders::Collection::size(), _listener.event_log.size());
-    verify_value(midi::MessageType::ControlChange, 127);
+    ASSERT_EQ(io::encoders::Collection::size(), _listener.event_log.size());
+    verify_value(protocol::midi::MessageType::ControlChange, 127);
 
-    setup(encoders::Type::ControlChange3fh41h);
+    setup(io::encoders::Type::ControlChange3fh41h);
     rotate(true);
-    ASSERT_EQ(encoders::Collection::size(), _listener.event_log.size());
-    verify_value(midi::MessageType::ControlChange, 65);
+    ASSERT_EQ(io::encoders::Collection::size(), _listener.event_log.size());
+    verify_value(protocol::midi::MessageType::ControlChange, 65);
     rotate(false);
-    ASSERT_EQ(encoders::Collection::size(), _listener.event_log.size());
-    verify_value(midi::MessageType::ControlChange, 63);
+    ASSERT_EQ(io::encoders::Collection::size(), _listener.event_log.size());
+    verify_value(protocol::midi::MessageType::ControlChange, 63);
 
-    setup(encoders::Type::ControlChange41h01h);
+    setup(io::encoders::Type::ControlChange41h01h);
     rotate(true);
-    ASSERT_EQ(encoders::Collection::size(), _listener.event_log.size());
-    verify_value(midi::MessageType::ControlChange, 1);
+    ASSERT_EQ(io::encoders::Collection::size(), _listener.event_log.size());
+    verify_value(protocol::midi::MessageType::ControlChange, 1);
     rotate(false);
-    ASSERT_EQ(encoders::Collection::size(), _listener.event_log.size());
-    verify_value(midi::MessageType::ControlChange, 65);
+    ASSERT_EQ(io::encoders::Collection::size(), _listener.event_log.size());
+    verify_value(protocol::midi::MessageType::ControlChange, 65);
 
-    setup(encoders::Type::SingleNoteVariableVal);
+    setup(io::encoders::Type::SingleNoteVariableVal);
     rotate(true);
-    ASSERT_EQ(encoders::Collection::size(), _listener.event_log.size());
-    verify_value(midi::MessageType::NoteOn, 1);
+    ASSERT_EQ(io::encoders::Collection::size(), _listener.event_log.size());
+    verify_value(protocol::midi::MessageType::NoteOn, 1);
     rotate(false);
-    ASSERT_EQ(encoders::Collection::size(), _listener.event_log.size());
-    verify_value(midi::MessageType::NoteOn, 0);
+    ASSERT_EQ(io::encoders::Collection::size(), _listener.event_log.size());
+    verify_value(protocol::midi::MessageType::NoteOn, 0);
 }
 
 #else

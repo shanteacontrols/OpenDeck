@@ -11,7 +11,7 @@
 #include "firmware/src/io/digital/switches/shared/deps.h"
 #include "firmware/src/database/builder/builder.h"
 
-namespace opendeck::io::encoders
+namespace opendeck::firmware::io::encoders
 {
     /**
      * @brief Convenience builder that wires the hardware encoder subsystem.
@@ -48,4 +48,4 @@ namespace opendeck::io::encoders
         FilterHw _filter;
         Encoders _instance;
     };
-}    // namespace opendeck::io::encoders
+}    // namespace opendeck::firmware::io::encoders

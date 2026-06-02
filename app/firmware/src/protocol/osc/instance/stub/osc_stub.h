@@ -7,7 +7,7 @@
 
 #include "firmware/src/protocol/base.h"
 
-namespace opendeck::protocol::osc
+namespace opendeck::firmware::protocol::osc
 {
     /**
      * @brief Stub OSC subsystem used when OSC support is not enabled.
@@ -38,4 +38,4 @@ namespace opendeck::protocol::osc
             return true;
         }
     };
-}    // namespace opendeck::protocol::osc
+}    // namespace opendeck::firmware::protocol::osc

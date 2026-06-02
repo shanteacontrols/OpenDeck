@@ -15,7 +15,7 @@
 #include <functional>
 #include <optional>
 
-namespace opendeck::util
+namespace opendeck::firmware::util
 {
     /**
      * @brief Throttles and forwards component-info notifications.
@@ -68,4 +68,4 @@ namespace opendeck::util
          */
         void process_pending();
     };
-}    // namespace opendeck::util
+}    // namespace opendeck::firmware::util

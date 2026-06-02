@@ -7,7 +7,7 @@
 
 #include "firmware/src/protocol/base.h"
 
-namespace opendeck::protocol::mdns
+namespace opendeck::firmware::protocol::mdns
 {
     /**
      * @brief Stub mDNS backend used when discovery support is disabled.
@@ -28,4 +28,4 @@ namespace opendeck::protocol::mdns
             return true;
         }
     };
-}    // namespace opendeck::protocol::mdns
+}    // namespace opendeck::firmware::protocol::mdns

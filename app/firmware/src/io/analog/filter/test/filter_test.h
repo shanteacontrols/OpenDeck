@@ -7,7 +7,7 @@
 
 #include "firmware/src/io/analog/shared/deps.h"
 
-namespace opendeck::io::analog
+namespace opendeck::firmware::io::analog
 {
     /**
      * @brief Test analog filter that forwards every reading.
@@ -39,4 +39,4 @@ namespace opendeck::io::analog
         {
         }
     };
-}    // namespace opendeck::io::analog
+}    // namespace opendeck::firmware::io::analog

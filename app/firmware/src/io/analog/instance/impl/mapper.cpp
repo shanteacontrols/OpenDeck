@@ -8,21 +8,21 @@
 
 #include "zlibs/utils/misc/numeric.h"
 
-using namespace opendeck::io::analog;
+using namespace opendeck::firmware::io::analog;
 using namespace opendeck::firmware;
 
 namespace
 {
-    constexpr opendeck::protocol::midi::MessageType INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(Type::Count)] = {
-        opendeck::protocol::midi::MessageType::ControlChange,         // PotentiometerControlChange
-        opendeck::protocol::midi::MessageType::NoteOn,                // PotentiometerNote
-        opendeck::protocol::midi::MessageType::NoteOn,                // Fsr
-        opendeck::protocol::midi::MessageType::Invalid,               // Switch
-        opendeck::protocol::midi::MessageType::Nrpn7Bit,              // Nrpn7Bit
-        opendeck::protocol::midi::MessageType::Nrpn14Bit,             // Nrpn14Bit
-        opendeck::protocol::midi::MessageType::PitchBend,             // PitchBend
-        opendeck::protocol::midi::MessageType::ControlChange14Bit,    // ControlChange14Bit
-        opendeck::protocol::midi::MessageType::Invalid,               // Reserved
+    constexpr opendeck::firmware::protocol::midi::MessageType INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(Type::Count)] = {
+        opendeck::firmware::protocol::midi::MessageType::ControlChange,         // PotentiometerControlChange
+        opendeck::firmware::protocol::midi::MessageType::NoteOn,                // PotentiometerNote
+        opendeck::firmware::protocol::midi::MessageType::NoteOn,                // Fsr
+        opendeck::firmware::protocol::midi::MessageType::Invalid,               // Switch
+        opendeck::firmware::protocol::midi::MessageType::Nrpn7Bit,              // Nrpn7Bit
+        opendeck::firmware::protocol::midi::MessageType::Nrpn14Bit,             // Nrpn14Bit
+        opendeck::firmware::protocol::midi::MessageType::PitchBend,             // PitchBend
+        opendeck::firmware::protocol::midi::MessageType::ControlChange14Bit,    // ControlChange14Bit
+        opendeck::firmware::protocol::midi::MessageType::Invalid,               // Reserved
     };
 }    // namespace
 
@@ -47,7 +47,7 @@ std::optional<Mapper::Result> Mapper::result(size_t index, uint16_t position)
         return switch_result(info, position);
     }
 
-    if (position > opendeck::io::analog::Filter::POSITION_MAX_VALUE)
+    if (position > opendeck::firmware::io::analog::Filter::POSITION_MAX_VALUE)
     {
         return {};
     }
@@ -270,7 +270,7 @@ uint16_t Mapper::compute_value(uint16_t position, const DatabaseInfo& info) cons
     {
         mapped = zlibs::utils::misc::map_range(static_cast<uint32_t>(position),
                                                static_cast<uint32_t>(0),
-                                               static_cast<uint32_t>(opendeck::io::analog::Filter::POSITION_MAX_VALUE),
+                                               static_cast<uint32_t>(opendeck::firmware::io::analog::Filter::POSITION_MAX_VALUE),
                                                static_cast<uint32_t>(upper_limit),
                                                static_cast<uint32_t>(lower_limit));
 
@@ -283,7 +283,7 @@ uint16_t Mapper::compute_value(uint16_t position, const DatabaseInfo& info) cons
     {
         mapped = zlibs::utils::misc::map_range(static_cast<uint32_t>(position),
                                                static_cast<uint32_t>(0),
-                                               static_cast<uint32_t>(opendeck::io::analog::Filter::POSITION_MAX_VALUE),
+                                               static_cast<uint32_t>(opendeck::firmware::io::analog::Filter::POSITION_MAX_VALUE),
                                                static_cast<uint32_t>(lower_limit),
                                                static_cast<uint32_t>(upper_limit));
 

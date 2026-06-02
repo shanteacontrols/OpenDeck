@@ -9,7 +9,7 @@
 
 #include <optional>
 
-namespace opendeck::io::analog
+namespace opendeck::firmware::io::analog
 {
     /**
      * @brief Shared cache of the most recent analog scan frame.
@@ -57,4 +57,4 @@ namespace opendeck::io::analog
         Frame _frame       = {};
         bool  _frame_valid = false;
     };
-}    // namespace opendeck::io::analog
+}    // namespace opendeck::firmware::io::analog

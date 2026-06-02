@@ -8,7 +8,7 @@
 #include "bootloader/src/dfu/direct_update_writer/shared/deps.h"
 #include "common/src/dfu/flash_area/hwa/hw/hwa_hw.h"
 #include "common/src/mcu/shared/deps.h"
-#include "firmware/src/system/shared/common.h"
+#include "common/src/system/shared/common.h"
 
 #include "zlibs/utils/misc/kwork_delayable.h"
 
@@ -152,7 +152,7 @@ namespace opendeck::bootloader::dfu::direct_update_writer
          */
         void apply() override
         {
-            _reboot_work.reschedule(opendeck::sys::REBOOT_DELAY_MS);
+            _reboot_work.reschedule(opendeck::common::system::REBOOT_DELAY_MS);
         }
 
         private:

@@ -9,7 +9,7 @@
 
 #include <optional>
 
-namespace opendeck::io::digital
+namespace opendeck::firmware::io::digital
 {
     /**
      * @brief Hardware abstraction interface used by the digital subsystem.
@@ -59,4 +59,4 @@ namespace opendeck::io::digital
          */
         virtual size_t encoder_component_from_encoder(size_t index, EncoderComponent c) = 0;
     };
-}    // namespace opendeck::io::digital
+}    // namespace opendeck::firmware::io::digital

@@ -7,7 +7,7 @@
 
 #include "firmware/src/protocol/websockets/instance/stub/websockets_stub.h"
 
-namespace opendeck::protocol::websockets
+namespace opendeck::firmware::protocol::websockets
 {
     /**
      * @brief Stub builder that wires WebSocket configuration to a no-op backend.
@@ -30,4 +30,4 @@ namespace opendeck::protocol::websockets
         private:
         WebSockets _instance;
     };
-}    // namespace opendeck::protocol::websockets
+}    // namespace opendeck::firmware::protocol::websockets

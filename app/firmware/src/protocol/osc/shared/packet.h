@@ -10,7 +10,7 @@
 #include <cstdint>
 #include <string_view>
 
-namespace opendeck::protocol::osc
+namespace opendeck::firmware::protocol::osc
 {
     /** @brief Maximum size of an encoded OSC packet. */
     constexpr inline size_t PACKET_BUFFER_SIZE = 192;
@@ -64,4 +64,4 @@ namespace opendeck::protocol::osc
         std::string_view prefix = {};
         size_t           index  = 0;
     };
-}    // namespace opendeck::protocol::osc
+}    // namespace opendeck::firmware::protocol::osc

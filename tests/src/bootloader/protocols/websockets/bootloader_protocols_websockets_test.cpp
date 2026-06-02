@@ -20,9 +20,11 @@
 #include <span>
 #include <vector>
 
+using namespace opendeck;
+
 namespace
 {
-    std::vector<uint8_t> command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand command)
+    std::vector<uint8_t> command_frame(common::protocols::websockets::FirmwareUploadCommand command)
     {
         return {
             static_cast<uint8_t>(command),
@@ -31,7 +33,7 @@ namespace
 
     std::vector<uint8_t> chunk_frame(const std::vector<uint8_t>& payload)
     {
-        auto frame = command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand::Chunk);
+        auto frame = command_frame(common::protocols::websockets::FirmwareUploadCommand::Chunk);
         frame.insert(frame.end(), payload.begin(), payload.end());
         return frame;
     }
@@ -43,13 +45,13 @@ namespace
         return bytes_written;
     }
 
-    void expect_ack(const std::vector<uint8_t>&                                    response,
-                    opendeck::common::protocols::websockets::FirmwareUploadCommand command,
-                    opendeck::common::protocols::websockets::FirmwareUploadStatus  status,
-                    uint32_t                                                       bytes_written)
+    void expect_ack(const std::vector<uint8_t>&                          response,
+                    common::protocols::websockets::FirmwareUploadCommand command,
+                    common::protocols::websockets::FirmwareUploadStatus  status,
+                    uint32_t                                             bytes_written)
     {
-        ASSERT_EQ(response.size(), opendeck::common::protocols::websockets::FIRMWARE_UPLOAD_ACK_SIZE);
-        EXPECT_EQ(response.at(0), static_cast<uint8_t>(opendeck::common::protocols::websockets::FirmwareUploadResponse::Ack));
+        ASSERT_EQ(response.size(), common::protocols::websockets::FIRMWARE_UPLOAD_ACK_SIZE);
+        EXPECT_EQ(response.at(0), static_cast<uint8_t>(common::protocols::websockets::FirmwareUploadResponse::Ack));
         EXPECT_EQ(response.at(1), static_cast<uint8_t>(command));
         EXPECT_EQ(response.at(2), static_cast<uint8_t>(status));
         EXPECT_EQ(ack_bytes_written(response), bytes_written);
@@ -70,7 +72,7 @@ namespace
         }
     }
 
-    class WebSocketsHwaTest : public opendeck::common::protocols::websockets::Hwa
+    class WebSocketsHwaTest : public common::protocols::websockets::Hwa
     {
         public:
         struct SentFrame
@@ -84,7 +86,7 @@ namespace
             k_sem_init(&_receive_wakeup, 0, 1);
         }
 
-        int start_server(opendeck::common::protocols::websockets::Endpoint& endpoint) override
+        int start_server(common::protocols::websockets::Endpoint& endpoint) override
         {
             const zlibs::utils::misc::LockGuard lock(_mutex);
             _endpoint = &endpoint;
@@ -97,7 +99,7 @@ namespace
             _server_stopped = true;
         }
 
-        int receive(int socket, std::span<uint8_t> buffer, opendeck::common::protocols::websockets::FrameInfo& info) override
+        int receive(int socket, std::span<uint8_t> buffer, common::protocols::websockets::FrameInfo& info) override
         {
             while (true)
             {
@@ -185,13 +187,13 @@ namespace
             return std::find(_closed_sockets.begin(), _closed_sockets.end(), socket) != _closed_sockets.end();
         }
 
-        mutable zlibs::utils::misc::Mutex                  _mutex;
-        k_sem                                              _receive_wakeup  = {};
-        opendeck::common::protocols::websockets::Endpoint* _endpoint        = nullptr;
-        std::deque<std::vector<uint8_t>>                   _received_frames = {};
-        std::vector<SentFrame>                             _sent_frames     = {};
-        std::vector<int>                                   _closed_sockets  = {};
-        bool                                               _server_stopped  = false;
+        mutable zlibs::utils::misc::Mutex        _mutex;
+        k_sem                                    _receive_wakeup  = {};
+        common::protocols::websockets::Endpoint* _endpoint        = nullptr;
+        std::deque<std::vector<uint8_t>>         _received_frames = {};
+        std::vector<SentFrame>                   _sent_frames     = {};
+        std::vector<int>                         _closed_sockets  = {};
+        bool                                     _server_stopped  = false;
     };
 
     bool wait_for_sent_frames(const WebSocketsHwaTest& hwa, size_t count)
@@ -250,9 +252,9 @@ TEST(BootloaderWebSockets, NetworkDfuWritesDirectUpdate)
     ASSERT_TRUE(websockets.init());
     ASSERT_EQ(websockets.accept_client(CLIENT_SOCKET), 0);
 
-    websockets_hwa.push_frame(command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand::Begin));
-    websockets_hwa.push_frame(chunk_frame(opendeck::tests::dfu_stream_parser::make_stream(payload)));
-    websockets_hwa.push_frame(command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand::Finish));
+    websockets_hwa.push_frame(command_frame(common::protocols::websockets::FirmwareUploadCommand::Begin));
+    websockets_hwa.push_frame(chunk_frame(tests::dfu_stream_parser::make_stream(payload)));
+    websockets_hwa.push_frame(command_frame(common::protocols::websockets::FirmwareUploadCommand::Finish));
 
     ASSERT_TRUE(wait_for_sent_frames(websockets_hwa, 3));
     websockets.deinit();
@@ -261,16 +263,16 @@ TEST(BootloaderWebSockets, NetworkDfuWritesDirectUpdate)
 
     ASSERT_EQ(frames.size(), 3);
     expect_ack(frames.at(0).data,
-               opendeck::common::protocols::websockets::FirmwareUploadCommand::Begin,
-               opendeck::common::protocols::websockets::FirmwareUploadStatus::Ok,
+               common::protocols::websockets::FirmwareUploadCommand::Begin,
+               common::protocols::websockets::FirmwareUploadStatus::Ok,
                0);
     expect_ack(frames.at(1).data,
-               opendeck::common::protocols::websockets::FirmwareUploadCommand::Chunk,
-               opendeck::common::protocols::websockets::FirmwareUploadStatus::Ok,
+               common::protocols::websockets::FirmwareUploadCommand::Chunk,
+               common::protocols::websockets::FirmwareUploadStatus::Ok,
                payload.size());
     expect_ack(frames.at(2).data,
-               opendeck::common::protocols::websockets::FirmwareUploadCommand::Finish,
-               opendeck::common::protocols::websockets::FirmwareUploadStatus::Ok,
+               common::protocols::websockets::FirmwareUploadCommand::Finish,
+               common::protocols::websockets::FirmwareUploadStatus::Ok,
                payload.size());
 
     ASSERT_TRUE(writer_hwa.updated);
@@ -296,8 +298,8 @@ TEST(BootloaderWebSockets, NetworkDfuRejectsInvalidHeader)
     ASSERT_TRUE(websockets.init());
     ASSERT_EQ(websockets.accept_client(CLIENT_SOCKET), 0);
 
-    websockets_hwa.push_frame(command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand::Begin));
-    websockets_hwa.push_frame(chunk_frame(opendeck::tests::dfu_stream_parser::make_stream(payload, OPENDECK_TARGET_UID ^ 0x01)));
+    websockets_hwa.push_frame(command_frame(common::protocols::websockets::FirmwareUploadCommand::Begin));
+    websockets_hwa.push_frame(chunk_frame(tests::dfu_stream_parser::make_stream(payload, OPENDECK_TARGET_UID ^ 0x01)));
 
     ASSERT_TRUE(wait_for_sent_frames(websockets_hwa, 2));
     websockets.deinit();
@@ -306,12 +308,12 @@ TEST(BootloaderWebSockets, NetworkDfuRejectsInvalidHeader)
 
     ASSERT_EQ(frames.size(), 2);
     expect_ack(frames.at(0).data,
-               opendeck::common::protocols::websockets::FirmwareUploadCommand::Begin,
-               opendeck::common::protocols::websockets::FirmwareUploadStatus::Ok,
+               common::protocols::websockets::FirmwareUploadCommand::Begin,
+               common::protocols::websockets::FirmwareUploadStatus::Ok,
                0);
     expect_ack(frames.at(1).data,
-               opendeck::common::protocols::websockets::FirmwareUploadCommand::Chunk,
-               opendeck::common::protocols::websockets::FirmwareUploadStatus::Failed,
+               common::protocols::websockets::FirmwareUploadCommand::Chunk,
+               common::protocols::websockets::FirmwareUploadStatus::Failed,
                0);
 
     ASSERT_FALSE(writer_hwa.updated);
@@ -334,8 +336,8 @@ TEST(BootloaderWebSockets, NetworkDfuAbortResetsDirectUpdate)
     ASSERT_TRUE(websockets.init());
     ASSERT_EQ(websockets.accept_client(CLIENT_SOCKET), 0);
 
-    websockets_hwa.push_frame(command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand::Begin));
-    websockets_hwa.push_frame(command_frame(opendeck::common::protocols::websockets::FirmwareUploadCommand::Abort));
+    websockets_hwa.push_frame(command_frame(common::protocols::websockets::FirmwareUploadCommand::Begin));
+    websockets_hwa.push_frame(command_frame(common::protocols::websockets::FirmwareUploadCommand::Abort));
 
     ASSERT_TRUE(wait_for_sent_frames(websockets_hwa, 2));
     websockets.deinit();
@@ -344,12 +346,12 @@ TEST(BootloaderWebSockets, NetworkDfuAbortResetsDirectUpdate)
 
     ASSERT_EQ(frames.size(), 2);
     expect_ack(frames.at(0).data,
-               opendeck::common::protocols::websockets::FirmwareUploadCommand::Begin,
-               opendeck::common::protocols::websockets::FirmwareUploadStatus::Ok,
+               common::protocols::websockets::FirmwareUploadCommand::Begin,
+               common::protocols::websockets::FirmwareUploadStatus::Ok,
                0);
     expect_ack(frames.at(1).data,
-               opendeck::common::protocols::websockets::FirmwareUploadCommand::Abort,
-               opendeck::common::protocols::websockets::FirmwareUploadStatus::Ok,
+               common::protocols::websockets::FirmwareUploadCommand::Abort,
+               common::protocols::websockets::FirmwareUploadStatus::Ok,
                0);
 
     ASSERT_FALSE(writer_hwa.updated);

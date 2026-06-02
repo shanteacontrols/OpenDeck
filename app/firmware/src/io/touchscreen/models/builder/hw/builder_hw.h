@@ -8,7 +8,7 @@
 #include "firmware/src/io/touchscreen/shared/deps.h"
 #include "firmware/src/io/touchscreen/instance/impl/models/nextion/nextion.h"
 
-namespace opendeck::io::touchscreen
+namespace opendeck::firmware::io::touchscreen
 {
     /**
      * @brief Registers the touchscreen model implementations available on hardware builds.
@@ -28,4 +28,4 @@ namespace opendeck::io::touchscreen
         private:
         Nextion _nextion;
     };
-}    // namespace opendeck::io::touchscreen
+}    // namespace opendeck::firmware::io::touchscreen

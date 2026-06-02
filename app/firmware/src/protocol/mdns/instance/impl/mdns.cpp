@@ -12,7 +12,7 @@
 
 #include <array>
 
-using namespace opendeck::protocol::mdns;
+using namespace opendeck::firmware::protocol::mdns;
 using namespace opendeck::firmware;
 
 namespace

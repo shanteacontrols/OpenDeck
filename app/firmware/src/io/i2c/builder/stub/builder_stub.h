@@ -8,7 +8,7 @@
 #include "firmware/src/io/i2c/instance/stub/i2c_stub.h"
 #include "firmware/src/io/i2c/hwa/stub/hwa_stub.h"
 
-namespace opendeck::io::i2c
+namespace opendeck::firmware::io::i2c
 {
     /**
      * @brief Stub builder that exposes the I2C subsystem with a no-op backend.
@@ -38,4 +38,4 @@ namespace opendeck::io::i2c
         HwaStub _hwa;
         I2c     _instance;
     };
-}    // namespace opendeck::io::i2c
+}    // namespace opendeck::firmware::io::i2c

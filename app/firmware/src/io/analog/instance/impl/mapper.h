@@ -11,7 +11,7 @@
 #include <array>
 #include <optional>
 
-namespace opendeck::io::analog
+namespace opendeck::firmware::io::analog
 {
     /**
      * @brief Maps stable analog positions into protocol-facing OSC and MIDI values.
@@ -161,4 +161,4 @@ namespace opendeck::io::analog
          */
         bool is_7bit_type(Type type) const;
     };
-}    // namespace opendeck::io::analog
+}    // namespace opendeck::firmware::io::analog

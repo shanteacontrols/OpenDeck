@@ -8,7 +8,7 @@
 #include "firmware/src/io/outputs/shared/deps.h"
 #include "firmware/src/io/outputs/drivers/remap.h"
 
-namespace opendeck::io::outputs
+namespace opendeck::firmware::io::outputs
 {
     /**
      * @brief Hardware-backed output backend that proxies to a low-level output driver.
@@ -39,4 +39,4 @@ namespace opendeck::io::outputs
         private:
         Hwa& _driver;
     };
-}    // namespace opendeck::io::outputs
+}    // namespace opendeck::firmware::io::outputs

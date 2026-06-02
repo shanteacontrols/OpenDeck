@@ -9,7 +9,7 @@
 
 #include <zephyr/logging/log.h>
 
-using namespace opendeck::protocol::websockets::sysex_config;
+using namespace opendeck::firmware::protocol::websockets::sysex_config;
 using namespace opendeck::firmware;
 
 namespace

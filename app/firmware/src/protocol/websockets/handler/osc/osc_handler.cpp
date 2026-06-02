@@ -7,7 +7,7 @@
 #include "firmware/src/protocol/osc/packet/packet.h"
 #include "firmware/src/signaling/signaling.h"
 
-using namespace opendeck::protocol::websockets::osc;
+using namespace opendeck::firmware::protocol::websockets::osc;
 using namespace opendeck::firmware;
 
 namespace
@@ -20,8 +20,8 @@ namespace
             return;
         }
 
-        opendeck::protocol::osc::PacketBuffer packet = {};
-        const auto                            size   = opendeck::protocol::osc::make_packet(packet, signal);
+        opendeck::firmware::protocol::osc::PacketBuffer packet = {};
+        const auto                                      size   = opendeck::firmware::protocol::osc::make_packet(packet, signal);
 
         if (!size)
         {

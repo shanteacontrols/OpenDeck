@@ -13,7 +13,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace opendeck::protocol::midi
+namespace opendeck::firmware::protocol::midi
 {
     /**
      * @brief Maximum number of UMP packets accumulated before a USB burst is flushed.
@@ -275,4 +275,4 @@ namespace opendeck::protocol::midi
         SendMidiClockDin,
         Count
     };
-}    // namespace opendeck::protocol::midi
+}    // namespace opendeck::firmware::protocol::midi

@@ -11,7 +11,7 @@
 #include <zephyr/net/dns_sd.h>
 #include <zephyr/net/hostname.h>
 
-using namespace opendeck::protocol::mdns;
+using namespace opendeck::firmware::protocol::mdns;
 
 namespace
 {
@@ -20,7 +20,7 @@ namespace
 
     DNS_SD_REGISTER_SERVICE(opendeck_osc,
                             osc_instance,
-                            opendeck::protocol::mdns::OSC_SERVICE.data(),
+                            opendeck::firmware::protocol::mdns::OSC_SERVICE.data(),
                             opendeck::common::protocols::mdns::UDP_PROTOCOL.data(),
                             opendeck::common::protocols::mdns::LOCAL_DOMAIN.data(),
                             DNS_SD_EMPTY_TXT,
@@ -37,6 +37,6 @@ opendeck::common::protocols::mdns::Service OscService::service()
     return {
         .instance     = osc_instance,
         .port         = osc_port,
-        .service_port = opendeck::protocol::osc::DEFAULT_LISTEN_PORT,
+        .service_port = opendeck::firmware::protocol::osc::DEFAULT_LISTEN_PORT,
     };
 }
