@@ -314,6 +314,7 @@ TEST_F(SystemTest, FullDatabaseInitialValues)
             verify(expected, database::Config::Section::I2c::Display, i);
         }
 
+#ifdef CONFIG_PROJECT_TARGET_SUPPORT_OSC
         for (int i = 0; i < static_cast<uint8_t>(io::i2c::sensor_apds9960::Setting::Count); i++)
         {
             uint32_t expected = 0;
@@ -349,6 +350,7 @@ TEST_F(SystemTest, FullDatabaseInitialValues)
 
             verify(expected, database::Config::Section::I2c::Vl53l4cx, i);
         }
+#endif
 #endif
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_TOUCHSCREEN

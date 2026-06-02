@@ -36,6 +36,10 @@ config PROJECT_TARGET_SUPPORT_I2C
     bool
     default y
 
+config PROJECT_TARGET_SUPPORT_OSC
+    bool
+    default y
+
 config PROJECT_TARGET_SUPPORT_SWITCHES
     bool
     default y
