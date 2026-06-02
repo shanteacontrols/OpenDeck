@@ -8,6 +8,7 @@
 #include "bootloader/src/dfu/direct_update_writer/shared/deps.h"
 #include "common/src/dfu/flash_area/hwa/hw/hwa_hw.h"
 #include "common/src/mcu/shared/deps.h"
+#include "firmware/src/system/shared/common.h"
 
 #include "zlibs/utils/misc/kwork_delayable.h"
 
@@ -151,7 +152,7 @@ namespace opendeck::bootloader::dfu::direct_update_writer
          */
         void apply() override
         {
-            _reboot_work.reschedule(REBOOT_DELAY_MS);
+            _reboot_work.reschedule(opendeck::sys::REBOOT_DELAY_MS);
         }
 
         private:
@@ -176,9 +177,8 @@ namespace opendeck::bootloader::dfu::direct_update_writer
 
         static_assert(WRITE_BLOCK_SIZE > 0, "Firmware slot write block size is invalid");
 
-        static constexpr size_t   MAX_SECTOR_COUNT     = 1024;
-        static constexpr size_t   INVALID_SECTOR_INDEX = static_cast<size_t>(-1);
-        static constexpr uint32_t REBOOT_DELAY_MS      = 100;
+        static constexpr size_t MAX_SECTOR_COUNT     = 1024;
+        static constexpr size_t INVALID_SECTOR_INDEX = static_cast<size_t>(-1);
 
         /**
          * @brief Lazily initializes flash-area metadata when first needed.

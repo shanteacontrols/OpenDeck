@@ -7,6 +7,7 @@
 #include "bootloader/src/signaling/signaling.h"
 
 #include <zephyr/logging/log.h>
+#include <zephyr/logging/log_ctrl.h>
 #include <zephyr/sys/util.h>
 
 #include <span>
@@ -104,8 +105,11 @@ bool bootloader::dfu::direct_update_writer::DirectUpdateWriter::finish()
     status("Firmware payload fully received");
     LOG_INF("Direct firmware update payload written");
     status("Firmware update complete, rebooting");
-    _hwa.apply();
     reset_state(true);
+
+    _hwa.apply();
+
+    LOG_PANIC();
 
     return true;
 }
