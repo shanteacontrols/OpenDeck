@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/io/outputs/shared/deps.h"
+#include "firmware/src/io/outputs/instance/impl/deps.h"
 
 #include "zlibs/utils/misc/bit.h"
 

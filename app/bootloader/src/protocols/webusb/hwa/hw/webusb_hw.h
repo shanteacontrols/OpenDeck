@@ -6,7 +6,7 @@
 #pragma once
 
 #include "bootloader/src/dfu/direct_update_writer/instance/impl/direct_update_writer.h"
-#include "bootloader/src/protocols/webusb/shared/deps.h"
+#include "bootloader/src/protocols/webusb/instance/impl/deps.h"
 #include "bootloader/src/threads.h"
 #include "common/src/dfu/dfu_stream_parser/instance/impl/dfu_stream_parser.h"
 

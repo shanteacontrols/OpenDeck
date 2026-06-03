@@ -6,7 +6,7 @@
 #pragma once
 
 #include "firmware/src/database/instance/impl/database.h"
-#include "firmware/src/system/config.h"
+#include "firmware/src/system/shared/config.h"
 
 #include "zlibs/utils/sysex_conf/sysex_conf.h"
 

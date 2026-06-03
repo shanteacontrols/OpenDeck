@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "common/src/dfu/flash_stream_writer/shared/common.h"
-#include "common/src/dfu/flash_stream_writer/shared/deps.h"
+#include "common/src/dfu/flash_stream_writer/instance/impl/common.h"
+#include "common/src/dfu/flash_stream_writer/instance/impl/deps.h"
 
 #include <array>
 #include <cstddef>

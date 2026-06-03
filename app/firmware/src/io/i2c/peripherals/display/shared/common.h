@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include <array>
 #include <inttypes.h>
 
 namespace opendeck::firmware::io::i2c::display
@@ -46,8 +45,4 @@ namespace opendeck::firmware::io::i2c::display
         Count
     };
 
-    constexpr inline std::array<uint8_t, 2> I2C_ADDRESSES = {
-        0x3C,
-        0x3D,
-    };
 }    // namespace opendeck::firmware::io::i2c::display

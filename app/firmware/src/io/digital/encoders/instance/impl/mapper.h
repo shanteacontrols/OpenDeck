@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/io/digital/encoders/shared/deps.h"
+#include "firmware/src/io/digital/encoders/instance/impl/deps.h"
 #include "firmware/src/global/midi_program.h"
 #include "firmware/src/protocol/midi/shared/common.h"
 #include "firmware/src/signaling/signaling.h"

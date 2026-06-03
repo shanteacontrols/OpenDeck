@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "firmware/src/io/touchscreen/shared/deps.h"
-#include "firmware/src/system/config.h"
+#include "firmware/src/io/touchscreen/instance/impl/deps.h"
+#include "firmware/src/system/shared/config.h"
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/io/base.h"
 #include "firmware/src/threads.h"

@@ -8,7 +8,7 @@
 #include "firmware/src/io/analog/instance/impl/analog.h"
 #include "firmware/src/io/analog/filter/test/filter_test.h"
 #include "firmware/src/io/analog/hwa/test/hwa_test.h"
-#include "firmware/src/io/analog/shared/frame_store.h"
+#include "firmware/src/io/analog/instance/impl/frame_store.h"
 #include "firmware/src/database/builder/test/builder_test.h"
 
 namespace opendeck::firmware::io::analog

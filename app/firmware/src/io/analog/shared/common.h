@@ -6,13 +6,18 @@
 #pragma once
 
 #include "firmware/src/io/shared/common.h"
-#include "firmware/src/database/instance/impl/database.h"
 
 #include <array>
 #include <cstdint>
 
 namespace opendeck::firmware::io::analog
 {
+    /** @brief Number of stable physical-position steps produced by the continuous analog filter. */
+    static constexpr uint16_t POSITION_STEP_COUNT = 512;
+
+    /** @brief Maximum stable physical-position value produced by the continuous analog filter. */
+    static constexpr uint16_t POSITION_MAX_VALUE = POSITION_STEP_COUNT - 1U;
+
     /**
      * @brief Frame of raw analog samples, indexed by analog input.
      */
@@ -58,15 +63,6 @@ namespace opendeck::firmware::io::analog
         ControlChange14Bit,
         Reserved,
         Count
-    };
-
-    /**
-     * @brief Selects how FSR pressure should be interpreted.
-     */
-    enum class PressureType : uint8_t
-    {
-        Velocity,
-        Aftertouch
     };
 
     /**

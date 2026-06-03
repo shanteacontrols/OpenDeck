@@ -5,9 +5,10 @@
 
 #pragma once
 
-#include "firmware/src/database/config.h"
+#include "firmware/src/database/shared/config.h"
 #include "firmware/src/database/shared/deps.h"
-#include "firmware/src/system/config.h"
+#include "firmware/src/database/instance/impl/deps.h"
+#include "firmware/src/system/shared/config.h"
 
 #include <functional>
 #include <type_traits>

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/io/digital/shared/deps.h"
+#include "firmware/src/io/digital/instance/impl/deps.h"
 
 #include <zephyr/drivers/gpio.h>
 

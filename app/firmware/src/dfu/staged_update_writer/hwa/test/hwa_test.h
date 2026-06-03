@@ -6,7 +6,7 @@
 #pragma once
 
 #include "common/src/dfu/flash_area/hwa/test/hwa_test.h"
-#include "firmware/src/dfu/staged_update_writer/shared/deps.h"
+#include "firmware/src/dfu/staged_update_writer/instance/impl/deps.h"
 
 #include <optional>
 #include <span>

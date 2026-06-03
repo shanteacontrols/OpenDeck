@@ -9,7 +9,7 @@
 #include "firmware/src/io/analog/drivers/driver.h"
 #include "firmware/src/io/analog/filter/hw/filter_hw.h"
 #include "firmware/src/io/analog/hwa/hw/hwa_hw.h"
-#include "firmware/src/io/analog/shared/frame_store.h"
+#include "firmware/src/io/analog/instance/impl/frame_store.h"
 #include "firmware/src/database/builder/builder.h"
 
 namespace opendeck::firmware::io::analog

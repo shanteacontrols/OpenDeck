@@ -7,7 +7,7 @@
 
 #ifdef CONFIG_PROJECT_BOOTLOADER_SUPPORT_MDNS
 
-#include "bootloader/src/protocols/mdns/shared/common.h"
+#include "bootloader/src/protocols/mdns/instance/impl/common.h"
 #include "common/src/protocols/websockets/shared/common.h"
 
 #include <zephyr/logging/log.h>

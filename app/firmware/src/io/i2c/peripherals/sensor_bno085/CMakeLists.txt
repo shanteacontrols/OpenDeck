@@ -3,5 +3,5 @@ opendeck_library_named(opendeck_firmware_io_i2c_peripherals_sensor_bno085 TYPE O
 
 target_sources(opendeck_firmware_io_i2c_peripherals_sensor_bno085
     PRIVATE
-    sensor_bno085.cpp
+    instance/impl/sensor_bno085.cpp
 )

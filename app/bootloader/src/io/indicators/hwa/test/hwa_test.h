@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "bootloader/src/io/indicators/shared/deps.h"
+#include "bootloader/src/io/indicators/instance/impl/deps.h"
 
 namespace opendeck::bootloader::io::indicators
 {

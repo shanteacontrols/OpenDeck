@@ -8,7 +8,7 @@
 #include "tests/shared/helpers/misc.h"
 
 #include "firmware/src/database/builder/builder.h"
-#include "firmware/src/io/analog/shared/deps.h"
+#include "firmware/src/io/analog/shared/common.h"
 #include "firmware/src/protocol/osc/hwa/test/hwa_test.h"
 #include "firmware/src/protocol/osc/instance/impl/osc.h"
 #include "firmware/src/protocol/osc/packet/packet.h"
@@ -248,7 +248,7 @@ TEST_F(OscProtocolTest, SendsInputAfterLateNetworkIdentity)
     signaling::publish(signaling::OscIoSignal{
         .source          = signaling::IoEventSource::Analog,
         .component_index = 3,
-        .int32_value     = static_cast<int32_t>(io::analog::Filter::POSITION_MAX_VALUE / 2U),
+        .int32_value     = static_cast<int32_t>(io::analog::POSITION_MAX_VALUE / 2U),
         .float_value     = 0.5F,
         .direction       = signaling::SignalDirection::Out,
     });
@@ -276,7 +276,7 @@ TEST_F(OscProtocolTest, SendsRawAnalogInputAsNormalizedFloatOscPacket)
     signaling::publish(signaling::OscIoSignal{
         .source          = signaling::IoEventSource::Analog,
         .component_index = 3,
-        .int32_value     = static_cast<int32_t>(io::analog::Filter::POSITION_MAX_VALUE),
+        .int32_value     = static_cast<int32_t>(io::analog::POSITION_MAX_VALUE),
         .float_value     = 1.0F,
         .direction       = signaling::SignalDirection::Out,
     });

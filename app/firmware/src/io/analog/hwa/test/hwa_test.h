@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/io/analog/shared/deps.h"
+#include "firmware/src/io/analog/instance/impl/deps.h"
 
 #include "zlibs/utils/misc/mutex.h"
 

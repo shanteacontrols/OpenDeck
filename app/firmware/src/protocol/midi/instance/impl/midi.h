@@ -5,11 +5,12 @@
 
 #pragma once
 
-#include "firmware/src/protocol/midi/shared/deps.h"
+#include "firmware/src/protocol/midi/instance/impl/common.h"
+#include "firmware/src/protocol/midi/instance/impl/deps.h"
 #include "firmware/src/io/shared/common.h"
 #include "firmware/src/protocol/base.h"
 #include "firmware/src/database/instance/impl/database.h"
-#include "firmware/src/system/config.h"
+#include "firmware/src/system/shared/config.h"
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/threads.h"
 

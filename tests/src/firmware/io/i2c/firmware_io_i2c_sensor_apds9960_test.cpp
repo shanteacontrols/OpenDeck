@@ -8,7 +8,7 @@
 
 #include "firmware/src/database/builder/builder.h"
 #include "firmware/src/io/i2c/hwa/test/hwa_test.h"
-#include "firmware/src/io/i2c/peripherals/sensor_apds9960/sensor_apds9960.h"
+#include "firmware/src/io/i2c/peripherals/sensor_apds9960/instance/impl/sensor_apds9960.h"
 #include "firmware/src/io/i2c/shared/value_filter.h"
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/util/configurable/configurable.h"

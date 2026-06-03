@@ -92,14 +92,19 @@ the correct implementation together.
 
 ## Shared Headers
 
-`shared/` contains module contracts and small common definitions used across
-builders, HWA variants, instances, tests, and other modules. Typical files are:
+`shared/` contains module contracts and small common definitions used outside
+the module that owns them. If a header is consumed only by files inside the same
+module, keep it with that module's implementation, usually under
+`instance/impl/`, `impl/`, or the concrete subdirectory that owns it.
+
+Typical shared files are:
 
 - `common.h` for constants, enums, lightweight value types, and collection
   aliases.
-- `deps.h` for interfaces consumed by an instance or implemented by HWA.
+- `deps.h` for interfaces that must cross module boundaries.
 - Specialized shared headers such as `paths.h` or `frame_store.h` when the name
-  is clearer than putting everything in `common.h`.
+  is clearer than putting everything in `common.h`, but only when those headers
+  are also used outside their owning module.
 
 Root-level `common.h` and `deps.h` files should be avoided. If a header is part
 of the module contract, put it under `shared/`.
@@ -140,7 +145,7 @@ Project includes are written relative to `app/`:
 
 ```cpp
 #include "firmware/src/system/builder/builder.h"
-#include "common/src/io/indicators/shared/deps.h"
+#include "common/src/io/indicators/shared/common.h"
 ```
 
 This avoids ambiguity between firmware, bootloader, common, and test include

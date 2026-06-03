@@ -3,14 +3,14 @@ opendeck_library_named(opendeck_firmware_io_i2c_peripherals_sensor_vl53l4cx TYPE
 
 target_include_directories(opendeck_firmware_io_i2c_peripherals_sensor_vl53l4cx
     PUBLIC
-    ${CMAKE_CURRENT_LIST_DIR}/port
+    ${CMAKE_CURRENT_LIST_DIR}/instance/impl/port
     $ENV{ZEPHYR_WS}/modules/vl53l4cx/src
 )
 
 target_sources(opendeck_firmware_io_i2c_peripherals_sensor_vl53l4cx
     PRIVATE
-    sensor_vl53l4cx.cpp
-    port/vl53l4cx_port.cpp
+    instance/impl/sensor_vl53l4cx.cpp
+    instance/impl/port/vl53l4cx_port.cpp
     $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_api.cpp
     $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_api_calibration.cpp
     $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_api_core.cpp

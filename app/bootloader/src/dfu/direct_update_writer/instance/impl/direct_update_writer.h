@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "bootloader/src/dfu/direct_update_writer/shared/deps.h"
+#include "bootloader/src/dfu/direct_update_writer/instance/impl/deps.h"
 #include "common/src/dfu/dfu_stream_parser/shared/common.h"
 #include "common/src/dfu/dfu_stream_parser/shared/deps.h"
 #include "common/src/dfu/flash_stream_writer/instance/impl/flash_stream_writer.h"

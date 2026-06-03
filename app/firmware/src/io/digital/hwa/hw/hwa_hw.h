@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/io/digital/shared/deps.h"
+#include "firmware/src/io/digital/instance/impl/deps.h"
 #include "firmware/src/io/digital/drivers/remap.h"
 
 namespace opendeck::firmware::io::digital

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "bootloader/src/protocols/mdns/shared/deps.h"
+#include "bootloader/src/protocols/mdns/instance/impl/deps.h"
 #include "common/src/protocols/mdns/instance/impl/mdns.h"
 
 #include <array>

@@ -7,6 +7,7 @@
 
 #include "common/src/io/indicators/shared/deps.h"
 #include "firmware/src/io/base.h"
+#include "firmware/src/io/indicators/instance/impl/common.h"
 #include "firmware/src/io/indicators/shared/common.h"
 #include "firmware/src/signaling/signaling.h"
 

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/protocol/midi/shared/deps.h"
+#include "firmware/src/protocol/midi/instance/impl/deps.h"
 
 #include <gmock/gmock.h>
 

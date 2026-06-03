@@ -8,7 +8,7 @@
 
 #include "firmware/src/database/builder/builder.h"
 #include "firmware/src/io/i2c/hwa/test/hwa_test.h"
-#include "firmware/src/io/i2c/peripherals/sensor_vl53l4cx/sensor_vl53l4cx.h"
+#include "firmware/src/io/i2c/peripherals/sensor_vl53l4cx/instance/impl/sensor_vl53l4cx.h"
 #include "firmware/src/util/configurable/configurable.h"
 
 using namespace opendeck;

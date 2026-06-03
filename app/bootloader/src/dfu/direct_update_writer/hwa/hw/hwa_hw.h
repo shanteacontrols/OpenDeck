@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "bootloader/src/dfu/direct_update_writer/shared/deps.h"
+#include "bootloader/src/dfu/direct_update_writer/instance/impl/deps.h"
 #include "common/src/dfu/flash_area/hwa/hw/hwa_hw.h"
 #include "common/src/mcu/shared/deps.h"
 #include "common/src/system/shared/common.h"

@@ -4,6 +4,7 @@
  */
 
 #include "firmware/src/system/instance/impl/system.h"
+#include "firmware/src/system/instance/impl/common.h"
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/util/configurable/configurable.h"
 #include "firmware/src/util/conversion/conversion.h"

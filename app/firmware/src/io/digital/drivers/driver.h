@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/io/digital/shared/deps.h"
+#include "firmware/src/io/digital/instance/impl/deps.h"
 
 #if defined(CONFIG_PROJECT_TARGET_DRIVER_DIGITAL_INPUT_NATIVE)
 #include "firmware/src/io/digital/drivers/native/native_driver.h"

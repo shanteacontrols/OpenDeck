@@ -6,7 +6,7 @@
 #pragma once
 
 #include "firmware/src/io/digital/switches/shared/deps.h"
-#include "firmware/src/io/digital/shared/frame_store.h"
+#include "firmware/src/io/digital/instance/impl/frame_store.h"
 
 namespace opendeck::firmware::io::switches
 {

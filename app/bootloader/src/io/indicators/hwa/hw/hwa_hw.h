@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "bootloader/src/io/indicators/shared/deps.h"
+#include "bootloader/src/io/indicators/instance/impl/deps.h"
 #include "common/src/io/indicators/hwa/hw/hwa_hw.h"
 #include "common/src/io/indicators/shared/common.h"
 

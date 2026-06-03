@@ -4,7 +4,7 @@
  */
 
 #include "firmware/src/io/digital/switches/instance/impl/switches.h"
-#include "firmware/src/system/config.h"
+#include "firmware/src/system/shared/config.h"
 #include "firmware/src/util/conversion/conversion.h"
 #include "firmware/src/util/configurable/configurable.h"
 

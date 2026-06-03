@@ -5,12 +5,13 @@
 
 #pragma once
 
+#include "firmware/src/protocol/osc/instance/impl/common.h"
 #include "firmware/src/protocol/osc/shared/common.h"
-#include "firmware/src/protocol/osc/shared/deps.h"
+#include "firmware/src/protocol/osc/instance/impl/deps.h"
 #include "firmware/src/protocol/osc/packet/packet.h"
 #include "firmware/src/protocol/base.h"
 #include "firmware/src/signaling/signaling.h"
-#include "firmware/src/system/config.h"
+#include "firmware/src/system/shared/config.h"
 #include "firmware/src/threads.h"
 
 #include "zlibs/utils/misc/mutex.h"

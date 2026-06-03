@@ -6,7 +6,7 @@
 #include "tests/shared/common.h"
 #include "tests/shared/helpers/database.h"
 #include "firmware/src/database/builder/builder.h"
-#include "firmware/src/database/layout.h"
+#include "firmware/src/database/shared/layout.h"
 #include "firmware/src/io/digital/switches/shared/common.h"
 #include "firmware/src/io/digital/encoders/shared/common.h"
 #include "firmware/src/io/analog/shared/common.h"
@@ -14,7 +14,7 @@
 #include "firmware/src/io/i2c/peripherals/display/shared/common.h"
 #include "firmware/src/io/touchscreen/shared/common.h"
 #include "firmware/src/protocol/midi/instance/impl/midi.h"
-#include "firmware/src/protocol/mdns/shared/common.h"
+#include "common/src/protocols/mdns/shared/common.h"
 #include "firmware/src/protocol/osc/shared/common.h"
 #include "firmware/src/util/configurable/configurable.h"
 

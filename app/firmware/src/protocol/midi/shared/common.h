@@ -10,16 +10,10 @@
 #include "zlibs/utils/midi/transport/ble/transport_ble.h"
 
 #include <array>
-#include <cstddef>
 #include <cstdint>
 
 namespace opendeck::firmware::protocol::midi
 {
-    /**
-     * @brief Maximum number of UMP packets accumulated before a USB burst is flushed.
-     */
-    static constexpr size_t USB_UMP_BURST_PACKET_COUNT = 64;
-
     /** @brief USB transport type alias used by the MIDI subsystem. */
     using Usb = zlibs::utils::midi::usb::Usb;
     /** @brief BLE transport type alias used by the MIDI subsystem. */
@@ -30,15 +24,6 @@ namespace opendeck::firmware::protocol::midi
     using BlePacket = zlibs::utils::midi::ble::Packet;
     /** @brief Musical note type alias used by helper conversion functions. */
     using Note = zlibs::utils::midi::Note;
-
-    /**
-     * @brief Selects how note-off events are encoded on output.
-     */
-    enum class NoteOffType : uint8_t
-    {
-        StandardNoteOff,
-        NoteOnZeroVel,
-    };
 
     /**
      * @brief Identifies the logical MIDI message type used by the application.
@@ -114,14 +99,6 @@ namespace opendeck::firmware::protocol::midi
     constexpr inline uint8_t CONTROL_CHANGE_14BIT_MAX_INDEX = 96;
     /** @brief Center value used by MIDI pitch bend. */
     constexpr inline uint16_t MIDI_PITCH_BEND_CENTER = 8192;
-    /** @brief USB packet byte index holding the event field. */
-    constexpr inline uint8_t USB_EVENT = 0;
-    /** @brief USB packet byte index holding the first data byte. */
-    constexpr inline uint8_t USB_DATA1 = 1;
-    /** @brief USB packet byte index holding the second data byte. */
-    constexpr inline uint8_t USB_DATA2 = 2;
-    /** @brief USB packet byte index holding the third data byte. */
-    constexpr inline uint8_t USB_DATA3 = 3;
     /** @brief Pseudo-channel value used to represent omni mode. */
     constexpr inline uint8_t OMNI_CHANNEL = 17;
 

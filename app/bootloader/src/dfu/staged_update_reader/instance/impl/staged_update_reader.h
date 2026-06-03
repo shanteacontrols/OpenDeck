@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "bootloader/src/dfu/staged_update_reader/shared/deps.h"
+#include "bootloader/src/dfu/staged_update_reader/instance/impl/deps.h"
 
 namespace opendeck::bootloader::dfu::staged_update_reader
 {

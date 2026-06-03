@@ -9,9 +9,6 @@
 
 namespace opendeck::firmware::io::switches
 {
-    /** @brief Debounce interval applied to digital switch inputs in milliseconds. */
-    constexpr inline uint32_t DEBOUNCE_TIME_MS = 8;
-
     /**
      * @brief Flattened collection of all switch-capable inputs.
      */

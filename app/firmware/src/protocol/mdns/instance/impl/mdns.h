@@ -5,10 +5,9 @@
 
 #pragma once
 
-#include "firmware/src/protocol/mdns/shared/common.h"
-#include "firmware/src/protocol/mdns/shared/deps.h"
+#include "firmware/src/protocol/mdns/instance/impl/deps.h"
 #include "firmware/src/protocol/base.h"
-#include "firmware/src/system/config.h"
+#include "firmware/src/system/shared/config.h"
 #include "firmware/src/threads.h"
 #include "common/src/protocols/mdns/instance/impl/mdns.h"
 

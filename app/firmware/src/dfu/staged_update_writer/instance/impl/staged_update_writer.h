@@ -7,7 +7,7 @@
 
 #include "common/src/dfu/dfu_stream_parser/shared/deps.h"
 #include "common/src/dfu/flash_stream_writer/instance/impl/flash_stream_writer.h"
-#include "firmware/src/dfu/staged_update_writer/shared/deps.h"
+#include "firmware/src/dfu/staged_update_writer/instance/impl/deps.h"
 
 #include <optional>
 #include <span>

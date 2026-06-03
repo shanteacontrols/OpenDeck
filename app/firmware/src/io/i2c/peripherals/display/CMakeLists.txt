@@ -20,8 +20,8 @@ endif()
 
 target_sources(opendeck_firmware_io_i2c_peripherals_display
     PRIVATE
-    display.cpp
-    elements.cpp
+    instance/impl/display.cpp
+    instance/impl/elements.cpp
     $ENV{ZEPHYR_WS}/modules/u8g2/csrc/u8x8_string.c
     $ENV{ZEPHYR_WS}/modules/u8g2/csrc/u8x8_setup.c
     $ENV{ZEPHYR_WS}/modules/u8g2/csrc/u8x8_u8toa.c

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "common/src/dfu/flash_area/shared/deps.h"
+#include "common/src/dfu/flash_area/impl/deps.h"
 
 #include <algorithm>
 #include <array>

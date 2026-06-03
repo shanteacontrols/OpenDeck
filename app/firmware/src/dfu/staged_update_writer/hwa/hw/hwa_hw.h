@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/dfu/staged_update_writer/shared/deps.h"
+#include "firmware/src/dfu/staged_update_writer/instance/impl/deps.h"
 #include "common/src/dfu/flash_area/hwa/hw/hwa_hw.h"
 
 #include <zephyr/devicetree.h>

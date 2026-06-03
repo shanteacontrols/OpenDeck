@@ -9,7 +9,7 @@
 #include "bootloader/src/dfu/direct_update_writer/builder/builder.h"
 #include "bootloader/src/protocols/mdns/builder/builder.h"
 #include "bootloader/src/dfu/staged_update_reader/builder/builder.h"
-#include "bootloader/src/system/shared/deps.h"
+#include "bootloader/src/system/instance/impl/deps.h"
 #include "bootloader/src/protocols/webusb/builder/builder.h"
 #include "bootloader/src/protocols/websockets/builder/builder.h"
 #include "common/src/mcu/hwa/hw/hwa_hw.h"

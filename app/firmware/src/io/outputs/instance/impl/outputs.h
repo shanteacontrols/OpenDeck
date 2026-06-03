@@ -5,11 +5,12 @@
 
 #pragma once
 
+#include "firmware/src/io/outputs/instance/impl/common.h"
 #include "firmware/src/io/outputs/instance/impl/mapper.h"
-#include "firmware/src/io/outputs/shared/deps.h"
+#include "firmware/src/io/outputs/instance/impl/deps.h"
 #include "firmware/src/database/instance/impl/database.h"
 #include "firmware/src/io/shared/common.h"
-#include "firmware/src/system/config.h"
+#include "firmware/src/system/shared/config.h"
 #include "firmware/src/io/base.h"
 #include "firmware/src/threads.h"
 

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/system/shared/deps.h"
+#include "firmware/src/system/instance/impl/deps.h"
 #include "firmware/src/database/builder/builder.h"
 #include "common/src/mcu/builder/builder.h"
 #include "common/src/mcu/shared/common.h"

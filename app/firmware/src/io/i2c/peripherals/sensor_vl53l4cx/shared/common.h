@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include <array>
 #include <inttypes.h>
 
 namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
@@ -55,9 +54,4 @@ namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
         Count
     };
 
-    constexpr inline std::array<uint8_t, 1> I2C_ADDRESSES = {
-        0x29,
-    };
-
-    constexpr inline uint16_t VL53L4CX_REGISTER_SOFT_RESET = 0x0000;
 }    // namespace opendeck::firmware::io::i2c::sensor_vl53l4cx

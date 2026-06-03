@@ -7,7 +7,7 @@
 
 #include "common/src/signaling/shared/signaling.h"
 
-#include "firmware/src/protocol/mdns/shared/common.h"
+#include "common/src/protocols/mdns/shared/common.h"
 #include "firmware/src/protocol/midi/shared/common.h"
 #include "firmware/src/system/shared/common.h"
 

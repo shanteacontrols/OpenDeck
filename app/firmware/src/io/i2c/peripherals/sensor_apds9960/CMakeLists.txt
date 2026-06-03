@@ -3,5 +3,5 @@ opendeck_library_named(opendeck_firmware_io_i2c_peripherals_sensor_apds9960 TYPE
 
 target_sources(opendeck_firmware_io_i2c_peripherals_sensor_apds9960
     PRIVATE
-    sensor_apds9960.cpp
+    instance/impl/sensor_apds9960.cpp
 )

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "bootloader/src/io/indicators/shared/deps.h"
+#include "bootloader/src/io/indicators/instance/impl/deps.h"
 #include "bootloader/src/signaling/signaling.h"
 
 #include "zlibs/utils/misc/kwork_delayable.h"

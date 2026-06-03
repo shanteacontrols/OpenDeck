@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "firmware/src/system/shared/deps.h"
-#include "firmware/src/system/config.h"
-#include "firmware/src/system/layout.h"
+#include "firmware/src/system/instance/impl/deps.h"
+#include "firmware/src/system/shared/config.h"
+#include "firmware/src/system/instance/impl/layout.h"
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/protocol/midi/shared/common.h"
 #include "firmware/src/threads.h"

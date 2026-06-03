@@ -107,19 +107,6 @@ namespace opendeck::firmware::sys
     };
 
     /**
-     * @brief Maximum number of component indexes processed during one staged forced-refresh step.
-     */
-    constexpr inline size_t FORCED_UPDATE_MAX_COMPONENTS_PER_RUN = 16;
-
-    /**
-     * @brief Delay between consecutive staged forced-refresh steps.
-     *
-     * This spaces out refresh traffic bursts while still completing the full refresh quickly enough
-     * for UI state synchronization.
-     */
-    constexpr inline uint32_t FORCED_REFRESH_STAGE_DELAY_MS = 5;
-
-    /**
      * @brief Mixes one byte into a configuration unlock FNV-1a hash.
      *
      * @param hash Current hash state.

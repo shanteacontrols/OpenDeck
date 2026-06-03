@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "bootloader/src/system/shared/deps.h"
+#include "bootloader/src/system/instance/impl/deps.h"
 
 namespace opendeck::bootloader::system
 {

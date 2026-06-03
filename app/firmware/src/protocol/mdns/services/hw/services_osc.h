@@ -6,7 +6,7 @@
 #pragma once
 
 #include "firmware/src/protocol/mdns/services/hw/services_hw.h"
-#include "firmware/src/protocol/mdns/shared/deps.h"
+#include "firmware/src/protocol/mdns/instance/impl/deps.h"
 
 namespace opendeck::firmware::protocol::mdns
 {

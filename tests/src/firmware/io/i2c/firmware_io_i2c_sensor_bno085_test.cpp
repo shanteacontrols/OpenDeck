@@ -6,7 +6,7 @@
 #include "tests/shared/common.h"
 
 #include "firmware/src/io/i2c/hwa/test/hwa_test.h"
-#include "firmware/src/io/i2c/peripherals/sensor_bno085/sensor_bno085.h"
+#include "firmware/src/io/i2c/peripherals/sensor_bno085/instance/impl/sensor_bno085.h"
 
 #include <vector>
 

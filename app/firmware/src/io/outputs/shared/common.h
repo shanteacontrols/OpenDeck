@@ -73,15 +73,6 @@ namespace opendeck::firmware::io::outputs
         NoPulse
     };
 
-    /**
-     * @brief Selects the timing source used for output pulsing.
-     */
-    enum class PulseMode : uint8_t
-    {
-        Timer,
-        MidiClock
-    };
-
     /** @brief Minimum logical output level, expressed as percent. */
     constexpr uint8_t OUTPUT_LEVEL_MIN = 0;
 

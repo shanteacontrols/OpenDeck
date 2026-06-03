@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "firmware/src/protocol/midi/shared/deps.h"
+#include "firmware/src/protocol/midi/instance/impl/deps.h"
 #include "firmware/src/signaling/signaling.h"
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_BLE

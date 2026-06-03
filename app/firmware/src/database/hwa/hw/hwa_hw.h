@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "firmware/src/database/shared/deps.h"
-#include "firmware/src/database/layout.h"
+#include "firmware/src/database/instance/impl/deps.h"
+#include "firmware/src/database/shared/layout.h"
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/io/indicators/shared/common.h"
 

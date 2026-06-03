@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include "firmware/src/io/i2c/peripherals/display/display.h"
+#include "firmware/src/io/i2c/peripherals/display/instance/impl/display.h"
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_OSC
-#include "firmware/src/io/i2c/peripherals/sensor_apds9960/sensor_apds9960.h"
-#include "firmware/src/io/i2c/peripherals/sensor_bno085/sensor_bno085.h"
-#include "firmware/src/io/i2c/peripherals/sensor_vl53l4cx/sensor_vl53l4cx.h"
+#include "firmware/src/io/i2c/peripherals/sensor_apds9960/instance/impl/sensor_apds9960.h"
+#include "firmware/src/io/i2c/peripherals/sensor_bno085/instance/impl/sensor_bno085.h"
+#include "firmware/src/io/i2c/peripherals/sensor_vl53l4cx/instance/impl/sensor_vl53l4cx.h"
 #endif
 #include "firmware/src/database/instance/impl/database.h"
 

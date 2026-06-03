@@ -4,7 +4,6 @@
  */
 
 #include "firmware/src/protocol/mdns/instance/impl/mdns.h"
-#include "firmware/src/protocol/mdns/shared/common.h"
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/util/configurable/configurable.h"
 

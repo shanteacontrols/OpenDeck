@@ -9,7 +9,7 @@
 #include "tests/shared/helpers/midi.h"
 #endif
 #include "tests/shared/helpers/misc.h"
-#include "firmware/src/database/layout.h"
+#include "firmware/src/database/shared/layout.h"
 #include "firmware/src/io/analog/shared/common.h"
 #include "firmware/src/io/digital/encoders/shared/common.h"
 #include "firmware/src/io/digital/switches/shared/common.h"

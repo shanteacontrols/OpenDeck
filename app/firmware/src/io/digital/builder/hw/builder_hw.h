@@ -6,7 +6,7 @@
 #pragma once
 
 #include "firmware/src/io/digital/instance/impl/digital.h"
-#include "firmware/src/io/digital/shared/frame_store.h"
+#include "firmware/src/io/digital/instance/impl/frame_store.h"
 #include "firmware/src/io/digital/drivers/driver.h"
 #include "firmware/src/io/digital/hwa/hw/hwa_hw.h"
 #include "firmware/src/io/digital/switches/instance/impl/switches.h"

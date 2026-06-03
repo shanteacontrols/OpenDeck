@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "firmware/src/io/digital/shared/deps.h"
-#include "firmware/src/io/digital/shared/frame_store.h"
+#include "firmware/src/io/digital/instance/impl/deps.h"
+#include "firmware/src/io/digital/instance/impl/frame_store.h"
 #include "firmware/src/io/base.h"
 #include "firmware/src/io/digital/switches/instance/impl/switches.h"
 #include "firmware/src/io/digital/encoders/instance/impl/encoders.h"

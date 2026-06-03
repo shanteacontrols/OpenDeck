@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include "firmware/src/io/analog/shared/deps.h"
-#include "firmware/src/io/analog/shared/frame_store.h"
+#include "firmware/src/io/analog/instance/impl/deps.h"
+#include "firmware/src/io/analog/instance/impl/frame_store.h"
 #include "firmware/src/io/analog/instance/impl/mapper.h"
 #include "firmware/src/signaling/signaling.h"
-#include "firmware/src/system/config.h"
+#include "firmware/src/system/shared/config.h"
 #include "firmware/src/threads.h"
 #include "firmware/src/io/base.h"
 #include "firmware/src/protocol/midi/shared/common.h"

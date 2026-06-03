@@ -5,7 +5,7 @@
 
 #include "firmware/src/protocol/mdns/services/hw/services_websockets.h"
 
-#include "firmware/src/protocol/mdns/shared/common.h"
+#include "firmware/src/protocol/mdns/services/hw/common.h"
 #include "common/src/protocols/websockets/shared/common.h"
 
 #include <zephyr/net/dns_sd.h>

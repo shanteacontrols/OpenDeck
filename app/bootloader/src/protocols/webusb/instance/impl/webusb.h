@@ -6,7 +6,7 @@
 #pragma once
 
 #include "bootloader/src/signaling/signaling.h"
-#include "bootloader/src/protocols/webusb/shared/deps.h"
+#include "bootloader/src/protocols/webusb/instance/impl/deps.h"
 
 namespace opendeck::bootloader::protocols::webusb
 {
