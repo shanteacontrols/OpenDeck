@@ -1,5 +1,3 @@
-diff --git a/scripts/west_commands/runners/esp32.py b/scripts/west_commands/runners/esp32.py
-index 6e4de13b9f5..c84afca8225 100644
 --- a/scripts/west_commands/runners/esp32.py
 +++ b/scripts/west_commands/runners/esp32.py
 @@ -6,6 +6,7 @@
@@ -10,10 +8,9 @@ index 6e4de13b9f5..c84afca8225 100644
  
  from runners.core import RunnerCaps, ZephyrBinaryRunner
  
-@@ -79,7 +80,32 @@ class Esp32BinaryRunner(ZephyrBinaryRunner):
-             reset=args.reset, baud=args.esp_baud_rate, flash_size=args.esp_flash_size,
-             flash_freq=args.esp_flash_freq, flash_mode=args.esp_flash_mode,
-             espidf=args.esp_idf_path, encrypt=args.esp_encrypt, no_stub=args.esp_no_stub)
+@@ -82,6 +83,31 @@
+             espidf=args.esp_idf_path, encrypt=args.esp_encrypt, no_stub=args.esp_no_stub,
+             reset_type=args.reset_type)
  
 +    def get_chosen_code_partition_address(self):
 +        edt_path = os.path.join(self.cfg.build_dir, 'zephyr', 'edt.pickle.cmake')
@@ -43,20 +40,19 @@ index 6e4de13b9f5..c84afca8225 100644
      def do_run(self, command, **kwargs):
  
          cmd_flash = ['esptool']
-@@ -94,16 +121,19 @@ class Esp32BinaryRunner(ZephyrBinaryRunner):
-             cmd_flash.extend(['--no-stub'])
-         cmd_flash.extend(['--baud', self.baud])
-         cmd_flash.extend(['--before', 'default-reset'])
+@@ -101,7 +127,10 @@
+             self.logger.warning(
+                 '--reset-type is ignored because reset is disabled (--no-reset)')
          if self.reset:
--            cmd_flash.extend(['--after', 'hard-reset', 'write-flash', '-u'])
-+            cmd_flash.extend(['--after', 'hard-reset'])
+-            cmd_flash.extend(['--after', self.reset_type or 'hard-reset', 'write-flash', '-u'])
++            cmd_flash.extend(['--after', self.reset_type or 'hard-reset'])
 +        else:
 +            cmd_flash.extend(['--after', 'no-reset'])
 +        cmd_flash.extend(['write-flash', '-u'])
          cmd_flash.extend(['--flash-mode', self.flash_mode])
          cmd_flash.extend(['--flash-freq', self.flash_freq])
          cmd_flash.extend(['--flash-size', self.flash_size])
- 
+@@ -109,7 +138,7 @@
          if self.encrypt:
              cmd_flash.extend(['--encrypt'])
  

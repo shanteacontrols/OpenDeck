@@ -12,7 +12,7 @@ manifest:
   projects:
     - name: zephyr
       remote: zephyrproject-rtos
-      revision: bcf31c20f01f11609dbff940483d5172d7897691
+      revision: 2f9f440c2fc8105e6beeb2f711e4acfdda46dcd5
       import: true
     - name: u8g2
       remote: olikraus
