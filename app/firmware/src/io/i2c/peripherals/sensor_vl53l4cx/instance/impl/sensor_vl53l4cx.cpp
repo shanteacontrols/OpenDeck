@@ -173,6 +173,12 @@ bool SensorVl53l4cx::init(size_t address_index)
         return false;
     }
 
+    if (model_id != VL53L4CX_EXPECTED_SENSOR_ID)
+    {
+        LOG_DBG("VL53L4CX responded at 0x%02x with unexpected identity 0x%04x", i2c_address(), model_id);
+        return false;
+    }
+
     const auto init_status = _driver.InitSensor(VL53L4CX_DEFAULT_DEVICE_ADDRESS);
 
     if (init_status != VL53L4CX_ERROR_NONE)

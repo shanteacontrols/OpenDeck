@@ -11,6 +11,8 @@
 #include "firmware/src/io/i2c/peripherals/sensor_vl53l4cx/instance/impl/sensor_vl53l4cx.h"
 #include "firmware/src/util/configurable/configurable.h"
 
+#include <algorithm>
+
 using namespace opendeck;
 using namespace opendeck::firmware;
 using namespace opendeck::firmware::io::i2c;
@@ -66,4 +68,36 @@ TEST_F(Vl53l4cxSensorTest, UsesSelectedAddressWhenSoftwareResetStarts)
     ASSERT_EQ(_hwa.write_addresses.size(), 1U);
     EXPECT_EQ(_hwa.write_addresses[0], I2C_ADDRESSES[0]);
     EXPECT_EQ(_hwa.written_bytes, 3U);
+}
+
+TEST_F(Vl53l4cxSensorTest, RejectsUnexpectedSensorIdentityAtDefaultAddress)
+{
+    constexpr uint16_t CAP1188_LIKE_ID = 0x505D;
+
+    _hwa.write_succeeds     = true;
+    _hwa.register_read_mode = true;
+    _hwa.set_u16_be(VL53L4CX_REGISTER_MODEL_ID, CAP1188_LIKE_ID);
+
+    EXPECT_FALSE(_sensor.init(0));
+
+    ASSERT_FALSE(_hwa.write_read_addresses.empty());
+    EXPECT_EQ(_hwa.write_read_addresses.back(), I2C_ADDRESSES[0]);
+    const auto model_id_read = std::vector<uint8_t>{ 0x01, 0x0F };
+
+    EXPECT_NE(std::find(_hwa.write_read_buffers.begin(), _hwa.write_read_buffers.end(), model_id_read),
+              _hwa.write_read_buffers.end());
+}
+
+TEST_F(Vl53l4cxSensorTest, ReadsIdentityFromSixteenBitRegisterAddress)
+{
+    _hwa.write_succeeds     = true;
+    _hwa.register_read_mode = true;
+    _hwa.set_u16_be(VL53L4CX_REGISTER_MODEL_ID, VL53L4CX_EXPECTED_SENSOR_ID);
+
+    EXPECT_FALSE(_sensor.init(0));
+
+    const auto model_id_read = std::vector<uint8_t>{ 0x01, 0x0F };
+
+    EXPECT_NE(std::find(_hwa.write_read_buffers.begin(), _hwa.write_read_buffers.end(), model_id_read),
+              _hwa.write_read_buffers.end());
 }

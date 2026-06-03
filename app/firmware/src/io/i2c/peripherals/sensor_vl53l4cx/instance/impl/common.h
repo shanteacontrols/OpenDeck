@@ -15,4 +15,6 @@ namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
     };
 
     constexpr inline uint16_t VL53L4CX_REGISTER_SOFT_RESET = 0x0000;
+    constexpr inline uint16_t VL53L4CX_REGISTER_MODEL_ID   = 0x010F;
+    constexpr inline uint16_t VL53L4CX_EXPECTED_SENSOR_ID  = 0xEBAA;
 }    // namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
