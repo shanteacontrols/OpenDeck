@@ -1,11 +1,16 @@
-# OpenDeck MIDI Platform
+# OpenDeck
 
-OpenDeck is a platform for building MIDI and OSC controllers designed to solve two problems when building a controller:
+OpenDeck is a platform for building interactive control and sensing devices using MIDI and OSC. From USB MIDI DJ controllers and DAW control surfaces to Ethernet-connected OSC nodes, sensor interfaces and media installations, OpenDeck supports a wide range of hardware projects.
 
-* Coding - there is no need to code anything in order to make changes to the controller or to make it work
-* Making the controller behave the way you want it to - the firmware supports a huge number of configurable parameters, all configurable in a Web browser
+The main platform features:
 
-Solving these two goals means you can forget about implementation details and focus on having your custom controller built as fast as possible.
+* Browser-based configuration
+* No firmware development required
+* Hardware-independent - supports multiple MCU families and development boards
+* MIDI and OSC support
+* Extensible sensor support
+
+The platform lets you focus on hardware and interaction design rather than tweaking and debugging firmware.
 
 *Click the image below for a demo video of the [OpenDeck configurator](https://config.shanteacontrols.com)*
 
@@ -13,23 +18,41 @@ Solving these two goals means you can forget about implementation details and fo
 
 Configurator is available either [online](https://config.shanteacontrols.com) or [offline](https://github.com/shanteacontrols/OpenDeckUI/releases).
 
-*Some of the controllers built with OpenDeck*
+*Some of the devices built with OpenDeck*
 
 ![](bin/img/readme/gallery.png)
 
-## Features
+## Peripherals
 
-The following components are supported:
+OpenDeck supports the following peripherals:
+
+### Core I/O
 
 * Buttons
 * Encoders
 * Single-color LEDs and other types of outputs such as relays or transistors
 * Potentiometers
 * FSRs (force-sensitive resistors)
-* LCD/OLED displays
-* Touchscreen displays (Nextion)
 
-OpenDeck supports sending of both 7-bit and 14-bit Non-Registered Parameter Numbers (NRPN), latching messages on buttons, various encoding modes for quadrature encoders, output control using MIDI In, configurable MIDI channels for each component individually, Bluetooth MIDI, OSC via Ethernet etc. Full list of supported features can be found [here](https://github.com/shanteacontrols/OpenDeck/wiki/Configurable-features).
+### Displays
+
+* [Nextion HMI](https://nextion.tech/) touchscreen displays
+* [SSD1306 small OLED display](https://www.adafruit.com/product/326)
+
+### Sensors
+
+* [APDS-9960 proximity, light, RGB, and gesture sensor](https://www.adafruit.com/product/3595) - OSC only
+* [VL53L4CX time of flight distance sensor](https://www.adafruit.com/product/5425) - OSC only
+* [BNO085 9-DOF orientation IMU fusion sensor](https://www.adafruit.com/product/4754) - OSC only
+
+## Features
+
+OpenDeck provides extensive MIDI and OSC functionality:
+
+* MIDI: sending of both 7-bit and 14-bit Non-Registered Parameter Numbers (NRPN), latching messages on buttons, various encoding modes for quadrature encoders, output control using MIDI In, configurable MIDI channels for each component individually, Bluetooth MIDI and more.
+* OSC: Ethernet transport, configurable destinations, sensor data streaming, output control, automatic network discovery via mDNS, network-based configuration and firmware updates.
+
+A detailed guide to all supported configurable features can be found [here](https://github.com/shanteacontrols/OpenDeck/wiki/Configurable-features).
 
 If the feature you want isn't supported yet, don't feel discouraged. Open up a [discussion thread](https://github.com/shanteacontrols/OpenDeck/discussions) and let's talk about it.
 
@@ -49,6 +72,8 @@ This board is based on Raspberry Pi RP2040 microcontroller and features the foll
 * Connector for touchscreen
 * Connector for I2C OLED display
 * Additional connectors with 3V+GND and 5V+GND connections
+
+The L board doesn't have OSC support. It focuses on providing lots of I/O specifically for USB and DIN MIDI use-cases. OSC functionality is available on a number of supported Ethernet-enabled boards.
 
 ## Supported boards
 
