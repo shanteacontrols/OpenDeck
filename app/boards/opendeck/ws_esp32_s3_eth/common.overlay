@@ -1,0 +1,62 @@
+#include <zephyr/dt-bindings/pinctrl/esp32s3-pinctrl.h>
+
+opendeck_i2c_bus: &i2c0 {};
+
+&pinctrl {
+    ws_esp32_s3_eth_i2c0_default: ws_esp32_s3_eth_i2c0_default {
+        group1 {
+            pinmux = <I2C0_SDA_GPIO16>,
+                     <I2C0_SCL_GPIO17>;
+            bias-pull-up;
+            drive-open-drain;
+            output-high;
+        };
+    };
+
+    ws_esp32_s3_eth_spim2_default: ws_esp32_s3_eth_spim2_default {
+        group1 {
+            pinmux = <SPIM2_MISO_GPIO12>,
+                     <SPIM2_SCLK_GPIO13>,
+                     <SPIM2_CSEL_GPIO14>;
+        };
+
+        group2 {
+            pinmux = <SPIM2_MOSI_GPIO11>;
+            output-low;
+        };
+    };
+};
+
+&i2c0 {
+    status = "okay";
+    clock-frequency = <I2C_BITRATE_STANDARD>;
+    pinctrl-0 = <&ws_esp32_s3_eth_i2c0_default>;
+    pinctrl-names = "default";
+};
+
+&uart1 {
+    status = "disabled";
+};
+
+&spi2 {
+    status = "okay";
+    pinctrl-0 = <&ws_esp32_s3_eth_spim2_default>;
+    pinctrl-names = "default";
+
+    ethernet: w5500@0 {
+        compatible = "wiznet,w5500";
+        status = "okay";
+        reg = <0>;
+        spi-max-frequency = <20000000>;
+        int-gpios = <&gpio0 10 GPIO_ACTIVE_LOW>;
+        reset-gpios = <&gpio0 9 GPIO_ACTIVE_LOW>;
+    };
+};
+
+&adc0 {
+    status = "disabled";
+};
+
+&adc1 {
+    status = "disabled";
+};

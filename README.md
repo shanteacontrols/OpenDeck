@@ -99,6 +99,7 @@ The firmware supports various other boards, both small and large:
 | [Teensy 4.0](https://www.pjrc.com/store/teensy40.html) | USB, DIN | No |
 | [Teensy 4.1](https://www.pjrc.com/store/teensy41.html) | USB, DIN | No |
 | [Waveshare Core405R](https://www.waveshare.com/core405r.htm) | USB, DIN | No |
+| [Waveshare ESP32-S3-ETH](https://www.waveshare.com/esp32-s3-eth.htm) | USB | Ethernet |
 | [W5500-EVB-Pico](https://docs.wiznet.io/Product/Open-Source-Hardware/w5500-evb-pico) | USB | Ethernet |
 | [W5500-EVB-Pico2](https://docs.wiznet.io/Product/Open-Source-Hardware/w5500-evb-pico2) | USB, DIN | Ethernet |
 | [W6100-EVB-Pico](https://docs.wiznet.io/Product/Open-Source-Hardware/w6100-evb-pico) | USB, DIN | Ethernet |
