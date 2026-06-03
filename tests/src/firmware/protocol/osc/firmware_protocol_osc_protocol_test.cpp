@@ -107,7 +107,6 @@ namespace
 
         void configure_osc()
         {
-            ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::Enable, 1));
             ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::DestIpv4Octet0, DEST_OCTET_0));
             ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::DestIpv4Octet1, DEST_OCTET_1));
             ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::DestIpv4Octet2, DEST_OCTET_2));

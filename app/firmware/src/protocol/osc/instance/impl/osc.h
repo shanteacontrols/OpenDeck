@@ -85,13 +85,6 @@ namespace opendeck::firmware::protocol::osc
         bool enqueue(const Signal& event);
 
         /**
-         * @brief Returns whether OSC output is enabled in the database.
-         *
-         * @return `true` when OSC is enabled, otherwise `false`.
-         */
-        bool enabled();
-
-        /**
          * @brief Returns whether mDNS has published a network identity.
          *
          * @return `true` after mDNS publishes the first identity signal.

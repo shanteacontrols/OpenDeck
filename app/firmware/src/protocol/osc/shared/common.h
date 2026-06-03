@@ -14,7 +14,6 @@ namespace opendeck::firmware::protocol::osc
      */
     enum class Setting : uint8_t
     {
-        Enable,
         DestIpv4Octet0,
         DestIpv4Octet1,
         DestIpv4Octet2,

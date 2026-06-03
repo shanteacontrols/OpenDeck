@@ -221,12 +221,6 @@ bool Osc::init()
         return true;
     }
 
-    if (!enabled())
-    {
-        LOG_INF("OSC disabled");
-        return true;
-    }
-
     LOG_INF("Init OSC");
 
     _shutdown    = false;
@@ -260,11 +254,6 @@ bool Osc::deinit()
     k_sem_give(&_send_wakeup);
 
     return true;
-}
-
-bool Osc::enabled()
-{
-    return _database.read(database::Config::Section::Global::OscSettings, Setting::Enable) != 0;
 }
 
 bool Osc::has_network_identity() const
@@ -777,7 +766,6 @@ std::optional<uint8_t> Osc::sys_config_set(sys::Config::Section::Global section,
 
     switch (setting)
     {
-    case Setting::Enable:
     case Setting::RestrictIncomingToDestIp:
     {
         if (value > 1)
@@ -822,18 +810,7 @@ std::optional<uint8_t> Osc::sys_config_set(sys::Config::Section::Global section,
         return result;
     }
 
-    if (setting == Setting::Enable)
-    {
-        if (value)
-        {
-            init();
-        }
-        else
-        {
-            deinit();
-        }
-    }
-    else if ((setting == Setting::ListenPort) && _initialized)
+    if ((setting == Setting::ListenPort) && _initialized)
     {
         close_listen_socket();
     }
