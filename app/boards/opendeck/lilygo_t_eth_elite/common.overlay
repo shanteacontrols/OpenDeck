@@ -60,6 +60,5 @@ opendeck_i2c_bus: &i2c0 {};
         reg = <0>;
         spi-max-frequency = <20000000>;
         int-gpios = <&gpio0 14 GPIO_ACTIVE_LOW>;
-        zephyr,random-mac-address;
     };
 };

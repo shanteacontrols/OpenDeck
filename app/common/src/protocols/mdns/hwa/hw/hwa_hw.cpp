@@ -4,18 +4,26 @@
  */
 
 #include "common/src/protocols/mdns/hwa/hw/hwa_hw.h"
+#include "common/src/mcu/shared/common.h"
 #include "common/src/protocols/mdns/shared/common.h"
+#include "zlibs/utils/misc/bit.h"
 
 #include <zephyr/device.h>
+#include <zephyr/drivers/hwinfo.h>
 #include <zephyr/init.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/net/ethernet.h>
 #include <zephyr/net/hostname.h>
 #include <zephyr/net/net_if.h>
 #include <zephyr/net/net_ip.h>
 #include <zephyr/sys/byteorder.h>
+#include <zephyr/sys/crc.h>
+#include <zephyr/sys/util_macro.h>
 
 #include <array>
 #include <algorithm>
+#include <cstring>
+#include <optional>
 #include <utility>
 
 using namespace opendeck::common::protocols::mdns;
@@ -29,6 +37,116 @@ namespace
     constexpr auto HEX_NIBBLE_MASK  = 0x0FU;
 
 #ifdef CONFIG_NET_CONFIG_AUTO_INIT
+#define OPENDECK_STABLE_MAC_INIT_PRIO UTIL_DEC(CONFIG_NET_INIT_PRIO)
+
+    using MacAddress = std::array<uint8_t, NET_ETH_ADDR_LEN>;
+
+    constexpr auto STABLE_MAC_INIT_PRIO = OPENDECK_STABLE_MAC_INIT_PRIO;
+    constexpr auto SERIAL_CRC_MIX_MASK  = 0xA5U;
+    constexpr auto MAC_ADDRESS_BYTE_5   = 5U;
+    constexpr auto MAC_UNICAST_MASK     = 0xFEU;
+
+    constexpr uint8_t crc_byte(uint32_t crc, size_t byte)
+    {
+        return static_cast<uint8_t>((crc >> (byte * zlibs::utils::misc::BYTE_BIT_COUNT)) & zlibs::utils::misc::BYTE_MASK);
+    }
+
+    std::optional<MacAddress> make_stable_mac()
+    {
+        std::array<uint8_t, opendeck::common::mcu::SERIAL_NUMBER_BUFFER_SIZE> serial = {};
+
+        const auto size = hwinfo_get_device_id(serial.data(), serial.size());
+
+        if (size <= 0)
+        {
+            LOG_WRN("Stable Ethernet MAC unavailable: MCU serial number unavailable");
+            return std::nullopt;
+        }
+
+        const auto serial_size = static_cast<size_t>(size) > serial.size()
+                                     ? serial.size()
+                                     : static_cast<size_t>(size);
+        const auto lower       = crc32_ieee(serial.data(), serial_size);
+        serial[0]              = static_cast<uint8_t>(serial[0] ^ SERIAL_CRC_MIX_MASK);
+        const auto upper       = crc32_ieee(serial.data(), serial_size);
+        MacAddress mac         = {};
+
+        mac[0]                  = crc_byte(lower, 0U);
+        mac[1]                  = crc_byte(lower, 1U);
+        mac[2]                  = crc_byte(lower, 2U);
+        mac[3]                  = crc_byte(lower, 3U);
+        mac[4]                  = crc_byte(upper, 0U);
+        mac[MAC_ADDRESS_BYTE_5] = crc_byte(upper, 1U);
+
+        /* Locally administered, unicast MAC derived from the hardware serial. */
+        mac[0] = static_cast<uint8_t>((mac[0] | 0x02U) & MAC_UNICAST_MASK);
+
+        return mac;
+    }
+
+    int set_stable_ethernet_mac()
+    {
+        static_assert(CONFIG_ETH_INIT_PRIORITY < STABLE_MAC_INIT_PRIO,
+                      "Stable Ethernet MAC must run after Ethernet device init");
+        static_assert(STABLE_MAC_INIT_PRIO < CONFIG_NET_INIT_PRIO,
+                      "Stable Ethernet MAC must run before network interface init");
+
+        const auto iface = net_if_get_default();
+
+        if (iface == nullptr)
+        {
+            LOG_WRN("Stable Ethernet MAC unavailable: no default network interface");
+            return 0;
+        }
+
+        const auto mac = make_stable_mac();
+
+        if (!mac)
+        {
+            return 0;
+        }
+
+        const auto device = net_if_get_device(iface);
+
+        if ((device == nullptr) || (device->api == nullptr))
+        {
+            LOG_WRN("Stable Ethernet MAC unavailable: no Ethernet device");
+            return 0;
+        }
+
+        const auto api = static_cast<const ethernet_api*>(device->api);
+
+        if (api->set_config == nullptr)
+        {
+            LOG_WRN("Stable Ethernet MAC unavailable: Ethernet driver does not support MAC updates");
+            return 0;
+        }
+
+        ethernet_config config = {};
+        std::memcpy(config.mac_address.addr, mac->data(), mac->size());
+
+        const auto result = api->set_config(device,
+                                            iface,
+                                            ETHERNET_CONFIG_TYPE_MAC_ADDRESS,
+                                            &config);
+
+        if (result != 0)
+        {
+            LOG_WRN("Stable Ethernet MAC rejected: %d", result);
+            return 0;
+        }
+
+        LOG_INF("Stable Ethernet MAC: %02x:%02x:%02x:%02x:%02x:%02x",
+                (*mac)[0],
+                (*mac)[1],
+                (*mac)[2],
+                (*mac)[3],
+                (*mac)[4],
+                (*mac)[5]);
+
+        return 0;
+    }
+
     int log_network_auto_init_wait()
     {
         if constexpr (CONFIG_NET_CONFIG_INIT_TIMEOUT == 0)
@@ -44,6 +162,7 @@ namespace
         return 0;
     }
 
+    SYS_INIT(set_stable_ethernet_mac, POST_KERNEL, OPENDECK_STABLE_MAC_INIT_PRIO);
     SYS_INIT(log_network_auto_init_wait, APPLICATION, 0);
 #endif
 }    // namespace
