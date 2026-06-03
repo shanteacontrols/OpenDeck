@@ -9,6 +9,7 @@
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_OSC
 #include "firmware/src/io/i2c/peripherals/sensor_apds9960/instance/impl/sensor_apds9960.h"
 #include "firmware/src/io/i2c/peripherals/sensor_bno085/instance/impl/sensor_bno085.h"
+#include "firmware/src/io/i2c/peripherals/sensor_cap1188/instance/impl/sensor_cap1188.h"
 #include "firmware/src/io/i2c/peripherals/sensor_vl53l4cx/instance/impl/sensor_vl53l4cx.h"
 #endif
 #include "firmware/src/database/instance/impl/database.h"
@@ -32,6 +33,8 @@ namespace opendeck::firmware::io::i2c
             : _sensor_apds9960_database(database)
             , _sensor_apds9960(hwa, _sensor_apds9960_database)
             , _sensor_bno085(hwa)
+            , _sensor_cap1188_database(database)
+            , _sensor_cap1188(hwa, _sensor_cap1188_database)
             , _sensor_vl53l4cx_database(database)
             , _sensor_vl53l4cx(hwa, _sensor_vl53l4cx_database)
             , _display_database(database)
@@ -49,6 +52,8 @@ namespace opendeck::firmware::io::i2c
         sensor_apds9960::Database       _sensor_apds9960_database;
         sensor_apds9960::SensorApds9960 _sensor_apds9960;
         sensor_bno085::SensorBno085     _sensor_bno085;
+        sensor_cap1188::Database        _sensor_cap1188_database;
+        sensor_cap1188::SensorCap1188   _sensor_cap1188;
         sensor_vl53l4cx::Database       _sensor_vl53l4cx_database;
         sensor_vl53l4cx::SensorVl53l4cx _sensor_vl53l4cx;
 #endif

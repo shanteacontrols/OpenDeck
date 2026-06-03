@@ -63,6 +63,31 @@ TEST(OscPacketTest, BuildsIndexedAddressPacket)
     EXPECT_EQ(*value, 1234);
 }
 
+TEST(OscPacketTest, BuildsTouchSensorPacket)
+{
+    PacketBuffer packet = {};
+
+    const auto size = make_packet(packet,
+                                  firmware::signaling::OscSensorSignal{
+                                      .payload = firmware::signaling::OscSensorTouchSignal{
+                                          .index = 7,
+                                          .value = 1,
+                                      },
+                                      .direction = firmware::signaling::SignalDirection::Out,
+                                  });
+
+    ASSERT_TRUE(size);
+    const auto message = parse_message(packet_span(packet, *size));
+    ASSERT_TRUE(message);
+
+    const auto value = message->arg<OscInt32>(0);
+    ASSERT_TRUE(value);
+
+    EXPECT_EQ(message->address(), "/opendeck/sensors/touch/7");
+    EXPECT_EQ(message->type_tags(), ",i");
+    EXPECT_EQ(*value, 1);
+}
+
 TEST(OscPacketTest, PreservesNegativeIntValue)
 {
     PacketBuffer packet = {};

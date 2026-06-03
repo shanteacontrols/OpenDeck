@@ -7,6 +7,8 @@
 
 #include "firmware/src/io/i2c/instance/impl/deps.h"
 
+#include "zlibs/utils/misc/bit.h"
+
 #include <algorithm>
 #include <array>
 #include <cstddef>
@@ -61,7 +63,10 @@ namespace opendeck::firmware::io::i2c
                     return false;
                 }
 
-                registers[buffer[0]] = buffer[1];
+                const auto register_address = register_address_from_write_buffer(buffer);
+                const auto data_offset      = register_data_offset_from_write_buffer(buffer);
+
+                registers[register_address] = buffer[data_offset];
             }
 
             return write_succeeds;
@@ -105,6 +110,7 @@ namespace opendeck::firmware::io::i2c
         {
             write_read_addresses.push_back(address);
             last_write_read.assign(write_buffer.begin(), write_buffer.end());
+            write_read_buffers.push_back(last_write_read);
 
             if (!connected || !address_allowed(address))
             {
@@ -121,12 +127,12 @@ namespace opendeck::firmware::io::i2c
                 return write_read_succeeds;
             }
 
-            if (write_buffer.size() != 1U)
+            if ((write_buffer.size() != 1U) && (write_buffer.size() != 2U))
             {
                 return false;
             }
 
-            const uint8_t reg = write_buffer[0];
+            const auto reg = register_address_from_read_buffer(write_buffer);
 
             if (device_id_enabled && (reg == device_id_register))
             {
@@ -176,15 +182,21 @@ namespace opendeck::firmware::io::i2c
             available_addresses.assign(addresses.begin(), addresses.end());
         }
 
-        void set_u8(uint8_t reg, uint8_t value)
+        void set_u8(uint16_t reg, uint8_t value)
         {
             registers[reg] = value;
         }
 
-        void set_u16(uint8_t reg, uint16_t value)
+        void set_u16(uint16_t reg, uint16_t value)
         {
             registers[reg]     = static_cast<uint8_t>(value & 0xFF);
-            registers[reg + 1] = static_cast<uint8_t>(value >> 8);
+            registers[reg + 1] = static_cast<uint8_t>(value >> zlibs::utils::misc::BYTE_BIT_COUNT);
+        }
+
+        void set_u16_be(uint16_t reg, uint16_t value)
+        {
+            registers[reg]     = static_cast<uint8_t>(value >> zlibs::utils::misc::BYTE_BIT_COUNT);
+            registers[reg + 1] = static_cast<uint8_t>(value & zlibs::utils::misc::BYTE_MASK);
         }
 
         void set_device_id_register(uint8_t reg, uint8_t value)
@@ -227,30 +239,56 @@ namespace opendeck::firmware::io::i2c
                     (std::find(available_addresses.begin(), available_addresses.end(), address) != available_addresses.end()));
         }
 
-        bool                     initialized                             = false;
-        bool                     connected                               = true;
-        bool                     write_succeeds                          = true;
-        bool                     read_succeeds                           = true;
-        bool                     write_read_succeeds                     = true;
-        bool                     register_write_mode                     = false;
-        bool                     register_read_mode                      = false;
-        bool                     require_available_address_for_transfers = false;
-        size_t                   written_bytes                           = 0;
-        std::vector<uint8_t>     available_addresses                     = {};
-        std::vector<uint8_t>     write_addresses                         = {};
-        std::vector<uint8_t>     read_addresses                          = {};
-        std::vector<uint8_t>     write_read_addresses                    = {};
-        std::vector<uint8_t>     last_write                              = {};
-        std::vector<uint8_t>     read_data                               = {};
-        std::vector<uint8_t>     last_write_read                         = {};
-        std::array<uint8_t, 256> registers                               = {};
-        std::array<uint8_t, 128> fifo                                    = {};
-        uint8_t                  device_id                               = 0;
-        uint8_t                  device_id_register                      = 0;
-        bool                     device_id_enabled                       = false;
-        uint8_t                  fifo_register                           = 0;
-        uint8_t                  fifo_clear_register                     = 0;
-        bool                     fifo_enabled                            = false;
-        bool                     clear_register_after_fifo_read          = false;
+        static uint16_t register_address_from_read_buffer(std::span<const uint8_t> buffer)
+        {
+            if (buffer.size() == 1U)
+            {
+                return buffer[0];
+            }
+
+            return static_cast<uint16_t>((static_cast<uint16_t>(buffer[0]) << zlibs::utils::misc::BYTE_BIT_COUNT) | buffer[1]);
+        }
+
+        static uint16_t register_address_from_write_buffer(std::span<const uint8_t> buffer)
+        {
+            if (buffer.size() == 2U)
+            {
+                return buffer[0];
+            }
+
+            return static_cast<uint16_t>((static_cast<uint16_t>(buffer[0]) << zlibs::utils::misc::BYTE_BIT_COUNT) | buffer[1]);
+        }
+
+        static size_t register_data_offset_from_write_buffer(std::span<const uint8_t> buffer)
+        {
+            return buffer.size() == 2U ? 1U : 2U;
+        }
+
+        bool                              initialized                             = false;
+        bool                              connected                               = true;
+        bool                              write_succeeds                          = true;
+        bool                              read_succeeds                           = true;
+        bool                              write_read_succeeds                     = true;
+        bool                              register_write_mode                     = false;
+        bool                              register_read_mode                      = false;
+        bool                              require_available_address_for_transfers = false;
+        size_t                            written_bytes                           = 0;
+        std::vector<uint8_t>              available_addresses                     = {};
+        std::vector<uint8_t>              write_addresses                         = {};
+        std::vector<uint8_t>              read_addresses                          = {};
+        std::vector<uint8_t>              write_read_addresses                    = {};
+        std::vector<uint8_t>              last_write                              = {};
+        std::vector<uint8_t>              read_data                               = {};
+        std::vector<uint8_t>              last_write_read                         = {};
+        std::vector<std::vector<uint8_t>> write_read_buffers                      = {};
+        std::array<uint8_t, 65536>        registers                               = {};
+        std::array<uint8_t, 128>          fifo                                    = {};
+        uint8_t                           device_id                               = 0;
+        uint8_t                           device_id_register                      = 0;
+        bool                              device_id_enabled                       = false;
+        uint8_t                           fifo_register                           = 0;
+        uint8_t                           fifo_clear_register                     = 0;
+        bool                              fifo_enabled                            = false;
+        bool                              clear_register_after_fifo_read          = false;
     };
 }    // namespace opendeck::firmware::io::i2c

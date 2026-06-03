@@ -15,6 +15,7 @@
 #include "firmware/src/io/digital/switches/shared/common.h"
 #include "firmware/src/io/i2c/peripherals/display/shared/common.h"
 #include "firmware/src/io/i2c/peripherals/sensor_apds9960/shared/common.h"
+#include "firmware/src/io/i2c/peripherals/sensor_cap1188/shared/common.h"
 #include "firmware/src/io/i2c/peripherals/sensor_vl53l4cx/shared/common.h"
 #include "firmware/src/io/outputs/shared/common.h"
 #include "firmware/src/io/touchscreen/shared/common.h"
@@ -348,6 +349,18 @@ TEST_F(SystemTest, FullDatabaseInitialValues)
             }
 
             verify(expected, database::Config::Section::I2c::Vl53l4cx, i);
+        }
+
+        for (int i = 0; i < static_cast<uint8_t>(io::i2c::sensor_cap1188::Setting::Count); i++)
+        {
+            uint32_t expected = 0;
+
+            if (i == static_cast<int>(io::i2c::sensor_cap1188::Setting::Sensitivity))
+            {
+                expected = static_cast<uint32_t>(io::i2c::sensor_cap1188::Sensitivity::Medium);
+            }
+
+            verify(expected, database::Config::Section::I2c::Cap1188, i);
         }
 #endif
 #endif

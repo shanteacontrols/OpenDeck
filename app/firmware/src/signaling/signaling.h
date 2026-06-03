@@ -155,6 +155,15 @@ namespace opendeck::firmware::signaling
     };
 
     /**
+     * @brief Carries one capacitive touch sensor state for OSC.
+     */
+    struct OscSensorTouchSignal
+    {
+        size_t  index = 0;
+        int32_t value = 0;
+    };
+
+    /**
      * @brief Carries one RGB sensor value tuple for OSC.
      */
     struct OscSensorRgbSignal
@@ -226,6 +235,7 @@ namespace opendeck::firmware::signaling
     using OscSensorSignalPayload = std::variant<OscSensorProximitySignal,
                                                 OscSensorAmbientLightSignal,
                                                 OscSensorDistanceSignal,
+                                                OscSensorTouchSignal,
                                                 OscSensorRgbSignal,
                                                 OscSensorGestureSignal,
                                                 OscSensorImuQuaternionSignal,

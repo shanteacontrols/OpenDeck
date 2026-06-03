@@ -180,6 +180,7 @@ namespace opendeck::firmware::util
             database::Config::Section::I2c::Display,
             database::Config::Section::I2c::Apds9960,
             database::Config::Section::I2c::Vl53l4cx,
+            database::Config::Section::I2c::Cap1188,
         };
 
         static constexpr database::Config::Section::Touchscreen SYSEX_2_DB_TOUCHSCREEN[static_cast<uint8_t>(sys::Config::Section::Touchscreen::Count)] = {

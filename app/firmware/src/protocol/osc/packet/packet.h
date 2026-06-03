@@ -260,6 +260,15 @@ namespace opendeck::firmware::protocol::osc
                 {
                     return make_packet(packet, paths::SENSOR_DISTANCE.c_str(), OscInt32{ payload.value });
                 }
+                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorTouchSignal>)
+                {
+                    return make_packet(packet,
+                                       OscIndexedAddress{
+                                           .prefix = paths::SENSOR_TOUCH.c_str(),
+                                           .index  = payload.index,
+                                       },
+                                       OscInt32{ payload.value != 0 ? 1 : 0 });
+                }
                 else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorRgbSignal>)
                 {
                     return make_packet(packet,

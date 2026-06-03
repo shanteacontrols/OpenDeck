@@ -13,5 +13,6 @@ target_sources(app
     PRIVATE
     firmware_io_i2c_sensor_apds9960_test.cpp
     firmware_io_i2c_sensor_bno085_test.cpp
+    firmware_io_i2c_sensor_cap1188_test.cpp
     firmware_io_i2c_sensor_vl53l4cx_test.cpp
 )

@@ -156,6 +156,7 @@ namespace opendeck::firmware::sys
                 Display,
                 Apds9960,
                 Vl53l4cx,
+                Cap1188,
                 Count
             };
 
