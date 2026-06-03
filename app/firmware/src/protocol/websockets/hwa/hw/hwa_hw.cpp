@@ -4,7 +4,6 @@
  */
 
 #include "firmware/src/protocol/websockets/hwa/hw/hwa_hw.h"
-#include "firmware/src/protocol/websockets/instance/impl/websockets.h"
 #include "common/src/protocols/websockets/shared/common.h"
 
 #include <zephyr/net/http/service.h>
