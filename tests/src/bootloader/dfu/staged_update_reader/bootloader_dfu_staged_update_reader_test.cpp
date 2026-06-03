@@ -4,7 +4,7 @@
  */
 
 #include "tests/shared/common.h"
-#include "common/src/dfu/dfu_stream_parser/destination/test/destination_test.h"
+#include "common/src/dfu/dfu_stream_parser/writer/test/dfu_writer_test.h"
 #include "bootloader/src/dfu/staged_update_reader/hwa/test/hwa_test.h"
 #include "bootloader/src/dfu/staged_update_reader/instance/impl/staged_update_reader.h"
 
@@ -35,16 +35,16 @@ namespace
 
         bootloader::dfu::staged_update_reader::HwaTest            hwa;
         bootloader::dfu::staged_update_reader::StagedUpdateReader reader = bootloader::dfu::staged_update_reader::StagedUpdateReader(hwa);
-        common::dfu::dfu_stream_parser::DestinationTest           consumer_destination;
+        common::dfu::dfu_stream_parser::DfuWriterTest             consumer_writer;
     };
 }    // namespace
 
 TEST_F(StagedUpdateReaderTest, IgnoresMissingPendingUpdate)
 {
-    EXPECT_FALSE(reader.consume(consumer_destination));
+    EXPECT_FALSE(reader.consume(consumer_writer));
     EXPECT_TRUE(hwa.init_called());
-    EXPECT_EQ(consumer_destination.begin_called, 0);
-    EXPECT_TRUE(consumer_destination.payload.empty());
+    EXPECT_EQ(consumer_writer.begin_called, 0);
+    EXPECT_TRUE(consumer_writer.payload().empty());
     EXPECT_EQ(hwa.clear_pending_calls(), 0);
 }
 
@@ -52,10 +52,10 @@ TEST_F(StagedUpdateReaderTest, IgnoresUnavailableStorage)
 {
     hwa.set_init_result(false);
 
-    EXPECT_FALSE(reader.consume(consumer_destination));
+    EXPECT_FALSE(reader.consume(consumer_writer));
     EXPECT_TRUE(hwa.init_called());
-    EXPECT_EQ(consumer_destination.begin_called, 0);
-    EXPECT_TRUE(consumer_destination.payload.empty());
+    EXPECT_EQ(consumer_writer.begin_called, 0);
+    EXPECT_TRUE(consumer_writer.payload().empty());
     EXPECT_EQ(hwa.clear_pending_calls(), 0);
 }
 
@@ -65,42 +65,42 @@ TEST_F(StagedUpdateReaderTest, StreamsValidPendingUpdateAndClearsMarker)
 
     hwa.stage(data);
 
-    EXPECT_TRUE(reader.consume(consumer_destination));
-    EXPECT_EQ(consumer_destination.begin_called, 1);
-    EXPECT_EQ(consumer_destination.finish_called, 1);
-    EXPECT_EQ(consumer_destination.expected_size, data.size());
-    EXPECT_EQ(consumer_destination.payload, data);
+    EXPECT_TRUE(reader.consume(consumer_writer));
+    EXPECT_EQ(consumer_writer.begin_called, 1);
+    EXPECT_EQ(consumer_writer.finish_called, 1);
+    EXPECT_EQ(consumer_writer.expected_size, data.size());
+    EXPECT_EQ(consumer_writer.payload(), data);
     EXPECT_EQ(hwa.clear_pending_calls(), 1);
     EXPECT_NE(hwa.header_start_magic(), common::dfu::dfu_stream_parser::START_COMMAND);
 }
 
-TEST_F(StagedUpdateReaderTest, RejectsDestinationWriteFailureAndClearsMarker)
+TEST_F(StagedUpdateReaderTest, RejectsWriterWriteFailureAndClearsMarker)
 {
     const auto data = payload();
 
     hwa.stage(data);
-    consumer_destination.write_result = false;
+    consumer_writer.fail_write();
 
-    EXPECT_FALSE(reader.consume(consumer_destination));
-    EXPECT_EQ(consumer_destination.begin_called, 1);
-    EXPECT_EQ(consumer_destination.abort_called, 1);
-    EXPECT_TRUE(consumer_destination.payload.empty());
+    EXPECT_FALSE(reader.consume(consumer_writer));
+    EXPECT_EQ(consumer_writer.begin_called, 1);
+    EXPECT_EQ(consumer_writer.abort_called, 1);
+    EXPECT_TRUE(consumer_writer.payload().empty());
     EXPECT_EQ(hwa.clear_pending_calls(), 1);
     EXPECT_NE(hwa.header_start_magic(), common::dfu::dfu_stream_parser::START_COMMAND);
 }
 
-TEST_F(StagedUpdateReaderTest, RejectsDestinationFinishFailureAndClearsMarker)
+TEST_F(StagedUpdateReaderTest, RejectsWriterFinishFailureAndClearsMarker)
 {
     const auto data = payload();
 
     hwa.stage(data);
-    consumer_destination.finish_result = false;
+    consumer_writer.finish_result = false;
 
-    EXPECT_FALSE(reader.consume(consumer_destination));
-    EXPECT_EQ(consumer_destination.begin_called, 1);
-    EXPECT_EQ(consumer_destination.finish_called, 1);
-    EXPECT_EQ(consumer_destination.abort_called, 1);
-    EXPECT_EQ(consumer_destination.payload, data);
+    EXPECT_FALSE(reader.consume(consumer_writer));
+    EXPECT_EQ(consumer_writer.begin_called, 1);
+    EXPECT_EQ(consumer_writer.finish_called, 1);
+    EXPECT_EQ(consumer_writer.abort_called, 1);
+    EXPECT_EQ(consumer_writer.payload(), data);
     EXPECT_EQ(hwa.clear_pending_calls(), 1);
     EXPECT_NE(hwa.header_start_magic(), common::dfu::dfu_stream_parser::START_COMMAND);
 }
@@ -111,9 +111,9 @@ TEST_F(StagedUpdateReaderTest, RejectsInvalidHeaderWithoutClearingAgain)
 
     hwa.stage(data, 0U);
 
-    EXPECT_FALSE(reader.consume(consumer_destination));
-    EXPECT_EQ(consumer_destination.begin_called, 0);
-    EXPECT_TRUE(consumer_destination.payload.empty());
+    EXPECT_FALSE(reader.consume(consumer_writer));
+    EXPECT_EQ(consumer_writer.begin_called, 0);
+    EXPECT_TRUE(consumer_writer.payload().empty());
     EXPECT_EQ(hwa.clear_pending_calls(), 0);
     EXPECT_EQ(hwa.header_start_magic(), 0);
 }
@@ -124,8 +124,8 @@ TEST_F(StagedUpdateReaderTest, RejectsWrongTargetUid)
 
     hwa.stage(data, common::dfu::dfu_stream_parser::START_COMMAND, common::dfu::dfu_stream_parser::FORMAT_VERSION, OPENDECK_TARGET_UID ^ 0x01U);
 
-    EXPECT_FALSE(reader.consume(consumer_destination));
-    EXPECT_EQ(consumer_destination.begin_called, 0);
-    EXPECT_TRUE(consumer_destination.payload.empty());
+    EXPECT_FALSE(reader.consume(consumer_writer));
+    EXPECT_EQ(consumer_writer.begin_called, 0);
+    EXPECT_TRUE(consumer_writer.payload().empty());
     EXPECT_EQ(hwa.clear_pending_calls(), 0);
 }

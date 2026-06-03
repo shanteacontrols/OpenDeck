@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "bootloader/src/dfu/staged_update_reader/instance/impl/deps.h"
+#include "common/src/dfu/writer/instance/impl/dfu_writer.h"
 
 namespace opendeck::bootloader::dfu::staged_update_reader
 {
@@ -20,7 +20,7 @@ namespace opendeck::bootloader::dfu::staged_update_reader
          *
          * @return Always `false`.
          */
-        bool consume(opendeck::common::dfu::dfu_stream_parser::Destination&)
+        bool consume(opendeck::common::dfu::writer::DfuWriter&)
         {
             return false;
         }

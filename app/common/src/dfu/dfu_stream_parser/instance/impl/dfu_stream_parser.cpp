@@ -36,8 +36,8 @@ namespace
     }
 }    // namespace
 
-DfuStreamParser::DfuStreamParser(Destination& destination)
-    : _destination(destination)
+DfuStreamParser::DfuStreamParser(opendeck::common::dfu::writer::DfuWriter& writer)
+    : _writer(writer)
 {}
 
 uint32_t DfuStreamParser::payload_size(const Header& header)
@@ -63,7 +63,18 @@ void DfuStreamParser::reset()
     _expected_size           = 0;
     _bytes_written           = 0;
     _header.fill(0);
-    _destination_active = false;
+    _writer_active = false;
+}
+
+void DfuStreamParser::abort()
+{
+    _writer.abort();
+    reset();
+}
+
+bool DfuStreamParser::supported() const
+{
+    return _writer.supported();
 }
 
 StreamStatus DfuStreamParser::feed(const uint8_t data)
@@ -168,12 +179,12 @@ StreamStatus DfuStreamParser::process_metadata(const uint8_t data)
         return StreamStatus::Incomplete;
     }
 
-    if (!header_valid(_header) || !_destination.begin(_header, _expected_size))
+    if (!header_valid(_header) || !_writer.begin(_header, _expected_size))
     {
         return StreamStatus::Invalid;
     }
 
-    _destination_active = true;
+    _writer_active = true;
     return StreamStatus::Complete;
 }
 
@@ -181,7 +192,7 @@ StreamStatus DfuStreamParser::process_payload(const uint8_t data)
 {
     const std::array<uint8_t, 1> payload = { data };
 
-    if (!_destination.write(payload))
+    if (!_writer.write(payload))
     {
         return StreamStatus::Invalid;
     }
@@ -205,7 +216,7 @@ StreamStatus DfuStreamParser::process_end(const uint8_t data)
 
     if (++_stage_bytes_received == WORD_BYTES)
     {
-        return _destination.finish() ? StreamStatus::Complete : StreamStatus::Invalid;
+        return _writer.finish() ? StreamStatus::Complete : StreamStatus::Invalid;
     }
 
     return StreamStatus::Incomplete;
@@ -239,8 +250,8 @@ StreamStatus DfuStreamParser::advance_stage()
 {
     if (_stage == ReceiveStage::End)
     {
-        _stage              = ReceiveStage::Done;
-        _destination_active = false;
+        _stage         = ReceiveStage::Done;
+        _writer_active = false;
         return StreamStatus::Complete;
     }
 
@@ -252,9 +263,9 @@ StreamStatus DfuStreamParser::advance_stage()
 
 StreamStatus DfuStreamParser::reject()
 {
-    if (_destination_active)
+    if (_writer_active)
     {
-        _destination.abort();
+        _writer.abort();
     }
 
     reset();

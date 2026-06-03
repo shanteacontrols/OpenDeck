@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "common/src/dfu/flash_area/shared/common.h"
+
 #include <cstddef>
 #include <cstdint>
 #include <optional>
@@ -22,15 +24,6 @@ namespace opendeck::common::dfu::flash_area
     class Hwa
     {
         public:
-        /**
-         * @brief Flash sector descriptor with area-relative offset.
-         */
-        struct Sector
-        {
-            uint32_t offset = 0;
-            uint32_t size   = 0;
-        };
-
         virtual ~Hwa() = default;
 
         /**

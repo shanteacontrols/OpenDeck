@@ -55,14 +55,14 @@ namespace
         public:
         SignalCapture()
         {
-            bootloader::signaling::subscribe<bootloader::signaling::StatusSignal>(
-                [this](const bootloader::signaling::StatusSignal& signal)
+            bootloader::signaling::subscribe<common::signaling::DfuStatusSignal>(
+                [this](const common::signaling::DfuStatusSignal& signal)
                 {
                     statuses.emplace_back(signal.message());
                 });
 
-            bootloader::signaling::subscribe<bootloader::signaling::FirmwareUpdateStartedSignal>(
-                [this](const bootloader::signaling::FirmwareUpdateStartedSignal&)
+            bootloader::signaling::subscribe<common::signaling::FirmwareUpdateStartedSignal>(
+                [this](const common::signaling::FirmwareUpdateStartedSignal&)
                 {
                     firmware_update_started_count++;
                 });
@@ -83,7 +83,7 @@ TEST(Bootloader, FwUpdate)
     const auto sector_count  = (app_payload.size() + BOOTLOADER_TEST_FLASH_SECTOR_SIZE - 1U) / BOOTLOADER_TEST_FLASH_SECTOR_SIZE;
 
     bootloader::dfu::direct_update_writer::HwaTest            hwa(sizeof(uint32_t), BOOTLOADER_TEST_FLASH_SECTOR_SIZE, sector_count);
-    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(hwa);
+    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(hwa, hwa);
     common::dfu::dfu_stream_parser::DfuStreamParser           parser(writer);
 
     feed_stream(parser, update_stream);
@@ -105,7 +105,7 @@ TEST(Bootloader, SupportsDifferentFlashWriteBlockSizes)
     for (const auto write_block_size : { 4U, 8U, 32U })
     {
         bootloader::dfu::direct_update_writer::HwaTest            hwa(write_block_size, 128, 1);
-        bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(hwa);
+        bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(hwa, hwa);
         common::dfu::dfu_stream_parser::DfuStreamParser           parser(writer);
 
         feed_stream(parser, tests::dfu_stream_parser::make_stream(payload));
@@ -121,7 +121,7 @@ TEST(Bootloader, PadsPayloadShorterThanOneWriteBlock)
 
     const std::vector<uint8_t>                                payload = { 0x01, 0x02, 0x03 };
     bootloader::dfu::direct_update_writer::HwaTest            hwa(32, 64, 1);
-    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(hwa);
+    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(hwa, hwa);
     common::dfu::dfu_stream_parser::DfuStreamParser           parser(writer);
 
     feed_stream(parser, tests::dfu_stream_parser::make_stream(payload));
@@ -137,7 +137,7 @@ TEST(Bootloader, CommitsPayloadEndingMidSector)
 
     const std::vector<uint8_t>                                payload(40, 0x5A);
     bootloader::dfu::direct_update_writer::HwaTest            hwa(8, 128, 1);
-    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(hwa);
+    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(hwa, hwa);
     common::dfu::dfu_stream_parser::DfuStreamParser           parser(writer);
 
     feed_stream(parser, tests::dfu_stream_parser::make_stream(payload));
@@ -162,7 +162,7 @@ TEST(Bootloader, WritesAcrossSectorBoundary)
     }
 
     bootloader::dfu::direct_update_writer::HwaTest            hwa(8, 16, 4);
-    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(hwa);
+    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(hwa, hwa);
     common::dfu::dfu_stream_parser::DfuStreamParser           parser(writer);
 
     feed_stream(parser, tests::dfu_stream_parser::make_stream(payload));
@@ -180,7 +180,7 @@ TEST(Bootloader, WriteFailurePreventsApply)
 
     const std::vector<uint8_t>                                payload = { 0xAA, 0xBB, 0xCC, 0xDD };
     bootloader::dfu::direct_update_writer::HwaTest            hwa(4, 64, 1);
-    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(hwa);
+    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(hwa, hwa);
     common::dfu::dfu_stream_parser::DfuStreamParser           parser(writer);
 
     hwa.fail_write = true;
@@ -197,7 +197,7 @@ TEST(Bootloader, PayloadTooLargeDoesNotEraseOrWrite)
 
     const std::vector<uint8_t>                                payload(65, 0xAA);
     bootloader::dfu::direct_update_writer::HwaTest            hwa(4, 64, 1);
-    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(hwa);
+    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(hwa, hwa);
     common::dfu::dfu_stream_parser::DfuStreamParser           parser(writer);
 
     feed_stream(parser, tests::dfu_stream_parser::make_stream(payload));
@@ -213,7 +213,7 @@ TEST(Bootloader, InvalidDfuHeaderDoesNotEraseOrWrite)
 
     const std::vector<uint8_t>                                payload = { 0xAA, 0xBB, 0xCC, 0xDD };
     bootloader::dfu::direct_update_writer::HwaTest            hwa(4, 64, 1);
-    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(hwa);
+    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(hwa, hwa);
     common::dfu::dfu_stream_parser::DfuStreamParser           parser(writer);
 
     feed_stream(parser, tests::dfu_stream_parser::make_stream(payload, OPENDECK_TARGET_UID ^ 0x01));
@@ -232,7 +232,7 @@ TEST(Bootloader, DirectUpdateWriterPublishesUpdateLifecycleSignals)
     SignalCapture                                             capture;
     const std::vector<uint8_t>                                payload = { 0xAA, 0xBB, 0xCC, 0xDD };
     bootloader::dfu::direct_update_writer::HwaTest            hwa(4, 64, 1);
-    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(hwa);
+    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(hwa, hwa);
     common::dfu::dfu_stream_parser::DfuStreamParser           parser(writer);
 
     feed_stream(parser, tests::dfu_stream_parser::make_stream(payload));
@@ -252,7 +252,7 @@ TEST(Bootloader, StagedUpdateReaderPublishesUpdateStartedSignal)
     const std::vector<uint8_t>                                payload = { 0x10, 0x11, 0x12, 0x13 };
     bootloader::dfu::staged_update_reader::Builder            staged_update_reader;
     bootloader::dfu::direct_update_writer::HwaTest            writer_hwa(4, 64, 1);
-    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(writer_hwa);
+    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(writer_hwa, writer_hwa);
 
     staged_update_reader._hwa.stage(payload);
 
@@ -272,7 +272,7 @@ TEST(Bootloader, IndicatorsBlinkWhenFirmwareUpdateStarts)
     ASSERT_TRUE(indicators._hwa._on_called);
     ASSERT_FALSE(indicators._hwa._off_called);
 
-    bootloader::signaling::publish(bootloader::signaling::FirmwareUpdateStartedSignal{});
+    bootloader::signaling::publish(common::signaling::FirmwareUpdateStartedSignal{});
 
     ASSERT_TRUE(indicators._hwa._off_called);
 }

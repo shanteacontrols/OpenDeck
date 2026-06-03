@@ -12,51 +12,20 @@
 #include <array>
 #include <span>
 
+using namespace opendeck::bootloader::dfu::staged_update_reader;
+
 namespace
 {
     LOG_MODULE_REGISTER(staged_update_reader, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
 
     static constexpr size_t BUFFER_SIZE = 256U;
-
-    /**
-     * @brief Returns the flash-aligned space reserved for the DFU header.
-     */
-    uint32_t header_storage_size(const size_t write_block_size)
-    {
-        if (write_block_size == 0U)
-        {
-            return 0;
-        }
-
-        return static_cast<uint32_t>(((opendeck::common::dfu::dfu_stream_parser::HEADER_SIZE + write_block_size - 1U) / write_block_size) *
-                                     write_block_size);
-    }
-
-    /**
-     * @brief Reads the staged DFU header from the start of the partition.
-     */
-    bool read_header(opendeck::bootloader::dfu::staged_update_reader::Hwa& hwa, opendeck::common::dfu::dfu_stream_parser::Header& header)
-    {
-        return hwa.read(0, header);
-    }
-
-    /**
-     * @brief Checks whether the header describes a readable staged payload.
-     */
-    bool staged_payload_fits(const opendeck::common::dfu::dfu_stream_parser::Header& header, const uint32_t storage_size)
-    {
-        const uint32_t payload_size = opendeck::common::dfu::dfu_stream_parser::DfuStreamParser::payload_size(header);
-
-        return payload_size <= storage_size;
-    }
-
 }    // namespace
 
-opendeck::bootloader::dfu::staged_update_reader::StagedUpdateReader::StagedUpdateReader(Hwa& hwa)
+StagedUpdateReader::StagedUpdateReader(Hwa& hwa)
     : _hwa(hwa)
 {}
 
-bool opendeck::bootloader::dfu::staged_update_reader::StagedUpdateReader::consume(opendeck::common::dfu::dfu_stream_parser::Destination& consumer)
+bool StagedUpdateReader::consume(opendeck::common::dfu::writer::DfuWriter& writer)
 {
     opendeck::common::dfu::dfu_stream_parser::Header header = {};
 
@@ -66,9 +35,9 @@ bool opendeck::bootloader::dfu::staged_update_reader::StagedUpdateReader::consum
         return false;
     }
 
-    const uint32_t header_size = header_storage_size(_hwa.write_block_size());
+    const uint32_t header_size = StagedUpdate::header_storage_size();
 
-    if (!read_header(_hwa, header))
+    if (!read_header(header))
     {
         LOG_ERR("Failed to read staged DFU header");
         return false;
@@ -80,15 +49,9 @@ bool opendeck::bootloader::dfu::staged_update_reader::StagedUpdateReader::consum
         return false;
     }
 
-    if ((header_size == 0U) || (_hwa.size() < header_size))
+    if (header_size == 0U)
     {
         LOG_ERR("Invalid staged DFU storage geometry");
-        return false;
-    }
-
-    if (!staged_payload_fits(header, _hwa.size() - header_size))
-    {
-        LOG_ERR("Staged firmware payload does not fit");
         return false;
     }
 
@@ -96,7 +59,7 @@ bool opendeck::bootloader::dfu::staged_update_reader::StagedUpdateReader::consum
 
     LOG_INF("Applying staged firmware payload (%u bytes)", payload_size);
 
-    if (!consumer.begin(header, payload_size))
+    if (!writer.begin(header, payload_size))
     {
         LOG_ERR("Staged firmware payload rejected");
 
@@ -127,10 +90,10 @@ bool opendeck::bootloader::dfu::staged_update_reader::StagedUpdateReader::consum
             return true;
         }
 
-        if (!consumer.write(std::span<uint8_t>(buffer.data(), chunk_size)))
+        if (!writer.write(std::span<uint8_t>(buffer.data(), chunk_size)))
         {
             LOG_ERR("Staged firmware payload rejected");
-            consumer.abort();
+            writer.abort();
 
             if (!clear_pending())
             {
@@ -143,10 +106,10 @@ bool opendeck::bootloader::dfu::staged_update_reader::StagedUpdateReader::consum
         offset += chunk_size;
     }
 
-    if (!consumer.finish())
+    if (!writer.finish())
     {
         LOG_ERR("Staged firmware payload rejected");
-        consumer.abort();
+        writer.abort();
 
         if (!clear_pending())
         {
@@ -166,7 +129,12 @@ bool opendeck::bootloader::dfu::staged_update_reader::StagedUpdateReader::consum
     return true;
 }
 
-bool opendeck::bootloader::dfu::staged_update_reader::StagedUpdateReader::clear_pending()
+bool StagedUpdateReader::clear_pending()
 {
     return _hwa.clear_pending();
+}
+
+bool StagedUpdateReader::read_header(opendeck::common::dfu::dfu_stream_parser::Header& header)
+{
+    return _hwa.read(0, header);
 }

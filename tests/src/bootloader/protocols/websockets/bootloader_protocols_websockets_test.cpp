@@ -215,7 +215,7 @@ TEST(BootloaderWebSockets, DestructorStopsActiveServer)
 
     WebSocketsHwaTest                                         websockets_hwa;
     bootloader::dfu::direct_update_writer::HwaTest            writer_hwa(4, 64, 1);
-    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(writer_hwa);
+    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(writer_hwa, writer_hwa);
     bootloader::protocols::websockets::handler::Builder       handlers(writer);
 
     {
@@ -245,7 +245,7 @@ TEST(BootloaderWebSockets, NetworkDfuWritesDirectUpdate)
 
     WebSocketsHwaTest                                         websockets_hwa;
     bootloader::dfu::direct_update_writer::HwaTest            writer_hwa(4, 64, 1);
-    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(writer_hwa);
+    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(writer_hwa, writer_hwa);
     bootloader::protocols::websockets::handler::Builder       handlers(writer);
     bootloader::protocols::websockets::WebSockets             websockets(websockets_hwa);
 
@@ -291,7 +291,7 @@ TEST(BootloaderWebSockets, NetworkDfuRejectsInvalidHeader)
 
     WebSocketsHwaTest                                         websockets_hwa;
     bootloader::dfu::direct_update_writer::HwaTest            writer_hwa(4, 64, 1);
-    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(writer_hwa);
+    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(writer_hwa, writer_hwa);
     bootloader::protocols::websockets::handler::Builder       handlers(writer);
     bootloader::protocols::websockets::WebSockets             websockets(websockets_hwa);
 
@@ -329,7 +329,7 @@ TEST(BootloaderWebSockets, NetworkDfuAbortResetsDirectUpdate)
 
     WebSocketsHwaTest                                         websockets_hwa;
     bootloader::dfu::direct_update_writer::HwaTest            writer_hwa(4, 64, 1);
-    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(writer_hwa);
+    bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(writer_hwa, writer_hwa);
     bootloader::protocols::websockets::handler::Builder       handlers(writer);
     bootloader::protocols::websockets::WebSockets             websockets(websockets_hwa);
 

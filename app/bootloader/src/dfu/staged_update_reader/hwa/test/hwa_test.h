@@ -8,6 +8,7 @@
 #include "bootloader/src/dfu/staged_update_reader/instance/impl/deps.h"
 #include "common/src/dfu/dfu_stream_parser/shared/common.h"
 #include "common/src/dfu/flash_area/hwa/test/hwa_test.h"
+#include "common/src/dfu/staged_update/shared/deps.h"
 
 #include "zlibs/utils/misc/bit.h"
 
@@ -70,7 +71,7 @@ namespace opendeck::bootloader::dfu::staged_update_reader
             write_word(header, 3, payload.size());
 
             _area.write(0, header);
-            _area.write(header_storage_size(), payload);
+            _area.write(opendeck::common::dfu::staged_update::StagedUpdate::header_storage_size(), payload);
         }
 
         uint32_t header_start_magic() const
@@ -102,13 +103,6 @@ namespace opendeck::bootloader::dfu::staged_update_reader
         }
 
         private:
-        size_t header_storage_size() const
-        {
-            const size_t write_block_size = _area.write_block_size();
-
-            return ((opendeck::common::dfu::dfu_stream_parser::HEADER_SIZE + write_block_size - 1U) / write_block_size) * write_block_size;
-        }
-
         static void write_word(opendeck::common::dfu::dfu_stream_parser::Header& header, size_t word_index, uint32_t value)
         {
             const size_t offset = word_index * sizeof(value);

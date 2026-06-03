@@ -10,8 +10,8 @@ using namespace opendeck::bootloader::protocols;
 webusb::WebUsb::WebUsb(Hwa& hwa)
     : _hwa(hwa)
 {
-    opendeck::bootloader::signaling::subscribe<opendeck::bootloader::signaling::StatusSignal>(
-        [this](const opendeck::bootloader::signaling::StatusSignal& signal)
+    opendeck::bootloader::signaling::subscribe<opendeck::common::signaling::DfuStatusSignal>(
+        [this](const opendeck::common::signaling::DfuStatusSignal& signal)
         {
             _hwa.status(signal.message());
         });

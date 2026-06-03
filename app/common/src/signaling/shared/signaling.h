@@ -7,11 +7,59 @@
 
 #include "zlibs/utils/signaling/signaling.h"
 
+#include <algorithm>
+#include <array>
+#include <cstddef>
+#include <string_view>
 #include <utility>
 #include <vector>
 
 namespace opendeck::common::signaling
 {
+    /**
+     * @brief DFU status text signal.
+     */
+    struct DfuStatusSignal
+    {
+        static constexpr size_t MAX_SIZE = 128;
+
+        DfuStatusSignal() = default;
+
+        /**
+         * @brief Constructs the status signal from text.
+         *
+         * @param message Status text.
+         */
+        explicit DfuStatusSignal(std::string_view message)
+        {
+            const size_t size = std::min(message.size(), _data.size());
+
+            std::copy_n(message.begin(), size, _data.begin());
+            _size = size;
+        }
+
+        /**
+         * @brief Returns the status text.
+         *
+         * @return Status text.
+         */
+        std::string_view message() const
+        {
+            return std::string_view(_data.data(), _size);
+        }
+
+        private:
+        std::array<char, MAX_SIZE> _data = {};
+        size_t                     _size = 0;
+    };
+
+    /**
+     * @brief Signal emitted when a firmware update starts writing payload data.
+     */
+    struct FirmwareUpdateStartedSignal
+    {
+    };
+
     /**
      * @brief Signal backend that queues publishes through the zlibs dispatcher.
      */

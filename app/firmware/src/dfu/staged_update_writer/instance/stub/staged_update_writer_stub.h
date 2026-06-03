@@ -5,37 +5,80 @@
 
 #pragma once
 
-#include "common/src/dfu/dfu_stream_parser/shared/deps.h"
+#include "common/src/dfu/flash_area/impl/deps.h"
+#include "common/src/dfu/writer/instance/impl/dfu_writer.h"
+
+#include <optional>
+#include <span>
 
 namespace opendeck::firmware::dfu::staged_update_writer
 {
     /**
      * @brief Disabled staged-update destination used when staged updates are not supported.
      */
-    class StagedUpdateWriter : public opendeck::common::dfu::dfu_stream_parser::Destination
+    class StagedUpdateWriter : public opendeck::common::dfu::writer::DfuWriter
     {
+        private:
+        class NullFlashArea : public opendeck::common::dfu::flash_area::Hwa
+        {
+            public:
+            bool open(uint8_t) override
+            {
+                return false;
+            }
+
+            bool opened() const override
+            {
+                return false;
+            }
+
+            uint32_t size() const override
+            {
+                return 0;
+            }
+
+            size_t write_block_size() const override
+            {
+                return 0;
+            }
+
+            bool read(uint32_t, std::span<uint8_t>) const override
+            {
+                return false;
+            }
+
+            bool write(uint32_t, std::span<const uint8_t>) const override
+            {
+                return false;
+            }
+
+            bool erase(uint32_t, uint32_t) const override
+            {
+                return false;
+            }
+
+            std::optional<Sector> sector(size_t) const override
+            {
+                return std::nullopt;
+            }
+
+            bool sectors(std::span<Sector>, size_t&) const override
+            {
+                return false;
+            }
+        };
+
         public:
+        StagedUpdateWriter()
+            : DfuWriter(_hwa)
+        {}
+
         bool supported() const override
         {
             return false;
         }
 
-        bool begin(const opendeck::common::dfu::dfu_stream_parser::Header&, uint32_t) override
-        {
-            return false;
-        }
-
-        bool write(std::span<const uint8_t>) override
-        {
-            return false;
-        }
-
-        bool finish() override
-        {
-            return false;
-        }
-
-        void abort() override
-        {}
+        private:
+        inline static NullFlashArea _hwa = {};
     };
 }    // namespace opendeck::firmware::dfu::staged_update_writer

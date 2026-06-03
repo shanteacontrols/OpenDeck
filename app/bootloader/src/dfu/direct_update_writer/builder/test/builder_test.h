@@ -20,7 +20,7 @@ namespace opendeck::bootloader::dfu::direct_update_writer
          * @brief Constructs the test direct-update writer builder.
          */
         Builder()
-            : _instance(_hwa)
+            : _instance(_hwa, _hwa)
         {}
 
         /**

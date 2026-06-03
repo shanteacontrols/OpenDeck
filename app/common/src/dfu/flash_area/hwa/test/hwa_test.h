@@ -6,7 +6,6 @@
 #pragma once
 
 #include "common/src/dfu/flash_area/impl/deps.h"
-
 #include <algorithm>
 #include <array>
 #include <span>
@@ -20,13 +19,6 @@ namespace opendeck::common::dfu::flash_area
     class HwaTest : public Hwa
     {
         public:
-        struct EraseCall
-        {
-            uint32_t offset = 0;
-            uint32_t size   = 0;
-        };
-
-        static constexpr uint8_t  ERASED_BYTE      = 0xFFU;
         static constexpr uint32_t STORAGE_SIZE     = 4096U;
         static constexpr uint32_t SECTOR_SIZE      = 1024U;
         static constexpr size_t   WRITE_BLOCK_SIZE = 8U;
@@ -94,7 +86,7 @@ namespace opendeck::common::dfu::flash_area
                 return false;
             }
 
-            std::fill(_storage.begin() + offset, _storage.begin() + offset + size, ERASED_BYTE);
+            std::fill(_storage.begin() + offset, _storage.begin() + offset + size, opendeck::common::dfu::flash_area::ERASED_BYTE);
             return true;
         }
 
@@ -134,7 +126,7 @@ namespace opendeck::common::dfu::flash_area
 
         void reset_storage()
         {
-            std::fill(_storage.begin(), _storage.end(), ERASED_BYTE);
+            std::fill(_storage.begin(), _storage.end(), opendeck::common::dfu::flash_area::ERASED_BYTE);
             _erase_calls.clear();
             _write_calls      = 0;
             _open_called      = false;
@@ -151,7 +143,7 @@ namespace opendeck::common::dfu::flash_area
             return _storage;
         }
 
-        const std::vector<EraseCall>& erase_calls() const
+        const std::vector<Sector>& erase_calls() const
         {
             return _erase_calls;
         }
@@ -204,7 +196,7 @@ namespace opendeck::common::dfu::flash_area
         }
 
         mutable std::array<uint8_t, STORAGE_SIZE> _storage          = {};
-        mutable std::vector<EraseCall>            _erase_calls      = {};
+        mutable std::vector<Sector>               _erase_calls      = {};
         mutable size_t                            _write_calls      = 0;
         size_t                                    _write_block_size = WRITE_BLOCK_SIZE;
         bool                                      _open_called      = false;

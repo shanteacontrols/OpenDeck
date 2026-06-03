@@ -6,7 +6,7 @@
 #pragma once
 
 #include "common/src/dfu/dfu_stream_parser/shared/common.h"
-#include "common/src/dfu/dfu_stream_parser/shared/deps.h"
+#include "common/src/dfu/writer/instance/impl/dfu_writer.h"
 
 #include <cstdint>
 #include <span>
@@ -22,9 +22,9 @@ namespace opendeck::common::dfu::dfu_stream_parser
         /**
          * @brief Constructs the parser around a payload backend.
          *
-         * @param destination Destination for accepted firmware payload bytes.
+         * @param writer Writer for accepted firmware payload bytes.
          */
-        explicit DfuStreamParser(Destination& destination);
+        explicit DfuStreamParser(opendeck::common::dfu::writer::DfuWriter& writer);
 
         /**
          * @brief Reads the firmware payload size declared by a DFU header.
@@ -48,6 +48,16 @@ namespace opendeck::common::dfu::dfu_stream_parser
          * @brief Resets parser state and forgets any partial stream.
          */
         void reset();
+
+        /**
+         * @brief Aborts the active writer stream and resets parser state.
+         */
+        void abort();
+
+        /**
+         * @brief Reports whether the parser backend can accept DFU payloads.
+         */
+        bool supported() const;
 
         /**
          * @brief Processes one dfu.bin byte.
@@ -99,16 +109,16 @@ namespace opendeck::common::dfu::dfu_stream_parser
             Count
         };
 
-        Destination& _destination;
-        ReceiveStage _stage                   = ReceiveStage::Start;
-        StreamStatus _status                  = StreamStatus::Incomplete;
-        uint8_t      _stage_bytes_received    = 0;
-        uint32_t     _received_format_version = 0;
-        uint32_t     _received_uid            = 0;
-        uint32_t     _expected_size           = 0;
-        uint32_t     _bytes_written           = 0;
-        Header       _header                  = {};
-        bool         _destination_active      = false;
+        opendeck::common::dfu::writer::DfuWriter& _writer;
+        ReceiveStage                              _stage                   = ReceiveStage::Start;
+        StreamStatus                              _status                  = StreamStatus::Incomplete;
+        uint8_t                                   _stage_bytes_received    = 0;
+        uint32_t                                  _received_format_version = 0;
+        uint32_t                                  _received_uid            = 0;
+        uint32_t                                  _expected_size           = 0;
+        uint32_t                                  _bytes_written           = 0;
+        Header                                    _header                  = {};
+        bool                                      _writer_active           = false;
 
         StreamStatus process_start(uint8_t data);
         StreamStatus process_metadata(uint8_t data);

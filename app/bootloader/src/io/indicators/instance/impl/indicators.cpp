@@ -14,8 +14,8 @@ io::indicators::Indicators::Indicators(Hwa& hwa)
                       blink();
                   })
 {
-    bootloader::signaling::subscribe<bootloader::signaling::FirmwareUpdateStartedSignal>(
-        [this](const bootloader::signaling::FirmwareUpdateStartedSignal&)
+    bootloader::signaling::subscribe<common::signaling::FirmwareUpdateStartedSignal>(
+        [this](const common::signaling::FirmwareUpdateStartedSignal&)
         {
             start_blinking_all();
         });

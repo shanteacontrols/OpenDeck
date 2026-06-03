@@ -5,8 +5,6 @@
 
 #pragma once
 
-#include "common/src/dfu/dfu_stream_parser/shared/deps.h"
-
 #include <cstddef>
 #include <cstdint>
 #include <span>

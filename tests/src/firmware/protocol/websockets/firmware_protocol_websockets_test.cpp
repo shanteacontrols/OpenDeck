@@ -5,7 +5,7 @@
 
 #include "tests/shared/common.h"
 #include "tests/shared/helpers/dfu_stream.h"
-#include "common/src/dfu/dfu_stream_parser/destination/test/destination_test.h"
+#include "common/src/dfu/dfu_stream_parser/writer/test/dfu_writer_test.h"
 #include "common/src/dfu/dfu_stream_parser/shared/common.h"
 #include "common/src/protocols/websockets/firmware_upload/firmware_upload.h"
 #include "firmware/src/dfu/staged_update_writer/hwa/test/hwa_test.h"
@@ -108,9 +108,9 @@ TEST_F(FirmwareUploadTest, BeginsUpload)
 
 TEST_F(FirmwareUploadTest, RejectsUnsupportedUpload)
 {
-    common::dfu::dfu_stream_parser::DestinationTest unsupported_destination;
-    unsupported_destination.supported_result = false;
-    common::protocols::websockets::FirmwareUpload unsupported_handler(unsupported_destination);
+    common::dfu::dfu_stream_parser::DfuWriterTest unsupported_writer;
+    unsupported_writer.supported_result = false;
+    common::protocols::websockets::FirmwareUpload unsupported_handler(unsupported_writer);
 
     const auto frame    = begin_frame();
     const auto response = unsupported_handler.handle(frame);

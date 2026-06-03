@@ -24,7 +24,7 @@ namespace opendeck::bootloader::dfu::direct_update_writer
          */
         explicit Builder(opendeck::common::mcu::Hwa& mcu)
             : _hwa(mcu)
-            , _instance(_hwa)
+            , _instance(_hwa, _hwa)
         {}
 
         /**

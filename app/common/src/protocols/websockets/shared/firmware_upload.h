@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "common/src/dfu/staged_update/shared/deps.h"
+
 #include "zlibs/utils/misc/bit.h"
 
 #include <array>
@@ -29,7 +31,7 @@ namespace opendeck::common::protocols::websockets
     };
 
     /** @brief Maximum dfu.bin payload bytes carried by one upload chunk frame. */
-    constexpr inline size_t FIRMWARE_UPLOAD_CHUNK_SIZE = 2048;
+    constexpr inline size_t FIRMWARE_UPLOAD_CHUNK_SIZE = opendeck::common::dfu::staged_update::StagedUpdate::header_storage_size();
 
     /** @brief Maximum firmware-upload command frame size accepted by OpenDeck WebSockets. */
     constexpr inline size_t FIRMWARE_UPLOAD_FRAME_SIZE = 1 + FIRMWARE_UPLOAD_CHUNK_SIZE;

@@ -7,9 +7,8 @@
 
 using namespace opendeck::common::protocols::websockets;
 
-FirmwareUpload::FirmwareUpload(opendeck::common::dfu::dfu_stream_parser::Destination& destination)
-    : _destination(destination)
-    , _dfu_stream(destination)
+FirmwareUpload::FirmwareUpload(opendeck::common::dfu::writer::DfuWriter& writer)
+    : _dfu_stream(writer)
 {}
 
 FirmwareUploadAck FirmwareUpload::make_ack(const FirmwareUploadCommand command,
@@ -50,8 +49,7 @@ std::optional<FirmwareUploadCommandResult> FirmwareUpload::handle(std::span<cons
 
 void FirmwareUpload::abort()
 {
-    _destination.abort();
-    _dfu_stream.reset();
+    _dfu_stream.abort();
 }
 
 FirmwareUploadCommandResult FirmwareUpload::handle_begin(std::span<const uint8_t> payload)
@@ -61,7 +59,7 @@ FirmwareUploadCommandResult FirmwareUpload::handle_begin(std::span<const uint8_t
         return result(FirmwareUploadCommand::Begin, FirmwareUploadStatus::BadRequest);
     }
 
-    if (!_destination.supported())
+    if (!_dfu_stream.supported())
     {
         return result(FirmwareUploadCommand::Begin, FirmwareUploadStatus::Unsupported);
     }
@@ -91,12 +89,14 @@ FirmwareUploadCommandResult FirmwareUpload::handle_finish()
 
     if (!finished)
     {
-        _destination.abort();
+        const auto command_result = result(FirmwareUploadCommand::Finish, FirmwareUploadStatus::Failed);
+
+        _dfu_stream.abort();
+
+        return command_result;
     }
 
-    return result(FirmwareUploadCommand::Finish,
-                  finished ? FirmwareUploadStatus::Ok : FirmwareUploadStatus::Failed,
-                  finished);
+    return result(FirmwareUploadCommand::Finish, FirmwareUploadStatus::Ok, true);
 }
 
 FirmwareUploadCommandResult FirmwareUpload::handle_abort()

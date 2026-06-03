@@ -7,59 +7,11 @@
 
 #include "common/src/signaling/shared/signaling.h"
 
-#include <algorithm>
-#include <array>
-#include <cstddef>
-#include <string_view>
 #include <utility>
 
 namespace opendeck::bootloader::signaling
 {
     using SignalingBackend = common::signaling::DirectBackend;
-
-    /**
-     * @brief Bootloader status text signal.
-     */
-    struct StatusSignal
-    {
-        static constexpr size_t MAX_SIZE = 128;
-
-        StatusSignal() = default;
-
-        /**
-         * @brief Constructs the status signal from text.
-         *
-         * @param message Status text.
-         */
-        explicit StatusSignal(std::string_view message)
-        {
-            const size_t size = std::min(message.size(), _data.size());
-
-            std::copy_n(message.begin(), size, _data.begin());
-            _size = size;
-        }
-
-        /**
-         * @brief Returns the status text.
-         *
-         * @return Status text.
-         */
-        std::string_view message() const
-        {
-            return std::string_view(_data.data(), _size);
-        }
-
-        private:
-        std::array<char, MAX_SIZE> _data = {};
-        size_t                     _size = 0;
-    };
-
-    /**
-     * @brief Signal emitted when a firmware update starts writing payload data.
-     */
-    struct FirmwareUpdateStartedSignal
-    {
-    };
 
     template<typename Signal>
     using SignalRegistry = common::signaling::SignalRegistry<Signal, SignalingBackend>;
@@ -99,7 +51,7 @@ namespace opendeck::bootloader::signaling
      */
     inline void clear_registry()
     {
-        SignalRegistry<StatusSignal>::instance().clear();
-        SignalRegistry<FirmwareUpdateStartedSignal>::instance().clear();
+        SignalRegistry<common::signaling::DfuStatusSignal>::instance().clear();
+        SignalRegistry<common::signaling::FirmwareUpdateStartedSignal>::instance().clear();
     }
 }    // namespace opendeck::bootloader::signaling

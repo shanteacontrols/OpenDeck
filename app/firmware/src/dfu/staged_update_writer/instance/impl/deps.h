@@ -5,55 +5,12 @@
 
 #pragma once
 
-#include <cstddef>
-#include <cstdint>
-#include <optional>
-#include <span>
+#include "common/src/dfu/flash_area/impl/deps.h"
 
 namespace opendeck::firmware::dfu::staged_update_writer
 {
     /**
      * @brief Flash access used by the staged-update writer.
      */
-    class Hwa
-    {
-        public:
-        struct Sector
-        {
-            uint32_t offset = 0;
-            uint32_t size   = 0;
-        };
-
-        virtual ~Hwa() = default;
-
-        /**
-         * @brief Opens the staged DFU storage.
-         */
-        virtual bool init() = 0;
-
-        /**
-         * @brief Returns the total staged DFU storage size.
-         */
-        virtual uint32_t size() const = 0;
-
-        /**
-         * @brief Returns the flash write block size.
-         */
-        virtual size_t write_block_size() const = 0;
-
-        /**
-         * @brief Returns one flash sector from the staged DFU storage.
-         */
-        virtual std::optional<Sector> sector(size_t index) const = 0;
-
-        /**
-         * @brief Erases bytes from the staged DFU storage.
-         */
-        virtual bool erase(uint32_t offset, uint32_t size) = 0;
-
-        /**
-         * @brief Writes bytes to the staged DFU storage.
-         */
-        virtual bool write(uint32_t offset, std::span<const uint8_t> data) = 0;
-    };
+    using Hwa = opendeck::common::dfu::flash_area::Hwa;
 }    // namespace opendeck::firmware::dfu::staged_update_writer

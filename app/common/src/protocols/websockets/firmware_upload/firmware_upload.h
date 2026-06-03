@@ -21,11 +21,11 @@ namespace opendeck::common::protocols::websockets
     {
         public:
         /**
-         * @brief Constructs the handler around a validated-payload destination.
+         * @brief Constructs the handler around a DFU writer.
          *
-         * @param destination Destination for firmware payload bytes accepted by the DFU parser.
+         * @param writer Writer for firmware payload bytes accepted by the DFU parser.
          */
-        explicit FirmwareUpload(opendeck::common::dfu::dfu_stream_parser::Destination& destination);
+        explicit FirmwareUpload(opendeck::common::dfu::writer::DfuWriter& writer);
 
         /**
          * @brief Builds an ACK for a firmware-upload command.
@@ -55,7 +55,6 @@ namespace opendeck::common::protocols::websockets
         void abort();
 
         private:
-        opendeck::common::dfu::dfu_stream_parser::Destination&    _destination;
         opendeck::common::dfu::dfu_stream_parser::DfuStreamParser _dfu_stream;
 
         FirmwareUploadCommandResult result(FirmwareUploadCommand command,
