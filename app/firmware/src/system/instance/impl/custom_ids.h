@@ -27,6 +27,8 @@ constexpr inline uint8_t SYSEX_CR_MAX_COMPONENTS = 0x4D;
 constexpr inline uint8_t SYSEX_CR_SUPPORTED_PRESETS = 0x50;
 /** @brief Returns whether bootloader support is available. */
 constexpr inline uint8_t SYSEX_CR_BOOTLOADER_SUPPORT = 0x51;
+/** @brief Returns whether staged firmware upload is available in the application. */
+constexpr inline uint8_t SYSEX_CR_STAGED_UPDATE_SUPPORT = 0x52;
 /** @brief Starts a full-backup transfer. */
 constexpr inline uint8_t SYSEX_CR_FULL_BACKUP = 0x1B;
 /** @brief Starts a restore transfer. */

@@ -913,6 +913,12 @@ zlibs::utils::sysex_conf::Status System::SysExDataHandler::custom_request(uint16
     }
     break;
 
+    case SYSEX_CR_STAGED_UPDATE_SUPPORT:
+    {
+        custom_response.append(IS_ENABLED(CONFIG_PROJECT_TARGET_SUPPORT_STAGED_UPDATE) ? 1 : 0);
+    }
+    break;
+
     case SYSEX_CR_FULL_BACKUP:
     {
         if (!_system.config_unlocked())

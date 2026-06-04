@@ -38,7 +38,7 @@ namespace opendeck::firmware::sys
         static constexpr size_t I2C_SECTION_COUNT         = 4;
         static constexpr size_t TOUCHSCREEN_SECTION_COUNT = 9;
         static constexpr size_t BLOCK_COUNT               = 7;
-        static constexpr size_t CUSTOM_REQUEST_COUNT      = 13;
+        static constexpr size_t CUSTOM_REQUEST_COUNT      = 14;
         static constexpr size_t GLOBAL_BLOCK_INDEX        = 0;
         static constexpr size_t SWITCH_BLOCK_INDEX        = 1;
         static constexpr size_t ENCODER_BLOCK_INDEX       = 2;
@@ -395,6 +395,10 @@ namespace opendeck::firmware::sys
             },
             {
                 .request_id      = SYSEX_CR_BOOTLOADER_SUPPORT,
+                .conn_open_check = true,
+            },
+            {
+                .request_id      = SYSEX_CR_STAGED_UPDATE_SUPPORT,
                 .conn_open_check = true,
             },
             {
