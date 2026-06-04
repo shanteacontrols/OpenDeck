@@ -60,6 +60,16 @@ namespace opendeck::firmware::protocol::osc
             bool         shutdown = false;
         };
 
+        /**
+         * @brief Result of reading one configured OSC destination endpoint.
+         */
+        enum class DestinationStatus : uint8_t
+        {
+            Ready,
+            Empty,
+            Invalid,
+        };
+
         Hwa&                                                          _hwa;
         Database&                                                     _database;
         zlibs::utils::misc::RingBuffer<TX_QUEUE_SIZE, false, TxEvent> _queue = {};
@@ -150,13 +160,14 @@ namespace opendeck::firmware::protocol::osc
         bool send_packet_to(std::span<const uint8_t> packet, const sockaddr_in& dest, int sock);
 
         /**
-         * @brief Builds the configured OSC destination endpoint.
+         * @brief Builds one configured OSC destination endpoint.
          *
+         * @param index Zero-based destination slot.
          * @param dest Endpoint populated on success.
          *
-         * @return `true` when the database contains a valid destination.
+         * @return Destination state read from configuration.
          */
-        bool destination(sockaddr_in& dest);
+        DestinationStatus destination(size_t index, sockaddr_in& dest);
 
         /**
          * @brief Opens the UDP socket used for outbound OSC packets.

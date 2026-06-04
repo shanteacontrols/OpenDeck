@@ -9,6 +9,7 @@
 #include "firmware/src/util/configurable/configurable.h"
 #include "firmware/src/util/conversion/conversion.h"
 
+#include <zlibs/utils/misc/bit.h>
 #include <zlibs/utils/misc/version.h>
 
 #include <zephyr/kernel.h>
@@ -16,6 +17,7 @@
 #include <zephyr/net/socket.h>
 #include <zephyr/sys/byteorder.h>
 
+#include <array>
 #include <cerrno>
 #include <cstddef>
 #include <cstdint>
@@ -29,6 +31,58 @@ namespace zmisc = zlibs::utils::misc;
 namespace
 {
     LOG_MODULE_REGISTER(osc, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
+
+    constexpr size_t IPV4_OCTET_COUNT = 4;
+
+    struct DestinationSettings
+    {
+        std::array<Setting, IPV4_OCTET_COUNT> octets = {};
+        Setting                               port   = {};
+    };
+
+    constexpr std::array<DestinationSettings, DESTINATION_COUNT> DESTINATION_SETTINGS = {
+        DestinationSettings{
+            .octets = {
+                Setting::Dest1Ipv4Octet0,
+                Setting::Dest1Ipv4Octet1,
+                Setting::Dest1Ipv4Octet2,
+                Setting::Dest1Ipv4Octet3,
+            },
+            .port = Setting::Dest1Port,
+        },
+        DestinationSettings{
+            .octets = {
+                Setting::Dest2Ipv4Octet0,
+                Setting::Dest2Ipv4Octet1,
+                Setting::Dest2Ipv4Octet2,
+                Setting::Dest2Ipv4Octet3,
+            },
+            .port = Setting::Dest2Port,
+        },
+        DestinationSettings{
+            .octets = {
+                Setting::Dest3Ipv4Octet0,
+                Setting::Dest3Ipv4Octet1,
+                Setting::Dest3Ipv4Octet2,
+                Setting::Dest3Ipv4Octet3,
+            },
+            .port = Setting::Dest3Port,
+        },
+        DestinationSettings{
+            .octets = {
+                Setting::Dest4Ipv4Octet0,
+                Setting::Dest4Ipv4Octet1,
+                Setting::Dest4Ipv4Octet2,
+                Setting::Dest4Ipv4Octet3,
+            },
+            .port = Setting::Dest4Port,
+        },
+    };
+
+    constexpr uint32_t ipv4_octet_shift(size_t octet_index)
+    {
+        return static_cast<uint32_t>(((IPV4_OCTET_COUNT - 1) - octet_index) * zlibs::utils::misc::BYTE_BIT_COUNT);
+    }
 
     /**
      * @brief Builds the OSC device information packet used by discovery.
@@ -141,9 +195,12 @@ Osc::Osc(Hwa& hwa, Database& database)
         database::Config::Section::Global::OscSettings,
         [](size_t index) -> std::optional<uint32_t>
         {
-            if (index == static_cast<size_t>(Setting::DestPort))
+            for (const auto& destination : DESTINATION_SETTINGS)
             {
-                return DEFAULT_DEST_PORT;
+                if (index == static_cast<size_t>(destination.port))
+                {
+                    return DEFAULT_DEST_PORT;
+                }
             }
 
             if (index == static_cast<size_t>(Setting::ListenPort))
@@ -391,17 +448,10 @@ bool Osc::send_discovery_response(const sockaddr_in& sender, int sock)
     }
 
     const uint32_t listen_port = _database.read(database::Config::Section::Global::OscSettings, Setting::ListenPort);
-    const uint32_t dest_port   = _database.read(database::Config::Section::Global::OscSettings, Setting::DestPort);
 
     if ((listen_port == 0) || (listen_port > UDP_PORT_MAX))
     {
         LOG_ERR("Invalid OSC listen port configuration");
-        return false;
-    }
-
-    if ((dest_port == 0) || (dest_port > UDP_PORT_MAX))
-    {
-        LOG_ERR("Invalid OSC destination port configuration");
         return false;
     }
 
@@ -417,10 +467,41 @@ bool Osc::send_discovery_response(const sockaddr_in& sender, int sock)
         return false;
     }
 
-    sockaddr_in dest = sender;
-    dest.sin_port    = sys_cpu_to_be16(static_cast<uint16_t>(dest_port));
+    bool sent_any = false;
 
-    return send_packet_to(std::span<const uint8_t>(packet.data(), *size), dest, sock);
+    for (size_t i = 0; i < DESTINATION_COUNT; i++)
+    {
+        sockaddr_in destination_config = {};
+        const auto  status             = destination(i, destination_config);
+
+        if (status == DestinationStatus::Empty)
+        {
+            continue;
+        }
+
+        if (status == DestinationStatus::Invalid)
+        {
+            return false;
+        }
+
+        sockaddr_in dest = sender;
+        dest.sin_port    = destination_config.sin_port;
+
+        if (!send_packet_to(std::span<const uint8_t>(packet.data(), *size), dest, sock))
+        {
+            return false;
+        }
+
+        sent_any = true;
+    }
+
+    if (!sent_any)
+    {
+        LOG_WRN_ONCE("OSC destination is not configured");
+        return false;
+    }
+
+    return true;
 }
 
 bool Osc::send_discovery_announcement()
@@ -467,14 +548,38 @@ bool Osc::send_discovery_announcement()
 
 bool Osc::send_packet(std::span<const uint8_t> packet, int sock)
 {
-    sockaddr_in dest = {};
+    bool sent_any = false;
 
-    if (!destination(dest))
+    for (size_t i = 0; i < DESTINATION_COUNT; i++)
     {
+        sockaddr_in dest   = {};
+        const auto  status = destination(i, dest);
+
+        if (status == DestinationStatus::Empty)
+        {
+            continue;
+        }
+
+        if (status == DestinationStatus::Invalid)
+        {
+            return false;
+        }
+
+        if (!send_packet_to(packet, dest, sock))
+        {
+            return false;
+        }
+
+        sent_any = true;
+    }
+
+    if (!sent_any)
+    {
+        LOG_WRN_ONCE("OSC destination is not configured");
         return false;
     }
 
-    return send_packet_to(packet, dest, sock);
+    return true;
 }
 
 bool Osc::send_packet_to(std::span<const uint8_t> packet, const sockaddr_in& dest, int sock)
@@ -502,34 +607,46 @@ bool Osc::send_packet_to(std::span<const uint8_t> packet, const sockaddr_in& des
     return true;
 }
 
-bool Osc::destination(sockaddr_in& dest)
+Osc::DestinationStatus Osc::destination(size_t index, sockaddr_in& dest)
 {
-    const uint32_t octet0 = _database.read(database::Config::Section::Global::OscSettings, Setting::DestIpv4Octet0);
-    const uint32_t octet1 = _database.read(database::Config::Section::Global::OscSettings, Setting::DestIpv4Octet1);
-    const uint32_t octet2 = _database.read(database::Config::Section::Global::OscSettings, Setting::DestIpv4Octet2);
-    const uint32_t octet3 = _database.read(database::Config::Section::Global::OscSettings, Setting::DestIpv4Octet3);
-    const uint32_t port   = _database.read(database::Config::Section::Global::OscSettings, Setting::DestPort);
+    if (index >= DESTINATION_SETTINGS.size())
+    {
+        return DestinationStatus::Invalid;
+    }
 
-    if ((octet0 > IPV4_OCTET_MAX) ||
-        (octet1 > IPV4_OCTET_MAX) ||
-        (octet2 > IPV4_OCTET_MAX) ||
-        (octet3 > IPV4_OCTET_MAX) ||
-        (port == 0) ||
+    const auto& destination_settings = DESTINATION_SETTINGS.at(index);
+    const auto  port                 = _database.read(database::Config::Section::Global::OscSettings, destination_settings.port);
+
+    std::array<uint32_t, IPV4_OCTET_COUNT> octets = {};
+
+    for (size_t i = 0; i < octets.size(); i++)
+    {
+        octets.at(i) = _database.read(database::Config::Section::Global::OscSettings, destination_settings.octets.at(i));
+    }
+
+    if ((port == 0) ||
         (port > UDP_PORT_MAX))
     {
         LOG_ERR("Invalid OSC destination configuration");
-        return false;
+        return DestinationStatus::Invalid;
     }
 
-    const uint32_t ipv4 = (octet0 << 24) |
-                          (octet1 << 16) |
-                          (octet2 << 8) |
-                          octet3;
+    uint32_t ipv4 = 0;
+
+    for (size_t i = 0; i < octets.size(); i++)
+    {
+        if (octets.at(i) > IPV4_OCTET_MAX)
+        {
+            LOG_ERR("Invalid OSC destination configuration");
+            return DestinationStatus::Invalid;
+        }
+
+        ipv4 |= octets.at(i) << ipv4_octet_shift(i);
+    }
 
     if (ipv4 == 0)
     {
-        LOG_WRN("OSC destination is not configured");
-        return false;
+        return DestinationStatus::Empty;
     }
 
     dest                 = {};
@@ -537,7 +654,7 @@ bool Osc::destination(sockaddr_in& dest)
     dest.sin_port        = sys_cpu_to_be16(static_cast<uint16_t>(port));
     dest.sin_addr.s_addr = sys_cpu_to_be32(ipv4);
 
-    return true;
+    return DestinationStatus::Ready;
 }
 
 int Osc::open_send_socket()
@@ -697,14 +814,28 @@ bool Osc::sender_allowed(const sockaddr_in& sender)
         return true;
     }
 
-    sockaddr_in dest = {};
-
-    if (!destination(dest))
+    for (size_t i = 0; i < DESTINATION_COUNT; i++)
     {
-        return false;
+        sockaddr_in dest   = {};
+        const auto  status = destination(i, dest);
+
+        if (status == DestinationStatus::Empty)
+        {
+            continue;
+        }
+
+        if (status == DestinationStatus::Invalid)
+        {
+            return false;
+        }
+
+        if (sender.sin_addr.s_addr == dest.sin_addr.s_addr)
+        {
+            return true;
+        }
     }
 
-    return sender.sin_addr.s_addr == dest.sin_addr.s_addr;
+    return false;
 }
 
 void Osc::close_listen_socket()
@@ -775,10 +906,22 @@ std::optional<uint8_t> Osc::sys_config_set(sys::Config::Section::Global section,
     }
     break;
 
-    case Setting::DestIpv4Octet0:
-    case Setting::DestIpv4Octet1:
-    case Setting::DestIpv4Octet2:
-    case Setting::DestIpv4Octet3:
+    case Setting::Dest1Ipv4Octet0:
+    case Setting::Dest1Ipv4Octet1:
+    case Setting::Dest1Ipv4Octet2:
+    case Setting::Dest1Ipv4Octet3:
+    case Setting::Dest2Ipv4Octet0:
+    case Setting::Dest2Ipv4Octet1:
+    case Setting::Dest2Ipv4Octet2:
+    case Setting::Dest2Ipv4Octet3:
+    case Setting::Dest3Ipv4Octet0:
+    case Setting::Dest3Ipv4Octet1:
+    case Setting::Dest3Ipv4Octet2:
+    case Setting::Dest3Ipv4Octet3:
+    case Setting::Dest4Ipv4Octet0:
+    case Setting::Dest4Ipv4Octet1:
+    case Setting::Dest4Ipv4Octet2:
+    case Setting::Dest4Ipv4Octet3:
     {
         if (value > IPV4_OCTET_MAX)
         {
@@ -787,7 +930,10 @@ std::optional<uint8_t> Osc::sys_config_set(sys::Config::Section::Global section,
     }
     break;
 
-    case Setting::DestPort:
+    case Setting::Dest1Port:
+    case Setting::Dest2Port:
+    case Setting::Dest3Port:
+    case Setting::Dest4Port:
     case Setting::ListenPort:
     {
         if (value == 0)

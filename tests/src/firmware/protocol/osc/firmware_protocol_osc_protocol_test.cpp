@@ -107,11 +107,11 @@ namespace
 
         void configure_osc()
         {
-            ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::DestIpv4Octet0, DEST_OCTET_0));
-            ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::DestIpv4Octet1, DEST_OCTET_1));
-            ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::DestIpv4Octet2, DEST_OCTET_2));
-            ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::DestIpv4Octet3, DEST_OCTET_3));
-            ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::DestPort, DEST_PORT));
+            ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::Dest1Ipv4Octet0, DEST_OCTET_0));
+            ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::Dest1Ipv4Octet1, DEST_OCTET_1));
+            ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::Dest1Ipv4Octet2, DEST_OCTET_2));
+            ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::Dest1Ipv4Octet3, DEST_OCTET_3));
+            ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::Dest1Port, DEST_PORT));
             ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::ListenPort, LISTEN_PORT));
             ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::RestrictIncomingToDestIp, 0));
         }
@@ -292,6 +292,43 @@ TEST_F(OscProtocolTest, SendsRawAnalogInputAsNormalizedFloatOscPacket)
     EXPECT_FLOAT_EQ(*message->arg<protocol::osc::OscFloat32>(0), 1.0F);
 }
 
+TEST_F(OscProtocolTest, SendsOutboundPacketsToAllConfiguredDestinations)
+{
+    constexpr uint8_t  SECOND_DEST_OCTET_3 = 127;
+    constexpr uint16_t SECOND_DEST_PORT    = 9100;
+
+    ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::Dest2Ipv4Octet0, DEST_OCTET_0));
+    ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::Dest2Ipv4Octet1, DEST_OCTET_1));
+    ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::Dest2Ipv4Octet2, DEST_OCTET_2));
+    ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::Dest2Ipv4Octet3, SECOND_DEST_OCTET_3));
+    ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::Dest2Port, SECOND_DEST_PORT));
+
+    publish_network_identity();
+
+    ASSERT_TRUE(_osc.init());
+    ASSERT_TRUE(wait_for_sent_packets(2));
+    _hwa.clear_sent_packets();
+
+    signaling::publish(signaling::OscIoSignal{
+        .source          = signaling::IoEventSource::Analog,
+        .component_index = 3,
+        .int32_value     = static_cast<int32_t>(io::analog::POSITION_MAX_VALUE),
+        .float_value     = 1.0F,
+        .direction       = signaling::SignalDirection::Out,
+    });
+
+    ASSERT_TRUE(wait_for_sent_packets(2));
+    const auto sent = _hwa.sent_packets();
+    ASSERT_EQ(sent.size(), 2U);
+
+    EXPECT_EQ(sent.at(0).dest.sin_addr.s_addr,
+              endpoint(DEST_OCTET_0, DEST_OCTET_1, DEST_OCTET_2, DEST_OCTET_3, 0).sin_addr.s_addr);
+    EXPECT_EQ(sys_be16_to_cpu(sent.at(0).dest.sin_port), DEST_PORT);
+    EXPECT_EQ(sent.at(1).dest.sin_addr.s_addr,
+              endpoint(DEST_OCTET_0, DEST_OCTET_1, DEST_OCTET_2, SECOND_DEST_OCTET_3, 0).sin_addr.s_addr);
+    EXPECT_EQ(sys_be16_to_cpu(sent.at(1).dest.sin_port), SECOND_DEST_PORT);
+}
+
 TEST_F(OscProtocolTest, ReceivesOutputCommand)
 {
     publish_network_identity();
@@ -362,6 +399,58 @@ TEST_F(OscProtocolTest, DiscoveryResponseUsesConfiguredDestinationPort)
     EXPECT_TRUE(found_response);
 }
 
+TEST_F(OscProtocolTest, DiscoveryResponseUsesAllConfiguredDestinationPorts)
+{
+    constexpr uint8_t  SECOND_DEST_OCTET_3 = 127;
+    constexpr uint16_t SECOND_DEST_PORT    = 9100;
+
+    publish_network_identity();
+
+    ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::Dest2Ipv4Octet0, DEST_OCTET_0));
+    ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::Dest2Ipv4Octet1, DEST_OCTET_1));
+    ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::Dest2Ipv4Octet2, DEST_OCTET_2));
+    ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::Dest2Ipv4Octet3, SECOND_DEST_OCTET_3));
+    ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::Dest2Port, SECOND_DEST_PORT));
+
+    protocol::osc::PacketBuffer packet = {};
+    const auto                  size   = protocol::osc::make_packet(packet, protocol::osc::paths::DISCOVERY.c_str());
+    ASSERT_TRUE(size);
+
+    _hwa.push_received(packet_span(packet, *size), endpoint(192, 168, 1, 77, 54321));
+
+    ASSERT_TRUE(_osc.init());
+    ASSERT_TRUE(wait_for_sent_packets(4));
+
+    const auto sent          = _hwa.sent_packets();
+    size_t     response_cnt  = 0;
+    bool       found_port_1  = false;
+    bool       found_port_2  = false;
+    const auto response_dest = endpoint(192, 168, 1, 77, 0);
+
+    for (const auto& sent_packet : sent)
+    {
+        const auto message = protocol::osc::parse_message(sent_packet.data);
+
+        if (!message || (message->address() != protocol::osc::paths::DEVICE_INFO.c_str()))
+        {
+            continue;
+        }
+
+        if (sent_packet.dest.sin_addr.s_addr != response_dest.sin_addr.s_addr)
+        {
+            continue;
+        }
+
+        response_cnt++;
+        found_port_1 |= sys_be16_to_cpu(sent_packet.dest.sin_port) == DEST_PORT;
+        found_port_2 |= sys_be16_to_cpu(sent_packet.dest.sin_port) == SECOND_DEST_PORT;
+    }
+
+    EXPECT_EQ(response_cnt, 2U);
+    EXPECT_TRUE(found_port_1);
+    EXPECT_TRUE(found_port_2);
+}
+
 TEST_F(OscProtocolTest, ReceivesRefreshCommand)
 {
     publish_network_identity();
@@ -415,4 +504,35 @@ TEST_F(OscProtocolTest, RestrictsIncomingPacketsToConfiguredDestinationIp)
     k_msleep(20);
 
     EXPECT_EQ(collector.count(), 0U);
+}
+
+TEST_F(OscProtocolTest, RestrictsIncomingPacketsToAnyConfiguredDestinationIp)
+{
+    constexpr uint8_t SECOND_DEST_OCTET_3 = 77;
+
+    publish_network_identity();
+
+    ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::Dest2Ipv4Octet0, DEST_OCTET_0));
+    ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::Dest2Ipv4Octet1, DEST_OCTET_1));
+    ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::Dest2Ipv4Octet2, DEST_OCTET_2));
+    ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::Dest2Ipv4Octet3, SECOND_DEST_OCTET_3));
+    ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::Dest2Port, DEST_PORT));
+    ASSERT_TRUE(set_osc_setting(protocol::osc::Setting::RestrictIncomingToDestIp, 1));
+
+    RawIoCollector              collector;
+    protocol::osc::PacketBuffer packet = {};
+    const auto                  size   = protocol::osc::make_packet(packet,
+                                                                    protocol::osc::OscIndexedAddress{
+                                                                        .prefix = protocol::osc::paths::OUTPUT.c_str(),
+                                                                        .index  = 5,
+                                                                    },
+                                                                    protocol::osc::OscInt32{ 1 });
+
+    ASSERT_TRUE(size);
+    _hwa.push_received(packet_span(packet, *size), endpoint(DEST_OCTET_0, DEST_OCTET_1, DEST_OCTET_2, SECOND_DEST_OCTET_3, 50000));
+
+    ASSERT_TRUE(_osc.init());
+    ASSERT_TRUE(wait_for_raw_io(collector, 1));
+
+    EXPECT_EQ(collector.count(), 1U);
 }

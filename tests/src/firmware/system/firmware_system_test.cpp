@@ -203,7 +203,10 @@ TEST_F(SystemTest, FullDatabaseInitialValues)
             uint32_t expected = 0;
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_OSC
-            if (i == static_cast<int>(protocol::osc::Setting::DestPort))
+            if ((i == static_cast<int>(protocol::osc::Setting::Dest1Port)) ||
+                (i == static_cast<int>(protocol::osc::Setting::Dest2Port)) ||
+                (i == static_cast<int>(protocol::osc::Setting::Dest3Port)) ||
+                (i == static_cast<int>(protocol::osc::Setting::Dest4Port)))
             {
                 expected = protocol::osc::DEFAULT_DEST_PORT;
             }
