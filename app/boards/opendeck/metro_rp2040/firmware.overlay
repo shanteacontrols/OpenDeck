@@ -1,4 +1,5 @@
 #include <zephyr/dt-bindings/pwm/pwm.h>
+#include <zephyr/dt-bindings/pinctrl/rpi-pico-rp2040-pinctrl.h>
 
 / {
     opendeck_metadata: opendeck-metadata {
@@ -69,5 +70,19 @@
 };
 
 &pwm {
+    pinctrl-0 = <&opendeck_pwm_default>;
+    pinctrl-names = "default";
     status = "okay";
+};
+
+&pinctrl {
+    opendeck_pwm_default: opendeck_pwm_default {
+        group1 {
+            pinmux = <PWM_4A_P8>,
+                     <PWM_4B_P9>,
+                     <PWM_5A_P10>,
+                     <PWM_5B_P11>,
+                     <PWM_6A_P12>;
+        };
+    };
 };
