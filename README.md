@@ -84,7 +84,11 @@ The firmware supports various other boards, both small and large:
 | --- | --- | --- |
 | [Adafruit Grand Central M4 Express](https://www.adafruit.com/product/4064) | USB, DIN | No |
 | [Adafruit Metro ESP32-S3](https://www.adafruit.com/product/5500) | USB, DIN | No |
+| [Adafruit Metro ESP32-S3](https://www.adafruit.com/product/5500) + [W5500 Ethernet Shield](https://wiznet.io/products/open-source-hardware/w5500-ethernet-shield) | USB | Ethernet |
+| [Adafruit Metro ESP32-S3](https://www.adafruit.com/product/5500) + [W6100 Ethernet Shield](https://wiznet.io/products/open-source-hardware/w6100-ethernet-shield) | USB | Ethernet |
 | [Adafruit Metro RP2040](https://www.adafruit.com/product/5786) | USB, DIN | No |
+| [Adafruit Metro RP2040](https://www.adafruit.com/product/5786) + [W5500 Ethernet Shield](https://wiznet.io/products/open-source-hardware/w5500-ethernet-shield) | USB | Ethernet |
+| [Adafruit Metro RP2040](https://www.adafruit.com/product/5786) + [W6100 Ethernet Shield](https://wiznet.io/products/open-source-hardware/w6100-ethernet-shield) | USB | Ethernet |
 | [Arduino Nano 33 BLE](https://store.arduino.cc/products/arduino-nano-33-ble) | USB, DIN, BLE | No |
 | [LILYGO T-ETH Elite](https://lilygo.cc/products/t-eth-elite-1) | USB | Ethernet |
 | [nRF52840 DK](https://www.nordicsemi.com/Products/Development-hardware/nrf52840-dk) | USB, DIN, BLE | No |

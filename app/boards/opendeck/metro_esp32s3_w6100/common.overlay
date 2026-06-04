@@ -1,0 +1,58 @@
+#include <zephyr/dt-bindings/pinctrl/esp32s3-pinctrl.h>
+
+opendeck_i2c_bus: &i2c0 {};
+
+&adc0 {
+    status = "disabled";
+};
+
+&adc1 {
+    status = "disabled";
+};
+
+&gpio0 {
+    opendeck_metro_sd_cs: opendeck-metro-sd-cs {
+        gpio-hog;
+        gpios = <45 GPIO_ACTIVE_HIGH>;
+        output-high;
+    };
+
+    opendeck_w6100_shield_sd_cs: opendeck-w6100-shield-sd-cs {
+        gpio-hog;
+        gpios = <4 GPIO_ACTIVE_HIGH>;
+        output-high;
+    };
+};
+
+&pinctrl {
+    opendeck_w6100_spim2_default: opendeck_w6100_spim2_default {
+        group1 {
+            pinmux = <SPIM2_MISO_GPIO21>,
+                     <SPIM2_SCLK_GPIO39>;
+        };
+
+        group2 {
+            pinmux = <SPIM2_MOSI_GPIO42>;
+            output-low;
+        };
+    };
+};
+
+&uart1 {
+    status = "disabled";
+};
+
+&spi2 {
+    status = "okay";
+    pinctrl-0 = <&opendeck_w6100_spim2_default>;
+    pinctrl-names = "default";
+    cs-gpios = <&gpio0 10 GPIO_ACTIVE_LOW>;
+
+    ethernet: w6100@0 {
+        compatible = "wiznet,w6100";
+        status = "okay";
+        reg = <0>;
+        spi-max-frequency = <8000000>;
+        int-gpios = <&gpio0 2 GPIO_ACTIVE_LOW>;
+    };
+};

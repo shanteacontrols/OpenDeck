@@ -1,0 +1,108 @@
+#include <zephyr/dt-bindings/pinctrl/rpi-pico-rp2040-pinctrl.h>
+
+opendeck_i2c_bus: &i2c0 {};
+
+/ {
+    aliases {
+        /delete-property/ sdhc0;
+    };
+};
+
+&gpio0 {
+    opendeck_metro_sd_cs: opendeck-metro-sd-cs {
+        gpio-hog;
+        gpios = <23 GPIO_ACTIVE_HIGH>;
+        output-high;
+    };
+
+    opendeck_w6100_shield_sd_cs: opendeck-w6100-shield-sd-cs {
+        gpio-hog;
+        gpios = <4 GPIO_ACTIVE_HIGH>;
+        output-high;
+    };
+};
+
+&spi0 {
+    pinctrl-0 = <&opendeck_w6100_spi0_default>;
+    pinctrl-names = "default";
+    status = "okay";
+    cs-gpios = <&gpio0 10 GPIO_ACTIVE_LOW>;
+    /delete-node/ sdhc@0;
+
+    ethernet: w6100@0 {
+        compatible = "wiznet,w6100";
+        status = "okay";
+        reg = <0>;
+        spi-max-frequency = <8000000>;
+        int-gpios = <&gpio0 2 GPIO_ACTIVE_LOW>;
+    };
+};
+
+&pinctrl {
+    opendeck_w6100_spi0_default: opendeck_w6100_spi0_default {
+        group1 {
+            pinmux = <SPI0_TX_P19>,
+                     <SPI0_SCK_P18>;
+        };
+
+        group2 {
+            pinmux = <SPI0_RX_P20>;
+            input-enable;
+        };
+    };
+};
+
+&flash0 {
+    /delete-node/ partitions;
+
+    partitions {
+        ranges;
+        #address-cells = <1>;
+        #size-cells = <1>;
+
+        second_stage_bootloader: partition@0 {
+            compatible = "zephyr,mapped-partition";
+            label = "second_stage_bootloader";
+            reg = <0x00000000 0x00000100>;
+            read-only;
+        };
+
+        boot_partition: partition@100 {
+            compatible = "zephyr,mapped-partition";
+            label = "boot";
+            reg = <0x00000100 0x0000bf00>;
+            read-only;
+        };
+
+        /* image-1 is the OpenDeck bootloader; keep it before image-0 so merged UF2 files stay compact. */
+        slot1_partition: partition@c000 {
+            compatible = "zephyr,mapped-partition";
+            label = "image-1";
+            reg = <0x0000c000 0x00040000>;
+        };
+
+        slot0_partition: partition@4c000 {
+            compatible = "zephyr,mapped-partition";
+            label = "image-0";
+            reg = <0x0004c000 0x000f4000>;
+        };
+
+        factory_partition: partition@140000 {
+            compatible = "zephyr,mapped-partition";
+            label = "factory";
+            reg = <0x00140000 0x00020000>;
+        };
+
+        emueeprom_page1_partition: partition@160000 {
+            compatible = "zephyr,mapped-partition";
+            label = "emueeprom-page1";
+            reg = <0x00160000 0x00020000>;
+        };
+
+        emueeprom_page2_partition: partition@180000 {
+            compatible = "zephyr,mapped-partition";
+            label = "emueeprom-page2";
+            reg = <0x00180000 0x00020000>;
+        };
+    };
+};
