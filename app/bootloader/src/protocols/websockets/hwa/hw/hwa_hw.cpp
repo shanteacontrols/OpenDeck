@@ -5,8 +5,6 @@
 
 #include "bootloader/src/protocols/websockets/hwa/hw/hwa_hw.h"
 
-#ifdef CONFIG_PROJECT_BOOTLOADER_SUPPORT_WEBSOCKETS
-
 #include "common/src/protocols/websockets/shared/common.h"
 
 #include <zephyr/net/http/service.h>
@@ -46,5 +44,3 @@ HTTP_RESOURCE_DEFINE(bootloader_websockets_resource, bootloader_websockets_servi
 HwaHw::HwaHw()
     : opendeck::common::protocols::websockets::HwaHw(websockets_resource_detail)
 {}
-
-#endif

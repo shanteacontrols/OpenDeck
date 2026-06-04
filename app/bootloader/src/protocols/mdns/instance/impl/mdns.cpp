@@ -5,8 +5,6 @@
 
 #include "bootloader/src/protocols/mdns/instance/impl/mdns.h"
 
-#ifdef CONFIG_PROJECT_BOOTLOADER_SUPPORT_MDNS
-
 #include "bootloader/src/protocols/mdns/instance/impl/common.h"
 #include "common/src/protocols/websockets/shared/common.h"
 
@@ -88,5 +86,3 @@ void Mdns::handle_ip_address_changed()
 
     publish_network_identity(identity);
 }
-
-#endif

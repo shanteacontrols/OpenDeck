@@ -5,8 +5,6 @@
 
 #include "bootloader/src/protocols/mdns/services/hw/services_hw.h"
 
-#ifdef CONFIG_PROJECT_BOOTLOADER_SUPPORT_MDNS
-
 #include "bootloader/src/protocols/mdns/instance/impl/common.h"
 #include "common/src/protocols/mdns/shared/common.h"
 #include "common/src/protocols/websockets/shared/common.h"
@@ -38,5 +36,3 @@ opendeck::common::protocols::mdns::Service ServicesHw::dfu()
         .service_port = opendeck::common::protocols::websockets::DEFAULT_PORT,
     };
 }
-
-#endif
