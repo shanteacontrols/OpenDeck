@@ -33,19 +33,13 @@
             <&gpio0 4 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
             <&gpio0 5 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
             <&gpio0 6 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
-            <&gpio0 7 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-    };
-
-    opendeck_analog: opendeck-analog {
-        compatible = "opendeck,analog";
-        mode = "native";
-        io-channels =
-            <&adc1 3>, /* A0 / GPIO14 */
-            <&adc1 4>, /* A1 / GPIO15 */
-            <&adc1 5>, /* A2 / GPIO16 */
-            <&adc1 6>, /* A3 / GPIO17 */
-            <&adc1 7>, /* A4 / GPIO18 */
-            <&adc0 0>; /* A5 / GPIO1 */
+            <&gpio0 7 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpio0 14 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>, /* A0 */
+            <&gpio0 15 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>, /* A1 */
+            <&gpio0 16 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>, /* A2 */
+            <&gpio0 17 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>, /* A3 */
+            <&gpio0 18 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>, /* A4 */
+            <&gpio0 1 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;  /* A5 */
     };
 
     opendeck_outputs: opendeck-outputs {
