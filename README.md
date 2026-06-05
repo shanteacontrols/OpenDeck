@@ -98,6 +98,7 @@ The firmware supports various other boards, both small and large:
 | [Raspberry Pi Pico 2](https://www.raspberrypi.com/products/raspberry-pi-pico-2/) | USB, DIN | No |
 | [ST Discovery F407VG](https://www.st.com/en/evaluation-tools/stm32f4discovery.html) | USB, DIN | No |
 | [ST Nucleo F767ZI](https://www.st.com/en/evaluation-tools/nucleo-f767zi.html) | DIN | Ethernet |
+| [ST Nucleo H563ZI](https://www.st.com/en/evaluation-tools/nucleo-h563zi.html) | DIN | Ethernet |
 | [ST Nucleo H753ZI](https://www.st.com/en/evaluation-tools/nucleo-h753zi.html) | DIN | Ethernet |
 | [STM32F411 Black Pill V3+](https://www.adafruit.com/product/4877) with populated external flash | USB, DIN | No |
 | [Teensy 4.0](https://www.pjrc.com/store/teensy40.html) | USB, DIN | No |

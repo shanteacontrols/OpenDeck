@@ -1,0 +1,17 @@
+/ {
+    chosen {
+        zephyr,console = &usart3;
+        zephyr,shell-uart = &usart3;
+    };
+
+    opendeck_bootloader: opendeck-bootloader {
+        compatible = "opendeck,bootloader";
+        gpios = <&gpioc 13 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>;
+        label = "OpenDeck recovery";
+    };
+
+    opendeck_transports: opendeck-transports {
+        compatible = "opendeck,transports";
+        network;
+    };
+};

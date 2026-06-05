@@ -94,5 +94,25 @@ cd BOSSA && \
 make bossac && \
 sudo mv bin/bossac /usr/bin/arduino-bossac
 
+# Temporarily clone ST's fork of OpenOCD so that flashing of STM32H5 targets works
+RUN \
+sudo apt-get update && \
+sudo apt-get -y --no-install-recommends install \
+autoconf \
+automake \
+libftdi1-dev \
+libhidapi-dev \
+libjaylink-dev \
+libusb-1.0-0-dev \
+m4 && \
+cd /home/ubuntu && \
+git clone --branch openocd-cubeide-r7 https://github.com/STMicroelectronics/OpenOCD.git ST_OpenOCD && \
+cd ST_OpenOCD && \
+git submodule update --init --recursive && \
+./bootstrap && \
+./configure --enable-stlink --enable-cmsis-dap --enable-jlink --enable-ftdi --enable-dummy && \
+make -j$(nproc) && \
+./src/openocd --version
+
 RUN nrfutil self-upgrade
 RUN nrfutil install device
