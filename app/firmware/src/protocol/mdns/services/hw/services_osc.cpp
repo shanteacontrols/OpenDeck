@@ -23,7 +23,7 @@ namespace
                             opendeck::firmware::protocol::mdns::OSC_SERVICE.data(),
                             opendeck::common::protocols::mdns::UDP_PROTOCOL.data(),
                             opendeck::common::protocols::mdns::LOCAL_DOMAIN.data(),
-                            DNS_SD_EMPTY_TXT,
+                            opendeck::firmware::protocol::mdns::OSC_TXT,
                             &osc_port);
 }    // namespace
 

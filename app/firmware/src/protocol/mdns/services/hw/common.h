@@ -18,4 +18,8 @@ namespace opendeck::firmware::protocol::mdns
 
     /** @brief DNS-SD service type used by OpenDeck OSC. */
     constexpr inline std::string_view OSC_SERVICE = "_opendeck-osc";
+
+    /** @brief DNS-SD TXT record for the OSC endpoint. */
+    constexpr inline char OSC_TXT[] = "\x08"
+                                      "type=osc";
 }    // namespace opendeck::firmware::protocol::mdns
