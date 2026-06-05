@@ -26,22 +26,18 @@
         compatible = "opendeck,switches";
         mode = "native";
         native-gpios =
-            <&gpio1 2 GPIO_ACTIVE_LOW>, /* GPIO34 / input-only */
-            <&gpio1 3 GPIO_ACTIVE_LOW>, /* GPIO35 / input-only */
-            <&gpio1 4 GPIO_ACTIVE_LOW>, /* GPIO36 / input-only */
-            <&gpio1 7 GPIO_ACTIVE_LOW>; /* GPIO39 / input-only */
+            <&gpio0 23 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpio0 18 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpio0 13 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>,
+            <&gpio0 14 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
     };
 
     opendeck_outputs: opendeck-outputs {
         compatible = "opendeck,outputs";
         mode = "pwm";
         pwms =
-            <&ledc0 0 PWM_MSEC(1) PWM_POLARITY_NORMAL>, /* GPIO13 */
-            <&ledc0 1 PWM_MSEC(1) PWM_POLARITY_NORMAL>, /* GPIO14 */
-            <&ledc0 2 PWM_MSEC(1) PWM_POLARITY_NORMAL>, /* GPIO18 */
-            <&ledc0 3 PWM_MSEC(1) PWM_POLARITY_NORMAL>, /* GPIO23 */
-            <&ledc0 4 PWM_MSEC(1) PWM_POLARITY_NORMAL>, /* GPIO32 */
-            <&ledc0 5 PWM_MSEC(1) PWM_POLARITY_NORMAL>; /* GPIO33 */
+            <&ledc0 0 PWM_MSEC(1) PWM_POLARITY_NORMAL>, /* GPIO32 */
+            <&ledc0 1 PWM_MSEC(1) PWM_POLARITY_NORMAL>; /* GPIO5 */
     };
 
     opendeck_i2c: opendeck-i2c {
@@ -53,8 +49,8 @@
 &pinctrl {
     wesp32_i2c0_default: wesp32_i2c0_default {
         group1 {
-            pinmux = <I2C0_SDA_GPIO4>,
-                     <I2C0_SCL_GPIO15>;
+            pinmux = <I2C0_SDA_GPIO15>,
+                     <I2C0_SCL_GPIO4>;
             bias-pull-up;
             drive-open-drain;
             output-high;
@@ -66,20 +62,16 @@ opendeck_i2c_bus: &i2c0 {};
 
 &i2c0 {
     status = "okay";
-    sda-gpios = <&gpio0 4 GPIO_OPEN_DRAIN>;
-    scl-gpios = <&gpio0 15 GPIO_OPEN_DRAIN>;
+    sda-gpios = <&gpio0 15 GPIO_OPEN_DRAIN>;
+    scl-gpios = <&gpio0 4 GPIO_OPEN_DRAIN>;
     pinctrl-0 = <&wesp32_i2c0_default>;
 };
 
 &pinctrl {
     opendeck_ledc0_default: opendeck_ledc0_default {
         group1 {
-            pinmux = <LEDC_CH0_GPIO13>,
-                     <LEDC_CH1_GPIO14>,
-                     <LEDC_CH2_GPIO18>,
-                     <LEDC_CH3_GPIO23>,
-                     <LEDC_CH4_GPIO32>,
-                     <LEDC_CH5_GPIO33>;
+            pinmux = <LEDC_CH0_GPIO32>,
+                     <LEDC_CH1_GPIO5>;
             output-enable;
         };
     };
@@ -99,26 +91,6 @@ opendeck_i2c_bus: &i2c0 {};
 
     channel1@1 {
         reg = <1>;
-        timer = <0>;
-    };
-
-    channel2@2 {
-        reg = <2>;
-        timer = <0>;
-    };
-
-    channel3@3 {
-        reg = <3>;
-        timer = <0>;
-    };
-
-    channel4@4 {
-        reg = <4>;
-        timer = <0>;
-    };
-
-    channel5@5 {
-        reg = <5>;
         timer = <0>;
     };
 };
