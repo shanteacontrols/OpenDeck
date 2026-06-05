@@ -66,7 +66,26 @@ namespace opendeck::firmware::database
 
         bool clear() override
         {
+            _clear_count++;
             return _emueeprom.format();
+        }
+
+        /**
+         * @brief Returns how many times the test storage has been formatted.
+         *
+         * @return Number of calls to clear().
+         */
+        size_t clear_count() const
+        {
+            return _clear_count;
+        }
+
+        /**
+         * @brief Makes the next factory snapshot restore fail.
+         */
+        void fail_next_factory_snapshot_restore()
+        {
+            _fail_next_factory_snapshot_restore = true;
         }
 
         std::optional<uint32_t> read(uint32_t address, zlibs::utils::lessdb::SectionParameterType type) override
@@ -131,6 +150,12 @@ namespace opendeck::firmware::database
 
         bool restore_factory_snapshot() override
         {
+            if (_fail_next_factory_snapshot_restore)
+            {
+                _fail_next_factory_snapshot_restore = false;
+                return false;
+            }
+
             return _emueeprom.restore_from_factory();
         }
 
@@ -301,6 +326,8 @@ namespace opendeck::firmware::database
         };
 
         HwaEmuEeprom _hwa_emueeprom;
-        EmuEeprom    _emueeprom = EmuEeprom(_hwa_emueeprom);
+        EmuEeprom    _emueeprom                          = EmuEeprom(_hwa_emueeprom);
+        size_t       _clear_count                        = 0;
+        bool         _fail_next_factory_snapshot_restore = false;
     };
 }    // namespace opendeck::firmware::database

@@ -101,7 +101,7 @@ bool database::Admin::init(Handlers& handlers)
         else
         {
             LOG_WRN("Restoring from snapshot failed or snapshot is missing");
-            ret_val = factory_reset();
+            ret_val = regenerate_default_storage();
         }
     }
     else
@@ -137,13 +137,13 @@ bool database::Admin::factory_reset()
         _handlers->factory_reset_start();
     }
 
-    if (!clear())
-    {
-        return false;
-    }
-
     if (_hwa.has_factory_snapshot())
     {
+        if (!clear())
+        {
+            return false;
+        }
+
         if (_hwa.restore_factory_snapshot() && is_signature_valid())
         {
             if (!load_stored_preset_state())
@@ -162,14 +162,9 @@ bool database::Admin::factory_reset()
         LOG_WRN("Factory snapshot restore failed, regenerating defaults");
     }
 
-    if (!initialize_default_data())
+    if (!regenerate_default_storage())
     {
         return false;
-    }
-
-    if (!_hwa.store_factory_snapshot())
-    {
-        LOG_WRN("Failed to store factory snapshot");
     }
 
     if (_handlers != nullptr)
@@ -234,6 +229,26 @@ bool database::Admin::initialize_default_data()
     if (!set_signature())
     {
         return false;
+    }
+
+    return true;
+}
+
+bool database::Admin::regenerate_default_storage()
+{
+    if (!clear())
+    {
+        return false;
+    }
+
+    if (!initialize_default_data())
+    {
+        return false;
+    }
+
+    if (!_hwa.store_factory_snapshot())
+    {
+        LOG_WRN("Failed to store factory snapshot");
     }
 
     return true;

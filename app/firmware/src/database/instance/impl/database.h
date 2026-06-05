@@ -357,6 +357,17 @@ namespace opendeck::firmware::database
         bool initialize_default_data();
 
         /**
+         * @brief Clears active storage, regenerates defaults, and updates the factory snapshot.
+         *
+         * This is used when no valid stored data can be loaded. It does not emit
+         * factory-reset lifecycle notifications; explicit user factory resets are
+         * handled by factory_reset().
+         *
+         * @return `true` on success, otherwise `false`.
+         */
+        bool regenerate_default_storage();
+
+        /**
          * @brief Installs registered layout initializers into the active LessDb layout.
          */
         void install_layout_init_providers();

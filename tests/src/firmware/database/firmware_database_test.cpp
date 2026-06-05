@@ -414,7 +414,7 @@ TEST_F(DatabaseTest, ReadInitialValues)
     }
 }
 
-TEST(DatabaseRegressionTest, InitWithMissingFactorySnapshotFallsBackToFactoryReset)
+TEST(DatabaseRegressionTest, InitWithMissingFactorySnapshotRegeneratesDefaultsWithoutFactoryResetNotification)
 {
     database::Builder builder;
     CountingHandlers  handlers;
@@ -422,9 +422,11 @@ TEST(DatabaseRegressionTest, InitWithMissingFactorySnapshotFallsBackToFactoryRes
 
     ASSERT_TRUE(builder.instance().init(handlers));
 
-    EXPECT_EQ(1U, handlers.factory_reset_start_count);
-    EXPECT_EQ(1U, handlers.factory_reset_done_count);
+    EXPECT_EQ(0U, handlers.factory_reset_start_count);
+    EXPECT_EQ(0U, handlers.factory_reset_done_count);
     EXPECT_EQ(1U, handlers.initialized_count);
+    EXPECT_EQ(1U, builder._hwa.clear_count());
+    EXPECT_TRUE(builder._hwa.has_factory_snapshot());
 
     EXPECT_TRUE(builder.instance().is_initialized());
     EXPECT_EQ(0, builder.instance().current_preset());
@@ -433,6 +435,28 @@ TEST(DatabaseRegressionTest, InitWithMissingFactorySnapshotFallsBackToFactoryRes
                                         database::Config::CommonSetting::Uid,
                                         read_value));
     EXPECT_NE(0U, read_value);
+}
+
+TEST(DatabaseRegressionTest, InitWithFailedFactorySnapshotRestoreRegeneratesDefaultsOnce)
+{
+    database::Builder builder;
+    CountingHandlers  handlers;
+
+    ASSERT_TRUE(builder.instance().init(handlers));
+
+    const auto clear_count = builder._hwa.clear_count();
+
+    ASSERT_TRUE(builder._hwa.clear());
+    builder._hwa.fail_next_factory_snapshot_restore();
+
+    ASSERT_TRUE(builder.instance().init(handlers));
+
+    EXPECT_EQ(0U, handlers.factory_reset_start_count);
+    EXPECT_EQ(0U, handlers.factory_reset_done_count);
+    EXPECT_EQ(2U, handlers.initialized_count);
+    EXPECT_EQ(clear_count + 2, builder._hwa.clear_count());
+    EXPECT_TRUE(builder._hwa.has_factory_snapshot());
+    EXPECT_FALSE(builder.instance().preset_preserve_state());
 }
 
 TEST_F(DatabaseTest, CommonSectionsDoNotAlias)
@@ -458,6 +482,19 @@ TEST_F(DatabaseTest, CommonSectionsDoNotAlias)
         ASSERT_TRUE(_database.instance().read(database::Config::Section::Common::MdnsHostname, i, hostname_value));
         EXPECT_EQ(0U, hostname_value);
     }
+}
+
+TEST_F(DatabaseTest, FactoryResetClearsRuntimeStorageAgainWhenFactorySnapshotRestoreFails)
+{
+    const auto clear_count = _database._hwa.clear_count();
+
+    _database._hwa.fail_next_factory_snapshot_restore();
+
+    ASSERT_TRUE(_database.instance().factory_reset());
+
+    EXPECT_EQ(clear_count + 2, _database._hwa.clear_count());
+    EXPECT_TRUE(_database._hwa.has_factory_snapshot());
+    EXPECT_FALSE(_database.instance().preset_preserve_state());
 }
 
 TEST_F(DatabaseTest, Presets)

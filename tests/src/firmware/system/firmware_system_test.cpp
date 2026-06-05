@@ -116,7 +116,7 @@ namespace
     };
 }    // namespace
 
-TEST_F(SystemTest, FirstBootDatabaseInitializationSkipsComponentInitialization)
+TEST_F(SystemTest, FirstBootDatabaseInitializationCompletesComponentInitialization)
 {
     size_t init_complete_cnt = 0;
     size_t program_msg_cnt   = 0;
@@ -140,8 +140,12 @@ TEST_F(SystemTest, FirstBootDatabaseInitializationSkipsComponentInitialization)
 
     k_msleep(sys::INITIAL_IO_RESUME_DELAY_MS);
 
-    ASSERT_EQ(0, init_complete_cnt);
-    ASSERT_EQ(0, program_msg_cnt);
+    ASSERT_EQ(1, init_complete_cnt);
+    ASSERT_TRUE(tests::wait_until(
+        [&]()
+        {
+            return program_msg_cnt > 0;
+        }));
 }
 
 TEST_F(SystemTest, FullDatabaseInitialValues)
