@@ -393,19 +393,18 @@ if(EXISTS ${opendeck_board_sysbuild_cmake})
 endif()
 
 function(opendeck_add_merged_artifacts)
+    set(opendeck_merged_hex ${CMAKE_BINARY_DIR}/merged.hex)
     set(opendeck_merged_bin ${CMAKE_BINARY_DIR}/merged.bin)
     set(opendeck_merged_uf2 ${CMAKE_BINARY_DIR}/merged.uf2)
-    set(opendeck_merged_outputs)
+    set(opendeck_merged_outputs ${opendeck_merged_hex} ${opendeck_merged_bin})
 
     set(opendeck_merged_hex_inputs)
 
     sysbuild_get(opendeck_mcuboot_dir IMAGE mcuboot VAR APPLICATION_BINARY_DIR CACHE)
     sysbuild_get(opendeck_app_signed_hex IMAGE ${DEFAULT_IMAGE} VAR BYPRODUCT_KERNEL_SIGNED_HEX_NAME CACHE)
     sysbuild_get(opendeck_bootloader_signed_hex IMAGE opendeck_bootloader VAR BYPRODUCT_KERNEL_SIGNED_HEX_NAME CACHE)
-    sysbuild_get(opendeck_objcopy IMAGE ${DEFAULT_IMAGE} VAR CMAKE_OBJCOPY CACHE)
     sysbuild_get(opendeck_has_uf2 IMAGE ${DEFAULT_IMAGE} VAR CONFIG_BUILD_OUTPUT_UF2 KCONFIG)
     sysbuild_get(opendeck_flash_base IMAGE ${DEFAULT_IMAGE} VAR CONFIG_FLASH_BASE_ADDRESS KCONFIG)
-    sysbuild_get(opendeck_flash_load_offset IMAGE ${DEFAULT_IMAGE} VAR CONFIG_FLASH_LOAD_OFFSET KCONFIG)
     sysbuild_get(opendeck_uf2_use_flash_base IMAGE ${DEFAULT_IMAGE} VAR CONFIG_BUILD_OUTPUT_UF2_USE_FLASH_BASE KCONFIG)
     sysbuild_get(opendeck_uf2_use_flash_offset IMAGE ${DEFAULT_IMAGE} VAR CONFIG_BUILD_OUTPUT_UF2_USE_FLASH_OFFSET KCONFIG)
     sysbuild_get(opendeck_uf2_family IMAGE ${DEFAULT_IMAGE} VAR CONFIG_BUILD_OUTPUT_UF2_FAMILY_ID KCONFIG)
@@ -421,9 +420,51 @@ function(opendeck_add_merged_artifacts)
         string(REGEX REPLACE "^\"([^\"]*)\"$" "\\1" opendeck_uf2_family "${opendeck_uf2_family}")
     endif()
 
-    if(opendeck_has_uf2)
-        set(opendeck_merged_hex ${CMAKE_BINARY_DIR}/merged.hex)
+    add_custom_command(
+        OUTPUT
+        ${opendeck_merged_hex}
 
+        COMMAND
+        ${PYTHON_EXECUTABLE}
+        $ENV{ZEPHYR_BASE}/scripts/build/mergehex.py
+        -o ${opendeck_merged_hex}
+        --overlap replace
+        ${opendeck_merged_hex_inputs}
+
+        DEPENDS
+        mcuboot
+        opendeck_bootloader
+        ${DEFAULT_IMAGE}
+        ${opendeck_extra_merged_image_targets}
+        ${opendeck_merged_hex_inputs}
+
+        COMMENT
+        "Generating merged OpenDeck HEX image"
+
+        VERBATIM
+    )
+
+    add_custom_command(
+        OUTPUT
+        ${opendeck_merged_bin}
+
+        COMMAND
+        bash
+        $ENV{ZENV_PROJECT_ROOT}/scripts/merge_bin.sh
+        --build-dir ${CMAKE_BINARY_DIR}
+
+        DEPENDS
+        ${opendeck_merged_hex}
+        $ENV{ZENV_PROJECT_ROOT}/scripts/merge_bin.sh
+        $ENV{ZENV_PROJECT_ROOT}/scripts/query_metadata.sh
+
+        COMMENT
+        "Generating merged OpenDeck BIN image"
+
+        VERBATIM
+    )
+
+    if(opendeck_has_uf2)
         if(NOT DEFINED opendeck_uf2_family)
             message(FATAL_ERROR "UF2 output is enabled, but CONFIG_BUILD_OUTPUT_UF2_FAMILY_ID is unavailable")
         endif()
@@ -433,51 +474,6 @@ function(opendeck_add_merged_artifacts)
         if(NOT DEFINED opendeck_flash_base OR "${opendeck_flash_base}" STREQUAL "")
             message(FATAL_ERROR "UF2 output is enabled, but unable to resolve UF2 base address")
         endif()
-
-        add_custom_command(
-            OUTPUT
-            ${opendeck_merged_hex}
-
-            COMMAND
-            ${PYTHON_EXECUTABLE}
-            $ENV{ZEPHYR_BASE}/scripts/build/mergehex.py
-            -o ${opendeck_merged_hex}
-            --overlap replace
-            ${opendeck_merged_hex_inputs}
-
-            DEPENDS
-            mcuboot
-            opendeck_bootloader
-            ${DEFAULT_IMAGE}
-            ${opendeck_extra_merged_image_targets}
-            ${opendeck_merged_hex_inputs}
-
-            COMMENT
-            "Generating merged OpenDeck HEX image"
-
-            VERBATIM
-        )
-
-        add_custom_command(
-            OUTPUT
-            ${opendeck_merged_bin}
-
-            COMMAND
-            ${opendeck_objcopy}
-            -I ihex
-            --gap-fill 0xFF
-            -O binary
-            ${opendeck_merged_hex}
-            ${opendeck_merged_bin}
-
-            DEPENDS
-            ${opendeck_merged_hex}
-
-            COMMENT
-            "Generating merged OpenDeck BIN image"
-
-            VERBATIM
-        )
 
         add_custom_command(
             OUTPUT

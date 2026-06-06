@@ -26,7 +26,8 @@ function usage
     Required option:
       --file <zephyr.dts>
     Optional:
-      --key <app_base|app_size|sram_base|sram_size>
+      --key <app_base|app_size|sram_base|sram_size|partition_offset|partition_size>
+      --partition-label <partition label property>
 
     config
     Reads the effective value for one Kconfig symbol from an ordered list
@@ -449,6 +450,73 @@ function dts_sram_value
     dts_yaml_value "$yaml_file" "${sram_selector}.reg.[0].[${index}]"
 }
 
+function dts_partitions_selector
+{
+    local yaml_file=$1
+    local flash_path
+    local flash_selector
+
+    flash_path=$(dts_yaml_value "$yaml_file" ".[0].chosen.zephyr,flash.[0]")
+    flash_selector=$(dts_path_to_selector "$flash_path")
+
+    printf '%s\n' "${flash_selector}.partitions"
+}
+
+function dts_partition_node
+{
+    local yaml_file=$1
+    local partition_label=$2
+    local partitions_selector
+    local partition_node
+
+    if [[ -z "$partition_label" ]]
+    then
+        echo "ERROR: partition metadata requires --partition-label." >&2
+        exit 1
+    fi
+
+    partitions_selector=$(dts_partitions_selector "$yaml_file")
+
+    while read -r partition_node
+    do
+        local label
+
+        label=$(dasel -n -p yaml --plain -f "$yaml_file" "${partitions_selector}.${partition_node}.label.[0]")
+
+        if [[ "$label" == "$partition_label" ]]
+        then
+            printf '%s\n' "$partition_node"
+            return
+        fi
+    done < <(
+        dasel -n -p yaml -f "$yaml_file" "$partitions_selector" |
+            sed -n 's/^\([^ #][^:]*@[^:]*\):$/\1/p'
+    )
+
+    echo "ERROR: Unable to query partition label '${partition_label}'." >&2
+    exit 1
+}
+
+function dts_partition_value
+{
+    local yaml_file=$1
+    local partition_label=$2
+    local index=$3
+    local partitions_selector
+    local partition_node
+    local raw_value
+
+    partitions_selector=$(dts_partitions_selector "$yaml_file")
+    partition_node=$(dts_partition_node "$yaml_file" "$partition_label")
+
+    raw_value=$(dts_yaml_value "$yaml_file" "${partitions_selector}.${partition_node}.reg.[0].[${index}]") || {
+        echo "ERROR: Unable to query partition label '${partition_label}'." >&2
+        exit 1
+    }
+
+    printf '%u\n' "$((raw_value))"
+}
+
 function dts_metadata_from_yaml
 {
     local dts_file=$1
@@ -469,6 +537,7 @@ function dts_metadata
 {
     local dts_file=
     local key=
+    local partition_label=
 
     while [[ $# -gt 0 ]]
     do
@@ -479,6 +548,10 @@ function dts_metadata
                 ;;
             --key)
                 key=$2
+                shift 2
+                ;;
+            --partition-label)
+                partition_label=$2
                 shift 2
                 ;;
             *)
@@ -500,14 +573,33 @@ function dts_metadata
         exit 1
     fi
 
-    local metadata
-
-    metadata=$(dts_metadata_from_yaml "$dts_file")
-
     if [[ -n "$key" ]]
     then
         case "$key" in
+            partition_offset)
+                local yaml_file
+
+                yaml_file=$(mktemp)
+                trap 'rm -f "$yaml_file"' RETURN
+
+                dtc -q -I dts -O yaml "$dts_file" > "$yaml_file"
+
+                dts_partition_value "$yaml_file" "$partition_label" 0
+                ;;
+            partition_size)
+                local yaml_file
+
+                yaml_file=$(mktemp)
+                trap 'rm -f "$yaml_file"' RETURN
+
+                dtc -q -I dts -O yaml "$dts_file" > "$yaml_file"
+
+                dts_partition_value "$yaml_file" "$partition_label" 1
+                ;;
             app_base|app_size|sram_base|sram_size)
+                local metadata
+
+                metadata=$(dts_metadata_from_yaml "$dts_file")
                 print_metadata "$metadata" "$key"
                 ;;
             *)
@@ -518,6 +610,10 @@ function dts_metadata
 
         return
     fi
+
+    local metadata
+
+    metadata=$(dts_metadata_from_yaml "$dts_file")
 
     print_metadata "$metadata"
 }
