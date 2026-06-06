@@ -1,7 +1,7 @@
 / {
     opendeck_bootloader: opendeck-bootloader {
         compatible = "opendeck,bootloader";
-        gpios = <&portb 23 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+        gpios = <&portc 16 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
         label = "OpenDeck recovery";
     };
 

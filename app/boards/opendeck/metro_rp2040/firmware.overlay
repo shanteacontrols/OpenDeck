@@ -63,6 +63,12 @@
         compatible = "opendeck,i2c";
         bus = <&opendeck_i2c_bus>;
     };
+
+    opendeck_touchscreen: opendeck-touchscreen {
+        compatible = "opendeck,touchscreen";
+        component-count = <64>;
+        uart = <&opendeck_uart_touchscreen>;
+    };
 };
 
 &i2c0 {
