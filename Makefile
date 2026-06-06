@@ -12,7 +12,9 @@ ifeq ($(strip $(TARGET)),)
 endif
 
 ifneq ($(filter $(TARGET),$(OPENDECK_TARGETS)),$(TARGET))
-    $(error Unknown TARGET '$(TARGET)'. Available targets: $(OPENDECK_TARGETS))
+    $(info Unknown TARGET '$(TARGET)'. Available targets:)
+    $(foreach target,$(OPENDECK_TARGETS),$(info   $(target)))
+    $(error Unknown TARGET '$(TARGET)')
 endif
 
 export TARGET
