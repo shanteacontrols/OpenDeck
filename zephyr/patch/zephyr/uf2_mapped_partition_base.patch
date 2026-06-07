@@ -1,0 +1,14 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 34bd13d0608..c8d5727a0b1 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1868,6 +1868,9 @@ endif()
+ if(CONFIG_BUILD_OUTPUT_BIN AND CONFIG_BUILD_OUTPUT_UF2)
+   if(CONFIG_BUILD_OUTPUT_UF2_USE_FLASH_BASE)
+     set(code_address "${CONFIG_FLASH_BASE_ADDRESS}")
++  elseif(CONFIG_FLASH_USES_MAPPED_PARTITION)
++    dt_chosen(chosen_code_partition_path PROPERTY "zephyr,code-partition")
++    dt_reg_addr(code_address PATH "${chosen_code_partition_path}")
+   else()
+     set(code_address "${CONFIG_FLASH_LOAD_OFFSET}")
+   endif()
