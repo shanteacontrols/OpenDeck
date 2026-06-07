@@ -405,8 +405,6 @@ function(opendeck_add_merged_artifacts)
     sysbuild_get(opendeck_bootloader_signed_hex IMAGE opendeck_bootloader VAR BYPRODUCT_KERNEL_SIGNED_HEX_NAME CACHE)
     sysbuild_get(opendeck_has_uf2 IMAGE ${DEFAULT_IMAGE} VAR CONFIG_BUILD_OUTPUT_UF2 KCONFIG)
     sysbuild_get(opendeck_flash_base IMAGE ${DEFAULT_IMAGE} VAR CONFIG_FLASH_BASE_ADDRESS KCONFIG)
-    sysbuild_get(opendeck_uf2_use_flash_base IMAGE ${DEFAULT_IMAGE} VAR CONFIG_BUILD_OUTPUT_UF2_USE_FLASH_BASE KCONFIG)
-    sysbuild_get(opendeck_uf2_use_flash_offset IMAGE ${DEFAULT_IMAGE} VAR CONFIG_BUILD_OUTPUT_UF2_USE_FLASH_OFFSET KCONFIG)
     sysbuild_get(opendeck_uf2_family IMAGE ${DEFAULT_IMAGE} VAR CONFIG_BUILD_OUTPUT_UF2_FAMILY_ID KCONFIG)
 
     list(APPEND opendeck_merged_hex_inputs
