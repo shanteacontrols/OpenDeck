@@ -80,7 +80,9 @@ namespace opendeck::firmware::io::i2c
          */
         bool device_available(uint8_t address) override
         {
-            return i2c_write(_i2c_device, nullptr, 0, address) == 0;
+            uint8_t probe = 0;
+
+            return i2c_write(_i2c_device, &probe, 0, address) == 0;
         }
 
         private:
