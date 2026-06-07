@@ -111,7 +111,7 @@ The firmware supports various other boards, both small and large:
 | [W6100-EVB-Pico2](https://docs.wiznet.io/Product/Open-Source-Hardware/w6100-evb-pico2) | USB, DIN | Ethernet |
 | [wESP32](https://wesp32.com/) | No | Ethernet |
 
-For more details on supported boards, check the [wiki page](https://github.com/shanteacontrols/OpenDeck/wiki). A page with [instructions on how to flash OpenDeck firmware](https://github.com/shanteacontrols/OpenDeck/wiki/Flashing-the-OpenDeck-firmware) to supported boards is also available. Support for custom boards [can also be added](https://github.com/shanteacontrols/OpenDeck/wiki/Creating-custom-board-variant).
+For more details on supported boards, check the [wiki page](https://github.com/shanteacontrols/OpenDeck/wiki). Support for custom boards [can also be added](https://github.com/shanteacontrols/OpenDeck/wiki/Creating-custom-board-variant).
 
 ## Documentation
 
@@ -127,5 +127,6 @@ OpenDeck source code is available under Apache License v2.0. Zephyr RTOS, which 
 
 Third-party components with different licenses:
 
-* `zlibs`: MIT
 * `u8g2`: Two-clause BSD
+* `vl53l4cx`: Three-clause BSD
+* `zlibs`: MIT
