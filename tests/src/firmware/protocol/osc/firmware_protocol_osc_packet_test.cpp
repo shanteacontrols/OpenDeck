@@ -124,6 +124,134 @@ TEST(OscPacketTest, BuildsAndReadsFloatPacket)
     EXPECT_FLOAT_EQ(*value, 0.5F);
 }
 
+TEST(OscPacketTest, BuildsProximitySensorIntPacket)
+{
+    PacketBuffer packet = {};
+
+    const auto size = make_packet(packet,
+                                  firmware::signaling::OscSensorSignal{
+                                      .payload = firmware::signaling::OscSensorProximitySignal{
+                                          .value = 127,
+                                      },
+                                      .direction = firmware::signaling::SignalDirection::Out,
+                                  });
+
+    ASSERT_TRUE(size);
+    const auto message = parse_message(packet_span(packet, *size));
+    ASSERT_TRUE(message);
+
+    const auto value = message->arg<OscInt32>(0);
+    ASSERT_TRUE(value);
+
+    EXPECT_EQ(message->address(), paths::SENSOR_PROXIMITY.c_str());
+    EXPECT_EQ(message->type_tags(), ",i");
+    EXPECT_EQ(*value, 127);
+}
+
+TEST(OscPacketTest, BuildsAmbientLightSensorFloatPacket)
+{
+    PacketBuffer packet = {};
+
+    const auto size = make_packet(packet,
+                                  firmware::signaling::OscSensorSignal{
+                                      .payload = firmware::signaling::OscSensorAmbientLightSignal{
+                                          .value = 0.25F,
+                                      },
+                                      .direction = firmware::signaling::SignalDirection::Out,
+                                  });
+
+    ASSERT_TRUE(size);
+    const auto message = parse_message(packet_span(packet, *size));
+    ASSERT_TRUE(message);
+
+    const auto value = message->arg<OscFloat32>(0);
+    ASSERT_TRUE(value);
+
+    EXPECT_EQ(message->address(), paths::SENSOR_AMBIENT_LIGHT.c_str());
+    EXPECT_EQ(message->type_tags(), ",f");
+    EXPECT_FLOAT_EQ(*value, 0.25F);
+}
+
+TEST(OscPacketTest, BuildsDistanceSensorIntPacket)
+{
+    PacketBuffer packet = {};
+
+    const auto size = make_packet(packet,
+                                  firmware::signaling::OscSensorSignal{
+                                      .payload = firmware::signaling::OscSensorDistanceSignal{
+                                          .value = 1234,
+                                      },
+                                      .direction = firmware::signaling::SignalDirection::Out,
+                                  });
+
+    ASSERT_TRUE(size);
+    const auto message = parse_message(packet_span(packet, *size));
+    ASSERT_TRUE(message);
+
+    const auto value = message->arg<OscInt32>(0);
+    ASSERT_TRUE(value);
+
+    EXPECT_EQ(message->address(), paths::SENSOR_DISTANCE.c_str());
+    EXPECT_EQ(message->type_tags(), ",i");
+    EXPECT_EQ(*value, 1234);
+}
+
+TEST(OscPacketTest, BuildsDistanceNormSensorFloatPacket)
+{
+    PacketBuffer packet = {};
+
+    const auto size = make_packet(packet,
+                                  firmware::signaling::OscSensorSignal{
+                                      .payload = firmware::signaling::OscSensorDistanceNormSignal{
+                                          .value = 0.5F,
+                                      },
+                                      .direction = firmware::signaling::SignalDirection::Out,
+                                  });
+
+    ASSERT_TRUE(size);
+    const auto message = parse_message(packet_span(packet, *size));
+    ASSERT_TRUE(message);
+
+    const auto value = message->arg<OscFloat32>(0);
+    ASSERT_TRUE(value);
+
+    EXPECT_EQ(message->address(), paths::SENSOR_DISTANCE_NORM.c_str());
+    EXPECT_EQ(message->type_tags(), ",f");
+    EXPECT_FLOAT_EQ(*value, 0.5F);
+}
+
+TEST(OscPacketTest, BuildsRgbSensorFloatPacket)
+{
+    PacketBuffer packet = {};
+
+    const auto size = make_packet(packet,
+                                  firmware::signaling::OscSensorSignal{
+                                      .payload = firmware::signaling::OscSensorRgbSignal{
+                                          .red   = 0.25F,
+                                          .green = 0.5F,
+                                          .blue  = 0.75F,
+                                      },
+                                      .direction = firmware::signaling::SignalDirection::Out,
+                                  });
+
+    ASSERT_TRUE(size);
+    const auto message = parse_message(packet_span(packet, *size));
+    ASSERT_TRUE(message);
+
+    const auto red   = message->arg<OscFloat32>(0);
+    const auto green = message->arg<OscFloat32>(1);
+    const auto blue  = message->arg<OscFloat32>(2);
+    ASSERT_TRUE(red);
+    ASSERT_TRUE(green);
+    ASSERT_TRUE(blue);
+
+    EXPECT_EQ(message->address(), paths::SENSOR_RGB.c_str());
+    EXPECT_EQ(message->type_tags(), ",fff");
+    EXPECT_FLOAT_EQ(*red, 0.25F);
+    EXPECT_FLOAT_EQ(*green, 0.5F);
+    EXPECT_FLOAT_EQ(*blue, 0.75F);
+}
+
 TEST(OscPacketTest, RejectsMalformedIntPacket)
 {
     constexpr std::array<uint8_t, 4> packet = {

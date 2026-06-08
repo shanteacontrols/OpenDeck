@@ -380,7 +380,7 @@ namespace opendeck::firmware::database
             // VL53L4CX
             Section(
                 static_cast<uint8_t>(io::i2c::sensor_vl53l4cx::Setting::Count),
-                SectionParameterType::Byte,
+                SectionParameterType::Word,
                 PreserveSetting::Disable,
                 AutoIncrementSetting::Disable),
             // CAP1188

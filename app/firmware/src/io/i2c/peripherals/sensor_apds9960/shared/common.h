@@ -11,6 +11,12 @@
 
 namespace opendeck::firmware::io::i2c::sensor_apds9960
 {
+    /** @brief Maximum 8-bit APDS9960 proximity data value. */
+    constexpr inline uint16_t APDS9960_PROXIMITY_RAW_MAX = UINT8_MAX;
+
+    /** @brief Maximum APDS9960 RGBC count for the firmware's configured 10-cycle integration time. */
+    constexpr inline uint16_t APDS9960_RGBC_MAX_COUNT = 10241;
+
     /**
      * @brief Identifies configurable APDS9960 sensor settings stored in the database.
      */
@@ -21,6 +27,8 @@ namespace opendeck::firmware::io::i2c::sensor_apds9960
         EnableRgb,
         ProximityGain,
         AlsGain,
+        ProximityLowerValue,
+        ProximityUpperValue,
         Count
     };
 

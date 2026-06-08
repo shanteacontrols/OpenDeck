@@ -25,6 +25,7 @@ namespace opendeck::firmware::protocol::osc::paths
     constexpr inline auto PROXIMITY         = misc::StringLiteral{ "/proximity" };
     constexpr inline auto AMBIENT_LIGHT     = misc::StringLiteral{ "/ambient_light" };
     constexpr inline auto DISTANCE          = misc::StringLiteral{ "/distance" };
+    constexpr inline auto DISTANCE_NORM     = misc::StringLiteral{ "/distance_norm" };
     constexpr inline auto TOUCH             = misc::StringLiteral{ "/touch" };
     constexpr inline auto RGB               = misc::StringLiteral{ "/rgb" };
     constexpr inline auto GESTURE           = misc::StringLiteral{ "/gesture" };
@@ -46,6 +47,7 @@ namespace opendeck::firmware::protocol::osc::paths
     constexpr inline auto SENSOR_PROXIMITY        = misc::string_join(SENSORS, PROXIMITY);
     constexpr inline auto SENSOR_AMBIENT_LIGHT    = misc::string_join(SENSORS, AMBIENT_LIGHT);
     constexpr inline auto SENSOR_DISTANCE         = misc::string_join(SENSORS, DISTANCE);
+    constexpr inline auto SENSOR_DISTANCE_NORM    = misc::string_join(SENSORS, DISTANCE_NORM);
     constexpr inline auto SENSOR_TOUCH            = misc::string_join(SENSORS, TOUCH);
     constexpr inline auto SENSOR_RGB              = misc::string_join(SENSORS, RGB);
     constexpr inline auto SENSOR_GESTURE          = misc::string_join(SENSORS, GESTURE);

@@ -6,6 +6,7 @@
 #pragma once
 
 #include "firmware/src/io/i2c/peripherals/sensor_vl53l4cx/instance/impl/deps.h"
+#include "firmware/src/io/i2c/peripherals/sensor_vl53l4cx/instance/impl/mapper.h"
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/system/shared/config.h"
 
@@ -81,6 +82,7 @@ namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
 
         Hwa&           _hwa;
         Database&      _database;
+        Mapper         _mapper;
         VL53L4CX       _driver                     = {};
         DistanceFilter _distance_filter            = {};
         size_t         _selected_i2c_address_index = 0;
@@ -95,11 +97,25 @@ namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
         bool configure_sensor();
 
         /**
-         * @brief Returns true when distance output is enabled.
+         * @brief Returns true when any distance output is enabled.
          *
          * @return `true` if the sensor should be initialized.
          */
-        bool distance_enabled();
+        bool distance_enabled() const;
+
+        /**
+         * @brief Returns true when raw millimeter distance output is enabled.
+         *
+         * @return `true` if raw distance readings should be published.
+         */
+        bool distance_mm_enabled() const;
+
+        /**
+         * @brief Returns true when normalized distance output is enabled.
+         *
+         * @return `true` if normalized distance readings should be published.
+         */
+        bool distance_norm_enabled() const;
 
         /**
          * @brief Returns the configured tracking area.
@@ -149,11 +165,11 @@ namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
         void process_measurement_frame(const VL53L4CX_MultiRangingData_t& measurement_frame);
 
         /**
-         * @brief Publishes one filtered distance result.
+         * @brief Publishes one mapped VL53L4CX result.
          *
-         * @param object Target object returned by the ST API.
+         * @param result Mapper result to publish.
          */
-        static void publish_distance(const VL53L4CX_TargetRangeData_t& object);
+        void publish_result(const Mapper::Result& result) const;
 
         /**
          * @brief Publishes the last committed distance value.

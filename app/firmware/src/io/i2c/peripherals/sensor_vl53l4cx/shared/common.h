@@ -11,15 +11,21 @@
 
 namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
 {
+    /** @brief Maximum VL53L4CX ranging distance in millimeters, per datasheet operating range. */
+    constexpr inline uint16_t DISTANCE_MAX_MM = 6000;
+
     /**
      * @brief Identifies configurable VL53L4CX sensor settings stored in the database.
      */
     enum class Setting : uint8_t
     {
-        EnableDistance,
+        EnableDistanceMm,
+        EnableDistanceNorm,
         TrackingArea,
         Response,
         DistanceMode,
+        DistanceLowerValue,
+        DistanceUpperValue,
         Count
     };
 

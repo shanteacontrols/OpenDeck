@@ -286,12 +286,12 @@ namespace opendeck::firmware::sys
             // APDS9960 section
             zlibs::utils::sysex_conf::Section(static_cast<uint16_t>(io::i2c::sensor_apds9960::Setting::Count),
                                               0,
-                                              3),
+                                              io::i2c::sensor_apds9960::APDS9960_PROXIMITY_RAW_MAX),
 
             // VL53L4CX section
             zlibs::utils::sysex_conf::Section(static_cast<uint16_t>(io::i2c::sensor_vl53l4cx::Setting::Count),
                                               0,
-                                              0),
+                                              io::i2c::sensor_vl53l4cx::DISTANCE_MAX_MM),
 
             // CAP1188 section
             zlibs::utils::sysex_conf::Section(static_cast<uint16_t>(io::i2c::sensor_cap1188::Setting::Count),

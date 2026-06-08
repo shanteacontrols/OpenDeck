@@ -54,6 +54,7 @@ SensorApds9960::SensorApds9960(Hwa&      hwa,
                                Database& database)
     : _hwa(hwa)
     , _database(database)
+    , _mapper(database)
 {
     _database.register_layout_init_provider(
         database::Config::Section::I2c::Apds9960,
@@ -66,6 +67,9 @@ SensorApds9960::SensorApds9960(Hwa&      hwa,
 
             case Setting::AlsGain:
                 return 1;
+
+            case Setting::ProximityUpperValue:
+                return APDS9960_PROXIMITY_RAW_MAX;
 
             default:
                 return {};
@@ -203,12 +207,7 @@ bool SensorApds9960::read_proximity(uint8_t status)
                                  ProximityFilter::ConfirmationMode::Nearby,
                                  PROXIMITY_MOVING_THRESHOLD))
     {
-        signaling::publish(signaling::OscSensorSignal{
-            .payload = signaling::OscSensorProximitySignal{
-                .value = proximity.value(),
-            },
-            .direction = signaling::SignalDirection::Out,
-        });
+        publish_result(_mapper.proximity_result(proximity.value()));
     }
 
     return true;
@@ -237,12 +236,7 @@ bool SensorApds9960::read_gesture()
         return true;
     }
 
-    signaling::publish(signaling::OscSensorSignal{
-        .payload = signaling::OscSensorGestureSignal{
-            .gesture = gesture.value(),
-        },
-        .direction = signaling::SignalDirection::Out,
-    });
+    publish_result(_mapper.gesture_result(gesture.value()));
 
     _last_gesture_send_ms = now_ms;
 
@@ -283,12 +277,7 @@ bool SensorApds9960::read_ambient_light_and_rgb(uint8_t status)
                                      AmbientLightFilter::ConfirmationMode::Nearby,
                                      0))
     {
-        signaling::publish(signaling::OscSensorSignal{
-            .payload = signaling::OscSensorAmbientLightSignal{
-                .value = ambient_light,
-            },
-            .direction = signaling::SignalDirection::Out,
-        });
+        publish_result(_mapper.ambient_light_result(ambient_light));
     }
 
     if (rgb_enabled &&
@@ -298,14 +287,7 @@ bool SensorApds9960::read_ambient_light_and_rgb(uint8_t status)
                            RgbFilter::ConfirmationMode::Nearby,
                            RGB_MOVING_THRESHOLD))
     {
-        signaling::publish(signaling::OscSensorSignal{
-            .payload = signaling::OscSensorRgbSignal{
-                .red   = red,
-                .green = green,
-                .blue  = blue,
-            },
-            .direction = signaling::SignalDirection::Out,
-        });
+        publish_result(_mapper.rgb_result(red, green, blue));
     }
 
     return true;
@@ -690,37 +672,25 @@ void SensorApds9960::publish_value_states()
 
     if ((proximity_gesture_mode() == ProximityGestureMode::Proximity) && _proximity_filter.has_value())
     {
-        signaling::publish(signaling::OscSensorSignal{
-            .payload = signaling::OscSensorProximitySignal{
-                .value = _proximity_filter.value()[0],
-            },
-            .direction = signaling::SignalDirection::Out,
-        });
+        publish_result(_mapper.proximity_result(_proximity_filter.value()[0]));
     }
 
     if (output_enabled(Setting::EnableAmbientLight) && _ambient_light_filter.has_value())
     {
-        signaling::publish(signaling::OscSensorSignal{
-            .payload = signaling::OscSensorAmbientLightSignal{
-                .value = _ambient_light_filter.value()[0],
-            },
-            .direction = signaling::SignalDirection::Out,
-        });
+        publish_result(_mapper.ambient_light_result(_ambient_light_filter.value()[0]));
     }
 
     if (output_enabled(Setting::EnableRgb) && _rgb_filter.has_value())
     {
         const auto& rgb = _rgb_filter.value();
 
-        signaling::publish(signaling::OscSensorSignal{
-            .payload = signaling::OscSensorRgbSignal{
-                .red   = rgb[0],
-                .green = rgb[1],
-                .blue  = rgb[2],
-            },
-            .direction = signaling::SignalDirection::Out,
-        });
+        publish_result(_mapper.rgb_result(rgb[0], rgb[1], rgb[2]));
     }
+}
+
+void SensorApds9960::publish_result(const Mapper::Result& result) const
+{
+    signaling::publish(result.osc);
 }
 
 std::optional<uint8_t> SensorApds9960::sys_config_get(sys::Config::Section::I2c section, size_t index, uint16_t& value)
@@ -787,6 +757,10 @@ std::optional<uint8_t> SensorApds9960::sys_config_set(sys::Config::Section::I2c 
         init_action = common::InitAction::Init;
     }
     break;
+
+    case Setting::ProximityLowerValue:
+    case Setting::ProximityUpperValue:
+        break;
 
     default:
     {

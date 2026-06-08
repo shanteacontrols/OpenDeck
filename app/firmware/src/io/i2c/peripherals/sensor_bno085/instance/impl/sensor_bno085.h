@@ -6,6 +6,7 @@
 #pragma once
 
 #include "firmware/src/io/i2c/peripherals/sensor_bno085/instance/impl/deps.h"
+#include "firmware/src/io/i2c/peripherals/sensor_bno085/instance/impl/mapper.h"
 #include "firmware/src/signaling/signaling.h"
 
 #include <array>
@@ -66,6 +67,7 @@ namespace opendeck::firmware::io::i2c::sensor_bno085
 
         private:
         Hwa&                 _hwa;
+        Mapper               _mapper                     = {};
         bool                 _initialized                = false;
         size_t               _selected_i2c_address_index = 0;
         uint8_t              _control_sequence           = 0;
@@ -119,11 +121,18 @@ namespace opendeck::firmware::io::i2c::sensor_bno085
         bool read_report();
 
         /**
-         * @brief Publishes one parsed sensor report to OSC.
+         * @brief Parses and publishes one sensor report to OSC.
          *
          * @param report Report bytes.
          */
         void publish_report(std::span<const uint8_t> report);
+
+        /**
+         * @brief Publishes one mapped BNO085 result.
+         *
+         * @param result Mapper result to publish.
+         */
+        void publish_result(const Mapper::Result& result) const;
 
         /**
          * @brief Returns whether one report value changed since the last publish.
@@ -144,16 +153,6 @@ namespace opendeck::firmware::io::i2c::sensor_bno085
          * @return Decoded value.
          */
         static int16_t read_i16(std::span<const uint8_t> report, size_t offset);
-
-        /**
-         * @brief Converts one fixed-point sensor value to float.
-         *
-         * @param value Raw fixed-point value.
-         * @param scale Fixed-point scale factor.
-         *
-         * @return Normalized value.
-         */
-        static float normalize(int16_t value, int32_t scale);
 
         /**
          * @brief Writes a little-endian 32-bit value into a packet.

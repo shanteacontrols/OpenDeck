@@ -143,15 +143,23 @@ namespace opendeck::firmware::signaling
      */
     struct OscSensorAmbientLightSignal
     {
-        int32_t value = 0;
+        float value = 0.0F;
     };
 
     /**
-     * @brief Carries one distance sensor value for OSC.
+     * @brief Carries one raw distance sensor value in millimeters for OSC.
      */
     struct OscSensorDistanceSignal
     {
         int32_t value = 0;
+    };
+
+    /**
+     * @brief Carries one normalized calibrated distance sensor value for OSC.
+     */
+    struct OscSensorDistanceNormSignal
+    {
+        float value = 0.0F;
     };
 
     /**
@@ -168,9 +176,9 @@ namespace opendeck::firmware::signaling
      */
     struct OscSensorRgbSignal
     {
-        int32_t red   = 0;
-        int32_t green = 0;
-        int32_t blue  = 0;
+        float red   = 0.0F;
+        float green = 0.0F;
+        float blue  = 0.0F;
     };
 
     /**
@@ -235,6 +243,7 @@ namespace opendeck::firmware::signaling
     using OscSensorSignalPayload = std::variant<OscSensorProximitySignal,
                                                 OscSensorAmbientLightSignal,
                                                 OscSensorDistanceSignal,
+                                                OscSensorDistanceNormSignal,
                                                 OscSensorTouchSignal,
                                                 OscSensorRgbSignal,
                                                 OscSensorGestureSignal,

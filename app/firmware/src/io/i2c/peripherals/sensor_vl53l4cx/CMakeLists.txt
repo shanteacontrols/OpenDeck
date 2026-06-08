@@ -9,6 +9,7 @@ target_include_directories(opendeck_firmware_io_i2c_peripherals_sensor_vl53l4cx
 
 target_sources(opendeck_firmware_io_i2c_peripherals_sensor_vl53l4cx
     PRIVATE
+    instance/impl/mapper.cpp
     instance/impl/sensor_vl53l4cx.cpp
     instance/impl/port/vl53l4cx_port.cpp
     $ENV{ZEPHYR_WS}/modules/vl53l4cx/src/vl53l4cx_api.cpp

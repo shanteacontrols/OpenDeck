@@ -5,15 +5,11 @@
 
 #include "firmware/src/io/i2c/peripherals/sensor_bno085/instance/impl/sensor_bno085.h"
 #include "firmware/src/io/i2c/instance/impl/i2c.h"
-#include "firmware/src/signaling/signaling.h"
 
 #include "zlibs/utils/misc/bit.h"
 
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
-
-#include <algorithm>
-#include <cmath>
 
 using namespace opendeck::firmware::io::i2c::sensor_bno085;
 using namespace opendeck::firmware;
@@ -207,86 +203,39 @@ void SensorBno085::publish_report(std::span<const uint8_t> report)
         return;
     }
 
-    switch (report_id)
+    const auto result = _mapper.result(report_id, values);
+
+    if (result.has_value())
     {
-    case ROTATION_VECTOR_REPORT_ID:
+        publish_result(result.value());
+    }
+}
+
+void SensorBno085::publish_result(const Mapper::Result& result) const
+{
+    if (result.quaternion.has_value())
     {
-        const float real = normalize(w, ROTATION_VECTOR_SCALE);
-        const float i    = normalize(x, ROTATION_VECTOR_SCALE);
-        const float j    = normalize(y, ROTATION_VECTOR_SCALE);
-        const float k    = normalize(z, ROTATION_VECTOR_SCALE);
-
-        signaling::publish(signaling::OscSensorSignal{
-            .payload = signaling::OscSensorImuQuaternionSignal{
-                .real = real,
-                .i    = i,
-                .j    = j,
-                .k    = k,
-            },
-            .direction = signaling::SignalDirection::Out,
-        });
-
-        const float real_squared = real * real;
-        const float i_squared    = i * i;
-        const float j_squared    = j * j;
-        const float k_squared    = k * k;
-        const float norm         = real_squared + i_squared + j_squared + k_squared;
-
-        const float yaw   = std::atan2((2.0F * ((i * j) + (k * real))),
-                                       (i_squared - j_squared - k_squared + real_squared)) *
-                            RADIANS_TO_DEGREES;
-        const float pitch = std::asin(std::clamp((-2.0F * ((i * k) - (j * real)) / norm), -1.0F, 1.0F)) *
-                            RADIANS_TO_DEGREES;
-        const float roll  = std::atan2((2.0F * ((j * k) + (i * real))),
-                                       (-i_squared - j_squared + k_squared + real_squared)) *
-                            RADIANS_TO_DEGREES;
-
-        signaling::publish(signaling::OscSensorSignal{
-            .payload = signaling::OscSensorImuEulerSignal{
-                .yaw   = yaw,
-                .pitch = pitch,
-                .roll  = roll,
-            },
-            .direction = signaling::SignalDirection::Out,
-        });
-        break;
+        signaling::publish(result.quaternion.value());
     }
 
-    case GYROSCOPE_REPORT_ID:
-        signaling::publish(signaling::OscSensorSignal{
-            .payload = signaling::OscSensorImuGyroscopeSignal{
-                .x = normalize(x, GYROSCOPE_SCALE),
-                .y = normalize(y, GYROSCOPE_SCALE),
-                .z = normalize(z, GYROSCOPE_SCALE),
-            },
-            .direction = signaling::SignalDirection::Out,
-        });
-        break;
+    if (result.euler.has_value())
+    {
+        signaling::publish(result.euler.value());
+    }
 
-    case LINEAR_ACCEL_REPORT_ID:
-        signaling::publish(signaling::OscSensorSignal{
-            .payload = signaling::OscSensorImuLinearAccelerationSignal{
-                .x = normalize(x, ACCELERATION_SCALE),
-                .y = normalize(y, ACCELERATION_SCALE),
-                .z = normalize(z, ACCELERATION_SCALE),
-            },
-            .direction = signaling::SignalDirection::Out,
-        });
-        break;
+    if (result.gyroscope.has_value())
+    {
+        signaling::publish(result.gyroscope.value());
+    }
 
-    case GRAVITY_REPORT_ID:
-        signaling::publish(signaling::OscSensorSignal{
-            .payload = signaling::OscSensorImuGravitySignal{
-                .x = normalize(x, ACCELERATION_SCALE),
-                .y = normalize(y, ACCELERATION_SCALE),
-                .z = normalize(z, ACCELERATION_SCALE),
-            },
-            .direction = signaling::SignalDirection::Out,
-        });
-        break;
+    if (result.linear_acceleration.has_value())
+    {
+        signaling::publish(result.linear_acceleration.value());
+    }
 
-    default:
-        break;
+    if (result.gravity.has_value())
+    {
+        signaling::publish(result.gravity.value());
     }
 }
 
@@ -342,11 +291,6 @@ int16_t SensorBno085::read_i16(std::span<const uint8_t> report, size_t offset)
                            static_cast<uint16_t>(report[offset + 1U] << 8U);
 
     return static_cast<int16_t>(value);
-}
-
-float SensorBno085::normalize(int16_t value, int32_t scale)
-{
-    return static_cast<float>(value) / static_cast<float>(scale);
 }
 
 void SensorBno085::write_u32(std::span<uint8_t> packet, size_t offset, uint32_t value)

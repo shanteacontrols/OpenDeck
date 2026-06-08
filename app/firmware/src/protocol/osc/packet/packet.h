@@ -254,11 +254,15 @@ namespace opendeck::firmware::protocol::osc
                 }
                 else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorAmbientLightSignal>)
                 {
-                    return make_packet(packet, paths::SENSOR_AMBIENT_LIGHT.c_str(), OscInt32{ payload.value });
+                    return make_packet(packet, paths::SENSOR_AMBIENT_LIGHT.c_str(), OscFloat32{ payload.value });
                 }
                 else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorDistanceSignal>)
                 {
                     return make_packet(packet, paths::SENSOR_DISTANCE.c_str(), OscInt32{ payload.value });
+                }
+                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorDistanceNormSignal>)
+                {
+                    return make_packet(packet, paths::SENSOR_DISTANCE_NORM.c_str(), OscFloat32{ payload.value });
                 }
                 else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorTouchSignal>)
                 {
@@ -273,9 +277,9 @@ namespace opendeck::firmware::protocol::osc
                 {
                     return make_packet(packet,
                                        paths::SENSOR_RGB.c_str(),
-                                       OscInt32{ payload.red },
-                                       OscInt32{ payload.green },
-                                       OscInt32{ payload.blue });
+                                       OscFloat32{ payload.red },
+                                       OscFloat32{ payload.green },
+                                       OscFloat32{ payload.blue });
                 }
                 else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorGestureSignal>)
                 {

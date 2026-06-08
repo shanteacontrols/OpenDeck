@@ -6,6 +6,7 @@
 #pragma once
 
 #include "firmware/src/io/i2c/peripherals/sensor_apds9960/instance/impl/deps.h"
+#include "firmware/src/io/i2c/peripherals/sensor_apds9960/instance/impl/mapper.h"
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/system/shared/config.h"
 
@@ -90,6 +91,7 @@ namespace opendeck::firmware::io::i2c::sensor_apds9960
 
         Hwa&               _hwa;
         Database&          _database;
+        Mapper             _mapper;
         bool               _found                      = false;
         bool               _initialized                = false;
         uint8_t            _read_failure_count         = 0;
@@ -221,6 +223,13 @@ namespace opendeck::firmware::io::i2c::sensor_apds9960
          * @return `true` if the sensor is still usable.
          */
         bool read_ambient_light_and_rgb(uint8_t status);
+
+        /**
+         * @brief Publishes one mapped APDS9960 result.
+         *
+         * @param result Mapper result to publish.
+         */
+        void publish_result(const Mapper::Result& result) const;
 
         /**
          * @brief Reads and decodes one gesture event from the sensor FIFO if available.

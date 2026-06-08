@@ -8,6 +8,7 @@
 
 #include "firmware/src/database/builder/builder.h"
 #include "firmware/src/io/i2c/hwa/test/hwa_test.h"
+#include "firmware/src/io/i2c/peripherals/sensor_apds9960/instance/impl/mapper.h"
 #include "firmware/src/io/i2c/peripherals/sensor_apds9960/instance/impl/sensor_apds9960.h"
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/util/configurable/configurable.h"
@@ -162,6 +163,30 @@ namespace
         SensorCollector                 _collector;
     };
 
+    class Apds9960MapperTest : public ::testing::Test
+    {
+        protected:
+        void SetUp() override
+        {
+            ASSERT_TRUE(_database_admin.init(_handlers));
+            ASSERT_TRUE(_database_admin.factory_reset());
+            set_mapping(Setting::ProximityUpperValue, APDS9960_PROXIMITY_RAW_MAX);
+        }
+
+        void set_mapping(sensor_apds9960::Setting setting, uint32_t value)
+        {
+            ASSERT_TRUE(_database_admin.update(database::Config::Section::I2c::Apds9960,
+                                               setting,
+                                               value));
+        }
+
+        tests::NoOpDatabaseHandlers _handlers;
+        database::Builder           _database_builder;
+        database::Admin&            _database_admin = _database_builder.instance();
+        sensor_apds9960::Database   _database       = sensor_apds9960::Database(_database_admin);
+        Mapper                      _mapper         = Mapper(_database);
+    };
+
     template<typename Payload>
     size_t count_signal(const std::vector<signaling::OscSensorSignal>& signals)
     {
@@ -183,7 +208,106 @@ namespace
     {
         return std::get_if<Payload>(&signal.payload);
     }
+
+    constexpr float normalized_rgbc(uint16_t value)
+    {
+        return static_cast<float>(value) / static_cast<float>(APDS9960_RGBC_MAX_COUNT);
+    }
 }    // namespace
+
+TEST_F(Apds9960MapperTest, MapsEightBitRawValues)
+{
+    const auto zero = _mapper.proximity_result(0U);
+    const auto mid  = _mapper.proximity_result(127U);
+    const auto max  = _mapper.proximity_result(APDS9960_PROXIMITY_RAW_MAX);
+
+    const auto* zero_payload = payload_as<signaling::OscSensorProximitySignal>(zero.osc);
+    const auto* mid_payload  = payload_as<signaling::OscSensorProximitySignal>(mid.osc);
+    const auto* max_payload  = payload_as<signaling::OscSensorProximitySignal>(max.osc);
+
+    ASSERT_NE(zero_payload, nullptr);
+    ASSERT_NE(mid_payload, nullptr);
+    ASSERT_NE(max_payload, nullptr);
+
+    EXPECT_EQ(zero.osc.direction, signaling::SignalDirection::Out);
+    EXPECT_EQ(zero_payload->value, 0);
+    EXPECT_EQ(mid_payload->value, 127);
+    EXPECT_EQ(max_payload->value, APDS9960_PROXIMITY_RAW_MAX);
+}
+
+TEST_F(Apds9960MapperTest, NormalizesRgbcRawValues)
+{
+    constexpr uint16_t mid_value = APDS9960_RGBC_MAX_COUNT / 2U;
+
+    const auto ambient = _mapper.ambient_light_result(mid_value);
+    const auto rgb     = _mapper.rgb_result(0U, mid_value, APDS9960_RGBC_MAX_COUNT);
+
+    const auto* ambient_payload = payload_as<signaling::OscSensorAmbientLightSignal>(ambient.osc);
+    const auto* rgb_payload     = payload_as<signaling::OscSensorRgbSignal>(rgb.osc);
+
+    ASSERT_NE(ambient_payload, nullptr);
+    ASSERT_NE(rgb_payload, nullptr);
+
+    EXPECT_EQ(ambient.osc.direction, signaling::SignalDirection::Out);
+    EXPECT_EQ(rgb.osc.direction, signaling::SignalDirection::Out);
+    EXPECT_FLOAT_EQ(ambient_payload->value, normalized_rgbc(mid_value));
+    EXPECT_FLOAT_EQ(rgb_payload->red, 0.0F);
+    EXPECT_FLOAT_EQ(rgb_payload->green, normalized_rgbc(mid_value));
+    EXPECT_FLOAT_EQ(rgb_payload->blue, 1.0F);
+}
+
+TEST_F(Apds9960MapperTest, ClampsRgbcValuesAtConfiguredMaxCount)
+{
+    const auto  ambient = _mapper.ambient_light_result(APDS9960_RGBC_MAX_COUNT + 1U);
+    const auto* payload = payload_as<signaling::OscSensorAmbientLightSignal>(ambient.osc);
+
+    ASSERT_NE(payload, nullptr);
+    EXPECT_FLOAT_EQ(payload->value, 1.0F);
+}
+
+TEST_F(Apds9960MapperTest, AppliesProximityValues)
+{
+    constexpr uint16_t lower = 30;
+    constexpr uint16_t upper = 200;
+
+    set_mapping(Setting::ProximityLowerValue, lower);
+    set_mapping(Setting::ProximityUpperValue, upper);
+
+    const auto below = _mapper.proximity_result(static_cast<uint8_t>(lower - 1U));
+    const auto mid   = _mapper.proximity_result(static_cast<uint8_t>((lower + upper) / 2U));
+    const auto above = _mapper.proximity_result(static_cast<uint8_t>(upper + 1U));
+
+    const auto* below_payload = payload_as<signaling::OscSensorProximitySignal>(below.osc);
+    const auto* mid_payload   = payload_as<signaling::OscSensorProximitySignal>(mid.osc);
+    const auto* above_payload = payload_as<signaling::OscSensorProximitySignal>(above.osc);
+
+    ASSERT_NE(below_payload, nullptr);
+    ASSERT_NE(mid_payload, nullptr);
+    ASSERT_NE(above_payload, nullptr);
+
+    EXPECT_EQ(below_payload->value, 0);
+    EXPECT_EQ(mid_payload->value, ((((lower + upper) / 2U) - lower) * APDS9960_PROXIMITY_RAW_MAX) / (upper - lower));
+    EXPECT_EQ(above_payload->value, APDS9960_PROXIMITY_RAW_MAX);
+}
+
+TEST_F(Apds9960MapperTest, MapsGestureDirections)
+{
+    for (auto gesture : {
+             signaling::OscSensorGesture::None,
+             signaling::OscSensorGesture::Up,
+             signaling::OscSensorGesture::Down,
+             signaling::OscSensorGesture::Left,
+             signaling::OscSensorGesture::Right,
+         })
+    {
+        const auto  result  = _mapper.gesture_result(gesture);
+        const auto* payload = payload_as<signaling::OscSensorGestureSignal>(result.osc);
+
+        ASSERT_NE(payload, nullptr);
+        EXPECT_EQ(result.osc.direction, signaling::SignalDirection::Out);
+        EXPECT_EQ(payload->gesture, gesture);
+    }
+}
 
 TEST(Apds9960SensorStandaloneTest, AcceptsKnownApds9960DeviceIds)
 {
@@ -446,7 +570,7 @@ TEST_F(Apds9960SensorTest, DebouncesEachContinuousOutputIndependently)
     ASSERT_EQ(signals.size(), 1U);
     const auto* ambient_light = payload_as<signaling::OscSensorAmbientLightSignal>(signals[0]);
     ASSERT_NE(ambient_light, nullptr);
-    EXPECT_EQ(ambient_light->value, 90);
+    EXPECT_FLOAT_EQ(ambient_light->value, normalized_rgbc(90));
 }
 
 TEST_F(Apds9960SensorTest, FiltersAmbientLightWithoutTimeThrottle)
@@ -468,7 +592,7 @@ TEST_F(Apds9960SensorTest, FiltersAmbientLightWithoutTimeThrottle)
     ASSERT_EQ(signals.size(), 1U);
     const auto* ambient_light = payload_as<signaling::OscSensorAmbientLightSignal>(signals[0]);
     ASSERT_NE(ambient_light, nullptr);
-    EXPECT_EQ(ambient_light->value, 90);
+    EXPECT_FLOAT_EQ(ambient_light->value, normalized_rgbc(90));
 }
 
 TEST_F(Apds9960SensorTest, FiltersProximityNoiseWithoutTimeThrottle)
@@ -551,9 +675,9 @@ TEST_F(Apds9960SensorTest, FiltersRgbNoiseAsTupleWithoutTimeThrottle)
     ASSERT_EQ(signals.size(), 1U);
     const auto* rgb = payload_as<signaling::OscSensorRgbSignal>(signals[0]);
     ASSERT_NE(rgb, nullptr);
-    EXPECT_EQ(rgb->red, 483);
-    EXPECT_EQ(rgb->green, 352);
-    EXPECT_EQ(rgb->blue, 338);
+    EXPECT_FLOAT_EQ(rgb->red, normalized_rgbc(483));
+    EXPECT_FLOAT_EQ(rgb->green, normalized_rgbc(352));
+    EXPECT_FLOAT_EQ(rgb->blue, normalized_rgbc(338));
     _collector.clear();
 
     for (const auto& rgb : {
@@ -580,9 +704,9 @@ TEST_F(Apds9960SensorTest, FiltersRgbNoiseAsTupleWithoutTimeThrottle)
     ASSERT_EQ(signals.size(), 1U);
     rgb = payload_as<signaling::OscSensorRgbSignal>(signals[0]);
     ASSERT_NE(rgb, nullptr);
-    EXPECT_EQ(rgb->red, 491);
-    EXPECT_EQ(rgb->green, 352);
-    EXPECT_EQ(rgb->blue, 338);
+    EXPECT_FLOAT_EQ(rgb->red, normalized_rgbc(491));
+    EXPECT_FLOAT_EQ(rgb->green, normalized_rgbc(352));
+    EXPECT_FLOAT_EQ(rgb->blue, normalized_rgbc(338));
 }
 
 TEST_F(Apds9960SensorTest, ReadsAmbientLightAndRgbRegistersInSingleBlock)

@@ -334,6 +334,10 @@ TEST_F(SystemTest, FullDatabaseInitialValues)
             {
                 expected = 1;
             }
+            else if (i == static_cast<int>(io::i2c::sensor_apds9960::Setting::ProximityUpperValue))
+            {
+                expected = io::i2c::sensor_apds9960::APDS9960_PROXIMITY_RAW_MAX;
+            }
 
             verify(expected, database::Config::Section::I2c::Apds9960, i);
         }
@@ -353,6 +357,10 @@ TEST_F(SystemTest, FullDatabaseInitialValues)
             else if (i == static_cast<int>(io::i2c::sensor_vl53l4cx::Setting::DistanceMode))
             {
                 expected = static_cast<uint32_t>(io::i2c::sensor_vl53l4cx::DistanceMode::Medium);
+            }
+            else if (i == static_cast<int>(io::i2c::sensor_vl53l4cx::Setting::DistanceUpperValue))
+            {
+                expected = io::i2c::sensor_vl53l4cx::DISTANCE_MAX_MM;
             }
 
             verify(expected, database::Config::Section::I2c::Vl53l4cx, i);

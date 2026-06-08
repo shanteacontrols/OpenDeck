@@ -111,6 +111,7 @@ SensorVl53l4cx::SensorVl53l4cx(Hwa&      hwa,
                                Database& database)
     : _hwa(hwa)
     , _database(database)
+    , _mapper(database)
 {
     _database.register_layout_init_provider(
         database::Config::Section::I2c::Vl53l4cx,
@@ -126,6 +127,9 @@ SensorVl53l4cx::SensorVl53l4cx(Hwa&      hwa,
 
             case Setting::DistanceMode:
                 return static_cast<uint32_t>(DistanceMode::Medium);
+
+            case Setting::DistanceUpperValue:
+                return DISTANCE_MAX_MM;
 
             default:
                 return {};
@@ -212,6 +216,7 @@ bool SensorVl53l4cx::init(size_t address_index)
     _found     = true;
     _measuring = true;
     _distance_filter.reset();
+    _mapper.reset();
 
     return true;
 }
@@ -303,9 +308,19 @@ bool SensorVl53l4cx::configure_sensor()
     return true;
 }
 
-bool SensorVl53l4cx::distance_enabled()
+bool SensorVl53l4cx::distance_enabled() const
 {
-    return _database.read(database::Config::Section::I2c::Vl53l4cx, Setting::EnableDistance) != 0;
+    return distance_mm_enabled() || distance_norm_enabled();
+}
+
+bool SensorVl53l4cx::distance_mm_enabled() const
+{
+    return _database.read(database::Config::Section::I2c::Vl53l4cx, Setting::EnableDistanceMm) != 0;
+}
+
+bool SensorVl53l4cx::distance_norm_enabled() const
+{
+    return _database.read(database::Config::Section::I2c::Vl53l4cx, Setting::EnableDistanceNorm) != 0;
 }
 
 TrackingArea SensorVl53l4cx::tracking_area()
@@ -355,6 +370,7 @@ bool SensorVl53l4cx::deinit()
     _measuring                  = false;
     _selected_i2c_address_index = 0;
     _distance_filter.reset();
+    _mapper.reset();
 
     return true;
 }
@@ -470,18 +486,26 @@ void SensorVl53l4cx::process_measurement_frame(const VL53L4CX_MultiRangingData_t
                                 DistanceFilter::ConfirmationMode::Nearby,
                                 DISTANCE_MOVING_THRESHOLD))
     {
-        publish_distance(closest.value());
+        const auto result = _mapper.result(distance);
+
+        if (result.has_value())
+        {
+            publish_result(result.value());
+        }
     }
 }
 
-void SensorVl53l4cx::publish_distance(const VL53L4CX_TargetRangeData_t& object)
+void SensorVl53l4cx::publish_result(const Mapper::Result& result) const
 {
-    signaling::publish(signaling::OscSensorSignal{
-        .payload = signaling::OscSensorDistanceSignal{
-            .value = object.RangeMilliMeter,
-        },
-        .direction = signaling::SignalDirection::Out,
-    });
+    if (result.distance_mm.has_value())
+    {
+        signaling::publish(result.distance_mm.value());
+    }
+
+    if (result.distance_normalized.has_value())
+    {
+        signaling::publish(result.distance_normalized.value());
+    }
 }
 
 void SensorVl53l4cx::publish_value_state()
@@ -491,12 +515,12 @@ void SensorVl53l4cx::publish_value_state()
         return;
     }
 
-    signaling::publish(signaling::OscSensorSignal{
-        .payload = signaling::OscSensorDistanceSignal{
-            .value = _distance_filter.value()[0],
-        },
-        .direction = signaling::SignalDirection::Out,
-    });
+    const auto result = _mapper.last_result();
+
+    if (result.has_value())
+    {
+        publish_result(result.value());
+    }
 }
 
 bool SensorVl53l4cx::range_status_usable(uint8_t status)
@@ -534,7 +558,8 @@ std::optional<uint8_t> SensorVl53l4cx::sys_config_set(sys::Config::Section::I2c 
 
     switch (setting)
     {
-    case Setting::EnableDistance:
+    case Setting::EnableDistanceMm:
+    case Setting::EnableDistanceNorm:
     {
         if (value > 1)
         {
@@ -569,6 +594,10 @@ std::optional<uint8_t> SensorVl53l4cx::sys_config_set(sys::Config::Section::I2c 
         }
     }
     break;
+
+    case Setting::DistanceLowerValue:
+    case Setting::DistanceUpperValue:
+        break;
 
     default:
         return sys::Config::Status::ErrorWrite;
