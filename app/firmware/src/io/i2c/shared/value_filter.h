@@ -37,24 +37,6 @@ namespace opendeck::firmware::io::i2c
          * @param current Current raw value tuple.
          * @param idle_threshold Minimum component delta required to wake from idle.
          * @param confirmation_samples Matching changed samples required before accepting.
-         * @param moving_threshold Minimum component delta required while movement is already active.
-         *
-         * @return `true` when the value was accepted.
-         */
-        bool update(const Values& current,
-                    uint16_t      idle_threshold,
-                    uint8_t       confirmation_samples,
-                    uint16_t      moving_threshold = 0)
-        {
-            return update(current, idle_threshold, confirmation_samples, ConfirmationMode::Nearby, moving_threshold);
-        }
-
-        /**
-         * @brief Processes a raw value tuple.
-         *
-         * @param current Current raw value tuple.
-         * @param idle_threshold Minimum component delta required to wake from idle.
-         * @param confirmation_samples Matching changed samples required before accepting.
          * @param confirmation_mode How pending samples are matched during confirmation.
          * @param moving_threshold Minimum component delta required while movement is already active.
          *
@@ -64,7 +46,7 @@ namespace opendeck::firmware::io::i2c
                     uint16_t         idle_threshold,
                     uint8_t          confirmation_samples,
                     ConfirmationMode confirmation_mode,
-                    uint16_t         moving_threshold = 0)
+                    uint16_t         moving_threshold)
         {
             const auto active_threshold = (_moving && (moving_threshold != 0)) ? moving_threshold : idle_threshold;
 

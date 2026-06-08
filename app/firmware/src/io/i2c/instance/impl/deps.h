@@ -109,6 +109,16 @@ namespace opendeck::firmware::io::i2c
         virtual bool update() = 0;
 
         /**
+         * @brief Returns the compile-time update interval for this peripheral.
+         *
+         * @return Minimum time between update() calls in milliseconds.
+         */
+        virtual int64_t update_interval_ms()
+        {
+            return 1;
+        }
+
+        /**
          * @brief Returns the peripheral name used in diagnostics.
          *
          * @return Static peripheral name.

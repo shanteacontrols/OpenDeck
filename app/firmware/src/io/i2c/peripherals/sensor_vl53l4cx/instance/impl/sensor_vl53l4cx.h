@@ -6,7 +6,6 @@
 #pragma once
 
 #include "firmware/src/io/i2c/peripherals/sensor_vl53l4cx/instance/impl/deps.h"
-#include "firmware/src/io/i2c/shared/value_filter.h"
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/system/shared/config.h"
 
@@ -48,6 +47,13 @@ namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
         bool update() override;
 
         /**
+         * @brief Returns the VL53L4CX update interval derived from its response profile.
+         *
+         * @return Minimum time between update() calls in milliseconds.
+         */
+        int64_t update_interval_ms() override;
+
+        /**
          * @brief Deinitializes the sensor runtime state.
          *
          * @return `true` if the sensor was deinitialized.
@@ -76,7 +82,7 @@ namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
         Hwa&           _hwa;
         Database&      _database;
         VL53L4CX       _driver                     = {};
-        ValueFilter<1> _distance_filter            = {};
+        DistanceFilter _distance_filter            = {};
         size_t         _selected_i2c_address_index = 0;
         bool           _found                      = false;
         bool           _measuring                  = false;

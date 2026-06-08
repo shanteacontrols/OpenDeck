@@ -6,7 +6,6 @@
 #pragma once
 
 #include "firmware/src/io/i2c/peripherals/sensor_bno085/instance/impl/deps.h"
-#include "firmware/src/io/i2c/shared/value_filter.h"
 #include "firmware/src/signaling/signaling.h"
 
 #include <array>
@@ -66,14 +65,14 @@ namespace opendeck::firmware::io::i2c::sensor_bno085
         std::span<const uint8_t> i2c_addresses() const override;
 
         private:
-        Hwa&                    _hwa;
-        bool                    _initialized                = false;
-        size_t                  _selected_i2c_address_index = 0;
-        uint8_t                 _control_sequence           = 0;
-        ValueFilter<4, int16_t> _rotation_vector_filter     = {};
-        ValueFilter<3, int16_t> _gyroscope_filter           = {};
-        ValueFilter<3, int16_t> _linear_accel_filter        = {};
-        ValueFilter<3, int16_t> _gravity_filter             = {};
+        Hwa&                 _hwa;
+        bool                 _initialized                = false;
+        size_t               _selected_i2c_address_index = 0;
+        uint8_t              _control_sequence           = 0;
+        RotationVectorFilter _rotation_vector_filter     = {};
+        SensorVectorFilter   _gyroscope_filter           = {};
+        SensorVectorFilter   _linear_accel_filter        = {};
+        SensorVectorFilter   _gravity_filter             = {};
 
         /**
          * @brief Returns the selected BNO085 I2C address.

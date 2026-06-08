@@ -13,6 +13,7 @@
 
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/sys/byteorder.h>
 
 #include <algorithm>
 #include <cstdlib>
@@ -141,10 +142,25 @@ bool SensorApds9960::update()
         return false;
     }
 
-    return read_proximity() &&
+    uint8_t status = 0;
+
+    if ((proximity_gesture_mode() == ProximityGestureMode::Proximity) ||
+        output_enabled(Setting::EnableRgb) ||
+        output_enabled(Setting::EnableAmbientLight))
+    {
+        const auto read_status = read_register(APDS9960_REGISTER_STATUS);
+
+        if (!read_status.has_value())
+        {
+            return recoverable_i2c_read_failure();
+        }
+
+        status = read_status.value();
+    }
+
+    return read_proximity(status) &&
            read_gesture() &&
-           read_rgb() &&
-           read_ambient_light();
+           read_ambient_light_and_rgb(status);
 }
 
 constexpr std::string_view SensorApds9960::name() const
@@ -152,26 +168,24 @@ constexpr std::string_view SensorApds9960::name() const
     return "sensor_apds9960";
 }
 
+int64_t SensorApds9960::update_interval_ms()
+{
+    return 30;
+}
+
 std::span<const uint8_t> SensorApds9960::i2c_addresses() const
 {
     return I2C_ADDRESSES;
 }
 
-bool SensorApds9960::read_proximity()
+bool SensorApds9960::read_proximity(uint8_t status)
 {
-    if (!output_enabled(Setting::EnableProximity))
+    if (proximity_gesture_mode() != ProximityGestureMode::Proximity)
     {
         return true;
     }
 
-    const auto status = read_register(APDS9960_REGISTER_STATUS);
-
-    if (!status.has_value())
-    {
-        return _initialized;
-    }
-
-    if ((status.value() & APDS9960_STATUS_PVALID) == 0)
+    if ((status & APDS9960_STATUS_PVALID) == 0)
     {
         return true;
     }
@@ -180,13 +194,13 @@ bool SensorApds9960::read_proximity()
 
     if (!proximity.has_value())
     {
-        return _initialized;
+        return recoverable_i2c_read_failure();
     }
 
     if (_proximity_filter.update({ proximity.value() },
                                  PROXIMITY_IDLE_THRESHOLD,
                                  PROXIMITY_CONFIRMATION_SAMPLES,
-                                 ValueFilter<1>::ConfirmationMode::Exact,
+                                 ProximityFilter::ConfirmationMode::Nearby,
                                  PROXIMITY_MOVING_THRESHOLD))
     {
         signaling::publish(signaling::OscSensorSignal{
@@ -202,7 +216,7 @@ bool SensorApds9960::read_proximity()
 
 bool SensorApds9960::read_gesture()
 {
-    if (!gesture_engine_enabled())
+    if (proximity_gesture_mode() != ProximityGestureMode::Gesture)
     {
         return true;
     }
@@ -211,7 +225,7 @@ bool SensorApds9960::read_gesture()
 
     if (!gesture.has_value())
     {
-        return _initialized;
+        return recoverable_i2c_read_failure();
     }
 
     const int64_t now_ms = k_uptime_get();
@@ -235,85 +249,60 @@ bool SensorApds9960::read_gesture()
     return true;
 }
 
-bool SensorApds9960::read_rgb()
+bool SensorApds9960::read_ambient_light_and_rgb(uint8_t status)
 {
-    if (!output_enabled(Setting::EnableRgb))
+    const bool rgb_enabled           = output_enabled(Setting::EnableRgb);
+    const bool ambient_light_enabled = output_enabled(Setting::EnableAmbientLight);
+
+    if (!rgb_enabled && !ambient_light_enabled)
     {
         return true;
     }
 
-    const auto status = read_register(APDS9960_REGISTER_STATUS);
-
-    if (!status.has_value())
-    {
-        return _initialized;
-    }
-
-    if ((status.value() & APDS9960_STATUS_AVALID) == 0)
+    if ((status & APDS9960_STATUS_AVALID) == 0)
     {
         return true;
     }
 
-    const auto red   = read_register_le16(APDS9960_REGISTER_RDATAL);
-    const auto green = read_register_le16(APDS9960_REGISTER_GDATAL);
-    const auto blue  = read_register_le16(APDS9960_REGISTER_BDATAL);
+    std::array<uint8_t, 8> light = {};
 
-    if (!red.has_value() || !green.has_value() || !blue.has_value())
+    if (!read_register_block(APDS9960_REGISTER_CDATAL, std::span<uint8_t>(light)))
     {
-        return _initialized;
+        return recoverable_i2c_read_failure();
     }
 
-    if (_rgb_filter.update({ red.value(), green.value(), blue.value() },
-                           RGB_IDLE_THRESHOLD,
-                           RGB_CONFIRMATION_SAMPLES,
-                           RGB_MOVING_THRESHOLD))
+    const auto ambient_light = sys_get_le16(&light[0]);
+    const auto red           = sys_get_le16(&light[2]);
+    const auto green         = sys_get_le16(&light[4]);
+    const auto blue          = sys_get_le16(&light[6]);
+
+    if (ambient_light_enabled &&
+        _ambient_light_filter.update({ ambient_light },
+                                     AMBIENT_LIGHT_SEND_THRESHOLD,
+                                     AMBIENT_LIGHT_CONFIRMATION_SAMPLES,
+                                     AmbientLightFilter::ConfirmationMode::Nearby,
+                                     0))
     {
         signaling::publish(signaling::OscSensorSignal{
-            .payload = signaling::OscSensorRgbSignal{
-                .red   = red.value(),
-                .green = green.value(),
-                .blue  = blue.value(),
+            .payload = signaling::OscSensorAmbientLightSignal{
+                .value = ambient_light,
             },
             .direction = signaling::SignalDirection::Out,
         });
     }
 
-    return true;
-}
-
-bool SensorApds9960::read_ambient_light()
-{
-    if (!output_enabled(Setting::EnableAmbientLight))
-    {
-        return true;
-    }
-
-    const auto status = read_register(APDS9960_REGISTER_STATUS);
-
-    if (!status.has_value())
-    {
-        return _initialized;
-    }
-
-    if ((status.value() & APDS9960_STATUS_AVALID) == 0)
-    {
-        return true;
-    }
-
-    const auto ambient_light = read_register_le16(APDS9960_REGISTER_CDATAL);
-
-    if (!ambient_light.has_value())
-    {
-        return _initialized;
-    }
-
-    if (_ambient_light_filter.update({ ambient_light.value() },
-                                     AMBIENT_LIGHT_SEND_THRESHOLD,
-                                     AMBIENT_LIGHT_CONFIRMATION_SAMPLES))
+    if (rgb_enabled &&
+        _rgb_filter.update({ red, green, blue },
+                           RGB_IDLE_THRESHOLD,
+                           RGB_CONFIRMATION_SAMPLES,
+                           RgbFilter::ConfirmationMode::Nearby,
+                           RGB_MOVING_THRESHOLD))
     {
         signaling::publish(signaling::OscSensorSignal{
-            .payload = signaling::OscSensorAmbientLightSignal{
-                .value = ambient_light.value(),
+            .payload = signaling::OscSensorRgbSignal{
+                .red   = red,
+                .green = green,
+                .blue  = blue,
             },
             .direction = signaling::SignalDirection::Out,
         });
@@ -329,8 +318,9 @@ bool SensorApds9960::configure_sensor()
 
     uint8_t enable = APDS9960_ENABLE_PON;
 
-    const bool gesture_engine    = gesture_engine_enabled();
-    const auto proximity_enabled = output_enabled(Setting::EnableProximity);
+    const auto mode              = proximity_gesture_mode();
+    const bool gesture_engine    = mode == ProximityGestureMode::Gesture;
+    const bool proximity_enabled = mode == ProximityGestureMode::Proximity;
     const auto ambient_enabled   = output_enabled(Setting::EnableAmbientLight);
     const auto rgb_enabled       = output_enabled(Setting::EnableRgb);
 
@@ -390,9 +380,16 @@ bool SensorApds9960::output_enabled(Setting setting)
     return _database.read(database::Config::Section::I2c::Apds9960, setting) != 0;
 }
 
-bool SensorApds9960::gesture_engine_enabled()
+ProximityGestureMode SensorApds9960::proximity_gesture_mode()
 {
-    return output_enabled(Setting::EnableGesture);
+    const auto mode = _database.read(database::Config::Section::I2c::Apds9960, Setting::ProximityGestureMode);
+
+    if (mode >= static_cast<uint32_t>(ProximityGestureMode::Count))
+    {
+        return ProximityGestureMode::Disabled;
+    }
+
+    return static_cast<ProximityGestureMode>(mode);
 }
 
 uint8_t SensorApds9960::control_register_value()
@@ -490,6 +487,11 @@ bool SensorApds9960::read_register_block(uint8_t reg, std::span<uint8_t> buffer)
     return true;
 }
 
+bool SensorApds9960::recoverable_i2c_read_failure() const
+{
+    return _initialized;
+}
+
 void SensorApds9960::record_i2c_success()
 {
     _read_failure_count = 0;
@@ -532,21 +534,6 @@ void SensorApds9960::mark_disconnected()
 
 std::optional<signaling::OscSensorGesture> SensorApds9960::decode_gesture_fifo()
 {
-    const auto enable = read_register(APDS9960_REGISTER_ENABLE);
-
-    if (!enable.has_value())
-    {
-        return {};
-    }
-
-    if ((enable.value() & (APDS9960_ENABLE_PON | APDS9960_ENABLE_GEN)) != (APDS9960_ENABLE_PON | APDS9960_ENABLE_GEN))
-    {
-        LOG_WRN("APDS9960 gesture read skipped: ENABLE=0x%02x expected bits 0x%02x",
-                enable.value(),
-                APDS9960_ENABLE_PON | APDS9960_ENABLE_GEN);
-        return {};
-    }
-
     const auto gesture_status = read_register(APDS9960_REGISTER_GSTATUS);
 
     if (!gesture_status.has_value())
@@ -701,7 +688,7 @@ void SensorApds9960::publish_value_states()
         return;
     }
 
-    if (output_enabled(Setting::EnableProximity) && _proximity_filter.has_value())
+    if ((proximity_gesture_mode() == ProximityGestureMode::Proximity) && _proximity_filter.has_value())
     {
         signaling::publish(signaling::OscSensorSignal{
             .payload = signaling::OscSensorProximitySignal{
@@ -766,10 +753,19 @@ std::optional<uint8_t> SensorApds9960::sys_config_set(sys::Config::Section::I2c 
 
     switch (setting)
     {
-    case Setting::EnableProximity:
+    case Setting::ProximityGestureMode:
+    {
+        if (value >= static_cast<uint16_t>(ProximityGestureMode::Count))
+        {
+            return sys::Config::Status::ErrorWrite;
+        }
+
+        init_action = common::InitAction::Init;
+    }
+    break;
+
     case Setting::EnableAmbientLight:
     case Setting::EnableRgb:
-    case Setting::EnableGesture:
     {
         if (value > 1)
         {

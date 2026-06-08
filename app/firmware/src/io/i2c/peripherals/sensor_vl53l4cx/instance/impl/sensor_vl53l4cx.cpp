@@ -53,6 +53,15 @@ namespace
         }
     }
 
+    constexpr int64_t response_update_interval_ms(Response response)
+    {
+        constexpr uint32_t SCAN_MARGIN = 2000;
+
+        const auto timing_budget_us = response_timing_budget_us(response);
+
+        return static_cast<int64_t>((timing_budget_us + SCAN_MARGIN) / 1000);
+    }
+
     constexpr VL53L4CX_DistanceModes driver_distance_mode(DistanceMode mode)
     {
         switch (mode)
@@ -113,7 +122,7 @@ SensorVl53l4cx::SensorVl53l4cx(Hwa&      hwa,
                 return static_cast<uint32_t>(TrackingArea::Narrow);
 
             case Setting::Response:
-                return static_cast<uint32_t>(Response::Stable);
+                return static_cast<uint32_t>(Response::Balanced);
 
             case Setting::DistanceMode:
                 return static_cast<uint32_t>(DistanceMode::Medium);
@@ -372,6 +381,11 @@ constexpr std::string_view SensorVl53l4cx::name() const
     return "sensor_vl53l4cx";
 }
 
+int64_t SensorVl53l4cx::update_interval_ms()
+{
+    return response_update_interval_ms(response());
+}
+
 std::span<const uint8_t> SensorVl53l4cx::i2c_addresses() const
 {
     return I2C_ADDRESSES;
@@ -453,6 +467,7 @@ void SensorVl53l4cx::process_measurement_frame(const VL53L4CX_MultiRangingData_t
     if (_distance_filter.update({ distance },
                                 DISTANCE_IDLE_THRESHOLD,
                                 DISTANCE_CONFIRMATION_SAMPLES,
+                                DistanceFilter::ConfirmationMode::Nearby,
                                 DISTANCE_MOVING_THRESHOLD))
     {
         publish_distance(closest.value());

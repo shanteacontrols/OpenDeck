@@ -135,8 +135,9 @@ void I2c::update_peripheral(PeripheralState& state, int64_t now_ms)
                 return;
             }
 
-            state.address_index = address_index.value();
-            state.initialized   = peripheral->init(state.address_index);
+            state.address_index  = address_index.value();
+            state.initialized    = peripheral->init(state.address_index);
+            state.next_update_ms = now_ms;
 
             if (!state.initialized)
             {
@@ -151,10 +152,24 @@ void I2c::update_peripheral(PeripheralState& state, int64_t now_ms)
         }
     }
 
-    if (state.initialized && !peripheral->update())
+    if (!state.initialized)
+    {
+        return;
+    }
+
+    if (now_ms < state.next_update_ms)
+    {
+        return;
+    }
+
+    state.next_update_ms = now_ms + peripheral->update_interval_ms();
+
+    if (!peripheral->update())
     {
         LOG_WRN("I2C peripheral %s update failed, deinitializing", peripheral->name().data());
         peripheral->deinit();
-        state.initialized = false;
+        state.initialized    = false;
+        state.next_probe_ms  = now_ms + DEVICE_PROBE_INTERVAL_MS;
+        state.next_update_ms = 0;
     }
 }

@@ -9,7 +9,6 @@
 #include "firmware/src/database/builder/builder.h"
 #include "firmware/src/io/i2c/hwa/test/hwa_test.h"
 #include "firmware/src/io/i2c/peripherals/sensor_apds9960/instance/impl/sensor_apds9960.h"
-#include "firmware/src/io/i2c/shared/value_filter.h"
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/util/configurable/configurable.h"
 
@@ -89,7 +88,7 @@ namespace
             ASSERT_TRUE(_database_admin.init(_handlers));
             ASSERT_TRUE(_database_admin.factory_reset());
             ASSERT_TRUE(_database_admin.update(database::Config::Section::I2c::Apds9960,
-                                               sensor_apds9960::Setting::EnableProximity,
+                                               sensor_apds9960::Setting::ProximityGestureMode,
                                                1));
             ASSERT_TRUE(_database_admin.update(database::Config::Section::I2c::Apds9960,
                                                sensor_apds9960::Setting::EnableAmbientLight,
@@ -206,7 +205,7 @@ TEST(Apds9960SensorStandaloneTest, AcceptsKnownApds9960DeviceIds)
         ASSERT_TRUE(database_admin.init(handlers));
         ASSERT_TRUE(database_admin.factory_reset());
         ASSERT_TRUE(database_admin.update(database::Config::Section::I2c::Apds9960,
-                                          sensor_apds9960::Setting::EnableProximity,
+                                          sensor_apds9960::Setting::ProximityGestureMode,
                                           1));
 
         sensor_apds9960::Database       database(database_admin);
@@ -221,93 +220,93 @@ TEST(Apds9960SensorStandaloneTest, AcceptsKnownApds9960DeviceIds)
 
 TEST(I2cValueFilterTest, ConfirmsChangedValueWithoutTimeThrottle)
 {
-    ValueFilter<1> filter;
+    ProximityFilter filter;
 
-    EXPECT_TRUE(filter.update({ 62 }, 16, 2));
+    EXPECT_TRUE(filter.update({ 62 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
 
-    EXPECT_FALSE(filter.update({ 90 }, 16, 2));
-    EXPECT_TRUE(filter.update({ 91 }, 16, 2));
+    EXPECT_FALSE(filter.update({ 90 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
+    EXPECT_TRUE(filter.update({ 91 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
     EXPECT_EQ(filter.value()[0], 91U);
 }
 
 TEST(I2cValueFilterTest, AcceptsMeaningfulStepsImmediatelyWhileMoving)
 {
-    ValueFilter<1> filter;
+    ProximityFilter filter;
 
-    EXPECT_TRUE(filter.update({ 62 }, 16, 2));
-    EXPECT_FALSE(filter.update({ 90 }, 16, 2));
-    EXPECT_TRUE(filter.update({ 91 }, 16, 2));
+    EXPECT_TRUE(filter.update({ 62 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
+    EXPECT_FALSE(filter.update({ 90 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
+    EXPECT_TRUE(filter.update({ 91 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
 
-    EXPECT_TRUE(filter.update({ 120 }, 16, 2));
+    EXPECT_TRUE(filter.update({ 120 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
     EXPECT_EQ(filter.value()[0], 120U);
 
-    EXPECT_FALSE(filter.update({ 125 }, 16, 2));
-    EXPECT_FALSE(filter.update({ 136 }, 16, 2));
-    EXPECT_TRUE(filter.update({ 137 }, 16, 2));
+    EXPECT_FALSE(filter.update({ 125 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
+    EXPECT_FALSE(filter.update({ 136 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
+    EXPECT_TRUE(filter.update({ 137 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
     EXPECT_EQ(filter.value()[0], 137U);
 }
 
 TEST(I2cValueFilterTest, UsesLowerThresholdWhileMoving)
 {
-    ValueFilter<1> filter;
+    ProximityFilter filter;
 
-    EXPECT_TRUE(filter.update({ 25 }, 16, 2, ValueFilter<1>::ConfirmationMode::Exact, 8));
-    EXPECT_FALSE(filter.update({ 42 }, 16, 2, ValueFilter<1>::ConfirmationMode::Exact, 8));
-    EXPECT_TRUE(filter.update({ 42 }, 16, 2, ValueFilter<1>::ConfirmationMode::Exact, 8));
+    EXPECT_TRUE(filter.update({ 25 }, 16, 2, ProximityFilter::ConfirmationMode::Exact, 8));
+    EXPECT_FALSE(filter.update({ 42 }, 16, 2, ProximityFilter::ConfirmationMode::Exact, 8));
+    EXPECT_TRUE(filter.update({ 42 }, 16, 2, ProximityFilter::ConfirmationMode::Exact, 8));
 
-    EXPECT_TRUE(filter.update({ 51 }, 16, 2, ValueFilter<1>::ConfirmationMode::Exact, 8));
+    EXPECT_TRUE(filter.update({ 51 }, 16, 2, ProximityFilter::ConfirmationMode::Exact, 8));
     EXPECT_EQ(filter.value()[0], 51U);
 
-    EXPECT_FALSE(filter.update({ 55 }, 16, 2, ValueFilter<1>::ConfirmationMode::Exact, 8));
-    EXPECT_FALSE(filter.update({ 62 }, 16, 2, ValueFilter<1>::ConfirmationMode::Exact, 8));
+    EXPECT_FALSE(filter.update({ 55 }, 16, 2, ProximityFilter::ConfirmationMode::Exact, 8));
+    EXPECT_FALSE(filter.update({ 62 }, 16, 2, ProximityFilter::ConfirmationMode::Exact, 8));
 }
 
 TEST(I2cValueFilterTest, RequiresExactRepeatWhenConfigured)
 {
-    ValueFilter<1> filter;
+    ProximityFilter filter;
 
-    EXPECT_TRUE(filter.update({ 5 }, 2, 2, ValueFilter<1>::ConfirmationMode::Exact));
+    EXPECT_TRUE(filter.update({ 5 }, 2, 2, ProximityFilter::ConfirmationMode::Exact, 0));
 
-    EXPECT_FALSE(filter.update({ 7 }, 2, 2, ValueFilter<1>::ConfirmationMode::Exact));
-    EXPECT_FALSE(filter.update({ 8 }, 2, 2, ValueFilter<1>::ConfirmationMode::Exact));
-    EXPECT_TRUE(filter.update({ 8 }, 2, 2, ValueFilter<1>::ConfirmationMode::Exact));
+    EXPECT_FALSE(filter.update({ 7 }, 2, 2, ProximityFilter::ConfirmationMode::Exact, 0));
+    EXPECT_FALSE(filter.update({ 8 }, 2, 2, ProximityFilter::ConfirmationMode::Exact, 0));
+    EXPECT_TRUE(filter.update({ 8 }, 2, 2, ProximityFilter::ConfirmationMode::Exact, 0));
     EXPECT_EQ(filter.value()[0], 8U);
 }
 
 TEST(I2cValueFilterTest, RestartsConfirmationForDifferentChangedValue)
 {
-    ValueFilter<1> filter;
+    ProximityFilter filter;
 
-    EXPECT_TRUE(filter.update({ 62 }, 16, 2));
+    EXPECT_TRUE(filter.update({ 62 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
 
-    EXPECT_FALSE(filter.update({ 90 }, 16, 2));
-    EXPECT_FALSE(filter.update({ 120 }, 16, 2));
-    EXPECT_TRUE(filter.update({ 121 }, 16, 2));
+    EXPECT_FALSE(filter.update({ 90 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
+    EXPECT_FALSE(filter.update({ 120 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
+    EXPECT_TRUE(filter.update({ 121 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
     EXPECT_EQ(filter.value()[0], 121U);
 }
 
 TEST(I2cValueFilterTest, FiltersGroupedJitter)
 {
-    ValueFilter<3> filter;
+    RgbFilter filter;
 
-    EXPECT_TRUE(filter.update({ 483, 352, 338 }, 4, 2, 4));
+    EXPECT_TRUE(filter.update({ 483, 352, 338 }, 4, 2, RgbFilter::ConfirmationMode::Nearby, 4));
 
-    EXPECT_FALSE(filter.update({ 482, 352, 338 }, 4, 2, 4));
-    EXPECT_FALSE(filter.update({ 483, 353, 338 }, 4, 2, 4));
-    EXPECT_FALSE(filter.update({ 483, 352, 339 }, 4, 2, 4));
+    EXPECT_FALSE(filter.update({ 482, 352, 338 }, 4, 2, RgbFilter::ConfirmationMode::Nearby, 4));
+    EXPECT_FALSE(filter.update({ 483, 353, 338 }, 4, 2, RgbFilter::ConfirmationMode::Nearby, 4));
+    EXPECT_FALSE(filter.update({ 483, 352, 339 }, 4, 2, RgbFilter::ConfirmationMode::Nearby, 4));
 }
 
 TEST(I2cValueFilterTest, ConfirmsGroupedChangesThenStreamsMovement)
 {
-    ValueFilter<3> filter;
+    RgbFilter filter;
 
-    EXPECT_TRUE(filter.update({ 483, 352, 338 }, 4, 2, 4));
+    EXPECT_TRUE(filter.update({ 483, 352, 338 }, 4, 2, RgbFilter::ConfirmationMode::Nearby, 4));
 
-    EXPECT_FALSE(filter.update({ 490, 352, 338 }, 4, 2, 4));
-    EXPECT_TRUE(filter.update({ 491, 352, 338 }, 4, 2, 4));
+    EXPECT_FALSE(filter.update({ 490, 352, 338 }, 4, 2, RgbFilter::ConfirmationMode::Nearby, 4));
+    EXPECT_TRUE(filter.update({ 491, 352, 338 }, 4, 2, RgbFilter::ConfirmationMode::Nearby, 4));
     EXPECT_EQ(filter.value()[0], 491U);
 
-    EXPECT_TRUE(filter.update({ 496, 352, 338 }, 4, 2, 4));
+    EXPECT_TRUE(filter.update({ 496, 352, 338 }, 4, 2, RgbFilter::ConfirmationMode::Nearby, 4));
     EXPECT_EQ(filter.value()[0], 496U);
 }
 
@@ -363,30 +362,43 @@ TEST_F(Apds9960SensorTest, ConfiguresGestureThresholdsAndGain)
     EXPECT_EQ(_hwa.registers[APDS9960_REGISTER_GCONF2], APDS9960_DEFAULT_GCONF2);
 }
 
-TEST_F(Apds9960SensorTest, EnablesGestureEngineAlongsideContinuousOutputs)
+TEST_F(Apds9960SensorTest, EnablesGestureMode)
 {
     EXPECT_EQ(_hwa.registers[APDS9960_REGISTER_ENABLE] & APDS9960_ENABLE_GEN, 0U);
     EXPECT_EQ(_hwa.registers[APDS9960_REGISTER_GCONF4] & APDS9960_GCONF4_GMODE, 0U);
 
-    set_apds_output(sensor_apds9960::Setting::EnableGesture, 1);
+    set_apds_output(sensor_apds9960::Setting::ProximityGestureMode, static_cast<uint32_t>(ProximityGestureMode::Gesture));
 
     EXPECT_EQ(_hwa.registers[APDS9960_REGISTER_ENABLE] & APDS9960_ENABLE_GESTURE, APDS9960_ENABLE_GESTURE);
     EXPECT_EQ(_hwa.registers[APDS9960_REGISTER_GCONF4] & APDS9960_GCONF4_GMODE, 0U);
     EXPECT_EQ(_hwa.registers[APDS9960_REGISTER_PPULSE], APDS9960_DEFAULT_PPULSE);
 }
 
-TEST_F(Apds9960SensorTest, GestureSettingDoesNotBlockContinuousRefresh)
+TEST_F(Apds9960SensorTest, GestureModeDisablesProximityButLeavesAlsAndRgb)
 {
-    set_apds_output(sensor_apds9960::Setting::EnableGesture, 1);
+    set_apds_output(sensor_apds9960::Setting::ProximityGestureMode, static_cast<uint32_t>(ProximityGestureMode::Gesture));
 
     update_after(SAMPLE_DELAY_MS);
 
     auto signals = _collector.snapshot();
 
-    EXPECT_EQ(count_signal<signaling::OscSensorProximitySignal>(signals), 1U);
+    EXPECT_EQ(count_signal<signaling::OscSensorProximitySignal>(signals), 0U);
     EXPECT_EQ(count_signal<signaling::OscSensorAmbientLightSignal>(signals), 1U);
     EXPECT_EQ(count_signal<signaling::OscSensorRgbSignal>(signals), 1U);
     EXPECT_EQ(count_signal<signaling::OscSensorGestureSignal>(signals), 0U);
+}
+
+TEST_F(Apds9960SensorTest, GestureModeDoesNotReadProximity)
+{
+    set_apds_output(sensor_apds9960::Setting::EnableAmbientLight, 0);
+    set_apds_output(sensor_apds9960::Setting::EnableRgb, 0);
+    set_apds_output(sensor_apds9960::Setting::ProximityGestureMode, static_cast<uint32_t>(ProximityGestureMode::Gesture));
+    set_sensor_values(24, 62, 32, 25, 19);
+    _hwa.set_u8(APDS9960_REGISTER_STATUS, APDS9960_STATUS_AVALID);
+
+    update_after(SAMPLE_DELAY_MS);
+
+    EXPECT_EQ(count_signal<signaling::OscSensorProximitySignal>(_collector.snapshot()), 0U);
 }
 
 TEST_F(Apds9960SensorTest, DoesNotPublishStaleContinuousRegistersBeforeStatusIsValid)
@@ -500,6 +512,29 @@ TEST_F(Apds9960SensorTest, FiltersProximityNoiseWithoutTimeThrottle)
     EXPECT_EQ(proximity->value, 34);
 }
 
+TEST_F(Apds9960SensorTest, ConfirmsNearbyProximitySamplesWithoutExactRepeat)
+{
+    set_apds_output(sensor_apds9960::Setting::EnableRgb, 0);
+
+    update_after(SAMPLE_DELAY_MS);
+    _collector.clear();
+
+    set_sensor_values(24, 62, 32, 25, 19);
+    update_after(0);
+
+    EXPECT_TRUE(_collector.snapshot().empty());
+
+    set_sensor_values(26, 62, 32, 25, 19);
+    update_after(0);
+
+    auto signals = _collector.snapshot();
+
+    ASSERT_EQ(signals.size(), 1U);
+    const auto* proximity = payload_as<signaling::OscSensorProximitySignal>(signals[0]);
+    ASSERT_NE(proximity, nullptr);
+    EXPECT_EQ(proximity->value, 26);
+}
+
 TEST_F(Apds9960SensorTest, FiltersRgbNoiseAsTupleWithoutTimeThrottle)
 {
     update_after(SAMPLE_DELAY_MS);
@@ -550,9 +585,27 @@ TEST_F(Apds9960SensorTest, FiltersRgbNoiseAsTupleWithoutTimeThrottle)
     EXPECT_EQ(rgb->blue, 338);
 }
 
+TEST_F(Apds9960SensorTest, ReadsAmbientLightAndRgbRegistersInSingleBlock)
+{
+    set_apds_output(sensor_apds9960::Setting::ProximityGestureMode, 0);
+    set_apds_output(sensor_apds9960::Setting::EnableAmbientLight, 1);
+    set_apds_output(sensor_apds9960::Setting::EnableRgb, 1);
+
+    _hwa.write_read_buffers.clear();
+
+    update_after(SAMPLE_DELAY_MS);
+
+    const auto light_start_read = std::vector<uint8_t>{ APDS9960_REGISTER_CDATAL };
+
+    EXPECT_EQ(std::count(_hwa.write_read_buffers.begin(), _hwa.write_read_buffers.end(), light_start_read), 1);
+    EXPECT_EQ(std::count(_hwa.write_read_buffers.begin(), _hwa.write_read_buffers.end(), std::vector<uint8_t>{ APDS9960_REGISTER_RDATAL }), 0);
+    EXPECT_EQ(std::count(_hwa.write_read_buffers.begin(), _hwa.write_read_buffers.end(), std::vector<uint8_t>{ APDS9960_REGISTER_GDATAL }), 0);
+    EXPECT_EQ(std::count(_hwa.write_read_buffers.begin(), _hwa.write_read_buffers.end(), std::vector<uint8_t>{ APDS9960_REGISTER_BDATAL }), 0);
+}
+
 TEST_F(Apds9960SensorTest, ProximityOutputCanBeDisabled)
 {
-    set_apds_output(sensor_apds9960::Setting::EnableProximity, 0);
+    set_apds_output(sensor_apds9960::Setting::ProximityGestureMode, 0);
 
     update_after(SAMPLE_DELAY_MS);
 
@@ -591,7 +644,7 @@ TEST_F(Apds9960SensorTest, RgbOutputCanBeDisabled)
 
 TEST_F(Apds9960SensorTest, PublishesGestureFromFifoEdgePair)
 {
-    set_apds_output(sensor_apds9960::Setting::EnableGesture, 1);
+    set_apds_output(sensor_apds9960::Setting::ProximityGestureMode, static_cast<uint32_t>(ProximityGestureMode::Gesture));
     EXPECT_EQ(_hwa.registers[APDS9960_REGISTER_ENABLE] & APDS9960_ENABLE_GESTURE, APDS9960_ENABLE_GESTURE);
     EXPECT_EQ(_hwa.registers[APDS9960_REGISTER_GCONF4] & APDS9960_GCONF4_GMODE, 0U);
     EXPECT_EQ(_hwa.registers[APDS9960_REGISTER_PPULSE], APDS9960_DEFAULT_PPULSE);
@@ -627,10 +680,10 @@ TEST_F(Apds9960SensorTest, PublishesGestureFromFifoEdgePair)
 
 TEST_F(Apds9960SensorTest, RateLimitsGestureOutput)
 {
-    set_apds_output(sensor_apds9960::Setting::EnableProximity, 0);
+    set_apds_output(sensor_apds9960::Setting::ProximityGestureMode, 0);
     set_apds_output(sensor_apds9960::Setting::EnableAmbientLight, 0);
     set_apds_output(sensor_apds9960::Setting::EnableRgb, 0);
-    set_apds_output(sensor_apds9960::Setting::EnableGesture, 1);
+    set_apds_output(sensor_apds9960::Setting::ProximityGestureMode, static_cast<uint32_t>(ProximityGestureMode::Gesture));
 
     auto set_up_gesture = [this]()
     {

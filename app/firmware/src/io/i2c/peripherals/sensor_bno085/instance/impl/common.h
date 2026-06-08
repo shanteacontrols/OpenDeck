@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "firmware/src/io/i2c/shared/value_filter.h"
+
 #include <array>
 #include <cstddef>
 #include <stdint.h>
@@ -42,4 +44,7 @@ namespace opendeck::firmware::io::i2c::sensor_bno085
     static constexpr uint8_t                STARTUP_READ_RETRIES              = 10;
     static constexpr int32_t                STARTUP_READ_DELAY_MS             = 20;
     static constexpr size_t                 REPORT_COUNT                      = 4;
+
+    using SensorVectorFilter   = ValueFilter<3, int16_t>;
+    using RotationVectorFilter = ValueFilter<4, int16_t>;
 }    // namespace opendeck::firmware::io::i2c::sensor_bno085

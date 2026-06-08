@@ -301,6 +301,7 @@ bool SensorBno085::should_publish(uint8_t report_id, const std::array<int16_t, 4
                                                 values[3] },
                                               ROTATION_VECTOR_PUBLISH_THRESHOLD,
                                               PUBLISH_CONFIRMATION_SAMPLES,
+                                              RotationVectorFilter::ConfirmationMode::Nearby,
                                               ROTATION_VECTOR_PUBLISH_THRESHOLD);
 
     case GYROSCOPE_REPORT_ID:
@@ -309,6 +310,7 @@ bool SensorBno085::should_publish(uint8_t report_id, const std::array<int16_t, 4
                                           values[2] },
                                         GYROSCOPE_PUBLISH_THRESHOLD,
                                         PUBLISH_CONFIRMATION_SAMPLES,
+                                        SensorVectorFilter::ConfirmationMode::Nearby,
                                         GYROSCOPE_PUBLISH_THRESHOLD);
 
     case LINEAR_ACCEL_REPORT_ID:
@@ -317,6 +319,7 @@ bool SensorBno085::should_publish(uint8_t report_id, const std::array<int16_t, 4
                                              values[2] },
                                            LINEAR_ACCEL_PUBLISH_THRESHOLD,
                                            PUBLISH_CONFIRMATION_SAMPLES,
+                                           SensorVectorFilter::ConfirmationMode::Nearby,
                                            LINEAR_ACCEL_PUBLISH_THRESHOLD);
 
     case GRAVITY_REPORT_ID:
@@ -325,6 +328,7 @@ bool SensorBno085::should_publish(uint8_t report_id, const std::array<int16_t, 4
                                         values[2] },
                                       GRAVITY_PUBLISH_THRESHOLD,
                                       PUBLISH_CONFIRMATION_SAMPLES,
+                                      SensorVectorFilter::ConfirmationMode::Nearby,
                                       GRAVITY_PUBLISH_THRESHOLD);
 
     default:

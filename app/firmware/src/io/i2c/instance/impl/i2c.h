@@ -54,10 +54,11 @@ namespace opendeck::firmware::io::i2c
 
         struct PeripheralState
         {
-            Peripheral* instance      = nullptr;
-            bool        initialized   = false;
-            size_t      address_index = 0;
-            int64_t     next_probe_ms = 0;
+            Peripheral* instance       = nullptr;
+            bool        initialized    = false;
+            size_t      address_index  = 0;
+            int64_t     next_probe_ms  = 0;
+            int64_t     next_update_ms = 0;
         };
 
         static inline std::vector<PeripheralState> peripherals = {};

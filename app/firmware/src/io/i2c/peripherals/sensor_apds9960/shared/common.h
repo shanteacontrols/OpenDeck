@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "firmware/src/io/i2c/shared/value_filter.h"
+
 #include <inttypes.h>
 
 namespace opendeck::firmware::io::i2c::sensor_apds9960
@@ -14,13 +16,23 @@ namespace opendeck::firmware::io::i2c::sensor_apds9960
      */
     enum class Setting : uint8_t
     {
-        EnableProximity,
+        ProximityGestureMode,
         EnableAmbientLight,
         EnableRgb,
-        EnableGesture,
         ProximityGain,
         AlsGain,
         Count
     };
 
+    enum class ProximityGestureMode : uint8_t
+    {
+        Disabled,
+        Proximity,
+        Gesture,
+        Count
+    };
+
+    using ProximityFilter    = ValueFilter<1>;
+    using AmbientLightFilter = ValueFilter<1>;
+    using RgbFilter          = ValueFilter<3>;
 }    // namespace opendeck::firmware::io::i2c::sensor_apds9960

@@ -73,7 +73,7 @@ namespace opendeck::firmware::io::i2c::sensor_apds9960
     constexpr inline uint8_t APDS9960_CONTROL_LED_DRIVE_SHIFT      = 6;
     constexpr inline uint8_t APDS9960_CONTROL_PROXIMITY_GAIN_SHIFT = 2;
 
-    constexpr inline uint8_t  APDS9960_DEFAULT_ATIME          = 219;
+    constexpr inline uint8_t  APDS9960_DEFAULT_ATIME          = 246;
     constexpr inline uint8_t  APDS9960_DEFAULT_WTIME          = 246;
     constexpr inline uint8_t  APDS9960_DEFAULT_PPULSE         = 0x87;
     constexpr inline uint8_t  APDS9960_DEFAULT_POFFSET_UR     = 0;

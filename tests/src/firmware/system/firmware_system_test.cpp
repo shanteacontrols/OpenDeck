@@ -348,7 +348,7 @@ TEST_F(SystemTest, FullDatabaseInitialValues)
             }
             else if (i == static_cast<int>(io::i2c::sensor_vl53l4cx::Setting::Response))
             {
-                expected = static_cast<uint32_t>(io::i2c::sensor_vl53l4cx::Response::Stable);
+                expected = static_cast<uint32_t>(io::i2c::sensor_vl53l4cx::Response::Balanced);
             }
             else if (i == static_cast<int>(io::i2c::sensor_vl53l4cx::Setting::DistanceMode))
             {

@@ -6,7 +6,6 @@
 #pragma once
 
 #include "firmware/src/io/i2c/peripherals/sensor_apds9960/instance/impl/deps.h"
-#include "firmware/src/io/i2c/shared/value_filter.h"
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/system/shared/config.h"
 
@@ -47,6 +46,13 @@ namespace opendeck::firmware::io::i2c::sensor_apds9960
         bool update() override;
 
         /**
+         * @brief Returns the APDS9960 update interval.
+         *
+         * @return Minimum time between update() calls in milliseconds.
+         */
+        int64_t update_interval_ms() override;
+
+        /**
          * @brief Deinitializes the sensor runtime state.
          *
          * @return `true` if the sensor was deinitialized.
@@ -71,7 +77,7 @@ namespace opendeck::firmware::io::i2c::sensor_apds9960
         static constexpr uint8_t  PROXIMITY_IDLE_THRESHOLD           = 16;
         static constexpr uint8_t  PROXIMITY_MOVING_THRESHOLD         = 8;
         static constexpr uint8_t  PROXIMITY_CONFIRMATION_SAMPLES     = 2;
-        static constexpr uint16_t AMBIENT_LIGHT_SEND_THRESHOLD       = 16;
+        static constexpr uint16_t AMBIENT_LIGHT_SEND_THRESHOLD       = 8;
         static constexpr uint8_t  AMBIENT_LIGHT_CONFIRMATION_SAMPLES = 2;
         static constexpr uint16_t RGB_IDLE_THRESHOLD                 = 4;
         static constexpr uint16_t RGB_MOVING_THRESHOLD               = 4;
@@ -82,21 +88,21 @@ namespace opendeck::firmware::io::i2c::sensor_apds9960
         static constexpr int64_t  GESTURE_SEND_COOLDOWN_MS           = 700;
         static constexpr uint8_t  READ_FAILURE_LIMIT                 = 3;
 
-        Hwa&           _hwa;
-        Database&      _database;
-        bool           _found                      = false;
-        bool           _initialized                = false;
-        uint8_t        _read_failure_count         = 0;
-        size_t         _selected_i2c_address_index = 0;
-        ValueFilter<1> _proximity_filter           = {};
-        ValueFilter<1> _ambient_light_filter       = {};
-        ValueFilter<3> _rgb_filter                 = {};
-        int64_t        _last_gesture_send_ms       = 0;
-        int64_t        _gesture_start_ms           = 0;
-        bool           _gesture_up_started         = false;
-        bool           _gesture_down_started       = false;
-        bool           _gesture_left_started       = false;
-        bool           _gesture_right_started      = false;
+        Hwa&               _hwa;
+        Database&          _database;
+        bool               _found                      = false;
+        bool               _initialized                = false;
+        uint8_t            _read_failure_count         = 0;
+        size_t             _selected_i2c_address_index = 0;
+        ProximityFilter    _proximity_filter           = {};
+        AmbientLightFilter _ambient_light_filter       = {};
+        RgbFilter          _rgb_filter                 = {};
+        int64_t            _last_gesture_send_ms       = 0;
+        int64_t            _gesture_start_ms           = 0;
+        bool               _gesture_up_started         = false;
+        bool               _gesture_down_started       = false;
+        bool               _gesture_left_started       = false;
+        bool               _gesture_right_started      = false;
 
         /**
          * @brief Configures proximity, gesture, and color sensing.
@@ -122,11 +128,11 @@ namespace opendeck::firmware::io::i2c::sensor_apds9960
         bool output_enabled(Setting setting);
 
         /**
-         * @brief Returns true when APDS9960 gesture output is enabled.
+         * @brief Returns current APDS9960 proximity/gesture mode.
          *
-         * @return `true` when gesture output is enabled.
+         * @return Selected mutually-exclusive proximity/gesture mode.
          */
-        bool gesture_engine_enabled();
+        ProximityGestureMode proximity_gesture_mode();
 
         /**
          * @brief Builds the APDS9960 CONTROL register value.
@@ -174,6 +180,13 @@ namespace opendeck::firmware::io::i2c::sensor_apds9960
         bool read_register_block(uint8_t reg, std::span<uint8_t> buffer);
 
         /**
+         * @brief Returns true while transient I2C read failures should keep the peripheral alive.
+         *
+         * @return `true` until the consecutive read failure limit marks the sensor disconnected.
+         */
+        bool recoverable_i2c_read_failure() const;
+
+        /**
          * @brief Clears consecutive I2C failure state after a successful transfer.
          */
         void record_i2c_success();
@@ -193,7 +206,7 @@ namespace opendeck::firmware::io::i2c::sensor_apds9960
          *
          * @return `true` if the sensor is still usable.
          */
-        bool read_proximity();
+        bool read_proximity(uint8_t status);
 
         /**
          * @brief Reads and publishes one gesture event when ready.
@@ -203,18 +216,11 @@ namespace opendeck::firmware::io::i2c::sensor_apds9960
         bool read_gesture();
 
         /**
-         * @brief Reads and publishes one RGB value tuple when ready.
+         * @brief Reads and publishes ambient light and RGB values when ready.
          *
          * @return `true` if the sensor is still usable.
          */
-        bool read_rgb();
-
-        /**
-         * @brief Reads and publishes one ambient light value when ready.
-         *
-         * @return `true` if the sensor is still usable.
-         */
-        bool read_ambient_light();
+        bool read_ambient_light_and_rgb(uint8_t status);
 
         /**
          * @brief Reads and decodes one gesture event from the sensor FIFO if available.

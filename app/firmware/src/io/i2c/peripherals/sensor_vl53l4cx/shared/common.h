@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "firmware/src/io/i2c/shared/value_filter.h"
+
 #include <inttypes.h>
 
 namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
@@ -54,4 +56,5 @@ namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
         Count
     };
 
+    using DistanceFilter = ValueFilter<1>;
 }    // namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
