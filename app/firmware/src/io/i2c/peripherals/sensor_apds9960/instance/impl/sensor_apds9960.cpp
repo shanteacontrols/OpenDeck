@@ -174,7 +174,7 @@ constexpr std::string_view SensorApds9960::name() const
 
 int64_t SensorApds9960::update_interval_ms()
 {
-    return 30;
+    return APDS9960_UPDATE_INTERVAL_MS;
 }
 
 std::span<const uint8_t> SensorApds9960::i2c_addresses() const
@@ -258,17 +258,17 @@ bool SensorApds9960::read_ambient_light_and_rgb(uint8_t status)
         return true;
     }
 
-    std::array<uint8_t, 8> light = {};
+    std::array<uint8_t, APDS9960_LIGHT_DATA_SIZE> light = {};
 
     if (!read_register_block(APDS9960_REGISTER_CDATAL, std::span<uint8_t>(light)))
     {
         return recoverable_i2c_read_failure();
     }
 
-    const auto ambient_light = sys_get_le16(&light[0]);
-    const auto red           = sys_get_le16(&light[2]);
-    const auto green         = sys_get_le16(&light[4]);
-    const auto blue          = sys_get_le16(&light[6]);
+    const auto ambient_light = sys_get_le16(light.data());
+    const auto red           = sys_get_le16(light.data() + 2);
+    const auto green         = sys_get_le16(light.data() + 4);
+    const auto blue          = sys_get_le16(light.data() + 6);
 
     if (ambient_light_enabled &&
         _ambient_light_filter.update({ ambient_light },

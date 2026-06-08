@@ -26,8 +26,6 @@ Mapper::Result Mapper::proximity_result(uint8_t value) const
 
 Mapper::Result Mapper::ambient_light_result(uint16_t value) const
 {
-    const auto info = read_database_info();
-
     return {
         .osc = {
             .payload = opendeck::firmware::signaling::OscSensorAmbientLightSignal{
@@ -40,8 +38,6 @@ Mapper::Result Mapper::ambient_light_result(uint16_t value) const
 
 Mapper::Result Mapper::rgb_result(uint16_t red, uint16_t green, uint16_t blue) const
 {
-    const auto info = read_database_info();
-
     return {
         .osc = {
             .payload = opendeck::firmware::signaling::OscSensorRgbSignal{

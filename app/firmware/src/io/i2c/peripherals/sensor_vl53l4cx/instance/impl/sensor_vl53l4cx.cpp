@@ -25,6 +25,7 @@ namespace
     constexpr uint32_t RESPONSE_FAST_TIMING_BUDGET_US     = 33333;
     constexpr uint32_t RESPONSE_BALANCED_TIMING_BUDGET_US = 66000;
     constexpr uint32_t RESPONSE_STABLE_TIMING_BUDGET_US   = 100000;
+    constexpr uint32_t MICROSECONDS_PER_MILLISECOND       = 1000;
     constexpr int32_t  SOFT_RESET_DELAY_MS                = 100;
     constexpr uint8_t  SOFT_RESET_ASSERTED                = 0x00;
     constexpr uint8_t  SOFT_RESET_RELEASED                = 0x01;
@@ -59,7 +60,7 @@ namespace
 
         const auto timing_budget_us = response_timing_budget_us(response);
 
-        return static_cast<int64_t>((timing_budget_us + SCAN_MARGIN) / 1000);
+        return static_cast<int64_t>((timing_budget_us + SCAN_MARGIN) / MICROSECONDS_PER_MILLISECOND);
     }
 
     constexpr VL53L4CX_DistanceModes driver_distance_mode(DistanceMode mode)

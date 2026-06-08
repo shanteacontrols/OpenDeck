@@ -6,6 +6,7 @@
 #pragma once
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
 
 namespace opendeck::firmware::io::i2c::sensor_apds9960
@@ -72,6 +73,9 @@ namespace opendeck::firmware::io::i2c::sensor_apds9960
 
     constexpr inline uint8_t APDS9960_CONTROL_LED_DRIVE_SHIFT      = 6;
     constexpr inline uint8_t APDS9960_CONTROL_PROXIMITY_GAIN_SHIFT = 2;
+
+    constexpr inline int64_t APDS9960_UPDATE_INTERVAL_MS = 30;
+    constexpr inline size_t  APDS9960_LIGHT_DATA_SIZE    = 8;
 
     constexpr inline uint8_t  APDS9960_DEFAULT_ATIME          = 246;
     constexpr inline uint8_t  APDS9960_DEFAULT_WTIME          = 246;
