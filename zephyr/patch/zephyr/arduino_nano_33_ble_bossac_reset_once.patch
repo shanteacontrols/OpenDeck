@@ -15,4 +15,4 @@ index b1cbb7a9212..195592db592 100644
 +      run: last
 +      groups:
 +      - boards:
-+        - arduino_nano_33_ble/nrf52840
++        - arduino_nano_33_ble(@[^/]+)?/nrf52840
