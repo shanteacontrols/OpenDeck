@@ -19,3 +19,9 @@ opendeck_uart_touchscreen: &uart1 {};
         din-out-gpios = <&gpio0 13 GPIO_ACTIVE_HIGH>;
     };
 };
+
+&flash0 {
+    partitions {
+        /delete-node/ partition@1c0000;
+    };
+};

@@ -41,31 +41,31 @@
         slot1_partition: partition@c000 {
             compatible = "zephyr,mapped-partition";
             label = "image-1";
-            reg = <0x0000c000 0x00010000>;
+            reg = <0x0000c000 0x00040000>;
         };
 
-        slot0_partition: partition@1c000 {
+        slot0_partition: partition@4c000 {
             compatible = "zephyr,mapped-partition";
             label = "image-0";
-            reg = <0x0001c000 0x00310000>;
+            reg = <0x0004c000 0x00080000>;
         };
 
-        factory_partition: partition@340000 {
+        factory_partition: partition@cc000 {
             compatible = "zephyr,mapped-partition";
             label = "factory";
-            reg = <0x00340000 0x00020000>;
+            reg = <0x000cc000 0x00020000>;
         };
 
-        emueeprom_page1_partition: partition@360000 {
+        emueeprom_page1_partition: partition@ec000 {
             compatible = "zephyr,mapped-partition";
             label = "emueeprom-page1";
-            reg = <0x00360000 0x00020000>;
+            reg = <0x000ec000 0x00020000>;
         };
 
-        emueeprom_page2_partition: partition@380000 {
+        emueeprom_page2_partition: partition@10c000 {
             compatible = "zephyr,mapped-partition";
             label = "emueeprom-page2";
-            reg = <0x00380000 0x00020000>;
+            reg = <0x0010c000 0x00020000>;
         };
     };
 };

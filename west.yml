@@ -21,7 +21,7 @@ manifest:
       submodules: true
     - name: zlibs
       remote: paradajz
-      revision: 26fc27be354b4f9e2e9475c5084c324aafb9b9a4
+      revision: e4f650f94ac1268c027e82f3b53de99d34a19456
       path: modules/zlibs
     - name: vl53l4cx
       remote: stm32duino

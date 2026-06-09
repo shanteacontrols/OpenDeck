@@ -34,22 +34,22 @@
 
         slot0_partition: partition@30000 {
             label = "image-0";
-            reg = <0x00030000 0x001a0000>;
+            reg = <0x00030000 0x00100000>;
         };
 
-        factory_partition: partition@1d0000 {
+        factory_partition: partition@130000 {
             label = "factory";
-            reg = <0x001d0000 0x00010000>;
+            reg = <0x00130000 0x00020000>;
         };
 
-        emueeprom_page1_partition: partition@1e0000 {
+        emueeprom_page1_partition: partition@150000 {
             label = "emueeprom-page1";
-            reg = <0x001e0000 0x00010000>;
+            reg = <0x00150000 0x00020000>;
         };
 
-        emueeprom_page2_partition: partition@1f0000 {
+        emueeprom_page2_partition: partition@170000 {
             label = "emueeprom-page2";
-            reg = <0x001f0000 0x00010000>;
+            reg = <0x00170000 0x00020000>;
         };
     };
 };

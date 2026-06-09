@@ -63,9 +63,11 @@ namespace opendeck::firmware::database
         static constexpr size_t EMUEEPROM_PAGE2_PARTITION_SIZE   = PARTITION_SIZE(emueeprom_page2_partition);
         static constexpr size_t EMUEEPROM_FACTORY_PARTITION_SIZE = PARTITION_SIZE(factory_partition);
 
-        static_assert((EMUEEPROM_PAGE1_PARTITION_SIZE == EMUEEPROM_PAGE2_PARTITION_SIZE) &&
-                          (EMUEEPROM_PAGE1_PARTITION_SIZE == EMUEEPROM_FACTORY_PARTITION_SIZE),
-                      "EmuEEPROM partitions must have matching physical sizes.");
+        static_assert(EMUEEPROM_PAGE1_PARTITION_SIZE == EMUEEPROM_PAGE2_PARTITION_SIZE,
+                      "EmuEEPROM runtime partitions must have matching physical sizes.");
+
+        static_assert(EMUEEPROM_FACTORY_PARTITION_SIZE >= EMUEEPROM_PAGE1_PARTITION_SIZE,
+                      "EmuEEPROM factory partition must be at least as large as one runtime partition.");
 
         static_assert(CONFIG_PROJECT_TARGET_EMUEEPROM_PAGE_SIZE == EMUEEPROM_PAGE1_PARTITION_SIZE,
                       "Resolved target EmuEEPROM page size must match the physical EmuEEPROM partition size.");

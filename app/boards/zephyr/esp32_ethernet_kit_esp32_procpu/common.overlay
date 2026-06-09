@@ -63,7 +63,7 @@
         staged_dfu_partition: partition@1c0000 {
             compatible = "zephyr,mapped-partition";
             label = "staged-dfu";
-            reg = <0x001c0000 0x00240000>;
+            reg = <0x001c0000 0x00100000>;
         };
     };
 };

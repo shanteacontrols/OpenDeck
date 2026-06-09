@@ -62,28 +62,28 @@
             reg = <0x0004c000 0x00080000>;
         };
 
-        staged_dfu_partition: partition@cc000 {
-            compatible = "zephyr,mapped-partition";
-            label = "staged-dfu";
-            reg = <0x000cc000 0x00080000>;
-        };
-
-        factory_partition: partition@14c000 {
+        factory_partition: partition@cc000 {
             compatible = "zephyr,mapped-partition";
             label = "factory";
-            reg = <0x0014c000 0x00020000>;
+            reg = <0x000cc000 0x00020000>;
         };
 
-        emueeprom_page1_partition: partition@16c000 {
+        emueeprom_page1_partition: partition@ec000 {
             compatible = "zephyr,mapped-partition";
             label = "emueeprom-page1";
-            reg = <0x0016c000 0x00020000>;
+            reg = <0x000ec000 0x00020000>;
         };
 
-        emueeprom_page2_partition: partition@18c000 {
+        emueeprom_page2_partition: partition@10c000 {
             compatible = "zephyr,mapped-partition";
             label = "emueeprom-page2";
-            reg = <0x0018c000 0x00020000>;
+            reg = <0x0010c000 0x00020000>;
+        };
+
+        staged_dfu_partition: partition@12c000 {
+            compatible = "zephyr,mapped-partition";
+            label = "staged-dfu";
+            reg = <0x0012c000 0x00080000>;
         };
     };
 };
