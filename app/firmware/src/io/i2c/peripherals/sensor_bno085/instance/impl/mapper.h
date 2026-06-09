@@ -32,6 +32,15 @@ namespace opendeck::firmware::io::i2c::sensor_bno085
         };
 
         /**
+         * @brief Creates a mapper backed by the BNO085 database settings.
+         *
+         * @param database Sensor database facade used to read output enable flags.
+         */
+        explicit Mapper(Database& database)
+            : _database(database)
+        {}
+
+        /**
          * @brief Returns mapped OSC results for one BNO085 report.
          *
          * @param report_id Sensor report ID.
@@ -42,6 +51,24 @@ namespace opendeck::firmware::io::i2c::sensor_bno085
         std::optional<Result> result(uint8_t report_id, const std::array<int16_t, 4>& values) const;
 
         private:
+        struct DatabaseInfo
+        {
+            bool quaternion_enabled          = false;
+            bool euler_enabled               = false;
+            bool gyroscope_enabled           = false;
+            bool linear_acceleration_enabled = false;
+            bool gravity_enabled             = false;
+        };
+
+        Database& _database;
+
+        /**
+         * @brief Reads runtime output-enable configuration from the database.
+         *
+         * @return Database-backed runtime info for BNO085 output mapping.
+         */
+        DatabaseInfo read_database_info() const;
+
         /**
          * @brief Converts one fixed-point sensor value to float.
          *

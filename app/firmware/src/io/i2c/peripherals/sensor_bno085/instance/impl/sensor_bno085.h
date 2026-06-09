@@ -8,8 +8,10 @@
 #include "firmware/src/io/i2c/peripherals/sensor_bno085/instance/impl/deps.h"
 #include "firmware/src/io/i2c/peripherals/sensor_bno085/instance/impl/mapper.h"
 #include "firmware/src/signaling/signaling.h"
+#include "firmware/src/system/shared/config.h"
 
 #include <array>
+#include <optional>
 #include <stddef.h>
 #include <string_view>
 
@@ -26,7 +28,7 @@ namespace opendeck::firmware::io::i2c::sensor_bno085
          *
          * @param hwa Hardware abstraction used to communicate with the sensor.
          */
-        explicit SensorBno085(Hwa& hwa);
+        explicit SensorBno085(Hwa& hwa, Database& database);
 
         /**
          * @brief Initializes BNO085 at one supported I2C address.
@@ -67,7 +69,8 @@ namespace opendeck::firmware::io::i2c::sensor_bno085
 
         private:
         Hwa&                 _hwa;
-        Mapper               _mapper                     = {};
+        Database&            _database;
+        Mapper               _mapper;
         bool                 _initialized                = false;
         size_t               _selected_i2c_address_index = 0;
         uint8_t              _control_sequence           = 0;
@@ -114,6 +117,15 @@ namespace opendeck::firmware::io::i2c::sensor_bno085
         bool enable_report(uint8_t report_id);
 
         /**
+         * @brief Returns whether a BNO085 data output is enabled.
+         *
+         * @param setting Output enable setting.
+         *
+         * @return `true` when the output should be published.
+         */
+        bool output_enabled(Setting setting) const;
+
+        /**
          * @brief Reads and publishes one enabled sensor report when available.
          *
          * @return `true` if the sensor is still usable.
@@ -143,6 +155,28 @@ namespace opendeck::firmware::io::i2c::sensor_bno085
          * @return `true` when the report should be published.
          */
         bool should_publish(uint8_t report_id, const std::array<int16_t, 4>& values);
+
+        /**
+         * @brief Reads one BNO085 SysEx setting.
+         *
+         * @param section I2C SysEx section.
+         * @param index Setting index.
+         * @param value Output setting value.
+         *
+         * @return SysEx status when the section is handled.
+         */
+        std::optional<uint8_t> sys_config_get(sys::Config::Section::I2c section, size_t index, uint16_t& value);
+
+        /**
+         * @brief Writes one BNO085 SysEx setting.
+         *
+         * @param section I2C SysEx section.
+         * @param index Setting index.
+         * @param value New setting value.
+         *
+         * @return SysEx status when the section is handled.
+         */
+        std::optional<uint8_t> sys_config_set(sys::Config::Section::I2c section, size_t index, uint16_t value);
 
         /**
          * @brief Reads one signed little-endian 16-bit value from a report.

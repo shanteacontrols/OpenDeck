@@ -12,6 +12,7 @@
 #include "firmware/src/io/outputs/shared/common.h"
 #include "firmware/src/io/i2c/peripherals/display/shared/common.h"
 #include "firmware/src/io/i2c/peripherals/sensor_apds9960/shared/common.h"
+#include "firmware/src/io/i2c/peripherals/sensor_bno085/shared/common.h"
 #include "firmware/src/io/i2c/peripherals/sensor_cap1188/shared/common.h"
 #include "firmware/src/io/i2c/peripherals/sensor_vl53l4cx/shared/common.h"
 #include "firmware/src/io/touchscreen/shared/common.h"
@@ -35,7 +36,7 @@ namespace opendeck::firmware::sys
         static constexpr size_t ENCODER_SECTION_COUNT     = 13;
         static constexpr size_t ANALOG_SECTION_COUNT      = 12;
         static constexpr size_t OUTPUT_SECTION_COUNT      = 8;
-        static constexpr size_t I2C_SECTION_COUNT         = 4;
+        static constexpr size_t I2C_SECTION_COUNT         = 5;
         static constexpr size_t TOUCHSCREEN_SECTION_COUNT = 9;
         static constexpr size_t BLOCK_COUNT               = 7;
         static constexpr size_t CUSTOM_REQUEST_COUNT      = 14;
@@ -297,6 +298,11 @@ namespace opendeck::firmware::sys
             zlibs::utils::sysex_conf::Section(static_cast<uint16_t>(io::i2c::sensor_cap1188::Setting::Count),
                                               0,
                                               0),
+
+            // BNO085 section
+            zlibs::utils::sysex_conf::Section(static_cast<uint16_t>(io::i2c::sensor_bno085::Setting::Count),
+                                              0,
+                                              1),
         });
 
         static constexpr auto TOUCHSCREEN_SECTIONS = zlibs::utils::sysex_conf::make_block(std::array<zlibs::utils::sysex_conf::Section, TOUCHSCREEN_SECTION_COUNT>{

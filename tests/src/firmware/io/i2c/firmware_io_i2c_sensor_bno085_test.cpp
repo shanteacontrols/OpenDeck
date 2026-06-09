@@ -4,11 +4,14 @@
  */
 
 #include "tests/shared/common.h"
+#include "tests/shared/helpers/database.h"
 
+#include "firmware/src/database/builder/builder.h"
 #include "firmware/src/io/i2c/hwa/test/hwa_test.h"
 #include "firmware/src/io/i2c/peripherals/sensor_bno085/instance/impl/mapper.h"
 #include "firmware/src/io/i2c/peripherals/sensor_bno085/instance/impl/sensor_bno085.h"
 #include "firmware/src/signaling/signaling.h"
+#include "firmware/src/util/configurable/configurable.h"
 
 #include <variant>
 #include <vector>
@@ -26,10 +29,53 @@ namespace
         void SetUp() override
         {
             _hwa.read_data = { 0x05, 0x00, 0x01, 0x00 };
+
+            ASSERT_TRUE(_database_admin.init(_handlers));
+            ASSERT_TRUE(_database_admin.factory_reset());
         }
 
-        HwaTest      _hwa;
-        SensorBno085 _sensor = SensorBno085(_hwa);
+        void TearDown() override
+        {
+            ConfigHandler.clear();
+            signaling::clear_registry();
+        }
+
+        void set_mapping(Setting setting, uint32_t value)
+        {
+            ASSERT_TRUE(_database_admin.update(database::Config::Section::I2c::Bno085,
+                                               setting,
+                                               value));
+        }
+
+        tests::NoOpDatabaseHandlers _handlers;
+        database::Builder           _database_builder;
+        database::Admin&            _database_admin = _database_builder.instance();
+        HwaTest                     _hwa;
+        sensor_bno085::Database     _database = sensor_bno085::Database(_database_admin);
+        SensorBno085                _sensor   = SensorBno085(_hwa, _database);
+    };
+
+    class Bno085MapperTest : public ::testing::Test
+    {
+        protected:
+        void SetUp() override
+        {
+            ASSERT_TRUE(_database_admin.init(_handlers));
+            ASSERT_TRUE(_database_admin.factory_reset());
+        }
+
+        void set_mapping(Setting setting, uint32_t value)
+        {
+            ASSERT_TRUE(_database_admin.update(database::Config::Section::I2c::Bno085,
+                                               setting,
+                                               value));
+        }
+
+        tests::NoOpDatabaseHandlers _handlers;
+        database::Builder           _database_builder;
+        database::Admin&            _database_admin = _database_builder.instance();
+        sensor_bno085::Database     _database       = sensor_bno085::Database(_database_admin);
+        Mapper                      _mapper         = Mapper(_database);
     };
 
     template<typename Payload>
@@ -39,17 +85,18 @@ namespace
     }
 }    // namespace
 
-TEST(Bno085MapperTest, MapsRotationVectorToQuaternionAndEuler)
+TEST_F(Bno085MapperTest, MapsRotationVectorToQuaternionAndEuler)
 {
-    Mapper mapper;
+    set_mapping(Setting::EnableQuaternion, 1);
+    set_mapping(Setting::EnableEuler, 1);
 
-    const auto result = mapper.result(ROTATION_VECTOR_REPORT_ID,
-                                      {
-                                          ROTATION_VECTOR_SCALE,
-                                          0,
-                                          0,
-                                          0,
-                                      });
+    const auto result = _mapper.result(ROTATION_VECTOR_REPORT_ID,
+                                       {
+                                           ROTATION_VECTOR_SCALE,
+                                           0,
+                                           0,
+                                           0,
+                                       });
 
     ASSERT_TRUE(result.has_value());
     ASSERT_TRUE(result->quaternion.has_value());
@@ -69,31 +116,33 @@ TEST(Bno085MapperTest, MapsRotationVectorToQuaternionAndEuler)
     EXPECT_FLOAT_EQ(euler->roll, 180.0F);
 }
 
-TEST(Bno085MapperTest, MapsVectorReports)
+TEST_F(Bno085MapperTest, MapsVectorReports)
 {
-    Mapper mapper;
+    set_mapping(Setting::EnableGyroscope, 1);
+    set_mapping(Setting::EnableLinearAcceleration, 1);
+    set_mapping(Setting::EnableGravity, 1);
 
-    const auto gyro    = mapper.result(GYROSCOPE_REPORT_ID,
-                                       {
-                                           GYROSCOPE_SCALE,
-                                           GYROSCOPE_SCALE / 2,
-                                           -GYROSCOPE_SCALE,
-                                           0,
-                                       });
-    const auto accel   = mapper.result(LINEAR_ACCEL_REPORT_ID,
-                                       {
-                                           ACCELERATION_SCALE,
-                                           ACCELERATION_SCALE / 2,
-                                           -ACCELERATION_SCALE,
-                                           0,
-                                       });
-    const auto gravity = mapper.result(GRAVITY_REPORT_ID,
-                                       {
-                                           ACCELERATION_SCALE,
-                                           ACCELERATION_SCALE / 2,
-                                           -ACCELERATION_SCALE,
-                                           0,
-                                       });
+    const auto gyro    = _mapper.result(GYROSCOPE_REPORT_ID,
+                                        {
+                                            GYROSCOPE_SCALE,
+                                            GYROSCOPE_SCALE / 2,
+                                            -GYROSCOPE_SCALE,
+                                            0,
+                                        });
+    const auto accel   = _mapper.result(LINEAR_ACCEL_REPORT_ID,
+                                        {
+                                            ACCELERATION_SCALE,
+                                            ACCELERATION_SCALE / 2,
+                                            -ACCELERATION_SCALE,
+                                            0,
+                                        });
+    const auto gravity = _mapper.result(GRAVITY_REPORT_ID,
+                                        {
+                                            ACCELERATION_SCALE,
+                                            ACCELERATION_SCALE / 2,
+                                            -ACCELERATION_SCALE,
+                                            0,
+                                        });
 
     ASSERT_TRUE(gyro.has_value());
     ASSERT_TRUE(accel.has_value());
@@ -120,11 +169,15 @@ TEST(Bno085MapperTest, MapsVectorReports)
     EXPECT_FLOAT_EQ(gravity_payload->z, -1.0F);
 }
 
-TEST(Bno085MapperTest, IgnoresUnknownReports)
+TEST_F(Bno085MapperTest, SkipsDisabledOutputs)
 {
-    Mapper mapper;
+    EXPECT_FALSE(_mapper.result(ROTATION_VECTOR_REPORT_ID, {}).has_value());
+    EXPECT_FALSE(_mapper.result(GYROSCOPE_REPORT_ID, {}).has_value());
+}
 
-    EXPECT_FALSE(mapper.result(0xFF, {}).has_value());
+TEST_F(Bno085MapperTest, IgnoresUnknownReports)
+{
+    EXPECT_FALSE(_mapper.result(0xFF, {}).has_value());
 }
 
 TEST_F(Bno085SensorTest, ReportsSupportedI2cAddresses)
@@ -144,6 +197,26 @@ TEST_F(Bno085SensorTest, RejectsInvalidAddressIndex)
 
 TEST_F(Bno085SensorTest, InitializesSelectedAddress)
 {
+    EXPECT_TRUE(_sensor.init(1));
+    EXPECT_TRUE(_sensor.update());
+
+    ASSERT_EQ(_hwa.write_addresses.size(), 1U);
+    ASSERT_EQ(_hwa.read_addresses.size(), 2U);
+    EXPECT_EQ(_hwa.write_addresses[0], I2C_ADDRESSES[1]);
+    EXPECT_EQ(_hwa.read_addresses[0], I2C_ADDRESSES[1]);
+    EXPECT_EQ(_hwa.read_addresses[1], I2C_ADDRESSES[1]);
+    ASSERT_EQ(_hwa.last_write.size(), SHTP_SOFT_RESET.size());
+    EXPECT_EQ(_hwa.last_write[0], SHTP_SOFT_RESET[0]);
+}
+
+TEST_F(Bno085SensorTest, EnablesConfiguredReports)
+{
+    set_mapping(Setting::EnableQuaternion, 1);
+    set_mapping(Setting::EnableEuler, 1);
+    set_mapping(Setting::EnableGyroscope, 1);
+    set_mapping(Setting::EnableLinearAcceleration, 1);
+    set_mapping(Setting::EnableGravity, 1);
+
     EXPECT_TRUE(_sensor.init(1));
     EXPECT_TRUE(_sensor.update());
 

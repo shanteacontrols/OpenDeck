@@ -32,7 +32,8 @@ namespace opendeck::firmware::io::i2c
         BuilderPeripherals(HwaPeripheral& hwa, database::Admin& database)
             : _sensor_apds9960_database(database)
             , _sensor_apds9960(hwa, _sensor_apds9960_database)
-            , _sensor_bno085(hwa)
+            , _sensor_bno085_database(database)
+            , _sensor_bno085(hwa, _sensor_bno085_database)
             , _sensor_cap1188_database(database)
             , _sensor_cap1188(hwa, _sensor_cap1188_database)
             , _sensor_vl53l4cx_database(database)
@@ -51,6 +52,7 @@ namespace opendeck::firmware::io::i2c
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_OSC
         sensor_apds9960::Database       _sensor_apds9960_database;
         sensor_apds9960::SensorApds9960 _sensor_apds9960;
+        sensor_bno085::Database         _sensor_bno085_database;
         sensor_bno085::SensorBno085     _sensor_bno085;
         sensor_cap1188::Database        _sensor_cap1188_database;
         sensor_cap1188::SensorCap1188   _sensor_cap1188;

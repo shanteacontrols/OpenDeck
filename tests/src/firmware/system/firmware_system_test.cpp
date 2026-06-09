@@ -15,6 +15,7 @@
 #include "firmware/src/io/digital/switches/shared/common.h"
 #include "firmware/src/io/i2c/peripherals/display/shared/common.h"
 #include "firmware/src/io/i2c/peripherals/sensor_apds9960/shared/common.h"
+#include "firmware/src/io/i2c/peripherals/sensor_bno085/shared/common.h"
 #include "firmware/src/io/i2c/peripherals/sensor_cap1188/shared/common.h"
 #include "firmware/src/io/i2c/peripherals/sensor_vl53l4cx/shared/common.h"
 #include "firmware/src/io/outputs/shared/common.h"
@@ -376,6 +377,11 @@ TEST_F(SystemTest, FullDatabaseInitialValues)
             }
 
             verify(expected, database::Config::Section::I2c::Cap1188, i);
+        }
+
+        for (int i = 0; i < static_cast<uint8_t>(io::i2c::sensor_bno085::Setting::Count); i++)
+        {
+            verify(0, database::Config::Section::I2c::Bno085, i);
         }
 #endif
 #endif

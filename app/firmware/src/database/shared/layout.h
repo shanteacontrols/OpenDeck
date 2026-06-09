@@ -13,6 +13,7 @@
 #include "firmware/src/io/outputs/shared/common.h"
 #include "firmware/src/io/touchscreen/shared/common.h"
 #include "firmware/src/io/i2c/peripherals/sensor_apds9960/shared/common.h"
+#include "firmware/src/io/i2c/peripherals/sensor_bno085/shared/common.h"
 #include "firmware/src/io/i2c/peripherals/sensor_cap1188/shared/common.h"
 #include "firmware/src/io/i2c/peripherals/sensor_vl53l4cx/shared/common.h"
 #include "common/src/protocols/mdns/shared/common.h"
@@ -386,6 +387,12 @@ namespace opendeck::firmware::database
             // CAP1188
             Section(
                 static_cast<uint8_t>(io::i2c::sensor_cap1188::Setting::Count),
+                SectionParameterType::Byte,
+                PreserveSetting::Disable,
+                AutoIncrementSetting::Disable),
+            // BNO085
+            Section(
+                static_cast<uint8_t>(io::i2c::sensor_bno085::Setting::Count),
                 SectionParameterType::Byte,
                 PreserveSetting::Disable,
                 AutoIncrementSetting::Disable),

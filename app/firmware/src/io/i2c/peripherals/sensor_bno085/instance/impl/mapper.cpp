@@ -14,10 +14,11 @@ using namespace opendeck::firmware;
 
 std::optional<Mapper::Result> Mapper::result(uint8_t report_id, const std::array<int16_t, 4>& values) const
 {
-    const auto x = values[0];
-    const auto y = values[1];
-    const auto z = values[2];
-    const auto w = values[3];
+    const auto info = read_database_info();
+    const auto x    = values[0];
+    const auto y    = values[1];
+    const auto z    = values[2];
+    const auto w    = values[3];
 
     Result result = {};
 
@@ -25,49 +26,65 @@ std::optional<Mapper::Result> Mapper::result(uint8_t report_id, const std::array
     {
     case ROTATION_VECTOR_REPORT_ID:
     {
+        if (!info.quaternion_enabled && !info.euler_enabled)
+        {
+            return {};
+        }
+
         const float real = normalize(w, ROTATION_VECTOR_SCALE);
         const float i    = normalize(x, ROTATION_VECTOR_SCALE);
         const float j    = normalize(y, ROTATION_VECTOR_SCALE);
         const float k    = normalize(z, ROTATION_VECTOR_SCALE);
 
-        result.quaternion.emplace(signaling::OscSensorSignal{
-            .payload = signaling::OscSensorImuQuaternionSignal{
-                .real = real,
-                .i    = i,
-                .j    = j,
-                .k    = k,
-            },
-            .direction = signaling::SignalDirection::Out,
-        });
+        if (info.quaternion_enabled)
+        {
+            result.quaternion.emplace(signaling::OscSensorSignal{
+                .payload = signaling::OscSensorImuQuaternionSignal{
+                    .real = real,
+                    .i    = i,
+                    .j    = j,
+                    .k    = k,
+                },
+                .direction = signaling::SignalDirection::Out,
+            });
+        }
 
-        const float real_squared = real * real;
-        const float i_squared    = i * i;
-        const float j_squared    = j * j;
-        const float k_squared    = k * k;
-        const float norm         = real_squared + i_squared + j_squared + k_squared;
+        if (info.euler_enabled)
+        {
+            const float real_squared = real * real;
+            const float i_squared    = i * i;
+            const float j_squared    = j * j;
+            const float k_squared    = k * k;
+            const float norm         = real_squared + i_squared + j_squared + k_squared;
 
-        const float yaw   = std::atan2((2.0F * ((i * j) + (k * real))),
-                                       (i_squared - j_squared - k_squared + real_squared)) *
-                            RADIANS_TO_DEGREES;
-        const float pitch = std::asin(zlibs::utils::misc::constrain((-2.0F * ((i * k) - (j * real)) / norm), -1.0F, 1.0F)) *
-                            RADIANS_TO_DEGREES;
-        const float roll  = std::atan2((2.0F * ((j * k) + (i * real))),
-                                       (-i_squared - j_squared + k_squared + real_squared)) *
-                            RADIANS_TO_DEGREES;
+            const float yaw   = std::atan2((2.0F * ((i * j) + (k * real))),
+                                           (i_squared - j_squared - k_squared + real_squared)) *
+                                RADIANS_TO_DEGREES;
+            const float pitch = std::asin(zlibs::utils::misc::constrain((-2.0F * ((i * k) - (j * real)) / norm), -1.0F, 1.0F)) *
+                                RADIANS_TO_DEGREES;
+            const float roll  = std::atan2((2.0F * ((j * k) + (i * real))),
+                                           (-i_squared - j_squared + k_squared + real_squared)) *
+                                RADIANS_TO_DEGREES;
 
-        result.euler.emplace(signaling::OscSensorSignal{
-            .payload = signaling::OscSensorImuEulerSignal{
-                .yaw   = yaw,
-                .pitch = pitch,
-                .roll  = roll,
-            },
-            .direction = signaling::SignalDirection::Out,
-        });
+            result.euler.emplace(signaling::OscSensorSignal{
+                .payload = signaling::OscSensorImuEulerSignal{
+                    .yaw   = yaw,
+                    .pitch = pitch,
+                    .roll  = roll,
+                },
+                .direction = signaling::SignalDirection::Out,
+            });
+        }
     }
     break;
 
     case GYROSCOPE_REPORT_ID:
     {
+        if (!info.gyroscope_enabled)
+        {
+            return {};
+        }
+
         result.gyroscope.emplace(signaling::OscSensorSignal{
             .payload = signaling::OscSensorImuGyroscopeSignal{
                 .x = normalize(x, GYROSCOPE_SCALE),
@@ -81,6 +98,11 @@ std::optional<Mapper::Result> Mapper::result(uint8_t report_id, const std::array
 
     case LINEAR_ACCEL_REPORT_ID:
     {
+        if (!info.linear_acceleration_enabled)
+        {
+            return {};
+        }
+
         result.linear_acceleration.emplace(signaling::OscSensorSignal{
             .payload = signaling::OscSensorImuLinearAccelerationSignal{
                 .x = normalize(x, ACCELERATION_SCALE),
@@ -94,6 +116,11 @@ std::optional<Mapper::Result> Mapper::result(uint8_t report_id, const std::array
 
     case GRAVITY_REPORT_ID:
     {
+        if (!info.gravity_enabled)
+        {
+            return {};
+        }
+
         result.gravity.emplace(signaling::OscSensorSignal{
             .payload = signaling::OscSensorImuGravitySignal{
                 .x = normalize(x, ACCELERATION_SCALE),
@@ -110,6 +137,17 @@ std::optional<Mapper::Result> Mapper::result(uint8_t report_id, const std::array
     }
 
     return result;
+}
+
+Mapper::DatabaseInfo Mapper::read_database_info() const
+{
+    return {
+        .quaternion_enabled          = _database.read(database::Config::Section::I2c::Bno085, Setting::EnableQuaternion) != 0,
+        .euler_enabled               = _database.read(database::Config::Section::I2c::Bno085, Setting::EnableEuler) != 0,
+        .gyroscope_enabled           = _database.read(database::Config::Section::I2c::Bno085, Setting::EnableGyroscope) != 0,
+        .linear_acceleration_enabled = _database.read(database::Config::Section::I2c::Bno085, Setting::EnableLinearAcceleration) != 0,
+        .gravity_enabled             = _database.read(database::Config::Section::I2c::Bno085, Setting::EnableGravity) != 0,
+    };
 }
 
 float Mapper::normalize(int16_t value, int32_t scale)

@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "firmware/src/io/i2c/peripherals/sensor_bno085/shared/common.h"
 #include "firmware/src/io/i2c/shared/value_filter.h"
 
 #include <array>

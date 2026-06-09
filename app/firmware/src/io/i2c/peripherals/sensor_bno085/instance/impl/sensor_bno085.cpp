@@ -5,6 +5,8 @@
 
 #include "firmware/src/io/i2c/peripherals/sensor_bno085/instance/impl/sensor_bno085.h"
 #include "firmware/src/io/i2c/instance/impl/i2c.h"
+#include "firmware/src/util/configurable/configurable.h"
+#include "firmware/src/util/conversion/conversion.h"
 
 #include "zlibs/utils/misc/bit.h"
 
@@ -18,18 +20,27 @@ namespace zmisc = zlibs::utils::misc;
 namespace
 {
     LOG_MODULE_REGISTER(sensor_bno085, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
-
-    static constexpr std::array<uint8_t, REPORT_COUNT> REPORTS = {
-        ROTATION_VECTOR_REPORT_ID,
-        GYROSCOPE_REPORT_ID,
-        LINEAR_ACCEL_REPORT_ID,
-        GRAVITY_REPORT_ID,
-    };
 }    // namespace
 
-SensorBno085::SensorBno085(Hwa& hwa)
+SensorBno085::SensorBno085(Hwa& hwa, Database& database)
     : _hwa(hwa)
+    , _database(database)
+    , _mapper(database)
 {
+    ConfigHandler.register_config(
+        sys::Config::Block::I2c,
+        // read
+        [this](uint8_t section, size_t index, uint16_t& value)
+        {
+            return sys_config_get(static_cast<sys::Config::Section::I2c>(section), index, value);
+        },
+
+        // write
+        [this](uint8_t section, size_t index, uint16_t value)
+        {
+            return sys_config_set(static_cast<sys::Config::Section::I2c>(section), index, value);
+        });
+
     I2c::register_peripheral(this);
 }
 
@@ -111,15 +122,29 @@ bool SensorBno085::soft_reset()
 
 bool SensorBno085::enable_reports()
 {
-    for (const auto& report : REPORTS)
+    if ((output_enabled(Setting::EnableQuaternion) || output_enabled(Setting::EnableEuler)) &&
+        !enable_report(ROTATION_VECTOR_REPORT_ID))
     {
-        if (!enable_report(report))
-        {
-            LOG_WRN("BNO085 report setup failed: 0x%02x", report);
-            return false;
-        }
+        LOG_WRN("BNO085 report setup failed: 0x%02x", ROTATION_VECTOR_REPORT_ID);
+        return false;
+    }
 
-        k_msleep(FEATURE_ENABLE_DELAY_MS);
+    if (output_enabled(Setting::EnableGyroscope) && !enable_report(GYROSCOPE_REPORT_ID))
+    {
+        LOG_WRN("BNO085 report setup failed: 0x%02x", GYROSCOPE_REPORT_ID);
+        return false;
+    }
+
+    if (output_enabled(Setting::EnableLinearAcceleration) && !enable_report(LINEAR_ACCEL_REPORT_ID))
+    {
+        LOG_WRN("BNO085 report setup failed: 0x%02x", LINEAR_ACCEL_REPORT_ID);
+        return false;
+    }
+
+    if (output_enabled(Setting::EnableGravity) && !enable_report(GRAVITY_REPORT_ID))
+    {
+        LOG_WRN("BNO085 report setup failed: 0x%02x", GRAVITY_REPORT_ID);
+        return false;
     }
 
     return true;
@@ -138,7 +163,19 @@ bool SensorBno085::enable_report(uint8_t report_id)
 
     write_u32(command, SET_FEATURE_INTERVAL_OFFSET, REPORT_INTERVAL_US);
 
-    return _hwa.write(i2c_address(), command);
+    const bool written = _hwa.write(i2c_address(), command);
+
+    if (written)
+    {
+        k_msleep(FEATURE_ENABLE_DELAY_MS);
+    }
+
+    return written;
+}
+
+bool SensorBno085::output_enabled(Setting setting) const
+{
+    return _database.read(database::Config::Section::I2c::Bno085, setting) != 0;
 }
 
 bool SensorBno085::read_startup_packet()
@@ -283,6 +320,58 @@ bool SensorBno085::should_publish(uint8_t report_id, const std::array<int16_t, 4
     default:
         return false;
     }
+}
+
+std::optional<uint8_t> SensorBno085::sys_config_get(sys::Config::Section::I2c section, size_t index, uint16_t& value)
+{
+    if (section != sys::Config::Section::I2c::Bno085)
+    {
+        return {};
+    }
+
+    uint32_t read_value = 0;
+
+    auto result = _database.read(util::Conversion::sys_2_db_section(section), index, read_value)
+                      ? sys::Config::Status::Ack
+                      : sys::Config::Status::ErrorRead;
+
+    value = read_value;
+
+    return result;
+}
+
+std::optional<uint8_t> SensorBno085::sys_config_set(sys::Config::Section::I2c section, size_t index, uint16_t value)
+{
+    if (section != sys::Config::Section::I2c::Bno085)
+    {
+        return {};
+    }
+
+    const auto setting = static_cast<Setting>(index);
+
+    switch (setting)
+    {
+    case Setting::EnableQuaternion:
+    case Setting::EnableEuler:
+    case Setting::EnableGyroscope:
+    case Setting::EnableLinearAcceleration:
+    case Setting::EnableGravity:
+        break;
+
+    default:
+        return sys::Config::Status::ErrorWrite;
+    }
+
+    auto result = _database.update(util::Conversion::sys_2_db_section(section), index, value)
+                      ? sys::Config::Status::Ack
+                      : sys::Config::Status::ErrorWrite;
+
+    if (result == sys::Config::Status::Ack)
+    {
+        init(_selected_i2c_address_index);
+    }
+
+    return result;
 }
 
 int16_t SensorBno085::read_i16(std::span<const uint8_t> report, size_t offset)

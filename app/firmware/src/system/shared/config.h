@@ -157,6 +157,7 @@ namespace opendeck::firmware::sys
                 Apds9960,
                 Vl53l4cx,
                 Cap1188,
+                Bno085,
                 Count
             };
 
