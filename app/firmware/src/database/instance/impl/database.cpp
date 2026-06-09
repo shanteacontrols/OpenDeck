@@ -236,6 +236,8 @@ bool database::Admin::initialize_default_data()
 
 bool database::Admin::regenerate_default_storage()
 {
+    LOG_INF("Regenerating database defaults");
+
     if (!clear())
     {
         return false;
