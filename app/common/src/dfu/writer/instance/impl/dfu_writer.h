@@ -6,7 +6,7 @@
 #pragma once
 
 #include "common/src/dfu/dfu_stream_parser/shared/common.h"
-#include "common/src/dfu/flash_area/impl/deps.h"
+#include "common/src/dfu/flash_area/shared/deps.h"
 #include "common/src/dfu/writer/shared/common.h"
 
 #include <array>

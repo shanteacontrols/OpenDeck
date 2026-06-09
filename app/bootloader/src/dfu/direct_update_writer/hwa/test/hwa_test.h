@@ -6,7 +6,7 @@
 #pragma once
 
 #include "bootloader/src/dfu/direct_update_writer/instance/impl/deps.h"
-#include "common/src/dfu/flash_area/impl/deps.h"
+#include "common/src/dfu/flash_area/shared/deps.h"
 #include "common/src/dfu/flash_area/shared/common.h"
 
 #include <algorithm>
@@ -35,7 +35,7 @@ namespace opendeck::bootloader::dfu::direct_update_writer
          *
          * @return Emulated slot size in bytes.
          */
-        bool open(uint8_t) override
+        bool open() override
         {
             _opened = true;
             return true;

@@ -318,7 +318,7 @@ void BaseWebSockets::handle_command_frame(std::span<const uint8_t> data, uint32_
         {
             if (!response->empty())
             {
-                queue_frame(*response, session_id);
+                queue_frame(response->view(), session_id);
             }
 
             return;

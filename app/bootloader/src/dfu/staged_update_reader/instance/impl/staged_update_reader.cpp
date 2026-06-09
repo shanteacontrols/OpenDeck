@@ -29,13 +29,13 @@ bool StagedUpdateReader::consume(opendeck::common::dfu::writer::DfuWriter& write
 {
     opendeck::common::dfu::dfu_stream_parser::Header header = {};
 
-    if (!_hwa.init())
+    if (!_hwa.flash_area().open())
     {
         LOG_ERR("Failed to initialize staged DFU storage");
         return false;
     }
 
-    const uint32_t header_size = StagedUpdate::header_storage_size();
+    constexpr auto HEADER_SIZE = opendeck::common::dfu::staged_update::HEADER_STORAGE_SIZE;
 
     if (!read_header(header))
     {
@@ -49,7 +49,7 @@ bool StagedUpdateReader::consume(opendeck::common::dfu::writer::DfuWriter& write
         return false;
     }
 
-    if (header_size == 0U)
+    if (HEADER_SIZE == 0U)
     {
         LOG_ERR("Invalid staged DFU storage geometry");
         return false;
@@ -78,7 +78,7 @@ bool StagedUpdateReader::consume(opendeck::common::dfu::writer::DfuWriter& write
     {
         const uint32_t chunk_size = std::min<uint32_t>(buffer.size(), payload_size - offset);
 
-        if (!_hwa.read(header_size + offset, std::span<uint8_t>(buffer.data(), chunk_size)))
+        if (!_hwa.flash_area().read(HEADER_SIZE + offset, std::span<uint8_t>(buffer.data(), chunk_size)))
         {
             LOG_ERR("Failed to read staged DFU data");
 
@@ -136,5 +136,5 @@ bool StagedUpdateReader::clear_pending()
 
 bool StagedUpdateReader::read_header(opendeck::common::dfu::dfu_stream_parser::Header& header)
 {
-    return _hwa.read(0, header);
+    return _hwa.flash_area().read(0, header);
 }

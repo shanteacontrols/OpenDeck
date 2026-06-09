@@ -5,8 +5,8 @@
 
 #pragma once
 
+#include "common/src/dfu/upload/shared/common.h"
 #include "common/src/protocols/websockets/instance/impl/websockets.h"
-#include "common/src/protocols/websockets/shared/firmware_upload.h"
 #include "firmware/src/protocol/base.h"
 #include "firmware/src/protocol/osc/shared/packet.h"
 #include "firmware/src/signaling/signaling.h"
@@ -44,7 +44,7 @@ namespace opendeck::firmware::protocol::websockets
         static constexpr size_t TX_QUEUE_SIZE = 32;
 
         using WebSocketsBuffers = opendeck::common::protocols::websockets::Buffers<
-            opendeck::common::protocols::websockets::FIRMWARE_UPLOAD_FRAME_SIZE,
+            opendeck::common::dfu::upload::FRAME_SIZE,
             std::max(opendeck::firmware::signaling::ConfigRequestSignal::DATA_SIZE, opendeck::firmware::protocol::osc::PACKET_BUFFER_SIZE),
             TX_QUEUE_SIZE>;
 

@@ -7,7 +7,7 @@ target_sources(opendeck_bootloader_protocols_webusb_hwa_hw PRIVATE
 
 target_link_libraries(opendeck_bootloader_protocols_webusb_hwa_hw
     PRIVATE
-    opendeck_common_dfu_dfu_stream_parser
+    opendeck_common_dfu_upload
     opendeck_common_metadata
     zlibs_drivers_usb_hw
     zephyr_interface

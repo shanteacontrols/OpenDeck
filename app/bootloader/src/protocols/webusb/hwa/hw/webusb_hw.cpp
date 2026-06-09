@@ -4,6 +4,7 @@
  */
 
 #include "bootloader/src/protocols/webusb/hwa/hw/webusb_hw.h"
+#include "bootloader/src/protocols/webusb/shared/common.h"
 
 #include "zlibs/drivers/usb/usb_hw.h"
 #include "zlibs/utils/misc/kwork_delayable.h"
@@ -25,13 +26,6 @@ using namespace opendeck::bootloader::protocols;
 
 namespace opendeck::bootloader::protocols::webusb
 {
-    struct DfuRxChunk
-    {
-        usbd_class_data* class_data = nullptr;
-        net_buf*         buffer     = nullptr;
-        bool             stop       = false;
-    };
-
     struct WebUsbHwAccess
     {
         /**
@@ -46,6 +40,20 @@ namespace opendeck::bootloader::protocols::webusb
         {
             return instance.feed(chunk);
         }
+
+        /**
+         * @brief Notifies the instance layer about WebUSB connection-state changes.
+         *
+         * @param instance WebUSB hardware instance that owns the registered callback.
+         * @param connected `true` when the function is enabled, otherwise `false`.
+         */
+        static void notify_connection_state(WebUsbHw& instance, bool connected)
+        {
+            if (instance._connection_state_callback)
+            {
+                instance._connection_state_callback(connected);
+            }
+        }
     };
 }    // namespace opendeck::bootloader::protocols::webusb
 
@@ -57,11 +65,9 @@ namespace
     constexpr uint8_t WEBUSB_LANDING_PAGE    = 0x01U;
     constexpr uint8_t BULK_OUT_EP_ADDRESS    = 0x01U;
     constexpr uint8_t BULK_IN_EP_ADDRESS     = 0x81U;
-    constexpr size_t  HS_BUFFER_SIZE         = 512U;
     constexpr size_t  STATUS_BUFFER_SIZE     = 128U;
     constexpr size_t  STATUS_QUEUE_DEPTH     = 16U;
     constexpr size_t  RX_BUFFER_COUNT        = 4U;
-    constexpr size_t  RX_QUEUE_DEPTH         = RX_BUFFER_COUNT;
     constexpr size_t  WEBUSB_URL_LENGTH      = 0x11U;
     constexpr uint8_t WEBUSB_URL_DESC_TYPE   = 0x03U;
     constexpr uint8_t WEBUSB_URL_SCHEME_HTTP = 0x00U;
@@ -159,7 +165,7 @@ namespace
 
     UDC_BUF_POOL_DEFINE(webusb_pool,
                         RX_BUFFER_COUNT,
-                        HS_BUFFER_SIZE,
+                        webusb::USB_BUFFER_SIZE,
                         sizeof(udc_buf_info),
                         nullptr);
 
@@ -170,8 +176,6 @@ namespace
                               nullptr);
 
     K_MSGQ_DEFINE(webusb_status_msgq, STATUS_BUFFER_SIZE, STATUS_QUEUE_DEPTH, alignof(char));
-    K_MSGQ_DEFINE(webusb_rx_msgq, sizeof(webusb::DfuRxChunk), RX_QUEUE_DEPTH, alignof(webusb::DfuRxChunk));
-
     struct FunctionDesc
     {
         usb_if_descriptor if0;
@@ -216,7 +220,7 @@ namespace
             .bDescriptorType  = USB_DESC_ENDPOINT,
             .bEndpointAddress = BULK_OUT_EP_ADDRESS,
             .bmAttributes     = USB_EP_TYPE_BULK,
-            .wMaxPacketSize   = sys_cpu_to_le16(64U),
+            .wMaxPacketSize   = sys_cpu_to_le16(webusb::FS_PACKET_SIZE),
             .bInterval        = 0x00,
         },
         .if0_in_ep = {
@@ -224,7 +228,7 @@ namespace
             .bDescriptorType  = USB_DESC_ENDPOINT,
             .bEndpointAddress = BULK_IN_EP_ADDRESS,
             .bmAttributes     = USB_EP_TYPE_BULK,
-            .wMaxPacketSize   = sys_cpu_to_le16(64U),
+            .wMaxPacketSize   = sys_cpu_to_le16(webusb::FS_PACKET_SIZE),
             .bInterval        = 0x00,
         },
         .if0_hs_out_ep = {
@@ -232,7 +236,7 @@ namespace
             .bDescriptorType  = USB_DESC_ENDPOINT,
             .bEndpointAddress = BULK_OUT_EP_ADDRESS,
             .bmAttributes     = USB_EP_TYPE_BULK,
-            .wMaxPacketSize   = sys_cpu_to_le16(512U),
+            .wMaxPacketSize   = sys_cpu_to_le16(webusb::HS_PACKET_SIZE),
             .bInterval        = 0x00,
         },
         .if0_hs_in_ep = {
@@ -240,7 +244,7 @@ namespace
             .bDescriptorType  = USB_DESC_ENDPOINT,
             .bEndpointAddress = BULK_IN_EP_ADDRESS,
             .bmAttributes     = USB_EP_TYPE_BULK,
-            .wMaxPacketSize   = sys_cpu_to_le16(512U),
+            .wMaxPacketSize   = sys_cpu_to_le16(webusb::HS_PACKET_SIZE),
             .bInterval        = 0x00,
         },
         .nil_desc = {
@@ -351,19 +355,6 @@ namespace
 
         while (k_msgq_get(&webusb_status_msgq, message, K_NO_WAIT) == 0)
         {
-        }
-    }
-
-    void clear_rx_queue()
-    {
-        webusb::DfuRxChunk chunk;
-
-        while (k_msgq_get(&webusb_rx_msgq, &chunk, K_NO_WAIT) == 0)
-        {
-            if ((chunk.class_data != nullptr) && (chunk.buffer != nullptr))
-            {
-                usbd_ep_buf_free(usbd_class_get_ctx(chunk.class_data), chunk.buffer);
-            }
         }
     }
 
@@ -508,8 +499,9 @@ namespace
         webusb_class.status_saturated = false;
         webusb_class.status_in_flight = false;
         clear_status_queue();
-        clear_rx_queue();
         webusb_class.active_class_data = class_data;
+
+        auto* const self = webusb_instance(class_data);
 
         if (!enqueue_rx_buffers(class_data))
         {
@@ -517,11 +509,9 @@ namespace
             return;
         }
 
-        auto* const self = webusb_instance(class_data);
-
         if (self != nullptr)
         {
-            self->status("WebUSB connected");
+            webusb::WebUsbHwAccess::notify_connection_state(*self, true);
         }
     }
 
@@ -530,11 +520,18 @@ namespace
         atomic_clear_bit(&function_data(class_data).enabled, 0);
         auto& webusb_class = class_private(class_data);
 
-        webusb_class.status_saturated  = false;
-        webusb_class.status_in_flight  = false;
-        webusb_class.active_class_data = nullptr;
+        webusb_class.status_saturated = false;
+        webusb_class.status_in_flight = false;
         clear_status_queue();
-        clear_rx_queue();
+
+        auto* const self = webusb_instance(class_data);
+
+        if (self != nullptr)
+        {
+            webusb::WebUsbHwAccess::notify_connection_state(*self, false);
+        }
+
+        webusb_class.active_class_data = nullptr;
     }
 
     int init_class(usbd_class_data*)
@@ -552,20 +549,6 @@ namespace
 
     USBD_DEFINE_CLASS(opendeck_bootloader_webusb, &class_api, &webusb_class_private, nullptr);
 }    // namespace
-
-webusb::WebUsbHw::WebUsbHw(bootloader::dfu::direct_update_writer::DirectUpdateWriter& direct_update_writer)
-    : _dfu_stream(direct_update_writer)
-    , _rx_thread([this]()
-                 {
-                     process_rx();
-                 },
-                 [this]()
-                 {
-                     stop_rx();
-                 })
-{
-    webusb_class_private.instance = this;
-}
 
 void webusb::WebUsbHw::status(std::string_view message)
 {
@@ -606,86 +589,62 @@ bool webusb::WebUsbHw::feed(DfuRxChunk chunk)
         return false;
     }
 
-    if (k_msgq_put(&webusb_rx_msgq, &chunk, K_NO_WAIT) != 0)
+    if (!_rx_callback)
     {
-        LOG_ERR("Failed to queue WebUSB DFU RX buffer");
-        _dfu_stream.reset();
         return false;
     }
 
-    return true;
+    chunk.data = std::span<const uint8_t>(chunk.buffer->data, chunk.buffer->len);
+    return _rx_callback(chunk);
 }
 
 bool webusb::WebUsbHw::init()
 {
+    webusb_class_private.instance = this;
+
     usbd_desc_node* descriptors[] = {
         &bootloader_webusb_bos,
     };
 
-    const bool initialized = usb_device.init({
+    return usb_device.init({
         .extra_descriptors = descriptors,
     });
-
-    if (initialized)
-    {
-        _rx_thread.run();
-    }
-
-    return initialized;
 }
 
 bool webusb::WebUsbHw::deinit()
 {
-    _rx_thread.destroy();
+    _rx_callback               = {};
+    _connection_state_callback = {};
 
-    const bool deinitialized = usb_device.deinit();
-    return deinitialized;
+    return usb_device.deinit();
 }
 
-void webusb::WebUsbHw::process_rx()
+void webusb::WebUsbHw::register_rx_callback(RxCallback callback)
 {
-    while (true)
+    _rx_callback = std::move(callback);
+}
+
+void webusb::WebUsbHw::release_rx_buffer(DfuRxChunk chunk)
+{
+    if ((chunk.class_data == nullptr) || (chunk.buffer == nullptr))
     {
-        DfuRxChunk chunk;
-
-        if (k_msgq_get(&webusb_rx_msgq, &chunk, K_FOREVER) != 0)
-        {
-            continue;
-        }
-
-        if (chunk.stop)
-        {
-            return;
-        }
-
-        const auto data = std::span<const uint8_t>(chunk.buffer->data, chunk.buffer->len);
-
-        if (_dfu_stream.feed(data) == opendeck::common::dfu::dfu_stream_parser::StreamStatus::Invalid)
-        {
-            _dfu_stream.reset();
-        }
-
-        net_buf_reset(chunk.buffer);
-
-        auto* const buf_info = udc_get_buf_info(chunk.buffer);
-        buf_info->ep         = bulk_out_ep(chunk.class_data);
-
-        if (atomic_test_bit(&function_data(chunk.class_data).enabled, 0) && (usbd_ep_enqueue(chunk.class_data, chunk.buffer) == 0))
-        {
-            continue;
-        }
-
-        usbd_ep_buf_free(usbd_class_get_ctx(chunk.class_data), chunk.buffer);
+        return;
     }
+
+    net_buf_reset(chunk.buffer);
+
+    auto* const buf_info = udc_get_buf_info(chunk.buffer);
+    buf_info->ep         = bulk_out_ep(chunk.class_data);
+
+    if (atomic_test_bit(&function_data(chunk.class_data).enabled, 0) && (usbd_ep_enqueue(chunk.class_data, chunk.buffer) == 0))
+    {
+        return;
+    }
+
+    usbd_ep_buf_free(usbd_class_get_ctx(chunk.class_data), chunk.buffer);
 }
 
-void webusb::WebUsbHw::stop_rx()
+void webusb::WebUsbHw::register_connection_state_callback(ConnectionStateCallback callback)
 {
-    clear_rx_queue();
-
-    DfuRxChunk chunk = {
-        .stop = true,
-    };
-
-    k_msgq_put(&webusb_rx_msgq, &chunk, K_NO_WAIT);
+    _connection_state_callback = std::move(callback);
 }

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "common/src/dfu/flash_area/impl/deps.h"
+#include "common/src/dfu/flash_area/shared/deps.h"
 
 #include <zephyr/drivers/flash.h>
 #include <zephyr/storage/flash_map.h>
@@ -21,20 +21,27 @@ namespace opendeck::common::dfu::flash_area
     {
         public:
         /**
-         * @brief Opens a Zephyr flash-map area.
+         * @brief Constructs a backend for one Zephyr flash-map area.
          *
          * @param area_id Zephyr flash-map area id.
+         */
+        explicit HwaHw(uint8_t area_id)
+            : _area_id(area_id)
+        {}
+
+        /**
+         * @brief Opens the configured Zephyr flash-map area.
          *
          * @return `true` if the area is open, otherwise `false`.
          */
-        bool open(const uint8_t area_id) override
+        bool open() override
         {
             if (_area != nullptr)
             {
                 return true;
             }
 
-            return flash_area_open(area_id, &_area) == 0;
+            return flash_area_open(_area_id, &_area) == 0;
         }
 
         /**
@@ -205,7 +212,8 @@ namespace opendeck::common::dfu::flash_area
         }
 
         private:
-        const struct ::flash_area* _area = nullptr;
+        uint8_t                    _area_id = 0;
+        const struct ::flash_area* _area    = nullptr;
 
         /**
          * @brief Checks whether an area-relative byte range is valid.

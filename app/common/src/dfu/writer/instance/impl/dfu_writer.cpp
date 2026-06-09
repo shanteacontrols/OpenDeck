@@ -29,7 +29,7 @@ bool DfuWriter::init()
         return true;
     }
 
-    _initialized = _hwa.open(0);
+    _initialized = _hwa.open();
 
     if (!_initialized)
     {

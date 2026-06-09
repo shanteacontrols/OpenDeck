@@ -6,7 +6,7 @@
 #include "tests/shared/common.h"
 #include "common/src/dfu/dfu_stream_parser/shared/common.h"
 #include "common/src/dfu/flash_area/hwa/test/hwa_test.h"
-#include "common/src/dfu/staged_update/shared/deps.h"
+#include "common/src/dfu/staged_update/shared/common.h"
 #include "firmware/src/dfu/staged_update_writer/hwa/test/hwa_test.h"
 #include "firmware/src/dfu/staged_update_writer/instance/impl/staged_update_writer.h"
 
@@ -96,12 +96,12 @@ TEST_F(StagedUpdateWriterTest, WritesHeaderAndPayload)
 
     for (size_t i = 0; i < data.size(); i++)
     {
-        EXPECT_EQ(storage[common::dfu::staged_update::StagedUpdate::header_storage_size() + i], data[i]);
+        EXPECT_EQ(storage[common::dfu::staged_update::HEADER_STORAGE_SIZE + i], data[i]);
     }
 
     for (size_t i = data.size(); i < FlashAreaHwaTest::SECTOR_SIZE; i++)
     {
-        EXPECT_EQ(storage[common::dfu::staged_update::StagedUpdate::header_storage_size() + i], common::dfu::flash_area::ERASED_BYTE);
+        EXPECT_EQ(storage[common::dfu::staged_update::HEADER_STORAGE_SIZE + i], common::dfu::flash_area::ERASED_BYTE);
     }
 }
 
@@ -133,7 +133,7 @@ TEST_F(StagedUpdateWriterTest, BeginOnlyInvalidatesHeaderSector)
 
     ASSERT_TRUE(staged_update_writer.begin(dfu_header, data.size()));
 
-    ASSERT_EQ(hwa.erase_calls().size(), common::dfu::staged_update::StagedUpdate::header_storage_size() / FlashAreaHwaTest::SECTOR_SIZE);
+    ASSERT_EQ(hwa.erase_calls().size(), common::dfu::staged_update::HEADER_STORAGE_SIZE / FlashAreaHwaTest::SECTOR_SIZE);
 
     for (size_t i = 0; i < hwa.erase_calls().size(); i++)
     {
@@ -161,7 +161,7 @@ TEST_F(StagedUpdateWriterTest, ErasesPayloadSectorsAsNeeded)
     ASSERT_TRUE(staged_update_writer.write(data));
     ASSERT_TRUE(staged_update_writer.finish());
 
-    constexpr size_t HEADER_SECTOR_COUNT = common::dfu::staged_update::StagedUpdate::header_storage_size() / FlashAreaHwaTest::SECTOR_SIZE;
+    constexpr size_t HEADER_SECTOR_COUNT = common::dfu::staged_update::HEADER_STORAGE_SIZE / FlashAreaHwaTest::SECTOR_SIZE;
 
     ASSERT_EQ(hwa.erase_calls().size(), HEADER_SECTOR_COUNT + 1U);
 
@@ -171,7 +171,7 @@ TEST_F(StagedUpdateWriterTest, ErasesPayloadSectorsAsNeeded)
         EXPECT_EQ(hwa.erase_calls()[i].size, FlashAreaHwaTest::SECTOR_SIZE);
     }
 
-    EXPECT_EQ(hwa.erase_calls()[HEADER_SECTOR_COUNT].offset, common::dfu::staged_update::StagedUpdate::header_storage_size());
+    EXPECT_EQ(hwa.erase_calls()[HEADER_SECTOR_COUNT].offset, common::dfu::staged_update::HEADER_STORAGE_SIZE);
     EXPECT_EQ(hwa.erase_calls()[HEADER_SECTOR_COUNT].size, FlashAreaHwaTest::SECTOR_SIZE);
 }
 
@@ -184,7 +184,7 @@ TEST_F(StagedUpdateWriterTest, AbortClearsHeaderSector)
     ASSERT_TRUE(staged_update_writer.write(data));
     staged_update_writer.abort();
 
-    constexpr size_t HEADER_SECTOR_COUNT = common::dfu::staged_update::StagedUpdate::header_storage_size() / FlashAreaHwaTest::SECTOR_SIZE;
+    constexpr size_t HEADER_SECTOR_COUNT = common::dfu::staged_update::HEADER_STORAGE_SIZE / FlashAreaHwaTest::SECTOR_SIZE;
 
     ASSERT_GE(hwa.erase_calls().size(), HEADER_SECTOR_COUNT);
 

@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <algorithm>
+#include <array>
 #include <cstdint>
 #include <optional>
 #include <span>
@@ -51,6 +53,49 @@ namespace opendeck::common::protocols::websockets
     class Handler
     {
         public:
+        static constexpr size_t RESPONSE_SIZE = 8;
+
+        /**
+         * @brief Owned immediate WebSockets handler response.
+         *
+         * Small fixed-size storage for immediate handler responses.
+         */
+        struct Response
+        {
+            std::array<uint8_t, RESPONSE_SIZE> data = {};
+            size_t                             size = 0;
+
+            [[nodiscard]] bool empty() const
+            {
+                return size == 0;
+            }
+
+            [[nodiscard]] std::span<const uint8_t> view() const
+            {
+                return std::span<const uint8_t>(data.data(), size);
+            }
+
+            /**
+             * @brief Builds an owned response from fixed-size payload bytes.
+             *
+             * @param payload Bytes to copy into the response.
+             *
+             * @return Owned response containing the payload.
+             */
+            template<size_t Size>
+            static Response from(const std::array<uint8_t, Size>& payload)
+            {
+                static_assert(Size <= RESPONSE_SIZE, "WebSockets handler response payload does not fit fixed response buffer");
+
+                Response response = {};
+                response.size     = payload.size();
+
+                std::copy(payload.begin(), payload.end(), response.data.begin());
+
+                return response;
+            }
+        };
+
         /**
          * @brief Registers this handler in the WebSockets handler list.
          */
@@ -98,10 +143,10 @@ namespace opendeck::common::protocols::websockets
          * @param data       Frame payload bytes.
          * @param session_id Active WebSockets session id.
          *
-         * @return Response bytes when this handler accepted the command, an empty span when it accepted
+         * @return Response bytes when this handler accepted the command, an empty response when it accepted
          *         the command without a response, otherwise `std::nullopt`.
          */
-        virtual std::optional<std::span<const uint8_t>> handle_frame(
+        virtual std::optional<Response> handle_frame(
             [[maybe_unused]] std::span<const uint8_t> data,
             [[maybe_unused]] uint32_t                 session_id)
         {

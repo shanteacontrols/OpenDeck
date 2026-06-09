@@ -6,7 +6,7 @@
 #pragma once
 
 #include "bootloader/src/dfu/staged_update_reader/instance/impl/deps.h"
-#include "common/src/dfu/staged_update/shared/deps.h"
+#include "common/src/dfu/staged_update/shared/common.h"
 #include "common/src/dfu/writer/instance/impl/dfu_writer.h"
 
 namespace opendeck::bootloader::dfu::staged_update_reader
@@ -14,7 +14,7 @@ namespace opendeck::bootloader::dfu::staged_update_reader
     /**
      * @brief Reads a staged firmware payload from storage and streams it into a DFU writer.
      */
-    class StagedUpdateReader : public opendeck::common::dfu::staged_update::StagedUpdate
+    class StagedUpdateReader
     {
         public:
         /**

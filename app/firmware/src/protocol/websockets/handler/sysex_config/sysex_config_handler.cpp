@@ -41,7 +41,8 @@ void SysexConfigHandler::init(opendeck::common::protocols::websockets::HandlerEn
         });
 }
 
-std::optional<std::span<const uint8_t>> SysexConfigHandler::handle_frame(std::span<const uint8_t> data, uint32_t session_id)
+std::optional<SysexConfigHandler::Response> SysexConfigHandler::handle_frame(std::span<const uint8_t> data,
+                                                                             uint32_t                 session_id)
 {
     if (data.empty() || (data.front() != zlibs::utils::midi::SYS_EX_START))
     {
@@ -52,7 +53,7 @@ std::optional<std::span<const uint8_t>> SysexConfigHandler::handle_frame(std::sp
     {
         LOG_WRN_ONCE("Ignoring oversized WebSockets SysEx frame");
         publish_network_traffic(signaling::SignalDirection::In);
-        return std::span<const uint8_t>();
+        return Response{};
     }
 
     signaling::ConfigRequestSignal request(
@@ -66,7 +67,7 @@ std::optional<std::span<const uint8_t>> SysexConfigHandler::handle_frame(std::sp
     signaling::publish(request);
     publish_network_traffic(signaling::SignalDirection::In);
 
-    return std::span<const uint8_t>();
+    return Response{};
 }
 
 void SysexConfigHandler::on_close_session(uint32_t session_id)

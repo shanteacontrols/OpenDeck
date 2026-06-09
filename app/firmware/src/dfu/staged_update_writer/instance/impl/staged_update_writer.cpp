@@ -18,7 +18,7 @@ namespace
 }    // namespace
 
 StagedUpdateWriter::StagedUpdateWriter(opendeck::firmware::dfu::staged_update_writer::Hwa& hwa)
-    : DfuWriter(hwa)
+    : DfuWriter(hwa.flash_area())
     , _hwa(hwa)
 {}
 
@@ -40,9 +40,9 @@ bool StagedUpdateWriter::begin(const opendeck::common::dfu::dfu_stream_parser::H
 
 bool StagedUpdateWriter::erase_header_sector()
 {
-    const uint32_t header_size = StagedUpdate::header_storage_size();
+    constexpr auto HEADER_SIZE = opendeck::common::dfu::staged_update::HEADER_STORAGE_SIZE;
 
-    if (header_size == 0U)
+    if (HEADER_SIZE == 0U)
     {
         LOG_ERR("Invalid staged DFU header storage size");
         return false;
@@ -50,9 +50,9 @@ bool StagedUpdateWriter::erase_header_sector()
 
     uint32_t erased_size = 0;
 
-    for (size_t index = 0; erased_size < header_size; index++)
+    for (size_t index = 0; erased_size < HEADER_SIZE; index++)
     {
-        const auto sector = _hwa.sector(index);
+        const auto sector = _hwa.flash_area().sector(index);
 
         if (!sector)
         {
@@ -60,7 +60,7 @@ bool StagedUpdateWriter::erase_header_sector()
             return false;
         }
 
-        if (!_hwa.erase(sector->offset, sector->size))
+        if (!_hwa.flash_area().erase(sector->offset, sector->size))
         {
             LOG_ERR("Failed to erase staged DFU header sector");
             return false;
@@ -74,23 +74,23 @@ bool StagedUpdateWriter::erase_header_sector()
 
 bool StagedUpdateWriter::write_header(const opendeck::common::dfu::dfu_stream_parser::Header& header)
 {
-    const uint32_t header_size             = StagedUpdate::header_storage_size();
-    const size_t   native_write_block_size = _hwa.write_block_size();
+    constexpr auto HEADER_SIZE             = opendeck::common::dfu::staged_update::HEADER_STORAGE_SIZE;
+    const size_t   native_write_block_size = _hwa.flash_area().write_block_size();
 
-    if ((header_size == 0U) ||
+    if ((HEADER_SIZE == 0U) ||
         (native_write_block_size == 0U) ||
-        ((header_size % native_write_block_size) != 0U))
+        ((HEADER_SIZE % native_write_block_size) != 0U))
     {
         LOG_ERR("Unsupported staged DFU flash write block size");
         return false;
     }
 
-    std::array<uint8_t, StagedUpdate::header_storage_size()> data = {};
+    std::array<uint8_t, HEADER_SIZE> data = {};
 
     std::fill(data.begin(), data.end(), opendeck::common::dfu::flash_area::ERASED_BYTE);
     std::copy(header.begin(), header.end(), data.begin());
 
-    if (!_hwa.write(0, std::span<const uint8_t>(data.data(), header_size)))
+    if (!_hwa.flash_area().write(0, std::span<const uint8_t>(data.data(), HEADER_SIZE)))
     {
         LOG_ERR("Failed to write staged DFU header");
         return false;
@@ -117,5 +117,5 @@ void StagedUpdateWriter::cancel()
 
 uint32_t StagedUpdateWriter::payload_offset() const
 {
-    return StagedUpdate::header_storage_size();
+    return opendeck::common::dfu::staged_update::HEADER_STORAGE_SIZE;
 }

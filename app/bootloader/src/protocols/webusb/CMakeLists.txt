@@ -6,6 +6,11 @@ if(CONFIG_PROJECT_BOOTLOADER_SUPPORT_USB_DFU)
         instance/impl/webusb.cpp
     )
 
+    target_link_libraries(opendeck_bootloader_protocols_webusb
+        PUBLIC
+        opendeck_common_dfu_upload
+    )
+
     if(CONFIG_HW_BUILD)
         add_subdirectory(hwa/hw)
 

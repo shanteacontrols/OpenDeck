@@ -5,9 +5,9 @@
 
 #pragma once
 
+#include "common/src/dfu/upload/shared/common.h"
 #include "common/src/protocols/websockets/instance/impl/websockets.h"
 #include "common/src/protocols/websockets/shared/buffers.h"
-#include "common/src/protocols/websockets/shared/firmware_upload.h"
 
 namespace opendeck::bootloader::protocols::websockets
 {
@@ -33,8 +33,8 @@ namespace opendeck::bootloader::protocols::websockets
 
         private:
         using WebSocketsBuffers = opendeck::common::protocols::websockets::Buffers<
-            opendeck::common::protocols::websockets::FIRMWARE_UPLOAD_FRAME_SIZE,
-            opendeck::common::protocols::websockets::FIRMWARE_UPLOAD_ACK_SIZE,
+            opendeck::common::dfu::upload::FRAME_SIZE,
+            sizeof(opendeck::common::dfu::upload::Ack),
             4>;
 
         opendeck::common::protocols::websockets::BuffersBase& buffers() override

@@ -10,9 +10,9 @@
 
 using namespace opendeck::bootloader;
 
-dfu::direct_update_writer::DirectUpdateWriter::DirectUpdateWriter(opendeck::common::dfu::flash_area::Hwa&               flash_hwa,
+dfu::direct_update_writer::DirectUpdateWriter::DirectUpdateWriter(opendeck::common::dfu::flash_area::Hwa&               flash_area,
                                                                   opendeck::bootloader::dfu::direct_update_writer::Hwa& hwa)
-    : DfuWriter(flash_hwa)
+    : DfuWriter(flash_area)
     , _hwa(hwa)
 {}
 

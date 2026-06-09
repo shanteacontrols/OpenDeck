@@ -7,7 +7,13 @@
 
 #include "bootloader/src/dfu/direct_update_writer/hwa/hw/hwa_hw.h"
 #include "bootloader/src/dfu/direct_update_writer/instance/impl/direct_update_writer.h"
+#include "common/src/dfu/flash_area/hwa/hw/hwa_hw.h"
 #include "common/src/mcu/shared/deps.h"
+
+#include <zephyr/devicetree.h>
+#include <zephyr/devicetree/partitions.h>
+
+#define OPENDECK_DIRECT_DFU_NODE DT_NODELABEL(slot0_partition)
 
 namespace opendeck::bootloader::dfu::direct_update_writer
 {
@@ -23,8 +29,9 @@ namespace opendeck::bootloader::dfu::direct_update_writer
          * @param mcu Shared MCU services.
          */
         explicit Builder(opendeck::common::mcu::Hwa& mcu)
-            : _hwa(mcu)
-            , _instance(_hwa, _hwa)
+            : _flash_area(DT_PARTITION_ID(OPENDECK_DIRECT_DFU_NODE))
+            , _hwa(mcu)
+            , _instance(_flash_area, _hwa)
         {}
 
         /**
@@ -38,7 +45,8 @@ namespace opendeck::bootloader::dfu::direct_update_writer
         }
 
         private:
-        HwaHw              _hwa;
-        DirectUpdateWriter _instance;
+        opendeck::common::dfu::flash_area::HwaHw _flash_area;
+        HwaHw                                    _hwa;
+        DirectUpdateWriter                       _instance;
     };
 }    // namespace opendeck::bootloader::dfu::direct_update_writer

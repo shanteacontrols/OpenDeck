@@ -34,7 +34,7 @@ namespace opendeck::firmware::protocol::websockets::sysex_config
          *
          * @return Empty response when the frame was handled, otherwise `std::nullopt`.
          */
-        std::optional<std::span<const uint8_t>> handle_frame(std::span<const uint8_t> data, uint32_t session_id) override;
+        std::optional<Response> handle_frame(std::span<const uint8_t> data, uint32_t session_id) override;
 
         /**
          * @brief Closes the active WebSockets SysEx configuration session.

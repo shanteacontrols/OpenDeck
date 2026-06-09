@@ -24,20 +24,21 @@ namespace
     }
 }    // namespace
 
-FirmwareUploadHandler::FirmwareUploadHandler()
-    : _firmware_upload(_firmware_builder.instance())
+FirmwareUploadHandler::FirmwareUploadHandler(firmware::dfu::staged_update_writer::StagedUpdateWriter& staged_update_writer)
+    : _firmware_upload(staged_update_writer)
 {}
 
-std::optional<std::span<const uint8_t>> FirmwareUploadHandler::handle_frame(std::span<const uint8_t> data, uint32_t session_id)
+std::optional<FirmwareUploadHandler::Response> FirmwareUploadHandler::handle_frame(std::span<const uint8_t> data,
+                                                                                   uint32_t                 session_id)
 {
     if (data.empty())
     {
         return std::nullopt;
     }
 
-    const auto command = static_cast<opendeck::common::protocols::websockets::FirmwareUploadCommand>(data.front());
+    const auto command = static_cast<opendeck::common::dfu::upload::Command>(data.front());
 
-    if ((command == opendeck::common::protocols::websockets::FirmwareUploadCommand::Begin) && (data.size() == 1U))
+    if ((command == opendeck::common::dfu::upload::Command::Begin) && (data.size() == 1U))
     {
         LOG_INF("Closing WebSockets SysEx configuration session before firmware upload");
 
@@ -56,12 +57,7 @@ std::optional<std::span<const uint8_t>> FirmwareUploadHandler::handle_frame(std:
 
     publish_network_traffic(signaling::SignalDirection::In);
 
-    _response = response->response;
-
-    if (!_response.empty())
-    {
-        publish_network_traffic(signaling::SignalDirection::Out);
-    }
+    publish_network_traffic(signaling::SignalDirection::Out);
 
     if (response->finished)
     {
@@ -71,5 +67,7 @@ std::optional<std::span<const uint8_t>> FirmwareUploadHandler::handle_frame(std:
         });
     }
 
-    return std::span<const uint8_t>(_response.data(), _response.size());
+    const auto ack_bytes = opendeck::common::dfu::upload::ack_to_bytes(response->response);
+
+    return Response::from(ack_bytes);
 }

@@ -8,7 +8,7 @@
 #include "bootloader/src/dfu/staged_update_reader/instance/impl/deps.h"
 #include "common/src/dfu/dfu_stream_parser/shared/common.h"
 #include "common/src/dfu/flash_area/hwa/test/hwa_test.h"
-#include "common/src/dfu/staged_update/shared/deps.h"
+#include "common/src/dfu/staged_update/shared/common.h"
 
 #include "zlibs/utils/misc/bit.h"
 
@@ -23,34 +23,19 @@ namespace opendeck::bootloader::dfu::staged_update_reader
     class HwaTest : public Hwa
     {
         public:
-        bool init() override
+        opendeck::common::dfu::flash_area::Hwa& flash_area() override
         {
-            return _area.open(0);
-        }
-
-        uint32_t size() const override
-        {
-            return _area.size();
-        }
-
-        size_t write_block_size() const override
-        {
-            return _area.write_block_size();
-        }
-
-        bool read(uint32_t offset, std::span<uint8_t> data) override
-        {
-            return _area.read(offset, data);
+            return _area;
         }
 
         bool clear_pending() override
         {
             _clear_pending_calls++;
 
-            const auto sector = _area.sector(0);
+            const auto header_sector = _area.sector(0);
 
-            return sector.has_value() &&
-                   _area.erase(sector->offset, sector->size);
+            return header_sector.has_value() &&
+                   _area.erase(header_sector->offset, header_sector->size);
         }
 
         void reset_storage()
@@ -71,7 +56,7 @@ namespace opendeck::bootloader::dfu::staged_update_reader
             write_word(header, 3, payload.size());
 
             _area.write(0, header);
-            _area.write(opendeck::common::dfu::staged_update::StagedUpdate::header_storage_size(), payload);
+            _area.write(opendeck::common::dfu::staged_update::HEADER_STORAGE_SIZE, payload);
         }
 
         uint32_t header_start_magic() const

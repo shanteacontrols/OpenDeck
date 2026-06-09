@@ -6,14 +6,16 @@
 #pragma once
 
 #include "bootloader/src/dfu/direct_update_writer/instance/impl/direct_update_writer.h"
+#include "common/src/dfu/upload/instance/impl/upload.h"
 #include "common/src/protocols/websockets/handler/handler.h"
-#include "common/src/protocols/websockets/firmware_upload/firmware_upload.h"
-#include "common/src/protocols/websockets/shared/firmware_upload.h"
 
 namespace opendeck::bootloader::protocols::websockets::firmware_upload
 {
     /**
-     * @brief Handles direct firmware upload WebSockets frames in the bootloader.
+     * @brief Handles bootloader-side WebSockets DFU directly into the application slot.
+     *
+     * Unlike the firmware-side handler, the bootloader is already running in the update environment, so it
+     * installs the validated firmware image directly and does not need to request a reboot into another mode.
      */
     class FirmwareUploadHandler : public opendeck::common::protocols::websockets::Handler
     {
@@ -31,9 +33,9 @@ namespace opendeck::bootloader::protocols::websockets::firmware_upload
          * @param data       Frame payload bytes.
          * @param session_id Unused bootloader WebSockets session id.
          *
-         * @return ACK frame when the firmware-upload frame was handled, otherwise `std::nullopt`.
+         * @return Serialized DFU ACK when the firmware-upload frame was handled, otherwise `std::nullopt`.
          */
-        std::optional<std::span<const uint8_t>> handle_frame(std::span<const uint8_t> data, uint32_t session_id) override;
+        std::optional<Response> handle_frame(std::span<const uint8_t> data, uint32_t session_id) override;
 
         /**
          * @brief Aborts any active firmware upload.
@@ -43,7 +45,6 @@ namespace opendeck::bootloader::protocols::websockets::firmware_upload
         void on_close_session(uint32_t session_id) override;
 
         private:
-        opendeck::common::protocols::websockets::FirmwareUpload    _firmware_upload;
-        opendeck::common::protocols::websockets::FirmwareUploadAck _response = {};
+        opendeck::common::dfu::upload::Upload _firmware_upload;
     };
 }    // namespace opendeck::bootloader::protocols::websockets::firmware_upload

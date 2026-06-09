@@ -6,7 +6,7 @@ target_sources(opendeck_bootloader_dfu_direct_update_writer PRIVATE
 )
 
 target_link_libraries(opendeck_bootloader_dfu_direct_update_writer
-    PRIVATE
+    PUBLIC
     opendeck_common_dfu_dfu_stream_parser
     opendeck_common_dfu_writer
     opendeck_common_metadata

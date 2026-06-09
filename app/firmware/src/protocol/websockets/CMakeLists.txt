@@ -4,7 +4,7 @@ opendeck_interface_library_named(opendeck_firmware_protocol_websockets)
 if(CONFIG_PROJECT_TARGET_SUPPORT_WEBSOCKETS)
     if(CONFIG_PROJECT_TARGET_SUPPORT_STAGED_UPDATE)
         add_subdirectory($ENV{ZENV_PROJECT_ROOT}/app/common/src/dfu/dfu_stream_parser ${CMAKE_CURRENT_BINARY_DIR}/dfu_stream_parser)
-        add_subdirectory($ENV{ZENV_PROJECT_ROOT}/app/common/src/protocols/websockets/firmware_upload ${CMAKE_CURRENT_BINARY_DIR}/websockets_firmware_upload)
+        add_subdirectory($ENV{ZENV_PROJECT_ROOT}/app/common/src/dfu/upload ${CMAKE_CURRENT_BINARY_DIR}/dfu_upload)
         add_subdirectory($ENV{ZENV_PROJECT_ROOT}/app/firmware/src/dfu/staged_update_writer ${CMAKE_CURRENT_BINARY_DIR}/staged_update_writer)
     endif()
 

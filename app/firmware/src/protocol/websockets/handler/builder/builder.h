@@ -6,6 +6,7 @@
 #pragma once
 
 #include "common/src/protocols/websockets/handler/handler.h"
+#include "firmware/src/dfu/staged_update_writer/builder/builder.h"
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_CONFIG_INTERFACE_WEBSOCKETS
 #include "firmware/src/protocol/websockets/handler/sysex_config/sysex_config_handler.h"
@@ -35,7 +36,8 @@ namespace opendeck::firmware::protocol::websockets::handler
 #endif
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_STAGED_UPDATE
-        websockets::firmware_upload::FirmwareUploadHandler _firmware_upload;
+        firmware::dfu::staged_update_writer::Builder       _staged_update_writer;
+        websockets::firmware_upload::FirmwareUploadHandler _firmware_upload{ _staged_update_writer.instance() };
 #endif
 
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_OSC

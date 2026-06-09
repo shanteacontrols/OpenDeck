@@ -5,12 +5,12 @@
 
 #pragma once
 
-#include "common/src/dfu/flash_area/impl/deps.h"
+#include "common/src/dfu/staged_update/shared/deps.h"
 
 namespace opendeck::firmware::dfu::staged_update_writer
 {
     /**
      * @brief Flash access used by the staged-update writer.
      */
-    using Hwa = opendeck::common::dfu::flash_area::Hwa;
+    using Hwa = opendeck::common::dfu::staged_update::Hwa;
 }    // namespace opendeck::firmware::dfu::staged_update_writer

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "common/src/dfu/staged_update/shared/deps.h"
+#include "common/src/dfu/staged_update/shared/common.h"
 #include "common/src/dfu/writer/instance/impl/dfu_writer.h"
 #include "firmware/src/dfu/staged_update_writer/instance/impl/deps.h"
 
@@ -18,8 +18,7 @@ namespace opendeck::firmware::dfu::staged_update_writer
     /**
      * @brief Stores a validated firmware payload in the configured staging partition.
      */
-    class StagedUpdateWriter : public opendeck::common::dfu::writer::DfuWriter,
-                               public opendeck::common::dfu::staged_update::StagedUpdate
+    class StagedUpdateWriter : public opendeck::common::dfu::writer::DfuWriter
     {
         public:
         /**

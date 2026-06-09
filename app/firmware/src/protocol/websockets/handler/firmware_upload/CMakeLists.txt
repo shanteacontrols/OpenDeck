@@ -3,7 +3,7 @@ opendeck_library_named(opendeck_firmware_protocol_websockets_handler_firmware_up
 
 target_link_libraries(opendeck_firmware_protocol_websockets_handler_firmware_upload
     PUBLIC
-    opendeck_common_protocols_websockets_firmware_upload
+    opendeck_common_dfu_upload
     opendeck_firmware_dfu_staged_update_writer
     kernel
 )

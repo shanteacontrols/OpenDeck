@@ -27,13 +27,11 @@ namespace opendeck::common::dfu::flash_area
         virtual ~Hwa() = default;
 
         /**
-         * @brief Opens a flash-map area.
-         *
-         * @param area_id Platform flash-map area id.
+         * @brief Opens the configured flash-map area.
          *
          * @return `true` if the area is open, otherwise `false`.
          */
-        virtual bool open(uint8_t area_id) = 0;
+        virtual bool open() = 0;
 
         /**
          * @brief Returns whether an area has been opened.

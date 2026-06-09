@@ -7,7 +7,7 @@
 
 #include "bootloader/src/dfu/direct_update_writer/instance/impl/deps.h"
 #include "common/src/dfu/dfu_stream_parser/shared/common.h"
-#include "common/src/dfu/flash_area/impl/deps.h"
+#include "common/src/dfu/flash_area/shared/deps.h"
 #include "common/src/dfu/writer/instance/impl/dfu_writer.h"
 
 namespace opendeck::bootloader::dfu::direct_update_writer
@@ -23,7 +23,7 @@ namespace opendeck::bootloader::dfu::direct_update_writer
          *
          * @param hwa Hardware abstraction used to store the incoming firmware image.
          */
-        explicit DirectUpdateWriter(opendeck::common::dfu::flash_area::Hwa&               flash_hwa,
+        explicit DirectUpdateWriter(opendeck::common::dfu::flash_area::Hwa&               flash_area,
                                     opendeck::bootloader::dfu::direct_update_writer::Hwa& hwa);
 
         private:

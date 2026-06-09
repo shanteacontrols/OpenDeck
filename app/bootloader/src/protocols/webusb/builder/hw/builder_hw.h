@@ -23,8 +23,7 @@ namespace opendeck::bootloader::protocols::webusb
          * @param direct_update_writer Direct-update writer that receives incoming DFU bytes.
          */
         explicit Builder(bootloader::dfu::direct_update_writer::DirectUpdateWriter& direct_update_writer)
-            : _hwa(direct_update_writer)
-            , _instance(_hwa)
+            : _instance(_hwa, direct_update_writer)
         {}
 
         /**

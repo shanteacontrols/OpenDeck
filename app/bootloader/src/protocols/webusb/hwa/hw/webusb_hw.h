@@ -5,30 +5,23 @@
 
 #pragma once
 
-#include "bootloader/src/dfu/direct_update_writer/instance/impl/direct_update_writer.h"
 #include "bootloader/src/protocols/webusb/instance/impl/deps.h"
-#include "bootloader/src/threads.h"
-#include "common/src/dfu/dfu_stream_parser/instance/impl/dfu_stream_parser.h"
-
 #include <span>
 
 namespace opendeck::bootloader::protocols::webusb
 {
-    struct DfuRxChunk;
     struct WebUsbHwAccess;
 
     /**
-     * @brief Bootloader WebUSB endpoint that feeds incoming DFU bytes into the direct-update writer.
+     * @brief Bootloader WebUSB hardware adapter.
      */
     class WebUsbHw : public Hwa
     {
         public:
         /**
-         * @brief Constructs WebUSB around a direct-update writer instance.
-         *
-         * @param direct_update_writer Direct-update writer that receives incoming DFU bytes.
+         * @brief Constructs the WebUSB hardware adapter.
          */
-        explicit WebUsbHw(bootloader::dfu::direct_update_writer::DirectUpdateWriter& direct_update_writer);
+        WebUsbHw() = default;
 
         /**
          * @brief Initializes bootloader WebUSB.
@@ -51,29 +44,45 @@ namespace opendeck::bootloader::protocols::webusb
          */
         void status(std::string_view message) override;
 
+        /**
+         * @brief Stores the WebUSB RX callback provided by the instance layer.
+         *
+         * The hardware adapter invokes this callback for each received USB OUT buffer.
+         *
+         * @param callback Callback to invoke for incoming WebUSB OUT buffers.
+         */
+        void register_rx_callback(RxCallback callback) override;
+
+        /**
+         * @brief Releases a previously accepted WebUSB OUT buffer.
+         *
+         * @param chunk Buffer to release back to USB.
+         */
+        void release_rx_buffer(DfuRxChunk chunk) override;
+
+        /**
+         * @brief Stores the WebUSB connection-state callback provided by the instance layer.
+         *
+         * The hardware adapter invokes this callback when the USB function is enabled or disabled so
+         * the instance layer can reset upload-session state.
+         *
+         * @param callback Callback to invoke on WebUSB connect/disconnect state changes.
+         */
+        void register_connection_state_callback(ConnectionStateCallback callback) override;
+
         private:
         friend struct WebUsbHwAccess;
 
-        opendeck::common::dfu::dfu_stream_parser::DfuStreamParser _dfu_stream;
-        bootloader::threads::WebUsbRxThread                       _rx_thread;
+        RxCallback              _rx_callback               = {};
+        ConnectionStateCallback _connection_state_callback = {};
 
         /**
-         * @brief Queues one received WebUSB DFU buffer for processing.
+         * @brief Delivers one received WebUSB DFU buffer to the instance layer.
          *
-         * @param chunk Raw DFU stream buffer and owning USB class data.
+         * @param chunk Upload-command buffer and owning USB class data.
          *
-         * @return `true` when the buffer was queued, otherwise `false`.
+         * @return `true` when the buffer was accepted, otherwise `false`.
          */
         bool feed(DfuRxChunk chunk);
-
-        /**
-         * @brief Processes queued WebUSB RX chunks outside the USB request callback.
-         */
-        void process_rx();
-
-        /**
-         * @brief Stops the WebUSB RX worker.
-         */
-        void stop_rx();
     };
 }    // namespace opendeck::bootloader::protocols::webusb

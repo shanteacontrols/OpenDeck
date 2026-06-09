@@ -9,6 +9,7 @@ add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/metadata ${CMAKE_CURREN
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/signaling ${CMAKE_CURRENT_BINARY_DIR}/signaling_common)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/dfu/writer ${CMAKE_CURRENT_BINARY_DIR}/dfu_writer)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/dfu/dfu_stream_parser ${CMAKE_CURRENT_BINARY_DIR}/dfu_stream_parser)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../common/src/dfu/upload ${CMAKE_CURRENT_BINARY_DIR}/dfu_upload)
 add_subdirectory(src/io/indicators)
 add_subdirectory(src/dfu/direct_update_writer)
 add_subdirectory(src/signaling)
@@ -19,6 +20,7 @@ target_link_libraries(app
     opendeck_common_metadata
     opendeck_common_signaling
     opendeck_common_dfu_dfu_stream_parser
+    opendeck_common_dfu_upload
     opendeck_bootloader_io_indicators
     opendeck_bootloader_dfu_direct_update_writer
     opendeck_bootloader_signaling

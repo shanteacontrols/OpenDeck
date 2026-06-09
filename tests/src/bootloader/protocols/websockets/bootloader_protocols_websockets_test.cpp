@@ -4,18 +4,18 @@
  */
 
 #include "tests/shared/common.h"
+#include "tests/shared/helpers/dfu_upload.h"
 #include "tests/shared/helpers/dfu_stream.h"
 #include "tests/shared/helpers/misc.h"
 #include "bootloader/src/dfu/direct_update_writer/builder/builder.h"
 #include "bootloader/src/signaling/signaling.h"
 #include "bootloader/src/protocols/websockets/handler/builder/builder.h"
 #include "bootloader/src/protocols/websockets/instance/impl/websockets.h"
-#include "common/src/protocols/websockets/shared/firmware_upload.h"
+#include "common/src/dfu/upload/shared/common.h"
 
 #include "zlibs/utils/misc/mutex.h"
 
 #include <algorithm>
-#include <cstring>
 #include <deque>
 #include <span>
 #include <vector>
@@ -24,39 +24,6 @@ using namespace opendeck;
 
 namespace
 {
-    std::vector<uint8_t> command_frame(common::protocols::websockets::FirmwareUploadCommand command)
-    {
-        return {
-            static_cast<uint8_t>(command),
-        };
-    }
-
-    std::vector<uint8_t> chunk_frame(const std::vector<uint8_t>& payload)
-    {
-        auto frame = command_frame(common::protocols::websockets::FirmwareUploadCommand::Chunk);
-        frame.insert(frame.end(), payload.begin(), payload.end());
-        return frame;
-    }
-
-    uint32_t ack_bytes_written(const std::vector<uint8_t>& response)
-    {
-        uint32_t bytes_written = 0;
-        std::memcpy(&bytes_written, response.data() + 3, sizeof(bytes_written));
-        return bytes_written;
-    }
-
-    void expect_ack(const std::vector<uint8_t>&                          response,
-                    common::protocols::websockets::FirmwareUploadCommand command,
-                    common::protocols::websockets::FirmwareUploadStatus  status,
-                    uint32_t                                             bytes_written)
-    {
-        ASSERT_EQ(response.size(), common::protocols::websockets::FIRMWARE_UPLOAD_ACK_SIZE);
-        EXPECT_EQ(response.at(0), static_cast<uint8_t>(common::protocols::websockets::FirmwareUploadResponse::Ack));
-        EXPECT_EQ(response.at(1), static_cast<uint8_t>(command));
-        EXPECT_EQ(response.at(2), static_cast<uint8_t>(status));
-        EXPECT_EQ(ack_bytes_written(response), bytes_written);
-    }
-
     void assert_written_image(const std::vector<uint8_t>& expected, const std::vector<uint8_t>& actual)
     {
         ASSERT_GE(actual.size(), expected.size());
@@ -252,9 +219,9 @@ TEST(BootloaderWebSockets, NetworkDfuWritesDirectUpdate)
     ASSERT_TRUE(websockets.init());
     ASSERT_EQ(websockets.accept_client(CLIENT_SOCKET), 0);
 
-    websockets_hwa.push_frame(command_frame(common::protocols::websockets::FirmwareUploadCommand::Begin));
-    websockets_hwa.push_frame(chunk_frame(tests::dfu_stream_parser::make_stream(payload)));
-    websockets_hwa.push_frame(command_frame(common::protocols::websockets::FirmwareUploadCommand::Finish));
+    websockets_hwa.push_frame(tests::dfu_upload::command_frame(common::dfu::upload::Command::Begin));
+    websockets_hwa.push_frame(tests::dfu_upload::chunk_frame(tests::dfu_stream_parser::make_stream(payload)));
+    websockets_hwa.push_frame(tests::dfu_upload::command_frame(common::dfu::upload::Command::Finish));
 
     ASSERT_TRUE(wait_for_sent_frames(websockets_hwa, 3));
     websockets.deinit();
@@ -262,18 +229,18 @@ TEST(BootloaderWebSockets, NetworkDfuWritesDirectUpdate)
     const auto frames = websockets_hwa.sent_frames();
 
     ASSERT_EQ(frames.size(), 3);
-    expect_ack(frames.at(0).data,
-               common::protocols::websockets::FirmwareUploadCommand::Begin,
-               common::protocols::websockets::FirmwareUploadStatus::Ok,
-               0);
-    expect_ack(frames.at(1).data,
-               common::protocols::websockets::FirmwareUploadCommand::Chunk,
-               common::protocols::websockets::FirmwareUploadStatus::Ok,
-               payload.size());
-    expect_ack(frames.at(2).data,
-               common::protocols::websockets::FirmwareUploadCommand::Finish,
-               common::protocols::websockets::FirmwareUploadStatus::Ok,
-               payload.size());
+    tests::dfu_upload::expect_ack(frames.at(0).data,
+                                  common::dfu::upload::Command::Begin,
+                                  common::dfu::upload::Status::Ok,
+                                  0);
+    tests::dfu_upload::expect_ack(frames.at(1).data,
+                                  common::dfu::upload::Command::Chunk,
+                                  common::dfu::upload::Status::Ok,
+                                  payload.size());
+    tests::dfu_upload::expect_ack(frames.at(2).data,
+                                  common::dfu::upload::Command::Finish,
+                                  common::dfu::upload::Status::Ok,
+                                  payload.size());
 
     ASSERT_TRUE(writer_hwa.updated);
     assert_written_image(payload, writer_hwa.written_bytes);
@@ -298,8 +265,8 @@ TEST(BootloaderWebSockets, NetworkDfuRejectsInvalidHeader)
     ASSERT_TRUE(websockets.init());
     ASSERT_EQ(websockets.accept_client(CLIENT_SOCKET), 0);
 
-    websockets_hwa.push_frame(command_frame(common::protocols::websockets::FirmwareUploadCommand::Begin));
-    websockets_hwa.push_frame(chunk_frame(tests::dfu_stream_parser::make_stream(payload, OPENDECK_TARGET_UID ^ 0x01)));
+    websockets_hwa.push_frame(tests::dfu_upload::command_frame(common::dfu::upload::Command::Begin));
+    websockets_hwa.push_frame(tests::dfu_upload::chunk_frame(tests::dfu_stream_parser::make_stream(payload, OPENDECK_TARGET_UID ^ 0x01)));
 
     ASSERT_TRUE(wait_for_sent_frames(websockets_hwa, 2));
     websockets.deinit();
@@ -307,14 +274,14 @@ TEST(BootloaderWebSockets, NetworkDfuRejectsInvalidHeader)
     const auto frames = websockets_hwa.sent_frames();
 
     ASSERT_EQ(frames.size(), 2);
-    expect_ack(frames.at(0).data,
-               common::protocols::websockets::FirmwareUploadCommand::Begin,
-               common::protocols::websockets::FirmwareUploadStatus::Ok,
-               0);
-    expect_ack(frames.at(1).data,
-               common::protocols::websockets::FirmwareUploadCommand::Chunk,
-               common::protocols::websockets::FirmwareUploadStatus::Failed,
-               0);
+    tests::dfu_upload::expect_ack(frames.at(0).data,
+                                  common::dfu::upload::Command::Begin,
+                                  common::dfu::upload::Status::Ok,
+                                  0);
+    tests::dfu_upload::expect_ack(frames.at(1).data,
+                                  common::dfu::upload::Command::Chunk,
+                                  common::dfu::upload::Status::Failed,
+                                  0);
 
     ASSERT_FALSE(writer_hwa.updated);
     ASSERT_TRUE(writer_hwa.erased_sectors.empty());
@@ -336,8 +303,8 @@ TEST(BootloaderWebSockets, NetworkDfuAbortResetsDirectUpdate)
     ASSERT_TRUE(websockets.init());
     ASSERT_EQ(websockets.accept_client(CLIENT_SOCKET), 0);
 
-    websockets_hwa.push_frame(command_frame(common::protocols::websockets::FirmwareUploadCommand::Begin));
-    websockets_hwa.push_frame(command_frame(common::protocols::websockets::FirmwareUploadCommand::Abort));
+    websockets_hwa.push_frame(tests::dfu_upload::command_frame(common::dfu::upload::Command::Begin));
+    websockets_hwa.push_frame(tests::dfu_upload::command_frame(common::dfu::upload::Command::Abort));
 
     ASSERT_TRUE(wait_for_sent_frames(websockets_hwa, 2));
     websockets.deinit();
@@ -345,14 +312,14 @@ TEST(BootloaderWebSockets, NetworkDfuAbortResetsDirectUpdate)
     const auto frames = websockets_hwa.sent_frames();
 
     ASSERT_EQ(frames.size(), 2);
-    expect_ack(frames.at(0).data,
-               common::protocols::websockets::FirmwareUploadCommand::Begin,
-               common::protocols::websockets::FirmwareUploadStatus::Ok,
-               0);
-    expect_ack(frames.at(1).data,
-               common::protocols::websockets::FirmwareUploadCommand::Abort,
-               common::protocols::websockets::FirmwareUploadStatus::Ok,
-               0);
+    tests::dfu_upload::expect_ack(frames.at(0).data,
+                                  common::dfu::upload::Command::Begin,
+                                  common::dfu::upload::Status::Ok,
+                                  0);
+    tests::dfu_upload::expect_ack(frames.at(1).data,
+                                  common::dfu::upload::Command::Abort,
+                                  common::dfu::upload::Status::Ok,
+                                  0);
 
     ASSERT_FALSE(writer_hwa.updated);
     ASSERT_TRUE(writer_hwa.written_bytes.empty());

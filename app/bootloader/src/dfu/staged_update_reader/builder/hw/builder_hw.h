@@ -7,6 +7,12 @@
 
 #include "bootloader/src/dfu/staged_update_reader/hwa/hw/hwa_hw.h"
 #include "bootloader/src/dfu/staged_update_reader/instance/impl/staged_update_reader.h"
+#include "common/src/dfu/flash_area/hwa/hw/hwa_hw.h"
+
+#include <zephyr/devicetree.h>
+#include <zephyr/devicetree/partitions.h>
+
+#define OPENDECK_STAGED_DFU_NODE DT_NODELABEL(staged_dfu_partition)
 
 namespace opendeck::bootloader::dfu::staged_update_reader
 {
@@ -17,7 +23,9 @@ namespace opendeck::bootloader::dfu::staged_update_reader
     {
         public:
         Builder()
-            : _instance(_hwa)
+            : _flash_area(DT_PARTITION_ID(OPENDECK_STAGED_DFU_NODE))
+            , _hwa(_flash_area)
+            , _instance(_hwa)
         {}
 
         StagedUpdateReader& instance()
@@ -26,7 +34,8 @@ namespace opendeck::bootloader::dfu::staged_update_reader
         }
 
         private:
-        HwaHw              _hwa;
-        StagedUpdateReader _instance;
+        opendeck::common::dfu::flash_area::HwaHw _flash_area;
+        HwaHw                                    _hwa;
+        StagedUpdateReader                       _instance;
     };
 }    // namespace opendeck::bootloader::dfu::staged_update_reader

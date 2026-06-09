@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "common/src/dfu/flash_area/impl/deps.h"
+#include "common/src/dfu/flash_area/shared/deps.h"
 #include "common/src/dfu/writer/instance/impl/dfu_writer.h"
 
 #include <optional>
@@ -22,7 +22,7 @@ namespace opendeck::firmware::dfu::staged_update_writer
         class NullFlashArea : public opendeck::common::dfu::flash_area::Hwa
         {
             public:
-            bool open(uint8_t) override
+            bool open() override
             {
                 return false;
             }
@@ -57,12 +57,12 @@ namespace opendeck::firmware::dfu::staged_update_writer
                 return false;
             }
 
-            std::optional<Sector> sector(size_t) const override
+            std::optional<opendeck::common::dfu::flash_area::Sector> sector(size_t) const override
             {
                 return std::nullopt;
             }
 
-            bool sectors(std::span<Sector>, size_t&) const override
+            bool sectors(std::span<opendeck::common::dfu::flash_area::Sector>, size_t&) const override
             {
                 return false;
             }

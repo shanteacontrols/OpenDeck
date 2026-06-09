@@ -18,7 +18,8 @@ FirmwareUploadHandler::FirmwareUploadHandler(bootloader::dfu::direct_update_writ
     : _firmware_upload(direct_update_writer)
 {}
 
-std::optional<std::span<const uint8_t>> FirmwareUploadHandler::handle_frame(std::span<const uint8_t> data, [[maybe_unused]] uint32_t session_id)
+std::optional<FirmwareUploadHandler::Response> FirmwareUploadHandler::handle_frame(std::span<const uint8_t>  data,
+                                                                                   [[maybe_unused]] uint32_t session_id)
 {
     const auto response = _firmware_upload.handle(data);
 
@@ -27,14 +28,14 @@ std::optional<std::span<const uint8_t>> FirmwareUploadHandler::handle_frame(std:
         return std::nullopt;
     }
 
-    _response = response->response;
-
     if (response->finished)
     {
         LOG_INF("Bootloader network DFU upload complete");
     }
 
-    return std::span<const uint8_t>(_response.data(), _response.size());
+    const auto ack_bytes = opendeck::common::dfu::upload::ack_to_bytes(response->response);
+
+    return Response::from(ack_bytes);
 }
 
 void FirmwareUploadHandler::on_close_session([[maybe_unused]] uint32_t session_id)

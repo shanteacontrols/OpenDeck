@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "common/src/dfu/flash_area/impl/deps.h"
+#include "common/src/dfu/flash_area/shared/deps.h"
 #include <algorithm>
 #include <array>
 #include <span>
@@ -28,7 +28,7 @@ namespace opendeck::common::dfu::flash_area
             reset_storage();
         }
 
-        bool open(uint8_t) override
+        bool open() override
         {
             _open_called = true;
             _opened      = _open_result;

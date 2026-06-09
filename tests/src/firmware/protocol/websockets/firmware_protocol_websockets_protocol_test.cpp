@@ -4,12 +4,13 @@
  */
 
 #include "tests/shared/common.h"
+#include "tests/shared/helpers/dfu_upload.h"
 #include "tests/shared/helpers/dfu_stream.h"
 #include "tests/shared/helpers/misc.h"
 #include "common/src/dfu/dfu_stream_parser/shared/common.h"
 #include "firmware/src/protocol/osc/packet/packet.h"
 #include "firmware/src/protocol/osc/shared/paths.h"
-#include "common/src/protocols/websockets/shared/firmware_upload.h"
+#include "common/src/dfu/upload/shared/common.h"
 #include "firmware/src/protocol/websockets/builder/builder.h"
 #include "firmware/src/signaling/signaling.h"
 
@@ -193,17 +194,6 @@ namespace
                                      },
                                      200,
                                      1);
-        }
-
-        static std::vector<uint8_t> firmware_command_frame(common::protocols::websockets::FirmwareUploadCommand command,
-                                                           std::span<const uint8_t>                             payload = {})
-        {
-            std::vector<uint8_t> frame = {
-                static_cast<uint8_t>(command),
-            };
-
-            frame.insert(frame.end(), payload.begin(), payload.end());
-            return frame;
         }
 
         static std::vector<midi_ump> make_sysex_response_packets(std::span<const uint8_t> payload)
@@ -402,9 +392,9 @@ TEST_F(WebSocketsProtocolTest, FirmwareUploadRequestsBootloaderRebootThroughSyst
     ASSERT_TRUE(websockets.init());
     ASSERT_EQ(websockets.accept_client(CLIENT_SOCKET), 0);
 
-    hwa.push_frame(firmware_command_frame(common::protocols::websockets::FirmwareUploadCommand::Begin));
-    hwa.push_frame(firmware_command_frame(common::protocols::websockets::FirmwareUploadCommand::Chunk, dfu));
-    hwa.push_frame(firmware_command_frame(common::protocols::websockets::FirmwareUploadCommand::Finish));
+    hwa.push_frame(tests::dfu_upload::command_frame(common::dfu::upload::Command::Begin));
+    hwa.push_frame(tests::dfu_upload::command_frame(common::dfu::upload::Command::Chunk, dfu));
+    hwa.push_frame(tests::dfu_upload::command_frame(common::dfu::upload::Command::Finish));
 
     ASSERT_TRUE(wait_for_sent_frames(3));
     ASSERT_TRUE(wait_for_system_events(collector, 1));
@@ -419,7 +409,7 @@ TEST_F(WebSocketsProtocolTest, FirmwareUploadBeginClosesActiveConfigSession)
     ASSERT_TRUE(websockets.init());
     ASSERT_EQ(websockets.accept_client(CLIENT_SOCKET), 0);
 
-    hwa.push_frame(firmware_command_frame(common::protocols::websockets::FirmwareUploadCommand::Begin));
+    hwa.push_frame(tests::dfu_upload::command_frame(common::dfu::upload::Command::Begin));
 
     ASSERT_TRUE(wait_for_sent_frames(1));
     ASSERT_TRUE(wait_for_config_disconnects(collector, 1));
