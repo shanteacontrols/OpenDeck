@@ -8,8 +8,6 @@
 #include "tests/shared/helpers/dfu_stream.h"
 #include "tests/shared/helpers/misc.h"
 #include "common/src/dfu/dfu_stream_parser/shared/common.h"
-#include "firmware/src/protocol/osc/packet/packet.h"
-#include "firmware/src/protocol/osc/shared/paths.h"
 #include "common/src/dfu/upload/shared/common.h"
 #include "firmware/src/protocol/websockets/builder/builder.h"
 #include "firmware/src/signaling/signaling.h"
@@ -503,33 +501,4 @@ TEST_F(WebSocketsProtocolTest, StaleConfigResponseDoesNotClearActivePartialRespo
 
     EXPECT_EQ(sent.front().socket, CLIENT_SOCKET);
     EXPECT_EQ(sent.front().data, expected);
-}
-
-TEST_F(WebSocketsProtocolTest, ForwardsOscPacketsToBrowser)
-{
-    ASSERT_TRUE(websockets.init());
-    ASSERT_EQ(websockets.accept_client(CLIENT_SOCKET), 0);
-
-    signaling::publish(signaling::OscIoSignal{
-        .source          = signaling::IoEventSource::Switch,
-        .component_index = 0,
-        .int32_value     = 1,
-        .direction       = signaling::SignalDirection::Out,
-    });
-
-    ASSERT_TRUE(wait_for_sent_frames(1));
-
-    const auto sent = hwa.sent_frames();
-    ASSERT_EQ(sent.size(), 1U);
-    EXPECT_EQ(sent.front().socket, CLIENT_SOCKET);
-    protocol::osc::PacketBuffer expected = {};
-    const auto                  size     = protocol::osc::make_packet(expected,
-                                                                      protocol::osc::OscIndexedAddress{
-                                                                          .prefix = protocol::osc::paths::SWITCH.c_str(),
-                                                                          .index  = 0,
-                                                                      },
-                                                                      protocol::osc::OscInt32{ 1 });
-
-    ASSERT_TRUE(size);
-    EXPECT_EQ(sent.front().data, std::vector<uint8_t>(expected.begin(), expected.begin() + *size));
 }

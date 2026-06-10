@@ -25,12 +25,3 @@ if(CONFIG_PROJECT_TARGET_SUPPORT_STAGED_UPDATE)
         opendeck_firmware_protocol_websockets_handler_firmware_upload
     )
 endif()
-
-if(CONFIG_PROJECT_TARGET_SUPPORT_OSC)
-    add_subdirectory(osc)
-
-    target_link_libraries(opendeck_firmware_protocol_websockets_handler
-        INTERFACE
-        opendeck_firmware_protocol_websockets_handler_osc
-    )
-endif()

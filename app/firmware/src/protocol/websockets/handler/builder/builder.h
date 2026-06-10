@@ -16,10 +16,6 @@
 #include "firmware/src/protocol/websockets/handler/firmware_upload/firmware_upload_handler.h"
 #endif
 
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_OSC
-#include "firmware/src/protocol/websockets/handler/osc/osc_handler.h"
-#endif
-
 namespace opendeck::firmware::protocol::websockets::handler
 {
     /**
@@ -38,10 +34,6 @@ namespace opendeck::firmware::protocol::websockets::handler
 #ifdef CONFIG_PROJECT_TARGET_SUPPORT_STAGED_UPDATE
         firmware::dfu::staged_update_writer::Builder       _staged_update_writer;
         websockets::firmware_upload::FirmwareUploadHandler _firmware_upload{ _staged_update_writer.instance() };
-#endif
-
-#ifdef CONFIG_PROJECT_TARGET_SUPPORT_OSC
-        websockets::osc::OscHandler _osc;
 #endif
     };
 }    // namespace opendeck::firmware::protocol::websockets::handler
