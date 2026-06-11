@@ -20,6 +20,25 @@ namespace zmisc = zlibs::utils::misc;
 namespace
 {
     LOG_MODULE_REGISTER(sensor_bno085, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
+
+    uint8_t smoothing_percentage(Smoothing smoothing)
+    {
+        switch (smoothing)
+        {
+        case Smoothing::Light:
+            return SMOOTHING_PERCENTAGE_LIGHT;
+
+        case Smoothing::Medium:
+            return SMOOTHING_PERCENTAGE_MEDIUM;
+
+        case Smoothing::Heavy:
+            return SMOOTHING_PERCENTAGE_HEAVY;
+
+        case Smoothing::Off:
+        default:
+            return SMOOTHING_PERCENTAGE_OFF;
+        }
+    }
 }    // namespace
 
 SensorBno085::SensorBno085(Hwa& hwa, Database& database)
@@ -76,10 +95,7 @@ bool SensorBno085::init(size_t address_index)
     }
 
     _initialized = true;
-    _rotation_vector_filter.reset();
-    _gyroscope_filter.reset();
-    _linear_accel_filter.reset();
-    _gravity_filter.reset();
+    _has_smoothed_values.fill(false);
 
     return true;
 }
@@ -178,6 +194,18 @@ bool SensorBno085::output_enabled(Setting setting) const
     return _database.read(database::Config::Section::I2c::Bno085, setting) != 0;
 }
 
+Smoothing SensorBno085::smoothing() const
+{
+    const auto value = _database.read(database::Config::Section::I2c::Bno085, Setting::Smoothing);
+
+    if (value >= static_cast<uint8_t>(Smoothing::Count))
+    {
+        return Smoothing::Off;
+    }
+
+    return static_cast<Smoothing>(value);
+}
+
 bool SensorBno085::read_startup_packet()
 {
     std::array<uint8_t, SHTP_HEADER_SIZE> header = {};
@@ -235,12 +263,9 @@ void SensorBno085::publish_report(std::span<const uint8_t> report)
     const int16_t                w         = report_id == ROTATION_VECTOR_REPORT_ID ? read_i16(report, SENSOR_REPORT_DATA_OFFSET + 6U) : int16_t{};
     const std::array<int16_t, 4> values    = { x, y, z, w };
 
-    if (!should_publish(report_id, values))
-    {
-        return;
-    }
+    const auto smoothed_values = smooth_values(report_id, values);
 
-    const auto result = _mapper.result(report_id, values);
+    const auto result = _mapper.result(report_id, smoothed_values);
 
     if (result.has_value())
     {
@@ -276,50 +301,37 @@ void SensorBno085::publish_result(const Mapper::Result& result) const
     }
 }
 
-bool SensorBno085::should_publish(uint8_t report_id, const std::array<int16_t, 4>& values)
+std::array<int16_t, 4> SensorBno085::smooth_values(uint8_t report_id, const std::array<int16_t, 4>& values)
 {
-    switch (report_id)
+    const auto index = report_index(report_id);
+
+    if (!index.has_value())
     {
-    case ROTATION_VECTOR_REPORT_ID:
-        return _rotation_vector_filter.update({ values[0],
-                                                values[1],
-                                                values[2],
-                                                values[3] },
-                                              ROTATION_VECTOR_PUBLISH_THRESHOLD,
-                                              PUBLISH_CONFIRMATION_SAMPLES,
-                                              RotationVectorFilter::ConfirmationMode::Nearby,
-                                              ROTATION_VECTOR_PUBLISH_THRESHOLD);
-
-    case GYROSCOPE_REPORT_ID:
-        return _gyroscope_filter.update({ values[0],
-                                          values[1],
-                                          values[2] },
-                                        GYROSCOPE_PUBLISH_THRESHOLD,
-                                        PUBLISH_CONFIRMATION_SAMPLES,
-                                        SensorVectorFilter::ConfirmationMode::Nearby,
-                                        GYROSCOPE_PUBLISH_THRESHOLD);
-
-    case LINEAR_ACCEL_REPORT_ID:
-        return _linear_accel_filter.update({ values[0],
-                                             values[1],
-                                             values[2] },
-                                           LINEAR_ACCEL_PUBLISH_THRESHOLD,
-                                           PUBLISH_CONFIRMATION_SAMPLES,
-                                           SensorVectorFilter::ConfirmationMode::Nearby,
-                                           LINEAR_ACCEL_PUBLISH_THRESHOLD);
-
-    case GRAVITY_REPORT_ID:
-        return _gravity_filter.update({ values[0],
-                                        values[1],
-                                        values[2] },
-                                      GRAVITY_PUBLISH_THRESHOLD,
-                                      PUBLISH_CONFIRMATION_SAMPLES,
-                                      SensorVectorFilter::ConfirmationMode::Nearby,
-                                      GRAVITY_PUBLISH_THRESHOLD);
-
-    default:
-        return false;
+        return values;
     }
+
+    const auto percentage = smoothing_percentage(smoothing());
+
+    if (!_has_smoothed_values.at(*index) || (percentage == SMOOTHING_PERCENTAGE_OFF))
+    {
+        _smoothed_values.at(*index)     = values;
+        _has_smoothed_values.at(*index) = true;
+
+        return values;
+    }
+
+    auto& smoothed_values = _smoothed_values.at(*index);
+
+    for (size_t i = 0; i < smoothed_values.size(); i++)
+    {
+        const int32_t filtered = (static_cast<int32_t>(percentage) * values.at(i)) +
+                                 ((SMOOTHING_PERCENTAGE_DIVISOR - static_cast<int32_t>(percentage)) *
+                                  smoothed_values.at(i));
+
+        smoothed_values.at(i) = static_cast<int16_t>(filtered / SMOOTHING_PERCENTAGE_DIVISOR);
+    }
+
+    return smoothed_values;
 }
 
 std::optional<uint8_t> SensorBno085::sys_config_get(sys::Config::Section::I2c section, size_t index, uint16_t& value)
@@ -356,6 +368,17 @@ std::optional<uint8_t> SensorBno085::sys_config_set(sys::Config::Section::I2c se
     case Setting::EnableGyroscope:
     case Setting::EnableLinearAcceleration:
     case Setting::EnableGravity:
+        if (value > 1U)
+        {
+            return sys::Config::Status::ErrorWrite;
+        }
+        break;
+
+    case Setting::Smoothing:
+        if (value >= static_cast<uint8_t>(Smoothing::Count))
+        {
+            return sys::Config::Status::ErrorWrite;
+        }
         break;
 
     default:
@@ -366,9 +389,15 @@ std::optional<uint8_t> SensorBno085::sys_config_set(sys::Config::Section::I2c se
                       ? sys::Config::Status::Ack
                       : sys::Config::Status::ErrorWrite;
 
-    if (result == sys::Config::Status::Ack)
+    if ((result == sys::Config::Status::Ack) && (setting == Setting::Smoothing))
     {
-        init(_selected_i2c_address_index);
+        _has_smoothed_values.fill(false);
+    }
+    else if (result == sys::Config::Status::Ack)
+    {
+        result = init(_selected_i2c_address_index)
+                     ? sys::Config::Status::Ack
+                     : sys::Config::Status::ErrorWrite;
     }
 
     return result;
@@ -388,4 +417,25 @@ void SensorBno085::write_u32(std::span<uint8_t> packet, size_t offset, uint32_t 
     packet[offset + 1U] = static_cast<uint8_t>(value >> zmisc::BYTE_BIT_COUNT);
     packet[offset + 2U] = static_cast<uint8_t>(value >> (zmisc::BYTE_BIT_COUNT * 2U));
     packet[offset + 3U] = static_cast<uint8_t>(value >> (zmisc::BYTE_BIT_COUNT * 3U));
+}
+
+std::optional<size_t> SensorBno085::report_index(uint8_t report_id)
+{
+    switch (report_id)
+    {
+    case ROTATION_VECTOR_REPORT_ID:
+        return 0;
+
+    case GYROSCOPE_REPORT_ID:
+        return 1;
+
+    case LINEAR_ACCEL_REPORT_ID:
+        return 2;
+
+    case GRAVITY_REPORT_ID:
+        return 3;
+
+    default:
+        return {};
+    }
 }

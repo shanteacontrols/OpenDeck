@@ -19,6 +19,19 @@ namespace opendeck::firmware::io::i2c::sensor_bno085
         EnableGyroscope,
         EnableLinearAcceleration,
         EnableGravity,
+        Smoothing,
+        Count
+    };
+
+    /**
+     * @brief Identifies the application-side IMU output smoothing profile.
+     */
+    enum class Smoothing : uint8_t
+    {
+        Off,
+        Light,
+        Medium,
+        Heavy,
         Count
     };
 }    // namespace opendeck::firmware::io::i2c::sensor_bno085

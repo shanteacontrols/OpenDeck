@@ -68,16 +68,14 @@ namespace opendeck::firmware::io::i2c::sensor_bno085
         std::span<const uint8_t> i2c_addresses() const override;
 
         private:
-        Hwa&                 _hwa;
-        Database&            _database;
-        Mapper               _mapper;
-        bool                 _initialized                = false;
-        size_t               _selected_i2c_address_index = 0;
-        uint8_t              _control_sequence           = 0;
-        RotationVectorFilter _rotation_vector_filter     = {};
-        SensorVectorFilter   _gyroscope_filter           = {};
-        SensorVectorFilter   _linear_accel_filter        = {};
-        SensorVectorFilter   _gravity_filter             = {};
+        Hwa&                                             _hwa;
+        Database&                                        _database;
+        Mapper                                           _mapper;
+        bool                                             _initialized                = false;
+        size_t                                           _selected_i2c_address_index = 0;
+        uint8_t                                          _control_sequence           = 0;
+        std::array<std::array<int16_t, 4>, REPORT_COUNT> _smoothed_values            = {};
+        std::array<bool, REPORT_COUNT>                   _has_smoothed_values        = {};
 
         /**
          * @brief Returns the selected BNO085 I2C address.
@@ -126,6 +124,13 @@ namespace opendeck::firmware::io::i2c::sensor_bno085
         bool output_enabled(Setting setting) const;
 
         /**
+         * @brief Returns the configured application-side smoothing profile.
+         *
+         * @return Active smoothing profile.
+         */
+        Smoothing smoothing() const;
+
+        /**
          * @brief Reads and publishes one enabled sensor report when available.
          *
          * @return `true` if the sensor is still usable.
@@ -147,14 +152,14 @@ namespace opendeck::firmware::io::i2c::sensor_bno085
         void publish_result(const Mapper::Result& result) const;
 
         /**
-         * @brief Returns whether one report value changed since the last publish.
+         * @brief Applies application-side smoothing to one raw report value set.
          *
          * @param report_id Sensor report ID.
          * @param values Raw report values.
          *
-         * @return `true` when the report should be published.
+         * @return Smoothed report values, or raw values for unknown reports.
          */
-        bool should_publish(uint8_t report_id, const std::array<int16_t, 4>& values);
+        std::array<int16_t, 4> smooth_values(uint8_t report_id, const std::array<int16_t, 4>& values);
 
         /**
          * @brief Reads one BNO085 SysEx setting.
@@ -196,6 +201,15 @@ namespace opendeck::firmware::io::i2c::sensor_bno085
          * @param value Value to write.
          */
         static void write_u32(std::span<uint8_t> packet, size_t offset, uint32_t value);
+
+        /**
+         * @brief Maps a BNO085 report ID to local per-report state storage.
+         *
+         * @param report_id Sensor report ID.
+         *
+         * @return State index when the report is supported.
+         */
+        static std::optional<size_t> report_index(uint8_t report_id);
 
         /**
          * @brief Decodes an SHTP packet length from a four-byte header.

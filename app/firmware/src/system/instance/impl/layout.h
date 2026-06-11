@@ -293,7 +293,7 @@ namespace opendeck::firmware::sys
             // BNO085 section
             zlibs::utils::sysex_conf::Section(static_cast<uint16_t>(io::i2c::sensor_bno085::Setting::Count),
                                               0,
-                                              1),
+                                              0),
 
             // CAP1188 section
             zlibs::utils::sysex_conf::Section(static_cast<uint16_t>(io::i2c::sensor_cap1188::Setting::Count),
