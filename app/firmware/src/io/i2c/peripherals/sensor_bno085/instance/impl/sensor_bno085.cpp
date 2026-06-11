@@ -325,6 +325,11 @@ void SensorBno085::publish_result(const Mapper::Result& result) const
 
 std::array<int16_t, 4> SensorBno085::smooth_values(uint8_t report_id, const std::array<int16_t, 4>& values)
 {
+    if (report_id == ROTATION_VECTOR_REPORT_ID)
+    {
+        return values;
+    }
+
     const auto index = report_index(report_id);
 
     if (!index.has_value())
