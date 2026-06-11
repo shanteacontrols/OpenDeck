@@ -240,6 +240,51 @@ namespace opendeck::firmware::signaling
         float z = 0.0F;
     };
 
+    /**
+     * @brief Carries one VL53L5CX distance row for OSC.
+     */
+    struct OscSensorVl53l5cxRowSignal
+    {
+        static constexpr size_t DISTANCE_COUNT = 8;
+
+        size_t                              row         = 0;
+        size_t                              width       = DISTANCE_COUNT;
+        std::array<int32_t, DISTANCE_COUNT> distance_mm = {};
+    };
+
+    /**
+     * @brief Carries the nearest VL53L5CX zone for OSC.
+     */
+    struct OscSensorVl53l5cxNearestSignal
+    {
+        int32_t distance_mm = 0;
+        int32_t zone        = -1;
+        int32_t x           = -1;
+        int32_t y           = -1;
+    };
+
+    /**
+     * @brief Carries the centroid of active VL53L5CX zones for OSC.
+     */
+    struct OscSensorVl53l5cxCentroidSignal
+    {
+        float   x            = -1.0F;
+        float   y            = -1.0F;
+        float   distance_mm  = 0.0F;
+        int32_t active_zones = 0;
+    };
+
+    /**
+     * @brief Carries compact VL53L5CX presence information for OSC.
+     */
+    struct OscSensorVl53l5cxPresenceSignal
+    {
+        int32_t present      = 0;
+        int32_t active_zones = 0;
+        int32_t nearest_mm   = 0;
+        float   energy       = 0.0F;
+    };
+
     using OscSensorSignalPayload = std::variant<OscSensorProximitySignal,
                                                 OscSensorAmbientLightSignal,
                                                 OscSensorDistanceSignal,
@@ -251,7 +296,11 @@ namespace opendeck::firmware::signaling
                                                 OscSensorImuEulerSignal,
                                                 OscSensorImuGyroscopeSignal,
                                                 OscSensorImuLinearAccelerationSignal,
-                                                OscSensorImuGravitySignal>;
+                                                OscSensorImuGravitySignal,
+                                                OscSensorVl53l5cxRowSignal,
+                                                OscSensorVl53l5cxNearestSignal,
+                                                OscSensorVl53l5cxCentroidSignal,
+                                                OscSensorVl53l5cxPresenceSignal>;
 
     /**
      * @brief Requests OSC processing for one sensor event.

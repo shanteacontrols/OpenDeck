@@ -16,6 +16,7 @@
 #include "firmware/src/io/i2c/peripherals/sensor_bno085/shared/common.h"
 #include "firmware/src/io/i2c/peripherals/sensor_cap1188/shared/common.h"
 #include "firmware/src/io/i2c/peripherals/sensor_vl53l4cx/shared/common.h"
+#include "firmware/src/io/i2c/peripherals/sensor_vl53l5cx/shared/common.h"
 #include "common/src/protocols/mdns/shared/common.h"
 #include "firmware/src/protocol/midi/shared/common.h"
 #include "firmware/src/protocol/osc/shared/common.h"
@@ -381,6 +382,12 @@ namespace opendeck::firmware::database
             // VL53L4CX
             Section(
                 static_cast<uint8_t>(io::i2c::sensor_vl53l4cx::Setting::Count),
+                SectionParameterType::Word,
+                PreserveSetting::Disable,
+                AutoIncrementSetting::Disable),
+            // VL53L5CX
+            Section(
+                static_cast<uint8_t>(io::i2c::sensor_vl53l5cx::Setting::Count),
                 SectionParameterType::Word,
                 PreserveSetting::Disable,
                 AutoIncrementSetting::Disable),

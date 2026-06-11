@@ -25,6 +25,7 @@ if(CONFIG_PROJECT_TARGET_SUPPORT_I2C)
         add_subdirectory(peripherals/sensor_bno085)
         add_subdirectory(peripherals/sensor_cap1188)
         add_subdirectory(peripherals/sensor_vl53l4cx)
+        add_subdirectory(peripherals/sensor_vl53l5cx)
 
         target_link_libraries(opendeck_firmware_io_i2c
             PUBLIC
@@ -32,6 +33,7 @@ if(CONFIG_PROJECT_TARGET_SUPPORT_I2C)
             opendeck_firmware_io_i2c_peripherals_sensor_bno085
             opendeck_firmware_io_i2c_peripherals_sensor_cap1188
             opendeck_firmware_io_i2c_peripherals_sensor_vl53l4cx
+            opendeck_firmware_io_i2c_peripherals_sensor_vl53l5cx
         )
     endif()
 endif()

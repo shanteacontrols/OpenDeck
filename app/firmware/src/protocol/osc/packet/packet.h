@@ -20,6 +20,15 @@
 
 namespace opendeck::firmware::protocol::osc
 {
+    constexpr size_t VL53L5CX_ROW_ZONE_0 = 0;
+    constexpr size_t VL53L5CX_ROW_ZONE_1 = 1;
+    constexpr size_t VL53L5CX_ROW_ZONE_2 = 2;
+    constexpr size_t VL53L5CX_ROW_ZONE_3 = 3;
+    constexpr size_t VL53L5CX_ROW_ZONE_4 = 4;
+    constexpr size_t VL53L5CX_ROW_ZONE_5 = 5;
+    constexpr size_t VL53L5CX_ROW_ZONE_6 = 6;
+    constexpr size_t VL53L5CX_ROW_ZONE_7 = 7;
+
     /**
      * @brief Parsed view of one OSC message.
      */
@@ -357,6 +366,62 @@ namespace opendeck::firmware::protocol::osc
                                        OscFloat32{ payload.x },
                                        OscFloat32{ payload.y },
                                        OscFloat32{ payload.z });
+                }
+                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorVl53l5cxRowSignal>)
+                {
+                    if (payload.width == 4U)
+                    {
+                        return make_packet(packet,
+                                           OscIndexedAddress{
+                                               .prefix = paths::SENSOR_VL53L5CX_ROW.c_str(),
+                                               .index  = payload.row,
+                                           },
+                                           OscInt32{ payload.distance_mm[VL53L5CX_ROW_ZONE_0] },
+                                           OscInt32{ payload.distance_mm[VL53L5CX_ROW_ZONE_1] },
+                                           OscInt32{ payload.distance_mm[VL53L5CX_ROW_ZONE_2] },
+                                           OscInt32{ payload.distance_mm[VL53L5CX_ROW_ZONE_3] });
+                    }
+
+                    return make_packet(packet,
+                                       OscIndexedAddress{
+                                           .prefix = paths::SENSOR_VL53L5CX_ROW.c_str(),
+                                           .index  = payload.row,
+                                       },
+                                       OscInt32{ payload.distance_mm[VL53L5CX_ROW_ZONE_0] },
+                                       OscInt32{ payload.distance_mm[VL53L5CX_ROW_ZONE_1] },
+                                       OscInt32{ payload.distance_mm[VL53L5CX_ROW_ZONE_2] },
+                                       OscInt32{ payload.distance_mm[VL53L5CX_ROW_ZONE_3] },
+                                       OscInt32{ payload.distance_mm[VL53L5CX_ROW_ZONE_4] },
+                                       OscInt32{ payload.distance_mm[VL53L5CX_ROW_ZONE_5] },
+                                       OscInt32{ payload.distance_mm[VL53L5CX_ROW_ZONE_6] },
+                                       OscInt32{ payload.distance_mm[VL53L5CX_ROW_ZONE_7] });
+                }
+                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorVl53l5cxNearestSignal>)
+                {
+                    return make_packet(packet,
+                                       paths::SENSOR_VL53L5CX_NEAREST.c_str(),
+                                       OscInt32{ payload.distance_mm },
+                                       OscInt32{ payload.zone },
+                                       OscInt32{ payload.x },
+                                       OscInt32{ payload.y });
+                }
+                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorVl53l5cxCentroidSignal>)
+                {
+                    return make_packet(packet,
+                                       paths::SENSOR_VL53L5CX_CENTROID.c_str(),
+                                       OscFloat32{ payload.x },
+                                       OscFloat32{ payload.y },
+                                       OscFloat32{ payload.distance_mm },
+                                       OscInt32{ payload.active_zones });
+                }
+                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorVl53l5cxPresenceSignal>)
+                {
+                    return make_packet(packet,
+                                       paths::SENSOR_VL53L5CX_PRESENCE.c_str(),
+                                       OscInt32{ payload.present },
+                                       OscInt32{ payload.active_zones },
+                                       OscInt32{ payload.nearest_mm },
+                                       OscFloat32{ payload.energy });
                 }
 
                 return {};

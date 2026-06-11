@@ -180,6 +180,7 @@ namespace opendeck::firmware::util
             database::Config::Section::I2c::Display,
             database::Config::Section::I2c::Apds9960,
             database::Config::Section::I2c::Vl53l4cx,
+            database::Config::Section::I2c::Vl53l5cx,
             database::Config::Section::I2c::Cap1188,
             database::Config::Section::I2c::Bno085,
         };

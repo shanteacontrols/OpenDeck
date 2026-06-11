@@ -11,6 +11,7 @@
 #include "firmware/src/io/i2c/peripherals/sensor_bno085/instance/impl/sensor_bno085.h"
 #include "firmware/src/io/i2c/peripherals/sensor_cap1188/instance/impl/sensor_cap1188.h"
 #include "firmware/src/io/i2c/peripherals/sensor_vl53l4cx/instance/impl/sensor_vl53l4cx.h"
+#include "firmware/src/io/i2c/peripherals/sensor_vl53l5cx/instance/impl/sensor_vl53l5cx.h"
 #endif
 #include "firmware/src/database/instance/impl/database.h"
 
@@ -38,6 +39,8 @@ namespace opendeck::firmware::io::i2c
             , _sensor_cap1188(hwa, _sensor_cap1188_database)
             , _sensor_vl53l4cx_database(database)
             , _sensor_vl53l4cx(hwa, _sensor_vl53l4cx_database)
+            , _sensor_vl53l5cx_database(database)
+            , _sensor_vl53l5cx(hwa, _sensor_vl53l5cx_database)
             , _display_database(database)
             , _display(hwa, _display_database)
         {}
@@ -58,6 +61,8 @@ namespace opendeck::firmware::io::i2c
         sensor_cap1188::SensorCap1188   _sensor_cap1188;
         sensor_vl53l4cx::Database       _sensor_vl53l4cx_database;
         sensor_vl53l4cx::SensorVl53l4cx _sensor_vl53l4cx;
+        sensor_vl53l5cx::Database       _sensor_vl53l5cx_database;
+        sensor_vl53l5cx::SensorVl53l5cx _sensor_vl53l5cx;
 #endif
         display::Database _display_database;
         display::Display  _display;

@@ -27,3 +27,7 @@ manifest:
       remote: stm32duino
       revision: 8ef5e558f4617ac52f559563e9ffe285a8b345f8
       path: modules/vl53l4cx
+    - name: vl53l5cx
+      remote: stm32duino
+      revision: e904f764c1bdd2c35032cb4e9f9bbfdd94329865
+      path: modules/vl53l5cx
