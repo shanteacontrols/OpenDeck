@@ -23,7 +23,6 @@
         compatible = "opendeck,bulk-build";
         app;
         host-test;
-        lint;
     };
 
     opendeck_switches: opendeck-switches {
