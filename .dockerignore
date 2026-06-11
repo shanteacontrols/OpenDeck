@@ -1,0 +1,7 @@
+*
+!.devcontainer/
+!.devcontainer/**
+!west.yml
+!zephyr/
+!zephyr/west/
+!zephyr/west/**

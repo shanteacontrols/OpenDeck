@@ -6,8 +6,8 @@ index 67481268596..8f14d8a7594 100644
  board_runner_args(openocd "--no-halt")
  
  # keep first
-+set(OPENOCD "/home/ubuntu/ST_OpenOCD/src/openocd" CACHE FILEPATH "" FORCE)
-+set(OPENOCD_DEFAULT_PATH "/home/ubuntu/ST_OpenOCD/tcl")
++set(OPENOCD "/opt/toolchains/st-openocd/bin/openocd" CACHE FILEPATH "" FORCE)
++set(OPENOCD_DEFAULT_PATH "/opt/toolchains/st-openocd/share/openocd/scripts")
 +include(${ZEPHYR_BASE}/boards/common/openocd-stm32.board.cmake)
  include(${ZEPHYR_BASE}/boards/common/stm32cubeprogrammer.board.cmake)
  include(${ZEPHYR_BASE}/boards/common/pyocd.board.cmake)

@@ -13,7 +13,24 @@ manifest:
     - name: zephyr
       remote: zephyrproject-rtos
       revision: 2f9f440c2fc8105e6beeb2f711e4acfdda46dcd5
-      import: true
+      import:
+        name-allowlist:
+          - cmsis
+          - cmsis_6
+          - hal_atmel
+          - hal_espressif
+          - hal_nordic
+          - hal_nxp
+          - hal_rpi_pico
+          - hal_st
+          - hal_stm32
+          - hal_xtensa
+          - libmetal
+          - mcuboot
+          - mbedtls
+          - open-amp
+          - picolibc
+          - tf-psa-crypto
     - name: u8g2
       remote: olikraus
       revision: 8430f65c9e2bc7ca393bf0e9d8cf58a84ae081d7

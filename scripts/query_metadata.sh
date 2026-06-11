@@ -19,7 +19,7 @@ function usage
     Alternative option:
       --overlay <firmware.overlay>
     Optional:
-      --key <target|board_name|bulk_app|bulk_lint|target_alias_overlay_line>
+      --key <target|board_name|bulk_app|bulk_host_test|bulk_hardware_test|bulk_lint|target_alias_overlay_line>
 
     dts
     Reads metadata from one generated zephyr.dts file by converting it to YAML.
@@ -332,8 +332,13 @@ function target_metadata
     print_metadata "$(awk -v target="$target" -v board_name="$board_name" '
         BEGIN {
             in_bulk = 0;
+            in_tests = 0;
             bulk_app = "false";
+            bulk_host_test = "false";
+            bulk_hardware_test = "false";
             bulk_lint = "false";
+            support_host_test = "false";
+            support_hardware_test = "false";
         }
 
         /opendeck_bulk_build:[[:space:]]+opendeck-bulk-build/ {
@@ -346,18 +351,46 @@ function target_metadata
             next;
         }
 
+        /opendeck_tests:[[:space:]]+opendeck-tests/ {
+            in_tests = 1;
+            next;
+        }
+
+        in_tests && /^[[:space:]]*};/ {
+            in_tests = 0;
+            next;
+        }
+
         in_bulk && /^[[:space:]]*app;/ {
             bulk_app = "true";
+        }
+
+        in_bulk && /^[[:space:]]*host-test;/ {
+            bulk_host_test = "true";
+        }
+
+        in_bulk && /^[[:space:]]*hardware-test;/ {
+            bulk_hardware_test = "true";
         }
 
         in_bulk && /^[[:space:]]*lint;/ {
             bulk_lint = "true";
         }
 
+        in_tests && /^[[:space:]]*host;/ {
+            support_host_test = "true";
+        }
+
+        in_tests && /^[[:space:]]*hardware;/ {
+            support_hardware_test = "true";
+        }
+
         END {
             printf "target=%s\n", target;
             printf "board_name=%s\n", board_name;
             printf "bulk_app=%s\n", bulk_app;
+            printf "bulk_host_test=%s\n", (bulk_host_test == "true" && support_host_test == "true") ? "true" : "false";
+            printf "bulk_hardware_test=%s\n", (bulk_hardware_test == "true" && support_hardware_test == "true") ? "true" : "false";
             printf "bulk_lint=%s\n", bulk_lint;
         }
     ' "$overlay")

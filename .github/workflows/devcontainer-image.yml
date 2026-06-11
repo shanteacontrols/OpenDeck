@@ -1,0 +1,53 @@
+name: Devcontainer Image
+
+on:
+  workflow_call:
+    outputs:
+      image_name:
+        description: Devcontainer image name.
+        value: ${{ jobs.devcontainer.outputs.image_name }}
+      image_tag:
+        description: Devcontainer image tag.
+        value: ${{ jobs.devcontainer.outputs.image_tag }}
+
+jobs:
+  devcontainer:
+    name: Devcontainer image
+    runs-on: ubuntu-latest
+    outputs:
+      image_name: ${{ steps.image.outputs.name }}
+      image_tag: ${{ steps.image.outputs.tag }}
+    steps:
+      - name: Pull the repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ github.token }}
+      - name: Setup image metadata
+        id: image
+        run: |
+          set -euo pipefail
+          echo "name=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opendeck-devcontainer" >> "${GITHUB_OUTPUT}"
+          echo "tag=ci-${{ hashFiles('.devcontainer/Dockerfile', '.devcontainer/devcontainer.json', '.devcontainer/ci/devcontainer.json', '.dockerignore', 'west.yml', 'zephyr/west/**/*.yml') }}" >> "${GITHUB_OUTPUT}"
+      - name: Check image
+        id: image-exists
+        run: |
+          set -euo pipefail
+          if docker manifest inspect "${{ steps.image.outputs.name }}:${{ steps.image.outputs.tag }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "exists=false" >> "${GITHUB_OUTPUT}"
+          fi
+      - name: Build and push container
+        if: steps.image-exists.outputs.exists != 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .devcontainer/Dockerfile
+          push: true
+          tags: ${{ steps.image.outputs.name }}:${{ steps.image.outputs.tag }}

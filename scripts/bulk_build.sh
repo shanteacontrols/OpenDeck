@@ -25,6 +25,15 @@ function usage
 
     --type=lint
     This option will run CodeChecker analysis for targets whose opendeck-bulk-build node contains lint.
+
+    --print-target-matrix
+    Prints selected targets as a JSON array and exits. Currently supported for --type=app and --type=lint.
+
+    --test-scope=shared|preset|all
+    Selects which tests to run for --type=host-test and --type=hardware-test. Defaults to all.
+
+    --test-target=<target>
+    Restricts --type=host-test and --type=hardware-test preset execution to a single target.
     "
 
     echo -e "\n--help
@@ -42,11 +51,23 @@ for arg in "$@"; do
         --type=*)
             type=${arg#--type=}
             ;;
+        --print-target-matrix)
+            print_target_matrix=true
+            ;;
+        --test-scope=*)
+            test_scope=${arg#--test-scope=}
+            ;;
+        --test-target=*)
+            selected_test_target=${arg#--test-target=}
+            ;;
     esac
 done
 
 project_root=${ZENV_PROJECT_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
 build_targets=()
+print_target_matrix=${print_target_matrix:-false}
+test_scope=${test_scope:-all}
+selected_test_target=${selected_test_target:-}
 yaml_parser="dasel -n -p yaml"
 metadata_query_script="${project_root}/scripts/query_metadata.sh"
 
@@ -55,35 +76,12 @@ function load_targets
     mapfile -t build_targets < <(find "$project_root/app/boards/opendeck" -mindepth 2 -maxdepth 2 -type f -name firmware.overlay -printf '%h\n' | xargs -r -n1 basename | sort)
 }
 
-function load_built_app_targets
-{
-    mapfile -t build_targets < <(find "$project_root/build/app/default/release" -mindepth 4 -maxdepth 4 -type f -path '*/app/zephyr/.config' -printf '%P\n' | cut -d/ -f1 | sort)
-}
-
 function metadata_value
 {
     local metadata=$1
     local key=$2
 
     printf '%s\n' "$metadata" | sed -n "s/^${key}=//p" | head -n1
-}
-
-function app_config_path
-{
-    local target=$1
-
-    printf '%s\n' "${project_root}/build/app/default/release/${target}/app/zephyr/.config"
-}
-
-function app_config_bool_enabled
-{
-    local target=$1
-    local key=$2
-    local value
-
-    value=$(bash "$metadata_query_script" config --file "$(app_config_path "$target")" --key "$key" --default n)
-
-    [[ "$value" == "y" ]]
 }
 
 function testcase_tags
@@ -198,20 +196,116 @@ function run_tests_for_each_target
     done
 }
 
+function select_single_target
+{
+    local selected=$1
+    shift
+    local targets=("$@")
+    local target
+
+    if [[ -z "$selected" ]]
+    then
+        printf '%s\n' "${targets[@]}"
+        return
+    fi
+
+    for target in "${targets[@]}"
+    do
+        if [[ "$target" == "$selected" ]]
+        then
+            printf '%s\n' "$target"
+            return
+        fi
+    done
+
+    echo "ERROR: Target '${selected}' is not enabled for ${type}." >&2
+    exit 1
+}
+
+function json_array
+{
+    python3 -c 'import json, sys; print(json.dumps(sys.argv[1:], separators=(",", ":")))' "$@"
+}
+
+function load_app_targets
+{
+    load_targets
+    app_targets=()
+
+    for target in "${build_targets[@]}"
+    do
+        target_metadata=$(bash "$metadata_query_script" target --target "$target")
+
+        if [[ "$(metadata_value "$target_metadata" "bulk_app")" == "true" ]]
+        then
+            app_targets+=("$target")
+        fi
+    done
+}
+
+function load_lint_targets
+{
+    load_targets
+    lint_targets=()
+
+    for target in "${build_targets[@]}"
+    do
+        target_metadata=$(bash "$metadata_query_script" target --target "$target")
+
+        if [[ "$(metadata_value "$target_metadata" "bulk_lint")" == "true" ]]
+        then
+            lint_targets+=("$target")
+        fi
+    done
+}
+
+function load_host_targets
+{
+    load_targets
+    host_targets=()
+
+    for target in "${build_targets[@]}"
+    do
+        target_metadata=$(bash "$metadata_query_script" target --target "$target")
+
+        if [[ "$(metadata_value "$target_metadata" "bulk_host_test")" == "true" ]]
+        then
+            host_targets+=("$target")
+        fi
+    done
+}
+
+function load_hardware_targets
+{
+    load_targets
+    hardware_targets=()
+
+    for target in "${build_targets[@]}"
+    do
+        target_metadata=$(bash "$metadata_query_script" target --target "$target")
+
+        if [[ "$(metadata_value "$target_metadata" "bulk_hardware_test")" == "true" ]]
+        then
+            hardware_targets+=("$target")
+        fi
+    done
+}
+
 case $type in
     app)
-        load_targets
-        app_targets=()
+        load_app_targets
 
-        for target in "${build_targets[@]}"
-        do
-            target_metadata=$(bash "$metadata_query_script" target --target "$target")
+        if [[ "$print_target_matrix" == "true" ]]
+        then
+            json_array "${app_targets[@]}"
+            exit 0
+        fi
 
-            if [[ "$(metadata_value "$target_metadata" "bulk_app")" == "true" ]]
-            then
-                app_targets+=("$target")
-            fi
-        done
+        if (( ${#app_targets[@]} == 0 ))
+        then
+            echo "ERROR: No app targets are enabled for bulk execution."
+            exit 1
+        fi
 
         total_targets=${#app_targets[@]}
         target_counter=0
@@ -225,20 +319,7 @@ case $type in
     ;;
 
     host-test)
-        load_built_app_targets
-        host_targets=()
-
-        for target in "${build_targets[@]}"
-        do
-            if app_config_bool_enabled "$target" "CONFIG_PROJECT_TARGET_BULK_HOST_TEST" &&
-               app_config_bool_enabled "$target" "CONFIG_PROJECT_TARGET_SUPPORT_HOST_TEST"
-            then
-                host_targets+=("$target")
-            fi
-        done
-
-        mapfile -t shared_host_tests < <(list_tests_by_tag "host" "without" | sort)
-        mapfile -t preset_host_tests < <(list_tests_by_tag "host" "with" | sort)
+        load_host_targets
 
         if (( ${#host_targets[@]} == 0 ))
         then
@@ -246,27 +327,42 @@ case $type in
             exit 1
         fi
 
-        run_tests_once_per_suite "${host_targets[0]}" "shared_host" "${shared_host_tests[@]}"
+        if [[ "$print_target_matrix" == "true" ]]
+        then
+            json_array "${host_targets[@]}"
+            exit 0
+        fi
 
-        host_tests=("${preset_host_tests[@]}")
-        run_tests_for_each_target "host" "${host_targets[@]}"
+        mapfile -t shared_host_tests < <(list_tests_by_tag "host" "without" | sort)
+        mapfile -t preset_host_tests < <(list_tests_by_tag "host" "with" | sort)
+        mapfile -t selected_host_targets < <(select_single_target "$selected_test_target" "${host_targets[@]}")
+
+        case "$test_scope" in
+            shared)
+                run_tests_once_per_suite "${host_targets[0]}" "shared_host" "${shared_host_tests[@]}"
+                ;;
+
+            preset)
+                host_tests=("${preset_host_tests[@]}")
+                run_tests_for_each_target "host" "${selected_host_targets[@]}"
+                ;;
+
+            all)
+                run_tests_once_per_suite "${host_targets[0]}" "shared_host" "${shared_host_tests[@]}"
+
+                host_tests=("${preset_host_tests[@]}")
+                run_tests_for_each_target "host" "${selected_host_targets[@]}"
+                ;;
+
+            *)
+                echo "ERROR: Invalid test scope '${test_scope}'. Expected shared, preset, or all."
+                exit 1
+                ;;
+        esac
     ;;
 
     hardware-test)
-        load_built_app_targets
-        hardware_targets=()
-
-        for target in "${build_targets[@]}"
-        do
-            if app_config_bool_enabled "$target" "CONFIG_PROJECT_TARGET_BULK_HARDWARE_TEST" &&
-               app_config_bool_enabled "$target" "CONFIG_PROJECT_TARGET_SUPPORT_HARDWARE_TEST"
-            then
-                hardware_targets+=("$target")
-            fi
-        done
-
-        mapfile -t shared_hardware_tests < <(list_tests_by_tag "hardware" "without" | sort)
-        mapfile -t preset_hardware_tests < <(list_tests_by_tag "hardware" "with" | sort)
+        load_hardware_targets
 
         if (( ${#hardware_targets[@]} == 0 ))
         then
@@ -274,25 +370,54 @@ case $type in
             exit 1
         fi
 
-        run_tests_once_per_suite "${hardware_targets[0]}" "shared_hardware" "${shared_hardware_tests[@]}"
+        if [[ "$print_target_matrix" == "true" ]]
+        then
+            json_array "${hardware_targets[@]}"
+            exit 0
+        fi
 
-        hardware_tests=("${preset_hardware_tests[@]}")
-        run_tests_for_each_target "hardware" "${hardware_targets[@]}"
+        mapfile -t shared_hardware_tests < <(list_tests_by_tag "hardware" "without" | sort)
+        mapfile -t preset_hardware_tests < <(list_tests_by_tag "hardware" "with" | sort)
+        mapfile -t selected_hardware_targets < <(select_single_target "$selected_test_target" "${hardware_targets[@]}")
+
+        case "$test_scope" in
+            shared)
+                run_tests_once_per_suite "${hardware_targets[0]}" "shared_hardware" "${shared_hardware_tests[@]}"
+                ;;
+
+            preset)
+                hardware_tests=("${preset_hardware_tests[@]}")
+                run_tests_for_each_target "hardware" "${selected_hardware_targets[@]}"
+                ;;
+
+            all)
+                run_tests_once_per_suite "${hardware_targets[0]}" "shared_hardware" "${shared_hardware_tests[@]}"
+
+                hardware_tests=("${preset_hardware_tests[@]}")
+                run_tests_for_each_target "hardware" "${selected_hardware_targets[@]}"
+                ;;
+
+            *)
+                echo "ERROR: Invalid test scope '${test_scope}'. Expected shared, preset, or all."
+                exit 1
+                ;;
+        esac
     ;;
 
     lint)
-        load_targets
-        lint_targets=()
+        load_lint_targets
 
-        for target in "${build_targets[@]}"
-        do
-            target_metadata=$(bash "$metadata_query_script" target --target "$target")
+        if [[ "$print_target_matrix" == "true" ]]
+        then
+            json_array "${lint_targets[@]}"
+            exit 0
+        fi
 
-            if [[ "$(metadata_value "$target_metadata" "bulk_lint")" == "true" ]]
-            then
-                lint_targets+=("$target")
-            fi
-        done
+        if (( ${#lint_targets[@]} == 0 ))
+        then
+            echo "ERROR: No lint targets are enabled for bulk execution."
+            exit 1
+        fi
 
         total_targets=${#lint_targets[@]}
         target_counter=0

@@ -1,7 +1,9 @@
-FROM ghcr.io/paradajz/zenv:2bf28df89eac41be02ee4389b58a5f862e423801
+FROM ghcr.io/paradajz/zenv:4448e095d154e18822a8f86f53522c1e63dabf11
 
+ARG project_dir=project
 ARG jlink_version=V926
 ARG tmp_deps_dir=/tmp/deps
+ARG west_update_args="--narrow -o=--depth=1"
 
 RUN \
 echo '#!/bin/bash\necho not running udevadm "$@"' | sudo tee -a /usr/bin/udevadm && \
@@ -34,7 +36,8 @@ libxext6 \
 libxkbcommon0 \
 libxkbcommon-x11-0 \
 libxrender1 \
-pkg-config
+pkg-config && \
+sudo rm -rf /var/lib/apt/lists/*
 
 RUN \
 mkdir -p ${tmp_deps_dir} && \
@@ -87,13 +90,6 @@ wget ${wget_args} \
 chmod +x nrfutil && \
 sudo mv nrfutil /usr/bin/
 
-RUN \
-cd && \
-git clone https://github.com/arduino/BOSSA.git && \
-cd BOSSA && \
-make bossac && \
-sudo mv bin/bossac /usr/bin/arduino-bossac
-
 # Temporarily clone ST's fork of OpenOCD so that flashing of STM32H5 targets works
 RUN \
 sudo apt-get update && \
@@ -105,14 +101,30 @@ libhidapi-dev \
 libjaylink-dev \
 libusb-1.0-0-dev \
 m4 && \
+sudo rm -rf /var/lib/apt/lists/* && \
 cd /home/ubuntu && \
 git clone --branch openocd-cubeide-r7 https://github.com/STMicroelectronics/OpenOCD.git ST_OpenOCD && \
 cd ST_OpenOCD && \
 git submodule update --init --recursive && \
 ./bootstrap && \
-./configure --enable-stlink --enable-cmsis-dap --enable-jlink --enable-ftdi --enable-dummy && \
+./configure --prefix=/opt/toolchains/st-openocd --enable-stlink --enable-cmsis-dap --enable-jlink --enable-ftdi --enable-dummy && \
 make -j$(nproc) && \
-./src/openocd --version
+./src/openocd --version && \
+sudo make install && \
+/opt/toolchains/st-openocd/bin/openocd --version && \
+cd && \
+rm -rf /home/ubuntu/ST_OpenOCD
 
 RUN nrfutil self-upgrade
 RUN nrfutil install device
+
+RUN mkdir -p ${ZEPHYR_WS}/${project_dir}
+COPY --chown=ubuntu:ubuntu west.yml ${ZEPHYR_WS}/${project_dir}/west.yml
+RUN \
+. ${ZEPHYR_WS}/.venv/bin/activate && \
+cd ${ZEPHYR_WS}/${project_dir} && \
+west update ${west_update_args} && \
+west packages pip --install && \
+rm -rf /home/ubuntu/.cache/pip && \
+cd ${ZEPHYR_WS} && \
+rm -rf ${ZEPHYR_WS}/${project_dir}

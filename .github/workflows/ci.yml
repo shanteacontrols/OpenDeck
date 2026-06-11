@@ -8,128 +8,175 @@ on:
       - '**'
 
 jobs:
-  build:
-    name: Build/Test
+  devcontainer:
+    name: Devcontainer image
+    uses: ./.github/workflows/devcontainer-image.yml
+  app-targets:
+    name: App targets
     runs-on: ubuntu-latest
+    outputs:
+      targets: ${{ steps.targets.outputs.targets }}
     steps:
-      - name: Free Disk Space
-        uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: false
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          swap-storage: true
       - name: Pull the repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Setup missing directories and files on the runner
+      - name: List app targets
+        id: targets
         run: |
-          touch ~/.gitconfig
-      - name: Prepare container
-        uses: devcontainers/ci@v0.3
+          set -euo pipefail
+          targets=$(./scripts/bulk_build.sh --type=app --print-target-matrix)
+          echo "targets=${targets}" >> "${GITHUB_OUTPUT}"
+  app:
+    name: App
+    needs:
+      - app-targets
+      - devcontainer
+    uses: ./.github/workflows/app-build.yml
+    with:
+      image_name: ${{ needs.devcontainer.outputs.image_name }}
+      image_tag: ${{ needs.devcontainer.outputs.image_tag }}
+      targets: ${{ needs.app-targets.outputs.targets }}
+  host-test-targets:
+    name: Host test targets
+    runs-on: ubuntu-latest
+    outputs:
+      targets: ${{ steps.targets.outputs.targets }}
+    steps:
+      - name: Pull the repository
+        uses: actions/checkout@v6
         with:
-          imageName: opendeck # Local name only
-          imageTag: latest # Local tag only
-          push: never
-      - name: Build and test presets
-        uses: devcontainers/ci@v0.3
+          fetch-depth: 0
+      - name: List host test targets
+        id: targets
+        run: |
+          set -euo pipefail
+          targets=$(./scripts/bulk_build.sh --type=host-test --print-target-matrix)
+          echo "targets=${targets}" >> "${GITHUB_OUTPUT}"
+  host-test-shared:
+    name: Tests (shared)
+    runs-on: ubuntu-latest
+    needs:
+      - host-test-targets
+      - devcontainer
+    container: &native-container
+      image: ${{ needs.devcontainer.outputs.image_name }}:${{ needs.devcontainer.outputs.image_tag }}
+      credentials:
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+      options: --user root
+    env: &native-env
+      HOME: /home/ubuntu
+    defaults: &native-defaults
+      run:
+        shell: bash
+    steps:
+      - name: Pull the repository
+        uses: actions/checkout@v6
         with:
-          imageName: opendeck
-          imageTag: latest
-          push: never
-          runCmd: |
-            set -euo pipefail
-            git fetch --tags
-            git rev-parse HEAD
-            git status --short
-            ./scripts/bulk_build.sh --type=app
-            ./scripts/bulk_build.sh --type=host-test
-            ./scripts/copy_release_binaries.sh --build-dir=build --copy-dir=release
-      - name: Upload firmware artifacts
-        uses: actions/upload-artifact@v7
+          fetch-depth: 0
+      - name: Prepare zenv
+        uses: ./.github/actions/prepare-zenv-native
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2
         with:
-          name: binaries
-          path: release/*
-          if-no-files-found: error
+          key: host-test-shared
+          restore-keys: host-test-shared
+          max-size: 1G
+      - name: Run shared host tests
+        run: |
+          set -euo pipefail
+          ./scripts/bulk_build.sh --type=host-test --test-scope=shared
+  host-test-target:
+    name: Tests (${{ matrix.target }})
+    runs-on: ubuntu-latest
+    needs:
+      - host-test-targets
+      - devcontainer
+    container: *native-container
+    env: *native-env
+    defaults: *native-defaults
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJson(needs.host-test-targets.outputs.targets) }}
+    steps:
+      - name: Pull the repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Prepare zenv
+        uses: ./.github/actions/prepare-zenv-native
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: host-test-${{ matrix.target }}
+          restore-keys: host-test-${{ matrix.target }}
+          max-size: 1G
+      - name: Run host test
+        run: |
+          set -euo pipefail
+          make configure-app TARGET=${{ matrix.target }}
+          ./scripts/bulk_build.sh --type=host-test --test-scope=preset --test-target=${{ matrix.target }}
   format:
     name: Code formatting
     runs-on: ubuntu-latest
+    needs: devcontainer
+    container: *native-container
+    env: *native-env
+    defaults: *native-defaults
     steps:
       - name: Pull the repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Setup missing directories and files on the runner
-        run: |
-          mkdir -p ~/.ssh
-          touch ~/.gitconfig
-      - name: Prepare container
-        uses: devcontainers/ci@v0.3
-        with:
-          imageName: opendeck # Local name only
-          imageTag: latest # Local tag only
-          push: never
+      - name: Prepare zenv
+        uses: ./.github/actions/prepare-zenv-native
       - name: Check formatting
-        uses: devcontainers/ci@v0.3
-        with:
-          imageName: opendeck
-          imageTag: latest
-          push: never
-          runCmd: |
-            make format
-  lint:
-    name: Lint
+        run: make format
+  lint-targets:
+    name: Lint targets
     runs-on: ubuntu-latest
+    outputs:
+      targets: ${{ steps.targets.outputs.targets }}
     steps:
-      - name: Free Disk Space
-        uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: false
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          swap-storage: true
       - name: Pull the repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Setup missing directories and files on the runner
+      - name: List lint targets
+        id: targets
         run: |
-          touch ~/.gitconfig
-      - name: Prepare container
-        uses: devcontainers/ci@v0.3
+          set -euo pipefail
+          targets=$(./scripts/bulk_build.sh --type=lint --print-target-matrix)
+          echo "targets=${targets}" >> "${GITHUB_OUTPUT}"
+  lint:
+    name: Lint (${{ matrix.target }})
+    runs-on: ubuntu-latest
+    needs:
+      - lint-targets
+      - devcontainer
+    container: *native-container
+    env: *native-env
+    defaults: *native-defaults
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJson(needs.lint-targets.outputs.targets) }}
+    steps:
+      - name: Pull the repository
+        uses: actions/checkout@v6
         with:
-          imageName: opendeck # Local name only
-          imageTag: latest # Local tag only
-          push: never
+          fetch-depth: 0
+      - name: Prepare zenv
+        uses: ./.github/actions/prepare-zenv-native
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: lint-${{ matrix.target }}
+          restore-keys: lint-${{ matrix.target }}
+          max-size: 1G
       - name: Run lint
-        uses: devcontainers/ci@v0.3
-        with:
-          imageName: opendeck
-          imageTag: latest
-          push: never
-          runCmd: |
-            set -euo pipefail
-            ./scripts/bulk_build.sh --type=lint
+        run: |
+          set -euo pipefail
+          make CHECK=1 TARGET=${{ matrix.target }}

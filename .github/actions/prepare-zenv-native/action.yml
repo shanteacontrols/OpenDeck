@@ -1,0 +1,23 @@
+name: Prepare zenv native container
+description: Prepare a GitHub native job container to run zenv project commands.
+runs:
+  using: composite
+  steps:
+    - name: Configure zenv environment
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        project_root="${GITHUB_WORKSPACE:-${PWD}}"
+        git config --global --add safe.directory "${project_root}"
+
+        while IFS= read -r -d '' git_dir
+        do
+          git config --global --add safe.directory "$(dirname "${git_dir}")"
+        done < <(find "${ZEPHYR_WS}" -name .git -prune -print0)
+
+        source "${ZEPHYR_WS}/.venv/bin/activate"
+
+        echo "ZENV_PROJECT_ROOT=${project_root}" >> "${GITHUB_ENV}"
+        echo "CCACHE_DIR=${project_root}/ccache" >> "${GITHUB_ENV}"
+        echo "${VIRTUAL_ENV}/bin" >> "${GITHUB_PATH}"

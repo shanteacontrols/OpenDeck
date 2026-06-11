@@ -1,0 +1,7 @@
+{
+    "name": "${localWorkspaceFolderBasename}",
+    "image": "${localEnv:OPENDECK_DEVCONTAINER_IMAGE}",
+    "workspaceMount": "src=${localWorkspaceFolder},dst=/home/ubuntu/zephyr_ws/project,type=bind",
+    "workspaceFolder": "/home/ubuntu/zephyr_ws/project",
+    "containerUser": "ubuntu"
+}

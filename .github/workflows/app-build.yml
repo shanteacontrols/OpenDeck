@@ -1,0 +1,65 @@
+name: App Build
+
+on:
+  workflow_call:
+    inputs:
+      image_name:
+        description: Devcontainer image name.
+        required: true
+        type: string
+      image_tag:
+        description: Devcontainer image tag.
+        required: true
+        type: string
+      targets:
+        description: JSON array of OpenDeck targets to build.
+        required: true
+        type: string
+
+jobs:
+  app:
+    name: App (${{ matrix.target }})
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ inputs.image_name }}:${{ inputs.image_tag }}
+      credentials:
+        username: ${{ github.repository_owner }}
+        password: ${{ github.token }}
+      options: --user root
+    env:
+      HOME: /home/ubuntu
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJson(inputs.targets) }}
+    steps:
+      - name: Pull the repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Prepare zenv
+        uses: ./.github/actions/prepare-zenv-native
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: app-${{ matrix.target }}
+          restore-keys: app-${{ matrix.target }}
+          max-size: 1G
+      - name: Build target
+        run: |
+          set -euo pipefail
+          git fetch --tags
+          git rev-parse HEAD
+          git status --short
+          make TARGET=${{ matrix.target }}
+          ./scripts/copy_release_binaries.sh --build-dir=build --copy-dir=release/${{ matrix.target }}
+          test -n "$(find release/${{ matrix.target }} -type f -print -quit)"
+      - name: Upload release binaries
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-${{ matrix.target }}
+          path: release/${{ matrix.target }}/*
+          if-no-files-found: error

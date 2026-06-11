@@ -5,61 +5,54 @@ on:
     types: [created]
 
 jobs:
-  build:
-    name: Attach firmware to release
+  devcontainer:
+    name: Devcontainer image
+    uses: ./.github/workflows/devcontainer-image.yml
+  app-targets:
+    name: App targets
     runs-on: ubuntu-latest
+    outputs:
+      targets: ${{ steps.targets.outputs.targets }}
     steps:
-      - name: Free Disk Space
-        uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: false
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          swap-storage: true
       - name: Pull the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Setup missing directories and files on the runner
+      - name: List app targets
+        id: targets
         run: |
-          touch ~/.gitconfig
-      - name: Prepare container
-        uses: devcontainers/ci@v0.3
+          set -euo pipefail
+          targets=$(./scripts/bulk_build.sh --type=app --print-target-matrix)
+          echo "targets=${targets}" >> "${GITHUB_OUTPUT}"
+  app:
+    name: App
+    needs:
+      - app-targets
+      - devcontainer
+    uses: ./.github/workflows/app-build.yml
+    with:
+      image_name: ${{ needs.devcontainer.outputs.image_name }}
+      image_tag: ${{ needs.devcontainer.outputs.image_tag }}
+      targets: ${{ needs.app-targets.outputs.targets }}
+  attach:
+    name: Attach firmware to release
+    runs-on: ubuntu-latest
+    needs: app
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - name: Download firmware artifacts
+        uses: actions/download-artifact@v7
         with:
-          imageName: opendeck # Local name only
-          imageTag: latest # Local tag only
-          push: never
-          env: |
-            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
-      - name: Build and upload
-        uses: devcontainers/ci@v0.3
-        with:
-          imageName: opendeck
-          imageTag: latest
-          push: never
-          runCmd: |
-            set -euo pipefail
-            git fetch --tags
-            ./scripts/bulk_build.sh --type=app
-            ./scripts/copy_release_binaries.sh --build-dir=build --copy-dir=release
-      - name: Upload firmware artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: binaries
-          path: release/*
-          if-no-files-found: error
-      -
-        name: Upload binaries to Github Release
+          pattern: release-*
+          path: release
+          merge-multiple: true
+      - name: Upload binaries to GitHub Release
         uses: ncipollo/release-action@v1
         with:
+          tag: ${{ github.event.release.tag_name }}
           artifacts: release/*
           allowUpdates: true
-          omitBody: false
+          omitBodyDuringUpdate: true
+          omitNameDuringUpdate: true
