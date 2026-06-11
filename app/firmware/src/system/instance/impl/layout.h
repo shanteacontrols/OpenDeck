@@ -290,6 +290,16 @@ namespace opendeck::firmware::sys
                                               0,
                                               io::i2c::sensor_apds9960::APDS9960_PROXIMITY_RAW_MAX),
 
+            // BNO085 section
+            zlibs::utils::sysex_conf::Section(static_cast<uint16_t>(io::i2c::sensor_bno085::Setting::Count),
+                                              0,
+                                              1),
+
+            // CAP1188 section
+            zlibs::utils::sysex_conf::Section(static_cast<uint16_t>(io::i2c::sensor_cap1188::Setting::Count),
+                                              0,
+                                              0),
+
             // VL53L4CX section
             zlibs::utils::sysex_conf::Section(static_cast<uint16_t>(io::i2c::sensor_vl53l4cx::Setting::Count),
                                               0,
@@ -299,16 +309,6 @@ namespace opendeck::firmware::sys
             zlibs::utils::sysex_conf::Section(static_cast<uint16_t>(io::i2c::sensor_vl53l5cx::Setting::Count),
                                               0,
                                               0),
-
-            // CAP1188 section
-            zlibs::utils::sysex_conf::Section(static_cast<uint16_t>(io::i2c::sensor_cap1188::Setting::Count),
-                                              0,
-                                              0),
-
-            // BNO085 section
-            zlibs::utils::sysex_conf::Section(static_cast<uint16_t>(io::i2c::sensor_bno085::Setting::Count),
-                                              0,
-                                              1),
         });
 
         static constexpr auto TOUCHSCREEN_SECTIONS = zlibs::utils::sysex_conf::make_block(std::array<zlibs::utils::sysex_conf::Section, TOUCHSCREEN_SECTION_COUNT>{

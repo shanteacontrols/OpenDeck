@@ -155,10 +155,10 @@ namespace opendeck::firmware::sys
             {
                 Display,
                 Apds9960,
+                Bno085,
+                Cap1188,
                 Vl53l4cx,
                 Vl53l5cx,
-                Cap1188,
-                Bno085,
                 Count
             };
 

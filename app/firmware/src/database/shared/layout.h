@@ -379,6 +379,18 @@ namespace opendeck::firmware::database
                 SectionParameterType::Byte,
                 PreserveSetting::Disable,
                 AutoIncrementSetting::Disable),
+            // BNO085
+            Section(
+                static_cast<uint8_t>(io::i2c::sensor_bno085::Setting::Count),
+                SectionParameterType::Byte,
+                PreserveSetting::Disable,
+                AutoIncrementSetting::Disable),
+            // CAP1188
+            Section(
+                static_cast<uint8_t>(io::i2c::sensor_cap1188::Setting::Count),
+                SectionParameterType::Byte,
+                PreserveSetting::Disable,
+                AutoIncrementSetting::Disable),
             // VL53L4CX
             Section(
                 static_cast<uint8_t>(io::i2c::sensor_vl53l4cx::Setting::Count),
@@ -389,18 +401,6 @@ namespace opendeck::firmware::database
             Section(
                 static_cast<uint8_t>(io::i2c::sensor_vl53l5cx::Setting::Count),
                 SectionParameterType::Word,
-                PreserveSetting::Disable,
-                AutoIncrementSetting::Disable),
-            // CAP1188
-            Section(
-                static_cast<uint8_t>(io::i2c::sensor_cap1188::Setting::Count),
-                SectionParameterType::Byte,
-                PreserveSetting::Disable,
-                AutoIncrementSetting::Disable),
-            // BNO085
-            Section(
-                static_cast<uint8_t>(io::i2c::sensor_bno085::Setting::Count),
-                SectionParameterType::Byte,
                 PreserveSetting::Disable,
                 AutoIncrementSetting::Disable),
         });
