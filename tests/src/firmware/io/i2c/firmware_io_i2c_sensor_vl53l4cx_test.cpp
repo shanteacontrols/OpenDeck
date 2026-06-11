@@ -169,22 +169,9 @@ TEST_F(Vl53l4cxSensorTest, ReportsSupportedI2cAddresses)
     EXPECT_EQ(addresses[0], 0x29);
 }
 
-TEST_F(Vl53l4cxSensorTest, DerivesUpdateIntervalFromResponseProfile)
+TEST_F(Vl53l4cxSensorTest, UsesFastUpdateInterval)
 {
-    ASSERT_TRUE(_database_admin.update(database::Config::Section::I2c::Vl53l4cx,
-                                       Setting::Response,
-                                       Response::Fast));
     EXPECT_EQ(_sensor.update_interval_ms(), 35);
-
-    ASSERT_TRUE(_database_admin.update(database::Config::Section::I2c::Vl53l4cx,
-                                       Setting::Response,
-                                       Response::Balanced));
-    EXPECT_EQ(_sensor.update_interval_ms(), 68);
-
-    ASSERT_TRUE(_database_admin.update(database::Config::Section::I2c::Vl53l4cx,
-                                       Setting::Response,
-                                       Response::Stable));
-    EXPECT_EQ(_sensor.update_interval_ms(), 102);
 }
 
 TEST_F(Vl53l4cxSensorTest, RejectsInvalidAddressIndex)

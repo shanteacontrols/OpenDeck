@@ -22,18 +22,18 @@ namespace
 {
     LOG_MODULE_REGISTER(sensor_vl53l4cx, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
 
-    constexpr uint32_t RESPONSE_FAST_TIMING_BUDGET_US     = 33333;
-    constexpr uint32_t RESPONSE_BALANCED_TIMING_BUDGET_US = 66000;
-    constexpr uint32_t RESPONSE_STABLE_TIMING_BUDGET_US   = 100000;
-    constexpr uint32_t MICROSECONDS_PER_MILLISECOND       = 1000;
-    constexpr int32_t  SOFT_RESET_DELAY_MS                = 100;
-    constexpr uint8_t  SOFT_RESET_ASSERTED                = 0x00;
-    constexpr uint8_t  SOFT_RESET_RELEASED                = 0x01;
-    constexpr uint8_t  SMOOTHING_PERCENTAGE_OFF           = 100;
-    constexpr uint8_t  SMOOTHING_PERCENTAGE_LIGHT         = 55;
-    constexpr uint8_t  SMOOTHING_PERCENTAGE_MEDIUM        = 30;
-    constexpr uint8_t  SMOOTHING_PERCENTAGE_HEAVY         = 15;
-    constexpr uint32_t SMOOTHING_PERCENTAGE_DIVISOR       = 100;
+    constexpr uint32_t TIMING_BUDGET_US             = 33333;
+    constexpr uint32_t SCAN_MARGIN_US               = 2000;
+    constexpr uint32_t MICROSECONDS_PER_MILLISECOND = 1000;
+    constexpr int64_t  UPDATE_INTERVAL_MS           = (TIMING_BUDGET_US + SCAN_MARGIN_US) / MICROSECONDS_PER_MILLISECOND;
+    constexpr int32_t  SOFT_RESET_DELAY_MS          = 100;
+    constexpr uint8_t  SOFT_RESET_ASSERTED          = 0x00;
+    constexpr uint8_t  SOFT_RESET_RELEASED          = 0x01;
+    constexpr uint8_t  SMOOTHING_PERCENTAGE_OFF     = 100;
+    constexpr uint8_t  SMOOTHING_PERCENTAGE_LIGHT   = 55;
+    constexpr uint8_t  SMOOTHING_PERCENTAGE_MEDIUM  = 30;
+    constexpr uint8_t  SMOOTHING_PERCENTAGE_HEAVY   = 15;
+    constexpr uint32_t SMOOTHING_PERCENTAGE_DIVISOR = 100;
 
     struct Roi
     {
@@ -42,22 +42,6 @@ namespace
         uint8_t bottom_right_x;
         uint8_t bottom_right_y;
     };
-
-    constexpr uint32_t response_timing_budget_us(Response response)
-    {
-        switch (response)
-        {
-        case Response::Fast:
-            return RESPONSE_FAST_TIMING_BUDGET_US;
-
-        case Response::Balanced:
-            return RESPONSE_BALANCED_TIMING_BUDGET_US;
-
-        case Response::Stable:
-        default:
-            return RESPONSE_STABLE_TIMING_BUDGET_US;
-        }
-    }
 
     uint8_t smoothing_percentage(Smoothing smoothing)
     {
@@ -76,15 +60,6 @@ namespace
         default:
             return SMOOTHING_PERCENTAGE_OFF;
         }
-    }
-
-    constexpr int64_t response_update_interval_ms(Response response)
-    {
-        constexpr uint32_t SCAN_MARGIN = 2000;
-
-        const auto timing_budget_us = response_timing_budget_us(response);
-
-        return static_cast<int64_t>((timing_budget_us + SCAN_MARGIN) / MICROSECONDS_PER_MILLISECOND);
     }
 
     constexpr VL53L4CX_DistanceModes driver_distance_mode(DistanceMode mode)
@@ -149,9 +124,6 @@ SensorVl53l4cx::SensorVl53l4cx(Hwa&      hwa,
 
             case Setting::TrackingArea:
                 return static_cast<uint32_t>(TrackingArea::Narrow);
-
-            case Setting::Response:
-                return static_cast<uint32_t>(Response::Balanced);
 
             case Setting::DistanceMode:
                 return static_cast<uint32_t>(DistanceMode::Medium);
@@ -284,7 +256,6 @@ bool SensorVl53l4cx::reset_sensor()
 bool SensorVl53l4cx::configure_sensor()
 {
     const auto configured_distance_mode = driver_distance_mode(distance_mode());
-    const auto timing_budget_us         = response_timing_budget_us(response());
     const auto configured_roi           = tracking_area_roi(tracking_area());
 
     const auto distance_status = _driver.VL53L4CX_SetDistanceMode(configured_distance_mode);
@@ -295,7 +266,7 @@ bool SensorVl53l4cx::configure_sensor()
         return false;
     }
 
-    const auto timing_status = _driver.VL53L4CX_SetMeasurementTimingBudgetMicroSeconds(timing_budget_us);
+    const auto timing_status = _driver.VL53L4CX_SetMeasurementTimingBudgetMicroSeconds(TIMING_BUDGET_US);
 
     if (timing_status != VL53L4CX_ERROR_NONE)
     {
@@ -376,18 +347,6 @@ TrackingArea SensorVl53l4cx::tracking_area()
     return static_cast<TrackingArea>(value);
 }
 
-Response SensorVl53l4cx::response()
-{
-    const auto value = _database.read(database::Config::Section::I2c::Vl53l4cx, Setting::Response);
-
-    if (value >= static_cast<uint8_t>(Response::Count))
-    {
-        return Response::Stable;
-    }
-
-    return static_cast<Response>(value);
-}
-
 DistanceMode SensorVl53l4cx::distance_mode()
 {
     const auto value = _database.read(database::Config::Section::I2c::Vl53l4cx, Setting::DistanceMode);
@@ -441,7 +400,7 @@ constexpr std::string_view SensorVl53l4cx::name() const
 
 int64_t SensorVl53l4cx::update_interval_ms()
 {
-    return response_update_interval_ms(response());
+    return UPDATE_INTERVAL_MS;
 }
 
 std::span<const uint8_t> SensorVl53l4cx::i2c_addresses() const
@@ -654,15 +613,6 @@ std::optional<uint8_t> SensorVl53l4cx::sys_config_set(sys::Config::Section::I2c 
     }
     break;
 
-    case Setting::Response:
-    {
-        if (value >= static_cast<uint8_t>(Response::Count))
-        {
-            return sys::Config::Status::ErrorWrite;
-        }
-    }
-    break;
-
     case Setting::DistanceMode:
     {
         if (value >= static_cast<uint8_t>(DistanceMode::Count))
@@ -686,7 +636,6 @@ std::optional<uint8_t> SensorVl53l4cx::sys_config_set(sys::Config::Section::I2c 
 
     if ((result == sys::Config::Status::Ack) &&
         ((setting == Setting::TrackingArea) ||
-         (setting == Setting::Response) ||
          (setting == Setting::DistanceMode)))
     {
         init(_selected_i2c_address_index);

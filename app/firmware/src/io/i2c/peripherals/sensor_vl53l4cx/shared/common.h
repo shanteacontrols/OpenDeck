@@ -21,7 +21,6 @@ namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
         EnableDistanceNorm,
         Smoothing,
         TrackingArea,
-        Response,
         DistanceMode,
         DistanceLowerValue,
         DistanceUpperValue,
@@ -49,17 +48,6 @@ namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
         Medium,
         Wide,
         Full,
-        Count
-    };
-
-    /**
-     * @brief Identifies the measurement timing profile.
-     */
-    enum class Response : uint8_t
-    {
-        Fast,
-        Balanced,
-        Stable,
         Count
     };
 

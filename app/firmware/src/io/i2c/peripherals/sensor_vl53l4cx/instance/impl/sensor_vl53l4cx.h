@@ -48,7 +48,7 @@ namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
         bool update() override;
 
         /**
-         * @brief Returns the VL53L4CX update interval derived from its response profile.
+         * @brief Returns the VL53L4CX update interval for the fixed fast timing budget.
          *
          * @return Minimum time between update() calls in milliseconds.
          */
@@ -127,13 +127,6 @@ namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
          * @return Valid tracking area value.
          */
         TrackingArea tracking_area();
-
-        /**
-         * @brief Returns the configured response profile.
-         *
-         * @return Valid response profile value.
-         */
-        Response response();
 
         /**
          * @brief Returns the configured distance mode.
