@@ -61,19 +61,19 @@ namespace opendeck::firmware::protocol::osc
         };
 
         /**
-         * @brief Result of reading one configured OSC destination endpoint.
+         * @brief Cached OSC destination endpoint and sender state.
          */
-        enum class DestinationStatus : uint8_t
+        struct Destination
         {
-            Ready,
-            Empty,
-            Invalid,
+            sockaddr_in endpoint    = {};
+            uint32_t    retry_at_ms = 0;
         };
 
         Hwa&                                                          _hwa;
         Database&                                                     _database;
         zlibs::utils::misc::RingBuffer<TX_QUEUE_SIZE, false, TxEvent> _queue = {};
         zlibs::utils::misc::Mutex                                     _queue_lock;
+        zlibs::utils::misc::Mutex                                     _destination_lock;
         k_sem                                                         _send_wakeup               = {};
         k_sem                                                         _read_wakeup               = {};
         std::atomic<int>                                              _listen_sock               = -1;
@@ -81,18 +81,29 @@ namespace opendeck::firmware::protocol::osc
         std::atomic<bool>                                             _shutdown                  = false;
         std::atomic<bool>                                             _network_identity_received = false;
         opendeck::firmware::signaling::NetworkIdentitySignal          _network_identity          = {};
+        std::array<std::optional<Destination>, DESTINATION_COUNT>     _destinations              = {};
         threads::OscReadThread                                        _read_thread;
         threads::OscSendThread                                        _send_thread;
 
         /**
-         * @brief Converts a signal into a queued OSC event.
+         * @brief Converts a signal into an outbound OSC packet.
          *
          * @param event Signal to publish over OSC.
          *
-         * @return `true` when the signal was queued or intentionally ignored.
+         * @return `true` when the signal was queued, dropped, or intentionally ignored.
          */
         template<typename Signal>
         bool enqueue(const Signal& event);
+
+        /**
+         * @brief Queues one already encoded OSC packet for outbound transport.
+         *
+         * @param packet Encoded OSC packet bytes.
+         * @param size Number of bytes to send from the packet buffer.
+         *
+         * @return `true` when the packet was queued or intentionally dropped.
+         */
+        bool enqueue_packet(const PacketBuffer& packet, size_t size);
 
         /**
          * @brief Returns whether mDNS has published a network identity.
@@ -160,14 +171,42 @@ namespace opendeck::firmware::protocol::osc
         bool send_packet_to(std::span<const uint8_t> packet, const sockaddr_in& dest, int sock);
 
         /**
-         * @brief Builds one configured OSC destination endpoint.
+         * @brief Builds one OSC destination from persisted configuration.
+         *
+         * This reads the destination IP octets and port from the database. It does
+         * not read or update the runtime destination cache.
          *
          * @param index Zero-based destination slot.
-         * @param dest Endpoint populated on success.
          *
-         * @return Destination state read from configuration.
+         * @return Destination built from configuration, or empty when index is out of range.
          */
-        DestinationStatus destination(size_t index, sockaddr_in& dest);
+        std::optional<Destination> read_destination_config(size_t index) const;
+
+        /**
+         * @brief Returns one cached OSC destination.
+         *
+         * This reads the runtime cache populated by refresh_destinations(); it does
+         * not touch the database.
+         *
+         * @param index Zero-based destination slot.
+         *
+         * @return Cached destination, or empty when index is out of range.
+         */
+        std::optional<Destination> destination(size_t index);
+
+        /**
+         * @brief Refreshes cached OSC destination endpoints from the database.
+         */
+        void refresh_destinations();
+
+        /**
+         * @brief Checks whether at least one destination can currently be sent to.
+         *
+         * @param now Current uptime in milliseconds.
+         *
+         * @return `true` if at least one configured destination is not in retry backoff.
+         */
+        bool has_sendable_destination(uint32_t now);
 
         /**
          * @brief Opens the UDP socket used for outbound OSC packets.
@@ -205,6 +244,11 @@ namespace opendeck::firmware::protocol::osc
          * @brief Closes the active OSC listen socket and wakes the receive loop.
          */
         void close_listen_socket();
+
+        /**
+         * @brief Clears queued outbound OSC packets after destination configuration changes.
+         */
+        void reset_send_state();
 
         /**
          * @brief Dispatches one decoded OSC message.

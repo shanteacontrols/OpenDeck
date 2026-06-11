@@ -136,6 +136,21 @@ namespace
             return false;
         }
 
+        bool wait_for_send_attempts(size_t count) const
+        {
+            for (size_t i = 0; i < 200; i++)
+            {
+                if (_hwa.send_attempt_count() >= count)
+                {
+                    return true;
+                }
+
+                k_msleep(1);
+            }
+
+            return false;
+        }
+
         bool wait_for_raw_io(const RawIoCollector& collector, size_t count) const
         {
             for (size_t i = 0; i < 200; i++)
@@ -327,6 +342,35 @@ TEST_F(OscProtocolTest, SendsOutboundPacketsToAllConfiguredDestinations)
     EXPECT_EQ(sent.at(1).dest.sin_addr.s_addr,
               endpoint(DEST_OCTET_0, DEST_OCTET_1, DEST_OCTET_2, SECOND_DEST_OCTET_3, 0).sin_addr.s_addr);
     EXPECT_EQ(sys_be16_to_cpu(sent.at(1).dest.sin_port), SECOND_DEST_PORT);
+}
+
+TEST_F(OscProtocolTest, BacksOffFailedDestinationWithoutRetryingQueuedEvents)
+{
+    publish_network_identity();
+    _hwa.set_send_result(false);
+
+    ASSERT_TRUE(_osc.init());
+    ASSERT_TRUE(wait_for_send_attempts(1));
+
+    const auto first_attempts = _hwa.send_attempts();
+    ASSERT_EQ(first_attempts.size(), 1U);
+    EXPECT_FALSE(first_attempts.front().result);
+    EXPECT_EQ(first_attempts.front().flags, ZSOCK_MSG_DONTWAIT);
+
+    _hwa.set_send_result(true);
+
+    signaling::publish(signaling::OscIoSignal{
+        .source          = signaling::IoEventSource::Analog,
+        .component_index = 3,
+        .int32_value     = static_cast<int32_t>(io::analog::POSITION_MAX_VALUE),
+        .float_value     = 1.0F,
+        .direction       = signaling::SignalDirection::Out,
+    });
+
+    k_msleep(20);
+
+    EXPECT_EQ(_hwa.send_attempt_count(), 1U);
+    EXPECT_EQ(_hwa.sent_packet_count(), 0U);
 }
 
 TEST_F(OscProtocolTest, ReceivesOutputCommand)

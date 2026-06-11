@@ -32,7 +32,10 @@ namespace
 {
     LOG_MODULE_REGISTER(osc, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
 
-    constexpr size_t IPV4_OCTET_COUNT = 4;
+    constexpr size_t   IPV4_OCTET_COUNT                = 4;
+    constexpr int      OSC_SEND_FLAGS                  = ZSOCK_MSG_DONTWAIT;
+    constexpr uint32_t DESTINATION_SEND_RETRY_DELAY_MS = 30000;
+    constexpr size_t   TX_QUEUE_HIGH_WATERMARK         = TX_QUEUE_SIZE / 2;
 
     struct DestinationSettings
     {
@@ -84,6 +87,11 @@ namespace
         return static_cast<uint32_t>(((IPV4_OCTET_COUNT - 1) - octet_index) * zlibs::utils::misc::BYTE_BIT_COUNT);
     }
 
+    constexpr bool retry_active(uint32_t retry_at_ms, uint32_t now_ms)
+    {
+        return static_cast<int32_t>(retry_at_ms - now_ms) > 0;
+    }
+
     /**
      * @brief Builds the OSC device information packet used by discovery.
      *
@@ -123,6 +131,13 @@ bool Osc::enqueue(const Signal& event)
         return true;
     }
 
+    const auto now = k_uptime_get_32();
+
+    if (!has_sendable_destination(now))
+    {
+        return true;
+    }
+
     PacketBuffer packet = {};
     const auto   size   = make_packet(packet, event);
 
@@ -131,24 +146,28 @@ bool Osc::enqueue(const Signal& event)
         return true;
     }
 
+    return enqueue_packet(packet, *size);
+}
+
+bool Osc::enqueue_packet(const PacketBuffer& packet, size_t size)
+{
     TxEvent queued = {
         .packet   = packet,
-        .size     = *size,
+        .size     = size,
         .control  = false,
         .shutdown = false,
     };
 
-    bool inserted = false;
-
     {
         const zmisc::LockGuard lock(_queue_lock);
-        inserted = _queue.insert(queued);
-    }
 
-    if (!inserted)
-    {
-        LOG_WRN("OSC event queue full, dropping event");
-        return false;
+        if (_queue.size() >= TX_QUEUE_HIGH_WATERMARK)
+        {
+            LOG_WRN_ONCE("OSC sender is busy; dropping events");
+            return true;
+        }
+
+        static_cast<void>(_queue.insert(queued));
     }
 
     k_sem_give(&_send_wakeup);
@@ -279,6 +298,8 @@ bool Osc::init()
     }
 
     LOG_INF("Init OSC");
+
+    refresh_destinations();
 
     _shutdown    = false;
     _initialized = true;
@@ -449,12 +470,6 @@ bool Osc::send_discovery_response(const sockaddr_in& sender, int sock)
 
     const uint32_t listen_port = _database.read(database::Config::Section::Global::OscSettings, Setting::ListenPort);
 
-    if ((listen_port == 0) || (listen_port > UDP_PORT_MAX))
-    {
-        LOG_ERR("Invalid OSC listen port configuration");
-        return false;
-    }
-
     PacketBuffer packet = {};
     const auto   size   = make_device_info_packet(packet,
                                                   static_cast<uint16_t>(listen_port),
@@ -471,21 +486,15 @@ bool Osc::send_discovery_response(const sockaddr_in& sender, int sock)
 
     for (size_t i = 0; i < DESTINATION_COUNT; i++)
     {
-        sockaddr_in destination_config = {};
-        const auto  status             = destination(i, destination_config);
+        const auto destination_config = destination(i);
 
-        if (status == DestinationStatus::Empty)
+        if (!destination_config.has_value())
         {
             continue;
         }
 
-        if (status == DestinationStatus::Invalid)
-        {
-            return false;
-        }
-
         sockaddr_in dest = sender;
-        dest.sin_port    = destination_config.sin_port;
+        dest.sin_port    = destination_config->endpoint.sin_port;
 
         if (!send_packet_to(std::span<const uint8_t>(packet.data(), *size), dest, sock))
         {
@@ -507,12 +516,6 @@ bool Osc::send_discovery_response(const sockaddr_in& sender, int sock)
 bool Osc::send_discovery_announcement()
 {
     const uint32_t listen_port = _database.read(database::Config::Section::Global::OscSettings, Setting::ListenPort);
-
-    if ((listen_port == 0) || (listen_port > UDP_PORT_MAX))
-    {
-        LOG_ERR("Invalid OSC listen port configuration");
-        return false;
-    }
 
     if (!has_network_identity())
     {
@@ -548,35 +551,54 @@ bool Osc::send_discovery_announcement()
 
 bool Osc::send_packet(std::span<const uint8_t> packet, int sock)
 {
-    bool sent_any = false;
+    const auto now        = k_uptime_get_32();
+    bool       send_tried = false;
+    bool       sent_any   = false;
 
-    for (size_t i = 0; i < DESTINATION_COUNT; i++)
+    for (size_t i = 0; i < _destinations.size(); i++)
     {
-        sockaddr_in dest   = {};
-        const auto  status = destination(i, dest);
+        sockaddr_in endpoint = {};
 
-        if (status == DestinationStatus::Empty)
+        {
+            const zmisc::LockGuard lock(_destination_lock);
+
+            if (!_destinations.at(i).has_value())
+            {
+                continue;
+            }
+
+            if (retry_active(_destinations.at(i)->retry_at_ms, now))
+            {
+                continue;
+            }
+
+            endpoint = _destinations.at(i)->endpoint;
+        }
+
+        send_tried             = true;
+        const bool send_result = send_packet_to(packet, endpoint, sock);
+
+        {
+            const zmisc::LockGuard lock(_destination_lock);
+
+            if (_destinations.at(i).has_value())
+            {
+                _destinations.at(i)->retry_at_ms = send_result ? 0 : now + DESTINATION_SEND_RETRY_DELAY_MS;
+            }
+        }
+
+        if (!send_result)
         {
             continue;
-        }
-
-        if (status == DestinationStatus::Invalid)
-        {
-            return false;
-        }
-
-        if (!send_packet_to(packet, dest, sock))
-        {
-            return false;
         }
 
         sent_any = true;
     }
 
-    if (!sent_any)
+    if (send_tried && !sent_any)
     {
-        LOG_WRN_ONCE("OSC destination is not configured");
-        return false;
+        LOG_WRN("OSC destination send failed; retrying in %u seconds",
+                DESTINATION_SEND_RETRY_DELAY_MS / 1000);
     }
 
     return true;
@@ -587,15 +609,14 @@ bool Osc::send_packet_to(std::span<const uint8_t> packet, const sockaddr_in& des
     const auto                 sent       = _hwa.send(sock,
                                                       packet.data(),
                                                       packet.size(),
-                                                      0,
+                                                      OSC_SEND_FLAGS,
                                                       reinterpret_cast<const sockaddr*>(&dest),
                                                       sizeof(dest));
     [[maybe_unused]] const int send_errno = errno;
 
     if (sent < 0)
     {
-        LOG_ERR("Failed to send OSC packet: %d",
-                send_errno);
+        LOG_WRN("Failed to send OSC packet: %d", send_errno);
         return false;
     }
 
@@ -607,11 +628,39 @@ bool Osc::send_packet_to(std::span<const uint8_t> packet, const sockaddr_in& des
     return true;
 }
 
-Osc::DestinationStatus Osc::destination(size_t index, sockaddr_in& dest)
+void Osc::refresh_destinations()
+{
+    std::array<std::optional<Destination>, DESTINATION_COUNT> destinations = {};
+
+    for (size_t i = 0; i < destinations.size(); i++)
+    {
+        destinations.at(i) = read_destination_config(i);
+    }
+
+    const zmisc::LockGuard lock(_destination_lock);
+    _destinations = destinations;
+}
+
+bool Osc::has_sendable_destination(uint32_t now)
+{
+    const zmisc::LockGuard lock(_destination_lock);
+
+    for (const auto& destination : _destinations)
+    {
+        if (destination.has_value() && !retry_active(destination->retry_at_ms, now))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+std::optional<Osc::Destination> Osc::read_destination_config(size_t index) const
 {
     if (index >= DESTINATION_SETTINGS.size())
     {
-        return DestinationStatus::Invalid;
+        return {};
     }
 
     const auto& destination_settings = DESTINATION_SETTINGS.at(index);
@@ -624,37 +673,36 @@ Osc::DestinationStatus Osc::destination(size_t index, sockaddr_in& dest)
         octets.at(i) = _database.read(database::Config::Section::Global::OscSettings, destination_settings.octets.at(i));
     }
 
-    if ((port == 0) ||
-        (port > UDP_PORT_MAX))
-    {
-        LOG_ERR("Invalid OSC destination configuration");
-        return DestinationStatus::Invalid;
-    }
-
     uint32_t ipv4 = 0;
 
     for (size_t i = 0; i < octets.size(); i++)
     {
-        if (octets.at(i) > IPV4_OCTET_MAX)
-        {
-            LOG_ERR("Invalid OSC destination configuration");
-            return DestinationStatus::Invalid;
-        }
-
         ipv4 |= octets.at(i) << ipv4_octet_shift(i);
     }
 
     if (ipv4 == 0)
     {
-        return DestinationStatus::Empty;
+        return {};
     }
 
-    dest                 = {};
-    dest.sin_family      = AF_INET;
-    dest.sin_port        = sys_cpu_to_be16(static_cast<uint16_t>(port));
-    dest.sin_addr.s_addr = sys_cpu_to_be32(ipv4);
+    Destination destination              = {};
+    destination.endpoint.sin_family      = AF_INET;
+    destination.endpoint.sin_port        = sys_cpu_to_be16(static_cast<uint16_t>(port));
+    destination.endpoint.sin_addr.s_addr = sys_cpu_to_be32(ipv4);
 
-    return DestinationStatus::Ready;
+    return destination;
+}
+
+std::optional<Osc::Destination> Osc::destination(size_t index)
+{
+    const zmisc::LockGuard lock(_destination_lock);
+
+    if (index >= _destinations.size())
+    {
+        return {};
+    }
+
+    return _destinations.at(index);
 }
 
 int Osc::open_send_socket()
@@ -673,12 +721,6 @@ int Osc::open_send_socket()
 int Osc::open_listen_socket()
 {
     const uint32_t port = _database.read(database::Config::Section::Global::OscSettings, Setting::ListenPort);
-
-    if ((port == 0) || (port > UDP_PORT_MAX))
-    {
-        LOG_ERR("Invalid OSC listen port configuration");
-        return -1;
-    }
 
     sockaddr_in local = {};
 
@@ -816,20 +858,14 @@ bool Osc::sender_allowed(const sockaddr_in& sender)
 
     for (size_t i = 0; i < DESTINATION_COUNT; i++)
     {
-        sockaddr_in dest   = {};
-        const auto  status = destination(i, dest);
+        const auto destination_config = destination(i);
 
-        if (status == DestinationStatus::Empty)
+        if (!destination_config.has_value())
         {
             continue;
         }
 
-        if (status == DestinationStatus::Invalid)
-        {
-            return false;
-        }
-
-        if (sender.sin_addr.s_addr == dest.sin_addr.s_addr)
+        if (sender.sin_addr.s_addr == destination_config->endpoint.sin_addr.s_addr)
         {
             return true;
         }
@@ -846,6 +882,12 @@ void Osc::close_listen_socket()
     {
         _hwa.close(listen_sock);
     }
+}
+
+void Osc::reset_send_state()
+{
+    const zmisc::LockGuard lock(_queue_lock);
+    _queue.reset();
 }
 
 bool Osc::handle_message(std::string_view address, int32_t value)
@@ -893,7 +935,8 @@ std::optional<uint8_t> Osc::sys_config_set(sys::Config::Section::Global section,
         return {};
     }
 
-    auto setting = static_cast<Setting>(index);
+    auto setting             = static_cast<Setting>(index);
+    bool destination_changed = false;
 
     switch (setting)
     {
@@ -927,6 +970,8 @@ std::optional<uint8_t> Osc::sys_config_set(sys::Config::Section::Global section,
         {
             return sys::Config::Status::ErrorNewValue;
         }
+
+        destination_changed = true;
     }
     break;
 
@@ -934,9 +979,19 @@ std::optional<uint8_t> Osc::sys_config_set(sys::Config::Section::Global section,
     case Setting::Dest2Port:
     case Setting::Dest3Port:
     case Setting::Dest4Port:
+    {
+        if ((value == 0) || (value > UDP_PORT_MAX))
+        {
+            return sys::Config::Status::ErrorNewValue;
+        }
+
+        destination_changed = true;
+    }
+    break;
+
     case Setting::ListenPort:
     {
-        if (value == 0)
+        if ((value == 0) || (value > UDP_PORT_MAX))
         {
             return sys::Config::Status::ErrorNewValue;
         }
@@ -959,6 +1014,12 @@ std::optional<uint8_t> Osc::sys_config_set(sys::Config::Section::Global section,
     if ((setting == Setting::ListenPort) && _initialized)
     {
         close_listen_socket();
+    }
+
+    if (destination_changed)
+    {
+        refresh_destinations();
+        reset_send_state();
     }
 
     return result;

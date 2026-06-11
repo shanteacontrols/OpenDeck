@@ -36,6 +36,15 @@ namespace opendeck::firmware::protocol::osc
             sockaddr_in          dest = {};
         };
 
+        struct SendAttempt
+        {
+            int         sock   = -1;
+            size_t      size   = 0;
+            int         flags  = 0;
+            sockaddr_in dest   = {};
+            bool        result = false;
+        };
+
         struct ReceivedPacket
         {
             std::vector<uint8_t> data   = {};
@@ -79,10 +88,29 @@ namespace opendeck::firmware::protocol::osc
 
             if (!_send_result || (buffer == nullptr) || (dest == nullptr) || (dest_len != sizeof(sockaddr_in)))
             {
+                if ((dest != nullptr) && (dest_len == sizeof(sockaddr_in)))
+                {
+                    _send_attempts.push_back({
+                        .sock   = sock,
+                        .size   = size,
+                        .flags  = flags,
+                        .dest   = *reinterpret_cast<const sockaddr_in*>(dest),
+                        .result = false,
+                    });
+                }
+
                 return -1;
             }
 
             auto bytes = std::span<const uint8_t>(static_cast<const uint8_t*>(buffer), size);
+
+            _send_attempts.push_back({
+                .sock   = sock,
+                .size   = size,
+                .flags  = flags,
+                .dest   = *reinterpret_cast<const sockaddr_in*>(dest),
+                .result = true,
+            });
 
             _sent_packets.push_back({
                 .sock = sock,
@@ -162,6 +190,12 @@ namespace opendeck::firmware::protocol::osc
             _sent_packets.clear();
         }
 
+        void clear_send_attempts()
+        {
+            const zlibs::utils::misc::LockGuard lock(_mutex);
+            _send_attempts.clear();
+        }
+
         void set_socket_result(bool result)
         {
             const zlibs::utils::misc::LockGuard lock(_mutex);
@@ -192,10 +226,22 @@ namespace opendeck::firmware::protocol::osc
             return _sent_packets;
         }
 
+        std::vector<SendAttempt> send_attempts() const
+        {
+            const zlibs::utils::misc::LockGuard lock(_mutex);
+            return _send_attempts;
+        }
+
         size_t sent_packet_count() const
         {
             const zlibs::utils::misc::LockGuard lock(_mutex);
             return _sent_packets.size();
+        }
+
+        size_t send_attempt_count() const
+        {
+            const zlibs::utils::misc::LockGuard lock(_mutex);
+            return _send_attempts.size();
         }
 
         std::vector<int> closed_socks() const
@@ -231,6 +277,7 @@ namespace opendeck::firmware::protocol::osc
         mutable zlibs::utils::misc::Mutex _mutex;
         k_sem                             _receive_wakeup   = {};
         std::deque<ReceivedPacket>        _received_packets = {};
+        std::vector<SendAttempt>          _send_attempts    = {};
         std::vector<SentPacket>           _sent_packets     = {};
         std::vector<int>                  _closed_socks     = {};
         sockaddr_in                       _bound_addr       = {};
