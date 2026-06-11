@@ -217,6 +217,8 @@ bool SensorVl53l4cx::init(size_t address_index)
     _found     = true;
     _measuring = true;
     _distance_filter.reset();
+    _has_distance_value = false;
+    _last_distance_mm   = 0;
     _mapper.reset();
 
     return true;
@@ -371,6 +373,8 @@ bool SensorVl53l4cx::deinit()
     _measuring                  = false;
     _selected_i2c_address_index = 0;
     _distance_filter.reset();
+    _has_distance_value = false;
+    _last_distance_mm   = 0;
     _mapper.reset();
 
     return true;
@@ -481,18 +485,29 @@ void SensorVl53l4cx::process_measurement_frame(const VL53L4CX_MultiRangingData_t
 
     const auto distance = static_cast<uint16_t>(closest.value().RangeMilliMeter);
 
-    if (_distance_filter.update({ distance },
-                                DISTANCE_IDLE_THRESHOLD,
-                                DISTANCE_CONFIRMATION_SAMPLES,
-                                DistanceFilter::ConfirmationMode::Nearby,
-                                DISTANCE_MOVING_THRESHOLD))
+    if (!_has_distance_value)
     {
-        const auto result = _mapper.result(distance);
+        _distance_filter.reset(distance);
+        _last_distance_mm   = distance;
+        _has_distance_value = true;
+    }
+    else
+    {
+        const auto filtered_distance = _distance_filter.value(distance);
 
-        if (result.has_value())
+        if (filtered_distance == _last_distance_mm)
         {
-            publish_result(result.value());
+            return;
         }
+
+        _last_distance_mm = filtered_distance;
+    }
+
+    const auto result = _mapper.result(_last_distance_mm);
+
+    if (result.has_value())
+    {
+        publish_result(result.value());
     }
 }
 
@@ -511,7 +526,7 @@ void SensorVl53l4cx::publish_result(const Mapper::Result& result) const
 
 void SensorVl53l4cx::publish_value_state()
 {
-    if (!distance_enabled() || !_distance_filter.has_value())
+    if (!distance_enabled() || !_has_distance_value)
     {
         return;
     }

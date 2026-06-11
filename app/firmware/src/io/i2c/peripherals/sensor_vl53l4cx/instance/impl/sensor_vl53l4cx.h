@@ -10,6 +10,8 @@
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/system/shared/config.h"
 
+#include "zlibs/utils/filters/filters.h"
+
 #include "vl53l4cx_class.h"
 
 #include <optional>
@@ -76,15 +78,15 @@ namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
         std::span<const uint8_t> i2c_addresses() const override;
 
         private:
-        static constexpr uint16_t DISTANCE_IDLE_THRESHOLD       = 40;
-        static constexpr uint16_t DISTANCE_MOVING_THRESHOLD     = 4;
-        static constexpr uint8_t  DISTANCE_CONFIRMATION_SAMPLES = 2;
+        using DistanceFilter = zlibs::utils::filters::EmaFilter<uint16_t, DISTANCE_SMOOTHING_PERCENTAGE>;
 
         Hwa&           _hwa;
         Database&      _database;
         Mapper         _mapper;
         VL53L4CX       _driver                     = {};
         DistanceFilter _distance_filter            = {};
+        bool           _has_distance_value         = false;
+        uint16_t       _last_distance_mm           = 0;
         size_t         _selected_i2c_address_index = 0;
         bool           _found                      = false;
         bool           _measuring                  = false;
