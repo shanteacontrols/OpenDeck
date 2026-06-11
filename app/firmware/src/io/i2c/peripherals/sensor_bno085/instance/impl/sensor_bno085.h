@@ -13,6 +13,7 @@
 #include <array>
 #include <optional>
 #include <stddef.h>
+#include <stdint.h>
 #include <string_view>
 
 namespace opendeck::firmware::io::i2c::sensor_bno085
@@ -76,6 +77,9 @@ namespace opendeck::firmware::io::i2c::sensor_bno085
         uint8_t                                          _control_sequence           = 0;
         std::array<std::array<int16_t, 4>, REPORT_COUNT> _smoothed_values            = {};
         std::array<bool, REPORT_COUNT>                   _has_smoothed_values        = {};
+        std::array<std::array<int16_t, 4>, REPORT_COUNT> _last_published_values      = {};
+        std::array<bool, REPORT_COUNT>                   _has_published_values       = {};
+        std::array<int64_t, REPORT_COUNT>                _last_publish_ms            = {};
 
         /**
          * @brief Returns the selected BNO085 I2C address.
@@ -143,6 +147,25 @@ namespace opendeck::firmware::io::i2c::sensor_bno085
          * @param report Report bytes.
          */
         void publish_report(std::span<const uint8_t> report);
+
+        /**
+         * @brief Checks whether one report type is due for OSC publishing.
+         *
+         * @param report_id Sensor report ID.
+         *
+         * @return `true` when this report type may publish now.
+         */
+        bool output_due(uint8_t report_id);
+
+        /**
+         * @brief Checks whether one report value set changed since last publish.
+         *
+         * @param report_id Sensor report ID.
+         * @param values Candidate report values.
+         *
+         * @return `true` when values differ from the last published values.
+         */
+        bool output_changed(uint8_t report_id, const std::array<int16_t, 4>& values);
 
         /**
          * @brief Publishes one mapped BNO085 result.

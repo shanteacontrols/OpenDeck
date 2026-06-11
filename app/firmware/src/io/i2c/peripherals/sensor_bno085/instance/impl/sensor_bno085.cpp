@@ -96,6 +96,8 @@ bool SensorBno085::init(size_t address_index)
 
     _initialized = true;
     _has_smoothed_values.fill(false);
+    _has_published_values.fill(false);
+    _last_publish_ms.fill(0);
 
     return true;
 }
@@ -265,6 +267,26 @@ void SensorBno085::publish_report(std::span<const uint8_t> report)
 
     const auto smoothed_values = smooth_values(report_id, values);
 
+    if (!output_changed(report_id, smoothed_values))
+    {
+        return;
+    }
+
+    const auto index = report_index(report_id);
+
+    if (!index.has_value())
+    {
+        return;
+    }
+
+    if (!output_due(report_id))
+    {
+        return;
+    }
+
+    _last_published_values.at(*index) = smoothed_values;
+    _has_published_values.at(*index)  = true;
+
     const auto result = _mapper.result(report_id, smoothed_values);
 
     if (result.has_value())
@@ -334,6 +356,51 @@ std::array<int16_t, 4> SensorBno085::smooth_values(uint8_t report_id, const std:
     return smoothed_values;
 }
 
+bool SensorBno085::output_due(uint8_t report_id)
+{
+    const auto index = report_index(report_id);
+
+    if (!index.has_value())
+    {
+        return false;
+    }
+
+    auto&      last_publish_ms = _last_publish_ms.at(*index);
+    const auto now             = k_uptime_get();
+
+    if (last_publish_ms == 0)
+    {
+        last_publish_ms = (now == 0) ? 1 : now;
+        return true;
+    }
+
+    if ((now - last_publish_ms) < OUTPUT_INTERVAL_MS)
+    {
+        return false;
+    }
+
+    last_publish_ms = now;
+
+    return true;
+}
+
+bool SensorBno085::output_changed(uint8_t report_id, const std::array<int16_t, 4>& values)
+{
+    const auto index = report_index(report_id);
+
+    if (!index.has_value())
+    {
+        return false;
+    }
+
+    if (_has_published_values.at(*index) && (_last_published_values.at(*index) == values))
+    {
+        return false;
+    }
+
+    return true;
+}
+
 std::optional<uint8_t> SensorBno085::sys_config_get(sys::Config::Section::I2c section, size_t index, uint16_t& value)
 {
     if (section != sys::Config::Section::I2c::Bno085)
@@ -392,6 +459,7 @@ std::optional<uint8_t> SensorBno085::sys_config_set(sys::Config::Section::I2c se
     if ((result == sys::Config::Status::Ack) && (setting == Setting::Smoothing))
     {
         _has_smoothed_values.fill(false);
+        _has_published_values.fill(false);
     }
     else if (result == sys::Config::Status::Ack)
     {
