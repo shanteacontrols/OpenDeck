@@ -101,10 +101,10 @@ namespace opendeck::firmware::io::i2c::sensor_vl53l5cx
             size_t y = 0;
         };
 
-        Hwa&                                      _hwa;
-        Database&                                 _database;
-        VL53L5CX                                  _driver;
-        VL53L5CX_ResultsData                      _results                    = {};
+        Hwa&                                       _hwa;
+        Database&                                  _database;
+        VL53L5CX                                   _driver;
+        VL53L5CX_ResultsData                       _results                    = {};
         std::array<Zone, MAX_ZONE_COUNT>           _grid                       = {};
         std::array<DistanceFilter, MAX_ZONE_COUNT> _distance_filters           = {};
         std::array<uint8_t, MAX_ZONE_COUNT>        _invalid_frame_count        = {};

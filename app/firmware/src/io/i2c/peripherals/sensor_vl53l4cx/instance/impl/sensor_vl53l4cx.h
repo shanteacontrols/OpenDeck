@@ -78,16 +78,16 @@ namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
         std::span<const uint8_t> i2c_addresses() const override;
 
         private:
-        Hwa&      _hwa;
-        Database& _database;
-        Mapper    _mapper;
-        VL53L4CX                                      _driver                     = {};
-        zlibs::utils::filters::EmaFilter<uint16_t>    _distance_filter            = {};
-        bool                                          _has_distance_value         = false;
-        uint16_t                                      _last_distance_mm           = 0;
-        size_t                                        _selected_i2c_address_index = 0;
-        bool                                          _found                      = false;
-        bool                                          _measuring                  = false;
+        Hwa&                                       _hwa;
+        Database&                                  _database;
+        Mapper                                     _mapper;
+        VL53L4CX                                   _driver                     = {};
+        zlibs::utils::filters::EmaFilter<uint16_t> _distance_filter            = {};
+        bool                                       _has_distance_value         = false;
+        uint16_t                                   _last_distance_mm           = 0;
+        size_t                                     _selected_i2c_address_index = 0;
+        bool                                       _found                      = false;
+        bool                                       _measuring                  = false;
 
         /**
          * @brief Applies configured ranging settings.
