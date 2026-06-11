@@ -201,14 +201,27 @@ bool SensorApds9960::read_proximity(uint8_t status)
         return recoverable_i2c_read_failure();
     }
 
-    if (_proximity_filter.update({ proximity.value() },
-                                 PROXIMITY_IDLE_THRESHOLD,
-                                 PROXIMITY_CONFIRMATION_SAMPLES,
-                                 ProximityFilter::ConfirmationMode::Nearby,
-                                 PROXIMITY_MOVING_THRESHOLD))
+    uint8_t value = proximity.value();
+
+    if (_has_proximity_value)
     {
-        publish_result(_mapper.proximity_result(proximity.value()));
+        value = _proximity_filter.value(value);
     }
+
+    if (_has_proximity_value && (_last_proximity_value == value))
+    {
+        return true;
+    }
+
+    if (!_has_proximity_value)
+    {
+        _proximity_filter.reset(value);
+    }
+
+    _has_proximity_value  = true;
+    _last_proximity_value = value;
+
+    publish_result(_mapper.proximity_result(value));
 
     return true;
 }
@@ -236,7 +249,7 @@ bool SensorApds9960::read_gesture()
         return true;
     }
 
-    publish_result(_mapper.gesture_result(gesture.value()));
+    publish_result(_mapper.gesture_result(output_gesture(gesture.value())));
 
     _last_gesture_send_ms = now_ms;
 
@@ -270,24 +283,61 @@ bool SensorApds9960::read_ambient_light_and_rgb(uint8_t status)
     const auto green         = sys_get_le16(light.data() + 4);
     const auto blue          = sys_get_le16(light.data() + 6);
 
-    if (ambient_light_enabled &&
-        _ambient_light_filter.update({ ambient_light },
-                                     AMBIENT_LIGHT_SEND_THRESHOLD,
-                                     AMBIENT_LIGHT_CONFIRMATION_SAMPLES,
-                                     AmbientLightFilter::ConfirmationMode::Nearby,
-                                     0))
+    if (ambient_light_enabled)
     {
-        publish_result(_mapper.ambient_light_result(ambient_light));
+        if (!_has_ambient_light_value)
+        {
+            _ambient_light_filter.reset(ambient_light);
+            _last_ambient_light_value = ambient_light;
+            _has_ambient_light_value  = true;
+
+            publish_result(_mapper.ambient_light_result(_last_ambient_light_value));
+        }
+        else
+        {
+            const auto filtered_ambient_light = _ambient_light_filter.value(ambient_light);
+
+            if (filtered_ambient_light != _last_ambient_light_value)
+            {
+                _last_ambient_light_value = filtered_ambient_light;
+                publish_result(_mapper.ambient_light_result(_last_ambient_light_value));
+            }
+        }
     }
 
-    if (rgb_enabled &&
-        _rgb_filter.update({ red, green, blue },
-                           RGB_IDLE_THRESHOLD,
-                           RGB_CONFIRMATION_SAMPLES,
-                           RgbFilter::ConfirmationMode::Nearby,
-                           RGB_MOVING_THRESHOLD))
+    if (rgb_enabled)
     {
-        publish_result(_mapper.rgb_result(red, green, blue));
+        if (!_has_rgb_value)
+        {
+            _rgb_filters[0].reset(ambient_light);
+            _rgb_filters[1].reset(red);
+            _rgb_filters[2].reset(green);
+            _rgb_filters[3].reset(blue);
+            _has_rgb_value  = true;
+            _last_rgb_value = {
+                ambient_light,
+                red,
+                green,
+                blue,
+            };
+
+            publish_result(_mapper.rgb_result(_last_rgb_value[0], _last_rgb_value[1], _last_rgb_value[2], _last_rgb_value[3]));
+        }
+        else
+        {
+            const std::array<uint16_t, 4> filtered_rgb = {
+                _rgb_filters[0].value(ambient_light),
+                _rgb_filters[1].value(red),
+                _rgb_filters[2].value(green),
+                _rgb_filters[3].value(blue),
+            };
+
+            if (filtered_rgb != _last_rgb_value)
+            {
+                _last_rgb_value = filtered_rgb;
+                publish_result(_mapper.rgb_result(_last_rgb_value[0], _last_rgb_value[1], _last_rgb_value[2], _last_rgb_value[3]));
+            }
+        }
     }
 
     return true;
@@ -372,6 +422,40 @@ ProximityGestureMode SensorApds9960::proximity_gesture_mode()
     }
 
     return static_cast<ProximityGestureMode>(mode);
+}
+
+signaling::OscSensorApds9960Gesture SensorApds9960::output_gesture(signaling::OscSensorApds9960Gesture gesture)
+{
+    const bool invert_x = _database.read(database::Config::Section::I2c::Apds9960, Setting::InvertGestureX) != 0;
+    const bool invert_y = _database.read(database::Config::Section::I2c::Apds9960, Setting::InvertGestureY) != 0;
+
+    if (invert_x)
+    {
+        if (gesture == signaling::OscSensorApds9960Gesture::Left)
+        {
+            return signaling::OscSensorApds9960Gesture::Right;
+        }
+
+        if (gesture == signaling::OscSensorApds9960Gesture::Right)
+        {
+            return signaling::OscSensorApds9960Gesture::Left;
+        }
+    }
+
+    if (invert_y)
+    {
+        if (gesture == signaling::OscSensorApds9960Gesture::Up)
+        {
+            return signaling::OscSensorApds9960Gesture::Down;
+        }
+
+        if (gesture == signaling::OscSensorApds9960Gesture::Down)
+        {
+            return signaling::OscSensorApds9960Gesture::Up;
+        }
+    }
+
+    return gesture;
 }
 
 uint8_t SensorApds9960::control_register_value()
@@ -658,9 +742,19 @@ void SensorApds9960::reset_gesture_edge_state()
 
 void SensorApds9960::reset_value_states()
 {
+    _has_proximity_value      = false;
+    _last_proximity_value     = 0;
+    _has_ambient_light_value  = false;
+    _last_ambient_light_value = 0;
+    _has_rgb_value            = false;
+    _last_rgb_value           = {};
     _proximity_filter.reset();
     _ambient_light_filter.reset();
-    _rgb_filter.reset();
+
+    for (auto& filter : _rgb_filters)
+    {
+        filter.reset();
+    }
 }
 
 void SensorApds9960::publish_value_states()
@@ -670,21 +764,19 @@ void SensorApds9960::publish_value_states()
         return;
     }
 
-    if ((proximity_gesture_mode() == ProximityGestureMode::Proximity) && _proximity_filter.has_value())
+    if ((proximity_gesture_mode() == ProximityGestureMode::Proximity) && _has_proximity_value)
     {
-        publish_result(_mapper.proximity_result(_proximity_filter.value()[0]));
+        publish_result(_mapper.proximity_result(_last_proximity_value));
     }
 
-    if (output_enabled(Setting::EnableAmbientLight) && _ambient_light_filter.has_value())
+    if (output_enabled(Setting::EnableAmbientLight) && _has_ambient_light_value)
     {
-        publish_result(_mapper.ambient_light_result(_ambient_light_filter.value()[0]));
+        publish_result(_mapper.ambient_light_result(_last_ambient_light_value));
     }
 
-    if (output_enabled(Setting::EnableRgb) && _rgb_filter.has_value())
+    if (output_enabled(Setting::EnableRgb) && _has_rgb_value)
     {
-        const auto& rgb = _rgb_filter.value();
-
-        publish_result(_mapper.rgb_result(rgb[0], rgb[1], rgb[2]));
+        publish_result(_mapper.rgb_result(_last_rgb_value[0], _last_rgb_value[1], _last_rgb_value[2], _last_rgb_value[3]));
     }
 }
 
@@ -743,6 +835,16 @@ std::optional<uint8_t> SensorApds9960::sys_config_set(sys::Config::Section::I2c 
         }
 
         init_action = common::InitAction::Init;
+    }
+    break;
+
+    case Setting::InvertGestureX:
+    case Setting::InvertGestureY:
+    {
+        if (value > 1)
+        {
+            return sys::Config::Status::ErrorWrite;
+        }
     }
     break;
 

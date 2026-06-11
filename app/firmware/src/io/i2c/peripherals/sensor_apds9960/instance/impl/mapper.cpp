@@ -36,14 +36,14 @@ Mapper::Result Mapper::ambient_light_result(uint16_t value) const
     };
 }
 
-Mapper::Result Mapper::rgb_result(uint16_t red, uint16_t green, uint16_t blue) const
+Mapper::Result Mapper::rgb_result(uint16_t clear, uint16_t red, uint16_t green, uint16_t blue) const
 {
     return {
         .osc = {
             .payload = opendeck::firmware::signaling::OscSensorApds9960RgbSignal{
-                .red   = rgbc(red),
-                .green = rgbc(green),
-                .blue  = rgbc(blue),
+                .red   = rgb_channel(red, clear),
+                .green = rgb_channel(green, clear),
+                .blue  = rgb_channel(blue, clear),
             },
             .direction = opendeck::firmware::signaling::SignalDirection::Out,
         },
@@ -80,6 +80,16 @@ float Mapper::rgbc(uint16_t value) const
     const auto constrained = zlibs::utils::misc::constrain<uint16_t>(value, 0U, APDS9960_RGBC_MAX_COUNT);
 
     return static_cast<float>(constrained) / static_cast<float>(APDS9960_RGBC_MAX_COUNT);
+}
+
+float Mapper::rgb_channel(uint16_t value, uint16_t clear) const
+{
+    if (clear == 0)
+    {
+        return 0.0F;
+    }
+
+    return zlibs::utils::misc::constrain(static_cast<float>(value) / static_cast<float>(clear), 0.0F, 1.0F);
 }
 
 uint8_t Mapper::compute_value(uint16_t value, uint16_t lower, uint16_t upper) const

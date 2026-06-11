@@ -213,6 +213,16 @@ namespace
     {
         return static_cast<float>(value) / static_cast<float>(APDS9960_RGBC_MAX_COUNT);
     }
+
+    constexpr float normalized_rgb_channel(uint16_t value, uint16_t clear)
+    {
+        return clear == 0 ? 0.0F : std::min(static_cast<float>(value) / static_cast<float>(clear), 1.0F);
+    }
+
+    constexpr uint16_t ema_value(uint16_t previous, uint16_t current, uint8_t percentage)
+    {
+        return static_cast<uint16_t>((percentage * current + (100U - percentage) * previous) / 100U);
+    }
 }    // namespace
 
 TEST_F(Apds9960MapperTest, MapsEightBitRawValues)
@@ -240,7 +250,7 @@ TEST_F(Apds9960MapperTest, NormalizesRgbcRawValues)
     constexpr uint16_t mid_value = APDS9960_RGBC_MAX_COUNT / 2U;
 
     const auto ambient = _mapper.ambient_light_result(mid_value);
-    const auto rgb     = _mapper.rgb_result(0U, mid_value, APDS9960_RGBC_MAX_COUNT);
+    const auto rgb     = _mapper.rgb_result(APDS9960_RGBC_MAX_COUNT, 0U, mid_value, APDS9960_RGBC_MAX_COUNT);
 
     const auto* ambient_payload = payload_as<signaling::OscSensorApds9960AmbientLightSignal>(ambient.osc);
     const auto* rgb_payload     = payload_as<signaling::OscSensorApds9960RgbSignal>(rgb.osc);
@@ -254,6 +264,30 @@ TEST_F(Apds9960MapperTest, NormalizesRgbcRawValues)
     EXPECT_FLOAT_EQ(rgb_payload->red, 0.0F);
     EXPECT_FLOAT_EQ(rgb_payload->green, normalized_rgbc(mid_value));
     EXPECT_FLOAT_EQ(rgb_payload->blue, 1.0F);
+}
+
+TEST_F(Apds9960MapperTest, NormalizesRgbRelativeToClearChannel)
+{
+    const auto  rgb         = _mapper.rgb_result(600U, 150U, 300U, 450U);
+    const auto* rgb_payload = payload_as<signaling::OscSensorApds9960RgbSignal>(rgb.osc);
+
+    ASSERT_NE(rgb_payload, nullptr);
+
+    EXPECT_FLOAT_EQ(rgb_payload->red, normalized_rgb_channel(150U, 600U));
+    EXPECT_FLOAT_EQ(rgb_payload->green, normalized_rgb_channel(300U, 600U));
+    EXPECT_FLOAT_EQ(rgb_payload->blue, normalized_rgb_channel(450U, 600U));
+}
+
+TEST_F(Apds9960MapperTest, ClampsRgbChannelsAboveClearChannel)
+{
+    const auto  rgb         = _mapper.rgb_result(100U, 120U, 60U, 30U);
+    const auto* rgb_payload = payload_as<signaling::OscSensorApds9960RgbSignal>(rgb.osc);
+
+    ASSERT_NE(rgb_payload, nullptr);
+
+    EXPECT_FLOAT_EQ(rgb_payload->red, 1.0F);
+    EXPECT_FLOAT_EQ(rgb_payload->green, normalized_rgb_channel(60U, 100U));
+    EXPECT_FLOAT_EQ(rgb_payload->blue, normalized_rgb_channel(30U, 100U));
 }
 
 TEST_F(Apds9960MapperTest, ClampsRgbcValuesAtConfiguredMaxCount)
@@ -340,98 +374,6 @@ TEST(Apds9960SensorStandaloneTest, AcceptsKnownApds9960DeviceIds)
         ConfigHandler.clear();
         signaling::clear_registry();
     }
-}
-
-TEST(I2cValueFilterTest, ConfirmsChangedValueWithoutTimeThrottle)
-{
-    ProximityFilter filter;
-
-    EXPECT_TRUE(filter.update({ 62 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
-
-    EXPECT_FALSE(filter.update({ 90 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
-    EXPECT_TRUE(filter.update({ 91 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
-    EXPECT_EQ(filter.value()[0], 91U);
-}
-
-TEST(I2cValueFilterTest, AcceptsMeaningfulStepsImmediatelyWhileMoving)
-{
-    ProximityFilter filter;
-
-    EXPECT_TRUE(filter.update({ 62 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
-    EXPECT_FALSE(filter.update({ 90 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
-    EXPECT_TRUE(filter.update({ 91 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
-
-    EXPECT_TRUE(filter.update({ 120 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
-    EXPECT_EQ(filter.value()[0], 120U);
-
-    EXPECT_FALSE(filter.update({ 125 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
-    EXPECT_FALSE(filter.update({ 136 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
-    EXPECT_TRUE(filter.update({ 137 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
-    EXPECT_EQ(filter.value()[0], 137U);
-}
-
-TEST(I2cValueFilterTest, UsesLowerThresholdWhileMoving)
-{
-    ProximityFilter filter;
-
-    EXPECT_TRUE(filter.update({ 25 }, 16, 2, ProximityFilter::ConfirmationMode::Exact, 8));
-    EXPECT_FALSE(filter.update({ 42 }, 16, 2, ProximityFilter::ConfirmationMode::Exact, 8));
-    EXPECT_TRUE(filter.update({ 42 }, 16, 2, ProximityFilter::ConfirmationMode::Exact, 8));
-
-    EXPECT_TRUE(filter.update({ 51 }, 16, 2, ProximityFilter::ConfirmationMode::Exact, 8));
-    EXPECT_EQ(filter.value()[0], 51U);
-
-    EXPECT_FALSE(filter.update({ 55 }, 16, 2, ProximityFilter::ConfirmationMode::Exact, 8));
-    EXPECT_FALSE(filter.update({ 62 }, 16, 2, ProximityFilter::ConfirmationMode::Exact, 8));
-}
-
-TEST(I2cValueFilterTest, RequiresExactRepeatWhenConfigured)
-{
-    ProximityFilter filter;
-
-    EXPECT_TRUE(filter.update({ 5 }, 2, 2, ProximityFilter::ConfirmationMode::Exact, 0));
-
-    EXPECT_FALSE(filter.update({ 7 }, 2, 2, ProximityFilter::ConfirmationMode::Exact, 0));
-    EXPECT_FALSE(filter.update({ 8 }, 2, 2, ProximityFilter::ConfirmationMode::Exact, 0));
-    EXPECT_TRUE(filter.update({ 8 }, 2, 2, ProximityFilter::ConfirmationMode::Exact, 0));
-    EXPECT_EQ(filter.value()[0], 8U);
-}
-
-TEST(I2cValueFilterTest, RestartsConfirmationForDifferentChangedValue)
-{
-    ProximityFilter filter;
-
-    EXPECT_TRUE(filter.update({ 62 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
-
-    EXPECT_FALSE(filter.update({ 90 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
-    EXPECT_FALSE(filter.update({ 120 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
-    EXPECT_TRUE(filter.update({ 121 }, 16, 2, ProximityFilter::ConfirmationMode::Nearby, 0));
-    EXPECT_EQ(filter.value()[0], 121U);
-}
-
-TEST(I2cValueFilterTest, FiltersGroupedJitter)
-{
-    RgbFilter filter;
-
-    EXPECT_TRUE(filter.update({ 483, 352, 338 }, 4, 2, RgbFilter::ConfirmationMode::Nearby, 4));
-
-    EXPECT_FALSE(filter.update({ 482, 352, 338 }, 4, 2, RgbFilter::ConfirmationMode::Nearby, 4));
-    EXPECT_FALSE(filter.update({ 483, 353, 338 }, 4, 2, RgbFilter::ConfirmationMode::Nearby, 4));
-    EXPECT_FALSE(filter.update({ 483, 352, 339 }, 4, 2, RgbFilter::ConfirmationMode::Nearby, 4));
-}
-
-TEST(I2cValueFilterTest, ConfirmsGroupedChangesThenStreamsMovement)
-{
-    RgbFilter filter;
-
-    EXPECT_TRUE(filter.update({ 483, 352, 338 }, 4, 2, RgbFilter::ConfirmationMode::Nearby, 4));
-
-    EXPECT_FALSE(filter.update({ 490, 352, 338 }, 4, 2, RgbFilter::ConfirmationMode::Nearby, 4));
-    EXPECT_TRUE(filter.update({ 491, 352, 338 }, 4, 2, RgbFilter::ConfirmationMode::Nearby, 4));
-    EXPECT_EQ(filter.value()[0], 491U);
-
-    EXPECT_TRUE(filter.update({ 496, 352, 338 }, 4, 2, RgbFilter::ConfirmationMode::Nearby, 4));
-    EXPECT_EQ(filter.value()[0], 496U);
 }
 
 TEST_F(Apds9960SensorTest, PublishesInitialContinuousOutputsIndependently)
@@ -538,7 +480,7 @@ TEST_F(Apds9960SensorTest, DoesNotPublishStaleContinuousRegistersBeforeStatusIsV
     EXPECT_EQ(count_signal<signaling::OscSensorApds9960RgbSignal>(signals), 0U);
 }
 
-TEST_F(Apds9960SensorTest, DebouncesEachContinuousOutputIndependently)
+TEST_F(Apds9960SensorTest, FiltersContinuousOutputsIndependently)
 {
     set_apds_output(sensor_apds9960::Setting::EnableRgb, 0);
 
@@ -548,32 +490,31 @@ TEST_F(Apds9960SensorTest, DebouncesEachContinuousOutputIndependently)
     set_sensor_values(24, 62, 32, 25, 19);
     update_after(0);
 
-    EXPECT_TRUE(_collector.snapshot().empty());
-
-    update_after(0);
-
     auto signals = _collector.snapshot();
-    ASSERT_EQ(signals.size(), 1U);
+    ASSERT_EQ(count_signal<signaling::OscSensorApds9960ProximitySignal>(signals), 1U);
     const auto* proximity = payload_as<signaling::OscSensorApds9960ProximitySignal>(signals[0]);
     ASSERT_NE(proximity, nullptr);
-    EXPECT_EQ(proximity->value, 24);
+    EXPECT_EQ(proximity->value, 4);
     _collector.clear();
 
     set_sensor_values(24, 90, 32, 25, 19);
     update_after(VALUE_DELAY_MS);
 
-    EXPECT_TRUE(_collector.snapshot().empty());
+    signals                   = _collector.snapshot();
+    const auto ambient_signal = std::find_if(signals.begin(),
+                                             signals.end(),
+                                             [](const signaling::OscSensorSignal& signal)
+                                             {
+                                                 return std::holds_alternative<signaling::OscSensorApds9960AmbientLightSignal>(signal.payload);
+                                             });
 
-    update_after(0);
-
-    signals = _collector.snapshot();
-    ASSERT_EQ(signals.size(), 1U);
-    const auto* ambient_light = payload_as<signaling::OscSensorApds9960AmbientLightSignal>(signals[0]);
+    ASSERT_NE(ambient_signal, signals.end());
+    const auto* ambient_light = payload_as<signaling::OscSensorApds9960AmbientLightSignal>(*ambient_signal);
     ASSERT_NE(ambient_light, nullptr);
-    EXPECT_FLOAT_EQ(ambient_light->value, normalized_rgbc(90));
+    EXPECT_FLOAT_EQ(ambient_light->value, normalized_rgbc(ema_value(62, 90, AMBIENT_LIGHT_SMOOTHING_PERCENTAGE)));
 }
 
-TEST_F(Apds9960SensorTest, FiltersAmbientLightWithoutTimeThrottle)
+TEST_F(Apds9960SensorTest, SmoothsAmbientLightOutputWithEma)
 {
     set_apds_output(sensor_apds9960::Setting::EnableRgb, 0);
 
@@ -583,20 +524,30 @@ TEST_F(Apds9960SensorTest, FiltersAmbientLightWithoutTimeThrottle)
     set_sensor_values(1, 90, 32, 25, 19);
     update_after(0);
 
-    EXPECT_TRUE(_collector.snapshot().empty());
-
-    update_after(0);
-
-    const auto signals = _collector.snapshot();
+    auto signals = _collector.snapshot();
 
     ASSERT_EQ(signals.size(), 1U);
     const auto* ambient_light = payload_as<signaling::OscSensorApds9960AmbientLightSignal>(signals[0]);
     ASSERT_NE(ambient_light, nullptr);
-    EXPECT_FLOAT_EQ(ambient_light->value, normalized_rgbc(90));
+    EXPECT_FLOAT_EQ(ambient_light->value, normalized_rgbc(ema_value(62, 90, AMBIENT_LIGHT_SMOOTHING_PERCENTAGE)));
+    _collector.clear();
+
+    update_after(0);
+
+    signals = _collector.snapshot();
+
+    ASSERT_EQ(signals.size(), 1U);
+    ambient_light = payload_as<signaling::OscSensorApds9960AmbientLightSignal>(signals[0]);
+    ASSERT_NE(ambient_light, nullptr);
+    EXPECT_FLOAT_EQ(ambient_light->value,
+                    normalized_rgbc(ema_value(ema_value(62, 90, AMBIENT_LIGHT_SMOOTHING_PERCENTAGE),
+                                              90,
+                                              AMBIENT_LIGHT_SMOOTHING_PERCENTAGE)));
 }
 
 TEST_F(Apds9960SensorTest, FiltersProximityNoiseWithoutTimeThrottle)
 {
+    set_apds_output(sensor_apds9960::Setting::EnableAmbientLight, 0);
     set_apds_output(sensor_apds9960::Setting::EnableRgb, 0);
 
     update_after(SAMPLE_DELAY_MS);
@@ -608,21 +559,21 @@ TEST_F(Apds9960SensorTest, FiltersProximityNoiseWithoutTimeThrottle)
         update_after(0);
     }
 
-    EXPECT_TRUE(_collector.snapshot().empty());
+    auto signals = _collector.snapshot();
+
+    EXPECT_LT(count_signal<signaling::OscSensorApds9960ProximitySignal>(signals), 32U);
+    _collector.clear();
 
     set_sensor_values(24, 62, 32, 25, 19);
     update_after(0);
 
-    EXPECT_TRUE(_collector.snapshot().empty());
-
-    update_after(0);
-
-    auto signals = _collector.snapshot();
+    signals = _collector.snapshot();
 
     ASSERT_EQ(signals.size(), 1U);
     const auto* proximity = payload_as<signaling::OscSensorApds9960ProximitySignal>(signals[0]);
     ASSERT_NE(proximity, nullptr);
-    EXPECT_EQ(proximity->value, 24);
+    EXPECT_GT(proximity->value, 0);
+    EXPECT_LT(proximity->value, 24);
     _collector.clear();
 
     set_sensor_values(34, 62, 32, 25, 19);
@@ -633,11 +584,13 @@ TEST_F(Apds9960SensorTest, FiltersProximityNoiseWithoutTimeThrottle)
     ASSERT_EQ(signals.size(), 1U);
     proximity = payload_as<signaling::OscSensorApds9960ProximitySignal>(signals[0]);
     ASSERT_NE(proximity, nullptr);
-    EXPECT_EQ(proximity->value, 34);
+    EXPECT_GT(proximity->value, 0);
+    EXPECT_LT(proximity->value, 34);
 }
 
 TEST_F(Apds9960SensorTest, ConfirmsNearbyProximitySamplesWithoutExactRepeat)
 {
+    set_apds_output(sensor_apds9960::Setting::EnableAmbientLight, 0);
     set_apds_output(sensor_apds9960::Setting::EnableRgb, 0);
 
     update_after(SAMPLE_DELAY_MS);
@@ -646,67 +599,64 @@ TEST_F(Apds9960SensorTest, ConfirmsNearbyProximitySamplesWithoutExactRepeat)
     set_sensor_values(24, 62, 32, 25, 19);
     update_after(0);
 
-    EXPECT_TRUE(_collector.snapshot().empty());
-
-    set_sensor_values(26, 62, 32, 25, 19);
-    update_after(0);
-
     auto signals = _collector.snapshot();
 
     ASSERT_EQ(signals.size(), 1U);
     const auto* proximity = payload_as<signaling::OscSensorApds9960ProximitySignal>(signals[0]);
     ASSERT_NE(proximity, nullptr);
-    EXPECT_EQ(proximity->value, 26);
+    EXPECT_EQ(proximity->value, 4);
+    _collector.clear();
+
+    set_sensor_values(26, 62, 32, 25, 19);
+    update_after(0);
+
+    signals = _collector.snapshot();
+
+    ASSERT_EQ(signals.size(), 1U);
+    proximity = payload_as<signaling::OscSensorApds9960ProximitySignal>(signals[0]);
+    ASSERT_NE(proximity, nullptr);
+    EXPECT_EQ(proximity->value, 7);
 }
 
-TEST_F(Apds9960SensorTest, FiltersRgbNoiseAsTupleWithoutTimeThrottle)
+TEST_F(Apds9960SensorTest, SmoothsRgbOutputWithEma)
 {
+    set_apds_output(Setting::EnableAmbientLight, 0);
     update_after(SAMPLE_DELAY_MS);
     _collector.clear();
 
-    set_sensor_values(1, 62, 483, 352, 338);
-    update_after(0);
-
-    EXPECT_TRUE(_collector.snapshot().empty());
-
+    set_sensor_values(1, 620, 483, 352, 338);
     update_after(0);
 
     auto signals = _collector.snapshot();
     ASSERT_EQ(signals.size(), 1U);
     const auto* rgb = payload_as<signaling::OscSensorApds9960RgbSignal>(signals[0]);
     ASSERT_NE(rgb, nullptr);
-    EXPECT_FLOAT_EQ(rgb->red, normalized_rgbc(483));
-    EXPECT_FLOAT_EQ(rgb->green, normalized_rgbc(352));
-    EXPECT_FLOAT_EQ(rgb->blue, normalized_rgbc(338));
+
+    constexpr uint16_t filtered_clear = ema_value(62, 620, RGB_SMOOTHING_PERCENTAGE);
+    constexpr uint16_t filtered_red   = ema_value(32, 483, RGB_SMOOTHING_PERCENTAGE);
+    constexpr uint16_t filtered_green = ema_value(25, 352, RGB_SMOOTHING_PERCENTAGE);
+    constexpr uint16_t filtered_blue  = ema_value(19, 338, RGB_SMOOTHING_PERCENTAGE);
+
+    EXPECT_FLOAT_EQ(rgb->red, normalized_rgb_channel(filtered_red, filtered_clear));
+    EXPECT_FLOAT_EQ(rgb->green, normalized_rgb_channel(filtered_green, filtered_clear));
+    EXPECT_FLOAT_EQ(rgb->blue, normalized_rgb_channel(filtered_blue, filtered_clear));
     _collector.clear();
 
-    for (const auto& rgb : {
-             std::array<uint16_t, 3>{ 482, 352, 338 },
-             std::array<uint16_t, 3>{ 483, 353, 338 },
-             std::array<uint16_t, 3>{ 483, 352, 339 },
-         })
-    {
-        set_sensor_values(1, 62, rgb[0], rgb[1], rgb[2]);
-        update_after(0);
-    }
-
-    EXPECT_TRUE(_collector.snapshot().empty());
-
-    set_sensor_values(1, 62, 490, 352, 338);
-    update_after(0);
-
-    EXPECT_TRUE(_collector.snapshot().empty());
-
-    set_sensor_values(1, 62, 491, 352, 338);
     update_after(0);
 
     signals = _collector.snapshot();
     ASSERT_EQ(signals.size(), 1U);
     rgb = payload_as<signaling::OscSensorApds9960RgbSignal>(signals[0]);
     ASSERT_NE(rgb, nullptr);
-    EXPECT_FLOAT_EQ(rgb->red, normalized_rgbc(491));
-    EXPECT_FLOAT_EQ(rgb->green, normalized_rgbc(352));
-    EXPECT_FLOAT_EQ(rgb->blue, normalized_rgbc(338));
+
+    constexpr uint16_t next_filtered_clear = ema_value(filtered_clear, 620, RGB_SMOOTHING_PERCENTAGE);
+    constexpr uint16_t next_filtered_red   = ema_value(filtered_red, 483, RGB_SMOOTHING_PERCENTAGE);
+    constexpr uint16_t next_filtered_green = ema_value(filtered_green, 352, RGB_SMOOTHING_PERCENTAGE);
+    constexpr uint16_t next_filtered_blue  = ema_value(filtered_blue, 338, RGB_SMOOTHING_PERCENTAGE);
+
+    EXPECT_FLOAT_EQ(rgb->red, normalized_rgb_channel(next_filtered_red, next_filtered_clear));
+    EXPECT_FLOAT_EQ(rgb->green, normalized_rgb_channel(next_filtered_green, next_filtered_clear));
+    EXPECT_FLOAT_EQ(rgb->blue, normalized_rgb_channel(next_filtered_blue, next_filtered_clear));
 }
 
 TEST_F(Apds9960SensorTest, ReadsAmbientLightAndRgbRegistersInSingleBlock)
@@ -800,6 +750,55 @@ TEST_F(Apds9960SensorTest, PublishesGestureFromFifoEdgePair)
     const auto* gesture = payload_as<signaling::OscSensorApds9960GestureSignal>(*gesture_signal);
     ASSERT_NE(gesture, nullptr);
     EXPECT_EQ(gesture->gesture, signaling::OscSensorApds9960Gesture::Up);
+}
+
+TEST_F(Apds9960SensorTest, AppliesGestureOutputInversion)
+{
+    set_apds_output(sensor_apds9960::Setting::ProximityGestureMode, static_cast<uint32_t>(ProximityGestureMode::Gesture));
+    set_apds_output(sensor_apds9960::Setting::EnableAmbientLight, 0);
+    set_apds_output(sensor_apds9960::Setting::EnableRgb, 0);
+    set_apds_output(sensor_apds9960::Setting::InvertGestureY, 1);
+
+    _hwa.set_gesture_fifo(APDS9960_REGISTER_GFIFO_U,
+                          APDS9960_REGISTER_GFLVL,
+                          APDS9960_REGISTER_GSTATUS,
+                          APDS9960_GSTATUS_GVALID,
+                          {
+                              { 70, 30, 40, 40 },
+                              { 30, 70, 40, 40 },
+                          });
+
+    update_after(SAMPLE_DELAY_MS);
+    auto signals = _collector.snapshot();
+
+    ASSERT_EQ(count_signal<signaling::OscSensorApds9960GestureSignal>(signals), 1U);
+
+    const auto* gesture = payload_as<signaling::OscSensorApds9960GestureSignal>(signals[0]);
+
+    ASSERT_NE(gesture, nullptr);
+    EXPECT_EQ(gesture->gesture, signaling::OscSensorApds9960Gesture::Down);
+
+    set_apds_output(sensor_apds9960::Setting::InvertGestureY, 0);
+    set_apds_output(sensor_apds9960::Setting::InvertGestureX, 1);
+    k_msleep(800);
+
+    _hwa.set_gesture_fifo(APDS9960_REGISTER_GFIFO_U,
+                          APDS9960_REGISTER_GFLVL,
+                          APDS9960_REGISTER_GSTATUS,
+                          APDS9960_GSTATUS_GVALID,
+                          {
+                              { 40, 40, 30, 70 },
+                              { 40, 40, 70, 30 },
+                          });
+
+    update_after(SAMPLE_DELAY_MS);
+    signals = _collector.snapshot();
+
+    ASSERT_EQ(count_signal<signaling::OscSensorApds9960GestureSignal>(signals), 1U);
+    gesture = payload_as<signaling::OscSensorApds9960GestureSignal>(signals[0]);
+
+    ASSERT_NE(gesture, nullptr);
+    EXPECT_EQ(gesture->gesture, signaling::OscSensorApds9960Gesture::Left);
 }
 
 TEST_F(Apds9960SensorTest, RateLimitsGestureOutput)

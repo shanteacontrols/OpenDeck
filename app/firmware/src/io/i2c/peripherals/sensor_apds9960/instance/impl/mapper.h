@@ -56,13 +56,14 @@ namespace opendeck::firmware::io::i2c::sensor_apds9960
         /**
          * @brief Returns one mapped result for raw RGB values.
          *
+         * @param clear Raw clear channel value from the same RGBC sample.
          * @param red Raw red channel value.
          * @param green Raw green channel value.
          * @param blue Raw blue channel value.
          *
          * @return Mapped OSC sensor result.
          */
-        Result rgb_result(uint16_t red, uint16_t green, uint16_t blue) const;
+        Result rgb_result(uint16_t clear, uint16_t red, uint16_t green, uint16_t blue) const;
 
         /**
          * @brief Returns one mapped result for a decoded gesture direction.
@@ -100,12 +101,23 @@ namespace opendeck::firmware::io::i2c::sensor_apds9960
         uint8_t proximity(uint8_t value, const DatabaseInfo& info) const;
 
         /**
-         * @brief Converts a 16-bit raw RGBC value to a normalized 0..1 float.
+         * @brief Converts a 16-bit raw RGBC value to an absolute normalized 0..1 float.
          *
          * @param value Raw sensor value.
+         *
          * @return Normalized value.
          */
         float rgbc(uint16_t value) const;
+
+        /**
+         * @brief Converts one RGB channel to a value relative to the clear channel.
+         *
+         * @param value Raw RGB channel value.
+         * @param clear Raw clear channel value from the same RGBC sample.
+         *
+         * @return Relative RGB channel value.
+         */
+        float rgb_channel(uint16_t value, uint16_t clear) const;
 
         /**
          * @brief Computes the effective mapped 8-bit value.

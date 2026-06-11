@@ -10,6 +10,8 @@
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/system/shared/config.h"
 
+#include "zlibs/utils/filters/filters.h"
+
 #include <array>
 #include <optional>
 
@@ -75,36 +77,38 @@ namespace opendeck::firmware::io::i2c::sensor_apds9960
         std::span<const uint8_t> i2c_addresses() const override;
 
         private:
-        static constexpr uint8_t  PROXIMITY_IDLE_THRESHOLD           = 16;
-        static constexpr uint8_t  PROXIMITY_MOVING_THRESHOLD         = 8;
-        static constexpr uint8_t  PROXIMITY_CONFIRMATION_SAMPLES     = 2;
-        static constexpr uint16_t AMBIENT_LIGHT_SEND_THRESHOLD       = 8;
-        static constexpr uint8_t  AMBIENT_LIGHT_CONFIRMATION_SAMPLES = 2;
-        static constexpr uint16_t RGB_IDLE_THRESHOLD                 = 4;
-        static constexpr uint16_t RGB_MOVING_THRESHOLD               = 4;
-        static constexpr uint8_t  RGB_CONFIRMATION_SAMPLES           = 2;
-        static constexpr uint8_t  GESTURE_FIFO_MAX_SAMPLES           = 32;
-        static constexpr uint8_t  GESTURE_EDGE_THRESHOLD             = 13;
-        static constexpr int64_t  GESTURE_EDGE_TIMEOUT_MS            = 500;
-        static constexpr int64_t  GESTURE_SEND_COOLDOWN_MS           = 700;
-        static constexpr uint8_t  READ_FAILURE_LIMIT                 = 3;
+        using ProximityFilter    = zlibs::utils::filters::EmaFilter<uint8_t, PROXIMITY_SMOOTHING_PERCENTAGE>;
+        using AmbientLightFilter = zlibs::utils::filters::EmaFilter<uint16_t, AMBIENT_LIGHT_SMOOTHING_PERCENTAGE>;
+        using RgbFilter          = zlibs::utils::filters::EmaFilter<uint16_t, RGB_SMOOTHING_PERCENTAGE>;
 
-        Hwa&               _hwa;
-        Database&          _database;
-        Mapper             _mapper;
-        bool               _found                      = false;
-        bool               _initialized                = false;
-        uint8_t            _read_failure_count         = 0;
-        size_t             _selected_i2c_address_index = 0;
-        ProximityFilter    _proximity_filter           = {};
-        AmbientLightFilter _ambient_light_filter       = {};
-        RgbFilter          _rgb_filter                 = {};
-        int64_t            _last_gesture_send_ms       = 0;
-        int64_t            _gesture_start_ms           = 0;
-        bool               _gesture_up_started         = false;
-        bool               _gesture_down_started       = false;
-        bool               _gesture_left_started       = false;
-        bool               _gesture_right_started      = false;
+        static constexpr uint8_t GESTURE_FIFO_MAX_SAMPLES = 32;
+        static constexpr uint8_t GESTURE_EDGE_THRESHOLD   = 13;
+        static constexpr int64_t GESTURE_EDGE_TIMEOUT_MS  = 500;
+        static constexpr int64_t GESTURE_SEND_COOLDOWN_MS = 700;
+        static constexpr uint8_t READ_FAILURE_LIMIT       = 3;
+
+        Hwa&                     _hwa;
+        Database&                _database;
+        Mapper                   _mapper;
+        bool                     _found                      = false;
+        bool                     _initialized                = false;
+        uint8_t                  _read_failure_count         = 0;
+        size_t                   _selected_i2c_address_index = 0;
+        bool                     _has_proximity_value        = false;
+        uint8_t                  _last_proximity_value       = 0;
+        ProximityFilter          _proximity_filter           = {};
+        AmbientLightFilter       _ambient_light_filter       = {};
+        bool                     _has_ambient_light_value    = false;
+        uint16_t                 _last_ambient_light_value   = 0;
+        bool                     _has_rgb_value              = false;
+        std::array<uint16_t, 4>  _last_rgb_value             = {};
+        std::array<RgbFilter, 4> _rgb_filters                = {};
+        int64_t                  _last_gesture_send_ms       = 0;
+        int64_t                  _gesture_start_ms           = 0;
+        bool                     _gesture_up_started         = false;
+        bool                     _gesture_down_started       = false;
+        bool                     _gesture_left_started       = false;
+        bool                     _gesture_right_started      = false;
 
         /**
          * @brief Configures proximity, gesture, and color sensing.
@@ -135,6 +139,15 @@ namespace opendeck::firmware::io::i2c::sensor_apds9960
          * @return Selected mutually-exclusive proximity/gesture mode.
          */
         ProximityGestureMode proximity_gesture_mode();
+
+        /**
+         * @brief Applies configured APDS9960 gesture output inversion.
+         *
+         * @param gesture Decoded gesture direction.
+         *
+         * @return Gesture direction after optional axis inversion.
+         */
+        opendeck::firmware::signaling::OscSensorApds9960Gesture output_gesture(opendeck::firmware::signaling::OscSensorApds9960Gesture gesture);
 
         /**
          * @brief Builds the APDS9960 CONTROL register value.
