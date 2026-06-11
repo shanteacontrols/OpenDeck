@@ -12,9 +12,6 @@ namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
     /** @brief Maximum VL53L4CX ranging distance in millimeters, per datasheet operating range. */
     constexpr inline uint16_t DISTANCE_MAX_MM = 6000;
 
-    /** @brief EMA smoothing percentage used for VL53L4CX distance output. */
-    constexpr inline uint8_t DISTANCE_SMOOTHING_PERCENTAGE = 15;
-
     /**
      * @brief Identifies configurable VL53L4CX sensor settings stored in the database.
      */
@@ -22,11 +19,24 @@ namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
     {
         EnableDistanceMm,
         EnableDistanceNorm,
+        Smoothing,
         TrackingArea,
         Response,
         DistanceMode,
         DistanceLowerValue,
         DistanceUpperValue,
+        Count
+    };
+
+    /**
+     * @brief Identifies the application-side distance smoothing profile.
+     */
+    enum class Smoothing : uint8_t
+    {
+        Off,
+        Light,
+        Medium,
+        Heavy,
         Count
     };
 

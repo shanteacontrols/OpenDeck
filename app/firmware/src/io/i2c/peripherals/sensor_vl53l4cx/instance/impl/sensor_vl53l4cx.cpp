@@ -29,6 +29,11 @@ namespace
     constexpr int32_t  SOFT_RESET_DELAY_MS                = 100;
     constexpr uint8_t  SOFT_RESET_ASSERTED                = 0x00;
     constexpr uint8_t  SOFT_RESET_RELEASED                = 0x01;
+    constexpr uint8_t  SMOOTHING_PERCENTAGE_OFF           = 100;
+    constexpr uint8_t  SMOOTHING_PERCENTAGE_LIGHT         = 55;
+    constexpr uint8_t  SMOOTHING_PERCENTAGE_MEDIUM        = 30;
+    constexpr uint8_t  SMOOTHING_PERCENTAGE_HEAVY         = 15;
+    constexpr uint32_t SMOOTHING_PERCENTAGE_DIVISOR       = 100;
 
     struct Roi
     {
@@ -51,6 +56,25 @@ namespace
         case Response::Stable:
         default:
             return RESPONSE_STABLE_TIMING_BUDGET_US;
+        }
+    }
+
+    uint8_t smoothing_percentage(Smoothing smoothing)
+    {
+        switch (smoothing)
+        {
+        case Smoothing::Light:
+            return SMOOTHING_PERCENTAGE_LIGHT;
+
+        case Smoothing::Medium:
+            return SMOOTHING_PERCENTAGE_MEDIUM;
+
+        case Smoothing::Heavy:
+            return SMOOTHING_PERCENTAGE_HEAVY;
+
+        case Smoothing::Off:
+        default:
+            return SMOOTHING_PERCENTAGE_OFF;
         }
     }
 
@@ -120,6 +144,9 @@ SensorVl53l4cx::SensorVl53l4cx(Hwa&      hwa,
         {
             switch (static_cast<Setting>(index))
             {
+            case Setting::Smoothing:
+                return static_cast<uint32_t>(Smoothing::Heavy);
+
             case Setting::TrackingArea:
                 return static_cast<uint32_t>(TrackingArea::Narrow);
 
@@ -214,9 +241,8 @@ bool SensorVl53l4cx::init(size_t address_index)
         return false;
     }
 
-    _found     = true;
-    _measuring = true;
-    _distance_filter.reset();
+    _found              = true;
+    _measuring          = true;
     _has_distance_value = false;
     _last_distance_mm   = 0;
     _mapper.reset();
@@ -326,6 +352,18 @@ bool SensorVl53l4cx::distance_norm_enabled() const
     return _database.read(database::Config::Section::I2c::Vl53l4cx, Setting::EnableDistanceNorm) != 0;
 }
 
+Smoothing SensorVl53l4cx::smoothing()
+{
+    const auto value = _database.read(database::Config::Section::I2c::Vl53l4cx, Setting::Smoothing);
+
+    if (value >= static_cast<uint8_t>(Smoothing::Count))
+    {
+        return Smoothing::Off;
+    }
+
+    return static_cast<Smoothing>(value);
+}
+
 TrackingArea SensorVl53l4cx::tracking_area()
 {
     const auto value = _database.read(database::Config::Section::I2c::Vl53l4cx, Setting::TrackingArea);
@@ -372,9 +410,8 @@ bool SensorVl53l4cx::deinit()
     _found                      = false;
     _measuring                  = false;
     _selected_i2c_address_index = 0;
-    _distance_filter.reset();
-    _has_distance_value = false;
-    _last_distance_mm   = 0;
+    _has_distance_value         = false;
+    _last_distance_mm           = 0;
     _mapper.reset();
 
     return true;
@@ -487,13 +524,12 @@ void SensorVl53l4cx::process_measurement_frame(const VL53L4CX_MultiRangingData_t
 
     if (!_has_distance_value)
     {
-        _distance_filter.reset(distance);
         _last_distance_mm   = distance;
         _has_distance_value = true;
     }
     else
     {
-        const auto filtered_distance = _distance_filter.value(distance);
+        const auto filtered_distance = smooth_distance(distance);
 
         if (filtered_distance == _last_distance_mm)
         {
@@ -545,6 +581,22 @@ bool SensorVl53l4cx::range_status_usable(uint8_t status)
            (status == VL53L4CX_RANGESTATUS_RANGE_VALID_MERGED_PULSE);
 }
 
+uint16_t SensorVl53l4cx::smooth_distance(uint16_t distance_mm)
+{
+    const auto percentage = smoothing_percentage(smoothing());
+
+    if (!_has_distance_value || (percentage == SMOOTHING_PERCENTAGE_OFF))
+    {
+        return distance_mm;
+    }
+
+    const uint32_t filtered = (static_cast<uint32_t>(percentage) * distance_mm) +
+                              ((SMOOTHING_PERCENTAGE_DIVISOR - static_cast<uint32_t>(percentage)) *
+                               _last_distance_mm);
+
+    return static_cast<uint16_t>(filtered / SMOOTHING_PERCENTAGE_DIVISOR);
+}
+
 std::optional<uint8_t> SensorVl53l4cx::sys_config_get(sys::Config::Section::I2c section, size_t index, uint16_t& value)
 {
     if (section != sys::Config::Section::I2c::Vl53l4cx)
@@ -578,6 +630,15 @@ std::optional<uint8_t> SensorVl53l4cx::sys_config_set(sys::Config::Section::I2c 
     case Setting::EnableDistanceNorm:
     {
         if (value > 1)
+        {
+            return sys::Config::Status::ErrorWrite;
+        }
+    }
+    break;
+
+    case Setting::Smoothing:
+    {
+        if (value >= static_cast<uint8_t>(Smoothing::Count))
         {
             return sys::Config::Status::ErrorWrite;
         }
@@ -623,7 +684,10 @@ std::optional<uint8_t> SensorVl53l4cx::sys_config_set(sys::Config::Section::I2c 
                       ? sys::Config::Status::Ack
                       : sys::Config::Status::ErrorWrite;
 
-    if (result == sys::Config::Status::Ack)
+    if ((result == sys::Config::Status::Ack) &&
+        ((setting == Setting::TrackingArea) ||
+         (setting == Setting::Response) ||
+         (setting == Setting::DistanceMode)))
     {
         init(_selected_i2c_address_index);
     }

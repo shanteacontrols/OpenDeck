@@ -10,8 +10,6 @@
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/system/shared/config.h"
 
-#include "zlibs/utils/filters/filters.h"
-
 #include "vl53l4cx_class.h"
 
 #include <optional>
@@ -78,18 +76,15 @@ namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
         std::span<const uint8_t> i2c_addresses() const override;
 
         private:
-        using DistanceFilter = zlibs::utils::filters::EmaFilter<uint16_t, DISTANCE_SMOOTHING_PERCENTAGE>;
-
-        Hwa&           _hwa;
-        Database&      _database;
-        Mapper         _mapper;
-        VL53L4CX       _driver                     = {};
-        DistanceFilter _distance_filter            = {};
-        bool           _has_distance_value         = false;
-        uint16_t       _last_distance_mm           = 0;
-        size_t         _selected_i2c_address_index = 0;
-        bool           _found                      = false;
-        bool           _measuring                  = false;
+        Hwa&      _hwa;
+        Database& _database;
+        Mapper    _mapper;
+        VL53L4CX  _driver                     = {};
+        bool      _has_distance_value         = false;
+        uint16_t  _last_distance_mm           = 0;
+        size_t    _selected_i2c_address_index = 0;
+        bool      _found                      = false;
+        bool      _measuring                  = false;
 
         /**
          * @brief Applies configured ranging settings.
@@ -118,6 +113,13 @@ namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
          * @return `true` if normalized distance readings should be published.
          */
         bool distance_norm_enabled() const;
+
+        /**
+         * @brief Returns the configured smoothing profile.
+         *
+         * @return Valid smoothing profile.
+         */
+        Smoothing smoothing();
 
         /**
          * @brief Returns the configured tracking area.
@@ -186,6 +188,15 @@ namespace opendeck::firmware::io::i2c::sensor_vl53l4cx
          * @return `true` if distance can be used.
          */
         static bool range_status_usable(uint8_t status);
+
+        /**
+         * @brief Applies configured output smoothing to a distance reading.
+         *
+         * @param distance_mm Raw distance reading in millimeters.
+         *
+         * @return Smoothed distance in millimeters.
+         */
+        uint16_t smooth_distance(uint16_t distance_mm);
 
         /**
          * @brief Serves SysEx configuration reads for the VL53L4CX section.
