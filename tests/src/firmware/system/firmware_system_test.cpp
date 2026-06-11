@@ -18,6 +18,7 @@
 #include "firmware/src/io/i2c/peripherals/sensor_bno085/shared/common.h"
 #include "firmware/src/io/i2c/peripherals/sensor_cap1188/shared/common.h"
 #include "firmware/src/io/i2c/peripherals/sensor_vl53l4cx/shared/common.h"
+#include "firmware/src/io/i2c/peripherals/sensor_vl53l5cx/shared/common.h"
 #include "firmware/src/io/outputs/shared/common.h"
 #include "firmware/src/io/touchscreen/shared/common.h"
 #include "firmware/src/protocol/midi/shared/common.h"
@@ -382,6 +383,18 @@ TEST_F(SystemTest, FullDatabaseInitialValues)
         for (int i = 0; i < static_cast<uint8_t>(io::i2c::sensor_bno085::Setting::Count); i++)
         {
             verify(0, database::Config::Section::I2c::Bno085, i);
+        }
+
+        for (int i = 0; i < static_cast<uint8_t>(io::i2c::sensor_vl53l5cx::Setting::Count); i++)
+        {
+            uint32_t expected = 0;
+
+            if (i == static_cast<int>(io::i2c::sensor_vl53l5cx::Setting::OutputRate))
+            {
+                expected = static_cast<uint32_t>(io::i2c::sensor_vl53l5cx::OutputRate::Normal);
+            }
+
+            verify(expected, database::Config::Section::I2c::Vl53l5cx, i);
         }
 #endif
 #endif
