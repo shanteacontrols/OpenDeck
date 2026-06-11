@@ -45,7 +45,6 @@ namespace
     constexpr uint8_t  TARGET_STATUS_SEMI_VALID      = 9;
     constexpr uint16_t PRESENCE_DISTANCE_SPAN_MIN_MM = 1;
     constexpr float    PRESENCE_ENERGY_SCALE         = 0.5F;
-    constexpr uint32_t SMOOTHING_PERCENTAGE_DIVISOR  = 100;
 
     bool valid_target_status(uint8_t status)
     {
@@ -387,10 +386,14 @@ OutputRate SensorVl53l5cx::output_rate() const
 void SensorVl53l5cx::reset_processing_state()
 {
     _grid                  = {};
-    _smoothed_distance_mm  = {};
     _invalid_frame_count   = {};
     _has_smoothed_distance = {};
     _last_publish_ms       = 0;
+
+    for (auto& filter : _distance_filters)
+    {
+        filter.reset();
+    }
 }
 
 void SensorVl53l5cx::process_results()
@@ -430,7 +433,7 @@ void SensorVl53l5cx::process_results()
                      (_invalid_frame_count[source_zone] < hold_frames))
             {
                 _invalid_frame_count[source_zone]++;
-                zone.distance_mm = _smoothed_distance_mm[source_zone];
+                zone.distance_mm = _distance_filters[source_zone].value();
                 zone.valid       = true;
             }
             else
@@ -681,19 +684,13 @@ uint16_t SensorVl53l5cx::smooth_distance(size_t zone, uint16_t distance_mm)
 
     if (!_has_smoothed_distance[zone] || (percentage == SMOOTHING_PERCENTAGE_OFF))
     {
-        _smoothed_distance_mm[zone]  = distance_mm;
         _has_smoothed_distance[zone] = true;
+        _distance_filters[zone].reset(distance_mm);
 
         return distance_mm;
     }
 
-    const uint32_t filtered = (static_cast<uint32_t>(percentage) * distance_mm) +
-                              ((SMOOTHING_PERCENTAGE_DIVISOR - static_cast<uint32_t>(percentage)) *
-                               _smoothed_distance_mm[zone]);
-
-    _smoothed_distance_mm[zone] = static_cast<uint16_t>(filtered / SMOOTHING_PERCENTAGE_DIVISOR);
-
-    return _smoothed_distance_mm[zone];
+    return _distance_filters[zone].value(distance_mm, percentage);
 }
 
 uint8_t SensorVl53l5cx::i2c_address() const

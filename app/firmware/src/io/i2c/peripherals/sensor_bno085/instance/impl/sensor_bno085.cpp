@@ -336,21 +336,21 @@ std::array<int16_t, 4> SensorBno085::smooth_values(uint8_t report_id, const std:
 
     if (!_has_smoothed_values.at(*index) || (percentage == SMOOTHING_PERCENTAGE_OFF))
     {
-        _smoothed_values.at(*index)     = values;
         _has_smoothed_values.at(*index) = true;
+
+        for (size_t i = 0; i < values.size(); i++)
+        {
+            _value_filters.at(*index).at(i).reset(values.at(i));
+        }
 
         return values;
     }
 
-    auto& smoothed_values = _smoothed_values.at(*index);
+    std::array<int16_t, 4> smoothed_values = {};
 
     for (size_t i = 0; i < smoothed_values.size(); i++)
     {
-        const int32_t filtered = (static_cast<int32_t>(percentage) * values.at(i)) +
-                                 ((SMOOTHING_PERCENTAGE_DIVISOR - static_cast<int32_t>(percentage)) *
-                                  smoothed_values.at(i));
-
-        smoothed_values.at(i) = static_cast<int16_t>(filtered / SMOOTHING_PERCENTAGE_DIVISOR);
+        smoothed_values.at(i) = _value_filters.at(*index).at(i).value(values.at(i), percentage);
     }
 
     return smoothed_values;

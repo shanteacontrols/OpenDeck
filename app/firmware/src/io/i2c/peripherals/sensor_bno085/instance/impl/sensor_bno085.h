@@ -10,6 +10,8 @@
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/system/shared/config.h"
 
+#include "zlibs/utils/filters/filters.h"
+
 #include <array>
 #include <optional>
 #include <stddef.h>
@@ -69,13 +71,16 @@ namespace opendeck::firmware::io::i2c::sensor_bno085
         std::span<const uint8_t> i2c_addresses() const override;
 
         private:
+        using ReportValueFilter = zlibs::utils::filters::EmaFilter<int16_t>;
+
         Hwa&                                             _hwa;
         Database&                                        _database;
         Mapper                                           _mapper;
         bool                                             _initialized                = false;
         size_t                                           _selected_i2c_address_index = 0;
         uint8_t                                          _control_sequence           = 0;
-        std::array<std::array<int16_t, 4>, REPORT_COUNT> _smoothed_values            = {};
+        std::array<std::array<ReportValueFilter, 4>, REPORT_COUNT>
+                                                         _value_filters              = {};
         std::array<bool, REPORT_COUNT>                   _has_smoothed_values        = {};
         std::array<std::array<int16_t, 4>, REPORT_COUNT> _last_published_values      = {};
         std::array<bool, REPORT_COUNT>                   _has_published_values       = {};

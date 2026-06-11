@@ -77,9 +77,9 @@ namespace opendeck::firmware::io::i2c::sensor_apds9960
         std::span<const uint8_t> i2c_addresses() const override;
 
         private:
-        using ProximityFilter    = zlibs::utils::filters::EmaFilter<uint8_t, PROXIMITY_SMOOTHING_PERCENTAGE>;
-        using AmbientLightFilter = zlibs::utils::filters::EmaFilter<uint16_t, AMBIENT_LIGHT_SMOOTHING_PERCENTAGE>;
-        using RgbFilter          = zlibs::utils::filters::EmaFilter<uint16_t, RGB_SMOOTHING_PERCENTAGE>;
+        using ProximityFilter    = zlibs::utils::filters::EmaFilter<uint8_t>;
+        using AmbientLightFilter = zlibs::utils::filters::EmaFilter<uint16_t>;
+        using RgbFilter          = zlibs::utils::filters::EmaFilter<uint16_t>;
 
         static constexpr uint8_t GESTURE_FIFO_MAX_SAMPLES = 32;
         static constexpr uint8_t GESTURE_EDGE_THRESHOLD   = 13;

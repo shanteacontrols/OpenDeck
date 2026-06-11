@@ -205,7 +205,7 @@ bool SensorApds9960::read_proximity(uint8_t status)
 
     if (_has_proximity_value)
     {
-        value = _proximity_filter.value(value);
+        value = _proximity_filter.value(value, PROXIMITY_SMOOTHING_PERCENTAGE);
     }
 
     if (_has_proximity_value && (_last_proximity_value == value))
@@ -295,7 +295,7 @@ bool SensorApds9960::read_ambient_light_and_rgb(uint8_t status)
         }
         else
         {
-            const auto filtered_ambient_light = _ambient_light_filter.value(ambient_light);
+            const auto filtered_ambient_light = _ambient_light_filter.value(ambient_light, AMBIENT_LIGHT_SMOOTHING_PERCENTAGE);
 
             if (filtered_ambient_light != _last_ambient_light_value)
             {
@@ -326,10 +326,10 @@ bool SensorApds9960::read_ambient_light_and_rgb(uint8_t status)
         else
         {
             const std::array<uint16_t, 4> filtered_rgb = {
-                _rgb_filters[0].value(ambient_light),
-                _rgb_filters[1].value(red),
-                _rgb_filters[2].value(green),
-                _rgb_filters[3].value(blue),
+                _rgb_filters[0].value(ambient_light, RGB_SMOOTHING_PERCENTAGE),
+                _rgb_filters[1].value(red, RGB_SMOOTHING_PERCENTAGE),
+                _rgb_filters[2].value(green, RGB_SMOOTHING_PERCENTAGE),
+                _rgb_filters[3].value(blue, RGB_SMOOTHING_PERCENTAGE),
             };
 
             if (filtered_rgb != _last_rgb_value)

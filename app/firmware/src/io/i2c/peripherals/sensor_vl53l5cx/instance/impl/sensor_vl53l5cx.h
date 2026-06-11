@@ -9,6 +9,8 @@
 #include "firmware/src/signaling/signaling.h"
 #include "firmware/src/system/shared/config.h"
 
+#include "zlibs/utils/filters/filters.h"
+
 #include "vl53l5cx_class.h"
 
 #include <array>
@@ -85,6 +87,8 @@ namespace opendeck::firmware::io::i2c::sensor_vl53l5cx
         private:
         static constexpr size_t MAX_ZONE_COUNT = 64;
 
+        using DistanceFilter = zlibs::utils::filters::EmaFilter<uint16_t>;
+
         struct Zone
         {
             int32_t distance_mm = 0;
@@ -97,18 +101,18 @@ namespace opendeck::firmware::io::i2c::sensor_vl53l5cx
             size_t y = 0;
         };
 
-        Hwa&                                 _hwa;
-        Database&                            _database;
-        VL53L5CX                             _driver;
-        VL53L5CX_ResultsData                 _results                    = {};
-        std::array<Zone, MAX_ZONE_COUNT>     _grid                       = {};
-        std::array<uint16_t, MAX_ZONE_COUNT> _smoothed_distance_mm       = {};
-        std::array<uint8_t, MAX_ZONE_COUNT>  _invalid_frame_count        = {};
-        std::array<bool, MAX_ZONE_COUNT>     _has_smoothed_distance      = {};
-        bool                                 _initialized                = false;
-        bool                                 _ranging                    = false;
-        size_t                               _selected_i2c_address_index = 0;
-        int64_t                              _last_publish_ms            = 0;
+        Hwa&                                      _hwa;
+        Database&                                 _database;
+        VL53L5CX                                  _driver;
+        VL53L5CX_ResultsData                      _results                    = {};
+        std::array<Zone, MAX_ZONE_COUNT>           _grid                       = {};
+        std::array<DistanceFilter, MAX_ZONE_COUNT> _distance_filters           = {};
+        std::array<uint8_t, MAX_ZONE_COUNT>        _invalid_frame_count        = {};
+        std::array<bool, MAX_ZONE_COUNT>           _has_smoothed_distance      = {};
+        bool                                       _initialized                = false;
+        bool                                       _ranging                    = false;
+        size_t                                     _selected_i2c_address_index = 0;
+        int64_t                                    _last_publish_ms            = 0;
 
         /**
          * @brief Returns the configured ranging resolution.

@@ -37,7 +37,6 @@ namespace opendeck::firmware::io::i2c::sensor_bno085
     static constexpr uint8_t                SMOOTHING_PERCENTAGE_LIGHT   = 55;
     static constexpr uint8_t                SMOOTHING_PERCENTAGE_MEDIUM  = 30;
     static constexpr uint8_t                SMOOTHING_PERCENTAGE_HEAVY   = 15;
-    static constexpr int32_t                SMOOTHING_PERCENTAGE_DIVISOR = 100;
     static constexpr int64_t                OUTPUT_INTERVAL_MS           = 4;
     static constexpr uint32_t               REPORT_INTERVAL_US           = 10000;
     static constexpr int32_t                SOFT_RESET_DELAY_MS          = 300;

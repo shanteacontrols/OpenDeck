@@ -33,7 +33,6 @@ namespace
     constexpr uint8_t  SMOOTHING_PERCENTAGE_LIGHT   = 55;
     constexpr uint8_t  SMOOTHING_PERCENTAGE_MEDIUM  = 30;
     constexpr uint8_t  SMOOTHING_PERCENTAGE_HEAVY   = 15;
-    constexpr uint32_t SMOOTHING_PERCENTAGE_DIVISOR = 100;
 
     struct Roi
     {
@@ -372,6 +371,7 @@ bool SensorVl53l4cx::deinit()
     _has_distance_value         = false;
     _last_distance_mm           = 0;
     _mapper.reset();
+    _distance_filter.reset();
 
     return true;
 }
@@ -546,14 +546,11 @@ uint16_t SensorVl53l4cx::smooth_distance(uint16_t distance_mm)
 
     if (!_has_distance_value || (percentage == SMOOTHING_PERCENTAGE_OFF))
     {
+        _distance_filter.reset(distance_mm);
         return distance_mm;
     }
 
-    const uint32_t filtered = (static_cast<uint32_t>(percentage) * distance_mm) +
-                              ((SMOOTHING_PERCENTAGE_DIVISOR - static_cast<uint32_t>(percentage)) *
-                               _last_distance_mm);
-
-    return static_cast<uint16_t>(filtered / SMOOTHING_PERCENTAGE_DIVISOR);
+    return _distance_filter.value(distance_mm, percentage);
 }
 
 std::optional<uint8_t> SensorVl53l4cx::sys_config_get(sys::Config::Section::I2c section, size_t index, uint16_t& value)
