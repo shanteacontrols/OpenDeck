@@ -89,8 +89,8 @@ TEST_F(Vl53l4cxMapperTest, MapsDistanceResult)
     ASSERT_TRUE(result->distance_mm.has_value());
     ASSERT_TRUE(result->distance_normalized.has_value());
 
-    const auto* mm_payload   = payload_as<signaling::OscSensorDistanceSignal>(result->distance_mm.value());
-    const auto* norm_payload = payload_as<signaling::OscSensorDistanceNormSignal>(result->distance_normalized.value());
+    const auto* mm_payload   = payload_as<signaling::OscSensorVl53l4cxDistanceSignal>(result->distance_mm.value());
+    const auto* norm_payload = payload_as<signaling::OscSensorVl53l4cxDistanceNormSignal>(result->distance_normalized.value());
 
     ASSERT_NE(mm_payload, nullptr);
     ASSERT_NE(norm_payload, nullptr);
@@ -119,9 +119,9 @@ TEST_F(Vl53l4cxMapperTest, AppliesDistanceValues)
     ASSERT_TRUE(mid->distance_normalized.has_value());
     ASSERT_TRUE(above->distance_normalized.has_value());
 
-    const auto* below_payload = payload_as<signaling::OscSensorDistanceNormSignal>(below->distance_normalized.value());
-    const auto* mid_payload   = payload_as<signaling::OscSensorDistanceNormSignal>(mid->distance_normalized.value());
-    const auto* above_payload = payload_as<signaling::OscSensorDistanceNormSignal>(above->distance_normalized.value());
+    const auto* below_payload = payload_as<signaling::OscSensorVl53l4cxDistanceNormSignal>(below->distance_normalized.value());
+    const auto* mid_payload   = payload_as<signaling::OscSensorVl53l4cxDistanceNormSignal>(mid->distance_normalized.value());
+    const auto* above_payload = payload_as<signaling::OscSensorVl53l4cxDistanceNormSignal>(above->distance_normalized.value());
 
     ASSERT_NE(below_payload, nullptr);
     ASSERT_NE(mid_payload, nullptr);

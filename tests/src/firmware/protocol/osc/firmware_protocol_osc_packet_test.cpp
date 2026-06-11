@@ -69,7 +69,7 @@ TEST(OscPacketTest, BuildsTouchSensorPacket)
 
     const auto size = make_packet(packet,
                                   firmware::signaling::OscSensorSignal{
-                                      .payload = firmware::signaling::OscSensorTouchSignal{
+                                      .payload = firmware::signaling::OscSensorCap1188TouchSignal{
                                           .index = 7,
                                           .value = 1,
                                       },
@@ -83,7 +83,7 @@ TEST(OscPacketTest, BuildsTouchSensorPacket)
     const auto value = message->arg<OscInt32>(0);
     ASSERT_TRUE(value);
 
-    EXPECT_EQ(message->address(), "/opendeck/sensors/touch/7");
+    EXPECT_EQ(message->address(), "/opendeck/sensors/cap1188/touch/7");
     EXPECT_EQ(message->type_tags(), ",i");
     EXPECT_EQ(*value, 1);
 }
@@ -130,7 +130,7 @@ TEST(OscPacketTest, BuildsProximitySensorIntPacket)
 
     const auto size = make_packet(packet,
                                   firmware::signaling::OscSensorSignal{
-                                      .payload = firmware::signaling::OscSensorProximitySignal{
+                                      .payload = firmware::signaling::OscSensorApds9960ProximitySignal{
                                           .value = 127,
                                       },
                                       .direction = firmware::signaling::SignalDirection::Out,
@@ -143,7 +143,7 @@ TEST(OscPacketTest, BuildsProximitySensorIntPacket)
     const auto value = message->arg<OscInt32>(0);
     ASSERT_TRUE(value);
 
-    EXPECT_EQ(message->address(), paths::SENSOR_PROXIMITY.c_str());
+    EXPECT_EQ(message->address(), paths::SENSOR_APDS9960_PROXIMITY.c_str());
     EXPECT_EQ(message->type_tags(), ",i");
     EXPECT_EQ(*value, 127);
 }
@@ -154,7 +154,7 @@ TEST(OscPacketTest, BuildsAmbientLightSensorFloatPacket)
 
     const auto size = make_packet(packet,
                                   firmware::signaling::OscSensorSignal{
-                                      .payload = firmware::signaling::OscSensorAmbientLightSignal{
+                                      .payload = firmware::signaling::OscSensorApds9960AmbientLightSignal{
                                           .value = 0.25F,
                                       },
                                       .direction = firmware::signaling::SignalDirection::Out,
@@ -167,7 +167,7 @@ TEST(OscPacketTest, BuildsAmbientLightSensorFloatPacket)
     const auto value = message->arg<OscFloat32>(0);
     ASSERT_TRUE(value);
 
-    EXPECT_EQ(message->address(), paths::SENSOR_AMBIENT_LIGHT.c_str());
+    EXPECT_EQ(message->address(), paths::SENSOR_APDS9960_AMBIENT_LIGHT.c_str());
     EXPECT_EQ(message->type_tags(), ",f");
     EXPECT_FLOAT_EQ(*value, 0.25F);
 }
@@ -178,7 +178,7 @@ TEST(OscPacketTest, BuildsDistanceSensorIntPacket)
 
     const auto size = make_packet(packet,
                                   firmware::signaling::OscSensorSignal{
-                                      .payload = firmware::signaling::OscSensorDistanceSignal{
+                                      .payload = firmware::signaling::OscSensorVl53l4cxDistanceSignal{
                                           .value = 1234,
                                       },
                                       .direction = firmware::signaling::SignalDirection::Out,
@@ -191,7 +191,7 @@ TEST(OscPacketTest, BuildsDistanceSensorIntPacket)
     const auto value = message->arg<OscInt32>(0);
     ASSERT_TRUE(value);
 
-    EXPECT_EQ(message->address(), paths::SENSOR_DISTANCE.c_str());
+    EXPECT_EQ(message->address(), paths::SENSOR_VL53L4CX_DISTANCE.c_str());
     EXPECT_EQ(message->type_tags(), ",i");
     EXPECT_EQ(*value, 1234);
 }
@@ -202,7 +202,7 @@ TEST(OscPacketTest, BuildsDistanceNormSensorFloatPacket)
 
     const auto size = make_packet(packet,
                                   firmware::signaling::OscSensorSignal{
-                                      .payload = firmware::signaling::OscSensorDistanceNormSignal{
+                                      .payload = firmware::signaling::OscSensorVl53l4cxDistanceNormSignal{
                                           .value = 0.5F,
                                       },
                                       .direction = firmware::signaling::SignalDirection::Out,
@@ -215,7 +215,7 @@ TEST(OscPacketTest, BuildsDistanceNormSensorFloatPacket)
     const auto value = message->arg<OscFloat32>(0);
     ASSERT_TRUE(value);
 
-    EXPECT_EQ(message->address(), paths::SENSOR_DISTANCE_NORM.c_str());
+    EXPECT_EQ(message->address(), paths::SENSOR_VL53L4CX_DISTANCE_NORM.c_str());
     EXPECT_EQ(message->type_tags(), ",f");
     EXPECT_FLOAT_EQ(*value, 0.5F);
 }
@@ -226,7 +226,7 @@ TEST(OscPacketTest, BuildsRgbSensorFloatPacket)
 
     const auto size = make_packet(packet,
                                   firmware::signaling::OscSensorSignal{
-                                      .payload = firmware::signaling::OscSensorRgbSignal{
+                                      .payload = firmware::signaling::OscSensorApds9960RgbSignal{
                                           .red   = 0.25F,
                                           .green = 0.5F,
                                           .blue  = 0.75F,
@@ -245,7 +245,7 @@ TEST(OscPacketTest, BuildsRgbSensorFloatPacket)
     ASSERT_TRUE(green);
     ASSERT_TRUE(blue);
 
-    EXPECT_EQ(message->address(), paths::SENSOR_RGB.c_str());
+    EXPECT_EQ(message->address(), paths::SENSOR_APDS9960_RGB.c_str());
     EXPECT_EQ(message->type_tags(), ",fff");
     EXPECT_FLOAT_EQ(*red, 0.25F);
     EXPECT_FLOAT_EQ(*green, 0.5F);

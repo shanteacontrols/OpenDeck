@@ -291,7 +291,7 @@ void SensorCap1188::publish_cached_states()
 void SensorCap1188::publish_touch(size_t index, bool touched)
 {
     signaling::publish(signaling::OscSensorSignal{
-        .payload = signaling::OscSensorTouchSignal{
+        .payload = signaling::OscSensorCap1188TouchSignal{
             .index = index,
             .value = touched ? 1 : 0,
         },

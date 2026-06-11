@@ -39,7 +39,7 @@ std::optional<Mapper::Result> Mapper::result(uint8_t report_id, const std::array
         if (info.quaternion_enabled)
         {
             result.quaternion.emplace(signaling::OscSensorSignal{
-                .payload = signaling::OscSensorImuQuaternionSignal{
+                .payload = signaling::OscSensorBno085QuaternionSignal{
                     .real = real,
                     .i    = i,
                     .j    = j,
@@ -67,7 +67,7 @@ std::optional<Mapper::Result> Mapper::result(uint8_t report_id, const std::array
                                 RADIANS_TO_DEGREES;
 
             result.euler.emplace(signaling::OscSensorSignal{
-                .payload = signaling::OscSensorImuEulerSignal{
+                .payload = signaling::OscSensorBno085EulerSignal{
                     .yaw   = yaw,
                     .pitch = pitch,
                     .roll  = roll,
@@ -86,7 +86,7 @@ std::optional<Mapper::Result> Mapper::result(uint8_t report_id, const std::array
         }
 
         result.gyroscope.emplace(signaling::OscSensorSignal{
-            .payload = signaling::OscSensorImuGyroscopeSignal{
+            .payload = signaling::OscSensorBno085GyroscopeSignal{
                 .x = normalize(x, GYROSCOPE_SCALE),
                 .y = normalize(y, GYROSCOPE_SCALE),
                 .z = normalize(z, GYROSCOPE_SCALE),
@@ -104,7 +104,7 @@ std::optional<Mapper::Result> Mapper::result(uint8_t report_id, const std::array
         }
 
         result.linear_acceleration.emplace(signaling::OscSensorSignal{
-            .payload = signaling::OscSensorImuLinearAccelerationSignal{
+            .payload = signaling::OscSensorBno085LinearAccelerationSignal{
                 .x = normalize(x, ACCELERATION_SCALE),
                 .y = normalize(y, ACCELERATION_SCALE),
                 .z = normalize(z, ACCELERATION_SCALE),
@@ -122,7 +122,7 @@ std::optional<Mapper::Result> Mapper::result(uint8_t report_id, const std::array
         }
 
         result.gravity.emplace(signaling::OscSensorSignal{
-            .payload = signaling::OscSensorImuGravitySignal{
+            .payload = signaling::OscSensorBno085GravitySignal{
                 .x = normalize(x, ACCELERATION_SCALE),
                 .y = normalize(y, ACCELERATION_SCALE),
                 .z = normalize(z, ACCELERATION_SCALE),

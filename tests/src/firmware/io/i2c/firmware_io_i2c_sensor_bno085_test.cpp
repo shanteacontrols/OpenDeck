@@ -102,8 +102,8 @@ TEST_F(Bno085MapperTest, MapsRotationVectorToQuaternionAndEuler)
     ASSERT_TRUE(result->quaternion.has_value());
     ASSERT_TRUE(result->euler.has_value());
 
-    const auto* quaternion = payload_as<signaling::OscSensorImuQuaternionSignal>(result->quaternion.value());
-    const auto* euler      = payload_as<signaling::OscSensorImuEulerSignal>(result->euler.value());
+    const auto* quaternion = payload_as<signaling::OscSensorBno085QuaternionSignal>(result->quaternion.value());
+    const auto* euler      = payload_as<signaling::OscSensorBno085EulerSignal>(result->euler.value());
 
     ASSERT_NE(quaternion, nullptr);
     ASSERT_NE(euler, nullptr);
@@ -151,9 +151,9 @@ TEST_F(Bno085MapperTest, MapsVectorReports)
     ASSERT_TRUE(accel->linear_acceleration.has_value());
     ASSERT_TRUE(gravity->gravity.has_value());
 
-    const auto* gyro_payload    = payload_as<signaling::OscSensorImuGyroscopeSignal>(gyro->gyroscope.value());
-    const auto* accel_payload   = payload_as<signaling::OscSensorImuLinearAccelerationSignal>(accel->linear_acceleration.value());
-    const auto* gravity_payload = payload_as<signaling::OscSensorImuGravitySignal>(gravity->gravity.value());
+    const auto* gyro_payload    = payload_as<signaling::OscSensorBno085GyroscopeSignal>(gyro->gyroscope.value());
+    const auto* accel_payload   = payload_as<signaling::OscSensorBno085LinearAccelerationSignal>(accel->linear_acceleration.value());
+    const auto* gravity_payload = payload_as<signaling::OscSensorBno085GravitySignal>(gravity->gravity.value());
 
     ASSERT_NE(gyro_payload, nullptr);
     ASSERT_NE(accel_payload, nullptr);

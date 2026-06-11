@@ -16,7 +16,7 @@ Mapper::Result Mapper::proximity_result(uint8_t value) const
 
     return {
         .osc = {
-            .payload = opendeck::firmware::signaling::OscSensorProximitySignal{
+            .payload = opendeck::firmware::signaling::OscSensorApds9960ProximitySignal{
                 .value = proximity(value, info),
             },
             .direction = opendeck::firmware::signaling::SignalDirection::Out,
@@ -28,7 +28,7 @@ Mapper::Result Mapper::ambient_light_result(uint16_t value) const
 {
     return {
         .osc = {
-            .payload = opendeck::firmware::signaling::OscSensorAmbientLightSignal{
+            .payload = opendeck::firmware::signaling::OscSensorApds9960AmbientLightSignal{
                 .value = rgbc(value),
             },
             .direction = opendeck::firmware::signaling::SignalDirection::Out,
@@ -40,7 +40,7 @@ Mapper::Result Mapper::rgb_result(uint16_t red, uint16_t green, uint16_t blue) c
 {
     return {
         .osc = {
-            .payload = opendeck::firmware::signaling::OscSensorRgbSignal{
+            .payload = opendeck::firmware::signaling::OscSensorApds9960RgbSignal{
                 .red   = rgbc(red),
                 .green = rgbc(green),
                 .blue  = rgbc(blue),
@@ -50,11 +50,11 @@ Mapper::Result Mapper::rgb_result(uint16_t red, uint16_t green, uint16_t blue) c
     };
 }
 
-Mapper::Result Mapper::gesture_result(opendeck::firmware::signaling::OscSensorGesture gesture) const
+Mapper::Result Mapper::gesture_result(opendeck::firmware::signaling::OscSensorApds9960Gesture gesture) const
 {
     return {
         .osc = {
-            .payload = opendeck::firmware::signaling::OscSensorGestureSignal{
+            .payload = opendeck::firmware::signaling::OscSensorApds9960GestureSignal{
                 .gesture = gesture,
             },
             .direction = opendeck::firmware::signaling::SignalDirection::Out,

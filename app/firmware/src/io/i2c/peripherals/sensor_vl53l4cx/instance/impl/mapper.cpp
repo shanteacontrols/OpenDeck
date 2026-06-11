@@ -115,7 +115,7 @@ uint16_t Mapper::compute_value(uint16_t value, uint16_t lower, uint16_t upper) c
 opendeck::firmware::signaling::OscSensorSignal Mapper::distance_mm_signal(uint16_t distance_mm) const
 {
     return {
-        .payload = opendeck::firmware::signaling::OscSensorDistanceSignal{
+        .payload = opendeck::firmware::signaling::OscSensorVl53l4cxDistanceSignal{
             .value = distance_mm,
         },
         .direction = opendeck::firmware::signaling::SignalDirection::Out,
@@ -125,7 +125,7 @@ opendeck::firmware::signaling::OscSensorSignal Mapper::distance_mm_signal(uint16
 opendeck::firmware::signaling::OscSensorSignal Mapper::distance_normalized_signal(uint16_t distance_normalized) const
 {
     return {
-        .payload = opendeck::firmware::signaling::OscSensorDistanceNormSignal{
+        .payload = opendeck::firmware::signaling::OscSensorVl53l4cxDistanceNormSignal{
             .value = static_cast<float>(distance_normalized) / static_cast<float>(DISTANCE_MAX_MM),
         },
         .direction = opendeck::firmware::signaling::SignalDirection::Out,

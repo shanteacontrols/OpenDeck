@@ -257,64 +257,64 @@ namespace opendeck::firmware::protocol::osc
             {
                 using Payload = std::decay_t<decltype(payload)>;
 
-                if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorProximitySignal>)
+                if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorApds9960ProximitySignal>)
                 {
-                    return make_packet(packet, paths::SENSOR_PROXIMITY.c_str(), OscInt32{ payload.value });
+                    return make_packet(packet, paths::SENSOR_APDS9960_PROXIMITY.c_str(), OscInt32{ payload.value });
                 }
-                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorAmbientLightSignal>)
+                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorApds9960AmbientLightSignal>)
                 {
-                    return make_packet(packet, paths::SENSOR_AMBIENT_LIGHT.c_str(), OscFloat32{ payload.value });
+                    return make_packet(packet, paths::SENSOR_APDS9960_AMBIENT_LIGHT.c_str(), OscFloat32{ payload.value });
                 }
-                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorDistanceSignal>)
+                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorVl53l4cxDistanceSignal>)
                 {
-                    return make_packet(packet, paths::SENSOR_DISTANCE.c_str(), OscInt32{ payload.value });
+                    return make_packet(packet, paths::SENSOR_VL53L4CX_DISTANCE.c_str(), OscInt32{ payload.value });
                 }
-                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorDistanceNormSignal>)
+                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorVl53l4cxDistanceNormSignal>)
                 {
-                    return make_packet(packet, paths::SENSOR_DISTANCE_NORM.c_str(), OscFloat32{ payload.value });
+                    return make_packet(packet, paths::SENSOR_VL53L4CX_DISTANCE_NORM.c_str(), OscFloat32{ payload.value });
                 }
-                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorTouchSignal>)
+                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorCap1188TouchSignal>)
                 {
                     return make_packet(packet,
                                        OscIndexedAddress{
-                                           .prefix = paths::SENSOR_TOUCH.c_str(),
+                                           .prefix = paths::SENSOR_CAP1188_TOUCH.c_str(),
                                            .index  = payload.index,
                                        },
                                        OscInt32{ payload.value != 0 ? 1 : 0 });
                 }
-                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorRgbSignal>)
+                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorApds9960RgbSignal>)
                 {
                     return make_packet(packet,
-                                       paths::SENSOR_RGB.c_str(),
+                                       paths::SENSOR_APDS9960_RGB.c_str(),
                                        OscFloat32{ payload.red },
                                        OscFloat32{ payload.green },
                                        OscFloat32{ payload.blue });
                 }
-                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorGestureSignal>)
+                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorApds9960GestureSignal>)
                 {
                     std::string_view gesture = {};
 
                     switch (payload.gesture)
                     {
-                    case opendeck::firmware::signaling::OscSensorGesture::Up:
+                    case opendeck::firmware::signaling::OscSensorApds9960Gesture::Up:
                     {
                         gesture = "up";
                     }
                     break;
 
-                    case opendeck::firmware::signaling::OscSensorGesture::Down:
+                    case opendeck::firmware::signaling::OscSensorApds9960Gesture::Down:
                     {
                         gesture = "down";
                     }
                     break;
 
-                    case opendeck::firmware::signaling::OscSensorGesture::Left:
+                    case opendeck::firmware::signaling::OscSensorApds9960Gesture::Left:
                     {
                         gesture = "left";
                     }
                     break;
 
-                    case opendeck::firmware::signaling::OscSensorGesture::Right:
+                    case opendeck::firmware::signaling::OscSensorApds9960Gesture::Right:
                     {
                         gesture = "right";
                     }
@@ -324,45 +324,45 @@ namespace opendeck::firmware::protocol::osc
                         return {};
                     }
 
-                    return make_packet(packet, paths::SENSOR_GESTURE.c_str(), OscString{ gesture });
+                    return make_packet(packet, paths::SENSOR_APDS9960_GESTURE.c_str(), OscString{ gesture });
                 }
-                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorImuQuaternionSignal>)
+                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorBno085QuaternionSignal>)
                 {
                     return make_packet(packet,
-                                       paths::SENSOR_IMU_QUATERNION.c_str(),
+                                       paths::SENSOR_BNO085_QUATERNION.c_str(),
                                        OscFloat32{ payload.real },
                                        OscFloat32{ payload.i },
                                        OscFloat32{ payload.j },
                                        OscFloat32{ payload.k });
                 }
-                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorImuEulerSignal>)
+                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorBno085EulerSignal>)
                 {
                     return make_packet(packet,
-                                       paths::SENSOR_IMU_EULER.c_str(),
+                                       paths::SENSOR_BNO085_EULER.c_str(),
                                        OscFloat32{ payload.yaw },
                                        OscFloat32{ payload.pitch },
                                        OscFloat32{ payload.roll });
                 }
-                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorImuGyroscopeSignal>)
+                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorBno085GyroscopeSignal>)
                 {
                     return make_packet(packet,
-                                       paths::SENSOR_IMU_GYROSCOPE.c_str(),
+                                       paths::SENSOR_BNO085_GYROSCOPE.c_str(),
                                        OscFloat32{ payload.x },
                                        OscFloat32{ payload.y },
                                        OscFloat32{ payload.z });
                 }
-                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorImuLinearAccelerationSignal>)
+                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorBno085LinearAccelerationSignal>)
                 {
                     return make_packet(packet,
-                                       paths::SENSOR_IMU_LINEAR_ACCEL.c_str(),
+                                       paths::SENSOR_BNO085_LINEAR_ACCEL.c_str(),
                                        OscFloat32{ payload.x },
                                        OscFloat32{ payload.y },
                                        OscFloat32{ payload.z });
                 }
-                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorImuGravitySignal>)
+                else if constexpr (std::is_same_v<Payload, opendeck::firmware::signaling::OscSensorBno085GravitySignal>)
                 {
                     return make_packet(packet,
-                                       paths::SENSOR_IMU_GRAVITY.c_str(),
+                                       paths::SENSOR_BNO085_GRAVITY.c_str(),
                                        OscFloat32{ payload.x },
                                        OscFloat32{ payload.y },
                                        OscFloat32{ payload.z });

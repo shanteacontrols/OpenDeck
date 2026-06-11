@@ -27,23 +27,23 @@ namespace
 {
     LOG_MODULE_REGISTER(sensor_apds9960, CONFIG_OPENDECK_LOG_LEVEL);    // NOLINT
 
-    const char* gesture_to_string(signaling::OscSensorGesture gesture)
+    const char* gesture_to_string(signaling::OscSensorApds9960Gesture gesture)
     {
         switch (gesture)
         {
-        case signaling::OscSensorGesture::Up:
+        case signaling::OscSensorApds9960Gesture::Up:
             return "up";
 
-        case signaling::OscSensorGesture::Down:
+        case signaling::OscSensorApds9960Gesture::Down:
             return "down";
 
-        case signaling::OscSensorGesture::Left:
+        case signaling::OscSensorApds9960Gesture::Left:
             return "left";
 
-        case signaling::OscSensorGesture::Right:
+        case signaling::OscSensorApds9960Gesture::Right:
             return "right";
 
-        case signaling::OscSensorGesture::None:
+        case signaling::OscSensorApds9960Gesture::None:
         default:
             return "none";
         }
@@ -514,7 +514,7 @@ void SensorApds9960::mark_disconnected()
     reset_gesture_counts();
 }
 
-std::optional<signaling::OscSensorGesture> SensorApds9960::decode_gesture_fifo()
+std::optional<signaling::OscSensorApds9960Gesture> SensorApds9960::decode_gesture_fifo()
 {
     const auto gesture_status = read_register(APDS9960_REGISTER_GSTATUS);
 
@@ -575,7 +575,7 @@ std::optional<signaling::OscSensorGesture> SensorApds9960::decode_gesture_fifo()
     return {};
 }
 
-std::optional<signaling::OscSensorGesture> SensorApds9960::process_gesture_sample(uint8_t up, uint8_t down, uint8_t left, uint8_t right)
+std::optional<signaling::OscSensorApds9960Gesture> SensorApds9960::process_gesture_sample(uint8_t up, uint8_t down, uint8_t left, uint8_t right)
 {
     const int64_t now_ms                 = k_uptime_get();
     const int     up_down_delta          = static_cast<int>(up) - static_cast<int>(down);
@@ -591,7 +591,7 @@ std::optional<signaling::OscSensorGesture> SensorApds9960::process_gesture_sampl
             {
                 _gesture_up_started   = false;
                 _gesture_down_started = false;
-                return signaling::OscSensorGesture::Up;
+                return signaling::OscSensorApds9960Gesture::Up;
             }
 
             _gesture_down_started = true;
@@ -603,7 +603,7 @@ std::optional<signaling::OscSensorGesture> SensorApds9960::process_gesture_sampl
             {
                 _gesture_up_started   = false;
                 _gesture_down_started = false;
-                return signaling::OscSensorGesture::Down;
+                return signaling::OscSensorApds9960Gesture::Down;
             }
 
             _gesture_up_started = true;
@@ -619,7 +619,7 @@ std::optional<signaling::OscSensorGesture> SensorApds9960::process_gesture_sampl
             {
                 _gesture_left_started  = false;
                 _gesture_right_started = false;
-                return signaling::OscSensorGesture::Left;
+                return signaling::OscSensorApds9960Gesture::Left;
             }
 
             _gesture_right_started = true;
@@ -631,7 +631,7 @@ std::optional<signaling::OscSensorGesture> SensorApds9960::process_gesture_sampl
             {
                 _gesture_left_started  = false;
                 _gesture_right_started = false;
-                return signaling::OscSensorGesture::Right;
+                return signaling::OscSensorApds9960Gesture::Right;
             }
 
             _gesture_left_started = true;

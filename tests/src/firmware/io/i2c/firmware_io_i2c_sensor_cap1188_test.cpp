@@ -68,9 +68,9 @@ namespace
         std::vector<signaling::OscSensorSignal> _signals = {};
     };
 
-    const signaling::OscSensorTouchSignal* touch_payload(const signaling::OscSensorSignal& signal)
+    const signaling::OscSensorCap1188TouchSignal* touch_payload(const signaling::OscSensorSignal& signal)
     {
-        return std::get_if<signaling::OscSensorTouchSignal>(&signal.payload);
+        return std::get_if<signaling::OscSensorCap1188TouchSignal>(&signal.payload);
     }
 
     class Cap1188SensorTest : public ::testing::Test

@@ -121,7 +121,7 @@ namespace opendeck::firmware::signaling
     /**
      * @brief Identifies a decoded APDS9960 gesture direction.
      */
-    enum class OscSensorGesture : uint8_t
+    enum class OscSensorApds9960Gesture : uint8_t
     {
         None,
         Up,
@@ -131,50 +131,50 @@ namespace opendeck::firmware::signaling
     };
 
     /**
-     * @brief Carries one proximity sensor value for OSC.
+     * @brief Carries one APDS9960 proximity value for OSC.
      */
-    struct OscSensorProximitySignal
+    struct OscSensorApds9960ProximitySignal
     {
         int32_t value = 0;
     };
 
     /**
-     * @brief Carries one ambient light sensor value for OSC.
+     * @brief Carries one APDS9960 ambient light value for OSC.
      */
-    struct OscSensorAmbientLightSignal
+    struct OscSensorApds9960AmbientLightSignal
     {
         float value = 0.0F;
     };
 
     /**
-     * @brief Carries one raw distance sensor value in millimeters for OSC.
+     * @brief Carries one raw VL53L4CX distance value in millimeters for OSC.
      */
-    struct OscSensorDistanceSignal
+    struct OscSensorVl53l4cxDistanceSignal
     {
         int32_t value = 0;
     };
 
     /**
-     * @brief Carries one normalized calibrated distance sensor value for OSC.
+     * @brief Carries one normalized calibrated VL53L4CX distance value for OSC.
      */
-    struct OscSensorDistanceNormSignal
+    struct OscSensorVl53l4cxDistanceNormSignal
     {
         float value = 0.0F;
     };
 
     /**
-     * @brief Carries one capacitive touch sensor state for OSC.
+     * @brief Carries one CAP1188 capacitive touch state for OSC.
      */
-    struct OscSensorTouchSignal
+    struct OscSensorCap1188TouchSignal
     {
         size_t  index = 0;
         int32_t value = 0;
     };
 
     /**
-     * @brief Carries one RGB sensor value tuple for OSC.
+     * @brief Carries one APDS9960 RGB value tuple for OSC.
      */
-    struct OscSensorRgbSignal
+    struct OscSensorApds9960RgbSignal
     {
         float red   = 0.0F;
         float green = 0.0F;
@@ -182,17 +182,17 @@ namespace opendeck::firmware::signaling
     };
 
     /**
-     * @brief Carries one decoded gesture sensor value for OSC.
+     * @brief Carries one decoded APDS9960 gesture value for OSC.
      */
-    struct OscSensorGestureSignal
+    struct OscSensorApds9960GestureSignal
     {
-        OscSensorGesture gesture = OscSensorGesture::None;
+        OscSensorApds9960Gesture gesture = OscSensorApds9960Gesture::None;
     };
 
     /**
-     * @brief Carries one normalized IMU quaternion tuple for OSC.
+     * @brief Carries one normalized BNO085 quaternion tuple for OSC.
      */
-    struct OscSensorImuQuaternionSignal
+    struct OscSensorBno085QuaternionSignal
     {
         float real = 0.0F;
         float i    = 0.0F;
@@ -201,9 +201,9 @@ namespace opendeck::firmware::signaling
     };
 
     /**
-     * @brief Carries one IMU Euler angle tuple in degrees for OSC.
+     * @brief Carries one BNO085 Euler angle tuple in degrees for OSC.
      */
-    struct OscSensorImuEulerSignal
+    struct OscSensorBno085EulerSignal
     {
         float yaw   = 0.0F;
         float pitch = 0.0F;
@@ -211,9 +211,9 @@ namespace opendeck::firmware::signaling
     };
 
     /**
-     * @brief Carries one IMU gyroscope tuple for OSC.
+     * @brief Carries one BNO085 gyroscope tuple for OSC.
      */
-    struct OscSensorImuGyroscopeSignal
+    struct OscSensorBno085GyroscopeSignal
     {
         float x = 0.0F;
         float y = 0.0F;
@@ -221,9 +221,9 @@ namespace opendeck::firmware::signaling
     };
 
     /**
-     * @brief Carries one IMU linear acceleration tuple for OSC.
+     * @brief Carries one BNO085 linear acceleration tuple for OSC.
      */
-    struct OscSensorImuLinearAccelerationSignal
+    struct OscSensorBno085LinearAccelerationSignal
     {
         float x = 0.0F;
         float y = 0.0F;
@@ -231,9 +231,9 @@ namespace opendeck::firmware::signaling
     };
 
     /**
-     * @brief Carries one IMU gravity tuple for OSC.
+     * @brief Carries one BNO085 gravity tuple for OSC.
      */
-    struct OscSensorImuGravitySignal
+    struct OscSensorBno085GravitySignal
     {
         float x = 0.0F;
         float y = 0.0F;
@@ -285,18 +285,18 @@ namespace opendeck::firmware::signaling
         float   energy       = 0.0F;
     };
 
-    using OscSensorSignalPayload = std::variant<OscSensorProximitySignal,
-                                                OscSensorAmbientLightSignal,
-                                                OscSensorDistanceSignal,
-                                                OscSensorDistanceNormSignal,
-                                                OscSensorTouchSignal,
-                                                OscSensorRgbSignal,
-                                                OscSensorGestureSignal,
-                                                OscSensorImuQuaternionSignal,
-                                                OscSensorImuEulerSignal,
-                                                OscSensorImuGyroscopeSignal,
-                                                OscSensorImuLinearAccelerationSignal,
-                                                OscSensorImuGravitySignal,
+    using OscSensorSignalPayload = std::variant<OscSensorApds9960ProximitySignal,
+                                                OscSensorApds9960AmbientLightSignal,
+                                                OscSensorVl53l4cxDistanceSignal,
+                                                OscSensorVl53l4cxDistanceNormSignal,
+                                                OscSensorCap1188TouchSignal,
+                                                OscSensorApds9960RgbSignal,
+                                                OscSensorApds9960GestureSignal,
+                                                OscSensorBno085QuaternionSignal,
+                                                OscSensorBno085EulerSignal,
+                                                OscSensorBno085GyroscopeSignal,
+                                                OscSensorBno085LinearAccelerationSignal,
+                                                OscSensorBno085GravitySignal,
                                                 OscSensorVl53l5cxRowSignal,
                                                 OscSensorVl53l5cxNearestSignal,
                                                 OscSensorVl53l5cxCentroidSignal,
@@ -307,7 +307,7 @@ namespace opendeck::firmware::signaling
      */
     struct OscSensorSignal
     {
-        OscSensorSignalPayload payload   = OscSensorProximitySignal{};
+        OscSensorSignalPayload payload   = OscSensorApds9960ProximitySignal{};
         SignalDirection        direction = SignalDirection::Out;
     };
 

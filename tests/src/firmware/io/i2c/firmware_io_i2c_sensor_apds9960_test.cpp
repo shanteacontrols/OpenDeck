@@ -221,9 +221,9 @@ TEST_F(Apds9960MapperTest, MapsEightBitRawValues)
     const auto mid  = _mapper.proximity_result(127U);
     const auto max  = _mapper.proximity_result(APDS9960_PROXIMITY_RAW_MAX);
 
-    const auto* zero_payload = payload_as<signaling::OscSensorProximitySignal>(zero.osc);
-    const auto* mid_payload  = payload_as<signaling::OscSensorProximitySignal>(mid.osc);
-    const auto* max_payload  = payload_as<signaling::OscSensorProximitySignal>(max.osc);
+    const auto* zero_payload = payload_as<signaling::OscSensorApds9960ProximitySignal>(zero.osc);
+    const auto* mid_payload  = payload_as<signaling::OscSensorApds9960ProximitySignal>(mid.osc);
+    const auto* max_payload  = payload_as<signaling::OscSensorApds9960ProximitySignal>(max.osc);
 
     ASSERT_NE(zero_payload, nullptr);
     ASSERT_NE(mid_payload, nullptr);
@@ -242,8 +242,8 @@ TEST_F(Apds9960MapperTest, NormalizesRgbcRawValues)
     const auto ambient = _mapper.ambient_light_result(mid_value);
     const auto rgb     = _mapper.rgb_result(0U, mid_value, APDS9960_RGBC_MAX_COUNT);
 
-    const auto* ambient_payload = payload_as<signaling::OscSensorAmbientLightSignal>(ambient.osc);
-    const auto* rgb_payload     = payload_as<signaling::OscSensorRgbSignal>(rgb.osc);
+    const auto* ambient_payload = payload_as<signaling::OscSensorApds9960AmbientLightSignal>(ambient.osc);
+    const auto* rgb_payload     = payload_as<signaling::OscSensorApds9960RgbSignal>(rgb.osc);
 
     ASSERT_NE(ambient_payload, nullptr);
     ASSERT_NE(rgb_payload, nullptr);
@@ -259,7 +259,7 @@ TEST_F(Apds9960MapperTest, NormalizesRgbcRawValues)
 TEST_F(Apds9960MapperTest, ClampsRgbcValuesAtConfiguredMaxCount)
 {
     const auto  ambient = _mapper.ambient_light_result(APDS9960_RGBC_MAX_COUNT + 1U);
-    const auto* payload = payload_as<signaling::OscSensorAmbientLightSignal>(ambient.osc);
+    const auto* payload = payload_as<signaling::OscSensorApds9960AmbientLightSignal>(ambient.osc);
 
     ASSERT_NE(payload, nullptr);
     EXPECT_FLOAT_EQ(payload->value, 1.0F);
@@ -277,9 +277,9 @@ TEST_F(Apds9960MapperTest, AppliesProximityValues)
     const auto mid   = _mapper.proximity_result(static_cast<uint8_t>((lower + upper) / 2U));
     const auto above = _mapper.proximity_result(static_cast<uint8_t>(upper + 1U));
 
-    const auto* below_payload = payload_as<signaling::OscSensorProximitySignal>(below.osc);
-    const auto* mid_payload   = payload_as<signaling::OscSensorProximitySignal>(mid.osc);
-    const auto* above_payload = payload_as<signaling::OscSensorProximitySignal>(above.osc);
+    const auto* below_payload = payload_as<signaling::OscSensorApds9960ProximitySignal>(below.osc);
+    const auto* mid_payload   = payload_as<signaling::OscSensorApds9960ProximitySignal>(mid.osc);
+    const auto* above_payload = payload_as<signaling::OscSensorApds9960ProximitySignal>(above.osc);
 
     ASSERT_NE(below_payload, nullptr);
     ASSERT_NE(mid_payload, nullptr);
@@ -293,15 +293,15 @@ TEST_F(Apds9960MapperTest, AppliesProximityValues)
 TEST_F(Apds9960MapperTest, MapsGestureDirections)
 {
     for (auto gesture : {
-             signaling::OscSensorGesture::None,
-             signaling::OscSensorGesture::Up,
-             signaling::OscSensorGesture::Down,
-             signaling::OscSensorGesture::Left,
-             signaling::OscSensorGesture::Right,
+             signaling::OscSensorApds9960Gesture::None,
+             signaling::OscSensorApds9960Gesture::Up,
+             signaling::OscSensorApds9960Gesture::Down,
+             signaling::OscSensorApds9960Gesture::Left,
+             signaling::OscSensorApds9960Gesture::Right,
          })
     {
         const auto  result  = _mapper.gesture_result(gesture);
-        const auto* payload = payload_as<signaling::OscSensorGestureSignal>(result.osc);
+        const auto* payload = payload_as<signaling::OscSensorApds9960GestureSignal>(result.osc);
 
         ASSERT_NE(payload, nullptr);
         EXPECT_EQ(result.osc.direction, signaling::SignalDirection::Out);
@@ -440,9 +440,9 @@ TEST_F(Apds9960SensorTest, PublishesInitialContinuousOutputsIndependently)
 
     auto signals = _collector.snapshot();
 
-    EXPECT_EQ(count_signal<signaling::OscSensorProximitySignal>(signals), 1U);
-    EXPECT_EQ(count_signal<signaling::OscSensorAmbientLightSignal>(signals), 1U);
-    EXPECT_EQ(count_signal<signaling::OscSensorRgbSignal>(signals), 1U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960ProximitySignal>(signals), 1U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960AmbientLightSignal>(signals), 1U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960RgbSignal>(signals), 1U);
 }
 
 TEST_F(Apds9960SensorTest, LeavesGestureModeOffSoAlsProximityAndColorCanUpdate)
@@ -506,10 +506,10 @@ TEST_F(Apds9960SensorTest, GestureModeDisablesProximityButLeavesAlsAndRgb)
 
     auto signals = _collector.snapshot();
 
-    EXPECT_EQ(count_signal<signaling::OscSensorProximitySignal>(signals), 0U);
-    EXPECT_EQ(count_signal<signaling::OscSensorAmbientLightSignal>(signals), 1U);
-    EXPECT_EQ(count_signal<signaling::OscSensorRgbSignal>(signals), 1U);
-    EXPECT_EQ(count_signal<signaling::OscSensorGestureSignal>(signals), 0U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960ProximitySignal>(signals), 0U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960AmbientLightSignal>(signals), 1U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960RgbSignal>(signals), 1U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960GestureSignal>(signals), 0U);
 }
 
 TEST_F(Apds9960SensorTest, GestureModeDoesNotReadProximity)
@@ -522,7 +522,7 @@ TEST_F(Apds9960SensorTest, GestureModeDoesNotReadProximity)
 
     update_after(SAMPLE_DELAY_MS);
 
-    EXPECT_EQ(count_signal<signaling::OscSensorProximitySignal>(_collector.snapshot()), 0U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960ProximitySignal>(_collector.snapshot()), 0U);
 }
 
 TEST_F(Apds9960SensorTest, DoesNotPublishStaleContinuousRegistersBeforeStatusIsValid)
@@ -533,9 +533,9 @@ TEST_F(Apds9960SensorTest, DoesNotPublishStaleContinuousRegistersBeforeStatusIsV
 
     const auto signals = _collector.snapshot();
 
-    EXPECT_EQ(count_signal<signaling::OscSensorProximitySignal>(signals), 0U);
-    EXPECT_EQ(count_signal<signaling::OscSensorAmbientLightSignal>(signals), 0U);
-    EXPECT_EQ(count_signal<signaling::OscSensorRgbSignal>(signals), 0U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960ProximitySignal>(signals), 0U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960AmbientLightSignal>(signals), 0U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960RgbSignal>(signals), 0U);
 }
 
 TEST_F(Apds9960SensorTest, DebouncesEachContinuousOutputIndependently)
@@ -554,7 +554,7 @@ TEST_F(Apds9960SensorTest, DebouncesEachContinuousOutputIndependently)
 
     auto signals = _collector.snapshot();
     ASSERT_EQ(signals.size(), 1U);
-    const auto* proximity = payload_as<signaling::OscSensorProximitySignal>(signals[0]);
+    const auto* proximity = payload_as<signaling::OscSensorApds9960ProximitySignal>(signals[0]);
     ASSERT_NE(proximity, nullptr);
     EXPECT_EQ(proximity->value, 24);
     _collector.clear();
@@ -568,7 +568,7 @@ TEST_F(Apds9960SensorTest, DebouncesEachContinuousOutputIndependently)
 
     signals = _collector.snapshot();
     ASSERT_EQ(signals.size(), 1U);
-    const auto* ambient_light = payload_as<signaling::OscSensorAmbientLightSignal>(signals[0]);
+    const auto* ambient_light = payload_as<signaling::OscSensorApds9960AmbientLightSignal>(signals[0]);
     ASSERT_NE(ambient_light, nullptr);
     EXPECT_FLOAT_EQ(ambient_light->value, normalized_rgbc(90));
 }
@@ -590,7 +590,7 @@ TEST_F(Apds9960SensorTest, FiltersAmbientLightWithoutTimeThrottle)
     const auto signals = _collector.snapshot();
 
     ASSERT_EQ(signals.size(), 1U);
-    const auto* ambient_light = payload_as<signaling::OscSensorAmbientLightSignal>(signals[0]);
+    const auto* ambient_light = payload_as<signaling::OscSensorApds9960AmbientLightSignal>(signals[0]);
     ASSERT_NE(ambient_light, nullptr);
     EXPECT_FLOAT_EQ(ambient_light->value, normalized_rgbc(90));
 }
@@ -620,7 +620,7 @@ TEST_F(Apds9960SensorTest, FiltersProximityNoiseWithoutTimeThrottle)
     auto signals = _collector.snapshot();
 
     ASSERT_EQ(signals.size(), 1U);
-    const auto* proximity = payload_as<signaling::OscSensorProximitySignal>(signals[0]);
+    const auto* proximity = payload_as<signaling::OscSensorApds9960ProximitySignal>(signals[0]);
     ASSERT_NE(proximity, nullptr);
     EXPECT_EQ(proximity->value, 24);
     _collector.clear();
@@ -631,7 +631,7 @@ TEST_F(Apds9960SensorTest, FiltersProximityNoiseWithoutTimeThrottle)
     signals = _collector.snapshot();
 
     ASSERT_EQ(signals.size(), 1U);
-    proximity = payload_as<signaling::OscSensorProximitySignal>(signals[0]);
+    proximity = payload_as<signaling::OscSensorApds9960ProximitySignal>(signals[0]);
     ASSERT_NE(proximity, nullptr);
     EXPECT_EQ(proximity->value, 34);
 }
@@ -654,7 +654,7 @@ TEST_F(Apds9960SensorTest, ConfirmsNearbyProximitySamplesWithoutExactRepeat)
     auto signals = _collector.snapshot();
 
     ASSERT_EQ(signals.size(), 1U);
-    const auto* proximity = payload_as<signaling::OscSensorProximitySignal>(signals[0]);
+    const auto* proximity = payload_as<signaling::OscSensorApds9960ProximitySignal>(signals[0]);
     ASSERT_NE(proximity, nullptr);
     EXPECT_EQ(proximity->value, 26);
 }
@@ -673,7 +673,7 @@ TEST_F(Apds9960SensorTest, FiltersRgbNoiseAsTupleWithoutTimeThrottle)
 
     auto signals = _collector.snapshot();
     ASSERT_EQ(signals.size(), 1U);
-    const auto* rgb = payload_as<signaling::OscSensorRgbSignal>(signals[0]);
+    const auto* rgb = payload_as<signaling::OscSensorApds9960RgbSignal>(signals[0]);
     ASSERT_NE(rgb, nullptr);
     EXPECT_FLOAT_EQ(rgb->red, normalized_rgbc(483));
     EXPECT_FLOAT_EQ(rgb->green, normalized_rgbc(352));
@@ -702,7 +702,7 @@ TEST_F(Apds9960SensorTest, FiltersRgbNoiseAsTupleWithoutTimeThrottle)
 
     signals = _collector.snapshot();
     ASSERT_EQ(signals.size(), 1U);
-    rgb = payload_as<signaling::OscSensorRgbSignal>(signals[0]);
+    rgb = payload_as<signaling::OscSensorApds9960RgbSignal>(signals[0]);
     ASSERT_NE(rgb, nullptr);
     EXPECT_FLOAT_EQ(rgb->red, normalized_rgbc(491));
     EXPECT_FLOAT_EQ(rgb->green, normalized_rgbc(352));
@@ -735,9 +735,9 @@ TEST_F(Apds9960SensorTest, ProximityOutputCanBeDisabled)
 
     const auto signals = _collector.snapshot();
 
-    EXPECT_EQ(count_signal<signaling::OscSensorProximitySignal>(signals), 0U);
-    EXPECT_EQ(count_signal<signaling::OscSensorAmbientLightSignal>(signals), 1U);
-    EXPECT_EQ(count_signal<signaling::OscSensorRgbSignal>(signals), 1U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960ProximitySignal>(signals), 0U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960AmbientLightSignal>(signals), 1U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960RgbSignal>(signals), 1U);
 }
 
 TEST_F(Apds9960SensorTest, AmbientLightOutputCanBeDisabled)
@@ -748,9 +748,9 @@ TEST_F(Apds9960SensorTest, AmbientLightOutputCanBeDisabled)
 
     const auto signals = _collector.snapshot();
 
-    EXPECT_EQ(count_signal<signaling::OscSensorProximitySignal>(signals), 1U);
-    EXPECT_EQ(count_signal<signaling::OscSensorAmbientLightSignal>(signals), 0U);
-    EXPECT_EQ(count_signal<signaling::OscSensorRgbSignal>(signals), 1U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960ProximitySignal>(signals), 1U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960AmbientLightSignal>(signals), 0U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960RgbSignal>(signals), 1U);
 }
 
 TEST_F(Apds9960SensorTest, RgbOutputCanBeDisabled)
@@ -761,9 +761,9 @@ TEST_F(Apds9960SensorTest, RgbOutputCanBeDisabled)
 
     const auto signals = _collector.snapshot();
 
-    EXPECT_EQ(count_signal<signaling::OscSensorProximitySignal>(signals), 1U);
-    EXPECT_EQ(count_signal<signaling::OscSensorAmbientLightSignal>(signals), 1U);
-    EXPECT_EQ(count_signal<signaling::OscSensorRgbSignal>(signals), 0U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960ProximitySignal>(signals), 1U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960AmbientLightSignal>(signals), 1U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960RgbSignal>(signals), 0U);
 }
 
 TEST_F(Apds9960SensorTest, PublishesGestureFromFifoEdgePair)
@@ -793,13 +793,13 @@ TEST_F(Apds9960SensorTest, PublishesGestureFromFifoEdgePair)
                                              signals.end(),
                                              [](const signaling::OscSensorSignal& signal)
                                              {
-                                                 return std::holds_alternative<signaling::OscSensorGestureSignal>(signal.payload);
+                                                 return std::holds_alternative<signaling::OscSensorApds9960GestureSignal>(signal.payload);
                                              });
 
     ASSERT_NE(gesture_signal, signals.end());
-    const auto* gesture = payload_as<signaling::OscSensorGestureSignal>(*gesture_signal);
+    const auto* gesture = payload_as<signaling::OscSensorApds9960GestureSignal>(*gesture_signal);
     ASSERT_NE(gesture, nullptr);
-    EXPECT_EQ(gesture->gesture, signaling::OscSensorGesture::Up);
+    EXPECT_EQ(gesture->gesture, signaling::OscSensorApds9960Gesture::Up);
 }
 
 TEST_F(Apds9960SensorTest, RateLimitsGestureOutput)
@@ -827,16 +827,16 @@ TEST_F(Apds9960SensorTest, RateLimitsGestureOutput)
 
     set_up_gesture();
     update_after(SAMPLE_DELAY_MS);
-    EXPECT_EQ(count_signal<signaling::OscSensorGestureSignal>(_collector.snapshot()), 1U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960GestureSignal>(_collector.snapshot()), 1U);
     _collector.clear();
 
     set_up_gesture();
     update_after(SAMPLE_DELAY_MS);
-    EXPECT_EQ(count_signal<signaling::OscSensorGestureSignal>(_collector.snapshot()), 0U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960GestureSignal>(_collector.snapshot()), 0U);
 
     set_up_gesture();
     update_after(800);
-    EXPECT_EQ(count_signal<signaling::OscSensorGestureSignal>(_collector.snapshot()), 1U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960GestureSignal>(_collector.snapshot()), 1U);
 }
 
 TEST_F(Apds9960SensorTest, DoesNotRepublishStableContinuousOutputs)
@@ -863,9 +863,9 @@ TEST_F(Apds9960SensorTest, PublishesLastContinuousOutputsOnForcedRefreshStart)
 
     const auto signals = _collector.snapshot();
 
-    EXPECT_EQ(count_signal<signaling::OscSensorProximitySignal>(signals), 1U);
-    EXPECT_EQ(count_signal<signaling::OscSensorAmbientLightSignal>(signals), 1U);
-    EXPECT_EQ(count_signal<signaling::OscSensorRgbSignal>(signals), 1U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960ProximitySignal>(signals), 1U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960AmbientLightSignal>(signals), 1U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960RgbSignal>(signals), 1U);
 }
 
 TEST_F(Apds9960SensorTest, RecoversAfterSensorDisconnectsAndReconnects)
@@ -889,7 +889,7 @@ TEST_F(Apds9960SensorTest, RecoversAfterSensorDisconnectsAndReconnects)
 
     const auto signals = _collector.snapshot();
 
-    EXPECT_EQ(count_signal<signaling::OscSensorProximitySignal>(signals), 1U);
-    EXPECT_EQ(count_signal<signaling::OscSensorAmbientLightSignal>(signals), 1U);
-    EXPECT_EQ(count_signal<signaling::OscSensorRgbSignal>(signals), 1U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960ProximitySignal>(signals), 1U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960AmbientLightSignal>(signals), 1U);
+    EXPECT_EQ(count_signal<signaling::OscSensorApds9960RgbSignal>(signals), 1U);
 }

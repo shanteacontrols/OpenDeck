@@ -71,7 +71,7 @@ namespace opendeck::firmware::io::i2c::sensor_apds9960
          *
          * @return Mapped OSC sensor result.
          */
-        Result gesture_result(opendeck::firmware::signaling::OscSensorGesture gesture) const;
+        Result gesture_result(opendeck::firmware::signaling::OscSensorApds9960Gesture gesture) const;
 
         private:
         struct DatabaseInfo
