@@ -12,8 +12,6 @@
 #include "common/src/dfu/dfu_stream_parser/instance/impl/dfu_stream_parser.h"
 
 #include <algorithm>
-#include <fstream>
-#include <iterator>
 #include <string>
 #include <vector>
 
@@ -21,15 +19,6 @@ using namespace opendeck;
 
 namespace
 {
-    std::vector<uint8_t> read_binary_file(const char* path)
-    {
-        std::ifstream file(path, std::ios::binary);
-
-        EXPECT_TRUE(file.is_open()) << "Failed to open " << path;
-
-        return std::vector<uint8_t>(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
-    }
-
     void feed_stream(common::dfu::dfu_stream_parser::DfuStreamParser& parser, const std::vector<uint8_t>& stream)
     {
         parser.feed(stream);
@@ -78,9 +67,15 @@ TEST(Bootloader, FwUpdate)
 {
     bootloader::signaling::clear_registry();
 
-    const auto app_payload   = read_binary_file(OPENDECK_TEST_APP_PAYLOAD_FILE);
-    const auto update_stream = read_binary_file(OPENDECK_TEST_DFU_FILE);
-    const auto sector_count  = (app_payload.size() + BOOTLOADER_TEST_FLASH_SECTOR_SIZE - 1U) / BOOTLOADER_TEST_FLASH_SECTOR_SIZE;
+    std::vector<uint8_t> payload;
+
+    for (size_t i = 0; i < (BOOTLOADER_TEST_FLASH_SECTOR_SIZE + 17U); i++)
+    {
+        payload.push_back(static_cast<uint8_t>(i & 0xFFU));
+    }
+
+    const auto update_stream = tests::dfu_stream_parser::make_stream(payload);
+    const auto sector_count  = (payload.size() + BOOTLOADER_TEST_FLASH_SECTOR_SIZE - 1U) / BOOTLOADER_TEST_FLASH_SECTOR_SIZE;
 
     bootloader::dfu::direct_update_writer::HwaTest            hwa(sizeof(uint32_t), BOOTLOADER_TEST_FLASH_SECTOR_SIZE, sector_count);
     bootloader::dfu::direct_update_writer::DirectUpdateWriter writer(hwa, hwa);
@@ -91,7 +86,7 @@ TEST(Bootloader, FwUpdate)
     // once all data has been fed into the direct-update writer, firmware update procedure should be complete
     ASSERT_TRUE(hwa.updated);
 
-    assert_written_image(app_payload, hwa.written_bytes);
+    assert_written_image(payload, hwa.written_bytes);
 }
 
 TEST(Bootloader, SupportsDifferentFlashWriteBlockSizes)

@@ -9,22 +9,6 @@ add_subdirectory($ENV{ZENV_PROJECT_ROOT}/app/common/src/metadata ${CMAKE_CURRENT
 add_subdirectory($ENV{ZENV_PROJECT_ROOT}/app/common/src/dfu/writer ${CMAKE_CURRENT_BINARY_DIR}/writer)
 add_subdirectory($ENV{ZENV_PROJECT_ROOT}/app/common/src/dfu/dfu_stream_parser ${CMAKE_CURRENT_BINARY_DIR}/dfu_stream_parser)
 
-if(NOT DEFINED ENV{TARGET} OR "$ENV{TARGET}" STREQUAL "")
-    message(FATAL_ERROR "Bootloader tests require TARGET to be exported")
-endif()
-
-set(BOOTLOADER_TEST_APP_BUILD_DIR    $ENV{ZENV_PROJECT_ROOT}/build/app/default/release/$ENV{TARGET}/app)
-set(BOOTLOADER_TEST_APP_PAYLOAD_FILE ${BOOTLOADER_TEST_APP_BUILD_DIR}/zephyr/zephyr.signed.bin)
-set(BOOTLOADER_TEST_DFU_FILE         ${BOOTLOADER_TEST_APP_BUILD_DIR}/dfu.bin)
-
-if(NOT EXISTS ${BOOTLOADER_TEST_APP_PAYLOAD_FILE})
-    message(FATAL_ERROR "Missing target app payload: ${BOOTLOADER_TEST_APP_PAYLOAD_FILE}. Build the app for TARGET=$ENV{TARGET} first.")
-endif()
-
-if(NOT EXISTS ${BOOTLOADER_TEST_DFU_FILE})
-    message(FATAL_ERROR "Missing target DFU payload: ${BOOTLOADER_TEST_DFU_FILE}. Build the app for TARGET=$ENV{TARGET} first.")
-endif()
-
 target_sources(app
     PRIVATE
     bootloader_dfu_test.cpp
@@ -44,10 +28,4 @@ target_link_libraries(app
     opendeck_common_metadata
     opendeck_common_dfu_writer
     opendeck_common_dfu_dfu_stream_parser
-)
-
-target_compile_definitions(app
-    PRIVATE
-    OPENDECK_TEST_APP_PAYLOAD_FILE="${BOOTLOADER_TEST_APP_PAYLOAD_FILE}"
-    OPENDECK_TEST_DFU_FILE="${BOOTLOADER_TEST_DFU_FILE}"
 )
