@@ -44,6 +44,7 @@ OpenDeck supports the following peripherals:
 * [APDS-9960 proximity, light, RGB, and gesture sensor](https://www.adafruit.com/product/3595) - OSC only
 * [CAP1188 8-Key Capacitive Touch Sensor](https://www.adafruit.com/product/1602) - OSC only
 * [VL53L4CX time of flight distance sensor](https://www.adafruit.com/product/5425) - OSC only
+* [VL53L5CX 8x8 time of flight distance sensor](https://www.sparkfun.com/sparkfun-qwiic-tof-imager-vl53l5cx.html) - OSC only
 * [BNO085 9-DOF orientation IMU fusion sensor](https://www.adafruit.com/product/4754) - OSC only
 
 ## Features
@@ -129,4 +130,5 @@ Third-party components with different licenses:
 
 * `u8g2`: Two-clause BSD
 * `vl53l4cx`: Three-clause BSD
+* `vl53l5cx`: Three-clause BSD
 * `zlibs`: MIT
