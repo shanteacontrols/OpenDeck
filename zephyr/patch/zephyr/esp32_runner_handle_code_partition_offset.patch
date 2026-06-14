@@ -5,12 +5,12 @@
  
  import os
 +import re
+ import shutil
+ from pathlib import Path
  
- from runners.core import RunnerCaps, ZephyrBinaryRunner
- 
-@@ -82,6 +83,31 @@
-             espidf=args.esp_idf_path, encrypt=args.esp_encrypt, no_stub=args.esp_no_stub,
-             reset_type=args.reset_type)
+@@ -141,6 +142,31 @@ class Esp32BinaryRunner(ZephyrBinaryRunner):
+             Path(prev_bin).parent.mkdir(parents=True, exist_ok=True)
+             shutil.copy2(self.app_bin, prev_bin)
  
 +    def get_chosen_code_partition_address(self):
 +        edt_path = os.path.join(self.cfg.build_dir, 'zephyr', 'edt.pickle.cmake')
@@ -37,27 +37,15 @@
 +    def get_app_address(self):
 +        return self.get_chosen_code_partition_address() or self.app_address
 +
-     def do_run(self, command, **kwargs):
+     @classmethod
+     def do_create(cls, cfg, args):
+         return Esp32BinaryRunner(cfg, args)
+@@ -184,7 +210,7 @@ class Esp32BinaryRunner(ZephyrBinaryRunner):
  
-         cmd_flash = ['esptool']
-@@ -101,7 +127,10 @@
-             self.logger.warning(
-                 '--reset-type is ignored because reset is disabled (--no-reset)')
-         if self.reset:
--            cmd_flash.extend(['--after', self.reset_type or 'hard-reset', 'write-flash', '-u'])
-+            cmd_flash.extend(['--after', self.reset_type or 'hard-reset'])
-+        else:
-+            cmd_flash.extend(['--after', 'no-reset'])
-+        cmd_flash.extend(['write-flash', '-u'])
-         cmd_flash.extend(['--flash-mode', self.flash_mode])
-         cmd_flash.extend(['--flash-freq', self.flash_freq])
-         cmd_flash.extend(['--flash-size', self.flash_size])
-@@ -109,7 +138,7 @@
-         if self.encrypt:
-             cmd_flash.extend(['--encrypt'])
+         self._append_flash_opts(cmd_flash)
  
 -        cmd_flash.extend([self.app_address, self.app_bin])
 +        cmd_flash.extend([self.get_app_address(), self.app_bin])
  
-         self.logger.info(f"Flashing esp32 chip on {self.device} ({self.baud}bps)")
-         self.check_call(cmd_flash)
+         device_str = self.device if self.device else 'auto-detect'
+         self.logger.info(

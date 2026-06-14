@@ -1,15 +1,30 @@
 diff --git a/drivers/ethernet/eth_esp32.c b/drivers/ethernet/eth_esp32.c
-index 545f971ae52..25008051097 100644
+index 1b202e9b9..53d580c7e 100644
 --- a/drivers/ethernet/eth_esp32.c
 +++ b/drivers/ethernet/eth_esp32.c
-@@ -528,7 +528,9 @@ int eth_esp32_initialize(const struct device *dev)
- 
- 	if (strcmp(phy_connection_type, "rmii") == 0) {
- 		esp32_emac_iomux_init_rmii();
--#if !DT_INST_NODE_HAS_PROP(0, ref_clk_output_gpios)
-+#if DT_INST_NODE_HAS_PROP(0, ref_clk_output_gpios)
-+		emac_hal_clock_enable_rmii_output(&dev_data->hal);
-+#else
- 		eth_esp32_iomux_rmii_clk_input();
+@@ -711,8 +711,12 @@ int eth_esp32_initialize(const struct device *dev)
+ 			goto err;
+ 		}
+ #if !DT_INST_NODE_HAS_PROP(0, ref_clk_output_gpios)
+ 		eth_esp32_iomux_rmii_clk_input(rmii_clk_gpio);
  		emac_hal_clock_enable_rmii_input(&dev_data->hal);
++#else
++		/* Restore RMII REF_CLK output after MDIO init and before MAC reset. */
++		emac_hal_clock_enable_rmii_output(&dev_data->hal);
++		(void)emac_hal_ref_clock_div(&dev_data->hal, 0);
  #endif
+ 	} else if (strcmp(phy_connection_type, "mii") == 0) {
+ 		eth_esp32_iomux_init_mii();
+@@ -735,6 +739,12 @@ int eth_esp32_initialize(const struct device *dev)
+ 	/* Set dma_burst_len as ETH_DMA_BURST_LEN_32 by default */
+ 	emac_hal_dma_config_t dma_config = { .dma_burst_len = 0 };
+ 
++#if DT_INST_NODE_HAS_PROP(0, ref_clk_output_gpios)
++	/* MAC reset can clear external clock control; keep PHY REF_CLK running. */
++	emac_hal_clock_enable_rmii_output(&dev_data->hal);
++	(void)emac_hal_ref_clock_div(&dev_data->hal, 0);
++#endif
++
+ 	eth_esp32_reset_desc_chain(dev_data);
+ 	emac_hal_init_mac_default(&dev_data->hal);
+ 	emac_hal_init_dma_default(&dev_data->hal, &dma_config);

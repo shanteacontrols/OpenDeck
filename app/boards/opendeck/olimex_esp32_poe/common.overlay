@@ -1,3 +1,31 @@
 &psram0 {
     status = "disabled";
 };
+
+&gpio0 {
+    phy_power_hold: phy_power_hold {
+        gpio-hog;
+        gpios = <12 GPIO_ACTIVE_HIGH>;
+        output-high;
+    };
+};
+
+/delete-node/ &phy;
+
+&mdio {
+    ref-clk-output-gpios = <&gpio0 17 GPIO_ACTIVE_HIGH>;
+
+    phy: ethernet-phy@0 {
+        compatible = "ethernet-phy";
+        status = "okay";
+        reg = <0>;
+        no-reset;
+        default-speeds = "10BASE Half-Duplex", "10BASE Full-Duplex",
+                         "100BASE Half-Duplex", "100BASE Full-Duplex";
+    };
+};
+
+&eth {
+    phy-handle = <&phy>;
+    ref-clk-output-gpios = <&gpio0 17 GPIO_ACTIVE_HIGH>;
+};

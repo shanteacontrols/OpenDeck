@@ -38,25 +38,6 @@
     };
 };
 
-/delete-node/ &phy;
-
-&mdio {
-    ref-clk-output-gpios = <&gpio0 17 GPIO_ACTIVE_HIGH>;
-
-    phy: ethernet-phy@0 {
-        compatible = "ethernet-phy";
-        reg = <0>;
-        reset-gpios = <&gpio0 12 GPIO_ACTIVE_LOW>;
-        reset-assert-duration-us = <300000>;
-        reset-deassertion-timeout-ms = <50>;
-    };
-};
-
-&eth {
-    phy-handle = <&phy>;
-    ref-clk-output-gpios = <&gpio0 17 GPIO_ACTIVE_HIGH>;
-};
-
 opendeck_i2c_bus: &i2c0 {};
 
 &i2c0 {
