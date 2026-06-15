@@ -23,5 +23,6 @@
 *.HMI filter=lfs diff=lfs merge=lfs -text
 *.cdr filter=lfs diff=lfs merge=lfs -text
 *.zip filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
 *.pdf   binary
 *.cdr   binary
