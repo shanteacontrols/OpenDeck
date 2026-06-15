@@ -39,7 +39,6 @@ int selectedZone = 0;
 
 int frameCounter = 0;
 int rowsSeenMask = 0;
-int packetCounter = 0;
 int lastPacketMs = 0;
 int lastFrameMs = 0;
 int previousFrameMs = 0;
@@ -51,11 +50,11 @@ int deltaMaxMm = 250;
 boolean showNumbers = true;
 
 void setup() {
-  size(1200, 950, P2D);
+  size(2560, 1600, P2D);
   surface.setTitle("OpenDeck VL53L5CX Raw Monitor");
   oscP5 = new OscP5(this, oscListenPort);
 
-  textFont(createFont("SansSerif", 16));
+  textFont(createFont("SansSerif", 24));
 
   for (int i = 0; i < selectedHistory.length; i++) {
     selectedHistory[i] = 0;
@@ -108,7 +107,7 @@ void drawDistancePanel() {
       if (showNumbers) {
         fill(255);
         textAlign(CENTER, CENTER);
-        textSize(15);
+        textSize(20);
         text(distance, startX + x * cell + cell / 2.0, startY + y * cell + cell * 0.5);
       }
     }
@@ -151,7 +150,7 @@ void drawDeltaPanel() {
       if (showNumbers) {
         fill(255);
         textAlign(CENTER, CENTER);
-        textSize(15);
+        textSize(20);
 
         if (delta > 0) {
           text("+" + delta, startX + x * cell + cell / 2.0, startY + y * cell + cell * 0.5);
@@ -166,7 +165,7 @@ void drawDeltaPanel() {
 void drawPanelTitle(String title, float x, float y, float w) {
   fill(235);
   textAlign(CENTER, TOP);
-  textSize(20);
+  textSize(27);
   text(title, x + w / 2.0, y);
 }
 
@@ -217,10 +216,10 @@ void drawGrid() {
 
       fill(255);
       textAlign(CENTER, CENTER);
-      textSize(16);
+      textSize(22);
       text(distance, startX + x * cell + cell / 2.0, startY + y * cell + cell * 0.43);
 
-      textSize(12);
+      textSize(16);
       if (delta > 0) {
         fill(255, 220, 120);
         text("+" + delta, startX + x * cell + cell / 2.0, startY + y * cell + cell * 0.65);
@@ -291,25 +290,25 @@ void drawStatus() {
   int selectedDelta = deltas[selectedZone];
   int selectedX = selectedZone % cols;
   int selectedY = selectedZone / cols;
-  int packetAge = receivedData ? millis() - lastPacketMs : 0;
+  int updateAge = receivedData ? millis() - lastPacketMs : 0;
   int framePeriod = (previousFrameMs == 0 || lastFrameMs == 0) ? 0 : lastFrameMs - previousFrameMs;
 
   fill(235);
   textAlign(LEFT, TOP);
-  textSize(18);
+  textSize(32);
 
-  float y = height - 245;
-  text("VL53L5CX raw monitor - no Processing-side filtering", 44, y);
-  y += 28;
-  text("Status: " + (receivedData ? "receiving OSC" : "waiting for OSC on port " + oscListenPort), 44, y);
-  y += 28;
-  text("Grid: " + cols + "x" + rows + "   Packets: " + packetCounter + "   Frames: " + frameCounter + "   Last packet age: " + packetAge + " ms", 44, y);
-  y += 28;
-  text("Active zones: " + active + " / " + zoneCount + "   Nearest: " + (nearest > 0 ? nearest + " mm" : "-") + "   Max abs delta: " + maxAbsDelta + " mm", 44, y);
-  y += 28;
-  text("Selected zone: " + selectedZone + "  x=" + selectedX + " y=" + selectedY + "   value=" + selectedDistance + " mm   delta=" + selectedDelta + " mm", 44, y);
-  y += 28;
-  text("Frame period: " + (framePeriod > 0 ? framePeriod + " ms" : "-") + "   Keys: [ / ] far range, - / + delta range, n numbers, click zone", 44, y);
+  float y = 40;
+  text("VL53L5CX raw monitor", 40, y);
+  y += 46;
+
+  textSize(24);
+  text("Grid: " + cols + "x" + rows + "   Frames: " + frameCounter + "   Last update: " + updateAge + " ms", 40, y);
+  y += 36;
+  text("Active zones: " + active + " / " + zoneCount + "   Nearest: " + (nearest > 0 ? nearest + " mm" : "-") + "   Max abs delta: " + maxAbsDelta + " mm", 40, y);
+  y += 36;
+  text("Selected zone: " + selectedZone + "  x=" + selectedX + " y=" + selectedY + "   value=" + selectedDistance + " mm   delta=" + selectedDelta + " mm", 40, y);
+  y += 36;
+  text("Frame period: " + (framePeriod > 0 ? framePeriod + " ms" : "-") + "   Keys: [ / ] far range, - / + delta range, n numbers, click zone", 40, y);
 }
 
 void oscEvent(OscMessage message) {
@@ -340,7 +339,6 @@ void oscEvent(OscMessage message) {
     return;
   }
 
-  packetCounter++;
   lastPacketMs = millis();
   receivedData = true;
 

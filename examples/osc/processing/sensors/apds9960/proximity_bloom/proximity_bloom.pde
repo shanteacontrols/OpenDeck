@@ -15,7 +15,6 @@ String proximityPath = "/opendeck/sensors/apds9960/proximity";
 
 int proximity = 0;
 int lastPacketMs = 0;
-int packetCount = 0;
 boolean receivedData = false;
 
 float visualProximity = 0.0;
@@ -26,11 +25,11 @@ ArrayList<Spark> sparks = new ArrayList<Spark>();
 int maxSparks = 180;
 
 void setup() {
-  size(1200, 900, P2D);
+  size(2560, 1600, P2D);
   surface.setTitle("OpenDeck APDS9960 Proximity Bloom");
 
   oscP5 = new OscP5(this, oscListenPort);
-  textFont(createFont("SansSerif", 18));
+  textFont(createFont("SansSerif", 24));
 
   for (int i = 0; i < maxSparks; i++) {
     sparks.add(new Spark());
@@ -137,10 +136,10 @@ void drawSparks() {
 }
 
 void drawMeter() {
-  float x = 54;
-  float y = height - 90;
-  float w = width - 108;
-  float h = 24;
+  float x = 40;
+  float y = 150;
+  float w = 760;
+  float h = 30;
 
   noStroke();
   fill(32);
@@ -156,32 +155,18 @@ void drawMeter() {
 
   fill(235);
   textAlign(LEFT, BOTTOM);
-  textSize(18);
+  textSize(24);
   text("proximity " + proximity + " / 255", x, y - 10);
 }
 
 void drawHud() {
   fill(245);
   textAlign(LEFT, TOP);
-  textSize(22);
-  text("APDS9960 proximity bloom", 40, 38);
+  textSize(32);
+  text("APDS9960 proximity bloom", 40, 40);
 
-  textSize(18);
-  text("Status: " + statusText(), 40, 72);
-  text("Packets: " + packetCount, 40, 102);
-  text("OSC: " + proximityPath, 40, 132);
-}
-
-String statusText() {
-  if (!receivedData) {
-    return "waiting for OSC";
-  }
-
-  if (millis() - lastPacketMs > 1200) {
-    return "stale";
-  }
-
-  return "receiving OSC";
+  textSize(24);
+  text("OSC: " + proximityPath, 40, 86);
 }
 
 void oscEvent(OscMessage message) {
@@ -203,7 +188,6 @@ void oscEvent(OscMessage message) {
 
   receivedData = true;
   lastPacketMs = millis();
-  packetCount++;
 }
 
 class Spark {

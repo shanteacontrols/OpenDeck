@@ -61,11 +61,11 @@ ArrayList<PVector> trail = new ArrayList<PVector>();
 int maxTrailPoints = 140;
 
 void setup() {
-  size(1200, 900, P3D);
+  size(2560, 1600, P3D);
   surface.setTitle("OpenDeck BNO085 Orientation Cube");
 
   oscP5 = new OscP5(this, oscListenPort);
-  textFont(createFont("SansSerif", 18));
+  textFont(createFont("SansSerif", 24));
 }
 
 void draw() {
@@ -315,20 +315,20 @@ void drawHud() {
 
   fill(235);
   textAlign(LEFT, TOP);
-  textSize(20);
+  textSize(32);
 
-  String status = receivedData ? "receiving OSC" : "waiting for OSC on port " + oscListenPort;
   String mode = useQuaternion ? "quaternion" : "euler";
 
-  text("BNO085 orientation cube", 38, 34);
-  text("Status: " + status, 38, 66);
-  text("Mode: " + mode, 38, 98);
-  text("Yaw: " + nf(wrapDegrees(smoothYaw), 0, 1) + "  Pitch: " + nf(wrapDegrees(smoothPitch), 0, 1) + "  Roll: " + nf(wrapDegrees(smoothRoll), 0, 1), 38, 130);
-  text("Keys: z zero, t trail, r reset view, +/- zoom", 38, height - 52);
+  text("BNO085 orientation cube", 40, 40);
+
+  textSize(24);
+  text("Mode: " + mode, 40, 86);
+  text("Yaw: " + nf(wrapDegrees(smoothYaw), 0, 1) + "  Pitch: " + nf(wrapDegrees(smoothPitch), 0, 1) + "  Roll: " + nf(wrapDegrees(smoothRoll), 0, 1), 40, 122);
+  text("Keys: z zero, t trail, r reset view, +/- zoom", 40, 158);
 
   if (millis() - lastPacketMs > 2000) {
     fill(255, 190, 40);
-    text("Enable BNO085 Quaternion or Euler output in OpenDeck.", 38, 164);
+    text("Enable BNO085 Quaternion or Euler output in OpenDeck.", 40, 194);
   }
 
   hint(ENABLE_DEPTH_TEST);

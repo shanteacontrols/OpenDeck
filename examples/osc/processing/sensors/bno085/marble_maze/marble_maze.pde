@@ -94,11 +94,11 @@ PVector goal = new PVector();
 ArrayList<Wall> walls = new ArrayList<Wall>();
 
 void setup() {
-  size(1200, 900, P2D);
+  size(2560, 1600, P2D);
   surface.setTitle("OpenDeck BNO085 Marble Maze");
 
   oscP5 = new OscP5(this, oscListenPort);
-  textFont(createFont("SansSerif", 18));
+  textFont(createFont("SansSerif", 24));
 
   buildMaze();
   resetMarble();
@@ -257,14 +257,13 @@ void drawMarble() {
 void drawHud() {
   fill(238);
   textAlign(LEFT, TOP);
-  textSize(20);
+  textSize(32);
 
-  String status = receivedData ? "receiving OSC" : "waiting for OSC on port " + oscListenPort;
+  text("BNO085 marble maze", 40, 40);
 
-  text("BNO085 marble maze", 40, 28);
-  text("Status: " + status, 40, 60);
-  text("Gravity: x " + nf(gravityX, 0, 3) + "  y " + nf(gravityY, 0, 3) + "  z " + nf(gravityZ, 0, 3), 40, 92);
-  text("Keys: r reset", 40, height - 50);
+  textSize(24);
+  text("Gravity: x " + nf(gravityX, 0, 3) + "  y " + nf(gravityY, 0, 3) + "  z " + nf(gravityZ, 0, 3), 40, 86);
+  text("Keys: r reset", 40, 122);
 
   drawTiltDisk(width - 118, 72);
 
@@ -278,8 +277,8 @@ void drawHud() {
   if (millis() - lastPacketMs > 2000) {
     fill(255, 190, 40);
     textAlign(LEFT, TOP);
-    textSize(20);
-    text("Enable BNO085 Gravity output in OpenDeck.", 40, 124);
+    textSize(24);
+    text("Enable BNO085 Gravity output in OpenDeck.", 40, 158);
   }
 }
 

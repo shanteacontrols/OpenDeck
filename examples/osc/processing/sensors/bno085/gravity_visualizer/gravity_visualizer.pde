@@ -33,11 +33,11 @@ ArrayList<PVector> trail = new ArrayList<PVector>();
 int maxTrailPoints = 220;
 
 void setup() {
-  size(1200, 900, P3D);
+  size(2560, 1600, P3D);
   surface.setTitle("OpenDeck BNO085 Gravity Visualizer");
 
   oscP5 = new OscP5(this, oscListenPort);
-  textFont(createFont("SansSerif", 18));
+  textFont(createFont("SansSerif", 24));
 }
 
 void draw() {
@@ -189,16 +189,16 @@ void drawHud() {
 
   fill(238);
   textAlign(LEFT, TOP);
-  textSize(20);
+  textSize(32);
 
-  String status = receivedData ? "receiving OSC" : "waiting for OSC on port " + oscListenPort;
   float magnitude = sqrt((gravityX * gravityX) + (gravityY * gravityY) + (gravityZ * gravityZ));
 
-  text("BNO085 gravity visualizer", 38, 34);
-  text("Status: " + status, 38, 66);
-  text("Gravity: x " + nf(gravityX, 0, 3) + "  y " + nf(gravityY, 0, 3) + "  z " + nf(gravityZ, 0, 3), 38, 98);
-  text("Magnitude: " + nf(magnitude, 0, 3), 38, 130);
-  text("Keys: t trail, r reset view, +/- zoom", 38, height - 52);
+  text("BNO085 gravity visualizer", 40, 40);
+
+  textSize(24);
+  text("Gravity: x " + nf(gravityX, 0, 3) + "  y " + nf(gravityY, 0, 3) + "  z " + nf(gravityZ, 0, 3), 40, 86);
+  text("Magnitude: " + nf(magnitude, 0, 3), 40, 122);
+  text("Keys: t trail, r reset view, +/- zoom", 40, 158);
 
   drawComponentMeter(width - 280, 50, "X", gravityX, color(255, 70, 70));
   drawComponentMeter(width - 200, 50, "Y", gravityY, color(70, 220, 130));
@@ -206,7 +206,7 @@ void drawHud() {
 
   if (millis() - lastPacketMs > 2000) {
     fill(255, 190, 40);
-    text("Enable BNO085 Gravity output in OpenDeck.", 38, 164);
+    text("Enable BNO085 Gravity output in OpenDeck.", 40, 194);
   }
 
   hint(ENABLE_DEPTH_TEST);
@@ -236,7 +236,7 @@ void drawComponentMeter(float x, float y, String label, float value, color c) {
 
   fill(235);
   textAlign(CENTER, TOP);
-  textSize(16);
+  textSize(22);
   text(label, x + 21, y + h + 10);
 }
 

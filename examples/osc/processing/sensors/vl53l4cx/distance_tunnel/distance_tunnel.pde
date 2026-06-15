@@ -24,7 +24,6 @@ float pulse = 0.0;
 float shockPulse = 0.0;
 float previousCloseness = 0.0;
 
-int packetCount = 0;
 int lastPacketMs = 0;
 boolean receivedData = false;
 
@@ -33,11 +32,11 @@ int farMm = 1200;
 boolean useFirmwareNormalized = true;
 
 void setup() {
-  size(1200, 900, P2D);
+  size(2560, 1600, P2D);
   surface.setTitle("OpenDeck VL53L4CX Distance Tunnel");
 
   oscP5 = new OscP5(this, oscListenPort);
-  textFont(createFont("SansSerif", 18));
+  textFont(createFont("SansSerif", 24));
 }
 
 void draw() {
@@ -233,10 +232,10 @@ void drawTarget() {
 }
 
 void drawMeter() {
-  float w = min(width - 116, 720);
-  float x = (width - w) / 2.0;
-  float y = height - 96;
-  float h = 28;
+  float x = 40;
+  float y = 258;
+  float w = 760;
+  float h = 30;
   float fillAmount = activeMeterAmount();
   float nearPunch = smoothAmount(closenessDrive(), 0.62, 1.0);
 
@@ -255,28 +254,23 @@ void drawMeter() {
   rect(x, y, w, h, 7);
 
   fill(245);
-  textSize(18);
-
-  textAlign(RIGHT, CENTER);
-  text(distanceMm + " mm", x - 18, y + h / 2.0);
+  textSize(24);
 
   textAlign(LEFT, CENTER);
-  text("normalized " + nf(activeNormalizedDistance(), 1, 3), x + w + 18, y + h / 2.0);
+  text(distanceMm + " mm  /  normalized " + nf(activeNormalizedDistance(), 1, 3), x, y - 18);
 }
 
 void drawHud() {
   fill(245);
   textAlign(LEFT, TOP);
-  textSize(24);
-  text("VL53L4CX distance tunnel", 42, 38);
+  textSize(32);
+  text("VL53L4CX distance tunnel", 40, 40);
 
-  textSize(18);
-  text("Status: " + statusText(), 42, 78);
-  text("Packets: " + packetCount, 42, 108);
-  text("Mode: " + modeText(), 42, 138);
-  text("Keys: m raw mm, n normalized", 42, 168);
-  text("OSC: " + distancePath, 42, 198);
-  text("OSC: " + normPath, 42, 228);
+  textSize(24);
+  text("Mode: " + modeText(), 40, 86);
+  text("Keys: m raw mm, n normalized", 40, 122);
+  text("OSC: " + distancePath, 40, 158);
+  text("OSC: " + normPath, 40, 194);
 }
 
 float activeNormalizedDistance() {
@@ -305,18 +299,6 @@ void keyPressed() {
   } else if ((key == 'm') || (key == 'M')) {
     useFirmwareNormalized = false;
   }
-}
-
-String statusText() {
-  if (!receivedData) {
-    return "waiting for OSC";
-  }
-
-  if (millis() - lastPacketMs > 1200) {
-    return "stale";
-  }
-
-  return "receiving OSC";
 }
 
 void oscEvent(OscMessage message) {
@@ -361,5 +343,4 @@ void oscEvent(OscMessage message) {
 void markPacket() {
   receivedData = true;
   lastPacketMs = millis();
-  packetCount++;
 }

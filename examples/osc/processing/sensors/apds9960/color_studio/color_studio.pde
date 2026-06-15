@@ -20,17 +20,16 @@ float visualRed = 0.0;
 float visualGreen = 0.0;
 float visualBlue = 0.0;
 int lastPacketMs = 0;
-int packetCount = 0;
 boolean receivedData = false;
 
 ArrayList<ColorChip> history = new ArrayList<ColorChip>();
 
 void setup() {
-  size(1200, 900, P2D);
+  size(2560, 1600, P2D);
   surface.setTitle("OpenDeck APDS9960 Color Studio");
 
   oscP5 = new OscP5(this, oscListenPort);
-  textFont(createFont("SansSerif", 18));
+  textFont(createFont("SansSerif", 24));
 }
 
 void draw() {
@@ -82,7 +81,7 @@ void drawSwatch() {
 
   fill(contrastColor(sensed));
   textAlign(CENTER, CENTER);
-  textSize(26);
+  textSize(35);
   text(rgbLabel(), cx, cy + size * 0.39);
 }
 
@@ -101,7 +100,7 @@ void drawChannels() {
 void drawChannel(String label, float value, int channelColor, float x, float y, float w, float h) {
   fill(245);
   textAlign(LEFT, CENTER);
-  textSize(18);
+  textSize(24);
   text(label, x - 30, y + h / 2.0);
 
   noStroke();
@@ -123,7 +122,7 @@ void drawHistory() {
 
   fill(245);
   textAlign(LEFT, CENTER);
-  textSize(18);
+  textSize(24);
   text("recent", x, y - 38);
 
   for (int i = 0; i < history.size(); i++) {
@@ -144,25 +143,11 @@ void drawHistory() {
 void drawHud() {
   fill(245);
   textAlign(LEFT, TOP);
-  textSize(22);
-  text("APDS9960 color studio", 40, 36);
+  textSize(32);
+  text("APDS9960 color studio", 40, 40);
 
-  textSize(18);
-  text("Status: " + statusText(), 40, 72);
-  text("Packets: " + packetCount, 40, 102);
-  text("OSC: " + rgbPath, 40, 132);
-}
-
-String statusText() {
-  if (!receivedData) {
-    return "waiting for OSC";
-  }
-
-  if (millis() - lastPacketMs > 1600) {
-    return "stale";
-  }
-
-  return "receiving OSC";
+  textSize(24);
+  text("OSC: " + rgbPath, 40, 86);
 }
 
 String rgbLabel() {
@@ -197,7 +182,6 @@ void oscEvent(OscMessage message) {
 
   receivedData = true;
   lastPacketMs = millis();
-  packetCount++;
 
   if (history.size() == 0 || colorDistance(history.get(0).c, sensedColor(redValue, greenValue, blueValue)) > 18) {
     history.add(0, new ColorChip(sensedColor(redValue, greenValue, blueValue)));

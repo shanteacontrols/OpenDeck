@@ -64,11 +64,11 @@ float strikeThreshold = 0.018;
 int strikeCooldownFrames = 6;
 
 void setup() {
-  size(1200, 900, P2D);
+  size(2560, 1600, P2D);
   surface.setTitle("OpenDeck VL53L4CX Touchless Resonator");
 
   oscP5 = new OscP5(this, oscListenPort);
-  textFont(createFont("SansSerif", 18));
+  textFont(createFont("SansSerif", 24));
 
   stringBody = new TriOsc(this);
   stringBody.play(220.0, 0.0);
@@ -302,10 +302,10 @@ void drawInstrument(float closeness) {
 }
 
 void drawMeter(float closeness) {
-  float w = min(width - 280, 720);
-  float x = (width - w) / 2.0;
-  float y = height - 92;
-  float h = 28;
+  float x = 40;
+  float y = 258;
+  float w = 760;
+  float h = 30;
 
   rectMode(CORNER);
 
@@ -322,35 +322,22 @@ void drawMeter(float closeness) {
   rect(x, y, w, h, 7);
 
   fill(245);
-  textSize(18);
-  textAlign(CENTER, CENTER);
-  text("normalized " + nf(firmwareNormalizedDistance, 1, 3), x + w / 2.0, y + h / 2.0);
+  textSize(24);
+  textAlign(LEFT, CENTER);
+  text("normalized " + nf(firmwareNormalizedDistance, 1, 3), x, y - 18);
 }
 
 void drawHud() {
   fill(245);
   textAlign(LEFT, TOP);
+  textSize(32);
+  text("VL53L4CX touchless resonator", 40, 40);
+
   textSize(24);
-  text("VL53L4CX touchless resonator", 42, 38);
-
-  textSize(18);
-  text("Status: " + statusText(), 42, 78);
-  text("Input: firmware normalized", 42, 108);
-  text("Sound: " + (muted ? "muted" : "on") + " / continuous", 42, 138);
-  text("Keys: space mute", 42, 168);
-  text("OSC: " + normPath, 42, 198);
-}
-
-String statusText() {
-  if (!receivedData) {
-    return "waiting for OSC";
-  }
-
-  if (stale()) {
-    return "stale";
-  }
-
-  return "receiving OSC";
+  text("Input: firmware normalized", 40, 86);
+  text("Sound: " + (muted ? "muted" : "on") + " / continuous", 40, 122);
+  text("Keys: space mute", 40, 158);
+  text("OSC: " + normPath, 40, 194);
 }
 
 boolean stale() {

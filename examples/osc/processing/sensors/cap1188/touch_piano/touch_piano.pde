@@ -41,10 +41,10 @@ float[] noteHz = {
 };
 
 void setup() {
-  size(1200, 760, P2D);
+  size(2560, 1600, P2D);
   surface.setTitle("OpenDeck CAP1188 Touch Piano");
   oscP5 = new OscP5(this, oscListenPort);
-  textFont(createFont("SansSerif", 18));
+  textFont(createFont("SansSerif", 24));
 
   for (int i = 0; i < voiceCount; i++) {
     voices[i] = new SinOsc(this);
@@ -126,7 +126,7 @@ void drawPads() {
 
     fill(0, 0, 100, 92);
     textAlign(CENTER, CENTER);
-    textSize(22);
+    textSize(30);
     text(noteName(i), x + padW / 2.0, y + padH - 46);
   }
 
@@ -136,25 +136,12 @@ void drawPads() {
 void drawHud() {
   fill(245);
   textAlign(LEFT, TOP);
+  textSize(32);
+  text("CAP1188 touch piano", 40, 40);
+
   textSize(24);
-  text("CAP1188 touch piano", 44, 38);
-
-  textSize(18);
-  text("Status: " + statusText(), 44, 78);
-  text("OSC: " + touchPathPrefix + "<0..7>", 44, 108);
-  text("Keys: space mute", 44, 138);
-}
-
-String statusText() {
-  if (!receivedData) {
-    return "waiting for OSC";
-  }
-
-  if (millis() - lastPacketMs > 1200) {
-    return "stale";
-  }
-
-  return muted ? "muted" : "receiving OSC";
+  text("OSC: " + touchPathPrefix + "<0..7>", 40, 86);
+  text("Keys: space mute", 40, 122);
 }
 
 String noteName(int index) {

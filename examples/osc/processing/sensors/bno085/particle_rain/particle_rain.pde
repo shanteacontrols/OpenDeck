@@ -117,11 +117,11 @@ ArrayList<Particle> particles = new ArrayList<Particle>();
 int particleCount = 120;
 
 void setup() {
-  size(1200, 900, P3D);
+  size(2560, 1600, P3D);
   surface.setTitle("OpenDeck BNO085 Particle Rain");
 
   oscP5 = new OscP5(this, oscListenPort);
-  textFont(createFont("SansSerif", 18));
+  textFont(createFont("SansSerif", 24));
 
   for (int i = 0; i < particleCount; i++) {
     particles.add(new Particle());
@@ -232,21 +232,20 @@ void drawHud(PVector acceleration) {
 
   fill(238);
   textAlign(LEFT, TOP);
-  textSize(20);
+  textSize(32);
 
-  String status = receivedData ? "receiving OSC" : "waiting for OSC on port " + oscListenPort;
+  text("BNO085 particle rain", 40, 40);
 
-  text("BNO085 particle rain", 38, 34);
-  text("Status: " + status, 38, 66);
-  text("Gravity: x " + nf(gravityX, 0, 3) + "  y " + nf(gravityY, 0, 3) + "  z " + nf(gravityZ, 0, 3), 38, 98);
-  text("Particles: " + particleCount + "   Mode: " + (drawTrails ? "trails" : "clean"), 38, 130);
-  text("Keys: space pause, c clear, t trails, [ ] particles, r reset view, +/- zoom", 38, height - 52);
+  textSize(24);
+  text("Gravity: x " + nf(gravityX, 0, 3) + "  y " + nf(gravityY, 0, 3) + "  z " + nf(gravityZ, 0, 3), 40, 86);
+  text("Particles: " + particleCount + "   Mode: " + (drawTrails ? "trails" : "clean"), 40, 122);
+  text("Keys: space pause, c clear, t trails, [ ] particles, r reset view, +/- zoom", 40, 158);
 
   drawTiltDisk(width - 170, 118);
 
   if (millis() - lastPacketMs > 2000) {
     fill(255, 190, 40);
-    text("Enable BNO085 Gravity output in OpenDeck.", 38, 164);
+    text("Enable BNO085 Gravity output in OpenDeck.", 40, 194);
   }
 
   hint(ENABLE_DEPTH_TEST);

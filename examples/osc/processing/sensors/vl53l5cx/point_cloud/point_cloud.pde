@@ -60,11 +60,11 @@ boolean usableDistance(float distance) {
 }
 
 void setup() {
-  size(1100, 900, P3D);
+  size(2560, 1600, P3D);
   surface.setTitle("OpenDeck VL53L5CX Point Cloud");
   oscP5 = new OscP5(this, oscListenPort);
 
-  textFont(createFont("SansSerif", 18));
+  textFont(createFont("SansSerif", 24));
 
   for (int idx = 0; idx < zoneCount; idx++) {
     depths[idx] = 0;
@@ -245,18 +245,18 @@ void drawStatus() {
 
   fill(235);
   textAlign(LEFT, TOP);
-  textSize(18);
+  textSize(32);
 
   String nearestText = nearestDistance > 0 ? nearestDistance + " mm" : "-";
-  String dataText = receivedData ? "receiving OSC" : "waiting for OSC on port " + oscListenPort;
 
-  text("VL53L5CX point cloud", 36, 34);
-  text("Status: " + dataText, 36, 64);
-  text("Active zones: " + activeZones + " / " + zoneCount, 36, 94);
-  text("Nearest: " + nearestText, 36, 124);
-  text("Mode: " + (foregroundOnly ? "foreground <= " + foregroundCutoffMm + " mm" : "full depth"), 36, 154);
-  text("Debounce: appear " + pointAppearFrames + " frames, hold " + pointHoldFrames + " frames, neighbor " + minNeighborSupport, 36, 184);
-  text("Keys: f foreground, [ ] cutoff, - + smooth, n/m neighbor", 36, 214);
+  text("VL53L5CX point cloud", 40, 40);
+
+  textSize(24);
+  text("Active zones: " + activeZones + " / " + zoneCount, 40, 86);
+  text("Nearest: " + nearestText, 40, 122);
+  text("Mode: " + (foregroundOnly ? "foreground <= " + foregroundCutoffMm + " mm" : "full depth"), 40, 158);
+  text("Debounce: appear " + pointAppearFrames + " frames, hold " + pointHoldFrames + " frames, neighbor " + minNeighborSupport, 40, 194);
+  text("Keys: f foreground, [ ] cutoff, - + smooth, n/m neighbor", 40, 230);
 
   hint(ENABLE_DEPTH_TEST);
 }

@@ -26,10 +26,10 @@ boolean receivedData = false;
 boolean blackout = false;
 
 void setup() {
-  size(1200, 760, P2D);
+  size(2560, 1600, P2D);
   surface.setTitle("OpenDeck CAP1188 Light Console");
   oscP5 = new OscP5(this, oscListenPort);
-  textFont(createFont("SansSerif", 18));
+  textFont(createFont("SansSerif", 24));
 }
 
 void draw() {
@@ -132,7 +132,7 @@ void drawConsole() {
 
     fill(0, 0, 100, 92);
     textAlign(CENTER, CENTER);
-    textSize(17);
+    textSize(24);
     text(str(i + 1), x + faderW / 2.0, baseY + faderH + 22);
   }
 
@@ -142,25 +142,12 @@ void drawConsole() {
 void drawHud() {
   fill(245);
   textAlign(LEFT, TOP);
+  textSize(32);
+  text("CAP1188 light console", 40, 40);
+
   textSize(24);
-  text("CAP1188 light console", 44, 34);
-
-  textSize(18);
-  text("Status: " + statusText(), 44, 74);
-  text("OSC: " + touchPathPrefix + "<0..7>", 44, 104);
-  text("Keys: c clear, b blackout", 44, 134);
-}
-
-String statusText() {
-  if (!receivedData) {
-    return "waiting for OSC";
-  }
-
-  if (millis() - lastPacketMs > 1200) {
-    return "stale";
-  }
-
-  return blackout ? "blackout" : "receiving OSC";
+  text("OSC: " + touchPathPrefix + "<0..7>", 40, 86);
+  text("Keys: c clear, b blackout", 40, 122);
 }
 
 void oscEvent(OscMessage msg) {

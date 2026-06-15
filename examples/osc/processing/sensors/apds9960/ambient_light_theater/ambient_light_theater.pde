@@ -16,17 +16,16 @@ String ambientPath = "/opendeck/sensors/apds9960/ambient_light";
 float ambient = 0.0;
 float visualAmbient = 0.0;
 int lastPacketMs = 0;
-int packetCount = 0;
 boolean receivedData = false;
 
 ArrayList<Dust> dust = new ArrayList<Dust>();
 
 void setup() {
-  size(1200, 900, P2D);
+  size(2560, 1600, P2D);
   surface.setTitle("OpenDeck APDS9960 Ambient Light Theater");
 
   oscP5 = new OscP5(this, oscListenPort);
-  textFont(createFont("SansSerif", 18));
+  textFont(createFont("SansSerif", 24));
 
   for (int i = 0; i < 220; i++) {
     dust.add(new Dust());
@@ -117,10 +116,10 @@ void drawDust() {
 }
 
 void drawMeter() {
-  float x = 54;
-  float y = height - 90;
-  float w = width - 108;
-  float h = 24;
+  float x = 40;
+  float y = 150;
+  float w = 760;
+  float h = 30;
 
   noStroke();
   fill(28, 30, 36);
@@ -136,32 +135,18 @@ void drawMeter() {
 
   fill(245);
   textAlign(LEFT, BOTTOM);
-  textSize(18);
+  textSize(24);
   text("ambient light " + nf(ambient, 1, 3), x, y - 10);
 }
 
 void drawHud() {
   fill(245);
   textAlign(LEFT, TOP);
-  textSize(22);
-  text("APDS9960 ambient light theater", 40, 36);
+  textSize(32);
+  text("APDS9960 ambient light theater", 40, 40);
 
-  textSize(18);
-  text("Status: " + statusText(), 40, 72);
-  text("Packets: " + packetCount, 40, 102);
-  text("OSC: " + ambientPath, 40, 132);
-}
-
-String statusText() {
-  if (!receivedData) {
-    return "waiting for OSC";
-  }
-
-  if (millis() - lastPacketMs > 1600) {
-    return "stale";
-  }
-
-  return "receiving OSC";
+  textSize(24);
+  text("OSC: " + ambientPath, 40, 86);
 }
 
 void oscEvent(OscMessage message) {
@@ -183,7 +168,6 @@ void oscEvent(OscMessage message) {
 
   receivedData = true;
   lastPacketMs = millis();
-  packetCount++;
 }
 
 class Dust {

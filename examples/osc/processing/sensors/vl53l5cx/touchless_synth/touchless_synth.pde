@@ -96,11 +96,11 @@ boolean usableDistance(float distance) {
 }
 
 void setup() {
-  size(1100, 900, P2D);
+  size(2560, 1600, P2D);
   surface.setTitle("OpenDeck VL53L5CX Touchless Harp");
   oscP5 = new OscP5(this, oscListenPort);
 
-  textFont(createFont("SansSerif", 18));
+  textFont(createFont("SansSerif", 24));
 
   for (int idx = 0; idx < voiceCount; idx++) {
     voices[idx] = new SinOsc(this);
@@ -465,20 +465,20 @@ void drawMeter(float x, float y, float w, float h, float value, color c) {
 void drawStatus() {
   fill(235);
   textAlign(LEFT, TOP);
-  textSize(18);
+  textSize(32);
 
-  String dataText = receivedData ? "receiving OSC" : "waiting for OSC on port " + oscListenPort;
   String blobText = blobPresent ? "present" : "none";
   float xNorm = blobPresent ? blobX / float(cols - 1) : 0.0;
   float yNorm = blobPresent ? blobY / float(rows - 1) : 0.0;
   int padX = lastPad >= 0 ? lastPad % padCols : -1;
   int padY = lastPad >= 0 ? lastPad / padCols : -1;
 
-  text("VL53L5CX touchless harp", 90, 34);
-  text("Status: " + dataText + (muted ? "   MUTED" : ""), 90, 62);
-  text("Blob: " + blobText + "   x=" + nf(xNorm, 1, 2) + " y=" + nf(yNorm, 1, 2) + " size=" + nf(blobSize, 1, 2), 90, height - 92);
-  text("Pad: " + (lastPad >= 0 ? padX + "," + padY : "-") + "   Pitch: " + int(pitchHz) + " Hz   Energy: " + nf(hitAmp, 1, 2) + "   Nearest: " + (blobNearestMm > 0 ? blobNearestMm + " mm" : "-"), 90, height - 62);
-  text("Keys: m mute, [ ] cutoff (" + foregroundCutoffMm + " mm), - + min blob zones (" + minBlobZones + "), sound zones >= " + minSoundBlobZones, 90, height - 32);
+  text("VL53L5CX touchless harp", 40, 40);
+
+  textSize(24);
+  text("Blob: " + blobText + "   x=" + nf(xNorm, 1, 2) + " y=" + nf(yNorm, 1, 2) + " size=" + nf(blobSize, 1, 2), 40, 86);
+  text("Pad: " + (lastPad >= 0 ? padX + "," + padY : "-") + "   Pitch: " + int(pitchHz) + " Hz   Energy: " + nf(hitAmp, 1, 2) + "   Nearest: " + (blobNearestMm > 0 ? blobNearestMm + " mm" : "-"), 40, 122);
+  text("Keys: m mute, [ ] cutoff (" + foregroundCutoffMm + " mm), - + min blob zones (" + minBlobZones + "), sound zones >= " + minSoundBlobZones, 40, 158);
 }
 
 void oscEvent(OscMessage message) {

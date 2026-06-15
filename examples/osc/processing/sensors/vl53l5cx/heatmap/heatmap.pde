@@ -48,11 +48,11 @@ boolean usableDistance(float distance) {
 }
 
 void setup() {
-  size(1100, 1000, P2D);
+  size(2560, 1600, P2D);
   surface.setTitle("OpenDeck VL53L5CX Heatmap");
   oscP5 = new OscP5(this, oscListenPort);
 
-  textFont(createFont("SansSerif", 18));
+  textFont(createFont("SansSerif", 24));
 
   for (int idx = 0; idx < zoneCount; idx++) {
     depths[idx] = 0;
@@ -156,7 +156,7 @@ void drawGrid() {
       if (usableDistance(distance)) {
         fill(255, 220);
         textAlign(CENTER, CENTER);
-        textSize(13);
+        textSize(18);
         text(int(distance), startX + x * cell + cell / 2, startY + y * cell + cell / 2);
       }
     }
@@ -201,15 +201,15 @@ void drawBlob() {
 void drawStatus() {
   fill(235);
   textAlign(LEFT, TOP);
-  textSize(18);
+  textSize(32);
 
   String nearestText = nearestDistance > 0 ? nearestDistance + " mm" : "-";
-  String dataText = receivedData ? "receiving OSC" : "waiting for OSC on port " + oscListenPort;
 
-  text("VL53L5CX heatmap", 52, height - 118);
-  text("Status: " + dataText, 52, height - 88);
-  text("Active zones: " + activeZones + " / " + zoneCount + "   Near zones: " + nearZones, 52, height - 58);
-  text("Nearest: " + nearestText, 52, height - 28);
+  text("VL53L5CX heatmap", 40, 40);
+
+  textSize(24);
+  text("Active zones: " + activeZones + " / " + zoneCount + "   Near zones: " + nearZones, 40, 86);
+  text("Nearest: " + nearestText, 40, 122);
 }
 
 void oscEvent(OscMessage message) {

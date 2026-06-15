@@ -15,7 +15,6 @@ String gesturePath = "/opendeck/sensors/apds9960/gesture";
 
 String lastGesture = "";
 int lastPacketMs = 0;
-int packetCount = 0;
 boolean receivedData = false;
 
 ArrayList<Card> cards = new ArrayList<Card>();
@@ -29,11 +28,11 @@ float outgoingProgress = 1.0;
 int[] palette;
 
 void setup() {
-  size(1200, 900, P2D);
+  size(2560, 1600, P2D);
   surface.setTitle("OpenDeck APDS9960 Card Swipe");
 
   oscP5 = new OscP5(this, oscListenPort);
-  textFont(createFont("SansSerif", 18));
+  textFont(createFont("SansSerif", 24));
 
   palette = new int[] {
     color(36, 145, 212),
@@ -99,7 +98,7 @@ void drawDirectionHints() {
   fill(255, 120);
   noStroke();
   textAlign(CENTER, CENTER);
-  textSize(16);
+  textSize(22);
   text("up", cx, cy - cardH / 2.0 - 58);
   text("down", cx, cy + cardH / 2.0 + 58);
   text("left", cx - cardW / 2.0 - 70, cy);
@@ -165,7 +164,7 @@ void drawHistory() {
 
   fill(245);
   textAlign(LEFT, TOP);
-  textSize(18);
+  textSize(24);
   text("history", x, y - 34);
 
   for (int i = 0; i < history.size(); i++) {
@@ -178,26 +177,12 @@ void drawHistory() {
 void drawHud() {
   fill(245);
   textAlign(LEFT, TOP);
-  textSize(22);
-  text("APDS9960 card swipe", 40, 36);
+  textSize(32);
+  text("APDS9960 card swipe", 40, 40);
 
-  textSize(18);
-  text("Status: " + statusText(), 40, 72);
-  text("Packets: " + packetCount, 40, 102);
-  text("Last: " + (lastGesture.length() == 0 ? "-" : lastGesture), 40, 132);
-  text("OSC: " + gesturePath, 40, 162);
-}
-
-String statusText() {
-  if (!receivedData) {
-    return "waiting for OSC";
-  }
-
-  if (millis() - lastPacketMs > 1800) {
-    return "stale";
-  }
-
-  return "receiving OSC";
+  textSize(24);
+  text("Last: " + (lastGesture.length() == 0 ? "-" : lastGesture), 40, 86);
+  text("OSC: " + gesturePath, 40, 122);
 }
 
 void oscEvent(OscMessage message) {
@@ -222,7 +207,6 @@ void handleGesture(String gesture) {
   lastGesture = gesture;
   receivedData = true;
   lastPacketMs = millis();
-  packetCount++;
 
   if (outgoingCard == null && cards.size() > 0) {
     outgoingCard = cards.get(0);

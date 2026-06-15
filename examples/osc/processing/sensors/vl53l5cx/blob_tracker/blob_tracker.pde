@@ -60,11 +60,11 @@ boolean usableDistance(float distance) {
 }
 
 void setup() {
-  size(1100, 1000, P2D);
+  size(2560, 1600, P2D);
   surface.setTitle("OpenDeck VL53L5CX Blob Tracker");
   oscP5 = new OscP5(this, oscListenPort);
 
-  textFont(createFont("SansSerif", 18));
+  textFont(createFont("SansSerif", 24));
 
   for (int idx = 0; idx < zoneCount; idx++) {
     depths[idx] = 0;
@@ -242,7 +242,7 @@ void drawGrid() {
       if (usableDistance(distance)) {
         fill(255, foreground[idx] ? 235 : 165);
         textAlign(CENTER, CENTER);
-        textSize(13);
+        textSize(18);
         text(int(distance), startX + x * cell + cell / 2, startY + y * cell + cell / 2);
       }
     }
@@ -288,19 +288,19 @@ void drawBlobOverlay() {
 void drawStatus() {
   fill(235);
   textAlign(LEFT, TOP);
-  textSize(18);
+  textSize(32);
 
-  String dataText = receivedData ? "receiving OSC" : "waiting for OSC on port " + oscListenPort;
   String blobText = blobPresent ? "present" : "none";
   float normX = blobPresent ? blobX / float(cols - 1) : 0.0;
   float normY = blobPresent ? blobY / float(rows - 1) : 0.0;
 
-  text("VL53L5CX blob tracker", 64, height - 174);
-  text("Status: " + dataText, 64, height - 144);
-  text("Active zones: " + activeZones + " / " + zoneCount + "   Foreground zones: " + foregroundZones, 64, height - 114);
-  text("Blob: " + blobText + "   zones: " + blobZones + "   nearest: " + (blobNearestMm > 0 ? blobNearestMm + " mm" : "-"), 64, height - 84);
-  text("Center: x=" + nf(normX, 1, 2) + " y=" + nf(normY, 1, 2) + "   size=" + nf(blobSize, 1, 2), 64, height - 54);
-  text("Keys: [ ] cutoff (" + foregroundCutoffMm + " mm), - + min blob zones (" + minBlobZones + ")", 64, height - 24);
+  text("VL53L5CX blob tracker", 40, 40);
+
+  textSize(24);
+  text("Active zones: " + activeZones + " / " + zoneCount + "   Foreground zones: " + foregroundZones, 40, 86);
+  text("Blob: " + blobText + "   zones: " + blobZones + "   nearest: " + (blobNearestMm > 0 ? blobNearestMm + " mm" : "-"), 40, 122);
+  text("Center: x=" + nf(normX, 1, 2) + " y=" + nf(normY, 1, 2) + "   size=" + nf(blobSize, 1, 2), 40, 158);
+  text("Keys: [ ] cutoff (" + foregroundCutoffMm + " mm), - + min blob zones (" + minBlobZones + ")", 40, 194);
 }
 
 void oscEvent(OscMessage message) {
