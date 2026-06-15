@@ -14,7 +14,7 @@ The platform lets you focus on hardware and interaction design rather than tweak
 
 *Click the image below for a demo video of the [OpenDeck configurator](https://config.shanteacontrols.com)*
 
-[![Watch the video](https://img.youtube.com/vi/7X2LC0JMfAU/maxresdefault.jpg)](https://youtu.be/7X2LC0JMfAU)
+[![Watch the video](https://img.youtube.com/vi/1W1kFQp4PLs/maxresdefault.jpg)](https://www.youtube.com/watch?v=1W1kFQp4PLs)
 
 Configurator is available either [online](https://config.shanteacontrols.com) or [offline](https://github.com/shanteacontrols/OpenDeckUI/releases).
 
@@ -46,6 +46,16 @@ OpenDeck supports the following peripherals:
 * [VL53L4CX time of flight distance sensor](https://www.adafruit.com/product/5425) - OSC only
 * [VL53L5CX 8x8 time of flight distance sensor](https://www.sparkfun.com/sparkfun-qwiic-tof-imager-vl53l5cx.html) - OSC only
 * [BNO085 9-DOF orientation IMU fusion sensor](https://www.adafruit.com/product/4754) - OSC only
+
+Each sensor has specific configuration options such as smoothing, selectable event output etc.
+
+![](bin/gif/apds-light.gif)
+
+![](bin/gif/apds-proximity.gif)
+
+![](bin/gif/bno-cube.gif)
+
+![](bin/gif/tof.gif)
 
 ## Features
 
