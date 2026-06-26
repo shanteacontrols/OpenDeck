@@ -1,10 +1,8 @@
 diff --git a/drivers/ethernet/eth_esp32.c b/drivers/ethernet/eth_esp32.c
-index 1b202e9b9..53d580c7e 100644
+index 8a7522822f..6ca79be122 100644
 --- a/drivers/ethernet/eth_esp32.c
 +++ b/drivers/ethernet/eth_esp32.c
-@@ -711,8 +711,12 @@ int eth_esp32_initialize(const struct device *dev)
- 			goto err;
- 		}
+@@ -707,6 +707,10 @@ int eth_esp32_initialize(const struct device *dev)
  #if !DT_INST_NODE_HAS_PROP(0, ref_clk_output_gpios)
  		eth_esp32_iomux_rmii_clk_input(rmii_clk_gpio);
  		emac_hal_clock_enable_rmii_input(&dev_data->hal);
@@ -13,9 +11,9 @@ index 1b202e9b9..53d580c7e 100644
 +		emac_hal_clock_enable_rmii_output(&dev_data->hal);
 +		(void)emac_hal_ref_clock_div(&dev_data->hal, 0);
  #endif
- 	} else if (strcmp(phy_connection_type, "mii") == 0) {
+ 	} else { /* phy_connection_type: mii */
  		eth_esp32_iomux_init_mii();
-@@ -735,6 +739,12 @@ int eth_esp32_initialize(const struct device *dev)
+@@ -731,6 +735,12 @@ int eth_esp32_initialize(const struct device *dev)
  	/* Set dma_burst_len as ETH_DMA_BURST_LEN_32 by default */
  	emac_hal_dma_config_t dma_config = { .dma_burst_len = 0 };
  
