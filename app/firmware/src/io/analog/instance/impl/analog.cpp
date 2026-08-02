@@ -157,7 +157,7 @@ void Analog::force_refresh(size_t start_index, size_t count)
         return;
     }
 
-    const auto end = std::min(start_index + count, total);
+    const auto end = start_index + std::min(count, total - start_index);
 
     const zlibs::utils::misc::LockGuard lock(_state_mutex);
 

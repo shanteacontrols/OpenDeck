@@ -20,6 +20,7 @@
 #include "zlibs/utils/misc/numeric.h"
 
 #include <deque>
+#include <limits>
 #include <optional>
 
 using namespace opendeck;
@@ -918,6 +919,25 @@ TEST_F(AnalogTest, ForceRefreshUsesLastValueWithoutNewFrames)
     {
         EXPECT_EQ(17, message.value);
     }
+}
+
+TEST_F(AnalogTest, ForceRefreshClampsCountWithoutOverflow)
+{
+    const auto total = io::analog::Collection::size(io::analog::GroupAnalogInputs);
+
+    if (total < 2)
+    {
+        return;
+    }
+
+    state_change_register_midi_7bit(17);
+    wait_for_signals();
+    clear_messages();
+
+    _analog._instance.force_refresh(1, std::numeric_limits<size_t>::max());
+    wait_for_signals();
+
+    EXPECT_EQ(total - 1, _analog_messages.size());
 }
 
 TEST_F(AnalogTest, EnableChangesUpdatePhysicalScanMask)
