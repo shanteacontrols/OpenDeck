@@ -153,13 +153,12 @@ Mapper::Result Mapper::midi_result(const protocol::midi::Message& message, signa
             }
         }
 
-        const auto db_channel = _database.read(database::Config::Section::Outputs::Channel, i);
-        const bool use_omni   = (use_global_channel && (global_channel == protocol::midi::OMNI_CHANNEL)) || (db_channel == protocol::midi::OMNI_CHANNEL);
+        const auto db_channel          = _database.read(database::Config::Section::Outputs::Channel, i);
+        const auto check_channel_value = use_global_channel ? global_channel : db_channel;
+        const bool use_omni            = check_channel_value == protocol::midi::OMNI_CHANNEL;
 
         if (check_channel && !use_omni)
         {
-            const auto check_channel_value = use_global_channel ? global_channel : db_channel;
-
             if (check_channel_value != message.channel)
             {
                 continue;

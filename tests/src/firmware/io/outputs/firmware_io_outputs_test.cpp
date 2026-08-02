@@ -799,6 +799,42 @@ TEST_F(OutputsTest, GlobalChannel)
     }
 }
 
+TEST_F(OutputsTest, GlobalChannelOverridesOutputOmniChannel)
+{
+    if (!io::outputs::Collection::size(io::outputs::GroupDigitalOutputs))
+    {
+        return;
+    }
+
+    constexpr auto OUTPUT_INDEX   = 0;
+    constexpr auto GLOBAL_CHANNEL = 2;
+    constexpr auto OTHER_CHANNEL  = 3;
+    constexpr auto ON_VALUE       = 127;
+
+    ASSERT_TRUE(_outputs._database.update(database::Config::Section::Global::MidiSettings,
+                                          protocol::midi::Setting::GlobalChannel,
+                                          GLOBAL_CHANNEL));
+    ASSERT_TRUE(_outputs._database.update(database::Config::Section::Global::MidiSettings,
+                                          protocol::midi::Setting::UseGlobalChannel,
+                                          true));
+    ASSERT_TRUE(_outputs._database.update(database::Config::Section::Outputs::Channel,
+                                          OUTPUT_INDEX,
+                                          protocol::midi::OMNI_CHANNEL));
+    ASSERT_TRUE(_outputs._database.update(database::Config::Section::Outputs::ControlType,
+                                          OUTPUT_INDEX,
+                                          io::outputs::ControlType::MidiInNoteMultiVal));
+
+    EXPECT_CALL(_outputs._hwa, set_level(_, _))
+        .Times(0);
+
+    notify_midi_in(protocol::midi::MessageType::NoteOn, OTHER_CHANNEL, OUTPUT_INDEX, ON_VALUE);
+
+    EXPECT_CALL(_outputs._hwa, set_level(_, expected_level(ON_VALUE)))
+        .Times(1);
+
+    notify_midi_in(protocol::midi::MessageType::NoteOn, GLOBAL_CHANNEL, OUTPUT_INDEX, ON_VALUE);
+}
+
 #else
 TEST(OutputsTest, SkippedWhenPresetDoesNotSupportOutputs)
 {
