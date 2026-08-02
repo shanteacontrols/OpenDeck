@@ -146,7 +146,7 @@ void Encoders::force_refresh(size_t start_index, size_t count)
         return;
     }
 
-    const auto end = std::min(start_index + count, total);
+    const auto end = start_index + std::min(count, total - start_index);
 
     for (size_t i = start_index; i < end; i++)
     {

@@ -14,6 +14,8 @@
 
 #include "zlibs/utils/misc/mutex.h"
 
+#include <limits>
+
 using namespace opendeck;
 using namespace opendeck::firmware;
 
@@ -346,6 +348,28 @@ TEST_F(DigitalEncodersTest, MapperSelectsTwoNoteIdAfterApplyingInversion)
     ASSERT_TRUE(result.has_value());
     ASSERT_TRUE(result->midi.has_value());
     EXPECT_EQ(20, result->midi->index);
+}
+
+TEST_F(DigitalEncodersTest, ForceRefreshClampsCountWithoutOverflow)
+{
+    if (io::encoders::Collection::size() < 2)
+    {
+        return;
+    }
+
+    for (size_t i = 1; i < io::encoders::Collection::size(); i++)
+    {
+        ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Encoder::Mode,
+                                                               i,
+                                                               io::encoders::Type::ControlChange));
+        _digital._builderEncoders._instance.reset(i);
+    }
+
+    _listener.clear();
+    _digital._builderEncoders._instance.force_refresh(1, std::numeric_limits<size_t>::max());
+    wait_for_signals();
+
+    EXPECT_EQ(io::encoders::Collection::size() - 1, _listener.size());
 }
 
 TEST_F(DigitalEncodersTest, Messages)
