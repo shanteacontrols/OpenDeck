@@ -113,10 +113,11 @@ namespace opendeck::firmware::io::encoders
          * @brief Reads runtime mapping configuration for one encoder from the database.
          *
          * @param index Encoder input index to query.
+         * @param position Physical movement direction on input. Updated to the configured logical direction when inversion is enabled.
          *
          * @return Database-backed runtime info for the selected encoder.
          */
-        DatabaseInfo read_database_info(size_t index, Position position) const;
+        DatabaseInfo read_database_info(size_t index, Position& position) const;
 
         /**
          * @brief Fills one MIDI signal from encoder mapping configuration.

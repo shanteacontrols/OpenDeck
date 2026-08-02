@@ -277,6 +277,28 @@ TEST_F(DigitalEncodersTest, FirstMovementAfterResetIsNotAccelerated)
     }
 }
 
+TEST_F(DigitalEncodersTest, MapperSelectsTwoNoteIdAfterApplyingInversion)
+{
+    if (!io::encoders::Collection::size())
+    {
+        return;
+    }
+
+    ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Encoder::Mode,
+                                                           0,
+                                                           io::encoders::Type::TwoNoteFixedValBothDir));
+    ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Encoder::Invert, 0, 1));
+    ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Encoder::MidiId1, 0, 10));
+    ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Encoder::MidiId2, 0, 20));
+
+    io::encoders::Mapper mapper(_digital._builderEncoders._database);
+    const auto           result = mapper.result(0, io::encoders::Position::Cw, 1);
+
+    ASSERT_TRUE(result.has_value());
+    ASSERT_TRUE(result->midi.has_value());
+    EXPECT_EQ(20, result->midi->index);
+}
+
 TEST_F(DigitalEncodersTest, Messages)
 {
     if (!io::encoders::Collection::size())

@@ -42,11 +42,6 @@ std::optional<Mapper::Result> Mapper::result(size_t index, Position position, ui
 
     auto info = read_database_info(index, position);
 
-    if (info.inverted)
-    {
-        position = position == Position::Ccw ? Position::Cw : Position::Ccw;
-    }
-
     Result result = {};
     bool   send   = true;
     auto   value  = static_cast<uint16_t>(_value[index]);
@@ -215,7 +210,8 @@ std::optional<Mapper::Result> Mapper::last_result(size_t index) const
         return {};
     }
 
-    const auto info = read_database_info(index, Position::Stopped);
+    auto       position = Position::Stopped;
+    const auto info     = read_database_info(index, position);
 
     if (!has_refresh_value(info.type))
     {
@@ -283,7 +279,7 @@ void Mapper::set_value(size_t index, uint16_t value)
     _value[index] = static_cast<int16_t>(value);
 }
 
-Mapper::DatabaseInfo Mapper::read_database_info(size_t index, Position position) const
+Mapper::DatabaseInfo Mapper::read_database_info(size_t index, Position& position) const
 {
     DatabaseInfo info    = {};
     info.type            = static_cast<Type>(_database.read(database::Config::Section::Encoder::Mode, index));
@@ -294,6 +290,11 @@ Mapper::DatabaseInfo Mapper::read_database_info(size_t index, Position position)
     info.lower_limit     = _database.read(database::Config::Section::Encoder::LowerLimit, index);
     info.upper_limit     = _database.read(database::Config::Section::Encoder::UpperLimit, index);
     info.midi_message    = INTERNAL_MSG_TO_MIDI_TYPE[static_cast<uint8_t>(info.type)];
+
+    if ((position != Position::Stopped) && info.inverted)
+    {
+        position = position == Position::Ccw ? Position::Cw : Position::Ccw;
+    }
 
     switch (info.type)
     {
