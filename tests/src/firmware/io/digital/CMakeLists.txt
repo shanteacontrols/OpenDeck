@@ -14,4 +14,5 @@ target_sources(app
     PRIVATE
     firmware_io_digital_switches_test.cpp
     firmware_io_digital_encoders_test.cpp
+    firmware_io_digital_encoders_filter_test.cpp
 )

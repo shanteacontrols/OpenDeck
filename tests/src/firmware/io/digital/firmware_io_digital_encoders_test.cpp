@@ -244,6 +244,39 @@ TEST_F(DigitalEncodersTest, StateDecoding)
     verify_value(protocol::midi::MessageType::ControlChange, 127);
 }
 
+TEST_F(DigitalEncodersTest, FirstMovementAfterResetIsNotAccelerated)
+{
+    if (!io::encoders::Collection::size())
+    {
+        return;
+    }
+
+    for (size_t i = 0; i < io::encoders::Collection::size(); i++)
+    {
+        ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Encoder::Mode,
+                                                               i,
+                                                               io::encoders::Type::ControlChange));
+        ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Encoder::Acceleration,
+                                                               i,
+                                                               io::encoders::Acceleration::Medium));
+        _digital._builderEncoders._instance.reset(i);
+    }
+
+    state_change_register(0b00);
+
+    for (size_t state_index = 1; state_index <= ENCODER_STATE.size(); state_index++)
+    {
+        state_change_register(ENCODER_STATE.at(state_index % ENCODER_STATE.size()));
+    }
+
+    ASSERT_EQ(io::encoders::Collection::size(), _listener.event_log.size());
+
+    for (size_t i = 0; i < io::encoders::Collection::size(); i++)
+    {
+        EXPECT_EQ(1, _listener.event_log.at(i).value);
+    }
+}
+
 TEST_F(DigitalEncodersTest, Messages)
 {
     if (!io::encoders::Collection::size())

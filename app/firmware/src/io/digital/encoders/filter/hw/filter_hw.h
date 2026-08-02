@@ -14,7 +14,13 @@
 namespace opendeck::firmware::io::encoders
 {
     /**
-     * @brief Debounces encoder direction changes by requiring repeated movement in the same direction.
+     * @brief Hardware-oriented quadrature decoder and encoder direction-change filter.
+     *
+     * Valid A/B transitions are accumulated until they form one complete encoder step. Completed
+     * steps are then passed through direction-change filtering: once a direction is established,
+     * four consecutive steps in the opposite direction are required before the reported direction
+     * changes. Direction history expires after an idle period, while quadrature decoding state is
+     * preserved so the first transition of resumed movement is not discarded.
      */
     class FilterHw : public Filter
     {
@@ -24,17 +30,35 @@ namespace opendeck::firmware::io::encoders
         /**
          * @brief Decodes and filters one sampled encoder movement.
          *
+         * Each encoder sample moves through the following states:
+         * - Step 1: mask the sample to the two encoder A/B state bits
+         * - Step 2: if no previous A/B state exists, store the current state as the decoder seed
+         *           and suppress the sample
+         * - Step 3: combine the previous and current A/B states, use the quadrature lookup table
+         *           to obtain a `-1`, `0`, or `+1` transition, and add it to the pulse accumulator
+         * - Step 4: suppress the sample until the accumulator reaches one complete encoder step;
+         *           then convert its sign into a raw clockwise/counter-clockwise direction and
+         *           clear the pulse accumulator
+         * - Step 5: if this is the first movement or movement resumed after the idle timeout,
+         *           clear only direction-debounce history while preserving quadrature state
+         * - Step 6: count consecutive completed steps in the raw direction, restarting the count
+         *           whenever that direction changes; after four matching steps, establish it as
+         *           the debounced direction
+         * - Step 7: report the established debounced direction when one exists; otherwise report
+         *           the raw direction immediately
+         *
          * @param index Encoder index being filtered.
          * @param pair_state Current two-bit encoder pair state.
          * @param filtered_position Output storage for the filtered direction.
-         * @param sample_taken_time Sample timestamp in milliseconds.
+         * @param movement_elapsed_time Time since the previous movement, or `std::nullopt` when none exists.
          *
-         * @return `true` when the sample was processed, otherwise `false`.
+         * @return `true` when a complete filtered encoder step is available. Returns `false` while
+         *         seeding the decoder, accumulating transitions, or processing no movement.
          */
-        bool is_filtered(size_t    index,
-                         uint8_t   pair_state,
-                         Position& filtered_position,
-                         uint32_t  sample_taken_time) override
+        bool is_filtered(size_t                  index,
+                         uint8_t                 pair_state,
+                         Position&               filtered_position,
+                         std::optional<uint32_t> movement_elapsed_time) override
         {
             auto position = Position::Stopped;
             pair_state &= ENCODER_STATE_MASK;
@@ -64,15 +88,16 @@ namespace opendeck::firmware::io::encoders
 
             filtered_position = position;
 
-            // disable debouncing mode if encoder isn't moving for more than
-            // ENCODERS_DEBOUNCE_RESET_TIME milliseconds
-            if ((sample_taken_time - _last_movement_time[index]) > ENCODERS_DEBOUNCE_RESET_TIME_MS)
-            {
-                reset(index);
-            }
-
             if (position != Position::Stopped)
             {
+                // Disable direction debouncing after an idle period without
+                // discarding the quadrature state used to decode this step.
+                if (!movement_elapsed_time.has_value() ||
+                    (movement_elapsed_time.value() > ENCODERS_DEBOUNCE_RESET_TIME_MS))
+                {
+                    reset_direction_debounce(index);
+                }
+
                 if (_debounce_counter[index] != ENCODERS_DEBOUNCE_COUNT)
                 {
                     if (position != _last_direction[index])
@@ -89,8 +114,7 @@ namespace opendeck::firmware::io::encoders
                     }
                 }
 
-                _last_direction[index]     = position;
-                _last_movement_time[index] = sample_taken_time;
+                _last_direction[index] = position;
 
                 if (_debounce_direction[index] != Position::Stopped)
                 {
@@ -104,28 +128,18 @@ namespace opendeck::firmware::io::encoders
         }
 
         /**
-         * @brief Clears the debounce state for one encoder.
+         * @brief Resets all quadrature-decoder and direction-debounce state for one encoder.
+         *
+         * Unlike the idle-time direction reset, this full reset discards the previous A/B pair and
+         * any partially accumulated step in addition to clearing direction history.
          *
          * @param index Encoder index to reset.
          */
         void reset(size_t index) override
         {
-            _debounce_counter[index]   = 0;
-            _debounce_direction[index] = Position::Stopped;
-            _encoder_data[index]       = 0;
-            _encoder_pulses[index]     = 0;
-        }
-
-        /**
-         * @brief Returns the timestamp of the last non-stopped movement sample.
-         *
-         * @param index Encoder index to query.
-         *
-         * @return Timestamp of the last recorded movement in milliseconds.
-         */
-        uint32_t last_movement_time(size_t index) override
-        {
-            return _last_movement_time[index];
+            reset_direction_debounce(index);
+            _encoder_data[index]   = 0;
+            _encoder_pulses[index] = 0;
         }
 
         private:
@@ -160,6 +174,20 @@ namespace opendeck::firmware::io::encoders
         std::array<uint8_t, STORAGE_SIZE>  _debounce_counter   = {};
         std::array<uint8_t, STORAGE_SIZE>  _encoder_data       = {};
         std::array<int8_t, STORAGE_SIZE>   _encoder_pulses     = {};
-        std::array<uint32_t, STORAGE_SIZE> _last_movement_time = {};
+
+        /**
+         * @brief Clears direction-debounce state without resetting quadrature decoding state.
+         *
+         * Preserves the previous A/B pair and accumulated pulses so movement can resume
+         * after an idle period without discarding the first transition.
+         *
+         * @param index Encoder index to reset.
+         */
+        void reset_direction_debounce(size_t index)
+        {
+            _last_direction[index]     = Position::Stopped;
+            _debounce_counter[index]   = 0;
+            _debounce_direction[index] = Position::Stopped;
+        }
     };
 }    // namespace opendeck::firmware::io::encoders

@@ -206,12 +206,15 @@ void Encoders::process_state_changes()
 
 void Encoders::process_reading(size_t index, uint8_t pair_value, uint32_t sample_time)
 {
-    Position position = Position::Stopped;
+    Position                      position              = Position::Stopped;
+    const std::optional<uint32_t> movement_elapsed_time = _last_movement_time[index].has_value()
+                                                              ? std::optional<uint32_t>(sample_time - _last_movement_time[index].value())
+                                                              : std::nullopt;
 
     if (_filter.is_filtered(index,
                             pair_value,
                             position,
-                            sample_time))
+                            movement_elapsed_time))
     {
         if (position != Position::Stopped)
         {
@@ -221,7 +224,8 @@ void Encoders::process_reading(size_t index, uint8_t pair_value, uint32_t sample
             {
                 // when time difference between two movements is smaller than ENCODERS_SPEED_TIMEOUT,
                 // start accelerating
-                if ((sample_time - _filter.last_movement_time(index)) < ENCODERS_SPEED_TIMEOUT_MS)
+                if (movement_elapsed_time.has_value() &&
+                    (movement_elapsed_time.value() < ENCODERS_SPEED_TIMEOUT_MS))
                 {
                     _encoder_speed[index] = zlibs::utils::misc::constrain(static_cast<uint8_t>(_encoder_speed[index] + ENCODER_SPEED_CHANGE[enc_acceleration]),
                                                                           static_cast<uint8_t>(0),
@@ -232,6 +236,12 @@ void Encoders::process_reading(size_t index, uint8_t pair_value, uint32_t sample
                     _encoder_speed[index] = 0;
                 }
             }
+            else
+            {
+                _encoder_speed[index] = 0;
+            }
+
+            _last_movement_time[index] = sample_time;
 
             const auto result = _mapper.result(index, position, (_encoder_speed[index] > 0) ? _encoder_speed[index] : 1);
 
@@ -263,6 +273,7 @@ void Encoders::reset(size_t index)
     _mapper.reset(index);
     _filter.reset(index);
     _encoder_speed[index] = 0;
+    _last_movement_time[index].reset();
 }
 
 std::optional<uint8_t> Encoders::sys_config_get(sys::Config::Section::Encoder section, size_t index, uint16_t& value)

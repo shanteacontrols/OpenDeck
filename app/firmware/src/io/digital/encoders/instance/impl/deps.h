@@ -53,14 +53,14 @@ namespace opendeck::firmware::io::encoders
          * @param index Encoder index being processed.
          * @param pair_state Current two-bit encoder pair state.
          * @param filtered_position Output position after filtering.
-         * @param sample_taken_time Timestamp associated with the sample.
+         * @param movement_elapsed_time Time since the previous movement, or `std::nullopt` when none exists.
          *
          * @return `true` when the filtered movement should be processed, otherwise `false`.
          */
-        virtual bool is_filtered(size_t    index,
-                                 uint8_t   pair_state,
-                                 Position& filtered_position,
-                                 uint32_t  sample_taken_time) = 0;
+        virtual bool is_filtered(size_t                  index,
+                                 uint8_t                 pair_state,
+                                 Position&               filtered_position,
+                                 std::optional<uint32_t> movement_elapsed_time) = 0;
 
         /**
          * @brief Resets filter state for one encoder.
@@ -68,14 +68,5 @@ namespace opendeck::firmware::io::encoders
          * @param index Encoder index to reset.
          */
         virtual void reset(size_t index) = 0;
-
-        /**
-         * @brief Returns the last movement timestamp tracked by the filter.
-         *
-         * @param index Encoder index to query.
-         *
-         * @return Timestamp of the last accepted movement.
-         */
-        virtual uint32_t last_movement_time(size_t index) = 0;
     };
 }    // namespace opendeck::firmware::io::encoders

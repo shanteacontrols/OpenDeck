@@ -96,7 +96,8 @@ namespace opendeck::firmware::io::encoders
         Database& _database;
         Mapper    _mapper;
 
-        std::array<uint8_t, Collection::size()> _encoder_speed = {};
+        std::array<uint8_t, Collection::size()>                 _encoder_speed      = {};
+        std::array<std::optional<uint32_t>, Collection::size()> _last_movement_time = {};
 
         /**
          * @brief Processes one sampled encoder reading and emits any resulting action.
