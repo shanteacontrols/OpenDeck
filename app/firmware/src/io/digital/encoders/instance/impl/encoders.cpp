@@ -46,17 +46,11 @@ Encoders::Encoders(Hwa&      hwa,
 
             const auto message = midi::decode_message(event.packet);
 
-            const uint8_t global_channel = _database.read(database::Config::Section::Global::MidiSettings, midi::Setting::GlobalChannel);
-            const uint8_t channel        = _database.read(database::Config::Section::Global::MidiSettings,
-                                                          midi::Setting::UseGlobalChannel)
-                                               ? global_channel
-                                               : message.channel;
+            const uint8_t global_channel     = _database.read(database::Config::Section::Global::MidiSettings, midi::Setting::GlobalChannel);
+            const bool    use_global_channel = _database.read(database::Config::Section::Global::MidiSettings,
+                                                              midi::Setting::UseGlobalChannel);
 
-            const bool use_omni = channel == midi::OMNI_CHANNEL ? true : false;
-
-            switch (message.type)
-            {
-            case midi::MessageType::ControlChange:
+            auto sync_value = [&](Type type, bool match_midi_id)
             {
                 for (size_t i = 0; i < Collection::size(); i++)
                 {
@@ -65,26 +59,40 @@ Encoders::Encoders(Hwa&      hwa,
                         continue;
                     }
 
-                    if (_database.read(database::Config::Section::Encoder::Mode, i) != static_cast<int32_t>(Type::ControlChange))
+                    if (_database.read(database::Config::Section::Encoder::Mode, i) != static_cast<int32_t>(type))
                     {
                         continue;
                     }
 
-                    if (!use_omni)
+                    const uint8_t encoder_channel = _database.read(database::Config::Section::Encoder::Channel, i);
+                    const uint8_t sync_channel    = use_global_channel ? global_channel : encoder_channel;
+
+                    if ((sync_channel != midi::OMNI_CHANNEL) && (sync_channel != message.channel))
                     {
-                        if (_database.read(database::Config::Section::Encoder::Channel, i) != channel)
-                        {
-                            continue;
-                        }
+                        continue;
                     }
 
-                    if (_database.read(database::Config::Section::Encoder::MidiId1, i) != message.data1)
+                    if (match_midi_id &&
+                        (_database.read(database::Config::Section::Encoder::MidiId1, i) != message.data1))
                     {
                         continue;
                     }
 
                     _mapper.set_value(i, message.data2);
                 }
+            };
+
+            switch (message.type)
+            {
+            case midi::MessageType::ControlChange:
+            {
+                sync_value(Type::ControlChange, true);
+            }
+            break;
+
+            case midi::MessageType::PitchBend:
+            {
+                sync_value(Type::PitchBend, false);
             }
             break;
 

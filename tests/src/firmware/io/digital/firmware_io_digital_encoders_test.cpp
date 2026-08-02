@@ -141,6 +141,40 @@ namespace
             wait_for_signals();
         }
 
+        void notify_midi_control_change(uint8_t channel, uint8_t index, uint8_t value)
+        {
+            midi_ump packet = {};
+            packet.data[0]  = (static_cast<uint32_t>(UMP_MT_MIDI1_CHANNEL_VOICE) << 28U) |
+                              ((static_cast<uint32_t>(UMP_MIDI_CONTROL_CHANGE) & 0x0fU) << 20U) |
+                              ((static_cast<uint32_t>(channel - 1U) & 0x0fU) << 16U) |
+                              ((static_cast<uint32_t>(index) & 0x7fU) << 8U) |
+                              (static_cast<uint32_t>(value) & 0x7fU);
+
+            signaling::publish(signaling::UmpSignal{
+                .direction = signaling::SignalDirection::In,
+                .packet    = packet,
+            });
+
+            k_msleep(20);
+        }
+
+        void notify_midi_pitch_bend(uint8_t channel, uint16_t value)
+        {
+            midi_ump packet = {};
+            packet.data[0]  = (static_cast<uint32_t>(UMP_MT_MIDI1_CHANNEL_VOICE) << 28U) |
+                              ((static_cast<uint32_t>(UMP_MIDI_PITCH_BEND) & 0x0fU) << 20U) |
+                              ((static_cast<uint32_t>(channel - 1U) & 0x0fU) << 16U) |
+                              ((static_cast<uint32_t>(value) & 0x7fU) << 8U) |
+                              ((static_cast<uint32_t>(value) >> 7U) & 0x7fU);
+
+            signaling::publish(signaling::UmpSignal{
+                .direction = signaling::SignalDirection::In,
+                .packet    = packet,
+            });
+
+            k_msleep(20);
+        }
+
         void wait_for_signals()
         {
             size_t stable_iterations = 0;
@@ -348,6 +382,61 @@ TEST_F(DigitalEncodersTest, MapperSelectsTwoNoteIdAfterApplyingInversion)
     ASSERT_TRUE(result.has_value());
     ASSERT_TRUE(result->midi.has_value());
     EXPECT_EQ(20, result->midi->index);
+}
+
+TEST_F(DigitalEncodersTest, RemoteSyncUsesGlobalChannelInsteadOfEncoderChannel)
+{
+    if (!io::encoders::Collection::size())
+    {
+        return;
+    }
+
+    ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Encoder::Mode,
+                                                           0,
+                                                           io::encoders::Type::ControlChange));
+    ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Encoder::Channel, 0, 1));
+    ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Encoder::MidiId1, 0, 10));
+    ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Encoder::RemoteSync, 0, 1));
+    ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Global::MidiSettings,
+                                                           protocol::midi::Setting::GlobalChannel,
+                                                           2));
+    ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Global::MidiSettings,
+                                                           protocol::midi::Setting::UseGlobalChannel,
+                                                           1));
+    _digital._builderEncoders._instance.reset(0);
+
+    notify_midi_control_change(2, 10, 64);
+
+    _listener.clear();
+    _digital._builderEncoders._instance.force_refresh(0, 1);
+    wait_for_signals();
+
+    ASSERT_EQ(1, _listener.size());
+    EXPECT_EQ(64, _listener.at(0).value);
+}
+
+TEST_F(DigitalEncodersTest, RemoteSyncAcceptsPitchBendFeedback)
+{
+    if (!io::encoders::Collection::size())
+    {
+        return;
+    }
+
+    ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Encoder::Mode,
+                                                           0,
+                                                           io::encoders::Type::PitchBend));
+    ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Encoder::Channel, 0, 1));
+    ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Encoder::RemoteSync, 0, 1));
+    _digital._builderEncoders._instance.reset(0);
+
+    notify_midi_pitch_bend(1, 10000);
+
+    _listener.clear();
+    _digital._builderEncoders._instance.force_refresh(0, 1);
+    wait_for_signals();
+
+    ASSERT_EQ(1, _listener.size());
+    EXPECT_EQ(10000, _listener.at(0).value);
 }
 
 TEST_F(DigitalEncodersTest, ForceRefreshClampsCountWithoutOverflow)
