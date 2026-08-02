@@ -277,6 +277,55 @@ TEST_F(DigitalEncodersTest, FirstMovementAfterResetIsNotAccelerated)
     }
 }
 
+TEST_F(DigitalEncodersTest, MapperDecrements14BitValuesWithoutTruncatingCurrentValue)
+{
+    if (!io::encoders::Collection::size())
+    {
+        return;
+    }
+
+    io::encoders::Mapper mapper(_digital._builderEncoders._database);
+
+    const std::array<io::encoders::Type, 3> types = {
+        io::encoders::Type::PitchBend,
+        io::encoders::Type::Nrpn14Bit,
+        io::encoders::Type::ControlChange14Bit,
+    };
+
+    for (const auto type : types)
+    {
+        ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Encoder::Mode, 0, type));
+        mapper.set_value(0, protocol::midi::MIDI_PITCH_BEND_CENTER);
+
+        const auto result = mapper.result(0, io::encoders::Position::Ccw, 1);
+
+        ASSERT_TRUE(result.has_value());
+        ASSERT_TRUE(result->midi.has_value());
+        EXPECT_EQ(protocol::midi::MIDI_PITCH_BEND_CENTER - 1, result->midi->value);
+    }
+}
+
+TEST_F(DigitalEncodersTest, MapperPreservesAccelerated14BitStepWidth)
+{
+    if (!io::encoders::Collection::size())
+    {
+        return;
+    }
+
+    ASSERT_TRUE(_digital._builderEncoders._database.update(database::Config::Section::Encoder::Mode,
+                                                           0,
+                                                           io::encoders::Type::PitchBend));
+
+    io::encoders::Mapper mapper(_digital._builderEncoders._database);
+    mapper.set_value(0, protocol::midi::MIDI_PITCH_BEND_CENTER);
+
+    const auto result = mapper.result(0, io::encoders::Position::Cw, 100);
+
+    ASSERT_TRUE(result.has_value());
+    ASSERT_TRUE(result->midi.has_value());
+    EXPECT_EQ(protocol::midi::MIDI_PITCH_BEND_CENTER + 400, result->midi->value);
+}
+
 TEST_F(DigitalEncodersTest, MapperSelectsTwoNoteIdAfterApplyingInversion)
 {
     if (!io::encoders::Collection::size())

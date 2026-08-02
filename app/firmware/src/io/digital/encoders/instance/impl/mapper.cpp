@@ -89,7 +89,7 @@ std::optional<Mapper::Result> Mapper::result(size_t index, Position position, ui
     case Type::ControlChange14Bit:
     case Type::SingleNoteVariableVal:
     {
-        uint8_t    effective_steps = steps;
+        uint16_t   effective_steps = steps;
         const bool use_14bit       = ((info.type == Type::PitchBend) || (info.type == Type::Nrpn14Bit) || (info.type == Type::ControlChange14Bit));
 
         if (use_14bit && (effective_steps > 1))
@@ -99,9 +99,18 @@ std::optional<Mapper::Result> Mapper::result(size_t index, Position position, ui
 
         if (position == Position::Ccw)
         {
-            _value[index] = ValueIncDecMidi7Bit::decrement(_value[index],
-                                                           effective_steps,
-                                                           ValueIncDecMidi7Bit::Type::Edge);
+            if (use_14bit)
+            {
+                _value[index] = static_cast<int16_t>(ValueIncDecMidi14Bit::decrement(static_cast<uint16_t>(_value[index]),
+                                                                                     effective_steps,
+                                                                                     ValueIncDecMidi14Bit::Type::Edge));
+            }
+            else
+            {
+                _value[index] = ValueIncDecMidi7Bit::decrement(static_cast<uint8_t>(_value[index]),
+                                                               static_cast<uint8_t>(effective_steps),
+                                                               ValueIncDecMidi7Bit::Type::Edge);
+            }
         }
         else
         {
@@ -111,7 +120,7 @@ std::optional<Mapper::Result> Mapper::result(size_t index, Position position, ui
             case Type::Nrpn7Bit:
             case Type::SingleNoteVariableVal:
                 _value[index] = ValueIncDecMidi7Bit::increment(_value[index],
-                                                               effective_steps,
+                                                               static_cast<uint8_t>(effective_steps),
                                                                ValueIncDecMidi7Bit::Type::Edge);
                 break;
 
