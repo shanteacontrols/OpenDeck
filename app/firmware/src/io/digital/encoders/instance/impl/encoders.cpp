@@ -59,7 +59,7 @@ Encoders::Encoders(Hwa&      hwa,
                         continue;
                     }
 
-                    if (_database.read(database::Config::Section::Encoder::Mode, i) != static_cast<int32_t>(type))
+                    if (_database.read(database::Config::Section::Encoder::Mode, i) != static_cast<uint32_t>(type))
                     {
                         continue;
                     }

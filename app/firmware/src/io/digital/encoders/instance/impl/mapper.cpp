@@ -268,7 +268,7 @@ void Mapper::reset(size_t index)
         return;
     }
 
-    if (_database.read(database::Config::Section::Encoder::Mode, index) == static_cast<int32_t>(Type::PitchBend))
+    if (_database.read(database::Config::Section::Encoder::Mode, index) == static_cast<uint32_t>(Type::PitchBend))
     {
         _value[index] = static_cast<int16_t>(midi::MIDI_PITCH_BEND_CENTER);
     }
