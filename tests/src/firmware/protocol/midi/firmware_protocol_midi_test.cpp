@@ -100,6 +100,105 @@ TEST_F(MIDITest, OmniChannel)
     }
 }
 
+TEST_F(MIDITest, EncoderContinuous14BitControlChangeWritesCoarseAndFineControllers)
+{
+    signaling::publish(signaling::MidiIoSignal{
+        .source          = signaling::IoEventSource::Encoder,
+        .component_index = 0,
+        .channel         = 1,
+        .index           = 10,
+        .value           = 0x1234,
+        .message         = protocol::midi::MessageType::ControlChange14Bit,
+    });
+    wait_for_signal_dispatch();
+
+    const auto& messages = _midi._hwaUsb._writeParser.written_messages();
+
+    ASSERT_EQ(2, _midi._hwaUsb._writeParser.total_written_channel_messages());
+    ASSERT_EQ(2, messages.size());
+
+    EXPECT_EQ(protocol::midi::MessageType::ControlChange, messages.at(0).type);
+    EXPECT_EQ(1, messages.at(0).channel);
+    EXPECT_EQ(10, messages.at(0).data1);
+    EXPECT_EQ(0x24, messages.at(0).data2);
+
+    EXPECT_EQ(protocol::midi::MessageType::ControlChange, messages.at(1).type);
+    EXPECT_EQ(1, messages.at(1).channel);
+    EXPECT_EQ(42, messages.at(1).data1);
+    EXPECT_EQ(0x34, messages.at(1).data2);
+}
+
+TEST_F(MIDITest, Analog7BitNrpnWritesParameterAndDataEntryControllers)
+{
+    signaling::publish(signaling::MidiIoSignal{
+        .source          = signaling::IoEventSource::Analog,
+        .component_index = 0,
+        .channel         = 1,
+        .index           = 0x1234,
+        .value           = 0x56,
+        .message         = protocol::midi::MessageType::Nrpn7Bit,
+    });
+    wait_for_signal_dispatch();
+
+    const auto& messages = _midi._hwaUsb._writeParser.written_messages();
+
+    ASSERT_EQ(3, _midi._hwaUsb._writeParser.total_written_channel_messages());
+    ASSERT_EQ(3, messages.size());
+
+    EXPECT_EQ(protocol::midi::MessageType::ControlChange, messages.at(0).type);
+    EXPECT_EQ(1, messages.at(0).channel);
+    EXPECT_EQ(99, messages.at(0).data1);
+    EXPECT_EQ(0x24, messages.at(0).data2);
+
+    EXPECT_EQ(protocol::midi::MessageType::ControlChange, messages.at(1).type);
+    EXPECT_EQ(1, messages.at(1).channel);
+    EXPECT_EQ(98, messages.at(1).data1);
+    EXPECT_EQ(0x34, messages.at(1).data2);
+
+    EXPECT_EQ(protocol::midi::MessageType::ControlChange, messages.at(2).type);
+    EXPECT_EQ(1, messages.at(2).channel);
+    EXPECT_EQ(6, messages.at(2).data1);
+    EXPECT_EQ(0x56, messages.at(2).data2);
+}
+
+TEST_F(MIDITest, Encoder14BitNrpnWritesParameterAndDataEntryControllers)
+{
+    signaling::publish(signaling::MidiIoSignal{
+        .source          = signaling::IoEventSource::Encoder,
+        .component_index = 0,
+        .channel         = 1,
+        .index           = 0x1234,
+        .value           = 0x2345,
+        .message         = protocol::midi::MessageType::Nrpn14Bit,
+    });
+    wait_for_signal_dispatch();
+
+    const auto& messages = _midi._hwaUsb._writeParser.written_messages();
+
+    ASSERT_EQ(4, _midi._hwaUsb._writeParser.total_written_channel_messages());
+    ASSERT_EQ(4, messages.size());
+
+    EXPECT_EQ(protocol::midi::MessageType::ControlChange, messages.at(0).type);
+    EXPECT_EQ(1, messages.at(0).channel);
+    EXPECT_EQ(99, messages.at(0).data1);
+    EXPECT_EQ(0x24, messages.at(0).data2);
+
+    EXPECT_EQ(protocol::midi::MessageType::ControlChange, messages.at(1).type);
+    EXPECT_EQ(1, messages.at(1).channel);
+    EXPECT_EQ(98, messages.at(1).data1);
+    EXPECT_EQ(0x34, messages.at(1).data2);
+
+    EXPECT_EQ(protocol::midi::MessageType::ControlChange, messages.at(2).type);
+    EXPECT_EQ(1, messages.at(2).channel);
+    EXPECT_EQ(6, messages.at(2).data1);
+    EXPECT_EQ(0x46, messages.at(2).data2);
+
+    EXPECT_EQ(protocol::midi::MessageType::ControlChange, messages.at(3).type);
+    EXPECT_EQ(1, messages.at(3).channel);
+    EXPECT_EQ(38, messages.at(3).data1);
+    EXPECT_EQ(0x45, messages.at(3).data2);
+}
+
 TEST_F(MIDITest, TestBackendSupportDefaultsToEnabled)
 {
     ASSERT_TRUE(_midi._hwaUsb.supported());

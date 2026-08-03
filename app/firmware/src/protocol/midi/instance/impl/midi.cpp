@@ -492,18 +492,18 @@ void Midi::send(const signaling::MidiIoSignal& event)
         send(signal);
     };
 
-    auto send_channel_voice = [&](auto builder)
+    auto send_channel_voice = [&](auto sender)
     {
         if (use_omni)
         {
             for (uint8_t channel = 1; channel <= MIDI_CHANNEL_COUNT; channel++)
             {
-                send_ump(builder(channel));
+                sender(channel);
             }
         }
         else
         {
-            send_ump(builder(channel));
+            sender(channel);
         }
     };
 
@@ -514,12 +514,12 @@ void Midi::send(const signaling::MidiIoSignal& event)
         send_channel_voice(
             [&](uint8_t channel)
             {
-                return zmidi::midi1::note_off(
+                send_ump(zmidi::midi1::note_off(
                     MIDI_GROUP,
                     to_zero_based_channel(channel),
                     event.index,
                     event.value,
-                    !_standard_note_off);
+                    !_standard_note_off));
             });
     }
     break;
@@ -529,11 +529,11 @@ void Midi::send(const signaling::MidiIoSignal& event)
         send_channel_voice(
             [&](uint8_t channel)
             {
-                return zmidi::midi1::note_on(
+                send_ump(zmidi::midi1::note_on(
                     MIDI_GROUP,
                     to_zero_based_channel(channel),
                     event.index,
-                    event.value);
+                    event.value));
             });
     }
     break;
@@ -543,11 +543,62 @@ void Midi::send(const signaling::MidiIoSignal& event)
         send_channel_voice(
             [&](uint8_t channel)
             {
-                return zmidi::midi1::control_change(
+                send_ump(zmidi::midi1::control_change(
                     MIDI_GROUP,
                     to_zero_based_channel(channel),
                     event.index,
-                    event.value);
+                    event.value));
+            });
+    }
+    break;
+
+    case MessageType::ControlChange14Bit:
+    {
+        send_channel_voice(
+            [&](uint8_t channel)
+            {
+                for (const auto& packet : zmidi::midi1::control_change_14bit(
+                         MIDI_GROUP,
+                         to_zero_based_channel(channel),
+                         event.index,
+                         event.value))
+                {
+                    send_ump(packet);
+                }
+            });
+    }
+    break;
+
+    case MessageType::Nrpn7Bit:
+    {
+        send_channel_voice(
+            [&](uint8_t channel)
+            {
+                for (const auto& packet : zmidi::midi1::nrpn_7bit(
+                         MIDI_GROUP,
+                         to_zero_based_channel(channel),
+                         event.index,
+                         static_cast<uint8_t>(event.value)))
+                {
+                    send_ump(packet);
+                }
+            });
+    }
+    break;
+
+    case MessageType::Nrpn14Bit:
+    {
+        send_channel_voice(
+            [&](uint8_t channel)
+            {
+                for (const auto& packet : zmidi::midi1::nrpn_14bit(
+                         MIDI_GROUP,
+                         to_zero_based_channel(channel),
+                         event.index,
+                         event.value))
+                {
+                    send_ump(packet);
+                }
             });
     }
     break;
@@ -557,10 +608,10 @@ void Midi::send(const signaling::MidiIoSignal& event)
         send_channel_voice(
             [&](uint8_t channel)
             {
-                return zmidi::midi1::program_change(
+                send_ump(zmidi::midi1::program_change(
                     MIDI_GROUP,
                     to_zero_based_channel(channel),
-                    event.index);
+                    event.index));
             });
     }
     break;
