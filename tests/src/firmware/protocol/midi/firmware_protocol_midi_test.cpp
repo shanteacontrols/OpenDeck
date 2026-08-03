@@ -199,6 +199,28 @@ TEST_F(MIDITest, Encoder14BitNrpnWritesParameterAndDataEntryControllers)
     EXPECT_EQ(0x45, messages.at(3).data2);
 }
 
+TEST_F(MIDITest, EncoderPitchBendWrites14BitValue)
+{
+    signaling::publish(signaling::MidiIoSignal{
+        .source          = signaling::IoEventSource::Encoder,
+        .component_index = 0,
+        .channel         = 1,
+        .index           = 0,
+        .value           = 0x1234,
+        .message         = protocol::midi::MessageType::PitchBend,
+    });
+    wait_for_signal_dispatch();
+
+    const auto& messages = _midi._hwaUsb._writeParser.written_messages();
+
+    ASSERT_EQ(1, _midi._hwaUsb._writeParser.total_written_channel_messages());
+    ASSERT_EQ(1, messages.size());
+
+    EXPECT_EQ(protocol::midi::MessageType::PitchBend, messages.at(0).type);
+    EXPECT_EQ(1, messages.at(0).channel);
+    EXPECT_EQ(0x1234, messages.at(0).data2);
+}
+
 TEST_F(MIDITest, TestBackendSupportDefaultsToEnabled)
 {
     ASSERT_TRUE(_midi._hwaUsb.supported());

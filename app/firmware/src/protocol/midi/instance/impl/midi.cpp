@@ -603,6 +603,19 @@ void Midi::send(const signaling::MidiIoSignal& event)
     }
     break;
 
+    case MessageType::PitchBend:
+    {
+        send_channel_voice(
+            [&](uint8_t channel)
+            {
+                send_ump(zmidi::midi1::pitch_bend(
+                    MIDI_GROUP,
+                    to_zero_based_channel(channel),
+                    event.value));
+            });
+    }
+    break;
+
     case MessageType::ProgramChange:
     {
         send_channel_voice(
