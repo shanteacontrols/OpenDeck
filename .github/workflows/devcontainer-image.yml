@@ -33,7 +33,7 @@ jobs:
         run: |
           set -euo pipefail
           echo "name=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/opendeck-devcontainer" >> "${GITHUB_OUTPUT}"
-          echo "tag=ci-${{ hashFiles('.devcontainer/Dockerfile', '.devcontainer/devcontainer.json', '.devcontainer/ci/devcontainer.json', '.dockerignore', 'west.yml', 'zephyr/west/**/*.yml') }}" >> "${GITHUB_OUTPUT}"
+          echo "tag=ci-${{ hashFiles('.devcontainer/Dockerfile', '.devcontainer/devcontainer.json', '.dockerignore', 'west.yml', 'zephyr/west/**/*.yml') }}" >> "${GITHUB_OUTPUT}"
       - name: Check image
         id: image-exists
         run: |
