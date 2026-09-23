@@ -11,11 +11,6 @@
             "source": "/dev",
             "target": "/dev",
             "type": "bind"
-        },
-        {
-            "source": "${localEnv:HOME}/.gitconfig",
-            "target": "/etc/gitconfig",
-            "type": "bind"
         }
     ],
     "containerUser": "ubuntu",
