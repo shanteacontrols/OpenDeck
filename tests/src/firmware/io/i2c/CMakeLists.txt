@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.28.0)
 include($ENV{ZENV_PROJECT_ROOT}/cmake/opendeck_test_suite.cmake)
 opendeck_test_bootstrap()
 

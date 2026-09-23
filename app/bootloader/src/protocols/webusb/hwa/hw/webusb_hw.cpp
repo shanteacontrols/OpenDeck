@@ -133,27 +133,34 @@ namespace
         '0',
     };
 
-    static int webusb_to_host_cb(const usbd_context* const,
-                                 const usb_setup_packet* const setup,
-                                 net_buf* const                buffer)
+    static net_buf* webusb_to_host_cb(const usbd_context* const     context,
+                                      const usb_setup_packet* const setup)
     {
         constexpr uint8_t WEBUSB_REQ_GET_URL = 0x02U;
 
         if (setup->wIndex != WEBUSB_REQ_GET_URL)
         {
-            return -ENOTSUP;
+            return nullptr;
         }
 
         const uint8_t index = USB_GET_DESCRIPTOR_INDEX(setup->wValue);
 
         if (index != WEBUSB_LANDING_PAGE)
         {
-            return -ENOTSUP;
+            return nullptr;
         }
 
-        net_buf_add_mem(buffer, &webusb_url, MIN(net_buf_tailroom(buffer), sizeof(webusb_url)));
+        const auto length = MIN(static_cast<size_t>(setup->wLength), sizeof(webusb_url));
+        auto*      buffer = usbd_ep_ctrl_data_in_alloc(context, length);
 
-        return 0;
+        if (buffer == nullptr)
+        {
+            return nullptr;
+        }
+
+        net_buf_add_mem(buffer, &webusb_url, length);
+
+        return buffer;
     }
 
     USBD_DESC_BOS_VREQ_DEFINE(bootloader_webusb_bos,
@@ -477,7 +484,7 @@ namespace
         return 0;
     }
 
-    void* get_desc(usbd_class_data* const, const usbd_speed speed)
+    const void* get_desc(usbd_class_data* const, const usbd_speed speed)
     {
         if (speed == USBD_SPEED_HS)
         {

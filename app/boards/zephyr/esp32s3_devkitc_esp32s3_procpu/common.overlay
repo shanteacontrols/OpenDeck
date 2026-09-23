@@ -27,6 +27,8 @@
 };
 
 &flash0 {
+    reg = <0x0 DT_SIZE_M(16)>;
+    ranges = <0x0 0x0 DT_SIZE_M(16)>;
     /delete-node/ partitions;
 
     partitions {
@@ -80,6 +82,10 @@
             reg = <0x001c0000 0x00100000>;
         };
     };
+};
+
+&psram0 {
+    size = <DT_SIZE_M(8)>;
 };
 
 / {

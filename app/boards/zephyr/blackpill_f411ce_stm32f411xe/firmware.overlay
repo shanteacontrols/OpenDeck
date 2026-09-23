@@ -10,13 +10,17 @@
     pinctrl-names = "default";
 };
 
+&adc123_common {
+    st,adc-prescaler = <4>;
+    status = "okay";
+};
+
 &adc1 {
     pinctrl-0 = <&adc1_in1_pa1
                  &adc1_in2_pa2
                  &adc1_in3_pa3
                  &adc1_in9_pb1>;
     pinctrl-names = "default";
-    st,adc-prescaler = <4>;
     status = "okay";
 
     #address-cells = <1>;

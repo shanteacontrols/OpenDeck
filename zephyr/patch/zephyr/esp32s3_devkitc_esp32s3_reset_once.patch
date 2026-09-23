@@ -1,11 +1,11 @@
 diff --git a/boards/espressif/esp32s3_devkitc/board.yml b/boards/espressif/esp32s3_devkitc/board.yml
-index 7a366e8c2ad..d1fdb858a46 100644
+index ae79c9cef..6d7f8bded 100644
 --- a/boards/espressif/esp32s3_devkitc/board.yml
 +++ b/boards/espressif/esp32s3_devkitc/board.yml
-@@ -4,3 +4,13 @@ board:
-   vendor: espressif
-   socs:
-   - name: esp32s3
+@@ -7,3 +7,13 @@ board:
+     variants:
+     - name: qemu
+       cpucluster: procpu
 +
 +runners:
 +  run_once:

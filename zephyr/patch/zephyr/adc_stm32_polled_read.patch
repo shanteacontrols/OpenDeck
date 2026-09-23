@@ -1,8 +1,8 @@
 diff --git a/drivers/adc/adc_stm32.c b/drivers/adc/adc_stm32.c
-index f8a9277159f..f9c8b8ffc98 100644
+index 770ac4fc9..6a78f27d5 100644
 --- a/drivers/adc/adc_stm32.c
 +++ b/drivers/adc/adc_stm32.c
-@@ -245,6 +245,8 @@ struct adc_stm32_data {
+@@ -235,6 +235,8 @@ struct adc_sub_stm32_data {
  	adc_data_size_t *repeat_buffer;
  
  	uint8_t resolution;
@@ -11,7 +11,7 @@ index f8a9277159f..f9c8b8ffc98 100644
  	uint32_t channels;
  	uint8_t channel_count;
  	uint8_t samples_count;
-@@ -1174,12 +1176,10 @@ static int start_inj_read(const struct device *dev, const struct adc_sequence *s
+@@ -1212,12 +1214,10 @@ static int start_inj_read(const struct device *dev, const struct adc_sequence *s
  }
  #endif /* CONFIG_ADC_STM32_INJECTED_CHANNELS */
  
@@ -19,13 +19,13 @@ index f8a9277159f..f9c8b8ffc98 100644
 +static int prepare_read(const struct device *dev,
  		      const struct adc_sequence *sequence)
  {
--	const struct adc_stm32_cfg *config = dev->config;
- 	struct adc_stm32_data *data = dev->data;
+-	const struct adc_sub_stm32_cfg *config = dev->config;
+ 	struct adc_sub_stm32_data *data = dev->data;
 -	ADC_TypeDef *adc = config->base;
  	int err;
  
  	data->buffer = sequence->buffer;
-@@ -1208,14 +1208,18 @@ static int start_read(const struct device *dev,
+@@ -1246,14 +1246,18 @@ static int start_read(const struct device *dev,
  	}
  #endif /* DT_HAS_COMPAT_STATUS_OKAY(st_stm32f1_adc) && !CONFIG_ADC_STM32_DMA */
  
@@ -50,7 +50,7 @@ index f8a9277159f..f9c8b8ffc98 100644
  	err = set_sequencer(dev);
  	if (err < 0) {
  		LOG_ERR("Error setting the ADC sequencer");
-@@ -1254,6 +1258,175 @@ static int start_read(const struct device *dev,
+@@ -1299,6 +1303,176 @@ static int start_read(const struct device *dev,
  #endif
  	}
  
@@ -60,8 +60,9 @@ index f8a9277159f..f9c8b8ffc98 100644
 +static int start_read_polled(const struct device *dev,
 +			     const struct adc_sequence *sequence)
 +{
-+	const struct adc_stm32_cfg *config = dev->config;
-+	struct adc_stm32_data *data = dev->data;
++	const struct adc_sub_stm32_cfg *config = dev->config;
++	const struct adc_stm32_cfg *parent_config = adc_stm32_get_parent_cfg(config);
++	struct adc_sub_stm32_data *data = dev->data;
 +	ADC_TypeDef *adc = config->base;
 +	int err;
 +
@@ -98,24 +99,24 @@ index f8a9277159f..f9c8b8ffc98 100644
 +			return err;
 +		}
 +
-+#if ANY_ADC_HAS_CHANNEL_PRESELECTION && !defined(CONFIG_ADC_STM32_INJECTED_CHANNELS)
++#if ADC_STM32_DT_ANY_INST_HAS_CHANNEL_PRESELECTION && !defined(CONFIG_ADC_STM32_INJECTED_CHANNELS)
 +		err = adc_stm32_preselection_setup(dev, channel_id);
 +		if (err < 0) {
 +			LOG_ERR("Error setting preselection register");
 +			return err;
 +		}
-+#endif /* ANY_ADC_HAS_CHANNEL_PRESELECTION */
++#endif /* ADC_STM32_DT_ANY_INST_HAS_CHANNEL_PRESELECTION */
 +
-+#if ANY_ADC_SEQUENCER_TYPE_IS(SEQUENCER_PROGRAMMABLE)
-+		if (config->sequencer_type == SEQUENCER_PROGRAMMABLE) {
++#if ADC_STM32_DT_ANY_INST_HAS_SEQUENCER_TYPE(SEQUENCER_PROGRAMMABLE)
++		if (parent_config->sequencer_type == SEQUENCER_PROGRAMMABLE) {
 +			LL_ADC_REG_SetSequencerRanks(adc, table_rank[0],
 +					     STM32_ADC_DECIMAL_NB_TO_CHANNEL(channel_id));
 +			LL_ADC_REG_SetSequencerLength(adc, table_seq_len[0]);
 +		}
-+#endif /* ANY_ADC_SEQUENCER_TYPE_IS(SEQUENCER_PROGRAMMABLE) */
++#endif /* ADC_STM32_DT_ANY_INST_HAS_SEQUENCER_TYPE(SEQUENCER_PROGRAMMABLE) */
 +
-+#if ANY_ADC_SEQUENCER_TYPE_IS(SEQUENCER_FIXED)
-+		if (config->sequencer_type == SEQUENCER_FIXED) {
++#if ADC_STM32_DT_ANY_INST_HAS_SEQUENCER_TYPE(SEQUENCER_FIXED)
++		if (parent_config->sequencer_type == SEQUENCER_FIXED) {
 +			LL_ADC_REG_SetSequencerChannels(adc,
 +						 STM32_ADC_DECIMAL_NB_TO_CHANNEL(channel_id));
 +#ifdef LL_ADC_FLAG_CCRDY
@@ -124,7 +125,7 @@ index f8a9277159f..f9c8b8ffc98 100644
 +			LL_ADC_ClearFlag_CCRDY(adc);
 +#endif /* LL_ADC_FLAG_CCRDY */
 +		}
-+#endif /* ANY_ADC_SEQUENCER_TYPE_IS(SEQUENCER_FIXED) */
++#endif /* ADC_STM32_DT_ANY_INST_HAS_SEQUENCER_TYPE(SEQUENCER_FIXED) */
 +
 +#if DT_HAS_COMPAT_STATUS_OKAY(st_stm32f1_adc) || DT_HAS_COMPAT_STATUS_OKAY(st_stm32f4_adc)
 +		LL_ADC_SetSequencersScanMode(adc, LL_ADC_SEQ_SCAN_ENABLE);
@@ -213,8 +214,8 @@ index f8a9277159f..f9c8b8ffc98 100644
 +static int start_read(const struct device *dev,
 +		      const struct adc_sequence *sequence)
 +{
-+	const struct adc_stm32_cfg *config = dev->config;
-+	struct adc_stm32_data *data = dev->data;
++	const struct adc_sub_stm32_cfg *config = dev->config;
++	struct adc_sub_stm32_data *data = dev->data;
 +	ADC_TypeDef *adc = config->base;
 +	int err;
 +
@@ -226,7 +227,7 @@ index f8a9277159f..f9c8b8ffc98 100644
  	/*
  	 * Make sure the ADC is enabled as it might have been disabled earlier
  	 * to set the resolution, to set the oversampling or to perform the
-@@ -1478,10 +1651,14 @@ static int adc_stm32_read(const struct device *dev,
+@@ -1526,10 +1700,14 @@ static int adc_stm32_read(const struct device *dev,
  		return -EINVAL;
  	}
  	ctx = is_injected ? &data->inj_ctx : &data->ctx;

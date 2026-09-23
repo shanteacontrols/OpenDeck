@@ -39,6 +39,12 @@
     };
 };
 
+&adc123_common {
+    st,adc-clock-source = "SYNC";
+    st,adc-prescaler = <4>;
+    status = "okay";
+};
+
 &adc1 {
     pinctrl-0 = <&adc1_in0_pa0
                  &adc1_in3_pa3
@@ -50,8 +56,6 @@
                  &adc1_in12_pc2
                  &adc1_in13_pc3>;
     pinctrl-names = "default";
-    st,adc-clock-source = "SYNC";
-    st,adc-prescaler = <4>;
     status = "okay";
 
     #address-cells = <1>;
@@ -140,8 +144,6 @@
                  &adc3_in7_pf9
                  &adc3_in8_pf10>;
     pinctrl-names = "default";
-    st,adc-clock-source = "SYNC";
-    st,adc-prescaler = <4>;
     status = "okay";
 
     #address-cells = <1>;

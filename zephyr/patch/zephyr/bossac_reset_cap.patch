@@ -49,10 +49,10 @@ index c29e0dabeba..abc4b4a4999 100644
          self.ensure_output('bin')
 -        cmd_flash = [self.bossac, '-p', self.port, '-R', '-w', '-v',
 -                     '-b', self.cfg.bin_file]
-+        cmd_flash = [self.bossac, '-p', self.port, '-w', '-v', '-b',
-+                     self.cfg.bin_file]
++        cmd_flash = [self.bossac, '-p', self.port]
 +        if self.reset:
 +            cmd_flash += ['-R']
++        cmd_flash += ['-w', '-v', '-b', self.cfg.bin_file]
  
          if self.erase:
              cmd_flash += ['-e']

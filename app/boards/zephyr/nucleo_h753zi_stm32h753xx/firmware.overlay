@@ -41,6 +41,12 @@
     };
 };
 
+&adc12_common {
+    st,adc-clock-source = "ASYNC";
+    st,adc-prescaler = <4>;
+    status = "okay";
+};
+
 &adc1 {
     clocks = <&rcc STM32_CLOCK(AHB1, 5)>,
              <&rcc STM32_SRC_PLL2_P ADC_SEL(0)>;
@@ -55,8 +61,6 @@
                  &adc1_inp2_pf11
                  &adc1_inp6_pf12>;
     pinctrl-names = "default";
-    st,adc-clock-source = "ASYNC";
-    st,adc-prescaler = <4>;
     status = "okay";
 
     #address-cells = <1>;
@@ -150,8 +154,6 @@
                  &adc3_inp2_pf9
                  &adc3_inp6_pf10>;
     pinctrl-names = "default";
-    st,adc-clock-source = "ASYNC";
-    st,adc-prescaler = <4>;
     status = "okay";
 
     #address-cells = <1>;

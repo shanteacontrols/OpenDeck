@@ -17,13 +17,13 @@
 };
 
 &mac {
-    pinctrl-0 = <&eth_rxd0_pc4
-                 &eth_rxd1_pc5
-                 &eth_ref_clk_pa1
-                 &eth_crs_dv_pa7
-                 &eth_tx_en_pg11
-                 &eth_txd0_pg13
-                 &eth_txd1_pb15>;
+    pinctrl-0 = <&eth_rmii_rxd0_pc4
+                 &eth_rmii_rxd1_pc5
+                 &eth_rmii_ref_clk_pa1
+                 &eth_rmii_crs_dv_pa7
+                 &eth_rmii_tx_en_pg11
+                 &eth_rmii_txd0_pg13
+                 &eth_rmii_txd1_pb15>;
     pinctrl-names = "default";
     phy-connection-type = "rmii";
     phy-handle = <&eth_phy>;
@@ -39,6 +39,12 @@
     };
 };
 
+&adc12_common {
+    st,adc-clock-source = "ASYNC";
+    st,adc-prescaler = <6>;
+    status = "okay";
+};
+
 &adc1 {
     pinctrl-0 = <&adc1_inp0_pa0
                  &adc1_inp2_pf11
@@ -52,8 +58,6 @@
                  &adc1_inp18_pa4
                  &adc1_inp19_pa5>;
     pinctrl-names = "default";
-    st,adc-clock-source = "ASYNC";
-    st,adc-prescaler = <6>;
     status = "okay";
 
     #address-cells = <1>;
@@ -151,8 +155,6 @@
 &adc2 {
     pinctrl-0 = <&adc2_inp2_pf13 &adc2_inp6_pf14>;
     pinctrl-names = "default";
-    st,adc-clock-source = "ASYNC";
-    st,adc-prescaler = <6>;
     status = "okay";
 
     #address-cells = <1>;

@@ -12,7 +12,7 @@ manifest:
   projects:
     - name: zephyr
       remote: zephyrproject-rtos
-      revision: 769c4f2846db675bc5c584b6d35551ad239c72da
+      revision: 70be2ff0b565a3313128f5577f51cfeb3ebcf602
       import:
         name-allowlist:
           - cmsis
@@ -38,7 +38,7 @@ manifest:
       submodules: true
     - name: zlibs
       remote: paradajz
-      revision: 3499a36aa925b5929f7f74fafe7ad12da75a7b18
+      revision: 13c8abf1f2bff7379d32f495d634466e445a8cdf
       path: modules/zlibs
     - name: vl53l4cx
       remote: stm32duino

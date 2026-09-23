@@ -13,8 +13,6 @@
 /delete-node/ &phy;
 
 &mdio {
-    ref-clk-output-gpios = <&gpio0 17 GPIO_ACTIVE_HIGH>;
-
     phy: ethernet-phy@0 {
         compatible = "ethernet-phy";
         status = "okay";

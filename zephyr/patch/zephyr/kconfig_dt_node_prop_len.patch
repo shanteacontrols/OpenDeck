@@ -1,5 +1,5 @@
 diff --git a/scripts/kconfig/kconfigfunctions.py b/scripts/kconfig/kconfigfunctions.py
-index 0bf09c2215d..b153d366a1b 100644
+index f97c8c85e..eb2a39e33 100644
 --- a/scripts/kconfig/kconfigfunctions.py
 +++ b/scripts/kconfig/kconfigfunctions.py
 @@ -321,6 +321,20 @@ def _node_ph_array_prop(node, prop, index, cell, unit=None):
@@ -23,49 +23,32 @@ index 0bf09c2215d..b153d366a1b 100644
  def _dt_chosen_reg_addr(kconf, chosen, index=0, unit=None):
      """
      This function takes a 'chosen' property and treats that property as a path
-@@ -663,6 +677,41 @@ def dt_nodelabel_has_prop(kconf, _, label, prop):
+@@ -688,6 +702,24 @@ def dt_nodelabel_has_prop(kconf, _, label, prop):
  
-     return _dt_node_has_prop_generic(edt.label2node.get, label, prop)
+     return ret
  
 +def dt_node_prop_len(kconf, _, path, prop):
-+    """
-+    This function takes a 'path' and property name ('prop') and returns the
-+    number of entries in the devicetree property. Missing nodes and missing
-+    properties return 0. Scalar properties return 1.
-+    """
++    """Return the number of property entries, or zero for a missing property."""
 +    if doc_mode or edt is None:
 +        return "0"
-+
 +    try:
 +        node = edt.get_node(path)
 +    except edtlib.EDTError:
 +        return "0"
-+
 +    return str(_node_prop_len(node, prop))
++
 +
 +def dt_nodelabel_prop_len(kconf, _, label, prop):
-+    """
-+    This function takes a node label and property name ('prop') and returns
-+    the number of entries in the devicetree property. Missing nodes and
-+    missing properties return 0. Scalar properties return 1.
-+    """
++    """Return the number of property entries for a node label."""
 +    if doc_mode or edt is None:
 +        return "0"
++    return str(_node_prop_len(edt.label2node.get(label), prop))
 +
-+    try:
-+        node = edt.label2node.get(label)
-+    except edtlib.EDTError:
-+        return "0"
-+
-+    if node is None:
-+        return "0"
-+
-+    return str(_node_prop_len(node, prop))
 +
  def dt_node_int_prop(kconf, name, path, prop, unit=None):
      """
      This function takes a 'path' and property name ('prop') looks for an EDT
-@@ -1282,6 +1328,8 @@ functions = {
+@@ -1394,6 +1426,8 @@ functions = {
          "dt_chosen_bool_prop": (dt_chosen_bool_prop, 2, 2),
          "dt_node_has_prop": (dt_node_has_prop, 2, 2),
          "dt_nodelabel_has_prop": (dt_nodelabel_has_prop, 2, 2),
